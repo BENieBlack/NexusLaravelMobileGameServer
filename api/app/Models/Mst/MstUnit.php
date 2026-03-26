@@ -1,0 +1,64 @@
+<?php
+
+namespace App\Models\Mst;
+
+class MstUnit extends _BaseMst
+{
+    public $table = 'mst_unit';
+
+    public $incrementing = false;
+    protected $keyType = 'string';
+
+    protected $fillable = [
+        'deploy_key',
+        'id',
+        'type',
+        'element',
+        'rarity',
+        'grade',
+        'hp',
+        'attack',
+        'defense',
+        'speed',
+    ];
+
+    /**
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'deploy_key' => 'integer',
+        'grade' => 'integer',
+        'hp' => 'integer',
+        'attack' => 'integer',
+        'defense' => 'integer',
+        'speed' => 'integer',
+        'created_at' => 'immutable_datetime',
+        'updated_at' => 'immutable_datetime',
+    ];
+
+    public $timestamps = true;
+
+    /**
+     * レスポンス用配列に変換
+     * 
+     * Note: 主キーが文字列型（semantic ID like "unit_001"）のため、変換不要
+     * 
+     * @return array
+     */
+    public function toResponseArray(): array
+    {
+        return parent::toResponseArray();
+    }
+
+    // ===== Getter Methods =====
+
+    /**
+     * レアリティを取得
+     * 
+     * @return string
+     */
+    public function getRarity(): string
+    {
+        return $this->rarity;
+    }
+}

@@ -1,0 +1,1699 @@
+# API Design Guidelines
+
+### Log Model の特別なルール
+
+Log Model（`App\Models\Log\`）は、insert onlyのログテーブルを扱うため、以下の特別なルールがあります。
+
+#### 基底クラス: `_BaseLog`
+
+```php
+abstract class _BaseLog extends Model implements _BaseLogInterface
+{
+    protected $connection = 'log';  // log DB接続を使用
+    const UPDATED_AT = null;        // updated_atを無効化（ログは更新されない）
+}
+```
+
+**主要な特徴**:
+- `$connection = 'log'`: 専用のログデータベース接続を使用
+- `const UPDATED_AT = null`: ログは更新されないため、`updated_at`カラムを無効化
+- すべてのLog Modelはこの基底クラスを継承する
+
+#### 実装ルール
+
+**✅ 含めるべき内容**:
+- `$casts`: ビジネスカラムと`system_at`のみ
+- `$fillable`: ビジネスカラムと`system_at`のみ
+- `_BaseLog`を継承
+
+**❌ 含めてはいけない内容**:
+- `$casts`に`created_at`, `updated_at`を含めない（Laravelが自動キャスト/存在しない）
+- `$fillable`に`created_at`, `updated_at`を含めない（自動設定/存在しない）
+
+#### 日時カラムの仕様
+
+| カラム | 設定方法 | デバッグ時の日時変更との連動 | 用途 |
+|--------|---------|---------------------------|------|
+| `system_at` | APIから明示的に設定 | ✅ 連動する | ビジネスロジック用のタイムスタンプ |
+| `created_at` | MySQL `CURRENT_TIMESTAMP` | ❌ 連動しない | 実際の記録時刻 |
+| `updated_at` | なし（カラム自体が存在しない） | - | ログは更新されない |
+
+**重要**: デバッグ時に日時を変更する機能がある場合、`system_at`はその変更に連動しますが、`created_at`は実際の記録時刻を保持します。これにより、デバッグ時と実際の記録時刻の両方を追跡できます。
+
+#### 実装例: LogEquipment
+
+```php
+<?php
+
+namespace App\Models\Log;
+
+use App\Models\Log\Interfaces\_BaseLogInterface;
+
+class LogEquipment extends _BaseLog implements _BaseLogInterface
+{
+    protected $connection = 'log';  // 継承元で設定済みだが明示的に記載可能
+    protected $table = 'log_equipment';
+
+    // ✅ ビジネスカラムとsystem_atのみ
+    protected $casts = [
+        'sys_player_id' => 'integer',
+        'trx_equipment_id' => 'integer',
+        'mst_equipment_id' => 'integer',
+        'before_grade' => 'integer',
+        'after_grade' => 'integer',
+        'before_level' => 'integer',
+        'before_level_exp' => 'integer',
+        'after_level' => 'integer',
+        'after_level_exp' => 'integer',
+        'system_at' => 'datetime',  // デバッグ時の日時変更に連動
+    ];
+
+    // ✅ ビジネスカラムとsystem_atのみ
+    protected $fillable = [
+        'unique_request_id',
+        'sys_player_id',
+        'trx_equipment_id',
+        'mst_equipment_id',
+        'before_grade',
+        'after_grade',
+        'before_level',
+        'before_level_exp',
+        'after_level',
+        'after_level_exp',
+        'system_at',  // APIから明示的に設定
+    ];
+
+    // ❌ created_at, updated_atは含めない
+}
+```
+
+#### マイグレーションの例
+
+```php
+Schema::create('log_equipment', function (Blueprint $table) {
+    $table->id();
+    $table->string('unique_request_id', 36)->index();
+    $table->unsignedBigInteger('sys_player_id')->index();
+    $table->unsignedBigInteger('trx_equipment_id');
+    $table->unsignedInteger('mst_equipment_id');
+    $table->unsignedTinyInteger('before_grade');
+    $table->unsignedTinyInteger('after_grade');
+    $table->unsignedSmallInteger('before_level');
+    $table->unsignedInteger('before_level_exp');
+    $table->unsignedSmallInteger('after_level');
+    $table->unsignedInteger('after_level_exp');
+    $table->timestamp('system_at')->index();      // APIから設定
+    $table->timestamp('created_at')->useCurrent(); // MySQL自動設定
+    // updated_atカラムは作成しない
+});
+```
+
+#### チェックリスト
+
+Log Modelを実装・レビューする際は、以下を確認してください:
+
+- [ ] `_BaseLog`を継承している
+- [ ] `$connection = 'log'`が設定されている（継承元で設定済み）
+- [ ] `$casts`にビジネスカラムと`system_at`のみが含まれている
+- [ ] `$casts`に`created_at`, `updated_at`が含まれていない
+- [ ] `$fillable`にビジネスカラムと`system_at`のみが含まれている
+- [ ] `$fillable`に`created_at`, `updated_at`が含まれていない
+- [ ] マイグレーションで`updated_at`カラムを作成していない
+- [ ] マイグレーションで`created_at`に`useCurrent()`を設定している
+
+#### 既存のLog Model一覧
+
+このプロジェクトには以下のLog Modelが存在します:
+
+- `LogAccess` - アクセスログ
+- `LogPlayer` - プレイヤーレベル変更ログ
+- `LogItem` - アイテム増減ログ
+- `LogGacha` - ガチャ実行ログ
+- `LogUnit` - ユニット取得・強化ログ
+- `LogEquipment` - 装備取得・強化ログ
+- `LogInAppPurchase` - 課金ログ
+
+すべてのLog Modelは上記のルールに従って実装されています。
+
+
+### データベース一覧
+
+| データベース | コンテナ名 | ポート | 用途 | 接続名 |
+|------------|-----------|--------|------|--------|
+| admin | db-adm | 33060 | 管理画面用データ | `admin` |
+| tool | db-tol | 33061 | 運営ツール機能 | `tool` |
+| sys | db-sys | 33062 | システム管理（デプロイ、シャーディング） | `sys` |
+| mst | db-mst | 33063 | マスターデータ（キャラ、アイテム等） | `mst` |
+| log | db-log | 33064 | ログデータ | `log` |
+| trx1 | db-trx1 | 33065 | トランザクションデータ（シャード1） | `trx1` |
+| trx2 | db-trx2 | 33066 | トランザクションデータ（シャード2） | `trx2` |
+
+### データベースの役割
+
+#### admin データベース
+- 管理画面のユーザー、権限管理
+- 管理画面用のログ、監査証跡
+
+#### sys データベース
+- **システム全体の管理**: 全シャード共通の設定
+- **プレイヤーID採番**: `sys_player`テーブルで一元管理
+- **シャーディング管理**: どのプレイヤーがどのシャードに属するか
+- **デプロイ管理**: マスターデータとアセットのバージョン管理
+
+#### mst データベース
+- ゲームマスターデータ（キャラクター、アイテム、クエスト等）
+- 全シャード共通（読み取り専用）
+- `deploy_key`でバージョン管理
+
+#### log データベース
+- アクセスログ、エラーログ
+- プレイヤー行動ログ
+- 全シャードのログを集約
+
+#### trx1, trx2 データベース（シャード）
+- プレイヤーのトランザクションデータ（所持アイテム、進行状況等）
+- プレイヤーごとにシャードが割り当てられる
+- 水平分割により負荷分散
+
+## プレイヤー識別子の使い分け
+
+### 基本ルール
+
+**スマホアプリとのやりとりはuuidで行い、API内部のやりとりはidで行う**
+
+### 詳細
+
+#### 外部API（スマホアプリ ↔ API）
+
+- **使用する識別子**: `uuid` (string)
+- **理由**:
+  - セキュリティ: 連番のIDを公開すると総ユーザー数などが推測可能
+  - 予測不可能性: UUIDはランダムで推測が困難
+  - プライバシー保護: 内部IDを隠蔽
+  - 外部システム連携: グローバルに一意な識別子
+
+**例: APIレスポンス**
+```json
+{
+  "player": {
+    "uuid": "bccc489b-9f4f-4ebb-b63a-02fa9259c74d",
+    "name": "PlayerName",
+    "level": 10
+  }
+}
+```
+
+**例: APIリクエスト**
+```json
+POST /api/player/bccc489b-9f4f-4ebb-b63a-02fa9259c74d/items
+```
+
+#### 内部処理（API内部、DB操作）
+
+- **使用する識別子**: `id` (bigint)
+- **理由**:
+  - パフォーマンス: 数値型の検索・JOIN が高速
+  - ストレージ効率: bigint(8バイト) < UUID文字列(36バイト)
+  - インデックス効率: 数値型インデックスが効率的
+  - AUTO_INCREMENT: IDの自動採番が可能
+
+**例: 内部処理**
+```php
+// APIコントローラー層: UUIDで受け取る
+public function getPlayer(string $uuid)
+{
+    // UUIDからIDに変換
+    $player = SysPlayer::where('uuid', $uuid)->firstOrFail();
+    $playerId = $player->id;
+    
+    // 内部処理はIDで実行
+    $items = TrxItem::where('sys_player_id', $playerId)->get();
+    $units = TrxUnit::where('sys_player_id', $playerId)->get();
+    
+    // レスポンスはUUIDに変換
+    return response()->json([
+        'player' => [
+            'uuid' => $player->uuid,  // UUIDを返す
+            'name' => $player->name,
+        ],
+        'items' => $items,
+        'units' => $units,
+    ]);
+}
+```
+
+### データベース設計
+
+#### sys_player テーブル
+```sql
+CREATE TABLE sys_player (
+    id bigint PRIMARY KEY AUTO_INCREMENT,  -- 内部用ID（全シャード共通で一元採番）
+    uuid varchar(191) UNIQUE,               -- 外部API用UUID
+    my_id varchar(8) UNIQUE,                -- サポート用ID（8桁、紛らわしい文字除外）
+    name varchar(191) UNIQUE,               -- プレイヤー名
+    level int unsigned,
+    level_exp int unsigned,
+    rank int unsigned,
+    login_type enum('guest','password','sns'),
+    password varchar(191) NULL,
+    last_login_at datetime NULL,
+    created_at datetime DEFAULT CURRENT_TIMESTAMP,
+    updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+```
+
+#### トランザクションテーブル（trx_*）
+
+**設計原則**: 
+- プレイヤーIDは`sys_player`テーブルで一元採番
+- 不要なauto_incrementカラムは作成しない
+- 複合PRIMARY KEYで一意性を保証できる場合は、idカラムを持たない
+
+```sql
+-- 1. trx_player（1プレイヤー = 1レコード）
+CREATE TABLE trx_player (
+    sys_player_id bigint PRIMARY KEY,  -- idカラム不要
+    created_at datetime,
+    updated_at datetime
+);
+
+-- 2. trx_unit（同じキャラを複数所持可能）
+CREATE TABLE trx_unit (
+    id bigint PRIMARY KEY AUTO_INCREMENT,  -- idカラム必要（個別インスタンス管理）
+    sys_player_id bigint,
+    mst_unit_id varchar(191),
+    grade int unsigned,
+    level int unsigned,
+    skill1_level int unsigned DEFAULT 1,
+    skill2_level int unsigned DEFAULT 1,
+    skill3_level int unsigned DEFAULT 1,
+    skill4_level int unsigned DEFAULT 1,
+    skill5_level int unsigned DEFAULT 1,
+    created_at datetime,
+    updated_at datetime,
+    INDEX idx_sys_player_id_mst_unit_id (sys_player_id, mst_unit_id)
+);
+
+-- 3. trx_item（sys_player_id + mst_item_idでユニーク）
+CREATE TABLE trx_item (
+    sys_player_id bigint,               -- idカラム不要（複合PRIMARY KEY）
+    mst_item_id varchar(191),
+    amount int unsigned,
+    created_at datetime,
+    updated_at datetime,
+    PRIMARY KEY (sys_player_id, mst_item_id)
+);
+
+-- 4. trx_device（複数デバイス対応）
+CREATE TABLE trx_device (
+    sys_player_id bigint,               -- idカラム不要（複合PRIMARY KEY）
+    device_uuid varchar(191),
+    last_login_at datetime NULL,
+    created_at datetime,
+    updated_at datetime,
+    PRIMARY KEY (sys_player_id, device_uuid)
+);
+
+-- 5. trx_player_sns（1プレイヤー = 1SNSタイプ）
+CREATE TABLE trx_player_sns (
+    sys_player_id bigint,               -- idカラム不要（複合PRIMARY KEY）
+    sns_type enum('apple', 'google', 'x', 'facebook'),
+    sns_user_id varchar(191),
+    auth varchar(191),
+    created_at datetime,
+    updated_at datetime,
+    PRIMARY KEY (sys_player_id, sns_type),
+    INDEX idx_sns_type_sns_user_id (sns_type, sns_user_id)  -- 逆引き用
+);
+```
+
+**idカラムの必要性判断**:
+
+| 条件 | idカラム | 例 |
+|-----|---------|---|
+| 1レコード = 1プレイヤー | **不要** | trx_player |
+| 複合キーでユニーク | **不要** | trx_item, trx_device, trx_player_sns |
+| 同じ組み合わせで複数レコード必要 | **必要** | trx_unit（同じキャラを複数所持） |
+
+**メリット**:
+1. 不要なカラム削減 → ストレージ効率化
+2. 複合PRIMARY KEYで一意性保証 → ユニーク制約が自明
+3. シャード統合時のIDコンフリクト回避
+
+### 実装パターン
+
+#### パターン1: コントローラー層での変換
+
+```php
+class PlayerController extends Controller
+{
+    public function show(string $uuid)
+    {
+        // 1. UUIDからプレイヤーを取得
+        $player = SysPlayer::where('uuid', $uuid)->firstOrFail();
+        
+        // 2. 内部処理はIDを使用
+        $this->playerService->updatePlayerData($player->id);
+        
+        // 3. レスポンスはUUIDを含める
+        return response()->json([
+            'uuid' => $player->uuid,
+            'name' => $player->name,
+        ]);
+    }
+}
+```
+
+#### パターン2: サービス層での分離
+
+```php
+class PlayerService
+{
+    // サービス層はIDで処理
+    public function getPlayerData(int $playerId): array
+    {
+        $player = SysPlayer::findOrFail($playerId);
+        $items = TrxItem::where('sys_player_id', $playerId)->get();
+        
+        return [
+            'player' => $player,
+            'items' => $items,
+        ];
+    }
+}
+```
+
+### セキュリティ上の注意
+
+1. **UUIDのみを公開**: 連番IDは絶対に外部に公開しない
+2. **予測不可能**: UUID v4はランダム生成で推測不可能
+3. **列挙攻撃の防止**: 連番IDと異なり、総ユーザー数の推測が困難
+4. **内部IDの隠蔽**: データベースの内部構造を隠蔽
+
+### パフォーマンス最適化
+
+1. **UUIDにインデックス**: 外部からの検索用
+   ```sql
+   CREATE INDEX idx_uuid ON sys_player(uuid);
+   ```
+
+2. **IDは PRIMARY KEY**: 内部結合は数値IDで高速化
+   ```sql
+   -- 高速: 数値型のJOIN
+   SELECT * FROM trx_item WHERE sys_player_id = 123;
+   
+   -- 低速: 文字列型のJOIN（使わない）
+   SELECT * FROM trx_item WHERE player_uuid = 'bccc489b-...';
+   ```
+
+#### サポート対応（カスタマーサポート）
+
+- **使用する識別子**: `my_id` (string, 8文字)
+- **理由**:
+  - 問い合わせ時の識別: ユーザーが口頭で伝えやすい
+  - 紛らわしい文字除外: I, l, O, 0を除外（58文字セット）
+  - 短くて覚えやすい: 8桁で十分なユニーク性（128兆パターン）
+  - 衝突確率: 約113万ユーザーで1%以下
+
+**文字セット**:
+- 大文字: `ABCDEFGHJKLMNPQRSTUVWXYZ` (24文字 - IとOを除外)
+- 小文字: `abcdefghijkmnopqrstuvwxyz` (25文字 - lを除外)
+- 数字: `123456789` (9文字 - 0を除外)
+
+**例: サポート画面**
+```
+プレイヤーID: Ab3Xy9Kp
+お問い合わせ時にこのIDをお伝えください
+```
+
+**例: サポートツールでの検索**
+```php
+// サポート担当者がmy_idで検索
+$player = SysPlayer::findByMyId('Ab3Xy9Kp');
+```
+
+### まとめ
+
+| 用途 | 識別子 | 型 | 用途例 |
+|-----|--------|----|----|
+| 外部API | `uuid` | string (36文字) | APIリクエスト/レスポンス |
+| 内部処理 | `id` | bigint | DB検索、JOIN、内部ロジック |
+| サポート対応 | `my_id` | string (8文字) | 問い合わせID、サポートツール |
+| 外部DB参照 | `sys_player_id` | bigint | trx_*, log_* テーブルの外部キー |
+
+**原則**: 境界（API層）で変換し、内部は効率的に、外部は安全に。
+
+## シャーディング設計
+
+### 基本方針
+
+**完全静的管理**: シャード接続情報は`config/database.php`で静的管理し、データベースには数値のみ保存。
+
+### シャーディングテーブル構造
+
+#### sys_sharding（シャーディング設定）
+```sql
+CREATE TABLE sys_sharding (
+    id int PRIMARY KEY AUTO_INCREMENT,
+    name varchar(191) UNIQUE,              -- 'player' など
+    strategy enum('hash','range','list'),  -- 分割戦略
+    status enum('active','inactive'),
+    created_at datetime,
+    updated_at datetime
+);
+```
+
+#### sys_sharding_node（シャードノード管理）
+```sql
+CREATE TABLE sys_sharding_node (
+    id int PRIMARY KEY AUTO_INCREMENT,
+    sharding_id int,                       -- sys_sharding.id
+    node_no int,                           -- 1, 2, 3... （接続名は trx{node_no}）
+    status enum('active','inactive'),
+    weight int,                            -- 負荷分散の重み
+    created_at datetime,
+    updated_at datetime
+);
+```
+
+**重要**: `node_no`は数値のみ（1, 2, 3...）。接続名は`trx{node_no}`で動的構築（例: `trx1`, `trx2`）。
+
+#### sys_sharding_node_player（プレイヤー割り当て）
+```sql
+CREATE TABLE sys_sharding_node_player (
+    sys_player_id bigint PRIMARY KEY,      -- プレイヤーID（1プレイヤー1ノード）
+    sharding_node_id int,                  -- sys_sharding_node.id
+    assigned_at datetime,
+    INDEX idx_sharding_node_id (sharding_node_id)
+);
+```
+
+### シャーディングの実装パターン
+
+```php
+// プレイヤーのシャードを取得
+$player = SysPlayer::findByUuid($uuid);
+$nodePlayer = SysShardingNodePlayer::findBySysPlayerId($player->id);
+$node = $nodePlayer->shardingNode;
+
+// 動的に接続名を構築
+$connectionName = $node->getTrxConnectionName(); // "trx1" or "trx2"
+
+// シャード固有のデータを取得
+$trxPlayer = TrxPlayer::on($connectionName)
+    ->where('sys_player_id', $player->id)
+    ->first();
+```
+
+### プレイヤーID採番の一元管理
+
+**設計思想**: 全シャード共通でプレイヤーIDを採番し、将来的なシャード統合時のIDコンフリクトを回避する。
+
+#### Before（旧設計 - 各シャードで独立採番）
+```sql
+-- 各シャードで独立してIDを採番（統合時に衝突リスク）
+trx1.trx_player: id=1, id=2, id=3...
+trx2.trx_player: id=1, id=2, id=3...  ← 統合時に衝突
+```
+
+#### After（新設計 - sysで一元採番）
+```sql
+-- sysで一元採番
+sys.sys_player: id=1, id=2, id=3, id=4, id=5, id=6...
+
+-- 各シャードのtrx_playerはsys_player_idをPRIMARY KEYとして使用
+trx1.trx_player: sys_player_id=1, sys_player_id=3, sys_player_id=5...
+trx2.trx_player: sys_player_id=2, sys_player_id=4, sys_player_id=6...
+```
+
+**メリット**:
+1. シャード間でIDが重複しない
+2. 将来のシャード統合が容易
+3. プレイヤーのシャード移動が可能
+4. グローバルにユニークなID体系
+
+## Deploy Key管理
+
+### Deploy Key仕様
+
+- **型**: `INT` (10桁)
+- **形式**: `YYYYMMDDN` (N=1日の中での連番)
+- **例**: 
+  - `202601011` = 2026年1月1日の1回目
+  - `202601012` = 2026年1月1日の2回目
+  - `202601021` = 2026年1月2日の1回目
+
+### マスターデータのバージョン管理
+
+全てのマスターテーブルに`deploy_key`カラムを追加し、デプロイ単位でバージョン管理を行う。
+
+```sql
+-- マスターテーブルの例
+CREATE TABLE mst_character (
+    id int PRIMARY KEY,
+    name varchar(191),
+    deploy_key int,                        -- デプロイキー
+    ...
+);
+```
+
+### デプロイ管理テーブル
+
+#### sys_deploy_master（マスターデータデプロイ履歴）
+```sql
+CREATE TABLE sys_deploy_master (
+    deploy_key int PRIMARY KEY,
+    version varchar(191),
+    status enum('pending','active','inactive'),
+    deployed_at datetime,
+    created_at datetime,
+    updated_at datetime
+);
+```
+
+#### sys_deploy_master_schedule（マスターデータデプロイスケジュール）
+```sql
+CREATE TABLE sys_deploy_master_schedule (
+    id int PRIMARY KEY AUTO_INCREMENT,
+    deploy_key int,
+    scheduled_at datetime,
+    status enum('pending','completed','cancelled'),
+    executed_at datetime NULL,
+    created_at datetime,
+    updated_at datetime
+);
+```
+
+#### sys_deploy_asset（アセットデプロイ履歴）
+```sql
+CREATE TABLE sys_deploy_asset (
+    deploy_key int PRIMARY KEY,
+    version varchar(191),
+    asset_url varchar(191),
+    status enum('pending','active','inactive'),
+    deployed_at datetime,
+    created_at datetime,
+    updated_at datetime
+);
+```
+
+#### sys_deploy_asset_schedule（アセットデプロイスケジュール）
+```sql
+CREATE TABLE sys_deploy_asset_schedule (
+    id int PRIMARY KEY AUTO_INCREMENT,
+    deploy_key int,
+    scheduled_at datetime,
+    status enum('pending','completed','cancelled'),
+    executed_at datetime NULL,
+    created_at datetime,
+    updated_at datetime
+);
+```
+
+### デプロイフロー
+
+1. **マスターデータ準備**: 新しい`deploy_key`でマスターデータを投入
+2. **スケジュール登録**: `sys_deploy_master_schedule`に公開予定を登録
+3. **自動切り替え**: スケジュール時刻に達したら`status='active'`に変更
+4. **クライアント更新**: アプリが新しい`deploy_key`のデータを参照
+
+## インデックス設計のベストプラクティス
+
+### UNIQUE制約とINDEXの関係
+
+**重要**: `unique()`制約を設定すると自動的にインデックスが作成されるため、追加で`index()`を呼ぶと重複インデックスが作成される。
+
+#### 悪い例（重複インデックス）
+```php
+Schema::create('sys_player', function (Blueprint $table) {
+    $table->string('uuid')->unique();  // sys_player_uuid_unique が作成される
+    $table->index('uuid');              // sys_player_uuid_index も作成（重複）
+});
+```
+
+#### 良い例
+```php
+Schema::create('sys_player', function (Blueprint $table) {
+    $table->string('uuid')->unique();  // これだけでインデックスも作成される
+});
+```
+
+### インデックス設計の原則
+
+1. **PRIMARY KEY**: 自動的にインデックス作成
+2. **UNIQUE制約**: 自動的にインデックス作成
+3. **外部キー**: 明示的に`index()`を追加
+4. **検索条件**: WHERE句で使うカラムに`index()`を追加
+5. **ソート**: ORDER BY句で使うカラムに`index()`を追加
+
+#### sys_player テーブルのインデックス例
+```php
+Schema::create('sys_player', function (Blueprint $table) {
+    $table->id();                           // PRIMARY KEY (自動)
+    $table->string('uuid')->unique();       // UNIQUE INDEX (自動)
+    $table->string('my_id', 8)->unique();   // UNIQUE INDEX (自動)
+    $table->string('name')->unique();       // UNIQUE INDEX (自動)
+    $table->datetime('last_login_at')->nullable();
+    $table->index('last_login_at');         // 検索/ソート用（明示的）
+});
+```
+
+**結果**:
+- `PRIMARY KEY`: `id`
+- `UNIQUE INDEX`: `uuid`, `my_id`, `name`
+- `INDEX`: `last_login_at`
+
+## Eloquentモデルの設計ルール
+
+### ディレクトリ構造
+
+モデルはデータベースごとにディレクトリを分けて管理する。
+
+```
+app/Models/
+├── Sys/          # sysデータベース用
+│   ├── SysPlayer.php
+│   ├── SysSharding.php
+│   ├── SysShardingNode.php
+│   └── ...
+├── Mst/          # mstデータベース用
+│   ├── MstCharacter.php
+│   ├── MstItem.php
+│   └── ...
+├── Trx/          # trx1, trx2データベース用
+│   ├── TrxPlayer.php
+│   ├── TrxItem.php
+│   ├── TrxUnit.php
+│   └── ...
+└── Log/          # logデータベース用
+```
+
+### データベース接続の指定
+
+#### 単一データベース用モデル（sys, mst, log）
+
+```php
+namespace App\Models\Sys;
+
+use Illuminate\Database\Eloquent\Model;
+
+class SysPlayer extends Model
+{
+    /**
+     * データベース接続名
+     */
+    protected $connection = 'sys';
+    
+    /**
+     * テーブル名
+     */
+    protected $table = 'sys_player';
+    
+    /**
+     * 複数代入可能な属性
+     */
+    protected $fillable = [
+        'uuid',
+        'my_id',
+        'name',
+        'level',
+        'level_exp',
+        'rank',
+        'login_type',
+        'password',
+        'last_login_at',
+    ];
+}
+```
+
+#### 動的接続切り替え用モデル（trx）
+
+trxモデルは、プレイヤーのシャード割り当てに応じて動的に接続を切り替える。
+
+```php
+namespace App\Models\Trx;
+
+use Illuminate\Database\Eloquent\Model;
+
+class TrxPlayer extends Model
+{
+    /**
+     * デフォルトのデータベース接続名
+     * 実行時に動的に切り替える
+     */
+    protected $connection = 'trx1';  // デフォルト
+    
+    /**
+     * テーブル名
+     */
+    protected $table = 'trx_player';
+    
+    /**
+     * プライマリキー
+     */
+    protected $primaryKey = 'sys_player_id';
+    
+    /**
+     * auto_incrementを使用しない
+     */
+    public $incrementing = false;
+    
+    /**
+     * プライマリキーの型
+     */
+    protected $keyType = 'int';
+}
+```
+
+**使用例**:
+```php
+// 動的に接続を切り替え
+$connectionName = 'trx2';
+$trxPlayer = TrxPlayer::on($connectionName)
+    ->where('sys_player_id', $playerId)
+    ->first();
+```
+
+### 複合PRIMARY KEYを持つモデル
+
+複合PRIMARY KEYを持つテーブル（trx_item, trx_device, trx_player_sns）のモデル設計。
+
+#### TrxItem（sys_player_id + mst_item_id）
+
+```php
+namespace App\Models\Trx;
+
+use Illuminate\Database\Eloquent\Model;
+
+class TrxItem extends Model
+{
+    protected $connection = 'trx1';
+    protected $table = 'trx_item';
+    
+    /**
+     * 複合PRIMARY KEYの場合、primaryKeyはnullまたは最初のキー
+     */
+    protected $primaryKey = null;
+    
+    /**
+     * auto_incrementを使用しない
+     */
+    public $incrementing = false;
+    
+    protected $fillable = [
+        'sys_player_id',
+        'mst_item_id',
+        'amount',
+    ];
+    
+    /**
+     * 複合キーでレコードを検索
+     */
+    public static function findByCompositeKey(int $sysPlayerId, string $mstItemId)
+    {
+        return self::where('sys_player_id', $sysPlayerId)
+            ->where('mst_item_id', $mstItemId)
+            ->first();
+    }
+    
+    /**
+     * 複合キーでレコードを作成または更新
+     */
+    public static function createOrUpdateByCompositeKey(int $sysPlayerId, string $mstItemId, int $amount)
+    {
+        return self::updateOrCreate(
+            [
+                'sys_player_id' => $sysPlayerId,
+                'mst_item_id' => $mstItemId,
+            ],
+            ['amount' => $amount]
+        );
+    }
+}
+```
+
+#### TrxDevice（sys_player_id + device_uuid）
+
+```php
+namespace App\Models\Trx;
+
+use Illuminate\Database\Eloquent\Model;
+
+class TrxDevice extends Model
+{
+    protected $connection = 'trx1';
+    protected $table = 'trx_device';
+    protected $primaryKey = null;
+    public $incrementing = false;
+    
+    protected $fillable = [
+        'sys_player_id',
+        'device_uuid',
+        'last_login_at',
+    ];
+    
+    public static function findByCompositeKey(int $sysPlayerId, string $deviceUuid)
+    {
+        return self::where('sys_player_id', $sysPlayerId)
+            ->where('device_uuid', $deviceUuid)
+            ->first();
+    }
+}
+```
+
+#### TrxPlayerSns（sys_player_id + sns_type）
+
+```php
+namespace App\Models\Trx;
+
+use Illuminate\Database\Eloquent\Model;
+
+class TrxPlayerSns extends Model
+{
+    protected $connection = 'trx1';
+    protected $table = 'trx_player_sns';
+    protected $primaryKey = null;
+    public $incrementing = false;
+    
+    protected $fillable = [
+        'sys_player_id',
+        'sns_type',
+        'sns_user_id',
+        'auth',
+    ];
+    
+    public static function findByCompositeKey(int $sysPlayerId, string $snsType)
+    {
+        return self::where('sys_player_id', $sysPlayerId)
+            ->where('sns_type', $snsType)
+            ->first();
+    }
+    
+    /**
+     * SNSユーザーIDで逆引き検索
+     */
+    public static function findBySnsUserId(string $snsType, string $snsUserId)
+    {
+        return self::where('sns_type', $snsType)
+            ->where('sns_user_id', $snsUserId)
+            ->first();
+    }
+}
+```
+
+### リレーションの定義
+
+外部キー制約がなくても、Eloquentのリレーションは通常通り定義できる。
+
+```php
+// TrxPlayer.php
+public function sysPlayer(): BelongsTo
+{
+    // 異なるデータベース間のリレーション
+    // 外部キー制約はないが、論理的な関連は定義可能
+    return $this->belongsTo(SysPlayer::class, 'sys_player_id', 'id');
+}
+
+// TrxItem.php
+public function mstItem(): BelongsTo
+{
+    return $this->belongsTo(MstItem::class, 'mst_item_id', 'id');
+}
+```
+
+**注意**: 異なるデータベース間のリレーション（例: trx → sys）は、JOIN が実行されず、N+1クエリになる可能性があるため、Eager Loadingには注意が必要。
+
+### UUID・my_idの自動生成
+
+SysPlayerモデルでUUIDとmy_idを自動生成する。
+
+```php
+namespace App\Models\Sys;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
+
+class SysPlayer extends Model
+{
+    protected $connection = 'sys';
+    protected $table = 'sys_player';
+    
+    /**
+     * モデルの起動メソッド
+     */
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::creating(function ($model) {
+            // UUIDの自動生成
+            if (empty($model->uuid)) {
+                $model->uuid = (string) Str::uuid();
+            }
+            
+            // my_idの自動生成
+            if (empty($model->my_id)) {
+                $model->my_id = self::generateUniqueMyId();
+            }
+        });
+    }
+    
+    /**
+     * ユニークなmy_idを生成
+     */
+    private static function generateUniqueMyId(int $maxAttempts = 10): string
+    {
+        $charset = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz123456789';
+        $charsetLength = strlen($charset);
+        $length = 8;
+
+        for ($attempt = 0; $attempt < $maxAttempts; $attempt++) {
+            $myId = '';
+            for ($i = 0; $i < $length; $i++) {
+                $myId .= $charset[random_int(0, $charsetLength - 1)];
+            }
+
+            // 衝突チェック
+            if (!self::where('my_id', $myId)->exists()) {
+                return $myId;
+            }
+        }
+
+        throw new \RuntimeException('Failed to generate unique my_id');
+    }
+    
+    /**
+     * my_idで検索
+     */
+    public static function findByMyId(string $myId)
+    {
+        return self::where('my_id', $myId)->first();
+    }
+}
+```
+
+### モデル設計のまとめ
+
+| 項目 | ルール | 例 |
+|-----|--------|---|
+| ディレクトリ | データベースごとに分離 | `Models/Sys/`, `Models/Trx/` |
+| $connection | 明示的に指定 | `protected $connection = 'sys';` |
+| $table | テーブル名を明示 | `protected $table = 'sys_player';` |
+| 複合PRIMARY KEY | `$primaryKey = null`, `$incrementing = false` | TrxItem, TrxDevice |
+| 外部キー参照 | `{参照先テーブル名}_id` | `sys_player_id`, `mst_item_id` |
+| リレーション | 外部キー制約なしでも定義可能 | `belongsTo()`, `hasMany()` |
+
+### Eloquent内部メソッドとの衝突回避
+
+Eloquentモデルでカスタムメソッドを作成する際、Eloquentの内部メソッドと衝突しないように注意する。
+
+#### 衝突例
+
+```php
+// ❌ 悪い例: Eloquentの内部メソッドと衝突
+class SysShardingNode extends Model
+{
+    // getConnectionName()はEloquentの内部メソッド
+    // モデル保存時に誤った接続が使用される
+    public function getConnectionName(): string
+    {
+        return "trx{$this->node_no}";
+    }
+}
+```
+
+**問題**: `getConnectionName()`はEloquentが使用する内部メソッドのため、モデル保存時にこのメソッドが呼ばれ、誤った接続が使用されてしまう。
+
+#### 解決策
+
+```php
+// ✅ 良い例: より具体的な名前で衝突を回避
+class SysShardingNode extends Model
+{
+    // より具体的な名前にして衝突を回避
+    public function getTrxConnectionName(): string
+    {
+        return "trx{$this->node_no}";
+    }
+}
+```
+
+#### 避けるべきメソッド名パターン
+
+Eloquentが使用する可能性があるメソッド名パターン:
+
+- `getConnection*()` - 接続関連
+- `getTable*()` - テーブル関連
+- `get*Attribute()` - アクセサ（Eloquentの機能として予約）
+- `set*Attribute()` - ミューテータ（Eloquentの機能として予約）
+- `scope*()` - クエリスコープ（Eloquentの機能として予約）
+
+**推奨**: カスタムメソッドには、より具体的で目的が明確な名前を付ける。
+
+```php
+// ✅ 良い例
+getTrxConnectionName()      // 具体的
+getShardConnectionName()    // 具体的
+buildConnectionName()       // 具体的
+
+// ❌ 避けるべき
+getConnectionName()         // Eloquent内部と衝突
+getConnection()             // Eloquent内部と衝突
+```
+
+---
+
+## API設計
+
+### ルーティング規約
+
+このプロジェクトでは、明確で保守しやすいAPIを提供するため、RESTful設計とアクションベースのルーティングを採用しています。
+
+#### RESTful設計の原則
+
+**✅ Good: アクションベースのルーティング**
+
+```php
+// 各アクションに専用のエンドポイントを定義
+Route::post('/auth/sign_in', [AuthController::class, 'signIn']);
+Route::post('/auth/sign_up', [AuthController::class, 'signUp']);
+Route::post('/auth/version', [AuthController::class, 'version']);
+```
+
+**メリット:**
+- 各エンドポイントの責務が明確
+- コントローラーメソッドが単一責任
+- ルーティングの可読性が高い
+- APIドキュメントが自動生成しやすい
+
+**❌ Bad: 一つのメソッドで全アクション処理**
+
+```php
+// すべてのアクションを一つのエンドポイントで処理
+Route::post('/auth/{action}', [AuthController::class, 'handle']);
+```
+
+**問題点:**
+- コントローラーメソッドが肥大化
+- ルーティングだけでは機能が分からない
+- バリデーションやミドルウェアの適用が複雑
+- テストが困難
+
+#### ルーティング規約
+
+1. **1つのエンドポイント = 1つのControllerメソッド**
+   - 各エンドポイントは専用のControllerメソッドにマッピング
+   - コントローラーメソッド名はエンドポイントのアクションを反映
+
+2. **HTTPメソッドを適切に使用**
+   - `GET`: リソースの取得（一覧、詳細）
+   - `POST`: リソースの作成、アクション実行
+   - `PUT`/`PATCH`: リソースの更新
+   - `DELETE`: リソースの削除
+
+3. **リソース名は複数形**
+   - 英語の場合: `/players`, `/items`, `/equipments`
+   - 日本語の場合: 状況に応じて単数形も許容
+
+#### URLパスの構造
+
+```
+/api/{resource}/{action}
+/api/{resource}/{id}
+/api/{resource}/{id}/{sub-resource}
+```
+
+**例:**
+
+```php
+// リソース + アクション
+Route::post('/auth/sign_in', [AuthController::class, 'signIn']);
+Route::post('/auth/sign_up', [AuthController::class, 'signUp']);
+
+// リソース + ID
+Route::get('/players/{id}', [PlayerController::class, 'show']);
+Route::put('/players/{id}', [PlayerController::class, 'update']);
+
+// リソース + ID + サブリソース
+Route::get('/players/{id}/items', [PlayerItemController::class, 'index']);
+```
+
+#### バージョニング
+
+将来的なAPIの変更に対応するため、プレフィックスでバージョン管理を行います。
+
+```php
+// v1 APIグループ
+Route::prefix('v1')->group(function () {
+    Route::post('/auth/version', [AuthController::class, 'version']);
+    Route::post('/auth/sign_in', [AuthController::class, 'signIn']);
+});
+
+// v2 APIグループ（将来的に）
+Route::prefix('v2')->group(function () {
+    Route::post('/auth/version', [V2\AuthController::class, 'version']);
+});
+```
+
+**バージョニング戦略:**
+- 破壊的な変更がある場合のみ新しいバージョンを作成
+- v1は後方互換性を保ちながら段階的に非推奨化
+- クライアントに十分な移行期間を提供
+
+### レスポンス形式
+
+このプロジェクトでは、一貫性のあるJSONレスポンス形式を採用しています。
+
+#### 成功レスポンス
+
+**基本構造:**
+
+```json
+{
+  "needs_update": true,
+  "latest_deploy_id": 1,
+  "latest_deploy_key": 1,
+  "master": {
+    "deploy_master_id": 3,
+    "hash": "430fe9e35ab4660c35127cb6d7425aaf9c2b4d3d1868a5845d1a96d9409a1736"
+  }
+}
+```
+
+**命名規約:**
+- スネークケース（`needs_update`, not `needsUpdate`）
+- JavaScriptのキャメルケースではなく、Laravelの標準に従う
+- クライアント側でキャメルケースに変換する場合は、フロントエンド側で対応
+
+**データ構造:**
+- null値は省略可能（クライアントの判定を簡潔に）
+- ネストは最大3階層まで（深すぎる階層は可読性を下げる）
+- 配列は空配列`[]`で返す（nullではない）
+
+**例: プレイヤー情報レスポンス**
+
+```json
+{
+  "player": {
+    "id": 12345,
+    "name": "Player Name",
+    "level": 50,
+    "exp": 123456
+  },
+  "items": [
+    {
+      "id": 1,
+      "name": "Potion",
+      "quantity": 10
+    }
+  ],
+  "equipments": []
+}
+```
+
+#### エラーレスポンス
+
+**基本構造:**
+
+```json
+{
+  "error": "Invalid action",
+  "message": "The requested action is not supported",
+  "code": "INVALID_ACTION"
+}
+```
+
+**フィールド:**
+- `error`: 短いエラー概要（英語）
+- `message`: 詳細なエラーメッセージ（ユーザー向け、日本語可）
+- `code`: エラーコード（大文字スネークケース）
+
+**エラーコードの例:**
+
+| コード | 説明 | HTTPステータス |
+|--------|------|----------------|
+| `INVALID_ACTION` | 無効なアクション | 400 |
+| `UNAUTHORIZED` | 認証エラー | 401 |
+| `FORBIDDEN` | 権限不足 | 403 |
+| `NOT_FOUND` | リソースが見つからない | 404 |
+| `VALIDATION_ERROR` | バリデーションエラー | 422 |
+| `SERVER_ERROR` | サーバー内部エラー | 500 |
+| `MAINTENANCE` | メンテナンス中 | 503 |
+
+**バリデーションエラーの詳細:**
+
+```json
+{
+  "error": "Validation failed",
+  "message": "The given data was invalid",
+  "code": "VALIDATION_ERROR",
+  "errors": {
+    "email": ["The email field is required."],
+    "password": ["The password must be at least 8 characters."]
+  }
+}
+```
+
+#### レスポンスの例
+
+**成功レスポンス（VersionResponse）**
+
+```json
+{
+  "needs_update": false,
+  "latest_deploy_id": 5,
+  "latest_deploy_key": 100,
+  "master": {
+    "deploy_master_id": 10,
+    "hash": "430fe9e35ab4660c35127cb6d7425aaf9c2b4d3d1868a5845d1a96d9409a1736"
+  },
+  "asset": {
+    "deploy_asset_id": 8,
+    "hash": "7f9a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t1u2v3w4x5y6z7a8b9c0d1e2"
+  }
+}
+```
+
+**エラーレスポンス（認証失敗）**
+
+```json
+{
+  "error": "Authentication failed",
+  "message": "Invalid credentials",
+  "code": "UNAUTHORIZED"
+}
+```
+
+#### HTTPステータスコードの使用
+
+| ステータス | 用途 | 例 |
+|-----------|------|---|
+| 200 | 成功 | データ取得、更新成功 |
+| 201 | 作成成功 | リソース作成成功 |
+| 400 | リクエストエラー | 無効なパラメータ |
+| 401 | 認証エラー | トークン無効 |
+| 403 | 権限エラー | アクセス拒否 |
+| 404 | 存在しない | リソースが見つからない |
+| 422 | バリデーションエラー | 入力データ不正 |
+| 500 | サーバーエラー | 予期しないエラー |
+| 503 | サービス停止 | メンテナンス中 |
+
+#### レスポンス作成のベストプラクティス
+
+1. **Responseクラスの使用**
+   ```php
+   // ✅ Good: 専用のResponseクラス
+   return new VersionResponse([
+       'needs_update' => $needsUpdate,
+       'latest_deploy_id' => $deployId,
+   ]);
+   ```
+
+2. **一貫性のある構造**
+   - 同じリソースは常に同じ構造で返す
+   - オプショナルなフィールドは明確に定義
+
+3. **適切なHTTPステータス**
+   - ステータスコードとレスポンス内容を一致させる
+   - エラー時は必ずエラーレスポンス構造を使用
+
+---
+
+## マスターデータ配信システム
+
+このプロジェクトでは、ゲームのマスターデータ（キャラクター定義、アイテム定義等）をクライアントに効率的に配信するため、JSON + 差分更新 + ハイブリッドアプローチを採用しています。
+
+### アーキテクチャ方針
+
+**配信形式: JSON + 差分更新 + ハイブリッドアプローチ**
+
+```
+Server                     Client
+┌────────────────┐        ┌────────────────┐
+│ MySQL (Master) │        │                │
+└────────────────┘        │                │
+        ↓                 │                │
+┌────────────────┐        │                │
+│ JSON Export    │──────→ │ JSON Download  │
+│ (gzip + AES)   │        │ (差分のみ)      │
+└────────────────┘        └────────────────┘
+                                  ↓
+                          ┌────────────────┐
+                          │ Local SQLite   │
+                          │ (高速クエリ)    │
+                          └────────────────┘
+```
+
+#### 設計理由
+
+1. **JSON配信**
+   - 軽量でクライアント側の実装が容易
+   - 柔軟なデータ構造（スキーマ変更に強い）
+   - 暗号化（AES）が容易
+   - gzip圧縮で通信量削減
+
+2. **差分更新**
+   - 変更されたテーブルのみダウンロード
+   - 通信量とダウンロード時間の削減
+   - ハッシュ値で差分判定
+
+3. **ハッシュ管理（SHA-256）**
+   - マスターデータのバージョン管理
+   - データ整合性の検証
+   - キャッシュの有効性判定
+
+4. **ローカルSQLite**
+   - クライアント側で高速なSQLクエリ
+   - オフラインプレイ対応
+   - 複雑な検索・フィルタリング
+
+### デプロイ管理テーブル
+
+マスターデータの配信を管理するため、以下のテーブル構造を使用します：
+
+#### sys_deploy（配信管理テーブル）
+
+```sql
+CREATE TABLE sys_deploy (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    deploy_key INT UNSIGNED UNIQUE NOT NULL COMMENT '人間が管理しやすいキー',
+    start_at DATETIME NOT NULL COMMENT 'ダウンロード可能日時',
+    sys_deploy_master_id BIGINT UNSIGNED COMMENT 'マスターデータのデプロイID',
+    sys_deploy_asset_id BIGINT UNSIGNED COMMENT 'アセットデータのデプロイID',
+    is_active BOOLEAN DEFAULT FALSE COMMENT 'アクティブフラグ',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (sys_deploy_master_id) REFERENCES sys_deploy_master(id),
+    FOREIGN KEY (sys_deploy_asset_id) REFERENCES sys_deploy_asset(id)
+);
+```
+
+**役割:**
+- マスターデータとアセットデータの配信を統括管理
+- `deploy_key`: 人間が識別しやすい連番キー（例: 100, 101, 102...）
+- `start_at`: 配信開始日時（段階的リリースに対応）
+- `is_active`: 現在アクティブなデプロイを示す
+
+#### sys_deploy_master（マスターデータ）
+
+```sql
+CREATE TABLE sys_deploy_master (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    deploy_key INT UNSIGNED UNIQUE NOT NULL COMMENT '人間が管理しやすいキー',
+    hash VARCHAR(64) NOT NULL COMMENT 'SHA-256ハッシュ',
+    deploy_date DATE NOT NULL COMMENT 'デプロイ日',
+    status ENUM('pending', 'active', 'archived') DEFAULT 'pending',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+```
+
+**役割:**
+- マスターデータのバージョン管理
+- `hash`: 全マスターデータのSHA-256ハッシュ（差分判定用）
+- `status`: デプロイのステータス管理
+
+#### sys_deploy_asset（アセットデータ）
+
+```sql
+CREATE TABLE sys_deploy_asset (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    deploy_key INT UNSIGNED UNIQUE NOT NULL COMMENT '人間が管理しやすいキー',
+    hash VARCHAR(64) NOT NULL COMMENT 'SHA-256ハッシュ',
+    s3_bucket VARCHAR(255) NOT NULL COMMENT 'S3バケット名',
+    s3_path VARCHAR(255) NOT NULL COMMENT 'S3パス',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+```
+
+**役割:**
+- アセットデータのバージョン管理
+- `s3_bucket`, `s3_path`: S3上のアセット配置場所
+- `hash`: アセットデータのSHA-256ハッシュ
+
+### ハッシュの用途
+
+#### 1. データ整合性検証
+
+```php
+// クライアント側での検証
+$downloadedData = downloadMasterData();
+$calculatedHash = hash('sha256', $downloadedData);
+
+if ($calculatedHash !== $expectedHash) {
+    throw new DataIntegrityException('Hash mismatch');
+}
+```
+
+#### 2. キャッシュ管理
+
+```php
+// サーバー側でハッシュを返す
+$response = [
+    'master' => [
+        'deploy_master_id' => 10,
+        'hash' => '430fe9e35ab4660c35127cb6d7425aaf9c2b4d3d1868a5845d1a96d9409a1736',
+    ],
+];
+
+// クライアント側でキャッシュ判定
+if ($localHash === $response['master']['hash']) {
+    // キャッシュ有効 → ダウンロード不要
+    return;
+}
+```
+
+#### 3. 差分判定の高速化
+
+```php
+// テーブルごとのハッシュ管理
+$tableHashes = [
+    'mst_item' => 'abc123...',
+    'mst_equipment' => 'def456...',
+    'mst_quest' => 'ghi789...',
+];
+
+// 変更されたテーブルのみダウンロード
+foreach ($tableHashes as $table => $hash) {
+    if ($localHashes[$table] !== $hash) {
+        downloadTable($table);
+    }
+}
+```
+
+### 配信フロー
+
+#### 1. バージョンチェック
+
+```
+Client                          Server
+  |                               |
+  | POST /auth/version            |
+  |------------------------------>|
+  | { current_deploy_key: 100 }   |
+  |                               |
+  |      VersionResponse          |
+  |<------------------------------|
+  | {                             |
+  |   needs_update: true,         |
+  |   latest_deploy_key: 101,     |
+  |   master: {                   |
+  |     hash: "abc123..."         |
+  |   }                           |
+  | }                             |
+  |                               |
+```
+
+#### 2. 差分ダウンロード
+
+```
+Client                          Server
+  |                               |
+  | GET /master/download          |
+  |------------------------------>|
+  | { deploy_key: 101 }           |
+  |                               |
+  |      JSON (gzip + AES)        |
+  |<------------------------------|
+  | {                             |
+  |   tables: {                   |
+  |     "mst_item": [...],        |
+  |     "mst_equipment": [...]    |
+  |   }                           |
+  | }                             |
+  |                               |
+```
+
+#### 3. ローカルSQLiteへ適用
+
+```
+Client
+  |
+  | 1. JSON復号化・展開
+  |
+  | 2. ハッシュ検証
+  |
+  | 3. SQLiteトランザクション開始
+  |
+  | 4. 各テーブルにデータをINSERT/UPDATE
+  |
+  | 5. トランザクションコミット
+  |
+  | 6. ローカルハッシュ更新
+  |
+```
+
+### 実装例
+
+#### サーバー側（Version API）
+
+```php
+// api/app/Domain/Auth/Services/VersionCheckService.php
+class VersionCheckService
+{
+    public function checkVersion(int $clientDeployKey): array
+    {
+        // アクティブなデプロイを取得
+        $activeDeploy = SysDeployRepository::getActiveDeploy();
+        
+        // バージョン比較
+        $needsUpdate = $clientDeployKey < $activeDeploy->deploy_key;
+        
+        return [
+            'needs_update' => $needsUpdate,
+            'latest_deploy_key' => $activeDeploy->deploy_key,
+            'master' => [
+                'deploy_master_id' => $activeDeploy->sys_deploy_master_id,
+                'hash' => $activeDeploy->master->hash,
+            ],
+            'asset' => [
+                'deploy_asset_id' => $activeDeploy->sys_deploy_asset_id,
+                'hash' => $activeDeploy->asset->hash,
+            ],
+        ];
+    }
+}
+```
+
+#### クライアント側（ダウンロード処理）
+
+```kotlin
+// Kotlin (Android例)
+class MasterDataDownloader {
+    suspend fun downloadIfNeeded() {
+        // 1. バージョンチェック
+        val versionResponse = apiClient.checkVersion(localDeployKey)
+        
+        if (!versionResponse.needsUpdate) {
+            return // 更新不要
+        }
+        
+        // 2. マスターデータダウンロード
+        val masterData = apiClient.downloadMasterData(
+            deployKey = versionResponse.latestDeployKey
+        )
+        
+        // 3. ハッシュ検証
+        val calculatedHash = calculateHash(masterData)
+        if (calculatedHash != versionResponse.master.hash) {
+            throw DataIntegrityException("Hash mismatch")
+        }
+        
+        // 4. ローカルSQLiteに保存
+        database.transaction {
+            masterData.tables.forEach { (tableName, records) ->
+                insertOrUpdateTable(tableName, records)
+            }
+        }
+        
+        // 5. ローカルバージョン更新
+        preferences.saveDeployKey(versionResponse.latestDeployKey)
+        preferences.saveHash(versionResponse.master.hash)
+    }
+}
+```
+
+### ベストプラクティス
+
+#### 1. 段階的リリース
+
+```php
+// 段階的にリリース（start_atを未来に設定）
+$deploy = new SysDeploy([
+    'deploy_key' => 101,
+    'start_at' => now()->addHours(2), // 2時間後に配信開始
+    'is_active' => false,
+]);
+
+// 時間になったらアクティブ化
+// (cronやキューで定期実行)
+if (now()->gte($deploy->start_at)) {
+    $deploy->is_active = true;
+    $deploy->save();
+}
+```
+
+#### 2. ロールバック対応
+
+```php
+// 問題発生時、以前のデプロイに戻す
+$previousDeploy = SysDeploy::where('deploy_key', 100)->first();
+$previousDeploy->is_active = true;
+$previousDeploy->save();
+
+$currentDeploy = SysDeploy::where('deploy_key', 101)->first();
+$currentDeploy->is_active = false;
+$currentDeploy->save();
+```
+
+#### 3. テーブルごとのハッシュ管理
+
+```php
+// より細かい差分管理のため、テーブルごとにハッシュを保存
+class SysDeployMasterTable extends Model
+{
+    protected $fillable = [
+        'sys_deploy_master_id',
+        'table_name',
+        'hash',
+        'record_count',
+    ];
+}
+
+// 変更されたテーブルのみダウンロード
+$tablesToUpdate = SysDeployMasterTable::where('sys_deploy_master_id', $deployMasterId)
+    ->get()
+    ->filter(fn($table) => $table->hash !== $localHashes[$table->table_name]);
+```
+
+### チェックリスト
+
+#### デプロイ準備時
+
+- [ ] マスターデータのエクスポート処理を実行
+- [ ] SHA-256ハッシュを計算・保存
+- [ ] JSONファイルをgzip + AES暗号化
+- [ ] S3にアップロード（アセットデータの場合）
+- [ ] sys_deploy_masterレコードを作成
+- [ ] sys_deployレコードを作成（start_atを設定）
+- [ ] ステージング環境でテスト
+
+#### クライアント実装時
+
+- [ ] バージョンチェックAPIを実装
+- [ ] ハッシュ検証機能を実装
+- [ ] ダウンロードリトライ機能を実装
+- [ ] ローカルSQLiteへの保存処理を実装
+- [ ] ダウンロード進行状況の表示
+- [ ] ネットワークエラーハンドリング
+- [ ] データ破損時のフォールバック処理
+
+#### 運用時
+
+- [ ] デプロイ履歴の監視
+- [ ] ダウンロード成功率の監視
+- [ ] ハッシュ不一致エラーの監視
+- [ ] ロールバック手順の確認
+- [ ] 段階的リリース計画の策定
+

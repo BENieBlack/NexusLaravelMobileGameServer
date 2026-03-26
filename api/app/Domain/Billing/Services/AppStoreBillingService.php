@@ -1,0 +1,97 @@
+<?php
+
+namespace App\Domain\Billing\Services;
+
+use App\Domain\Billing\ApiClients\AppStoreApiClient;
+use App\Domain\Billing\Constants\BillingConst;
+use App\Domain\Billing\DTOs\ReceiptData;
+use App\Domain\Billing\DTOs\SubscriptionStatus;
+use App\Domain\Billing\DTOs\VerificationResult;
+use App\Domain\Billing\Exceptions\InvalidReceiptException;
+use App\Domain\Billing\Interfaces\_BaseBillingPlatformInterface;
+use Carbon\CarbonImmutable;
+
+/**
+ * App Store 決済サービス
+ * 
+ * Apple App Store のレシート検証とサブスクリプション管理を担当
+ */
+class AppStoreBillingService implements _BaseBillingPlatformInterface
+{
+    public function __construct(
+        private readonly AppStoreApiClient $apiClient,
+    ) {}
+
+    /**
+     * {@inheritDoc}
+     */
+    public function verifyReceipt(ReceiptData $receiptData): VerificationResult
+    {
+        if (empty($receiptData->receipt)) {
+            throw new InvalidReceiptException('Receipt data is required for App Store');
+        }
+
+        // 1. App Store API に送信するペイロード作成
+        $payload = [
+            'receipt-data' => $receiptData->receipt,
+            'password' => config('services.app_store.shared_secret'),
+            'exclude-old-transactions' => true,
+        ];
+
+        // 2. Apple API 呼び出し
+        $isSandbox = config('app.env') !== 'production';
+        $response = $this->apiClient->verifyReceipt($payload, $isSandbox);
+
+        // 3. レスポンス検証
+        if (!isset($response['status']) || $response['status'] !== 0) {
+            $status = $response['status'] ?? 'unknown';
+            throw new InvalidReceiptException(
+                "App Store receipt verification failed with status: {$status}"
+            );
+        }
+
+        // 4. トランザクション情報抽出
+        $latestReceipt = $response['receipt']['in_app'][0] ?? null;
+        if (!$latestReceipt) {
+            throw new InvalidReceiptException('No transaction found in receipt');
+        }
+
+        // 5. 検証結果を返す
+        return new VerificationResult(
+            isValid: true,
+            transactionId: $latestReceipt['transaction_id'],
+            productId: $latestReceipt['product_id'],
+            purchaseDate: CarbonImmutable::createFromTimestampMs((int)$latestReceipt['purchase_date_ms']),
+            quantity: (int)($latestReceipt['quantity'] ?? 1),
+            originalTransactionId: $latestReceipt['original_transaction_id'],
+            rawResponse: $response,
+        );
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getSubscriptionStatus(string $subscriptionId): SubscriptionStatus
+    {
+        // TODO: App Store Server API を使用した実装
+        // 現在は未実装
+        
+        return new SubscriptionStatus(
+            isActive: false,
+            expiresAt: CarbonImmutable::now(),
+            autoRenew: false,
+            state: BillingConst::SUBSCRIPTION_STATE_EXPIRED,
+        );
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function isRefunded(string $transactionId): bool
+    {
+        // TODO: レシート再検証またはApp Store Server APIで返金フラグをチェック
+        // 現在は常にfalseを返す
+        
+        return false;
+    }
+}

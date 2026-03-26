@@ -1,0 +1,16 @@
+parameters:
+    level: 6
+    paths:
+        - app
+    excludePaths:
+        - app/Providers/*
+        - app/Console/*
+    scanDirectories:
+        - phpstan
+    
+    # カスタムルールの有効化
+    bootstrapFiles:
+        - phpstan/bootstrap.php
+
+rules:
+    - App\PHPStan\Rules\NoDirectEloquentSaveInServiceRule

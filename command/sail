@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+
+# Determine the script directory and project root
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# Change to project root for docker-compose commands
+cd "$PROJECT_ROOT"
+
+# Determine which service to use (api-php or admin-php)
+# Can be overridden by SAIL_SERVICE environment variable or --service flag
+SERVICE="${SAIL_SERVICE:-api-php}"
+
+# Parse arguments for --service flag or --admin/--api flags
+ARGS=()
+for arg in "$@"; do
+    if [ "$arg" = "--admin" ]; then
+        SERVICE="admin-php"
+    elif [ "$arg" = "--api" ]; then
+        SERVICE="api-php"
+    elif [[ "$arg" == --service=* ]]; then
+        SERVICE="${arg#*=}"
+    else
+        ARGS+=("$arg")
+    fi
+done
+
+# Export APP_SERVICE for Laravel Sail to use
+export APP_SERVICE="$SERVICE"
+
+# Set the docker-compose file location
+export COMPOSE_FILE="$PROJECT_ROOT/docker-compose.yml"
+
+# Custom migrate command that handles all databases
+if [ "${ARGS[0]}" = "migrate" ]; then
+    # Only run on api service
+    if [ "$SERVICE" != "api-php" ]; then
+        echo "Error: migrate command only works with api service (--api)"
+        exit 1
+    fi
+    
+    echo "Running migrations for all API databases (mst, trx, log)..."
+    
+    # Run migrations for each database
+    "$PROJECT_ROOT/api/vendor/bin/sail" artisan migrate --database=mst --path=database/migrations/mst
+    "$PROJECT_ROOT/api/vendor/bin/sail" artisan migrate --database=trx --path=database/migrations/trx
+    "$PROJECT_ROOT/api/vendor/bin/sail" artisan migrate --database=log --path=database/migrations/log
+    
+    exit 0
+fi
+
+# Delegate to the appropriate Laravel Sail binary
+if [ "$SERVICE" = "admin-php" ]; then
+    exec "$PROJECT_ROOT/admin/vendor/bin/sail" "${ARGS[@]}"
+else
+    exec "$PROJECT_ROOT/api/vendor/bin/sail" "${ARGS[@]}"
+fi

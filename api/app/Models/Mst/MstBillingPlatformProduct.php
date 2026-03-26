@@ -1,0 +1,69 @@
+<?php
+
+namespace App\Models\Mst;
+
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class MstBillingPlatformProduct extends _BaseMst
+{
+    public $table = 'mst_billing_platform_product';
+
+    protected $fillable = [
+        'deploy_key',
+        'platform_product_id',
+        'billing_platform',
+        'product_type',
+        'is_active',
+    ];
+
+    /**
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'deploy_key' => 'integer',
+        'is_active' => 'boolean',
+        'created_at' => 'immutable_datetime',
+        'updated_at' => 'immutable_datetime',
+    ];
+
+    public $timestamps = true;
+
+    /**
+     * このプラットフォーム商品を使用しているアプリ内課金商品（AppStore側）
+     *
+     * @return HasMany
+     */
+    public function inAppPurchasesAsAppStore(): HasMany
+    {
+        return $this->hasMany(MstInAppPurchase::class, 'app_store_product_id');
+    }
+
+    /**
+     * このプラットフォーム商品を使用しているアプリ内課金商品（GooglePlay側）
+     *
+     * @return HasMany
+     */
+    public function inAppPurchasesAsGooglePlay(): HasMany
+    {
+        return $this->hasMany(MstInAppPurchase::class, 'google_play_product_id');
+    }
+
+    /**
+     * レスポンス用配列に変換
+     * 
+     * データベース層の'id'をAPI層の'mst_billing_platform_product_id'に変換
+     * 
+     * @return array
+     */
+    public function toResponseArray(): array
+    {
+        $array = parent::toResponseArray();
+        
+        if (isset($array['id'])) {
+            $array['mst_billing_platform_product_id'] = $array['id'];
+            unset($array['id']);
+        }
+        
+        return $array;
+    }
+}

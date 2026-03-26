@@ -1,0 +1,156 @@
+services:
+  api-php:
+    build:
+      context: ./docker/api-php
+      dockerfile: Dockerfile
+    container_name: api-php
+    working_dir: /var/www/html
+    volumes:
+      - ./api:/var/www/html
+      - ./.env:/var/www/.env:ro  # Mount root .env as read-only
+    networks:
+      - local-network
+
+  api-web:
+    image: nginx:latest
+    container_name: api-web
+    ports:
+      - "8080:80"
+    volumes:
+      - ./api:/var/www/html
+      - ./docker/api-nginx/api-nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - api-php
+    networks:
+      - local-network
+
+  tool-php:
+    build:
+      context: ./docker/tool-php
+      dockerfile: Dockerfile
+    container_name: tool-php
+    working_dir: /var/www/html
+    volumes:
+      - ./tool:/var/www/html
+      - ./.env:/var/www/.env:ro  # Mount root .env as read-only
+    networks:
+      - local-network
+
+  tool-web:
+    image: nginx:latest
+    container_name: tool-web
+    ports:
+      - "80:80"
+    volumes:
+      - ./tool:/var/www/html
+      - ./docker/tool-nginx/tool-nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - tool-php
+    networks:
+      - local-network
+
+  db-adm:
+    image: mysql:latest
+    container_name: db-adm
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "33060:3306"
+    volumes:
+      - db_admin_data:/var/lib/mysql
+    networks:
+      - local-network
+
+  db-tol:
+    image: mysql:latest
+    container_name: db-tol
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "33061:3306"
+    volumes:
+      - db_tool_data:/var/lib/mysql
+    networks:
+      - local-network
+
+  db-sys:
+    image: mysql:latest
+    container_name: db-sys
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "33062:3306"
+    volumes:
+      - db_sys_data:/var/lib/mysql
+    networks:
+      - local-network
+
+  db-mst:
+    image: mysql:latest
+    container_name: db-mst
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "33063:3306"
+    volumes:
+      - db_mst_data:/var/lib/mysql
+    networks:
+      - local-network
+
+  db-log:
+    image: mysql:latest
+    container_name: db-log
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "33064:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - local-network
+
+  db-trx1:
+    image: mysql:latest
+    container_name: db-trx1
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "33065:3306"
+    volumes:
+      - db_trx1_data:/var/lib/mysql
+    networks:
+      - local-network
+
+  db-trx2:
+    image: mysql:latest
+    container_name: db-trx2
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "33066:3306"
+    volumes:
+      - db_trx2_data:/var/lib/mysql
+    networks:
+      - local-network
+
+  redis:
+    image: redis:8.4
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - local-network
+
+networks:
+  local-network:
+    driver: bridge
+
+volumes:
+  db_mst_data:
+  db_trx1_data:
+  db_trx2_data:
+  db_data:
+  db_admin_data:
+  db_sys_data:
+  db_tool_data:
+    driver: local

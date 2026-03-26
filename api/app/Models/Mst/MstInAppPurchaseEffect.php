@@ -1,0 +1,86 @@
+<?php
+
+namespace App\Models\Mst;
+
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class MstInAppPurchaseEffect extends _BaseMst
+{
+    public $table = 'mst_in_app_purchase_effect';
+
+    protected $primaryKey = null;
+    public $incrementing = false;
+
+    protected $fillable = [
+        'deploy_key',
+        'mst_in_app_purchase_id',
+        'effect_type',
+        'value',
+    ];
+
+    protected $casts = [
+        'deploy_key' => 'integer',
+        'mst_in_app_purchase_id' => 'integer',
+        'effect_type' => 'integer',
+        'value' => 'integer',
+        'created_at' => 'immutable_datetime',
+        'updated_at' => 'immutable_datetime',
+    ];
+
+    public $timestamps = true;
+
+    /**
+     * 複合主キーを使用するため、主キーの設定を無効化
+     * 実際の複合主キーは: [mst_in_app_purchase_id, effect_type]
+     */
+    protected function setKeysForSaveQuery($query)
+    {
+        $query
+            ->where('mst_in_app_purchase_id', '=', $this->getAttribute('mst_in_app_purchase_id'))
+            ->where('effect_type', '=', $this->getAttribute('effect_type'));
+
+        return $query;
+    }
+
+    /**
+     * 親のアプリ内課金商品
+     *
+     * @return BelongsTo
+     */
+    public function inAppPurchase(): BelongsTo
+    {
+        return $this->belongsTo(MstInAppPurchase::class, 'mst_in_app_purchase_id');
+    }
+
+    /**
+     * 効果タイプを取得
+     *
+     * @return string
+     */
+    public function getEffectType(): string
+    {
+        return $this->getAttribute('effect_type');
+    }
+
+    /**
+     * 効果値を取得
+     *
+     * @return int|float
+     */
+    public function getValue(): int|float
+    {
+        return $this->getAttribute('value');
+    }
+
+    /**
+     * レスポンス用配列に変換
+     * 
+     * Note: 複合主キー(mst_in_app_purchase_id, effect_type)のため、idフィールドは存在しない
+     * 
+     * @return array
+     */
+    public function toResponseArray(): array
+    {
+        return parent::toResponseArray();
+    }
+}

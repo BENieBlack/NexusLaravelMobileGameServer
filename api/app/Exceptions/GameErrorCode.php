@@ -1,0 +1,69 @@
+<?php
+
+namespace App\Exceptions;
+
+/**
+ * GameErrorCode
+ * 
+ * ゲームAPIのエラーコード定数定義
+ * HTTPステータス999のレスポンスで使用するerror_codeの一覧
+ */
+class GameErrorCode
+{
+    // 認証関連エラー (10000-10099)
+    const AUTHENTICATION_FAILED = 10001;
+    const PLAYER_NOT_FOUND = 10002;
+    const INVALID_TOKEN = 10003;
+    const DEVICE_ALREADY_EXISTS = 10004;
+
+    // リソース不足エラー (10100-10199)
+    const STAMINA_NOT_ENOUGH = 10100;
+    const DIAMOND_NOT_ENOUGH = 10101;
+    const ITEM_NOT_ENOUGH = 10102;
+
+    // アプリ内課金エラー (10200-10299)
+    const PRODUCT_NOT_FOUND = 10200;
+    const PRODUCT_INACTIVE = 10201;
+    const PURCHASE_LIMIT_EXCEEDED = 10202;
+    const INVALID_PRODUCT_TYPE = 10203;
+    const PRODUCT_ID_MISMATCH = 10204;
+    const RECEIPT_VERIFICATION_FAILED = 10205;
+
+    // データ検証エラー (10300-10399)
+    const INVALID_PARAMETER = 10300;
+    const VALIDATION_FAILED = 10301;
+
+    // リソース未検出エラー (10400-10499)
+    const UNIT_NOT_FOUND = 10400;
+    const MASTER_DATA_NOT_FOUND = 10401;
+    const EQUIPMENT_NOT_FOUND = 10402;
+    const WALLET_NOT_FOUND = 10403;
+
+    // ビジネスロジックエラー (10500-10599)
+    const INSUFFICIENT_CURRENCY = 10500;
+    const INVALID_ITEM_TYPE = 10501;
+    const UNIT_MAX_LEVEL_REACHED = 10502;
+    const INVALID_RESOURCE_TYPE = 10503;
+
+    // フレンド関連エラー (10600-10699)
+    const FRIEND_REQUEST_ALREADY_EXISTS = 10600;
+    const FRIEND_ALREADY_EXISTS = 10601;
+    const FRIEND_REQUEST_NOT_FOUND = 10602;
+    const TARGET_PLAYER_NOT_FOUND = 10603;
+    const CANNOT_SEND_FRIEND_REQUEST_TO_SELF = 10604;
+    const FRIEND_APPLY_NOT_FOUND = 10605;
+    const NOT_AUTHORIZED_TO_ACCEPT = 10606;
+    const FRIEND_APPLY_ALREADY_ACCEPTED = 10607;
+    const FRIEND_APPLY_ALREADY_DELETED = 10608;
+    const CANNOT_DELETE_SELF = 10609;
+    const FRIEND_NOT_FOUND = 10610;
+
+    // Mailbox (10700-10799)
+    const MAILBOX_NOT_FOUND = 10701;
+    const MAILBOX_ALREADY_RECEIVED = 10702;
+    const MAILBOX_NOT_OPENED = 10703;
+
+    // システムエラー (19900-19999)
+    const NOT_IMPLEMENTED = 19900;
+    const INTERNAL_ERROR = 19999;
+}

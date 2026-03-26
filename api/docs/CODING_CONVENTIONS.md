@@ -1,0 +1,730 @@
+# コーディング規約
+
+このドキュメントは、本プロジェクトで使用するコーディング規約をまとめたものです。
+
+---
+
+## 目次
+
+1. [Request・Responseクラスの命名規則](#requestresponseクラスの命名規則)
+2. [ディレクトリ構成](#ディレクトリ構成)
+3. [名前空間とクラスの配置](#名前空間とクラスの配置)
+4. [クラスの責務](#クラスの責務)
+5. [ファイル命名規則](#ファイル命名規則)
+6. [まとめ](#まとめ)
+
+---
+
+## Request・Responseクラスの命名規則
+
+### 基本原則
+
+Request・Responseクラスの命名は、**エンドポイントのアクション名に合わせる**ことを原則とします。
+
+### 命名ルール
+
+#### ✅ 正しい命名
+
+エンドポイントが `/auth/version` の場合：
+
+```php
+// Request
+class VersionRequest extends FormRequest
+{
+    // ...
+}
+
+// Response
+class VersionResponse implements Arrayable, JsonSerializable
+{
+    // ...
+}
+```
+
+#### ❌ 誤った命名
+
+```php
+// NG: アクション名に "Check" が含まれていない
+class VersionCheckRequest extends FormRequest
+{
+    // ...
+}
+
+class VersionCheckResponse implements Arrayable, JsonSerializable
+{
+    // ...
+}
+```
+
+### 命名例
+
+| エンドポイント | Request | Response |
+|---|---|---|
+| `POST /auth/sign_up` | `SignUpRequest` | `SignUpResponse` |
+| `POST /auth/sign_in` | `SignInRequest` | `SignInResponse` |
+| `GET /auth/version` | `VersionRequest` | `VersionResponse` |
+| `GET /player/me` | （不要、標準Requestを使用） | `PlayerMeResponse` |
+| `POST /gacha/draw` | `DrawRequest` | `DrawResponse` |
+| `GET /player/inventory` | `InventoryRequest` | `InventoryResponse` |
+| `POST /player/equip` | `EquipRequest` | `EquipResponse` |
+| `GET /mission/list` | `ListRequest` | `ListResponse` |
+| `POST /mission/claim` | `ClaimRequest` | `ClaimResponse` |
+
+### 理由
+
+- **一貫性**: エンドポイントとクラス名が一致することで、コードの可読性が向上
+- **シンプル**: 不要な接頭辞・接尾辞（例: "Check", "Get"）を避けることで、クラス名がシンプルになる
+- **保守性**: エンドポイント名からクラス名を推測しやすくなる
+
+---
+
+## ディレクトリ構成
+
+### Request・Responseクラスの配置
+
+Request・Responseクラスは、**機能ごとにサブディレクトリに分けて配置**します。
+
+### Dataクラスの配置
+
+**Domainに紐づくデータ構造（DTO）は、`App\Domain\{Domain}\Data` 名前空間に配置**します。
+Responseクラスから参照される共有データ構造は、Dataクラスとして定義します。
+
+#### ディレクトリ構造例
+
+```
+app/
+├── Domain/
+│   └── Auth/
+│       ├── Data/                  # DTOクラス
+│       │   ├── AssetUpdateData.php
+│       │   ├── MaintenanceData.php
+│       │   └── MasterUpdateData.php
+│       ├── Services/
+│       └── UseCases/
+│
+├── Http/
+│   ├── Requests/
+│   │   ├── Auth/              # 認証関連
+│   │   │   ├── SignInRequest.php
+│   │   │   ├── SignUpRequest.php
+│   │   │   └── VersionRequest.php
+│   │   ├── Player/            # プレイヤー関連
+│   │   │   ├── EquipRequest.php
+│   │   │   └── InventoryRequest.php
+│   │   ├── Gacha/             # ガチャ関連
+│   │   │   └── DrawRequest.php
+│   │   └── Mission/           # ミッション関連
+│   │       ├── ListRequest.php
+│   │       └── ClaimRequest.php
+│   │
+│   └── Responses/
+│       ├── Auth/              # 認証関連
+│       │   ├── SignInResponse.php
+│       │   ├── SignUpResponse.php
+│       │   └── VersionResponse.php  # ← MaintenanceDataなどを使用
+│       ├── Player/            # プレイヤー関連
+│       │   ├── MeResponse.php
+│       │   ├── EquipResponse.php
+│       │   └── InventoryResponse.php
+│       ├── Gacha/             # ガチャ関連
+│       │   └── DrawResponse.php
+│       └── Mission/           # ミッション関連
+│           ├── ListResponse.php
+│           └── ClaimResponse.php
+```
+
+### 理由
+
+- **可読性**: 関連するクラスがまとまっているため、探しやすい
+- **スケーラビリティ**: 機能が増えても、ディレクトリ構造を維持できる
+- **名前空間の明確化**: 機能ごとに名前空間が分かれるため、クラス名の衝突を避けられる
+
+---
+
+## 名前空間とクラスの配置
+
+### 名前空間のルール
+
+名前空間は、ディレクトリ構造に従います。
+
+```php
+// app/Http/Requests/Auth/VersionRequest.php
+namespace App\Http\Requests\Auth;
+
+class VersionRequest extends FormRequest
+{
+    // ...
+}
+```
+
+```php
+// app/Http/Responses/Auth/VersionResponse.php
+namespace App\Http\Responses\Auth;
+
+use App\Domain\Auth\Data\AssetUpdateData;
+use App\Domain\Auth\Data\MaintenanceData;
+use App\Domain\Auth\Data\MasterUpdateData;
+
+class VersionResponse implements Arrayable, JsonSerializable
+{
+    public function __construct(
+        public readonly bool $needsUpdate,
+        public readonly ?int $latestDeployId = null,
+        public readonly ?int $latestDeployKey = null,
+        public readonly ?MasterUpdateData $master = null,
+        public readonly ?AssetUpdateData $asset = null,
+        public readonly ?MaintenanceData $maintenance = null,
+    ) {}
+    // ...
+}
+```
+
+```php
+// app/Domain/Auth/Data/MaintenanceData.php
+namespace App\Domain\Auth\Data;
+
+use Illuminate\Contracts\Support\Arrayable;
+use JsonSerializable;
+
+class MaintenanceData implements Arrayable, JsonSerializable
+{
+    public function __construct(
+        public readonly string $title,
+        public readonly string $message,
+        public readonly string $startAt,
+        public readonly string $endAt,
+    ) {}
+
+    public function toArray(): array
+    {
+        return [
+            'title' => $this->title,
+            'message' => $this->message,
+            'start_at' => $this->startAt,
+            'end_at' => $this->endAt,
+        ];
+    }
+
+    public function jsonSerialize(): mixed
+    {
+        return $this->toArray();
+    }
+}
+```
+
+### 使用例
+
+```php
+// app/Http/Controllers/AuthController.php
+namespace App\Http\Controllers;
+
+use App\Http\Requests\Auth\VersionRequest;
+use App\Http\Responses\Auth\VersionResponse;
+use App\Domain\Auth\UseCases\VersionUseCase;
+
+class AuthController extends Controller
+{
+    public function version(VersionRequest $request, VersionUseCase $useCase): JsonResponse
+    {
+        $response = $useCase->handle($request);
+        return $response->toJsonResponse();
+    }
+}
+```
+
+---
+
+## その他の規約
+
+### 新しいAPIを追加する際の手順
+
+新しいAPIエンドポイントを追加する際は、以下の手順に従ってください：
+
+#### 1. ディレクトリの作成
+
+機能ごとに適切なサブディレクトリを作成します。
+
+```bash
+# 例: Gacha機能の追加
+mkdir -p app/Http/Requests/Gacha
+mkdir -p app/Http/Responses/Gacha
+```
+
+#### 2. Requestクラスの作成
+
+エンドポイントのアクション名に合わせたクラスを作成します。
+
+```php
+// app/Http/Requests/Gacha/DrawRequest.php
+namespace App\Http\Requests\Gacha;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class DrawRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'gacha_id' => 'required|string',
+            'count' => 'required|integer|min:1|max:10',
+        ];
+    }
+}
+```
+
+#### 3. Responseクラスの作成
+
+```php
+// app/Http/Responses/Gacha/DrawResponse.php
+namespace App\Http\Responses\Gacha;
+
+use Illuminate\Contracts\Support\Arrayable;
+use JsonSerializable;
+
+class DrawResponse implements Arrayable, JsonSerializable
+{
+    public function __construct(
+        public readonly array $rewards,
+        public readonly int $remainingCount,
+    ) {
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'rewards' => $this->rewards,
+            'remaining_count' => $this->remainingCount,
+        ];
+    }
+
+    public function jsonSerialize(): mixed
+    {
+        return $this->toArray();
+    }
+
+    public function toJsonResponse(): \Illuminate\Http\JsonResponse
+    {
+        return response()->json($this->toArray());
+    }
+}
+```
+
+#### 4. Controllerでの使用
+
+```php
+// app/Http/Controllers/GachaController.php
+namespace App\Http\Controllers;
+
+use App\Http\Requests\Gacha\DrawRequest;
+use App\Domain\Gacha\UseCases\DrawUseCase;
+use Illuminate\Http\JsonResponse;
+
+class GachaController extends Controller
+{
+    public function draw(DrawRequest $request, DrawUseCase $useCase): JsonResponse
+    {
+        $response = $useCase->handle($request);
+        return $response->toJsonResponse();
+    }
+}
+```
+
+#### 5. ルート定義
+
+```php
+// routes/api.php
+use App\Http\Controllers\GachaController;
+
+Route::middleware('auth.token')->group(function () {
+    Route::post('/gacha/draw', [GachaController::class, 'draw']);
+});
+```
+
+### Requestクラスを作成しない場合
+
+以下の場合は、Requestクラスを作成せず、標準の`Illuminate\Http\Request`を使用しても構いません：
+
+- **バリデーションが不要**な場合（例: `GET /player/me`）
+- **リクエストパラメータがない**場合
+- **認証トークンのみ必要**な場合
+
+```php
+// 標準Requestを使用する例
+public function getPlayerMe(Request $request, GetPlayerMeUseCase $useCase): JsonResponse
+{
+    $response = $useCase->handle($request);
+    return $response->toJsonResponse();
+}
+```
+
+---
+
+## クラスの責務
+
+### Request
+- バリデーションルールの定義
+- リクエストデータの取得・変換
+- リクエストの認可
+
+### Response
+- レスポンスデータの構造化
+- JSON形式への変換
+- HTTPステータスコードの設定
+
+### Data（DTO）
+- ドメインデータの型安全な表現
+- 不変オブジェクトとして実装（readonly）
+- Responseクラスや複数のServiceで共有されるデータ構造
+- ビジネスロジックは含まない
+
+### Repository
+- データアクセスの抽象化
+- キャッシュ管理
+- 複雑なクエリの実装
+- データ整合性の保証
+
+### Model
+- データベーステーブルとのマッピング
+- リレーション定義
+- クエリスコープ定義
+- アクセサ/ミューテータ（値の取得・設定時の変換）
+- ビジネスロジックは含まない
+
+#### Mst Model の特別なルール
+- `App\Models\Mst\` 配下のMstモデルは、マスターデータテーブルを扱う
+- **基底クラス**: `_BaseMst` を継承（`$connection = 'mst'` が設定済み）
+- **$fillable**: `deploy_key` を**必ず最初**に配置する（統一ルール）
+- **deploy_key**: マスターデータのバージョン管理用カラム（例: `202601010`）
+
+**Mst Model $fillable の例:**
+```php
+// ✅ 正しい実装
+class MstUnit extends _BaseMst
+{
+    protected $fillable = [
+        'deploy_key',  // 必ず最初
+        'id',
+        'type',
+        'element',
+        'rarity',
+        // ...
+    ];
+}
+
+// ❌ 誤った実装
+class MstUnit extends _BaseMst
+{
+    protected $fillable = [
+        'id',
+        'deploy_key',  // 最初ではない
+        'type',
+        // ...
+    ];
+}
+```
+
+**理由:**
+- **一貫性**: 全てのMstモデルで`deploy_key`の位置が統一され、可読性向上
+- **バージョン管理の明確化**: マスターデータのバージョン管理カラムであることが視覚的に明確
+- **新規モデル追加時の迷いを排除**: 規約が明確なため、実装時に判断不要
+
+#### Log Model の特別なルール
+- `App\Models\Log\` 配下のLogモデルは、insert onlyのログテーブルを扱う
+- **基底クラス**: `_BaseLog` を継承（`$connection = 'log'`, `UPDATED_AT = null` が設定済み）
+- **$casts**: ビジネスカラムと `system_at` のみ含める（`created_at`, `updated_at` は含めない）
+- **$fillable**: ビジネスカラムと `system_at` のみ含める（`created_at` は含めない）
+- **日時カラム**:
+  - `system_at`: APIから明示的に設定（デバッグ時の日時変更に連動する）
+  - `created_at`: MySQL CURRENT_TIMESTAMPで自動設定（デバッグ時の日時変更に連動しない）
+  - `updated_at`: 存在しない（ログは更新されないため）
+
+#### ローカライズテーブル (L10n) の重要なルール
+- **ローカライズテーブル（`*_l10n`）にはModelクラスを作成しない**
+- マスターデータのJSON配信時に、メインテーブルとL10nテーブルをJOINしてJSON化する
+- 理由:
+  - ローカライズデータは単独で扱うことがなく、常にメインテーブルと一緒に使用される
+  - Modelを作成すると無駄なファイルが増え、保守性が低下する
+  - Repository層でJOINクエリを実装すれば十分
+
+**例:**
+```php
+// ❌ 作成不要
+// App\Models\Mst\MstUnitL10n.php
+// App\Models\Mst\MstItemL10n.php
+// App\Models\Mst\MstEquipmentL10n.php
+
+// ✅ Repositoryで直接クエリ
+class MstUnitRepository extends _BaseMstRepository
+{
+    public function selectAllWithL10n(string $locale): Collection
+    {
+        return DB::connection('mst')
+            ->table('mst_unit')
+            ->leftJoin('mst_unit_l10n', function ($join) use ($locale) {
+                $join->on('mst_unit.id', '=', 'mst_unit_l10n.unit_id')
+                     ->where('mst_unit_l10n.locale', '=', $locale);
+            })
+            ->select('mst_unit.*', 'mst_unit_l10n.name', 'mst_unit_l10n.description')
+            ->get();
+    }
+}
+```
+
+### Utility
+- 汎用的なヘルパー機能の提供
+- 静的メソッドで実装
+- ステートレス（状態を持たない）
+- プロジェクト全体で再利用可能な機能
+
+### Constants（定数クラス）
+- ビジネスドメインに関連する定数の定義
+- `App\Domain\{Domain}\Constants\` 配下に配置
+- Modelから独立させ、ドメイン知識をDomainレイヤーに集約
+- クラス名は `*Const` サフィックスをつける
+- バリデーションやヘルパーメソッドを提供可能
+
+#### Constants配置ルール
+- **NG**: Modelクラスに定数を直接定義
+  ```php
+  // ❌ 避けるべき実装
+  class MstUnit extends _BaseMst
+  {
+      const TYPE_ATTACK = 'Attack';
+      const ELEMENT_FIRE = 'Fire';
+      const RARITY_UR = 'UR';
+  }
+  ```
+
+- **OK**: Domainレイヤーに定数クラスを作成
+  ```php
+  // ✅ 推奨される実装
+  namespace App\Domain\Unit\Constants;
+  
+  class UnitConst
+  {
+      const TYPE_ATTACK = 'Attack';
+      const ELEMENT_FIRE = 'Fire';
+      const RARITY_UR = 'UR';
+      
+      // ヘルパーメソッド
+      public static function getAllTypes(): array { ... }
+      public static function isValidType(string $type): bool { ... }
+  }
+  ```
+
+#### Constants配置例
+```
+app/
+├── Domain/
+│   ├── Unit/
+│   │   ├── Constants/
+│   │   │   └── UnitConst.php            # ユニット関連の定数
+│   │   ├── Services/
+│   │   └── UseCases/
+│   ├── Equipment/
+│   │   ├── Constants/
+│   │   │   └── EquipmentConst.php       # 装備関連の定数
+│   │   ├── Services/
+│   │   └── UseCases/
+│   ├── Item/
+│   │   ├── Constants/
+│   │   │   └── ItemConst.php            # アイテム関連の定数
+│   │   ├── Services/
+│   │   └── UseCases/
+│   ├── Billing/
+│   │   ├── Constants/
+│   │   │   └── BillingConst.php         # 決済プラットフォーム関連の定数
+│   │   ├── Services/
+│   │   └── UseCases/
+│   ├── InAppPurchase/
+│   │   ├── Constants/
+│   │   │   └── InAppPurchaseConst.php   # アプリ内課金関連の定数
+│   │   ├── Services/
+│   │   └── UseCases/
+│   └── Player/
+│       ├── Constants/
+│       │   └── PlayerConst.php          # プレイヤー関連の定数
+│       ├── Services/
+│       └── UseCases/
+```
+
+#### Constantsのメリット
+- **関心の分離**: Modelはデータ構造のみに集中
+- **再利用性**: 定数を複数のサービスやユースケースから参照可能
+- **バリデーション機能**: `isValid*()` メソッドで値の検証が容易
+- **配列取得機能**: `getAll*()` メソッドでUI生成が簡単
+- **DDD準拠**: ドメイン知識をDomainレイヤーに集約
+
+#### Constants使用例
+
+**ItemConst（アイテム定数）:**
+```php
+use App\Domain\Item\Constants\ItemConst;
+
+// タイプの検証
+if (ItemConst::isValidType($itemType)) {
+    // ...
+}
+
+// 全タイプを取得してUIに表示
+$types = ItemConst::getAllTypes();
+
+// 定数を使用
+if ($item->type === ItemConst::TYPE_CONSUMABLE) {
+    // 消費アイテム処理
+}
+```
+
+**BillingConst（決済プラットフォーム定数）:**
+```php
+use App\Domain\Billing\Constants\BillingConst;
+
+// プラットフォームの検証
+if (BillingConst::isValidPlatform($platform)) {
+    // ...
+}
+
+// App Store商品の判定
+if ($product->billing_platform === BillingConst::PLATFORM_APP_STORE) {
+    // App Store固有の処理
+}
+
+// 商品タイプの検証
+if (BillingConst::isValidProductType($productType)) {
+    // ...
+}
+```
+
+**InAppPurchaseConst（アプリ内課金定数）:**
+```php
+use App\Domain\InAppPurchase\Constants\InAppPurchaseConst;
+
+// 課金タイプの判定
+if ($purchase->type === InAppPurchaseConst::TYPE_PASS) {
+    // Pass商品の処理
+    $effects = $purchase->effects;
+}
+
+// 購入制限リセットの判定
+if ($purchase->purchase_limit_reset === InAppPurchaseConst::PURCHASE_LIMIT_RESET_DAILY) {
+    // 日次リセット処理
+}
+
+// コンテンツタイプの検証
+if (InAppPurchaseConst::isValidContentType($contentType)) {
+    // コンテンツの配布処理
+}
+
+// 全効果タイプを取得
+$effectTypes = InAppPurchaseConst::getAllEffectTypes();
+```
+
+---
+
+## ファイル命名規則
+
+### 基本ルール
+- **ファイル名 = クラス名**
+- PascalCase を使用
+- 1ファイル1クラス
+
+### 命名パターン
+
+#### Request・Response
+- エンドポイントのアクション名に合わせる
+- 冗長な接頭辞・接尾辞を避ける
+
+#### Data（DTO）
+- 必ず `*Data` サフィックスをつける
+- ✅ `AssetUpdateData`, `MaintenanceData`, `MasterUpdateData`
+- ❌ `AssetUpdate`, `Maintenance`, `MasterUpdate`（曖昧）
+
+#### Repository
+- 必ず `*Repository` サフィックスをつける
+- テーブル名に対応させる
+- ✅ `SysPlayerRepository`, `MstItemRepository`, `TrxUnitRepository`
+
+#### Model
+- テーブル名をPascalCaseに変換
+- データベースプレフィックスを含める
+- ✅ `SysPlayer` (`sys_player`テーブル)
+- ✅ `MstItem` (`mst_item`テーブル)
+- ✅ `TrxPlayer` (`trx_player`テーブル)
+- ✅ `LogEquipment` (`log_equipment`テーブル) - Logモデルは特別なルールあり
+
+**Mst Model 特有の実装:**
+- ✅ `_BaseMst` を継承する
+- ✅ `$fillable` の**最初**に `deploy_key` を配置する（必須）
+- ✅ 例: `protected $fillable = ['deploy_key', 'id', 'type', ...];`
+- ❌ 例: `protected $fillable = ['id', 'deploy_key', ...];`（deploy_keyが最初ではない）
+
+**Log Model 特有の実装:**
+- ✅ `_BaseLog` を継承する
+- ✅ `$casts` にビジネスカラムと `system_at` を含める
+- ❌ `$casts` に `created_at`, `updated_at` を含めない
+- ✅ `$fillable` にビジネスカラムと `system_at` を含める
+- ❌ `$fillable` に `created_at`, `updated_at` を含めない
+
+#### Utility
+- 必ず `*Utility` サフィックスをつける
+- 機能を表す明確な名前
+- ✅ `StringUtility`, `DateUtility`, `RandomUtility`, `CryptoUtility`
+- ✅ `ClockUtility`, `RedisUtility`（既存）
+- ❌ `Helper`, `Utils`, `Common`（曖昧）
+
+#### Constants
+- 必ず `*Const` サフィックスをつける
+- ドメイン名を含める
+- ✅ `UnitConst`, `EquipmentConst`, `PlayerConst`
+- ❌ `Unit`, `Equipment`, `Player`（曖昧）
+- ❌ `UnitConstants`, `EquipmentConstants`（冗長）
+
+---
+
+### 命名禁止事項
+
+以下のような冗長な命名は避けてください：
+
+**Request/Response:**
+- ❌ `VersionCheckRequest` → ✅ `VersionRequest`
+- ❌ `GetVersionRequest` → ✅ `VersionRequest`
+- ❌ `VersionCheckResponse` → ✅ `VersionResponse`
+- ❌ `GetVersionResponse` → ✅ `VersionResponse`
+
+**Data:**
+- ❌ `AssetUpdate` → ✅ `AssetUpdateData`（サフィックス必須）
+- ❌ `Maintenance` → ✅ `MaintenanceData`（サフィックス必須）
+
+**Utility:**
+- ❌ `Helper`, `Utils`, `Common` → ✅ `StringUtility`, `DateUtility`（具体的に）
+- ❌ `StringUtil` → ✅ `StringUtility`（フルサフィックス）
+
+**Constants:**
+- ❌ `Unit`, `Equipment` → ✅ `UnitConst`, `EquipmentConst`（サフィックス必須）
+- ❌ `UnitConstants` → ✅ `UnitConst`（冗長を避ける）
+
+---
+
+## まとめ
+
+1. **Request・Responseクラス名は、エンドポイントのアクション名に合わせる**
+2. **Dataクラスには `*Data` サフィックスをつけ、Domain層に配置する**
+3. **Repositoryクラスには `*Repository` サフィックスをつけ、キャッシュ機能を実装する**
+4. **Modelクラスはテーブル名をPascalCaseに変換し、プレフィックスを含める**
+5. **Mst Modelは `$fillable` の最初に `deploy_key` を必ず配置する**
+6. **Log Modelは `_BaseLog` を継承し、`$casts`/`$fillable` に `created_at`/`updated_at` を含めない**
+7. **Utilityクラスには `*Utility` サフィックスをつけ、静的メソッドで実装する**
+8. **Constantsクラスには `*Const` サフィックスをつけ、Domain層に配置する**
+9. **Modelに定数を直接定義せず、Constantsクラスに分離する**
+10. **機能ごとにサブディレクトリに分けて配置する**
+11. **名前空間はディレクトリ構造に従う**
+12. **冗長な接頭辞・接尾辞は避ける**
+
+これらの規約に従うことで、コードの一貫性と保守性が向上します。
+
+

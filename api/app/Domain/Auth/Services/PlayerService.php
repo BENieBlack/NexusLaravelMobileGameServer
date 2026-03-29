@@ -64,7 +64,7 @@ class PlayerService
 
         // **重要**: SysPlayerをINSERTしてIDを取得
         // これにより、$sysPlayer->idに値が設定される
-        $querySysManager = app()->make('App\Utilities\QuerySysManager');
+        $querySysManager = app()->make(\App\Repositories\Sys\QuerySysManager::class);
         $querySysManager->execAllQuery();
 
         // デバイス情報を作成（Unit of Work パターン）

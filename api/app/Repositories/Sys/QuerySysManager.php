@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Utilities;
+namespace App\Repositories\Sys;
 
-use App\Repositories\Sys\_BaseSysRepository;
 use Illuminate\Support\Facades\DB;
 
 /**

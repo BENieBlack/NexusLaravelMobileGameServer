@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Utilities;
+namespace App\Repositories\Log;
 
-use App\Repositories\Log\_BaseLogRepository;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -191,4 +190,3 @@ class QueryLogManager
         ];
     }
 }
-

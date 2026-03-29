@@ -2,9 +2,7 @@
 
 namespace App\Providers;
 
-use App\Repositories\TrxQueryManager;
-use App\Repositories\LogQueryManager;
-use App\Repositories\SysQueryManager;
+use App\Repositories\QueryManager;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
@@ -30,10 +28,8 @@ class AppServiceProvider extends ServiceProvider
         );
 
         // Unit of Work パターン用のQueryManagerをシングルトンとして登録
-        $this->app->singleton(TrxQueryManager::class);
-        $this->app->singleton('query.manager', TrxQueryManager::class);
-        $this->app->singleton(LogQueryManager::class);
-        $this->app->singleton(SysQueryManager::class);
+        $this->app->singleton(QueryManager::class);
+        $this->app->singleton('query.manager', QueryManager::class);
     }
 
     /**

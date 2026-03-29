@@ -4,7 +4,7 @@ namespace App\Repositories\Log;
 
 use App\Models\Log\_BaseLog;
 use App\Repositories\_BaseRepository;
-use App\Repositories\LogQueryManager as QueryLogManager;
+use App\Repositories\QueryManager;
 use App\Utilities\ApiSession;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Model;
@@ -145,7 +145,7 @@ abstract class _BaseLogRepository extends _BaseRepository implements _BaseLogRep
 
         // QueryLogManagerに自身を登録（初回のみ）
         if (!$this->registeredToManager) {
-            $queryManager = app()->make(QueryLogManager::class);
+            $queryManager = app()->make(QueryManager::class);
             $queryManager->registerRepository($this, $isPurchase ?? $this->isPurchaseLog);
             $this->registeredToManager = true;
         }

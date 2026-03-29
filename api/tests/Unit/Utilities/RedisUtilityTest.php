@@ -27,7 +27,6 @@ class RedisUtilityTest extends TestCase
     }
 
     /**
-     * @test
      * 基本的なput/getが動作する
      */
     public function 基本的なput_getが動作する()
@@ -42,7 +41,6 @@ class RedisUtilityTest extends TestCase
     }
 
     /**
-     * @test
      * 配列データの保存と取得ができる
      */
     public function 配列データの保存と取得ができる()
@@ -60,7 +58,6 @@ class RedisUtilityTest extends TestCase
     }
 
     /**
-     * @test
      * hasメソッドが正しく動作する
      */
     public function hasメソッドが正しく動作する()
@@ -76,7 +73,6 @@ class RedisUtilityTest extends TestCase
     }
 
     /**
-     * @test
      * forgetメソッドが正しく動作する
      */
     public function forgetメソッドが正しく動作する()
@@ -92,7 +88,6 @@ class RedisUtilityTest extends TestCase
     }
 
     /**
-     * @test
      * foreverメソッドが永続保存する
      */
     public function foreverメソッドが永続保存する()
@@ -106,7 +101,6 @@ class RedisUtilityTest extends TestCase
     }
 
     /**
-     * @test
      * increment_decrementが動作する
      */
     public function increment_decrementが動作する()
@@ -133,7 +127,6 @@ class RedisUtilityTest extends TestCase
     }
 
     /**
-     * @test
      * rememberメソッドがキャッシュを使用する
      */
     public function rememberメソッドがキャッシュを使用する()
@@ -160,7 +153,6 @@ class RedisUtilityTest extends TestCase
     }
 
     /**
-     * @test
      * pullメソッドが取得後に削除する
      */
     public function pullメソッドが取得後に削除する()
@@ -176,7 +168,6 @@ class RedisUtilityTest extends TestCase
     }
 
     /**
-     * @test
      * putCompressedとgetCompressedが動作する
      */
     public function putCompressedとgetCompressedが動作する()
@@ -199,7 +190,6 @@ class RedisUtilityTest extends TestCase
     }
 
     /**
-     * @test
      * rememberCompressedがキャッシュを使用する
      */
     public function rememberCompressedがキャッシュを使用する()
@@ -227,7 +217,6 @@ class RedisUtilityTest extends TestCase
     }
 
     /**
-     * @test
      * prefixKeyがプレフィックスを付与する
      */
     public function prefixKeyがプレフィックスを付与する()
@@ -240,7 +229,6 @@ class RedisUtilityTest extends TestCase
     }
 
     /**
-     * @test
      * addメソッドが既存キーには上書きしない
      */
     public function addメソッドが既存キーには上書きしない()
@@ -257,7 +245,6 @@ class RedisUtilityTest extends TestCase
     }
 
     /**
-     * @test
      * flushとclearが全てのキャッシュをクリアする
      */
     public function flushとclearが全てのキャッシュをクリアする()
@@ -287,7 +274,6 @@ class RedisUtilityTest extends TestCase
     }
 
     /**
-     * @test
      * deleteManyが複数のキーを削除する
      */
     public function deleteManyが複数のキーを削除する()
@@ -309,7 +295,6 @@ class RedisUtilityTest extends TestCase
     }
 
     /**
-     * @test
      * 存在しないキーのgetはデフォルト値を返す
      */
     public function 存在しないキーのgetはデフォルト値を返す()
@@ -322,7 +307,6 @@ class RedisUtilityTest extends TestCase
     }
 
     /**
-     * @test
      * 存在しないキーのgetCompressedはデフォルト値を返す
      */
     public function 存在しないキーのgetCompressedはデフォルト値を返す()

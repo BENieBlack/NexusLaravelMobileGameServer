@@ -118,9 +118,9 @@ class SysPlayer extends _BaseSys
     /**
      * プレイヤー名を取得
      *
-     * @return string
+     * @return string|null
      */
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->getAttribute('name');
     }

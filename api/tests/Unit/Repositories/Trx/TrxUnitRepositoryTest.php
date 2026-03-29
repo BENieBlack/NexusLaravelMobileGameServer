@@ -4,6 +4,8 @@ namespace Tests\Unit\Repositories\Trx;
 
 use App\Models\Trx\TrxUnit;
 use App\Repositories\Trx\TrxUnitRepository;
+use App\Utilities\ApiSession;
+use App\Utilities\Clock;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
 
@@ -16,6 +18,11 @@ class TrxUnitRepositoryTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        
+        // ApiSessionを初期化（テスト用のプレイヤーID=1を設定）
+        Clock::initialize();
+        ApiSession::setSysPlayerId(1);
+        
         $this->repository = new TrxUnitRepository();
     }
 
@@ -36,7 +43,7 @@ class TrxUnitRepositoryTest extends TestCase
 
         // Act
         $this->repository->setModel($trxUnit);
-        $queuedModels = $this->repository->getQueuedModels();
+        $queuedModels = array_values($this->repository->getQueuedModels());
 
         // Assert
         $this->assertCount(1, $queuedModels);
@@ -66,7 +73,7 @@ class TrxUnitRepositoryTest extends TestCase
 
         // Act
         $this->repository->setModel($trxUnit);
-        $queuedModels = $this->repository->getQueuedModels();
+        $queuedModels = array_values($this->repository->getQueuedModels());
 
         // Assert
         $this->assertCount(1, $queuedModels);
@@ -161,13 +168,12 @@ class TrxUnitRepositoryTest extends TestCase
     {
         // Act
         $trxUnit = $this->repository->createUnit(
-            sysPlayerId: 1,
             mstUnitId: 'unit_005',
             grade: 2,
             level: 5
         );
 
-        $queuedModels = $this->repository->getQueuedModels();
+        $queuedModels = array_values($this->repository->getQueuedModels());
 
         // Assert
         $this->assertNotNull($trxUnit);
@@ -188,7 +194,6 @@ class TrxUnitRepositoryTest extends TestCase
     {
         // Act
         $trxUnit = $this->repository->createUnit(
-            sysPlayerId: 1,
             mstUnitId: 'unit_006'
         );
 
@@ -219,7 +224,7 @@ class TrxUnitRepositoryTest extends TestCase
         $this->repository->addExp($trxUnit->id, 50);
 
         // Get the updated unit from queue
-        $queuedModels = $this->repository->getQueuedModels();
+        $queuedModels = array_values($this->repository->getQueuedModels());
 
         // Assert
         $this->assertCount(1, $queuedModels);
@@ -248,7 +253,7 @@ class TrxUnitRepositoryTest extends TestCase
         $this->repository->addExp($trxUnit->id, 150); // 80 + 150 = 230
 
         // Get the updated unit from queue
-        $queuedModels = $this->repository->getQueuedModels();
+        $queuedModels = array_values($this->repository->getQueuedModels());
 
         // Assert - Should level up twice (230 = 100 + 100 + 30)
         $this->assertCount(1, $queuedModels);
@@ -277,7 +282,7 @@ class TrxUnitRepositoryTest extends TestCase
         $this->repository->upgradeGrade($trxUnit->id);
 
         // Get the updated unit from queue
-        $queuedModels = $this->repository->getQueuedModels();
+        $queuedModels = array_values($this->repository->getQueuedModels());
 
         // Assert
         $this->assertCount(1, $queuedModels);
@@ -327,14 +332,13 @@ class TrxUnitRepositoryTest extends TestCase
         // Arrange & Act
         for ($i = 1; $i <= 5; $i++) {
             $this->repository->createUnit(
-                sysPlayerId: 1,
                 mstUnitId: "unit_batch_{$i}",
                 grade: 1,
                 level: $i
             );
         }
 
-        $queuedModels = $this->repository->getQueuedModels();
+        $queuedModels = array_values($this->repository->getQueuedModels());
 
         // Assert
         $this->assertCount(5, $queuedModels);

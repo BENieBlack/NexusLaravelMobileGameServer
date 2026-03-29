@@ -32,8 +32,9 @@ class MstUnitRepositoryTest extends TestCase
         $unit = MstUnit::create([
             'id' => 'unit_001',
             'deploy_key' => 202601010,
-            'type' => 'warrior',
-            'unit_skill_set_id' => 'skill_set_001',
+            'type' => 'Attack',
+            'element' => 'Fire',
+            'rarity' => 'SSR',
         ]);
 
         // Act
@@ -42,8 +43,7 @@ class MstUnitRepositoryTest extends TestCase
         // Assert
         $this->assertNotNull($result);
         $this->assertEquals('unit_001', $result->id);
-        $this->assertEquals('warrior', $result->type);
-        $this->assertEquals('skill_set_001', $result->unit_skill_set_id);
+        $this->assertEquals('Attack', $result->type);
     }
 
     /**
@@ -67,22 +67,25 @@ class MstUnitRepositoryTest extends TestCase
         MstUnit::create([
             'id' => 'unit_001',
             'deploy_key' => 202601010,
-            'type' => 'warrior',
-            'unit_skill_set_id' => 'skill_set_001',
+            'type' => 'Attack',
+            'element' => 'Fire',
+            'rarity' => 'SSR',
         ]);
 
         MstUnit::create([
             'id' => 'unit_002',
             'deploy_key' => 202601010,
-            'type' => 'mage',
-            'unit_skill_set_id' => 'skill_set_002',
+            'type' => 'Defense',
+            'element' => 'Water',
+            'rarity' => 'SR',
         ]);
 
         MstUnit::create([
             'id' => 'unit_003',
             'deploy_key' => 202601010,
-            'type' => 'archer',
-            'unit_skill_set_id' => 'skill_set_003',
+            'type' => 'Support',
+            'element' => 'Wind',
+            'rarity' => 'R',
         ]);
 
         // Act
@@ -115,8 +118,9 @@ class MstUnitRepositoryTest extends TestCase
         MstUnit::create([
             'id' => 'unit_001',
             'deploy_key' => 202601010,
-            'type' => 'warrior',
-            'unit_skill_set_id' => 'skill_set_001',
+            'type' => 'Attack',
+            'element' => 'Fire',
+            'rarity' => 'SSR',
         ]);
 
         // Act - First call should query database and cache
@@ -126,8 +130,9 @@ class MstUnitRepositoryTest extends TestCase
         MstUnit::create([
             'id' => 'unit_002',
             'deploy_key' => 202601010,
-            'type' => 'mage',
-            'unit_skill_set_id' => 'skill_set_002',
+            'type' => 'Defense',
+            'element' => 'Water',
+            'rarity' => 'SR',
         ]);
 
         // Second call should use cache, so unit_002 should not be visible
@@ -149,8 +154,9 @@ class MstUnitRepositoryTest extends TestCase
         MstUnit::create([
             'id' => 'unit_001',
             'deploy_key' => 202601010,
-            'type' => 'warrior',
-            'unit_skill_set_id' => 'skill_set_001',
+            'type' => 'Attack',
+            'element' => 'Fire',
+            'rarity' => 'SSR',
         ]);
 
         // Act - First call to cache data
@@ -166,8 +172,9 @@ class MstUnitRepositoryTest extends TestCase
         MstUnit::create([
             'id' => 'unit_002',
             'deploy_key' => 202601010,
-            'type' => 'mage',
-            'unit_skill_set_id' => 'skill_set_002',
+            'type' => 'Defense',
+            'element' => 'Water',
+            'rarity' => 'SR',
         ]);
 
         // Should see the new unit after cache clear
@@ -185,9 +192,9 @@ class MstUnitRepositoryTest extends TestCase
     public function test_select_list_by_ids_returns_all_matching_units(): void
     {
         // Arrange
-        MstUnit::create(['id' => 'unit_001', 'deploy_key' => 202601010, 'type' => 'warrior', 'unit_skill_set_id' => 'skill_set_001']);
-        MstUnit::create(['id' => 'unit_002', 'deploy_key' => 202601010, 'type' => 'mage', 'unit_skill_set_id' => 'skill_set_002']);
-        MstUnit::create(['id' => 'unit_003', 'deploy_key' => 202601010, 'type' => 'archer', 'unit_skill_set_id' => 'skill_set_003']);
+        MstUnit::create(['id' => 'unit_001', 'deploy_key' => 202601010, 'type' => 'Attack', 'element' => 'Fire', 'rarity' => 'SSR']);
+        MstUnit::create(['id' => 'unit_002', 'deploy_key' => 202601010, 'type' => 'Defense', 'element' => 'Water', 'rarity' => 'SR']);
+        MstUnit::create(['id' => 'unit_003', 'deploy_key' => 202601010, 'type' => 'Support', 'element' => 'Wind', 'rarity' => 'R']);
 
         // Act
         $result = $this->repository->selectListByIds(['unit_003', 'unit_001', 'unit_002']);
@@ -206,14 +213,17 @@ class MstUnitRepositoryTest extends TestCase
     public function test_handles_different_unit_types(): void
     {
         // Arrange
-        $types = ['warrior', 'mage', 'archer', 'healer', 'tank'];
+        $types = ['Attack', 'Defense', 'Support'];
+        $elements = ['Fire', 'Water', 'Wind'];
+        $rarities = ['SSR', 'SR', 'R'];
         
         foreach ($types as $index => $type) {
             MstUnit::create([
                 'id' => 'unit_00' . ($index + 1),
                 'deploy_key' => 202601010,
                 'type' => $type,
-                'unit_skill_set_id' => 'skill_set_00' . ($index + 1),
+                'element' => $elements[$index],
+                'rarity' => $rarities[$index],
             ]);
         }
 
@@ -222,7 +232,7 @@ class MstUnitRepositoryTest extends TestCase
 
         // Assert
         $this->assertNotNull($result);
-        $this->assertEquals('archer', $result->type);
+        $this->assertEquals('Support', $result->type);
     }
 
     protected function tearDown(): void

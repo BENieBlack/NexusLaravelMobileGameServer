@@ -27,7 +27,7 @@ class SysPlayerRepositoryTest extends TestCase
         // Arrange
         $sysPlayer = new SysPlayer([
             'uuid' => 'test-uuid-001',
-            'my_id' => 'player001',
+            'my_id' => 'PLY00001',
             'name' => 'Test Player',
             'level' => 1,
             'level_exp' => 0,
@@ -36,12 +36,12 @@ class SysPlayerRepositoryTest extends TestCase
 
         // Act
         $this->repository->setModel($sysPlayer);
-        $queuedModels = $this->repository->getQueuedModels();
+        $queuedModels = array_values($this->repository->getQueuedModels());
 
         // Assert
         $this->assertCount(1, $queuedModels);
         $this->assertEquals('test-uuid-001', $queuedModels[0]->uuid);
-        $this->assertEquals('player001', $queuedModels[0]->my_id);
+        $this->assertEquals('PLY00001', $queuedModels[0]->my_id);
         $this->assertFalse($queuedModels[0]->exists);
     }
 
@@ -53,7 +53,7 @@ class SysPlayerRepositoryTest extends TestCase
         // Arrange
         $sysPlayer = SysPlayer::create([
             'uuid' => 'test-uuid-002',
-            'my_id' => 'player002',
+            'my_id' => 'PLY00002',
             'name' => 'Original Name',
             'level' => 1,
             'level_exp' => 0,
@@ -65,7 +65,7 @@ class SysPlayerRepositoryTest extends TestCase
 
         // Act
         $this->repository->setModel($sysPlayer);
-        $queuedModels = $this->repository->getQueuedModels();
+        $queuedModels = array_values($this->repository->getQueuedModels());
 
         // Assert
         $this->assertCount(1, $queuedModels);
@@ -84,7 +84,7 @@ class SysPlayerRepositoryTest extends TestCase
         // Arrange
         $sysPlayer = SysPlayer::create([
             'uuid' => 'test-uuid-004',
-            'my_id' => 'player004',
+            'my_id' => 'PLY00004',
             'name' => 'Cached Player',
             'level' => 5,
             'level_exp' => 100,
@@ -123,18 +123,18 @@ class SysPlayerRepositoryTest extends TestCase
         // Arrange
         SysPlayer::create([
             'uuid' => 'test-uuid-005',
-            'my_id' => 'player005',
+            'my_id' => 'PLY00005',
             'name' => 'Player 5',
             'level' => 1,
             'level_exp' => 0,
         ]);
 
         // Act
-        $result = $this->repository->selectByMyId('player005');
+        $result = $this->repository->selectByMyId('PLY00005');
 
         // Assert
         $this->assertNotNull($result);
-        $this->assertEquals('player005', $result->my_id);
+        $this->assertEquals('PLY00005', $result->my_id);
         $this->assertEquals('Player 5', $result->name);
     }
 
@@ -158,7 +158,7 @@ class SysPlayerRepositoryTest extends TestCase
         // Arrange
         SysPlayer::create([
             'uuid' => 'test-uuid-006',
-            'my_id' => 'player006',
+            'my_id' => 'PLY00006',
             'name' => 'Player 6',
             'level' => 1,
             'level_exp' => 0,
@@ -193,14 +193,14 @@ class SysPlayerRepositoryTest extends TestCase
         // Arrange
         SysPlayer::create([
             'uuid' => 'test-uuid-007',
-            'my_id' => 'player007',
+            'my_id' => 'PLY00007',
             'name' => 'Player 7',
             'level' => 1,
             'level_exp' => 0,
         ]);
 
         // Act
-        $result = $this->repository->existsByMyId('player007');
+        $result = $this->repository->existsByMyId('PLY00007');
 
         // Assert
         $this->assertTrue($result);
@@ -226,7 +226,7 @@ class SysPlayerRepositoryTest extends TestCase
         // Arrange
         $sysPlayer = SysPlayer::create([
             'uuid' => 'test-uuid-008',
-            'my_id' => 'player008',
+            'my_id' => 'PLY00008',
             'name' => 'Cache Test Player',
             'level' => 1,
             'level_exp' => 0,
@@ -236,7 +236,7 @@ class SysPlayerRepositoryTest extends TestCase
         $result1 = $this->repository->findById($sysPlayer->id);
         
         // Access same player via my_id (should use memory cache)
-        $result2 = $this->repository->selectByMyId('player008');
+        $result2 = $this->repository->selectByMyId('PLY00008');
         
         // Access same player via uuid (should use memory cache)
         $result3 = $this->repository->selectByUuid('test-uuid-008');
@@ -257,7 +257,7 @@ class SysPlayerRepositoryTest extends TestCase
         // Arrange
         $sysPlayer1 = new SysPlayer([
             'uuid' => 'test-uuid-009',
-            'my_id' => 'player009',
+            'my_id' => 'PLY00009',
             'name' => 'Player 9',
             'level' => 1,
             'level_exp' => 0,
@@ -266,7 +266,7 @@ class SysPlayerRepositoryTest extends TestCase
 
         $sysPlayer2 = new SysPlayer([
             'uuid' => 'test-uuid-010',
-            'my_id' => 'player010',
+            'my_id' => 'PLY00010',
             'name' => 'Player 10',
             'level' => 1,
             'level_exp' => 0,
@@ -294,7 +294,7 @@ class SysPlayerRepositoryTest extends TestCase
         for ($i = 1; $i <= 5; $i++) {
             $sysPlayer = new SysPlayer([
                 'uuid' => "test-uuid-batch-{$i}",
-                'my_id' => "player_batch_{$i}",
+                'my_id' => sprintf('B%07d', $i), // e.g., B0000001, B0000002 (8 chars)
                 'name' => "Batch Player {$i}",
                 'level' => 1,
                 'level_exp' => 0,
@@ -307,12 +307,12 @@ class SysPlayerRepositoryTest extends TestCase
         foreach ($players as $player) {
             $this->repository->setModel($player);
         }
-        $queuedModels = $this->repository->getQueuedModels();
+        $queuedModels = array_values($this->repository->getQueuedModels());
 
         // Assert
         $this->assertCount(5, $queuedModels);
         for ($i = 0; $i < 5; $i++) {
-            $this->assertEquals("player_batch_" . ($i + 1), $queuedModels[$i]->my_id);
+            $this->assertEquals(sprintf('B%07d', $i + 1), $queuedModels[$i]->my_id);
         }
     }
 }

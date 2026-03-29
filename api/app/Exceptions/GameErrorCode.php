@@ -6,7 +6,7 @@ namespace App\Exceptions;
  * GameErrorCode
  * 
  * ゲームAPIのエラーコード定数定義
- * HTTPステータス999のレスポンスで使用するerror_codeの一覧
+ * HTTPステータス600のレスポンスで使用するerror_codeの一覧
  */
 class GameErrorCode
 {

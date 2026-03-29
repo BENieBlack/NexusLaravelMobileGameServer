@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\GameException;
-use App\Http\Responses\_BaseResponseInterface;
+use App\Exceptions\HttpStatusCode;
+use App\Http\CustomJsonResponse;
+use App\Responses\_BaseResponseInterface;
 use Illuminate\Http\JsonResponse;
 use Throwable;
 
@@ -48,7 +50,7 @@ abstract class _BaseController
     /**
      * 例外をハンドリングし、エラーレスポンスを返す
      * 
-     * GameException: HTTP 999 + {error_code: int, message: string}
+     * GameException: HTTP 600 + {error_code: int, message: string}
      * その他: HTTP status + {error_code: int, message: string}
      *
      * @param Throwable $e
@@ -56,9 +58,9 @@ abstract class _BaseController
      */
     protected function handleException(Throwable $e): JsonResponse
     {
-        // GameExceptionの場合は999ステータスでerror_codeとmessageを返す
+        // GameExceptionの場合は600ステータスでerror_codeとmessageを返す
         if ($e instanceof GameException) {
-            return response()->json($e->toArray(), 999);
+            return new CustomJsonResponse($e->toArray(), HttpStatusCode::GAME_ERROR);
         }
 
         // その他の例外も同じ形式で返す（統一性のため）

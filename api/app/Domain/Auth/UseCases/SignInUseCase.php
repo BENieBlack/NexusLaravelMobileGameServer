@@ -43,22 +43,33 @@ class SignInUseCase implements _BaseUseCaseInterface
         // トランザクション開始
         return $this->executeWithTransaction(function () use ($deviceId) {
             // デバイスとプレイヤーを取得
-            $result = $this->playerService->findByDeviceId($deviceId);
+            $sysPlayerDevice = $this->playerService->findByDeviceId($deviceId);
 
-            if ($result === null) {
+            if ($sysPlayerDevice === null) {
                 throw new GameException(
                     GameErrorCode::PLAYER_NOT_FOUND,
                     "Device ID not found: {$deviceId}. Please use sign_up endpoint."
                 );
             }
 
-            [$sysPlayer, $sysPlayerDevice] = $result;
+            // プレイヤー情報を取得
+            $sysPlayer = $this->playerService->findById($sysPlayerDevice->sys_player_id);
+
+            if ($sysPlayer === null) {
+                throw new GameException(
+                    GameErrorCode::PLAYER_NOT_FOUND,
+                    "Player not found for device: {$deviceId}"
+                );
+            }
 
             // 古いトークンを無効化
             $this->tokenService->revokeDeviceTokens($sysPlayerDevice);
 
             // Token DTO生成
             [$dtoToken, $sysPlayerToken] = $this->tokenService->generateToken($sysPlayer, $sysPlayerDevice);
+
+            // 最終ログイン日時を更新
+            $this->playerService->updateLastLogin($sysPlayerDevice);
 
             return new SignInResponse(
                 sysPlayer: $sysPlayer,

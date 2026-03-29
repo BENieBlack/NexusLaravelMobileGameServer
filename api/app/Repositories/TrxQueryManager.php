@@ -1,36 +1,34 @@
 <?php
 
-namespace App\Repositories\Sys;
+namespace App\Repositories;
 
+use App\Repositories\Trx\_BaseTrxRepository;
 use Illuminate\Support\Facades\DB;
 
 /**
- * QuerySysManager
+ * TrxQueryManager
  * 
- * システムデータベース（sys）への変更を溜め込み、一括で実行する
+ * トランザクションデータベース（trx）への変更を溜め込み、一括で実行する
  * Unit of Work パターンの実装
  * 
  * Repositoryを登録し、実行時に各Repositoryからモデルを取り出してINSERT/UPDATEを判定する
- * 
- * 重要：sysデータベースでは、INSERTしたIDを外部キーとして使用するため、
- * バッチインサートではなく個別インサートを行い、IDを取得する
  */
-class QuerySysManager
+class TrxQueryManager
 {
     /**
      * 登録されたRepositoryのリスト
      * 
-     * @var array<_BaseSysRepository>
+     * @var array<_BaseTrxRepository>
      */
     private array $repositories = [];
 
     /**
      * Repositoryを登録する
      *
-     * @param _BaseSysRepository $repository
+     * @param _BaseTrxRepository $repository
      * @return void
      */
-    public function registerRepository(_BaseSysRepository $repository): void
+    public function registerRepository(_BaseTrxRepository $repository): void
     {
         // 重複登録を防ぐ（同じインスタンスは1回のみ登録）
         $hash = spl_object_hash($repository);
@@ -43,9 +41,6 @@ class QuerySysManager
     /**
      * 溜め込んだ全てのモデルを実行する
      * 各Repositoryからモデルを取り出し、実行時にINSERT/UPDATEを判定
-     * 
-     * sysデータベースでは、INSERTしたIDを取得して外部キーとして使用するため、
-     * 個別インサートを行う
      *
      * @return void
      * @throws \Exception
@@ -112,31 +107,22 @@ class QuerySysManager
             }
         }
         
-        // INSERT処理（個別インサートでIDを取得）
+        // INSERT処理（バッチインサート）
         foreach ($insertsByTable as $item) {
             if (empty($item['records'])) {
                 continue;
             }
             
+            DB::connection($item['connection'])
+                ->table($item['table'])
+                ->insert($item['records']);
+            
+            // afterSaveフックを呼び出す（INSERT）
             $models = $item['models'];
-            $records = $item['records'];
             $originalStates = $item['originalStates'];
             $repository = $item['repository'];
             
-            // 各モデルを個別にINSERTしてIDを取得
             foreach ($models as $index => $model) {
-                $attributes = $records[$index];
-                
-                // INSERTを実行してIDを取得
-                $id = DB::connection($item['connection'])
-                    ->table($item['table'])
-                    ->insertGetId($attributes);
-                
-                // モデルにIDをセット
-                $model->setAttribute($model->getKeyName(), $id);
-                $model->exists = true;
-                
-                // afterSaveフックを呼び出す（INSERT）
                 $originalState = $originalStates[$index] ?? [];
                 $repository->afterSave($model, $originalState);
             }

@@ -616,7 +616,7 @@ class VersionCheckUseCase implements _BaseUseCaseInterface
 
 **重要な設計思想:**
 - UseCaseのコールバック内では**SELECT（読み取り）のみ**を実行
-- INSERT/UPDATE/DELETEは`QueryTrxManager`/`QueryLogManager`に**キューイング**される
+- INSERT/UPDATE/DELETE は`TrxQueryManager`/`LogQueryManager`/`SysQueryManager`に**キューイング**される
 - トランザクション開始**後**に、キューイングされたクエリを**一括実行**
 
 **実装例（UseCaseTrait）:**
@@ -655,8 +655,9 @@ public function handle(int $unitId, int $itemId, int $amount): Response
    └── DB::connection('log')->beginTransaction()
    
 3. キューイングされたクエリを一括実行
-   ├── QueryTrxManager::execAllQuery()  ← INSERT/UPDATE/DELETE
-   └── QueryLogManager::execAllQuery()  ← ログ書き込み
+   ├── TrxQueryManager::execAllQuery()  ← INSERT/UPDATE/DELETE
+   ├── SysQueryManager::execAllQuery()  ← sysテーブルへの変更
+   └── LogQueryManager::execAllQuery()  ← ログ書き込み
    
 4. トランザクションコミット
    ├── DB::connection('trx')->commit()
@@ -767,7 +768,7 @@ abstract class _BaseTrxRepository extends _BaseRepository
 
         // QueryManagerに自身を登録（初回のみ）
         if (!$this->registeredToManager) {
-            $queryManager = app()->make(\App\Repositories\Trx\QueryTrxManager::class);
+            $queryManager = app()->make(\App\Repositories\TrxQueryManager::class);
             $queryManager->registerRepository($this);
             $this->registeredToManager = true;
         }
@@ -1197,7 +1198,7 @@ abstract class _BaseTrxRepository extends _BaseRepository
         
         // QueryManagerに自身を登録
         if (!$this->registeredToManager) {
-            $queryManager = app()->make(\App\Repositories\Trx\QueryTrxManager::class);
+            $queryManager = app()->make(\App\Repositories\TrxQueryManager::class);
             $queryManager->registerRepository($this);
             $this->registeredToManager = true;
         }
@@ -1214,7 +1215,7 @@ abstract class _BaseTrxRepository extends _BaseRepository
         
         // QueryManagerに自身を登録
         if (!$this->registeredToManager) {
-            $queryManager = app()->make(\App\Repositories\Trx\QueryTrxManager::class);
+            $queryManager = app()->make(\App\Repositories\TrxQueryManager::class);
             $queryManager->registerRepository($this);
             $this->registeredToManager = true;
         }
@@ -1238,14 +1239,14 @@ abstract class _BaseTrxRepository extends _BaseRepository
 }
 ```
 
-#### 2. QueryTrxManagerの拡張
+#### 2. TrxQueryManagerの拡張
 
 DELETE処理をINSERT/UPDATEと同様にキューイングして一括実行します：
 
 ```php
-namespace App\Repositories\Trx;
+namespace App\Repositories;
 
-class QueryTrxManager
+class TrxQueryManager
 {
     public function execAllQuery(): void
     {
@@ -1348,8 +1349,8 @@ trait UseCaseTrait
         
         try {
             // 4. キューイングされたクエリを一括実行（INSERT → UPDATE → DELETE）
-            app(\App\Repositories\Trx\QueryTrxManager::class)->execAllQuery();
-            app(\App\Repositories\Log\QueryLogManager::class)->execAllQuery();
+            app(\App\Repositories\TrxQueryManager::class)->execAllQuery();
+            app(\App\Repositories\LogQueryManager::class)->execAllQuery();
             
             // 5. コミット
             DB::connection('trx')->commit();
@@ -1421,7 +1422,7 @@ class SignInUseCase
    ↓
 4. トランザクション開始
    ↓
-5. QueryTrxManager::execAllQuery()
+5. TrxQueryManager::execAllQuery()
    ├── INSERT実行
    ├── UPDATE実行
    └── DELETE実行（is_delete=trueレコードを物理削除）

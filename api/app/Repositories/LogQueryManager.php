@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Repositories\Log;
+namespace App\Repositories;
 
+use App\Repositories\Log\_BaseLogRepository;
 use Illuminate\Support\Facades\DB;
 
 /**
- * QueryLogManager
+ * LogQueryManager
  * 
  * ログデータベース（log）への変更を溜め込み、一括で実行する
  * Unit of Work パターンの実装
@@ -13,7 +14,7 @@ use Illuminate\Support\Facades\DB;
  * 課金関連のログは必ずトランザクション内で実行される
  * その他のログは設定に応じてトランザクション内/外を選択可能
  */
-class QueryLogManager
+class LogQueryManager
 {
     /**
      * 課金関連のログRepositoryのリスト

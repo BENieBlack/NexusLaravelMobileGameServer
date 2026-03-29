@@ -5,7 +5,7 @@
 ## 目次
 
 - [sysデータベースのトランザクション管理](#sysデータベースのトランザクション管理)
-- [QuerySysManagerの実装](#querysysmanagerの実装)
+- [SysQueryManagerの実装](#sysquerymanagerの実装)
 - [トランザクション実行フロー](#トランザクション実行フロー)
 - [実装例](#実装例)
 
@@ -39,29 +39,29 @@
 
 ---
 
-## QuerySysManagerの実装
+## SysQueryManagerの実装
 
 ### 概要
 
-`QuerySysManager`は、sysデータベース専用のQueryManagerで、**個別INSERT（`insertGetId()`）とID自動設定**を行います。
+`SysQueryManager`は、sysデータベース専用のQueryManagerで、**個別INSERT（`insertGetId()`）とID自動設定**を行います。
 
-**QueryTrxManager/QueryLogManagerとの違い:**
+**TrxQueryManager/LogQueryManagerとの違い:**
 
-| 機能 | QueryTrxManager | QuerySysManager |
+| 機能 | TrxQueryManager | SysQueryManager |
 |-----|----------------|-----------------|
 | INSERT方式 | バッチINSERT（`DB::table()->insert()`） | 個別INSERT（`insertGetId()`） |
 | ID取得 | ❌ 取得不可 | ✅ 取得してモデルに自動設定 |
 | 実行タイミング | トランザクション開始後 | トランザクション開始前・後の両方 |
 | 用途 | IDを即座に使わないテーブル | IDを即座に使うテーブル |
 
-### 実装: QuerySysManager.php
+### 実装: SysQueryManager.php
 
 ```php
-namespace App\Repositories\Sys;
+namespace App\Repositories;
 
 use Illuminate\Support\Facades\DB;
 
-class QuerySysManager
+class SysQueryManager
 {
     /**
      * 登録されたRepositoryの配列
@@ -138,8 +138,8 @@ trait UseCaseTrait
 {
     protected function executeWithTransaction(callable $callback, ?int $sysPlayerId = null)
     {
-        // 1. QuerySysManagerをシングルトンとして取得
-        $querySysManager = app()->make(QuerySysManager::class);
+        // 1. SysQueryManagerをシングルトンとして取得
+        $querySysManager = app()->make(SysQueryManager::class);
         
         // 2. トランザクション開始（sys, trx, log）
         DB::connection('sys')->beginTransaction();
@@ -158,8 +158,8 @@ trait UseCaseTrait
 
             // 5. キューイングされたクエリを一括実行
             $querySysManager->execAllQuery();  // ✅ sys専用
-            app(QueryTrxManager::class)->execAllQuery();
-            app(QueryLogManager::class)->execAllQuery();
+            app(TrxQueryManager::class)->execAllQuery();
+            app(LogQueryManager::class)->execAllQuery();
 
             // 6. コミット
             DB::connection('sys')->commit();
@@ -193,13 +193,13 @@ trait UseCaseTrait
 3. クリーンアップ処理（is_delete=true削除）
    ↓
 4. キューイングされたクエリを一括実行
-   ├── QuerySysManager::execAllQuery()
+   ├── SysQueryManager::execAllQuery()
    │   ├── INSERT sys_player → ID取得 → モデルに設定
    │   ├── INSERT sys_player_device → ID取得 → モデルに設定
    │   └── INSERT sys_player_token
-   ├── QueryTrxManager::execAllQuery()
+   ├── TrxQueryManager::execAllQuery()
    │   └── INSERT trx_player
-   └── QueryLogManager::execAllQuery()
+   └── LogQueryManager::execAllQuery()
        └── INSERT log_signup
    ↓
 5. コミット（sys, trx, log）
@@ -247,7 +247,7 @@ class PlayerService
         $this->sysPlayerRepository->setModel($sysPlayer);
 
         // ✅ 即座にexecAllQuery()を呼び出してIDを取得
-        app()->make(QuerySysManager::class)->execAllQuery();
+        app()->make(SysQueryManager::class)->execAllQuery();
 
         // 2. SysPlayerDeviceを作成（キューイング）
         $sysPlayerDevice = new SysPlayerDevice([
@@ -259,7 +259,7 @@ class PlayerService
         $this->sysPlayerDeviceRepository->setModel($sysPlayerDevice);
 
         // ✅ 即座にexecAllQuery()を呼び出してIDを取得
-        app()->make(QuerySysManager::class)->execAllQuery();
+        app()->make(SysQueryManager::class)->execAllQuery();
 
         // 3. SysPlayerTokenを作成（キューイング）
         $refreshToken = Str::random(64);
@@ -291,26 +291,26 @@ class PlayerService
 
 ## AppServiceProviderでのシングルトン登録
 
-**重要: QuerySysManagerは必ずシングルトンとして登録する**
+**重要: SysQueryManagerは必ずシングルトンとして登録する**
 
 ```php
 namespace App\Providers;
 
-use App\Repositories\Sys\QuerySysManager;
+use App\Repositories\SysQueryManager;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        // ✅ QuerySysManagerをシングルトン登録
-        $this->app->singleton(QuerySysManager::class);
+        // ✅ SysQueryManagerをシングルトン登録
+        $this->app->singleton(SysQueryManager::class);
     }
 }
 ```
 
 **理由:**
-- `app()->make(QuerySysManager::class)`を呼び出すたびに新しいインスタンスが作成されると、レポジトリが登録されたインスタンスと異なるインスタンスで`execAllQuery()`を呼び出してしまう
+- `app()->make(SysQueryManager::class)`を呼び出すたびに新しいインスタンスが作成されると、レポジトリが登録されたインスタンスと異なるインスタンスで`execAllQuery()`を呼び出してしまう
 - シングルトン登録により、全ての箇所で同じインスタンスが使用される
 
 ---
@@ -323,7 +323,7 @@ namespace App\Repositories\Sys;
 abstract class _BaseSysRepository extends _BaseRepository
 {
     /**
-     * モデルを設定し、QuerySysManagerに自動登録
+     * モデルを設定し、SysQueryManagerに自動登録
      */
     protected function setModel($model): void
     {
@@ -333,9 +333,9 @@ abstract class _BaseSysRepository extends _BaseRepository
         // 2. モデルをキューに追加
         $this->modelQueue[] = $model;
 
-        // 3. QuerySysManagerに自身を登録（初回のみ）
+        // 3. SysQueryManagerに自身を登録（初回のみ）
         if (!$this->registeredToManager) {
-            $queryManager = app()->make(QuerySysManager::class);
+            $queryManager = app()->make(SysQueryManager::class);
             $queryManager->registerRepository($this);
             $this->registeredToManager = true;
         }
@@ -387,7 +387,7 @@ abstract class _BaseSysRepository extends _BaseRepository
 
 ### sysデータベースのトランザクション管理ルール
 
-1. **QuerySysManagerを使用** - sysデータベース専用のQueryManager
+1. **SysQueryManagerを使用** - sysデータベース専用のQueryManager
 2. **個別INSERT（`insertGetId()`）** - 自動インクリメントIDを取得
 3. **IDを即座にモデルに設定** - `$model->setAttribute($model->getKeyName(), $id)`
 4. **シングルトン登録必須** - `AppServiceProvider`で`singleton()`登録
@@ -397,13 +397,13 @@ abstract class _BaseSysRepository extends _BaseRepository
 
 ### チェックリスト
 
-**QuerySysManager:**
+**SysQueryManager:**
 - [ ] `insertGetId()`で個別INSERTを実装
 - [ ] 取得したIDを`$model->setAttribute()`で設定
 - [ ] `AppServiceProvider`でシングルトン登録
 
 **_BaseSysRepository:**
-- [ ] `setModel()`で`QuerySysManager`に自動登録
+- [ ] `setModel()`で`SysQueryManager`に自動登録
 - [ ] `getQueuedInsertModels()`と`getQueuedUpdateModels()`を実装
 - [ ] `clearQueue()`を実装
 
@@ -415,7 +415,7 @@ abstract class _BaseSysRepository extends _BaseRepository
 **UseCaseTrait:**
 - [ ] トランザクション開始を`$callback()`実行**前**に移動
 - [ ] `sys`接続もトランザクション管理に含める
-- [ ] `QuerySysManager::execAllQuery()`を追加
+- [ ] `SysQueryManager::execAllQuery()`を追加
 - [ ] ロールバック時に`sys`もロールバック
 
 ---

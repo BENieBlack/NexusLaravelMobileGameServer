@@ -57,7 +57,7 @@
 ### 実装: QuerySysManager.php
 
 ```php
-namespace App\Utilities;
+namespace App\Repositories\Sys;
 
 use Illuminate\Support\Facades\DB;
 
@@ -296,7 +296,7 @@ class PlayerService
 ```php
 namespace App\Providers;
 
-use App\Utilities\QuerySysManager;
+use App\Repositories\Sys\QuerySysManager;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider

@@ -767,7 +767,7 @@ abstract class _BaseTrxRepository extends _BaseRepository
 
         // QueryManagerに自身を登録（初回のみ）
         if (!$this->registeredToManager) {
-            $queryManager = app()->make(QueryTrxManager::class);
+            $queryManager = app()->make(\App\Repositories\Trx\QueryTrxManager::class);
             $queryManager->registerRepository($this);
             $this->registeredToManager = true;
         }
@@ -1197,7 +1197,7 @@ abstract class _BaseTrxRepository extends _BaseRepository
         
         // QueryManagerに自身を登録
         if (!$this->registeredToManager) {
-            $queryManager = app()->make(QueryTrxManager::class);
+            $queryManager = app()->make(\App\Repositories\Trx\QueryTrxManager::class);
             $queryManager->registerRepository($this);
             $this->registeredToManager = true;
         }
@@ -1214,7 +1214,7 @@ abstract class _BaseTrxRepository extends _BaseRepository
         
         // QueryManagerに自身を登録
         if (!$this->registeredToManager) {
-            $queryManager = app()->make(QueryTrxManager::class);
+            $queryManager = app()->make(\App\Repositories\Trx\QueryTrxManager::class);
             $queryManager->registerRepository($this);
             $this->registeredToManager = true;
         }
@@ -1243,6 +1243,8 @@ abstract class _BaseTrxRepository extends _BaseRepository
 DELETE処理をINSERT/UPDATEと同様にキューイングして一括実行します：
 
 ```php
+namespace App\Repositories\Trx;
+
 class QueryTrxManager
 {
     public function execAllQuery(): void
@@ -1346,8 +1348,8 @@ trait UseCaseTrait
         
         try {
             // 4. キューイングされたクエリを一括実行（INSERT → UPDATE → DELETE）
-            app(QueryTrxManager::class)->execAllQuery();
-            app(QueryLogManager::class)->execAllQuery();
+            app(\App\Repositories\Trx\QueryTrxManager::class)->execAllQuery();
+            app(\App\Repositories\Log\QueryLogManager::class)->execAllQuery();
             
             // 5. コミット
             DB::connection('trx')->commit();

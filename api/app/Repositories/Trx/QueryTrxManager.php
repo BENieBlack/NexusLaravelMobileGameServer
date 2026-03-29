@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Utilities;
+namespace App\Repositories\Trx;
 
-use App\Repositories\Trx\_BaseTrxRepository;
 use Illuminate\Support\Facades\DB;
 
 /**

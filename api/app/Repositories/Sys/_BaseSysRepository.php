@@ -58,7 +58,7 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
     {
         // QuerySysManagerに登録（初回のみ）
         if (!$this->registeredToManager) {
-            $querySysManager = app()->make('App\Utilities\QuerySysManager');
+            $querySysManager = app()->make(\App\Repositories\Sys\QuerySysManager::class);
             $querySysManager->registerRepository($this);
             $this->registeredToManager = true;
         }

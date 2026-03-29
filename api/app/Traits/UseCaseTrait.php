@@ -39,9 +39,9 @@ trait UseCaseTrait
             DB::connection($connection)->beginTransaction();
         }
 
-        $querySysManager = app()->make('App\Utilities\QuerySysManager');
-        $queryTrxManager = app()->make('App\Utilities\QueryTrxManager');
-        $queryLogManager = app()->make('App\Utilities\QueryLogManager');
+        $querySysManager = app()->make(\App\Repositories\Sys\QuerySysManager::class);
+        $queryTrxManager = app()->make(\App\Repositories\Trx\QueryTrxManager::class);
+        $queryLogManager = app()->make(\App\Repositories\Log\QueryLogManager::class);
         
         try {
             // コールバックを実行（クエリはQueryManagerにキューイングされる）

@@ -2,9 +2,9 @@
 
 namespace App\Providers;
 
-use App\Utilities\QueryTrxManager;
-use App\Utilities\QueryLogManager;
-use App\Utilities\QuerySysManager;
+use App\Repositories\Trx\QueryTrxManager;
+use App\Repositories\Log\QueryLogManager;
+use App\Repositories\Sys\QuerySysManager;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;

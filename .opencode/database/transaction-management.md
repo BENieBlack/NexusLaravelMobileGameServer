@@ -15,58 +15,54 @@
 
 ### 設計方針
 
-**重要: sysデータベースは、即座にINSERTしてIDを取得する必要があるテーブルと、遅延実行可能なテーブルが混在する。**
+**重要: sysデータベースは基本的にバッチINSERTを使用し、一部のテーブルのみ個別INSERTでIDを取得する。**
 
-#### 即座にINSERT実行が必要なテーブル
+#### 個別INSERT（insertGetId()）が必要なテーブル
 
-以下のテーブルは、自動インクリメントIDをビジネスロジックで即座に使用するため、トランザクション開始**前**にINSERTを実行する必要があります:
+以下の3つのテーブルのみ、自動インクリメントIDをビジネスロジックで即座に使用するため、個別INSERTを実行します:
 
 - `sys_player` - プレイヤーマスター（`sys_player_id`が必要）
 - `sys_player_device` - デバイス情報（`sys_player_device_id`が必要）
+- `sys_player_token` - トークン情報（将来的にIDを使用する可能性があるため）
 
 **理由:**
 - `sys_player.id`は、trxテーブルやlogテーブルで外部キーとして使用される
 - `sys_player_device.id`も同様に、`sys_player_token`テーブルで使用される
-- 自動インクリメントIDを取得するには、実際にINSERTを実行する必要がある
-- トランザクション開始前にINSERTすることで、ロールバック時の整合性も保たれる
+- 自動インクリメントIDを取得するには、`insertGetId()`を使用する必要がある
+- トランザクション内でINSERTすることで、ロールバック時の整合性が保たれる
 
-#### 遅延実行可能なテーブル
+#### バッチINSERTが可能なテーブル
 
-以下のテーブルは、トランザクション開始**後**に一括実行可能:
-
-- `sys_player_token` - トークン情報（IDを即座に使う必要がない）
-- その他のsysテーブル
+上記3つ以外のsysテーブルは、バッチINSERT（`DB::table()->insert()`）で一括実行可能
 
 ---
 
-## SysQueryManagerの実装
+## QueryManagerの実装（統合版）
 
 ### 概要
 
-`SysQueryManager`は、sysデータベース専用のQueryManagerで、**個別INSERT（`insertGetId()`）とID自動設定**を行います。
+`QueryManager`は、3つのデータベース（Sys/Trx/Log）を統合管理するQueryManagerで、各データベースに応じた最適なINSERT方式を使用します。
 
-**TrxQueryManager/LogQueryManagerとの違い:**
+**各データベースのINSERT方式:**
 
-| 機能 | TrxQueryManager | SysQueryManager |
-|-----|----------------|-----------------|
-| INSERT方式 | バッチINSERT（`DB::table()->insert()`） | 個別INSERT（`insertGetId()`） |
-| ID取得 | ❌ 取得不可 | ✅ 取得してモデルに自動設定 |
-| 実行タイミング | トランザクション開始後 | トランザクション開始前・後の両方 |
-| 用途 | IDを即座に使わないテーブル | IDを即座に使うテーブル |
+| データベース | INSERT方式 | ID取得 | 対象テーブル |
+|------------|----------|--------|-----------|
+| **Sys** | 個別INSERT（`insertGetId()`） | ✅ 取得してモデルに自動設定 | sys_player, sys_player_device, sys_player_token |
+| **Sys** | バッチINSERT（`DB::table()->insert()`） | ❌ 取得不可 | 上記3つ以外のsysテーブル |
+| **Trx** | バッチINSERT（`DB::table()->insert()`） | ❌ 取得不可 | 全てのtrxテーブル |
+| **Log** | バッチINSERT（`DB::table()->insert()`） | ❌ 取得不可 | 全てのlogテーブル |
 
-### 実装: SysQueryManager.php
+### 主要メソッド
+
+**QueryManager.php:**
 
 ```php
 namespace App\Repositories;
 
 use Illuminate\Support\Facades\DB;
 
-class SysQueryManager
+class QueryManager
 {
-    /**
-     * 登録されたRepositoryの配列
-     * @var array<\App\Repositories\Sys\_BaseSysRepository>
-     */
     private array $repositories = [];
 
     /**
@@ -81,51 +77,71 @@ class SysQueryManager
     }
 
     /**
-     * 全Repositoryのキューイングされたクエリを実行
+     * 課金ログのみを実行（トランザクション外）
      */
-    public function execAllQuery(): void
+    public function execPurchaseQuery(): void
     {
-        foreach ($this->repositories as $repository) {
-            $connection = DB::connection('sys');
+        // 課金ログを抽出して実行...
+    }
 
-            // 1. INSERT実行（個別INSERT）
-            $insertModels = $repository->getQueuedInsertModels();
-            foreach ($insertModels as $model) {
-                $attributes = $model->getAttributes();
-                
-                // insertGetId()でIDを取得
-                $id = $connection->table($model->getTable())->insertGetId($attributes);
-                
-                // ✅ モデルにIDを自動設定
-                $model->setAttribute($model->getKeyName(), $id);
-            }
+    /**
+     * Sysのみを実行（部分実行）
+     * PlayerServiceで段階的にプレイヤーとデバイスを作成してIDを取得するために使用
+     */
+    public function execSysQuery(): void
+    {
+        $sysRepositories = array_filter($this->repositories, function ($repository) {
+            return $repository instanceof \App\Repositories\Sys\_BaseSysRepository;
+        });
 
-            // 2. UPDATE実行
-            $updateModels = $repository->getQueuedUpdateModels();
-            foreach ($updateModels as $model) {
-                $connection->table($model->getTable())
-                    ->where($model->getKeyName(), $model->getKey())
-                    ->update($model->getDirty());
-            }
+        foreach ($sysRepositories as $repository) {
+            $this->execSysInserts($repository);
+            $this->execSysUpdates($repository);
         }
     }
 
     /**
-     * 全Repositoryのキューをクリア
+     * 全Repositoryのキューイングされたクエリを実行
      */
-    public function clearAllQueues(): void
+    public function execAllQuery(): void
     {
-        foreach ($this->repositories as $repository) {
-            $repository->clearQueue();
+        // Sys/Trx/Logの全てのクエリを実行...
+    }
+
+    /**
+     * Sys用のINSERT実行
+     * sys_player, sys_player_device, sys_player_tokenのみ個別INSERT
+     */
+    private function execSysInserts($repository): void
+    {
+        $insertModels = $repository->getQueuedInsertModels();
+        if (empty($insertModels)) {
+            return;
+        }
+
+        $connection = DB::connection('sys');
+        $tableName = $insertModels[0]->getTable();
+
+        // sys_player, sys_player_device, sys_player_tokenのみ個別INSERT
+        if (in_array($tableName, ['sys_player', 'sys_player_device', 'sys_player_token'])) {
+            foreach ($insertModels as $model) {
+                $id = $connection->table($tableName)->insertGetId($model->getAttributes());
+                $model->setAttribute($model->getKeyName(), $id);
+            }
+        } else {
+            // その他はバッチINSERT
+            $insertData = array_map(fn($model) => $model->getAttributes(), $insertModels);
+            $connection->table($tableName)->insert($insertData);
         }
     }
 }
 ```
 
 **重要なポイント:**
-1. **`insertGetId()`を使用** - 個別INSERTでIDを取得
-2. **`$model->setAttribute()`でIDを設定** - Eloquentモデルに取得したIDを設定
-3. **シングルトン登録必須** - `app()->make()`で同じインスタンスを取得するため
+1. **統合管理** - Sys/Trx/Logを1つのQueryManagerで管理
+2. **execSysQuery()** - Sysのみを部分的に実行（PlayerServiceで使用）
+3. **3つのテーブルのみ個別INSERT** - sys_player, sys_player_device, sys_player_token
+4. **シングルトン登録必須** - `app()->make()`で同じインスタンスを取得するため
 
 ---
 
@@ -138,8 +154,8 @@ trait UseCaseTrait
 {
     protected function executeWithTransaction(callable $callback, ?int $sysPlayerId = null)
     {
-        // 1. SysQueryManagerをシングルトンとして取得
-        $querySysManager = app()->make(SysQueryManager::class);
+        // 1. QueryManagerをシングルトンとして取得
+        $queryManager = app()->make(QueryManager::class);
         
         // 2. トランザクション開始（sys, trx, log）
         DB::connection('sys')->beginTransaction();
@@ -157,9 +173,8 @@ trait UseCaseTrait
             }
 
             // 5. キューイングされたクエリを一括実行
-            $querySysManager->execAllQuery();  // ✅ sys専用
-            app(TrxQueryManager::class)->execAllQuery();
-            app(LogQueryManager::class)->execAllQuery();
+            $queryManager->execPurchaseQuery();  // 課金ログを先に実行
+            $queryManager->execAllQuery();       // Sys/Trx/Logを実行
 
             // 6. コミット
             DB::connection('sys')->commit();
@@ -193,21 +208,22 @@ trait UseCaseTrait
 3. クリーンアップ処理（is_delete=true削除）
    ↓
 4. キューイングされたクエリを一括実行
-   ├── SysQueryManager::execAllQuery()
-   │   ├── INSERT sys_player → ID取得 → モデルに設定
-   │   ├── INSERT sys_player_device → ID取得 → モデルに設定
-   │   └── INSERT sys_player_token
-   ├── TrxQueryManager::execAllQuery()
-   │   └── INSERT trx_player
-   └── LogQueryManager::execAllQuery()
-       └── INSERT log_signup
+   ├── QueryManager::execPurchaseQuery() ← 課金ログを先に実行
+   └── QueryManager::execAllQuery()
+       ├── Sys: INSERT sys_player → ID取得 → モデルに設定
+       ├── Sys: INSERT sys_player_device → ID取得 → モデルに設定
+       ├── Sys: INSERT sys_player_token → ID取得 → モデルに設定
+       ├── Sys: その他のテーブルはバッチINSERT
+       ├── Trx: バッチINSERT trx_player
+       └── Log: バッチINSERT log_signup
    ↓
 5. コミット（sys, trx, log）
 ```
 
 **重要:**
-- トランザクション開始は`$callback()`実行**前**
-- これにより、sysのINSERTもロールバック可能になる
+- トランザクション開始は`$callback()`実行**後**
+- sys_player, sys_player_device, sys_player_tokenのみ個別INSERTでIDを取得
+- 課金ログを先に実行してから、Sys/Trx/通常Logを実行
 - エラー発生時は全てロールバックされる
 
 ---
@@ -242,12 +258,12 @@ class PlayerService
             'google_user_id' => $googleUserId,
             'my_id' => Str::random(20),
             'uuid' => Str::uuid()->toString(),
-            'name' => Str::random(20),  // デフォルトはmy_idと同じ
+            'name' => Str::random(20),
         ]);
         $this->sysPlayerRepository->setModel($sysPlayer);
 
-        // ✅ 即座にexecAllQuery()を呼び出してIDを取得
-        app()->make(SysQueryManager::class)->execAllQuery();
+        // ✅ 即座にexecSysQuery()を呼び出してIDを取得
+        app()->make(QueryManager::class)->execSysQuery();
 
         // 2. SysPlayerDeviceを作成（キューイング）
         $sysPlayerDevice = new SysPlayerDevice([
@@ -258,8 +274,8 @@ class PlayerService
         ]);
         $this->sysPlayerDeviceRepository->setModel($sysPlayerDevice);
 
-        // ✅ 即座にexecAllQuery()を呼び出してIDを取得
-        app()->make(SysQueryManager::class)->execAllQuery();
+        // ✅ 即座にexecSysQuery()を呼び出してIDを取得
+        app()->make(QueryManager::class)->execSysQuery();
 
         // 3. SysPlayerTokenを作成（キューイング）
         $refreshToken = Str::random(64);
@@ -281,36 +297,36 @@ class PlayerService
 ```
 
 **ポイント:**
-1. `sys_player`作成後、即座に`execAllQuery()`を呼び出し
+1. `sys_player`作成後、即座に`execSysQuery()`を呼び出し
 2. 取得した`sys_player.id`を使って`sys_player_device`を作成
-3. `sys_player_device`作成後、即座に`execAllQuery()`を呼び出し
+3. `sys_player_device`作成後、即座に`execSysQuery()`を呼び出し
 4. 取得した`sys_player_device.id`を使って`sys_player_token`を作成
-5. `sys_player_token`は遅延実行（UseCaseTraitでまとめて実行される）
+5. `sys_player_token`は`execSysQuery()`で個別INSERTされるが、IDは使用しない
 
 ---
 
 ## AppServiceProviderでのシングルトン登録
 
-**重要: SysQueryManagerは必ずシングルトンとして登録する**
+**重要: QueryManagerは必ずシングルトンとして登録する**
 
 ```php
 namespace App\Providers;
 
-use App\Repositories\SysQueryManager;
+use App\Repositories\QueryManager;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        // ✅ SysQueryManagerをシングルトン登録
-        $this->app->singleton(SysQueryManager::class);
+        // ✅ QueryManagerをシングルトン登録
+        $this->app->singleton(QueryManager::class);
     }
 }
 ```
 
 **理由:**
-- `app()->make(SysQueryManager::class)`を呼び出すたびに新しいインスタンスが作成されると、レポジトリが登録されたインスタンスと異なるインスタンスで`execAllQuery()`を呼び出してしまう
+- `app()->make(QueryManager::class)`を呼び出すたびに新しいインスタンスが作成されると、レポジトリが登録されたインスタンスと異なるインスタンスで`execAllQuery()`や`execSysQuery()`を呼び出してしまう
 - シングルトン登録により、全ての箇所で同じインスタンスが使用される
 
 ---
@@ -323,19 +339,16 @@ namespace App\Repositories\Sys;
 abstract class _BaseSysRepository extends _BaseRepository
 {
     /**
-     * モデルを設定し、SysQueryManagerに自動登録
+     * モデルを設定し、QueryManagerに自動登録
      */
     protected function setModel($model): void
     {
-        // 1. 元の状態を保存
-        $this->originalStateArray[$model->getKey()] = $model->getOriginalForRepository();
-
-        // 2. モデルをキューに追加
+        // 1. モデルをキューに追加
         $this->modelQueue[] = $model;
 
-        // 3. SysQueryManagerに自身を登録（初回のみ）
+        // 2. QueryManagerに自身を登録（初回のみ）
         if (!$this->registeredToManager) {
-            $queryManager = app()->make(SysQueryManager::class);
+            $queryManager = app()->make(QueryManager::class);
             $queryManager->registerRepository($this);
             $this->registeredToManager = true;
         }
@@ -375,7 +388,6 @@ abstract class _BaseSysRepository extends _BaseRepository
     public function clearQueue(): void
     {
         $this->modelQueue = [];
-        $this->originalStateArray = [];
         $this->registeredToManager = false;
     }
 }
@@ -387,35 +399,37 @@ abstract class _BaseSysRepository extends _BaseRepository
 
 ### sysデータベースのトランザクション管理ルール
 
-1. **SysQueryManagerを使用** - sysデータベース専用のQueryManager
-2. **個別INSERT（`insertGetId()`）** - 自動インクリメントIDを取得
+1. **QueryManagerを使用** - Sys/Trx/Logを統合管理
+2. **3つのテーブルのみ個別INSERT** - sys_player, sys_player_device, sys_player_token
 3. **IDを即座にモデルに設定** - `$model->setAttribute($model->getKeyName(), $id)`
-4. **シングルトン登録必須** - `AppServiceProvider`で`singleton()`登録
-5. **即座実行と遅延実行の使い分け** - IDが必要なテーブルは即座に`execAllQuery()`
-6. **トランザクション開始は最初** - `$callback()`実行前にトランザクション開始
+4. **execSysQuery()で部分実行** - PlayerServiceで段階的にIDを取得
+5. **シングルトン登録必須** - `AppServiceProvider`で`singleton()`登録
+6. **トランザクション開始は最初** - `$callback()`実行後にトランザクション開始
 7. **ロールバック可能** - エラー時はsys含めて全てロールバック
 
 ### チェックリスト
 
-**SysQueryManager:**
-- [ ] `insertGetId()`で個別INSERTを実装
-- [ ] 取得したIDを`$model->setAttribute()`で設定
+**QueryManager:**
+- [ ] Sys/Trx/Logを統合管理
+- [ ] sys_player, sys_player_device, sys_player_tokenのみ`insertGetId()`
+- [ ] `execSysQuery()`メソッドを実装
+- [ ] `execPurchaseQuery()`を先に実行
 - [ ] `AppServiceProvider`でシングルトン登録
 
 **_BaseSysRepository:**
-- [ ] `setModel()`で`SysQueryManager`に自動登録
+- [ ] `setModel()`で`QueryManager`に自動登録
 - [ ] `getQueuedInsertModels()`と`getQueuedUpdateModels()`を実装
 - [ ] `clearQueue()`を実装
 
-**PlayerService（またはsysテーブルを使うService）:**
-- [ ] `sys_player`作成後、即座に`execAllQuery()`
-- [ ] `sys_player_device`作成後、即座に`execAllQuery()`
-- [ ] `sys_player_token`は遅延実行（UseCaseTraitに任せる）
+**PlayerService:**
+- [ ] `sys_player`作成後、即座に`execSysQuery()`
+- [ ] `sys_player_device`作成後、即座に`execSysQuery()`
+- [ ] `sys_player_token`は`execSysQuery()`で個別INSERT
 
 **UseCaseTrait:**
-- [ ] トランザクション開始を`$callback()`実行**前**に移動
+- [ ] トランザクション開始を`$callback()`実行**後**に配置
 - [ ] `sys`接続もトランザクション管理に含める
-- [ ] `SysQueryManager::execAllQuery()`を追加
+- [ ] `execPurchaseQuery()` → `execAllQuery()`の順序で実行
 - [ ] ロールバック時に`sys`もロールバック
 
 ---

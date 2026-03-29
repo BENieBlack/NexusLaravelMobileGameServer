@@ -4,7 +4,7 @@ namespace App\Repositories\Trx;
 
 use App\Models\Trx\_BaseTrx;
 use App\Repositories\_BaseRepository;
-use App\Repositories\TrxQueryManager as QueryTrxManager;
+use App\Repositories\QueryManager;
 use App\Utilities\ApiSession;
 use App\Utilities\Clock;
 use Illuminate\Contracts\Container\BindingResolutionException;
@@ -199,7 +199,7 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
 
         // QueryManagerに自身を登録（初回のみ）
         if (!$this->registeredToManager) {
-            $queryManager = app()->make(QueryTrxManager::class);
+            $queryManager = app()->make(QueryManager::class);
             $queryManager->registerRepository($this);
             $this->registeredToManager = true;
         }
@@ -220,7 +220,7 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
 
         // QueryManagerに自身を登録（初回のみ）
         if (!$this->registeredToManager) {
-            $queryManager = app()->make(QueryTrxManager::class);
+            $queryManager = app()->make(QueryManager::class);
             $queryManager->registerRepository($this);
             $this->registeredToManager = true;
         }

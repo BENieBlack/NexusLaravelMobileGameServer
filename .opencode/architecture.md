@@ -651,15 +651,20 @@ public function handle(int $unitId, int $itemId, int $amount): Response
    └── 変更内容を QueryManager にキューイング
    
 2. トランザクション開始
+   ├── DB::connection('sys')->beginTransaction()
    ├── DB::connection('trx')->beginTransaction()
    └── DB::connection('log')->beginTransaction()
    
 3. キューイングされたクエリを一括実行
-   ├── TrxQueryManager::execAllQuery()  ← INSERT/UPDATE/DELETE
-   ├── SysQueryManager::execAllQuery()  ← sysテーブルへの変更
-   └── LogQueryManager::execAllQuery()  ← ログ書き込み
+   ├── QueryManager::execPurchaseQuery()  ← 課金ログを先に実行
+   └── QueryManager::execAllQuery()       ← Sys/Trx/Log一括実行
+       ├── Sys: sys_player, sys_player_device, sys_player_tokenのみ個別INSERT
+       ├── Sys: その他のテーブルはバッチINSERT
+       ├── Trx: バッチINSERT/UPDATE/DELETE
+       └── Log: バッチINSERT
    
 4. トランザクションコミット
+   ├── DB::connection('sys')->commit()
    ├── DB::connection('trx')->commit()
    └── DB::connection('log')->commit()
 ```
@@ -768,7 +773,7 @@ abstract class _BaseTrxRepository extends _BaseRepository
 
         // QueryManagerに自身を登録（初回のみ）
         if (!$this->registeredToManager) {
-            $queryManager = app()->make(\App\Repositories\TrxQueryManager::class);
+            $queryManager = app()->make(\App\Repositories\QueryManager::class);
             $queryManager->registerRepository($this);
             $this->registeredToManager = true;
         }
@@ -1246,7 +1251,7 @@ DELETE処理をINSERT/UPDATEと同様にキューイングして一括実行し�
 ```php
 namespace App\Repositories;
 
-class TrxQueryManager
+class QueryManager
 {
     public function execAllQuery(): void
     {
@@ -1256,7 +1261,8 @@ class TrxQueryManager
             // 1. INSERT実行
             $insertModels = $repository->getQueuedInsertModels();
             if (!empty($insertModels)) {
-                // バルクINSERT...
+                // Sysの場合、3つのテーブルのみ個別INSERT、その他はバッチINSERT
+                // Trx/Logの場合、全てバッチINSERT
             }
             
             // 2. UPDATE実行
@@ -1265,7 +1271,7 @@ class TrxQueryManager
                 // UPDATE...
             }
             
-            // 3. DELETE実行（新規追加）
+            // 3. DELETE実行
             $deleteModels = $repository->getQueuedDeleteModels();
             foreach ($deleteModels as $model) {
                 $model->delete();  // 物理削除
@@ -1349,16 +1355,18 @@ trait UseCaseTrait
         
         try {
             // 4. キューイングされたクエリを一括実行（INSERT → UPDATE → DELETE）
-            app(\App\Repositories\TrxQueryManager::class)->execAllQuery();
-            app(\App\Repositories\LogQueryManager::class)->execAllQuery();
+            app(\App\Repositories\QueryManager::class)->execPurchaseQuery();  // 課金ログ
+            app(\App\Repositories\QueryManager::class)->execAllQuery();       // Sys/Trx/Log
             
             // 5. コミット
+            DB::connection('sys')->commit();
             DB::connection('trx')->commit();
             DB::connection('log')->commit();
             
             return $result;
         } catch (\Exception $e) {
             // 6. ロールバック
+            DB::connection('sys')->rollBack();
             DB::connection('trx')->rollBack();
             DB::connection('log')->rollBack();
             throw $e;

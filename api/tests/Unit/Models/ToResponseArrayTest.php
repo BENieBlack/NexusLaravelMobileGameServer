@@ -18,7 +18,6 @@ use App\Models\Mst\MstInAppPurchase;
 class ToResponseArrayTest extends TestCase
 {
     /**
-     * @test
      * TrxUnit: id → trx_unit_id に変換されること
      */
     public function trx_unit_converts_id_to_trx_unit_id()
@@ -38,7 +37,6 @@ class ToResponseArrayTest extends TestCase
     }
 
     /**
-     * @test
      * TrxEquipment: id → trx_equipment_id に変換されること
      */
     public function trx_equipment_converts_id_to_trx_equipment_id()
@@ -58,7 +56,6 @@ class ToResponseArrayTest extends TestCase
     }
 
     /**
-     * @test
      * TrxDiamondBalance: id → trx_diamond_balance_id に変換されること
      */
     public function trx_diamond_balance_converts_id_to_trx_diamond_balance_id()
@@ -80,7 +77,6 @@ class ToResponseArrayTest extends TestCase
     }
 
     /**
-     * @test
      * TrxStamina: id → trx_stamina_id に変換されること
      */
     public function trx_stamina_converts_id_to_trx_stamina_id()
@@ -100,7 +96,6 @@ class ToResponseArrayTest extends TestCase
     }
 
     /**
-     * @test
      * SysPlayer: id → sys_player_id に変換されること
      */
     public function sys_player_converts_id_to_sys_player_id()
@@ -121,7 +116,6 @@ class ToResponseArrayTest extends TestCase
     }
 
     /**
-     * @test
      * SysFriendApply: id → sys_friend_apply_id に変換されること
      */
     public function sys_friend_apply_converts_id_to_sys_friend_apply_id()
@@ -140,7 +134,6 @@ class ToResponseArrayTest extends TestCase
     }
 
     /**
-     * @test
      * MstInAppPurchase: id → mst_in_app_purchase_id に変換されること
      */
     public function mst_in_app_purchase_converts_id_to_mst_in_app_purchase_id()

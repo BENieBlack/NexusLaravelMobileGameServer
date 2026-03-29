@@ -39,9 +39,7 @@ trait UseCaseTrait
             DB::connection($connection)->beginTransaction();
         }
 
-        $querySysManager = app()->make(\App\Repositories\SysQueryManager::class);
-        $queryTrxManager = app()->make(\App\Repositories\TrxQueryManager::class);
-        $queryLogManager = app()->make(\App\Repositories\LogQueryManager::class);
+        $queryManager = app()->make(\App\Repositories\QueryManager::class);
         
         try {
             // コールバックを実行（クエリはQueryManagerにキューイングされる）
@@ -54,15 +52,14 @@ trait UseCaseTrait
              * trxクエリは常にトランザクション内で実行する
              * 課金に関するlogクエリもトランザクション内で実行する
              */
-            $querySysManager->execAllQuery();
-            $queryTrxManager->execAllQuery();
-            $queryLogManager->execPurchaseQuery();
+            $queryManager->execPurchaseQuery(); // 課金ログを先に実行
+            $queryManager->execAllQuery(); // Sys/Trx/通常Logを実行
 
             /**
              * Log系をコミット後にトランザクション外でINSERTするオプションがOFFの場合、ログのクエリはトランザクション内で実行する
              */
             if (!self::LOG_INSERT_OUTSIDE_TRANSACTION) {
-                $queryLogManager->execAllQuery();
+                $queryManager->execAllQuery();
             }
 
             foreach (['sys', 'trx', 'log'] as $connection ){
@@ -78,7 +75,7 @@ trait UseCaseTrait
         }
         // トランザクション外でINSERTするオプションがONの場合、ログのクエリはトランザクション外で実行する
         if (self::LOG_INSERT_OUTSIDE_TRANSACTION) {
-            $queryLogManager->execAllQuery();
+            $queryManager->execAllQuery();
         }
 
         return $result;

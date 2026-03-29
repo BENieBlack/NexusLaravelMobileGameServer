@@ -7,6 +7,7 @@ use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;
 use App\Repositories\Sys\SysPlayerTokenRepository;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Str;
 
 /**
@@ -21,11 +22,9 @@ class TokenService
      * コンストラクタ
      *
      * @param SysPlayerTokenRepository $sysPlayerTokenRepository
-     * @param PlayerService $playerService
      */
     public function __construct(
         private readonly SysPlayerTokenRepository $sysPlayerTokenRepository,
-        private readonly PlayerService $playerService
     ) {
     }
     /**
@@ -176,13 +175,14 @@ class TokenService
         // リフレッシュトークン生成
         $refreshToken = Str::random(64);
         $tokenHash = hash('sha256', $refreshToken);
+        $expiresAt = CarbonImmutable::now()->addDays(self::REFRESH_TOKEN_EXPIRATION_DAYS);
 
-        // PlayerServiceにDB保存を委譲
-        $sysPlayerToken = $this->playerService->createSysPlayerToken(
-            $sysPlayer,
-            $sysPlayerDevice,
+        // Repository経由でトークンを作成（Repository内でIDを取得）
+        $sysPlayerToken = $this->sysPlayerTokenRepository->createToken(
+            $sysPlayer->id,
+            $sysPlayerDevice->id,
             $tokenHash,
-            self::REFRESH_TOKEN_EXPIRATION_DAYS
+            $expiresAt
         );
 
         return [

@@ -3,6 +3,8 @@
 namespace App\Repositories\Sys;
 
 use App\Models\Sys\SysPlayer;
+use App\Repositories\QueryManager;
+use Illuminate\Support\Str;
 
 /**
  * SysPlayerRepository
@@ -109,5 +111,26 @@ class SysPlayerRepository extends _BaseSysRepository
         
         // DBで確認
         return $this->modelClass::where('my_id', $myId)->exists();
+    }
+
+    /**
+     * プレイヤーを作成してIDを取得
+     * 
+     * @return SysPlayer 作成されたプレイヤー（IDが設定済み）
+     */
+    public function createPlayer(): SysPlayer
+    {
+        $sysPlayer = new SysPlayer([
+            'my_id' => Str::random(8),
+            'uuid' => Str::uuid()->toString(),
+            'name' => Str::random(8),
+        ]);
+        
+        $this->setModel($sysPlayer);
+        
+        // Repository内でexecSysQuery()を実行してIDを取得
+        app()->make(QueryManager::class)->execSysQuery();
+        
+        return $sysPlayer;
     }
 }

@@ -331,6 +331,7 @@ class RedisUtility
      * TTLを取得（秒）
      * 
      * Redisのネイティブ機能を使用
+     * 注意: Laravelのキャッシュプレフィックスの影響で正しく動作しない可能性があります
      * 
      * @param string $key キャッシュキー
      * @return int|null TTL（秒）。キーが存在しない場合null、永続の場合-1
@@ -361,6 +362,8 @@ class RedisUtility
 
     /**
      * キーの有効期限を更新
+     * 
+     * 注意: Laravelのキャッシュプレフィックスの影響で正しく動作しない可能性があります
      *
      * @param string $key キャッシュキー
      * @param int $ttl 新しい有効期限（秒）

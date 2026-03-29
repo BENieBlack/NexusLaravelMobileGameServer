@@ -3,6 +3,7 @@
 namespace App\Repositories\Sys;
 
 use App\Repositories\_BaseRepository;
+use App\Repositories\SysQueryManager as QuerySysManager;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -58,7 +59,7 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
     {
         // QuerySysManagerに登録（初回のみ）
         if (!$this->registeredToManager) {
-            $querySysManager = app()->make(\App\Repositories\Sys\QuerySysManager::class);
+            $querySysManager = app()->make(QuerySysManager::class);
             $querySysManager->registerRepository($this);
             $this->registeredToManager = true;
         }

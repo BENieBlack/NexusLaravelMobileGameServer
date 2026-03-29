@@ -4,7 +4,7 @@ namespace App\Repositories\Trx;
 
 use App\Models\Trx\_BaseTrx;
 use App\Repositories\_BaseRepository;
-use App\Repositories\Trx\QueryTrxManager;
+use App\Repositories\TrxQueryManager as QueryTrxManager;
 use App\Utilities\ApiSession;
 use App\Utilities\Clock;
 use Illuminate\Contracts\Container\BindingResolutionException;

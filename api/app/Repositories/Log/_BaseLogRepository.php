@@ -4,7 +4,7 @@ namespace App\Repositories\Log;
 
 use App\Models\Log\_BaseLog;
 use App\Repositories\_BaseRepository;
-use App\Repositories\Log\QueryLogManager;
+use App\Repositories\LogQueryManager as QueryLogManager;
 use App\Utilities\ApiSession;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Model;

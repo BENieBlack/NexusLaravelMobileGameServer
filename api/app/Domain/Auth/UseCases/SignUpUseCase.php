@@ -49,10 +49,12 @@ class SignUpUseCase implements _BaseUseCaseInterface
                 throw BusinessLogicException::deviceAlreadyExists($deviceId);
             }
 
-            // 新規プレイヤー作成
-            [$sysPlayer, $sysPlayerDevice] = $this->playerService->createPlayer($deviceId, $deviceInfo);
+            // 新規プレイヤー作成（Repository内でプレイヤーとデバイスを作成してIDを取得）
+            $result = $this->playerService->createPlayer($deviceId, $deviceInfo);
+            $sysPlayer = $result['sys_player'];
+            $sysPlayerDevice = $result['sys_player_device'];
 
-            // Token DTO生成
+            // Token DTO生成（Repository内でトークンを作成してIDを取得）
             [$dtoToken, $sysPlayerToken] = $this->tokenService->generateToken($sysPlayer, $sysPlayerDevice);
 
             // レスポンスを返却（新規作成なので201）

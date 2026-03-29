@@ -3,6 +3,8 @@
 namespace App\Repositories\Sys;
 
 use App\Models\Sys\SysPlayerToken;
+use App\Repositories\QueryManager;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 
 /**
@@ -108,5 +110,35 @@ class SysPlayerTokenRepository extends _BaseSysRepository
         }
         
         return $sysPlayerTokenCollection;
+    }
+
+    /**
+     * トークンを作成してIDを取得
+     * 
+     * @param int $sysPlayerId sys_player.id（プレイヤーID）
+     * @param int $sysPlayerDeviceId sys_player_device.id（デバイスID）
+     * @param string $refreshTokenHash リフレッシュトークンのハッシュ値
+     * @param CarbonImmutable $expiresAt 有効期限
+     * @return SysPlayerToken 作成されたトークン（IDが設定済み）
+     */
+    public function createToken(
+        int $sysPlayerId,
+        int $sysPlayerDeviceId,
+        string $refreshTokenHash,
+        CarbonImmutable $expiresAt
+    ): SysPlayerToken {
+        $sysPlayerToken = new SysPlayerToken([
+            'sys_player_id' => $sysPlayerId,
+            'sys_player_device_id' => $sysPlayerDeviceId,
+            'refresh_token_hash' => $refreshTokenHash,
+            'expires_at' => $expiresAt,
+        ]);
+        
+        $this->setModel($sysPlayerToken);
+        
+        // Repository内でexecSysQuery()を実行してIDを取得
+        app()->make(QueryManager::class)->execSysQuery();
+        
+        return $sysPlayerToken;
     }
 }

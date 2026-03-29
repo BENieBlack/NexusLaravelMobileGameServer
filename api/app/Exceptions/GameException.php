@@ -8,7 +8,7 @@ use Exception;
  * GameException
  * 
  * ゲームAPIのビジネスロジックエラーを表すカスタム例外クラス
- * HTTPステータスコード999とerror_code, messageをレスポンスとして返す
+ * HTTPステータスコード600とerror_code, messageをレスポンスとして返す
  */
 class GameException extends Exception
 {

@@ -35,6 +35,10 @@ class PlayerService
 
     /**
      * 新しいプレイヤーを作成
+     * 
+     * 重要：この関数は、プレイヤーとデバイスをQuerySysManagerのキューに追加した後、
+     * 即座にINSERTを実行してIDを取得します。
+     * これにより、後続の処理（トークン生成など）でIDを使用できます。
      *
      * @param string $deviceId
      * @param array<string, mixed>|null $deviceInfo
@@ -53,12 +57,18 @@ class PlayerService
         $sysPlayer = new SysPlayer([
             'uuid' => $uuid,
             'my_id' => $myId,
-            'name' => null, // 初期状態では名前はnull
+            'name' => $myId, // デフォルトではmy_idをnameに設定
         ]);
         $sysPlayer->exists = false; // INSERT として認識
         $this->sysPlayerRepository->setModel($sysPlayer);
 
+        // **重要**: SysPlayerをINSERTしてIDを取得
+        // これにより、$sysPlayer->idに値が設定される
+        $querySysManager = app()->make('App\Utilities\QuerySysManager');
+        $querySysManager->execAllQuery();
+
         // デバイス情報を作成（Unit of Work パターン）
+        // この時点で$sysPlayer->idは既に取得済み
         $sysPlayerDevice = new SysPlayerDevice([
             'sys_player_id' => $sysPlayer->id,
             'uuid' => $deviceId, // デバイスのUUID
@@ -67,6 +77,10 @@ class PlayerService
         ]);
         $sysPlayerDevice->exists = false; // INSERT として認識
         $this->sysPlayerDeviceRepository->setModel($sysPlayerDevice);
+
+        // **重要**: SysPlayerDeviceもINSERTしてIDを取得
+        // sys_player_tokenでsys_player_device_idが必要なため
+        $querySysManager->execAllQuery();
 
         return [$sysPlayer, $sysPlayerDevice];
     }
@@ -138,6 +152,9 @@ class PlayerService
      *
      * リフレッシュトークンのハッシュと有効期限をDBに保存（Repository経由）
      * トークンの生成自体はTokenServiceが担当
+     * 
+     * トークンをQuerySysManagerのキューに追加します。
+     * 実際のINSERTは、UseCaseTraitの最後でまとめて実行されます。
      *
      * @param SysPlayer $sysPlayer
      * @param SysPlayerDevice $sysPlayerDevice
@@ -162,6 +179,8 @@ class PlayerService
         ]);
         $sysPlayerToken->exists = false; // INSERT として認識
         $this->sysPlayerTokenRepository->setModel($sysPlayerToken);
+
+        // SysPlayerTokenは後でまとめて実行される（UseCaseTraitの最後）
 
         return $sysPlayerToken;
     }

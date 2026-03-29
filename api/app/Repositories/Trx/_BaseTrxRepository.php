@@ -9,6 +9,7 @@ use App\Utilities\Clock;
 use App\Utilities\QueryTrxManager;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 /**
  * _BaseTrxRepository
@@ -44,6 +45,14 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
      * @var array<string, array<string, mixed>>
      */
     protected array $originalStateArray = [];
+
+    /**
+     * 新規モデル用の一時IDカウンター
+     * モデルのIDがnullの場合に一意なキーを生成するために使用
+     *
+     * @var int
+     */
+    private int $newModelCounter = 0;
 
     /**
      * プレイヤーIDを取得（内部用）
@@ -168,6 +177,11 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
 
         // ユニークキーを生成
         $uniqueKey = implode(':', array_map(fn($key) => $model->getAttribute($key), $this->getUniqueKeys()));
+        
+        // 新規モデル（IDがnull）の場合、一時的なユニークキーを生成
+        if ($uniqueKey === '' || $uniqueKey === ':' || strpos($uniqueKey, ':') === 0 || strpos($uniqueKey, ':') === strlen($uniqueKey) - 1) {
+            $uniqueKey = '_new_' . $this->newModelCounter++;
+        }
 
         // 最初にsetModelが呼ばれた時のみ、変更前の状態を保存
         if (!isset($this->originalStateArray[$uniqueKey])) {
@@ -245,5 +259,33 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
     {
         parent::clearQueue();
         $this->originalStateArray = [];
+        $this->newModelCounter = 0;
+    }
+
+    /**
+     * is_delete=trueのレコードを削除キューに追加
+     *
+     * @param int $sysPlayerId
+     * @return void
+     */
+    public function deleteMarkedRecords(int $sysPlayerId): void
+    {
+        // is_delete=trueのレコードを取得
+        $markedRecords = DB::connection($this->connection)
+            ->table($this->getTableName())
+            ->where('sys_player_id', $sysPlayerId)
+            ->where('is_delete', true)
+            ->get();
+
+        // 各レコードを削除キューに追加
+        foreach ($markedRecords as $record) {
+            // Eloquentモデルのインスタンスに変換
+            $model = new $this->modelClass();
+            $model->forceFill((array) $record);
+            $model->exists = true;
+            
+            // 削除キューに追加
+            $this->deleteModel($model);
+        }
     }
 }

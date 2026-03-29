@@ -22,7 +22,8 @@ $app = Application::configure(basePath: dirname(__DIR__))
         //
     })->create();
 
-// Load environment variables from project root (/var/www/.env in Docker)
-$app->useEnvironmentPath('/var/www');
+// Load environment variables from project root
+// Use parent directory of api folder (one level up from basePath)
+$app->useEnvironmentPath(dirname($app->basePath()));
 
 return $app;

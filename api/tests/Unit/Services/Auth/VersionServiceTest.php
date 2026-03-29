@@ -35,6 +35,9 @@ class VersionServiceTest extends TestCase
     {
         parent::setUp();
         
+        // Redisキャッシュをクリア
+        \Illuminate\Support\Facades\Redis::flushdb();
+        
         // Repositoryインスタンスを作成してServiceに注入
         $deployRepository = new SysDeployRepository(new SysDeploy());
         $maintenanceRepository = new SysMaintenanceRepository(new SysMaintenance());
@@ -49,6 +52,9 @@ class VersionServiceTest extends TestCase
      */
     public function test_check_version_throws_exception_when_no_deploy_exists(): void
     {
+        // キャッシュをクリア
+        \Illuminate\Support\Facades\Cache::store('redis')->clear();
+        
         // Assert & Act
         $this->expectException(SystemDataException::class);
         $this->service->checkVersion(null);
@@ -59,6 +65,9 @@ class VersionServiceTest extends TestCase
      */
     public function test_check_version_returns_no_update_when_client_is_latest(): void
     {
+        // キャッシュをクリア
+        \Illuminate\Support\Facades\Cache::store('redis')->clear();
+        
         // Arrange
         $master = SysDeployMaster::create([
             'deploy_key' => 202601010,
@@ -96,6 +105,9 @@ class VersionServiceTest extends TestCase
      */
     public function test_check_version_returns_update_available_when_client_is_outdated(): void
     {
+        // キャッシュをクリア
+        \Illuminate\Support\Facades\Cache::store('redis')->clear();
+        
         // Arrange - Create old deploy
         $oldMaster = SysDeployMaster::create([
             'hash' => 'master_hash_001',
@@ -164,6 +176,9 @@ class VersionServiceTest extends TestCase
      */
     public function test_check_version_includes_maintenance_info_when_active(): void
     {
+        // キャッシュをクリア
+        \Illuminate\Support\Facades\Cache::store('redis')->clear();
+        
         // Arrange - Create maintenance
         $maintenance = SysMaintenance::create([
             'title' => 'Scheduled Maintenance',

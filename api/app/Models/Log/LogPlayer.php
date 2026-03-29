@@ -25,5 +25,6 @@ class LogPlayer extends _BaseLog
         'after_level',
         'after_level_exp',
         'system_at',
+        'created_at',
     ];
 }

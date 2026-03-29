@@ -3,12 +3,54 @@
 namespace Tests;
 
 use Illuminate\Contracts\Console\Kernel;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\RefreshDatabaseState;
 
 trait RefreshMultipleDatabases
 {
-    use RefreshDatabase;
+    /**
+     * Define hooks to migrate the database before and after each test.
+     * This method is automatically called by Laravel's TestCase::setUpTraits()
+     *
+     * @return void
+     */
+    public function setUpRefreshMultipleDatabases(): void
+    {
+        $this->refreshDatabase();
+    }
+
+    /**
+     * Define hooks to migrate the database before and after each test.
+     *
+     * @return void
+     */
+    public function refreshDatabase(): void
+    {
+        $this->beforeRefreshingDatabase();
+
+        $this->refreshTestDatabase();
+
+        $this->afterRefreshingDatabase();
+    }
+
+    /**
+     * Perform any work that should take place before the database has started refreshing.
+     *
+     * @return void
+     */
+    protected function beforeRefreshingDatabase(): void
+    {
+        // ...
+    }
+
+    /**
+     * Perform any work that should take place once the database has finished refreshing.
+     *
+     * @return void
+     */
+    protected function afterRefreshingDatabase(): void
+    {
+        // ...
+    }
 
     /**
      * Define a set of database connections and their migration paths.
@@ -18,6 +60,7 @@ trait RefreshMultipleDatabases
     protected function connectionsToMigrate(): array
     {
         return [
+            'sys' => 'database/migrations/sys',
             'mst' => 'database/migrations/mst',
             'trx' => 'database/migrations/trx',
             'log' => 'database/migrations/log',
@@ -52,15 +95,20 @@ trait RefreshMultipleDatabases
     protected function refreshTestDatabase(): void
     {
         if (! RefreshDatabaseState::$migrated) {
-            $this->artisan('migrate:fresh', $this->migrateFreshUsing());
-
-            // Migrate additional database connections
+            // Run migrate:fresh for each connection with its specific path
             foreach ($this->connectionsToMigrate() as $connection => $path) {
-                $this->artisan('migrate:fresh', [
+                // First, drop all tables in the database
+                $this->artisan('migrate:reset', [
                     '--database' => $connection,
                     '--path' => $path,
-                    '--drop-views' => $this->shouldDropViews(),
-                    '--drop-types' => $this->shouldDropTypes(),
+                    '--force' => true,
+                ]);
+                
+                // Then run fresh migrations
+                $this->artisan('migrate', [
+                    '--database' => $connection,
+                    '--path' => $path,
+                    '--force' => true,
                 ]);
             }
 

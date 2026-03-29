@@ -31,6 +31,98 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
     protected string $connection = 'sys';
 
     /**
+     * 新規モデル用の一時IDカウンター
+     * モデルのIDがnullの場合に一意なキーを生成するために使用
+     *
+     * @var int
+     */
+    private int $newModelCounter = 0;
+
+    /**
+     * モデルの変更前状態を保持する配列
+     * キー: ユニークキー, 値: オリジナル属性の配列
+     *
+     * @var array<string, array<string, mixed>>
+     */
+    protected array $originalStateArray = [];
+
+    /**
+     * モデルをキャッシュに保存し、内部キューに溜め込む
+     * ユニークキーで管理し、同じキーのモデルは上書きされる
+     * QuerySysManagerに自動登録する
+     *
+     * @param mixed $model
+     * @return void
+     */
+    public function setModel($model): void
+    {
+        // QuerySysManagerに登録（初回のみ）
+        if (!$this->registeredToManager) {
+            $querySysManager = app()->make('App\Utilities\QuerySysManager');
+            $querySysManager->registerRepository($this);
+            $this->registeredToManager = true;
+        }
+
+        // ユニークキーを生成
+        $uniqueKey = implode(':', array_map(fn($key) => $model->getAttribute($key), $this->getUniqueKeys()));
+        
+        // 新規モデル（IDがnull）の場合、一時的なユニークキーを生成
+        if ($uniqueKey === '' || $uniqueKey === ':' || strpos($uniqueKey, ':') === 0 || strpos($uniqueKey, ':') === strlen($uniqueKey) - 1) {
+            $uniqueKey = '_new_' . $this->newModelCounter++;
+        }
+
+        // 初回のsetModel時に変更前の状態を保存
+        if (!isset($this->originalStateArray[$uniqueKey])) {
+            $this->originalStateArray[$uniqueKey] = $model->getAttributes();
+        }
+
+        // CacheRecordTraitのキャッシュに保存
+        if ($this->models === null) {
+            $this->models = collect();
+        }
+        $this->models->put($uniqueKey, $model);
+
+        // 内部キューに溜め込む（同じキーは上書き = 最終状態を保持）
+        $this->modelQueue[$uniqueKey] = $model;
+    }
+
+    /**
+     * モデルキューをクリアし、カウンターと変更前状態をリセット
+     *
+     * @return void
+     */
+    public function clearQueue(): void
+    {
+        parent::clearQueue();
+        $this->originalStateArray = [];
+        $this->newModelCounter = 0;
+    }
+
+    /**
+     * INSERT/UPDATE後のフック
+     * サブクラスでオーバーライドして、ログ記録処理を実装
+     * 
+     * @param mixed $model 保存されたモデル（最終状態）
+     * @param array<string, mixed> $originalState 変更前の状態（初回setModel時の状態）
+     * @return void
+     */
+    public function afterSave($model, array $originalState): void
+    {
+        // デフォルトでは何もしない
+        // サブクラスでオーバーライドしてログ記録処理を実装
+    }
+
+    /**
+     * 変更前の状態を取得
+     *
+     * @return array<string, array<string, mixed>> キー: ユニークキー, 値: オリジナル属性の配列
+     */
+    public function getOriginalStates(): array
+    {
+        return $this->originalStateArray;
+    }
+
+    /**
      * モデルインスタンスを取得
      *
      * @return Model

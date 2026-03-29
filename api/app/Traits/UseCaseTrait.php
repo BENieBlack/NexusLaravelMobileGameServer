@@ -2,7 +2,9 @@
 
 namespace App\Traits;
 
+use Exception;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 trait UseCaseTrait
 {
@@ -13,17 +15,17 @@ trait UseCaseTrait
      *
      * 処理フロー：
      * 1. クリーンアップ処理（オプション、sign_in時のみ）
-     * 2. コールバックを実行（クエリはQueryManagerにキューイング）
-     * 3. トランザクション開始（trx, log接続）
+     * 2. トランザクション開始（sys, trx, log接続）
+     * 3. コールバックを実行（クエリはQueryManagerにキューイング、sysは即座に実行してIDを取得）
      * 4. キューに溜まったクエリを実行
      * 5. コミットまたはロールバック
      *
      * @param callable $callback 実行するビジネスロジック
      * @param int|null $sysPlayerId sign_in時のクリーンアップ用プレイヤーID
      * @return mixed コールバックの戻り値
-     * @throws \Exception|\Throwable トランザクション実行中にエラーが発生した場合
+     * @throws Exception|Throwable トランザクション実行中にエラーが発生した場合
      */
-    public function executeWithTransaction(callable $callback, ?int $sysPlayerId = null)
+    public function executeWithTransaction(callable $callback, ?int $sysPlayerId = null): mixed
     {
         // sign_in時のクリーンアップ処理（is_delete=trueのレコードを削除キューに追加）
         if ($sysPlayerId !== null) {
@@ -31,27 +33,28 @@ trait UseCaseTrait
             $cleanupService->cleanupDeletedRecords($sysPlayerId);
         }
 
-        try {
-            // コールバックを実行（クエリはQueryManagerにキューイングされる）
-            $result = $callback();
-        } catch (\Throwable $e) {
-            // コールバック実行中に例外が発生した場合は、クエリはまだ実行されていないので、そのまま例外を投げる
-            throw $e;
-        }
-
-        foreach (['trx', 'log'] as $connection) {
+        // **重要**: トランザクションを先に開始してから$callback()を実行
+        // これにより、PlayerServiceでexecAllQuery()を呼び出したときにトランザクション内で実行される
+        foreach (['sys', 'trx', 'log'] as $connection) {
             DB::connection($connection)->beginTransaction();
         }
 
+        $querySysManager = app()->make('App\Utilities\QuerySysManager');
         $queryTrxManager = app()->make('App\Utilities\QueryTrxManager');
         $queryLogManager = app()->make('App\Utilities\QueryLogManager');
+        
         try {
+            // コールバックを実行（クエリはQueryManagerにキューイングされる）
+            // PlayerServiceなどでexecAllQuery()が呼ばれた場合、トランザクション内で実行される
+            $result = $callback();
 
             /**
              * トランザクション内で実行するクエリは、トランザクション内で実行するオプションがONの場合、トランザクション内で実行する
+             * sysクエリは常にトランザクション内で実行する（IDを取得して外部キーとして使用）
              * trxクエリは常にトランザクション内で実行する
              * 課金に関するlogクエリもトランザクション内で実行する
              */
+            $querySysManager->execAllQuery();
             $queryTrxManager->execAllQuery();
             $queryLogManager->execPurchaseQuery();
 
@@ -62,12 +65,12 @@ trait UseCaseTrait
                 $queryLogManager->execAllQuery();
             }
 
-            foreach (['trx', 'log'] as $connection ){
+            foreach (['sys', 'trx', 'log'] as $connection ){
                 DB::connection($connection)->commit();
             }
 
-        } catch (\Exception $e) {
-            foreach (['trx', 'log'] as $connection) {
+        } catch (Exception | Throwable $e) {
+            foreach (['sys', 'trx', 'log'] as $connection) {
                 DB::connection($connection)->rollBack();
             }
 

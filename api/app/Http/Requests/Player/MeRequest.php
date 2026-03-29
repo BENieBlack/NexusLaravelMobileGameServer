@@ -33,9 +33,9 @@ class MeRequest extends _BaseRequest
      * 
      * ミドルウェアで設定された値を取得
      *
-     * @return string|null
+     * @return int|null
      */
-    public function getAuthenticatedPlayerId(): ?string
+    public function getAuthenticatedPlayerId(): ?int
     {
         return $this->input('authenticated_player_id');
     }

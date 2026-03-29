@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Utilities\QueryTrxManager;
 use App\Utilities\QueryLogManager;
+use App\Utilities\QuerySysManager;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
@@ -32,6 +33,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(QueryTrxManager::class);
         $this->app->singleton('query.manager', QueryTrxManager::class);
         $this->app->singleton(QueryLogManager::class);
+        $this->app->singleton(QuerySysManager::class);
     }
 
     /**

@@ -4,8 +4,8 @@ namespace Tests\Feature\Repositories\Trx;
 
 use App\Repositories\Trx\TrxItemRepository;
 use App\Utilities\ApiSession;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
 
 /**
@@ -13,7 +13,7 @@ use Tests\TestCase;
  */
 class CompositeKeyTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshMultipleDatabases;
 
     private int $sysPlayerId = 1;
 
@@ -99,6 +99,9 @@ class CompositeKeyTest extends TestCase
 
     private function insertTestData(): void
     {
+        // 既存データをクリア
+        DB::connection('trx1')->table('trx_item')->where('sys_player_id', $this->sysPlayerId)->delete();
+        
         DB::connection('trx1')->table('trx_item')->insert([
             [
                 'sys_player_id' => $this->sysPlayerId,

@@ -77,6 +77,25 @@ abstract class _BaseMstRepository extends _BaseRepository implements _BaseMstRep
     }
 
     /**
+     * 複数のIDでマスターレコードを取得
+     * メモリキャッシュから取得
+     * 
+     * @param array<int|string> $ids
+     * @return Collection<int|string, _BaseMst>
+     */
+    public function selectListByIds(array $ids): Collection
+    {
+        // 全データをメモリキャッシュにロード
+        $this->queryOrMemory();
+        
+        // メモリキャッシュから複数取得
+        return collect($ids)
+            ->map(fn($id) => $this->getModel($id))
+            ->filter() // null を除外
+            ->values(); // キーをリセット
+    }
+
+    /**
      * setModel は Mst では使用しない（読み取り専用）
      * 
      * @param mixed $model

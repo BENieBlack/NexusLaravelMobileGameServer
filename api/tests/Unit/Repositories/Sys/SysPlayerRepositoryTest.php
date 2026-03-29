@@ -315,4 +315,48 @@ class SysPlayerRepositoryTest extends TestCase
             $this->assertEquals(sprintf('B%07d', $i + 1), $queuedModels[$i]->my_id);
         }
     }
+
+    /**
+     * Test createPlayer creates player and returns with ID
+     */
+    public function test_create_player_creates_player_and_returns_with_id(): void
+    {
+        // Act
+        $sysPlayer = $this->repository->createPlayer();
+
+        // Assert
+        $this->assertInstanceOf(SysPlayer::class, $sysPlayer);
+        $this->assertNotNull($sysPlayer->id);
+        $this->assertNotEmpty($sysPlayer->uuid);
+        $this->assertNotEmpty($sysPlayer->my_id);
+        $this->assertNotEmpty($sysPlayer->name);
+        $this->assertEquals(8, strlen($sysPlayer->my_id)); // my_id should be 8 characters
+        
+        // Verify it was actually inserted into the database
+        $dbPlayer = SysPlayer::find($sysPlayer->id);
+        $this->assertNotNull($dbPlayer);
+        $this->assertEquals($sysPlayer->uuid, $dbPlayer->uuid);
+        $this->assertEquals($sysPlayer->my_id, $dbPlayer->my_id);
+    }
+
+    /**
+     * Test createPlayer generates unique my_id
+     */
+    public function test_create_player_generates_unique_my_id(): void
+    {
+        // Act - Create multiple players
+        $player1 = $this->repository->createPlayer();
+        $player2 = $this->repository->createPlayer();
+        $player3 = $this->repository->createPlayer();
+
+        // Assert - All my_ids should be unique
+        $this->assertNotEquals($player1->my_id, $player2->my_id);
+        $this->assertNotEquals($player1->my_id, $player3->my_id);
+        $this->assertNotEquals($player2->my_id, $player3->my_id);
+        
+        // All should have IDs
+        $this->assertNotNull($player1->id);
+        $this->assertNotNull($player2->id);
+        $this->assertNotNull($player3->id);
+    }
 }

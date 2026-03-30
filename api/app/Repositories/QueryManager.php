@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
  * Unit of Work パターンの実装
  * 
  * - Trx: バッチINSERT、INSERT/UPDATE/DELETE対応
- * - Sys: sys_playerは個別INSERT（IDを取得）、その他はバッチINSERT、INSERT/UPDATE/DELETE対応
+ * - Sys: sys_player/sys_player_deviceは個別INSERT（IDを取得）、その他はバッチINSERT、INSERT/UPDATE/DELETE対応
  * - Log: バッチINSERT、INSERTのみ、課金ログと通常ログを分離
  */
 class QueryManager
@@ -161,7 +161,7 @@ class QueryManager
             }
         }
         
-        // INSERT処理（sys_playerのみ個別INSERT、その他はバッチINSERT）
+        // INSERT処理（sys_player/sys_player_deviceのみ個別INSERT、その他はバッチINSERT）
         foreach ($insertsByTable as $item) {
             $connection = $item['connection'];
             $table = $item['table'];
@@ -170,8 +170,8 @@ class QueryManager
             $repository = $item['repository'];
             $originalStates = $item['originalStates'];
             
-            // sys_player, sys_player_device, sys_player_tokenテーブルは個別INSERT（IDを取得）
-            if (in_array($table, ['sys_player', 'sys_player_device', 'sys_player_token'])) {
+            // sys_player/sys_player_deviceテーブルは個別INSERT（IDを取得）
+            if (in_array($table, ['sys_player', 'sys_player_device'])) {
                 foreach ($records as $index => $record) {
                     $id = DB::connection($connection)
                         ->table($table)
@@ -333,8 +333,8 @@ class QueryManager
             $repository = $item['repository'];
             $table = $item['table'];
             
-            // sys_player, sys_player_device, sys_player_tokenテーブルは個別INSERT（IDを取得）
-            if (in_array($table, ['sys_player', 'sys_player_device', 'sys_player_token'])) {
+            // sys_player/sys_player_deviceテーブルは個別INSERT（IDを取得）
+            if (in_array($table, ['sys_player', 'sys_player_device'])) {
                 foreach ($models as $index => $model) {
                     $attributes = $records[$index];
                     
@@ -357,8 +357,18 @@ class QueryManager
                     ->table($table)
                     ->insert($records);
                 
-                // afterSaveフックを呼び出す（INSERT）
+                // バッチINSERT後に、LAST_INSERT_ID()で最初のレコードのIDを取得
+                $firstId = DB::connection($item['connection'])->getPdo()->lastInsertId();
+                
+                // モデルにexists = trueとIDを設定し、afterSaveフックを呼び出す（INSERT）
                 foreach ($models as $index => $model) {
+                    $model->exists = true;
+                    
+                    // auto-incrementのIDを設定（複数レコードの場合は連番）
+                    if ($firstId && $model->getIncrementing()) {
+                        $model->setAttribute($model->getKeyName(), $firstId + $index);
+                    }
+                    
                     $originalState = $originalStates[$index] ?? [];
                     $repository->afterSave($model, $originalState);
                 }

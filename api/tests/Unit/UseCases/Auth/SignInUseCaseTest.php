@@ -9,6 +9,7 @@ use App\Exceptions\GameException;
 use App\Http\Responses\Auth\SignInResponse;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
+use App\Models\Sys\SysPlayerToken;
 use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;
@@ -115,7 +116,7 @@ class SignInUseCaseTest extends TestCase
         $this->assertEquals(3600, $response->dtoToken->expiresIn);
 
         // Assert - SysPlayerTokenが正しく生成されている
-        $this->assertNotNull($response->sysPlayerToken->id);
+        $this->assertInstanceOf(SysPlayerToken::class, $response->sysPlayerToken);
         $this->assertNull($response->sysPlayerToken->revoked_at);
         $this->assertTrue($response->sysPlayerToken->isValid());
     }
@@ -150,6 +151,9 @@ class SignInUseCaseTest extends TestCase
         // 古いトークンを作成
         [$oldDtoToken1, $oldSysPlayerToken1] = $this->tokenService->generateToken($sysPlayer, $sysPlayerDevice);
         [$oldDtoToken2, $oldSysPlayerToken2] = $this->tokenService->generateToken($sysPlayer, $sysPlayerDevice);
+        
+        // 古いトークンをDBに保存（バッチINSERT）
+        app(\App\Repositories\QueryManager::class)->execAllQuery();
 
         // 古いトークンが有効であることを確認
         $this->assertNotNull($this->tokenService->validateRefreshToken($oldDtoToken1->refreshToken));
@@ -158,9 +162,17 @@ class SignInUseCaseTest extends TestCase
         // Act - サインインを実行
         $response = $this->useCase->handle($deviceId, $deviceInfo);
 
-        // Assert - 古いトークンが無効化されている
-        $this->assertNull($this->tokenService->validateRefreshToken($oldDtoToken1->refreshToken));
-        $this->assertNull($this->tokenService->validateRefreshToken($oldDtoToken2->refreshToken));
+        // Assert - DBで古いトークンが無効化されていることを確認
+        $oldToken1FromDb = \App\Models\Sys\SysPlayerToken::where('refresh_token_hash', hash('sha256', $oldDtoToken1->refreshToken))->first();
+        $oldToken2FromDb = \App\Models\Sys\SysPlayerToken::where('refresh_token_hash', hash('sha256', $oldDtoToken2->refreshToken))->first();
+        
+        $this->assertNotNull($oldToken1FromDb);
+        $this->assertNotNull($oldToken1FromDb->revoked_at);
+        $this->assertFalse($oldToken1FromDb->isValid());
+        
+        $this->assertNotNull($oldToken2FromDb);
+        $this->assertNotNull($oldToken2FromDb->revoked_at);
+        $this->assertFalse($oldToken2FromDb->isValid());
 
         // Assert - 新しいトークンは有効
         $this->assertNotNull($this->tokenService->validateRefreshToken($response->dtoToken->refreshToken));

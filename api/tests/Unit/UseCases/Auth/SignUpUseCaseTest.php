@@ -9,6 +9,7 @@ use App\Exceptions\BusinessLogicException;
 use App\Http\Responses\Auth\SignUpResponse;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
+use App\Models\Sys\SysPlayerToken;
 use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;
@@ -97,7 +98,6 @@ class SignUpUseCaseTest extends TestCase
         ], 'sys');
 
         $this->assertDatabaseHas('sys_player_token', [
-            'id' => $response->sysPlayerToken->id,
             'sys_player_id' => $response->sysPlayer->id,
             'sys_player_device_id' => $response->sysPlayerDevice->id,
         ], 'sys');
@@ -121,7 +121,7 @@ class SignUpUseCaseTest extends TestCase
         $this->assertEquals(3600, $response->dtoToken->expiresIn);
 
         // Assert - SysPlayerTokenが正しく生成されている
-        $this->assertNotNull($response->sysPlayerToken->id);
+        $this->assertInstanceOf(SysPlayerToken::class, $response->sysPlayerToken);
         $this->assertEquals($response->sysPlayer->id, $response->sysPlayerToken->sys_player_id);
         $this->assertEquals($response->sysPlayerDevice->id, $response->sysPlayerToken->sys_player_device_id);
         $this->assertNull($response->sysPlayerToken->revoked_at);
@@ -166,7 +166,7 @@ class SignUpUseCaseTest extends TestCase
         $this->assertNotEquals($response1->sysPlayer->id, $response2->sysPlayer->id);
         $this->assertNotEquals($response1->sysPlayer->my_id, $response2->sysPlayer->my_id);
         $this->assertNotEquals($response1->sysPlayerDevice->id, $response2->sysPlayerDevice->id);
-        $this->assertNotEquals($response1->sysPlayerToken->id, $response2->sysPlayerToken->id);
+        $this->assertNotEquals($response1->sysPlayerToken->refresh_token_hash, $response2->sysPlayerToken->refresh_token_hash);
 
         // Assert - それぞれのデバイスIDが正しく設定されている
         $this->assertEquals($deviceId1, $response1->sysPlayerDevice->uuid);

@@ -19,12 +19,12 @@ class TrxDiamondRepository extends _BaseTrxRepository
     /**
      * プレイヤーIDとプラットフォームでダイヤモンドを取得
      * 
+     * @param int $sysPlayerId プレイヤーID
      * @param string $platform プラットフォーム（Apple, Google）
      * @return TrxDiamond|null
      */
-    public function selectByPlatform(string $platform): ?TrxDiamond
+    public function selectByPlatform(int $sysPlayerId, string $platform): ?TrxDiamond
     {
-        $sysPlayerId = $this->getSysPlayerId();
         
         // メモリ内キューから検索
         $queue = $this->queryOrMemory();

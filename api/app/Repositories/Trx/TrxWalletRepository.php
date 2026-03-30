@@ -20,12 +20,12 @@ class TrxWalletRepository extends _BaseTrxRepository
     /**
      * プレイヤーIDとアイテムIDでウォレットを取得
      * 
+     * @param int $sysPlayerId プレイヤーID
      * @param string $mstItemId アイテムID
      * @return TrxWallet|null
      */
-    public function selectByMstItemId(string $mstItemId): ?TrxWallet
+    public function selectByMstItemId(int $sysPlayerId, string $mstItemId): ?TrxWallet
     {
-        $sysPlayerId = $this->getSysPlayerId();
         
         // メモリ内キューから検索
         $queue = $this->queryOrMemory();

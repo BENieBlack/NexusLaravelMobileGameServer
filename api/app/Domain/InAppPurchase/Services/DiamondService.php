@@ -55,7 +55,7 @@ class DiamondService
         $this->validationService->validatePurchaseLimit($mstInAppPurchase, $purchaseHistory, $billingPlatform);
 
         // 3. ダイヤモンド現在値を取得または作成（Repository経由）
-        $diamond = $this->trxDiamondRepository->selectByPlatform($platform);
+        $diamond = $this->trxDiamondRepository->selectByPlatform($sysPlayerId, $platform);
 
         if ($diamond === null) {
             $diamond = new TrxDiamond([
@@ -110,7 +110,7 @@ class DiamondService
     {
         
         // ダイヤモンドを取得または作成（Repository経由）
-        $diamond = $this->trxDiamondRepository->selectByPlatform($platform);
+        $diamond = $this->trxDiamondRepository->selectByPlatform($sysPlayerId, $platform);
 
         if ($diamond) {
             // 既存レコードがある場合は加算

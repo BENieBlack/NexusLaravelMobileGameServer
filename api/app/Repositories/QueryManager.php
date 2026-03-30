@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
  * Unit of Work パターンの実装
  * 
  * - Trx: バッチINSERT、INSERT/UPDATE/DELETE対応
- * - Sys: sys_player/sys_player_deviceは個別INSERT（IDを取得）、その他はバッチINSERT、INSERT/UPDATE/DELETE対応
+ * - Sys: sys_playerのみ個別INSERT（IDを取得）、その他はバッチINSERT、INSERT/UPDATE/DELETE対応
  * - Log: バッチINSERT、INSERTのみ、課金ログと通常ログを分離
  */
 class QueryManager
@@ -170,8 +170,8 @@ class QueryManager
             $repository = $item['repository'];
             $originalStates = $item['originalStates'];
             
-            // sys_player/sys_player_deviceテーブルは個別INSERT（IDを取得）
-            if (in_array($table, ['sys_player', 'sys_player_device'])) {
+            // sys_playerテーブルのみ個別INSERT（IDを取得）
+            if ($table === 'sys_player') {
                 foreach ($records as $index => $record) {
                     $id = DB::connection($connection)
                         ->table($table)
@@ -333,8 +333,8 @@ class QueryManager
             $repository = $item['repository'];
             $table = $item['table'];
             
-            // sys_player/sys_player_deviceテーブルは個別INSERT（IDを取得）
-            if (in_array($table, ['sys_player', 'sys_player_device'])) {
+            // sys_playerテーブルのみ個別INSERT（IDを取得）
+            if ($table === 'sys_player') {
                 foreach ($models as $index => $model) {
                     $attributes = $records[$index];
                     

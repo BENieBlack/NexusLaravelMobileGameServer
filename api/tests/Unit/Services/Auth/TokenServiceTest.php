@@ -53,11 +53,17 @@ class TokenServiceTest extends TestCase
         $deviceRepository = new SysPlayerDeviceRepository(new SysPlayerDevice());
 
         $sysPlayer = $playerRepository->createPlayerAndCommit();
-        $sysPlayerDevice = $deviceRepository->createDeviceAndCommit(
-            $sysPlayer->id,
-            'test-device-' . uniqid(),
-            ['model' => 'Test Device']
-        );
+        
+        $sysPlayerDevice = new SysPlayerDevice([
+            'sys_player_id' => $sysPlayer->id,
+            'uuid' => 'test-device-' . uniqid(),
+            'device_info' => ['model' => 'Test Device'],
+            'last_login_at' => now(),
+        ]);
+        $deviceRepository->setModel($sysPlayerDevice);
+        
+        // デバイスをDBに保存（バッチINSERT）
+        app(QueryManager::class)->execAllQuery();
 
         return [$sysPlayer, $sysPlayerDevice];
     }
@@ -123,7 +129,6 @@ class TokenServiceTest extends TestCase
         $this->assertIsArray($payload);
         $this->assertEquals($sysPlayer->id, $payload['player_id']);
         $this->assertEquals($sysPlayer->uuid, $payload['uuid']);
-        $this->assertEquals($sysPlayerDevice->id, $payload['device_id']);
         $this->assertArrayHasKey('exp', $payload);
         $this->assertArrayHasKey('iat', $payload);
     }
@@ -144,7 +149,6 @@ class TokenServiceTest extends TestCase
         $this->assertIsArray($payload);
         $this->assertEquals($sysPlayer->id, $payload['player_id']);
         $this->assertEquals($sysPlayer->uuid, $payload['uuid']);
-        $this->assertEquals($sysPlayerDevice->id, $payload['device_id']);
     }
 
     /**

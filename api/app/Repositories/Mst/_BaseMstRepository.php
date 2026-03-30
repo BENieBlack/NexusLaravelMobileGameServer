@@ -64,16 +64,16 @@ abstract class _BaseMstRepository extends _BaseRepository implements _BaseMstRep
      * IDでマスターレコードを取得
      * メモリキャッシュから取得
      * 
-     * @param int|string $id
+     * @param int|string $mstRecordId
      * @return _BaseMst|null
      */
-    public function selectById($id): ?_BaseMst
+    public function selectById($mstRecordId): ?_BaseMst
     {
         // 全データをメモリキャッシュにロード
         $this->queryOrMemory();
         
         // メモリキャッシュから取得
-        return $this->getModel($id);
+        return $this->getModel($mstRecordId);
     }
 
     /**

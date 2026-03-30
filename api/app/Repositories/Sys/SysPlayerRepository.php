@@ -43,13 +43,13 @@ class SysPlayerRepository extends _BaseSysRepository
      * IDでプレイヤーを検索
      * メモリキャッシュから取得、なければDBから取得
      *
-     * @param int $id プレイヤーID
+     * @param int $sysPlayerId プレイヤーID
      * @return SysPlayer|null
      */
-    public function selectById(int $id): ?SysPlayer
+    public function selectById(int $sysPlayerId): ?SysPlayer
     {
         // メモリキャッシュから取得
-        $sysPlayer = $this->getModel($id);
+        $sysPlayer = $this->getModel($sysPlayerId);
 
         if ($sysPlayer !== null) {
             /** @var SysPlayer */
@@ -57,7 +57,7 @@ class SysPlayerRepository extends _BaseSysRepository
         }
 
         // DBから取得してメモリキャッシュに保存
-        $sysPlayer = $this->modelClass::find($id);
+        $sysPlayer = $this->modelClass::find($sysPlayerId);
 
         if ($sysPlayer !== null) {
             $this->setModel($sysPlayer);

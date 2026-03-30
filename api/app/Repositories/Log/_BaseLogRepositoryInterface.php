@@ -27,8 +27,8 @@ interface _BaseLogRepositoryInterface extends _BaseRepositoryInterface
     /**
      * IDでログレコードを取得
      *
-     * @param int $id
+     * @param int $logRecordId
      * @return _BaseLog|null
      */
-    public function getById(int $id): ?_BaseLog;
+    public function getById(int $logRecordId): ?_BaseLog;
 }

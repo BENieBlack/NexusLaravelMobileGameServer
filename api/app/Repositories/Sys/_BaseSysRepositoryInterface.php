@@ -17,8 +17,8 @@ interface _BaseSysRepositoryInterface extends _BaseRepositoryInterface
     /**
      * IDでモデルを取得
      *
-     * @param int $id
+     * @param int $sysRecordId
      * @return Model|null
      */
-    public function selectById(int $id): ?Model;
+    public function selectById(int $sysRecordId): ?Model;
 }

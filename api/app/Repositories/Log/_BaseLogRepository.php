@@ -114,19 +114,19 @@ abstract class _BaseLogRepository extends _BaseRepository implements _BaseLogRep
      * IDでログレコードを取得
      * メモリキャッシュから取得、なければqueryOrMemoryでロードしてから取得
      *
-     * @param int $id ログID
+     * @param int $logRecordId ログID
      * @return _BaseLog|null ログレコード（見つからない場合はnull）
      */
-    public function getById(int $id): ?_BaseLog
+    public function getById(int $logRecordId): ?_BaseLog
     {
         // メモリキャッシュにあればそこから取得
         if ($this->models !== null) {
-            return $this->models->get($id);
+            return $this->models->get($logRecordId);
         }
 
         // キャッシュがない場合、queryOrMemoryでロードしてから取得
         $this->queryOrMemory();
-        return $this->models?->get($id);
+        return $this->models?->get($logRecordId);
     }
 
     /**

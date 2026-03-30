@@ -67,35 +67,4 @@ class SysPlayerDeviceRepository extends _BaseSysRepository
 
         return $sysPlayerDeviceCollection;
     }
-
-    /**
-     * デバイスを作成して即座にコミット（即コミット専用）
-     *
-     * SignUpなど、即座にIDが必要な場合に使用。
-     * Repository内でexecSysQuery()を実行してIDを取得する。
-     *
-     * @param int $sysPlayerId sys_player.id（プレイヤーID）
-     * @param string $deviceId デバイスUUID
-     * @param array<string, mixed>|null $deviceInfo デバイス情報（JSON）
-     * @return SysPlayerDevice 作成されたデバイス（IDが設定済み）
-     */
-    public function createDeviceAndCommit(
-        int $sysPlayerId,
-        string $deviceId,
-        ?array $deviceInfo = null
-    ): SysPlayerDevice {
-        $sysPlayerDevice = new SysPlayerDevice([
-            'sys_player_id' => $sysPlayerId,
-            'uuid' => $deviceId,
-            'device_info' => $deviceInfo,
-            'last_login_at' => now(),
-        ]);
-
-        $this->setModel($sysPlayerDevice);
-
-        // Repository内でexecSysQuery()を実行してIDを取得
-        app()->make(QueryManager::class)->execSysQuery();
-
-        return $sysPlayerDevice;
-    }
 }

@@ -56,7 +56,6 @@ class TokenService
         $payload = [
             'player_id' => $sysPlayer->id,
             'uuid' => $sysPlayer->uuid,
-            'device_id' => $sysPlayerDevice->id,
             'exp' => time() + self::ACCESS_TOKEN_EXPIRATION, // Expiration Time（有効期限）
             'iat' => time(), // Issued At（発行時刻）
         ];

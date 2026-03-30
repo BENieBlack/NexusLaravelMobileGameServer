@@ -55,7 +55,6 @@ class VerifyAccessToken
         $request->merge([
             'authenticated_player_id' => $payload['player_id'],
             'authenticated_uuid' => $payload['uuid'],
-            'authenticated_device_id' => $payload['device_id'],
         ]);
 
         // ApiSessionにプレイヤーIDを設定（アプリケーション全体で利用可能）

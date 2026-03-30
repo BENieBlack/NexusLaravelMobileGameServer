@@ -5,6 +5,7 @@ namespace App\Domain\Auth\Services;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;
+use App\Repositories\QueryManager;
 use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;
@@ -33,8 +34,8 @@ class PlayerService
     /**
      * 新しいプレイヤーを作成
      * 
-     * Repository層の即コミット版メソッドを使用して、プレイヤーとデバイスを段階的に作成します。
-     * 各Repositoryが内部でexecSysQuery()を実行し、IDを即座に取得します。
+     * プレイヤーは即座にコミットしてIDを取得し、デバイスはバッチINSERTで保存します。
+     * このメソッド内でexecAllQuery()を実行して、デバイスのIDを取得します。
      *
      * @param string $deviceId デバイスUUID
      * @param array<string, mixed>|null $deviceInfo デバイス情報（JSON）
@@ -47,12 +48,18 @@ class PlayerService
         // 1. プレイヤーを作成して即座にコミット（IDを取得）
         $sysPlayer = $this->sysPlayerRepository->createPlayerAndCommit();
 
-        // 2. デバイスを作成して即座にコミット（IDを取得）
-        $sysPlayerDevice = $this->sysPlayerDeviceRepository->createDeviceAndCommit(
-            $sysPlayer->id,
-            $deviceId,
-            $deviceInfo
-        );
+        // 2. デバイスを作成してメモリに登録（バッチINSERT対象）
+        $sysPlayerDevice = new SysPlayerDevice([
+            'sys_player_id' => $sysPlayer->id,
+            'uuid' => $deviceId,
+            'device_info' => $deviceInfo,
+            'last_login_at' => now(),
+        ]);
+
+        $this->sysPlayerDeviceRepository->setModel($sysPlayerDevice);
+        
+        // 3. バッチINSERTを実行してデバイスのIDを取得
+        app(QueryManager::class)->execAllQuery();
 
         return [
             'sys_player' => $sysPlayer,

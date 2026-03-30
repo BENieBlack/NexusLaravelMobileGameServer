@@ -155,20 +155,20 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
      * IDでモデルを取得
      * メモリキャッシュから取得、なければDBから取得
      *
-     * @param int $id
+     * @param int $sysRecordId
      * @return Model|null
      */
-    public function selectById(int $id): ?Model
+    public function selectById(int $sysRecordId): ?Model
     {
         // メモリキャッシュから取得を試みる
-        $model = $this->getModel($id);
+        $model = $this->getModel($sysRecordId);
         
         if ($model !== null) {
             return $model;
         }
         
         // DBから取得してメモリキャッシュに保存
-        $model = $this->modelClass::find($id);
+        $model = $this->modelClass::find($sysRecordId);
         
         if ($model !== null) {
             $this->setModel($model);

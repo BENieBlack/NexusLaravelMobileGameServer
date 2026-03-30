@@ -88,19 +88,19 @@ class SysDeployRepository extends _BaseSysRepository
     /**
      * IDで検索（オーバーライドして Redis キャッシュ付き、リレーション付き）
      *
-     * @param int $id
+     * @param int $sysDeployId
      * @return SysDeploy|null
      */
-    public function selectById(int $id): ?SysDeploy
+    public function selectById(int $sysDeployId): ?SysDeploy
     {
-        $cacheKey = $this->getCacheKey("id:{$id}");
+        $cacheKey = $this->getCacheKey("id:{$sysDeployId}");
 
         return Cache::store($this->cacheDriver)->remember(
             $cacheKey,
             $this->cacheTtl,
-            function () use ($id) {
+            function () use ($sysDeployId) {
                 $sysDeploy = $this->modelClass::with(['deployMaster', 'deployAsset'])
-                    ->find($id);
+                    ->find($sysDeployId);
 
                 // メモリキャッシュにも保存
                 if ($sysDeploy !== null) {

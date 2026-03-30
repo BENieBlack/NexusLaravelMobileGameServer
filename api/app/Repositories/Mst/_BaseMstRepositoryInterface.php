@@ -17,8 +17,8 @@ interface _BaseMstRepositoryInterface extends _BaseRepositoryInterface
     /**
      * IDでマスターレコードを取得
      * 
-     * @param int|string $id
+     * @param int|string $mstRecordId
      * @return _BaseMst|null
      */
-    public function selectById($id): ?_BaseMst;
+    public function selectById($mstRecordId): ?_BaseMst;
 }

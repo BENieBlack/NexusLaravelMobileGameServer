@@ -16,19 +16,19 @@ class SysFriendApplyRepository extends _BaseSysRepository
     /**
      * IDでフレンド申請を検索
      *
-     * @param int $id フレンド申請ID
+     * @param int $sysFriendApplyId フレンド申請ID
      * @return SysFriendApply|null
      */
-    public function selectById(int $id): ?SysFriendApply
+    public function selectById(int $sysFriendApplyId): ?SysFriendApply
     {
-        $sysFriendApply = $this->getModel($id);
+        $sysFriendApply = $this->getModel($sysFriendApplyId);
         
         if ($sysFriendApply !== null) {
             /** @var SysFriendApply */
             return $sysFriendApply;
         }
         
-        $sysFriendApply = $this->modelClass::find($id);
+        $sysFriendApply = $this->modelClass::find($sysFriendApplyId);
         
         if ($sysFriendApply !== null) {
             $this->setModel($sysFriendApply);

@@ -45,12 +45,12 @@ class MstInAppPurchaseRepository extends _BaseMstRepository
     /**
      * IDで商品を取得（リレーション付き）
      *
-     * @param int $id
+     * @param int $mstInAppPurchaseId
      * @return MstInAppPurchase|null
      */
-    public function findByIdWithRelations(int $id): ?MstInAppPurchase
+    public function findByIdWithRelations(int $mstInAppPurchaseId): ?MstInAppPurchase
     {
-        $product = $this->selectById($id);
+        $product = $this->selectById($mstInAppPurchaseId);
         
         if ($product === null) {
             return null;
@@ -65,13 +65,13 @@ class MstInAppPurchaseRepository extends _BaseMstRepository
     /**
      * IDとアクティブ状態で商品を取得
      *
-     * @param int $id
+     * @param int $mstInAppPurchaseId
      * @return MstInAppPurchase|null
      */
-    public function findActiveById(int $id): ?MstInAppPurchase
+    public function findActiveById(int $mstInAppPurchaseId): ?MstInAppPurchase
     {
         return $this->queryOrMemory()
-            ->where('id', $id)
+            ->where('id', $mstInAppPurchaseId)
             ->where('is_active', true)
             ->first();
     }

@@ -27,20 +27,21 @@ class WalletService
     /**
      * 通貨を加算
      * 
+     * @param int $sysPlayerId プレイヤーID
      * @param string $mstItemId 通貨アイテムID（例: "gold", "event_coin"）
      * @param int $amount 加算する数量
      * @param CarbonImmutable|null $expireAt 有効期限（NULLの場合は無期限）
      * @return array{amount: int, total_amount: int}
      */
     public function addCurrency(
+        int $sysPlayerId,
         string $mstItemId,
         int $amount,
         ?CarbonImmutable $expireAt = null
     ): array {
-        $sysPlayerId = $this->apiSession->getPlayerId();
         
         // 1. 現在値を取得または作成（Repository経由）
-        $wallet = $this->trxWalletRepository->findByMstItemId($mstItemId);
+        $wallet = $this->trxWalletRepository->selectByMstItemId($mstItemId);
 
         if ($wallet === null) {
             $wallet = new TrxWallet([
@@ -85,7 +86,7 @@ class WalletService
         int $amount
     ): array {
         // 1. 現在値を取得（Repository経由）
-        $wallet = $this->trxWalletRepository->findByMstItemId($mstItemId);
+        $wallet = $this->trxWalletRepository->selectByMstItemId($mstItemId);
 
         if ($wallet === null || $wallet->getAmount() < $amount) {
             throw new \Exception("Insufficient currency: {$mstItemId}");
@@ -127,7 +128,7 @@ class WalletService
     public function getBalance(string $mstItemId): int
     {
         // Repository経由で取得
-        $wallet = $this->trxWalletRepository->findByMstItemId($mstItemId);
+        $wallet = $this->trxWalletRepository->selectByMstItemId($mstItemId);
 
         return $wallet?->getAmount() ?? 0;
     }
@@ -154,7 +155,7 @@ class WalletService
 
         // 現在値から減算
         if ($totalExpired > 0) {
-            $wallet = $this->trxWalletRepository->findByMstItemId($mstItemId);
+            $wallet = $this->trxWalletRepository->selectByMstItemId($mstItemId);
 
             if ($wallet !== null) {
                 $wallet->setAmount(max(0, $wallet->getAmount() - $totalExpired));

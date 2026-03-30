@@ -21,15 +21,14 @@ class ItemService
 
     /**
      * アイテムを加算（既存の場合は加算、新規の場合は作成）
-     * プレイヤーIDはApiSessionから自動的に取得される
      *
+     * @param int $sysPlayerId プレイヤーID
      * @param string $mstItemId アイテムID
      * @param int $amount 加算する数量
      * @return void
      */
-    public function addItem(string $mstItemId, int $amount): void
+    public function addItem(int $sysPlayerId, string $mstItemId, int $amount): void
     {
-        $sysPlayerId = $this->apiSession->getPlayerId();
 
         // 既存のアイテムを取得
         $trxItem = TrxItem::query()
@@ -56,16 +55,15 @@ class ItemService
 
     /**
      * アイテムを消費（減算）
-     * プレイヤーIDはApiSessionから自動的に取得される
      *
+     * @param int $sysPlayerId プレイヤーID
      * @param string $mstItemId mst_item.id
      * @param int $amount 消費する数量
      * @return TrxItem 消費後のアイテムデータ
      * @throws \Exception 所持数が不足している場合
      */
-    public function consumeItem(string $mstItemId, int $amount): TrxItem
+    public function consumeItem(int $sysPlayerId, string $mstItemId, int $amount): TrxItem
     {
-        $sysPlayerId = $this->apiSession->getPlayerId();
 
         // 既存のアイテムを取得
         $trxItem = TrxItem::query()
@@ -93,14 +91,13 @@ class ItemService
 
     /**
      * アイテムの所持数を取得
-     * プレイヤーIDはApiSessionから自動的に取得される
      *
+     * @param int $sysPlayerId プレイヤーID
      * @param string $mstItemId アイテムID
      * @return int 所持数（存在しない場合は0）
      */
-    public function getItemAmount(string $mstItemId): int
+    public function getItemAmount(int $sysPlayerId, string $mstItemId): int
     {
-        $sysPlayerId = $this->apiSession->getPlayerId();
 
         $trxItem = TrxItem::query()
             ->where('sys_player_id', $sysPlayerId)

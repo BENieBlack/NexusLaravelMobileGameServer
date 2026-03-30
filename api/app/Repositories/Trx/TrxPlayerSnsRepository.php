@@ -20,7 +20,7 @@ class TrxPlayerSnsRepository extends _BaseTrxRepository
      *
      * @return Collection<string, TrxPlayerSns>
      */
-    public function findAll(): Collection
+    public function selectAll(): Collection
     {
         $sysPlayerId = $this->getSysPlayerId();
         return $this->getMapBySysPlayerId($sysPlayerId);
@@ -32,7 +32,7 @@ class TrxPlayerSnsRepository extends _BaseTrxRepository
      * @param string $snsType SNSタイプ (apple, google, x, facebook)
      * @return TrxPlayerSns|null
      */
-    public function findBySnsType(string $snsType): ?TrxPlayerSns
+    public function selectBySnsType(string $snsType): ?TrxPlayerSns
     {
         $sysPlayerId = $this->getSysPlayerId();
         
@@ -50,7 +50,7 @@ class TrxPlayerSnsRepository extends _BaseTrxRepository
      * @param string $snsUserId SNSユーザーID
      * @return TrxPlayerSns|null
      */
-    public function findBySnsTypeAndSnsUserId(string $snsType, string $snsUserId): ?TrxPlayerSns
+    public function selectBySnsTypeAndSnsUserId(string $snsType, string $snsUserId): ?TrxPlayerSns
     {
         return TrxPlayerSns::query()
             ->where('sns_type', $snsType)
@@ -67,7 +67,7 @@ class TrxPlayerSnsRepository extends _BaseTrxRepository
      */
     public function existsBySnsType(string $snsType): bool
     {
-        return $this->findBySnsType($snsType) !== null;
+        return $this->selectBySnsType($snsType) !== null;
     }
 
     /**

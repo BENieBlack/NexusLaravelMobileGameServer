@@ -48,12 +48,12 @@ class DeliveryService
     /**
      * 複数のコンテンツを一括配送
      *
+     * @param int $sysPlayerId プレイヤーID
      * @param array<DeliveryContent> $deliveryContents 配送するコンテンツのリスト
      * @return DeliveryResult 配送結果
      */
-    public function delivers(array $deliveryContents): DeliveryResult
+    public function delivers(int $sysPlayerId, array $deliveryContents): DeliveryResult
     {
-        $sysPlayerId = $this->apiSession->getPlayerId();
         $successContentArray = [];
         $failedContentArray = [];
 
@@ -61,7 +61,7 @@ class DeliveryService
         try {
             foreach ($deliveryContents as $content) {
                 try {
-                    $this->deliver($content);
+                    $this->deliver($sysPlayerId, $content);
                     $successContentArray[] = $content;
                 } catch (\Exception $e) {
                     Log::error('Delivery failed', [
@@ -119,13 +119,13 @@ class DeliveryService
     /**
      * 単一のコンテンツを配送
      *
+     * @param int $sysPlayerId プレイヤーID
      * @param DeliveryContent $content 配送するコンテンツ
      * @return void
      * @throws \Exception サポートされていないタイプの場合
      */
-    public function deliver(DeliveryContent $content): void
+    public function deliver(int $sysPlayerId, DeliveryContent $content): void
     {
-        $sysPlayerId = $this->apiSession->getPlayerId();
 
         // 適切なHandlerを探す
         foreach ($this->handlerArray as $handler) {

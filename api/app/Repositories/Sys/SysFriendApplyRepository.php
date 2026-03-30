@@ -19,7 +19,7 @@ class SysFriendApplyRepository extends _BaseSysRepository
      * @param int $id フレンド申請ID
      * @return SysFriendApply|null
      */
-    public function findById(int $id): ?SysFriendApply
+    public function selectById(int $id): ?SysFriendApply
     {
         $sysFriendApply = $this->getModel($id);
         
@@ -44,7 +44,7 @@ class SysFriendApplyRepository extends _BaseSysRepository
      * @param int $receivePlayerId 受信者のプレイヤーID
      * @return SysFriendApply|null
      */
-    public function findByPlayerPair(int $applyPlayerId, int $receivePlayerId): ?SysFriendApply
+    public function selectByPlayerPair(int $applyPlayerId, int $receivePlayerId): ?SysFriendApply
     {
         // 申請者→受信者、または受信者→申請者の双方向で検索
         return $this->modelClass::query()
@@ -69,7 +69,7 @@ class SysFriendApplyRepository extends _BaseSysRepository
      * @param int $playerId プレイヤーID
      * @return \Illuminate\Database\Eloquent\Collection<int, SysFriendApply>
      */
-    public function getReceivedApplies(int $playerId): \Illuminate\Database\Eloquent\Collection
+    public function selectReceivedApplies(int $playerId): \Illuminate\Database\Eloquent\Collection
     {
         return $this->modelClass::query()
             ->where('receiver_sys_player_id', $playerId)
@@ -84,7 +84,7 @@ class SysFriendApplyRepository extends _BaseSysRepository
      * @param int $playerId プレイヤーID
      * @return \Illuminate\Database\Eloquent\Collection<int, SysFriendApply>
      */
-    public function getSentApplies(int $playerId): \Illuminate\Database\Eloquent\Collection
+    public function selectSentApplies(int $playerId): \Illuminate\Database\Eloquent\Collection
     {
         return $this->modelClass::query()
             ->where('sender_sys_player_id', $playerId)
@@ -101,7 +101,7 @@ class SysFriendApplyRepository extends _BaseSysRepository
      * @param int $playerId プレイヤーID
      * @return \Illuminate\Database\Eloquent\Collection<int, SysFriendApply>
      */
-    public function getAppliesByPlayerId(int $playerId): \Illuminate\Database\Eloquent\Collection
+    public function selectAppliesByPlayerId(int $playerId): \Illuminate\Database\Eloquent\Collection
     {
         return $this->modelClass::query()
             ->with(['sendPlayer', 'receivePlayer'])
@@ -122,7 +122,7 @@ class SysFriendApplyRepository extends _BaseSysRepository
      * @param int $playerId プレイヤーID
      * @return \Illuminate\Database\Eloquent\Collection<int, SysFriendApply>
      */
-    public function getAcceptedFriendsByPlayerId(int $playerId): \Illuminate\Database\Eloquent\Collection
+    public function selectAcceptedFriendsByPlayerId(int $playerId): \Illuminate\Database\Eloquent\Collection
     {
         return $this->modelClass::query()
             ->with(['sendPlayer', 'receivePlayer'])

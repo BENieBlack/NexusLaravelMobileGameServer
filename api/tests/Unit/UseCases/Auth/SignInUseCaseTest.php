@@ -185,7 +185,7 @@ class SignInUseCaseTest extends TestCase
         $response = $this->useCase->handle($deviceId, $deviceInfo);
 
         // Assert - last_login_atが更新されている
-        $updatedDevice = $this->playerService->findByDeviceId($deviceId);
+        $updatedDevice = $this->playerService->selectByDeviceId($deviceId);
         $this->assertNotNull($updatedDevice);
         $this->assertNotNull($updatedDevice->last_login_at);
         

@@ -34,7 +34,7 @@ class OpenUseCase
     {
         return $this->executeWithTransaction(function () use ($sysPlayerId, $trxMailboxId) {
             // メールボックス取得
-            $trxMailbox = $this->trxMailboxRepository->findById($trxMailboxId);
+            $trxMailbox = $this->trxMailboxRepository->selectById($trxMailboxId);
 
             if ($trxMailbox === null || $trxMailbox->getSysPlayerId() !== $sysPlayerId) {
                 throw new GameException(GameErrorCode::MAILBOX_NOT_FOUND, 'Mailbox not found');

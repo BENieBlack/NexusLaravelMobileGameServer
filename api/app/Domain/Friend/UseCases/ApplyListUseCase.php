@@ -35,7 +35,7 @@ class ApplyListUseCase extends _BaseUseCase
         // トランザクション開始
         return $this->executeWithTransaction(function () use ($sysPlayerId) {
             // 自分が関連するフレンド申請一覧を取得
-            $sysFriendApplyCollection = $this->sysFriendApplyRepository->getAppliesByPlayerId($sysPlayerId);
+            $sysFriendApplyCollection = $this->sysFriendApplyRepository->selectAppliesByPlayerId($sysPlayerId);
 
             // レスポンスを返す
             return ApplyListResponse::fromCollection($sysFriendApplyCollection);

@@ -23,7 +23,7 @@ class TrxEquipmentRepository extends _BaseTrxRepository
      * @param int $trxEquipmentId trx_equipment.id（プレイヤー所有装備）
      * @return TrxEquipment|null 装備（見つからない場合はnull）
      */
-    public function findById(int $trxEquipmentId): ?TrxEquipment
+    public function selectById(int $trxEquipmentId): ?TrxEquipment
     {
         // queryOrMemory()で全データをキャッシュにロード（内部の$sysPlayerIdを使用）
         $this->queryOrMemory();

@@ -55,7 +55,7 @@ class DiamondService
         $this->validationService->validatePurchaseLimit($mstInAppPurchase, $purchaseHistory, $billingPlatform);
 
         // 3. ダイヤモンド現在値を取得または作成（Repository経由）
-        $diamond = $this->trxDiamondRepository->findByPlatform($platform);
+        $diamond = $this->trxDiamondRepository->selectByPlatform($platform);
 
         if ($diamond === null) {
             $diamond = new TrxDiamond([
@@ -100,17 +100,17 @@ class DiamondService
     /**
      * ダイヤモンドを加算（有償/無償）
      * 
+     * @param int $sysPlayerId プレイヤーID
      * @param string $platform プラットフォーム（Apple, Google）
      * @param int $amount 加算する数量
      * @param bool $isPaid 有償ダイヤモンドか（falseの場合は無償）
      * @return void
      */
-    public function addDiamond(string $platform, int $amount, bool $isPaid = false): void
+    public function addDiamond(int $sysPlayerId, string $platform, int $amount, bool $isPaid = false): void
     {
-        $sysPlayerId = $this->apiSession->getPlayerId();
         
         // ダイヤモンドを取得または作成（Repository経由）
-        $diamond = $this->trxDiamondRepository->findByPlatform($platform);
+        $diamond = $this->trxDiamondRepository->selectByPlatform($platform);
 
         if ($diamond) {
             // 既存レコードがある場合は加算

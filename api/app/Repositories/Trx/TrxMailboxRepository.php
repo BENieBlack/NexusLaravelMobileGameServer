@@ -20,7 +20,7 @@ class TrxMailboxRepository extends _BaseTrxRepository
      * @param int $sysPlayerId
      * @return Collection
      */
-    public function getByPlayerId(int $sysPlayerId): Collection
+    public function selectByPlayerId(int $sysPlayerId): Collection
     {
         // データベースから直接取得（メモリキャッシュは使用しない）
         return $this->modelClass::where('sys_player_id', $sysPlayerId)
@@ -35,7 +35,7 @@ class TrxMailboxRepository extends _BaseTrxRepository
      * @param int $trxMailboxId
      * @return TrxMailbox|null
      */
-    public function findById(int $trxMailboxId): ?TrxMailbox
+    public function selectById(int $trxMailboxId): ?TrxMailbox
     {
         $trxMailbox = $this->getModel($trxMailboxId);
         

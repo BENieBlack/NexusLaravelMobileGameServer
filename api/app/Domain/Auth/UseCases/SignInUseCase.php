@@ -43,7 +43,7 @@ class SignInUseCase implements _BaseUseCaseInterface
         // トランザクション開始
         return $this->executeWithTransaction(function () use ($deviceId) {
             // デバイスとプレイヤーを取得
-            $sysPlayerDevice = $this->playerService->findByDeviceId($deviceId);
+            $sysPlayerDevice = $this->playerService->selectByDeviceId($deviceId);
 
             if ($sysPlayerDevice === null) {
                 throw new GameException(
@@ -53,7 +53,7 @@ class SignInUseCase implements _BaseUseCaseInterface
             }
 
             // プレイヤー情報を取得
-            $sysPlayer = $this->playerService->findById($sysPlayerDevice->sys_player_id);
+            $sysPlayer = $this->playerService->selectById($sysPlayerDevice->sys_player_id);
 
             if ($sysPlayer === null) {
                 throw new GameException(

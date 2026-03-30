@@ -68,7 +68,7 @@ class LevelUpUseCase implements _BaseUseCaseInterface
     public function validation(int $sysPlayerId, int $trxEquipmentId, int $afterLevel): void
     {
         // 1. 装備の存在確認
-        $trxEquipment = $this->trxEquipmentRepository->findById($trxEquipmentId);
+        $trxEquipment = $this->trxEquipmentRepository->selectById($trxEquipmentId);
         if (!$trxEquipment) {
             throw TransactionDataException::equipment($trxEquipmentId);
         }
@@ -118,7 +118,7 @@ class LevelUpUseCase implements _BaseUseCaseInterface
         $requiredItemCount = (int) ceil($requiredExp / $expPerItem);
 
         // 5. アイテム所持数確認
-        $currentAmount = $this->itemService->getItemAmount(self::EQUIPMENT_EXP_ITEM_ID);
+        $currentAmount = $this->itemService->getItemAmount($sysPlayerId, self::EQUIPMENT_EXP_ITEM_ID);
         if ($currentAmount < $requiredItemCount) {
             throw BusinessLogicException::itemNotEnough(self::EQUIPMENT_EXP_ITEM_ID, $requiredItemCount, $currentAmount);
         }
@@ -143,7 +143,7 @@ class LevelUpUseCase implements _BaseUseCaseInterface
             $uniqueRequestId = Str::uuid()->toString();
 
             // 装備データを取得（レベルアップ前の状態を記録するため）
-            $trxEquipmentBefore = $this->trxEquipmentRepository->findById($trxEquipmentId);
+            $trxEquipmentBefore = $this->trxEquipmentRepository->selectById($trxEquipmentId);
 
             // アイテムマスターデータを再取得（バリデーション済み）
             $mstItem = $this->mstItemRepository->selectById(self::EQUIPMENT_EXP_ITEM_ID);
@@ -156,7 +156,7 @@ class LevelUpUseCase implements _BaseUseCaseInterface
             $requiredItemCount = (int) ceil($requiredExp / $expPerItem);
 
             // アイテムを消費（消費後のデータを取得）
-            $trxItem = $this->itemService->consumeItem(self::EQUIPMENT_EXP_ITEM_ID, $requiredItemCount);
+            $trxItem = $this->itemService->consumeItem($sysPlayerId, self::EQUIPMENT_EXP_ITEM_ID, $requiredItemCount);
 
             // 経験値を加算（更新後の装備データを取得）
             $totalExp = $expPerItem * $requiredItemCount;

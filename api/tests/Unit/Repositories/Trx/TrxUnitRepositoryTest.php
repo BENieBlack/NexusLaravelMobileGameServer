@@ -139,7 +139,7 @@ class TrxUnitRepositoryTest extends TestCase
         $this->repository->queryOrMemory(1, TrxUnit::class);
 
         // Act
-        $result = $this->repository->findById($trxUnit->id);
+        $result = $this->repository->selectById($trxUnit->id);
 
         // Assert
         $this->assertNotNull($result);
@@ -150,12 +150,12 @@ class TrxUnitRepositoryTest extends TestCase
     }
 
     /**
-     * Test findById returns null for non-existent unit
+     * Test selectById returns null for non-existent unit
      */
     public function test_find_by_id_returns_null_for_non_existent_unit(): void
     {
         // Act
-        $result = $this->repository->findById(99999);
+        $result = $this->repository->selectById(99999);
 
         // Assert
         $this->assertNull($result);
@@ -364,7 +364,7 @@ class TrxUnitRepositoryTest extends TestCase
 
         // Act - Load into memory
         $units = $this->repository->queryOrMemory(1, TrxUnit::class);
-        $unitFromMemory = $this->repository->findById($trxUnit->id);
+        $unitFromMemory = $this->repository->selectById($trxUnit->id);
 
         // Assert
         $this->assertCount(1, $units);

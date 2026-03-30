@@ -36,7 +36,7 @@ class ListUseCase extends _BaseUseCase
         // トランザクション開始
         return $this->executeWithTransaction(function () use ($sysPlayerId) {
             // 自分が関連する承認済みフレンド一覧を取得
-            $sysFriendApplyCollection = $this->sysFriendApplyRepository->getAcceptedFriendsByPlayerId($sysPlayerId);
+            $sysFriendApplyCollection = $this->sysFriendApplyRepository->selectAcceptedFriendsByPlayerId($sysPlayerId);
 
             // レスポンスを返す（自分のsys_player_idを渡して、相手のmy_idを取得できるようにする）
             return ListResponse::fromCollection($sysFriendApplyCollection, $sysPlayerId);

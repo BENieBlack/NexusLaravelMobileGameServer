@@ -25,12 +25,12 @@ class PassService
     /**
      * Pass購入時に効果を適用
      *
+     * @param int $sysPlayerId プレイヤーID
      * @param MstInAppPurchase $mstInAppPurchase Pass商品マスター
      * @return void
      */
-    public function applyPassEffects(MstInAppPurchase $mstInAppPurchase): void
+    public function applyPassEffects(int $sysPlayerId, MstInAppPurchase $mstInAppPurchase): void
     {
-        $sysPlayerId = $this->apiSession->getPlayerId();
         
         // 商品の効果を取得
         $effectCollection = $mstInAppPurchase->effects;
@@ -61,11 +61,11 @@ class PassService
      * プレイヤーの有効なPass効果を取得
      * 有効期限切れの効果にis_deleteフラグを立てる
      *
+     * @param int $sysPlayerId プレイヤーID
      * @return Collection<int, TrxInAppPurchaseEffect>
      */
-    public function getActiveEffects(): Collection
+    public function getActiveEffects(int $sysPlayerId): Collection
     {
-        $sysPlayerId = $this->apiSession->getPlayerId();
         
         // 全ての効果を取得
         $effects = $this->trxInAppPurchaseEffectRepository->getMapBySysPlayerId($sysPlayerId);
@@ -89,12 +89,13 @@ class PassService
     /**
      * プレイヤーの特定効果タイプの効果値の合計を取得
      *
+     * @param int $sysPlayerId プレイヤーID
      * @param string $effectType 効果タイプ
      * @return float 効果値の合計
      */
-    public function getTotalEffectValue(string $effectType): float
+    public function getTotalEffectValue(int $sysPlayerId, string $effectType): float
     {
-        return $this->getActiveEffects()
+        return $this->getActiveEffects($sysPlayerId)
             ->where('effect_type', $effectType)
             ->sum('value');
     }

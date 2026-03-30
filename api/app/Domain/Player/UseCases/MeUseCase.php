@@ -29,7 +29,7 @@ class MeUseCase implements _BaseUseCaseInterface
     public function validation(int $sysPlayerId): void
     {
         // プレイヤー情報の存在確認
-        $sysPlayer = $this->sysPlayerRepository->findById($sysPlayerId);
+        $sysPlayer = $this->sysPlayerRepository->selectById($sysPlayerId);
 
         if (!$sysPlayer) {
             throw SystemDataException::generic('sys_player', $sysPlayerId);
@@ -49,7 +49,7 @@ class MeUseCase implements _BaseUseCaseInterface
         $this->validation($sysPlayerId);
         
         // プレイヤー情報を取得（バリデーション済み）
-        $sysPlayer = $this->sysPlayerRepository->findById($sysPlayerId);
+        $sysPlayer = $this->sysPlayerRepository->selectById($sysPlayerId);
 
         return new MeResponse(
             myId: $sysPlayer->getMyId(),

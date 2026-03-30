@@ -59,7 +59,7 @@ class ApplySendUseCase extends _BaseUseCase
             }
 
             // 3. 既存の申請をチェック（双方向）
-            $existingApply = $this->sysFriendApplyRepository->findByPlayerPair(
+            $existingApply = $this->sysFriendApplyRepository->selectByPlayerPair(
                 $sysPlayerId,
                 $receivePlayerId
             );

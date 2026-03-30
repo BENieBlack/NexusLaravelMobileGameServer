@@ -50,7 +50,7 @@ class LevelService
      */
     public function getEquipmentLevel(int $trxEquipmentId): array
     {
-        $trxEquipment = $this->trxEquipmentRepository->findById($trxEquipmentId);
+        $trxEquipment = $this->trxEquipmentRepository->selectById($trxEquipmentId);
         
         if ($trxEquipment === null) {
             throw TransactionDataException::equipment($trxEquipmentId);
@@ -89,7 +89,7 @@ class LevelService
      */
     public function addExp(int $trxEquipmentId, int $exp): TrxEquipment
     {
-        $trxEquipment = $this->trxEquipmentRepository->findById($trxEquipmentId);
+        $trxEquipment = $this->trxEquipmentRepository->selectById($trxEquipmentId);
         
         if ($trxEquipment === null) {
             throw TransactionDataException::equipment($trxEquipmentId);
@@ -138,7 +138,7 @@ class LevelService
      */
     public function calculateRequiredExp(int $trxEquipmentId, int $targetLevel): int
     {
-        $trxEquipment = $this->trxEquipmentRepository->findById($trxEquipmentId);
+        $trxEquipment = $this->trxEquipmentRepository->selectById($trxEquipmentId);
         
         if ($trxEquipment === null) {
             throw TransactionDataException::equipment($trxEquipmentId);

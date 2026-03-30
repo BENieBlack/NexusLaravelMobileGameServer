@@ -88,7 +88,7 @@ class TrxUnitRepository extends _BaseTrxRepository
      * @param int $trxUnitId trx_unit.id（プレイヤー所有ユニット）
      * @return TrxUnit|null ユニット（見つからない場合はnull）
      */
-    public function findById(int $trxUnitId): ?TrxUnit
+    public function selectById(int $trxUnitId): ?TrxUnit
     {
         // queryOrMemory()で全データをキャッシュにロード（ApiSessionから$sysPlayerIdを取得）
         $this->queryOrMemory();

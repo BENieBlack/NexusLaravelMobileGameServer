@@ -209,10 +209,64 @@ class QueryManager
             $model = $item['model'];
             $where = $this->buildWhereCondition($model);
             
-            DB::connection($item['connection'])
-                ->table($item['table'])
-                ->where($where)
-                ->update($item['data']);
+            // _BaseTrxモデルの場合、相対的な変更をチェック
+            $hasRelativeChanges = method_exists($model, 'getRelativeChanges') 
+                && method_exists($model, 'hasRelativeChanges') 
+                && $model->hasRelativeChanges();
+            
+            if ($hasRelativeChanges) {
+                $relativeChanges = $model->getRelativeChanges();
+                
+                // 相対的な更新が必要な場合は、手動でUPDATE文を構築
+                $table = $item['table'];
+                
+                // UPDATE文を構築
+                $updateClauses = [];
+                $bindings = [];
+                
+                // getDirty()から相対的な変更があるカラムを除外
+                foreach ($item['data'] as $column => $value) {
+                    if (!isset($relativeChanges[$column])) {
+                        // 相対的な変更がないカラムは通常の値を使用
+                        $updateClauses[] = "`{$column}` = ?";
+                        $bindings[] = $value;
+                    }
+                }
+                
+                // 相対的な変更を追加
+                foreach ($relativeChanges as $column => $change) {
+                    if ($change !== 0) {
+                        $operator = $change >= 0 ? '+' : '-';
+                        $absValue = abs($change);
+                        $updateClauses[] = "`{$column}` = `{$column}` {$operator} {$absValue}";
+                    }
+                }
+                
+                // WHERE句を構築
+                $wheres = [];
+                foreach ($where as $col => $val) {
+                    $wheres[] = "`{$col}` = ?";
+                    $bindings[] = $val;
+                }
+                $whereClause = implode(' and ', $wheres);
+                
+                // SQL文を構築して実行
+                if (!empty($updateClauses)) {
+                    $columns = implode(', ', $updateClauses);
+                    $sql = "update `{$table}` set {$columns} where ({$whereClause})";
+                    
+                    DB::connection($item['connection'])->update($sql, $bindings);
+                }
+                
+                // 相対的な変更をクリア
+                $model->clearRelativeChanges();
+            } else {
+                // 相対的な変更がない場合は通常のUPDATE
+                DB::connection($item['connection'])
+                    ->table($item['table'])
+                    ->where($where)
+                    ->update($item['data']);
+            }
             
             // afterSaveフックを呼び出す（UPDATE）
             $repository->afterSave($model, $item['originalState']);
@@ -382,10 +436,64 @@ class QueryManager
             $model = $item['model'];
             $where = $this->buildWhereCondition($model);
             
-            DB::connection($item['connection'])
-                ->table($item['table'])
-                ->where($where)
-                ->update($item['data']);
+            // _BaseTrxモデルの場合、相対的な変更をチェック
+            $hasRelativeChanges = method_exists($model, 'getRelativeChanges') 
+                && method_exists($model, 'hasRelativeChanges') 
+                && $model->hasRelativeChanges();
+            
+            if ($hasRelativeChanges) {
+                $relativeChanges = $model->getRelativeChanges();
+                
+                // 相対的な更新が必要な場合は、手動でUPDATE文を構築
+                $table = $item['table'];
+                
+                // UPDATE文を構築
+                $updateClauses = [];
+                $bindings = [];
+                
+                // getDirty()から相対的な変更があるカラムを除外
+                foreach ($item['data'] as $column => $value) {
+                    if (!isset($relativeChanges[$column])) {
+                        // 相対的な変更がないカラムは通常の値を使用
+                        $updateClauses[] = "`{$column}` = ?";
+                        $bindings[] = $value;
+                    }
+                }
+                
+                // 相対的な変更を追加
+                foreach ($relativeChanges as $column => $change) {
+                    if ($change !== 0) {
+                        $operator = $change >= 0 ? '+' : '-';
+                        $absValue = abs($change);
+                        $updateClauses[] = "`{$column}` = `{$column}` {$operator} {$absValue}";
+                    }
+                }
+                
+                // WHERE句を構築
+                $wheres = [];
+                foreach ($where as $col => $val) {
+                    $wheres[] = "`{$col}` = ?";
+                    $bindings[] = $val;
+                }
+                $whereClause = implode(' and ', $wheres);
+                
+                // SQL文を構築して実行
+                if (!empty($updateClauses)) {
+                    $columns = implode(', ', $updateClauses);
+                    $sql = "update `{$table}` set {$columns} where ({$whereClause})";
+                    
+                    DB::connection($item['connection'])->update($sql, $bindings);
+                }
+                
+                // 相対的な変更をクリア
+                $model->clearRelativeChanges();
+            } else {
+                // 相対的な変更がない場合は通常のUPDATE
+                DB::connection($item['connection'])
+                    ->table($item['table'])
+                    ->where($where)
+                    ->update($item['data']);
+            }
             
             // afterSaveフックを呼び出す（UPDATE）
             $repository->afterSave($model, $item['originalState']);

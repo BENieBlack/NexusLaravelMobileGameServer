@@ -31,10 +31,12 @@ class StaminaService
      *
      * @param TrxStaminaRepository $trxStaminaRepository
      * @param LevelService $playerLevelService
+     * @param ApiSession $apiSession
      */
     public function __construct(
         private readonly TrxStaminaRepository $trxStaminaRepository,
-        private readonly LevelService $playerLevelService
+        private readonly LevelService $playerLevelService,
+        private readonly ApiSession $apiSession
     ) {
     }
 
@@ -43,9 +45,10 @@ class StaminaService
      * 
      * 最大スタミナはプレイヤーのレベルから自動取得されます
      * 
+     * @param int $sysPlayerId プレイヤーID
      * @return TrxStamina|null
      */
-    public function getStamina(): ?TrxStamina
+    public function getStamina(int $sysPlayerId): ?TrxStamina
     {
         $stamina = $this->trxStaminaRepository->find();
         
@@ -54,7 +57,7 @@ class StaminaService
         }
 
         // プレイヤーのレベルから最大スタミナを取得
-        $maxStamina = $this->playerLevelService->getMaxStamina();
+        $maxStamina = $this->playerLevelService->getMaxStamina($sysPlayerId);
 
         // 自動回復を適用
         $this->applyAutoRecovery($stamina, $maxStamina);
@@ -96,12 +99,13 @@ class StaminaService
      * 
      * 最大スタミナはプレイヤーのレベルから自動取得されます
      * 
+     * @param int $sysPlayerId プレイヤーID
      * @param int $amount 消費量
      * @return array{success: bool, remaining: int, message: string}
      */
-    public function consumeStamina(int $amount): array
+    public function consumeStamina(int $sysPlayerId, int $amount): array
     {
-        $stamina = $this->getStamina();
+        $stamina = $this->getStamina($sysPlayerId);
         
         if ($stamina === null) {
             return [
@@ -144,12 +148,13 @@ class StaminaService
      * 
      * 最大スタミナはプレイヤーのレベルから自動取得されます
      * 
+     * @param int $sysPlayerId プレイヤーID
      * @param int $amount 回復量
      * @return array{success: bool, total: int, overflow: int, message: string}
      */
-    public function recoverStaminaByItem(int $amount): array
+    public function recoverStaminaByItem(int $sysPlayerId, int $amount): array
     {
-        $stamina = $this->getStamina();
+        $stamina = $this->getStamina($sysPlayerId);
         
         if ($stamina === null) {
             return [
@@ -161,7 +166,7 @@ class StaminaService
         }
 
         // プレイヤーのレベルから最大スタミナを取得
-        $maxStamina = $this->playerLevelService->getMaxStamina();
+        $maxStamina = $this->playerLevelService->getMaxStamina($sysPlayerId);
 
         // スタミナを回復（オーバーフロー対応）
         $newCurrent = $stamina->getCurrentStamina() + $amount;
@@ -251,9 +256,10 @@ class StaminaService
      * 
      * 最大スタミナはプレイヤーのレベルから自動取得されます
      * 
+     * @param int $sysPlayerId プレイヤーID
      * @return int|null 残り秒数（最大値の場合はnull）
      */
-    public function getTimeUntilNextRecovery(): ?int
+    public function getTimeUntilNextRecovery(int $sysPlayerId): ?int
     {
         $stamina = $this->trxStaminaRepository->find();
         
@@ -262,7 +268,7 @@ class StaminaService
         }
 
         // プレイヤーのレベルから最大スタミナを取得
-        $maxStamina = $this->playerLevelService->getMaxStamina();
+        $maxStamina = $this->playerLevelService->getMaxStamina($sysPlayerId);
 
         // すでに最大値の場合は回復不要
         if ($stamina->isCurrentStaminaFull($maxStamina)) {
@@ -287,9 +293,10 @@ class StaminaService
      * 
      * 最大スタミナはプレイヤーのレベルから自動取得されます
      * 
+     * @param int $sysPlayerId プレイヤーID
      * @return int 必要な秒数
      */
-    public function getTimeToFullRecovery(): int
+    public function getTimeToFullRecovery(int $sysPlayerId): int
     {
         $stamina = $this->trxStaminaRepository->find();
         
@@ -298,7 +305,7 @@ class StaminaService
         }
 
         // プレイヤーのレベルから最大スタミナを取得
-        $maxStamina = $this->playerLevelService->getMaxStamina();
+        $maxStamina = $this->playerLevelService->getMaxStamina($sysPlayerId);
 
         if ($stamina->isCurrentStaminaFull($maxStamina)) {
             return 0;

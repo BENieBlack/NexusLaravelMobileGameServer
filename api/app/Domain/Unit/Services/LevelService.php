@@ -49,7 +49,7 @@ class LevelService
      */
     public function getUnitLevel(int $trxUnitId): array
     {
-        $trxUnit = $this->trxUnitRepository->findById($trxUnitId);
+        $trxUnit = $this->trxUnitRepository->selectById($trxUnitId);
         
         if ($trxUnit === null) {
             throw TransactionDataException::unit($trxUnitId);
@@ -92,7 +92,7 @@ class LevelService
      */
     public function addExp(int $trxUnitId, int $exp): array
     {
-        $trxUnit = $this->trxUnitRepository->findById($trxUnitId);
+        $trxUnit = $this->trxUnitRepository->selectById($trxUnitId);
         
         if ($trxUnit === null) {
             throw TransactionDataException::unit($trxUnitId);

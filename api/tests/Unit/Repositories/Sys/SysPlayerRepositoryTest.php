@@ -77,9 +77,9 @@ class SysPlayerRepositoryTest extends TestCase
 
 
     /**
-     * Test findById returns player from memory cache
+     * Test selectById returns player from memory cache
      */
-    public function test_find_by_id_returns_player_from_memory_cache(): void
+    public function test_select_by_id_returns_player_from_memory_cache(): void
     {
         // Arrange
         $sysPlayer = SysPlayer::create([
@@ -91,10 +91,10 @@ class SysPlayerRepositoryTest extends TestCase
         ]);
 
         // Load into memory cache
-        $this->repository->findById($sysPlayer->id);
+        $this->repository->selectById($sysPlayer->id);
 
         // Act - Should retrieve from memory cache
-        $result = $this->repository->findById($sysPlayer->id);
+        $result = $this->repository->selectById($sysPlayer->id);
 
         // Assert
         $this->assertNotNull($result);
@@ -104,12 +104,12 @@ class SysPlayerRepositoryTest extends TestCase
     }
 
     /**
-     * Test findById returns null for non-existent player
+     * Test selectById returns null for non-existent player
      */
-    public function test_find_by_id_returns_null_for_non_existent_player(): void
+    public function test_select_by_id_returns_null_for_non_existent_player(): void
     {
         // Act
-        $result = $this->repository->findById(99999);
+        $result = $this->repository->selectById(99999);
 
         // Assert
         $this->assertNull($result);
@@ -232,8 +232,8 @@ class SysPlayerRepositoryTest extends TestCase
             'level_exp' => 0,
         ]);
 
-        // Act - Load via findById
-        $result1 = $this->repository->findById($sysPlayer->id);
+        // Act - Load via selectById
+        $result1 = $this->repository->selectById($sysPlayer->id);
         
         // Access same player via my_id (should use memory cache)
         $result2 = $this->repository->selectByMyId('PLY00008');

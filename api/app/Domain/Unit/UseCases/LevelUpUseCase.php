@@ -58,7 +58,7 @@ class LevelUpUseCase implements _BaseUseCaseInterface
     public function validation(int $sysPlayerId, int $trxUnitId, string $mstItemId, int $useCount): void
     {
         // 1. ユニットの存在確認
-        $trxUnit = $this->trxUnitRepository->findById($trxUnitId);
+        $trxUnit = $this->trxUnitRepository->selectById($trxUnitId);
         if (!$trxUnit) {
             throw TransactionDataException::unit($trxUnitId);
         }
@@ -87,7 +87,7 @@ class LevelUpUseCase implements _BaseUseCaseInterface
         }
 
         // 3. アイテム所持数確認
-        $currentAmount = $this->itemService->getItemAmount($mstItemId);
+        $currentAmount = $this->itemService->getItemAmount($sysPlayerId, $mstItemId);
         if ($currentAmount < $useCount) {
             throw BusinessLogicException::itemNotEnough($mstItemId, $useCount, $currentAmount);
         }
@@ -108,12 +108,12 @@ class LevelUpUseCase implements _BaseUseCaseInterface
         // バリデーション実行
         $this->validation($sysPlayerId, $trxUnitId, $mstItemId, $useCount);
 
-        return $this->executeWithTransaction(function () use ($trxUnitId, $mstItemId, $useCount) {
+        return $this->executeWithTransaction(function () use ($sysPlayerId, $trxUnitId, $mstItemId, $useCount) {
             // アイテムマスターデータを再取得（バリデーション済み）
             $mstItem = $this->mstItemRepository->selectById($mstItemId);
 
             // アイテムを消費
-            $this->itemService->consumeItem($mstItemId, $useCount);
+            $this->itemService->consumeItem($sysPlayerId, $mstItemId, $useCount);
 
             // 経験値を計算して加算
             $expPerItem = $mstItem->getValue();

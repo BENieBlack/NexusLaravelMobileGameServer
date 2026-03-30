@@ -16,13 +16,37 @@ class SysPlayerRepository extends _BaseSysRepository
     protected string $modelClass = SysPlayer::class;
 
     /**
+     * プレイヤーを作成して即座にコミット（即コミット専用）
+     *
+     * SignUpなど、即座にIDが必要な場合に使用。
+     * Repository内でexecSysQuery()を実行してIDを取得する。
+     *
+     * @return SysPlayer 作成されたプレイヤー（IDが設定済み）
+     */
+    public function createPlayerAndCommit(): SysPlayer
+    {
+        $sysPlayer = new SysPlayer([
+            'my_id' => Str::random(8),
+            'uuid' => Str::uuid()->toString(),
+            'name' => Str::random(8),
+        ]);
+
+        $this->setModel($sysPlayer);
+
+        // Repository内でexecSysQuery()を実行してIDを取得
+        app()->make(QueryManager::class)->execSysQuery();
+
+        return $sysPlayer;
+    }
+
+    /**
      * IDでプレイヤーを検索
      * メモリキャッシュから取得、なければDBから取得
      *
      * @param int $id プレイヤーID
      * @return SysPlayer|null
      */
-    public function findById(int $id): ?SysPlayer
+    public function selectById(int $id): ?SysPlayer
     {
         // メモリキャッシュから取得
         $sysPlayer = $this->getModel($id);
@@ -111,50 +135,5 @@ class SysPlayerRepository extends _BaseSysRepository
 
         // DBで確認
         return $this->modelClass::where('my_id', $myId)->exists();
-    }
-
-    /**
-     * プレイヤーを作成（遅延コミット）
-     * 
-     * setModelでキューに追加するのみ。
-     * トランザクション終了時やexecSysQuery()呼び出し時に一括コミットされる。
-     *
-     * @return SysPlayer 作成されたプレイヤー（IDは未設定）
-     */
-    public function createPlayer(): SysPlayer
-    {
-        $sysPlayer = new SysPlayer([
-            'my_id' => Str::random(8),
-            'uuid' => Str::uuid()->toString(),
-            'name' => Str::random(8),
-        ]);
-
-        $this->setModel($sysPlayer);
-
-        return $sysPlayer;
-    }
-
-    /**
-     * プレイヤーを作成して即座にコミット（即コミット専用）
-     * 
-     * SignUpなど、即座にIDが必要な場合に使用。
-     * Repository内でexecSysQuery()を実行してIDを取得する。
-     *
-     * @return SysPlayer 作成されたプレイヤー（IDが設定済み）
-     */
-    public function createPlayerAndCommit(): SysPlayer
-    {
-        $sysPlayer = new SysPlayer([
-            'my_id' => Str::random(8),
-            'uuid' => Str::uuid()->toString(),
-            'name' => Str::random(8),
-        ]);
-
-        $this->setModel($sysPlayer);
-
-        // Repository内でexecSysQuery()を実行してIDを取得
-        app()->make(QueryManager::class)->execSysQuery();
-
-        return $sysPlayer;
     }
 }

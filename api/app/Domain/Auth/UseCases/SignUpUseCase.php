@@ -42,7 +42,7 @@ class SignUpUseCase implements _BaseUseCaseInterface
         // トランザクション開始
         return $this->executeWithTransaction(function () use ($deviceId, $deviceInfo) {
             // 既存デバイスチェック
-            $existing = $this->playerService->findByDeviceId($deviceId);
+            $existing = $this->playerService->selectByDeviceId($deviceId);
 
             if ($existing !== null) {
                 // 既存デバイスの場合はエラー（sign_inを使用すべき）

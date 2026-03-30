@@ -66,7 +66,7 @@ class PlayerService
      * @param string $deviceUuid デバイスUUID
      * @return SysPlayerDevice|null
      */
-    public function findByDeviceId(string $deviceUuid): ?SysPlayerDevice
+    public function selectByDeviceId(string $deviceUuid): ?SysPlayerDevice
     {
         return $this->sysPlayerDeviceRepository->selectByDeviceId($deviceUuid);
     }
@@ -77,9 +77,9 @@ class PlayerService
      * @param int $id プレイヤーID
      * @return SysPlayer|null
      */
-    public function findById(int $id): ?SysPlayer
+    public function selectById(int $id): ?SysPlayer
     {
-        return $this->sysPlayerRepository->findById($id);
+        return $this->sysPlayerRepository->selectById($id);
     }
 
     /**

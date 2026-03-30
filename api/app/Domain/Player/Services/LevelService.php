@@ -41,13 +41,13 @@ class LevelService
     /**
      * プレイヤーのレベル情報を取得
      * 
+     * @param int $sysPlayerId プレイヤーID
      * @return array{level: int, exp: int, exp_to_next: int, max_stamina: int}
      * @throws \Exception プレイヤーが存在しない場合
      */
-    public function getPlayerLevel(): array
+    public function getPlayerLevel(int $sysPlayerId): array
     {
-        $sysPlayerId = $this->apiSession->getPlayerId();
-        $player = $this->sysPlayerRepository->findById($sysPlayerId);
+        $player = $this->sysPlayerRepository->selectById($sysPlayerId);
         
         if ($player === null) {
             throw new \Exception("Player not found: {$sysPlayerId}");
@@ -72,6 +72,7 @@ class LevelService
      * - Bool値: is_* / has_* プレフィックス
      * - 変更前後: before_* / after_*
      * 
+     * @param int $sysPlayerId プレイヤーID
      * @param int $exp 加算する経験値
      * @return array{
      *   is_leveled_up: bool,
@@ -84,10 +85,9 @@ class LevelService
      * }
      * @throws \Exception プレイヤーが存在しない場合
      */
-    public function addExp(int $exp): array
+    public function addExp(int $sysPlayerId, int $exp): array
     {
-        $sysPlayerId = $this->apiSession->getPlayerId();
-        $player = $this->sysPlayerRepository->findById($sysPlayerId);
+        $player = $this->sysPlayerRepository->selectById($sysPlayerId);
         
         if ($player === null) {
             throw new \Exception("Player not found: {$sysPlayerId}");
@@ -138,13 +138,13 @@ class LevelService
     /**
      * プレイヤーの最大スタミナを取得（レベルに基づく）
      * 
+     * @param int $sysPlayerId プレイヤーID
      * @return int 最大スタミナ
      * @throws \Exception プレイヤーが存在しない場合
      */
-    public function getMaxStamina(): int
+    public function getMaxStamina(int $sysPlayerId): int
     {
-        $sysPlayerId = $this->apiSession->getPlayerId();
-        $player = $this->sysPlayerRepository->findById($sysPlayerId);
+        $player = $this->sysPlayerRepository->selectById($sysPlayerId);
         
         if ($player === null) {
             throw new \Exception("Player not found: {$sysPlayerId}");

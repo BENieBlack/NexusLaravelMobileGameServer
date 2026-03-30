@@ -122,16 +122,16 @@ class PlayerServiceTest extends TestCase
     }
 
     /**
-     * Test findByDeviceId returns device when found
+     * Test selectByDeviceId returns device when found
      */
-    public function test_find_by_device_id_returns_device_when_found(): void
+    public function test_select_by_device_id_returns_device_when_found(): void
     {
         // Arrange
         $deviceId = 'existing-device-uuid';
         $this->service->createPlayer($deviceId);
 
         // Act
-        $foundDevice = $this->service->findByDeviceId($deviceId);
+        $foundDevice = $this->service->selectByDeviceId($deviceId);
 
         // Assert
         $this->assertInstanceOf(SysPlayerDevice::class, $foundDevice);
@@ -139,31 +139,31 @@ class PlayerServiceTest extends TestCase
     }
 
     /**
-     * Test findByDeviceId returns null when device not found
+     * Test selectByDeviceId returns null when device not found
      */
-    public function test_find_by_device_id_returns_null_when_not_found(): void
+    public function test_select_by_device_id_returns_null_when_not_found(): void
     {
         // Arrange
         $deviceId = 'non-existent-device-uuid';
 
         // Act
-        $foundDevice = $this->service->findByDeviceId($deviceId);
+        $foundDevice = $this->service->selectByDeviceId($deviceId);
 
         // Assert
         $this->assertNull($foundDevice);
     }
 
     /**
-     * Test findById returns player when found
+     * Test selectById returns player when found
      */
-    public function test_find_by_id_returns_player_when_found(): void
+    public function test_select_by_id_returns_player_when_found(): void
     {
         // Arrange
         $result = $this->service->createPlayer('device-for-find-by-id');
         $playerId = $result['sys_player']->id;
 
         // Act
-        $foundPlayer = $this->service->findById($playerId);
+        $foundPlayer = $this->service->selectById($playerId);
 
         // Assert
         $this->assertInstanceOf(SysPlayer::class, $foundPlayer);
@@ -171,15 +171,15 @@ class PlayerServiceTest extends TestCase
     }
 
     /**
-     * Test findById returns null when player not found
+     * Test selectById returns null when player not found
      */
-    public function test_find_by_id_returns_null_when_not_found(): void
+    public function test_select_by_id_returns_null_when_not_found(): void
     {
         // Arrange
         $nonExistentId = 99999;
 
         // Act
-        $foundPlayer = $this->service->findById($nonExistentId);
+        $foundPlayer = $this->service->selectById($nonExistentId);
 
         // Assert
         $this->assertNull($foundPlayer);
@@ -197,7 +197,7 @@ class PlayerServiceTest extends TestCase
 
         // 時間を少し進める
         sleep(1);
-
+        
         // Act
         $updateResult = $this->service->updateLastLogin($sysPlayerDevice);
 
@@ -205,7 +205,7 @@ class PlayerServiceTest extends TestCase
         $this->assertTrue($updateResult);
         
         // データベースから再取得して確認
-        $updatedDevice = $this->service->findByDeviceId($sysPlayerDevice->uuid);
+        $updatedDevice = $this->service->selectByDeviceId($sysPlayerDevice->uuid);
         $this->assertNotNull($updatedDevice);
         $this->assertNotNull($updatedDevice->last_login_at);
         

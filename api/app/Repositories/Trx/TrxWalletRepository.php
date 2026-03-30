@@ -23,7 +23,7 @@ class TrxWalletRepository extends _BaseTrxRepository
      * @param string $mstItemId アイテムID
      * @return TrxWallet|null
      */
-    public function findByMstItemId(string $mstItemId): ?TrxWallet
+    public function selectByMstItemId(string $mstItemId): ?TrxWallet
     {
         $sysPlayerId = $this->getSysPlayerId();
         

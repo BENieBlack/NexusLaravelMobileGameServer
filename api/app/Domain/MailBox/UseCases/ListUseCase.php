@@ -26,7 +26,7 @@ class ListUseCase
     public function handle(int $sysPlayerId): ListResponse
     {
         // メールボックス一覧を取得
-        $trxMailboxCollection = $this->trxMailboxRepository->getByPlayerId($sysPlayerId);
+        $trxMailboxCollection = $this->trxMailboxRepository->selectByPlayerId($sysPlayerId);
 
         return ListResponse::fromCollection($trxMailboxCollection);
     }

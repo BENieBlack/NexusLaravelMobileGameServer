@@ -37,7 +37,7 @@ class ApplyAcceptUseCase extends _BaseUseCase
         // トランザクション開始
         return $this->executeWithTransaction(function () use ($sysPlayerId, $sysFriendApplyId) {
             // 1. フレンド申請をIDで検索
-            $sysFriendApply = $this->sysFriendApplyRepository->findById($sysFriendApplyId);
+            $sysFriendApply = $this->sysFriendApplyRepository->selectById($sysFriendApplyId);
             
             if ($sysFriendApply === null) {
                 throw new GameException(

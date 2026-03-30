@@ -22,7 +22,7 @@ class TrxDiamondRepository extends _BaseTrxRepository
      * @param string $platform プラットフォーム（Apple, Google）
      * @return TrxDiamond|null
      */
-    public function findByPlatform(string $platform): ?TrxDiamond
+    public function selectByPlatform(string $platform): ?TrxDiamond
     {
         $sysPlayerId = $this->getSysPlayerId();
         

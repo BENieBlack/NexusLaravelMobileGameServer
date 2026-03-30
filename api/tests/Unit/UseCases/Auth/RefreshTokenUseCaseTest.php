@@ -247,7 +247,7 @@ class RefreshTokenUseCaseTest extends TestCase
         $this->useCase->handle($dtoToken->refreshToken);
 
         // Assert - last_login_atが更新されている
-        $updatedDevice = $this->playerService->findByDeviceId($sysPlayerDevice->uuid);
+        $updatedDevice = $this->playerService->selectByDeviceId($sysPlayerDevice->uuid);
         $this->assertNotNull($updatedDevice);
         $this->assertNotNull($updatedDevice->last_login_at);
         

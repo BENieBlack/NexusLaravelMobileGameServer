@@ -100,9 +100,9 @@ class SysPlayerDeviceRepositoryTest extends TestCase
     }
 
     /**
-     * Test createDevice creates device and returns with ID
+     * Test createDeviceAndCommit creates device and returns with ID
      */
-    public function test_create_device_creates_device_and_returns_with_id(): void
+    public function test_create_device_and_commit_creates_device_and_returns_with_id(): void
     {
         // Arrange
         $sysPlayer = SysPlayer::create([
@@ -121,7 +121,7 @@ class SysPlayerDeviceRepositoryTest extends TestCase
         ];
 
         // Act
-        $sysPlayerDevice = $this->repository->createDevice(
+        $sysPlayerDevice = $this->repository->createDeviceAndCommit(
             $sysPlayer->id,
             'test-device-uuid-003',
             $deviceInfo
@@ -142,9 +142,9 @@ class SysPlayerDeviceRepositoryTest extends TestCase
     }
 
     /**
-     * Test createDevice with null device info
+     * Test createDeviceAndCommit with null device info
      */
-    public function test_create_device_with_null_device_info(): void
+    public function test_create_device_and_commit_with_null_device_info(): void
     {
         // Arrange
         $sysPlayer = SysPlayer::create([
@@ -156,7 +156,7 @@ class SysPlayerDeviceRepositoryTest extends TestCase
         ]);
 
         // Act
-        $sysPlayerDevice = $this->repository->createDevice(
+        $sysPlayerDevice = $this->repository->createDeviceAndCommit(
             $sysPlayer->id,
             'test-device-uuid-004',
             null

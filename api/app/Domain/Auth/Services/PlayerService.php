@@ -33,8 +33,8 @@ class PlayerService
     /**
      * 新しいプレイヤーを作成
      * 
-     * Repository層のcreateメソッドを使用して、プレイヤー、デバイス、トークンを段階的に作成します。
-     * 各Repositoryが内部でexecSysQuery()を実行し、IDを取得します。
+     * Repository層の即コミット版メソッドを使用して、プレイヤーとデバイスを段階的に作成します。
+     * 各Repositoryが内部でexecSysQuery()を実行し、IDを即座に取得します。
      *
      * @param string $deviceId デバイスUUID
      * @param array<string, mixed>|null $deviceInfo デバイス情報（JSON）
@@ -44,11 +44,11 @@ class PlayerService
         string $deviceId,
         ?array $deviceInfo = null
     ): array {
-        // 1. プレイヤーを作成（Repository内でIDを取得）
-        $sysPlayer = $this->sysPlayerRepository->createPlayer();
+        // 1. プレイヤーを作成して即座にコミット（IDを取得）
+        $sysPlayer = $this->sysPlayerRepository->createPlayerAndCommit();
 
-        // 2. デバイスを作成（Repository内でIDを取得）
-        $sysPlayerDevice = $this->sysPlayerDeviceRepository->createDevice(
+        // 2. デバイスを作成して即座にコミット（IDを取得）
+        $sysPlayerDevice = $this->sysPlayerDeviceRepository->createDeviceAndCommit(
             $sysPlayer->id,
             $deviceId,
             $deviceInfo

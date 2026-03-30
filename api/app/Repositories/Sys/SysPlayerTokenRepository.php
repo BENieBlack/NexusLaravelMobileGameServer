@@ -113,7 +113,36 @@ class SysPlayerTokenRepository extends _BaseSysRepository
     }
 
     /**
-     * トークンを作成してIDを取得
+     * トークンを作成（遅延コミット版）
+     * UPDATE時など、トランザクション終了時にコミットする場合に使用
+     * 
+     * @param int $sysPlayerId sys_player.id（プレイヤーID）
+     * @param int $sysPlayerDeviceId sys_player_device.id（デバイスID）
+     * @param string $refreshTokenHash リフレッシュトークンのハッシュ値
+     * @param CarbonImmutable $expiresAt 有効期限
+     * @return SysPlayerToken 作成されたトークン（IDは未設定、トランザクション終了時に設定される）
+     */
+    public function createToken(
+        int $sysPlayerId,
+        int $sysPlayerDeviceId,
+        string $refreshTokenHash,
+        CarbonImmutable $expiresAt
+    ): SysPlayerToken {
+        $sysPlayerToken = new SysPlayerToken([
+            'sys_player_id' => $sysPlayerId,
+            'sys_player_device_id' => $sysPlayerDeviceId,
+            'refresh_token_hash' => $refreshTokenHash,
+            'expires_at' => $expiresAt,
+        ]);
+        
+        $this->setModel($sysPlayerToken);
+        
+        return $sysPlayerToken;
+    }
+
+    /**
+     * トークンを作成して即座にコミット（即コミット版）
+     * SignUpなど、即座にIDが必要な場合に使用
      * 
      * @param int $sysPlayerId sys_player.id（プレイヤーID）
      * @param int $sysPlayerDeviceId sys_player_device.id（デバイスID）
@@ -121,7 +150,7 @@ class SysPlayerTokenRepository extends _BaseSysRepository
      * @param CarbonImmutable $expiresAt 有効期限
      * @return SysPlayerToken 作成されたトークン（IDが設定済み）
      */
-    public function createToken(
+    public function createTokenAndCommit(
         int $sysPlayerId,
         int $sysPlayerDeviceId,
         string $refreshTokenHash,

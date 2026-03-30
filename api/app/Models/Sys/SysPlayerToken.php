@@ -213,12 +213,23 @@ class SysPlayerToken extends _BaseSys
     /**
      * トークンを無効化
      *
+     * exists=trueの場合は即座にDB更新、exists=falseの場合はrevoked_atを設定するだけ
+     * （exists=falseの場合、後続のexecAllQuery()でINSERTされる）
+     *
      * @return bool
      */
     public function revoke(): bool
     {
         $this->revoked_at = now();
-        return $this->save();
+        
+        // 既にDBに存在する場合のみsave()でDB更新
+        if ($this->exists) {
+            return $this->save();
+        }
+        
+        // exists=falseの場合はrevoked_atを設定するだけ
+        // （後続のexecAllQuery()でこのモデルがINSERTされる）
+        return true;
     }
 
     /**

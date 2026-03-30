@@ -69,6 +69,9 @@ class RefreshTokenUseCaseTest extends TestCase
         
         [$dtoToken, $sysPlayerToken] = $this->tokenService->generateToken($sysPlayer, $sysPlayerDevice);
         
+        // トークンをDBに保存（バッチINSERT）
+        app(\App\Repositories\QueryManager::class)->execAllQuery();
+        
         return [$sysPlayer, $sysPlayerDevice, $dtoToken, $sysPlayerToken];
     }
 

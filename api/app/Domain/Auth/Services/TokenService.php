@@ -177,8 +177,8 @@ class TokenService
         $tokenHash = hash('sha256', $refreshToken);
         $expiresAt = CarbonImmutable::now()->addDays(self::REFRESH_TOKEN_EXPIRATION_DAYS);
 
-        // Repository経由でトークンを作成（Repository内でIDを取得）
-        $sysPlayerToken = $this->sysPlayerTokenRepository->createToken(
+        // Repository経由でトークンを作成して即座にコミット（IDを取得）
+        $sysPlayerToken = $this->sysPlayerTokenRepository->createTokenAndCommit(
             $sysPlayer->id,
             $sysPlayerDevice->id,
             $tokenHash,

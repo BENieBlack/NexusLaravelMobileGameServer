@@ -317,12 +317,12 @@ class SysPlayerRepositoryTest extends TestCase
     }
 
     /**
-     * Test createPlayer creates player and returns with ID
+     * Test createPlayerAndCommit creates player and returns with ID
      */
-    public function test_create_player_creates_player_and_returns_with_id(): void
+    public function test_create_player_and_commit_creates_player_and_returns_with_id(): void
     {
         // Act
-        $sysPlayer = $this->repository->createPlayer();
+        $sysPlayer = $this->repository->createPlayerAndCommit();
 
         // Assert
         $this->assertInstanceOf(SysPlayer::class, $sysPlayer);
@@ -340,14 +340,14 @@ class SysPlayerRepositoryTest extends TestCase
     }
 
     /**
-     * Test createPlayer generates unique my_id
+     * Test createPlayerAndCommit generates unique my_id
      */
-    public function test_create_player_generates_unique_my_id(): void
+    public function test_create_player_and_commit_generates_unique_my_id(): void
     {
         // Act - Create multiple players
-        $player1 = $this->repository->createPlayer();
-        $player2 = $this->repository->createPlayer();
-        $player3 = $this->repository->createPlayer();
+        $player1 = $this->repository->createPlayerAndCommit();
+        $player2 = $this->repository->createPlayerAndCommit();
+        $player3 = $this->repository->createPlayerAndCommit();
 
         // Assert - All my_ids should be unique
         $this->assertNotEquals($player1->my_id, $player2->my_id);

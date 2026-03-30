@@ -233,9 +233,9 @@ class SysPlayerTokenRepositoryTest extends TestCase
     }
 
     /**
-     * Test createToken creates token and returns with ID
+     * Test createTokenAndCommit creates token and returns with ID
      */
-    public function test_create_token_creates_token_and_returns_with_id(): void
+    public function test_create_token_and_commit_creates_token_and_returns_with_id(): void
     {
         // Arrange
         $sysPlayer = SysPlayer::create([
@@ -257,7 +257,7 @@ class SysPlayerTokenRepositoryTest extends TestCase
         $expiresAt = CarbonImmutable::now()->addDays(30);
 
         // Act
-        $sysPlayerToken = $this->repository->createToken(
+        $sysPlayerToken = $this->repository->createTokenAndCommit(
             $sysPlayer->id,
             $sysPlayerDevice->id,
             $tokenHash,
@@ -279,9 +279,9 @@ class SysPlayerTokenRepositoryTest extends TestCase
     }
 
     /**
-     * Test createToken with different expiration dates
+     * Test createTokenAndCommit with different expiration dates
      */
-    public function test_create_token_with_different_expiration_dates(): void
+    public function test_create_token_and_commit_with_different_expiration_dates(): void
     {
         // Arrange
         $sysPlayer = SysPlayer::create([
@@ -306,14 +306,14 @@ class SysPlayerTokenRepositoryTest extends TestCase
         $expiresAt2 = CarbonImmutable::now()->addDays(90);
 
         // Act
-        $token1 = $this->repository->createToken(
+        $token1 = $this->repository->createTokenAndCommit(
             $sysPlayer->id,
             $sysPlayerDevice->id,
             $tokenHash1,
             $expiresAt1
         );
 
-        $token2 = $this->repository->createToken(
+        $token2 = $this->repository->createTokenAndCommit(
             $sysPlayer->id,
             $sysPlayerDevice->id,
             $tokenHash2,

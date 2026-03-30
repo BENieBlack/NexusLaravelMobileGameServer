@@ -18,23 +18,23 @@ class TrxPlayerSnsRepository extends _BaseTrxRepository
     /**
      * プレイヤーIDでSNS連携情報を全て取得
      *
+     * @param int $sysPlayerId プレイヤーID
      * @return Collection<string, TrxPlayerSns>
      */
-    public function selectAll(): Collection
+    public function selectAll(int $sysPlayerId): Collection
     {
-        $sysPlayerId = $this->getSysPlayerId();
         return $this->getMapBySysPlayerId($sysPlayerId);
     }
 
     /**
      * プレイヤーIDとSNSタイプで連携情報を取得
      *
+     * @param int $sysPlayerId プレイヤーID
      * @param string $snsType SNSタイプ (apple, google, x, facebook)
      * @return TrxPlayerSns|null
      */
-    public function selectBySnsType(string $snsType): ?TrxPlayerSns
+    public function selectBySnsType(int $sysPlayerId, string $snsType): ?TrxPlayerSns
     {
-        $sysPlayerId = $this->getSysPlayerId();
         
         return $this->getMapBySysPlayerId($sysPlayerId)
             ->where('sns_type', $snsType)
@@ -62,23 +62,23 @@ class TrxPlayerSnsRepository extends _BaseTrxRepository
     /**
      * 連携が存在するかチェック
      *
+     * @param int $sysPlayerId プレイヤーID
      * @param string $snsType SNSタイプ
      * @return bool
      */
-    public function existsBySnsType(string $snsType): bool
+    public function existsBySnsType(int $sysPlayerId, string $snsType): bool
     {
-        return $this->selectBySnsType($snsType) !== null;
+        return $this->selectBySnsType($sysPlayerId, $snsType) !== null;
     }
 
     /**
      * 有効な連携数を取得
      *
+     * @param int $sysPlayerId プレイヤーID
      * @return int
      */
-    public function countActive(): int
+    public function countActive(int $sysPlayerId): int
     {
-        $sysPlayerId = $this->getSysPlayerId();
-        
         return $this->getMapBySysPlayerId($sysPlayerId)
             ->where('is_delete', false)
             ->count();

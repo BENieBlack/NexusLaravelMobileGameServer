@@ -41,7 +41,7 @@ class WalletService
     ): array {
         
         // 1. 現在値を取得または作成（Repository経由）
-        $wallet = $this->trxWalletRepository->selectByMstItemId($mstItemId);
+        $wallet = $this->trxWalletRepository->selectByMstItemId($sysPlayerId, $mstItemId);
 
         if ($wallet === null) {
             $wallet = new TrxWallet([
@@ -76,17 +76,19 @@ class WalletService
     /**
      * 通貨を消費（FIFO方式）
      * 
+     * @param int $sysPlayerId プレイヤーID
      * @param string $mstItemId 通貨アイテムID
      * @param int $amount 消費する数量
      * @return array{consumed_amount: int, total_amount: int}
      * @throws \Exception 残高不足の場合
      */
     public function consumeCurrency(
+        int $sysPlayerId,
         string $mstItemId,
         int $amount
     ): array {
         // 1. 現在値を取得（Repository経由）
-        $wallet = $this->trxWalletRepository->selectByMstItemId($mstItemId);
+        $wallet = $this->trxWalletRepository->selectByMstItemId($sysPlayerId, $mstItemId);
 
         if ($wallet === null || $wallet->getAmount() < $amount) {
             throw new \Exception("Insufficient currency: {$mstItemId}");
@@ -122,13 +124,14 @@ class WalletService
     /**
      * 通貨残高を取得
      * 
+     * @param int $sysPlayerId プレイヤーID
      * @param string $mstItemId 通貨アイテムID
      * @return int 現在の残高
      */
-    public function getBalance(string $mstItemId): int
+    public function getBalance(int $sysPlayerId, string $mstItemId): int
     {
         // Repository経由で取得
-        $wallet = $this->trxWalletRepository->selectByMstItemId($mstItemId);
+        $wallet = $this->trxWalletRepository->selectByMstItemId($sysPlayerId, $mstItemId);
 
         return $wallet?->getAmount() ?? 0;
     }
@@ -136,10 +139,11 @@ class WalletService
     /**
      * 有効期限切れの通貨を削除
      * 
+     * @param int $sysPlayerId プレイヤーID
      * @param string $mstItemId 通貨アイテムID
      * @return int 削除された数量
      */
-    public function removeExpiredCurrency(string $mstItemId): int
+    public function removeExpiredCurrency(int $sysPlayerId, string $mstItemId): int
     {
         $now = CarbonImmutable::now();
 
@@ -155,7 +159,7 @@ class WalletService
 
         // 現在値から減算
         if ($totalExpired > 0) {
-            $wallet = $this->trxWalletRepository->selectByMstItemId($mstItemId);
+            $wallet = $this->trxWalletRepository->selectByMstItemId($sysPlayerId, $mstItemId);
 
             if ($wallet !== null) {
                 $wallet->setAmount(max(0, $wallet->getAmount() - $totalExpired));

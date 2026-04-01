@@ -5,8 +5,8 @@ namespace App\Repositories;
 use App\Repositories\_BaseRepository;
 use App\Repositories\Log\_BaseLogRepository;
 use App\Repositories\Sys\_BaseSysRepository;
-use App\Repositories\Trx\_BaseTrxRepository;
-use Illuminate\Support\Facades\DB;
+use App\Repositories\QueryManager\OperationCollector;
+use App\Repositories\QueryManager\BatchExecutor;
 
 /**
  * QueryManager
@@ -33,6 +33,15 @@ class QueryManager
      * @var array<_BaseLogRepository>
      */
     private array $purchaseLogRepositories = [];
+
+    private OperationCollector $operationCollector;
+    private BatchExecutor $batchExecutor;
+
+    public function __construct()
+    {
+        $this->operationCollector = new OperationCollector();
+        $this->batchExecutor = new BatchExecutor();
+    }
 
     /**
      * Repositoryを登録する
@@ -68,7 +77,8 @@ class QueryManager
     public function execPurchaseQuery(): void
     {
         // 課金ログのバッチINSERTを実行
-        $this->execLogInserts($this->purchaseLogRepositories);
+        $logInserts = $this->operationCollector->collectLogs($this->purchaseLogRepositories);
+        $this->batchExecutor->executeLogInserts($logInserts);
         
         // 課金ログRepositoryのキューをクリア
         foreach ($this->purchaseLogRepositories as $repository) {
@@ -101,187 +111,13 @@ class QueryManager
             return;
         }
         
-        // モデルをテーブルごとにグループ化
-        $insertsByTable = [];
-        $updates = [];
-        $deletes = [];
+        // 操作を収集
+        $operations = $this->operationCollector->collect($sysRepositories);
         
-        foreach ($sysRepositories as $repository) {
-            /** @var _BaseSysRepository $repository */
-            $connection = $repository->getConnection();
-            $table = $repository->getTableName();
-            $models = $repository->getQueuedModels();
-            $originalStates = $repository->getOriginalStates();
-            
-            foreach ($models as $uniqueKey => $model) {
-                if ($model->exists) {
-                    // 既存モデル → UPDATE
-                    $dirtyAttributes = $model->getDirty();
-                    
-                    if (!empty($dirtyAttributes)) {
-                        $updates[] = [
-                            'connection' => $connection,
-                            'table' => $table,
-                            'model' => $model,
-                            'data' => $dirtyAttributes,
-                            'repository' => $repository,
-                            'uniqueKey' => $uniqueKey,
-                            'originalState' => $originalStates[$uniqueKey] ?? [],
-                        ];
-                    }
-                } else {
-                    // 新規モデル → INSERT
-                    $key = "{$connection}.{$table}";
-                    
-                    if (!isset($insertsByTable[$key])) {
-                        $insertsByTable[$key] = [
-                            'connection' => $connection,
-                            'table' => $table,
-                            'records' => [],
-                            'models' => [],
-                            'repository' => $repository,
-                            'originalStates' => [],
-                        ];
-                    }
-                    
-                    $insertsByTable[$key]['records'][] = $model->getAttributes();
-                    $insertsByTable[$key]['models'][] = $model;
-                    $insertsByTable[$key]['originalStates'][] = $originalStates[$uniqueKey] ?? [];
-                }
-            }
-            
-            // 削除対象のモデルを取り出す
-            $deleteModels = $repository->getQueuedDeleteModels();
-            foreach ($deleteModels as $model) {
-                $deletes[] = [
-                    'connection' => $connection,
-                    'table' => $table,
-                    'model' => $model,
-                ];
-            }
-        }
-        
-        // INSERT処理（sys_player/sys_player_deviceのみ個別INSERT、その他はバッチINSERT）
-        foreach ($insertsByTable as $item) {
-            $connection = $item['connection'];
-            $table = $item['table'];
-            $records = $item['records'];
-            $models = $item['models'];
-            $repository = $item['repository'];
-            $originalStates = $item['originalStates'];
-            
-            // sys_playerテーブルのみ個別INSERT（IDを取得）
-            if ($table === 'sys_player') {
-                foreach ($records as $index => $record) {
-                    $id = DB::connection($connection)
-                        ->table($table)
-                        ->insertGetId($record);
-                    
-                    // モデルにIDを設定
-                    $models[$index]->setAttribute('id', $id);
-                    $models[$index]->exists = true;
-                    
-                    // afterSaveフックを呼び出す
-                    $originalState = $originalStates[$index] ?? [];
-                    $repository->afterSave($models[$index], $originalState);
-                }
-            } else {
-                // その他のテーブルはバッチINSERT
-                DB::connection($connection)
-                    ->table($table)
-                    ->insert($records);
-                
-                // 全てのモデルにexists = trueを設定
-                foreach ($models as $index => $model) {
-                    $model->exists = true;
-                    
-                    // afterSaveフックを呼び出す
-                    $originalState = $originalStates[$index] ?? [];
-                    $repository->afterSave($model, $originalState);
-                }
-            }
-        }
-        
-        // UPDATE処理
-        foreach ($updates as $item) {
-            /** @var _BaseSysRepository $repository */
-            $repository = $item['repository'];
-            $model = $item['model'];
-            $where = $this->buildWhereCondition($model);
-            
-            // _BaseTrxモデルの場合、相対的な変更をチェック
-            $hasRelativeChanges = method_exists($model, 'getRelativeChanges') 
-                && method_exists($model, 'hasRelativeChanges') 
-                && $model->hasRelativeChanges();
-            
-            if ($hasRelativeChanges) {
-                $relativeChanges = $model->getRelativeChanges();
-                
-                // 相対的な更新が必要な場合は、手動でUPDATE文を構築
-                $table = $item['table'];
-                
-                // UPDATE文を構築
-                $updateClauses = [];
-                $bindings = [];
-                
-                // getDirty()から相対的な変更があるカラムを除外
-                foreach ($item['data'] as $column => $value) {
-                    if (!isset($relativeChanges[$column])) {
-                        // 相対的な変更がないカラムは通常の値を使用
-                        $updateClauses[] = "`{$column}` = ?";
-                        $bindings[] = $value;
-                    }
-                }
-                
-                // 相対的な変更を追加
-                foreach ($relativeChanges as $column => $change) {
-                    if ($change !== 0) {
-                        $operator = $change >= 0 ? '+' : '-';
-                        $absValue = abs($change);
-                        $updateClauses[] = "`{$column}` = `{$column}` {$operator} {$absValue}";
-                    }
-                }
-                
-                // WHERE句を構築
-                $wheres = [];
-                foreach ($where as $col => $val) {
-                    $wheres[] = "`{$col}` = ?";
-                    $bindings[] = $val;
-                }
-                $whereClause = implode(' and ', $wheres);
-                
-                // SQL文を構築して実行
-                if (!empty($updateClauses)) {
-                    $columns = implode(', ', $updateClauses);
-                    $sql = "update `{$table}` set {$columns} where ({$whereClause})";
-                    
-                    DB::connection($item['connection'])->update($sql, $bindings);
-                }
-                
-                // 相対的な変更をクリア
-                $model->clearRelativeChanges();
-            } else {
-                // 相対的な変更がない場合は通常のUPDATE
-                DB::connection($item['connection'])
-                    ->table($item['table'])
-                    ->where($where)
-                    ->update($item['data']);
-            }
-            
-            // afterSaveフックを呼び出す（UPDATE）
-            $repository->afterSave($model, $item['originalState']);
-        }
-
-        // DELETE処理
-        foreach ($deletes as $item) {
-            $model = $item['model'];
-            $where = $this->buildWhereCondition($model);
-            
-            DB::connection($item['connection'])
-                ->table($item['table'])
-                ->where($where)
-                ->delete();
-        }
+        // 各操作を実行
+        $this->batchExecutor->executeInserts($operations['inserts']);
+        $this->batchExecutor->executeUpdates($operations['updates']);
+        $this->batchExecutor->executeDeletes($operations['deletes']);
         
         // 処理済みSysRepositoryのキューをクリア
         foreach ($sysRepositories as $repository) {
@@ -303,284 +139,20 @@ class QueryManager
      */
     public function execAllQuery(): void
     {
-        // モデルをテーブルごとにグループ化
-        $insertsByTable = [];
-        $updates = [];
-        $deletes = [];
-        $logRepositories = [];
+        // 操作を収集
+        $operations = $this->operationCollector->collect($this->repositories);
         
-        // 各Repositoryからモデルを取り出す
-        foreach ($this->repositories as $repository) {
-            // LogRepositoryは別処理
-            if ($repository instanceof _BaseLogRepository) {
-                $logRepositories[] = $repository;
-                continue;
-            }
-            
-            // LogRepository以外（TrxRepositoryまたはSysRepository）
-            /** @var _BaseTrxRepository|_BaseSysRepository $repository */
-            $connection = $repository->getConnection();
-            $table = $repository->getTableName();
-            $models = $repository->getQueuedModels();
-            $originalStates = $repository->getOriginalStates();
-            
-            foreach ($models as $uniqueKey => $model) {
-                if ($model->exists) {
-                    // 既存モデル → UPDATE
-                    $dirtyAttributes = $model->getDirty();
-                    
-                    if (!empty($dirtyAttributes)) {
-                        $updates[] = [
-                            'connection' => $connection,
-                            'table' => $table,
-                            'model' => $model,
-                            'data' => $dirtyAttributes,
-                            'repository' => $repository,
-                            'uniqueKey' => $uniqueKey,
-                            'originalState' => $originalStates[$uniqueKey] ?? [],
-                        ];
-                    }
-                } else {
-                    // 新規モデル → INSERT
-                    $key = "{$connection}.{$table}";
-                    
-                    if (!isset($insertsByTable[$key])) {
-                        $insertsByTable[$key] = [
-                            'connection' => $connection,
-                            'table' => $table,
-                            'records' => [],
-                            'models' => [],
-                            'repository' => $repository,
-                            'originalStates' => [],
-                        ];
-                    }
-                    
-                    $insertsByTable[$key]['records'][] = $model->getAttributes();
-                    $insertsByTable[$key]['models'][] = $model;
-                    $insertsByTable[$key]['originalStates'][] = $originalStates[$uniqueKey] ?? [];
-                }
-            }
-
-            // 削除対象のモデルを取り出す（LogRepository以外）
-            if (!$repository instanceof _BaseLogRepository) {
-                $deleteModels = $repository->getQueuedDeleteModels();
-                foreach ($deleteModels as $model) {
-                    $deletes[] = [
-                        'connection' => $connection,
-                        'table' => $table,
-                        'model' => $model,
-                    ];
-                }
-            }
-        }
-        
-        // INSERT処理
-        foreach ($insertsByTable as $item) {
-            if (empty($item['records'])) {
-                continue;
-            }
-            
-            $models = $item['models'];
-            $records = $item['records'];
-            $originalStates = $item['originalStates'];
-            /** @var _BaseTrxRepository|_BaseSysRepository $repository */
-            $repository = $item['repository'];
-            $table = $item['table'];
-            
-            // sys_playerテーブルのみ個別INSERT（IDを取得）
-            if ($table === 'sys_player') {
-                foreach ($models as $index => $model) {
-                    $attributes = $records[$index];
-                    
-                    // INSERTを実行してIDを取得
-                    $id = DB::connection($item['connection'])
-                        ->table($table)
-                        ->insertGetId($attributes);
-                    
-                    // モデルにIDをセット
-                    $model->setAttribute($model->getKeyName(), $id);
-                    $model->exists = true;
-                    
-                    // afterSaveフックを呼び出す（INSERT）
-                    $originalState = $originalStates[$index] ?? [];
-                    $repository->afterSave($model, $originalState);
-                }
-            } else {
-                // その他のテーブルはバッチINSERT
-                DB::connection($item['connection'])
-                    ->table($table)
-                    ->insert($records);
-                
-                // バッチINSERT後に、LAST_INSERT_ID()で最初のレコードのIDを取得
-                $firstId = DB::connection($item['connection'])->getPdo()->lastInsertId();
-                
-                // モデルにexists = trueとIDを設定し、afterSaveフックを呼び出す（INSERT）
-                foreach ($models as $index => $model) {
-                    $model->exists = true;
-                    
-                    // auto-incrementのIDを設定（複数レコードの場合は連番）
-                    if ($firstId && $model->getIncrementing()) {
-                        $model->setAttribute($model->getKeyName(), $firstId + $index);
-                    }
-                    
-                    $originalState = $originalStates[$index] ?? [];
-                    $repository->afterSave($model, $originalState);
-                }
-            }
-        }
-        
-        // UPDATE処理
-        foreach ($updates as $item) {
-            /** @var _BaseTrxRepository|_BaseSysRepository $repository */
-            $repository = $item['repository'];
-            $model = $item['model'];
-            $where = $this->buildWhereCondition($model);
-            
-            // _BaseTrxモデルの場合、相対的な変更をチェック
-            $hasRelativeChanges = method_exists($model, 'getRelativeChanges') 
-                && method_exists($model, 'hasRelativeChanges') 
-                && $model->hasRelativeChanges();
-            
-            if ($hasRelativeChanges) {
-                $relativeChanges = $model->getRelativeChanges();
-                
-                // 相対的な更新が必要な場合は、手動でUPDATE文を構築
-                $table = $item['table'];
-                
-                // UPDATE文を構築
-                $updateClauses = [];
-                $bindings = [];
-                
-                // getDirty()から相対的な変更があるカラムを除外
-                foreach ($item['data'] as $column => $value) {
-                    if (!isset($relativeChanges[$column])) {
-                        // 相対的な変更がないカラムは通常の値を使用
-                        $updateClauses[] = "`{$column}` = ?";
-                        $bindings[] = $value;
-                    }
-                }
-                
-                // 相対的な変更を追加
-                foreach ($relativeChanges as $column => $change) {
-                    if ($change !== 0) {
-                        $operator = $change >= 0 ? '+' : '-';
-                        $absValue = abs($change);
-                        $updateClauses[] = "`{$column}` = `{$column}` {$operator} {$absValue}";
-                    }
-                }
-                
-                // WHERE句を構築
-                $wheres = [];
-                foreach ($where as $col => $val) {
-                    $wheres[] = "`{$col}` = ?";
-                    $bindings[] = $val;
-                }
-                $whereClause = implode(' and ', $wheres);
-                
-                // SQL文を構築して実行
-                if (!empty($updateClauses)) {
-                    $columns = implode(', ', $updateClauses);
-                    $sql = "update `{$table}` set {$columns} where ({$whereClause})";
-                    
-                    DB::connection($item['connection'])->update($sql, $bindings);
-                }
-                
-                // 相対的な変更をクリア
-                $model->clearRelativeChanges();
-            } else {
-                // 相対的な変更がない場合は通常のUPDATE
-                DB::connection($item['connection'])
-                    ->table($item['table'])
-                    ->where($where)
-                    ->update($item['data']);
-            }
-            
-            // afterSaveフックを呼び出す（UPDATE）
-            $repository->afterSave($model, $item['originalState']);
-        }
-
-        // DELETE処理
-        foreach ($deletes as $item) {
-            $model = $item['model'];
-            $where = $this->buildWhereCondition($model);
-            
-            DB::connection($item['connection'])
-                ->table($item['table'])
-                ->where($where)
-                ->delete();
-        }
+        // 各操作を実行
+        $this->batchExecutor->executeInserts($operations['inserts']);
+        $this->batchExecutor->executeUpdates($operations['updates']);
+        $this->batchExecutor->executeDeletes($operations['deletes']);
         
         // ログのINSERT処理
-        $this->execLogInserts($logRepositories);
+        $logInserts = $this->operationCollector->collectLogs($operations['logs']);
+        $this->batchExecutor->executeLogInserts($logInserts);
         
         // クリア
         $this->clear();
-    }
-
-    /**
-     * ログRepositoryのINSERT処理（バッチINSERT）
-     *
-     * @param array $repositories
-     * @return void
-     */
-    private function execLogInserts(array $repositories): void
-    {
-        $insertsByTable = [];
-        
-        foreach ($repositories as $repository) {
-            $connection = $repository->getConnection();
-            $table = $repository->getTableName();
-            $models = $repository->getQueuedModels();
-            
-            $key = "{$connection}.{$table}";
-            
-            if (!isset($insertsByTable[$key])) {
-                $insertsByTable[$key] = [
-                    'connection' => $connection,
-                    'table' => $table,
-                    'records' => [],
-                ];
-            }
-            
-            foreach ($models as $model) {
-                $insertsByTable[$key]['records'][] = $model->getAttributes();
-            }
-        }
-        
-        // バッチINSERT実行
-        foreach ($insertsByTable as $item) {
-            if (empty($item['records'])) {
-                continue;
-            }
-            
-            DB::connection($item['connection'])
-                ->table($item['table'])
-                ->insert($item['records']);
-        }
-    }
-
-    /**
-     * モデルのWHERE条件を構築
-     * プライマリキーを使用（複合主キーにも対応）
-     *
-     * @param \Illuminate\Database\Eloquent\Model $model
-     * @return array
-     */
-    private function buildWhereCondition($model): array
-    {
-        $primaryKey = $model->getKeyName();
-        
-        // 複合主キーの場合
-        if (is_array($primaryKey)) {
-            $where = [];
-            foreach ($primaryKey as $key) {
-                $where[$key] = $model->getAttribute($key);
-            }
-            return $where;
-        }
-        
-        // 単一主キーの場合
-        return [$primaryKey => $model->getKey()];
     }
 
     /**

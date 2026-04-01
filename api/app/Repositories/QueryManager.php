@@ -174,30 +174,4 @@ class QueryManager
         $this->repositories = [];
         $this->purchaseLogRepositories = [];
     }
-
-    /**
-     * 溜め込んでいるモデルの数を取得（デバッグ用）
-     *
-     * @return array
-     */
-    public function getQueueCount(): array
-    {
-        $total = 0;
-        $purchaseLogCount = 0;
-        
-        foreach ($this->repositories as $repository) {
-            $total += count($repository->getQueuedModels());
-        }
-        
-        foreach ($this->purchaseLogRepositories as $repository) {
-            $purchaseLogCount += count($repository->getQueuedModels());
-        }
-        
-        return [
-            'repositories' => count($this->repositories),
-            'purchase_log_repositories' => count($this->purchaseLogRepositories),
-            'models' => $total,
-            'purchase_log_models' => $purchaseLogCount,
-        ];
-    }
 }

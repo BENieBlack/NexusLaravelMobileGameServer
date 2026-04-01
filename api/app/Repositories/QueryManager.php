@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Repositories\Log\_BaseLogRepository;
 use App\Repositories\Sys\_BaseSysRepository;
+use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\QueryManager\OperationCollector;
 use App\Repositories\QueryManager\BatchExecutor;
 
@@ -88,15 +89,16 @@ class QueryManager
     }
 
     /**
-     * sys_playerテーブルのみを実行する
-     * createPlayerAndCommit()で、IDを取得するために使用
+     * sys_playerの新規作成を実行してIDを取得
+     * createPlayerAndCommit()専用、INSERT処理のみ
+     * UPDATE/DELETEは通常のUnit of Workで処理
      * トランザクション内で呼び出される
      *
-     * @param _BaseSysRepository $sysPlayerRepository sys_playerのRepository
+     * @param SysPlayerRepository $sysPlayerRepository sys_playerのRepository
      * @return void
      * @throws \Exception
      */
-    public function execSysPlayerQuery(_BaseSysRepository $sysPlayerRepository): void
+    public function insertSysPlayer(SysPlayerRepository $sysPlayerRepository): void
     {
         // sys_playerのRepositoryが登録されているか確認
         $hash = spl_object_hash($sysPlayerRepository);
@@ -107,10 +109,8 @@ class QueryManager
         // 操作を収集（sys_playerのみ）
         $operations = $this->operationCollector->collect([$hash => $sysPlayerRepository]);
 
-        // 各操作を実行
+        // INSERT処理のみ実行（UPDATE/DELETEは通常のUnit of Workで処理）
         $this->batchExecutor->executeInserts($operations['inserts']);
-        $this->batchExecutor->executeUpdates($operations['updates']);
-        $this->batchExecutor->executeDeletes($operations['deletes']);
 
         // 処理済みRepositoryのキューをクリア
         $sysPlayerRepository->clearQueue();

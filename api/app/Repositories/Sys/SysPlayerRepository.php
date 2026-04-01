@@ -19,7 +19,7 @@ class SysPlayerRepository extends _BaseSysRepository
      * プレイヤーを作成して即座にコミット（即コミット専用）
      *
      * SignUpなど、即座にIDが必要な場合に使用。
-     * Repository内でexecSysPlayerQuery()を実行してIDを取得する。
+     * Repository内でinsertSysPlayer()を実行してIDを取得する。
      *
      * @return SysPlayer 作成されたプレイヤー（IDが設定済み）
      */
@@ -33,8 +33,8 @@ class SysPlayerRepository extends _BaseSysRepository
 
         $this->setModel($sysPlayer);
 
-        // Repository内でexecSysPlayerQuery()を実行してIDを取得
-        app()->make(QueryManager::class)->execSysPlayerQuery($this);
+        // Repository内でinsertSysPlayer()を実行してIDを取得
+        app()->make(QueryManager::class)->insertSysPlayer($this);
 
         return $sysPlayer;
     }

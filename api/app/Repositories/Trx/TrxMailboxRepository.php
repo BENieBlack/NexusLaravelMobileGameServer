@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Collection;
  * TrxMailboxRepository
  *
  * プレイヤーのメールボックスデータを管理するRepository
+ * 
+ * @extends _BaseTrxRepository<TrxMailbox>
  */
 class TrxMailboxRepository extends _BaseTrxRepository
 {

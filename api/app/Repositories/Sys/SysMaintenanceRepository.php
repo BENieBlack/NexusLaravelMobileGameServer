@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Cache;
  * 
  * メンテナンス情報のRepository実装
  * 例外的に Redis キャッシュを使用
+ * 
+ * @extends _BaseSysRepository<SysMaintenance>
  */
 class SysMaintenanceRepository extends _BaseSysRepository
 {

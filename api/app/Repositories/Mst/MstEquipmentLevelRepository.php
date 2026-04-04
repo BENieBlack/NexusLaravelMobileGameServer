@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Cache;
  * ---------------------------------
  * required_expは「レベル1から見て、そのレベルに到達するまでに必要な累積経験値」を表します。
  * レベルアップしても経験値はリセットされません。
+ * 
+ * @extends _BaseMstRepository<MstEquipmentLevel>
  */
 class MstEquipmentLevelRepository extends _BaseMstRepository
 {

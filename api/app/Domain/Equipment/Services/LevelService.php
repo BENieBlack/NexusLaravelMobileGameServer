@@ -8,7 +8,7 @@ use App\Models\Trx\TrxEquipment;
 use App\Repositories\Mst\MstEquipmentLevelRepository;
 use App\Repositories\Mst\MstEquipmentRepository;
 use App\Repositories\Trx\TrxEquipmentRepository;
-use App\Utilities\ApiSession;
+use App\Persistence\ApiSession;
 
 /**
  * LevelService

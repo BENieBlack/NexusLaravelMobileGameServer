@@ -9,6 +9,8 @@ use Illuminate\Support\Collection;
  * MstBillingPlatformProductRepository
  *
  * プラットフォーム課金商品マスターのRepository
+ * 
+ * @extends _BaseMstRepository<MstBillingPlatformProduct>
  */
 class MstBillingPlatformProductRepository extends _BaseMstRepository
 {

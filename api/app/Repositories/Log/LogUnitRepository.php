@@ -10,6 +10,8 @@ use App\Utilities\Clock;
  *
  * ユニット（キャラクター）のログを管理するRepository
  * 通常のログなので isPurchaseLog = false（デフォルト）
+ * 
+ * @extends _BaseLogRepository<LogUnit>
  */
 class LogUnitRepository extends _BaseLogRepository
 {

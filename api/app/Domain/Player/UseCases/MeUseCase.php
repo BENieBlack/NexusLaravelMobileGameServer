@@ -2,7 +2,7 @@
 
 namespace App\Domain\Player\UseCases;
 
-use App\Domain\_BaseUseCaseInterface;
+use App\Domain\_BaseUseCase;
 use App\Exceptions\SystemDataException;
 use App\Http\Responses\Player\MeResponse;
 use App\Repositories\Sys\SysPlayerRepository;
@@ -12,7 +12,7 @@ use App\Repositories\Sys\SysPlayerRepository;
  * 
  * 認証済みプレイヤーの情報取得ユースケース
  */
-class MeUseCase implements _BaseUseCaseInterface
+class MeUseCase extends _BaseUseCase
 {
     public function __construct(
         private readonly SysPlayerRepository $sysPlayerRepository,

@@ -10,6 +10,8 @@ use Illuminate\Support\Collection;
  *
  * プレイヤーのSNS連携情報のRepository
  * 複合主キー (sys_player_id, sns_type) を持つテーブル
+ * 
+ * @extends _BaseTrxRepository<TrxPlayerSns>
  */
 class TrxPlayerSnsRepository extends _BaseTrxRepository
 {

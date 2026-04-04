@@ -3,7 +3,7 @@
 namespace App\Repositories\Trx;
 
 use App\Models\Trx\TrxWallet;
-use App\Utilities\ApiSession;
+use App\Persistence\ApiSession;
 
 /**
  * TrxWalletRepository
@@ -12,6 +12,8 @@ use App\Utilities\ApiSession;
  * 複合主キー: (sys_player_id, mst_item_id)
  *
  * Gold, EventCoin, RaidMedal, PvPPoint, GvGPoint等を統合管理
+ * 
+ * @extends _BaseTrxRepository<TrxWallet>
  */
 class TrxWalletRepository extends _BaseTrxRepository
 {

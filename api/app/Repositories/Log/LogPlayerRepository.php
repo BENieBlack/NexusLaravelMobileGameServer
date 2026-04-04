@@ -10,6 +10,8 @@ use App\Utilities\Clock;
  *
  * プレイヤーのレベルアップなどのログを管理するRepository
  * 通常のログなので isPurchaseLog = false（デフォルト）
+ * 
+ * @extends _BaseLogRepository<LogPlayer>
  */
 class LogPlayerRepository extends _BaseLogRepository
 {

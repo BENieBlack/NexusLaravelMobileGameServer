@@ -2,7 +2,7 @@
 
 namespace App\Repositories\Trx;
 
-use App\Models\Trx\_BaseTrx;
+use App\Models\Trx\_BaseTrxInterface;
 use App\Repositories\_BaseRepositoryInterface;
 use Illuminate\Support\Collection;
 
@@ -11,6 +11,8 @@ use Illuminate\Support\Collection;
  *
  * TrxデータRepository用のインターフェース
  * メモリキャッシュのみを使用し、ユニークキーで管理
+ * 
+ * @template T of _BaseTrxInterface
  */
 interface _BaseTrxRepositoryInterface extends _BaseRepositoryInterface
 {
@@ -20,7 +22,7 @@ interface _BaseTrxRepositoryInterface extends _BaseRepositoryInterface
      * コンストラクタまたはApiSessionで設定されたプレイヤーIDを基にデータを取得し、
      * メモリにキャッシュされている場合はそれを返す
      *
-     * @return Collection データのコレクション
+     * @return Collection<string, T> データのコレクション
      */
     public function queryOrMemory(): Collection;
 
@@ -29,7 +31,7 @@ interface _BaseTrxRepositoryInterface extends _BaseRepositoryInterface
      * ユニークキーでkeyByされたCollectionを返す
      *
      * @param int $sysPlayerId
-     * @return Collection<string, _BaseTrx>
+     * @return Collection<string, T>
      */
     public function getMapBySysPlayerId(int $sysPlayerId): Collection;
 
@@ -38,7 +40,7 @@ interface _BaseTrxRepositoryInterface extends _BaseRepositoryInterface
      * 値のみの配列を返す
      *
      * @param int $sysPlayerId
-     * @return array<_BaseTrx>
+     * @return array<T>
      */
     public function getBySysPlayerId(int $sysPlayerId): array;
 }

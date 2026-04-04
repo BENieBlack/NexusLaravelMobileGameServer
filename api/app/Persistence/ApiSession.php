@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Utilities;
+namespace App\Persistence;
 
 use App\Utilities\Clock;
 use Carbon\CarbonImmutable;

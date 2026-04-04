@@ -4,7 +4,7 @@ namespace App\Repositories\Trx;
 
 use App\Models\Trx\TrxUnit;
 use App\Repositories\Log\LogUnitRepository;
-use App\Utilities\ApiSession;
+use App\Persistence\ApiSession;
 use App\Utilities\Clock;
 use Illuminate\Contracts\Container\BindingResolutionException;
 
@@ -13,6 +13,8 @@ use Illuminate\Contracts\Container\BindingResolutionException;
  *
  * プレイヤーが所持するユニット（キャラクター）を管理するRepository
  * QueryManager保存時にLogUnitRepositoryへログを記録する
+ * 
+ * @extends _BaseTrxRepository<TrxUnit>
  */
 class TrxUnitRepository extends _BaseTrxRepository
 {

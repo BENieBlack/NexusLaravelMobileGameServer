@@ -6,7 +6,7 @@ use App\Models\Sys\SysPlayer;
 use App\Repositories\Mst\MstPlayerLevelRepository;
 use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Trx\TrxStaminaRepository;
-use App\Utilities\ApiSession;
+use App\Persistence\ApiSession;
 
 /**
  * LevelService

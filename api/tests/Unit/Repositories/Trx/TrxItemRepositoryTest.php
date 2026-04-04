@@ -4,8 +4,8 @@ namespace Tests\Unit\Repositories\Trx;
 
 use App\Models\Trx\TrxItem;
 use App\Repositories\Trx\TrxItemRepository;
-use App\Repositories\QueryManager;
-use App\Utilities\ApiSession;
+use App\Persistence\QueryManager;
+use App\Persistence\ApiSession;
 use App\Utilities\Clock;
 use Illuminate\Support\Facades\DB;
 use Tests\RefreshMultipleDatabases;

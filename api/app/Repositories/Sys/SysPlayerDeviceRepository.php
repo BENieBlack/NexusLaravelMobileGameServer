@@ -3,13 +3,15 @@
 namespace App\Repositories\Sys;
 
 use App\Models\Sys\SysPlayerDevice;
-use App\Repositories\QueryManager;
+use App\Persistence\QueryManager;
 use Illuminate\Support\Collection;
 
 /**
  * SysPlayerDeviceRepository
  *
  * プレイヤーデバイス情報のRepository実装
+ * 
+ * @extends _BaseSysRepository<SysPlayerDevice>
  */
 class SysPlayerDeviceRepository extends _BaseSysRepository
 {

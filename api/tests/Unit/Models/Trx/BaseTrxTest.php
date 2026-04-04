@@ -3,7 +3,7 @@
 namespace Tests\Unit\Models\Trx;
 
 use App\Models\Trx\TrxItem;
-use App\Utilities\ApiSession;
+use App\Persistence\ApiSession;
 use App\Utilities\Clock;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;

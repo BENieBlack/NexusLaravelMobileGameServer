@@ -4,9 +4,10 @@ namespace Tests\Feature\Repositories\Trx;
 
 use App\Models\TrxEquipment;
 use App\Repositories\Trx\TrxEquipmentRepository;
-use App\Utilities\ApiSession;
+use App\Persistence\ApiSession;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
@@ -31,7 +32,7 @@ class RepositoryDeleteTest extends TestCase
         parent::tearDown();
     }
 
-    /** @test */
+    #[Test]
     public function setModelでモデルを更新できる(): void
     {
         ApiSession::setSysPlayerId($this->sysPlayerId);
@@ -61,7 +62,7 @@ class RepositoryDeleteTest extends TestCase
         $this->assertGreaterThan(0, count($modelQueue));
     }
 
-    /** @test */
+    #[Test]
     public function deleteModelで論理削除できる(): void
     {
         ApiSession::setSysPlayerId($this->sysPlayerId);
@@ -92,7 +93,7 @@ class RepositoryDeleteTest extends TestCase
         $this->assertGreaterThan(0, count($modelQueue));
     }
 
-    /** @test */
+    #[Test]
     public function terminateで物理削除準備ができる(): void
     {
         ApiSession::setSysPlayerId($this->sysPlayerId);

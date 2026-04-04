@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Domain\Unit\UseCases\LevelUpUseCase;
 use App\Http\Requests\Unit\LevelUpRequest;
 use App\Http\Responses\Unit\LevelUpResponse;
-use App\Utilities\ApiSession;
+use App\Persistence\ApiSession;
 use Illuminate\Http\JsonResponse;
 
 /**

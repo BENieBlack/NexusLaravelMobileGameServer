@@ -5,7 +5,7 @@ namespace App\Domain\Stamina\Services;
 use App\Domain\Player\Services\LevelService;
 use App\Models\Trx\TrxStamina;
 use App\Repositories\Trx\TrxStaminaRepository;
-use App\Utilities\ApiSession;
+use App\Persistence\ApiSession;
 use App\Utilities\Clock;
 use Carbon\CarbonImmutable;
 

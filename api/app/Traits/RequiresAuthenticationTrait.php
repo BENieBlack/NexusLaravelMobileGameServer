@@ -6,12 +6,12 @@ use App\Exceptions\GameException;
 use App\Exceptions\GameErrorCode;
 
 /**
- * RequiresAuthentication
+ * RequiresAuthenticationTrait
  * 
  * 認証が必要なUseCaseで使用するTrait
  * プレイヤーIDの取得と検証を共通化
  */
-trait RequiresAuthentication
+trait RequiresAuthenticationTrait
 {
     /**
      * 認証済みプレイヤーIDを取得（未認証の場合は例外）

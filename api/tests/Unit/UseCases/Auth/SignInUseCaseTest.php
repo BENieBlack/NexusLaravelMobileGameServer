@@ -10,7 +10,7 @@ use App\Http\Responses\Auth\SignInResponse;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;
-use App\Repositories\QueryManager;
+use App\Persistence\QueryManager;
 use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;
@@ -154,7 +154,7 @@ class SignInUseCaseTest extends TestCase
         [$oldDtoToken2, $oldSysPlayerToken2] = $this->tokenService->generateToken($sysPlayer, $sysPlayerDevice);
         
         // 古いトークンをDBに保存（バッチINSERT）
-        app(\App\Repositories\QueryManager::class)->execAllQuery();
+        app(\App\Persistence\QueryManager::class)->execAllQuery();
 
         // 古いトークンが有効であることを確認
         $this->assertNotNull($this->tokenService->validateRefreshToken($oldDtoToken1->refreshToken));

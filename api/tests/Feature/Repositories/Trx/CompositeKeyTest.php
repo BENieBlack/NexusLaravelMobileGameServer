@@ -3,8 +3,9 @@
 namespace Tests\Feature\Repositories\Trx;
 
 use App\Repositories\Trx\TrxItemRepository;
-use App\Utilities\ApiSession;
+use App\Persistence\ApiSession;
 use Illuminate\Support\Facades\DB;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
 
@@ -29,7 +30,7 @@ class CompositeKeyTest extends TestCase
         parent::tearDown();
     }
 
-    /** @test */
+    #[Test]
     public function 複合キーが正しく設定されている(): void
     {
         $this->insertTestData();
@@ -45,7 +46,7 @@ class CompositeKeyTest extends TestCase
         $this->assertSame(['sys_player_id', 'mst_item_id'], $uniqueKeys);
     }
 
-    /** @test */
+    #[Test]
     public function queryOrMemoryでデータ取得ができる(): void
     {
         $this->insertTestData();
@@ -66,7 +67,7 @@ class CompositeKeyTest extends TestCase
         $this->assertSame(5, $item2->amount);
     }
 
-    /** @test */
+    #[Test]
     public function 複合キーでのキャッシュ動作が正しい(): void
     {
         $this->insertTestData();

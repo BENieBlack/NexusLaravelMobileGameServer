@@ -2,22 +2,21 @@
 
 namespace App\Domain\Mailbox\UseCases;
 
+use App\Domain\_BaseUseCase;
 use App\Domain\Delivery\DTOs\DeliveryContent;
 use App\Domain\Delivery\Services\DeliveryService;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Http\Responses\Mailbox\ReceiveResponse;
 use App\Repositories\Trx\TrxMailboxRepository;
-use App\Traits\UseCaseTrait;
 
 /**
  * ReceiveUseCase
  *
  * 添付配布物受取処理
  */
-class ReceiveUseCase
+class ReceiveUseCase extends _BaseUseCase
 {
-    use UseCaseTrait;
 
     public function __construct(
         private TrxMailboxRepository $trxMailboxRepository,
@@ -61,11 +60,12 @@ class ReceiveUseCase
                 );
             })->toArray();
 
-            // 配送処理
+            // 配送処理（新しいパターン: addContents + deliver）
             if (count($deliveryContentArray) > 0) {
-                $deliveryResult = $this->deliveryService->delivers($sysPlayerId, $deliveryContentArray);
+                $this->deliveryService->addContents($deliveryContentArray);
+                $deliverySummary = $this->deliveryService->deliver($sysPlayerId);
 
-                if (!$deliveryResult->isAllSuccess()) {
+                if ($deliverySummary->getTotalCount() === 0) {
                     throw new GameException(GameErrorCode::INTERNAL_ERROR, 'Failed to deliver mailbox content');
                 }
             }

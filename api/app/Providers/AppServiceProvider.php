@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
-use App\Repositories\QueryManager;
+use App\Domain\Delivery\Managers\DeliveryManager;
+use App\Domain\Delivery\Managers\DeliveryManagerInterface;
+use App\Persistence\QueryManager;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
@@ -25,6 +27,14 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             ItemRepositoryInterface::class,
             ItemRepository::class
+        );
+
+        // DeliveryManager のバインディング
+        // リクエストスコープ: 各リクエストごとに新しいインスタンスを生成
+        // 配送待ちコンテンツはリクエスト内でのみ保持される
+        $this->app->bind(
+            DeliveryManagerInterface::class,
+            DeliveryManager::class
         );
 
         // Unit of Work パターン用のQueryManagerをシングルトンとして登録

@@ -8,7 +8,6 @@ use App\Exceptions\GameException;
 use App\Http\Responses\Friend\DeleteResponse;
 use App\Repositories\Sys\SysFriendApplyRepository;
 use App\Repositories\Sys\SysPlayerRepository;
-use App\Traits\UseCaseTrait;
 
 /**
  * DeleteUseCase
@@ -17,7 +16,6 @@ use App\Traits\UseCaseTrait;
  */
 class DeleteUseCase extends _BaseUseCase
 {
-    use UseCaseTrait;
 
     public function __construct(
         private readonly SysFriendApplyRepository $sysFriendApplyRepository,

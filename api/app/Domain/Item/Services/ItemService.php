@@ -4,7 +4,7 @@ namespace App\Domain\Item\Services;
 
 use App\Models\Trx\TrxItem;
 use App\Repositories\Trx\TrxItemRepository;
-use App\Utilities\ApiSession;
+use App\Persistence\ApiSession;
 
 /**
  * ItemService

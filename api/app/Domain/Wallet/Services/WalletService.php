@@ -6,7 +6,6 @@ use App\Models\Trx\TrxWallet;
 use App\Models\Trx\TrxWalletBalance;
 use App\Repositories\Trx\TrxWalletBalanceRepository;
 use App\Repositories\Trx\TrxWalletRepository;
-use App\Utilities\ApiSession;
 use Carbon\CarbonImmutable;
 
 /**
@@ -20,7 +19,6 @@ class WalletService
     public function __construct(
         private readonly TrxWalletRepository $trxWalletRepository,
         private readonly TrxWalletBalanceRepository $trxWalletBalanceRepository,
-        private readonly ApiSession $apiSession,
     ) {
     }
 

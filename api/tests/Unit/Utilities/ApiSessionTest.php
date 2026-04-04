@@ -2,8 +2,9 @@
 
 namespace Tests\Unit\Utilities;
 
-use App\Utilities\ApiSession;
+use App\Persistence\ApiSession;
 use App\Utilities\Clock;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
@@ -28,14 +29,14 @@ class ApiSessionTest extends TestCase
         parent::tearDown();
     }
 
-    /** @test */
+    #[Test]
     public function 初期状態ではプレイヤーIDと時刻は設定されていない(): void
     {
         $this->assertFalse(ApiSession::hasSysPlayerId());
         $this->assertFalse(ApiSession::hasNow());
     }
 
-    /** @test */
+    #[Test]
     public function プレイヤーIDと時刻の設定ができる(): void
     {
         ApiSession::setSysPlayerId(123);
@@ -44,7 +45,7 @@ class ApiSessionTest extends TestCase
         $this->assertTrue(ApiSession::hasNow());
     }
 
-    /** @test */
+    #[Test]
     public function プレイヤーIDの取得ができる(): void
     {
         ApiSession::setSysPlayerId(123);
@@ -54,7 +55,7 @@ class ApiSessionTest extends TestCase
         $this->assertSame(123, $playerId);
     }
 
-    /** @test */
+    #[Test]
     public function リクエスト開始時刻の取得ができる(): void
     {
         ApiSession::setSysPlayerId(123);
@@ -65,7 +66,7 @@ class ApiSessionTest extends TestCase
         $this->assertTrue($now->equalTo($clockNow));
     }
 
-    /** @test */
+    #[Test]
     public function インスタンスメソッドでの操作ができる(): void
     {
         ApiSession::setSysPlayerId(123);
@@ -82,7 +83,7 @@ class ApiSessionTest extends TestCase
         $this->assertSame(456, $session->getPlayerId());
     }
 
-    /** @test */
+    #[Test]
     public function 静的メソッドで更新された値を確認できる(): void
     {
         ApiSession::setSysPlayerId(123);
@@ -94,7 +95,7 @@ class ApiSessionTest extends TestCase
         $this->assertSame(456, $playerId);
     }
 
-    /** @test */
+    #[Test]
     public function クリア機能が動作する(): void
     {
         ApiSession::setSysPlayerId(123);
@@ -105,7 +106,7 @@ class ApiSessionTest extends TestCase
         $this->assertFalse(ApiSession::hasNow());
     }
 
-    /** @test */
+    #[Test]
     public function 未設定時にプレイヤーID取得で例外がスローされる(): void
     {
         $this->expectException(\RuntimeException::class);
@@ -113,7 +114,7 @@ class ApiSessionTest extends TestCase
         ApiSession::getSysPlayerId();
     }
 
-    /** @test */
+    #[Test]
     public function 未設定時に時刻取得で例外がスローされる(): void
     {
         $this->expectException(\RuntimeException::class);
@@ -121,7 +122,7 @@ class ApiSessionTest extends TestCase
         ApiSession::getNow();
     }
 
-    /** @test */
+    #[Test]
     public function コンストラクタでプレイヤーIDと時刻を設定できる(): void
     {
         $customNow = Clock::now()->addHours(1);

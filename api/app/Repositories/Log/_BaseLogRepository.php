@@ -3,9 +3,10 @@
 namespace App\Repositories\Log;
 
 use App\Models\Log\_BaseLog;
+use App\Models\Log\_BaseLogInterface;
 use App\Repositories\_BaseRepository;
-use App\Repositories\QueryManager;
-use App\Utilities\ApiSession;
+use App\Persistence\QueryManager;
+use App\Persistence\ApiSession;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -16,6 +17,9 @@ use Illuminate\Support\Collection;
  * ログRepositoryの基底クラス
  * ログテーブルはINSERT ONLYのため、setModelメソッドでINSERTのみ実行
  * プレイヤーIDはApiSessionから自動的に取得される
+ * 
+ * @template T of _BaseLogInterface
+ * @implements _BaseLogRepositoryInterface<T>
  */
 abstract class _BaseLogRepository extends _BaseRepository implements _BaseLogRepositoryInterface
 {
@@ -84,7 +88,7 @@ abstract class _BaseLogRepository extends _BaseRepository implements _BaseLogRep
      * キャッシュがあればキャッシュを返す
      * プレイヤーIDはApiSessionから自動的に取得される
      *
-     * @return Collection<int, _BaseLog>
+     * @return Collection<int, T>
      * @throws \RuntimeException プレイヤーIDが取得できない場合
      */
     public function queryOrMemory(): Collection
@@ -115,9 +119,9 @@ abstract class _BaseLogRepository extends _BaseRepository implements _BaseLogRep
      * メモリキャッシュから取得、なければqueryOrMemoryでロードしてから取得
      *
      * @param int $logRecordId ログID
-     * @return _BaseLog|null ログレコード（見つからない場合はnull）
+     * @return T|null ログレコード（見つからない場合はnull）
      */
-    public function getById(int $logRecordId): ?_BaseLog
+    public function getById(int $logRecordId)
     {
         // メモリキャッシュにあればそこから取得
         if ($this->models !== null) {

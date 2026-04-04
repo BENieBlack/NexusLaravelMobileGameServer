@@ -8,6 +8,8 @@ use App\Models\Mst\MstMailbox;
  * MstMailboxRepository
  *
  * メールボックスマスターデータを管理するRepository
+ * 
+ * @extends _BaseMstRepository<MstMailbox>
  */
 class MstMailboxRepository extends _BaseMstRepository
 {

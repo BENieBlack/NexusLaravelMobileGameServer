@@ -4,7 +4,7 @@ namespace Tests\Unit\Repositories\Trx;
 
 use App\Models\Trx\TrxUnit;
 use App\Repositories\Trx\TrxUnitRepository;
-use App\Utilities\ApiSession;
+use App\Persistence\ApiSession;
 use App\Utilities\Clock;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;

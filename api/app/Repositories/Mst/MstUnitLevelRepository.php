@@ -31,6 +31,8 @@ use Illuminate\Support\Facades\Cache;
  *     // レベルアップ可能
  * }
  * ```
+ * 
+ * @extends _BaseMstRepository<MstUnitLevel>
  */
 class MstUnitLevelRepository extends _BaseMstRepository
 {

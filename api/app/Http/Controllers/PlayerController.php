@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Domain\Player\UseCases\MeUseCase;
 use App\Http\Requests\Player\MeRequest;
-use App\Utilities\ApiSession;
+use App\Persistence\ApiSession;
 use Illuminate\Http\JsonResponse;
 
 class PlayerController extends _BaseController

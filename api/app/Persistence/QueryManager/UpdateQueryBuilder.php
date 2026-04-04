@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repositories\QueryManager;
+namespace App\Persistence\QueryManager;
 
 use Illuminate\Database\Eloquent\Model;
 

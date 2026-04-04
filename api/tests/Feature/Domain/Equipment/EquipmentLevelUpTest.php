@@ -3,8 +3,9 @@
 namespace Tests\Feature\Domain\Equipment;
 
 use App\Domain\Equipment\UseCases\LevelUpUseCase;
-use App\Utilities\ApiSession;
+use App\Persistence\ApiSession;
 use Illuminate\Support\Facades\DB;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
 
@@ -42,7 +43,7 @@ class EquipmentLevelUpTest extends TestCase
         parent::tearDown();
     }
 
-    /** @test */
+    #[Test]
     public function 装備のレベルアップができる(): void
     {
         ApiSession::setSysPlayerId($this->sysPlayerId);
@@ -76,7 +77,7 @@ class EquipmentLevelUpTest extends TestCase
         $this->assertGreaterThan($beforeEquipment->level, $afterEquipment->level);
     }
 
-    /** @test */
+    #[Test]
     public function レベルアップ時にアイテムが消費される(): void
     {
         ApiSession::setSysPlayerId($this->sysPlayerId);
@@ -101,7 +102,7 @@ class EquipmentLevelUpTest extends TestCase
         $this->assertLessThan($beforeItemAmount, $response->trxItem->amount);
     }
 
-    /** @test */
+    #[Test]
     public function レベルアップ時にログが記録される(): void
     {
         ApiSession::setSysPlayerId($this->sysPlayerId);

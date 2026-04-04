@@ -10,6 +10,8 @@ use Illuminate\Support\Collection;
  * LogItemRepository
  *
  * アイテム変更ログを管理するRepository
+ * 
+ * @extends _BaseLogRepository<LogItem>
  */
 class LogItemRepository extends _BaseLogRepository
 {

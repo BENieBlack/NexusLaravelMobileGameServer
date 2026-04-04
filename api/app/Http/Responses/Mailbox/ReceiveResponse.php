@@ -32,9 +32,9 @@ class ReceiveResponse extends _BaseResponse
     {
         $contentArray = array_map(function ($content) {
             return [
-                'type' => $content->type,
-                'id' => $content->id,
-                'amount' => $content->amount,
+                'type' => $content->getType(),
+                'id' => $content->getId(),
+                'amount' => $content->getAmount(),
             ];
         }, $this->receivedContentArray);
 

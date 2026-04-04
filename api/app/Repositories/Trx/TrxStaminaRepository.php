@@ -9,6 +9,8 @@ use App\Models\Trx\TrxStamina;
  * 
  * スタミナデータの永続化のみを担当
  * ビジネスロジックはStaminaServiceに実装
+ * 
+ * @extends _BaseTrxRepository<TrxStamina>
  */
 class TrxStaminaRepository extends _BaseTrxRepository
 {

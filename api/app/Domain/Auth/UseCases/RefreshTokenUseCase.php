@@ -2,11 +2,10 @@
 
 namespace App\Domain\Auth\UseCases;
 
-use App\Domain\_BaseUseCaseInterface;
+use App\Domain\_BaseUseCase;
 use App\Domain\Auth\Services\TokenService;
 use App\Http\Responses\Auth\RefreshTokenResponse;
-use App\Traits\UseCaseTrait;
-use App\Traits\RequiresRefreshToken;
+use App\Traits\RequiresRefreshTokenTrait;
 
 /**
  * RefreshTokenUseCase
@@ -15,10 +14,9 @@ use App\Traits\RequiresRefreshToken;
  * リフレッシュトークンからアクセストークンを再発行
  * is_delete=trueのレコードを物理削除
  */
-class RefreshTokenUseCase implements _BaseUseCaseInterface
+class RefreshTokenUseCase extends _BaseUseCase
 {
-    use UseCaseTrait;
-    use RequiresRefreshToken;
+    use RequiresRefreshTokenTrait;
 
     public function __construct(
         private readonly TokenService $tokenService,

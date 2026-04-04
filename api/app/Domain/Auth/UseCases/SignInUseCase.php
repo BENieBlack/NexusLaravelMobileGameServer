@@ -2,13 +2,12 @@
 
 namespace App\Domain\Auth\UseCases;
 
-use App\Domain\_BaseUseCaseInterface;
+use App\Domain\_BaseUseCase;
 use App\Domain\Auth\Services\PlayerService;
 use App\Domain\Auth\Services\TokenService;
 use App\Exceptions\GameException;
 use App\Exceptions\GameErrorCode;
 use App\Http\Responses\Auth\SignInResponse;
-use App\Traits\UseCaseTrait;
 
 /**
  * SignInUseCase
@@ -17,9 +16,8 @@ use App\Traits\UseCaseTrait;
  * 既存デバイスIDでのログイン処理
  * 新しいアクセストークンとリフレッシュトークンを発行
  */
-class SignInUseCase implements _BaseUseCaseInterface
+class SignInUseCase extends _BaseUseCase
 {
-    use UseCaseTrait;
 
     public function __construct(
         private readonly PlayerService $playerService,

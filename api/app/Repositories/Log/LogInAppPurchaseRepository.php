@@ -10,6 +10,8 @@ use App\Utilities\Clock;
  *
  * アプリ内課金のログを管理するRepository
  * 課金関連のログなので isPurchaseLog = true
+ * 
+ * @extends _BaseLogRepository<LogInAppPurchase>
  */
 class LogInAppPurchaseRepository extends _BaseLogRepository
 {

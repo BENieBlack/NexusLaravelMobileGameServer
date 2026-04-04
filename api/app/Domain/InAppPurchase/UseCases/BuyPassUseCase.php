@@ -11,7 +11,6 @@ use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Http\Responses\InAppPurchase\BuyResponse;
 use App\Models\Mst\MstInAppPurchase;
-use App\Traits\UseCaseTrait;
 
 /**
  * BuyPassUseCase
@@ -20,7 +19,6 @@ use App\Traits\UseCaseTrait;
  */
 class BuyPassUseCase extends _BaseUseCase
 {
-    use UseCaseTrait;
 
     public function __construct(
         private readonly DiamondService $diamondService,

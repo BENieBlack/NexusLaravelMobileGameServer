@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Repositories;
+namespace App\Persistence;
 
+use App\Repositories\_BaseRepository;
 use App\Repositories\Log\_BaseLogRepository;
 use App\Repositories\Sys\_BaseSysRepository;
 use App\Repositories\Sys\SysPlayerRepository;
-use App\Repositories\QueryManager\OperationCollector;
-use App\Repositories\QueryManager\BatchExecutor;
+use App\Persistence\QueryManager\OperationCollector;
+use App\Persistence\QueryManager\BatchExecutor;
 
 /**
  * QueryManager

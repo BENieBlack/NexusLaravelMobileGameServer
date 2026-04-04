@@ -2,7 +2,7 @@
 
 namespace App\Domain\Equipment\UseCases;
 
-use App\Domain\_BaseUseCaseInterface;
+use App\Domain\_BaseUseCase;
 use App\Domain\Equipment\Services\LevelService;
 use App\Domain\Item\Services\ItemService;
 use App\Exceptions\MasterDataException;
@@ -14,8 +14,7 @@ use App\Http\Responses\Equipment\LevelUpResponse;
 use App\Repositories\Log\LogEquipmentRepository;
 use App\Repositories\Mst\MstItemRepository;
 use App\Repositories\Trx\TrxEquipmentRepository;
-use App\Traits\UseCaseTrait;
-use App\Traits\RequiresAuthentication;
+use App\Traits\RequiresAuthenticationTrait;
 use Illuminate\Support\Str;
 
 /**
@@ -33,10 +32,9 @@ use Illuminate\Support\Str;
  * 7. ログを記録（log_equipment）
  * 8. トランザクション処理をコミット
  */
-class LevelUpUseCase implements _BaseUseCaseInterface
+class LevelUpUseCase extends _BaseUseCase
 {
-    use UseCaseTrait;
-    use RequiresAuthentication;
+    use RequiresAuthenticationTrait;
 
     /**
      * 装備経験値アイテムのID

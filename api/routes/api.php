@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EquipmentController;
 use App\Http\Controllers\FriendController;
+use App\Http\Controllers\GachaController;
 use App\Http\Controllers\InAppPurchaseController;
 use App\Http\Controllers\MailboxController;
 use App\Http\Controllers\PlayerController;
@@ -41,6 +42,9 @@ Route::middleware(['auth.token', 'idempotency'])->group(function () {
     Route::get('/mailbox/list', [MailboxController::class, 'list']);
     Route::post('/mailbox/open', [MailboxController::class, 'open']);
     Route::post('/mailbox/receive', [MailboxController::class, 'receive']);
+    
+    // Gacha endpoints
+    Route::post('/gacha/draw', [GachaController::class, 'draw']);
 });
 
 // Legacy signup endpoint (for backward compatibility - consider deprecating)

@@ -8,7 +8,6 @@ use App\Exceptions\GameException;
 use App\Http\Responses\Friend\ApplyAcceptResponse;
 use App\Models\Sys\SysFriendApply;
 use App\Repositories\Sys\SysFriendApplyRepository;
-use App\Traits\UseCaseTrait;
 
 /**
  * ApplyAcceptUseCase
@@ -17,7 +16,6 @@ use App\Traits\UseCaseTrait;
  */
 class ApplyAcceptUseCase extends _BaseUseCase
 {
-    use UseCaseTrait;
 
     public function __construct(
         private readonly SysFriendApplyRepository $sysFriendApplyRepository,

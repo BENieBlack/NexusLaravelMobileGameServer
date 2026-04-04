@@ -32,9 +32,10 @@ class WalletDeliveryHandler implements _BaseDeliveryHandlerInterface
         // WalletServiceのaddCurrencyメソッドを使用
         // expireAtはDeliveryContentから取得（NULLの場合は無期限）
         $this->walletService->addCurrency(
-            $content->id,
-            $content->amount,
-            $content->expireAt
+            $sysPlayerId,
+            $content->getId(),
+            $content->getAmount(),
+            $content->getExpireAt()
         );
     }
 

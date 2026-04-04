@@ -2,6 +2,7 @@
 
 namespace App\Domain\Mailbox\UseCases;
 
+use App\Domain\_BaseUseCase;
 use App\Http\Responses\Mailbox\ListResponse;
 use App\Repositories\Trx\TrxMailboxRepository;
 
@@ -10,7 +11,7 @@ use App\Repositories\Trx\TrxMailboxRepository;
  *
  * メールボックス一覧取得
  */
-class ListUseCase
+class ListUseCase extends _BaseUseCase
 {
     public function __construct(
         private TrxMailboxRepository $trxMailboxRepository,

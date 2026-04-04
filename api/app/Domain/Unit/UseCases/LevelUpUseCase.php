@@ -2,7 +2,7 @@
 
 namespace App\Domain\Unit\UseCases;
 
-use App\Domain\_BaseUseCaseInterface;
+use App\Domain\_BaseUseCase;
 use App\Domain\Unit\Services\LevelService;
 use App\Domain\Item\Services\ItemService;
 use App\Exceptions\MasterDataException;
@@ -13,8 +13,7 @@ use App\Exceptions\GameErrorCode;
 use App\Http\Responses\Unit\LevelUpResponse;
 use App\Repositories\Mst\MstItemRepository;
 use App\Repositories\Trx\TrxUnitRepository;
-use App\Traits\UseCaseTrait;
-use App\Traits\RequiresAuthentication;
+use App\Traits\RequiresAuthenticationTrait;
 
 /**
  * LevelUpUseCase
@@ -29,10 +28,9 @@ use App\Traits\RequiresAuthentication;
  * 5. ユニットに経験値を加算（自動レベルアップ処理）
  * 6. トランザクション処理をコミット
  */
-class LevelUpUseCase implements _BaseUseCaseInterface
+class LevelUpUseCase extends _BaseUseCase
 {
-    use UseCaseTrait;
-    use RequiresAuthentication;
+    use RequiresAuthenticationTrait;
 
     public function __construct(
         private readonly LevelService $unitLevelService,

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repositories\QueryManager;
+namespace App\Persistence\QueryManager;
 
 use App\Repositories\Sys\_BaseSysRepository;
 use App\Repositories\Trx\_BaseTrxRepository;

@@ -4,9 +4,10 @@ namespace Tests\Feature\Repositories\Trx;
 
 use App\Repositories\Log\LogEquipmentRepository;
 use App\Repositories\Trx\TrxEquipmentRepository;
-use App\Utilities\ApiSession;
+use App\Persistence\ApiSession;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
@@ -32,7 +33,7 @@ class RepositoryApiSessionTest extends TestCase
         parent::tearDown();
     }
 
-    /** @test */
+    #[Test]
     public function queryOrMemoryは引数なしで動作する(): void
     {
         ApiSession::setSysPlayerId($this->sysPlayerId);
@@ -43,7 +44,7 @@ class RepositoryApiSessionTest extends TestCase
         $this->assertNotNull($equipments);
     }
 
-    /** @test */
+    #[Test]
     public function ユニークキーがプロパティとして定義されている(): void
     {
         ApiSession::setSysPlayerId($this->sysPlayerId);
@@ -58,7 +59,7 @@ class RepositoryApiSessionTest extends TestCase
         $this->assertContains('id', $uniqueKeys);
     }
 
-    /** @test */
+    #[Test]
     public function 異なるsysPlayerIdで別のリポジトリを作成できる(): void
     {
         ApiSession::setSysPlayerId(999);
@@ -69,7 +70,7 @@ class RepositoryApiSessionTest extends TestCase
         $this->assertSame(0, $equipments->count());
     }
 
-    /** @test */
+    #[Test]
     public function ApiSessionを設定してTrxRepositoryで使用できる(): void
     {
         ApiSession::setSysPlayerId($this->sysPlayerId);
@@ -80,7 +81,7 @@ class RepositoryApiSessionTest extends TestCase
         $this->assertNotNull($equipments);
     }
 
-    /** @test */
+    #[Test]
     public function LogRepositoryでもApiSessionが使用できる(): void
     {
         ApiSession::setSysPlayerId($this->sysPlayerId);
@@ -91,7 +92,7 @@ class RepositoryApiSessionTest extends TestCase
         $this->assertNotNull($logs);
     }
 
-    /** @test */
+    #[Test]
     public function プレイヤーID未設定時にqueryOrMemoryで例外がスローされる(): void
     {
         $this->expectException(\RuntimeException::class);

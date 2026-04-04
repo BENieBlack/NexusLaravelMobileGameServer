@@ -10,6 +10,8 @@ use App\Utilities\Clock;
  *
  * アクセスログを管理するRepository
  * リクエスト/レスポンスの全情報を記録
+ * 
+ * @extends _BaseLogRepository<LogAccess>
  */
 class LogAccessRepository extends _BaseLogRepository
 {

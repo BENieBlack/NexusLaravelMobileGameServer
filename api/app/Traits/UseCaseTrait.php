@@ -39,7 +39,7 @@ trait UseCaseTrait
             DB::connection($connection)->beginTransaction();
         }
 
-        $queryManager = app()->make(\App\Repositories\QueryManager::class);
+        $queryManager = app()->make(\App\Persistence\QueryManager::class);
         
         try {
             // コールバックを実行（クエリはQueryManagerにキューイングされる）

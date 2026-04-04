@@ -10,6 +10,8 @@ use Illuminate\Contracts\Container\BindingResolutionException;
  * TrxEquipmentRepository
  *
  * プレイヤーが所持する装備を管理するRepository
+ * 
+ * @extends _BaseTrxRepository<TrxEquipment>
  */
 class TrxEquipmentRepository extends _BaseTrxRepository
 {
@@ -30,5 +32,35 @@ class TrxEquipmentRepository extends _BaseTrxRepository
         
         // キャッシュから取得
         return $this->getModel($trxEquipmentId);
+    }
+
+    /**
+     * 新規装備を作成
+     *
+     * @param string $mstEquipmentId 装備マスターID
+     * @param int|null $level 初期レベル（nullの場合は1）
+     * @param int|null $grade 初期グレード（nullの場合は1）
+     * @return TrxEquipment 作成された装備
+     */
+    public function createEquipment(
+        string $mstEquipmentId,
+        ?int $level = null,
+        ?int $grade = null
+    ): TrxEquipment {
+        $sysPlayerId = \App\Persistence\ApiSession::getSysPlayerId();
+        
+        $trxEquipment = new TrxEquipment([
+            'sys_player_id' => $sysPlayerId,
+            'mst_equipment_id' => $mstEquipmentId,
+            'grade' => $grade ?? 1,
+            'level' => $level ?? 1,
+            'created_at' => Clock::now(),
+            'updated_at' => Clock::now(),
+        ]);
+
+        // setModelでTrxデータをキューイング
+        $this->setModel($trxEquipment);
+
+        return $trxEquipment;
     }
 }

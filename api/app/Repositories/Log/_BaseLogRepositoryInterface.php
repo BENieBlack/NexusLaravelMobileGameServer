@@ -2,7 +2,7 @@
 
 namespace App\Repositories\Log;
 
-use App\Models\Log\_BaseLog;
+use App\Models\Log\_BaseLogInterface;
 use App\Repositories\_BaseRepositoryInterface;
 use Illuminate\Support\Collection;
 
@@ -11,6 +11,8 @@ use Illuminate\Support\Collection;
  *
  * LogデータRepository用のインターフェース
  * ログはINSERT ONLYでキャッシュなし
+ * 
+ * @template T of _BaseLogInterface
  */
 interface _BaseLogRepositoryInterface extends _BaseRepositoryInterface
 {
@@ -20,7 +22,7 @@ interface _BaseLogRepositoryInterface extends _BaseRepositoryInterface
      * コンストラクタまたはApiSessionで設定されたプレイヤーIDを基にログデータを取得し、
      * メモリにキャッシュされている場合はそれを返す
      *
-     * @return Collection ログデータのコレクション
+     * @return Collection<int, T> ログデータのコレクション
      */
     public function queryOrMemory(): Collection;
 
@@ -28,7 +30,7 @@ interface _BaseLogRepositoryInterface extends _BaseRepositoryInterface
      * IDでログレコードを取得
      *
      * @param int $logRecordId
-     * @return _BaseLog|null
+     * @return T|null
      */
-    public function getById(int $logRecordId): ?_BaseLog;
+    public function getById(int $logRecordId);
 }

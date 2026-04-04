@@ -895,6 +895,523 @@ class ItemDeliveryHandler implements DeliveryHandlerInterface
 }
 ```
 
+#### 2. Repository層の型アノテーション（PHPStan Generics）
+
+**すべてのRepository層では、PHPStanテンプレート（ジェネリクス風）アノテーションを使用して型安全性を確保します。**
+
+**目的:**
+- PHPStanの静的解析でRepository→Modelの型を正しく推論
+- IDEの補完機能を最大限に活用
+- バグの早期発見と型安全なコード
+
+**Repositoryの構造と型アノテーションのルール:**
+
+プロジェクトには4系統のRepositoryがあります：
+
+| 系統 | DB接続 | キャッシュ | 用途 |
+|-----|--------|---------|-----|
+| **Mst** | `mst` | Redis + メモリ | マスターデータ（読み取り専用） |
+| **Sys** | `sys` | メモリ + 一部Redis | システムデータ |
+| **Trx** | `trx` | メモリ | トランザクションデータ（CRUD） |
+| **Log** | `log` | なし | ログデータ（INSERT ONLY） |
+
+**型アノテーションのパターン:**
+
+**1. 基底クラス（`_Base*Repository`）:**
+
+```php
+/**
+ * @template T of _BaseXxxInterface
+ * @implements _BaseXxxRepositoryInterface<T>
+ */
+abstract class _BaseXxxRepository extends _BaseRepository implements _BaseXxxRepositoryInterface
+{
+    // ...
+}
+```
+
+**例: Mst系基底クラス**
+```php
+/**
+ * _BaseMstRepository
+ *
+ * マスターデータのRepository基底クラス
+ * キャッシュ機能を含む読み取り専用操作を提供
+ * 
+ * @template T of _BaseMstInterface
+ * @implements _BaseMstRepositoryInterface<T>
+ */
+abstract class _BaseMstRepository extends _BaseRepository implements _BaseMstRepositoryInterface
+{
+    /**
+     * IDでマスターレコードを取得
+     * 
+     * @param int|string $mstRecordId
+     * @return T|null
+     */
+    public function selectById($mstRecordId)
+    {
+        // ...
+    }
+}
+```
+
+**2. サブクラス（具体的なRepository）:**
+
+```php
+/**
+ * @extends _BaseXxxRepository<ConcreteModel>
+ */
+class ConcreteRepository extends _BaseXxxRepository
+{
+    protected string $modelClass = ConcreteModel::class;
+    
+    // ...
+}
+```
+
+**例: Mst系サブクラス**
+```php
+/**
+ * @extends _BaseMstRepository<MstGacha>
+ */
+class MstGachaRepository extends _BaseMstRepository
+{
+    protected string $modelClass = MstGacha::class;
+    protected string $cachePrefix = 'mst:gacha';
+    
+    // selectById($id) の戻り値が MstGacha|null と推論される
+}
+```
+
+**3. Interfaceの型定義（`_Base*RepositoryInterface`）:**
+
+```php
+/**
+ * @template T of _BaseXxxInterface
+ */
+interface _BaseXxxRepositoryInterface
+{
+    /**
+     * @param int|string $id
+     * @return T|null
+     */
+    public function selectById($id);
+    
+    /**
+     * @return Collection<int|string, T>
+     */
+    public function selectAll();
+}
+```
+
+**4. Modelの型定義（`_Base*Interface`）:**
+
+Modelにも対応するInterfaceを実装します：
+
+```php
+/**
+ * @property int $id
+ * @property string $name
+ */
+class MstGacha extends _BaseMst implements _BaseMstInterface
+{
+    // ...
+}
+```
+
+**全Repository系統の型アノテーションパターン:**
+
+| 系統 | 基底クラス | サブクラス | Interface | Model |
+|-----|-----------|----------|-----------|-------|
+| **Mst** | `@template T of _BaseMstInterface`<br>`@implements _BaseMstRepositoryInterface<T>` | `@extends _BaseMstRepository<MstXxx>` | `@template T of _BaseMstInterface` | `implements _BaseMstInterface` |
+| **Sys** | `@template T of _BaseSysInterface`<br>`@implements _BaseSysRepositoryInterface<T>` | `@extends _BaseSysRepository<SysXxx>` | `@template T of _BaseSysInterface` | `implements _BaseSysInterface` |
+| **Trx** | `@template T of _BaseTrxInterface`<br>`@implements _BaseTrxRepositoryInterface<T>` | `@extends _BaseTrxRepository<TrxXxx>` | `@template T of _BaseTrxInterface` | `implements _BaseTrxInterface` |
+| **Log** | `@template T of _BaseLogInterface`<br>`@implements _BaseLogRepositoryInterface<T>` | `@extends _BaseLogRepository<LogXxx>` | `@template T of _BaseLogInterface` | `implements _BaseLogInterface` |
+
+**実装例（完全版）:**
+
+```php
+// 1. Model Interface
+interface _BaseMstInterface {}
+
+// 2. Model
+class MstGacha extends _BaseMst implements _BaseMstInterface
+{
+    protected $connection = 'mst';
+    protected $table = 'mst_gacha';
+}
+
+// 3. Repository Interface
+/**
+ * @template T of _BaseMstInterface
+ */
+interface _BaseMstRepositoryInterface
+{
+    /**
+     * @param int|string $id
+     * @return T|null
+     */
+    public function selectById($id);
+}
+
+// 4. 基底Repository
+/**
+ * @template T of _BaseMstInterface
+ * @implements _BaseMstRepositoryInterface<T>
+ */
+abstract class _BaseMstRepository extends _BaseRepository implements _BaseMstRepositoryInterface
+{
+    /**
+     * @param int|string $mstRecordId
+     * @return T|null
+     */
+    public function selectById($mstRecordId)
+    {
+        // キャッシュから取得
+        return $this->getModel($mstRecordId);
+    }
+}
+
+// 5. 具体的なRepository
+/**
+ * @extends _BaseMstRepository<MstGacha>
+ */
+class MstGachaRepository extends _BaseMstRepository
+{
+    protected string $modelClass = MstGacha::class;
+    protected string $cachePrefix = 'mst:gacha';
+}
+
+// 使用例: IDEとPHPStanが正しく型推論
+$gachaRepository = app(MstGachaRepository::class);
+$gacha = $gachaRepository->selectById('test_gacha'); // MstGacha|null と推論される
+if ($gacha !== null) {
+    echo $gacha->name; // IDE補完が効く
+}
+```
+
+**注意事項:**
+1. **全50ファイルで統一**: Mst系21, Log系9, Trx系17, Sys系8 + GachaValidationService
+2. **@templateタグの位置**: 基底クラスとInterfaceの両方に記載
+3. **@extendsタグ**: サブクラスで具体的なModel型を指定
+4. **PHPStan Level 8対応**: 型アノテーションがないと静的解析でエラー
+
+#### 3. Delivery経由のコンテンツ配布パターン（重要）
+
+**コンテンツ配布（アイテム、ユニット、装備、ダイヤモンド、通貨等）は、すべてDeliveryシステム経由で実装します。**
+
+**目的:**
+- 配布ロジックの一元管理
+- コンテンツタイプ別の処理を統一
+- ログ記録の自動化
+- テスト容易性の向上
+
+**Deliveryシステムの構造:**
+
+```
+DeliveryService（統括サービス）
+    ↓
+DeliveryManager（配送マネージャー、Strategy Pattern実装）
+    ↓
+各DeliveryHandler（コンテンツタイプ別のハンドラー）
+    ├── ItemDeliveryHandler（アイテム配送）
+    ├── UnitDeliveryHandler（ユニット配送）
+    ├── EquipmentDeliveryHandler（装備配送）
+    ├── DiamondDeliveryHandler（ダイヤモンド配送）
+    └── WalletDeliveryHandler（通貨配送）
+```
+
+**実装パターン:**
+
+**1. DeliveryContent DTO（配布物の定義）:**
+
+```php
+readonly class DeliveryContent
+{
+    public function __construct(
+        public string $contentType,  // 'item', 'unit', 'equipment', 'diamond', 'wallet'
+        public string $contentId,    // mst_item.id, mst_unit.id 等
+        public int $amount,          // 配布数量
+    ) {}
+    
+    // ファクトリメソッド
+    public static function item(string $itemId, int $amount): self
+    {
+        return new self('item', $itemId, $amount);
+    }
+    
+    public static function unit(string $unitId, int $amount): self
+    {
+        return new self('unit', $unitId, $amount);
+    }
+    
+    public static function equipment(string $equipmentId, int $amount): self
+    {
+        return new self('equipment', $equipmentId, $amount);
+    }
+    
+    public static function diamond(int $amount, bool $isPaid = false): self
+    {
+        return new self('diamond', $isPaid ? 'paid' : 'free', $amount);
+    }
+    
+    public static function wallet(string $currencyId, int $amount): self
+    {
+        return new self('wallet', $currencyId, $amount);
+    }
+}
+```
+
+**2. DeliveryHandler Interface:**
+
+```php
+interface DeliveryHandlerInterface
+{
+    /**
+     * このハンドラーが対応できるコンテンツタイプか判定
+     */
+    public function supports(string $contentType): bool;
+    
+    /**
+     * コンテンツを配送
+     */
+    public function handle(int $sysPlayerId, DeliveryContent $content): DeliveryResult;
+}
+```
+
+**3. 具体的なHandler実装例（EquipmentDeliveryHandler）:**
+
+```php
+class EquipmentDeliveryHandler implements DeliveryHandlerInterface
+{
+    public function __construct(
+        private readonly TrxEquipmentRepository $trxEquipmentRepository,
+        private readonly MstEquipmentRepository $mstEquipmentRepository,
+    ) {}
+
+    public function supports(string $contentType): bool
+    {
+        return $contentType === 'equipment';
+    }
+
+    public function handle(int $sysPlayerId, DeliveryContent $content): DeliveryResult
+    {
+        // 1. マスターデータ検証
+        $mstEquipment = $this->mstEquipmentRepository->selectById($content->contentId);
+        if ($mstEquipment === null) {
+            throw MasterDataException::equipment($content->contentId);
+        }
+
+        // 2. 装備作成（複数個の場合はループ）
+        $createdIds = [];
+        for ($i = 0; $i < $content->amount; $i++) {
+            $trxEquipment = $this->trxEquipmentRepository->createEquipment(
+                sysPlayerId: $sysPlayerId,
+                mstEquipmentId: $content->contentId,
+                level: 1,
+                exp: 0
+            );
+            $createdIds[] = $trxEquipment->id;
+        }
+
+        // 3. 結果を返す
+        return new DeliveryResult(
+            contentType: 'equipment',
+            contentId: $content->contentId,
+            amount: $content->amount,
+            details: ['created_ids' => $createdIds]
+        );
+    }
+}
+```
+
+**4. DeliveryServiceの使い方:**
+
+```php
+// Service層での使用例（GachaPrizeService）
+class GachaPrizeService
+{
+    public function __construct(
+        private readonly DeliveryService $deliveryService,
+    ) {}
+
+    public function grantPrizes(int $sysPlayerId, array $prizes): array
+    {
+        // 1. 景品をDeliveryContentに変換
+        $deliveryContents = [];
+        foreach ($prizes as $prize) {
+            $deliveryContents[] = match ($prize['content_type']) {
+                'item' => DeliveryContent::item($prize['content_id'], $prize['amount']),
+                'unit' => DeliveryContent::unit($prize['content_id'], $prize['amount']),
+                'equipment' => DeliveryContent::equipment($prize['content_id'], $prize['amount']),
+                default => throw BusinessLogicException::unsupportedContentType($prize['content_type']),
+            };
+        }
+
+        // 2. 一括配送
+        $results = $this->deliveryService->delivers($sysPlayerId, $deliveryContents);
+
+        // 3. 結果を返す
+        return array_map(fn($result) => [
+            'content_type' => $result->contentType,
+            'content_id' => $result->contentId,
+            'amount' => $result->amount,
+        ], $results);
+    }
+}
+```
+
+**5. 新しいコンテンツタイプのHandler追加手順:**
+
+新しいコンテンツタイプ（例: `costume`）を追加する場合：
+
+```php
+// 1. Handlerを作成
+class CostumeDeliveryHandler implements DeliveryHandlerInterface
+{
+    public function supports(string $contentType): bool
+    {
+        return $contentType === 'costume';
+    }
+
+    public function handle(int $sysPlayerId, DeliveryContent $content): DeliveryResult
+    {
+        // 実装...
+    }
+}
+
+// 2. DeliveryServiceに登録（AppServiceProvider.php）
+$this->app->bind(DeliveryManagerInterface::class, function ($app) {
+    return new DeliveryManager([
+        $app->make(ItemDeliveryHandler::class),
+        $app->make(UnitDeliveryHandler::class),
+        $app->make(EquipmentDeliveryHandler::class),
+        $app->make(DiamondDeliveryHandler::class),
+        $app->make(WalletDeliveryHandler::class),
+        $app->make(CostumeDeliveryHandler::class),  // ← 追加
+    ]);
+});
+
+// 3. DeliveryContent にファクトリメソッド追加
+public static function costume(string $costumeId, int $amount): self
+{
+    return new self('costume', $costumeId, $amount);
+}
+```
+
+**設計の利点:**
+- **Open/Closed Principle**: 既存コードを変更せずに新しいコンテンツタイプを追加可能
+- **Single Responsibility**: 各Handlerが1つのコンテンツタイプのみを担当
+- **Testability**: Handlerを個別にユニットテスト可能
+- **Maintainability**: 配布ロジックが一箇所に集約されている
+
+**注意事項:**
+1. **直接Repository呼び出しは禁止**: Service層では`TrxItemRepository::addItem()`を直接呼ばず、必ず`DeliveryService::deliver()`経由で実装
+2. **サポート対象の確認**: ガチャでは`item`, `unit`, `equipment`のみサポート（`diamond`と`wallet`は非対応）
+3. **トランザクション内で使用**: DeliveryServiceはトランザクション内で呼び出すこと（QueryManagerにキューイングされる）
+
+#### 4. テスト用のMstキャッシュクリア機構
+
+**統合テストでマスターデータを動的に作成する場合、Mstリポジトリのキャッシュをクリアする必要があります。**
+
+**問題:**
+- `_BaseMstRepository`は初回アクセス時に全データをRedis/メモリにキャッシュする
+- テストのsetUp()でマスターデータを作成しても、リポジトリが先にインスタンス化されるとキャッシュが空になる
+
+**解決策:**
+
+**1. _BaseMstRepositoryにキャッシュクリア機構を追加:**
+
+```php
+abstract class _BaseMstRepository extends _BaseRepository
+{
+    /**
+     * キャッシュをクリアする（テスト用）
+     * Redisキャッシュとメモリキャッシュの両方をクリアする
+     */
+    public function clearCache(): void
+    {
+        // メモリキャッシュをクリア
+        $this->models = null;
+
+        // Redisキャッシュをクリア
+        $modelInstance = new $this->modelClass;
+        $tableName = $modelInstance->getTable();
+        $cacheKey = "{$this->cachePrefix}:{$tableName}:all";
+        
+        Cache::store($this->cacheDriver)->forget($cacheKey);
+    }
+
+    /**
+     * 全てのMstリポジトリのキャッシュをクリアする（テスト用静的メソッド）
+     */
+    public static function clearAllCaches(): void
+    {
+        // Redisキャッシュ全体をクリア（mst:*のパターンで削除）
+        Cache::store('redis')->flush();
+    }
+}
+```
+
+**2. TestCaseにrefreshMstCache()メソッドを追加:**
+
+```php
+abstract class TestCase extends BaseTestCase
+{
+    /**
+     * Mstリポジトリのキャッシュをクリアする
+     * テストでマスターデータを作成した後に呼び出すことで、
+     * リポジトリが新しいデータを読み込むようにする
+     */
+    protected function refreshMstCache(): void
+    {
+        _BaseMstRepository::clearAllCaches();
+    }
+}
+```
+
+**3. 統合テストでの使用例:**
+
+```php
+class GachaDrawTest extends TestCase
+{
+    protected function setUp(): void
+    {
+        parent::setUp();
+        
+        // マスターデータを作成
+        $this->createGachaMasterData();
+        
+        // Mstリポジトリのキャッシュをクリアして、新しく作成したデータを読み込ませる
+        $this->refreshMstCache();
+    }
+
+    private function createGachaMasterData(): void
+    {
+        MstGacha::create([...]);
+        MstGachaPrize::create([...]);
+        // ...
+    }
+
+    public function test_gacha_draw_works(): void
+    {
+        // ガチャ実行テスト
+        // Mstリポジトリが正しくマスターデータを読み込む
+    }
+}
+```
+
+**設計の利点:**
+- **テストの独立性**: 各テストで異なるマスターデータを使用可能
+- **シンプルなAPI**: `refreshMstCache()`を呼ぶだけでOK
+- **本番環境への影響なし**: テスト専用メソッドとして明示
+
+**注意事項:**
+1. **本番環境では使用しない**: `clearCache()`と`clearAllCaches()`はテスト専用
+2. **Database Seederとの併用**: 大量のマスターデータはSeederで事前投入し、テスト固有データのみ動的作成を推奨
+3. **パフォーマンス**: Redisキャッシュのflush()は全キーを削除するため、テスト間で共有データがある場合は個別の`clearCache()`を使用
+
 ### Infrastructure Layer（インフラストラクチャ層）
 
 **責務:**

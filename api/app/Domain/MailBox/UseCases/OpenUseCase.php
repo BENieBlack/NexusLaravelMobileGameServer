@@ -2,20 +2,19 @@
 
 namespace App\Domain\Mailbox\UseCases;
 
+use App\Domain\_BaseUseCase;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Http\Responses\Mailbox\OpenResponse;
 use App\Repositories\Trx\TrxMailboxRepository;
-use App\Traits\UseCaseTrait;
 
 /**
  * OpenUseCase
  *
  * メール既読処理
  */
-class OpenUseCase
+class OpenUseCase extends _BaseUseCase
 {
-    use UseCaseTrait;
 
     public function __construct(
         private TrxMailboxRepository $trxMailboxRepository,

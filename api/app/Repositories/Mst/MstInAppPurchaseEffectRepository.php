@@ -9,6 +9,8 @@ use Illuminate\Support\Collection;
  * MstInAppPurchaseEffectRepository
  *
  * アプリ内課金商品効果マスターのRepository
+ * 
+ * @extends _BaseMstRepository<MstInAppPurchaseEffect>
  */
 class MstInAppPurchaseEffectRepository extends _BaseMstRepository
 {

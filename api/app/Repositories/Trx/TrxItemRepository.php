@@ -9,6 +9,8 @@ use App\Models\Trx\TrxItem;
  *
  * アイテム管理Repository
  * データアクセスのみを担当し、ビジネスロジックはServiceに委譲
+ * 
+ * @extends _BaseTrxRepository<TrxItem>
  */
 class TrxItemRepository extends _BaseTrxRepository
 {

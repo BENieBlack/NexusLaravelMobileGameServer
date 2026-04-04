@@ -7,41 +7,125 @@ namespace App\Domain;
  * 
  * すべてのUseCaseが実装すべきインターフェース
  * 
- * ## 必須メソッド
+ * ## 設計理念
  * 
- * ### handle()
- * ユースケースのメイン処理
- * - 各UseCaseで独自のシグネチャを定義
- * - 戻り値の型も自由に設定可能
+ * このインターフェースは最小限の制約のみを定義し、各UseCaseの柔軟性を保ちます。
  * 
- * ### validation()（推奨・規約ベース）
- * ビジネスロジック実行前のバリデーション
- * - handle()実行前に呼び出すことを推奨
- * - 各UseCaseで適切な型定義を行うこと
- * - バリデーション不要な場合は実装しなくても良い
+ * ### handle()メソッド
+ * - **必須**: すべてのUseCaseで実装
+ * - **シグネチャ**: 各UseCaseで独自に定義可能
+ * - **戻り値**: 任意の型（Response、DTO、配列など）
+ * - **責務**: ユースケースのメインロジックを実行
  * 
- * #### validation()の実装例
+ * ### validation()メソッド
+ * - **推奨**: 実装を推奨するが強制ではない
+ * - **シグネチャ**: 各UseCaseで独自に定義可能
+ * - **戻り値**: void（例外をスローして失敗を通知）
+ * - **責務**: ビジネスロジック実行前の事前検証
+ * 
+ * ## 実装例
+ * 
+ * ### 基本的な実装
  * ```php
- * public function validation(int $sysPlayerId, int $trxUnitId, string $mstItemId, int $useCount): void
+ * class SomeUseCase extends _BaseUseCase
  * {
- *     // ユニットの存在確認
- *     // アイテムの所持数確認
- *     // etc...
+ *     public function handle(int $playerId, string $param): SomeResponse
+ *     {
+ *         return $this->executeWithTransaction(function () use ($playerId, $param) {
+ *             // ビジネスロジック
+ *             return new SomeResponse(...);
+ *         });
+ *     }
  * }
  * ```
  * 
- * ## 設計理念
+ * ### validationありの実装
+ * ```php
+ * class LevelUpUseCase extends _BaseUseCase
+ * {
+ *     public function validation(int $playerId, int $unitId, int $itemCount): void
+ *     {
+ *         // エンティティの存在確認
+ *         $unit = $this->unitRepository->selectById($unitId);
+ *         if (!$unit) {
+ *             throw new NotFoundException("Unit not found");
+ *         }
+ *         
+ *         // 権限チェック
+ *         if ($unit->getSysPlayerId() !== $playerId) {
+ *             throw new UnauthorizedException("Unit does not belong to player");
+ *         }
+ *         
+ *         // ビジネスルール検証
+ *         if ($itemCount < 1) {
+ *             throw new ValidationException("Item count must be positive");
+ *         }
+ *     }
+ *     
+ *     public function handle(int $playerId, int $unitId, int $itemCount): LevelUpResponse
+ *     {
+ *         // まずバリデーション
+ *         $this->validation($playerId, $unitId, $itemCount);
+ *         
+ *         return $this->executeWithTransaction(function () use ($playerId, $unitId, $itemCount) {
+ *             // ビジネスロジック
+ *             return new LevelUpResponse(...);
+ *         });
+ *     }
+ * }
+ * ```
  * 
- * このインターフェースは最小限の制約のみを定義します。
- * - 各UseCaseの柔軟性を保つため、メソッドシグネチャは強制しない
- * - validation()は規約として推奨するが、型安全性のため強制しない
- * - ドキュメントとコードレビューで品質を担保する
+ * ### 読み取り専用の実装（トランザクション不要）
+ * ```php
+ * class ListUseCase extends _BaseUseCase
+ * {
+ *     public function handle(int $playerId): ListResponse
+ *     {
+ *         // トランザクション不要な読み取り処理
+ *         $items = $this->repository->getList($playerId);
+ *         return new ListResponse($items);
+ *     }
+ * }
+ * ```
+ * 
+ * ## ベストプラクティス
+ * 
+ * 1. **handle()メソッドは明確なシグネチャを持つ**
+ *    - パラメータの型と戻り値の型を明示
+ *    - PHPDocで例外を文書化
+ * 
+ * 2. **validation()は事前検証に使用**
+ *    - データベースアクセスの最小化
+ *    - handle()の最初に呼び出す
+ *    - 失敗時は例外をスロー
+ * 
+ * 3. **トランザクション管理は適切に**
+ *    - 更新系処理: executeWithTransaction()を使用
+ *    - 読み取り専用: トランザクション不要
+ * 
+ * 4. **レスポンスオブジェクトを返す**
+ *    - 専用のResponseクラスを作成
+ *    - コントローラーとの責務分離
  */
 interface _BaseUseCaseInterface
 {
-    // 各UseCaseは独自のhandle()メソッドを実装する
-    // public function handle(...): mixed;
+    /**
+     * ユースケースのメイン処理
+     * 
+     * 各UseCaseで独自のシグネチャを定義してください。
+     * 
+     * @return mixed レスポンスオブジェクトやDTOなど
+     */
+    // public function handle(...$args): mixed;
     
-    // 各UseCaseは独自のvalidation()メソッドを実装することを推奨
-    // public function validation(...): void;
+    /**
+     * バリデーション処理（オプション）
+     * 
+     * ビジネスロジック実行前の事前検証を行います。
+     * 実装は任意ですが、複雑なビジネスロジックの場合は推奨します。
+     * 
+     * @return void
+     * @throws \Exception バリデーション失敗時
+     */
+    // public function validation(...$args): void;
 }

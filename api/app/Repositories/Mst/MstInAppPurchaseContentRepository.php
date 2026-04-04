@@ -9,6 +9,8 @@ use Illuminate\Support\Collection;
  * MstInAppPurchaseContentRepository
  *
  * アプリ内課金商品コンテンツマスターのRepository
+ * 
+ * @extends _BaseMstRepository<MstInAppPurchaseContent>
  */
 class MstInAppPurchaseContentRepository extends _BaseMstRepository
 {

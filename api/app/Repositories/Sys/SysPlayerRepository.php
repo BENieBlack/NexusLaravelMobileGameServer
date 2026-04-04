@@ -3,13 +3,15 @@
 namespace App\Repositories\Sys;
 
 use App\Models\Sys\SysPlayer;
-use App\Repositories\QueryManager;
+use App\Persistence\QueryManager;
 use Illuminate\Support\Str;
 
 /**
  * SysPlayerRepository
  *
  * プレイヤー情報のRepository実装
+ * 
+ * @extends _BaseSysRepository<SysPlayer>
  */
 class SysPlayerRepository extends _BaseSysRepository
 {

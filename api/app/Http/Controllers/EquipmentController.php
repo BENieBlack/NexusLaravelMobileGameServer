@@ -7,7 +7,7 @@ use App\Exceptions\GameException;
 use App\Exceptions\GameErrorCode;
 use App\Http\Requests\Equipment\LevelUpRequest;
 use App\Http\Responses\Equipment\LevelUpResponse;
-use App\Utilities\ApiSession;
+use App\Persistence\ApiSession;
 use Illuminate\Http\JsonResponse;
 
 /**

@@ -5,7 +5,7 @@ namespace App\Domain\InAppPurchase\Services;
 use App\Models\Mst\MstInAppPurchase;
 use App\Models\Trx\TrxInAppPurchaseEffect;
 use App\Repositories\Trx\TrxInAppPurchaseEffectRepository;
-use App\Utilities\ApiSession;
+use App\Persistence\ApiSession;
 use App\Utilities\Clock;
 use Illuminate\Support\Collection;
 

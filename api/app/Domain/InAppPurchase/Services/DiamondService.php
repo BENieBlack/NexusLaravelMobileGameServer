@@ -9,7 +9,7 @@ use App\Models\Trx\TrxInAppPurchase;
 use App\Repositories\Trx\TrxDiamondBalanceRepository;
 use App\Repositories\Trx\TrxDiamondRepository;
 use App\Repositories\Trx\TrxInAppPurchaseRepository;
-use App\Utilities\ApiSession;
+use App\Persistence\ApiSession;
 use Carbon\CarbonImmutable;
 
 /**
@@ -132,6 +132,89 @@ class DiamondService
 
         // setModelで内部キューに溜め込む
         $this->trxDiamondRepository->setModel($diamond);
+    }
+
+    /**
+     * ダイヤモンドを消費（無償 → 有償の順で消費、またはは有償のみ）
+     * 
+     * @param int $sysPlayerId プレイヤーID
+     * @param int $amount 消費する数量
+     * @param bool $isPaidOnly 有償ダイヤのみを消費するか（falseの場合は無償→有償の順）
+     * @return void
+     * @throws \Exception 残高不足の場合
+     */
+    public function consumeDiamond(int $sysPlayerId, int $amount, bool $isPaidOnly = false): void
+    {
+        // プラットフォームを取得（ApiSessionから、またはデフォルト）
+        // ここでは簡易的に全プラットフォームの合計残高から消費する実装にします
+        $diamonds = TrxDiamond::where('sys_player_id', $sysPlayerId)
+            ->where('is_delete', false)
+            ->get();
+
+        if ($diamonds->isEmpty()) {
+            throw new \Exception("ダイヤモンド残高が不足しています。必要: {$amount}, 現在: 0");
+        }
+
+        // 合計残高を計算
+        $totalFree = $diamonds->sum('free_amount');
+        $totalPaid = $diamonds->sum('paid_amount');
+
+        if ($isPaidOnly) {
+            // 有償ダイヤのみ消費
+            if ($totalPaid < $amount) {
+                throw new \Exception("有償ダイヤモンド残高が不足しています。必要: {$amount}, 現在: {$totalPaid}");
+            }
+
+            // 有償ダイヤから消費
+            $remaining = $amount;
+            foreach ($diamonds as $diamond) {
+                if ($remaining <= 0) break;
+
+                $paidAmount = $diamond->getPaidAmount();
+                if ($paidAmount <= 0) continue;
+
+                $consume = min($paidAmount, $remaining);
+                $diamond->setPaidAmount($paidAmount - $consume);
+                $this->trxDiamondRepository->setModel($diamond);
+                $remaining -= $consume;
+            }
+        } else {
+            // 無償 → 有償の順で消費
+            if ($totalFree + $totalPaid < $amount) {
+                $total = $totalFree + $totalPaid;
+                throw new \Exception("ダイヤモンド残高が不足しています。必要: {$amount}, 現在: {$total}");
+            }
+
+            $remaining = $amount;
+
+            // まず無償ダイヤから消費
+            foreach ($diamonds as $diamond) {
+                if ($remaining <= 0) break;
+
+                $freeAmount = $diamond->getFreeAmount();
+                if ($freeAmount <= 0) continue;
+
+                $consume = min($freeAmount, $remaining);
+                $diamond->setFreeAmount($freeAmount - $consume);
+                $this->trxDiamondRepository->setModel($diamond);
+                $remaining -= $consume;
+            }
+
+            // 無償ダイヤで足りない場合は有償ダイヤから消費
+            if ($remaining > 0) {
+                foreach ($diamonds as $diamond) {
+                    if ($remaining <= 0) break;
+
+                    $paidAmount = $diamond->getPaidAmount();
+                    if ($paidAmount <= 0) continue;
+
+                    $consume = min($paidAmount, $remaining);
+                    $diamond->setPaidAmount($paidAmount - $consume);
+                    $this->trxDiamondRepository->setModel($diamond);
+                    $remaining -= $consume;
+                }
+            }
+        }
     }
 
     /**

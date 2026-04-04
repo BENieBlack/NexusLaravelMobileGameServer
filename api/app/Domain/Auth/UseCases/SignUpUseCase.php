@@ -2,12 +2,11 @@
 
 namespace App\Domain\Auth\UseCases;
 
-use App\Domain\_BaseUseCaseInterface;
+use App\Domain\_BaseUseCase;
 use App\Domain\Auth\Services\PlayerService;
 use App\Domain\Auth\Services\TokenService;
 use App\Exceptions\BusinessLogicException;
 use App\Http\Responses\Auth\SignUpResponse;
-use App\Traits\UseCaseTrait;
 
 /**
  * SignUpUseCase
@@ -16,9 +15,8 @@ use App\Traits\UseCaseTrait;
  * 新規プレイヤー作成とトークン発行を行う
  * 既存デバイスIDの場合はエラーを返す
  */
-class SignUpUseCase implements _BaseUseCaseInterface
+class SignUpUseCase extends _BaseUseCase
 {
-    use UseCaseTrait;
 
     public function __construct(
         private readonly PlayerService $playerService,

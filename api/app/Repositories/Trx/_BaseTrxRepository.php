@@ -3,9 +3,10 @@
 namespace App\Repositories\Trx;
 
 use App\Models\Trx\_BaseTrx;
+use App\Models\Trx\_BaseTrxInterface;
 use App\Repositories\_BaseRepository;
-use App\Repositories\QueryManager;
-use App\Utilities\ApiSession;
+use App\Persistence\QueryManager;
+use App\Persistence\ApiSession;
 use App\Utilities\Clock;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Collection;
@@ -17,6 +18,9 @@ use Illuminate\Support\Facades\DB;
  * Trxデータベース用のRepository基底クラス
  * ユニークキーで管理し、同じキーのモデルは上書き（最終状態を保持）
  * プレイヤーIDはApiSessionから自動的に取得される
+ * 
+ * @template T of _BaseTrxInterface
+ * @implements _BaseTrxRepositoryInterface<T>
  */
 abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRepositoryInterface
 {
@@ -100,7 +104,7 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
      * キャッシュがあればキャッシュを返す
      * プレイヤーIDはApiSessionから自動的に取得される
      *
-     * @return Collection<string, _BaseTrx>
+     * @return Collection<string, T>
      * @throws \RuntimeException プレイヤーIDが取得できない場合
      */
     public function queryOrMemory(): Collection
@@ -133,7 +137,7 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
      * ユニークキーでkeyByされたCollectionを返す
      *
      * @param int $sysPlayerId
-     * @return Collection<string, _BaseTrx>
+     * @return Collection<string, T>
      */
     public function getMapBySysPlayerId(int $sysPlayerId): Collection
     {
@@ -149,7 +153,7 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
      * 値のみの配列を返す
      *
      * @param int $sysPlayerId
-     * @return array<_BaseTrx>
+     * @return array<T>
      */
     public function getBySysPlayerId(int $sysPlayerId): array
     {

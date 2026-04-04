@@ -3,7 +3,7 @@
 namespace App\Repositories\Trx;
 
 use App\Models\Trx\TrxDiamond;
-use App\Utilities\ApiSession;
+use App\Persistence\ApiSession;
 
 /**
  * TrxDiamondRepository
@@ -11,6 +11,8 @@ use App\Utilities\ApiSession;
  * ダイヤモンド現在値管理Repository
  * 複合主キー: (sys_player_id, platform)
  * データアクセスのみを担当し、ビジネスロジックはServiceに委譲
+ * 
+ * @extends _BaseTrxRepository<TrxDiamond>
  */
 class TrxDiamondRepository extends _BaseTrxRepository
 {

@@ -11,7 +11,7 @@ use App\Http\Requests\Mailbox\ReceiveRequest;
 use App\Http\Responses\Mailbox\ListResponse;
 use App\Http\Responses\Mailbox\OpenResponse;
 use App\Http\Responses\Mailbox\ReceiveResponse;
-use App\Utilities\ApiSession;
+use App\Persistence\ApiSession;
 
 /**
  * MailboxController

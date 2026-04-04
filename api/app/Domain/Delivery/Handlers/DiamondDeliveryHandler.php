@@ -26,7 +26,7 @@ class DiamondDeliveryHandler implements _BaseDeliveryHandlerInterface
     /**
      * ダイヤモンド配送処理を実行
      * 
-     * @param int $sysPlayerId プレイヤーID（後方互換性のため保持、ApiSessionから自動取得）
+     * @param int $sysPlayerId プレイヤーID
      * @param DeliveryContent $content 配送コンテンツ
      * @return void
      * @throws \Exception 配送失敗時
@@ -34,13 +34,14 @@ class DiamondDeliveryHandler implements _BaseDeliveryHandlerInterface
     public function handle(int $sysPlayerId, DeliveryContent $content): void
     {
         // metadataからplatformとis_paidを取得
-        $platform = $content->metadata['platform'] ?? 'Apple'; // デフォルトはApple
-        $isPaid = $content->metadata['is_paid'] ?? false; // デフォルトは無償
+        $metadata = $content->getMetadata();
+        $platform = $metadata['platform'] ?? 'Apple'; // デフォルトはApple
+        $isPaid = $metadata['is_paid'] ?? false; // デフォルトは無償
 
         // ダイヤモンドを加算
         $this->diamondService->addDiamond(
             $platform,
-            $content->amount,
+            $content->getAmount(),
             $isPaid
         );
     }

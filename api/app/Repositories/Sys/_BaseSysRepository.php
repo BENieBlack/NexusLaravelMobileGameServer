@@ -2,8 +2,9 @@
 
 namespace App\Repositories\Sys;
 
+use App\Models\Sys\_BaseSysInterface;
 use App\Repositories\_BaseRepository;
-use App\Repositories\QueryManager;
+use App\Persistence\QueryManager;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -13,6 +14,9 @@ use Illuminate\Support\Facades\Cache;
  * 
  * Sysデータベースのリポジトリ基底クラス
  * キャッシュ機能を含む共通のCRUD操作を実装
+ * 
+ * @template T of _BaseSysInterface
+ * @implements _BaseSysRepositoryInterface<T>
  */
 abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRepositoryInterface
 {
@@ -137,7 +141,7 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
      * データベースまたはメモリからデータを取得
      * メモリキャッシュのみ使用（特定のRepositoryでRedisを使う場合はオーバーライド）
      * 
-     * @return Collection<int|string, Model>
+     * @return Collection<int|string, T>
      */
     public function queryOrMemory(): Collection
     {
@@ -156,9 +160,9 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
      * メモリキャッシュから取得、なければDBから取得
      *
      * @param int $sysRecordId
-     * @return Model|null
+     * @return T|null
      */
-    public function selectById(int $sysRecordId): ?Model
+    public function selectById(int $sysRecordId)
     {
         // メモリキャッシュから取得を試みる
         $model = $this->getModel($sysRecordId);

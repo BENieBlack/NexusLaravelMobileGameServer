@@ -22,7 +22,7 @@ class ItemDeliveryHandler implements _BaseDeliveryHandlerInterface
     /**
      * アイテム配送処理を実行
      * 
-     * @param int $sysPlayerId プレイヤーID（後方互換性のため保持、ApiSessionから自動取得）
+     * @param int $sysPlayerId プレイヤーID
      * @param DeliveryContent $content 配送コンテンツ
      * @return void
      * @throws \Exception 配送失敗時
@@ -30,7 +30,7 @@ class ItemDeliveryHandler implements _BaseDeliveryHandlerInterface
     public function handle(int $sysPlayerId, DeliveryContent $content): void
     {
         // ItemServiceのaddItemメソッドを使用（既存の場合は加算、新規の場合は作成）
-        $this->itemService->addItem($content->id, $content->amount);
+        $this->itemService->addItem($sysPlayerId, $content->getId(), $content->getAmount());
     }
 
     /**

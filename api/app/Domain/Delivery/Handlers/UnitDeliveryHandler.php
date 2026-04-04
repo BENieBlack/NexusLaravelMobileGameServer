@@ -22,7 +22,7 @@ class UnitDeliveryHandler implements _BaseDeliveryHandlerInterface
     /**
      * ユニット配送処理を実行
      * 
-     * @param int $sysPlayerId プレイヤーID（後方互換性のため保持、ApiSessionから自動取得）
+     * @param int $sysPlayerId プレイヤーID
      * @param DeliveryContent $content 配送コンテンツ
      * @return void
      * @throws \Exception 配送失敗時
@@ -30,13 +30,14 @@ class UnitDeliveryHandler implements _BaseDeliveryHandlerInterface
     public function handle(int $sysPlayerId, DeliveryContent $content): void
     {
         // metadataからgradeとlevelを取得（指定がない場合はnull = デフォルト値を使用）
-        $grade = $content->metadata['grade'] ?? null;
-        $level = $content->metadata['level'] ?? null;
+        $metadata = $content->getMetadata();
+        $grade = $metadata['grade'] ?? null;
+        $level = $metadata['level'] ?? null;
 
         // 指定された数量分のユニットを作成
-        for ($i = 0; $i < $content->amount; $i++) {
+        for ($i = 0; $i < $content->getAmount(); $i++) {
             $this->trxUnitRepository->createUnit(
-                $content->id,
+                $content->getId(),
                 $grade,
                 $level
             );

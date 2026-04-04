@@ -2,11 +2,11 @@
 
 namespace App\Domain\Auth\UseCases;
 
-use App\Domain\_BaseUseCaseInterface;
+use App\Domain\_BaseUseCase;
 use App\Domain\Auth\Services\VersionService;
 use App\Http\Responses\Auth\VersionResponse;
 
-class VersionUseCase implements _BaseUseCaseInterface
+class VersionUseCase extends _BaseUseCase
 {
     public function __construct(
         private readonly VersionService $versionService

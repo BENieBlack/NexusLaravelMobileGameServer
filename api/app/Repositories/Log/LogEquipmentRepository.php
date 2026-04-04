@@ -10,6 +10,8 @@ use App\Utilities\Clock;
  *
  * 装備のログを管理するRepository
  * 通常のログなので isPurchaseLog = false（デフォルト）
+ * 
+ * @extends _BaseLogRepository<LogEquipment>
  */
 class LogEquipmentRepository extends _BaseLogRepository
 {

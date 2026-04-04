@@ -3,7 +3,7 @@
 namespace App\Repositories\Trx;
 
 use App\Models\Trx\TrxWalletBalance;
-use App\Utilities\ApiSession;
+use App\Persistence\ApiSession;
 use Illuminate\Support\Collection;
 
 /**
@@ -15,6 +15,8 @@ use Illuminate\Support\Collection;
  * FIFO優先順位:
  * 1. expire_at ASC (有効期限が近いものから、NULLは最後)
  * 2. id ASC (古い取得から)
+ * 
+ * @extends _BaseTrxRepository<TrxWalletBalance>
  */
 class TrxWalletBalanceRepository extends _BaseTrxRepository
 {

@@ -9,6 +9,8 @@ use Illuminate\Support\Collection;
  * SysPlayerTokenRepository
  *
  * プレイヤートークン情報のRepository実装
+ * 
+ * @extends _BaseSysRepository<SysPlayerToken>
  */
 class SysPlayerTokenRepository extends _BaseSysRepository
 {

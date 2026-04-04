@@ -10,6 +10,8 @@ use Illuminate\Support\Collection;
  *
  * Pass課金効果の管理を行うリポジトリ
  * データアクセスのみを担当し、ビジネスロジックはServiceに委譲
+ * 
+ * @extends _BaseTrxRepository<TrxInAppPurchaseEffect>
  */
 class TrxInAppPurchaseEffectRepository extends _BaseTrxRepository
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repositories\QueryManager;
+namespace App\Persistence\QueryManager;
 
 use App\Repositories\_BaseRepository;
 use App\Repositories\Log\_BaseLogRepository;

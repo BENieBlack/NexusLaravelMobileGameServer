@@ -3,13 +3,15 @@
 namespace App\Repositories\Trx;
 
 use App\Models\Trx\TrxInAppPurchase;
-use App\Utilities\ApiSession;
+use App\Persistence\ApiSession;
 
 /**
  * TrxInAppPurchaseRepository
  *
  * 課金購入履歴管理Repository
  * 複合主キー: (sys_player_id, mst_in_app_purchase_id)
+ * 
+ * @extends _BaseTrxRepository<TrxInAppPurchase>
  */
 class TrxInAppPurchaseRepository extends _BaseTrxRepository
 {

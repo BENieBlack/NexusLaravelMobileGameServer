@@ -5,7 +5,6 @@ namespace App\Domain\Friend\UseCases;
 use App\Domain\_BaseUseCase;
 use App\Http\Responses\Friend\ApplyListResponse;
 use App\Repositories\Sys\SysFriendApplyRepository;
-use App\Traits\UseCaseTrait;
 
 /**
  * ApplyListUseCase
@@ -14,7 +13,6 @@ use App\Traits\UseCaseTrait;
  */
 class ApplyListUseCase extends _BaseUseCase
 {
-    use UseCaseTrait;
 
     public function __construct(
         private readonly SysFriendApplyRepository $sysFriendApplyRepository,

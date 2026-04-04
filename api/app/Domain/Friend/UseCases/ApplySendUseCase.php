@@ -9,7 +9,6 @@ use App\Http\Responses\Friend\ApplySendResponse;
 use App\Models\Sys\SysFriendApply;
 use App\Repositories\Sys\SysFriendApplyRepository;
 use App\Repositories\Sys\SysPlayerRepository;
-use App\Traits\UseCaseTrait;
 
 /**
  * ApplySendUseCase
@@ -18,7 +17,6 @@ use App\Traits\UseCaseTrait;
  */
 class ApplySendUseCase extends _BaseUseCase
 {
-    use UseCaseTrait;
 
     public function __construct(
         private readonly SysFriendApplyRepository $sysFriendApplyRepository,

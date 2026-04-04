@@ -3,7 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Domain\Auth\Services\TokenService;
-use App\Utilities\ApiSession;
+use App\Persistence\ApiSession;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;

@@ -8,12 +8,12 @@ use App\Exceptions\GameErrorCode;
 use App\Models\Sys\SysPlayerToken;
 
 /**
- * RequiresRefreshToken
+ * RequiresRefreshTokenTrait
  * 
  * リフレッシュトークンの検証が必要なUseCaseで使用するTrait
  * リフレッシュトークンの検証処理を共通化
  */
-trait RequiresRefreshToken
+trait RequiresRefreshTokenTrait
 {
     /**
      * リフレッシュトークンを検証して取得（無効な場合は例外）

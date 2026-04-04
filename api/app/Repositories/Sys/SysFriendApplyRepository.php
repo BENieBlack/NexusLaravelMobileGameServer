@@ -8,6 +8,8 @@ use App\Models\Sys\SysFriendApply;
  * SysFriendApplyRepository
  * 
  * フレンド申請情報のRepository実装
+ * 
+ * @extends _BaseSysRepository<SysFriendApply>
  */
 class SysFriendApplyRepository extends _BaseSysRepository
 {

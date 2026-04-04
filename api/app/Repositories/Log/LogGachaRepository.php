@@ -10,6 +10,8 @@ use Illuminate\Support\Collection;
  * LogGachaRepository
  *
  * ガチャログを管理するRepository
+ * 
+ * @extends _BaseLogRepository<LogGacha>
  */
 class LogGachaRepository extends _BaseLogRepository
 {

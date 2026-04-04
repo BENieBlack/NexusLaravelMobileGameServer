@@ -3,6 +3,7 @@
 namespace App\Repositories\Mst;
 
 use App\Models\Mst\_BaseMst;
+use App\Models\Mst\_BaseMstInterface;
 use App\Repositories\_BaseRepository;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -12,6 +13,9 @@ use Illuminate\Support\Facades\Cache;
  *
  * マスターデータのRepository基底クラス
  * キャッシュ機能を含む読み取り専用操作を提供
+ * 
+ * @template T of _BaseMstInterface
+ * @implements _BaseMstRepositoryInterface<T>
  */
 abstract class _BaseMstRepository extends _BaseRepository implements _BaseMstRepositoryInterface
 {
@@ -34,7 +38,7 @@ abstract class _BaseMstRepository extends _BaseRepository implements _BaseMstRep
      * データベースまたはメモリからデータを取得
      * キャッシュ（Redis）から取得、存在しない場合はDBから取得してキャッシュに保存
      * 
-     * @return Collection<int|string, _BaseMst>
+     * @return Collection<int|string, T>
      */
     public function queryOrMemory(): Collection
     {
@@ -65,9 +69,9 @@ abstract class _BaseMstRepository extends _BaseRepository implements _BaseMstRep
      * メモリキャッシュから取得
      * 
      * @param int|string $mstRecordId
-     * @return _BaseMst|null
+     * @return T|null
      */
-    public function selectById($mstRecordId): ?_BaseMst
+    public function selectById($mstRecordId)
     {
         // 全データをメモリキャッシュにロード
         $this->queryOrMemory();
@@ -81,7 +85,7 @@ abstract class _BaseMstRepository extends _BaseRepository implements _BaseMstRep
      * メモリキャッシュから取得
      * 
      * @param array<int|string> $ids
-     * @return Collection<int|string, _BaseMst>
+     * @return Collection<int|string, T>
      */
     public function selectListByIds(array $ids): Collection
     {
@@ -117,5 +121,35 @@ abstract class _BaseMstRepository extends _BaseRepository implements _BaseMstRep
     protected function setModels(Collection $models): void
     {
         throw new \BadMethodCallException('setModels() is not supported in MstRepository. MstRepository is read-only.');
+    }
+
+    /**
+     * キャッシュをクリアする（テスト用）
+     * Redisキャッシュとメモリキャッシュの両方をクリアする
+     * 
+     * @return void
+     */
+    public function clearCache(): void
+    {
+        // メモリキャッシュをクリア
+        $this->models = null;
+
+        // Redisキャッシュをクリア
+        $modelInstance = new $this->modelClass;
+        $tableName = $modelInstance->getTable();
+        $cacheKey = "{$this->cachePrefix}:{$tableName}:all";
+        
+        Cache::store($this->cacheDriver)->forget($cacheKey);
+    }
+
+    /**
+     * 全てのMstリポジトリのキャッシュをクリアする（テスト用静的メソッド）
+     * 
+     * @return void
+     */
+    public static function clearAllCaches(): void
+    {
+        // Redisキャッシュ全体をクリア（mst:*のパターンで削除）
+        Cache::store('redis')->flush();
     }
 }

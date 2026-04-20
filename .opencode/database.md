@@ -2167,3 +2167,150 @@ foreach ($balances as $balance) {
 - [ ] `unit_price`を使用して正確な金額を算出
 - [ ] 返金後、残高を0に更新（レコードは削除しない）
 - [ ] trx_diamondの現在値も更新
+
+---
+
+## マスター・ディテールパターンのENUM型定義
+
+### 概要
+
+マスター・ディテール関係（親子関係）を持つテーブルにおいて、子テーブルのENUM型カラムは、システム全体で使用されている標準的な型定義（DeliveryConst等）に合わせる必要があります。
+
+### 重要な原則
+
+**子テーブルのENUM値は、システムの標準定義と一致させる**
+
+- マスターデータテーブル（mst）のENUM値は、配送システム（DeliveryConst）などの標準定数と一致させる
+- トランザクションテーブル（trx）のログテーブルでも同様
+- 大文字小文字の表記も完全に一致させる
+
+### 具体例：ログインボーナステーブル
+
+#### ❌ 誤った実装例
+
+```php
+// マスターテーブル: mst_login_bonus_content
+Schema::connection('mst')->create('mst_login_bonus_content', function (Blueprint $table) {
+    $table->enum('content_type', ['Item', 'Unit', 'Equipment', 'Diamond', 'Currency'])
+        ->comment('コンテンツタイプ');
+    // ↑ 大文字始まりで定義
+});
+
+// ログテーブル: trx_login_bonus_history
+Schema::connection('trx1')->create('trx_login_bonus_history', function (Blueprint $table) {
+    $table->enum('reward_type', ['Item', 'Unit', 'Equipment', 'Diamond', 'Currency'])
+        ->comment('報酬タイプ');
+    // ↑ 大文字始まりで定義
+});
+
+// 配送システムの定数定義
+class DeliveryConst
+{
+    public const CONTENT_TYPE_ITEM = 'item';      // ← 小文字！
+    public const CONTENT_TYPE_UNIT = 'unit';      // ← 小文字！
+    public const CONTENT_TYPE_EQUIPMENT = 'equipment';
+    public const CONTENT_TYPE_DIAMOND = 'diamond';
+    public const CONTENT_TYPE_WALLET = 'wallet';  // ← Currencyではない！
+}
+```
+
+**問題点:**
+1. ENUM値が大文字始まり（Item, Unit）だが、DeliveryConstは小文字（item, unit）
+2. ENUMに`Currency`があるが、DeliveryConstでは`wallet`を使用
+3. データ挿入時にENUM値の不一致エラーが発生
+
+#### ✅ 正しい実装例
+
+```php
+// マスターテーブル: mst_login_bonus_content
+Schema::connection('mst')->create('mst_login_bonus_content', function (Blueprint $table) {
+    $table->enum('content_type', ['item', 'unit', 'equipment', 'diamond', 'wallet'])
+        ->comment('コンテンツタイプ');
+    // ↑ DeliveryConstと完全一致（小文字、walletを使用）
+});
+
+// ログテーブル: trx_login_bonus_history
+Schema::connection('trx1')->create('trx_login_bonus_history', function (Blueprint $table) {
+    $table->enum('reward_type', ['item', 'unit', 'equipment', 'diamond', 'wallet'])
+        ->comment('報酬タイプ');
+    // ↑ DeliveryConstと完全一致
+});
+
+// 配送システムの定数定義（変更なし）
+class DeliveryConst
+{
+    public const CONTENT_TYPE_ITEM = 'item';
+    public const CONTENT_TYPE_UNIT = 'unit';
+    public const CONTENT_TYPE_EQUIPMENT = 'equipment';
+    public const CONTENT_TYPE_DIAMOND = 'diamond';
+    public const CONTENT_TYPE_WALLET = 'wallet';
+}
+```
+
+### 実装時のチェックリスト
+
+マスター・ディテールパターンでENUM型を使用する際は、以下を確認してください：
+
+**マイグレーション作成時:**
+- [ ] システムの標準定数（DeliveryConst等）を確認
+- [ ] ENUM値の大文字小文字が定数と完全一致しているか
+- [ ] ENUM値のラベル（Currency vs wallet等）が定数と一致しているか
+- [ ] 親テーブルと子テーブルでENUM値が統一されているか
+- [ ] ログテーブルでも同じENUM値を使用しているか
+
+**既存マイグレーションの修正時:**
+- [ ] 既存データがある場合は、データ移行スクリプトを作成
+- [ ] ロールバック処理も正しく実装されているか
+- [ ] テストデータで動作確認を行う
+
+### 命名規則の統一
+
+| 用途 | テーブル | カラム名 | ENUM値 |
+|------|---------|---------|--------|
+| コンテンツタイプ（汎用） | mst_*_content | `content_type` | `item`, `unit`, `equipment`, `diamond`, `wallet` |
+| 報酬タイプ（ログ） | log_* / trx_*_history | `reward_type` | `item`, `unit`, `equipment`, `diamond`, `wallet` |
+| 配送タイプ（配送システム） | - | - | DeliveryConst::CONTENT_TYPE_* |
+
+### 注意事項
+
+1. **ENUM値は常に小文字**
+   - LaravelのENUM型は大文字小文字を区別する
+   - システム全体で小文字に統一
+
+2. **Currency vs Wallet**
+   - 過去に`Currency`を使っていた可能性があるが、現在は`wallet`に統一
+   - 新規作成時は必ず`wallet`を使用
+
+3. **マイグレーションのロールバック**
+   - ENUM値を変更する場合、既存データの移行が必要
+   - ロールバック時も元の状態に戻せるように実装
+
+4. **複数データベースへの適用**
+   - trx1とtrx2など、複数のシャードに同じマイグレーションを適用する場合は、すべてで統一
+
+### 関連する標準定数
+
+システム内で標準として使用されている定数クラス：
+
+- `DeliveryConst`: 配送システムの型定義
+- その他の定数クラスがある場合は、同様に参照すること
+
+### トラブルシューティング
+
+**"Data truncated for column 'content_type' at row X" エラーが発生した場合:**
+
+1. ENUM定義を確認
+   ```sql
+   DESCRIBE mst_login_bonus_content;
+   ```
+
+2. 挿入しようとしている値を確認
+   ```php
+   // 'wallet'を挿入しようとしたが、ENUMに'Currency'しか定義されていない
+   ```
+
+3. マイグレーションを修正してロールバック・再実行
+   ```bash
+   php artisan migrate:rollback --step=1
+   php artisan migrate
+   ```

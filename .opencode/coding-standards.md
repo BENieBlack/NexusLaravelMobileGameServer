@@ -871,3 +871,190 @@ class RandomUtility
 - [命名規約](./naming-conventions.md) - クラスとディレクトリの命名規則
 - [API設計](./api.md) - APIエンドポイントの設計
 - [データベース設計](./database.md) - データベース層の設計
+
+---
+
+## 9. DTOとメタデータの活用
+
+### 原則: DTOで型安全なデータ受け渡し
+
+DTOは複数のサービス間でデータを受け渡す際に、型安全性と明示性を確保するために使用します。
+
+### DeliveryContentの実装例
+
+```php
+// ✅ Good: DTOを使った型安全なデータ受け渡し
+class DeliveryContent
+{
+    public function __construct(
+        public readonly string $type,
+        public readonly string $id,
+        public readonly int $amount,
+        public readonly array $metadata = [],
+        public readonly ?CarbonImmutable $expireAt = null,
+    ) {}
+
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    public function getId(): string
+    {
+        return $this->id;
+    }
+
+    public function getAmount(): int
+    {
+        return $this->amount;
+    }
+
+    public function getMetadata(): array
+    {
+        return $this->metadata;
+    }
+
+    public function getExpireAt(): ?CarbonImmutable
+    {
+        return $this->expireAt;
+    }
+}
+```
+
+### メタデータ（metadata）の活用
+
+メタデータは、オプショナルな情報を柔軟に追加するための配列です。
+
+#### ✅ 推奨される使用例
+
+```php
+// 有償フラグをメタデータとして設定
+$deliveryContent = new DeliveryContent(
+    type: DeliveryConst::CONTENT_TYPE_DIAMOND,
+    id: '1',
+    amount: 100,
+    metadata: ['is_paid' => true],  // 有償ダイアモンドフラグ
+);
+
+// Handlerでメタデータを参照
+class DiamondDeliveryHandler implements DeliveryHandlerInterface
+{
+    public function handle(int $sysPlayerId, DeliveryContent $content): void
+    {
+        $isPaid = $content->getMetadata()['is_paid'] ?? false;
+        
+        $freeAmount = $isPaid ? 0 : $content->getAmount();
+        $paidAmount = $isPaid ? $content->getAmount() : 0;
+        
+        $this->diamondService->addDiamond(
+            $sysPlayerId,
+            $freeAmount,
+            $paidAmount
+        );
+    }
+}
+```
+
+#### メタデータに含めるべき情報
+
+**✅ 含めるべき:**
+- 有償/無償フラグ（`is_paid`）
+- 有効期限（`expire_at`）※既にコンストラクタパラメータがある場合は不要
+- プラットフォーム固有情報（`platform`、`billing_platform`）
+- その他のオプショナルな属性
+
+**❌ 含めるべきでない:**
+- 必須パラメータ（typeやid、amountなど）
+- ビジネスロジックの計算結果（Handlerで計算すべき）
+
+### WalletとDiamondのHandler実装パターン
+
+#### WalletDeliveryHandler
+
+```php
+class WalletDeliveryHandler implements DeliveryHandlerInterface
+{
+    public function __construct(
+        private readonly WalletService $walletService,
+    ) {}
+
+    public function handle(int $sysPlayerId, DeliveryContent $content): void
+    {
+        // メタデータから有償フラグを取得
+        $isPaid = $content->getMetadata()['is_paid'] ?? false;
+        
+        // 有償/無償に分ける
+        $freeAmount = $isPaid ? 0 : $content->getAmount();
+        $paidAmount = $isPaid ? $content->getAmount() : 0;
+        
+        // WalletServiceを呼び出し
+        $this->walletService->addCurrency(
+            $sysPlayerId,
+            $content->getId(),      // mst_item_id
+            $freeAmount,
+            $paidAmount,
+            $content->getExpireAt() // 有効期限
+        );
+    }
+
+    public function supports(string $type): bool
+    {
+        return $type === DeliveryConst::CONTENT_TYPE_WALLET;
+    }
+}
+```
+
+#### DiamondDeliveryHandler
+
+```php
+class DiamondDeliveryHandler implements DeliveryHandlerInterface
+{
+    public function __construct(
+        private readonly DiamondService $diamondService,
+    ) {}
+
+    public function handle(int $sysPlayerId, DeliveryContent $content): void
+    {
+        // メタデータから必要な情報を取得
+        $isPaid = $content->getMetadata()['is_paid'] ?? false;
+        $platform = $content->getMetadata()['platform'] ?? 'Apple';
+        $billingPlatform = $content->getMetadata()['billing_platform'] ?? null;
+        
+        $freeAmount = $isPaid ? 0 : $content->getAmount();
+        $paidAmount = $isPaid ? $content->getAmount() : 0;
+        
+        $this->diamondService->addDiamond(
+            $sysPlayerId,
+            $platform,
+            $freeAmount,
+            $paidAmount,
+            $billingPlatform,
+            $content->getExpireAt()
+        );
+    }
+
+    public function supports(string $type): bool
+    {
+        return $type === DeliveryConst::CONTENT_TYPE_DIAMOND;
+    }
+}
+```
+
+### ルール
+
+**DTO設計:**
+- [ ] readonlyプロパティで不変性を保証
+- [ ] コンストラクタで必須パラメータを受け取る
+- [ ] metadataは配列型で柔軟性を確保
+- [ ] Getterメソッドを提供
+
+**メタデータ活用:**
+- [ ] オプショナルな情報のみをメタデータに格納
+- [ ] is_paidフラグは標準的なメタデータとして使用
+- [ ] デフォルト値を明示的に設定（`?? false`など）
+- [ ] Handlerでメタデータを参照してビジネスロジックを分岐
+
+**Handler実装:**
+- [ ] メタデータから情報を取り出し、Serviceに適切な形式で渡す
+- [ ] 有償/無償の分岐はHandlerで行う
+- [ ] サービスメソッドのシグネチャに合わせてパラメータを変換

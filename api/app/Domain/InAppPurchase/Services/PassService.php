@@ -108,7 +108,7 @@ class PassService
      */
     public function deactivatePassEffects(int $mstInAppPurchaseId): void
     {
-        $effects = $this->trxInAppPurchaseEffectRepository->findAllEffectsByMstInAppPurchaseId($mstInAppPurchaseId);
+        $effects = $this->trxInAppPurchaseEffectRepository->selectAllEffectsByMstInAppPurchaseId($mstInAppPurchaseId);
 
         foreach ($effects as $effect) {
             if ($effect->getIsActive()) {

@@ -50,7 +50,7 @@ class StaminaService
      */
     public function getStamina(int $sysPlayerId): ?TrxStamina
     {
-        $stamina = $this->trxStaminaRepository->find();
+        $stamina = $this->trxStaminaRepository->selectBySysPlayerId();
         
         if ($stamina === null) {
             return null;
@@ -200,7 +200,7 @@ class StaminaService
      */
     public function updateRecoveryRateMultiplier(float $multiplier): void
     {
-        $stamina = $this->trxStaminaRepository->find();
+        $stamina = $this->trxStaminaRepository->selectBySysPlayerId();
 
         if ($stamina) {
             $stamina->setRecoveryRateMultiplier($multiplier);
@@ -261,7 +261,7 @@ class StaminaService
      */
     public function getTimeUntilNextRecovery(int $sysPlayerId): ?int
     {
-        $stamina = $this->trxStaminaRepository->find();
+        $stamina = $this->trxStaminaRepository->selectBySysPlayerId();
         
         if ($stamina === null) {
             return null;
@@ -298,7 +298,7 @@ class StaminaService
      */
     public function getTimeToFullRecovery(int $sysPlayerId): int
     {
-        $stamina = $this->trxStaminaRepository->find();
+        $stamina = $this->trxStaminaRepository->selectBySysPlayerId();
         
         if ($stamina === null) {
             return 0;

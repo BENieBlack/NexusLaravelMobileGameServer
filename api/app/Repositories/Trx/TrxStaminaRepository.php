@@ -23,7 +23,7 @@ class TrxStaminaRepository extends _BaseTrxRepository
      *
      * @return TrxStamina|null
      */
-    public function find(): ?TrxStamina
+    public function selectBySysPlayerId(): ?TrxStamina
     {
         // queryOrMemory()で全データをキャッシュにロード（ApiSessionから$sysPlayerIdを取得）
         $modelCollection = $this->queryOrMemory();

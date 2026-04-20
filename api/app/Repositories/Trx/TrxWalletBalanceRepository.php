@@ -29,7 +29,7 @@ class TrxWalletBalanceRepository extends _BaseTrxRepository
      * @param string $mstItemId アイテムID
      * @return Collection<int, TrxWalletBalance>
      */
-    public function findAllBalancesByMstItemId(string $mstItemId): Collection
+    public function selectAllBalancesByMstItemId(string $mstItemId): Collection
     {
         $sysPlayerId = $this->getSysPlayerId();
         
@@ -52,7 +52,7 @@ class TrxWalletBalanceRepository extends _BaseTrxRepository
      * @param \Carbon\CarbonImmutable $now 現在時刻
      * @return Collection<int, TrxWalletBalance>
      */
-    public function findAllExpiredBalancesByMstItemId(string $mstItemId, \Carbon\CarbonImmutable $now): Collection
+    public function selectAllExpiredBalancesByMstItemId(string $mstItemId, \Carbon\CarbonImmutable $now): Collection
     {
         $sysPlayerId = $this->getSysPlayerId();
         

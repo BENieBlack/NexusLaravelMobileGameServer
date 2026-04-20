@@ -193,7 +193,7 @@ class LevelService
      */
     private function refillStaminaOnLevelUp(int $sysPlayerId, int $newMaxStamina): void
     {
-        $stamina = $this->trxStaminaRepository->find();
+        $stamina = $this->trxStaminaRepository->selectBySysPlayerId();
         
         if ($stamina === null) {
             // スタミナレコードが存在しない場合は作成

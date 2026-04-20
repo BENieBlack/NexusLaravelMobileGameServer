@@ -80,10 +80,16 @@ class TrxItemSeeder extends Seeder
             }
 
             foreach ($selectedItems as $mstItemId) {
+                $totalAmount = rand(1, 999);
+                $paidRatio = rand(0, 30) / 100; // 0-30%が有償
+                $paidAmount = (int)($totalAmount * $paidRatio);
+                $freeAmount = $totalAmount - $paidAmount;
+                
                 DB::connection($connection)->table('trx_item')->insert([
                     'sys_player_id' => $player->id,
                     'mst_item_id' => $mstItemId,
-                    'amount' => rand(1, 999),
+                    'free_amount' => $freeAmount,
+                    'paid_amount' => $paidAmount,
                     'created_at' => now()->subDays(rand(1, 30)),
                     'updated_at' => now()->subDays(rand(0, 10)),
                 ]);

@@ -91,7 +91,7 @@ class EquipmentLevelUpTest extends TestCase
             ->where('mst_item_id', 'equipment_exp_potion')
             ->first();
         
-        $beforeItemAmount = $beforeItem ? $beforeItem->amount : 0;
+        $beforeItemAmount = $beforeItem ? ($beforeItem->free_amount + $beforeItem->paid_amount) : 0;
         
         // UseCaseを実行
         $useCase = app(LevelUpUseCase::class);
@@ -99,7 +99,8 @@ class EquipmentLevelUpTest extends TestCase
         
         // アイテム消費確認
         $this->assertNotNull($response->trxItem);
-        $this->assertLessThan($beforeItemAmount, $response->trxItem->amount);
+        $afterItemAmount = $response->trxItem->getFreeAmount() + $response->trxItem->getPaidAmount();
+        $this->assertLessThan($beforeItemAmount, $afterItemAmount);
     }
 
     #[Test]
@@ -215,7 +216,8 @@ class EquipmentLevelUpTest extends TestCase
         DB::connection('trx1')->table('trx_item')->insert([
             'sys_player_id' => $this->sysPlayerId,
             'mst_item_id' => 'equipment_exp_potion',
-            'amount' => 1000,
+            'free_amount' => 1000,
+            'paid_amount' => 0,
             'is_delete' => false,
             'created_at' => now(),
             'updated_at' => now(),

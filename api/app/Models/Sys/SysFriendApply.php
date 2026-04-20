@@ -45,6 +45,7 @@ class SysFriendApply extends _BaseSys
      */
     public const STATUS_APPLIED = 'Applied';
     public const STATUS_ACCEPTED = 'Accepted';
+    public const STATUS_REJECTED = 'Rejected';
     public const STATUS_DELETED = 'Deleted';
 
     /**
@@ -150,6 +151,7 @@ class SysFriendApply extends _BaseSys
         return [
             self::STATUS_APPLIED,
             self::STATUS_ACCEPTED,
+            self::STATUS_REJECTED,
             self::STATUS_DELETED,
         ];
     }
@@ -175,6 +177,16 @@ class SysFriendApply extends _BaseSys
     }
 
     /**
+     * 却下済みかチェック
+     *
+     * @return bool
+     */
+    public function isRejected(): bool
+    {
+        return $this->getStatus() === self::STATUS_REJECTED;
+    }
+
+    /**
      * 削除済みかチェック
      *
      * @return bool
@@ -196,11 +208,22 @@ class SysFriendApply extends _BaseSys
     }
 
     /**
-     * フレンド申請を拒否
+     * フレンド申請を却下
      *
      * @return bool
      */
     public function reject(): bool
+    {
+        $this->status = self::STATUS_REJECTED;
+        return $this->save();
+    }
+
+    /**
+     * フレンド申請を削除
+     *
+     * @return bool
+     */
+    public function markAsDeleted(): bool
     {
         $this->status = self::STATUS_DELETED;
         return $this->save();

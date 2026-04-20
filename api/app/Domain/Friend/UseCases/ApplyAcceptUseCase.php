@@ -60,6 +60,13 @@ class ApplyAcceptUseCase extends _BaseUseCase
                 );
             }
 
+            if ($sysFriendApply->getStatus() === SysFriendApply::STATUS_REJECTED) {
+                throw new GameException(
+                    GameErrorCode::FRIEND_APPLY_ALREADY_REJECTED,
+                    'Friend apply already rejected'
+                );
+            }
+
             if ($sysFriendApply->getStatus() === SysFriendApply::STATUS_DELETED) {
                 throw new GameException(
                     GameErrorCode::FRIEND_APPLY_ALREADY_DELETED,

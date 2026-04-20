@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Domain\Friend\UseCases\ApplyAcceptUseCase;
 use App\Domain\Friend\UseCases\ApplyListUseCase;
+use App\Domain\Friend\UseCases\ApplyRejectUseCase;
 use App\Domain\Friend\UseCases\ApplySendUseCase;
 use App\Domain\Friend\UseCases\DeleteUseCase;
 use App\Domain\Friend\UseCases\ListUseCase;
@@ -11,6 +12,7 @@ use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Http\Requests\Friend\ApplyAcceptRequest;
 use App\Http\Requests\Friend\ApplyListRequest;
+use App\Http\Requests\Friend\ApplyRejectRequest;
 use App\Http\Requests\Friend\ApplySendRequest;
 use App\Http\Requests\Friend\DeleteRequest;
 use App\Http\Requests\Friend\ListRequest;
@@ -47,6 +49,29 @@ class FriendController extends _BaseController
      * sys_friend_apply_idを受け取り、フレンド申請を承認する
      */
     public function applyAccept(ApplyAcceptRequest $request, ApplyAcceptUseCase $useCase): JsonResponse
+    {
+        // 認証情報を取得
+        $sysPlayerId = $request->getAuthenticatedPlayerId();
+        
+        if (!$sysPlayerId) {
+            throw new GameException(
+                GameErrorCode::AUTHENTICATION_FAILED,
+                'Player ID not found in request'
+            );
+        }
+
+        // リクエストパラメータを取得
+        $sysFriendApplyId = $request->getSysFriendApplyId();
+
+        return $this->execute(fn() => $useCase->handle($sysPlayerId, $sysFriendApplyId));
+    }
+
+    /**
+     * フレンド申請却下API
+     * 
+     * sys_friend_apply_idを受け取り、フレンド申請を却下する
+     */
+    public function applyReject(ApplyRejectRequest $request, ApplyRejectUseCase $useCase): JsonResponse
     {
         // 認証情報を取得
         $sysPlayerId = $request->getAuthenticatedPlayerId();

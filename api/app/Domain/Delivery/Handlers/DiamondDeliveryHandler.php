@@ -40,6 +40,7 @@ class DiamondDeliveryHandler implements _BaseDeliveryHandlerInterface
 
         // ダイヤモンドを加算
         $this->diamondService->addDiamond(
+            $sysPlayerId,
             $platform,
             $content->getAmount(),
             $isPaid

@@ -46,7 +46,8 @@ class TrxItem extends _BaseTrx
     protected $fillable = [
         'sys_player_id',
         'mst_item_id',
-        'amount',
+        'free_amount',
+        'paid_amount',
         'is_delete',
         'created_at',
         'updated_at',
@@ -54,7 +55,8 @@ class TrxItem extends _BaseTrx
 
     protected $casts = [
         'sys_player_id' => 'integer',
-        'amount' => 'integer',
+        'free_amount' => 'integer',
+        'paid_amount' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -142,13 +144,33 @@ class TrxItem extends _BaseTrx
     }
 
     /**
-     * アイテムの所持数を取得
+     * 無償アイテムの所持数を取得
      * 
      * @return int
      */
-    public function getAmount(): int
+    public function getFreeAmount(): int
     {
-        return $this->getAttribute('amount');
+        return $this->getAttribute('free_amount');
+    }
+
+    /**
+     * 有償アイテムの所持数を取得
+     * 
+     * @return int
+     */
+    public function getPaidAmount(): int
+    {
+        return $this->getAttribute('paid_amount');
+    }
+
+    /**
+     * 合計アイテム数を取得（無償 + 有償）
+     * 
+     * @return int
+     */
+    public function getTotalAmount(): int
+    {
+        return $this->getFreeAmount() + $this->getPaidAmount();
     }
 
     /**
@@ -186,14 +208,25 @@ class TrxItem extends _BaseTrx
     }
 
     /**
-     * アイテムの所持数を設定
+     * 無償アイテムの所持数を設定
      * 
-     * @param int $amount
+     * @param int $freeAmount
      * @return void
      */
-    public function setAmount(int $amount): void
+    public function setFreeAmount(int $freeAmount): void
     {
-        $this->setAttribute('amount', $amount);
+        $this->setAttribute('free_amount', $freeAmount);
+    }
+
+    /**
+     * 有償アイテムの所持数を設定
+     * 
+     * @param int $paidAmount
+     * @return void
+     */
+    public function setPaidAmount(int $paidAmount): void
+    {
+        $this->setAttribute('paid_amount', $paidAmount);
     }
 
     /**

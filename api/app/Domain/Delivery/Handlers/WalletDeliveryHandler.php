@@ -29,12 +29,19 @@ class WalletDeliveryHandler implements _BaseDeliveryHandlerInterface
      */
     public function handle(int $sysPlayerId, DeliveryContent $content): void
     {
+        // metadata['is_paid']が true の場合は有償、false または未設定の場合は無償
+        $isPaid = $content->getMetadata()['is_paid'] ?? false;
+        
+        $freeAmount = $isPaid ? 0 : $content->getAmount();
+        $paidAmount = $isPaid ? $content->getAmount() : 0;
+        
         // WalletServiceのaddCurrencyメソッドを使用
         // expireAtはDeliveryContentから取得（NULLの場合は無期限）
         $this->walletService->addCurrency(
             $sysPlayerId,
             $content->getId(),
-            $content->getAmount(),
+            $freeAmount,
+            $paidAmount,
             $content->getExpireAt()
         );
     }

@@ -24,10 +24,11 @@ class ItemService
      *
      * @param int $sysPlayerId プレイヤーID
      * @param string $mstItemId アイテムID
-     * @param int $amount 加算する数量
+     * @param int $freeAmount 無償アイテム数（デフォルト: 0）
+     * @param int $paidAmount 有償アイテム数（デフォルト: 0）
      * @return void
      */
-    public function addItem(int $sysPlayerId, string $mstItemId, int $amount): void
+    public function addItem(int $sysPlayerId, string $mstItemId, int $freeAmount = 0, int $paidAmount = 0): void
     {
 
         // 既存のアイテムを取得
@@ -38,13 +39,15 @@ class ItemService
 
         if ($trxItem) {
             // 既存アイテムがある場合は加算
-            $trxItem->setAmount($trxItem->getAmount() + $amount);
+            $trxItem->setFreeAmount($trxItem->getFreeAmount() + $freeAmount);
+            $trxItem->setPaidAmount($trxItem->getPaidAmount() + $paidAmount);
         } else {
             // 新規アイテムを作成
             $trxItem = new TrxItem([
                 'sys_player_id' => $sysPlayerId,
                 'mst_item_id' => $mstItemId,
-                'amount' => $amount,
+                'free_amount' => $freeAmount,
+                'paid_amount' => $paidAmount,
             ]);
             $trxItem->exists = false; // INSERT として認識
         }
@@ -55,6 +58,7 @@ class ItemService
 
     /**
      * アイテムを消費（減算）
+     * 有償アイテムから優先的に消費し、不足分は無償アイテムから消費する
      *
      * @param int $sysPlayerId プレイヤーID
      * @param string $mstItemId mst_item.id
@@ -75,12 +79,24 @@ class ItemService
             throw new \Exception("Item not found: {$mstItemId}");
         }
 
-        if ($trxItem->getAmount() < $amount) {
-            throw new \Exception("Insufficient item amount. Required: {$amount}, Available: {$trxItem->getAmount()}");
+        $totalAmount = $trxItem->getTotalAmount();
+        if ($totalAmount < $amount) {
+            throw new \Exception("Insufficient item amount. Required: {$amount}, Available: {$totalAmount}");
         }
 
-        // アイテムを減算
-        $trxItem->setAmount($trxItem->getAmount() - $amount);
+        // 有償アイテムから優先的に消費
+        $freeAmount = $trxItem->getFreeAmount();
+        $paidAmount = $trxItem->getPaidAmount();
+        
+        if ($amount <= $paidAmount) {
+            // 有償アイテムのみで足りる場合
+            $trxItem->setPaidAmount($paidAmount - $amount);
+        } else {
+            // 有償アイテムを全て消費し、残りを無償アイテムから消費
+            $trxItem->setPaidAmount(0);
+            $remainingAmount = $amount - $paidAmount;
+            $trxItem->setFreeAmount($freeAmount - $remainingAmount);
+        }
 
         // setModelで内部キューに溜め込む（トランザクションコミット時にDB反映）
         $this->trxItemRepository->setModel($trxItem);
@@ -94,7 +110,7 @@ class ItemService
      *
      * @param int $sysPlayerId プレイヤーID
      * @param string $mstItemId アイテムID
-     * @return int 所持数（存在しない場合は0）
+     * @return int 所持数（無償+有償の合計、存在しない場合は0）
      */
     public function getItemAmount(int $sysPlayerId, string $mstItemId): int
     {
@@ -104,6 +120,6 @@ class ItemService
             ->where('mst_item_id', $mstItemId)
             ->first();
 
-        return $trxItem ? $trxItem->getAmount() : 0;
+        return $trxItem ? $trxItem->getTotalAmount() : 0;
     }
 }

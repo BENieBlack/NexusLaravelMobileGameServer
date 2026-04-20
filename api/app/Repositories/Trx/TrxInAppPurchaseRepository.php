@@ -24,7 +24,7 @@ class TrxInAppPurchaseRepository extends _BaseTrxRepository
      * @param int $mstInAppPurchaseId 商品ID
      * @return TrxInAppPurchase|null
      */
-    public function findByBillingPlatformAndMstInAppPurchaseId(string $billingPlatform, int $mstInAppPurchaseId): ?TrxInAppPurchase
+    public function selectByBillingPlatformAndMstInAppPurchaseId(string $billingPlatform, int $mstInAppPurchaseId): ?TrxInAppPurchase
     {
         $sysPlayerId = $this->getSysPlayerId();
         

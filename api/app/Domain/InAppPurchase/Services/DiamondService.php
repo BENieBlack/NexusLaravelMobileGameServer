@@ -46,7 +46,7 @@ class DiamondService
         float $unitPrice
     ): array {
         // 1. 購入履歴を取得（Repository経由）
-        $purchaseHistory = $this->trxInAppPurchaseRepository->findByBillingPlatformAndMstInAppPurchaseId(
+        $purchaseHistory = $this->trxInAppPurchaseRepository->selectByBillingPlatformAndMstInAppPurchaseId(
             $billingPlatform,
             $mstInAppPurchase->getId()
         );

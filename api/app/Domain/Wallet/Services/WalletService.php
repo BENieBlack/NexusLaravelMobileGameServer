@@ -117,7 +117,7 @@ class WalletService
 
         // 2. FIFO順で残高を取得（Repository経由）
         // 優先順位: is_paid DESC (有償優先) → expire_at ASC (有効期限が近いものから) → id ASC
-        $balanceCollection = $this->trxWalletBalanceRepository->findAllBalancesByMstItemId($mstItemId);
+        $balanceCollection = $this->trxWalletBalanceRepository->selectAllBalancesByMstItemId($mstItemId);
 
         // 3. FIFO順で消費（有償優先）
         $remainingAmount = $amount;
@@ -181,7 +181,7 @@ class WalletService
         $now = Clock::now();
 
         // 有効期限切れの残高を取得（Repository経由）
-        $expiredBalanceCollection = $this->trxWalletBalanceRepository->findAllExpiredBalancesByMstItemId($mstItemId, $now);
+        $expiredBalanceCollection = $this->trxWalletBalanceRepository->selectAllExpiredBalancesByMstItemId($mstItemId, $now);
 
         $totalExpired = 0;
         $expiredFree = 0;

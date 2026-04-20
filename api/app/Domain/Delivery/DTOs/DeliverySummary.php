@@ -55,6 +55,16 @@ class DeliverySummary
     }
 
     /**
+     * 配送済みコンテンツの総数を取得
+     *
+     * @return int
+     */
+    public function getTotalCount(): int
+    {
+        return $this->contents->count();
+    }
+
+    /**
      * 対象のコンテンツの内で、所持上限を超えたリソースがあるかどうか
      *
      * @param array<string> $contentTypes チェック対象のリソースタイプ

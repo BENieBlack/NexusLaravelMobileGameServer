@@ -80,9 +80,9 @@ class TrxUnit extends _BaseTrx
     /**
      * マスターユニットIDを取得
      *
-     * @return int
+     * @return string
      */
-    public function getMstUnitId(): int
+    public function getMstUnitId(): string
     {
         return $this->getAttribute('mst_unit_id');
     }

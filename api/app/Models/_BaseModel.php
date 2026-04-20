@@ -126,8 +126,11 @@ abstract class _BaseModel extends Model implements _BaseModelInterface
             }
         }
         
-        // sys_player_idはユーザーに渡さない内部IDなので除外
+        // クライアントに渡さない内部情報を除外
         unset($array['sys_player_id']);
+        unset($array['uuid']);
+        unset($array['created_at']);
+        unset($array['updated_at']);
         
         return $array;
     }

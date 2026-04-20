@@ -4,6 +4,7 @@ namespace App\Persistence;
 
 use App\Utilities\Clock;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\DB;
 
 /**
  * ApiSession
@@ -37,6 +38,13 @@ class ApiSession
      * @var CarbonImmutable|null
      */
     private ?CarbonImmutable $now = null;
+
+    /**
+     * トランザクションDB接続名のキャッシュ
+     *
+     * @var string|null
+     */
+    private ?string $connectionName = null;
 
     /**
      * コンストラクタ
@@ -135,6 +143,53 @@ class ApiSession
     {
         $this->sysPlayerId = null;
         $this->now = null;
+        $this->connectionName = null;
+    }
+
+    /**
+     * プレイヤーIDからトランザクションDB接続名を取得（インスタンスメソッド）
+     *
+     * @return string 接続名（trx1 または trx2）
+     * @throws \RuntimeException プレイヤーIDが設定されていない場合、またはシャーディング情報が見つからない場合
+     */
+    public function getConnectionNameValue(): string
+    {
+        // キャッシュがあれば返す
+        if ($this->connectionName !== null) {
+            return $this->connectionName;
+        }
+
+        $sysPlayerId = $this->getPlayerId();
+
+        // プレイヤーのシャーディングノード情報を取得
+        $shardingNodePlayer = DB::connection('sys')
+            ->table('sys_sharding_node_player')
+            ->where('sys_player_id', $sysPlayerId)
+            ->first();
+
+        if ($shardingNodePlayer === null) {
+            throw new \RuntimeException(
+                "Sharding node assignment not found for player ID: {$sysPlayerId}. " .
+                "Player may not be assigned to a shard."
+            );
+        }
+
+        // ノード情報を取得
+        $shardingNode = DB::connection('sys')
+            ->table('sys_sharding_node')
+            ->where('id', $shardingNodePlayer->sys_sharding_node_id)
+            ->first();
+
+        if ($shardingNode === null) {
+            throw new \RuntimeException(
+                "Sharding node not found for node ID: {$shardingNodePlayer->sys_sharding_node_id}"
+            );
+        }
+
+        // node_noに基づいて接続名を決定（node_no: 1 → trx1, node_no: 2 → trx2）
+        $this->connectionName = 'trx' . $shardingNode->node_no;
+
+        return $this->connectionName;
     }
 
     /**
@@ -220,5 +275,17 @@ class ApiSession
         if (app()->bound(self::class)) {
             app(self::class)->clear();
         }
+    }
+
+    /**
+     * 静的ヘルパー: トランザクションDB接続名を取得
+     * プレイヤーIDに基づいてシャーディングされたDB接続名を返す
+     *
+     * @return string 接続名（trx1 または trx2）
+     * @throws \RuntimeException プレイヤーIDが設定されていない場合、またはシャーディング情報が見つからない場合
+     */
+    public static function getConnectionName(): string
+    {
+        return app(self::class)->getConnectionNameValue();
     }
 }

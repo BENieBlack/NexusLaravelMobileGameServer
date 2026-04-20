@@ -3,6 +3,7 @@
 namespace App\Domain\Stamina\Services;
 
 use App\Domain\Player\Services\LevelService;
+use App\Domain\Stamina\Constants\StaminaConst;
 use App\Models\Trx\TrxStamina;
 use App\Repositories\Trx\TrxStaminaRepository;
 use App\Persistence\ApiSession;
@@ -46,11 +47,12 @@ class StaminaService
      * 最大スタミナはプレイヤーのレベルから自動取得されます
      * 
      * @param int $sysPlayerId プレイヤーID
+     * @param string $type スタミナタイプ
      * @return TrxStamina|null
      */
-    public function getStamina(int $sysPlayerId): ?TrxStamina
+    public function getStamina(int $sysPlayerId, string $type = StaminaConst::TYPE_NORMAL): ?TrxStamina
     {
-        $stamina = $this->trxStaminaRepository->selectBySysPlayerId();
+        $stamina = $this->trxStaminaRepository->selectByType($type);
         
         if ($stamina === null) {
             return null;
@@ -70,14 +72,16 @@ class StaminaService
      * 
      * @param int $sysPlayerId プレイヤーID
      * @param int $initialStamina 初期スタミナ量（通常は最大値）
+     * @param string $type スタミナタイプ
      * @return TrxStamina
      */
-    public function initializeStamina(int $sysPlayerId, int $initialStamina): TrxStamina
+    public function initializeStamina(int $sysPlayerId, int $initialStamina, string $type = StaminaConst::TYPE_NORMAL): TrxStamina
     {
         $now = Clock::now();
 
         $trxStamina = new TrxStamina([
             'sys_player_id' => $sysPlayerId,
+            'type' => $type,
             'current_stamina' => $initialStamina,
             'overflow_stamina' => 0,
             'recovery_rate_multiplier' => 1.00,
@@ -101,11 +105,12 @@ class StaminaService
      * 
      * @param int $sysPlayerId プレイヤーID
      * @param int $amount 消費量
+     * @param string $type スタミナタイプ
      * @return array{success: bool, remaining: int, message: string}
      */
-    public function consumeStamina(int $sysPlayerId, int $amount): array
+    public function consumeStamina(int $sysPlayerId, int $amount, string $type = StaminaConst::TYPE_NORMAL): array
     {
-        $stamina = $this->getStamina($sysPlayerId);
+        $stamina = $this->getStamina($sysPlayerId, $type);
         
         if ($stamina === null) {
             return [
@@ -150,11 +155,12 @@ class StaminaService
      * 
      * @param int $sysPlayerId プレイヤーID
      * @param int $amount 回復量
+     * @param string $type スタミナタイプ
      * @return array{success: bool, total: int, overflow: int, message: string}
      */
-    public function recoverStaminaByItem(int $sysPlayerId, int $amount): array
+    public function recoverStaminaByItem(int $sysPlayerId, int $amount, string $type = StaminaConst::TYPE_NORMAL): array
     {
-        $stamina = $this->getStamina($sysPlayerId);
+        $stamina = $this->getStamina($sysPlayerId, $type);
         
         if ($stamina === null) {
             return [
@@ -196,11 +202,12 @@ class StaminaService
      * VIP特典などで回復速度倍率を更新
      * 
      * @param float $multiplier 回復速度倍率（1.0 = 通常、1.5 = 1.5倍速等）
+     * @param string $type スタミナタイプ
      * @return void
      */
-    public function updateRecoveryRateMultiplier(float $multiplier): void
+    public function updateRecoveryRateMultiplier(float $multiplier, string $type = StaminaConst::TYPE_NORMAL): void
     {
-        $stamina = $this->trxStaminaRepository->selectBySysPlayerId();
+        $stamina = $this->trxStaminaRepository->selectByType($type);
 
         if ($stamina) {
             $stamina->setRecoveryRateMultiplier($multiplier);
@@ -257,11 +264,12 @@ class StaminaService
      * 最大スタミナはプレイヤーのレベルから自動取得されます
      * 
      * @param int $sysPlayerId プレイヤーID
+     * @param string $type スタミナタイプ
      * @return int|null 残り秒数（最大値の場合はnull）
      */
-    public function getTimeUntilNextRecovery(int $sysPlayerId): ?int
+    public function getTimeUntilNextRecovery(int $sysPlayerId, string $type = StaminaConst::TYPE_NORMAL): ?int
     {
-        $stamina = $this->trxStaminaRepository->selectBySysPlayerId();
+        $stamina = $this->trxStaminaRepository->selectByType($type);
         
         if ($stamina === null) {
             return null;
@@ -294,11 +302,12 @@ class StaminaService
      * 最大スタミナはプレイヤーのレベルから自動取得されます
      * 
      * @param int $sysPlayerId プレイヤーID
+     * @param string $type スタミナタイプ
      * @return int 必要な秒数
      */
-    public function getTimeToFullRecovery(int $sysPlayerId): int
+    public function getTimeToFullRecovery(int $sysPlayerId, string $type = StaminaConst::TYPE_NORMAL): int
     {
-        $stamina = $this->trxStaminaRepository->selectBySysPlayerId();
+        $stamina = $this->trxStaminaRepository->selectByType($type);
         
         if ($stamina === null) {
             return 0;

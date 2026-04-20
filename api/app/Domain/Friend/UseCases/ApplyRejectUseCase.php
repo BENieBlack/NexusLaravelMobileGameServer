@@ -5,16 +5,16 @@ namespace App\Domain\Friend\UseCases;
 use App\Domain\_BaseUseCase;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
-use App\Http\Responses\Friend\ApplyAcceptResponse;
+use App\Http\Responses\Friend\ApplyRejectResponse;
 use App\Models\Sys\SysFriendApply;
 use App\Repositories\Sys\SysFriendApplyRepository;
 
 /**
- * ApplyAcceptUseCase
+ * ApplyRejectUseCase
  * 
- * フレンド申請承認ユースケース
+ * フレンド申請却下ユースケース
  */
-class ApplyAcceptUseCase extends _BaseUseCase
+class ApplyRejectUseCase extends _BaseUseCase
 {
 
     public function __construct(
@@ -23,14 +23,14 @@ class ApplyAcceptUseCase extends _BaseUseCase
     }
 
     /**
-     * フレンド申請承認処理を実行
+     * フレンド申請却下処理を実行
      *
-     * @param int $sysPlayerId 承認者（受信者）のプレイヤーID
+     * @param int $sysPlayerId 却下者（受信者）のプレイヤーID
      * @param int $sysFriendApplyId フレンド申請ID
-     * @return ApplyAcceptResponse
+     * @return ApplyRejectResponse
      * @throws GameException
      */
-    public function handle(int $sysPlayerId, int $sysFriendApplyId): ApplyAcceptResponse
+    public function handle(int $sysPlayerId, int $sysFriendApplyId): ApplyRejectResponse
     {
         // トランザクション開始
         return $this->executeWithTransaction(function () use ($sysPlayerId, $sysFriendApplyId) {
@@ -47,8 +47,8 @@ class ApplyAcceptUseCase extends _BaseUseCase
             // 2. 受信者が自分かチェック
             if ($sysFriendApply->getReceiverSysPlayerId() !== $sysPlayerId) {
                 throw new GameException(
-                    GameErrorCode::NOT_AUTHORIZED_TO_ACCEPT,
-                    'You are not authorized to accept this friend apply'
+                    GameErrorCode::NOT_AUTHORIZED_TO_REJECT,
+                    'You are not authorized to reject this friend apply'
                 );
             }
 
@@ -74,12 +74,12 @@ class ApplyAcceptUseCase extends _BaseUseCase
                 );
             }
 
-            // 4. ステータスをAcceptedに変更
-            $sysFriendApply->setStatus(SysFriendApply::STATUS_ACCEPTED);
+            // 4. ステータスをRejectedに変更
+            $sysFriendApply->setStatus(SysFriendApply::STATUS_REJECTED);
             $this->sysFriendApplyRepository->setModel($sysFriendApply);
 
             // 5. レスポンスを返す
-            return ApplyAcceptResponse::fromModel($sysFriendApply);
+            return ApplyRejectResponse::fromModel($sysFriendApply);
         });
     }
 }

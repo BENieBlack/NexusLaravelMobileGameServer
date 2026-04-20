@@ -2,6 +2,7 @@
 
 namespace App\Domain\Player\Services;
 
+use App\Domain\Stamina\Constants\StaminaConst;
 use App\Models\Sys\SysPlayer;
 use App\Repositories\Mst\MstPlayerLevelRepository;
 use App\Repositories\Sys\SysPlayerRepository;
@@ -193,7 +194,7 @@ class LevelService
      */
     private function refillStaminaOnLevelUp(int $sysPlayerId, int $newMaxStamina): void
     {
-        $stamina = $this->trxStaminaRepository->selectBySysPlayerId();
+        $stamina = $this->trxStaminaRepository->selectByType(StaminaConst::TYPE_NORMAL);
         
         if ($stamina === null) {
             // スタミナレコードが存在しない場合は作成
@@ -201,6 +202,7 @@ class LevelService
 
             $trxStamina = new \App\Models\Trx\TrxStamina([
                 'sys_player_id' => $sysPlayerId,
+                'type' => StaminaConst::TYPE_NORMAL,
                 'current_stamina' => $newMaxStamina,
                 'overflow_stamina' => 0,
                 'recovery_rate_multiplier' => 1.00,

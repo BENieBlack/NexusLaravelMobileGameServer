@@ -3,6 +3,7 @@
 namespace Tests\Unit\Models;
 
 use Tests\TestCase;
+use App\Domain\Stamina\Constants\StaminaConst;
 use App\Models\Trx\TrxUnit;
 use App\Models\Trx\TrxEquipment;
 use App\Models\Trx\TrxDiamondBalance;
@@ -77,22 +78,25 @@ class ToResponseArrayTest extends TestCase
     }
 
     /**
-     * TrxStamina: id → trx_stamina_id に変換されること
+     * TrxStamina: 複合主キー (sys_player_id, type) を持つこと
      */
-    public function trx_stamina_converts_id_to_trx_stamina_id()
+    public function trx_stamina_has_composite_primary_key()
     {
         $stamina = new TrxStamina();
-        $stamina->id = 111;
         $stamina->sys_player_id = 1;
+        $stamina->type = StaminaConst::TYPE_NORMAL;
         $stamina->current_stamina = 50;
         $stamina->overflow_stamina = 0;
         $stamina->recovery_rate_multiplier = 1.0;
         
         $response = $stamina->toResponseArray();
         
-        $this->assertArrayHasKey('trx_stamina_id', $response);
-        $this->assertEquals(111, $response['trx_stamina_id']);
+        $this->assertArrayHasKey('sys_player_id', $response);
+        $this->assertEquals(1, $response['sys_player_id']);
+        $this->assertArrayHasKey('type', $response);
+        $this->assertEquals(StaminaConst::TYPE_NORMAL, $response['type']);
         $this->assertArrayNotHasKey('id', $response);
+        $this->assertArrayNotHasKey('trx_stamina_id', $response);
     }
 
     /**

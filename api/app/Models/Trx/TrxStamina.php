@@ -8,10 +8,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * TrxStamina Model
  * 
- * プレイヤーのスタミナ管理
+ * プレイヤーのスタミナ管理（タイプ別）
  * 
- * @property int $id
+ * PRIMARY KEY: (sys_player_id, type)
+ * 
  * @property int $sys_player_id
+ * @property string $type スタミナタイプ（normal, raid, pvp, event等）
  * @property int $current_stamina 現在のスタミナ（通常枠）
  * @property int $overflow_stamina オーバーフロースタミナ（最大値超過分）
  * @property float $recovery_rate_multiplier 回復速度倍率（VIP特典等）
@@ -24,19 +26,19 @@ class TrxStamina extends _BaseTrx
     protected $table = 'trx_stamina';
 
     /**
-     * @var string テーブルのPK
+     * @var array<string> 複合主キー
      */
-    protected $primaryKey = 'id';
+    protected $primaryKey = ['sys_player_id', 'type'];
 
     /**
-     * @var bool 自動インクリメント有効
+     * @var bool 自動インクリメント無効（複合主キー）
      */
-    public $incrementing = true;
+    public $incrementing = false;
 
     /**
      * @var string プライマリキーの型
      */
-    protected $keyType = 'int';
+    protected $keyType = 'string';
 
     /**
      * SELECTキー（sys_player_idで検索）
@@ -46,14 +48,15 @@ class TrxStamina extends _BaseTrx
     protected string $selectKey = 'sys_player_id';
 
     /**
-     * ユニークキー（sys_player_idで一意）
+     * ユニークキー（sys_player_id + typeで一意）
      * 
-     * @var array
+     * @var array<array<string>>
      */
-    protected array $uniqueKeys = ['sys_player_id'];
+    protected array $uniqueKeys = [['sys_player_id', 'type']];
 
     protected $fillable = [
         'sys_player_id',
+        'type',
         'current_stamina',
         'overflow_stamina',
         'recovery_rate_multiplier',
@@ -63,6 +66,7 @@ class TrxStamina extends _BaseTrx
 
     protected $casts = [
         'sys_player_id' => 'integer',
+        'type' => 'string',
         'current_stamina' => 'integer',
         'overflow_stamina' => 'integer',
         'recovery_rate_multiplier' => 'decimal:2',
@@ -79,6 +83,16 @@ class TrxStamina extends _BaseTrx
     public function sysPlayer(): BelongsTo
     {
         return $this->belongsTo(SysPlayer::class, 'sys_player_id', 'id');
+    }
+
+    /**
+     * スタミナタイプを取得
+     *
+     * @return string
+     */
+    public function getType(): string
+    {
+        return $this->getAttribute('type');
     }
 
     /**
@@ -144,6 +158,17 @@ class TrxStamina extends _BaseTrx
     }
 
     /**
+     * スタミナタイプを設定
+     *
+     * @param string $type
+     * @return void
+     */
+    public function setType(string $type): void
+    {
+        $this->setAttribute('type', $type);
+    }
+
+    /**
      * システムプレイヤーIDを設定
      *
      * @param int $sysPlayerId
@@ -201,19 +226,10 @@ class TrxStamina extends _BaseTrx
     /**
      * レスポンス用配列に変換
      * 
-     * データベース層の'id'をAPI層の'trx_stamina_id'に変換
-     * 
      * @return array
      */
     public function toResponseArray(): array
     {
-        $array = parent::toResponseArray();
-        
-        if (isset($array['id'])) {
-            $array['trx_stamina_id'] = $array['id'];
-            unset($array['id']);
-        }
-        
-        return $array;
+        return parent::toResponseArray();
     }
 }

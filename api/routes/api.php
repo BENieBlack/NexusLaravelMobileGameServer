@@ -11,8 +11,7 @@ use App\Http\Controllers\UnitController;
 use Illuminate\Support\Facades\Route;
 
 // Auth endpoints with action-based routing
-// version は認証不要で最初に呼ばれるべきエンドポイント
-Route::get('/auth/version', [AuthController::class, 'version']);
+// 認証不要のエンドポイント（最初のアクセス時に必要）
 Route::post('/auth/sign_up', [AuthController::class, 'signUp']);
 Route::post('/auth/sign_in', [AuthController::class, 'signIn']);
 Route::post('/auth/refresh_token', [AuthController::class, 'refreshToken']);
@@ -20,6 +19,9 @@ Route::post('/auth/refresh_token', [AuthController::class, 'refreshToken']);
 // Protected endpoints (require access token)
 // idempotencyミドルウェアを追加して重複リクエストを防止
 Route::middleware(['auth.token', 'idempotency'])->group(function () {
+    // version は認証必須（攻撃対象にならないため）
+    Route::post('/auth/version', [AuthController::class, 'version']);
+    Route::post('/auth/login', [AuthController::class, 'login']);
     Route::get('/player/me', [PlayerController::class, 'me']);
     
     // In-App Purchase endpoints
@@ -34,6 +36,7 @@ Route::middleware(['auth.token', 'idempotency'])->group(function () {
     // Friend endpoints
     Route::post('/friend/apply/send', [FriendController::class, 'applySend']);
     Route::post('/friend/apply/accept', [FriendController::class, 'applyAccept']);
+    Route::post('/friend/apply/reject', [FriendController::class, 'applyReject']);
     Route::get('/friend/apply/list', [FriendController::class, 'applyList']);
     Route::get('/friend/list', [FriendController::class, 'list']);
     Route::post('/friend/delete', [FriendController::class, 'delete']);

@@ -196,6 +196,7 @@ class RedisUtility
      */
     public static function flush(): bool
     {
+        /** @phpstan-ignore-next-line */
         return self::store()->flush();
     }
 
@@ -220,6 +221,7 @@ class RedisUtility
      */
     public static function many(array $keys): array
     {
+        // @phpstan-ignore-next-line method.notFound
         return self::store()->many($keys);
     }
 
@@ -232,6 +234,7 @@ class RedisUtility
      */
     public static function putMany(array $values, int|\DateTimeInterface|\DateInterval|null $ttl = null): bool
     {
+        // @phpstan-ignore-next-line method.notFound
         return self::store()->putMany($values, $ttl);
     }
 

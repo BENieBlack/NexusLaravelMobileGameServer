@@ -30,16 +30,17 @@ class BaseTrxTest extends TestCase
         $item = TrxItem::create([
             'sys_player_id' => 1,
             'mst_item_id' => 'test_item',
-            'amount' => 100,
+            'free_amount' => 80,
+            'paid_amount' => 20,
         ]);
 
-        // Act: amountを変更
-        $item->setAmount(90);
+        // Act: paid_amountを変更
+        $item->setPaidAmount(10);
 
         // Assert: 相対的な変更が記録されている
         $this->assertTrue($item->hasRelativeChanges());
         $relativeChanges = $item->getRelativeChanges();
-        $this->assertEquals(-10, $relativeChanges['amount']);
+        $this->assertEquals(-10, $relativeChanges['paid_amount']);
     }
 
     /**
@@ -51,19 +52,20 @@ class BaseTrxTest extends TestCase
         $item = TrxItem::create([
             'sys_player_id' => 1,
             'mst_item_id' => 'test_item_2',
-            'amount' => 100,
+            'free_amount' => 80,
+            'paid_amount' => 20,
         ]);
 
-        // Act: 複数回amountを変更
-        $item->setAmount($item->amount - 10); // 100 -> 90, diff = -10
-        $item->setAmount($item->amount - 5);  // 90 -> 85, diff = -5
-        $item->setAmount($item->amount + 15); // 85 -> 100, diff = +15
+        // Act: 複数回paid_amountを変更
+        $item->setPaidAmount($item->paid_amount - 10); // 20 -> 10, diff = -10
+        $item->setPaidAmount($item->paid_amount - 5);  // 10 -> 5, diff = -5
+        $item->setPaidAmount($item->paid_amount + 15); // 5 -> 20, diff = +15
 
         // Assert: 相対的な変更が累積されている
         $this->assertTrue($item->hasRelativeChanges());
         $relativeChanges = $item->getRelativeChanges();
         // -10 + (-5) + 15 = 0
-        $this->assertEquals(0, $relativeChanges['amount']);
+        $this->assertEquals(0, $relativeChanges['paid_amount']);
     }
 
     /**
@@ -75,12 +77,13 @@ class BaseTrxTest extends TestCase
         $item = new TrxItem([
             'sys_player_id' => 1,
             'mst_item_id' => 'test_item_3',
-            'amount' => 100,
+            'free_amount' => 80,
+            'paid_amount' => 20,
         ]);
         $item->exists = false;
 
-        // Act: amountを変更
-        $item->setAmount(90);
+        // Act: paid_amountを変更
+        $item->setPaidAmount(10);
 
         // Assert: 相対的な変更は記録されない
         $this->assertFalse($item->hasRelativeChanges());
@@ -95,11 +98,12 @@ class BaseTrxTest extends TestCase
         $item = TrxItem::create([
             'sys_player_id' => 1,
             'mst_item_id' => 'test_item_4',
-            'amount' => 100,
+            'free_amount' => 80,
+            'paid_amount' => 20,
         ]);
 
         // Act: 相対的な変更を記録してクリア
-        $item->setAmount(90);
+        $item->setPaidAmount(10);
         $this->assertTrue($item->hasRelativeChanges());
         
         $item->clearRelativeChanges();

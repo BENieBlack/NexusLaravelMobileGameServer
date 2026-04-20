@@ -60,11 +60,13 @@ class CompositeKeyTest extends TestCase
         
         $item1 = $items->where('mst_item_id', 'item_001')->first();
         $this->assertNotNull($item1);
-        $this->assertSame(10, $item1->amount);
+        $this->assertSame(8, $item1->free_amount);
+        $this->assertSame(2, $item1->paid_amount);
         
         $item2 = $items->where('mst_item_id', 'item_002')->first();
         $this->assertNotNull($item2);
-        $this->assertSame(5, $item2->amount);
+        $this->assertSame(4, $item2->free_amount);
+        $this->assertSame(1, $item2->paid_amount);
     }
 
     #[Test]
@@ -80,8 +82,8 @@ class CompositeKeyTest extends TestCase
         
         $this->assertNotNull($item);
         
-        $originalAmount = $item->amount;
-        $item->amount = $originalAmount + 10;
+        $originalFreeAmount = $item->free_amount;
+        $item->free_amount = $originalFreeAmount + 10;
         
         $reflection = new \ReflectionClass($repo);
         $setModelMethod = $reflection->getMethod('setModel');
@@ -95,7 +97,7 @@ class CompositeKeyTest extends TestCase
             ->first();
         
         $this->assertNotNull($cached);
-        $this->assertSame($item->amount, $cached->amount);
+        $this->assertSame($item->free_amount, $cached->free_amount);
     }
 
     private function insertTestData(): void
@@ -107,7 +109,8 @@ class CompositeKeyTest extends TestCase
             [
                 'sys_player_id' => $this->sysPlayerId,
                 'mst_item_id' => 'item_001',
-                'amount' => 10,
+                'free_amount' => 8,
+                'paid_amount' => 2,
                 'is_delete' => false,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -115,7 +118,8 @@ class CompositeKeyTest extends TestCase
             [
                 'sys_player_id' => $this->sysPlayerId,
                 'mst_item_id' => 'item_002',
-                'amount' => 5,
+                'free_amount' => 4,
+                'paid_amount' => 1,
                 'is_delete' => false,
                 'created_at' => now(),
                 'updated_at' => now(),

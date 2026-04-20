@@ -31,19 +31,20 @@ class TrxItemRepositoryTest extends TestCase
     }
 
     /**
-     * amountの相対的な減算が正しく動作することをテスト
+     * free_amountとpaid_amountの相対的な減算が正しく動作することをテスト
      */
     public function test_amount_relative_decrease_works_correctly(): void
     {
-        // Arrange: アイテムを作成（amount=100）
+        // Arrange: アイテムを作成（free_amount=80, paid_amount=20）
         $item = TrxItem::create([
             'sys_player_id' => 1,
             'mst_item_id' => 'item_001',
-            'amount' => 100,
+            'free_amount' => 80,
+            'paid_amount' => 20,
         ]);
 
-        // Act: amountを10減らす（既存の方法）
-        $item->setAmount($item->amount - 10);
+        // Act: paid_amountを10減らす（既存の方法）
+        $item->setPaidAmount($item->paid_amount - 10);
         $this->repository->setModel($item);
         $this->queryManager->registerRepository($this->repository);
         $this->queryManager->execAllQuery();
@@ -53,23 +54,25 @@ class TrxItemRepositoryTest extends TestCase
             ->where('mst_item_id', 'item_001')
             ->first();
         
-        $this->assertEquals(90, $updatedItem->amount);
+        $this->assertEquals(80, $updatedItem->free_amount);
+        $this->assertEquals(10, $updatedItem->paid_amount);
     }
 
     /**
-     * amountの相対的な増加が正しく動作することをテスト
+     * free_amountとpaid_amountの相対的な増加が正しく動作することをテスト
      */
     public function test_amount_relative_increase_works_correctly(): void
     {
-        // Arrange: アイテムを作成（amount=50）
+        // Arrange: アイテムを作成（free_amount=40, paid_amount=10）
         $item = TrxItem::create([
             'sys_player_id' => 1,
             'mst_item_id' => 'item_002',
-            'amount' => 50,
+            'free_amount' => 40,
+            'paid_amount' => 10,
         ]);
 
-        // Act: amountを20増やす（既存の方法）
-        $item->setAmount($item->amount + 20);
+        // Act: free_amountを20増やす（既存の方法）
+        $item->setFreeAmount($item->free_amount + 20);
         $this->repository->setModel($item);
         $this->queryManager->registerRepository($this->repository);
         $this->queryManager->execAllQuery();
@@ -79,7 +82,8 @@ class TrxItemRepositoryTest extends TestCase
             ->where('mst_item_id', 'item_002')
             ->first();
         
-        $this->assertEquals(70, $updatedItem->amount);
+        $this->assertEquals(60, $updatedItem->free_amount);
+        $this->assertEquals(10, $updatedItem->paid_amount);
     }
 
     /**
@@ -87,17 +91,18 @@ class TrxItemRepositoryTest extends TestCase
      */
     public function test_multiple_relative_changes_accumulate(): void
     {
-        // Arrange: アイテムを作成（amount=100）
+        // Arrange: アイテムを作成（free_amount=80, paid_amount=20）
         $item = TrxItem::create([
             'sys_player_id' => 1,
             'mst_item_id' => 'item_003',
-            'amount' => 100,
+            'free_amount' => 80,
+            'paid_amount' => 20,
         ]);
 
         // Act: 複数回の相対的な変更
-        $item->setAmount($item->amount - 10); // 100 - 10 = 90
-        $item->setAmount($item->amount - 5);  // 90 - 5 = 85
-        $item->setAmount($item->amount + 15); // 85 + 15 = 100
+        $item->setPaidAmount($item->paid_amount - 10); // 20 - 10 = 10
+        $item->setPaidAmount($item->paid_amount - 5);  // 10 - 5 = 5
+        $item->setFreeAmount($item->free_amount + 15); // 80 + 15 = 95
         
         $this->repository->setModel($item);
         $this->queryManager->registerRepository($this->repository);
@@ -108,7 +113,8 @@ class TrxItemRepositoryTest extends TestCase
             ->where('mst_item_id', 'item_003')
             ->first();
         
-        $this->assertEquals(100, $updatedItem->amount);
+        $this->assertEquals(95, $updatedItem->free_amount);
+        $this->assertEquals(5, $updatedItem->paid_amount);
     }
 
     /**
@@ -117,34 +123,35 @@ class TrxItemRepositoryTest extends TestCase
      */
     public function test_concurrent_requests_with_relative_updates(): void
     {
-        // Arrange: アイテムを作成（amount=100）
+        // Arrange: アイテムを作成（free_amount=80, paid_amount=20）
         $initialItem = TrxItem::create([
             'sys_player_id' => 1,
             'mst_item_id' => 'item_004',
-            'amount' => 100,
+            'free_amount' => 80,
+            'paid_amount' => 20,
         ]);
 
-        // リクエスト1: DBから読み込み（amount=100）
+        // リクエスト1: DBから読み込み（free_amount=80, paid_amount=20）
         $item1 = TrxItem::where('sys_player_id', 1)
             ->where('mst_item_id', 'item_004')
             ->first();
         
-        // リクエスト2: DBから読み込み（amount=100）
+        // リクエスト2: DBから読み込み（free_amount=80, paid_amount=20）
         $item2 = TrxItem::where('sys_player_id', 1)
             ->where('mst_item_id', 'item_004')
             ->first();
 
-        // リクエスト1: amount - 10（相対的な更新）
-        $item1->setAmount($item1->amount - 10);
+        // リクエスト1: paid_amount - 10（相対的な更新）
+        $item1->setPaidAmount($item1->paid_amount - 10);
         $repository1 = new TrxItemRepository();
         $repository1->setModel($item1);
         $queryManager1 = new QueryManager();
         $queryManager1->registerRepository($repository1);
         $queryManager1->execAllQuery();
 
-        // リクエスト2: amount - 20（相対的な更新）
-        // 注意: item2はまだamount=100を持っているが、相対的な更新により-20が正しく適用される
-        $item2->setAmount($item2->amount - 20);
+        // リクエスト2: free_amount - 20（相対的な更新）
+        // 注意: item2はまだfree_amount=80を持っているが、相対的な更新により-20が正しく適用される
+        $item2->setFreeAmount($item2->free_amount - 20);
         
         $repository2 = new TrxItemRepository();
         $repository2->setModel($item2);
@@ -153,12 +160,13 @@ class TrxItemRepositoryTest extends TestCase
         $queryManager2->execAllQuery();
 
         // Assert: DBから再取得して確認
-        // 相対的な更新により、100 - 10 - 20 = 70 になるべき
+        // 相対的な更新により、free_amount=80-20=60, paid_amount=20-10=10 になるべき
         $finalItem = TrxItem::where('sys_player_id', 1)
             ->where('mst_item_id', 'item_004')
             ->first();
         
-        $this->assertEquals(70, $finalItem->amount);
+        $this->assertEquals(60, $finalItem->free_amount);
+        $this->assertEquals(10, $finalItem->paid_amount);
     }
 
     /**
@@ -170,7 +178,8 @@ class TrxItemRepositoryTest extends TestCase
         $item = new TrxItem([
             'sys_player_id' => 1,
             'mst_item_id' => 'item_005',
-            'amount' => 50,
+            'free_amount' => 40,
+            'paid_amount' => 10,
         ]);
         $item->exists = false;
 
@@ -184,7 +193,8 @@ class TrxItemRepositoryTest extends TestCase
             ->first();
         
         $this->assertNotNull($createdItem);
-        $this->assertEquals(50, $createdItem->amount);
+        $this->assertEquals(40, $createdItem->free_amount);
+        $this->assertEquals(10, $createdItem->paid_amount);
     }
 
     /**
@@ -196,11 +206,12 @@ class TrxItemRepositoryTest extends TestCase
         $item = TrxItem::create([
             'sys_player_id' => 1,
             'mst_item_id' => 'item_006',
-            'amount' => 100,
+            'free_amount' => 80,
+            'paid_amount' => 20,
         ]);
 
         // Act: 相対的な変更を記録
-        $item->setAmount($item->amount - 10);
+        $item->setPaidAmount($item->paid_amount - 10);
         
         // 相対的な変更があることを確認
         $this->assertTrue($item->hasRelativeChanges());

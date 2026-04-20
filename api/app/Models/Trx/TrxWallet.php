@@ -13,7 +13,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * Gold, EventCoin, RaidMedal, PvPPoint, GvGPoint等を統合管理
  * 
  * mst_item_id: 通貨アイテムID (string型: "gold", "event_coin"等)
- * amount: 現在の残高
+ * free_amount: 無償通貨数
+ * paid_amount: 有償通貨数
+ * 
+ * FIFO管理・有効期限管理が必要な通貨を管理
+ * trx_wallet_balanceテーブルで取得単位の詳細管理を行う
  */
 class TrxWallet extends _BaseTrx
 {
@@ -51,7 +55,8 @@ class TrxWallet extends _BaseTrx
     protected $fillable = [
         'sys_player_id',
         'mst_item_id',
-        'amount',
+        'free_amount',
+        'paid_amount',
         'is_delete',
         'created_at',
         'updated_at',
@@ -60,7 +65,8 @@ class TrxWallet extends _BaseTrx
     protected $casts = [
         'sys_player_id' => 'integer',
         'mst_item_id' => 'string',
-        'amount' => 'integer',
+        'free_amount' => 'integer',
+        'paid_amount' => 'integer',
         'created_at' => 'immutable_datetime',
         'updated_at' => 'immutable_datetime',
     ];
@@ -129,26 +135,57 @@ class TrxWallet extends _BaseTrx
     // ===== Getter Methods =====
 
     /**
-     * 通貨の残高を取得
+     * 無償通貨の残高を取得
      * 
      * @return int
      */
-    public function getAmount(): int
+    public function getFreeAmount(): int
     {
-        return $this->amount;
+        return $this->free_amount;
+    }
+
+    /**
+     * 有償通貨の残高を取得
+     * 
+     * @return int
+     */
+    public function getPaidAmount(): int
+    {
+        return $this->paid_amount;
+    }
+
+    /**
+     * 合計残高を取得（無償 + 有償）
+     * 
+     * @return int
+     */
+    public function getTotalAmount(): int
+    {
+        return $this->getFreeAmount() + $this->getPaidAmount();
     }
 
     // ===== Setter Methods =====
 
     /**
-     * 通貨の残高を設定
+     * 無償通貨の残高を設定
      * 
-     * @param int $amount
+     * @param int $freeAmount
      * @return void
      */
-    public function setAmount(int $amount): void
+    public function setFreeAmount(int $freeAmount): void
     {
-        $this->setAttribute('amount', $amount);
+        $this->setAttribute('free_amount', $freeAmount);
+    }
+
+    /**
+     * 有償通貨の残高を設定
+     * 
+     * @param int $paidAmount
+     * @return void
+     */
+    public function setPaidAmount(int $paidAmount): void
+    {
+        $this->setAttribute('paid_amount', $paidAmount);
     }
 
     /**

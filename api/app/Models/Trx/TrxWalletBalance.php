@@ -7,14 +7,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * TrxWalletBalance Model
  * 
- * 通貨残高を取得単位で管理するモデル（FIFO方式 + 有効期限管理）
+ * 通貨残高を取得単位で管理するモデル（FIFO方式 + 有効期限管理 + 有償/無償管理）
  * PRIMARY KEY: id
  * 
- * FIFO優先順位:
- * 1. expire_at ASC (有効期限が近いものから、NULLは最後)
- * 2. id ASC (古い取得から)
+ * FIFO優先順位（有償を優先的に消費）:
+ * 1. is_paid DESC (有償から消費)
+ * 2. expire_at ASC (有効期限が近いものから、NULLは最後)
+ * 3. id ASC (古い取得から)
  * 
  * mst_item_id: 通貨アイテムID (string型: "gold", "event_coin"等)
+ * is_paid: 有償フラグ (true=有償、false=無償)
  * current_amount: 現在の残数
  * initial_amount: 取得時の数
  * expire_at: 有効期限 (NULLの場合は無期限)
@@ -40,6 +42,7 @@ class TrxWalletBalance extends _BaseTrx
     protected $fillable = [
         'sys_player_id',
         'mst_item_id',
+        'is_paid',
         'current_amount',
         'initial_amount',
         'expire_at',
@@ -52,6 +55,7 @@ class TrxWalletBalance extends _BaseTrx
         'id' => 'integer',
         'sys_player_id' => 'integer',
         'mst_item_id' => 'string',
+        'is_paid' => 'boolean',
         'current_amount' => 'integer',
         'initial_amount' => 'integer',
         'expire_at' => 'immutable_datetime',
@@ -91,6 +95,16 @@ class TrxWalletBalance extends _BaseTrx
     // ===== Getter Methods =====
 
     /**
+     * 有償フラグを取得
+     * 
+     * @return bool
+     */
+    public function getIsPaid(): bool
+    {
+        return $this->is_paid;
+    }
+
+    /**
      * 現在の残高を取得
      * 
      * @return int
@@ -101,6 +115,17 @@ class TrxWalletBalance extends _BaseTrx
     }
 
     // ===== Setter Methods =====
+
+    /**
+     * 有償フラグを設定
+     * 
+     * @param bool $isPaid
+     * @return void
+     */
+    public function setIsPaid(bool $isPaid): void
+    {
+        $this->setAttribute('is_paid', $isPaid);
+    }
 
     /**
      * 現在の残高を設定

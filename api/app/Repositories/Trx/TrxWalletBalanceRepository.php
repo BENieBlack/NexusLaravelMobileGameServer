@@ -12,9 +12,10 @@ use Illuminate\Support\Collection;
  * 通貨残高管理Repository（取得単位）
  * FIFO方式で消費し、有効期限管理を可能にする
  *
- * FIFO優先順位:
- * 1. expire_at ASC (有効期限が近いものから、NULLは最後)
- * 2. id ASC (古い取得から)
+ * FIFO優先順位（有償優先消費）:
+ * 1. is_paid DESC (有償を優先的に消費)
+ * 2. expire_at ASC (有効期限が近いものから、NULLは最後)
+ * 3. id ASC (古い取得から)
  * 
  * @extends _BaseTrxRepository<TrxWalletBalance>
  */
@@ -23,7 +24,7 @@ class TrxWalletBalanceRepository extends _BaseTrxRepository
     protected string $modelClass = TrxWalletBalance::class;
 
     /**
-     * 残高を取得（FIFO順：有効期限が近いものから）
+     * 残高を取得（FIFO順：有償優先 → 有効期限が近いものから）
      * 
      * @param string $mstItemId アイテムID
      * @return Collection<int, TrxWalletBalance>
@@ -32,12 +33,13 @@ class TrxWalletBalanceRepository extends _BaseTrxRepository
     {
         $sysPlayerId = $this->getSysPlayerId();
         
-        // DBから取得（FIFO順）
-        // 優先順位: expire_at ASC (NULLは最後), id ASC
+        // DBから取得（FIFO順、有償優先）
+        // 優先順位: is_paid DESC (有償優先), expire_at ASC (NULLは最後), id ASC
         return TrxWalletBalance::query()
             ->where('sys_player_id', $sysPlayerId)
             ->where('mst_item_id', $mstItemId)
             ->where('current_amount', '>', 0)
+            ->orderBy('is_paid', 'DESC')
             ->orderByRaw('expire_at IS NULL, expire_at ASC')
             ->orderBy('id', 'ASC')
             ->get();

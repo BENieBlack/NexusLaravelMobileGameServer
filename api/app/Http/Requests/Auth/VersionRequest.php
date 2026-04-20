@@ -13,7 +13,7 @@ class VersionRequest extends _BaseRequest
      */
     public function authorize(): bool
     {
-        // Access-Tokenの検証は後でミドルウェアで実装
+        // Access-Tokenの検証はミドルウェアで実施
         return true;
     }
 
@@ -25,40 +25,36 @@ class VersionRequest extends _BaseRequest
     public function rules(): array
     {
         return [
-            // HTTPヘッダーから取得するため、header経由でバリデーション
+            'deploy_version' => 'nullable|integer',
         ];
     }
 
     /**
-     * Access-Tokenをヘッダーから取得
-     *
-     * @return string|null
-     */
-    public function getAccessToken(): ?string
-    {
-        return $this->headers->get('Access-Token');
-    }
-
-    /**
-     * Client-Versionをヘッダーから取得
-     *
-     * @return string|null
-     */
-    public function getClientVersion(): ?string
-    {
-        return $this->headers->get('Client-Version');
-    }
-
-    /**
-     * Deploy-Versionをヘッダーから取得
+     * Deploy-Versionを取得（ヘッダーまたはボディ）
      * sys_deploy.idに該当
      *
      * @return int|null
      */
     public function getDeployVersion(): ?int
     {
-        $version = $this->headers->get('Deploy-Version');
+        // ボディから取得を優先、なければヘッダーから取得
+        $version = $this->input('deploy_version') ?? $this->headers->get('Deploy-Version');
         return $version !== null ? (int) $version : null;
+    }
+
+    /**
+     * バリデーション用の入力データを準備
+     *
+     * @return void
+     */
+    protected function prepareForValidation(): void
+    {
+        // ボディで deploy_version が渡されていない場合、ヘッダーから取得
+        if (!$this->has('deploy_version') && $this->headers->has('Deploy-Version')) {
+            $this->merge([
+                'deploy_version' => $this->headers->get('Deploy-Version'),
+            ]);
+        }
     }
 
     /**
@@ -69,26 +65,8 @@ class VersionRequest extends _BaseRequest
     public function messages(): array
     {
         return [
-            'Access-Token.required' => 'Access-Token header is required',
-            'Client-Version.required' => 'Client-Version header is required',
-            'Deploy-Version.required' => 'Deploy-Version header is required',
-            'Deploy-Version.integer' => 'Deploy-Version must be an integer',
+            'deploy_version.integer' => 'Deploy version must be an integer',
         ];
-    }
-
-    /**
-     * バリデーション用の入力データを準備
-     *
-     * @return void
-     */
-    protected function prepareForValidation(): void
-    {
-        // ヘッダーの値をバリデーション可能な形式にマージ
-        $this->merge([
-            'Access-Token' => $this->headers->get('Access-Token'),
-            'Client-Version' => $this->headers->get('Client-Version'),
-            'Deploy-Version' => $this->headers->get('Deploy-Version'),
-        ]);
     }
 
     /**
@@ -99,9 +77,7 @@ class VersionRequest extends _BaseRequest
     public function attributes(): array
     {
         return [
-            'Access-Token' => 'Access Token',
-            'Client-Version' => 'Client Version',
-            'Deploy-Version' => 'Deploy Version',
+            'deploy_version' => 'Deploy Version',
         ];
     }
 }

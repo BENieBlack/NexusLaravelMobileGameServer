@@ -149,7 +149,9 @@ abstract class _BaseMstRepository extends _BaseRepository implements _BaseMstRep
      */
     public static function clearAllCaches(): void
     {
-        // Redisキャッシュ全体をクリア（mst:*のパターンで削除）
-        Cache::store('redis')->flush();
+        // Redisキャッシュ全体をクリア（テスト環境のみで使用）
+        /** @var \Illuminate\Cache\RedisStore $store */
+        $store = Cache::store('redis');
+        $store->flush();
     }
 }

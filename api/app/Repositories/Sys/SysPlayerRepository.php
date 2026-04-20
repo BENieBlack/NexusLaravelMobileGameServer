@@ -138,4 +138,17 @@ class SysPlayerRepository extends _BaseSysRepository
         // DBで確認
         return $this->modelClass::where('my_id', $myId)->exists();
     }
+
+    /**
+     * 最終ログイン日時を更新
+     *
+     * @param SysPlayer $sysPlayer
+     * @param \Carbon\CarbonImmutable $loginAt
+     * @return void
+     */
+    public function updateLastLoginAt(SysPlayer $sysPlayer, \Carbon\CarbonImmutable $loginAt): void
+    {
+        $sysPlayer->last_login_at = $loginAt;
+        $this->setModel($sysPlayer);
+    }
 }

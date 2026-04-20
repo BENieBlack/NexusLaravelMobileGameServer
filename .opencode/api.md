@@ -179,66 +179,111 @@ Log Modelを実装・レビューする際は、以下を確認してくださ�
 
 ### 基本ルール
 
-**スマホアプリとのやりとりはuuidで行い、API内部のやりとりはidで行う**
+**セキュリティレベルに応じてuuid、my_id、idを使い分ける**
 
-### 詳細
+### 識別子の種類と用途
 
-#### 外部API（スマホアプリ ↔ API）
+#### 1. `uuid` (string, 36文字) - セキュアなAPI用
 
-- **使用する識別子**: `uuid` (string)
-- **理由**:
-  - セキュリティ: 連番のIDを公開すると総ユーザー数などが推測可能
-  - 予測不可能性: UUIDはランダムで推測が困難
-  - プライバシー保護: 内部IDを隠蔽
-  - 外部システム連携: グローバルに一意な識別子
+- **用途**: 改竄されたら問題がある重要なAPI
+- **セキュリティレベル**: 高
+- **例**: 
+  - 課金API（ダイヤ購入、パック購入）
+  - リソース付与API（アイテム付与、ユニット付与）
+  - プレイヤー情報変更API（名前変更、設定変更）
+  - 報酬受取API（メールボックス報酬受取）
 
-**例: APIレスポンス**
+**理由**:
+- 予測不可能: UUIDはランダム生成で総当たり攻撃が困難
+- 改竄防止: 他人のuuidを推測して不正操作することが事実上不可能
+- グローバル一意性: 外部システム連携にも対応
+
+**例: APIリクエスト（課金API）**
 ```json
+POST /api/in_app_purchase/buy
 {
-  "player": {
-    "uuid": "bccc489b-9f4f-4ebb-b63a-02fa9259c74d",
-    "name": "PlayerName",
-    "level": 10
-  }
+  "uuid": "bccc489b-9f4f-4ebb-b63a-02fa9259c74d",
+  "product_id": "diamond_pack_100"
 }
 ```
 
-**例: APIリクエスト**
+#### 2. `my_id` (string, 8文字) - ユーザーフレンドリーなAPI用
+
+- **用途**: 改竄されても大きな問題がない社交的なAPI
+- **セキュリティレベル**: 中
+- **例**:
+  - フレンド検索（my_idで他プレイヤーを検索）
+  - フレンド申請送信
+  - プレイヤー検索
+  - ギルド招待
+
+**理由**:
+- ユーザーフレンドリー: 8桁で覚えやすい、口頭で伝えやすい
+- 紛らわしい文字除外: I/l/O/0を除外（58文字セット）
+- 画面表示に最適: プレイヤーカードやフレンドリストに表示
+- カスタマーサポート: 問い合わせ時のID特定に使用
+
+**文字セット**:
+- 大文字: `ABCDEFGHJKLMNPQRSTUVWXYZ` (24文字 - IとOを除外)
+- 小文字: `abcdefghijkmnopqrstuvwxyz` (25文字 - lを除外)
+- 数字: `123456789` (9文字 - 0を除外)
+- 合計: 58文字 → 8桁で128兆パターン
+
+**例: APIリクエスト（フレンド申請）**
 ```json
-POST /api/player/bccc489b-9f4f-4ebb-b63a-02fa9259c74d/items
+POST /api/friend/apply/send
+{
+  "my_id": "Ab3Xy9Kp"
+}
 ```
 
-#### 内部処理（API内部、DB操作）
+**例: 画面表示**
+```
+┌─────────────────────┐
+│ プレイヤー情報       │
+├─────────────────────┤
+│ ID: Ab3Xy9Kp        │
+│ 名前: Player123     │
+│ レベル: 50          │
+└─────────────────────┘
+```
 
-- **使用する識別子**: `id` (bigint)
-- **理由**:
-  - パフォーマンス: 数値型の検索・JOIN が高速
-  - ストレージ効率: bigint(8バイト) < UUID文字列(36バイト)
-  - インデックス効率: 数値型インデックスが効率的
-  - AUTO_INCREMENT: IDの自動採番が可能
+#### 3. `id` (bigint) - 内部処理用
+
+- **用途**: API内部、DB操作、内部ロジック
+- **セキュリティレベル**: 内部のみ（外部に公開しない）
+
+**理由**:
+- パフォーマンス: 数値型の検索・JOIN が高速
+- ストレージ効率: bigint(8バイト) < UUID(36バイト)
+- インデックス効率: 数値型インデックスが効率的
+- AUTO_INCREMENT: IDの自動採番が可能
 
 **例: 内部処理**
 ```php
-// APIコントローラー層: UUIDで受け取る
-public function getPlayer(string $uuid)
+// my_idでプレイヤーを検索（フレンド申請）
+public function sendFriendRequest(string $myId)
 {
-    // UUIDからIDに変換
+    // my_idからIDに変換
+    $targetPlayer = SysPlayer::where('my_id', $myId)->firstOrFail();
+    $targetPlayerId = $targetPlayer->id;
+    
+    // 内部処理はIDで実行
+    $friendApply = new SysFriendApply();
+    $friendApply->sender_sys_player_id = Auth::id();
+    $friendApply->receiver_sys_player_id = $targetPlayerId;
+    $friendApply->save();
+}
+
+// uuidでプレイヤーを検索（課金API）
+public function buyDiamond(string $uuid, string $productId)
+{
+    // uuidからIDに変換
     $player = SysPlayer::where('uuid', $uuid)->firstOrFail();
     $playerId = $player->id;
     
     // 内部処理はIDで実行
-    $items = TrxItem::where('sys_player_id', $playerId)->get();
-    $units = TrxUnit::where('sys_player_id', $playerId)->get();
-    
-    // レスポンスはUUIDに変換
-    return response()->json([
-        'player' => [
-            'uuid' => $player->uuid,  // UUIDを返す
-            'name' => $player->name,
-        ],
-        'items' => $items,
-        'units' => $units,
-    ]);
+    $this->purchaseService->processPurchase($playerId, $productId);
 }
 ```
 
@@ -406,42 +451,151 @@ class PlayerService
    SELECT * FROM trx_item WHERE player_uuid = 'bccc489b-...';
    ```
 
-#### サポート対応（カスタマーサポート）
+### データベース設計
 
-- **使用する識別子**: `my_id` (string, 8文字)
-- **理由**:
-  - 問い合わせ時の識別: ユーザーが口頭で伝えやすい
-  - 紛らわしい文字除外: I, l, O, 0を除外（58文字セット）
-  - 短くて覚えやすい: 8桁で十分なユニーク性（128兆パターン）
-  - 衝突確率: 約113万ユーザーで1%以下
-
-**文字セット**:
-- 大文字: `ABCDEFGHJKLMNPQRSTUVWXYZ` (24文字 - IとOを除外)
-- 小文字: `abcdefghijkmnopqrstuvwxyz` (25文字 - lを除外)
-- 数字: `123456789` (9文字 - 0を除外)
-
-**例: サポート画面**
-```
-プレイヤーID: Ab3Xy9Kp
-お問い合わせ時にこのIDをお伝えください
+#### sys_player テーブル
+```sql
+CREATE TABLE sys_player (
+    id bigint PRIMARY KEY AUTO_INCREMENT,  -- 内部用ID（全シャード共通で一元採番）
+    uuid varchar(191) UNIQUE,               -- セキュアなAPI用UUID（36文字）
+    my_id varchar(8) UNIQUE,                -- ユーザーフレンドリーなID（8桁、紛らわしい文字除外）
+    name varchar(191) UNIQUE,               -- プレイヤー名
+    level int unsigned,
+    level_exp int unsigned,
+    last_login_at datetime NULL,
+    created_at datetime DEFAULT CURRENT_TIMESTAMP,
+    updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
 ```
 
-**例: サポートツールでの検索**
+### APIによる使い分け例
+
+| API | 識別子 | 理由 |
+|-----|--------|------|
+| 課金（ダイヤ購入） | `uuid` | 改竄されると金銭的損失 |
+| 課金（パック購入） | `uuid` | 改竄されると金銭的損失 |
+| メールボックス報酬受取 | `uuid` | 不正にアイテム取得される |
+| ガチャ実行 | `uuid` | 改竄されるとリソース不正取得 |
+| ユニット強化 | `uuid` | 改竄されると不正強化 |
+| フレンド申請送信 | `my_id` | 他プレイヤーを探す用途 |
+| フレンド申請承認/却下 | トークンで認証 | 自分宛ての申請のみ操作可能 |
+| プレイヤー検索 | `my_id` | 他プレイヤーを探す用途 |
+| ログイン | トークンで認証 | 認証済みプレイヤーのみ |
+| プレイヤー情報取得 | トークンで認証 | 自分の情報のみ取得可能 |
+
+### セキュリティ設計の原則
+
+1. **改竄リスクの高いAPI**: `uuid`を使用
+   - リソース付与、消費系
+   - 金銭に関わる処理
+   - プレイヤーデータ変更
+
+2. **社交的なAPI**: `my_id`を使用
+   - フレンド機能
+   - プレイヤー検索
+   - ギルド招待
+
+3. **認証済み操作**: トークンで認証
+   - 自分のデータのみ操作
+   - リクエストにuuid/my_idを含めない
+   - ミドルウェアでプレイヤーIDを取得
+
+### 実装パターン
+
+#### パターン1: uuid使用（課金API）
+
 ```php
-// サポート担当者がmy_idで検索
-$player = SysPlayer::findByMyId('Ab3Xy9Kp');
+// ❌ Bad: 推測可能なIDを使用
+POST /api/in_app_purchase/buy
+{
+  "player_id": 12345,  // 連番IDは推測されやすい
+  "product_id": "diamond_100"
+}
+
+// ✅ Good: uuidを使用
+POST /api/in_app_purchase/buy
+{
+  "uuid": "bccc489b-9f4f-4ebb-b63a-02fa9259c74d",  // 推測不可能
+  "product_id": "diamond_100"
+}
 ```
+
+#### パターン2: my_id使用（フレンド申請）
+
+```php
+// ✅ Good: my_idを使用
+POST /api/friend/apply/send
+{
+  "my_id": "Ab3Xy9Kp"  // ユーザーフレンドリー
+}
+
+// コントローラー実装
+public function sendFriendRequest(ApplySendRequest $request)
+{
+    $myId = $request->getMyId();
+    $targetPlayer = SysPlayer::where('my_id', $myId)->firstOrFail();
+    
+    // 送信者は認証トークンから取得
+    $senderPlayerId = Auth::id();
+    
+    // フレンド申請作成
+    $this->friendService->sendApply($senderPlayerId, $targetPlayer->id);
+}
+```
+
+#### パターン3: トークン認証（ログイン後API）
+
+```php
+// ✅ Good: トークンで認証
+POST /api/player/me
+// リクエストボディなし、トークンのみ
+
+// コントローラー実装
+public function me(MeRequest $request)
+{
+    // ミドルウェアで認証済みプレイヤーIDを取得
+    $sysPlayerId = $request->getAuthenticatedPlayerId();
+    
+    // 自分の情報のみ取得
+    return $this->playerService->getPlayerData($sysPlayerId);
+}
+```
+
+### パフォーマンス最適化
+
+1. **両方にインデックスを作成**:
+   ```sql
+   CREATE UNIQUE INDEX idx_uuid ON sys_player(uuid);
+   CREATE UNIQUE INDEX idx_my_id ON sys_player(my_id);
+   ```
+
+2. **内部処理は必ずIDを使用**:
+   ```sql
+   -- 高速: 数値型のJOIN
+   SELECT * FROM trx_item WHERE sys_player_id = 123;
+   
+   -- 低速: 文字列型のJOIN（使わない）
+   SELECT * FROM trx_item WHERE player_uuid = 'bccc489b-...';
+   SELECT * FROM trx_item WHERE player_my_id = 'Ab3Xy9Kp';
+   ```
+
+### セキュリティ上の注意
+
+1. **uuidは予測不可能**: UUID v4はランダム生成で総当たり攻撃が困難
+2. **my_idは短いが十分**: 8桁58文字セットで128兆パターン（衝突確率は極めて低い）
+3. **内部IDは絶対に公開しない**: 連番IDは総ユーザー数などが推測可能
+4. **トークン認証を優先**: 可能な限りトークンで認証し、識別子をリクエストに含めない
 
 ### まとめ
 
-| 用途 | 識別子 | 型 | 用途例 |
-|-----|--------|----|----|
-| 外部API | `uuid` | string (36文字) | APIリクエスト/レスポンス |
-| 内部処理 | `id` | bigint | DB検索、JOIN、内部ロジック |
-| サポート対応 | `my_id` | string (8文字) | 問い合わせID、サポートツール |
-| 外部DB参照 | `sys_player_id` | bigint | trx_*, log_* テーブルの外部キー |
+| 用途 | 識別子 | 型 | セキュリティ | 用途例 |
+|-----|--------|----|-----------|----|
+| セキュアなAPI | `uuid` | string (36文字) | 高 | 課金、報酬受取、リソース操作 |
+| 社交的なAPI | `my_id` | string (8文字) | 中 | フレンド検索、プレイヤー検索 |
+| 内部処理 | `id` | bigint | 内部のみ | DB検索、JOIN、内部ロジック |
+| 外部DB参照 | `sys_player_id` | bigint | 内部のみ | trx_*, log_* テーブルの外部キー |
 
-**原則**: 境界（API層）で変換し、内部は効率的に、外部は安全に。
+**原則**: セキュリティレベルに応じて使い分け、境界（API層）で変換し、内部は効率的に。
 
 ## シャーディング設計
 
@@ -1164,6 +1318,137 @@ Route::prefix('v2')->group(function () {
 
 このプロジェクトでは、一貫性のあるJSONレスポンス形式を採用しています。
 
+#### APIキーケースの方針
+
+**重要: このプロジェクトではスネークケース（snake_case）を採用します**
+
+```json
+{
+  "needs_update": true,
+  "latest_deploy_id": 1,
+  "master": {
+    "deploy_master_id": 3,
+    "hash": "430fe9e35ab4660c35127cb6d7425aaf9c2b4d3d1868a5845d1a96d9409a1736"
+  }
+}
+```
+
+**採用理由:**
+
+1. **データベース一貫性**: DBカラム名と完全一致（`trx_unit`, `mst_item_id`など）
+2. **Laravel標準**: Laravelのデフォルトがスネークケース
+3. **変換コスト削減**: サーバー側で変換処理が不要
+4. **RFC 8927準拠**: JSON API仕様でスネークケースを推奨
+5. **可読性**: アンダースコアで単語が区切られて読みやすい
+
+#### 配列の命名規則
+
+**重要: 複数形の代わりに `_list` サフィックスを使用します**
+
+日本人エンジニアにとって英語の複数形変換は難しく、ミスが発生しやすいため、配列には一律で `_list` サフィックスを使用します。
+
+```json
+{
+  "trx_unit_list": [...],      // ✅ Good: _list サフィックス
+  "trx_item_list": [...],      // ✅ Good: _list サフィックス
+  "trx_wallet_list": [...],    // ✅ Good: _list サフィックス
+  "login_bonus_list": [...]    // ✅ Good: _list サフィックス
+}
+```
+
+```json
+{
+  "trx_units": [...],          // ❌ Bad: 複数形
+  "trx_wallets": [...],        // ❌ Bad: 複数形
+  "trx_item": [...],           // ❌ Bad: 単数形（配列なのに）
+}
+```
+
+**理由:**
+
+1. **複数形変換が不要**: unit → units, item → items, wallet → wallets など覚える必要がない
+2. **一貫性**: すべての配列に同じルールを適用できる
+3. **明確性**: `_list` サフィックスで配列であることが一目でわかる
+4. **ミス防止**: equipment → equipments? equipment? で迷わない
+
+**例外:**
+
+- 配列ではない場合は `_list` を付けない
+- 単一オブジェクトは単数形（例: `sys_player`, `master`, `asset`）
+
+**クライアント側での対応:**
+
+クライアント（iOS/Android/Web）で必要に応じてキャメルケースに変換してください。
+
+```typescript
+// TypeScript例: スネークケースをキャメルケースに変換
+function snakeToCamel(obj: any): any {
+  if (Array.isArray(obj)) {
+    return obj.map(v => snakeToCamel(v));
+  } else if (obj !== null && obj.constructor === Object) {
+    return Object.keys(obj).reduce((result, key) => {
+      const camelKey = key.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
+      result[camelKey] = snakeToCamel(obj[key]);
+      return result;
+    }, {} as any);
+  }
+  return obj;
+}
+
+// 使用例
+const response = await apiClient.login();
+const data = snakeToCamel(response.data);
+// { sysPlayer, trxUnitList, loginBonusList }
+```
+
+```kotlin
+// Kotlin例: スネークケースをキャメルケースに変換
+data class LoginResponse(
+    @SerializedName("sys_player") val sysPlayer: Player,
+    @SerializedName("trx_unit_list") val trxUnitList: List<Unit>,
+    @SerializedName("trx_item_list") val trxItemList: List<Item>,
+    @SerializedName("login_bonus_list") val loginBonusList: List<Bonus>
+)
+```
+
+**禁止事項:**
+
+```php
+// ❌ Bad: サーバー側でキャメルケースに変換しない
+public function toArray(): array
+{
+    return [
+        'myId' => $this->myId,          // NG
+        'trxUnits' => $this->trxUnits,  // NG
+    ];
+}
+
+// ❌ Bad: 複数形を使用しない
+public function toArray(): array
+{
+    return [
+        'trx_units' => [...],           // NG: units
+        'trx_wallets' => [...],         // NG: wallets
+    ];
+}
+
+// ✅ Good: スネークケース + _list サフィックス
+public function toArray(): array
+{
+    return [
+        'my_id' => $this->myId,
+        'trx_unit_list' => array_map(
+            fn($unit) => $unit->toResponseArray(),
+            $this->trxUnits
+        ),
+        'trx_wallet_list' => array_map(
+            fn($wallet) => $wallet->toResponseArray(),
+            $this->trxWallets
+        ),
+    ];
+}
+```
+
 #### 成功レスポンス
 
 **基本構造:**
@@ -1181,9 +1466,10 @@ Route::prefix('v2')->group(function () {
 ```
 
 **命名規約:**
-- スネークケース（`needs_update`, not `needsUpdate`）
-- JavaScriptのキャメルケースではなく、Laravelの標準に従う
-- クライアント側でキャメルケースに変換する場合は、フロントエンド側で対応
+- **必須**: スネークケース（`needs_update`, `latest_deploy_id`）
+- **禁止**: キャメルケース（`needsUpdate`, `latestDeployId`）
+- **推奨**: 短く明確な名前
+- **ネストオブジェクト**: 最大3階層まで
 
 **データ構造:**
 - null値は省略可能（クライアントの判定を簡潔に）

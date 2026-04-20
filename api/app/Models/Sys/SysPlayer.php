@@ -29,6 +29,7 @@ class SysPlayer extends _BaseSys
         'name',
         'level',
         'level_exp',
+        'last_login_at',
     ];
 
     /**
@@ -39,6 +40,7 @@ class SysPlayer extends _BaseSys
     protected $casts = [
         'level' => 'integer',
         'level_exp' => 'integer',
+        'last_login_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -242,7 +244,7 @@ class SysPlayer extends _BaseSys
     /**
      * レスポンス用配列に変換
      * 
-     * データベース層の'id'をAPI層の'sys_player_id'に変換
+     * データベース層の'id'は除外（内部IDのため）
      * 
      * @return array
      */
@@ -250,10 +252,8 @@ class SysPlayer extends _BaseSys
     {
         $array = parent::toResponseArray();
         
-        if (isset($array['id'])) {
-            $array['sys_player_id'] = $array['id'];
-            unset($array['id']);
-        }
+        // 内部IDは除外（parent::toResponseArray()で既に除外されている）
+        unset($array['id']);
         
         return $array;
     }

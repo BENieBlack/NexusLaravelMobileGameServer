@@ -188,6 +188,9 @@ class LevelService
     /**
      * レベルアップ時にスタミナを全回復（プライベートメソッド）
      * 
+     * 自然回復計算を行った後、最大スタミナ分を加算します。
+     * 結果として最大スタミナを超過することができます。
+     * 
      * @param int $sysPlayerId プレイヤーID
      * @param int $newMaxStamina 新しい最大スタミナ
      * @return void
@@ -204,7 +207,6 @@ class LevelService
                 'sys_player_id' => $sysPlayerId,
                 'type' => StaminaConst::TYPE_NORMAL,
                 'current_stamina' => $newMaxStamina,
-                'overflow_stamina' => 0,
                 'recovery_rate_multiplier' => 1.00,
                 'last_recovery_at' => $now,
                 'created_at' => $now,
@@ -216,9 +218,53 @@ class LevelService
             return;
         }
         
-        // 通常枠を最大値まで全回復（オーバーフロー枠はそのまま）
-        $stamina->setCurrentStamina($newMaxStamina);
-        $stamina->setLastRecoveryAt(\Carbon\Carbon::instance(\App\Utilities\Clock::now()));
+        // 自然回復計算を適用
+        $this->applyAutoRecoveryForLevelUp($stamina, $newMaxStamina);
+        
+        // 最大スタミナ分を加算（最大値超過可能）
+        $stamina->setCurrentStamina($stamina->getCurrentStamina() + $newMaxStamina);
         $this->trxStaminaRepository->setModel($stamina);
+    }
+
+    /**
+     * レベルアップ時の自然回復計算（プライベートメソッド）
+     * 
+     * StaminaServiceと同じロジックで自然回復を計算します。
+     * 
+     * @param \App\Models\Trx\TrxStamina $stamina スタミナモデル
+     * @param int $maxStamina プレイヤーの最大スタミナ
+     * @return void
+     */
+    private function applyAutoRecoveryForLevelUp(\App\Models\Trx\TrxStamina $stamina, int $maxStamina): void
+    {
+        // すでに最大値の場合は回復不要
+        if ($stamina->isCurrentStaminaFull($maxStamina)) {
+            return;
+        }
+
+        $now = \App\Utilities\Clock::now();
+        $lastRecoveryAt = \Carbon\CarbonImmutable::parse($stamina->last_recovery_at);
+        
+        // 経過秒数を計算
+        $elapsedSeconds = $now->diffInSeconds($lastRecoveryAt);
+        
+        // 回復速度倍率を適用（5分 = 300秒で1ポイント回復）
+        $effectiveElapsedSeconds = $elapsedSeconds * $stamina->getRecoveryRateMultiplier();
+        
+        // 回復ポイント数を計算
+        $recoveredPoints = (int)floor($effectiveElapsedSeconds / 300);
+        
+        if ($recoveredPoints > 0) {
+            // 新しいスタミナ値を計算
+            $newStamina = min($stamina->getCurrentStamina() + $recoveredPoints, $maxStamina);
+            
+            // 次回回復基準時刻を計算（余剰秒数は切り捨て）
+            $recoveredSeconds = $recoveredPoints * 300;
+            $newLastRecoveryAt = $lastRecoveryAt->addSeconds((int)floor($recoveredSeconds / $stamina->getRecoveryRateMultiplier()));
+            
+            // 値を更新
+            $stamina->setCurrentStamina($newStamina);
+            $stamina->setLastRecoveryAt(\Carbon\Carbon::instance($newLastRecoveryAt));
+        }
     }
 }

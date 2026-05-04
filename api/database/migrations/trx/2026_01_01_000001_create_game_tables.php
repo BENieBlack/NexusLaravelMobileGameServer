@@ -210,8 +210,7 @@ return new class extends Migration
         Schema::connection($connection)->create('trx_stamina', function (Blueprint $table) {
             $table->id()->comment('スタミナID');
             $table->unsignedBigInteger('sys_player_id')->unique()->comment('sys_playerテーブルのID');
-            $table->unsignedInteger('current_stamina')->default(0)->comment('現在のスタミナ（通常枠）');
-            $table->unsignedInteger('overflow_stamina')->default(0)->comment('オーバーフロースタミナ（最大値超過分）');
+            $table->unsignedInteger('current_stamina')->default(0)->comment('現在のスタミナ');
             $table->decimal('recovery_rate_multiplier', 5, 2)->default(1.00)->comment('回復速度倍率（VIP特典等）');
             $table->dateTime('last_recovery_at')->comment('最後の回復計算時刻');
             $table->boolean('is_delete')->default(false)->comment('論理削除フラグ');

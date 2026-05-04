@@ -86,7 +86,6 @@ class ToResponseArrayTest extends TestCase
         $stamina->sys_player_id = 1;
         $stamina->type = StaminaConst::TYPE_NORMAL;
         $stamina->current_stamina = 50;
-        $stamina->overflow_stamina = 0;
         $stamina->recovery_rate_multiplier = 1.0;
         
         $response = $stamina->toResponseArray();

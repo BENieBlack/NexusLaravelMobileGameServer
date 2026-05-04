@@ -14,8 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * 
  * @property int $sys_player_id
  * @property string $type スタミナタイプ（normal, raid, pvp, event等）
- * @property int $current_stamina 現在のスタミナ（通常枠）
- * @property int $overflow_stamina オーバーフロースタミナ（最大値超過分）
+ * @property int $current_stamina 現在のスタミナ
  * @property float $recovery_rate_multiplier 回復速度倍率（VIP特典等）
  * @property \Carbon\CarbonImmutable $last_recovery_at 最後の回復計算時刻
  * @property \Carbon\CarbonImmutable $created_at
@@ -58,7 +57,6 @@ class TrxStamina extends _BaseTrx
         'sys_player_id',
         'type',
         'current_stamina',
-        'overflow_stamina',
         'recovery_rate_multiplier',
         'last_recovery_at',
         'is_delete',
@@ -68,7 +66,6 @@ class TrxStamina extends _BaseTrx
         'sys_player_id' => 'integer',
         'type' => 'string',
         'current_stamina' => 'integer',
-        'overflow_stamina' => 'integer',
         'recovery_rate_multiplier' => 'decimal:2',
         'last_recovery_at' => 'datetime:Y-m-d H:i:s',
         'created_at' => 'datetime:Y-m-d H:i:s',
@@ -106,16 +103,6 @@ class TrxStamina extends _BaseTrx
     }
 
     /**
-     * オーバーフロースタミナを取得
-     *
-     * @return int
-     */
-    public function getOverflowStamina(): int
-    {
-        return $this->getAttribute('overflow_stamina');
-    }
-
-    /**
      * 回復速度倍率を取得
      *
      * @return float
@@ -123,16 +110,6 @@ class TrxStamina extends _BaseTrx
     public function getRecoveryRateMultiplier(): float
     {
         return (float)$this->getAttribute('recovery_rate_multiplier');
-    }
-
-    /**
-     * 合計スタミナを取得（通常枠 + オーバーフロー枠）
-     * 
-     * @return int
-     */
-    public function getTotalStamina(): int
-    {
-        return $this->getCurrentStamina() + $this->getOverflowStamina();
     }
 
     /**
@@ -154,7 +131,7 @@ class TrxStamina extends _BaseTrx
      */
     public function hasEnoughStamina(int $required): bool
     {
-        return $this->getTotalStamina() >= $required;
+        return $this->getCurrentStamina() >= $required;
     }
 
     /**
@@ -188,17 +165,6 @@ class TrxStamina extends _BaseTrx
     public function setCurrentStamina(int $currentStamina): void
     {
         $this->setAttribute('current_stamina', $currentStamina);
-    }
-
-    /**
-     * オーバーフロースタミナを設定
-     *
-     * @param int $overflowStamina
-     * @return void
-     */
-    public function setOverflowStamina(int $overflowStamina): void
-    {
-        $this->setAttribute('overflow_stamina', $overflowStamina);
     }
 
     /**

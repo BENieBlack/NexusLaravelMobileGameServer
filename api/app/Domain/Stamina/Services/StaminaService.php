@@ -83,7 +83,6 @@ class StaminaService
             'sys_player_id' => $sysPlayerId,
             'type' => $type,
             'current_stamina' => $initialStamina,
-            'overflow_stamina' => 0,
             'recovery_rate_multiplier' => 1.00,
             'last_recovery_at' => $now,
             'created_at' => $now,
@@ -124,26 +123,20 @@ class StaminaService
         if (!$stamina->hasEnoughStamina($amount)) {
             return [
                 'success' => false,
-                'remaining' => $stamina->getTotalStamina(),
+                'remaining' => $stamina->getCurrentStamina(),
                 'message' => 'Insufficient stamina',
             ];
         }
 
-        // オーバーフローから優先的に消費
-        if ($stamina->getOverflowStamina() >= $amount) {
-            $stamina->setOverflowStamina($stamina->getOverflowStamina() - $amount);
-        } else {
-            $remaining = $amount - $stamina->getOverflowStamina();
-            $stamina->setOverflowStamina(0);
-            $stamina->setCurrentStamina($stamina->getCurrentStamina() - $remaining);
-        }
+        // スタミナを消費
+        $stamina->setCurrentStamina($stamina->getCurrentStamina() - $amount);
 
         // Repository経由で保存
         $this->trxStaminaRepository->setModel($stamina);
         
         return [
             'success' => true,
-            'remaining' => $stamina->getTotalStamina(),
+            'remaining' => $stamina->getCurrentStamina(),
             'message' => 'Stamina consumed successfully',
         ];
     }
@@ -151,12 +144,15 @@ class StaminaService
     /**
      * スタミナ回復アイテム使用
      * 
+     * 自然回復計算を行った後、指定量を加算します。
+     * 最大スタミナを超過することができます（自然回復で最大値に達していても、アイテムで上乗せ可能）。
+     * 
      * 最大スタミナはプレイヤーのレベルから自動取得されます
      * 
      * @param int $sysPlayerId プレイヤーID
      * @param int $amount 回復量
      * @param string $type スタミナタイプ
-     * @return array{success: bool, total: int, overflow: int, message: string}
+     * @return array{success: bool, total: int, message: string}
      */
     public function recoverStaminaByItem(int $sysPlayerId, int $amount, string $type = StaminaConst::TYPE_NORMAL): array
     {
@@ -166,34 +162,20 @@ class StaminaService
             return [
                 'success' => false,
                 'total' => 0,
-                'overflow' => 0,
                 'message' => 'Stamina record not found',
             ];
         }
 
-        // プレイヤーのレベルから最大スタミナを取得
-        $maxStamina = $this->playerLevelService->getMaxStamina($sysPlayerId);
-
-        // スタミナを回復（オーバーフロー対応）
+        // スタミナを回復（最大値を超過可能）
         $newCurrent = $stamina->getCurrentStamina() + $amount;
-
-        if ($newCurrent <= $maxStamina) {
-            // 通常枠内での回復
-            $stamina->setCurrentStamina($newCurrent);
-        } else {
-            // 通常枠を超えた分はオーバーフロー枠へ
-            $overflow = $newCurrent - $maxStamina;
-            $stamina->setCurrentStamina($maxStamina);
-            $stamina->setOverflowStamina($stamina->getOverflowStamina() + $overflow);
-        }
+        $stamina->setCurrentStamina($newCurrent);
 
         // Repository経由で保存
         $this->trxStaminaRepository->setModel($stamina);
         
         return [
             'success' => true,
-            'total' => $stamina->getTotalStamina(),
-            'overflow' => $stamina->getOverflowStamina(),
+            'total' => $stamina->getCurrentStamina(),
             'message' => 'Stamina recovered successfully',
         ];
     }
@@ -218,15 +200,18 @@ class StaminaService
     /**
      * 時間経過による自動回復を適用（プライベートメソッド）
      * 
+     * このメソッドはスタミナの自動回復計算のみを行い、DB保存は行いません。
+     * DB保存は呼び出し元（consumeStamina、recoverStaminaByItem等）で行います。
+     * 
      * @param TrxStamina $stamina スタミナモデル
      * @param int $maxStamina プレイヤーの最大スタミナ
-     * @return void
+     * @return bool 自動回復が発生したかどうか
      */
-    private function applyAutoRecovery(TrxStamina $stamina, int $maxStamina): void
+    private function applyAutoRecovery(TrxStamina $stamina, int $maxStamina): bool
     {
         // すでに最大値の場合は回復不要
         if ($stamina->isCurrentStaminaFull($maxStamina)) {
-            return;
+            return false;
         }
 
         $now = Clock::now();
@@ -249,13 +234,14 @@ class StaminaService
             $recoveredSeconds = $recoveredPoints * self::RECOVERY_INTERVAL_SECONDS;
             $newLastRecoveryAt = $lastRecoveryAt->addSeconds((int)floor($recoveredSeconds / $stamina->getRecoveryRateMultiplier()));
             
-            // 値を更新
+            // 値を更新（DB保存は呼び出し元で行う）
             $stamina->setCurrentStamina($newStamina);
             $stamina->setLastRecoveryAt(\Carbon\Carbon::instance($newLastRecoveryAt));
             
-            // Repository経由で保存
-            $this->trxStaminaRepository->setModel($stamina);
+            return true;
         }
+
+        return false;
     }
 
     /**

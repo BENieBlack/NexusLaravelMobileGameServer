@@ -12,7 +12,11 @@ use Illuminate\Support\Facades\Route;
 
 // Auth endpoints with action-based routing
 // 認証不要のエンドポイント（最初のアクセス時に必要）
-Route::post('/auth/sign_up', [AuthController::class, 'signUp']);
+// sign_upはクライアント署名検証とレート制限を適用
+Route::middleware(['client.signature', 'throttle.signup'])->group(function () {
+    Route::post('/auth/sign_up', [AuthController::class, 'signUp']);
+});
+
 Route::post('/auth/sign_in', [AuthController::class, 'signIn']);
 Route::post('/auth/refresh_token', [AuthController::class, 'refreshToken']);
 
@@ -51,4 +55,6 @@ Route::middleware(['auth.token', 'idempotency'])->group(function () {
 });
 
 // Legacy signup endpoint (for backward compatibility - consider deprecating)
-Route::post('/signup', [AuthController::class, 'signUp']);
+Route::middleware(['client.signature', 'throttle.signup'])->group(function () {
+    Route::post('/signup', [AuthController::class, 'signUp']);
+});

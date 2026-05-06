@@ -16,6 +16,8 @@ $app = Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'auth.token' => \App\Http\Middleware\VerifyAccessToken::class,
             'idempotency' => \App\Http\Middleware\IdempotencyMiddleware::class,
+            'client.signature' => \App\Http\Middleware\VerifyClientSignature::class,
+            'throttle.signup' => \App\Http\Middleware\ThrottleSignUp::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -107,6 +107,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Client Authentication Secret
+    |--------------------------------------------------------------------------
+    |
+    | This key is used to verify HMAC signatures from mobile clients.
+    | It should be embedded in the mobile application and used to sign
+    | requests to prevent unauthorized API access.
+    |
+    */
+
+    'client_secret' => env('CLIENT_SECRET'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Maintenance Mode Driver
     |--------------------------------------------------------------------------
     |

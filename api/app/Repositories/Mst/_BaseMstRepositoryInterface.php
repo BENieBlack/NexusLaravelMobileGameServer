@@ -2,9 +2,7 @@
 
 namespace App\Repositories\Mst;
 
-use App\Models\Mst\_BaseMstInterface;
-use App\Repositories\_BaseRepositoryInterface;
-use Illuminate\Support\Collection;
+use LaravelPersistence\Repositories\Mst\_BaseMstRepositoryInterface as PersistenceBaseMstRepositoryInterface;
 
 /**
  * _BaseMstRepositoryInterface
@@ -12,15 +10,8 @@ use Illuminate\Support\Collection;
  * マスターデータRepository用のインターフェース
  * マスターデータは読み取り専用でRedisキャッシュを使用
  * 
- * @template T of _BaseMstInterface
+ * @template T of \App\Models\Mst\_BaseMstInterface
  */
-interface _BaseMstRepositoryInterface extends _BaseRepositoryInterface
+interface _BaseMstRepositoryInterface extends PersistenceBaseMstRepositoryInterface
 {
-    /**
-     * IDでマスターレコードを取得
-     * 
-     * @param int|string $mstRecordId
-     * @return T|null
-     */
-    public function selectById($mstRecordId);
 }

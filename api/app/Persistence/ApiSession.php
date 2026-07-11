@@ -2,7 +2,9 @@
 
 namespace App\Persistence;
 
-use App\Utilities\Clock;
+use LaravelUtilities\ClockUtility;
+use LaravelSecurityMiddleware\Contracts\PlayerSessionInterface;
+use LaravelUnitOfWork\Contracts\PlayerSessionResolverInterface;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 
@@ -14,7 +16,7 @@ use Illuminate\Support\Facades\DB;
  * 
  * 管理している情報:
  * - sysPlayerId: 認証されたプレイヤーID
- * - now: リクエスト開始時の固定時刻（Clock::now()）
+ * - now: リクエスト開始時の固定時刻（ClockUtility::now()）
  * 
  * 使用例:
  * - Middleware: ApiSession::setSysPlayerId($sysPlayerId)
@@ -23,7 +25,7 @@ use Illuminate\Support\Facades\DB;
  *   - $now = ApiSession::getNow()
  * - インスタンス操作: app(ApiSession::class)->getPlayerId()
  */
-class ApiSession
+class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterface
 {
     /**
      * プレイヤーID
@@ -64,7 +66,7 @@ class ApiSession
      * @param int $sysPlayerId プレイヤーID
      * @return void
      */
-    public function setPlayerId(int $sysPlayerId): void
+    public function setPlayerIdInstance(int $sysPlayerId): void
     {
         $this->sysPlayerId = $sysPlayerId;
     }
@@ -195,22 +197,34 @@ class ApiSession
     /**
      * 静的ヘルパー: プレイヤーIDとリクエスト開始時刻を設定
      * Middlewareから簡単に呼び出せるヘルパーメソッド
-     * リクエスト開始時刻はClock::now()で自動的に設定される
+     * リクエスト開始時刻はClockUtility::now()で自動的に設定される
      *
      * @param int $sysPlayerId プレイヤーID
      * @return void
      */
     public static function setSysPlayerId(int $sysPlayerId): void
     {
-        $now = Clock::now();
+        $now = ClockUtility::now();
         
         if (!app()->bound(self::class)) {
             app()->instance(self::class, new self($sysPlayerId, $now));
         } else {
             $instance = app(self::class);
-            $instance->setPlayerId($sysPlayerId);
+            $instance->setPlayerIdInstance($sysPlayerId);
             $instance->setNow($now);
         }
+    }
+
+    /**
+     * 静的ヘルパー: プレイヤーIDを設定（PlayerSessionInterface実装）
+     * セキュリティミドルウェアパッケージからの呼び出し用
+     *
+     * @param int $playerId プレイヤーID
+     * @return void
+     */
+    public static function setPlayerId(int $playerId): void
+    {
+        self::setSysPlayerId($playerId);
     }
 
     /**
@@ -281,10 +295,11 @@ class ApiSession
      * 静的ヘルパー: トランザクションDB接続名を取得
      * プレイヤーIDに基づいてシャーディングされたDB接続名を返す
      *
+     * @param string $baseConnection ベース接続名（デフォルト: 'trx'）
      * @return string 接続名（trx1 または trx2）
      * @throws \RuntimeException プレイヤーIDが設定されていない場合、またはシャーディング情報が見つからない場合
      */
-    public static function getConnectionName(): string
+    public static function getConnectionName(string $baseConnection = 'trx'): string
     {
         return app(self::class)->getConnectionNameValue();
     }

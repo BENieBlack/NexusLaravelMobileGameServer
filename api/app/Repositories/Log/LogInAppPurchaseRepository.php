@@ -3,7 +3,7 @@
 namespace App\Repositories\Log;
 
 use App\Models\Log\LogInAppPurchase;
-use App\Utilities\Clock;
+use LaravelUtilities\ClockUtility;
 
 /**
  * LogInAppPurchaseRepository
@@ -64,8 +64,8 @@ class LogInAppPurchaseRepository extends _BaseLogRepository
             'currency_code' => $currencyCode,
             'pay_amount' => $payAmount,
             'pay_string' => $payString,
-            'system_at' => Clock::now(),
-            'created_at' => Clock::now(),
+            'system_at' => ClockUtility::now(),
+            'created_at' => ClockUtility::now(),
         ]);
 
         // 課金ログとして登録（isPurchaseLogプロパティが使用される）

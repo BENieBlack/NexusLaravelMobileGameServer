@@ -201,7 +201,7 @@ class LevelService
         
         if ($stamina === null) {
             // スタミナレコードが存在しない場合は作成
-            $now = \App\Utilities\Clock::now();
+            $now = \App\Utilities\ClockUtility::now();
 
             $trxStamina = new \App\Models\Trx\TrxStamina([
                 'sys_player_id' => $sysPlayerId,
@@ -242,7 +242,7 @@ class LevelService
             return;
         }
 
-        $now = \App\Utilities\Clock::now();
+        $now = \App\Utilities\ClockUtility::now();
         $lastRecoveryAt = \Carbon\CarbonImmutable::parse($stamina->last_recovery_at);
         
         // 経過秒数を計算

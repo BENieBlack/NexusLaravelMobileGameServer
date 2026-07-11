@@ -5,11 +5,33 @@
     "description": "The skeleton application for the Laravel framework.",
     "keywords": ["laravel", "framework"],
     "license": "MIT",
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../packages/laravel-utilities"
+        },
+        {
+            "type": "path",
+            "url": "../packages/laravel-security-middleware"
+        },
+        {
+            "type": "path",
+            "url": "../packages/laravel-persistence-core"
+        },
+        {
+            "type": "path",
+            "url": "../packages/laravel-unit-of-work-core"
+        }
+    ],
     "require": {
         "php": "^8.2",
         "doctrine/dbal": "^4.4",
         "laravel/framework": "^12.0",
-        "laravel/tinker": "^2.10.1"
+        "laravel/tinker": "^2.10.1",
+        "s-nakamura/laravel-utilities": "@dev",
+        "s-nakamura/laravel-security-middleware": "@dev",
+        "laravel-mobile-rpg/persistence-core": "@dev",
+        "laravel-mobile-rpg/unit-of-work-core": "@dev"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

@@ -2,14 +2,14 @@
 
 namespace App\Models\Log;
 
-use App\Models\_BaseModelInterface;
+use LaravelPersistence\Models\Log\_BaseLogInterface as PersistenceBaseLogInterface;
 
 /**
  * _BaseLogInterface
  * 
  * Logモデルが実装すべきインターフェース
  */
-interface _BaseLogInterface extends _BaseModelInterface
+interface _BaseLogInterface extends PersistenceBaseLogInterface
 {
-    //
+    // App-specific interface methods can go here
 }

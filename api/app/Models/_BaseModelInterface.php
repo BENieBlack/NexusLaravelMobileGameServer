@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use LaravelPersistence\Models\_BaseModelInterface as PersistenceBaseModelInterface;
+
 /**
  * _BaseModelInterface
  * 
  * 全てのモデルが実装すべき基底インターフェース
  */
-interface _BaseModelInterface
+interface _BaseModelInterface extends PersistenceBaseModelInterface
 {
-    //
+    // App-specific interface methods can go here
 }

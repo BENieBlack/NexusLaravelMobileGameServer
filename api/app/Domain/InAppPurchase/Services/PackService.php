@@ -11,7 +11,7 @@ use App\Models\Trx\TrxUnit;
 use App\Repositories\Trx\TrxDiamondRepository;
 use App\Repositories\Trx\TrxInAppPurchaseRepository;
 use App\Repositories\Trx\TrxUnitRepository;
-use App\Utilities\Clock;
+use LaravelUtilities\ClockUtility;
 use Carbon\CarbonImmutable;
 
 /**
@@ -160,8 +160,8 @@ class PackService
                 'mst_unit_id' => $mstUnitId,
                 'level' => 1,
                 'exp' => 0,
-                'created_at' => Clock::now(),
-                'updated_at' => Clock::now(),
+                'created_at' => ClockUtility::now(),
+                'updated_at' => ClockUtility::now(),
             ]);
 
             $this->trxUnitRepository->setModel($unit);

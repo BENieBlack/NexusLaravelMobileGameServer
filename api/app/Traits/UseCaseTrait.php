@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use LaravelUnitOfWork\Contracts\QueryManagerInterface;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Throwable;
@@ -39,7 +40,7 @@ trait UseCaseTrait
             DB::connection($connection)->beginTransaction();
         }
 
-        $queryManager = app()->make(\App\Persistence\QueryManager::class);
+        $queryManager = app()->make(QueryManagerInterface::class);
         
         try {
             // コールバックを実行（クエリはQueryManagerにキューイングされる）
@@ -47,20 +48,13 @@ trait UseCaseTrait
             $result = $callback();
 
             /**
-             * トランザクション内で実行するクエリは、トランザクション内で実行するオプションがONの場合、トランザクション内で実行する
-             * sysクエリは常にトランザクション内で実行する（IDを取得して外部キーとして使用）
-             * trxクエリは常にトランザクション内で実行する
-             * 課金に関するlogクエリもトランザクション内で実行する
+             * すべてのクエリをフラッシュ（購入ログ、Sys/Trx/通常Logを実行）
              */
-            $queryManager->execPurchaseQuery(); // 課金ログを先に実行
-            $queryManager->execAllQuery(); // Sys/Trx/通常Logを実行
+            $queryManager->flush();
 
             /**
-             * Log系をコミット後にトランザクション外でINSERTするオプションがOFFの場合、ログのクエリはトランザクション内で実行する
+             * Log系をコミット後にトランザクション外でINSERTするオプションがOFFの場合は既に実行済み
              */
-            if (!self::LOG_INSERT_OUTSIDE_TRANSACTION) {
-                $queryManager->execAllQuery();
-            }
 
             foreach (['sys', 'trx', 'log'] as $connection ){
                 DB::connection($connection)->commit();
@@ -73,10 +67,8 @@ trait UseCaseTrait
 
             throw $e;
         }
-        // トランザクション外でINSERTするオプションがONの場合、ログのクエリはトランザクション外で実行する
-        if (self::LOG_INSERT_OUTSIDE_TRANSACTION) {
-            $queryManager->execAllQuery();
-        }
+        
+        // トランザクション外でINSERTするオプションは削除（新QueryManagerでは常にトランザクション内実行）
 
         return $result;
     }

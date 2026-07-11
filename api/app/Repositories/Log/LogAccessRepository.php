@@ -3,7 +3,7 @@
 namespace App\Repositories\Log;
 
 use App\Models\Log\LogAccess;
-use App\Utilities\Clock;
+use LaravelUtilities\ClockUtility;
 
 /**
  * LogAccessRepository
@@ -57,8 +57,8 @@ class LogAccessRepository extends _BaseLogRepository
             'response_header' => $responseHeader,
             'response_body' => $responseBody,
             'status_code' => $statusCode,
-            'system_at' => Clock::now(),
-            'created_at' => Clock::now(),
+            'system_at' => ClockUtility::now(),
+            'created_at' => ClockUtility::now(),
         ]);
 
         // 通常ログとして登録

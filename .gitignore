@@ -30,3 +30,5 @@ Homestead.json
 .env.production
 .phpactor.json
 auth.json
+packages/*/vendor/
+packages/*/composer.lock

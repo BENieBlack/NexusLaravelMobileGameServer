@@ -6,7 +6,7 @@ use App\Models\Trx\TrxWallet;
 use App\Models\Trx\TrxWalletBalance;
 use App\Repositories\Trx\TrxWalletBalanceRepository;
 use App\Repositories\Trx\TrxWalletRepository;
-use App\Utilities\Clock;
+use LaravelUtilities\ClockUtility;
 use Carbon\CarbonImmutable;
 
 /**
@@ -178,7 +178,7 @@ class WalletService
      */
     public function removeExpiredCurrency(int $sysPlayerId, string $mstItemId): int
     {
-        $now = Clock::now();
+        $now = ClockUtility::now();
 
         // 有効期限切れの残高を取得（Repository経由）
         $expiredBalanceCollection = $this->trxWalletBalanceRepository->selectAllExpiredBalancesByMstItemId($mstItemId, $now);

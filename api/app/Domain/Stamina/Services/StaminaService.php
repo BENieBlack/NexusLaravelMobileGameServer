@@ -7,7 +7,7 @@ use App\Domain\Stamina\Constants\StaminaConst;
 use App\Models\Trx\TrxStamina;
 use App\Repositories\Trx\TrxStaminaRepository;
 use App\Persistence\ApiSession;
-use App\Utilities\Clock;
+use LaravelUtilities\ClockUtility;
 use Carbon\CarbonImmutable;
 
 /**
@@ -77,7 +77,7 @@ class StaminaService
      */
     public function initializeStamina(int $sysPlayerId, int $initialStamina, string $type = StaminaConst::TYPE_NORMAL): TrxStamina
     {
-        $now = Clock::now();
+        $now = ClockUtility::now();
 
         $trxStamina = new TrxStamina([
             'sys_player_id' => $sysPlayerId,
@@ -214,7 +214,7 @@ class StaminaService
             return false;
         }
 
-        $now = Clock::now();
+        $now = ClockUtility::now();
         $lastRecoveryAt = CarbonImmutable::parse($stamina->last_recovery_at);
         
         // 経過秒数を計算
@@ -269,7 +269,7 @@ class StaminaService
             return null;
         }
 
-        $now = Clock::now();
+        $now = ClockUtility::now();
         $lastRecoveryAt = CarbonImmutable::parse($stamina->last_recovery_at);
         $elapsedSeconds = $now->diffInSeconds($lastRecoveryAt);
         

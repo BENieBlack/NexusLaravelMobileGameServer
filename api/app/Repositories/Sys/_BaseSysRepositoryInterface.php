@@ -2,10 +2,7 @@
 
 namespace App\Repositories\Sys;
 
-use App\Models\Sys\_BaseSysInterface;
-use App\Repositories\_BaseRepositoryInterface;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
+use LaravelPersistence\Repositories\Sys\_BaseSysRepositoryInterface as PersistenceBaseSysRepositoryInterface;
 
 /**
  * _BaseSysRepositoryInterface
@@ -13,15 +10,8 @@ use Illuminate\Support\Collection;
  * SysデータRepository用のインターフェース
  * メモリキャッシュを基本とし、一部のRepositoryでRedisキャッシュも使用
  * 
- * @template T of _BaseSysInterface
+ * @template T of \App\Models\Sys\_BaseSysInterface
  */
-interface _BaseSysRepositoryInterface extends _BaseRepositoryInterface
+interface _BaseSysRepositoryInterface extends PersistenceBaseSysRepositoryInterface
 {
-    /**
-     * IDでモデルを取得
-     *
-     * @param int $sysRecordId
-     * @return T|null
-     */
-    public function selectById(int $sysRecordId);
 }

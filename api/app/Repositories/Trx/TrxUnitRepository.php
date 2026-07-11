@@ -5,7 +5,7 @@ namespace App\Repositories\Trx;
 use App\Models\Trx\TrxUnit;
 use App\Repositories\Log\LogUnitRepository;
 use App\Persistence\ApiSession;
-use App\Utilities\Clock;
+use LaravelUtilities\ClockUtility;
 use Illuminate\Contracts\Container\BindingResolutionException;
 
 /**
@@ -170,8 +170,8 @@ class TrxUnitRepository extends _BaseTrxRepository
             'grade' => $grade ?? 1,
             'level' => $level ?? 1,
             'level_exp' => 0,
-            'created_at' => Clock::now(),
-            'updated_at' => Clock::now(),
+            'created_at' => ClockUtility::now(),
+            'updated_at' => ClockUtility::now(),
         ]);
 
         // setModelでTrxデータをキューイング

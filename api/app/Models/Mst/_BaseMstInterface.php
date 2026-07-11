@@ -2,14 +2,14 @@
 
 namespace App\Models\Mst;
 
-use App\Models\_BaseModelInterface;
+use LaravelPersistence\Models\Mst\_BaseMstInterface as PersistenceBaseMstInterface;
 
 /**
  * _BaseMstInterface
  * 
  * Mstモデルが実装すべきインターフェース
  */
-interface _BaseMstInterface extends _BaseModelInterface
+interface _BaseMstInterface extends PersistenceBaseMstInterface
 {
-
+    // App-specific interface methods can go here
 }

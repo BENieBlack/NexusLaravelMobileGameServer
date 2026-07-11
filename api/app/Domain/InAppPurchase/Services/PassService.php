@@ -6,7 +6,7 @@ use App\Models\Mst\MstInAppPurchase;
 use App\Models\Trx\TrxInAppPurchaseEffect;
 use App\Repositories\Trx\TrxInAppPurchaseEffectRepository;
 use App\Persistence\ApiSession;
-use App\Utilities\Clock;
+use LaravelUtilities\ClockUtility;
 use Illuminate\Support\Collection;
 
 /**
@@ -40,7 +40,7 @@ class PassService
         }
 
         // 有効期限を計算
-        $expiresAt = Clock::now()->addDays($mstInAppPurchase->getEffectDurationDays() ?? 30);
+        $expiresAt = ClockUtility::now()->addDays($mstInAppPurchase->getEffectDurationDays() ?? 30);
 
         // 各効果を適用（同じ効果を複数回購入可能）
         foreach ($effectCollection as $mstEffect) {

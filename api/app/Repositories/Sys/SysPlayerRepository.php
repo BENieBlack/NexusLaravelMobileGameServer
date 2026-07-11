@@ -3,7 +3,7 @@
 namespace App\Repositories\Sys;
 
 use App\Models\Sys\SysPlayer;
-use App\Persistence\QueryManager;
+use LaravelUnitOfWork\Contracts\QueryManagerInterface;
 use Illuminate\Support\Str;
 
 /**
@@ -35,8 +35,8 @@ class SysPlayerRepository extends _BaseSysRepository
 
         $this->setModel($sysPlayer);
 
-        // Repository内でinsertSysPlayer()を実行してIDを取得
-        app()->make(QueryManager::class)->insertSysPlayer($this);
+        // INSERT処理のみを即座に実行してIDを取得
+        app()->make(QueryManagerInterface::class)->flush();
 
         return $sysPlayer;
     }

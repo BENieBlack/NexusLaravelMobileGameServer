@@ -2,9 +2,15 @@
 
 namespace App\Providers;
 
+use App\Domain\Auth\Services\TokenValidator;
 use App\Domain\Delivery\Managers\DeliveryManager;
 use App\Domain\Delivery\Managers\DeliveryManagerInterface;
-use App\Persistence\QueryManager;
+use App\Persistence\ApiSession;
+use LaravelSecurityMiddleware\Contracts\TokenValidatorInterface;
+use LaravelSecurityMiddleware\Contracts\PlayerSessionInterface;
+use LaravelUnitOfWork\Contracts\PlayerSessionResolverInterface;
+use LaravelUnitOfWork\Contracts\QueryManagerInterface as UnitOfWorkQueryManagerInterface;
+use LaravelUnitOfWork\Persistence\QueryManager;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
@@ -40,6 +46,16 @@ class AppServiceProvider extends ServiceProvider
         // Unit of Work パターン用のQueryManagerをシングルトンとして登録
         $this->app->singleton(QueryManager::class);
         $this->app->singleton('query.manager', QueryManager::class);
+        
+        // Unit of Work パッケージのQueryManagerInterfaceもバインド
+        $this->app->singleton(UnitOfWorkQueryManagerInterface::class, QueryManager::class);
+
+        // セキュリティミドルウェアパッケージ用のインターフェースバインディング
+        $this->app->bind(TokenValidatorInterface::class, TokenValidator::class);
+        $this->app->bind(PlayerSessionInterface::class, ApiSession::class);
+        
+        // Unit of Work パッケージ用のPlayerSessionResolverInterfaceバインディング
+        $this->app->bind(PlayerSessionResolverInterface::class, ApiSession::class);
     }
 
     /**

@@ -5,7 +5,7 @@ namespace App\Domain\Auth\Services;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;
-use App\Persistence\QueryManager;
+use LaravelUnitOfWork\Contracts\QueryManagerInterface;
 use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;
@@ -59,7 +59,7 @@ class PlayerService
         $this->sysPlayerDeviceRepository->setModel($sysPlayerDevice);
         
         // 3. バッチINSERTを実行してデバイスのIDを取得
-        app(\App\Persistence\QueryManager::class)->execAllQuery();
+        app(QueryManagerInterface::class)->flush();
 
         return [
             'sys_player' => $sysPlayer,

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "85ce75a18d3cc599353f7e8c1e9ffc18",
+    "content-hash": "31fa16b1d35326a86cd1a2d25c437f34",
     "packages": [
         {
             "name": "brick/math",
@@ -1205,6 +1205,108 @@
                 }
             ],
             "time": "2025-08-22T14:27:06+00:00"
+        },
+        {
+            "name": "laravel-mobile-rpg/persistence-core",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/laravel-persistence-core",
+                "reference": "7633c01993bd59610dfb2249e809ef3d6fa28089"
+            },
+            "require": {
+                "illuminate/cache": "^10.0|^11.0|^12.0",
+                "illuminate/database": "^10.0|^11.0|^12.0",
+                "illuminate/support": "^10.0|^11.0|^12.0",
+                "php": "^8.1",
+                "s-nakamura/laravel-utilities": "@dev"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^8.0|^9.0",
+                "phpunit/phpunit": "^10.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "LaravelPersistence\\PersistenceServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "LaravelPersistence\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "LaravelPersistence\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Your Name",
+                    "email": "your.email@example.com"
+                }
+            ],
+            "description": "Base Model and Repository classes for Laravel RPG applications with support for multiple data types (Trx, Log, Sys, Mst)",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "laravel-mobile-rpg/unit-of-work-core",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/laravel-unit-of-work-core",
+                "reference": "befcaf30d09c7e9bb3844b565be5d162b24f2c60"
+            },
+            "require": {
+                "illuminate/database": "^10.0|^11.0|^12.0",
+                "illuminate/support": "^10.0|^11.0|^12.0",
+                "laravel-mobile-rpg/persistence-core": "@dev",
+                "php": "^8.1",
+                "s-nakamura/laravel-utilities": "@dev"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^8.0|^9.0",
+                "phpunit/phpunit": "^10.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "LaravelUnitOfWork\\UnitOfWorkServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "LaravelUnitOfWork\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "LaravelUnitOfWork\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Your Name",
+                    "email": "your.email@example.com"
+                }
+            ],
+            "description": "Unit of Work pattern implementation for Laravel with batch operations and query optimization",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "laravel/framework",
@@ -3496,6 +3598,79 @@
                 "source": "https://github.com/ramsey/uuid/tree/4.9.2"
             },
             "time": "2025-12-14T04:43:48+00:00"
+        },
+        {
+            "name": "s-nakamura/laravel-security-middleware",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/laravel-security-middleware",
+                "reference": "d65198afdb9dae0f374f6701af5533595e08cb8f"
+            },
+            "require": {
+                "illuminate/cache": "^11.0|^12.0",
+                "illuminate/http": "^11.0|^12.0",
+                "illuminate/support": "^11.0|^12.0",
+                "php": "^8.2"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "LaravelSecurityMiddleware\\SecurityMiddlewareServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "LaravelSecurityMiddleware\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "S. Nakamura"
+                }
+            ],
+            "description": "Laravel security middleware包包括客户端签名验证、幂等性保证、速率限制和访问令牌验证",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "s-nakamura/laravel-utilities",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/laravel-utilities",
+                "reference": "534ac68739a6e44f95893f077c7b125a1c757bd6"
+            },
+            "require": {
+                "illuminate/cache": "^11.0|^12.0",
+                "illuminate/support": "^11.0|^12.0",
+                "nesbot/carbon": "^2.0|^3.0",
+                "php": "^8.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "LaravelUtilities\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "S. Nakamura"
+                }
+            ],
+            "description": "Laravel utility classes including ClockUtility and RedisUtility",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "symfony/clock",
@@ -9513,12 +9688,17 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "laravel-mobile-rpg/persistence-core": 20,
+        "laravel-mobile-rpg/unit-of-work-core": 20,
+        "s-nakamura/laravel-security-middleware": 20,
+        "s-nakamura/laravel-utilities": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": "^8.2"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "plugin-api-version": "2.6.0"
 }

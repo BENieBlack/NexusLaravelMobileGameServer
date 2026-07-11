@@ -3,7 +3,7 @@
 namespace App\Repositories\Log;
 
 use App\Models\Log\LogEquipment;
-use App\Utilities\Clock;
+use LaravelUtilities\ClockUtility;
 
 /**
  * LogEquipmentRepository
@@ -67,8 +67,8 @@ class LogEquipmentRepository extends _BaseLogRepository
             'before_level_exp' => $beforeLevelExp,
             'after_level' => $afterLevel,
             'after_level_exp' => $afterLevelExp,
-            'system_at' => Clock::now(),
-            'created_at' => Clock::now(),
+            'system_at' => ClockUtility::now(),
+            'created_at' => ClockUtility::now(),
         ]);
 
         $this->setModel($logEquipment);

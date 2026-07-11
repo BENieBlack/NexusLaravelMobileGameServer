@@ -3,7 +3,7 @@
 namespace App\Repositories\Trx;
 
 use App\Models\Trx\TrxEquipment;
-use App\Utilities\Clock;
+use LaravelUtilities\ClockUtility;
 use Illuminate\Contracts\Container\BindingResolutionException;
 
 /**
@@ -54,8 +54,8 @@ class TrxEquipmentRepository extends _BaseTrxRepository
             'mst_equipment_id' => $mstEquipmentId,
             'grade' => $grade ?? 1,
             'level' => $level ?? 1,
-            'created_at' => Clock::now(),
-            'updated_at' => Clock::now(),
+            'created_at' => ClockUtility::now(),
+            'updated_at' => ClockUtility::now(),
         ]);
 
         // setModelでTrxデータをキューイング

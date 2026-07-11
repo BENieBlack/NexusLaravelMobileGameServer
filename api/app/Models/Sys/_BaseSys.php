@@ -2,7 +2,7 @@
 
 namespace App\Models\Sys;
 
-use App\Models\_BaseModel;
+use LaravelPersistence\Models\Sys\_BaseSys as PersistenceBaseSys;
 
 /**
  * _BaseSys
@@ -10,19 +10,7 @@ use App\Models\_BaseModel;
  * Sysデータベースのモデル基底クラス
  * システム共通データ（全シャード共通）
  */
-abstract class _BaseSys extends _BaseModel implements _BaseSysInterface
+abstract class _BaseSys extends PersistenceBaseSys implements _BaseSysInterface
 {
-    /**
-     * システムデータベース接続を使用
-     * 
-     * @var string
-     */
-    protected $connection = 'sys';
-
-    /**
-     * Unit of Workパターンを使用しない
-     * 
-     * @var bool
-     */
-    protected bool $usesUnitOfWork = false;
+    // App-specific customizations can go here
 }

@@ -3,7 +3,6 @@
 namespace App\Repositories\Sys;
 
 use App\Models\Sys\SysPlayerDevice;
-use App\Persistence\QueryManager;
 use Illuminate\Support\Collection;
 
 /**

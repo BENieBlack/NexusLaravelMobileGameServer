@@ -3,7 +3,7 @@
 namespace App\Repositories\Log;
 
 use App\Models\Log\LogGacha;
-use App\Utilities\Clock;
+use LaravelUtilities\ClockUtility;
 use Illuminate\Support\Collection;
 
 /**
@@ -42,8 +42,8 @@ class LogGachaRepository extends _BaseLogRepository
             'sys_player_id' => $sysPlayerId,
             'mst_gacha_id' => $mstGachaId,
             'result' => $result,
-            'system_at' => Clock::now(),
-            'created_at' => Clock::now(),
+            'system_at' => ClockUtility::now(),
+            'created_at' => ClockUtility::now(),
         ]);
 
         // 通常ログとして登録

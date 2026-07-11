@@ -2,14 +2,14 @@
 
 namespace App\Models\Sys;
 
-use App\Models\_BaseModelInterface;
+use LaravelPersistence\Models\Sys\_BaseSysInterface as PersistenceBaseSysInterface;
 
 /**
  * _BaseSysInterface
  * 
  * Sysモデルが実装すべきインターフェース
  */
-interface _BaseSysInterface extends _BaseModelInterface
+interface _BaseSysInterface extends PersistenceBaseSysInterface
 {
-
+    // App-specific interface methods can go here
 }

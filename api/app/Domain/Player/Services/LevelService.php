@@ -8,6 +8,7 @@ use App\Repositories\Mst\MstPlayerLevelRepository;
 use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Trx\TrxStaminaRepository;
 use App\Persistence\ApiSession;
+use LaravelUtilities\ClockUtility;
 
 /**
  * LevelService
@@ -201,7 +202,7 @@ class LevelService
         
         if ($stamina === null) {
             // スタミナレコードが存在しない場合は作成
-            $now = \App\Utilities\ClockUtility::now();
+            $now = ClockUtility::now();
 
             $trxStamina = new \App\Models\Trx\TrxStamina([
                 'sys_player_id' => $sysPlayerId,
@@ -242,7 +243,7 @@ class LevelService
             return;
         }
 
-        $now = \App\Utilities\ClockUtility::now();
+        $now = ClockUtility::now();
         $lastRecoveryAt = \Carbon\CarbonImmutable::parse($stamina->last_recovery_at);
         
         // 経過秒数を計算

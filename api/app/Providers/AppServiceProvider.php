@@ -22,19 +22,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(
-            AccountRepositoryInterface::class,
-            AccountRepository::class
-        );
-        $this->app->bind(
-            CharacterRepositoryInterface::class,
-            CharacterRepository::class
-        );
-        $this->app->bind(
-            ItemRepositoryInterface::class,
-            ItemRepository::class
-        );
-
         // DeliveryManager のバインディング
         // リクエストスコープ: 各リクエストごとに新しいインスタンスを生成
         // 配送待ちコンテンツはリクエスト内でのみ保持される

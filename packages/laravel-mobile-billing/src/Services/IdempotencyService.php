@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Domain\Billing\Services;
+namespace LaravelMobileBilling\Services;
 
-use App\Domain\Billing\DTOs\VerificationResult;
+use LaravelMobileBilling\DTOs\VerificationResult;
 use Illuminate\Support\Facades\Cache;
 
 /**

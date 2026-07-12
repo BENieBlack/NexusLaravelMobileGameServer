@@ -1,19 +1,18 @@
 <?php
 
-namespace App\Domain\Billing\Interfaces;
+namespace LaravelMobileBilling\Contracts;
 
-use App\Domain\Billing\DTOs\ReceiptData;
-use App\Domain\Billing\DTOs\SubscriptionStatus;
-use App\Domain\Billing\DTOs\VerificationResult;
-use App\Domain\Billing\Exceptions\ReceiptVerificationException;
+use LaravelMobileBilling\DTOs\ReceiptData;
+use LaravelMobileBilling\DTOs\SubscriptionStatus;
+use LaravelMobileBilling\DTOs\VerificationResult;
+use LaravelMobileBilling\Exceptions\ReceiptVerificationException;
 
 /**
- * Billing プラットフォーム基底インターフェース
+ * Billing プラットフォームインターフェース
  * 
  * AppStore、GooglePlay等のプラットフォーム固有の実装はこのインターフェースを実装する
- * _Base プレフィックスは基底インターフェースであることを示す
  */
-interface _BaseBillingPlatformInterface
+interface BillingPlatformInterface
 {
     /**
      * レシート検証

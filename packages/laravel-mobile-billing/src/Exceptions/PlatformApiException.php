@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Billing\Exceptions;
+namespace LaravelMobileBilling\Exceptions;
 
 /**
  * プラットフォームAPI通信エラーの例外

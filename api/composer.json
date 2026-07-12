@@ -25,6 +25,10 @@
         {
             "type": "path",
             "url": "../packages/laravel-mobile-billing"
+        },
+        {
+            "type": "path",
+            "url": "../packages/laravel-wallet"
         }
     ],
     "require": {
@@ -36,7 +40,8 @@
         "s-nakamura/laravel-security-middleware": "@dev",
         "laravel-mobile-rpg/persistence-core": "@dev",
         "laravel-mobile-rpg/unit-of-work-core": "@dev",
-        "laravel-mobile-rpg/mobile-billing": "@dev"
+        "laravel-mobile-rpg/mobile-billing": "@dev",
+        "laravel-mobile-rpg/wallet": "@dev"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

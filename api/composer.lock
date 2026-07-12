@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0f4c62323eacef18aca4a720d39f9b6c",
+    "content-hash": "02218184c5ca620639d796d95fc0ff2b",
     "packages": [
         {
             "name": "brick/math",
@@ -1356,6 +1356,57 @@
                 }
             ],
             "description": "Unit of Work pattern implementation for Laravel with batch operations and query optimization",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "laravel-mobile-rpg/wallet",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/laravel-wallet",
+                "reference": "867750525fc8d994f3e6c80723b22a034f052f2c"
+            },
+            "require": {
+                "illuminate/database": "^10.0|^11.0|^12.0",
+                "illuminate/support": "^10.0|^11.0|^12.0",
+                "nesbot/carbon": "^2.0|^3.0",
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.6",
+                "orchestra/testbench": "^9.0",
+                "phpunit/phpunit": "^11.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "LaravelWallet\\WalletServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "LaravelWallet\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "LaravelWallet\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Your Name",
+                    "email": "your.email@example.com"
+                }
+            ],
+            "description": "Virtual currency wallet management for Laravel with FIFO consumption and expiration support",
             "transport-options": {
                 "relative": true
             }
@@ -9762,6 +9813,7 @@
         "laravel-mobile-rpg/mobile-billing": 20,
         "laravel-mobile-rpg/persistence-core": 20,
         "laravel-mobile-rpg/unit-of-work-core": 20,
+        "laravel-mobile-rpg/wallet": 20,
         "s-nakamura/laravel-security-middleware": 20,
         "s-nakamura/laravel-utilities": 20
     },

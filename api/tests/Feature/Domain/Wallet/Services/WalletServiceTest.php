@@ -73,9 +73,9 @@ class WalletServiceTest extends TestCase
         $this->queryManager->execAllQuery();
 
         // Verify
-        $this->assertSame(1000, $result['free_amount']);
-        $this->assertSame(0, $result['paid_amount']);
-        $this->assertSame(1000, $result['total_amount']);
+        $this->assertSame(1000, $result->freeAmount);
+        $this->assertSame(0, $result->paidAmount);
+        $this->assertSame(1000, $result->totalAmount);
 
         // Verify DB
         $wallet = DB::connection('trx1')
@@ -116,9 +116,9 @@ class WalletServiceTest extends TestCase
         $this->queryManager->execAllQuery();
 
         // Verify
-        $this->assertSame(0, $result['free_amount']);
-        $this->assertSame(500, $result['paid_amount']);
-        $this->assertSame(500, $result['total_amount']);
+        $this->assertSame(0, $result->freeAmount);
+        $this->assertSame(500, $result->paidAmount);
+        $this->assertSame(500, $result->totalAmount);
 
         // Verify DB
         $wallet = DB::connection('trx1')
@@ -158,9 +158,9 @@ class WalletServiceTest extends TestCase
         $this->queryManager->execAllQuery();
 
         // Verify
-        $this->assertSame(1000, $result['free_amount']);
-        $this->assertSame(500, $result['paid_amount']);
-        $this->assertSame(1500, $result['total_amount']);
+        $this->assertSame(1000, $result->freeAmount);
+        $this->assertSame(500, $result->paidAmount);
+        $this->assertSame(1500, $result->totalAmount);
 
         // Verify DB
         $wallet = DB::connection('trx1')
@@ -212,8 +212,10 @@ class WalletServiceTest extends TestCase
         $this->queryManager->execAllQuery();
 
         // Verify result
-        $this->assertSame(300, $result['consumed_amount']);
-        $this->assertSame(1200, $result['total_amount']); // 1500 - 300 = 1200
+        $this->assertSame(0, $result->freeAmount);
+        $this->assertSame(300, $result->paidAmount);
+        $this->assertSame(300, $result->totalAmount);
+        $this->assertSame(1200, $result->currentBalance); // 1500 - 300 = 1200
 
         // Verify DB - paid should be 200, free should be 1000
         $wallet = DB::connection('trx1')
@@ -250,8 +252,10 @@ class WalletServiceTest extends TestCase
         $this->queryManager->execAllQuery();
 
         // Verify result
-        $this->assertSame(800, $result['consumed_amount']);
-        $this->assertSame(700, $result['total_amount']); // 1500 - 800 = 700
+        $this->assertSame(300, $result->freeAmount);
+        $this->assertSame(500, $result->paidAmount);
+        $this->assertSame(800, $result->totalAmount);
+        $this->assertSame(700, $result->currentBalance); // 1500 - 800 = 700
 
         // Verify DB - paid should be 0, free should be 700
         $wallet = DB::connection('trx1')
@@ -289,9 +293,10 @@ class WalletServiceTest extends TestCase
         $this->queryManager->execAllQuery();
 
         // Verify
-        $this->assertSame(300, $result['free_amount']);
-        $this->assertSame(100, $result['paid_amount']);
-        $this->assertSame(1100, $result['total_amount']); // (500+200) + (300+100)
+        $this->assertSame(300, $result->freeAmount);
+        $this->assertSame(100, $result->paidAmount);
+        $this->assertSame(400, $result->totalAmount);
+        $this->assertSame(1100, $result->currentBalance); // (500+200) + (300+100)
 
         // Verify DB
         $wallet = DB::connection('trx1')
@@ -320,8 +325,7 @@ class WalletServiceTest extends TestCase
         ApiSession::setSysPlayerId($this->sysPlayerId);
 
         // Execute & Verify
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Insufficient currency: gold');
+        $this->expectException(\LaravelWallet\Exceptions\InsufficientBalanceException::class);
 
         $this->walletService->consumeCurrency(
             $this->sysPlayerId,
@@ -333,8 +337,7 @@ class WalletServiceTest extends TestCase
     #[Test]
     public function 存在しない通貨を消費すると例外が発生する(): void
     {
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Insufficient currency: gold');
+        $this->expectException(\LaravelWallet\Exceptions\InsufficientBalanceException::class);
 
         $this->walletService->consumeCurrency(
             $this->sysPlayerId,
@@ -362,14 +365,18 @@ class WalletServiceTest extends TestCase
         $balance = $this->walletService->getBalance($this->sysPlayerId, 'gold');
 
         // Verify
-        $this->assertSame(1500, $balance);
+        $this->assertSame(1000, $balance->freeAmount);
+        $this->assertSame(500, $balance->paidAmount);
+        $this->assertSame(1500, $balance->totalAmount);
     }
 
     #[Test]
     public function 存在しない通貨のgetBalanceは0を返す(): void
     {
         $balance = $this->walletService->getBalance($this->sysPlayerId, 'nonexistent');
-        $this->assertSame(0, $balance);
+        $this->assertSame(0, $balance->freeAmount);
+        $this->assertSame(0, $balance->paidAmount);
+        $this->assertSame(0, $balance->totalAmount);
     }
 
     #[Test]
@@ -594,8 +601,8 @@ class WalletServiceTest extends TestCase
         $this->queryManager->execAllQuery();
 
         // Verify
-        $this->assertSame(700000, $result['consumed_amount']);
-        $this->assertSame(800000, $result['total_amount']); // 1500000 - 700000
+        $this->assertSame(700000, $result->totalAmount);
+        $this->assertSame(800000, $result->currentBalance); // 1500000 - 700000
 
         $wallet = DB::connection('trx1')
             ->table('trx_wallet')

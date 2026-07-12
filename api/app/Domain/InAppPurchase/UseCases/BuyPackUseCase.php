@@ -3,8 +3,8 @@
 namespace App\Domain\InAppPurchase\UseCases;
 
 use App\Domain\_BaseUseCase;
-use App\Domain\Billing\DTOs\ReceiptData;
-use App\Domain\Billing\Facades\BillingFacade;
+use LaravelMobileBilling\DTOs\ReceiptData;
+use LaravelMobileBilling\Facades\BillingFacade;
 use App\Domain\InAppPurchase\Services\PackService;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
@@ -67,10 +67,13 @@ class BuyPackUseCase extends _BaseUseCase
             $productId
         ) {
             // レシート検証を実行
+            // 一意なリクエストIDを生成（重複防止用）
+            $uniqueRequestId = $sysPlayerId . '_' . $mstInAppPurchase->getId() . '_' . ($receiptData->transactionId ?? time());
+            
             $verificationResult = $this->billingFacade->processPurchase(
-                $sysPlayerId,
-                $receiptData,
-                $mstInAppPurchase->getId()
+                billingPlatform: $billingPlatform,
+                receiptData: $receiptData,
+                uniqueRequestId: $uniqueRequestId
             );
 
             // プロダクトIDが一致するか確認

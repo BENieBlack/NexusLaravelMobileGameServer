@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Domain\Billing\Services;
+namespace LaravelMobileBilling\Services;
 
-use App\Domain\Billing\ApiClients\AppStoreApiClient;
-use App\Domain\Billing\Constants\BillingConst;
-use App\Domain\Billing\DTOs\ReceiptData;
-use App\Domain\Billing\DTOs\SubscriptionStatus;
-use App\Domain\Billing\DTOs\VerificationResult;
-use App\Domain\Billing\Exceptions\InvalidReceiptException;
-use App\Domain\Billing\Interfaces\_BaseBillingPlatformInterface;
+use LaravelMobileBilling\ApiClients\AppStoreApiClient;
+use LaravelMobileBilling\Constants\BillingConst;
+use LaravelMobileBilling\Contracts\BillingPlatformInterface;
+use LaravelMobileBilling\DTOs\ReceiptData;
+use LaravelMobileBilling\DTOs\SubscriptionStatus;
+use LaravelMobileBilling\DTOs\VerificationResult;
+use LaravelMobileBilling\Exceptions\InvalidReceiptException;
 use Carbon\CarbonImmutable;
 
 /**
@@ -16,7 +16,7 @@ use Carbon\CarbonImmutable;
  * 
  * Apple App Store のレシート検証とサブスクリプション管理を担当
  */
-class AppStoreBillingService implements _BaseBillingPlatformInterface
+class AppStoreBillingService implements BillingPlatformInterface
 {
     public function __construct(
         private readonly AppStoreApiClient $apiClient,

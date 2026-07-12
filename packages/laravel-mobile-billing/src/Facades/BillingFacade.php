@@ -1,15 +1,13 @@
 <?php
 
-namespace App\Domain\Billing\Facades;
+namespace LaravelMobileBilling\Facades;
 
-use App\Domain\Billing\Constants\BillingConst;
-use App\Domain\Billing\DTOs\ReceiptData;
-use App\Domain\Billing\DTOs\SubscriptionStatus;
-use App\Domain\Billing\DTOs\VerificationResult;
-use App\Domain\Billing\Exceptions\DuplicatePurchaseException;
-use App\Domain\Billing\Services\BillingPlatformFactory;
-use App\Domain\Billing\Services\IdempotencyService;
-use App\Repositories\Log\LogInAppPurchaseRepository;
+use LaravelMobileBilling\DTOs\ReceiptData;
+use LaravelMobileBilling\DTOs\SubscriptionStatus;
+use LaravelMobileBilling\DTOs\VerificationResult;
+use LaravelMobileBilling\Exceptions\DuplicatePurchaseException;
+use LaravelMobileBilling\Services\BillingPlatformFactory;
+use LaravelMobileBilling\Services\IdempotencyService;
 use Exception;
 use Illuminate\Support\Facades\Log;
 
@@ -24,7 +22,6 @@ class BillingFacade
     public function __construct(
         private readonly BillingPlatformFactory $platformFactory,
         private readonly IdempotencyService $idempotencyService,
-        private readonly LogInAppPurchaseRepository $logRepository,
     ) {}
 
     /**
@@ -65,22 +62,7 @@ class BillingFacade
             // 3. レシート検証（各プラットフォームの実装）
             $result = $platform->verifyReceipt($receiptData);
 
-            // 4. 検証成功ログ記録
-            $this->logRepository->createPurchaseLog(
-                uniqueRequestId: $uniqueRequestId,
-                sysPlayerId: $receiptData->playerId,
-                platform: $billingPlatform, // TODO: デバイスプラットフォーム（Apple/Google）を別途取得
-                billingPlatform: $billingPlatform,
-                receiptId: $result->transactionId,
-                receipt: $result->rawResponse,
-                status: BillingConst::RECEIPT_STATUS_VERIFIED,
-                mstInAppPurchaseId: '', // TODO: 商品IDを別途渡す必要がある
-                currencyCode: 'USD', // TODO: 実際の通貨コードを取得
-                payAmount: 0.0, // TODO: 実際の金額を取得
-                payString: '', // TODO: 決済文字列を取得
-            );
-
-            // 5. 冪等性キー登録
+            // 4. 冪等性キー登録
             $this->idempotencyService->register($uniqueRequestId, $result);
 
             Log::info('Receipt verification successful', [
@@ -93,21 +75,6 @@ class BillingFacade
             return $result;
 
         } catch (Exception $e) {
-            // 6. エラーログ記録
-            $this->logRepository->createPurchaseLog(
-                uniqueRequestId: $uniqueRequestId,
-                sysPlayerId: $receiptData->playerId,
-                platform: $billingPlatform,
-                billingPlatform: $billingPlatform,
-                receiptId: $receiptData->transactionId ?? '',
-                receipt: ['error' => $e->getMessage(), 'receipt_data' => $receiptData->toArray()],
-                status: BillingConst::RECEIPT_STATUS_FAILED,
-                mstInAppPurchaseId: '',
-                currencyCode: '',
-                payAmount: 0.0,
-                payString: '',
-            );
-
             Log::error('Receipt verification failed', [
                 'unique_request_id' => $uniqueRequestId,
                 'player_id' => $receiptData->playerId,
@@ -117,6 +84,23 @@ class BillingFacade
 
             throw $e;
         }
+    }
+
+    /**
+     * レシート検証のみ（冪等性チェックなし）
+     * 
+     * 冪等性管理が不要な場合や、別の方法で重複チェックを行う場合に使用
+     * 
+     * @param string $billingPlatform 決済プラットフォーム
+     * @param ReceiptData $receiptData レシート情報
+     * @return VerificationResult 検証結果
+     */
+    public function verifyReceipt(
+        string $billingPlatform,
+        ReceiptData $receiptData
+    ): VerificationResult {
+        $platform = $this->platformFactory->create($billingPlatform);
+        return $platform->verifyReceipt($receiptData);
     }
 
     /**

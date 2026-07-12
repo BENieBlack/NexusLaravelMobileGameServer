@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Billing\Constants;
+namespace LaravelMobileBilling\Constants;
 
 /**
  * 決済プラットフォーム関連の定数定義

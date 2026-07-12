@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Wallet\Services;
+namespace App\Services;
 
 use App\Models\Trx\TrxWallet;
 use App\Models\Trx\TrxWalletBalance;

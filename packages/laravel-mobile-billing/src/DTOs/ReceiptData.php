@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Billing\DTOs;
+namespace LaravelMobileBilling\DTOs;
 
 /**
  * レシートデータDTO

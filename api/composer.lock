@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "31fa16b1d35326a86cd1a2d25c437f34",
+    "content-hash": "0f4c62323eacef18aca4a720d39f9b6c",
     "packages": [
         {
             "name": "brick/math",
@@ -1207,23 +1207,76 @@
             "time": "2025-08-22T14:27:06+00:00"
         },
         {
+            "name": "laravel-mobile-rpg/mobile-billing",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/laravel-mobile-billing",
+                "reference": "bc9c3fefde29cec4b92e7f9e2adad9a9dc15a2f6"
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^7.0",
+                "illuminate/cache": "^10.0|^11.0|^12.0",
+                "illuminate/http": "^10.0|^11.0|^12.0",
+                "illuminate/support": "^10.0|^11.0|^12.0",
+                "nesbot/carbon": "^2.0|^3.0",
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.6",
+                "orchestra/testbench": "^9.0",
+                "phpunit/phpunit": "^11.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "LaravelMobileBilling\\MobileBillingServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "LaravelMobileBilling\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "LaravelMobileBilling\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Your Name",
+                    "email": "your.email@example.com"
+                }
+            ],
+            "description": "Mobile billing verification and processing for Laravel with support for AppStore and Google Play",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "laravel-mobile-rpg/persistence-core",
             "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../packages/laravel-persistence-core",
-                "reference": "7633c01993bd59610dfb2249e809ef3d6fa28089"
+                "reference": "0f416262ab624b9ba463ff01e66e4bec11273952"
             },
             "require": {
                 "illuminate/cache": "^10.0|^11.0|^12.0",
                 "illuminate/database": "^10.0|^11.0|^12.0",
                 "illuminate/support": "^10.0|^11.0|^12.0",
-                "php": "^8.1",
-                "s-nakamura/laravel-utilities": "@dev"
+                "php": "^8.1"
             },
             "require-dev": {
-                "orchestra/testbench": "^8.0|^9.0",
-                "phpunit/phpunit": "^10.0"
+                "mockery/mockery": "^1.6",
+                "orchestra/testbench": "^9.0",
+                "phpunit/phpunit": "^11.0"
             },
             "type": "library",
             "extra": {
@@ -1263,18 +1316,17 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/laravel-unit-of-work-core",
-                "reference": "befcaf30d09c7e9bb3844b565be5d162b24f2c60"
+                "reference": "559a4ac31043bb8c987f10401e9ff8a34438b1e7"
             },
             "require": {
                 "illuminate/database": "^10.0|^11.0|^12.0",
                 "illuminate/support": "^10.0|^11.0|^12.0",
-                "laravel-mobile-rpg/persistence-core": "@dev",
-                "php": "^8.1",
-                "s-nakamura/laravel-utilities": "@dev"
+                "php": "^8.1"
             },
             "require-dev": {
-                "orchestra/testbench": "^8.0|^9.0",
-                "phpunit/phpunit": "^10.0"
+                "mockery/mockery": "^1.6",
+                "orchestra/testbench": "^9.0",
+                "phpunit/phpunit": "^11.0"
             },
             "type": "library",
             "extra": {
@@ -3605,13 +3657,17 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/laravel-security-middleware",
-                "reference": "d65198afdb9dae0f374f6701af5533595e08cb8f"
+                "reference": "69c732ec40075017322c8c61b24805bb0651d4d8"
             },
             "require": {
                 "illuminate/cache": "^11.0|^12.0",
                 "illuminate/http": "^11.0|^12.0",
                 "illuminate/support": "^11.0|^12.0",
                 "php": "^8.2"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.6",
+                "phpunit/phpunit": "^11.0"
             },
             "type": "library",
             "extra": {
@@ -3624,6 +3680,11 @@
             "autoload": {
                 "psr-4": {
                     "LaravelSecurityMiddleware\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "LaravelSecurityMiddleware\\Tests\\": "tests/"
                 }
             },
             "license": [
@@ -3645,7 +3706,7 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/laravel-utilities",
-                "reference": "534ac68739a6e44f95893f077c7b125a1c757bd6"
+                "reference": "b2ed06cdb37dc1f2d65de7de4dc9b11b333dcf0d"
             },
             "require": {
                 "illuminate/cache": "^11.0|^12.0",
@@ -3653,10 +3714,19 @@
                 "nesbot/carbon": "^2.0|^3.0",
                 "php": "^8.2"
             },
+            "require-dev": {
+                "mockery/mockery": "^1.6",
+                "phpunit/phpunit": "^11.0"
+            },
             "type": "library",
             "autoload": {
                 "psr-4": {
                     "LaravelUtilities\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "LaravelUtilities\\Tests\\": "tests/"
                 }
             },
             "license": [
@@ -9689,6 +9759,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "laravel-mobile-rpg/mobile-billing": 20,
         "laravel-mobile-rpg/persistence-core": 20,
         "laravel-mobile-rpg/unit-of-work-core": 20,
         "s-nakamura/laravel-security-middleware": 20,

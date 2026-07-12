@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Billing\Exceptions;
+namespace LaravelMobileBilling\Exceptions;
 
 /**
  * 無効なレシートの例外

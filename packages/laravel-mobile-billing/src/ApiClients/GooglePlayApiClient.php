@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Domain\Billing\ApiClients;
+namespace LaravelMobileBilling\ApiClients;
 
-use App\Domain\Billing\Exceptions\PlatformApiException;
+use LaravelMobileBilling\Exceptions\PlatformApiException;
 use Google\Client as GoogleClient;
 use Illuminate\Support\Facades\Log;
 

@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Domain\Billing\Services;
+namespace LaravelMobileBilling\Services;
 
-use App\Domain\Billing\Constants\BillingConst;
-use App\Domain\Billing\Interfaces\_BaseBillingPlatformInterface;
+use LaravelMobileBilling\Constants\BillingConst;
+use LaravelMobileBilling\Contracts\BillingPlatformInterface;
 use InvalidArgumentException;
 
 /**
@@ -22,10 +22,10 @@ class BillingPlatformFactory
      * プラットフォームに対応するサービスを取得
      * 
      * @param string $billingPlatform プラットフォーム名（BillingConst::PLATFORM_*）
-     * @return _BaseBillingPlatformInterface
+     * @return BillingPlatformInterface
      * @throws InvalidArgumentException サポートされていないプラットフォームの場合
      */
-    public function create(string $billingPlatform): _BaseBillingPlatformInterface
+    public function create(string $billingPlatform): BillingPlatformInterface
     {
         return match ($billingPlatform) {
             BillingConst::PLATFORM_APP_STORE => $this->appStoreService,

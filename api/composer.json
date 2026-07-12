@@ -21,6 +21,10 @@
         {
             "type": "path",
             "url": "../packages/laravel-unit-of-work-core"
+        },
+        {
+            "type": "path",
+            "url": "../packages/laravel-mobile-billing"
         }
     ],
     "require": {
@@ -31,7 +35,8 @@
         "s-nakamura/laravel-utilities": "@dev",
         "s-nakamura/laravel-security-middleware": "@dev",
         "laravel-mobile-rpg/persistence-core": "@dev",
-        "laravel-mobile-rpg/unit-of-work-core": "@dev"
+        "laravel-mobile-rpg/unit-of-work-core": "@dev",
+        "laravel-mobile-rpg/mobile-billing": "@dev"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

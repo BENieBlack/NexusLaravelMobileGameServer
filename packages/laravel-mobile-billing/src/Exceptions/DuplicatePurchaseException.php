@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Billing\Exceptions;
+namespace LaravelMobileBilling\Exceptions;
 
 /**
  * 重複購入の例外

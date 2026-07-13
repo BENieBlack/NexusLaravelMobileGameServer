@@ -3,6 +3,7 @@
 namespace LaravelWallet\DTOs;
 
 use Carbon\CarbonImmutable;
+use NexusUtilities\Traits\JsonSerializableTrait;
 
 /**
  * 通貨残高情報DTO
@@ -11,20 +12,13 @@ use Carbon\CarbonImmutable;
  */
 readonly class CurrencyBalance
 {
+    use JsonSerializableTrait;
     public function __construct(
         public int $freeAmount,                    // 無償通貨数
         public int $paidAmount,                    // 有償通貨数
         public int $totalAmount,                   // 合計通貨数
         public ?CarbonImmutable $expireAt = null,  // 有効期限（最短のもの）
     ) {}
-
-    /**
-     * JSON文字列に変換
-     */
-    public function toJson(): string
-    {
-        return json_encode($this->toArray(), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    }
 
     /**
      * 配列に変換

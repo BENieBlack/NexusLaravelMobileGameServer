@@ -3,6 +3,7 @@
 namespace LaravelMobileBilling\DTOs;
 
 use Carbon\CarbonImmutable;
+use NexusUtilities\Traits\JsonSerializableTrait;
 
 /**
  * サブスクリプション状態DTO
@@ -11,6 +12,7 @@ use Carbon\CarbonImmutable;
  */
 readonly class SubscriptionStatus
 {
+    use JsonSerializableTrait;
     public function __construct(
         public bool $isActive,                   // サブスクリプションが有効か
         public CarbonImmutable $expiresAt,       // 有効期限
@@ -18,20 +20,6 @@ readonly class SubscriptionStatus
         public ?string $state = null,            // 状態（active, expired, cancelled等）
         public ?CarbonImmutable $cancelledAt = null,  // キャンセル日時
     ) {}
-
-    /**
-     * JSON文字列に変換
-     */
-    public function toJson(): string
-    {
-        return json_encode([
-            'is_active' => $this->isActive,
-            'expires_at' => $this->expiresAt->toIso8601String(),
-            'auto_renew' => $this->autoRenew,
-            'state' => $this->state,
-            'cancelled_at' => $this->cancelledAt?->toIso8601String(),
-        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    }
 
     /**
      * 配列に変換

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c70db7919ae7f4fcc4f299ccb28e2874",
+    "content-hash": "0689ee37cbb6aecf3184bfe7f5d0bc88",
     "packages": [
         {
             "name": "brick/math",
@@ -1266,6 +1266,107 @@
             }
         },
         {
+            "name": "laravel-mobile-game/core-persistence",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/laravel-core-persistence",
+                "reference": "de5efbc9eea0d7982dce188b423c7604545c3444"
+            },
+            "require": {
+                "illuminate/cache": "^10.0|^11.0|^12.0",
+                "illuminate/database": "^10.0|^11.0|^12.0",
+                "illuminate/support": "^10.0|^11.0|^12.0",
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.6",
+                "orchestra/testbench": "^9.0",
+                "phpunit/phpunit": "^11.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "LaravelPersistence\\PersistenceServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "LaravelPersistence\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "LaravelPersistence\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Your Name",
+                    "email": "your.email@example.com"
+                }
+            ],
+            "description": "Base Model and Repository classes for Laravel game applications with support for multiple data types (Trx, Log, Sys, Mst)",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "laravel-mobile-game/core-unit-of-work",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/laravel-core-unit-of-work",
+                "reference": "09888c9ba370db53bafbd25c0bf020964ae3a6cc"
+            },
+            "require": {
+                "illuminate/database": "^10.0|^11.0|^12.0",
+                "illuminate/support": "^10.0|^11.0|^12.0",
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.6",
+                "orchestra/testbench": "^9.0",
+                "phpunit/phpunit": "^11.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "LaravelUnitOfWork\\UnitOfWorkServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "LaravelUnitOfWork\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "LaravelUnitOfWork\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Your Name",
+                    "email": "your.email@example.com"
+                }
+            ],
+            "description": "Unit of Work pattern implementation for Laravel with batch operations and query optimization",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "laravel-mobile-game/maintenance",
             "version": "dev-main",
             "dist": {
@@ -1317,107 +1418,6 @@
                 }
             ],
             "description": "Mobile game features for Laravel including maintenance mode management with support for AWS DynamoDB and Alibaba Cloud TableStore",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
-            "name": "laravel-mobile-game/persistence-core",
-            "version": "dev-main",
-            "dist": {
-                "type": "path",
-                "url": "../packages/laravel-persistence-core",
-                "reference": "5482f99a36e94af92ba593c6341fda3851aa231b"
-            },
-            "require": {
-                "illuminate/cache": "^10.0|^11.0|^12.0",
-                "illuminate/database": "^10.0|^11.0|^12.0",
-                "illuminate/support": "^10.0|^11.0|^12.0",
-                "php": "^8.1"
-            },
-            "require-dev": {
-                "mockery/mockery": "^1.6",
-                "orchestra/testbench": "^9.0",
-                "phpunit/phpunit": "^11.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "LaravelPersistence\\PersistenceServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "LaravelPersistence\\": "src/"
-                }
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "LaravelPersistence\\Tests\\": "tests/"
-                }
-            },
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Your Name",
-                    "email": "your.email@example.com"
-                }
-            ],
-            "description": "Base Model and Repository classes for Laravel game applications with support for multiple data types (Trx, Log, Sys, Mst)",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
-            "name": "laravel-mobile-game/unit-of-work-core",
-            "version": "dev-main",
-            "dist": {
-                "type": "path",
-                "url": "../packages/laravel-unit-of-work-core",
-                "reference": "34ae59bab61c3f6824132f7f90dea64456c749cb"
-            },
-            "require": {
-                "illuminate/database": "^10.0|^11.0|^12.0",
-                "illuminate/support": "^10.0|^11.0|^12.0",
-                "php": "^8.1"
-            },
-            "require-dev": {
-                "mockery/mockery": "^1.6",
-                "orchestra/testbench": "^9.0",
-                "phpunit/phpunit": "^11.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "LaravelUnitOfWork\\UnitOfWorkServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "LaravelUnitOfWork\\": "src/"
-                }
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "LaravelUnitOfWork\\Tests\\": "tests/"
-                }
-            },
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Your Name",
-                    "email": "your.email@example.com"
-                }
-            ],
-            "description": "Unit of Work pattern implementation for Laravel with batch operations and query optimization",
             "transport-options": {
                 "relative": true
             }
@@ -9883,9 +9883,9 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "laravel-mobile-game/billing": 20,
+        "laravel-mobile-game/core-persistence": 20,
+        "laravel-mobile-game/core-unit-of-work": 20,
         "laravel-mobile-game/maintenance": 20,
-        "laravel-mobile-game/persistence-core": 20,
-        "laravel-mobile-game/unit-of-work-core": 20,
         "laravel-mobile-game/wallet": 20,
         "s-nakamura/laravel-security-middleware": 20,
         "s-nakamura/laravel-utilities": 20

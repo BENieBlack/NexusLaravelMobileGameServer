@@ -4,7 +4,7 @@ namespace App\Domain\Gacha\Services;
 
 use App\Models\Trx\TrxGacha;
 use App\Repositories\Trx\TrxGachaRepository;
-use Carbon\Carbon;
+use NexusUtilities\ClockUtility;
 
 /**
  * GachaProgressService
@@ -34,7 +34,7 @@ class GachaProgressService
             ->first();
 
         if (!$progress) {
-            $now = Carbon::now();
+            $now = ClockUtility::now();
             $progress = new TrxGacha([
                 'sys_player_id' => $sysPlayerId,
                 'mst_gacha_id' => $mstGachaId,
@@ -58,11 +58,14 @@ class GachaProgressService
      */
     public function checkAndResetDaily(TrxGacha $progress): TrxGacha
     {
-        $now = Carbon::now();
+        $now = ClockUtility::now();
         $dailyResetAt = $progress->getAttribute('daily_reset_at');
+        $todayString = $now->startOfDay()->toDateString(); // Y-m-d形式
 
         // daily_reset_atが今日の0時より前ならリセット
-        if ($dailyResetAt === null || Carbon::parse($dailyResetAt)->startOfDay()->isBefore($now->startOfDay())) {
+        // 文字列比較: daily_reset_atから日付部分を取得して比較
+        $dailyResetDate = $dailyResetAt !== null ? substr($dailyResetAt, 0, 10) : null;
+        if ($dailyResetDate === null || $dailyResetDate < $todayString) {
             $progress->setAttribute('daily_draw_count', 0);
             $progress->setAttribute('daily_reset_at', $now);
         }

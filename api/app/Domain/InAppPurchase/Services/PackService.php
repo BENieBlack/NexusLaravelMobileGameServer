@@ -12,7 +12,6 @@ use App\Repositories\Trx\TrxDiamondRepository;
 use App\Repositories\Trx\TrxInAppPurchaseRepository;
 use App\Repositories\Trx\TrxUnitRepository;
 use NexusUtilities\ClockUtility;
-use Carbon\CarbonImmutable;
 
 /**
  * PackService
@@ -197,7 +196,7 @@ class PackService
                 'mst_in_app_purchase_id' => $mstInAppPurchase->getId(),
                 'total_purchase_count' => 1,
                 'purchase_count' => 1,
-                'purchase_count_reset_at' => $mstInAppPurchase->getPurchaseLimitReset() !== 'None' ? CarbonImmutable::now() : null,
+                'purchase_count_reset_at' => $mstInAppPurchase->getPurchaseLimitReset() !== 'None' ? ClockUtility::now() : null,
             ]);
             $this->trxInAppPurchaseRepository->setModel($purchaseHistory);
             return;

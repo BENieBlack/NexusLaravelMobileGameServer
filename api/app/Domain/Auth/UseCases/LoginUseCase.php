@@ -63,16 +63,15 @@ class LoginUseCase extends _BaseUseCase
         return $this->executeWithTransaction(function () use ($sysPlayerId) {
             // プレイヤー情報を取得（バリデーション済み）
             $sysPlayer = $this->sysPlayerRepository->selectById($sysPlayerId);
-            $now = ApiSession::getNow();
 
             // ログインボーナスをチェック・配布
             $loginBonusContents = $this->loginBonusService->checkAndGrantLoginBonus(
                 $sysPlayerId,
-                $sysPlayer->last_login_at,
-                $now
+                $sysPlayer->getLastLoginAt()
             );
 
             // 最終ログイン日時を更新
+            $now = ApiSession::getNow();
             $this->sysPlayerRepository->updateLastLoginAt($sysPlayer, $now);
 
             // ユーザー情報を取得

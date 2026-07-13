@@ -18,7 +18,6 @@ use App\Models\Trx\TrxEquipment;
 use App\Models\Trx\TrxDiamond;
 use App\Persistence\ApiSession;
 use NexusUtilities\ClockUtility;
-use Carbon\Carbon;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
 
@@ -82,7 +81,7 @@ class GachaDrawTest extends TestCase
             'sys_player_id' => $player->id,
             'sys_player_device_id' => $device->id,
             'refresh_token_hash' => hash('sha256', 'test-refresh-token-gacha'),
-            'expires_at' => Carbon::now()->addDays(30),
+            'expires_at' => ClockUtility::now()->addDays(30),
         ]);
         
         // ApiSessionにプレイヤーIDを設定
@@ -108,8 +107,8 @@ class GachaDrawTest extends TestCase
             'deploy_key' => 202601010,
             'sort_desc' => 100,
             'is_active' => true,
-            'start_at' => Carbon::now()->subDay(),
-            'end_at' => Carbon::now()->addDay(),
+            'start_at' => ClockUtility::now()->subDay(),
+            'end_at' => ClockUtility::now()->addDay(),
             'daily_limit' => 0, // 無制限
             'has_step_up' => false,
         ]);

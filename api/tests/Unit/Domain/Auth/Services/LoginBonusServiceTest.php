@@ -8,6 +8,7 @@ use App\Models\Mst\MstLoginBonus;
 use App\Models\Mst\MstLoginBonusContent;
 use App\Persistence\ApiSession;
 use Carbon\CarbonImmutable;
+use NexusUtilities\ClockUtility;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;
@@ -184,53 +185,57 @@ class LoginBonusServiceTest extends TestCase
     public function 同日2回目のログインではログインボーナスが配布されない(): void
     {
         $today = CarbonImmutable::parse('2026-04-20 10:00:00', 'UTC');
+        ClockUtility::setNow($today);
         
         // 1回目のログイン
         $result1 = $this->loginBonusService->checkAndGrantLoginBonus(
             $this->sysPlayerId,
-            null,
-            $today
+            null
         );
         $this->assertCount(1, $result1);
 
         // 同日の2回目のログイン（lastLoginAt = 今日の午前中）
-        $lastLoginAt = $today->setTime(9, 0, 0)->toDateTime();
+        $lastLoginAt = $today->setTime(9, 0, 0)->toDateTimeString();
+        ClockUtility::setNow($today->setTime(15, 0, 0)); // 同日の午後
         $result2 = $this->loginBonusService->checkAndGrantLoginBonus(
             $this->sysPlayerId,
-            $lastLoginAt,
-            $today->setTime(15, 0, 0) // 同日の午後
+            $lastLoginAt
         );
 
         // 配布されないことを確認
         $this->assertEmpty($result2);
+        
+        ClockUtility::reset();
     }
 
     #[Test]
     public function test_連続ログイン2日目で正しい報酬が配布される(): void
     {
         $day1 = CarbonImmutable::parse('2026-04-20 10:00:00', 'UTC');
+        ClockUtility::setNow($day1);
         
         // 1日目
         $this->loginBonusService->checkAndGrantLoginBonus(
             $this->sysPlayerId,
-            null,
-            $day1
+            null
         );
 
         // 2日目（翌日）
         $day2 = $day1->addDay();
-        $lastLoginAt = $day1->toDateTime();
+        ClockUtility::setNow($day2);
+        $lastLoginAt = $day1->toDateTimeString();
         
         $result = $this->loginBonusService->checkAndGrantLoginBonus(
             $this->sysPlayerId,
-            $lastLoginAt,
-            $day2
+            $lastLoginAt
         );
 
         // 2日目の報酬が配布されることを確認
         $this->assertCount(1, $result); // 2日目はアイテムのみ
         $this->assertSame('item', $result[0]->getType());
         $this->assertSame(20, $result[0]->getAmount()); // 2日目は20個
+        
+        ClockUtility::reset();
     }
 
     #[Test]
@@ -275,21 +280,21 @@ class LoginBonusServiceTest extends TestCase
         
         // 1日目〜6日目まで連続ログイン
         for ($i = 1; $i <= 6; $i++) {
-            $lastLoginAt = $i === 1 ? null : $currentDay->subDay()->toDateTime();
+            ClockUtility::setNow($currentDay);
+            $lastLoginAt = $i === 1 ? null : $currentDay->subDay()->toDateTimeString();
             $this->loginBonusService->checkAndGrantLoginBonus(
                 $this->sysPlayerId,
-                $lastLoginAt,
-                $currentDay
+                $lastLoginAt
             );
             $currentDay = $currentDay->addDay();
         }
 
         // 7日目
-        $lastLoginAt = $currentDay->subDay()->toDateTime();
+        ClockUtility::setNow($currentDay);
+        $lastLoginAt = $currentDay->subDay()->toDateTimeString();
         $result = $this->loginBonusService->checkAndGrantLoginBonus(
             $this->sysPlayerId,
-            $lastLoginAt,
-            $currentDay
+            $lastLoginAt
         );
 
         // 7日目は2つの報酬（アイテム + ダイヤ）
@@ -302,6 +307,8 @@ class LoginBonusServiceTest extends TestCase
         // ダイヤ報酬
         $this->assertSame('diamond', $result[1]->getType());
         $this->assertSame(100, $result[1]->getAmount());
+        
+        ClockUtility::reset();
     }
 
     #[Test]
@@ -343,12 +350,12 @@ class LoginBonusServiceTest extends TestCase
         $this->refreshMstCache();
 
         $currentDay = CarbonImmutable::parse('2026-04-20 10:00:00', 'UTC');
+        ClockUtility::setNow($currentDay);
         
         // ログイン
         $this->loginBonusService->checkAndGrantLoginBonus(
             $this->sysPlayerId,
-            null,
-            $currentDay
+            null
         );
 
         // 履歴を確認（アイテムとダイヤの2件）
@@ -371,6 +378,8 @@ class LoginBonusServiceTest extends TestCase
         $this->assertNotNull($diamondHistory);
         $this->assertSame('diamond', $diamondHistory->reward_id);
         $this->assertSame(100, $diamondHistory->reward_amount);
+        
+        ClockUtility::reset();
     }
 
     #[Test]
@@ -380,21 +389,21 @@ class LoginBonusServiceTest extends TestCase
         
         // 1日目〜7日目まで連続ログイン
         for ($i = 1; $i <= 7; $i++) {
-            $lastLoginAt = $i === 1 ? null : $currentDay->subDay()->toDateTime();
+            ClockUtility::setNow($currentDay);
+            $lastLoginAt = $i === 1 ? null : $currentDay->subDay()->toDateTimeString();
             $this->loginBonusService->checkAndGrantLoginBonus(
                 $this->sysPlayerId,
-                $lastLoginAt,
-                $currentDay
+                $lastLoginAt
             );
             $currentDay = $currentDay->addDay();
         }
 
         // 8日目
-        $lastLoginAt = $currentDay->subDay()->toDateTime();
+        ClockUtility::setNow($currentDay);
+        $lastLoginAt = $currentDay->subDay()->toDateTimeString();
         $result = $this->loginBonusService->checkAndGrantLoginBonus(
             $this->sysPlayerId,
-            $lastLoginAt,
-            $currentDay
+            $lastLoginAt
         );
 
         // 1日目の報酬と同じになる
@@ -411,6 +420,8 @@ class LoginBonusServiceTest extends TestCase
 
         $this->assertNotNull($history);
         $this->assertSame('login_bonus_day_1', $history->mst_login_bonus_id);
+        
+        ClockUtility::reset();
     }
 
     #[Test]
@@ -421,29 +432,31 @@ class LoginBonusServiceTest extends TestCase
         // 1日目〜3日目まで連続ログイン
         $currentDay = $day1;
         for ($i = 1; $i <= 3; $i++) {
-            $lastLoginAt = $i === 1 ? null : $currentDay->subDay()->toDateTime();
+            ClockUtility::setNow($currentDay);
+            $lastLoginAt = $i === 1 ? null : $currentDay->subDay()->toDateTimeString();
             $this->loginBonusService->checkAndGrantLoginBonus(
                 $this->sysPlayerId,
-                $lastLoginAt,
-                $currentDay
+                $lastLoginAt
             );
             $currentDay = $currentDay->addDay();
         }
 
         // 2日間ログインしない（5日目にログイン）
         $day5 = $day1->addDays(4);
-        $lastLoginAt = $day1->addDays(2)->toDateTime(); // 3日目が最終ログイン
+        ClockUtility::setNow($day5);
+        $lastLoginAt = $day1->addDays(2)->toDateTimeString(); // 3日目が最終ログイン
         
         $result = $this->loginBonusService->checkAndGrantLoginBonus(
             $this->sysPlayerId,
-            $lastLoginAt,
-            $day5
+            $lastLoginAt
         );
 
         // 1日目の報酬にリセットされる
         $this->assertCount(1, $result);
         $this->assertSame('item', $result[0]->getType());
         $this->assertSame(10, $result[0]->getAmount()); // 1日目の報酬（10個）
+        
+        ClockUtility::reset();
     }
 
     #[Test]
@@ -451,26 +464,28 @@ class LoginBonusServiceTest extends TestCase
     {
         // 4月20日 23:59:59にログイン
         $day1Evening = CarbonImmutable::parse('2026-04-20 23:59:59', 'UTC');
+        ClockUtility::setNow($day1Evening);
         $result1 = $this->loginBonusService->checkAndGrantLoginBonus(
             $this->sysPlayerId,
-            null,
-            $day1Evening
+            null
         );
         $this->assertCount(1, $result1);
 
         // 4月21日 00:00:01にログイン（翌日）
         $day2Morning = CarbonImmutable::parse('2026-04-21 00:00:01', 'UTC');
-        $lastLoginAt = $day1Evening->toDateTime();
+        ClockUtility::setNow($day2Morning);
+        $lastLoginAt = $day1Evening->toDateTimeString();
         
         $result2 = $this->loginBonusService->checkAndGrantLoginBonus(
             $this->sysPlayerId,
-            $lastLoginAt,
-            $day2Morning
+            $lastLoginAt
         );
 
         // 翌日として判定され、2日目の報酬が配布される
         $this->assertCount(1, $result2);
         $this->assertSame(20, $result2[0]->getAmount()); // 2日目の報酬（20個）
+        
+        ClockUtility::reset();
     }
 
     #[Test]
@@ -484,15 +499,17 @@ class LoginBonusServiceTest extends TestCase
         $this->refreshMstCache();
 
         $now = CarbonImmutable::parse('2026-04-20 10:00:00', 'UTC');
+        ClockUtility::setNow($now);
         
         $result = $this->loginBonusService->checkAndGrantLoginBonus(
             $this->sysPlayerId,
-            null,
-            $now
+            null
         );
 
         // 何も配布されない
         $this->assertEmpty($result);
+        
+        ClockUtility::reset();
     }
 
     #[Test]
@@ -507,14 +524,16 @@ class LoginBonusServiceTest extends TestCase
         $this->refreshMstCache();
 
         $now = CarbonImmutable::parse('2026-04-20 10:00:00', 'UTC');
+        ClockUtility::setNow($now);
         
         $result = $this->loginBonusService->checkAndGrantLoginBonus(
             $this->sysPlayerId,
-            null,
-            $now
+            null
         );
 
         // 何も配布されない
         $this->assertEmpty($result);
+        
+        ClockUtility::reset();
     }
 }

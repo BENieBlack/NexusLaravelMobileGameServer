@@ -3,6 +3,7 @@
 namespace LaravelMobileBilling\DTOs;
 
 use Carbon\CarbonImmutable;
+use NexusUtilities\Traits\JsonSerializableTrait;
 
 /**
  * レシート検証結果DTO
@@ -11,6 +12,7 @@ use Carbon\CarbonImmutable;
  */
 readonly class VerificationResult
 {
+    use JsonSerializableTrait;
     public function __construct(
         public bool $isValid,                      // 検証が成功したか
         public string $transactionId,              // トランザクションID（ストア固有）
@@ -20,22 +22,6 @@ readonly class VerificationResult
         public string $originalTransactionId,      // 元のトランザクションID（復元購入等で使用）
         public array $rawResponse,                 // プラットフォームAPIの生レスポンス
     ) {}
-
-    /**
-     * JSON文字列に変換
-     */
-    public function toJson(): string
-    {
-        return json_encode([
-            'is_valid' => $this->isValid,
-            'transaction_id' => $this->transactionId,
-            'product_id' => $this->productId,
-            'purchase_date' => $this->purchaseDate->toIso8601String(),
-            'quantity' => $this->quantity,
-            'original_transaction_id' => $this->originalTransactionId,
-            'raw_response' => $this->rawResponse,
-        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    }
 
     /**
      * 配列に変換

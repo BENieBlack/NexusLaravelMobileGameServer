@@ -2,6 +2,8 @@
 
 namespace LaravelMobileBilling\DTOs;
 
+use NexusUtilities\Traits\JsonSerializableTrait;
+
 /**
  * レシートデータDTO
  * 
@@ -9,6 +11,7 @@ namespace LaravelMobileBilling\DTOs;
  */
 readonly class ReceiptData
 {
+    use JsonSerializableTrait;
     public function __construct(
         public int $playerId,
         public string $billingPlatform,
@@ -17,21 +20,6 @@ readonly class ReceiptData
         public ?string $productId = null,         // GooglePlay用: 商品ID
         public ?string $transactionId = null,     // トランザクションID（オプション）
     ) {}
-
-    /**
-     * JSON文字列に変換
-     */
-    public function toJson(): string
-    {
-        return json_encode([
-            'player_id' => $this->playerId,
-            'billing_platform' => $this->billingPlatform,
-            'receipt' => $this->receipt,
-            'purchase_token' => $this->purchaseToken,
-            'product_id' => $this->productId,
-            'transaction_id' => $this->transactionId,
-        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    }
 
     /**
      * 配列に変換

@@ -23,9 +23,11 @@ return [
     */
     'dynamodb' => [
         'region' => env('AWS_DYNAMODB_REGION', env('AWS_REGION', 'ap-northeast-1')),
-        'table' => env('AWS_DYNAMODB_MAINTENANCE_TABLE', 'maintenance_status'),
+        'table' => env('AWS_DYNAMODB_MAINTENANCE_TABLE', 'sys_maintenance'),
+        'primary_key' => env('AWS_DYNAMODB_MAINTENANCE_PRIMARY_KEY', 'SysMaintenance'),
         'key' => env('AWS_DYNAMODB_ACCESS_KEY_ID', env('AWS_ACCESS_KEY_ID')),
         'secret' => env('AWS_DYNAMODB_SECRET_ACCESS_KEY', env('AWS_SECRET_ACCESS_KEY')),
+        'endpoint' => env('AWS_DYNAMODB_ENDPOINT'), // ローカル開発用
     ],
 
     /*
@@ -36,7 +38,8 @@ return [
     'tablestore' => [
         'endpoint' => env('ALIBABA_TABLESTORE_ENDPOINT'),
         'instance' => env('ALIBABA_TABLESTORE_INSTANCE'),
-        'table' => env('ALIBABA_TABLESTORE_MAINTENANCE_TABLE', 'maintenance_status'),
+        'table' => env('ALIBABA_TABLESTORE_MAINTENANCE_TABLE', 'sys_maintenance'),
+        'primary_key' => env('ALIBABA_TABLESTORE_MAINTENANCE_PRIMARY_KEY', 'SysMaintenance'),
         'access_key_id' => env('ALIBABA_TABLESTORE_ACCESS_KEY_ID', env('ALIBABA_ACCESS_KEY_ID')),
         'access_key_secret' => env('ALIBABA_TABLESTORE_ACCESS_KEY_SECRET', env('ALIBABA_ACCESS_KEY_SECRET')),
     ],

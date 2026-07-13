@@ -123,33 +123,33 @@ class ClockUtility
     }
 
     /**
-     * 指定された日時が現在時刻以上かどうかをチェック
+     * 現在時刻が指定日時以上かどうかをチェック（NOW >= 指定日時）
      * 
-     * 用途: 開始前チェック（まだ開始していない）
-     * 例: if (ClockUtility::greaterThanOrEqual($gacha->start_at)) → ガチャ開始前
+     * 用途: 開始済みチェック
+     * 例: if (ClockUtility::greaterThanOrEqual($gacha->start_at)) → ガチャ開始済み（期間内チェック）
      * 
      * @param string $dateTimeString Y-m-d H:i:s形式の日時文字列
-     * @return bool true = 指定日時 >= NOW（まだ開始していない）
+     * @return bool true = NOW >= 指定日時（開始済み）
      */
     public static function greaterThanOrEqual(string $dateTimeString): bool
     {
         $targetTime = CarbonImmutable::parse($dateTimeString);
-        return $targetTime->greaterThanOrEqualTo(self::now());
+        return self::now()->greaterThanOrEqualTo($targetTime);
     }
 
     /**
-     * 指定された日時が現在時刻以下かどうかをチェック
+     * 現在時刻が指定日時以下かどうかをチェック（NOW <= 指定日時）
      * 
-     * 用途: 終了済みチェック（すでに終了している）
-     * 例: if (ClockUtility::lessThanOrEqual($gacha->end_at)) → ガチャ終了済み
+     * 用途: 未終了チェック
+     * 例: if (ClockUtility::lessThanOrEqual($gacha->end_at)) → ガチャ未終了（期間内チェック）
      * 
      * @param string $dateTimeString Y-m-d H:i:s形式の日時文字列
-     * @return bool true = 指定日時 <= NOW（すでに終了している）
+     * @return bool true = NOW <= 指定日時（未終了）
      */
     public static function lessThanOrEqual(string $dateTimeString): bool
     {
         $targetTime = CarbonImmutable::parse($dateTimeString);
-        return $targetTime->lessThanOrEqualTo(self::now());
+        return self::now()->lessThanOrEqualTo($targetTime);
     }
 
     /**

@@ -32,7 +32,12 @@ class ClockUtility
      * 
      * @return string HH:MM:SS形式（デフォルト: 00:00:00）
      */
-    private static function getDayStartTime(): string
+    /**
+     * DAY_START_TIMEを取得
+     * 
+     * @return string HH:MM:SS形式
+     */
+    public static function getDayStartTime(): string
     {
         if (self::$dayStartTime === null) {
             self::$dayStartTime = env('DAY_START_TIME', '00:00:00');
@@ -58,12 +63,12 @@ class ClockUtility
      * 例: DAY_START_TIME=09:00:00、$dateTime="2024-01-15 08:00:00"
      *     → "2024-01-14 09:00:00"（前日の開始時刻）
      * 
-     * @param string $dateTimeString Y-m-d H:i:s形式の日時文字列
+     * @param string|null $dateTimeString Y-m-d H:i:s形式の日時文字列（nullの場合は現在時刻）
      * @return CarbonImmutable ゲーム内日付の開始時刻
      */
-    public static function getGameDayStart(string $dateTimeString): CarbonImmutable
+    public static function getGameDayStart(?string $dateTimeString = null): CarbonImmutable
     {
-        $dateTime = CarbonImmutable::parse($dateTimeString);
+        $dateTime = $dateTimeString === null ? self::now() : CarbonImmutable::parse($dateTimeString);
         $dayStartTime = self::getDayStartTime();
         
         // 指定日時の日付で開始時刻を作成
@@ -258,10 +263,13 @@ class ClockUtility
 
     /**
      * テスト用：時刻を指定した値に設定する
+     * 
+     * @param string $datetime Y-m-d H:i:s形式の文字列
      */
-    public static function setNow(CarbonImmutable $datetime): void
+    public static function setNow(string $datetime): void
     {
-        self::$currentDatetime = $datetime;
-        CarbonImmutable::setTestNow($datetime);
+        $parsed = CarbonImmutable::parse($datetime);
+        self::$currentDatetime = $parsed;
+        CarbonImmutable::setTestNow($parsed);
     }
 }

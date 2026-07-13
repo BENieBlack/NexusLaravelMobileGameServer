@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DTOs;
+namespace LaravelMaintenance\DTOs;
 
 use Carbon\CarbonImmutable;
 

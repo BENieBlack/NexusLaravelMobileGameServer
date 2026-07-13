@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\DTOs;
 
-use App\DTOs\MaintenanceInfo;
+use LaravelMaintenance\DTOs\MaintenanceInfo;
 use Carbon\CarbonImmutable;
 use PHPUnit\Framework\TestCase;
 

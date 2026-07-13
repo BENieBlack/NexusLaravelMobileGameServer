@@ -3,6 +3,7 @@
 namespace NexusMaintenance\DTOs;
 
 use NexusUtilities\ClockUtility;
+use NexusUtilities\Traits\JsonSerializableTrait;
 
 /**
  * sys_maintenanceテーブルのDTO
@@ -12,6 +13,7 @@ use NexusUtilities\ClockUtility;
  */
 readonly class SysMaintenance
 {
+    use JsonSerializableTrait;
     public function __construct(
         public bool $isMaintenance,
         public ?string $startAt = null,      // Y-m-d H:i:s形式
@@ -58,14 +60,6 @@ readonly class SysMaintenance
             'message' => $this->message,
             'updated_at' => $this->updatedAt,
         ];
-    }
-
-    /**
-     * JSON文字列に変換
-     */
-    public function toJson(): string
-    {
-        return json_encode($this->toArray(), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 
     /**

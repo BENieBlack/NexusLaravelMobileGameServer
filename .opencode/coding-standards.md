@@ -18,6 +18,21 @@
 
 ## 0. 日時操作のルール
 
+### ゲーム内日付の概念
+
+このシステムでは、**ゲーム内日付**の概念を採用しています。
+
+`.env`の`DAY_START_TIME`で1日の開始時刻をカスタマイズできます：
+- `DAY_START_TIME=00:00:00`（デフォルト）: 1日は`00:00:00~23:59:59`
+- `DAY_START_TIME=09:00:00`: 1日は`09:00:00~翌日08:59:59`
+
+**例**: `DAY_START_TIME=09:00:00`の場合
+- `2024-01-15 10:00:00` → ゲーム内日付: 2024-01-15
+- `2024-01-15 08:00:00` → ゲーム内日付: 2024-01-14（前日扱い）
+- `2024-01-16 08:30:00` → ゲーム内日付: 2024-01-15（同じ日）
+
+**ログインボーナスなどの日次リセット処理は、このゲーム内日付を基準に判定します。**
+
 ### 原則1: ClockUtilityを経由して時刻を取得
 
 **すべての日時操作は`ClockUtility`を経由して行います。** `Carbon`や`CarbonImmutable`を直接使用しません。
@@ -44,6 +59,7 @@ $now = Carbon::now(); // NG
 2. **パフォーマンス向上**: 大量のレコード処理時にCarbonオブジェクトの生成を避けられる
 3. **コードの一貫性**: 時刻取得の方法が統一される
 4. **予期しない変更を防ぐ**: CarbonImmutableを使用しているため、元の値が書き換わらない
+5. **ゲーム内日付を自動処理**: `DAY_START_TIME`を考慮した日付判定が可能
 
 ### 原則2: 日時の比較方法を使い分ける
 
@@ -129,7 +145,46 @@ if ($lastLogin->startOfDay()->lt($today->startOfDay())) { // NG: 重い処理
 - Carbonオブジェクトの生成コストを避けられる
 - 大量のレコード処理時にパフォーマンスが向上する
 
-#### 2-3. 時間差分の計算とCarbonメソッドの使用
+#### 2-3. ゲーム内日付の判定
+
+ログインボーナスなど、ゲーム内日付で同じ日かどうかを判定する場合は、`ClockUtility::isSameGameDay()`を使用します。
+
+```php
+// ✅ Good: ゲーム内日付での判定
+use NexusUtilities\ClockUtility;
+
+// 最終ログイン日時とゲーム内の「昨日」の開始時刻を比較
+$gameDayStart = ClockUtility::getGameDayStart(); // 今日のゲーム内日付の開始時刻
+$yesterdayStart = $gameDayStart->subDay()->format('Y-m-d H:i:s');
+
+if (ClockUtility::isSameGameDay($player->last_login_at, $yesterdayStart)) {
+    // 連続ログイン
+    $consecutiveDays++;
+} else {
+    // 連続ログインが途切れた
+    $consecutiveDays = 1;
+}
+
+// ❌ Bad: toDateString()での比較はNG（DAY_START_TIMEが考慮されない）
+$lastLoginDate = substr($player->last_login_at, 0, 10); // NG
+$todayString = ClockUtility::now()->toDateString(); // NG
+if ($lastLoginDate === $todayString) { // NG: DAY_START_TIMEが09:00:00の場合に誤判定
+    // ...
+}
+```
+
+**ゲーム内日付を使用する例:**
+- **ログインボーナス**: 前回受取日時と昨日のゲーム内日付開始時刻を比較
+- **日次ミッション**: リセット判定にゲーム内日付を使用
+- **連続ログイン日数**: ゲーム内日付で連続性を判定
+
+**`isSameGameDay()`の動作:**
+- `DAY_START_TIME=09:00:00`の場合
+  - `2024-01-15 10:00:00`と`2024-01-15 20:00:00` → 同じゲーム内日付（true）
+  - `2024-01-15 08:00:00`と`2024-01-15 10:00:00` → 異なるゲーム内日付（false）
+  - `2024-01-15 10:00:00`と`2024-01-16 08:30:00` → 同じゲーム内日付（true）
+
+#### 2-4. 時間差分の計算とCarbonメソッドの使用
 
 時間の差分を計算する場合や、年月週の情報が必要な場合は、`ClockUtility`の専用メソッドを使用します。
 

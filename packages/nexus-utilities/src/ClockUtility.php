@@ -7,6 +7,7 @@ use Carbon\CarbonImmutable;
 class ClockUtility
 {
     private static ?CarbonImmutable $currentDatetime = null;
+    private static ?string $dayStartTime = null;
 
     public static function initialize(): void
     {
@@ -24,6 +25,77 @@ class ClockUtility
     public static function nowToString(): string
     {
         return self::now()->format('Y-m-d H:i:s');
+    }
+
+    /**
+     * DAY_START_TIMEを取得
+     * 
+     * @return string HH:MM:SS形式（デフォルト: 00:00:00）
+     */
+    private static function getDayStartTime(): string
+    {
+        if (self::$dayStartTime === null) {
+            self::$dayStartTime = env('DAY_START_TIME', '00:00:00');
+        }
+        return self::$dayStartTime;
+    }
+
+    /**
+     * テスト用: DAY_START_TIMEを設定
+     * 
+     * @param string $time HH:MM:SS形式
+     */
+    public static function setDayStartTime(string $time): void
+    {
+        self::$dayStartTime = $time;
+    }
+
+    /**
+     * 指定日時のゲーム内日付の開始時刻を取得
+     * 
+     * 例: DAY_START_TIME=09:00:00、$dateTime="2024-01-15 12:00:00"
+     *     → "2024-01-15 09:00:00"（その日の開始時刻）
+     * 例: DAY_START_TIME=09:00:00、$dateTime="2024-01-15 08:00:00"
+     *     → "2024-01-14 09:00:00"（前日の開始時刻）
+     * 
+     * @param string $dateTimeString Y-m-d H:i:s形式の日時文字列
+     * @return CarbonImmutable ゲーム内日付の開始時刻
+     */
+    public static function getGameDayStart(string $dateTimeString): CarbonImmutable
+    {
+        $dateTime = CarbonImmutable::parse($dateTimeString);
+        $dayStartTime = self::getDayStartTime();
+        
+        // 指定日時の日付で開始時刻を作成
+        $startOfDay = $dateTime->setTimeFromTimeString($dayStartTime);
+        
+        // 指定日時が開始時刻より前なら、前日の開始時刻を返す
+        if ($dateTime->lessThan($startOfDay)) {
+            return $startOfDay->subDay();
+        }
+        
+        return $startOfDay;
+    }
+
+    /**
+     * 2つの日時が同じゲーム内日付かどうかを判定
+     * 
+     * DAY_START_TIMEを考慮して同一日かを判定します。
+     * 例: DAY_START_TIME=09:00:00の場合
+     *     - "2024-01-15 10:00:00" と "2024-01-15 20:00:00" → true
+     *     - "2024-01-15 08:00:00" と "2024-01-15 10:00:00" → false
+     *     - "2024-01-15 10:00:00" と "2024-01-16 08:00:00" → true
+     * 
+     * @param string $dateTime1 Y-m-d H:i:s形式の日時文字列1
+     * @param string $dateTime2 Y-m-d H:i:s形式の日時文字列2
+     * @return bool 同じゲーム内日付ならtrue
+     */
+    public static function isSameGameDay(string $dateTime1, string $dateTime2): bool
+    {
+        $start1 = self::getGameDayStart($dateTime1);
+        $start2 = self::getGameDayStart($dateTime2);
+        
+        return $start1->equalTo($start2);
     }
 
     /**
@@ -75,15 +147,16 @@ class ClockUtility
     }
 
     /**
-     * 指定日時が今日かどうかをチェック
+     * 指定日時が今日（ゲーム内日付）かどうかをチェック
+     * 
+     * DAY_START_TIMEを考慮して今日かどうかを判定します。
      * 
      * @param string $dateTimeString Y-m-d H:i:s形式の日時文字列
      * @return bool
      */
     public static function isToday(string $dateTimeString): bool
     {
-        $targetTime = CarbonImmutable::parse($dateTimeString);
-        return $targetTime->isToday();
+        return self::isSameGameDay(self::nowToString(), $dateTimeString);
     }
 
     /**
@@ -179,6 +252,7 @@ class ClockUtility
     public static function reset(): void
     {
         self::$currentDatetime = null;
+        self::$dayStartTime = null;
         CarbonImmutable::setTestNow(null);
     }
 

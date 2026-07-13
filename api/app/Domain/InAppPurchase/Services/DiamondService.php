@@ -9,7 +9,6 @@ use App\Models\Trx\TrxInAppPurchase;
 use App\Repositories\Trx\TrxDiamondBalanceRepository;
 use App\Repositories\Trx\TrxDiamondRepository;
 use App\Repositories\Trx\TrxInAppPurchaseRepository;
-use App\Persistence\ApiSession;
 use NexusUtilities\ClockUtility;
 
 /**
@@ -24,7 +23,6 @@ class DiamondService
         private readonly TrxDiamondBalanceRepository $trxDiamondBalanceRepository,
         private readonly TrxInAppPurchaseRepository $trxInAppPurchaseRepository,
         private readonly ValidationService $validationService,
-        private readonly ApiSession $apiSession,
     ) {
     }
 

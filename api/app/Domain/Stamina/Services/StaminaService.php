@@ -6,7 +6,6 @@ use App\Domain\Player\Services\LevelService;
 use App\Domain\Stamina\Constants\StaminaConst;
 use App\Models\Trx\TrxStamina;
 use App\Repositories\Trx\TrxStaminaRepository;
-use App\Persistence\ApiSession;
 use NexusUtilities\ClockUtility;
 
 /**
@@ -31,12 +30,10 @@ class StaminaService
      *
      * @param TrxStaminaRepository $trxStaminaRepository
      * @param LevelService $playerLevelService
-     * @param ApiSession $apiSession
      */
     public function __construct(
         private readonly TrxStaminaRepository $trxStaminaRepository,
         private readonly LevelService $playerLevelService,
-        private readonly ApiSession $apiSession
     ) {
     }
 

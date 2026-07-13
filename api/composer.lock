@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d39178827e6b20136f76a13f80269726",
+    "content-hash": "007351a501189687fac27e3ed0e9334f",
     "packages": [
         {
             "name": "brick/math",
@@ -2550,7 +2550,7 @@
             "version": "dev-main",
             "dist": {
                 "type": "path",
-                "url": "../packages/laravel-billing",
+                "url": "../packages/nexus-billing",
                 "reference": "5e03fdd6b86371d8978a361dbc6572ad2c8e5375"
             },
             "require": {
@@ -2603,7 +2603,7 @@
             "version": "dev-main",
             "dist": {
                 "type": "path",
-                "url": "../packages/laravel-core-persistence",
+                "url": "../packages/nexus-core-persistence",
                 "reference": "2ef6abd10075edbf4a01f96142279277d1676e4f"
             },
             "require": {
@@ -2654,7 +2654,7 @@
             "version": "dev-main",
             "dist": {
                 "type": "path",
-                "url": "../packages/laravel-core-unit-of-work",
+                "url": "../packages/nexus-core-unit-of-work",
                 "reference": "d72fdecb0c6eb98a5bfce5191b970c604b942131"
             },
             "require": {
@@ -2704,7 +2704,7 @@
             "version": "dev-main",
             "dist": {
                 "type": "path",
-                "url": "../packages/laravel-mobile-game",
+                "url": "../packages/nexus-maintenance",
                 "reference": "4e954d0bf986a430c20df6dca84a7c638ab68dcd"
             },
             "require": {
@@ -2760,7 +2760,7 @@
             "version": "dev-main",
             "dist": {
                 "type": "path",
-                "url": "../packages/laravel-wallet",
+                "url": "../packages/nexus-wallet",
                 "reference": "261f7d8b1c61990a640e530a386919e0f747d6f2"
             },
             "require": {

@@ -16,23 +16,23 @@
         },
         {
             "type": "path",
-            "url": "../packages/laravel-core-persistence"
+            "url": "../packages/nexus-core-persistence"
         },
         {
             "type": "path",
-            "url": "../packages/laravel-core-unit-of-work"
+            "url": "../packages/nexus-core-unit-of-work"
         },
         {
             "type": "path",
-            "url": "../packages/laravel-billing"
+            "url": "../packages/nexus-billing"
         },
         {
             "type": "path",
-            "url": "../packages/laravel-wallet"
+            "url": "../packages/nexus-wallet"
         },
         {
             "type": "path",
-            "url": "../packages/laravel-mobile-game"
+            "url": "../packages/nexus-maintenance"
         }
     ],
     "require": {

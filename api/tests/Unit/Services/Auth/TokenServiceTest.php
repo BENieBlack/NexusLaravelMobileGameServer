@@ -7,7 +7,7 @@ use App\Domain\Auth\Services\TokenService;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;
-use LaravelUnitOfWork\Persistence\QueryManager;
+use NexusUnitOfWork\Persistence\QueryManager;
 use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;

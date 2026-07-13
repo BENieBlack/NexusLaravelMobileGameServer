@@ -1,9 +1,9 @@
 <?php
 
-namespace LaravelPersistence\Repositories\Sys;
+namespace NexusPersistence\Repositories\Sys;
 
-use LaravelPersistence\Models\Sys\_BaseSysInterface;
-use LaravelPersistence\Repositories\_BaseRepository;
+use NexusPersistence\Models\Sys\_BaseSysInterface;
+use NexusPersistence\Repositories\_BaseRepository;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;

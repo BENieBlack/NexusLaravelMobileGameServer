@@ -2,7 +2,7 @@
 
 namespace App\Models\Trx;
 
-use LaravelPersistence\Models\Trx\_BaseTrx as PersistenceBaseTrx;
+use NexusPersistence\Models\Trx\_BaseTrx as PersistenceBaseTrx;
 
 /**
  * _BaseTrx

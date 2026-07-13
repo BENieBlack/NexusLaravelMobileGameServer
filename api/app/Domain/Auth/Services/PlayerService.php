@@ -5,7 +5,7 @@ namespace App\Domain\Auth\Services;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;
-use LaravelUnitOfWork\Contracts\QueryManagerInterface;
+use NexusUnitOfWork\Contracts\QueryManagerInterface;
 use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;

@@ -1,11 +1,11 @@
 <?php
 
-namespace LaravelUnitOfWork\Persistence\QueryManager;
+namespace NexusUnitOfWork\Persistence\QueryManager;
 
-use LaravelPersistence\Repositories\_BaseRepository;
-use LaravelPersistence\Repositories\Log\_BaseLogRepository;
-use LaravelPersistence\Repositories\Sys\_BaseSysRepository;
-use LaravelPersistence\Repositories\Trx\_BaseTrxRepository;
+use NexusPersistence\Repositories\_BaseRepository;
+use NexusPersistence\Repositories\Log\_BaseLogRepository;
+use NexusPersistence\Repositories\Sys\_BaseSysRepository;
+use NexusPersistence\Repositories\Trx\_BaseTrxRepository;
 use Illuminate\Support\Collection;
 
 /**

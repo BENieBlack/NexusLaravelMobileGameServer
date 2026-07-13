@@ -7,7 +7,7 @@ use App\Domain\Delivery\DTOs\DeliveryContent;
 use App\Domain\Delivery\Handlers\EquipmentDeliveryHandler;
 use App\Repositories\Trx\TrxEquipmentRepository;
 use App\Persistence\ApiSession;
-use LaravelUtilities\ClockUtility;
+use NexusUtilities\ClockUtility;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
 

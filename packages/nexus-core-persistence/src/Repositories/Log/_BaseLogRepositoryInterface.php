@@ -1,9 +1,9 @@
 <?php
 
-namespace LaravelPersistence\Repositories\Log;
+namespace NexusPersistence\Repositories\Log;
 
-use LaravelPersistence\Models\Log\_BaseLogInterface;
-use LaravelPersistence\Repositories\_BaseRepositoryInterface;
+use NexusPersistence\Models\Log\_BaseLogInterface;
+use NexusPersistence\Repositories\_BaseRepositoryInterface;
 use Illuminate\Support\Collection;
 
 /**

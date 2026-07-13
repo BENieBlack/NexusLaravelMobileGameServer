@@ -1,5 +1,5 @@
 <?php
 
-namespace LaravelPersistence\Models\Sys;
+namespace NexusPersistence\Models\Sys;
 
 interface _BaseSysInterface {}

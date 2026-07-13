@@ -2,7 +2,7 @@
 
 namespace App\Models\Mst;
 
-use LaravelPersistence\Models\Mst\_BaseMst as PersistenceBaseMst;
+use NexusPersistence\Models\Mst\_BaseMst as PersistenceBaseMst;
 
 /**
  * _BaseMst

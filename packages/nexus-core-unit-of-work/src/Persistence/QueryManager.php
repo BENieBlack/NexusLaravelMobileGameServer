@@ -1,13 +1,13 @@
 <?php
 
-namespace LaravelUnitOfWork\Persistence;
+namespace NexusUnitOfWork\Persistence;
 
-use LaravelUnitOfWork\Contracts\QueryManagerInterface;
-use LaravelPersistence\Repositories\_BaseRepositoryInterface;
-use LaravelPersistence\Repositories\Log\_BaseLogRepository;
-use LaravelPersistence\Repositories\Sys\_BaseSysRepository;
-use LaravelUnitOfWork\Persistence\QueryManager\OperationCollector;
-use LaravelUnitOfWork\Persistence\QueryManager\BatchExecutor;
+use NexusUnitOfWork\Contracts\QueryManagerInterface;
+use NexusPersistence\Repositories\_BaseRepositoryInterface;
+use NexusPersistence\Repositories\Log\_BaseLogRepository;
+use NexusPersistence\Repositories\Sys\_BaseSysRepository;
+use NexusUnitOfWork\Persistence\QueryManager\OperationCollector;
+use NexusUnitOfWork\Persistence\QueryManager\BatchExecutor;
 
 /**
  * QueryManager

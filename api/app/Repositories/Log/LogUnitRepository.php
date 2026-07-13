@@ -3,7 +3,7 @@
 namespace App\Repositories\Log;
 
 use App\Models\Log\LogUnit;
-use LaravelUtilities\ClockUtility;
+use NexusUtilities\ClockUtility;
 
 /**
  * LogUnitRepository

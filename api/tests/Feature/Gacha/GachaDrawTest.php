@@ -17,7 +17,7 @@ use App\Models\Trx\TrxUnit;
 use App\Models\Trx\TrxEquipment;
 use App\Models\Trx\TrxDiamond;
 use App\Persistence\ApiSession;
-use LaravelUtilities\ClockUtility;
+use NexusUtilities\ClockUtility;
 use Carbon\Carbon;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;

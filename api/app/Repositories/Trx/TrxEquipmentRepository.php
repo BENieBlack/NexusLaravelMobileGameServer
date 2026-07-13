@@ -3,7 +3,7 @@
 namespace App\Repositories\Trx;
 
 use App\Models\Trx\TrxEquipment;
-use LaravelUtilities\ClockUtility;
+use NexusUtilities\ClockUtility;
 use Illuminate\Contracts\Container\BindingResolutionException;
 
 /**

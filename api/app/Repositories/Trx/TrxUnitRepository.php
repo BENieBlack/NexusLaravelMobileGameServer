@@ -5,7 +5,7 @@ namespace App\Repositories\Trx;
 use App\Models\Trx\TrxUnit;
 use App\Repositories\Log\LogUnitRepository;
 use App\Persistence\ApiSession;
-use LaravelUtilities\ClockUtility;
+use NexusUtilities\ClockUtility;
 use Illuminate\Contracts\Container\BindingResolutionException;
 
 /**

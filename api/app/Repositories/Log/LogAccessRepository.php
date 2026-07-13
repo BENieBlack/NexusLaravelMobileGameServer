@@ -3,7 +3,7 @@
 namespace App\Repositories\Log;
 
 use App\Models\Log\LogAccess;
-use LaravelUtilities\ClockUtility;
+use NexusUtilities\ClockUtility;
 
 /**
  * LogAccessRepository

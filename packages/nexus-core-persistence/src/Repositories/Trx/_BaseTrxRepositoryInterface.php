@@ -1,9 +1,9 @@
 <?php
 
-namespace LaravelPersistence\Repositories\Trx;
+namespace NexusPersistence\Repositories\Trx;
 
-use LaravelPersistence\Models\Trx\_BaseTrxInterface;
-use LaravelPersistence\Repositories\_BaseRepositoryInterface;
+use NexusPersistence\Models\Trx\_BaseTrxInterface;
+use NexusPersistence\Repositories\_BaseRepositoryInterface;
 use Illuminate\Support\Collection;
 
 /**

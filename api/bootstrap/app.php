@@ -14,10 +14,10 @@ $app = Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // ミドルウェアエイリアスを登録
         $middleware->alias([
-            'auth.token' => \LaravelSecurityMiddleware\Middleware\VerifyAccessToken::class,
-            'idempotency' => \LaravelSecurityMiddleware\Middleware\IdempotencyMiddleware::class,
-            'client.signature' => \LaravelSecurityMiddleware\Middleware\VerifyClientSignature::class,
-            'throttle.signup' => \LaravelSecurityMiddleware\Middleware\ThrottleSignUp::class,
+            'auth.token' => \NexusSecurity\Middleware\VerifyAccessToken::class,
+            'idempotency' => \NexusSecurity\Middleware\IdempotencyMiddleware::class,
+            'client.signature' => \NexusSecurity\Middleware\VerifyClientSignature::class,
+            'throttle.signup' => \NexusSecurity\Middleware\ThrottleSignUp::class,
             'maintenance' => \App\Http\Middleware\CheckMaintenance::class,
         ]);
     })

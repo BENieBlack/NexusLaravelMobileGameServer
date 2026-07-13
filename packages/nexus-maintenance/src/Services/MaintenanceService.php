@@ -1,9 +1,9 @@
 <?php
 
-namespace LaravelMobileGame\Services;
+namespace NexusMaintenance\Services;
 
-use LaravelMobileGame\Contracts\MaintenanceStorageInterface;
-use LaravelMobileGame\DTOs\MaintenanceInfo;
+use NexusMaintenance\Contracts\MaintenanceStorageInterface;
+use NexusMaintenance\DTOs\MaintenanceInfo;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 

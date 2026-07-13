@@ -1,8 +1,8 @@
 <?php
 
-namespace LaravelMobileGame\Contracts;
+namespace NexusMaintenance\Contracts;
 
-use LaravelMobileGame\DTOs\MaintenanceInfo;
+use NexusMaintenance\DTOs\MaintenanceInfo;
 
 /**
  * メンテナンスストレージインターフェース

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Environment Setup Script for LaravelMobileGameExpantion
+# Environment Setup Script for NexusLaravelMobileGameFramework
 #
 # This script performs a complete clean installation of the development environment.
 # 

@@ -3,11 +3,11 @@
 namespace NexusMaintenance\Infrastructure\TableStore;
 
 use NexusMaintenance\Contracts\MaintenanceStorageInterface;
-use NexusMaintenance\DTOs\MaintenanceInfo;
+use NexusMaintenance\DTOs\SysMaintenance;
+use NexusUtilities\ClockUtility;
 use Aliyun\OTS\OTSClient;
 use Aliyun\OTS\Consts\PrimaryKeyTypeConst;
 use Aliyun\OTS\Consts\RowExistenceExpectationConst;
-use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -37,7 +37,7 @@ class TableStoreMaintenanceStorage implements MaintenanceStorageInterface
     /**
      * {@inheritDoc}
      */
-    public function get(): ?MaintenanceInfo
+    public function get(): ?SysMaintenance
     {
         try {
             $response = $this->client->getRow([
@@ -64,7 +64,7 @@ class TableStoreMaintenanceStorage implements MaintenanceStorageInterface
     /**
      * {@inheritDoc}
      */
-    public function put(MaintenanceInfo $info): bool
+    public function put(SysMaintenance $sysMaintenance): bool
     {
         try {
             $this->client->putRow([
@@ -74,12 +74,12 @@ class TableStoreMaintenanceStorage implements MaintenanceStorageInterface
                     ['id', $this->primaryKey],
                 ],
                 'attribute_columns' => [
-                    ['is_maintenance', $info->isMaintenance],
-                    ['start_at', $info->startAt?->toIso8601String() ?? ''],
-                    ['end_at', $info->endAt?->toIso8601String() ?? ''],
-                    ['title', $info->title ?? ''],
-                    ['message', $info->message ?? ''],
-                    ['updated_at', CarbonImmutable::now()->toIso8601String()],
+                    ['is_maintenance', $sysMaintenance->isMaintenance],
+                    ['start_at', $sysMaintenance->startAt ?? ''],
+                    ['end_at', $sysMaintenance->endAt ?? ''],
+                    ['title', $sysMaintenance->title ?? ''],
+                    ['message', $sysMaintenance->message ?? ''],
+                    ['updated_at', ClockUtility::nowToString()],
                 ],
             ]);
 
@@ -137,22 +137,22 @@ class TableStoreMaintenanceStorage implements MaintenanceStorageInterface
     }
 
     /**
-     * TableStore行データをMaintenanceInfoに変換
+     * TableStore行データをSysMaintenanceに変換
      */
-    private function parseRow(array $columns): MaintenanceInfo
+    private function parseRow(array $columns): SysMaintenance
     {
         $data = [];
         foreach ($columns as $column) {
             $data[$column[0]] = $column[1];
         }
 
-        return new MaintenanceInfo(
+        return new SysMaintenance(
             isMaintenance: $data['is_maintenance'] ?? false,
-            startAt: !empty($data['start_at']) ? CarbonImmutable::parse($data['start_at']) : null,
-            endAt: !empty($data['end_at']) ? CarbonImmutable::parse($data['end_at']) : null,
+            startAt: !empty($data['start_at']) ? $data['start_at'] : null,
+            endAt: !empty($data['end_at']) ? $data['end_at'] : null,
             title: $data['title'] ?? null,
             message: $data['message'] ?? null,
-            updatedAt: !empty($data['updated_at']) ? CarbonImmutable::parse($data['updated_at']) : null,
+            updatedAt: !empty($data['updated_at']) ? $data['updated_at'] : null,
         );
     }
 }

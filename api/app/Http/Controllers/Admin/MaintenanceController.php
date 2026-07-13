@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use NexusMaintenance\Services\MaintenanceService;
-use NexusMaintenance\DTOs\MaintenanceInfo;
+use NexusMaintenance\DTOs\SysMaintenance;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use NexusUtilities\ClockUtility;
@@ -25,9 +25,9 @@ class MaintenanceController
      */
     public function status(): JsonResponse
     {
-        $info = $this->maintenanceService->getMaintenanceInfo();
+        $sysMaintenance = $this->maintenanceService->getMaintenanceInfo();
 
-        if ($info === null) {
+        if ($sysMaintenance === null) {
             return response()->json([
                 'maintenance_mode' => false,
                 'start_at' => null,
@@ -39,12 +39,12 @@ class MaintenanceController
         }
 
         return response()->json([
-            'maintenance_mode' => $info->isMaintenance,
-            'start_at' => $info->startAt?->toIso8601String(),
-            'end_at' => $info->endAt?->toIso8601String(),
-            'title' => $info->title,
-            'message' => $info->message,
-            'is_under_maintenance' => $info->isCurrentlyUnderMaintenance(),
+            'maintenance_mode' => $sysMaintenance->isMaintenance,
+            'start_at' => $sysMaintenance->startAt,
+            'end_at' => $sysMaintenance->endAt,
+            'title' => $sysMaintenance->title,
+            'message' => $sysMaintenance->message,
+            'is_under_maintenance' => $sysMaintenance->isCurrentlyUnderMaintenance(),
         ]);
     }
 
@@ -60,29 +60,25 @@ class MaintenanceController
             'message' => 'nullable|string|max:1000',
         ]);
 
-        $startAt = isset($validated['start_at'])
-            ? ClockUtility::parse($validated['start_at'])
-            : null;
-        $endAt = isset($validated['end_at'])
-            ? ClockUtility::parse($validated['end_at'])
-            : null;
+        $startAt = $validated['start_at'] ?? null;
+        $endAt = $validated['end_at'] ?? null;
 
-        $info = new MaintenanceInfo(
+        $sysMaintenance = new SysMaintenance(
             isMaintenance: true,
             startAt: $startAt,
             endAt: $endAt,
             title: $validated['title'] ?? null,
             message: $validated['message'] ?? null,
-            updatedAt: ClockUtility::now()
+            updatedAt: ClockUtility::nowToString()
         );
 
-        $this->maintenanceService->startMaintenance($info);
+        $this->maintenanceService->startMaintenance($sysMaintenance);
 
         return response()->json([
             'message' => 'Maintenance mode activated',
             'maintenance_mode' => true,
-            'start_at' => $startAt?->toIso8601String(),
-            'end_at' => $endAt?->toIso8601String(),
+            'start_at' => $startAt,
+            'end_at' => $endAt,
         ]);
     }
 

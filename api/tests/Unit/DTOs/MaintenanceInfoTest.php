@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\DTOs;
 
-use LaravelMobileGame\DTOs\MaintenanceInfo;
+use NexusMaintenance\DTOs\MaintenanceInfo;
 use Carbon\CarbonImmutable;
 use PHPUnit\Framework\TestCase;
 

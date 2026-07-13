@@ -2705,7 +2705,7 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-maintenance",
-                "reference": "4e954d0bf986a430c20df6dca84a7c638ab68dcd"
+                "reference": "9ce6499cbc69fcba42814439c21abb82d0cffe86"
             },
             "require": {
                 "illuminate/cache": "^10.0|^11.0|^12.0",
@@ -2727,18 +2727,18 @@
             "extra": {
                 "laravel": {
                     "providers": [
-                        "LaravelMobileGame\\MaintenanceServiceProvider"
+                        "NexusMaintenance\\MaintenanceServiceProvider"
                     ]
                 }
             },
             "autoload": {
                 "psr-4": {
-                    "LaravelMobileGame\\": "src/"
+                    "NexusMaintenance\\": "src/"
                 }
             },
             "autoload-dev": {
                 "psr-4": {
-                    "LaravelMobileGame\\Tests\\": "tests/"
+                    "NexusMaintenance\\Tests\\": "tests/"
                 }
             },
             "license": [
@@ -9882,19 +9882,19 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "nexus/utilities": 20,
-        "nexus/security": 20,
+        "nexus/billing": 20,
         "nexus/core-persistence": 20,
         "nexus/core-unit-of-work": 20,
-        "nexus/billing": 20,
-        "nexus/wallet": 20,
-        "nexus/maintenance": 20
+        "nexus/maintenance": 20,
+        "nexus/security": 20,
+        "nexus/utilities": 20,
+        "nexus/wallet": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": "^8.2"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "plugin-api-version": "2.6.0"
 }

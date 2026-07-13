@@ -1,9 +1,9 @@
 <?php
 
-namespace LaravelMobileGame\Infrastructure\TableStore;
+namespace NexusMaintenance\Infrastructure\TableStore;
 
-use LaravelMobileGame\Contracts\MaintenanceStorageInterface;
-use LaravelMobileGame\DTOs\MaintenanceInfo;
+use NexusMaintenance\Contracts\MaintenanceStorageInterface;
+use NexusMaintenance\DTOs\MaintenanceInfo;
 use Aliyun\OTS\OTSClient;
 use Aliyun\OTS\Consts\PrimaryKeyTypeConst;
 use Aliyun\OTS\Consts\RowExistenceExpectationConst;

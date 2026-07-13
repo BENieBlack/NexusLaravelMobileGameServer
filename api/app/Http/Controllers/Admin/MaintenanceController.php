@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
-use LaravelMobileGame\Services\MaintenanceService;
-use LaravelMobileGame\DTOs\MaintenanceInfo;
+use NexusMaintenance\Services\MaintenanceService;
+use NexusMaintenance\DTOs\MaintenanceInfo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use NexusUtilities\ClockUtility;
@@ -67,7 +67,7 @@ class MaintenanceController
             ? ClockUtility::parse($validated['end_at'])
             : null;
 
-        $info = new \LaravelMaintenance\DTOs\MaintenanceInfo(
+        $info = new MaintenanceInfo(
             isMaintenance: true,
             startAt: $startAt,
             endAt: $endAt,

@@ -1,5 +1,5 @@
 {
-    "name": "laravel-mobile-game/wallet",
+    "name": "nexus/wallet",
     "description": "Virtual currency wallet management for Laravel with FIFO consumption and expiration support",
     "type": "library",
     "license": "MIT",

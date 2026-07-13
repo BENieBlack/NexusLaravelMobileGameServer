@@ -3,7 +3,7 @@
 namespace App\Repositories\Log;
 
 use App\Models\Log\LogGacha;
-use LaravelUtilities\ClockUtility;
+use NexusUtilities\ClockUtility;
 use Illuminate\Support\Collection;
 
 /**

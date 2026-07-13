@@ -1,6 +1,6 @@
 <?php
 
-namespace LaravelPersistence;
+namespace NexusPersistence;
 
 use Illuminate\Support\ServiceProvider;
 

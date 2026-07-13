@@ -19,7 +19,7 @@ use App\Models\Trx\TrxMailBox;
 use App\Models\Trx\TrxUnit;
 use App\Models\Trx\TrxEquipment;
 use App\Persistence\ApiSession;
-use LaravelUtilities\ClockUtility;
+use NexusUtilities\ClockUtility;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;

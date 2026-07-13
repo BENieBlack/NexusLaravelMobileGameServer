@@ -1,6 +1,6 @@
 <?php
 
-namespace LaravelUtilities;
+namespace NexusUtilities;
 
 use Carbon\CarbonImmutable;
 

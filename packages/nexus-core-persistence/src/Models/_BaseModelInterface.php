@@ -1,6 +1,6 @@
 <?php
 
-namespace LaravelPersistence\Models;
+namespace NexusPersistence\Models;
 
 /**
  * _BaseModelInterface

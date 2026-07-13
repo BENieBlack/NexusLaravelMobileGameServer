@@ -1,5 +1,5 @@
 <?php
 
-namespace LaravelPersistence\Models\Mst;
+namespace NexusPersistence\Models\Mst;
 
 interface _BaseMstInterface {}

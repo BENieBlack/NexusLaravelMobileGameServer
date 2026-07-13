@@ -11,7 +11,7 @@ use App\Models\Trx\TrxUnit;
 use App\Repositories\Trx\TrxDiamondRepository;
 use App\Repositories\Trx\TrxInAppPurchaseRepository;
 use App\Repositories\Trx\TrxUnitRepository;
-use LaravelUtilities\ClockUtility;
+use NexusUtilities\ClockUtility;
 use Carbon\CarbonImmutable;
 
 /**

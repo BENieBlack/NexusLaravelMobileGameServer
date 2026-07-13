@@ -2,9 +2,9 @@
 
 namespace App\Persistence;
 
-use LaravelUtilities\ClockUtility;
-use LaravelSecurityMiddleware\Contracts\PlayerSessionInterface;
-use LaravelUnitOfWork\Contracts\PlayerSessionResolverInterface;
+use NexusUtilities\ClockUtility;
+use NexusSecurity\Contracts\PlayerSessionInterface;
+use NexusUnitOfWork\Contracts\PlayerSessionResolverInterface;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 

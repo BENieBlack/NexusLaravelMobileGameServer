@@ -21,18 +21,18 @@
     },
     "autoload": {
         "psr-4": {
-            "LaravelUnitOfWork\\": "src/"
+            "NexusUnitOfWork\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "LaravelUnitOfWork\\Tests\\": "tests/"
+            "NexusUnitOfWork\\Tests\\": "tests/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "LaravelUnitOfWork\\UnitOfWorkServiceProvider"
+                "NexusUnitOfWork\\UnitOfWorkServiceProvider"
             ]
         }
     },

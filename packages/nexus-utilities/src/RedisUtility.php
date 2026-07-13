@@ -1,6 +1,6 @@
 <?php
 
-namespace LaravelUtilities;
+namespace NexusUtilities;
 
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Contracts\Cache\Repository;

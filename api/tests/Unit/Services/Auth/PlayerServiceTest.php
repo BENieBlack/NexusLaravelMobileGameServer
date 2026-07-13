@@ -5,7 +5,7 @@ namespace Tests\Unit\Services\Auth;
 use App\Domain\Auth\Services\PlayerService;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
-use LaravelUnitOfWork\Persistence\QueryManager;
+use NexusUnitOfWork\Persistence\QueryManager;
 use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;

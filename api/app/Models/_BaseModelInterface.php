@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use LaravelPersistence\Models\_BaseModelInterface as PersistenceBaseModelInterface;
+use NexusPersistence\Models\_BaseModelInterface as PersistenceBaseModelInterface;
 
 /**
  * _BaseModelInterface

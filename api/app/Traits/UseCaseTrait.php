@@ -2,7 +2,7 @@
 
 namespace App\Traits;
 
-use LaravelUnitOfWork\Contracts\QueryManagerInterface;
+use NexusUnitOfWork\Contracts\QueryManagerInterface;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Throwable;

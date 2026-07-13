@@ -22,18 +22,18 @@
     },
     "autoload": {
         "psr-4": {
-            "LaravelPersistence\\": "src/"
+            "NexusPersistence\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "LaravelPersistence\\Tests\\": "tests/"
+            "NexusPersistence\\Tests\\": "tests/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "LaravelPersistence\\PersistenceServiceProvider"
+                "NexusPersistence\\PersistenceServiceProvider"
             ]
         }
     },

@@ -1,6 +1,6 @@
 <?php
 
-namespace LaravelUnitOfWork\Persistence\QueryManager;
+namespace NexusUnitOfWork\Persistence\QueryManager;
 
 use Illuminate\Database\Eloquent\Model;
 

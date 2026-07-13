@@ -2,8 +2,8 @@
 
 namespace App\Repositories\Sys;
 
-use LaravelPersistence\Repositories\Sys\_BaseSysRepository as PersistenceBaseSysRepository;
-use LaravelUnitOfWork\Traits\UsesUnitOfWork;
+use NexusPersistence\Repositories\Sys\_BaseSysRepository as PersistenceBaseSysRepository;
+use NexusUnitOfWork\Traits\UsesUnitOfWork;
 
 /**
  * _BaseSysRepository

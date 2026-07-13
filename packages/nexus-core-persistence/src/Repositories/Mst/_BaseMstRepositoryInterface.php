@@ -1,9 +1,9 @@
 <?php
 
-namespace LaravelPersistence\Repositories\Mst;
+namespace NexusPersistence\Repositories\Mst;
 
-use LaravelPersistence\Models\Mst\_BaseMstInterface;
-use LaravelPersistence\Repositories\_BaseRepositoryInterface;
+use NexusPersistence\Models\Mst\_BaseMstInterface;
+use NexusPersistence\Repositories\_BaseRepositoryInterface;
 use Illuminate\Support\Collection;
 
 /**

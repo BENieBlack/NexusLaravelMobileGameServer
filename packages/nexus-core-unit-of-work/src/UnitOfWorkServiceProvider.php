@@ -1,10 +1,10 @@
 <?php
 
-namespace LaravelUnitOfWork;
+namespace NexusUnitOfWork;
 
 use Illuminate\Support\ServiceProvider;
-use LaravelUnitOfWork\Contracts\QueryManagerInterface;
-use LaravelUnitOfWork\Persistence\QueryManager;
+use NexusUnitOfWork\Contracts\QueryManagerInterface;
+use NexusUnitOfWork\Persistence\QueryManager;
 
 /**
  * UnitOfWorkServiceProvider

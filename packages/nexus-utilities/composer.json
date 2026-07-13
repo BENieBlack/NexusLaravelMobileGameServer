@@ -20,12 +20,12 @@
     },
     "autoload": {
         "psr-4": {
-            "LaravelUtilities\\": "src/"
+            "NexusUtilities\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "LaravelUtilities\\Tests\\": "tests/"
+            "NexusUtilities\\Tests\\": "tests/"
         }
     },
     "minimum-stability": "stable",

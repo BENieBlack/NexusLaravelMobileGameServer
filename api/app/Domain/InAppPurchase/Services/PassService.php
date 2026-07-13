@@ -6,7 +6,7 @@ use App\Models\Mst\MstInAppPurchase;
 use App\Models\Trx\TrxInAppPurchaseEffect;
 use App\Repositories\Trx\TrxInAppPurchaseEffectRepository;
 use App\Persistence\ApiSession;
-use LaravelUtilities\ClockUtility;
+use NexusUtilities\ClockUtility;
 use Illuminate\Support\Collection;
 
 /**

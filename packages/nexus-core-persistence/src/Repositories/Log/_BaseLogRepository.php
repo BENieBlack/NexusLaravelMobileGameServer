@@ -1,10 +1,10 @@
 <?php
 
-namespace LaravelPersistence\Repositories\Log;
+namespace NexusPersistence\Repositories\Log;
 
-use LaravelPersistence\Models\Log\_BaseLog;
-use LaravelPersistence\Models\Log\_BaseLogInterface;
-use LaravelPersistence\Repositories\_BaseRepository;
+use NexusPersistence\Models\Log\_BaseLog;
+use NexusPersistence\Models\Log\_BaseLogInterface;
+use NexusPersistence\Repositories\_BaseRepository;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;

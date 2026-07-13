@@ -1,6 +1,6 @@
 <?php
 
-namespace LaravelSecurityMiddleware\Middleware;
+namespace NexusSecurity\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;

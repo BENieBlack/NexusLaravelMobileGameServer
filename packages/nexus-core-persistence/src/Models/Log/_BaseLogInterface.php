@@ -1,5 +1,5 @@
 <?php
 
-namespace LaravelPersistence\Models\Log;
+namespace NexusPersistence\Models\Log;
 
 interface _BaseLogInterface {}

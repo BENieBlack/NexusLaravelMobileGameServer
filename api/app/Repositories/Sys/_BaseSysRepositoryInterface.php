@@ -2,7 +2,7 @@
 
 namespace App\Repositories\Sys;
 
-use LaravelPersistence\Repositories\Sys\_BaseSysRepositoryInterface as PersistenceBaseSysRepositoryInterface;
+use NexusPersistence\Repositories\Sys\_BaseSysRepositoryInterface as PersistenceBaseSysRepositoryInterface;
 
 /**
  * _BaseSysRepositoryInterface

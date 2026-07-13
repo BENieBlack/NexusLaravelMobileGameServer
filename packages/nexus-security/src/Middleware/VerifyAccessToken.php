@@ -1,9 +1,9 @@
 <?php
 
-namespace LaravelSecurityMiddleware\Middleware;
+namespace NexusSecurity\Middleware;
 
-use LaravelSecurityMiddleware\Contracts\TokenValidatorInterface;
-use LaravelSecurityMiddleware\Contracts\PlayerSessionInterface;
+use NexusSecurity\Contracts\TokenValidatorInterface;
+use NexusSecurity\Contracts\PlayerSessionInterface;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;

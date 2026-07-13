@@ -1,6 +1,6 @@
 <?php
 
-namespace LaravelSecurityMiddleware;
+namespace NexusSecurity;
 
 use Illuminate\Support\ServiceProvider;
 

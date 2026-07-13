@@ -3,8 +3,8 @@
 namespace App\Repositories\Log;
 
 use App\Persistence\ApiSession;
-use LaravelPersistence\Repositories\Log\_BaseLogRepository as PersistenceBaseLogRepository;
-use LaravelUnitOfWork\Traits\UsesUnitOfWork;
+use NexusPersistence\Repositories\Log\_BaseLogRepository as PersistenceBaseLogRepository;
+use NexusUnitOfWork\Traits\UsesUnitOfWork;
 
 /**
  * _BaseLogRepository

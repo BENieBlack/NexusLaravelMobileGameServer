@@ -1,6 +1,6 @@
 {
     "name": "nexus/security",
-    "description": "Laravel security middleware包包括客户端签名验证、幂等性保证、速率限制和访问令牌验证",
+    "description": "Laravel security middleware including client signature verification, idempotency guarantee, rate limiting and access token verification",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -20,18 +20,18 @@
     },
     "autoload": {
         "psr-4": {
-            "LaravelSecurityMiddleware\\": "src/"
+            "NexusSecurity\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "LaravelSecurityMiddleware\\Tests\\": "tests/"
+            "NexusSecurity\\Tests\\": "tests/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "LaravelSecurityMiddleware\\SecurityMiddlewareServiceProvider"
+                "NexusSecurity\\SecurityMiddlewareServiceProvider"
             ]
         }
     },

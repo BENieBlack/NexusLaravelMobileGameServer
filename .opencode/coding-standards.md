@@ -51,28 +51,30 @@ $now = Carbon::now(); // NG
 
 現在時刻との比較には`ClockUtility`の比較メソッドを使用します。
 
-**重要な原則**: このシステムでは日時を`00:00:00~23:59:59`の範囲で表現します。そのため：
-- **開始判定**: `greaterThanOrEqual`（指定日時 >= NOW）を使用
-- **終了判定**: `lessThanOrEqual`（指定日時 <= NOW）を使用
+**重要な原則**: このシステムでは日時を`00:00:00~23:59:59`の範囲で表現します。
+
+比較メソッドの使い方：
+- `ClockUtility::greaterThanOrEqual($startAt)` → `NOW >= $startAt`（開始済み）
+- `ClockUtility::lessThanOrEqual($endAt)` → `NOW <= $endAt`（未終了）
 - **`isAfter`と`isBefore`は曖昧なため使用禁止**
 
 ```php
 // ✅ Good: greaterThanOrEqual/lessThanOrEqualを使用
 use NexusUtilities\ClockUtility;
 
-// 開始判定: まだ開始していない（start_at > NOW）
-if (ClockUtility::greaterThanOrEqual($gacha->start_at)) {
+// 開始判定: まだ開始していない（NOW < start_at）
+if (!ClockUtility::greaterThanOrEqual($gacha->start_at)) {
     throw new GameException('ガチャはまだ開始していません');
 }
 
-// 終了判定: すでに終了している（end_at < NOW）
-if (ClockUtility::lessThanOrEqual($gacha->end_at)) {
+// 終了判定: すでに終了している（NOW > end_at）
+if (!ClockUtility::lessThanOrEqual($gacha->end_at)) {
     throw new GameException('ガチャは終了しました');
 }
 
 // 期間内チェック: 開始済みかつ未終了
-if (!ClockUtility::greaterThanOrEqual($event->start_at) 
-    && !ClockUtility::lessThanOrEqual($event->end_at)) {
+if (ClockUtility::greaterThanOrEqual($event->start_at) 
+    && ClockUtility::lessThanOrEqual($event->end_at)) {
     // イベント期間内
 }
 
@@ -83,7 +85,7 @@ if (ClockUtility::isAfter($gacha->start_at)) { // NG
 
 // ❌ Bad: parseしてから比較しない
 $startAt = ClockUtility::parse($gacha->start_at);
-if ($startAt->greaterThanOrEqualTo(ClockUtility::now())) { // NG: parseは不要
+if (self::now()->greaterThanOrEqualTo($startAt)) { // NG: parseは不要
     // ...
 }
 ```
@@ -91,6 +93,9 @@ if ($startAt->greaterThanOrEqualTo(ClockUtility::now())) { // NG: parseは不要
 **判定ロジックの例**:
 - `start_at = "2024-01-15 00:00:00"` → 2024年1月15日の0時から開始
 - `end_at = "2024-01-20 23:59:59"` → 2024年1月20日の23時59分59秒まで有効
+- `NOW = "2024-01-16 12:00:00"`の場合
+  - `ClockUtility::greaterThanOrEqual($startAt)` → true（開始済み）
+  - `ClockUtility::lessThanOrEqual($endAt)` → true（未終了）
 
 #### 2-2. 2つの日時文字列（Y-m-d H:i:s）の比較
 
@@ -219,14 +224,16 @@ ClockUtility::nowToString(): string
 
 ```php
 ClockUtility::greaterThanOrEqual($dateTimeString): bool
-// 指定日時が現在時刻以上か（指定日時 >= NOW）
-// 用途: 開始前チェック（まだ開始していない）
-// 例: if (ClockUtility::greaterThanOrEqual($gacha->start_at)) → ガチャ開始前
+// NOW >= 指定日時（開始済み）
+// 用途: 開始済みチェック
+// 例: if (ClockUtility::greaterThanOrEqual($gacha->start_at)) → ガチャ開始済み
+// 例: if (!ClockUtility::greaterThanOrEqual($gacha->start_at)) → ガチャ未開始
 
 ClockUtility::lessThanOrEqual($dateTimeString): bool
-// 指定日時が現在時刻以下か（指定日時 <= NOW）
-// 用途: 終了済みチェック（すでに終了している）
-// 例: if (ClockUtility::lessThanOrEqual($gacha->end_at)) → ガチャ終了済み
+// NOW <= 指定日時（未終了）
+// 用途: 未終了チェック
+// 例: if (ClockUtility::lessThanOrEqual($gacha->end_at)) → ガチャ未終了
+// 例: if (!ClockUtility::lessThanOrEqual($gacha->end_at)) → ガチャ終了済み
 ```
 
 #### 時間差分メソッド

@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Services;
+namespace LaravelMaintenance\Services;
 
-use App\Contracts\Maintenance\MaintenanceStorageInterface;
-use App\DTOs\MaintenanceInfo;
+use LaravelMaintenance\Contracts\MaintenanceStorageInterface;
+use LaravelMaintenance\DTOs\MaintenanceInfo;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 

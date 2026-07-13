@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
-use App\Services\MaintenanceService;
+use LaravelMaintenance\Services\MaintenanceService;
+use LaravelMaintenance\DTOs\MaintenanceInfo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -65,7 +66,7 @@ class MaintenanceController
             ? \Carbon\CarbonImmutable::parse($validated['end_at'])
             : null;
 
-        $info = new \App\DTOs\MaintenanceInfo(
+        $info = new \LaravelMaintenance\DTOs\MaintenanceInfo(
             isMaintenance: true,
             startAt: $startAt,
             endAt: $endAt,

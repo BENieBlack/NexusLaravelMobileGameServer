@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Contracts\Maintenance;
+namespace LaravelMaintenance\Contracts;
 
-use App\DTOs\MaintenanceInfo;
+use LaravelMaintenance\DTOs\MaintenanceInfo;
 
 /**
  * メンテナンスストレージインターフェース

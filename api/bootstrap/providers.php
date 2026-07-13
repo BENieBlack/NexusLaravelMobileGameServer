@@ -2,5 +2,5 @@
 
 return [
     App\Providers\AppServiceProvider::class,
-    App\Providers\MaintenanceServiceProvider::class,
+    // MaintenanceServiceProviderはパッケージから自動検出されます
 ];

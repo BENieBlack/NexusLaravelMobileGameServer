@@ -1,11 +1,11 @@
-# LaravelMobileGameExpantion
+# Nexus
 
-モバイルゲーム向けのLaravelベースのバックエンドシステム。APIサーバーと運営ツールで構成されています。
+モバイルゲーム向けのLaravelベースのバックエンドフレームワーク。APIサーバーと運営ツールで構成されています。
 
 ## プロジェクト構成
 
 ```
-LaravelMobileGameExpantion/
+Nexus/
 ├── api/                    # ゲームAPIサーバー
 ├── tool/                   # 運営管理ツール
 ├── docker/                 # Docker設定ファイル
@@ -28,7 +28,7 @@ LaravelMobileGameExpantion/
 ```bash
 # リポジトリをクローン
 git clone <repository-url>
-cd LaravelMobileGameExpantion
+cd Nexus
 
 # 環境変数ファイルをコピー（必要に応じて編集）
 cp .env.example .env

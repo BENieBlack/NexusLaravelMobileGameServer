@@ -42,11 +42,11 @@
         "laravel/tinker": "^2.10.1",
         "s-nakamura/laravel-utilities": "@dev",
         "s-nakamura/laravel-security-middleware": "@dev",
-        "laravel-mobile-game/core-persistence": "@dev",
-        "laravel-mobile-game/core-unit-of-work": "@dev",
-        "laravel-mobile-game/billing": "@dev",
-        "laravel-mobile-game/wallet": "@dev",
-        "laravel-mobile-game/maintenance": "@dev"
+        "nexus/core-persistence": "@dev",
+        "nexus/core-unit-of-work": "@dev",
+        "nexus/billing": "@dev",
+        "nexus/wallet": "@dev",
+        "nexus/maintenance": "@dev"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

@@ -1,5 +1,5 @@
 {
-    "name": "laravel-mobile-game/billing",
+    "name": "nexus/billing",
     "description": "Mobile billing verification and processing for Laravel with support for AppStore and Google Play",
     "type": "library",
     "license": "MIT",

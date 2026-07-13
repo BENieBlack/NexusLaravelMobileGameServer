@@ -47,6 +47,8 @@ readonly class SysMaintenance
 
     /**
      * 配列に変換
+     * 
+     * @return array{is_maintenance: bool, start_at: string|null, end_at: string|null, title: string|null, message: string|null, updated_at: string|null}
      */
     public function toArray(): array
     {
@@ -70,6 +72,8 @@ readonly class SysMaintenance
 
     /**
      * 配列からインスタンスを作成
+     * 
+     * @param array{is_maintenance?: bool, start_at?: string|null, end_at?: string|null, title?: string|null, message?: string|null, updated_at?: string|null} $data
      */
     public static function fromArray(array $data): self
     {

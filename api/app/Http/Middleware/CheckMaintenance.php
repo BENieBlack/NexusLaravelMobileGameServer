@@ -2,9 +2,9 @@
 
 namespace App\Http\Middleware;
 
-use App\Services\MaintenanceService;
 use Closure;
 use Illuminate\Http\Request;
+use NexusMaintenance\Services\MaintenanceService;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -40,14 +40,14 @@ class CheckMaintenance
         }
 
         // メンテナンス中は503エラーを返す
-        $maintenanceInfo = $this->maintenanceService->getMaintenanceInfo();
+        $sysMaintenance = $this->maintenanceService->getMaintenanceInfo();
         
         return response()->json([
             'error' => 'Service Unavailable',
-            'message' => $maintenanceInfo?->message ?? 'System is currently under maintenance',
-            'title' => $maintenanceInfo?->title ?? 'Maintenance',
-            'start_at' => $maintenanceInfo?->startAt?->toIso8601String(),
-            'end_at' => $maintenanceInfo?->endAt?->toIso8601String(),
+            'message' => $sysMaintenance->message ?? 'System is currently under maintenance',
+            'title' => $sysMaintenance->title ?? 'Maintenance',
+            'start_at' => $sysMaintenance?->startAt,
+            'end_at' => $sysMaintenance?->endAt,
         ], Response::HTTP_SERVICE_UNAVAILABLE);
     }
 }

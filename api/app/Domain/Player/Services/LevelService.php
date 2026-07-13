@@ -243,11 +243,8 @@ class LevelService
             return;
         }
 
-        $now = ClockUtility::now();
-        $lastRecoveryAt = \Carbon\CarbonImmutable::parse($stamina->last_recovery_at);
-        
         // 経過秒数を計算
-        $elapsedSeconds = $now->diffInSeconds($lastRecoveryAt);
+        $elapsedSeconds = ClockUtility::diffInSeconds($stamina->last_recovery_at);
         
         // 回復速度倍率を適用（5分 = 300秒で1ポイント回復）
         $effectiveElapsedSeconds = $elapsedSeconds * $stamina->getRecoveryRateMultiplier();
@@ -261,11 +258,12 @@ class LevelService
             
             // 次回回復基準時刻を計算（余剰秒数は切り捨て）
             $recoveredSeconds = $recoveredPoints * 300;
+            $lastRecoveryAt = ClockUtility::parse($stamina->last_recovery_at);
             $newLastRecoveryAt = $lastRecoveryAt->addSeconds((int)floor($recoveredSeconds / $stamina->getRecoveryRateMultiplier()));
             
             // 値を更新
             $stamina->setCurrentStamina($newStamina);
-            $stamina->setLastRecoveryAt(\Carbon\Carbon::instance($newLastRecoveryAt));
+            $stamina->setLastRecoveryAt($newLastRecoveryAt->format('Y-m-d H:i:s'));
         }
     }
 }

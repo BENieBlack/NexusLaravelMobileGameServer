@@ -181,10 +181,10 @@ class TrxStamina extends _BaseTrx
     /**
      * 最後の回復計算時刻を設定
      *
-     * @param \Carbon\Carbon $lastRecoveryAt
+     * @param string $lastRecoveryAt Y-m-d H:i:s形式
      * @return void
      */
-    public function setLastRecoveryAt(\Carbon\Carbon $lastRecoveryAt): void
+    public function setLastRecoveryAt(string $lastRecoveryAt): void
     {
         $this->setAttribute('last_recovery_at', $lastRecoveryAt);
     }

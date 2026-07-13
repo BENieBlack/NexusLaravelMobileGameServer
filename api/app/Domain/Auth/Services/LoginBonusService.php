@@ -9,8 +9,8 @@ use App\Models\Mst\MstLoginBonus;
 use App\Models\Mst\MstLoginBonusContent;
 use App\Models\Trx\TrxLoginBonusHistory;
 use App\Persistence\ApiSession;
-use Carbon\Carbon;
 use Carbon\CarbonImmutable;
+use NexusUtilities\ClockUtility;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -31,21 +31,23 @@ class LoginBonusService
      * 今日初回ログインかどうかをチェックし、ログインボーナスを配布する
      *
      * @param int $sysPlayerId
-     * @param \DateTime|null $lastLoginAt 最終ログイン日時（UTC）
-     * @param CarbonImmutable $currentTime 現在日時（UTC）
+     * @param string|null $lastLoginAt 最終ログイン日時（UTC、文字列形式）
      * @return array<DeliveryContent> 配布したログインボーナスの内容
      * @throws \Exception
      */
     public function checkAndGrantLoginBonus(
         int $sysPlayerId,
-        ?\DateTime $lastLoginAt,
-        CarbonImmutable $currentTime
+        ?string $lastLoginAt
     ): array {
+        $currentTime = ClockUtility::now();
         // UTC0時を境界として、今日初回ログインかをチェック
         $today = $currentTime->startOfDay();
+        $todayString = $today->toDateString(); // Y-m-d形式
         
         // 最終ログイン日時がnullまたは今日より前の場合、ログインボーナスを配布
-        if ($lastLoginAt === null || Carbon::instance($lastLoginAt)->startOfDay()->lt($today)) {
+        // 文字列比較: lastLoginAtから日付部分を取得して比較
+        $lastLoginDate = $lastLoginAt !== null ? substr($lastLoginAt, 0, 10) : null;
+        if ($lastLoginDate === null || $lastLoginDate < $todayString) {
             return $this->grantLoginBonus($sysPlayerId, $today);
         }
 
@@ -120,16 +122,16 @@ class LoginBonusService
             return 1;
         }
 
-        $lastReceivedDate = Carbon::parse($latestHistory->received_date);
-        $yesterday = $today->copy()->subDay();
+        $lastReceivedDate = $latestHistory->received_date;
+        $yesterday = $today->subDay()->toDateString();
 
-        if ($lastReceivedDate->equalTo($yesterday)) {
+        if ($lastReceivedDate === $yesterday) {
             // 連続ログイン
             // 過去7日間のユニークな受取日数を取得してカウント
             $count = DB::connection($connection)
                 ->table('trx_login_bonus_history')
                 ->where('sys_player_id', $sysPlayerId)
-                ->where('received_date', '>=', $today->copy()->subDays(7)->toDateString())
+                ->where('received_date', '>=', $today->subDays(7)->toDateString())
                 ->distinct()
                 ->count('received_date');
             

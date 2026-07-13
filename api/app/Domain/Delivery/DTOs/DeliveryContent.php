@@ -5,7 +5,6 @@ namespace App\Domain\Delivery\DTOs;
 use App\Domain\Delivery\Constants\DeliveryConst;
 use App\Domain\Delivery\Enums\DeliveryStatus;
 use App\Domain\Delivery\Enums\DeliveryResultReason;
-use Carbon\CarbonImmutable;
 use Ramsey\Uuid\Uuid;
 
 /**
@@ -46,14 +45,14 @@ class DeliveryContent
      * @param string $type 配布物タイプ (item, unit, equipment, diamond, wallet)
      * @param string $id マスターID (mst_item_id, mst_unit_id等)
      * @param int $amount 数量
-     * @param CarbonImmutable|null $expireAt 有効期限（Wallet通貨用、NULLは無期限）
+     * @param string|null $expireAt 有効期限（Y-m-d H:i:s形式、Wallet通貨用、NULLは無期限）
      * @param array|null $metadata 追加情報（Unit: grade/level, Equipment: 初期値等）
      */
     public function __construct(
         private string $type,
         private string $id,
         private int $amount,
-        private ?CarbonImmutable $expireAt = null,
+        private ?string $expireAt = null,
         private ?array $metadata = null,
     ) {
         $this->uniqueId = $this->generateUniqueId();
@@ -88,8 +87,10 @@ class DeliveryContent
 
     /**
      * 有効期限を取得
+     * 
+     * @return string|null Y-m-d H:i:s形式の日時文字列
      */
-    public function getExpireAt(): ?CarbonImmutable
+    public function getExpireAt(): ?string
     {
         return $this->expireAt;
     }
@@ -291,7 +292,7 @@ class DeliveryContent
             type: $data['type'],
             id: $data['id'],
             amount: $data['amount'],
-            expireAt: isset($data['expire_at']) ? CarbonImmutable::parse($data['expire_at']) : null,
+            expireAt: $data['expire_at'] ?? null,
             metadata: $data['metadata'] ?? null,
         );
     }
@@ -307,7 +308,7 @@ class DeliveryContent
             'type' => $this->type,
             'id' => $this->id,
             'amount' => $this->amount,
-            'expire_at' => $this->expireAt?->toIso8601String(),
+            'expire_at' => $this->expireAt,
             'metadata' => $this->metadata,
             'status' => $this->status->value,
             'conversion_reason' => $this->conversionReason->value,
@@ -397,10 +398,10 @@ class DeliveryContent
      *
      * @param string $mstItemId 通貨アイテムID (gold, event_coin等)
      * @param int $amount
-     * @param CarbonImmutable|null $expireAt 有効期限
+     * @param string|null $expireAt 有効期限（Y-m-d H:i:s形式）
      * @return self
      */
-    public static function wallet(string $mstItemId, int $amount, ?CarbonImmutable $expireAt = null): self
+    public static function wallet(string $mstItemId, int $amount, ?string $expireAt = null): self
     {
         return new self(
             type: DeliveryConst::CONTENT_TYPE_WALLET,

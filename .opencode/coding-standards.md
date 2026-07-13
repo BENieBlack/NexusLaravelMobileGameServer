@@ -18,58 +18,401 @@
 
 ## 0. 日時操作のルール
 
-### 原則: Carbon\CarbonImmutableで統一
+### 原則1: ClockUtilityを経由して時刻を取得
 
-このシステムでは、日時操作には`Carbon\Carbon`ではなく`Carbon\CarbonImmutable`を使用します。
+**すべての日時操作は`ClockUtility`を経由して行います。** `Carbon`や`CarbonImmutable`を直接使用しません。
 
 ```php
-// ✅ Good: CarbonImmutableを使用
+// ✅ Good: ClockUtilityを使用
+use NexusUtilities\ClockUtility;
+
+$now = ClockUtility::now(); // CarbonImmutableを返す
+$tomorrow = $now->addDay();
+$yesterday = $now->subDay();
+
+// ❌ Bad: CarbonやCarbonImmutableを直接使用しない
+use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 
-$now = CarbonImmutable::now();
-$tomorrow = $now->addDay(); // 新しいインスタンスが返される
-$yesterday = $now->subDay(); // $nowは変更されない
-
-// ❌ Bad: Carbonを使用しない
-use Carbon\Carbon;
-
-$now = Carbon::now();
-$tomorrow = $now->addDay(); // $now自身が変更されてしまう
+$now = CarbonImmutable::now(); // NG
+$now = Carbon::now(); // NG
 ```
 
-### CarbonImmutableを使用する理由
+### ClockUtilityを使用する理由
 
-1. **予期しない変更を防ぐ**: メソッドチェーンで元の値が書き換わることを防止
-2. **バグの削減**: 参照渡しされた日時オブジェクトが意図せず変更されるバグを防ぐ
-3. **テストの安定性**: 日時オブジェクトが変更されないため、テストが予測可能
-4. **並列処理の安全性**: イミュータブルなため、複数のスレッドで安全に使用可能
+1. **テスト時の時刻制御が一元化される**: `ClockUtility::setNow()`でテスト時刻を固定できる
+2. **パフォーマンス向上**: 大量のレコード処理時にCarbonオブジェクトの生成を避けられる
+3. **コードの一貫性**: 時刻取得の方法が統一される
+4. **予期しない変更を防ぐ**: CarbonImmutableを使用しているため、元の値が書き換わらない
+
+### 原則2: 日時の比較方法を使い分ける
+
+#### 2-1. NOW（現在時刻）との比較
+
+現在時刻との比較には`ClockUtility`の比較メソッドを使用します。
+
+```php
+// ✅ Good: ClockUtilityの比較メソッドを使用
+use NexusUtilities\ClockUtility;
+
+// 指定日時が現在時刻より後か
+if (ClockUtility::isAfter($gacha->start_at)) {
+    throw new GameException('ガチャはまだ開始していません');
+}
+
+// 指定日時が現在時刻より前か
+if (ClockUtility::isBefore($gacha->end_at)) {
+    throw new GameException('ガチャは終了しました');
+}
+
+// 指定日時が現在時刻以上か
+if (ClockUtility::greaterThanOrEqual($event->start_at)) {
+    // イベント開始
+}
+
+// 指定日時が現在時刻以下か
+if (ClockUtility::lessThanOrEqual($event->end_at)) {
+    // イベント終了
+}
+
+// ❌ Bad: parseしてから比較しない
+$startAt = ClockUtility::parse($gacha->start_at);
+if ($startAt->isAfter(ClockUtility::now())) { // NG: parseは不要
+    // ...
+}
+```
+
+#### 2-2. 2つの日時文字列（Y-m-d H:i:s）の比較
+
+2つの日時文字列を比較する場合は、**文字列比較**を使用します。Carbonオブジェクトに変換しません。
+
+```php
+// ✅ Good: 文字列比較を使用（パフォーマンス最適化）
+$lastLoginDate = substr($player->last_login_at, 0, 10); // "2024-01-15"
+$todayString = ClockUtility::now()->toDateString(); // "2024-01-16"
+
+if ($lastLoginDate < $todayString) {
+    // 最終ログインが今日より前
+    $this->grantLoginBonus($player);
+}
+
+// 日時文字列の比較（Y-m-d H:i:s形式）
+if ($order->created_at < $campaign->end_at) {
+    // キャンペーン期間内の注文
+}
+
+// ❌ Bad: Carbonオブジェクトに変換して比較しない
+$lastLogin = ClockUtility::parse($player->last_login_at); // NG: 不要なparse
+$today = ClockUtility::now();
+if ($lastLogin->startOfDay()->lt($today->startOfDay())) { // NG: 重い処理
+    // ...
+}
+```
+
+**なぜ文字列比較を使うのか:**
+- Y-m-d H:i:s形式の文字列は辞書順でソート可能
+- Carbonオブジェクトの生成コストを避けられる
+- 大量のレコード処理時にパフォーマンスが向上する
+
+#### 2-3. 時間差分の計算とCarbonメソッドの使用
+
+時間の差分を計算する場合や、年月週の情報が必要な場合は、`ClockUtility`の専用メソッドを使用します。
+
+```php
+// ✅ Good: ClockUtilityの専用メソッドを使用
+$elapsedSeconds = ClockUtility::diffInSeconds($stamina->last_recovery_at);
+$recoveredPoints = (int)floor($elapsedSeconds / self::RECOVERY_INTERVAL_SECONDS);
+
+// ✅ Good: 年月週の判定もClockUtilityで
+if (!ClockUtility::isToday($purchase->last_reset_at)) {
+    // 今日リセットされていない
+}
+
+$now = ClockUtility::now();
+if ($now->weekOfYear !== ClockUtility::weekOfYear($purchase->last_reset_at)) {
+    // 週が変わった
+}
+
+if ($now->month !== ClockUtility::month($purchase->last_reset_at)) {
+    // 月が変わった
+}
+
+// ❌ Bad: parse()を使わない（ClockUtilityの専用メソッドで十分）
+$lastRecoveryAt = ClockUtility::parse($stamina->last_recovery_at); // NG
+$elapsedSeconds = $now->diffInSeconds($lastRecoveryAt); // NG
+```
+
+**ClockUtilityの時間差分メソッド:**
+- `diffInSeconds(string $dateTimeString): int` - 秒数差分
+- `diffInMinutes(string $dateTimeString): int` - 分数差分
+- `diffInHours(string $dateTimeString): int` - 時間数差分
+- `diffInDays(string $dateTimeString): int` - 日数差分
+
+**ClockUtilityの日時情報取得メソッド:**
+- `isToday(string $dateTimeString): bool` - 今日かどうか
+- `weekOfYear(string $dateTimeString): int` - 週番号（1-53）
+- `month(string $dateTimeString): int` - 月（1-12）
+- `year(string $dateTimeString): int` - 年
+
+#### 2-4. parse()の使用（限定的）
+
+`parse()`メソッドは以下の限定的なケースでのみ使用してください。
+
+```php
+// ✅ Good: 外部入力をCarbonImmutableに変換（Admin画面等）
+$startAt = ClockUtility::parse($validated['start_at']);
+$info = new MaintenanceInfo(
+    startAt: $startAt,
+    // ...
+);
+
+// ✅ Good: DTOの復元
+public static function fromArray(array $data): self
+{
+    return new self(
+        expireAt: isset($data['expire_at']) ? ClockUtility::parse($data['expire_at']) : null,
+    );
+}
+
+// ❌ Bad: 通常のビジネスロジックでparse()を使わない
+$lastLoginAt = ClockUtility::parse($player->last_login_at); // NG
+if ($lastLoginAt->startOfDay()->lt($today)) { // NG
+    // diffInSecondsやisAfter等のメソッドを使うべき
+}
+```
+
+**parse()を使うべきケース:**
+1. **外部入力の変換** - Admin画面等のバリデーション済み日時文字列をCarbonImmutableに変換
+2. **DTOの復元** - 配列やJSONから日時オブジェクトを復元する場合
+
+**parse()を使わないケース（ほとんどのケース）:**
+- 時間差分の計算 → `ClockUtility::diffInSeconds()`等を使用
+- 年月週の判定 → `ClockUtility::isToday()`, `weekOfYear()`等を使用
+- NOW比較 → `ClockUtility::isAfter()`等を使用
+- 2つの日時文字列比較 → 文字列比較を使用
+
+### ClockUtilityの主要メソッド
+
+#### 時刻取得
+
+```php
+ClockUtility::now(): CarbonImmutable
+// 現在時刻を取得（テスト時は固定時刻を返す）
+
+ClockUtility::nowToString(): string
+// 現在時刻を文字列で取得（Y-m-d H:i:s形式）
+```
+
+#### NOW比較メソッド（最も頻繁に使用）
+
+```php
+ClockUtility::isAfter($dateTimeString): bool
+// 指定日時が現在時刻より後か
+// 例: ガチャ開始前チェック、イベント開始前チェック
+
+ClockUtility::isBefore($dateTimeString): bool
+// 指定日時が現在時刻より前か
+// 例: ガチャ終了チェック、イベント終了チェック
+
+ClockUtility::greaterThanOrEqual($dateTimeString): bool
+// 指定日時が現在時刻以上か
+
+ClockUtility::lessThanOrEqual($dateTimeString): bool
+// 指定日時が現在時刻以下か
+```
+
+#### 時間差分メソッド
+
+```php
+ClockUtility::diffInSeconds(string $dateTimeString): int
+// 現在時刻との秒数差分
+
+ClockUtility::diffInMinutes(string $dateTimeString): int
+// 現在時刻との分数差分
+
+ClockUtility::diffInHours(string $dateTimeString): int
+// 現在時刻との時間数差分
+
+ClockUtility::diffInDays(string $dateTimeString): int
+// 現在時刻との日数差分
+```
+
+#### 日時情報取得メソッド
+
+```php
+ClockUtility::isToday(string $dateTimeString): bool
+// 指定日時が今日かどうか
+
+ClockUtility::weekOfYear(string $dateTimeString): int
+// 指定日時の週番号（1-53）
+
+ClockUtility::month(string $dateTimeString): int
+// 指定日時の月（1-12）
+
+ClockUtility::year(string $dateTimeString): int
+// 指定日時の年
+```
+
+#### parse()メソッド（限定的な使用）
+
+```php
+ClockUtility::parse(string $time, $tz = null): CarbonImmutable
+// 日時文字列をCarbonImmutableに変換
+// 使用ケース: 外部入力の変換、DTOの復元のみ
+// 通常のビジネスロジックでは上記の専用メソッドを使用
+```
+
+#### テスト用メソッド
+
+```php
+ClockUtility::setNow(CarbonImmutable $datetime): void
+// テスト時の時刻を設定
+
+ClockUtility::reset(): void
+// テスト時刻をリセット（現在時刻に戻す）
+```
+
+### Eloquentモデルでの日時カラムの扱い
+
+#### ❌ Bad: datetimeキャストは使わない
+
+```php
+// ❌ Bad: datetimeキャストはCarbonオブジェクトを生成してしまう
+protected $casts = [
+    'last_login_at' => 'datetime', // NG: レコード取得時に毎回Carbonが生成される
+];
+```
+
+#### ✅ Good: 文字列として扱い、getter/setterで型を定義
+
+```php
+// ✅ Good: datetimeキャストを使わず、getter/setterで文字列として扱う
+protected $casts = [
+    'level' => 'integer',
+    // last_login_atはキャストしない（文字列のまま）
+];
+
+/**
+ * 最終ログイン日時を取得
+ * @return string|null Y-m-d H:i:s形式
+ */
+public function getLastLoginAt(): ?string
+{
+    return $this->getAttribute('last_login_at');
+}
+
+/**
+ * 最終ログイン日時を設定
+ * @param string $lastLoginAt Y-m-d H:i:s形式
+ */
+public function setLastLoginAt(string $lastLoginAt): void
+{
+    $this->setAttribute('last_login_at', $lastLoginAt);
+}
+```
+
+**なぜgetter/setterで文字列にするのか:**
+- 大量のレコード取得時にCarbonオブジェクトの生成コストを回避
+- 文字列比較でパフォーマンスを向上
+- 必要な時だけ`ClockUtility::parse()`でCarbonに変換
 
 ### 使用例
 
+#### ログインボーナスの判定
+
 ```php
-// ✅ Good: ClockUtilityもCarbonImmutableを返す
-$now = ClockUtility::now(); // CarbonImmutableを返す
-$startOfDay = $now->startOfDay(); // $nowは変更されない
-$endOfDay = $now->endOfDay(); // $nowは変更されない
+public function checkAndGrantLoginBonus(int $sysPlayerId, ?string $lastLoginAt): array
+{
+    $currentTime = ClockUtility::now();
+    $todayString = $currentTime->startOfDay()->toDateString(); // "2024-01-16"
+    
+    // 文字列比較: lastLoginAtから日付部分を取得して比較
+    $lastLoginDate = $lastLoginAt !== null ? substr($lastLoginAt, 0, 10) : null;
+    if ($lastLoginDate === null || $lastLoginDate < $todayString) {
+        return $this->grantLoginBonus($sysPlayerId, $currentTime->startOfDay());
+    }
+    
+    return [];
+}
+```
 
-// ✅ Good: Modelのキャストも意識する
-protected $casts = [
-    'start_at' => 'immutable_datetime', // CarbonImmutableにキャスト
-    'end_at' => 'immutable_datetime',
-];
+#### ガチャ期間のチェック
 
-// ❌ Bad: 'datetime'キャストはCarbonを返す
-protected $casts = [
-    'start_at' => 'datetime', // Carbonを返してしまう
-];
+```php
+public function validateGachaPeriod(MstGacha $gacha): void
+{
+    // NOW比較: ClockUtilityの比較メソッドを使用
+    if ($gacha->start_at && ClockUtility::isAfter($gacha->start_at)) {
+        throw new GameException('ガチャはまだ開始していません');
+    }
+    
+    if ($gacha->end_at && ClockUtility::isBefore($gacha->end_at)) {
+        throw new GameException('ガチャは終了しました');
+    }
+}
+```
+
+#### スタミナ回復の計算
+
+```php
+private function recoverStamina(TrxStamina $stamina, int $maxStamina): void
+{
+    // ClockUtilityの専用メソッドで時間差分を計算
+    $elapsedSeconds = ClockUtility::diffInSeconds($stamina->last_recovery_at);
+    $recoveredPoints = (int)floor($elapsedSeconds / self::RECOVERY_INTERVAL_SECONDS);
+    
+    if ($recoveredPoints > 0) {
+        $newStamina = min($stamina->current_stamina + $recoveredPoints, $maxStamina);
+        $stamina->setCurrentStamina($newStamina);
+        $stamina->setLastRecoveryAt(ClockUtility::nowToString());
+    }
+}
+```
+
+#### 課金回数のリセットチェック
+
+```php
+private function shouldResetPurchaseCount(string $resetType, ?string $lastResetAt): bool
+{
+    if ($resetType === 'None' || $lastResetAt === null) {
+        return false;
+    }
+
+    $now = ClockUtility::now();
+
+    return match ($resetType) {
+        'Daily' => !ClockUtility::isToday($lastResetAt),
+        'Weekly' => $now->weekOfYear !== ClockUtility::weekOfYear($lastResetAt) 
+                    || $now->year !== ClockUtility::year($lastResetAt),
+        'Monthly' => $now->month !== ClockUtility::month($lastResetAt) 
+                     || $now->year !== ClockUtility::year($lastResetAt),
+        default => false,
+    };
+}
 ```
 
 ### ルール
 
-- すべての日時操作で`CarbonImmutable`を使用
-- Eloquentモデルのキャストは`immutable_datetime`を使用
-- 既存の`Carbon`を使用している箇所を見つけたら`CarbonImmutable`に置き換える
-- Utilityクラスで日時を返す場合は`CarbonImmutable`を返す
+#### ✅ 必ず守ること
+
+- **すべての時刻取得は`ClockUtility::now()`を使用**（`Carbon::now()`や`CarbonImmutable::now()`は使わない）
+- **NOW比較は`ClockUtility::isAfter()`等の比較メソッドを使用**（最も頻繁に使うパターン）
+- **時間差分は`ClockUtility::diffInSeconds()`等の専用メソッドを使用**
+- **年月週情報は`ClockUtility::isToday()`, `weekOfYear()`等の専用メソッドを使用**
+- **2つの日時文字列（Y-m-d H:i:s）の比較は文字列比較を使用**（`<`, `>`, `===`）
+- **`parse()`は外部入力の変換とDTOの復元のみ使用**（通常のビジネスロジックでは使わない）
+- **Eloquentモデルの日時カラムはdatetimeキャストを使わず、getter/setterで文字列型として扱う**
+- **型定義としての`CarbonImmutable`は残してOK**（メソッドの引数や返り値の型）
+
+#### ❌ やってはいけないこと
+
+- `Carbon::now()`や`CarbonImmutable::now()`を直接呼び出す
+- `Carbon::parse()`や`CarbonImmutable::parse()`を直接呼び出す
+- NOW比較や時間差分のために`parse()`を使う（専用メソッドで十分）
+- 2つの日時文字列の比較でCarbonオブジェクトに変換する
+- 日付の取得だけのために`parse()`を使う（`substr()`で十分）
+- Eloquentモデルで`datetime`キャストを使う（大量レコード処理時のパフォーマンス劣化）
+- 通常のビジネスロジックで`parse()`を使ってCarbonオブジェクトを生成する
 
 ---
 

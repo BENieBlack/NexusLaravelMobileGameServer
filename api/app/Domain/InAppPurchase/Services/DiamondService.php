@@ -10,7 +10,7 @@ use App\Repositories\Trx\TrxDiamondBalanceRepository;
 use App\Repositories\Trx\TrxDiamondRepository;
 use App\Repositories\Trx\TrxInAppPurchaseRepository;
 use App\Persistence\ApiSession;
-use Carbon\CarbonImmutable;
+use NexusUtilities\ClockUtility;
 
 /**
  * DiamondService
@@ -240,7 +240,7 @@ class DiamondService
                 'mst_in_app_purchase_id' => $mstInAppPurchase->getId(),
                 'total_purchase_count' => 1,
                 'purchase_count' => 1,
-                'purchase_count_reset_at' => $mstInAppPurchase->getPurchaseLimitReset() !== 'None' ? CarbonImmutable::now() : null,
+                'purchase_count_reset_at' => $mstInAppPurchase->getPurchaseLimitReset() !== 'None' ? ClockUtility::now() : null,
             ]);
             $this->trxInAppPurchaseRepository->setModel($purchaseHistory);
             return;

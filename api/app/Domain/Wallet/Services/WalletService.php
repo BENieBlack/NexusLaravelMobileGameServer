@@ -33,7 +33,7 @@ class WalletService implements WalletManagerInterface
      * @param string $currencyId 通貨アイテムID（例: "gold", "event_coin"）
      * @param int $freeAmount 無償通貨数（デフォルト: 0）
      * @param int $paidAmount 有償通貨数（デフォルト: 0）
-     * @param CarbonImmutable|null $expireAt 有効期限（NULLの場合は無期限）
+     * @param string|null $expireAt 有効期限 (Y-m-d H:i:s)（NULLの場合は無期限）
      * @return CurrencyOperationResult 操作結果
      */
     public function addCurrency(
@@ -41,7 +41,7 @@ class WalletService implements WalletManagerInterface
         string $currencyId,
         int $freeAmount = 0,
         int $paidAmount = 0,
-        ?CarbonImmutable $expireAt = null
+        ?string $expireAt = null
     ): CurrencyOperationResult {
         
         // 1. 現在値を取得または作成（Repository経由）

@@ -2,7 +2,6 @@
 
 namespace LaravelWallet\Contracts;
 
-use Carbon\CarbonImmutable;
 use LaravelWallet\DTOs\CurrencyBalance;
 use LaravelWallet\DTOs\CurrencyOperationResult;
 use LaravelWallet\Exceptions\InsufficientBalanceException;
@@ -23,7 +22,7 @@ interface WalletManagerInterface
      * @param string $currencyId 通貨ID（例: "gold", "event_coin"）
      * @param int $freeAmount 無償通貨数（デフォルト: 0）
      * @param int $paidAmount 有償通貨数（デフォルト: 0）
-     * @param CarbonImmutable|null $expireAt 有効期限（NULLの場合は無期限）
+     * @param string|null $expireAt 有効期限 (Y-m-d H:i:s)（NULLの場合は無期限）
      * @return CurrencyOperationResult 操作結果
      * @throws InvalidCurrencyException 無効な通貨IDの場合
      */
@@ -32,7 +31,7 @@ interface WalletManagerInterface
         string $currencyId,
         int $freeAmount = 0,
         int $paidAmount = 0,
-        ?CarbonImmutable $expireAt = null
+        ?string $expireAt = null
     ): CurrencyOperationResult;
 
     /**

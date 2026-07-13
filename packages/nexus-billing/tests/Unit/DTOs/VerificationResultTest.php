@@ -3,14 +3,13 @@
 namespace LaravelMobileBilling\Tests\Unit\DTOs;
 
 use LaravelMobileBilling\DTOs\VerificationResult;
-use Carbon\CarbonImmutable;
 use PHPUnit\Framework\TestCase;
 
 class VerificationResultTest extends TestCase
 {
     public function test_construct_with_all_parameters()
     {
-        $purchaseDate = CarbonImmutable::parse('2026-07-13 10:00:00');
+        $purchaseDate = '2026-07-13 10:00:00';
         $rawResponse = ['status' => 'success', 'data' => ['test' => 'value']];
         
         $result = new VerificationResult(
@@ -34,7 +33,7 @@ class VerificationResultTest extends TestCase
 
     public function test_construct_with_invalid_result()
     {
-        $purchaseDate = CarbonImmutable::parse('2026-07-13 10:00:00');
+        $purchaseDate = '2026-07-13 10:00:00';
         
         $result = new VerificationResult(
             isValid: false,
@@ -51,7 +50,7 @@ class VerificationResultTest extends TestCase
 
     public function test_to_array()
     {
-        $purchaseDate = CarbonImmutable::parse('2026-07-13 10:00:00');
+        $purchaseDate = '2026-07-13 10:00:00';
         $rawResponse = ['status' => 'success'];
         
         $result = new VerificationResult(
@@ -70,7 +69,7 @@ class VerificationResultTest extends TestCase
         $this->assertTrue($array['is_valid']);
         $this->assertSame('txn_123456', $array['transaction_id']);
         $this->assertSame('com.example.product1', $array['product_id']);
-        $this->assertSame($purchaseDate->toIso8601String(), $array['purchase_date']);
+        $this->assertSame($purchaseDate, $array['purchase_date']);
         $this->assertSame(2, $array['quantity']);
         $this->assertSame('original_txn_123456', $array['original_transaction_id']);
         $this->assertSame($rawResponse, $array['raw_response']);
@@ -78,7 +77,7 @@ class VerificationResultTest extends TestCase
 
     public function test_to_json()
     {
-        $purchaseDate = CarbonImmutable::parse('2026-07-13 10:00:00');
+        $purchaseDate = '2026-07-13 10:00:00';
         
         $result = new VerificationResult(
             isValid: true,

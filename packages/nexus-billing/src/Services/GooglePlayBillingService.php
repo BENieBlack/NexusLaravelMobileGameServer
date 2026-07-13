@@ -62,7 +62,7 @@ class GooglePlayBillingService implements BillingPlatformInterface
             isValid: true,
             transactionId: $response['orderId'],
             productId: $receiptData->productId,
-            purchaseDate: CarbonImmutable::createFromTimestampMs((int)$response['purchaseTimeMillis']),
+            purchaseDate: CarbonImmutable::createFromTimestampMs((int)$response['purchaseTimeMillis'])->format('Y-m-d H:i:s'),
             quantity: (int)($response['quantity'] ?? 1),
             originalTransactionId: $response['orderId'],
             rawResponse: $response,
@@ -91,7 +91,7 @@ class GooglePlayBillingService implements BillingPlatformInterface
 
         return new SubscriptionStatus(
             isActive: $isActive,
-            expiresAt: CarbonImmutable::createFromTimestampMs((int)$response['expiryTimeMillis']),
+            expiresAt: CarbonImmutable::createFromTimestampMs((int)$response['expiryTimeMillis'])->format('Y-m-d H:i:s'),
             autoRenew: $autoRenew,
             state: $isActive ? BillingConst::SUBSCRIPTION_STATE_ACTIVE : BillingConst::SUBSCRIPTION_STATE_EXPIRED,
         );

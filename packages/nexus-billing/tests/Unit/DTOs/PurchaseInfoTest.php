@@ -3,14 +3,13 @@
 namespace LaravelMobileBilling\Tests\Unit\DTOs;
 
 use LaravelMobileBilling\DTOs\PurchaseInfo;
-use Carbon\CarbonImmutable;
 use PHPUnit\Framework\TestCase;
 
 class PurchaseInfoTest extends TestCase
 {
     public function test_construct_with_all_parameters()
     {
-        $purchaseDate = CarbonImmutable::parse('2026-07-13 10:00:00');
+        $purchaseDate = '2026-07-13 10:00:00';
         $purchaseInfo = new PurchaseInfo(
             playerId: 123,
             billingPlatform: 'google_play',
@@ -34,7 +33,7 @@ class PurchaseInfoTest extends TestCase
 
     public function test_construct_without_optional_parameters()
     {
-        $purchaseDate = CarbonImmutable::parse('2026-07-13 10:00:00');
+        $purchaseDate = '2026-07-13 10:00:00';
         $purchaseInfo = new PurchaseInfo(
             playerId: 456,
             billingPlatform: 'app_store',
@@ -51,7 +50,7 @@ class PurchaseInfoTest extends TestCase
 
     public function test_to_array()
     {
-        $purchaseDate = CarbonImmutable::parse('2026-07-13 10:00:00');
+        $purchaseDate = '2026-07-13 10:00:00';
         $purchaseInfo = new PurchaseInfo(
             playerId: 123,
             billingPlatform: 'google_play',
@@ -71,14 +70,14 @@ class PurchaseInfoTest extends TestCase
         $this->assertSame('com.example.product1', $array['product_id']);
         $this->assertSame('txn_123456', $array['transaction_id']);
         $this->assertSame(1, $array['quantity']);
-        $this->assertSame($purchaseDate->toIso8601String(), $array['purchase_date']);
+        $this->assertSame($purchaseDate, $array['purchase_date']);
         $this->assertSame(9.99, $array['price']);
         $this->assertSame('USD', $array['currency']);
     }
 
     public function test_to_json()
     {
-        $purchaseDate = CarbonImmutable::parse('2026-07-13 10:00:00');
+        $purchaseDate = '2026-07-13 10:00:00';
         $purchaseInfo = new PurchaseInfo(
             playerId: 123,
             billingPlatform: 'google_play',

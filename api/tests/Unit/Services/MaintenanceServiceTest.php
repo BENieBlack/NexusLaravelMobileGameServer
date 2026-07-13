@@ -3,9 +3,9 @@
 namespace Tests\Unit\Services;
 
 use NexusMaintenance\Contracts\MaintenanceStorageInterface;
-use NexusMaintenance\DTOs\MaintenanceInfo;
+use NexusMaintenance\DTOs\SysMaintenance;
 use NexusMaintenance\Services\MaintenanceService;
-use Carbon\CarbonImmutable;
+use NexusUtilities\ClockUtility;
 use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 
@@ -44,26 +44,30 @@ class MaintenanceServiceTest extends TestCase
 
     public function test_is_under_maintenance_returns_true_when_currently_under_maintenance(): void
     {
-        $info = new MaintenanceInfo(
+        ClockUtility::setNow('2024-01-15 12:00:00');
+        
+        $sysMaintenance = new SysMaintenance(
             isMaintenance: true,
-            startAt: CarbonImmutable::now()->subHour(),
-            endAt: CarbonImmutable::now()->addHour(),
+            startAt: '2024-01-15 11:00:00',
+            endAt: '2024-01-15 13:00:00',
         );
 
         $this->storage
             ->expects($this->once())
             ->method('get')
-            ->willReturn($info);
+            ->willReturn($sysMaintenance);
 
         $this->assertTrue($this->service->isUnderMaintenance());
+        
+        ClockUtility::reset();
     }
 
     public function test_get_maintenance_info_returns_info_from_storage(): void
     {
-        $info = new MaintenanceInfo(
+        $sysMaintenance = new SysMaintenance(
             isMaintenance: true,
-            startAt: CarbonImmutable::now(),
-            endAt: CarbonImmutable::now()->addHour(),
+            startAt: '2024-01-15 12:00:00',
+            endAt: '2024-01-15 13:00:00',
             title: 'Test Maintenance',
             message: 'Test message',
         );
@@ -71,29 +75,29 @@ class MaintenanceServiceTest extends TestCase
         $this->storage
             ->expects($this->once())
             ->method('get')
-            ->willReturn($info);
+            ->willReturn($sysMaintenance);
 
         $result = $this->service->getMaintenanceInfo();
 
-        $this->assertSame($info, $result);
+        $this->assertSame($sysMaintenance, $result);
         $this->assertEquals('Test Maintenance', $result->title);
     }
 
     public function test_start_maintenance_stores_info_and_clears_cache(): void
     {
-        $info = new MaintenanceInfo(
+        $sysMaintenance = new SysMaintenance(
             isMaintenance: true,
-            startAt: CarbonImmutable::now(),
-            endAt: CarbonImmutable::now()->addHour(),
+            startAt: '2024-01-15 12:00:00',
+            endAt: '2024-01-15 13:00:00',
         );
 
         $this->storage
             ->expects($this->once())
             ->method('put')
-            ->with($info)
+            ->with($sysMaintenance)
             ->willReturn(true);
 
-        $result = $this->service->startMaintenance($info);
+        $result = $this->service->startMaintenance($sysMaintenance);
 
         $this->assertTrue($result);
     }

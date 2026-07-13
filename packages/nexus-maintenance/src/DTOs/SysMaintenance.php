@@ -2,22 +2,23 @@
 
 namespace NexusMaintenance\DTOs;
 
-use Carbon\CarbonImmutable;
+use NexusUtilities\ClockUtility;
 
 /**
- * メンテナンス情報DTO
+ * sys_maintenanceテーブルのDTO
  * 
  * メンテナンス状態の情報を保持
+ * 日時は全てY-m-d H:i:s形式の文字列で保持
  */
-readonly class MaintenanceInfo
+readonly class SysMaintenance
 {
     public function __construct(
         public bool $isMaintenance,
-        public ?CarbonImmutable $startAt = null,
-        public ?CarbonImmutable $endAt = null,
+        public ?string $startAt = null,      // Y-m-d H:i:s形式
+        public ?string $endAt = null,        // Y-m-d H:i:s形式
         public ?string $title = null,
         public ?string $message = null,
-        public ?CarbonImmutable $updatedAt = null,
+        public ?string $updatedAt = null,    // Y-m-d H:i:s形式
     ) {}
 
     /**
@@ -29,15 +30,15 @@ readonly class MaintenanceInfo
             return false;
         }
 
-        $now = CarbonImmutable::now();
+        $now = ClockUtility::nowToString();
 
         // start_atが設定されている場合、まだ開始時刻に達していなければfalse
-        if ($this->startAt !== null && $now->isBefore($this->startAt)) {
+        if ($this->startAt !== null && !ClockUtility::greaterThanOrEqual($this->startAt)) {
             return false;
         }
 
         // end_atが設定されている場合、終了時刻を過ぎていればfalse
-        if ($this->endAt !== null && $now->isAfter($this->endAt)) {
+        if ($this->endAt !== null && !ClockUtility::lessThanOrEqual($this->endAt)) {
             return false;
         }
 
@@ -51,11 +52,11 @@ readonly class MaintenanceInfo
     {
         return [
             'is_maintenance' => $this->isMaintenance,
-            'start_at' => $this->startAt?->toIso8601String(),
-            'end_at' => $this->endAt?->toIso8601String(),
+            'start_at' => $this->startAt,
+            'end_at' => $this->endAt,
             'title' => $this->title,
             'message' => $this->message,
-            'updated_at' => $this->updatedAt?->toIso8601String(),
+            'updated_at' => $this->updatedAt,
         ];
     }
 
@@ -74,11 +75,11 @@ readonly class MaintenanceInfo
     {
         return new self(
             isMaintenance: $data['is_maintenance'] ?? false,
-            startAt: isset($data['start_at']) ? CarbonImmutable::parse($data['start_at']) : null,
-            endAt: isset($data['end_at']) ? CarbonImmutable::parse($data['end_at']) : null,
+            startAt: $data['start_at'] ?? null,
+            endAt: $data['end_at'] ?? null,
             title: $data['title'] ?? null,
             message: $data['message'] ?? null,
-            updatedAt: isset($data['updated_at']) ? CarbonImmutable::parse($data['updated_at']) : null,
+            updatedAt: $data['updated_at'] ?? null,
         );
     }
 }

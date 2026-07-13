@@ -3,7 +3,7 @@
 namespace NexusMaintenance\Services;
 
 use NexusMaintenance\Contracts\MaintenanceStorageInterface;
-use NexusMaintenance\DTOs\MaintenanceInfo;
+use NexusMaintenance\DTOs\SysMaintenance;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
@@ -31,21 +31,21 @@ class MaintenanceService
      */
     public function isUnderMaintenance(): bool
     {
-        $info = $this->getMaintenanceInfo();
+        $sysMaintenance = $this->getMaintenanceInfo();
         
-        if ($info === null) {
+        if ($sysMaintenance === null) {
             return false;
         }
 
-        return $info->isCurrentlyUnderMaintenance();
+        return $sysMaintenance->isCurrentlyUnderMaintenance();
     }
 
     /**
      * メンテナンス情報を取得
      * 
-     * @return MaintenanceInfo|null メンテナンス情報
+     * @return SysMaintenance|null メンテナンス情報
      */
-    public function getMaintenanceInfo(): ?MaintenanceInfo
+    public function getMaintenanceInfo(): ?SysMaintenance
     {
         // キャッシュから取得を試みる
         if ($this->cacheEnabled) {
@@ -56,34 +56,34 @@ class MaintenanceService
         }
 
         // ストレージから取得
-        $info = $this->storage->get();
+        $sysMaintenance = $this->storage->get();
 
         // キャッシュに保存
-        if ($info !== null && $this->cacheEnabled) {
-            Cache::put(self::CACHE_KEY, $info, $this->cacheTtl);
+        if ($sysMaintenance !== null && $this->cacheEnabled) {
+            Cache::put(self::CACHE_KEY, $sysMaintenance, $this->cacheTtl);
         }
 
-        return $info;
+        return $sysMaintenance;
     }
 
     /**
      * メンテナンスを開始
      * 
-     * @param MaintenanceInfo $info メンテナンス情報
+     * @param SysMaintenance $sysMaintenance メンテナンス情報
      * @return bool 成功時true
      */
-    public function startMaintenance(MaintenanceInfo $info): bool
+    public function startMaintenance(SysMaintenance $sysMaintenance): bool
     {
-        $result = $this->storage->put($info);
+        $result = $this->storage->put($sysMaintenance);
 
         if ($result) {
             // キャッシュをクリア
             $this->clearCache();
             
             Log::info('Maintenance started', [
-                'start_at' => $info->startAt?->toIso8601String(),
-                'end_at' => $info->endAt?->toIso8601String(),
-                'title' => $info->title,
+                'start_at' => $sysMaintenance->startAt,
+                'end_at' => $sysMaintenance->endAt,
+                'title' => $sysMaintenance->title,
             ]);
         }
 

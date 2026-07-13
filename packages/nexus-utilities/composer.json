@@ -1,5 +1,5 @@
 {
-    "name": "s-nakamura/laravel-utilities",
+    "name": "nexus/utilities",
     "description": "Laravel utility classes including ClockUtility and RedisUtility",
     "type": "library",
     "license": "MIT",

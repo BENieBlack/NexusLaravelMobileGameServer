@@ -8,11 +8,11 @@
     "repositories": [
         {
             "type": "path",
-            "url": "../packages/laravel-utilities"
+            "url": "../packages/nexus-utilities"
         },
         {
             "type": "path",
-            "url": "../packages/laravel-security-middleware"
+            "url": "../packages/nexus-security"
         },
         {
             "type": "path",
@@ -40,8 +40,8 @@
         "doctrine/dbal": "^4.4",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
-        "s-nakamura/laravel-utilities": "@dev",
-        "s-nakamura/laravel-security-middleware": "@dev",
+        "nexus/utilities": "@dev",
+        "nexus/security": "@dev",
         "nexus/core-persistence": "@dev",
         "nexus/core-unit-of-work": "@dev",
         "nexus/billing": "@dev",

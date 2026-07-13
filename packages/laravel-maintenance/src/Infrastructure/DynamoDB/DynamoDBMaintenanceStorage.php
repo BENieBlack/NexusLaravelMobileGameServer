@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Infrastructure\Maintenance;
+namespace LaravelMaintenance\Infrastructure\DynamoDB;
 
-use App\Contracts\Maintenance\MaintenanceStorageInterface;
-use App\DTOs\MaintenanceInfo;
+use LaravelMaintenance\Contracts\MaintenanceStorageInterface;
+use LaravelMaintenance\DTOs\MaintenanceInfo;
 use Aws\DynamoDb\DynamoDbClient;
 use Aws\DynamoDb\Exception\DynamoDbException;
 use Carbon\CarbonImmutable;

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "59cc262d951f78e6f36ea12d2ed15906",
+    "content-hash": "c70db7919ae7f4fcc4f299ccb28e2874",
     "packages": [
         {
             "name": "brick/math",
@@ -1213,6 +1213,59 @@
             "time": "2026-07-08T16:19:22+00:00"
         },
         {
+            "name": "laravel-mobile-game/billing",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/laravel-billing",
+                "reference": "6b6ec0970f0094814a3bdd0b5002d2429739848f"
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^7.0",
+                "illuminate/cache": "^10.0|^11.0|^12.0",
+                "illuminate/http": "^10.0|^11.0|^12.0",
+                "illuminate/support": "^10.0|^11.0|^12.0",
+                "nesbot/carbon": "^2.0|^3.0",
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.6",
+                "orchestra/testbench": "^9.0",
+                "phpunit/phpunit": "^11.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "LaravelMobileBilling\\MobileBillingServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "LaravelMobileBilling\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "LaravelMobileBilling\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Your Name",
+                    "email": "your.email@example.com"
+                }
+            ],
+            "description": "Mobile billing verification and processing for Laravel with support for AppStore and Google Play",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "laravel-mobile-game/maintenance",
             "version": "dev-main",
             "dist": {
@@ -1264,59 +1317,6 @@
                 }
             ],
             "description": "Mobile game features for Laravel including maintenance mode management with support for AWS DynamoDB and Alibaba Cloud TableStore",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
-            "name": "laravel-mobile-game/mobile-billing",
-            "version": "dev-main",
-            "dist": {
-                "type": "path",
-                "url": "../packages/laravel-mobile-billing",
-                "reference": "89b866ca55714eae02082a3da555fffc5b0cd20b"
-            },
-            "require": {
-                "guzzlehttp/guzzle": "^7.0",
-                "illuminate/cache": "^10.0|^11.0|^12.0",
-                "illuminate/http": "^10.0|^11.0|^12.0",
-                "illuminate/support": "^10.0|^11.0|^12.0",
-                "nesbot/carbon": "^2.0|^3.0",
-                "php": "^8.1"
-            },
-            "require-dev": {
-                "mockery/mockery": "^1.6",
-                "orchestra/testbench": "^9.0",
-                "phpunit/phpunit": "^11.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "LaravelMobileBilling\\MobileBillingServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "LaravelMobileBilling\\": "src/"
-                }
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "LaravelMobileBilling\\Tests\\": "tests/"
-                }
-            },
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Your Name",
-                    "email": "your.email@example.com"
-                }
-            ],
-            "description": "Mobile billing verification and processing for Laravel with support for AppStore and Google Play",
             "transport-options": {
                 "relative": true
             }
@@ -9882,8 +9882,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "laravel-mobile-game/billing": 20,
         "laravel-mobile-game/maintenance": 20,
-        "laravel-mobile-game/mobile-billing": 20,
         "laravel-mobile-game/persistence-core": 20,
         "laravel-mobile-game/unit-of-work-core": 20,
         "laravel-mobile-game/wallet": 20,

@@ -3,7 +3,7 @@
 namespace Tests\Unit\Utilities;
 
 use App\Persistence\ApiSession;
-use App\Utilities\Clock;
+use LaravelUtilities\ClockUtility;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -19,7 +19,7 @@ class ApiSessionTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        Clock::initialize();
+        ClockUtility::initialize();
         ApiSession::clearForTest();
     }
 
@@ -61,7 +61,7 @@ class ApiSessionTest extends TestCase
         ApiSession::setSysPlayerId(123);
         
         $now = ApiSession::getNow();
-        $clockNow = Clock::now();
+        $clockNow = ClockUtility::now();
         
         $this->assertTrue($now->equalTo($clockNow));
     }
@@ -125,7 +125,7 @@ class ApiSessionTest extends TestCase
     #[Test]
     public function コンストラクタでプレイヤーIDと時刻を設定できる(): void
     {
-        $customNow = Clock::now()->addHours(1);
+        $customNow = ClockUtility::now()->addHours(1);
         $newSession = new ApiSession(789, $customNow);
         
         $this->assertSame(789, $newSession->getPlayerId());

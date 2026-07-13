@@ -3,7 +3,7 @@
 namespace LaravelUnitOfWork\Persistence;
 
 use LaravelUnitOfWork\Contracts\QueryManagerInterface;
-use LaravelPersistence\Repositories\_BaseRepository;
+use LaravelPersistence\Repositories\_BaseRepositoryInterface;
 use LaravelPersistence\Repositories\Log\_BaseLogRepository;
 use LaravelPersistence\Repositories\Sys\_BaseSysRepository;
 use LaravelUnitOfWork\Persistence\QueryManager\OperationCollector;
@@ -24,7 +24,7 @@ class QueryManager implements QueryManagerInterface
     /**
      * 登録されたRepositoryのリスト
      *
-     * @var array<_BaseRepository>
+     * @var array<_BaseRepositoryInterface>
      */
     private array $repositories = [];
 
@@ -47,11 +47,11 @@ class QueryManager implements QueryManagerInterface
     /**
      * Repositoryを登録する
      *
-     * @param _BaseRepository $repository
+     * @param _BaseRepositoryInterface $repository
      * @param bool $isPurchaseLog 課金関連のログかどうか（LogRepositoryの場合のみ使用）
      * @return void
      */
-    public function registerRepository(_BaseRepository $repository, bool $isPurchaseLog = false): void
+    public function registerRepository(_BaseRepositoryInterface $repository, bool $isPurchaseLog = false): void
     {
         // 重複登録を防ぐ（同じインスタンスは1回のみ登録）
         $hash = spl_object_hash($repository);
@@ -112,6 +112,18 @@ class QueryManager implements QueryManagerInterface
 
         // クリア
         $this->clear();
+    }
+
+    /**
+     * 登録されたすべてのリポジトリの操作をバッチ実行
+     * execAllQuery()のエイリアス
+     *
+     * @return void
+     * @throws \Exception
+     */
+    public function flush(): void
+    {
+        $this->execAllQuery();
     }
 
     /**

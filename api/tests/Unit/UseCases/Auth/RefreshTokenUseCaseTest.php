@@ -12,6 +12,7 @@ use App\Models\Sys\SysPlayerDevice;
 use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;
+use LaravelUnitOfWork\Persistence\QueryManager;
 use Illuminate\Support\Facades\Log;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
@@ -70,7 +71,7 @@ class RefreshTokenUseCaseTest extends TestCase
         [$dtoToken, $sysPlayerToken] = $this->tokenService->generateToken($sysPlayer, $sysPlayerDevice);
         
         // トークンをDBに保存（バッチINSERT）
-        app(\App\Persistence\QueryManager::class)->execAllQuery();
+        app(QueryManager::class)->execAllQuery();
         
         return [$sysPlayer, $sysPlayerDevice, $dtoToken, $sysPlayerToken];
     }

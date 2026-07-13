@@ -22,8 +22,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::connection('trx1')->table('trx_stamina', function (Blueprint $table) {
-            // idカラムを削除（AUTO_INCREMENTを解除）
-            $table->dropPrimary('id');
+            // idカラムのAUTO_INCREMENTを削除してから主キーを削除
+            $table->bigInteger('id')->change();
+        });
+        
+        Schema::connection('trx1')->table('trx_stamina', function (Blueprint $table) {
+            $table->dropPrimary('PRIMARY');
             $table->dropColumn('id');
             
             // typeカラムを追加（sys_player_idの直後）
@@ -36,7 +40,11 @@ return new class extends Migration
 
         // trx2にも同じ変更を適用
         Schema::connection('trx2')->table('trx_stamina', function (Blueprint $table) {
-            $table->dropPrimary('id');
+            $table->bigInteger('id')->change();
+        });
+        
+        Schema::connection('trx2')->table('trx_stamina', function (Blueprint $table) {
+            $table->dropPrimary('PRIMARY');
             $table->dropColumn('id');
             
             $table->string('type', 50)->after('sys_player_id')->default('normal')
@@ -57,17 +65,20 @@ return new class extends Migration
             
             // typeカラムを削除
             $table->dropColumn('type');
-            
+        });
+        
+        Schema::connection('trx1')->table('trx_stamina', function (Blueprint $table) {
             // idカラムを再追加（AUTO_INCREMENT）
             $table->bigIncrements('id')->first();
-            $table->primary('id');
         });
 
         Schema::connection('trx2')->table('trx_stamina', function (Blueprint $table) {
             $table->dropPrimary(['sys_player_id', 'type']);
             $table->dropColumn('type');
+        });
+        
+        Schema::connection('trx2')->table('trx_stamina', function (Blueprint $table) {
             $table->bigIncrements('id')->first();
-            $table->primary('id');
         });
     }
 };

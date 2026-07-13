@@ -7,7 +7,7 @@ use App\Domain\Delivery\DTOs\DeliveryContent;
 use App\Domain\Delivery\Handlers\EquipmentDeliveryHandler;
 use App\Repositories\Trx\TrxEquipmentRepository;
 use App\Persistence\ApiSession;
-use App\Utilities\Clock;
+use LaravelUtilities\ClockUtility;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
 
@@ -23,7 +23,7 @@ class EquipmentDeliveryHandlerTest extends TestCase
         parent::setUp();
         
         // ApiSessionを初期化
-        Clock::initialize();
+        ClockUtility::initialize();
         ApiSession::setSysPlayerId(1);
         
         $this->repository = new TrxEquipmentRepository();

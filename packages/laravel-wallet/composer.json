@@ -1,5 +1,5 @@
 {
-    "name": "laravel-mobile-rpg/wallet",
+    "name": "laravel-mobile-game/wallet",
     "description": "Virtual currency wallet management for Laravel with FIFO consumption and expiration support",
     "type": "library",
     "license": "MIT",

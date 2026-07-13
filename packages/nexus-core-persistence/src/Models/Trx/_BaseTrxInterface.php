@@ -1,6 +1,6 @@
 <?php
 
-namespace LaravelPersistence\Models\Trx;
+namespace NexusPersistence\Models\Trx;
 
 /**
  * _BaseTrxInterface

@@ -5,7 +5,7 @@ namespace Tests\Unit\Repositories\Trx;
 use App\Models\Trx\TrxEquipment;
 use App\Repositories\Trx\TrxEquipmentRepository;
 use App\Persistence\ApiSession;
-use LaravelUtilities\ClockUtility;
+use NexusUtilities\ClockUtility;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
 

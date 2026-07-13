@@ -2,12 +2,12 @@
 
 namespace App\Domain\Auth\Services;
 
-use LaravelSecurityMiddleware\Contracts\TokenValidatorInterface;
+use NexusSecurity\Contracts\TokenValidatorInterface;
 
 /**
  * TokenValidator
  * 
- * LaravelSecurityMiddlewareのTokenValidatorInterfaceを実装
+ * NexusSecurityのTokenValidatorInterfaceを実装
  * 既存のTokenServiceをラップして使用
  */
 class TokenValidator implements TokenValidatorInterface

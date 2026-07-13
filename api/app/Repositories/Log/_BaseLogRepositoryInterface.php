@@ -2,7 +2,7 @@
 
 namespace App\Repositories\Log;
 
-use LaravelPersistence\Repositories\Log\_BaseLogRepositoryInterface as PersistenceBaseLogRepositoryInterface;
+use NexusPersistence\Repositories\Log\_BaseLogRepositoryInterface as PersistenceBaseLogRepositoryInterface;
 
 /**
  * _BaseLogRepositoryInterface

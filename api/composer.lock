@@ -2604,7 +2604,7 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-core-persistence",
-                "reference": "2ef6abd10075edbf4a01f96142279277d1676e4f"
+                "reference": "6a94f9c5849a6480f6933aa300878952fc5de5e6"
             },
             "require": {
                 "illuminate/cache": "^10.0|^11.0|^12.0",
@@ -2621,18 +2621,18 @@
             "extra": {
                 "laravel": {
                     "providers": [
-                        "LaravelPersistence\\PersistenceServiceProvider"
+                        "NexusPersistence\\PersistenceServiceProvider"
                     ]
                 }
             },
             "autoload": {
                 "psr-4": {
-                    "LaravelPersistence\\": "src/"
+                    "NexusPersistence\\": "src/"
                 }
             },
             "autoload-dev": {
                 "psr-4": {
-                    "LaravelPersistence\\Tests\\": "tests/"
+                    "NexusPersistence\\Tests\\": "tests/"
                 }
             },
             "license": [
@@ -2655,7 +2655,7 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-core-unit-of-work",
-                "reference": "d72fdecb0c6eb98a5bfce5191b970c604b942131"
+                "reference": "7026222de72816334ab1a87fe3bcd8cbaac4856c"
             },
             "require": {
                 "illuminate/database": "^10.0|^11.0|^12.0",
@@ -2671,18 +2671,18 @@
             "extra": {
                 "laravel": {
                     "providers": [
-                        "LaravelUnitOfWork\\UnitOfWorkServiceProvider"
+                        "NexusUnitOfWork\\UnitOfWorkServiceProvider"
                     ]
                 }
             },
             "autoload": {
                 "psr-4": {
-                    "LaravelUnitOfWork\\": "src/"
+                    "NexusUnitOfWork\\": "src/"
                 }
             },
             "autoload-dev": {
                 "psr-4": {
-                    "LaravelUnitOfWork\\Tests\\": "tests/"
+                    "NexusUnitOfWork\\Tests\\": "tests/"
                 }
             },
             "license": [
@@ -2761,7 +2761,7 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-security",
-                "reference": "d161c39ee5ebe0d0c0ebca31e149cafa9044a16e"
+                "reference": "55cbaeb60e78994b862834eda4b2e5a016de12be"
             },
             "require": {
                 "illuminate/cache": "^11.0|^12.0",
@@ -2777,18 +2777,18 @@
             "extra": {
                 "laravel": {
                     "providers": [
-                        "LaravelSecurityMiddleware\\SecurityMiddlewareServiceProvider"
+                        "NexusSecurity\\SecurityMiddlewareServiceProvider"
                     ]
                 }
             },
             "autoload": {
                 "psr-4": {
-                    "LaravelSecurityMiddleware\\": "src/"
+                    "NexusSecurity\\": "src/"
                 }
             },
             "autoload-dev": {
                 "psr-4": {
-                    "LaravelSecurityMiddleware\\Tests\\": "tests/"
+                    "NexusSecurity\\Tests\\": "tests/"
                 }
             },
             "license": [
@@ -2799,7 +2799,7 @@
                     "name": "S. Nakamura"
                 }
             ],
-            "description": "Laravel security middleware包包括客户端签名验证、幂等性保证、速率限制和访问令牌验证",
+            "description": "Laravel security middleware including client signature verification, idempotency guarantee, rate limiting and access token verification",
             "transport-options": {
                 "relative": true
             }
@@ -2810,7 +2810,7 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-utilities",
-                "reference": "2dd40caee1fd4f2f2360cc48b5f86302ae8f5793"
+                "reference": "5df0efd8dc6a450a2aa108eccde2b0748185394e"
             },
             "require": {
                 "illuminate/cache": "^11.0|^12.0",
@@ -2825,12 +2825,12 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "LaravelUtilities\\": "src/"
+                    "NexusUtilities\\": "src/"
                 }
             },
             "autoload-dev": {
                 "psr-4": {
-                    "LaravelUtilities\\Tests\\": "tests/"
+                    "NexusUtilities\\Tests\\": "tests/"
                 }
             },
             "license": [
@@ -9882,19 +9882,19 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "nexus/billing": 20,
+        "nexus/utilities": 20,
+        "nexus/security": 20,
         "nexus/core-persistence": 20,
         "nexus/core-unit-of-work": 20,
-        "nexus/maintenance": 20,
-        "nexus/security": 20,
-        "nexus/utilities": 20,
-        "nexus/wallet": 20
+        "nexus/billing": 20,
+        "nexus/wallet": 20,
+        "nexus/maintenance": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": "^8.2"
     },
-    "platform-dev": {},
+    "platform-dev": [],
     "plugin-api-version": "2.6.0"
 }

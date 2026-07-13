@@ -1,8 +1,8 @@
 <?php
 
-namespace LaravelPersistence\Models\Mst;
+namespace NexusPersistence\Models\Mst;
 
-use LaravelPersistence\Models\_BaseModel;
+use NexusPersistence\Models\_BaseModel;
 
 /**
  * _BaseMst

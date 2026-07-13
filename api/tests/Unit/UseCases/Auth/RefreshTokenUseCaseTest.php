@@ -12,7 +12,7 @@ use App\Models\Sys\SysPlayerDevice;
 use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;
-use LaravelUnitOfWork\Persistence\QueryManager;
+use NexusUnitOfWork\Persistence\QueryManager;
 use Illuminate\Support\Facades\Log;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;

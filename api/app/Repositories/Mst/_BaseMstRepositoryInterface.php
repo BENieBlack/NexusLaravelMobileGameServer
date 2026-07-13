@@ -2,7 +2,7 @@
 
 namespace App\Repositories\Mst;
 
-use LaravelPersistence\Repositories\Mst\_BaseMstRepositoryInterface as PersistenceBaseMstRepositoryInterface;
+use NexusPersistence\Repositories\Mst\_BaseMstRepositoryInterface as PersistenceBaseMstRepositoryInterface;
 
 /**
  * _BaseMstRepositoryInterface

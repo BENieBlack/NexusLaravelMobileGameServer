@@ -2,7 +2,7 @@
 
 namespace App\Models\Sys;
 
-use LaravelPersistence\Models\Sys\_BaseSys as PersistenceBaseSys;
+use NexusPersistence\Models\Sys\_BaseSys as PersistenceBaseSys;
 
 /**
  * _BaseSys

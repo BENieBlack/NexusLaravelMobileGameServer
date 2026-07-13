@@ -1,8 +1,8 @@
 <?php
 
-namespace LaravelPersistence\Models\Sys;
+namespace NexusPersistence\Models\Sys;
 
-use LaravelPersistence\Models\_BaseModel;
+use NexusPersistence\Models\_BaseModel;
 
 /**
  * _BaseSys

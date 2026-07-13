@@ -4,7 +4,7 @@ namespace Tests;
 
 use App\Repositories\Mst\_BaseMstRepository;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
-use LaravelUtilities\ClockUtility;
+use NexusUtilities\ClockUtility;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -13,7 +13,7 @@ abstract class TestCase extends BaseTestCase
         parent::setUp();
         
         // テスト環境ではクライアント署名検証を無効化
-        $this->withoutMiddleware(\LaravelSecurityMiddleware\Middleware\VerifyClientSignature::class);
+        $this->withoutMiddleware(\NexusSecurity\Middleware\VerifyClientSignature::class);
         
         // Clockをリセット（各テストで独立した時刻を使用）
         ClockUtility::reset();

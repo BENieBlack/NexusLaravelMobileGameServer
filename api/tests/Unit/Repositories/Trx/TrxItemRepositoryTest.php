@@ -4,9 +4,9 @@ namespace Tests\Unit\Repositories\Trx;
 
 use App\Models\Trx\TrxItem;
 use App\Repositories\Trx\TrxItemRepository;
-use LaravelUnitOfWork\Persistence\QueryManager;
+use NexusUnitOfWork\Persistence\QueryManager;
 use App\Persistence\ApiSession;
-use LaravelUtilities\ClockUtility;
+use NexusUtilities\ClockUtility;
 use Illuminate\Support\Facades\DB;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;

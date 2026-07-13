@@ -1,11 +1,11 @@
 <?php
 
-namespace LaravelPersistence\Repositories\Trx;
+namespace NexusPersistence\Repositories\Trx;
 
-use LaravelPersistence\Models\Trx\_BaseTrx;
-use LaravelPersistence\Models\Trx\_BaseTrxInterface;
-use LaravelPersistence\Repositories\_BaseRepository;
-use LaravelUtilities\ClockUtility;
+use NexusPersistence\Models\Trx\_BaseTrx;
+use NexusPersistence\Models\Trx\_BaseTrxInterface;
+use NexusPersistence\Repositories\_BaseRepository;
+use NexusUtilities\ClockUtility;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;

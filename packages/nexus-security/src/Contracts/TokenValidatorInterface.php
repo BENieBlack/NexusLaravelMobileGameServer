@@ -1,6 +1,6 @@
 <?php
 
-namespace LaravelSecurityMiddleware\Contracts;
+namespace NexusSecurity\Contracts;
 
 /**
  * TokenValidatorInterface

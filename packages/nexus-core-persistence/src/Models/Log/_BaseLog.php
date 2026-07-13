@@ -1,8 +1,8 @@
 <?php
 
-namespace LaravelPersistence\Models\Log;
+namespace NexusPersistence\Models\Log;
 
-use LaravelPersistence\Models\_BaseModel;
+use NexusPersistence\Models\_BaseModel;
 
 /**
  * _BaseLog

@@ -1,10 +1,10 @@
 <?php
 
-namespace LaravelPersistence\Repositories\Mst;
+namespace NexusPersistence\Repositories\Mst;
 
-use LaravelPersistence\Models\Mst\_BaseMst;
-use LaravelPersistence\Models\Mst\_BaseMstInterface;
-use LaravelPersistence\Repositories\_BaseRepository;
+use NexusPersistence\Models\Mst\_BaseMst;
+use NexusPersistence\Models\Mst\_BaseMstInterface;
+use NexusPersistence\Repositories\_BaseRepository;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 

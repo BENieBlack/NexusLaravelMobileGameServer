@@ -2,7 +2,7 @@
 
 namespace App\Models\Sys;
 
-use LaravelPersistence\Models\Sys\_BaseSysInterface as PersistenceBaseSysInterface;
+use NexusPersistence\Models\Sys\_BaseSysInterface as PersistenceBaseSysInterface;
 
 /**
  * _BaseSysInterface

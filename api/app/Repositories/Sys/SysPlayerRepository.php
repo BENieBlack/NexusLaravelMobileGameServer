@@ -3,7 +3,7 @@
 namespace App\Repositories\Sys;
 
 use App\Models\Sys\SysPlayer;
-use LaravelUnitOfWork\Contracts\QueryManagerInterface;
+use NexusUnitOfWork\Contracts\QueryManagerInterface;
 use Illuminate\Support\Str;
 
 /**

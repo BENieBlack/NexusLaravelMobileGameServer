@@ -2,7 +2,7 @@
 
 namespace App\Models\Log;
 
-use LaravelPersistence\Models\Log\_BaseLog as PersistenceBaseLog;
+use NexusPersistence\Models\Log\_BaseLog as PersistenceBaseLog;
 
 /**
  * _BaseLog

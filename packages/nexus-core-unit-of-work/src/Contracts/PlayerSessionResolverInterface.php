@@ -1,6 +1,6 @@
 <?php
 
-namespace LaravelUnitOfWork\Contracts;
+namespace NexusUnitOfWork\Contracts;
 
 /**
  * PlayerSessionResolverInterface

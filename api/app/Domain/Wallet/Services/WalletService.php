@@ -6,7 +6,7 @@ use App\Models\Trx\TrxWallet;
 use App\Models\Trx\TrxWalletBalance;
 use App\Repositories\Trx\TrxWalletBalanceRepository;
 use App\Repositories\Trx\TrxWalletRepository;
-use LaravelUtilities\ClockUtility;
+use NexusUtilities\ClockUtility;
 use LaravelWallet\Contracts\WalletManagerInterface;
 use LaravelWallet\DTOs\CurrencyBalance;
 use LaravelWallet\DTOs\CurrencyOperationResult;

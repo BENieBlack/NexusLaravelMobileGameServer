@@ -1,8 +1,8 @@
 <?php
 
-namespace LaravelUnitOfWork\Contracts;
+namespace NexusUnitOfWork\Contracts;
 
-use LaravelPersistence\Repositories\_BaseRepositoryInterface;
+use NexusPersistence\Repositories\_BaseRepositoryInterface;
 
 /**
  * QueryManagerInterface

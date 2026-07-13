@@ -1,8 +1,8 @@
 <?php
 
-namespace LaravelPersistence\Models\Trx;
+namespace NexusPersistence\Models\Trx;
 
-use LaravelPersistence\Models\_BaseModel;
+use NexusPersistence\Models\_BaseModel;
 
 /**
  * _BaseTrx

@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-use LaravelPersistence\Repositories\_BaseRepository as PersistenceBaseRepository;
+use NexusPersistence\Repositories\_BaseRepository as PersistenceBaseRepository;
 
 /**
  * _BaseRepository

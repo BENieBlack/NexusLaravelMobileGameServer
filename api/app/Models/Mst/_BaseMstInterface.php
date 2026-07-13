@@ -2,7 +2,7 @@
 
 namespace App\Models\Mst;
 
-use LaravelPersistence\Models\Mst\_BaseMstInterface as PersistenceBaseMstInterface;
+use NexusPersistence\Models\Mst\_BaseMstInterface as PersistenceBaseMstInterface;
 
 /**
  * _BaseMstInterface

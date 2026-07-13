@@ -8,7 +8,7 @@ use App\Repositories\Mst\MstPlayerLevelRepository;
 use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Trx\TrxStaminaRepository;
 use App\Persistence\ApiSession;
-use LaravelUtilities\ClockUtility;
+use NexusUtilities\ClockUtility;
 
 /**
  * LevelService

@@ -1,8 +1,8 @@
 <?php
 
-namespace LaravelUnitOfWork\Traits;
+namespace NexusUnitOfWork\Traits;
 
-use LaravelUnitOfWork\Contracts\QueryManagerInterface;
+use NexusUnitOfWork\Contracts\QueryManagerInterface;
 
 /**
  * UsesUnitOfWork

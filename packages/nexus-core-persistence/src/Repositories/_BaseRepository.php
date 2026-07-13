@@ -1,6 +1,6 @@
 <?php
 
-namespace LaravelPersistence\Repositories;
+namespace NexusPersistence\Repositories;
 
 use Illuminate\Support\Collection;
 

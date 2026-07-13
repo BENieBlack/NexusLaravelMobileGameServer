@@ -30,8 +30,6 @@ readonly class SysMaintenance
             return false;
         }
 
-        $now = ClockUtility::nowToString();
-
         // start_atが設定されている場合、まだ開始時刻に達していなければfalse
         if ($this->startAt !== null && !ClockUtility::greaterThanOrEqual($this->startAt)) {
             return false;

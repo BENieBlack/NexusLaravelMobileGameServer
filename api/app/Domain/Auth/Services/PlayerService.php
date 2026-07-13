@@ -4,11 +4,9 @@ namespace App\Domain\Auth\Services;
 
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
-use App\Models\Sys\SysPlayerToken;
 use NexusUnitOfWork\Contracts\QueryManagerInterface;
 use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
-use App\Repositories\Sys\SysPlayerTokenRepository;
 
 /**
  * PlayerService
@@ -22,12 +20,10 @@ class PlayerService
      *
      * @param SysPlayerRepository $sysPlayerRepository
      * @param SysPlayerDeviceRepository $sysPlayerDeviceRepository
-     * @param SysPlayerTokenRepository $sysPlayerTokenRepository
      */
     public function __construct(
         private readonly SysPlayerRepository $sysPlayerRepository,
-        private readonly SysPlayerDeviceRepository $sysPlayerDeviceRepository,
-        private readonly SysPlayerTokenRepository $sysPlayerTokenRepository
+        private readonly SysPlayerDeviceRepository $sysPlayerDeviceRepository
     ) {
     }
 

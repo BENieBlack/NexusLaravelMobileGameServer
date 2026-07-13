@@ -15,7 +15,6 @@ use App\Domain\Delivery\Handlers\ItemDeliveryHandler;
 use App\Domain\Delivery\Handlers\UnitDeliveryHandler;
 use App\Domain\Delivery\Handlers\WalletDeliveryHandler;
 use App\Domain\Delivery\Managers\DeliveryManagerInterface;
-use App\Persistence\ApiSession;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
@@ -51,7 +50,6 @@ class DeliveryService
         EquipmentDeliveryHandler $equipmentHandler,
         DiamondDeliveryHandler $diamondHandler,
         WalletDeliveryHandler $walletHandler,
-        private readonly ApiSession $apiSession,
         private readonly DeliveryManagerInterface $deliveryManager,
     ) {
         // Handlerを登録

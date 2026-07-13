@@ -5,7 +5,6 @@ namespace App\Domain\InAppPurchase\Services;
 use App\Models\Mst\MstInAppPurchase;
 use App\Models\Trx\TrxInAppPurchaseEffect;
 use App\Repositories\Trx\TrxInAppPurchaseEffectRepository;
-use App\Persistence\ApiSession;
 use NexusUtilities\ClockUtility;
 use Illuminate\Support\Collection;
 
@@ -18,7 +17,6 @@ class PassService
 {
     public function __construct(
         private readonly TrxInAppPurchaseEffectRepository $trxInAppPurchaseEffectRepository,
-        private readonly ApiSession $apiSession,
     ) {
     }
 

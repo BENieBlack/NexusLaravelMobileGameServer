@@ -2,13 +2,14 @@
 
 namespace LaravelMobileBilling\DTOs;
 
-use Carbon\CarbonImmutable;
 use NexusUtilities\Traits\JsonSerializableTrait;
 
 /**
  * 購入情報DTO
  * 
  * 購入処理で使用する情報をまとめて保持
+ * 
+ * @property string $purchaseDate Y-m-d H:i:s 形式の文字列
  */
 readonly class PurchaseInfo
 {
@@ -19,9 +20,9 @@ readonly class PurchaseInfo
         public string $productId,
         public string $transactionId,
         public int $quantity,
-        public CarbonImmutable $purchaseDate,
-        public ?float $price = null,              // 価格（通貨単位）
-        public ?string $currency = null,          // 通貨コード（USD, JPY等）
+        public string $purchaseDate,             // 購入日時 (Y-m-d H:i:s)
+        public ?float $price = null,             // 価格（通貨単位）
+        public ?string $currency = null,         // 通貨コード（USD, JPY等）
     ) {}
 
     /**
@@ -35,7 +36,7 @@ readonly class PurchaseInfo
             'product_id' => $this->productId,
             'transaction_id' => $this->transactionId,
             'quantity' => $this->quantity,
-            'purchase_date' => $this->purchaseDate->toIso8601String(),
+            'purchase_date' => $this->purchaseDate,
             'price' => $this->price,
             'currency' => $this->currency,
         ];

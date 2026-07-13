@@ -3,14 +3,13 @@
 namespace LaravelMobileBilling\Tests\Unit\DTOs;
 
 use LaravelMobileBilling\DTOs\SubscriptionStatus;
-use Carbon\CarbonImmutable;
 use PHPUnit\Framework\TestCase;
 
 class SubscriptionStatusTest extends TestCase
 {
     public function test_construct_with_active_subscription()
     {
-        $expiresAt = CarbonImmutable::parse('2026-08-13 10:00:00');
+        $expiresAt = '2026-08-13 10:00:00';
         
         $status = new SubscriptionStatus(
             isActive: true,
@@ -28,8 +27,8 @@ class SubscriptionStatusTest extends TestCase
 
     public function test_construct_with_cancelled_subscription()
     {
-        $expiresAt = CarbonImmutable::parse('2026-08-13 10:00:00');
-        $cancelledAt = CarbonImmutable::parse('2026-07-13 15:00:00');
+        $expiresAt = '2026-08-13 10:00:00';
+        $cancelledAt = '2026-07-13 15:00:00';
         
         $status = new SubscriptionStatus(
             isActive: false,
@@ -47,8 +46,8 @@ class SubscriptionStatusTest extends TestCase
 
     public function test_to_array()
     {
-        $expiresAt = CarbonImmutable::parse('2026-08-13 10:00:00');
-        $cancelledAt = CarbonImmutable::parse('2026-07-13 15:00:00');
+        $expiresAt = '2026-08-13 10:00:00';
+        $cancelledAt = '2026-07-13 15:00:00';
         
         $status = new SubscriptionStatus(
             isActive: true,
@@ -62,15 +61,15 @@ class SubscriptionStatusTest extends TestCase
 
         $this->assertIsArray($array);
         $this->assertTrue($array['is_active']);
-        $this->assertSame($expiresAt->toIso8601String(), $array['expires_at']);
+        $this->assertSame($expiresAt, $array['expires_at']);
         $this->assertTrue($array['auto_renew']);
         $this->assertSame('active', $array['state']);
-        $this->assertSame($cancelledAt->toIso8601String(), $array['cancelled_at']);
+        $this->assertSame($cancelledAt, $array['cancelled_at']);
     }
 
     public function test_to_array_without_cancelled_at()
     {
-        $expiresAt = CarbonImmutable::parse('2026-08-13 10:00:00');
+        $expiresAt = '2026-08-13 10:00:00';
         
         $status = new SubscriptionStatus(
             isActive: true,
@@ -85,7 +84,7 @@ class SubscriptionStatusTest extends TestCase
 
     public function test_to_json()
     {
-        $expiresAt = CarbonImmutable::parse('2026-08-13 10:00:00');
+        $expiresAt = '2026-08-13 10:00:00';
         
         $status = new SubscriptionStatus(
             isActive: true,
@@ -100,7 +99,7 @@ class SubscriptionStatusTest extends TestCase
         $decoded = json_decode($json, true);
         $this->assertIsArray($decoded);
         $this->assertTrue($decoded['is_active']);
-        $this->assertSame($expiresAt->toIso8601String(), $decoded['expires_at']);
+        $this->assertSame($expiresAt, $decoded['expires_at']);
         $this->assertFalse($decoded['auto_renew']);
         $this->assertSame('expired', $decoded['state']);
     }

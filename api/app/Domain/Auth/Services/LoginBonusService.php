@@ -40,15 +40,13 @@ class LoginBonusService
         ?string $lastLoginAt
     ): array {
         $currentTime = ClockUtility::now();
-        // UTC0時を境界として、今日初回ログインかをチェック
-        $today = $currentTime->startOfDay();
-        $todayString = $today->toDateString(); // Y-m-d形式
+        $currentTimeString = ClockUtility::nowToString();
         
-        // 最終ログイン日時がnullまたは今日より前の場合、ログインボーナスを配布
-        // 文字列比較: lastLoginAtから日付部分を取得して比較
-        $lastLoginDate = $lastLoginAt !== null ? substr($lastLoginAt, 0, 10) : null;
-        if ($lastLoginDate === null || $lastLoginDate < $todayString) {
-            return $this->grantLoginBonus($sysPlayerId, $today);
+        // DAY_START_TIMEを考慮して、今日初回ログインかをチェック
+        // 最終ログイン日時がnullまたは現在時刻と異なるゲーム内日付の場合、ログインボーナスを配布
+        if ($lastLoginAt === null || !ClockUtility::isSameGameDay($currentTimeString, $lastLoginAt)) {
+            $gameDayStart = ClockUtility::getGameDayStart($currentTimeString);
+            return $this->grantLoginBonus($sysPlayerId, $gameDayStart);
         }
 
         return [];
@@ -58,14 +56,14 @@ class LoginBonusService
      * ログインボーナスを配布する
      *
      * @param int $sysPlayerId
-     * @param CarbonImmutable $today 今日の日付（UTC、00:00:00）
+     * @param CarbonImmutable $gameDayStart ゲーム内日付の開始時刻
      * @return array<DeliveryContent> 配布したログインボーナスの内容
      * @throws \Exception
      */
-    private function grantLoginBonus(int $sysPlayerId, CarbonImmutable $today): array
+    private function grantLoginBonus(int $sysPlayerId, CarbonImmutable $gameDayStart): array
     {
         // 連続ログイン日数を計算（今日を含む）
-        $consecutiveDays = $this->getConsecutiveLoginDays($sysPlayerId, $today);
+        $consecutiveDays = $this->getConsecutiveLoginDays($sysPlayerId, $gameDayStart);
 
         // ログインボーナスマスターから報酬を取得
         $loginBonus = $this->getLoginBonusByConsecutiveDays($consecutiveDays);
@@ -93,7 +91,7 @@ class LoginBonusService
         $this->deliveryService->deliver($sysPlayerId);
 
         // 履歴を記録（複数報酬対応）
-        $this->recordLoginBonusHistory($sysPlayerId, $loginBonus, $contents, $today);
+        $this->recordLoginBonusHistory($sysPlayerId, $loginBonus, $contents, $gameDayStart);
 
         return $deliveryContents;
     }
@@ -102,10 +100,10 @@ class LoginBonusService
      * 連続ログイン日数を取得
      *
      * @param int $sysPlayerId
-     * @param CarbonImmutable $today
+     * @param CarbonImmutable $gameDayStart ゲーム内日付の開始時刻
      * @return int
      */
-    private function getConsecutiveLoginDays(int $sysPlayerId, CarbonImmutable $today): int
+    private function getConsecutiveLoginDays(int $sysPlayerId, CarbonImmutable $gameDayStart): int
     {
         // プレイヤーのシャーディングされたDB接続を取得
         $connection = $this->apiSession->getConnectionNameValue();
@@ -123,15 +121,17 @@ class LoginBonusService
         }
 
         $lastReceivedDate = $latestHistory->received_date;
-        $yesterday = $today->subDay()->toDateString();
+        $yesterdayStart = $gameDayStart->subDay()->format('Y-m-d H:i:s');
 
-        if ($lastReceivedDate === $yesterday) {
+        // 前回の受取日時が昨日（ゲーム内日付）かどうかをチェック
+        if (ClockUtility::isSameGameDay($lastReceivedDate, $yesterdayStart)) {
             // 連続ログイン
             // 過去7日間のユニークな受取日数を取得してカウント
+            $sevenDaysAgo = $gameDayStart->subDays(7)->format('Y-m-d H:i:s');
             $count = DB::connection($connection)
                 ->table('trx_login_bonus_history')
                 ->where('sys_player_id', $sysPlayerId)
-                ->where('received_date', '>=', $today->subDays(7)->toDateString())
+                ->where('received_date', '>=', $sevenDaysAgo)
                 ->distinct()
                 ->count('received_date');
             
@@ -207,24 +207,27 @@ class LoginBonusService
      * @param int $sysPlayerId
      * @param MstLoginBonus $loginBonus
      * @param \Illuminate\Support\Collection $contents
-     * @param CarbonImmutable $today
+     * @param CarbonImmutable $gameDayStart ゲーム内日付の開始時刻
      * @return void
      */
     private function recordLoginBonusHistory(
         int $sysPlayerId,
         MstLoginBonus $loginBonus,
         Collection $contents,
-        CarbonImmutable $today
+        CarbonImmutable $gameDayStart
     ): void {
         // プレイヤーのシャーディングされたDB接続を取得
         $connection = $this->apiSession->getConnectionNameValue();
 
         // 各報酬ごとに履歴を記録
+        // received_dateにはゲーム内日付の開始時刻を記録（Y-m-d H:i:s形式）
+        $receivedDate = $gameDayStart->format('Y-m-d H:i:s');
+        
         foreach ($contents as $content) {
             DB::connection($connection)->table('trx_login_bonus_history')->insert([
                 'sys_player_id' => $sysPlayerId,
                 'mst_login_bonus_id' => $loginBonus->id,
-                'received_date' => $today->toDateString(),
+                'received_date' => $receivedDate,
                 'reward_type' => $content->content_type,
                 'reward_id' => $content->content_id,
                 'reward_amount' => $content->amount,

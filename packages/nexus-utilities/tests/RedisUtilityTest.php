@@ -1,8 +1,8 @@
 <?php
 
-namespace LaravelUtilities\Tests;
+namespace NexusUtilities\Tests;
 
-use LaravelUtilities\RedisUtility;
+use NexusUtilities\RedisUtility;
 use PHPUnit\Framework\TestCase;
 use Illuminate\Support\Facades\Cache;
 use Mockery;

@@ -40,7 +40,6 @@ class SysPlayer extends _BaseSys
     protected $casts = [
         'level' => 'integer',
         'level_exp' => 'integer',
-        'last_login_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -148,6 +147,16 @@ class SysPlayer extends _BaseSys
     }
 
     /**
+     * 最終ログイン日時を取得
+     *
+     * @return string|null
+     */
+    public function getLastLoginAt(): ?string
+    {
+        return $this->getAttribute('last_login_at');
+    }
+
+    /**
      * UUIDを設定
      *
      * @param string $uuid
@@ -200,6 +209,17 @@ class SysPlayer extends _BaseSys
     public function setLevelExp(int $levelExp): void
     {
         $this->setAttribute('level_exp', $levelExp);
+    }
+
+    /**
+     * 最終ログイン日時を設定
+     *
+     * @param string $lastLoginAt
+     * @return void
+     */
+    public function setLastLoginAt(string $lastLoginAt): void
+    {
+        $this->setAttribute('last_login_at', $lastLoginAt);
     }
 
     /**

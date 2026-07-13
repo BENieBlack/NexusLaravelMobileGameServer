@@ -8,6 +8,7 @@ use LaravelMobileGame\Services\MaintenanceService;
 use LaravelMobileGame\DTOs\MaintenanceInfo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use NexusUtilities\ClockUtility;
 
 /**
  * メンテナンス管理用の管理者APIコントローラー
@@ -60,10 +61,10 @@ class MaintenanceController
         ]);
 
         $startAt = isset($validated['start_at'])
-            ? \Carbon\CarbonImmutable::parse($validated['start_at'])
+            ? ClockUtility::parse($validated['start_at'])
             : null;
         $endAt = isset($validated['end_at'])
-            ? \Carbon\CarbonImmutable::parse($validated['end_at'])
+            ? ClockUtility::parse($validated['end_at'])
             : null;
 
         $info = new \LaravelMaintenance\DTOs\MaintenanceInfo(
@@ -72,7 +73,7 @@ class MaintenanceController
             endAt: $endAt,
             title: $validated['title'] ?? null,
             message: $validated['message'] ?? null,
-            updatedAt: \Carbon\CarbonImmutable::now()
+            updatedAt: ClockUtility::now()
         );
 
         $this->maintenanceService->startMaintenance($info);

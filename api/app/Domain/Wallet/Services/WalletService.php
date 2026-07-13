@@ -11,7 +11,6 @@ use LaravelWallet\Contracts\WalletManagerInterface;
 use LaravelWallet\DTOs\CurrencyBalance;
 use LaravelWallet\DTOs\CurrencyOperationResult;
 use LaravelWallet\Exceptions\InsufficientBalanceException;
-use Carbon\CarbonImmutable;
 
 /**
  * WalletService

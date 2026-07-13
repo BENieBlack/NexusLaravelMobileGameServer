@@ -8,7 +8,7 @@ use App\Models\Mst\MstGacha;
 use App\Models\Mst\MstGachaCost;
 use App\Repositories\Mst\MstGachaCostRepository;
 use App\Repositories\Mst\MstGachaRepository;
-use Carbon\Carbon;
+use NexusUtilities\ClockUtility;
 
 /**
  * GachaValidationService
@@ -60,10 +60,8 @@ class GachaValidationService
      */
     public function validateGachaPeriod(MstGacha $mstGacha): void
     {
-        $now = Carbon::now();
-
         $startAt = $mstGacha->getStartAt();
-        if ($startAt && Carbon::parse($startAt)->isAfter($now)) {
+        if ($startAt && ClockUtility::isAfter($startAt)) {
             throw new GameException(
                 GameErrorCode::GACHA_NOT_AVAILABLE,
                 "Gacha has not started yet"
@@ -71,7 +69,7 @@ class GachaValidationService
         }
 
         $endAt = $mstGacha->getEndAt();
-        if ($endAt && Carbon::parse($endAt)->isBefore($now)) {
+        if ($endAt && ClockUtility::isBefore($endAt)) {
             throw new GameException(
                 GameErrorCode::GACHA_NOT_AVAILABLE,
                 "Gacha has ended"

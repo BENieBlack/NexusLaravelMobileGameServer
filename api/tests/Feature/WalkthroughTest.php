@@ -20,7 +20,6 @@ use App\Models\Trx\TrxUnit;
 use App\Models\Trx\TrxEquipment;
 use App\Persistence\ApiSession;
 use NexusUtilities\ClockUtility;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -661,8 +660,8 @@ class WalkthroughTest extends TestCase
             'name' => 'Test Gacha',
             'description' => 'Test gacha for walkthrough',
             'gacha_type' => 'normal',
-            'start_at' => Carbon::now()->subDay(),
-            'end_at' => Carbon::now()->addDays(7),
+            'start_at' => ClockUtility::now()->subDay(),
+            'end_at' => ClockUtility::now()->addDays(7),
             'is_active' => true,
             'display_order' => 1,
         ]);

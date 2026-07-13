@@ -7,7 +7,7 @@ use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;
 use App\Repositories\Sys\SysPlayerTokenRepository;
-use Carbon\CarbonImmutable;
+use NexusUtilities\ClockUtility;
 use Illuminate\Support\Str;
 
 /**
@@ -174,7 +174,7 @@ class TokenService
         // リフレッシュトークン生成
         $refreshToken = Str::random(64);
         $tokenHash = hash('sha256', $refreshToken);
-        $expiresAt = CarbonImmutable::now()->addDays(self::REFRESH_TOKEN_EXPIRATION_DAYS);
+        $expiresAt = ClockUtility::now()->addDays(self::REFRESH_TOKEN_EXPIRATION_DAYS);
 
         // トークンモデルを作成してRepositoryに登録
         $sysPlayerToken = new SysPlayerToken([

@@ -6,7 +6,7 @@ use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Models\Mst\MstInAppPurchase;
 use App\Models\Trx\TrxInAppPurchase;
-use Carbon\CarbonImmutable;
+use NexusUtilities\ClockUtility;
 
 /**
  * ValidationService
@@ -72,13 +72,12 @@ class ValidationService
             return false;
         }
 
-        $now = CarbonImmutable::now();
-        $lastReset = CarbonImmutable::parse($lastResetAt);
+        $now = ClockUtility::now();
 
         return match ($resetType) {
-            'Daily' => !$lastReset->isToday(),
-            'Weekly' => $now->weekOfYear !== $lastReset->weekOfYear || $now->year !== $lastReset->year,
-            'Monthly' => $now->month !== $lastReset->month || $now->year !== $lastReset->year,
+            'Daily' => !ClockUtility::isToday($lastResetAt),
+            'Weekly' => $now->weekOfYear !== ClockUtility::weekOfYear($lastResetAt) || $now->year !== ClockUtility::year($lastResetAt),
+            'Monthly' => $now->month !== ClockUtility::month($lastResetAt) || $now->year !== ClockUtility::year($lastResetAt),
             default => false,
         };
     }
@@ -95,7 +94,7 @@ class ValidationService
         ?\DateTimeInterface $lastResetAt
     ): ?\DateTimeInterface {
         if ($this->shouldResetPurchaseCount($resetType, $lastResetAt)) {
-            return CarbonImmutable::now();
+            return ClockUtility::now();
         }
 
         return null;

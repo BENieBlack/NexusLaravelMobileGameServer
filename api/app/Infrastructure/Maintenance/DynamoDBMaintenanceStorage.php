@@ -18,20 +18,28 @@ class DynamoDBMaintenanceStorage implements MaintenanceStorageInterface
 {
     private DynamoDbClient $client;
     private string $tableName;
-    private const STATUS_ID = 'current';
+    private string $primaryKey;
 
     public function __construct(array $config)
     {
         $this->tableName = $config['table'];
+        $this->primaryKey = $config['primary_key'];
         
-        $this->client = new DynamoDbClient([
+        $clientConfig = [
             'version' => 'latest',
             'region' => $config['region'],
             'credentials' => [
                 'key' => $config['key'],
                 'secret' => $config['secret'],
             ],
-        ]);
+        ];
+
+        // ローカル開発用エンドポイント設定
+        if (!empty($config['endpoint'])) {
+            $clientConfig['endpoint'] = $config['endpoint'];
+        }
+
+        $this->client = new DynamoDbClient($clientConfig);
     }
 
     /**
@@ -43,7 +51,7 @@ class DynamoDBMaintenanceStorage implements MaintenanceStorageInterface
             $result = $this->client->getItem([
                 'TableName' => $this->tableName,
                 'Key' => [
-                    'status_id' => ['S' => self::STATUS_ID],
+                    'id' => ['S' => $this->primaryKey],
                 ],
             ]);
 
@@ -70,7 +78,7 @@ class DynamoDBMaintenanceStorage implements MaintenanceStorageInterface
             $this->client->putItem([
                 'TableName' => $this->tableName,
                 'Item' => [
-                    'status_id' => ['S' => self::STATUS_ID],
+                    'id' => ['S' => $this->primaryKey],
                     'is_maintenance' => ['BOOL' => $info->isMaintenance],
                     'start_at' => ['S' => $info->startAt?->toIso8601String() ?? ''],
                     'end_at' => ['S' => $info->endAt?->toIso8601String() ?? ''],
@@ -99,7 +107,7 @@ class DynamoDBMaintenanceStorage implements MaintenanceStorageInterface
             $this->client->deleteItem([
                 'TableName' => $this->tableName,
                 'Key' => [
-                    'status_id' => ['S' => self::STATUS_ID],
+                    'id' => ['S' => $this->primaryKey],
                 ],
             ]);
 

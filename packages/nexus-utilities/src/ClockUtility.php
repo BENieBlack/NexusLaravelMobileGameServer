@@ -125,8 +125,11 @@ class ClockUtility
     /**
      * 指定された日時が現在時刻以上かどうかをチェック
      * 
+     * 用途: 開始前チェック（まだ開始していない）
+     * 例: if (ClockUtility::greaterThanOrEqual($gacha->start_at)) → ガチャ開始前
+     * 
      * @param string $dateTimeString Y-m-d H:i:s形式の日時文字列
-     * @return bool
+     * @return bool true = 指定日時 >= NOW（まだ開始していない）
      */
     public static function greaterThanOrEqual(string $dateTimeString): bool
     {
@@ -137,37 +140,16 @@ class ClockUtility
     /**
      * 指定された日時が現在時刻以下かどうかをチェック
      * 
+     * 用途: 終了済みチェック（すでに終了している）
+     * 例: if (ClockUtility::lessThanOrEqual($gacha->end_at)) → ガチャ終了済み
+     * 
      * @param string $dateTimeString Y-m-d H:i:s形式の日時文字列
-     * @return bool
+     * @return bool true = 指定日時 <= NOW（すでに終了している）
      */
     public static function lessThanOrEqual(string $dateTimeString): bool
     {
         $targetTime = CarbonImmutable::parse($dateTimeString);
         return $targetTime->lessThanOrEqualTo(self::now());
-    }
-
-    /**
-     * 指定された日時が現在時刻より後かどうかをチェック
-     * 
-     * @param string $dateTimeString Y-m-d H:i:s形式の日時文字列
-     * @return bool
-     */
-    public static function isAfter(string $dateTimeString): bool
-    {
-        $targetTime = CarbonImmutable::parse($dateTimeString);
-        return $targetTime->isAfter(self::now());
-    }
-
-    /**
-     * 指定された日時が現在時刻より前かどうかをチェック
-     * 
-     * @param string $dateTimeString Y-m-d H:i:s形式の日時文字列
-     * @return bool
-     */
-    public static function isBefore(string $dateTimeString): bool
-    {
-        $targetTime = CarbonImmutable::parse($dateTimeString);
-        return $targetTime->isBefore(self::now());
     }
 
     /**

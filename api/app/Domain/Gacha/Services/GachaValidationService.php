@@ -60,16 +60,18 @@ class GachaValidationService
      */
     public function validateGachaPeriod(MstGacha $mstGacha): void
     {
+        // 開始判定: まだ開始していない（start_at >= NOW）
         $startAt = $mstGacha->getStartAt();
-        if ($startAt && ClockUtility::isAfter($startAt)) {
+        if ($startAt && ClockUtility::greaterThanOrEqual($startAt)) {
             throw new GameException(
                 GameErrorCode::GACHA_NOT_AVAILABLE,
                 "Gacha has not started yet"
             );
         }
 
+        // 終了判定: すでに終了している（end_at <= NOW）
         $endAt = $mstGacha->getEndAt();
-        if ($endAt && ClockUtility::isBefore($endAt)) {
+        if ($endAt && ClockUtility::lessThanOrEqual($endAt)) {
             throw new GameException(
                 GameErrorCode::GACHA_NOT_AVAILABLE,
                 "Gacha has ended"

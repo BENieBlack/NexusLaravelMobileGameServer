@@ -25,4 +25,22 @@ class ClockUtility
     {
         return self::now()->format('Y-m-d H:i:s');
     }
+
+    /**
+     * テスト用：時刻をリセットする
+     */
+    public static function reset(): void
+    {
+        self::$currentDatetime = null;
+        CarbonImmutable::setTestNow(null);
+    }
+
+    /**
+     * テスト用：時刻を指定した値に設定する
+     */
+    public static function setNow(CarbonImmutable $datetime): void
+    {
+        self::$currentDatetime = $datetime;
+        CarbonImmutable::setTestNow($datetime);
+    }
 }

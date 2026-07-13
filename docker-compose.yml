@@ -7,6 +7,7 @@ services:
     working_dir: /var/www/html
     volumes:
       - ./api:/var/www/html
+      - ./packages:/var/www/packages
       - ./.env:/var/www/.env:ro  # Mount root .env as read-only
     networks:
       - local-network
@@ -32,6 +33,7 @@ services:
     working_dir: /var/www/html
     volumes:
       - ./tool:/var/www/html
+      - ./packages:/var/www/packages
       - ./.env:/var/www/.env:ro  # Mount root .env as read-only
     networks:
       - local-network

@@ -24,10 +24,13 @@ Route::middleware(['client.signature', 'throttle.signup'])->group(function () {
 Route::post('/auth/sign_in', [AuthController::class, 'signIn']);
 Route::post('/auth/refresh_token', [AuthController::class, 'refreshToken']);
 
+// バージョンチェックは認証なしでもアクセス可能（GETのみ）
+Route::get('/auth/version', [AuthController::class, 'version']);
+
 // Protected endpoints (require access token)
 // idempotencyミドルウェアを追加して重複リクエストを防止
 Route::middleware(['auth.token', 'idempotency'])->group(function () {
-    // version は認証必須（攻撃対象にならないため）
+    // バージョンチェック（認証済み、POST）
     Route::post('/auth/version', [AuthController::class, 'version']);
     Route::post('/auth/login', [AuthController::class, 'login']);
     Route::get('/player/me', [PlayerController::class, 'me']);

@@ -6,7 +6,7 @@ use App\Domain\Wallet\Services\WalletService;
 use App\Models\Trx\TrxWallet;
 use App\Models\Trx\TrxWalletBalance;
 use App\Persistence\ApiSession;
-use App\Persistence\QueryManager;
+use LaravelUnitOfWork\Persistence\QueryManager;
 use App\Repositories\Trx\TrxWalletBalanceRepository;
 use App\Repositories\Trx\TrxWalletRepository;
 use Carbon\CarbonImmutable;

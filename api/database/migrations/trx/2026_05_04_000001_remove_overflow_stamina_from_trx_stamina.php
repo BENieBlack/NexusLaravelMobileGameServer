@@ -19,9 +19,11 @@ return new class extends Migration
     public function up(): void
     {
         foreach ($this->connections as $connection) {
-            Schema::connection($connection)->table('trx_stamina', function (Blueprint $table) {
-                $table->dropColumn('overflow_stamina');
-            });
+            if (Schema::connection($connection)->hasColumn('trx_stamina', 'overflow_stamina')) {
+                Schema::connection($connection)->table('trx_stamina', function (Blueprint $table) {
+                    $table->dropColumn('overflow_stamina');
+                });
+            }
         }
     }
 

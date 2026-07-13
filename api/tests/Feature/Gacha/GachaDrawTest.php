@@ -17,7 +17,7 @@ use App\Models\Trx\TrxUnit;
 use App\Models\Trx\TrxEquipment;
 use App\Models\Trx\TrxDiamond;
 use App\Persistence\ApiSession;
-use App\Utilities\Clock;
+use LaravelUtilities\ClockUtility;
 use Carbon\Carbon;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
@@ -40,7 +40,7 @@ class GachaDrawTest extends TestCase
     {
         parent::setUp();
         
-        Clock::initialize();
+        ClockUtility::initialize();
         
         // テストプレイヤーとトークンを作成
         $this->createTestPlayer();

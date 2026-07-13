@@ -1,5 +1,5 @@
 {
-    "name": "s-nakamura/laravel-security-middleware",
+    "name": "nexus/security",
     "description": "Laravel security middleware包包括客户端签名验证、幂等性保证、速率限制和访问令牌验证",
     "type": "library",
     "license": "MIT",

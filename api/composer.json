@@ -24,7 +24,7 @@
         },
         {
             "type": "path",
-            "url": "../packages/laravel-mobile-billing"
+            "url": "../packages/laravel-billing"
         },
         {
             "type": "path",
@@ -44,7 +44,7 @@
         "s-nakamura/laravel-security-middleware": "@dev",
         "laravel-mobile-game/persistence-core": "@dev",
         "laravel-mobile-game/unit-of-work-core": "@dev",
-        "laravel-mobile-game/mobile-billing": "@dev",
+        "laravel-mobile-game/billing": "@dev",
         "laravel-mobile-game/wallet": "@dev",
         "laravel-mobile-game/maintenance": "@dev"
     },

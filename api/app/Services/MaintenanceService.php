@@ -124,6 +124,8 @@ class MaintenanceService
      */
     public function clearCache(): void
     {
-        Cache::forget(self::CACHE_KEY);
+        if ($this->cacheEnabled) {
+            Cache::forget(self::CACHE_KEY);
+        }
     }
 }

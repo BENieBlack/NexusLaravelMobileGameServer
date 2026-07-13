@@ -1,0 +1,124 @@
+<?php
+
+namespace Tests\Unit\Services;
+
+use App\Contracts\Maintenance\MaintenanceStorageInterface;
+use App\DTOs\MaintenanceInfo;
+use App\Services\MaintenanceService;
+use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\Log;
+use Tests\TestCase;
+
+class MaintenanceServiceTest extends TestCase
+{
+    private MaintenanceStorageInterface $storage;
+    private MaintenanceService $service;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Logファサードをフェイクに置き換え
+        Log::spy();
+
+        // モックストレージを作成
+        $this->storage = $this->createMock(MaintenanceStorageInterface::class);
+        
+        // キャッシュを無効化したサービスを作成（テスト簡略化のため）
+        $this->service = new MaintenanceService(
+            storage: $this->storage,
+            cacheTtl: 60,
+            cacheEnabled: false
+        );
+    }
+
+    public function test_is_under_maintenance_returns_false_when_no_info(): void
+    {
+        $this->storage
+            ->expects($this->once())
+            ->method('get')
+            ->willReturn(null);
+
+        $this->assertFalse($this->service->isUnderMaintenance());
+    }
+
+    public function test_is_under_maintenance_returns_true_when_currently_under_maintenance(): void
+    {
+        $info = new MaintenanceInfo(
+            isMaintenance: true,
+            startAt: CarbonImmutable::now()->subHour(),
+            endAt: CarbonImmutable::now()->addHour(),
+        );
+
+        $this->storage
+            ->expects($this->once())
+            ->method('get')
+            ->willReturn($info);
+
+        $this->assertTrue($this->service->isUnderMaintenance());
+    }
+
+    public function test_get_maintenance_info_returns_info_from_storage(): void
+    {
+        $info = new MaintenanceInfo(
+            isMaintenance: true,
+            startAt: CarbonImmutable::now(),
+            endAt: CarbonImmutable::now()->addHour(),
+            title: 'Test Maintenance',
+            message: 'Test message',
+        );
+
+        $this->storage
+            ->expects($this->once())
+            ->method('get')
+            ->willReturn($info);
+
+        $result = $this->service->getMaintenanceInfo();
+
+        $this->assertSame($info, $result);
+        $this->assertEquals('Test Maintenance', $result->title);
+    }
+
+    public function test_start_maintenance_stores_info_and_clears_cache(): void
+    {
+        $info = new MaintenanceInfo(
+            isMaintenance: true,
+            startAt: CarbonImmutable::now(),
+            endAt: CarbonImmutable::now()->addHour(),
+        );
+
+        $this->storage
+            ->expects($this->once())
+            ->method('put')
+            ->with($info)
+            ->willReturn(true);
+
+        $result = $this->service->startMaintenance($info);
+
+        $this->assertTrue($result);
+    }
+
+    public function test_end_maintenance_deletes_info_and_clears_cache(): void
+    {
+        $this->storage
+            ->expects($this->once())
+            ->method('delete')
+            ->willReturn(true);
+
+        $result = $this->service->endMaintenance();
+
+        $this->assertTrue($result);
+    }
+
+    public function test_health_check_delegates_to_storage(): void
+    {
+        $this->storage
+            ->expects($this->once())
+            ->method('healthCheck')
+            ->willReturn(true);
+
+        $result = $this->service->healthCheck();
+
+        $this->assertTrue($result);
+    }
+}

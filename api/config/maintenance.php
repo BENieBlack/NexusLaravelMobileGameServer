@@ -22,10 +22,10 @@ return [
     |--------------------------------------------------------------------------
     */
     'dynamodb' => [
-        'region' => env('AWS_REGION', 'ap-northeast-1'),
-        'table' => env('MAINTENANCE_DYNAMODB_TABLE', 'maintenance_status'),
-        'key' => env('AWS_ACCESS_KEY_ID'),
-        'secret' => env('AWS_SECRET_ACCESS_KEY'),
+        'region' => env('AWS_DYNAMODB_REGION', env('AWS_REGION', 'ap-northeast-1')),
+        'table' => env('AWS_DYNAMODB_MAINTENANCE_TABLE', 'maintenance_status'),
+        'key' => env('AWS_DYNAMODB_ACCESS_KEY_ID', env('AWS_ACCESS_KEY_ID')),
+        'secret' => env('AWS_DYNAMODB_SECRET_ACCESS_KEY', env('AWS_SECRET_ACCESS_KEY')),
     ],
 
     /*
@@ -34,11 +34,11 @@ return [
     |--------------------------------------------------------------------------
     */
     'tablestore' => [
-        'endpoint' => env('TABLESTORE_ENDPOINT'),
-        'instance' => env('TABLESTORE_INSTANCE'),
-        'table' => env('MAINTENANCE_TABLESTORE_TABLE', 'maintenance_status'),
-        'access_key_id' => env('ALIBABA_ACCESS_KEY_ID'),
-        'access_key_secret' => env('ALIBABA_ACCESS_KEY_SECRET'),
+        'endpoint' => env('ALIBABA_TABLESTORE_ENDPOINT'),
+        'instance' => env('ALIBABA_TABLESTORE_INSTANCE'),
+        'table' => env('ALIBABA_TABLESTORE_MAINTENANCE_TABLE', 'maintenance_status'),
+        'access_key_id' => env('ALIBABA_TABLESTORE_ACCESS_KEY_ID', env('ALIBABA_ACCESS_KEY_ID')),
+        'access_key_secret' => env('ALIBABA_TABLESTORE_ACCESS_KEY_SECRET', env('ALIBABA_ACCESS_KEY_SECRET')),
     ],
 
     /*

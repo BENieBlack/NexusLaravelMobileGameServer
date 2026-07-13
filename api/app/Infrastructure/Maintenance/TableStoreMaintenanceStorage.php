@@ -19,11 +19,12 @@ class TableStoreMaintenanceStorage implements MaintenanceStorageInterface
 {
     private OTSClient $client;
     private string $tableName;
-    private const STATUS_ID = 'current';
+    private string $primaryKey;
 
     public function __construct(array $config)
     {
         $this->tableName = $config['table'];
+        $this->primaryKey = $config['primary_key'];
         
         $this->client = new OTSClient([
             'EndPoint' => $config['endpoint'],
@@ -42,7 +43,7 @@ class TableStoreMaintenanceStorage implements MaintenanceStorageInterface
             $response = $this->client->getRow([
                 'table_name' => $this->tableName,
                 'primary_key' => [
-                    ['status_id', self::STATUS_ID],
+                    ['id', $this->primaryKey],
                 ],
             ]);
 
@@ -70,7 +71,7 @@ class TableStoreMaintenanceStorage implements MaintenanceStorageInterface
                 'table_name' => $this->tableName,
                 'condition' => RowExistenceExpectationConst::CONST_IGNORE,
                 'primary_key' => [
-                    ['status_id', self::STATUS_ID],
+                    ['id', $this->primaryKey],
                 ],
                 'attribute_columns' => [
                     ['is_maintenance', $info->isMaintenance],
@@ -102,7 +103,7 @@ class TableStoreMaintenanceStorage implements MaintenanceStorageInterface
                 'table_name' => $this->tableName,
                 'condition' => RowExistenceExpectationConst::CONST_IGNORE,
                 'primary_key' => [
-                    ['status_id', self::STATUS_ID],
+                    ['id', $this->primaryKey],
                 ],
             ]);
 

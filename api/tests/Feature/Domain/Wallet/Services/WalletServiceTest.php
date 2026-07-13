@@ -1,8 +1,8 @@
 <?php
 
-namespace Tests\Feature\Services;
+namespace Tests\Feature\Domain\Wallet\Services;
 
-use App\Services\WalletService;
+use App\Domain\Wallet\Services\WalletService;
 use App\Models\Trx\TrxWallet;
 use App\Models\Trx\TrxWalletBalance;
 use App\Persistence\ApiSession;

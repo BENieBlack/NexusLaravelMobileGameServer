@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
-use LaravelMaintenance\Services\MaintenanceService;
-use LaravelMaintenance\DTOs\MaintenanceInfo;
+use LaravelMobileGame\Services\MaintenanceService;
+use LaravelMobileGame\DTOs\MaintenanceInfo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

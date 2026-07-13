@@ -1,11 +1,11 @@
 <?php
 
-namespace LaravelMaintenance;
+namespace LaravelMobileGame;
 
-use LaravelMaintenance\Contracts\MaintenanceStorageInterface;
-use LaravelMaintenance\Infrastructure\DynamoDB\DynamoDBMaintenanceStorage;
-use LaravelMaintenance\Infrastructure\TableStore\TableStoreMaintenanceStorage;
-use LaravelMaintenance\Services\MaintenanceService;
+use LaravelMobileGame\Contracts\MaintenanceStorageInterface;
+use LaravelMobileGame\Infrastructure\DynamoDB\DynamoDBMaintenanceStorage;
+use LaravelMobileGame\Infrastructure\TableStore\TableStoreMaintenanceStorage;
+use LaravelMobileGame\Services\MaintenanceService;
 use Illuminate\Support\ServiceProvider;
 
 /**

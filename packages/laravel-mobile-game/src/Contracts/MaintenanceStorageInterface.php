@@ -1,8 +1,8 @@
 <?php
 
-namespace LaravelMaintenance\Contracts;
+namespace LaravelMobileGame\Contracts;
 
-use LaravelMaintenance\DTOs\MaintenanceInfo;
+use LaravelMobileGame\DTOs\MaintenanceInfo;
 
 /**
  * メンテナンスストレージインターフェース

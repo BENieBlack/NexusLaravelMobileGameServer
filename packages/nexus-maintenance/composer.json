@@ -27,18 +27,18 @@
     },
     "autoload": {
         "psr-4": {
-            "LaravelMobileGame\\": "src/"
+            "NexusMaintenance\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "LaravelMobileGame\\Tests\\": "tests/"
+            "NexusMaintenance\\Tests\\": "tests/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "LaravelMobileGame\\MaintenanceServiceProvider"
+                "NexusMaintenance\\MaintenanceServiceProvider"
             ]
         }
     },

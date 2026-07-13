@@ -2,9 +2,9 @@
 
 namespace Tests\Unit\Services;
 
-use LaravelMobileGame\Contracts\MaintenanceStorageInterface;
-use LaravelMobileGame\DTOs\MaintenanceInfo;
-use LaravelMobileGame\Services\MaintenanceService;
+use NexusMaintenance\Contracts\MaintenanceStorageInterface;
+use NexusMaintenance\DTOs\MaintenanceInfo;
+use NexusMaintenance\Services\MaintenanceService;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Log;
 use Tests\TestCase;

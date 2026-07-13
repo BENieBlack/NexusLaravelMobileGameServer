@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\MaintenanceController as AdminMaintenanceController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EquipmentController;
 use App\Http\Controllers\FriendController;
@@ -9,6 +10,9 @@ use App\Http\Controllers\MailboxController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\UnitController;
 use Illuminate\Support\Facades\Route;
+
+// メンテナンス状態確認エンドポイント（認証不要）
+Route::get('/maintenance/status', [AdminMaintenanceController::class, 'status']);
 
 // Auth endpoints with action-based routing
 // 認証不要のエンドポイント（最初のアクセス時に必要）
@@ -57,4 +61,11 @@ Route::middleware(['auth.token', 'idempotency'])->group(function () {
 // Legacy signup endpoint (for backward compatibility - consider deprecating)
 Route::middleware(['client.signature', 'throttle.signup'])->group(function () {
     Route::post('/signup', [AuthController::class, 'signUp']);
+});
+
+// 管理者用メンテナンスAPIエンドポイント
+// TODO: 適切な認証ミドルウェア（例: auth.admin）を追加すること
+Route::prefix('admin')->group(function () {
+    Route::post('/maintenance/start', [AdminMaintenanceController::class, 'start']);
+    Route::post('/maintenance/end', [AdminMaintenanceController::class, 'end']);
 });

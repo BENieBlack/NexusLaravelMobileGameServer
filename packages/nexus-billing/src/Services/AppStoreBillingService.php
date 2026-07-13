@@ -61,7 +61,7 @@ class AppStoreBillingService implements BillingPlatformInterface
             isValid: true,
             transactionId: $latestReceipt['transaction_id'],
             productId: $latestReceipt['product_id'],
-            purchaseDate: CarbonImmutable::createFromTimestampMs((int)$latestReceipt['purchase_date_ms']),
+            purchaseDate: CarbonImmutable::createFromTimestampMs((int)$latestReceipt['purchase_date_ms'])->format('Y-m-d H:i:s'),
             quantity: (int)($latestReceipt['quantity'] ?? 1),
             originalTransactionId: $latestReceipt['original_transaction_id'],
             rawResponse: $response,
@@ -78,7 +78,7 @@ class AppStoreBillingService implements BillingPlatformInterface
         
         return new SubscriptionStatus(
             isActive: false,
-            expiresAt: CarbonImmutable::now(),
+            expiresAt: CarbonImmutable::now()->format('Y-m-d H:i:s'),
             autoRenew: false,
             state: BillingConst::SUBSCRIPTION_STATE_EXPIRED,
         );

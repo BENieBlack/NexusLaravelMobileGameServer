@@ -16,11 +16,11 @@
         },
         {
             "type": "path",
-            "url": "../packages/laravel-persistence-core"
+            "url": "../packages/laravel-core-persistence"
         },
         {
             "type": "path",
-            "url": "../packages/laravel-unit-of-work-core"
+            "url": "../packages/laravel-core-unit-of-work"
         },
         {
             "type": "path",
@@ -42,8 +42,8 @@
         "laravel/tinker": "^2.10.1",
         "s-nakamura/laravel-utilities": "@dev",
         "s-nakamura/laravel-security-middleware": "@dev",
-        "laravel-mobile-game/persistence-core": "@dev",
-        "laravel-mobile-game/unit-of-work-core": "@dev",
+        "laravel-mobile-game/core-persistence": "@dev",
+        "laravel-mobile-game/core-unit-of-work": "@dev",
         "laravel-mobile-game/billing": "@dev",
         "laravel-mobile-game/wallet": "@dev",
         "laravel-mobile-game/maintenance": "@dev"

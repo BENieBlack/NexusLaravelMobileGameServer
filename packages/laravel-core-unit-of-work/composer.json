@@ -1,5 +1,5 @@
 {
-    "name": "laravel-mobile-game/unit-of-work-core",
+    "name": "laravel-mobile-game/core-unit-of-work",
     "description": "Unit of Work pattern implementation for Laravel with batch operations and query optimization",
     "type": "library",
     "license": "MIT",

@@ -4,7 +4,7 @@ namespace App\Domain\Delivery\Handlers;
 
 use App\Domain\Delivery\Constants\DeliveryConst;
 use App\Domain\Delivery\DTOs\DeliveryContent;
-use App\Services\WalletService;
+use App\Domain\Wallet\Services\WalletService;
 
 /**
  * WalletDeliveryHandler

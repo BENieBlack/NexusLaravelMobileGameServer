@@ -5,7 +5,7 @@ namespace Tests\Unit\Repositories\Trx;
 use App\Models\Trx\TrxEquipment;
 use App\Repositories\Trx\TrxEquipmentRepository;
 use App\Persistence\ApiSession;
-use App\Utilities\Clock;
+use LaravelUtilities\ClockUtility;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
 
@@ -20,7 +20,7 @@ class TrxEquipmentRepositoryTest extends TestCase
         parent::setUp();
         
         // ApiSessionを初期化（テスト用のプレイヤーID=1を設定）
-        Clock::initialize();
+        ClockUtility::initialize();
         ApiSession::setSysPlayerId(1);
         
         $this->repository = new TrxEquipmentRepository();

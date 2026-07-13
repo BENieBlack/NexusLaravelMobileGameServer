@@ -19,7 +19,7 @@ use App\Models\Trx\TrxMailBox;
 use App\Models\Trx\TrxUnit;
 use App\Models\Trx\TrxEquipment;
 use App\Persistence\ApiSession;
-use App\Utilities\Clock;
+use LaravelUtilities\ClockUtility;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -92,7 +92,7 @@ class WalkthroughTest extends TestCase
     {
         parent::setUp();
         
-        Clock::initialize();
+        ClockUtility::initialize();
         
         // シャーディング設定を作成
         $this->seed(\Database\Seeders\SysShardingSeeder::class);

@@ -5,7 +5,7 @@ namespace Tests\Feature\Domain\InAppPurchase\Services;
 use App\Domain\InAppPurchase\Services\DiamondService;
 use App\Models\Trx\TrxDiamond;
 use App\Persistence\ApiSession;
-use App\Persistence\QueryManager;
+use LaravelUnitOfWork\Persistence\QueryManager;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;

@@ -5,7 +5,7 @@ namespace Tests\Feature\Domain\Item\Services;
 use App\Domain\Item\Services\ItemService;
 use App\Models\Trx\TrxItem;
 use App\Persistence\ApiSession;
-use App\Persistence\QueryManager;
+use LaravelUnitOfWork\Persistence\QueryManager;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;

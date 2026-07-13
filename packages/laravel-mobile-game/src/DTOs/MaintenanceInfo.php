@@ -1,6 +1,6 @@
 <?php
 
-namespace LaravelMaintenance\DTOs;
+namespace LaravelMobileGame\DTOs;
 
 use Carbon\CarbonImmutable;
 

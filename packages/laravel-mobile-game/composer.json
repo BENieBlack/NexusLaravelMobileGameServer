@@ -1,6 +1,6 @@
 {
-    "name": "laravel-mobile-rpg/maintenance",
-    "description": "Maintenance mode management for Laravel with support for AWS DynamoDB and Alibaba Cloud TableStore",
+    "name": "laravel-mobile-game/maintenance",
+    "description": "Mobile game features for Laravel including maintenance mode management with support for AWS DynamoDB and Alibaba Cloud TableStore",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -27,18 +27,18 @@
     },
     "autoload": {
         "psr-4": {
-            "LaravelMaintenance\\": "src/"
+            "LaravelMobileGame\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "LaravelMaintenance\\Tests\\": "tests/"
+            "LaravelMobileGame\\Tests\\": "tests/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "LaravelMaintenance\\MaintenanceServiceProvider"
+                "LaravelMobileGame\\MaintenanceServiceProvider"
             ]
         }
     },

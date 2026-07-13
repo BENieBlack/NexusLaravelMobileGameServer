@@ -1,6 +1,6 @@
 {
-    "name": "laravel-mobile-rpg/persistence-core",
-    "description": "Base Model and Repository classes for Laravel RPG applications with support for multiple data types (Trx, Log, Sys, Mst)",
+    "name": "laravel-mobile-game/persistence-core",
+    "description": "Base Model and Repository classes for Laravel game applications with support for multiple data types (Trx, Log, Sys, Mst)",
     "type": "library",
     "license": "MIT",
     "authors": [

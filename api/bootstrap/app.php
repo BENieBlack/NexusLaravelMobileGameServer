@@ -18,6 +18,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
             'idempotency' => \App\Http\Middleware\IdempotencyMiddleware::class,
             'client.signature' => \App\Http\Middleware\VerifyClientSignature::class,
             'throttle.signup' => \App\Http\Middleware\ThrottleSignUp::class,
+            'maintenance' => \App\Http\Middleware\CheckMaintenance::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

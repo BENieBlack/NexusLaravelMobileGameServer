@@ -1,5 +1,5 @@
 {
-    "name": "laravel-mobile-game/core-persistence",
+    "name": "nexus/core-persistence",
     "description": "Base Model and Repository classes for Laravel game applications with support for multiple data types (Trx, Log, Sys, Mst)",
     "type": "library",
     "license": "MIT",

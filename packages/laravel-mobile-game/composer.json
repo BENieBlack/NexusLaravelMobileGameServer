@@ -1,5 +1,5 @@
 {
-    "name": "laravel-mobile-game/maintenance",
+    "name": "nexus/maintenance",
     "description": "Mobile game features for Laravel including maintenance mode management with support for AWS DynamoDB and Alibaba Cloud TableStore",
     "type": "library",
     "license": "MIT",

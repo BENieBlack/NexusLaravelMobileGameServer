@@ -3,10 +3,10 @@
 namespace NexusMaintenance\Infrastructure\DynamoDB;
 
 use NexusMaintenance\Contracts\MaintenanceStorageInterface;
-use NexusMaintenance\DTOs\MaintenanceInfo;
+use NexusMaintenance\DTOs\SysMaintenance;
+use NexusUtilities\ClockUtility;
 use Aws\DynamoDb\DynamoDbClient;
 use Aws\DynamoDb\Exception\DynamoDbException;
-use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -45,7 +45,7 @@ class DynamoDBMaintenanceStorage implements MaintenanceStorageInterface
     /**
      * {@inheritDoc}
      */
-    public function get(): ?MaintenanceInfo
+    public function get(): ?SysMaintenance
     {
         try {
             $result = $this->client->getItem([
@@ -72,19 +72,19 @@ class DynamoDBMaintenanceStorage implements MaintenanceStorageInterface
     /**
      * {@inheritDoc}
      */
-    public function put(MaintenanceInfo $info): bool
+    public function put(SysMaintenance $sysMaintenance): bool
     {
         try {
             $this->client->putItem([
                 'TableName' => $this->tableName,
                 'Item' => [
                     'id' => ['S' => $this->primaryKey],
-                    'is_maintenance' => ['BOOL' => $info->isMaintenance],
-                    'start_at' => ['S' => $info->startAt?->toIso8601String() ?? ''],
-                    'end_at' => ['S' => $info->endAt?->toIso8601String() ?? ''],
-                    'title' => ['S' => $info->title ?? ''],
-                    'message' => ['S' => $info->message ?? ''],
-                    'updated_at' => ['S' => CarbonImmutable::now()->toIso8601String()],
+                    'is_maintenance' => ['BOOL' => $sysMaintenance->isMaintenance],
+                    'start_at' => ['S' => $sysMaintenance->startAt ?? ''],
+                    'end_at' => ['S' => $sysMaintenance->endAt ?? ''],
+                    'title' => ['S' => $sysMaintenance->title ?? ''],
+                    'message' => ['S' => $sysMaintenance->message ?? ''],
+                    'updated_at' => ['S' => ClockUtility::nowToString()],
                 ],
             ]);
 
@@ -141,17 +141,17 @@ class DynamoDBMaintenanceStorage implements MaintenanceStorageInterface
     }
 
     /**
-     * DynamoDBアイテムをMaintenanceInfoに変換
+     * DynamoDBアイテムをSysMaintenanceに変換
      */
-    private function parseItem(array $item): MaintenanceInfo
+    private function parseItem(array $item): SysMaintenance
     {
-        return new MaintenanceInfo(
+        return new SysMaintenance(
             isMaintenance: $item['is_maintenance']['BOOL'] ?? false,
-            startAt: !empty($item['start_at']['S']) ? CarbonImmutable::parse($item['start_at']['S']) : null,
-            endAt: !empty($item['end_at']['S']) ? CarbonImmutable::parse($item['end_at']['S']) : null,
+            startAt: !empty($item['start_at']['S']) ? $item['start_at']['S'] : null,
+            endAt: !empty($item['end_at']['S']) ? $item['end_at']['S'] : null,
             title: $item['title']['S'] ?? null,
             message: $item['message']['S'] ?? null,
-            updatedAt: !empty($item['updated_at']['S']) ? CarbonImmutable::parse($item['updated_at']['S']) : null,
+            updatedAt: !empty($item['updated_at']['S']) ? $item['updated_at']['S'] : null,
         );
     }
 }

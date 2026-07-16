@@ -65,8 +65,8 @@ class GachaPrizeServiceTest extends TestCase
             ->with(Mockery::on(function ($arg) {
                 return is_array($arg) 
                     && count($arg) === 1
-                    && $arg[0] instanceof Resource
-                    && $arg[0]->getTypeValue() === 'item'
+                    && $arg[0] instanceof ResourceDto
+                    && $arg[0]->getType()->value === 'item'
                     && $arg[0]->getId() === 'item_potion_001'
                     && $arg[0]->getAmount() === 5;
             }));
@@ -102,8 +102,8 @@ class GachaPrizeServiceTest extends TestCase
             ->with(Mockery::on(function ($arg) {
                 return is_array($arg) 
                     && count($arg) === 1
-                    && $arg[0] instanceof Resource
-                    && $arg[0]->getTypeValue() === 'unit'
+                    && $arg[0] instanceof ResourceDto
+                    && $arg[0]->getType()->value === 'unit'
                     && $arg[0]->getId() === 'unit_hero_001'
                     && $arg[0]->getAmount() === 1;
             }));
@@ -139,8 +139,8 @@ class GachaPrizeServiceTest extends TestCase
             ->with(Mockery::on(function ($arg) {
                 return is_array($arg) 
                     && count($arg) === 1
-                    && $arg[0] instanceof Resource
-                    && $arg[0]->getTypeValue() === 'equipment'
+                    && $arg[0] instanceof ResourceDto
+                    && $arg[0]->getType()->value === 'equipment'
                     && $arg[0]->getId() === 'equipment_sword_001'
                     && $arg[0]->getAmount() === 1;
             }));
@@ -186,9 +186,9 @@ class GachaPrizeServiceTest extends TestCase
             ->with(Mockery::on(function ($arg) {
                 return is_array($arg) 
                     && count($arg) === 3
-                    && $arg[0]->getTypeValue() === 'item'
-                    && $arg[1]->getTypeValue() === 'unit'
-                    && $arg[2]->getTypeValue() === 'equipment';
+                    && $arg[0]->getType()->value === 'item'
+                    && $arg[1]->getType()->value === 'unit'
+                    && $arg[2]->getType()->value === 'equipment';
             }));
 
         $this->mockResourceDeliveryService->shouldReceive('deliver')

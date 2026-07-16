@@ -112,6 +112,13 @@ trait RefreshMultipleDatabases
                 ]);
             }
 
+            // Run seeders for sys database after migrations
+            $this->artisan('db:seed', [
+                '--database' => 'sys',
+                '--class' => 'Database\\Seeders\\SysDeploySeeder',
+                '--force' => true,
+            ]);
+
             $this->app[Kernel::class]->setArtisan(null);
 
             RefreshDatabaseState::$migrated = true;

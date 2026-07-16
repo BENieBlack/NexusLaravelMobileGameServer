@@ -26,7 +26,7 @@ class GooglePlayBillingService implements BillingPlatformInterface
     /**
      * {@inheritDoc}
      */
-    public function verifyReceipt(ReceiptData $receiptData): VerificationResultDto
+    public function verifyReceipt(ReceiptData $receiptData): VerificationDto
     {
         if (empty($receiptData->purchaseToken) || empty($receiptData->productId)) {
             throw new InvalidReceiptException(
@@ -72,7 +72,7 @@ class GooglePlayBillingService implements BillingPlatformInterface
     /**
      * {@inheritDoc}
      */
-    public function getSubscriptionStatus(string $subscriptionId): SubscriptionStatusDto
+    public function getSubscriptionStatus(string $subscriptionId): SubscriptionDto
     {
         // サブスクリプショントークンと商品IDが必要
         // 実際の実装では別途パラメータが必要

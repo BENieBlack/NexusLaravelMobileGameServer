@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use NexusMaintenance\Services\MaintenanceService;
-use NexusMaintenance\DTOs\SysMaintenance;
+use NexusMaintenance\DTOs\DtoMaintenance;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use NexusUtilities\ClockUtility;
@@ -63,7 +63,7 @@ class MaintenanceController
         $startAt = $validated['start_at'] ?? null;
         $endAt = $validated['end_at'] ?? null;
 
-        $sysMaintenance = new SysMaintenance(
+        $sysMaintenance = new DtoMaintenance(
             isMaintenance: true,
             startAt: $startAt,
             endAt: $endAt,

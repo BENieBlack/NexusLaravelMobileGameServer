@@ -6,12 +6,12 @@ use NexusUtilities\ClockUtility;
 use NexusUtilities\Traits\JsonSerializableTrait;
 
 /**
- * sys_maintenanceテーブルのDTO
+ * メンテナンス情報のDTO
  * 
  * メンテナンス状態の情報を保持
  * 日時は全てY-m-d H:i:s形式の文字列で保持
  */
-readonly class SysMaintenance
+readonly class DtoMaintenance
 {
     use JsonSerializableTrait;
     public function __construct(

@@ -3,7 +3,7 @@
 namespace NexusMaintenance\Services;
 
 use NexusMaintenance\Contracts\MaintenanceStorageInterface;
-use NexusMaintenance\DTOs\SysMaintenance;
+use NexusMaintenance\DTOs\DtoMaintenance;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
@@ -43,9 +43,9 @@ class MaintenanceService
     /**
      * メンテナンス情報を取得
      * 
-     * @return SysMaintenance|null メンテナンス情報
+     * @return DtoMaintenance|null メンテナンス情報
      */
-    public function getMaintenanceInfo(): ?SysMaintenance
+    public function getMaintenanceInfo(): ?DtoMaintenance
     {
         // キャッシュから取得を試みる
         if ($this->cacheEnabled) {
@@ -69,10 +69,10 @@ class MaintenanceService
     /**
      * メンテナンスを開始
      * 
-     * @param SysMaintenance $sysMaintenance メンテナンス情報
+     * @param DtoMaintenance $sysMaintenance メンテナンス情報
      * @return bool 成功時true
      */
-    public function startMaintenance(SysMaintenance $sysMaintenance): bool
+    public function startMaintenance(DtoMaintenance $sysMaintenance): bool
     {
         $result = $this->storage->put($sysMaintenance);
 

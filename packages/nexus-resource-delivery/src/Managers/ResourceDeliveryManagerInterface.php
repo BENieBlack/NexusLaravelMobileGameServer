@@ -17,7 +17,7 @@ interface ResourceDeliveryManagerInterface
     /**
      * 配送コンテンツを配送前リストに追加する
      */
-    public function addContent(ResourceDeliveryContent $content): void;
+    public function addContent(ResourceDeliveryContentDto $content): void;
 
     /**
      * 複数の配送コンテンツを配送前リストにまとめて追加する
@@ -27,7 +27,7 @@ interface ResourceDeliveryManagerInterface
     /**
      * 配送前リストからコンテンツを取得する
      *
-     * @return Collection<string, ResourceDeliveryContent>
+     * @return Collection<string, ResourceDeliveryContentDto>
      */
     public function getPendingContents(): Collection;
 
@@ -35,7 +35,7 @@ interface ResourceDeliveryManagerInterface
      * 送信完了リストからコンテンツを取得する
      *
      * @param string $contentClass コンテンツクラス名
-     * @return Collection<ResourceDeliveryContent>
+     * @return Collection<ResourceDeliveryContentDto>
      */
     public function getSendCompleteContents(string $contentClass): Collection;
 
@@ -50,5 +50,5 @@ interface ResourceDeliveryManagerInterface
      * @param ResourceDeliveryCompleteDto $sendCompleteData 送信完了データ
      * @return void
      */
-    public function afterSend(ResourceDeliveryComplete $sendCompleteData): void;
+    public function afterSend(ResourceDeliveryCompleteDto $sendCompleteData): void;
 }

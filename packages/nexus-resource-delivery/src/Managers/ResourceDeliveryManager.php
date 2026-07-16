@@ -27,7 +27,7 @@ class ResourceDeliveryManager implements ResourceDeliveryManagerInterface
      *
      * 配送前のコンテンツを格納する
      *
-     * @var array<string, ResourceDeliveryContent>
+     * @var array<string, ResourceDeliveryContentDto>
      */
     private array $needToSendContents;
 
@@ -40,7 +40,7 @@ class ResourceDeliveryManager implements ResourceDeliveryManagerInterface
      *
      * 即時配布はしていないが、メールボックスへ送信したコンテンツなどもここに含める
      *
-     * @var array<string, array<ResourceDeliveryContent>>
+     * @var array<string, array<ResourceDeliveryContentDto>>
      */
     private array $sendCompleteContents;
 
@@ -56,7 +56,7 @@ class ResourceDeliveryManager implements ResourceDeliveryManagerInterface
      * @param ResourceDeliveryContentDto $content
      * @return void
      */
-    public function addContent(ResourceDeliveryContent $content): void
+    public function addContent(ResourceDeliveryContentDto $content): void
     {
         // 無効なコンテンツ（数量が0以下）は追加しない
         if ($content->isValid() === false) {
@@ -107,7 +107,7 @@ class ResourceDeliveryManager implements ResourceDeliveryManagerInterface
      * @param ResourceDeliveryCompleteDto $sendCompleteData 送信完了データ
      * @return void
      */
-    public function afterSend(ResourceDeliveryComplete $sendCompleteData): void
+    public function afterSend(ResourceDeliveryCompleteDto $sendCompleteData): void
     {
         foreach ($sendCompleteData->getContents() as $content) {
             $this->addSendCompleteContent($content);
@@ -121,7 +121,7 @@ class ResourceDeliveryManager implements ResourceDeliveryManagerInterface
      * @param ResourceDeliveryContentDto $content
      * @return void
      */
-    private function addSendCompleteContent(ResourceDeliveryContent $content): void
+    private function addSendCompleteContent(ResourceDeliveryContentDto $content): void
     {
         // 配送前リストから削除
         unset($this->needToSendContents[$content->getUniqueId()]);

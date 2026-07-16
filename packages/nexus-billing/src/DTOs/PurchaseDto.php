@@ -11,16 +11,17 @@ use NexusUtilities\Traits\JsonSerializableTrait;
  * 
  * @property string $purchaseDate Y-m-d H:i:s 形式の文字列
  */
-readonly class PurchaseDto
+class PurchaseDto
 {
     use JsonSerializableTrait;
     public function __construct(
-        public int $playerId,
-        public string $billingPlatform,
-        public string $productId,
-        public string $transactionId,
-        public int $quantity,
-        public string $purchaseDate,             // 購入日時 (Y-m-d H:i:s)
+        
+        private readonly int $playerId,
+        private readonly string $billingPlatform,
+        private readonly string $productId,
+        private readonly string $transactionId,
+        private readonly int $quantity,
+        private readonly string $purchaseDate,             // 購入日時 (Y-m-d H:i:s)
         public ?float $price = null,             // 価格（通貨単位）
         public ?string $currency = null,         // 通貨コード（USD, JPY等）
     ) {}

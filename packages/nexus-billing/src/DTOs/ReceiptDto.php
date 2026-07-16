@@ -9,16 +9,17 @@ use NexusUtilities\Traits\JsonSerializableTrait;
  * 
  * クライアントから送信されるレシート情報を保持
  */
-readonly class ReceiptDto
+class ReceiptDto
 {
     use JsonSerializableTrait;
     public function __construct(
-        public int $playerId,
-        public string $billingPlatform,
-        public ?string $receipt = null,           // AppStore用: base64エンコードされたレシート
-        public ?string $purchaseToken = null,     // GooglePlay用: 購入トークン
-        public ?string $productId = null,         // GooglePlay用: 商品ID
-        public ?string $transactionId = null,     // トランザクションID（オプション）
+        
+        private readonly int $playerId,
+        private readonly string $billingPlatform,
+        private readonly ?string $receipt = null,           // AppStore用: base64エンコードされたレシート
+        private readonly ?string $purchaseToken = null,     // GooglePlay用: 購入トークン
+        private readonly ?string $productId = null,         // GooglePlay用: 商品ID
+        private readonly ?string $transactionId = null,     // トランザクションID（オプション）
     ) {}
 
     /**

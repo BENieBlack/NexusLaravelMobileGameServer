@@ -11,16 +11,17 @@ use NexusUtilities\Traits\JsonSerializableTrait;
  * メンテナンス状態の情報を保持
  * 日時は全てY-m-d H:i:s形式の文字列で保持
  */
-readonly class MaintenanceDto
+class MaintenanceDto
 {
     use JsonSerializableTrait;
     public function __construct(
-        public bool $isMaintenance,
-        public ?string $startAt = null,      // Y-m-d H:i:s形式
-        public ?string $endAt = null,        // Y-m-d H:i:s形式
-        public ?string $title = null,
-        public ?string $message = null,
-        public ?string $updatedAt = null,    // Y-m-d H:i:s形式
+        
+        private readonly bool $isMaintenance,
+        private readonly ?string $startAt = null,      // Y-m-d H:i:s形式
+        private readonly ?string $endAt = null,        // Y-m-d H:i:s形式
+        private readonly ?string $title = null,
+        private readonly ?string $message = null,
+        private readonly ?string $updatedAt = null,    // Y-m-d H:i:s形式
     ) {}
 
     /**
@@ -43,6 +44,54 @@ readonly class MaintenanceDto
         }
 
         return true;
+    }
+
+    /**
+     * メンテナンス中かどうか取得
+     */
+    public function getIsMaintenance(): bool
+    {
+        return $this->isMaintenance;
+    }
+
+    /**
+     * 開始日時取得
+     */
+    public function getStartAt(): ?string
+    {
+        return $this->startAt;
+    }
+
+    /**
+     * 終了日時取得
+     */
+    public function getEndAt(): ?string
+    {
+        return $this->endAt;
+    }
+
+    /**
+     * タイトル取得
+     */
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    /**
+     * メッセージ取得
+     */
+    public function getMessage(): ?string
+    {
+        return $this->message;
+    }
+
+    /**
+     * 更新日時取得
+     */
+    public function getUpdatedAt(): ?string
+    {
+        return $this->updatedAt;
     }
 
     /**

@@ -121,12 +121,12 @@ class SysMaintenanceTest extends TestCase
 
         $sysMaintenance = MaintenanceDto::fromArray($data);
 
-        $this->assertTrue($sysMaintenance->isMaintenance);
-        $this->assertEquals('2024-01-01 10:00:00', $sysMaintenance->startAt);
-        $this->assertEquals('2024-01-01 12:00:00', $sysMaintenance->endAt);
-        $this->assertEquals('Test Maintenance', $sysMaintenance->title);
-        $this->assertEquals('Test message', $sysMaintenance->message);
-        $this->assertEquals('2024-01-01 09:00:00', $sysMaintenance->updatedAt);
+        $this->assertTrue($sysMaintenance->getIsMaintenance());
+        $this->assertEquals('2024-01-01 10:00:00', $sysMaintenance->getStartAt());
+        $this->assertEquals('2024-01-01 12:00:00', $sysMaintenance->getEndAt());
+        $this->assertEquals('Test Maintenance', $sysMaintenance->getTitle());
+        $this->assertEquals('Test message', $sysMaintenance->getMessage());
+        $this->assertEquals('2024-01-01 09:00:00', $sysMaintenance->getUpdatedAt());
     }
 
     public function test_to_json_returns_valid_json_string(): void

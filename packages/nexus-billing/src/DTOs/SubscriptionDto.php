@@ -12,12 +12,13 @@ use NexusUtilities\Traits\JsonSerializableTrait;
  * @property string $expiresAt Y-m-d H:i:s 形式の文字列
  * @property string|null $cancelledAt Y-m-d H:i:s 形式の文字列
  */
-readonly class SubscriptionDto
+class SubscriptionDto
 {
     use JsonSerializableTrait;
     public function __construct(
-        public bool $isActive,                   // サブスクリプションが有効か
-        public string $expiresAt,                // 有効期限 (Y-m-d H:i:s)
+        
+        private readonly bool $isActive,                   // サブスクリプションが有効か
+        private readonly string $expiresAt,                // 有効期限 (Y-m-d H:i:s)
         public bool $autoRenew,                  // 自動更新が有効か
         public ?string $state = null,            // 状態（active, expired, cancelled等）
         public ?string $cancelledAt = null,      // キャンセル日時 (Y-m-d H:i:s)

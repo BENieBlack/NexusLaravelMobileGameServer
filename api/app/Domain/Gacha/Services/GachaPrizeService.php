@@ -53,9 +53,9 @@ class GachaPrizeService
     private function createResource(string $contentType, string $contentId, int $amount): ResourceDto
     {
         return match ($contentType) {
-            'item' => Resource::item($contentId, $amount),
-            'unit' => Resource::unit($contentId, $amount),
-            'equipment' => Resource::equipment($contentId, $amount),
+            'item' => ResourceDto::item($contentId, $amount),
+            'unit' => ResourceDto::unit($contentId, $amount),
+            'equipment' => ResourceDto::equipment($contentId, $amount),
             default => throw new \Exception("Unsupported content type: {$contentType}"),
         };
     }

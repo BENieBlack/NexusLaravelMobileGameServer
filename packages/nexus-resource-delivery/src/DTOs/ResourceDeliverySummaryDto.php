@@ -49,7 +49,7 @@ class ResourceDeliverySummaryDto
      *
      * @param ResourceDeliverySummaryDto $summary
      */
-    public function merge(ResourceDeliverySummary $summary): void
+    public function merge(ResourceDeliverySummaryDto $summary): void
     {
         $this->addContents($summary->getContents());
     }

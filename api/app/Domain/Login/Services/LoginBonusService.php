@@ -192,7 +192,7 @@ class LoginBonusService
             $metadata['is_paid'] = true;
         }
 
-        return Resource::fromTypeString(
+        return ResourceDto::fromTypeString(
             typeString: $content->content_type,
             id: $content->content_id,
             amount: $content->amount,

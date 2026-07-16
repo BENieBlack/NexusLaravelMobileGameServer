@@ -11,14 +11,15 @@ use NexusUtilities\Traits\JsonSerializableTrait;
  * 
  * @property string $purchaseDate Y-m-d H:i:s 形式の文字列
  */
-readonly class VerificationDto
+class VerificationDto
 {
     use JsonSerializableTrait;
     public function __construct(
-        public bool $isValid,                      // 検証が成功したか
-        public string $transactionId,              // トランザクションID（ストア固有）
-        public string $productId,                  // 商品ID（ストア固有）
-        public string $purchaseDate,               // 購入日時 (Y-m-d H:i:s)
+        
+        private readonly bool $isValid,                      // 検証が成功したか
+        private readonly string $transactionId,              // トランザクションID（ストア固有）
+        private readonly string $productId,                  // 商品ID（ストア固有）
+        private readonly string $purchaseDate,               // 購入日時 (Y-m-d H:i:s)
         public int $quantity,                      // 購入数量
         public string $originalTransactionId,      // 元のトランザクションID（復元購入等で使用）
         public array $rawResponse,                 // プラットフォームAPIの生レスポンス

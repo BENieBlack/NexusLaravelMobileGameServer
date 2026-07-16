@@ -9,12 +9,13 @@ use Illuminate\Support\Collection;
  *
  * 送信完了コンテンツの情報を保持するDTO
  */
-readonly class ResourceDeliveryCompleteDto
+class ResourceDeliveryCompleteDto
 {
     /**
      * @param Collection<ResourceDeliveryContent> $contents 送信完了コンテンツのリスト
      */
     public function __construct(
+        
         private Collection $contents,
     ) {
     }

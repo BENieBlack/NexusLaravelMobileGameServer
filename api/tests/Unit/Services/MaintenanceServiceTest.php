@@ -80,7 +80,7 @@ class MaintenanceServiceTest extends TestCase
         $result = $this->service->getMaintenanceInfo();
 
         $this->assertSame($sysMaintenance, $result);
-        $this->assertEquals('Test Maintenance', $result->title);
+        $this->assertEquals('Test Maintenance', $result->getTitle());
     }
 
     public function test_start_maintenance_stores_info_and_clears_cache(): void

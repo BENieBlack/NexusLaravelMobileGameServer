@@ -11,7 +11,7 @@ use JsonSerializable;
  * アクセストークン、リフレッシュトークン、有効期限をまとめたDTO
  * OAuth2標準のトークンレスポンス形式に準拠
  */
-readonly class TokenDto implements Arrayable, JsonSerializable
+class TokenDto implements Arrayable, JsonSerializable
 {
     /**
      * @param string $accessToken アクセストークン（JWT形式推奨）
@@ -19,9 +19,9 @@ readonly class TokenDto implements Arrayable, JsonSerializable
      * @param int $expiresIn アクセストークンの有効期限（秒）
      */
     public function __construct(
-        public string $accessToken,
-        public string $refreshToken,
-        public int $expiresIn,
+        private readonly string $accessToken,
+        private readonly string $refreshToken,
+        private readonly int $expiresIn,
     ) {
     }
 

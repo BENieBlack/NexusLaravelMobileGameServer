@@ -7,7 +7,7 @@ namespace NexusResourceDelivery\DTOs;
  *
  * リソース配送処理の結果を表現するDTO
  */
-readonly class ResourceDeliveryResultDto
+class ResourceDeliveryResultDto
 {
     /**
      * @param array<ResourceDeliveryContent> $deliveredItemArray 配送成功したコンテンツ
@@ -17,11 +17,12 @@ readonly class ResourceDeliveryResultDto
      * @param int $failedCount 失敗数
      */
     public function __construct(
-        public array $deliveredItemArray,
-        public array $failedItemArray,
-        public int   $totalCount,
-        public int   $successCount,
-        public int   $failedCount,
+        
+        private readonly array $deliveredItemArray,
+        private readonly array $failedItemArray,
+        private readonly int   $totalCount,
+        private readonly int   $successCount,
+        private readonly int   $failedCount,
     ) {
     }
 

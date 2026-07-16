@@ -8,8 +8,8 @@ use App\Repositories\Trx\TrxWalletBalanceRepository;
 use App\Repositories\Trx\TrxWalletRepository;
 use NexusUtilities\ClockUtility;
 use LaravelWallet\Contracts\WalletManagerInterface;
-use LaravelWallet\DTOs\CurrencyBalance;
-use LaravelWallet\DTOs\CurrencyOperationResult;
+use LaravelWallet\DTOs\CurrencyBalanceDto;
+use LaravelWallet\DTOs\CurrencyOperationResultDto;
 use LaravelWallet\Exceptions\InsufficientBalanceException;
 
 /**
@@ -34,7 +34,7 @@ class WalletService implements WalletManagerInterface
      * @param int $freeAmount 無償通貨数（デフォルト: 0）
      * @param int $paidAmount 有償通貨数（デフォルト: 0）
      * @param string|null $expireAt 有効期限 (Y-m-d H:i:s)（NULLの場合は無期限）
-     * @return CurrencyOperationResult 操作結果
+     * @return CurrencyOperationResultDto 操作結果
      */
     public function addCurrency(
         int $playerId,
@@ -42,7 +42,7 @@ class WalletService implements WalletManagerInterface
         int $freeAmount = 0,
         int $paidAmount = 0,
         ?string $expireAt = null
-    ): CurrencyOperationResult {
+    ): CurrencyOperationResultDto {
         
         // 1. 現在値を取得または作成（Repository経由）
         $wallet = $this->trxWalletRepository->selectByMstItemId($playerId, $currencyId);
@@ -104,14 +104,14 @@ class WalletService implements WalletManagerInterface
      * @param int $playerId プレイヤーID
      * @param string $currencyId 通貨アイテムID
      * @param int $amount 消費する数量
-     * @return CurrencyOperationResult 操作結果
+     * @return CurrencyOperationResultDto 操作結果
      * @throws InsufficientBalanceException 残高不足の場合
      */
     public function consumeCurrency(
         int $playerId,
         string $currencyId,
         int $amount
-    ): CurrencyOperationResult {
+    ): CurrencyOperationResultDto {
         // 1. 現在値を取得（Repository経由）
         $wallet = $this->trxWalletRepository->selectByMstItemId($playerId, $currencyId);
 
@@ -166,7 +166,7 @@ class WalletService implements WalletManagerInterface
      * 
      * @param int $playerId プレイヤーID
      * @param string $currencyId 通貨アイテムID
-     * @return CurrencyBalance 残高情報
+     * @return CurrencyBalanceDto 残高情報
      */
     public function getBalance(int $playerId, string $currencyId): CurrencyBalanceDto
     {

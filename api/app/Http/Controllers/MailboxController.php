@@ -4,17 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Domain\Mailbox\UseCases\ListUseCase;
 use App\Domain\Mailbox\UseCases\OpenUseCase;
-use App\Domain\Mailbox\UseCases\ProtectUseCase;
+use App\Domain\Mailbox\UseCases\LockUseCase;
 use App\Domain\Mailbox\UseCases\ReceiveAllUseCase;
 use App\Domain\Mailbox\UseCases\ReceiveUseCase;
 use App\Http\Requests\Mailbox\ListRequest;
 use App\Http\Requests\Mailbox\OpenRequest;
-use App\Http\Requests\Mailbox\ProtectRequest;
+use App\Http\Requests\Mailbox\LockRequest;
 use App\Http\Requests\Mailbox\ReceiveAllRequest;
 use App\Http\Requests\Mailbox\ReceiveRequest;
 use App\Http\Responses\Mailbox\ListResponse;
 use App\Http\Responses\Mailbox\OpenResponse;
-use App\Http\Responses\Mailbox\ProtectResponse;
+use App\Http\Responses\Mailbox\LockResponse;
 use App\Http\Responses\Mailbox\ReceiveAllResponse;
 use App\Http\Responses\Mailbox\ReceiveResponse;
 use App\Persistence\ApiSession;
@@ -47,7 +47,7 @@ class MailboxController extends _BaseController
             $request->getCategory(),
             $request->getPriority(),
             $request->getOnlyUnread(),
-            $request->getOnlyProtected()
+            $request->getOnlyLocked()
         );
     }
 
@@ -95,19 +95,19 @@ class MailboxController extends _BaseController
     }
 
     /**
-     * メール保護
+     * メールロック
      *
-     * @param ProtectRequest $request
-     * @param ProtectUseCase $useCase
-     * @return ProtectResponse
+     * @param LockRequest $request
+     * @param LockUseCase $useCase
+     * @return LockResponse
      */
-    public function protect(ProtectRequest $request, ProtectUseCase $useCase): ProtectResponse
+    public function lock(LockRequest $request, LockUseCase $useCase): LockResponse
     {
         $sysPlayerId = $this->apiSession->getSysPlayerId();
         return $useCase->exec(
             $sysPlayerId,
             $request->getTrxMailboxId(),
-            $request->getIsProtected()
+            $request->getIsLocked()
         );
     }
 }

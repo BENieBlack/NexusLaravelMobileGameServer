@@ -5,15 +5,15 @@ namespace App\Domain\Mailbox\UseCases;
 use App\Domain\_BaseUseCase;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
-use App\Http\Responses\Mailbox\ProtectResponse;
+use App\Http\Responses\Mailbox\LockResponse;
 use App\Repositories\Trx\TrxMailboxRepository;
 
 /**
- * ProtectUseCase
+ * LockUseCase
  *
- * メール保護機能（削除防止）
+ * メールロック機能（削除防止）
  */
-class ProtectUseCase extends _BaseUseCase
+class LockUseCase extends _BaseUseCase
 {
     public function __construct(
         private TrxMailboxRepository $trxMailboxRepository,
@@ -21,17 +21,17 @@ class ProtectUseCase extends _BaseUseCase
     }
 
     /**
-     * メールの保護状態を切り替える
+     * メールのロック状態を切り替える
      *
      * @param int $sysPlayerId
      * @param int $trxMailboxId
-     * @param bool $isProtected
-     * @return ProtectResponse
+     * @param bool $isLocked
+     * @return LockResponse
      * @throws GameException
      */
-    public function exec(int $sysPlayerId, int $trxMailboxId, bool $isProtected): ProtectResponse
+    public function exec(int $sysPlayerId, int $trxMailboxId, bool $isLocked): LockResponse
     {
-        return $this->executeWithTransaction(function () use ($sysPlayerId, $trxMailboxId, $isProtected) {
+        return $this->executeWithTransaction(function () use ($sysPlayerId, $trxMailboxId, $isLocked) {
             // メールボックス取得
             $trxMailbox = $this->trxMailboxRepository->selectById($trxMailboxId);
 
@@ -39,17 +39,17 @@ class ProtectUseCase extends _BaseUseCase
                 throw new GameException(GameErrorCode::MAILBOX_NOT_FOUND, 'Mailbox not found');
             }
 
-            // 削除済みメールは保護できない
+            // 削除済みメールはロックできない
             if ($trxMailbox->getIsDelete()) {
                 throw new GameException(GameErrorCode::MAILBOX_ALREADY_DELETED, 'Mailbox already deleted');
             }
 
-            // 保護状態を切り替え
-            $this->trxMailboxRepository->toggleProtection($trxMailbox, $isProtected);
+            // ロック状態を切り替え
+            $this->trxMailboxRepository->toggleProtection($trxMailbox, $isLocked);
 
-            return new ProtectResponse(
+            return new LockResponse(
                 trxMailboxId: $trxMailbox->getId(),
-                isProtected: $isProtected,
+                isLocked: $isLocked,
                 success: true
             );
         });

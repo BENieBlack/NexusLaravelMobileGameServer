@@ -2,16 +2,16 @@
 
 namespace LaravelMobileBilling\Tests\Unit\DTOs;
 
-use LaravelMobileBilling\DTOs\SubscriptionStatus;
+use LaravelMobileBilling\DTOs\SubscriptionDto;
 use PHPUnit\Framework\TestCase;
 
-class SubscriptionStatusTest extends TestCase
+class SubscriptionDtoTest extends TestCase
 {
     public function test_construct_with_active_subscription()
     {
         $expiresAt = '2026-08-13 10:00:00';
         
-        $status = new SubscriptionStatus(
+        $status = new SubscriptionDto(
             isActive: true,
             expiresAt: $expiresAt,
             autoRenew: true,
@@ -30,7 +30,7 @@ class SubscriptionStatusTest extends TestCase
         $expiresAt = '2026-08-13 10:00:00';
         $cancelledAt = '2026-07-13 15:00:00';
         
-        $status = new SubscriptionStatus(
+        $status = new SubscriptionDto(
             isActive: false,
             expiresAt: $expiresAt,
             autoRenew: false,
@@ -49,7 +49,7 @@ class SubscriptionStatusTest extends TestCase
         $expiresAt = '2026-08-13 10:00:00';
         $cancelledAt = '2026-07-13 15:00:00';
         
-        $status = new SubscriptionStatus(
+        $status = new SubscriptionDto(
             isActive: true,
             expiresAt: $expiresAt,
             autoRenew: true,
@@ -71,7 +71,7 @@ class SubscriptionStatusTest extends TestCase
     {
         $expiresAt = '2026-08-13 10:00:00';
         
-        $status = new SubscriptionStatus(
+        $status = new SubscriptionDto(
             isActive: true,
             expiresAt: $expiresAt,
             autoRenew: true
@@ -86,7 +86,7 @@ class SubscriptionStatusTest extends TestCase
     {
         $expiresAt = '2026-08-13 10:00:00';
         
-        $status = new SubscriptionStatus(
+        $status = new SubscriptionDto(
             isActive: true,
             expiresAt: $expiresAt,
             autoRenew: false,

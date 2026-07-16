@@ -2,14 +2,14 @@
 
 namespace LaravelWallet\Tests\Unit\DTOs;
 
-use LaravelWallet\DTOs\CurrencyOperationResult;
+use LaravelWallet\DTOs\CurrencyOperationResultDto;
 use PHPUnit\Framework\TestCase;
 
-class CurrencyOperationResultTest extends TestCase
+class CurrencyOperationResultDtoTest extends TestCase
 {
     public function test_construct_with_all_parameters()
     {
-        $result = new CurrencyOperationResult(
+        $result = new CurrencyOperationResultDto(
             freeAmount: 100,
             paidAmount: 50,
             totalAmount: 150,
@@ -24,7 +24,7 @@ class CurrencyOperationResultTest extends TestCase
 
     public function test_to_array()
     {
-        $result = new CurrencyOperationResult(
+        $result = new CurrencyOperationResultDto(
             freeAmount: 100,
             paidAmount: 50,
             totalAmount: 150,
@@ -46,7 +46,7 @@ class CurrencyOperationResultTest extends TestCase
 
     public function test_to_json()
     {
-        $result = new CurrencyOperationResult(
+        $result = new CurrencyOperationResultDto(
             freeAmount: 100,
             paidAmount: 50,
             totalAmount: 150,

@@ -2,14 +2,14 @@
 
 namespace LaravelMobileBilling\Tests\Unit\DTOs;
 
-use LaravelMobileBilling\DTOs\ReceiptData;
+use LaravelMobileBilling\DTOs\ReceiptDto;
 use PHPUnit\Framework\TestCase;
 
-class ReceiptDataTest extends TestCase
+class ReceiptDtoTest extends TestCase
 {
     public function test_construct_with_app_store_receipt()
     {
-        $receiptData = new ReceiptData(
+        $receiptData = new ReceiptDto(
             playerId: 123,
             billingPlatform: 'app_store',
             receipt: 'base64_encoded_receipt_data',
@@ -26,7 +26,7 @@ class ReceiptDataTest extends TestCase
 
     public function test_construct_with_google_play_token()
     {
-        $receiptData = new ReceiptData(
+        $receiptData = new ReceiptDto(
             playerId: 456,
             billingPlatform: 'google_play',
             purchaseToken: 'google_purchase_token_xyz',
@@ -44,7 +44,7 @@ class ReceiptDataTest extends TestCase
 
     public function test_to_array()
     {
-        $receiptData = new ReceiptData(
+        $receiptData = new ReceiptDto(
             playerId: 123,
             billingPlatform: 'app_store',
             receipt: 'base64_encoded_receipt_data',
@@ -64,7 +64,7 @@ class ReceiptDataTest extends TestCase
 
     public function test_to_json()
     {
-        $receiptData = new ReceiptData(
+        $receiptData = new ReceiptDto(
             playerId: 456,
             billingPlatform: 'google_play',
             purchaseToken: 'google_purchase_token_xyz',

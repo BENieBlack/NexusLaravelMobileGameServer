@@ -31,7 +31,7 @@ class CurrencyDeliveryHandler implements ResourceDeliveryHandlerInterface
      * @return void
      * @throws \Exception 配送失敗時
      */
-    public function handle(int $sysPlayerId, ResourceDeliveryContent $content): void
+    public function handle(int $sysPlayerId, ResourceDeliveryContentDto $content): void
     {
         // metadata['is_paid']が true の場合は有償、false または未設定の場合は無償
         $metadata = $content->getMetadata();

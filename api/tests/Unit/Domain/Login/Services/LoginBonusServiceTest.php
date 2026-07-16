@@ -174,7 +174,7 @@ class LoginBonusServiceTest extends TestCase
         $history = DB::connection('trx1')
             ->table('trx_login_bonus_history')
             ->where('sys_player_id', $this->sysPlayerId)
-            ->where('received_date', '2026-04-20')
+            ->where('received_date', 'LIKE', '2026-04-20')
             ->first();
 
         $this->assertNotNull($history);

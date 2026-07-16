@@ -35,7 +35,7 @@ class BasicResourceDeliveryHandler implements ResourceDeliveryHandlerInterface
      * @return void
      * @throws \Exception 配送失敗時
      */
-    public function handle(int $sysPlayerId, ResourceDeliveryContent $content): void
+    public function handle(int $sysPlayerId, ResourceDeliveryContentDto $content): void
     {
         // 基本リソースは全て無償扱い
         $freeAmount = $content->getAmount();

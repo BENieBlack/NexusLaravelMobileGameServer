@@ -7,7 +7,7 @@ namespace NexusResourceDelivery\DTOs;
  *
  * リソース配送処理の結果を表現するDTO
  */
-readonly class ResourceDeliveryResult
+readonly class ResourceDeliveryResultDto
 {
     /**
      * @param array<ResourceDeliveryContent> $deliveredItemArray 配送成功したコンテンツ

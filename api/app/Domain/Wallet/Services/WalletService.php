@@ -168,7 +168,7 @@ class WalletService implements WalletManagerInterface
      * @param string $currencyId 通貨アイテムID
      * @return CurrencyBalance 残高情報
      */
-    public function getBalance(int $playerId, string $currencyId): CurrencyBalance
+    public function getBalance(int $playerId, string $currencyId): CurrencyBalanceDto
     {
         // Repository経由で取得
         $wallet = $this->trxWalletRepository->selectByMstItemId($playerId, $currencyId);

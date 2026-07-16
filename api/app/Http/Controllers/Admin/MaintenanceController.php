@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use NexusMaintenance\Services\MaintenanceService;
-use NexusMaintenance\DTOs\DtoMaintenance;
+use NexusMaintenance\DTOs\MaintenanceDto;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use NexusUtilities\ClockUtility;

@@ -31,7 +31,7 @@ class BillingFacade
      * どのプラットフォームでも同じように使える統一インターフェース
      * 
      * @param string $billingPlatform 決済プラットフォーム（AppStore, GooglePlay等）
-     * @param ReceiptData $receiptData レシート情報
+     * @param ReceiptDataDto $receiptData レシート情報
      * @param string $uniqueRequestId 一意なリクエストID（重複防止用）
      * @return VerificationResult 検証結果
      * @throws DuplicatePurchaseException 重複購入の場合
@@ -92,7 +92,7 @@ class BillingFacade
      * 冪等性管理が不要な場合や、別の方法で重複チェックを行う場合に使用
      * 
      * @param string $billingPlatform 決済プラットフォーム
-     * @param ReceiptData $receiptData レシート情報
+     * @param ReceiptDataDto $receiptData レシート情報
      * @return VerificationResult 検証結果
      */
     public function verifyReceipt(

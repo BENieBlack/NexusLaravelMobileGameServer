@@ -2,11 +2,11 @@
 
 namespace NexusResourceDelivery\Services;
 
-use NexusResource\DTOs\Resource;
-use NexusResourceDelivery\DTOs\ResourceDeliveryContent;
-use NexusResourceDelivery\DTOs\ResourceDeliveryComplete;
-use NexusResourceDelivery\DTOs\ResourceDeliveryPolicy;
-use NexusResourceDelivery\DTOs\ResourceDeliverySummary;
+use NexusResource\DTOs\ResourceDto;
+use NexusResourceDelivery\DTOs\ResourceDeliveryContentDto;
+use NexusResourceDelivery\DTOs\ResourceDeliveryCompleteDto;
+use NexusResourceDelivery\DTOs\ResourceDeliveryPolicyDto;
+use NexusResourceDelivery\DTOs\ResourceDeliverySummaryDto;
 use NexusResourceDelivery\Handlers\ResourceDeliveryHandlerInterface;
 use NexusResourceDelivery\Managers\ResourceDeliveryManagerInterface;
 use Illuminate\Support\Collection;
@@ -58,10 +58,10 @@ class ResourceDeliveryService
      * リソースを追加する（単一）
      * 実際の配送はdeliver()で実行する
      *
-     * @param Resource $resource リソース
+     * @param ResourceDto $resource リソース
      * @return void
      */
-    public function addResource(Resource $resource): void
+    public function addResource(ResourceDto $resource): void
     {
         $content = ResourceDeliveryContent::fromResource($resource);
         $this->deliveryManager->addContent($content);
@@ -88,7 +88,7 @@ class ResourceDeliveryService
     /**
      * 配送コンテンツを直接追加する（単一）
      *
-     * @param ResourceDeliveryContent $content
+     * @param ResourceDeliveryContentDto $content
      * @return void
      */
     public function addContent(ResourceDeliveryContent $content): void
@@ -147,8 +147,8 @@ class ResourceDeliveryService
     /**
      * 配送結果をチェックして、必要に応じて例外を投げる
      *
-     * @param ResourceDeliverySummary $summary
-     * @param ResourceDeliveryPolicy $policy
+     * @param ResourceDeliverySummaryDto $summary
+     * @param ResourceDeliveryPolicyDto $policy
      * @return void
      * @throws \Exception
      */
@@ -170,8 +170,8 @@ class ResourceDeliveryService
      * 追加リソースの連鎖に対応するため、最大2回ループする
      *
      * @param int $sysPlayerId
-     * @param ResourceDeliveryPolicy $policy
-     * @return ResourceDeliverySummary
+     * @param ResourceDeliveryPolicyDto $policy
+     * @return ResourceDeliverySummaryDto
      */
     private function execDelivery(
         int $sysPlayerId,
@@ -196,8 +196,8 @@ class ResourceDeliveryService
      * 配送処理の1回分の実行
      *
      * @param int $sysPlayerId
-     * @param ResourceDeliveryPolicy $policy
-     * @return ResourceDeliverySummary
+     * @param ResourceDeliveryPolicyDto $policy
+     * @return ResourceDeliverySummaryDto
      */
     private function execDeliveryIteration(
         int $sysPlayerId,

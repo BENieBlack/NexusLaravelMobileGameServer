@@ -58,9 +58,9 @@ class InAppPurchaseController extends _BaseController
 
         // 商品タイプに応じてUseCaseを選択
         return $this->execute(fn() => match ($product->getType()) {
-            'Diamond' => $buyDiamondUseCase->handle($sysPlayerId, $product, $platform, $billingPlatform, $receipt, $transactionId, $productId),
-            'Pack' => $buyPackUseCase->handle($sysPlayerId, $product, $platform, $billingPlatform, $receipt, $transactionId, $productId),
-            'Pass' => $buyPassUseCase->handle($sysPlayerId, $product, $platform, $billingPlatform, $receipt, $transactionId, $productId),
+            'Diamond' => $buyDiamondUseCase->exec($sysPlayerId, $product, $platform, $billingPlatform, $receipt, $transactionId, $productId),
+            'Pack' => $buyPackUseCase->exec($sysPlayerId, $product, $platform, $billingPlatform, $receipt, $transactionId, $productId),
+            'Pass' => $buyPassUseCase->exec($sysPlayerId, $product, $platform, $billingPlatform, $receipt, $transactionId, $productId),
             default => throw new GameException(
                 GameErrorCode::INVALID_PRODUCT_TYPE,
                 'Invalid product type'

@@ -40,7 +40,7 @@ class BuyPassUseCase extends _BaseUseCase
      * @return BuyResponse
      * @throws GameException
      */
-    public function handle(
+    public function exec(
         int $sysPlayerId,
         MstInAppPurchase $mstInAppPurchase,
         string $platform,

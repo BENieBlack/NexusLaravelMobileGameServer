@@ -44,7 +44,7 @@ class DrawUseCase extends _BaseUseCase
      * @return DrawResponse
      * @throws \Exception
      */
-    public function handle(
+    public function exec(
         int $sysPlayerId,
         string $mstGachaId,
         int $drawCount,

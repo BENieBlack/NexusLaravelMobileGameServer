@@ -30,7 +30,7 @@ class ListUseCase extends _BaseUseCase
      * @param bool $onlyProtected 保護のみ
      * @return ListResponse
      */
-    public function handle(
+    public function exec(
         int $sysPlayerId, 
         ?string $category = null,
         ?string $priority = null,

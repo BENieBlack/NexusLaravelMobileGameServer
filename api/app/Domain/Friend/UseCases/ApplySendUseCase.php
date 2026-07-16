@@ -32,7 +32,7 @@ class ApplySendUseCase extends _BaseUseCase
      * @return ApplySendResponse
      * @throws GameException
      */
-    public function handle(int $sysPlayerId, string $targetMyId): ApplySendResponse
+    public function exec(int $sysPlayerId, string $targetMyId): ApplySendResponse
     {
         // トランザクション開始
         return $this->executeWithTransaction(function () use ($sysPlayerId, $targetMyId) {

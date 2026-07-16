@@ -38,7 +38,7 @@ class VersionUseCaseTest extends TestCase
             ->andReturn([null, null]);
 
         // Act
-        $result = $this->useCase->handle($deployVersion);
+        $result = $this->useCase->exec($deployVersion);
 
         // Assert
         $this->assertInstanceOf(VersionResponse::class, $result);
@@ -61,7 +61,7 @@ class VersionUseCaseTest extends TestCase
             ->andReturn([$mockDeploy, null]);
 
         // Act
-        $result = $this->useCase->handle($deployVersion);
+        $result = $this->useCase->exec($deployVersion);
 
         // Assert
         $this->assertInstanceOf(VersionResponse::class, $result);
@@ -82,7 +82,7 @@ class VersionUseCaseTest extends TestCase
             ->andReturn([null, null]);
 
         // Act
-        $result = $this->useCase->handle($deployVersion);
+        $result = $this->useCase->exec($deployVersion);
 
         // Assert
         $this->assertInstanceOf(VersionResponse::class, $result);

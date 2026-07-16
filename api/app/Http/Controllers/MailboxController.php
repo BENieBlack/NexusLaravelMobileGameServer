@@ -42,7 +42,7 @@ class MailboxController extends _BaseController
     {
         $sysPlayerId = $this->apiSession->getSysPlayerId();
         
-        return $useCase->handle(
+        return $useCase->exec(
             $sysPlayerId,
             $request->getCategory(),
             $request->getPriority(),
@@ -61,7 +61,7 @@ class MailboxController extends _BaseController
     public function open(OpenRequest $request, OpenUseCase $useCase): OpenResponse
     {
         $sysPlayerId = $this->apiSession->getSysPlayerId();
-        return $useCase->handle($sysPlayerId, $request->getTrxMailboxId());
+        return $useCase->exec($sysPlayerId, $request->getTrxMailboxId());
     }
 
     /**
@@ -74,7 +74,7 @@ class MailboxController extends _BaseController
     public function receive(ReceiveRequest $request, ReceiveUseCase $useCase): ReceiveResponse
     {
         $sysPlayerId = $this->apiSession->getSysPlayerId();
-        return $useCase->handle($sysPlayerId, $request->getTrxMailboxId());
+        return $useCase->exec($sysPlayerId, $request->getTrxMailboxId());
     }
 
     /**
@@ -87,7 +87,7 @@ class MailboxController extends _BaseController
     public function receiveAll(ReceiveAllRequest $request, ReceiveAllUseCase $useCase): ReceiveAllResponse
     {
         $sysPlayerId = $this->apiSession->getSysPlayerId();
-        return $useCase->handle(
+        return $useCase->exec(
             $sysPlayerId,
             $request->getTrxMailboxIds(),
             $request->getCategory()
@@ -104,7 +104,7 @@ class MailboxController extends _BaseController
     public function protect(ProtectRequest $request, ProtectUseCase $useCase): ProtectResponse
     {
         $sysPlayerId = $this->apiSession->getSysPlayerId();
-        return $useCase->handle(
+        return $useCase->exec(
             $sysPlayerId,
             $request->getTrxMailboxId(),
             $request->getIsProtected()

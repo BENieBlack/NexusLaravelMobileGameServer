@@ -55,7 +55,7 @@ class LoginUseCase extends _BaseUseCase
      * @return LoginResponse
      * @throws \Exception
      */
-    public function handle(int $sysPlayerId): LoginResponse
+    public function exec(int $sysPlayerId): LoginResponse
     {
         // バリデーション実行
         $this->validation($sysPlayerId);

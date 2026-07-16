@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Auth\Services;
+namespace App\Domain\Login\Services;
 
 use NexusResource\DTOs\Resource;
 use NexusResourceDelivery\Services\ResourceDeliveryService;

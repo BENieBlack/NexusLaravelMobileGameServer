@@ -3,6 +3,7 @@
 namespace App\Repositories\Sys;
 
 use App\Models\Sys\SysPlayer;
+use NexusAuth\Contracts\PlayerRepositoryInterface;
 use NexusUnitOfWork\Contracts\QueryManagerInterface;
 use Illuminate\Support\Str;
 
@@ -13,7 +14,7 @@ use Illuminate\Support\Str;
  * 
  * @extends _BaseSysRepository<SysPlayer>
  */
-class SysPlayerRepository extends _BaseSysRepository
+class SysPlayerRepository extends _BaseSysRepository implements PlayerRepositoryInterface
 {
     protected string $modelClass = SysPlayer::class;
 

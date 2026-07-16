@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Auth\Services;
+namespace App\Domain\Player\Services;
 
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;

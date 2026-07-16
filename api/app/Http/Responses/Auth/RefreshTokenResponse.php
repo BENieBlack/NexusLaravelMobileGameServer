@@ -2,7 +2,7 @@
 
 namespace App\Http\Responses\Auth;
 
-use App\Domain\Auth\DTOs\DtoToken;
+use NexusAuth\DTOs\DtoToken;
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Http\JsonResponse;
 
@@ -15,7 +15,7 @@ use Illuminate\Http\JsonResponse;
 class RefreshTokenResponse implements Responsable
 {
     /**
-     * @param DtoToken $dtoToken トークン情報DTO
+     * @param Token $dtoToken トークン情報DTO
      */
     public function __construct(
         public readonly DtoToken $dtoToken,

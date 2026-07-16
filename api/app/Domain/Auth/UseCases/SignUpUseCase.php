@@ -3,10 +3,14 @@
 namespace App\Domain\Auth\UseCases;
 
 use App\Domain\_BaseUseCase;
-use App\Domain\Auth\Services\PlayerService;
-use App\Domain\Auth\Services\TokenService;
 use App\Exceptions\BusinessLogicException;
 use App\Http\Responses\Auth\SignUpResponse;
+use App\Models\Sys\SysPlayerDevice;
+use NexusAuth\Services\TokenService;
+use NexusAuth\Services\PlayerAuthService;
+use NexusAuth\Contracts\DeviceRepositoryInterface;
+use NexusAuth\Contracts\TokenRepositoryInterface;
+use Throwable;
 
 /**
  * SignUpUseCase
@@ -19,8 +23,10 @@ class SignUpUseCase extends _BaseUseCase
 {
 
     public function __construct(
-        private readonly PlayerService $playerService,
+        private readonly PlayerAuthService $playerAuthService,
         private readonly TokenService $tokenService,
+        private readonly DeviceRepositoryInterface $deviceRepository,
+        private readonly TokenRepositoryInterface $tokenRepository,
     ) {
     }
 
@@ -33,31 +39,46 @@ class SignUpUseCase extends _BaseUseCase
      * @param string $deviceId デバイスID
      * @param array $deviceInfo デバイス情報
      * @return SignUpResponse
-     * @throws BusinessLogicException|\Throwable 既存デバイスIDの場合
+     * @throws BusinessLogicException|Throwable 既存デバイスIDの場合
      */
     public function handle(string $deviceId, array $deviceInfo): SignUpResponse
     {
         // トランザクション開始
         return $this->executeWithTransaction(function () use ($deviceId, $deviceInfo) {
             // 既存デバイスチェック
-            $existing = $this->playerService->selectByDeviceId($deviceId);
+            $existingDevice = $this->deviceRepository->selectByDeviceId($deviceId);
 
-            if ($existing !== null) {
+            if ($existingDevice !== null) {
                 // 既存デバイスの場合はエラー（sign_inを使用すべき）
                 throw BusinessLogicException::deviceAlreadyExists($deviceId);
             }
 
-            // 新規プレイヤー作成（Repository内でプレイヤーとデバイスを作成してIDを取得）
-            $result = $this->playerService->createPlayer($deviceId, $deviceInfo);
-            $sysPlayer = $result['sys_player'];
-            $sysPlayerDevice = $result['sys_player_device'];
+            // 新規プレイヤー作成（PlayerAuthService使用）
+            $player = $this->playerAuthService->createPlayer($deviceId, $deviceInfo);
 
-            // Token DTO生成（Repository内でトークンを作成してIDを取得）
-            [$dtoToken, $sysPlayerToken] = $this->tokenService->generateToken($sysPlayer, $sysPlayerDevice);
+            // デバイスを作成（アプリケーション層で直接作成）
+            $sysPlayerDevice = SysPlayerDevice::create([
+                'sys_player_id' => $player->getId(),
+                'uuid' => $deviceId,
+                'device_info' => $deviceInfo,
+                'last_login_at' => now(),
+            ]);
+
+            // Token DTO生成（NexusAuth\Services\TokenService使用）
+            [$dtoToken, $sysPlayerToken] = $this->tokenService->generateToken(
+                $player,
+                $sysPlayerDevice,
+                fn($playerId, $deviceId, $tokenHash, $expiresAt) => \App\Models\Sys\SysPlayerToken::create([
+                    'sys_player_id' => $playerId,
+                    'sys_player_device_id' => $deviceId,
+                    'refresh_token_hash' => $tokenHash,
+                    'expires_at' => $expiresAt,
+                ])
+            );
 
             // レスポンスを返却（新規作成なので201）
             return new SignUpResponse(
-                sysPlayer: $sysPlayer,
+                sysPlayer: $player,
                 sysPlayerDevice: $sysPlayerDevice,
                 sysPlayerToken: $sysPlayerToken,
                 dtoToken: $dtoToken,

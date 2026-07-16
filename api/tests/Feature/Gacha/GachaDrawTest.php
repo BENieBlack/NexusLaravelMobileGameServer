@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Gacha;
 
-use App\Domain\Auth\Services\TokenService;
+use NexusAuth\Services\TokenService;
 use App\Models\Mst\MstGacha;
 use App\Models\Mst\MstGachaCost;
 use App\Models\Mst\MstGachaPrize;

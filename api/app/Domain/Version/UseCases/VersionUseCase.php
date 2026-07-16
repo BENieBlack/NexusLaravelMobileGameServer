@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Domain\Auth\UseCases;
+namespace App\Domain\Version\UseCases;
 
 use App\Domain\_BaseUseCase;
-use App\Domain\Auth\Services\VersionService;
+use App\Domain\Version\Services\VersionService;
 use App\Http\Responses\Auth\VersionResponse;
 
 class VersionUseCase extends _BaseUseCase

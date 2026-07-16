@@ -3,6 +3,7 @@
 namespace App\Models\Sys;
 
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use NexusAuth\Contracts\PlayerModelInterface;
 
 /**
  * SysPlayer Model
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * プレイヤーマスターテーブル
  * プレイヤーの基本情報を管理
  */
-class SysPlayer extends _BaseSys
+class SysPlayer extends _BaseSys implements PlayerModelInterface
 {
 
     /**
@@ -276,5 +277,16 @@ class SysPlayer extends _BaseSys
         unset($array['id']);
         
         return $array;
+    }
+
+    /**
+     * 作成日時取得
+     * PlayerModelInterface implementation
+     * 
+     * @return string Y-m-d H:i:s形式
+     */
+    public function getCreatedAt(): string
+    {
+        return $this->created_at->format('Y-m-d H:i:s');
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Auth\Services;
+namespace App\Domain\Version\Services;
 
 use App\Exceptions\SystemDataException;
 use App\Models\Sys\SysDeploy;

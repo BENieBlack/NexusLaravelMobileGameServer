@@ -1,9 +1,9 @@
 <?php
 
-namespace Tests\Unit\UseCases\Auth;
+namespace Tests\Unit\Domain\Version\UseCases;
 
-use App\Domain\Auth\Services\VersionService;
-use App\Domain\Auth\UseCases\VersionUseCase;
+use App\Domain\Version\Services\VersionService;
+use App\Domain\Version\UseCases\VersionUseCase;
 use App\Http\Responses\Auth\VersionResponse;
 use Mockery;
 use Tests\TestCase;

@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Domain\Auth\UseCases\LoginUseCase;
+use App\Domain\Login\UseCases\LoginUseCase;
 use App\Domain\Auth\UseCases\RefreshTokenUseCase;
 use App\Domain\Auth\UseCases\SignInUseCase;
 use App\Domain\Auth\UseCases\SignUpUseCase;
-use App\Domain\Auth\UseCases\VersionUseCase;
+use App\Domain\Version\UseCases\VersionUseCase;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RefreshTokenRequest;
 use App\Http\Requests\Auth\SignInRequest;

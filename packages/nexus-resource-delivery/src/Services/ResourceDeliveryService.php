@@ -119,10 +119,10 @@ class ResourceDeliveryService
      */
     public function deliver(
         int $sysPlayerId,
-        ?ResourceDeliveryPolicy $policy = null,
-    ): ResourceDeliverySummary {
+        ?ResourceDeliveryPolicyDto $policy = null,
+    ): ResourceDeliverySummaryDto {
         if ($policy === null) {
-            $policy = ResourceDeliveryPolicy::createDefaultPolicy();
+            $policy = ResourceDeliveryPolicyDto::createDefaultPolicy();
         }
 
         try {
@@ -153,8 +153,8 @@ class ResourceDeliveryService
      * @throws \Exception
      */
     private function checkAndThrowErrorBySummary(
-        ResourceDeliverySummary $summary,
-        ResourceDeliveryPolicy $policy,
+        ResourceDeliverySummaryDto $summary,
+        ResourceDeliveryPolicyDto $policy,
     ): void {
         $throwErrorTypes = $policy->getResourceTypesOfThrowErrorWhenResourceLimitReached(
             $this->getSupportedTypes(),
@@ -175,9 +175,9 @@ class ResourceDeliveryService
      */
     private function execDelivery(
         int $sysPlayerId,
-        ResourceDeliveryPolicy $policy,
-    ): ResourceDeliverySummary {
-        $summary = new ResourceDeliverySummary();
+        ResourceDeliveryPolicyDto $policy,
+    ): ResourceDeliverySummaryDto {
+        $summary = new ResourceDeliverySummaryDto();
 
         // 最大2回ループ（追加リソースの連鎖に対応）
         for ($i = 0; $i < 2; $i++) {
@@ -201,9 +201,9 @@ class ResourceDeliveryService
      */
     private function execDeliveryIteration(
         int $sysPlayerId,
-        ResourceDeliveryPolicy $policy,
-    ): ResourceDeliverySummary {
-        $summary = new ResourceDeliverySummary();
+        ResourceDeliveryPolicyDto $policy,
+    ): ResourceDeliverySummaryDto {
+        $summary = new ResourceDeliverySummaryDto();
 
         $pendingContents = $this->deliveryManager->getPendingContents();
 
@@ -239,7 +239,7 @@ class ResourceDeliveryService
             }
 
             // 送信完了として記録
-            $complete = new ResourceDeliveryComplete($contents);
+            $complete = new ResourceDeliveryCompleteDto($contents);
             $this->deliveryManager->afterSend($complete);
             $summary->addContents($contents);
         }

@@ -166,7 +166,7 @@ class LoginBonusServiceTest extends TestCase
 
         // 1日目の報酬が配布されることを確認
         $this->assertCount(1, $result); // 1日目はアイテムのみ
-        $this->assertSame('item', $result[0]->getType());
+        $this->assertSame('item', $result[0]->getType()->value);
         $this->assertSame('item_potion_001', $result[0]->getId());
         $this->assertSame(10, $result[0]->getAmount());
 
@@ -232,7 +232,7 @@ class LoginBonusServiceTest extends TestCase
 
         // 2日目の報酬が配布されることを確認
         $this->assertCount(1, $result); // 2日目はアイテムのみ
-        $this->assertSame('item', $result[0]->getType());
+        $this->assertSame('item', $result[0]->getType()->value);
         $this->assertSame(20, $result[0]->getAmount()); // 2日目は20個
         
         ClockUtility::reset();
@@ -301,11 +301,11 @@ class LoginBonusServiceTest extends TestCase
         $this->assertCount(2, $result);
         
         // アイテム報酬
-        $this->assertSame('item', $result[0]->getType());
+        $this->assertSame('item', $result[0]->getType()->value);
         $this->assertSame(70, $result[0]->getAmount()); // 7日目は70個
         
         // ダイヤ報酬
-        $this->assertSame('diamond', $result[1]->getType());
+        $this->assertSame('diamond', $result[1]->getType()->value);
         $this->assertSame(100, $result[1]->getAmount());
         
         ClockUtility::reset();
@@ -408,7 +408,7 @@ class LoginBonusServiceTest extends TestCase
 
         // 1日目の報酬と同じになる
         $this->assertCount(1, $result);
-        $this->assertSame('item', $result[0]->getType());
+        $this->assertSame('item', $result[0]->getType()->value);
         $this->assertSame(10, $result[0]->getAmount()); // 1日目の報酬（10個）
 
         // 履歴を確認
@@ -453,7 +453,7 @@ class LoginBonusServiceTest extends TestCase
 
         // 1日目の報酬にリセットされる
         $this->assertCount(1, $result);
-        $this->assertSame('item', $result[0]->getType());
+        $this->assertSame('item', $result[0]->getType()->value);
         $this->assertSame(10, $result[0]->getAmount()); // 1日目の報酬（10個）
         
         ClockUtility::reset();

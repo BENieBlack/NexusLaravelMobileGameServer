@@ -2,6 +2,7 @@
 
 namespace App\Domain\Auth\Services;
 
+use NexusAuth\Services\TokenService;
 use NexusSecurity\Contracts\TokenValidatorInterface;
 
 /**

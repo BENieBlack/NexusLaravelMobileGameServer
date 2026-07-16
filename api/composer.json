@@ -45,6 +45,10 @@
         {
             "type": "path",
             "url": "../packages/nexus-auth"
+        },
+        {
+            "type": "path",
+            "url": "../packages/nexus-login"
         }
     ],
     "require": {
@@ -61,7 +65,8 @@
         "nexus/maintenance": "@dev",
         "nexus/resource": "@dev",
         "nexus/resource-delivery": "@dev",
-        "nexus/auth": "@dev"
+        "nexus/auth": "@dev",
+        "nexus/login": "@dev"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

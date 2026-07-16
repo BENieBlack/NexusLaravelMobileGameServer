@@ -31,15 +31,17 @@ class LoginBonusService
      *
      * @param int $sysPlayerId
      * @param string|null $lastLoginAt 最終ログイン日時（UTC、文字列形式）
+     * @param CarbonImmutable|null $now 現在時刻（テスト用、通常はnull）
      * @return array<ResourceDto> 配布したログインボーナスの内容
      * @throws \Exception
      */
     public function checkAndGrantLoginBonus(
         int $sysPlayerId,
-        ?string $lastLoginAt
+        ?string $lastLoginAt,
+        ?CarbonImmutable $now = null
     ): array {
-        $currentTime = ClockUtility::now();
-        $currentTimeString = ClockUtility::nowToString();
+        $currentTime = $now ?? ClockUtility::now();
+        $currentTimeString = $now ? $now->toDateTimeString() : ClockUtility::nowToString();
         
         // DAY_START_TIMEを考慮して、今日初回ログインかをチェック
         // 最終ログイン日時がnullまたは現在時刻と異なるゲーム内日付の場合、ログインボーナスを配布

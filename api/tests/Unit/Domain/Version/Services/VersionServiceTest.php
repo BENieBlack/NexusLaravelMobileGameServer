@@ -55,6 +55,11 @@ class VersionServiceTest extends TestCase
         // キャッシュをクリア
         \Illuminate\Support\Facades\Cache::store('redis')->clear();
         
+        // すべてのデプロイデータを削除
+        SysDeploy::query()->delete();
+        SysDeployAsset::query()->delete();
+        SysDeployMaster::query()->delete();
+        
         // Assert & Act
         $this->expectException(SystemDataException::class);
         $this->service->checkVersion(null);
@@ -67,6 +72,11 @@ class VersionServiceTest extends TestCase
     {
         // キャッシュをクリア
         \Illuminate\Support\Facades\Cache::store('redis')->clear();
+        
+        // すべてのデプロイデータを削除
+        SysDeploy::query()->delete();
+        SysDeployAsset::query()->delete();
+        SysDeployMaster::query()->delete();
         
         // Arrange
         $master = SysDeployMaster::create([
@@ -107,6 +117,11 @@ class VersionServiceTest extends TestCase
     {
         // キャッシュをクリア
         \Illuminate\Support\Facades\Cache::store('redis')->clear();
+        
+        // すべてのデプロイデータを削除
+        SysDeploy::query()->delete();
+        SysDeployAsset::query()->delete();
+        SysDeployMaster::query()->delete();
         
         // Arrange - Create old deploy
         $oldMaster = SysDeployMaster::create([
@@ -178,6 +193,12 @@ class VersionServiceTest extends TestCase
     {
         // キャッシュをクリア
         \Illuminate\Support\Facades\Cache::store('redis')->clear();
+        
+        // すべてのデプロイデータを削除
+        SysDeploy::query()->delete();
+        SysDeployAsset::query()->delete();
+        SysDeployMaster::query()->delete();
+        SysMaintenance::query()->delete();
         
         // Arrange - Create maintenance
         $maintenance = SysMaintenance::create([

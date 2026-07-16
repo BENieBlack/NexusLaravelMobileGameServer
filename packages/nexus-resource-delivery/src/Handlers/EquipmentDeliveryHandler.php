@@ -33,7 +33,7 @@ class EquipmentDeliveryHandler implements ResourceDeliveryHandlerInterface
      * @return void
      * @throws \Exception 配送失敗時
      */
-    public function handle(int $sysPlayerId, ResourceDeliveryContent $content): void
+    public function handle(int $sysPlayerId, ResourceDeliveryContentDto $content): void
     {
         // metadataからlevel/gradeを取得（指定がない場合はnull = デフォルト値を使用）
         $metadata = $content->getMetadata();

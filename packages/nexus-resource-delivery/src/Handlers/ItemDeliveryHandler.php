@@ -34,7 +34,7 @@ class ItemDeliveryHandler implements ResourceDeliveryHandlerInterface
      * @return void
      * @throws \Exception 配送失敗時
      */
-    public function handle(int $sysPlayerId, ResourceDeliveryContent $content): void
+    public function handle(int $sysPlayerId, ResourceDeliveryContentDto $content): void
     {
         // ItemServiceのaddItemメソッドを使用（既存の場合は加算、新規の場合は作成）
         $this->itemService->addItem(

@@ -34,7 +34,7 @@ class DiamondDeliveryHandler implements ResourceDeliveryHandlerInterface
      * @return void
      * @throws \Exception 配送失敗時
      */
-    public function handle(int $sysPlayerId, ResourceDeliveryContent $content): void
+    public function handle(int $sysPlayerId, ResourceDeliveryContentDto $content): void
     {
         // metadataからplatformを取得
         $metadata = $content->getMetadata();

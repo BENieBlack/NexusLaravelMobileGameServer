@@ -57,7 +57,7 @@ Route::middleware(['auth.token', 'idempotency'])->group(function () {
     Route::post('/mailbox/open', [MailboxController::class, 'open']);
     Route::post('/mailbox/receive', [MailboxController::class, 'receive']);
     Route::post('/mailbox/receive_all', [MailboxController::class, 'receiveAll']);
-    Route::post('/mailbox/protect', [MailboxController::class, 'protect']);
+    Route::post('/mailbox/lock', [MailboxController::class, 'lock']);
     
     // Gacha endpoints
     Route::post('/gacha/draw', [GachaController::class, 'draw']);

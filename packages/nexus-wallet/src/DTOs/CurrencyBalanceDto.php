@@ -11,7 +11,7 @@ use NexusUtilities\Traits\JsonSerializableTrait;
  * 
  * @property string|null $expireAt Y-m-d H:i:s 形式の文字列
  */
-readonly class CurrencyBalance
+readonly class CurrencyBalanceDto
 {
     use JsonSerializableTrait;
     public function __construct(

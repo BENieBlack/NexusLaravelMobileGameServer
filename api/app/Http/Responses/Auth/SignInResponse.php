@@ -2,7 +2,7 @@
 
 namespace App\Http\Responses\Auth;
 
-use NexusAuth\DTOs\DtoToken;
+use NexusAuth\DTOs\TokenDto;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;
@@ -27,7 +27,7 @@ class SignInResponse implements Responsable
         public readonly SysPlayer $sysPlayer,
         public readonly SysPlayerDevice $sysPlayerDevice,
         public readonly SysPlayerToken $sysPlayerToken,
-        public readonly DtoToken $dtoToken,
+        public readonly TokenDto $dtoToken,
     ) {
     }
 

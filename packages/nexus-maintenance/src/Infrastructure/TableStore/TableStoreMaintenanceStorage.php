@@ -3,7 +3,7 @@
 namespace NexusMaintenance\Infrastructure\TableStore;
 
 use NexusMaintenance\Contracts\MaintenanceStorageInterface;
-use NexusMaintenance\DTOs\DtoMaintenance;
+use NexusMaintenance\DTOs\MaintenanceDto;
 use NexusUtilities\ClockUtility;
 use Aliyun\OTS\OTSClient;
 use Aliyun\OTS\Consts\PrimaryKeyTypeConst;
@@ -37,7 +37,7 @@ class TableStoreMaintenanceStorage implements MaintenanceStorageInterface
     /**
      * {@inheritDoc}
      */
-    public function get(): ?DtoMaintenance
+    public function get(): ?MaintenanceDto
     {
         try {
             $response = $this->client->getRow([
@@ -64,7 +64,7 @@ class TableStoreMaintenanceStorage implements MaintenanceStorageInterface
     /**
      * {@inheritDoc}
      */
-    public function put(DtoMaintenance $sysMaintenance): bool
+    public function put(MaintenanceDto $sysMaintenance): bool
     {
         try {
             $this->client->putRow([
@@ -139,14 +139,14 @@ class TableStoreMaintenanceStorage implements MaintenanceStorageInterface
     /**
      * TableStore行データをSysMaintenanceに変換
      */
-    private function parseRow(array $columns): DtoMaintenance
+    private function parseRow(array $columns): MaintenanceDto
     {
         $data = [];
         foreach ($columns as $column) {
             $data[$column[0]] = $column[1];
         }
 
-        return new DtoMaintenance(
+        return new MaintenanceDto(
             isMaintenance: $data['is_maintenance'] ?? false,
             startAt: !empty($data['start_at']) ? $data['start_at'] : null,
             endAt: !empty($data['end_at']) ? $data['end_at'] : null,

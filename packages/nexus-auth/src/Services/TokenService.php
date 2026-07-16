@@ -6,7 +6,7 @@ use NexusAuth\Contracts\DeviceModelInterface;
 use NexusAuth\Contracts\PlayerModelInterface;
 use NexusAuth\Contracts\TokenModelInterface;
 use NexusAuth\Contracts\TokenRepositoryInterface;
-use NexusAuth\DTOs\DtoToken;
+use NexusAuth\DTOs\TokenDto;
 use NexusUtilities\ClockUtility;
 use Illuminate\Support\Str;
 
@@ -132,7 +132,7 @@ class TokenService
      * @param PlayerModelInterface $player
      * @param DeviceModelInterface $device
      * @param callable $tokenModelFactory トークンモデルを生成するファクトリ関数
-     * @return array{DtoToken, TokenModelInterface}
+     * @return array{TokenDto, TokenModelInterface}
      */
     public function generateToken(
         PlayerModelInterface $player,
@@ -154,7 +154,7 @@ class TokenService
         $this->tokenRepository->setModel($tokenModel);
 
         return [
-            new DtoToken(
+            new TokenDto(
                 accessToken: $accessToken,
                 refreshToken: $refreshToken,
                 expiresIn: $this->accessTokenExpiration
@@ -182,7 +182,7 @@ class TokenService
      * @param PlayerModelInterface $player
      * @param DeviceModelInterface $device
      * @param callable $tokenModelFactory
-     * @return array{DtoToken, TokenModelInterface}
+     * @return array{TokenDto, TokenModelInterface}
      */
     public function rotateToken(
         TokenModelInterface $oldToken,

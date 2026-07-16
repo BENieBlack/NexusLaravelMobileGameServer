@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\Domain\Gacha\Services;
 
-use NexusResource\DTOs\Resource;
-use NexusResourceDelivery\DTOs\ResourceDeliveryResult;
+use NexusResource\DTOs\ResourceDto;
+use NexusResourceDelivery\DTOs\ResourceDeliveryResultDto;
 use NexusResourceDelivery\Services\ResourceDeliveryService;
 use App\Domain\Gacha\Services\GachaPrizeService;
 use Mockery;

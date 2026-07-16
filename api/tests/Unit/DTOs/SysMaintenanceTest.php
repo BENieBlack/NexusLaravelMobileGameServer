@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\DTOs;
 
-use NexusMaintenance\DTOs\DtoMaintenance;
+use NexusMaintenance\DTOs\MaintenanceDto;
 use NexusUtilities\ClockUtility;
 use PHPUnit\Framework\TestCase;
 
@@ -119,7 +119,7 @@ class SysMaintenanceTest extends TestCase
             'updated_at' => '2024-01-01 09:00:00',
         ];
 
-        $sysMaintenance = DtoMaintenance::fromArray($data);
+        $sysMaintenance = MaintenanceDto::fromArray($data);
 
         $this->assertTrue($sysMaintenance->isMaintenance);
         $this->assertEquals('2024-01-01 10:00:00', $sysMaintenance->startAt);

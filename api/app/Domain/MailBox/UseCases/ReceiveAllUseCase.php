@@ -3,7 +3,7 @@
 namespace App\Domain\Mailbox\UseCases;
 
 use App\Domain\_BaseUseCase;
-use NexusResource\DTOs\Resource;
+use NexusResource\DTOs\ResourceDto;
 use NexusResourceDelivery\Services\ResourceDeliveryService;
 use App\Domain\MailBox\Constants\Category;
 use App\Exceptions\GameErrorCode;

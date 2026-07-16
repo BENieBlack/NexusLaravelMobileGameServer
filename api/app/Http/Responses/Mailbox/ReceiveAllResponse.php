@@ -2,7 +2,7 @@
 
 namespace App\Http\Responses\Mailbox;
 
-use NexusResourceDelivery\DTOs\ResourceDeliverySummary;
+use NexusResourceDelivery\DTOs\ResourceDeliverySummaryDto;
 use App\Http\Responses\_BaseResponse;
 
 /**

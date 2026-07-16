@@ -83,7 +83,7 @@ class TokenServiceTest extends TestCase
         app(QueryManager::class)->execAllQuery();
 
         // Assert - DtoToken
-        $this->assertInstanceOf(DtoToken::class, $dtoToken);
+        $this->assertInstanceOf(TokenDto::class, $dtoToken);
         $this->assertNotEmpty($dtoToken->accessToken);
         $this->assertNotEmpty($dtoToken->refreshToken);
         $this->assertEquals(3600, $dtoToken->expiresIn); // 1時間
@@ -309,7 +309,7 @@ class TokenServiceTest extends TestCase
         app(QueryManager::class)->execAllQuery();
 
         // Assert - 新しいトークンが作成されている
-        $this->assertInstanceOf(DtoToken::class, $newDtoToken);
+        $this->assertInstanceOf(TokenDto::class, $newDtoToken);
         $this->assertInstanceOf(SysPlayerToken::class, $newSysPlayerToken);
         $this->assertNotEquals($oldDtoToken->refreshToken, $newDtoToken->refreshToken);
         $this->assertNotEquals($oldSysPlayerToken->refresh_token_hash, $newSysPlayerToken->refresh_token_hash);

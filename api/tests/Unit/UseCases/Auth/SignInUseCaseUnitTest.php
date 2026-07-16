@@ -14,7 +14,7 @@ use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Contracts\PlayerRepositoryInterface;
 use NexusAuth\Contracts\DeviceRepositoryInterface;
 use NexusAuth\Contracts\TokenRepositoryInterface;
-use NexusAuth\DTOs\DtoToken;
+use NexusAuth\DTOs\TokenDto;
 use Mockery;
 use Tests\TestCase;
 

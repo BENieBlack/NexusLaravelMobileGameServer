@@ -2,7 +2,7 @@
 
 namespace App\Http\Responses\Auth;
 
-use NexusAuth\DTOs\DtoToken;
+use NexusAuth\DTOs\TokenDto;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;
@@ -22,13 +22,13 @@ class SignUpResponse implements Responsable
      * @param SysPlayer $sysPlayer プレイヤー情報
      * @param SysPlayerDevice $sysPlayerDevice デバイス情報
      * @param SysPlayerToken $sysPlayerToken トークン情報
-     * @param DtoToken $dtoToken トークン情報DTO
+     * @param TokenDto $dtoToken トークン情報DTO
      */
     public function __construct(
         public readonly SysPlayer $sysPlayer,
         public readonly SysPlayerDevice $sysPlayerDevice,
         public readonly SysPlayerToken $sysPlayerToken,
-        public readonly DtoToken $dtoToken,
+        public readonly TokenDto $dtoToken,
     ) {
     }
 

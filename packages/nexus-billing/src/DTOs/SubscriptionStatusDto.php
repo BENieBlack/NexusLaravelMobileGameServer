@@ -12,7 +12,7 @@ use NexusUtilities\Traits\JsonSerializableTrait;
  * @property string $expiresAt Y-m-d H:i:s 形式の文字列
  * @property string|null $cancelledAt Y-m-d H:i:s 形式の文字列
  */
-readonly class SubscriptionStatus
+readonly class SubscriptionStatusDto
 {
     use JsonSerializableTrait;
     public function __construct(

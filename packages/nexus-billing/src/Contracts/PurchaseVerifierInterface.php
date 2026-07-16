@@ -18,7 +18,7 @@ interface PurchaseVerifierInterface
      * 
      * プラットフォームに応じた適切な検証方法を選択し、レシートを検証する
      * 
-     * @param ReceiptData $receiptData レシート情報
+     * @param ReceiptDataDto $receiptData レシート情報
      * @return VerificationResult 検証結果
      * @throws ReceiptVerificationException 検証失敗時
      */

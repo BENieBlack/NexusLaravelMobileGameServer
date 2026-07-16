@@ -2,8 +2,8 @@
 
 namespace NexusResourceDelivery\Managers;
 
-use NexusResourceDelivery\DTOs\ResourceDeliveryContent;
-use NexusResourceDelivery\DTOs\ResourceDeliveryComplete;
+use NexusResourceDelivery\DTOs\ResourceDeliveryContentDto;
+use NexusResourceDelivery\DTOs\ResourceDeliveryCompleteDto;
 use Illuminate\Support\Collection;
 
 /**
@@ -47,7 +47,7 @@ interface ResourceDeliveryManagerInterface
     /**
      * 配送処理を実行した後に実行する処理
      *
-     * @param ResourceDeliveryComplete $sendCompleteData 送信完了データ
+     * @param ResourceDeliveryCompleteDto $sendCompleteData 送信完了データ
      * @return void
      */
     public function afterSend(ResourceDeliveryComplete $sendCompleteData): void;

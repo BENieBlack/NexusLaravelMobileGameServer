@@ -9,7 +9,7 @@ use NexusUtilities\Traits\JsonSerializableTrait;
  * 
  * 通貨の加算・消費結果を保持
  */
-readonly class CurrencyOperationResult
+readonly class CurrencyOperationResultDto
 {
     use JsonSerializableTrait;
     public function __construct(

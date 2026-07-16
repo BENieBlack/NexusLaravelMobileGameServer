@@ -6,12 +6,12 @@ use Illuminate\Contracts\Support\Arrayable;
 use JsonSerializable;
 
 /**
- * DtoToken DTO
+ * TokenDto DTO
  * 
  * アクセストークン、リフレッシュトークン、有効期限をまとめたDTO
  * OAuth2標準のトークンレスポンス形式に準拠
  */
-readonly class DtoToken implements Arrayable, JsonSerializable
+readonly class TokenDto implements Arrayable, JsonSerializable
 {
     /**
      * @param string $accessToken アクセストークン（JWT形式推奨）

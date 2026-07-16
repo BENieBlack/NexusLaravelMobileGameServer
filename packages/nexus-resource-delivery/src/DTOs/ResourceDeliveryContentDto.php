@@ -2,7 +2,7 @@
 
 namespace NexusResourceDelivery\DTOs;
 
-use NexusResource\DTOs\Resource;
+use NexusResource\DTOs\ResourceDto;
 use NexusResource\Enums\ResourceType;
 use NexusResourceDelivery\Enums\ResourceDeliveryStatus;
 use NexusResourceDelivery\Enums\ResourceDeliveryResultReason;
@@ -19,7 +19,7 @@ use Ramsey\Uuid\Uuid;
  * - 配送失敗理由（上限超過、メールボックス送信など）
  * - ログ用のbefore/after情報
  */
-class ResourceDeliveryContent
+class ResourceDeliveryContentDto
 {
     /** @var string DeliveryManagerでの管理のために使用する一意のID */
     private string $uniqueId;
@@ -34,7 +34,7 @@ class ResourceDeliveryContent
     private ResourceDeliveryResultReason $failureReason;
 
     /** @var Resource|null 元のリソース（変換前） */
-    private ?Resource $originalResource = null;
+    private ?ResourceDto $originalResource = null;
 
     /** @var int ログ用：付与前のリソース量 */
     private int $beforeAmount = 0;
@@ -43,10 +43,10 @@ class ResourceDeliveryContent
     private int $afterAmount = 0;
 
     /**
-     * @param Resource $resource リソース
+     * @param ResourceDto $resource リソース
      */
     public function __construct(
-        private Resource $resource,
+        private ResourceDto $resource,
     ) {
         $this->uniqueId = $this->generateUniqueId();
         $this->status = ResourceDeliveryStatus::PENDING;
@@ -73,7 +73,7 @@ class ResourceDeliveryContent
     /**
      * リソースを取得
      */
-    public function getResource(): Resource
+    public function getResource(): ResourceDto
     {
         return $this->resource;
     }
@@ -225,10 +225,10 @@ class ResourceDeliveryContent
     /**
      * コンテンツを変換（元のリソースを保存してから新しいリソースに置き換える）
      *
-     * @param Resource $newResource 新しいリソース
+     * @param ResourceDto $newResource 新しいリソース
      * @param ResourceDeliveryResultReason $reason 変換理由
      */
-    public function convertTo(Resource $newResource, ResourceDeliveryResultReason $reason): void
+    public function convertTo(ResourceDto $newResource, ResourceDeliveryResultReason $reason): void
     {
         // 元のリソースを保存
         if ($this->originalResource === null) {
@@ -295,10 +295,10 @@ class ResourceDeliveryContent
     /**
      * Resourceから生成
      *
-     * @param Resource $resource
+     * @param ResourceDto $resource
      * @return self
      */
-    public static function fromResource(Resource $resource): self
+    public static function fromResource(ResourceDto $resource): self
     {
         return new self($resource);
     }

@@ -2,7 +2,7 @@
 
 namespace App\Domain\Login\Services;
 
-use NexusResource\DTOs\Resource;
+use NexusResource\DTOs\ResourceDto;
 use NexusResourceDelivery\Services\ResourceDeliveryService;
 use App\Models\Mst\MstLoginBonus;
 use App\Models\Mst\MstLoginBonusContent;
@@ -31,7 +31,7 @@ class LoginBonusService
      *
      * @param int $sysPlayerId
      * @param string|null $lastLoginAt 最終ログイン日時（UTC、文字列形式）
-     * @return array<Resource> 配布したログインボーナスの内容
+     * @return array<ResourceDto> 配布したログインボーナスの内容
      * @throws \Exception
      */
     public function checkAndGrantLoginBonus(
@@ -56,7 +56,7 @@ class LoginBonusService
      *
      * @param int $sysPlayerId
      * @param CarbonImmutable $gameDayStart ゲーム内日付の開始時刻
-     * @return array<Resource> 配布したログインボーナスの内容
+     * @return array<ResourceDto> 配布したログインボーナスの内容
      * @throws \Exception
      */
     private function grantLoginBonus(int $sysPlayerId, CarbonImmutable $gameDayStart): array
@@ -183,9 +183,9 @@ class LoginBonusService
      * MstLoginBonusContentをResourceに変換
      *
      * @param \App\Models\Mst\MstLoginBonusContent $content
-     * @return Resource
+     * @return ResourceDto
      */
-    private function convertToResource($content): Resource
+    private function convertToResource($content): ResourceDto
     {
         $metadata = [];
         if ($content->is_paid) {

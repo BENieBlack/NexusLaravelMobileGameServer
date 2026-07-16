@@ -13,7 +13,7 @@ use NexusResourceDelivery\Enums\ResourceDeliveryMethod;
  * デフォルト: 上限超過時はメールボックスへ送信
  * エラーモード: 上限超過時は例外を投げる
  */
-class ResourceDeliveryPolicy
+class ResourceDeliveryPolicyDto
 {
     /**
      * @param array<string, ResourceDeliveryMethod> $methodMap リソースタイプごとの配送方法

@@ -2,8 +2,8 @@
 
 namespace LaravelWallet\Contracts;
 
-use LaravelWallet\DTOs\CurrencyBalance;
-use LaravelWallet\DTOs\CurrencyOperationResult;
+use LaravelWallet\DTOs\CurrencyBalanceDto;
+use LaravelWallet\DTOs\CurrencyOperationResultDto;
 use LaravelWallet\Exceptions\InsufficientBalanceException;
 use LaravelWallet\Exceptions\InvalidCurrencyException;
 
@@ -23,7 +23,7 @@ interface WalletManagerInterface
      * @param int $freeAmount 無償通貨数（デフォルト: 0）
      * @param int $paidAmount 有償通貨数（デフォルト: 0）
      * @param string|null $expireAt 有効期限 (Y-m-d H:i:s)（NULLの場合は無期限）
-     * @return CurrencyOperationResult 操作結果
+     * @return CurrencyOperationResultDto 操作結果
      * @throws InvalidCurrencyException 無効な通貨IDの場合
      */
     public function addCurrency(
@@ -32,7 +32,7 @@ interface WalletManagerInterface
         int $freeAmount = 0,
         int $paidAmount = 0,
         ?string $expireAt = null
-    ): CurrencyOperationResult;
+    ): CurrencyOperationResultDto;
 
     /**
      * 通貨を消費（FIFO方式、有償優先）
@@ -40,7 +40,7 @@ interface WalletManagerInterface
      * @param int $playerId プレイヤーID
      * @param string $currencyId 通貨ID
      * @param int $amount 消費する数量
-     * @return CurrencyOperationResult 操作結果
+     * @return CurrencyOperationResultDto 操作結果
      * @throws InsufficientBalanceException 残高不足の場合
      * @throws InvalidCurrencyException 無効な通貨IDの場合
      */
@@ -48,17 +48,17 @@ interface WalletManagerInterface
         int $playerId,
         string $currencyId,
         int $amount
-    ): CurrencyOperationResult;
+    ): CurrencyOperationResultDto;
 
     /**
      * 通貨残高を取得
      * 
      * @param int $playerId プレイヤーID
      * @param string $currencyId 通貨ID
-     * @return CurrencyBalance 残高情報
+     * @return CurrencyBalanceDto 残高情報
      * @throws InvalidCurrencyException 無効な通貨IDの場合
      */
-    public function getBalance(int $playerId, string $currencyId): CurrencyBalance;
+    public function getBalance(int $playerId, string $currencyId): CurrencyBalanceDto;
 
     /**
      * 有効期限切れの通貨を削除
@@ -75,7 +75,7 @@ interface WalletManagerInterface
      * 
      * @param int $playerId プレイヤーID
      * @param array<string> $currencyIds 通貨IDリスト
-     * @return array<string, CurrencyBalance> 通貨ID => 残高情報のマップ
+     * @return array<string, CurrencyBalanceDto> 通貨ID => 残高情報のマップ
      */
     public function getBulkBalances(int $playerId, array $currencyIds): array;
 }

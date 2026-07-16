@@ -2,17 +2,17 @@
 
 namespace LaravelMobileBilling\Tests\Unit\DTOs;
 
-use LaravelMobileBilling\DTOs\VerificationResult;
+use LaravelMobileBilling\DTOs\VerificationDto;
 use PHPUnit\Framework\TestCase;
 
-class VerificationResultTest extends TestCase
+class VerificationDtoTest extends TestCase
 {
     public function test_construct_with_all_parameters()
     {
         $purchaseDate = '2026-07-13 10:00:00';
         $rawResponse = ['status' => 'success', 'data' => ['test' => 'value']];
         
-        $result = new VerificationResult(
+        $result = new VerificationDto(
             isValid: true,
             transactionId: 'txn_123456',
             productId: 'com.example.product1',
@@ -35,7 +35,7 @@ class VerificationResultTest extends TestCase
     {
         $purchaseDate = '2026-07-13 10:00:00';
         
-        $result = new VerificationResult(
+        $result = new VerificationDto(
             isValid: false,
             transactionId: 'txn_789012',
             productId: 'com.example.product2',
@@ -53,7 +53,7 @@ class VerificationResultTest extends TestCase
         $purchaseDate = '2026-07-13 10:00:00';
         $rawResponse = ['status' => 'success'];
         
-        $result = new VerificationResult(
+        $result = new VerificationDto(
             isValid: true,
             transactionId: 'txn_123456',
             productId: 'com.example.product1',
@@ -79,7 +79,7 @@ class VerificationResultTest extends TestCase
     {
         $purchaseDate = '2026-07-13 10:00:00';
         
-        $result = new VerificationResult(
+        $result = new VerificationDto(
             isValid: true,
             transactionId: 'txn_123456',
             productId: 'com.example.product1',

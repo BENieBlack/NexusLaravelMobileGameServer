@@ -2,15 +2,15 @@
 
 namespace LaravelWallet\Tests\Unit\DTOs;
 
-use LaravelWallet\DTOs\CurrencyBalance;
+use LaravelWallet\DTOs\CurrencyBalanceDto;
 use PHPUnit\Framework\TestCase;
 
-class CurrencyBalanceTest extends TestCase
+class CurrencyBalanceDtoTest extends TestCase
 {
     public function test_construct_with_all_parameters()
     {
         $expireAt = '2026-08-12 00:00:00';
-        $balance = new CurrencyBalance(
+        $balance = new CurrencyBalanceDto(
             freeAmount: 1000,
             paidAmount: 500,
             totalAmount: 1500,
@@ -25,7 +25,7 @@ class CurrencyBalanceTest extends TestCase
 
     public function test_construct_without_expire_at()
     {
-        $balance = new CurrencyBalance(
+        $balance = new CurrencyBalanceDto(
             freeAmount: 2000,
             paidAmount: 0,
             totalAmount: 2000
@@ -40,7 +40,7 @@ class CurrencyBalanceTest extends TestCase
     public function test_to_array()
     {
         $expireAt = '2026-08-12 00:00:00';
-        $balance = new CurrencyBalance(
+        $balance = new CurrencyBalanceDto(
             freeAmount: 1000,
             paidAmount: 500,
             totalAmount: 1500,
@@ -62,7 +62,7 @@ class CurrencyBalanceTest extends TestCase
 
     public function test_to_array_with_null_expire_at()
     {
-        $balance = new CurrencyBalance(
+        $balance = new CurrencyBalanceDto(
             freeAmount: 1000,
             paidAmount: 500,
             totalAmount: 1500
@@ -76,7 +76,7 @@ class CurrencyBalanceTest extends TestCase
     public function test_to_json()
     {
         $expireAt = '2026-08-12 00:00:00';
-        $balance = new CurrencyBalance(
+        $balance = new CurrencyBalanceDto(
             freeAmount: 1000,
             paidAmount: 500,
             totalAmount: 1500,

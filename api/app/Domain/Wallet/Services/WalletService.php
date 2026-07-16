@@ -90,7 +90,7 @@ class WalletService implements WalletManagerInterface
             $this->trxWalletBalanceRepository->setModel($paidBalance);
         }
 
-        return new CurrencyOperationResult(
+        return new CurrencyOperationResultDto(
             freeAmount: $freeAmount,
             paidAmount: $paidAmount,
             totalAmount: $freeAmount + $paidAmount,
@@ -153,7 +153,7 @@ class WalletService implements WalletManagerInterface
         $wallet->setPaidAmount($wallet->getPaidAmount() - $consumedPaid);
         $this->trxWalletRepository->setModel($wallet);
 
-        return new CurrencyOperationResult(
+        return new CurrencyOperationResultDto(
             freeAmount: $consumedFree,
             paidAmount: $consumedPaid,
             totalAmount: $amount,
@@ -174,14 +174,14 @@ class WalletService implements WalletManagerInterface
         $wallet = $this->trxWalletRepository->selectByMstItemId($playerId, $currencyId);
 
         if ($wallet === null) {
-            return new CurrencyBalance(
+            return new CurrencyBalanceDto(
                 freeAmount: 0,
                 paidAmount: 0,
                 totalAmount: 0,
             );
         }
 
-        return new CurrencyBalance(
+        return new CurrencyBalanceDto(
             freeAmount: $wallet->getFreeAmount(),
             paidAmount: $wallet->getPaidAmount(),
             totalAmount: $wallet->getTotalAmount(),

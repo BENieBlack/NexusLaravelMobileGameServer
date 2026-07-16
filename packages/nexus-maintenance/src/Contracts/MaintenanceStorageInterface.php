@@ -2,7 +2,7 @@
 
 namespace NexusMaintenance\Contracts;
 
-use NexusMaintenance\DTOs\SysMaintenance;
+use NexusMaintenance\DTOs\DtoMaintenance;
 
 /**
  * メンテナンスストレージインターフェース
@@ -14,17 +14,17 @@ interface MaintenanceStorageInterface
     /**
      * メンテナンス情報を取得
      * 
-     * @return SysMaintenance|null メンテナンス情報、存在しない場合はnull
+     * @return DtoMaintenance|null メンテナンス情報、存在しない場合はnull
      */
-    public function get(): ?SysMaintenance;
+    public function get(): ?DtoMaintenance;
 
     /**
      * メンテナンス情報を保存
      * 
-     * @param SysMaintenance $sysMaintenance メンテナンス情報
+     * @param DtoMaintenance $sysMaintenance メンテナンス情報
      * @return bool 保存成功時true
      */
-    public function put(SysMaintenance $sysMaintenance): bool;
+    public function put(DtoMaintenance $sysMaintenance): bool;
 
     /**
      * メンテナンス情報を削除（メンテ終了）

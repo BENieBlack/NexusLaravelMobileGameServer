@@ -3,7 +3,7 @@
 namespace NexusMaintenance\Infrastructure\DynamoDB;
 
 use NexusMaintenance\Contracts\MaintenanceStorageInterface;
-use NexusMaintenance\DTOs\SysMaintenance;
+use NexusMaintenance\DTOs\DtoMaintenance;
 use NexusUtilities\ClockUtility;
 use Aws\DynamoDb\DynamoDbClient;
 use Aws\DynamoDb\Exception\DynamoDbException;
@@ -45,7 +45,7 @@ class DynamoDBMaintenanceStorage implements MaintenanceStorageInterface
     /**
      * {@inheritDoc}
      */
-    public function get(): ?SysMaintenance
+    public function get(): ?DtoMaintenance
     {
         try {
             $result = $this->client->getItem([
@@ -72,7 +72,7 @@ class DynamoDBMaintenanceStorage implements MaintenanceStorageInterface
     /**
      * {@inheritDoc}
      */
-    public function put(SysMaintenance $sysMaintenance): bool
+    public function put(DtoMaintenance $sysMaintenance): bool
     {
         try {
             $this->client->putItem([
@@ -143,9 +143,9 @@ class DynamoDBMaintenanceStorage implements MaintenanceStorageInterface
     /**
      * DynamoDBアイテムをSysMaintenanceに変換
      */
-    private function parseItem(array $item): SysMaintenance
+    private function parseItem(array $item): DtoMaintenance
     {
-        return new SysMaintenance(
+        return new DtoMaintenance(
             isMaintenance: $item['is_maintenance']['BOOL'] ?? false,
             startAt: !empty($item['start_at']['S']) ? $item['start_at']['S'] : null,
             endAt: !empty($item['end_at']['S']) ? $item['end_at']['S'] : null,

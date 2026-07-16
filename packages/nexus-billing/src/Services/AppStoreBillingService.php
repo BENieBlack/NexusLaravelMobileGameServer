@@ -25,7 +25,7 @@ class AppStoreBillingService implements BillingPlatformInterface
     /**
      * {@inheritDoc}
      */
-    public function verifyReceipt(ReceiptData $receiptData): VerificationResultDto
+    public function verifyReceipt(ReceiptData $receiptData): VerificationDto
     {
         if (empty($receiptData->receipt)) {
             throw new InvalidReceiptException('Receipt data is required for App Store');
@@ -71,7 +71,7 @@ class AppStoreBillingService implements BillingPlatformInterface
     /**
      * {@inheritDoc}
      */
-    public function getSubscriptionStatus(string $subscriptionId): SubscriptionStatusDto
+    public function getSubscriptionStatus(string $subscriptionId): SubscriptionDto
     {
         // TODO: App Store Server API を使用した実装
         // 現在は未実装

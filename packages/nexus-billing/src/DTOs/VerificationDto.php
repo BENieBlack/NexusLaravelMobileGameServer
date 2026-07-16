@@ -11,7 +11,7 @@ use NexusUtilities\Traits\JsonSerializableTrait;
  * 
  * @property string $purchaseDate Y-m-d H:i:s 形式の文字列
  */
-readonly class VerificationResultDto
+readonly class VerificationDto
 {
     use JsonSerializableTrait;
     public function __construct(

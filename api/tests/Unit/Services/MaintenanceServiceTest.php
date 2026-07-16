@@ -3,7 +3,7 @@
 namespace Tests\Unit\Services;
 
 use NexusMaintenance\Contracts\MaintenanceStorageInterface;
-use NexusMaintenance\DTOs\SysMaintenance;
+use NexusMaintenance\DTOs\DtoMaintenance;
 use NexusMaintenance\Services\MaintenanceService;
 use NexusUtilities\ClockUtility;
 use Illuminate\Support\Facades\Log;
@@ -46,7 +46,7 @@ class MaintenanceServiceTest extends TestCase
     {
         ClockUtility::setNow('2024-01-15 12:00:00');
         
-        $sysMaintenance = new SysMaintenance(
+        $sysMaintenance = new DtoMaintenance(
             isMaintenance: true,
             startAt: '2024-01-15 11:00:00',
             endAt: '2024-01-15 13:00:00',
@@ -64,7 +64,7 @@ class MaintenanceServiceTest extends TestCase
 
     public function test_get_maintenance_info_returns_info_from_storage(): void
     {
-        $sysMaintenance = new SysMaintenance(
+        $sysMaintenance = new DtoMaintenance(
             isMaintenance: true,
             startAt: '2024-01-15 12:00:00',
             endAt: '2024-01-15 13:00:00',
@@ -85,7 +85,7 @@ class MaintenanceServiceTest extends TestCase
 
     public function test_start_maintenance_stores_info_and_clears_cache(): void
     {
-        $sysMaintenance = new SysMaintenance(
+        $sysMaintenance = new DtoMaintenance(
             isMaintenance: true,
             startAt: '2024-01-15 12:00:00',
             endAt: '2024-01-15 13:00:00',

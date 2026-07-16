@@ -97,7 +97,7 @@ class ReceiveAllUseCase extends _BaseUseCase
 
                 // Resource配列に変換して集約
                 foreach ($contentCollection as $content) {
-                    $resource = Resource::fromTypeString(
+                    $resource = ResourceDto::fromTypeString(
                         strtolower($content->getContentType()),
                         $content->getContentId(),
                         $content->getAmount(),

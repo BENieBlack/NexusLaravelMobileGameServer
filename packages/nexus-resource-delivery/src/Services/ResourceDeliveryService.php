@@ -63,7 +63,7 @@ class ResourceDeliveryService
      */
     public function addResource(ResourceDto $resource): void
     {
-        $content = ResourceDeliveryContent::fromResource($resource);
+        $content = ResourceDeliveryContentDto::fromResource($resource);
         $this->deliveryManager->addContent($content);
     }
 
@@ -79,7 +79,7 @@ class ResourceDeliveryService
         $collection = $resources instanceof Collection ? $resources : collect($resources);
         
         $contents = $collection->map(function ($resource) {
-            return ResourceDeliveryContent::fromResource($resource);
+            return ResourceDeliveryContentDto::fromResource($resource);
         });
 
         $this->deliveryManager->addContents($contents);

@@ -42,7 +42,7 @@ class IdempotencyService
      * リクエストIDと検証結果をキャッシュに保存する
      * 
      * @param string $uniqueRequestId 一意なリクエストID
-     * @param VerificationResultDto $result 検証結果
+     * @param VerificationDto $result 検証結果
      * @return void
      */
     public function register(string $uniqueRequestId, VerificationResult $result): void

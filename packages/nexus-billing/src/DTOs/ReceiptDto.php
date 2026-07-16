@@ -9,7 +9,7 @@ use NexusUtilities\Traits\JsonSerializableTrait;
  * 
  * クライアントから送信されるレシート情報を保持
  */
-readonly class ReceiptDataDto
+readonly class ReceiptDto
 {
     use JsonSerializableTrait;
     public function __construct(

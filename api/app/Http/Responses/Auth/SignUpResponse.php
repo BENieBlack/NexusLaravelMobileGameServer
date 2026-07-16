@@ -2,7 +2,7 @@
 
 namespace App\Http\Responses\Auth;
 
-use App\Domain\Auth\DTOs\DtoToken;
+use NexusAuth\DTOs\DtoToken;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;

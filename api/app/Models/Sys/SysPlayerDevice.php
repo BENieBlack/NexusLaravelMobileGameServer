@@ -4,6 +4,8 @@ namespace App\Models\Sys;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use NexusAuth\Contracts\DeviceModelInterface;
+use NexusAuth\Contracts\PlayerModelInterface;
 
 /**
  * SysPlayerDevice Model
@@ -11,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * プレイヤーデバイス情報テーブル
  * デバイス固有IDとデバイス情報を管理
  */
-class SysPlayerDevice extends _BaseSys
+class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
 {
 
     /**
@@ -107,13 +109,23 @@ class SysPlayerDevice extends _BaseSys
     }
 
     /**
-     * uuidを取得
+     * uuidを取得 (内部用: nullable)
      *
      * @return string|null
      */
-    public function getUuid(): ?string
+    public function getUuidNullable(): ?string
     {
         return $this->getAttribute('uuid');
+    }
+
+    /**
+     * uuidを取得 (NexusAuth DeviceModelInterface)
+     *
+     * @return string
+     */
+    public function getUuid(): string
+    {
+        return $this->getAttribute('uuid') ?? '';
     }
 
     /**
@@ -149,13 +161,24 @@ class SysPlayerDevice extends _BaseSys
     }
 
     /**
-     * last_login_atを取得
+     * last_login_atをDateTimeオブジェクトで取得 (内部用)
      *
      * @return \DateTime|null
      */
-    public function getLastLoginAt(): ?\DateTime
+    public function getLastLoginAtDateTime(): ?\DateTime
     {
         return $this->getAttribute('last_login_at');
+    }
+
+    /**
+     * last_login_atを文字列形式で取得 (NexusAuth DeviceModelInterface)
+     *
+     * @return string|null
+     */
+    public function getLastLoginAt(): ?string
+    {
+        $lastLoginAt = $this->getAttribute('last_login_at');
+        return $lastLoginAt ? $lastLoginAt->format('Y-m-d H:i:s') : null;
     }
 
     /**
@@ -186,5 +209,39 @@ class SysPlayerDevice extends _BaseSys
         }
         
         return $array;
+    }
+
+    // ========================================
+    // NexusAuth DeviceModelInterface の実装
+    // ========================================
+
+    /**
+     * IDを取得 (NexusAuth DeviceModelInterface)
+     *
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    /**
+     * プレイヤーIDを取得 (NexusAuth DeviceModelInterface)
+     *
+     * @return int
+     */
+    public function getPlayerId(): int
+    {
+        return $this->sys_player_id;
+    }
+
+    /**
+     * プレイヤーを取得 (NexusAuth DeviceModelInterface)
+     *
+     * @return PlayerModelInterface|null
+     */
+    public function getPlayer(): ?PlayerModelInterface
+    {
+        return $this->player;
     }
 }

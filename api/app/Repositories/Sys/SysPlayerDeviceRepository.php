@@ -3,6 +3,8 @@
 namespace App\Repositories\Sys;
 
 use App\Models\Sys\SysPlayerDevice;
+use NexusAuth\Contracts\DeviceRepositoryInterface;
+use NexusAuth\Contracts\DeviceModelInterface;
 use Illuminate\Support\Collection;
 
 /**
@@ -12,7 +14,7 @@ use Illuminate\Support\Collection;
  * 
  * @extends _BaseSysRepository<SysPlayerDevice>
  */
-class SysPlayerDeviceRepository extends _BaseSysRepository
+class SysPlayerDeviceRepository extends _BaseSysRepository implements DeviceRepositoryInterface
 {
     protected string $modelClass = SysPlayerDevice::class;
 

@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\UseCases\Auth;
 
-use App\Domain\Auth\Services\PlayerService;
-use App\Domain\Auth\Services\TokenService;
+use NexusAuth\Services\PlayerAuthService;
+use NexusAuth\Services\TokenService;
 use App\Domain\Auth\UseCases\SignUpUseCase;
 use App\Exceptions\BusinessLogicException;
 use App\Http\Responses\Auth\SignUpResponse;
@@ -23,8 +23,10 @@ class SignUpUseCaseTest extends TestCase
     use RefreshMultipleDatabases;
 
     private SignUpUseCase $useCase;
-    private PlayerService $playerService;
+    private PlayerAuthService $playerAuthService;
     private TokenService $tokenService;
+    private SysPlayerDeviceRepository $deviceRepository;
+    private SysPlayerTokenRepository $tokenRepository;
 
     /**
      * Define database connections to migrate for this test
@@ -40,23 +42,25 @@ class SignUpUseCaseTest extends TestCase
     {
         parent::setUp();
 
-        // Servicesを作成
+        // Repositories
         $playerRepository = new SysPlayerRepository(new SysPlayer());
-        $playerDeviceRepository = new SysPlayerDeviceRepository(new SysPlayerDevice());
-        $tokenRepository = app(SysPlayerTokenRepository::class);
+        $this->deviceRepository = new SysPlayerDeviceRepository(new SysPlayerDevice());
+        $this->tokenRepository = app(SysPlayerTokenRepository::class);
         
-        $this->playerService = new PlayerService(
+        // NexusAuth Services
+        $this->playerAuthService = new PlayerAuthService(
             $playerRepository,
-            $playerDeviceRepository,
-            $tokenRepository
+            $this->deviceRepository
         );
 
-        $this->tokenService = new TokenService($tokenRepository);
+        $this->tokenService = app(TokenService::class);
 
         // UseCaseを作成
         $this->useCase = new SignUpUseCase(
-            $this->playerService,
-            $this->tokenService
+            $this->playerAuthService,
+            $this->tokenService,
+            $this->deviceRepository,
+            $this->tokenRepository
         );
 
         // Suppress log output during tests
@@ -85,7 +89,7 @@ class SignUpUseCaseTest extends TestCase
         $this->assertInstanceOf(SysPlayerDevice::class, $response->sysPlayerDevice);
         $this->assertNotNull($response->sysPlayer->id);
         $this->assertNotNull($response->sysPlayerDevice->id);
-        $this->assertEquals($deviceId, $response->sysPlayerDevice->uuid);
+        $this->assertEquals($deviceId, $response->sysPlayerDevice->getUuid());
         $this->assertEquals($deviceInfo, $response->sysPlayerDevice->device_info);
 
         // データベースに保存されていることを確認
@@ -138,8 +142,8 @@ class SignUpUseCaseTest extends TestCase
         $deviceId = 'existing-device-uuid';
         $deviceInfo = ['model' => 'Test Device'];
         
-        // 既存のプレイヤーとデバイスを作成
-        $this->playerService->createPlayer($deviceId, $deviceInfo);
+        // 既存のプレイヤーとデバイスを作成（UseCaseを通して作成）
+        $this->useCase->handle($deviceId, $deviceInfo);
 
         // Assert & Act
         $this->expectException(BusinessLogicException::class);
@@ -165,7 +169,7 @@ class SignUpUseCaseTest extends TestCase
 
         // Assert - 異なるプレイヤーが作成されている
         $this->assertNotEquals($response1->sysPlayer->id, $response2->sysPlayer->id);
-        $this->assertNotEquals($response1->sysPlayer->my_id, $response2->sysPlayer->my_id);
+        $this->assertNotEquals($response1->sysPlayer->getMyId(), $response2->sysPlayer->getMyId());
         $this->assertNotEquals($response1->sysPlayerDevice->id, $response2->sysPlayerDevice->id);
         $this->assertNotEquals($response1->sysPlayerToken->refresh_token_hash, $response2->sysPlayerToken->refresh_token_hash);
 
@@ -190,7 +194,7 @@ class SignUpUseCaseTest extends TestCase
         $this->assertInstanceOf(SignUpResponse::class, $response);
         $this->assertNotNull($response->sysPlayer->id);
         $this->assertNotNull($response->sysPlayerDevice->id);
-        $this->assertEquals($deviceId, $response->sysPlayerDevice->uuid);
+        $this->assertEquals($deviceId, $response->sysPlayerDevice->getUuid());
         
         // device_infoは空配列として保存される
         $this->assertEquals([], $response->sysPlayerDevice->device_info);
@@ -209,9 +213,9 @@ class SignUpUseCaseTest extends TestCase
         $response = $this->useCase->handle($deviceId, $deviceInfo);
 
         // Assert - my_idが8文字の英数字であることを確認
-        $this->assertNotNull($response->sysPlayer->my_id);
-        $this->assertEquals(8, strlen($response->sysPlayer->my_id));
-        $this->assertMatchesRegularExpression('/^[a-zA-Z0-9]{8}$/', $response->sysPlayer->my_id);
+        $this->assertNotNull($response->sysPlayer->getMyId());
+        $this->assertEquals(8, strlen($response->sysPlayer->getMyId()));
+        $this->assertMatchesRegularExpression('/^[a-zA-Z0-9]{8}$/', $response->sysPlayer->getMyId());
     }
 
     /**

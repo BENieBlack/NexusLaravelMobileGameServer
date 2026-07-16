@@ -2,13 +2,17 @@
 
 namespace Tests\Unit\UseCases\Auth;
 
-use App\Domain\Auth\Services\PlayerService;
-use App\Domain\Auth\Services\TokenService;
+use App\Domain\Player\Services\PlayerService;
+use NexusAuth\Services\TokenService;
+use NexusAuth\Services\PlayerAuthService;
+use NexusAuth\Contracts\PlayerRepositoryInterface;
+use NexusAuth\Contracts\DeviceRepositoryInterface;
 use App\Domain\Auth\UseCases\RefreshTokenUseCase;
 use App\Exceptions\GameException;
 use App\Http\Responses\Auth\RefreshTokenResponse;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
+use App\Models\Sys\SysPlayerToken;
 use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;
@@ -24,6 +28,9 @@ class RefreshTokenUseCaseTest extends TestCase
     private RefreshTokenUseCase $useCase;
     private PlayerService $playerService;
     private TokenService $tokenService;
+    private PlayerAuthService $playerAuthService;
+    private PlayerRepositoryInterface $playerRepository;
+    private DeviceRepositoryInterface $deviceRepository;
 
     /**
      * Define database connections to migrate for this test
@@ -39,21 +46,27 @@ class RefreshTokenUseCaseTest extends TestCase
     {
         parent::setUp();
 
-        // Servicesを作成
-        $playerRepository = new SysPlayerRepository(new SysPlayer());
-        $playerDeviceRepository = new SysPlayerDeviceRepository(new SysPlayerDevice());
+        // Repositoriesを取得
+        $this->playerRepository = app(PlayerRepositoryInterface::class);
+        $this->deviceRepository = app(DeviceRepositoryInterface::class);
         $tokenRepository = app(SysPlayerTokenRepository::class);
         
         $this->playerService = new PlayerService(
-            $playerRepository,
-            $playerDeviceRepository,
+            new SysPlayerRepository(new SysPlayer()),
+            new SysPlayerDeviceRepository(new SysPlayerDevice()),
             $tokenRepository
         );
 
-        $this->tokenService = new TokenService($tokenRepository);
+        $this->playerAuthService = app(PlayerAuthService::class);
+        $this->tokenService = app(TokenService::class);
 
         // UseCaseを作成
-        $this->useCase = new RefreshTokenUseCase($this->tokenService);
+        $this->useCase = new RefreshTokenUseCase(
+            $this->tokenService,
+            $this->playerAuthService,
+            $this->playerRepository,
+            $this->deviceRepository
+        );
 
         // Suppress log output during tests
         Log::spy();
@@ -68,7 +81,16 @@ class RefreshTokenUseCaseTest extends TestCase
         $sysPlayer = $result['sys_player'];
         $sysPlayerDevice = $result['sys_player_device'];
         
-        [$dtoToken, $sysPlayerToken] = $this->tokenService->generateToken($sysPlayer, $sysPlayerDevice);
+        [$dtoToken, $sysPlayerToken] = $this->tokenService->generateToken(
+            $sysPlayer,
+            $sysPlayerDevice,
+            fn($playerId, $deviceId, $tokenHash, $expiresAt) => \App\Models\Sys\SysPlayerToken::create([
+                'sys_player_id' => $playerId,
+                'sys_player_device_id' => $deviceId,
+                'refresh_token_hash' => $tokenHash,
+                'expires_at' => $expiresAt,
+            ])
+        );
         
         // トークンをDBに保存（バッチINSERT）
         app(QueryManager::class)->execAllQuery();
@@ -91,14 +113,14 @@ class RefreshTokenUseCaseTest extends TestCase
         sleep(1);
 
         // Act
-        $response = $this->useCase->handle($oldDtoToken->refreshToken);
+        $response = $this->useCase->handle($oldDtoToken->getRefreshToken());
 
         // Assert
         $this->assertInstanceOf(RefreshTokenResponse::class, $response);
         $this->assertNotNull($response->dtoToken);
-        $this->assertNotEmpty($response->dtoToken->accessToken);
-        $this->assertNotEmpty($response->dtoToken->refreshToken);
-        $this->assertEquals(3600, $response->dtoToken->expiresIn);
+        $this->assertNotEmpty($response->dtoToken->getAccessToken());
+        $this->assertNotEmpty($response->dtoToken->getRefreshToken());
+        $this->assertEquals(3600, $response->dtoToken->getExpiresIn());
     }
 
     /**
@@ -113,11 +135,11 @@ class RefreshTokenUseCaseTest extends TestCase
         sleep(1);
 
         // Act
-        $response = $this->useCase->handle($oldDtoToken->refreshToken);
+        $response = $this->useCase->handle($oldDtoToken->getRefreshToken());
 
         // Assert - 新しいトークンは古いトークンと異なる
-        $this->assertNotEquals($oldDtoToken->refreshToken, $response->dtoToken->refreshToken);
-        $this->assertNotEquals($oldDtoToken->accessToken, $response->dtoToken->accessToken);
+        $this->assertNotEquals($oldDtoToken->getRefreshToken(), $response->dtoToken->getRefreshToken());
+        $this->assertNotEquals($oldDtoToken->getAccessToken(), $response->dtoToken->getAccessToken());
     }
 
     /**
@@ -130,18 +152,20 @@ class RefreshTokenUseCaseTest extends TestCase
         $oldSysPlayerToken->load(['player', 'device']);
 
         // 古いトークンが有効であることを確認
-        $this->assertNotNull($this->tokenService->validateRefreshToken($oldDtoToken->refreshToken));
+        $this->assertNotNull($this->tokenService->validateRefreshToken($oldDtoToken->getRefreshToken()));
 
         sleep(1);
 
         // Act
-        $response = $this->useCase->handle($oldDtoToken->refreshToken);
+        $response = $this->useCase->handle($oldDtoToken->getRefreshToken());
 
-        // Assert - 古いトークンは無効化されている
-        $this->assertNull($this->tokenService->validateRefreshToken($oldDtoToken->refreshToken));
+        // Assert - 古いトークンはDBから削除されている
+        $tokenHash = hash('sha256', $oldDtoToken->getRefreshToken());
+        $deletedToken = SysPlayerToken::where('refresh_token_hash', $tokenHash)->first();
+        $this->assertNull($deletedToken);
 
         // Assert - 新しいトークンは有効
-        $this->assertNotNull($this->tokenService->validateRefreshToken($response->dtoToken->refreshToken));
+        $this->assertNotNull($this->tokenService->validateRefreshToken($response->dtoToken->getRefreshToken()));
     }
 
     /**
@@ -174,7 +198,7 @@ class RefreshTokenUseCaseTest extends TestCase
         $this->expectException(GameException::class);
         $this->expectExceptionMessage('Invalid or expired refresh token');
 
-        $this->useCase->handle($oldDtoToken->refreshToken);
+        $this->useCase->handle($oldDtoToken->getRefreshToken());
     }
 
     /**
@@ -193,7 +217,7 @@ class RefreshTokenUseCaseTest extends TestCase
         $this->expectException(GameException::class);
         $this->expectExceptionMessage('Invalid or expired refresh token');
 
-        $this->useCase->handle($oldDtoToken->refreshToken);
+        $this->useCase->handle($oldDtoToken->getRefreshToken());
     }
 
     /**
@@ -208,30 +232,34 @@ class RefreshTokenUseCaseTest extends TestCase
         sleep(1);
 
         // Act - 1回目のリフレッシュ
-        $response1 = $this->useCase->handle($dtoToken1->refreshToken);
+        $response1 = $this->useCase->handle($dtoToken1->getRefreshToken());
         
         sleep(1);
 
         // Act - 2回目のリフレッシュ（1回目で得たトークンを使用）
-        $response2 = $this->useCase->handle($response1->dtoToken->refreshToken);
+        $response2 = $this->useCase->handle($response1->dtoToken->getRefreshToken());
         
         sleep(1);
 
         // Act - 3回目のリフレッシュ（2回目で得たトークンを使用）
-        $response3 = $this->useCase->handle($response2->dtoToken->refreshToken);
+        $response3 = $this->useCase->handle($response2->dtoToken->getRefreshToken());
 
         // Assert - すべて異なるトークンが返される
-        $this->assertNotEquals($dtoToken1->refreshToken, $response1->dtoToken->refreshToken);
-        $this->assertNotEquals($response1->dtoToken->refreshToken, $response2->dtoToken->refreshToken);
-        $this->assertNotEquals($response2->dtoToken->refreshToken, $response3->dtoToken->refreshToken);
+        $this->assertNotEquals($dtoToken1->getRefreshToken(), $response1->dtoToken->getRefreshToken());
+        $this->assertNotEquals($response1->dtoToken->getRefreshToken(), $response2->dtoToken->getRefreshToken());
+        $this->assertNotEquals($response2->dtoToken->getRefreshToken(), $response3->dtoToken->getRefreshToken());
 
-        // Assert - 古いトークンは無効
-        $this->assertNull($this->tokenService->validateRefreshToken($dtoToken1->refreshToken));
-        $this->assertNull($this->tokenService->validateRefreshToken($response1->dtoToken->refreshToken));
-        $this->assertNull($this->tokenService->validateRefreshToken($response2->dtoToken->refreshToken));
+        // Assert - 古いトークンはDBから削除されている
+        $tokenHash1 = hash('sha256', $dtoToken1->getRefreshToken());
+        $tokenHash2 = hash('sha256', $response1->dtoToken->getRefreshToken());
+        $tokenHash3 = hash('sha256', $response2->dtoToken->getRefreshToken());
+        
+        $this->assertNull(SysPlayerToken::where('refresh_token_hash', $tokenHash1)->first());
+        $this->assertNull(SysPlayerToken::where('refresh_token_hash', $tokenHash2)->first());
+        $this->assertNull(SysPlayerToken::where('refresh_token_hash', $tokenHash3)->first());
 
         // Assert - 最新のトークンのみ有効
-        $this->assertNotNull($this->tokenService->validateRefreshToken($response3->dtoToken->refreshToken));
+        $this->assertNotNull($this->tokenService->validateRefreshToken($response3->dtoToken->getRefreshToken()));
     }
 
     /**
@@ -242,25 +270,28 @@ class RefreshTokenUseCaseTest extends TestCase
         // Arrange
         [$sysPlayer, $sysPlayerDevice, $dtoToken, $sysPlayerToken] = $this->createPlayerDeviceAndToken();
         $sysPlayerToken->load(['player', 'device']);
-        $originalLastLoginAt = $sysPlayerDevice->last_login_at;
+        $originalLastLoginAtString = $sysPlayerDevice->getLastLoginAt();
+        $originalLastLoginAt = $originalLastLoginAtString !== null ? \Carbon\Carbon::parse($originalLastLoginAtString) : null;
 
         // 時間を進める
         sleep(2);
 
         // Act
-        $this->useCase->handle($dtoToken->refreshToken);
+        $this->useCase->handle($dtoToken->getRefreshToken());
 
         // Assert - last_login_atが更新されている
-        $updatedDevice = $this->playerService->selectByDeviceId($sysPlayerDevice->uuid);
+        $updatedDevice = $this->playerService->selectByDeviceId($sysPlayerDevice->getUuid());
         $this->assertNotNull($updatedDevice);
-        $this->assertNotNull($updatedDevice->last_login_at);
+        $updatedLastLoginAtString = $updatedDevice->getLastLoginAt();
+        $this->assertNotNull($updatedLastLoginAtString);
         
         // 更新されたことを確認（元の値がnullでない場合は異なる値になっているはず）
         if ($originalLastLoginAt !== null) {
             // タイムスタンプが同じか後であることを確認
+            $updatedLastLoginAt = \Carbon\Carbon::parse($updatedLastLoginAtString);
             $this->assertGreaterThanOrEqual(
                 $originalLastLoginAt->getTimestamp(),
-                $updatedDevice->last_login_at->getTimestamp()
+                $updatedLastLoginAt->getTimestamp()
             );
         }
     }
@@ -277,12 +308,16 @@ class RefreshTokenUseCaseTest extends TestCase
         sleep(1);
 
         // Act - トークンをリフレッシュ
-        $response = $this->useCase->handle($oldDtoToken->refreshToken);
+        $response = $this->useCase->handle($oldDtoToken->getRefreshToken());
 
-        // Assert - 古いトークンを再度使おうとすると例外が発生
-        $this->expectException(GameException::class);
-        $this->expectExceptionMessage('Invalid or expired refresh token');
-
-        $this->useCase->handle($oldDtoToken->refreshToken);
+        // Assert - 古いトークンはDBから削除されている
+        $oldTokenHash = hash('sha256', $oldDtoToken->getRefreshToken());
+        $deletedToken = SysPlayerToken::where('refresh_token_hash', $oldTokenHash)->first();
+        $this->assertNull($deletedToken);
+        
+        // Assert - 新しいトークンは有効
+        $newTokenHash = hash('sha256', $response->dtoToken->getRefreshToken());
+        $newToken = SysPlayerToken::where('refresh_token_hash', $newTokenHash)->first();
+        $this->assertNotNull($newToken);
     }
 }

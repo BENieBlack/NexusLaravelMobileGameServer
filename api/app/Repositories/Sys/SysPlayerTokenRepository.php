@@ -3,6 +3,8 @@
 namespace App\Repositories\Sys;
 
 use App\Models\Sys\SysPlayerToken;
+use NexusAuth\Contracts\TokenRepositoryInterface;
+use NexusAuth\Contracts\TokenModelInterface;
 use Illuminate\Support\Collection;
 
 /**
@@ -12,9 +14,21 @@ use Illuminate\Support\Collection;
  * 
  * @extends _BaseSysRepository<SysPlayerToken>
  */
-class SysPlayerTokenRepository extends _BaseSysRepository
+class SysPlayerTokenRepository extends _BaseSysRepository implements TokenRepositoryInterface
 {
     protected string $modelClass = SysPlayerToken::class;
+
+    /**
+     * refresh_tokenからトークンを取得（TokenRepositoryInterfaceの実装）
+     * メモリキャッシュから検索、なければDBから取得
+     *
+     * @param string $refreshToken
+     * @return SysPlayerToken|null
+     */
+    public function selectByRefreshToken(string $refreshToken): ?SysPlayerToken
+    {
+        return $this->selectValidByHash($refreshToken);
+    }
 
     /**
      * refresh_token_hashから有効なトークンを取得
@@ -106,6 +120,29 @@ class SysPlayerTokenRepository extends _BaseSysRepository
             // メモリキャッシュを更新
             $this->setModel($sysPlayerToken);
 
+            $count++;
+        }
+
+        return $count;
+    }
+
+    /**
+     * プレイヤーIDに紐づくトークンを削除（TokenRepositoryInterfaceの実装）
+     * メモリキャッシュも自動的に更新される
+     *
+     * @param int $playerId
+     * @return int 削除したトークン数
+     */
+    public function deleteByPlayerId(int $playerId): int
+    {
+        // 対象のトークンを取得
+        $sysPlayerTokenCollection = $this->modelClass::where('sys_player_id', $playerId)->get();
+
+        $count = 0;
+
+        // 各トークンを個別に削除
+        foreach ($sysPlayerTokenCollection as $sysPlayerToken) {
+            $sysPlayerToken->delete();
             $count++;
         }
 

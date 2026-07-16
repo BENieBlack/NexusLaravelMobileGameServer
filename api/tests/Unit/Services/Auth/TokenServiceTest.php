@@ -24,6 +24,19 @@ class TokenServiceTest extends TestCase
     private SysPlayerTokenRepository $tokenRepository;
 
     /**
+     * トークンモデルファクトリ
+     */
+    private function tokenModelFactory(int $playerId, int $deviceId, string $tokenHash, string $expiresAt): SysPlayerToken
+    {
+        return new SysPlayerToken([
+            'sys_player_id' => $playerId,
+            'sys_player_device_id' => $deviceId,
+            'refresh_token_hash' => $tokenHash,
+            'expires_at' => $expiresAt,
+        ]);
+    }
+
+    /**
      * Define database connections to migrate for this test
      */
     protected function connectionsToMigrate(): array
@@ -38,7 +51,12 @@ class TokenServiceTest extends TestCase
         parent::setUp();
 
         $this->tokenRepository = app(SysPlayerTokenRepository::class);
-        $this->service = new TokenService($this->tokenRepository);
+        $this->service = new TokenService(
+            $this->tokenRepository,
+            config('app.key'),
+            3600,
+            30
+        );
 
         // Suppress log output during tests
         Log::spy();
@@ -55,7 +73,7 @@ class TokenServiceTest extends TestCase
         $sysPlayer = $playerRepository->createPlayerAndCommit();
         
         $sysPlayerDevice = new SysPlayerDevice([
-            'sys_player_id' => $sysPlayer->id,
+            'sys_player_id' => $sysPlayer->getId(),
             'uuid' => 'test-device-' . uniqid(),
             'device_info' => ['model' => 'Test Device'],
             'last_login_at' => now(),
@@ -77,7 +95,7 @@ class TokenServiceTest extends TestCase
         [$sysPlayer, $sysPlayerDevice] = $this->createPlayerAndDevice();
 
         // Act
-        [$dtoToken, $sysPlayerToken] = $this->service->generateToken($sysPlayer, $sysPlayerDevice);
+        [$dtoToken, $sysPlayerToken] = $this->service->generateToken($sysPlayer, $sysPlayerDevice, $this->tokenModelFactory(...));
         
         // トークンをDBに保存（バッチINSERT）
         app(QueryManager::class)->execAllQuery();
@@ -90,19 +108,19 @@ class TokenServiceTest extends TestCase
 
         // Assert - SysPlayerToken
         $this->assertInstanceOf(SysPlayerToken::class, $sysPlayerToken);
-        $this->assertEquals($sysPlayer->id, $sysPlayerToken->sys_player_id);
+        $this->assertEquals($sysPlayer->getId(), $sysPlayerToken->getSysPlayerId());
         $this->assertEquals($sysPlayerDevice->id, $sysPlayerToken->sys_player_device_id);
-        $this->assertNotNull($sysPlayerToken->refresh_token_hash);
-        $this->assertNotNull($sysPlayerToken->expires_at);
-        $this->assertNull($sysPlayerToken->revoked_at);
+        $this->assertNotNull($sysPlayerToken->getRefreshTokenHash());
+        $this->assertNotNull($sysPlayerToken->getExpiresAt());
+        $this->assertNull($sysPlayerToken->getRevokedAt());
 
         // Assert - refresh_token_hashが正しくハッシュ化されている
         $expectedHash = hash('sha256', $dtoToken->refreshToken);
-        $this->assertEquals($expectedHash, $sysPlayerToken->refresh_token_hash);
+        $this->assertEquals($expectedHash, $sysPlayerToken->getRefreshTokenHash());
 
         // Assert - データベースに保存されている
         $this->assertDatabaseHas('sys_player_token', [
-            'sys_player_id' => $sysPlayer->id,
+            'sys_player_id' => $sysPlayer->getId(),
             'sys_player_device_id' => $sysPlayerDevice->id,
             'refresh_token_hash' => $expectedHash,
         ], 'sys');
@@ -127,7 +145,7 @@ class TokenServiceTest extends TestCase
         // ペイロードをデコードして検証
         $payload = json_decode(base64_decode($parts[1]), true);
         $this->assertIsArray($payload);
-        $this->assertEquals($sysPlayer->id, $payload['player_id']);
+        $this->assertEquals($sysPlayer->getId(), $payload['player_id']);
         $this->assertEquals($sysPlayer->uuid, $payload['uuid']);
         $this->assertArrayHasKey('exp', $payload);
         $this->assertArrayHasKey('iat', $payload);
@@ -147,7 +165,7 @@ class TokenServiceTest extends TestCase
 
         // Assert
         $this->assertIsArray($payload);
-        $this->assertEquals($sysPlayer->id, $payload['player_id']);
+        $this->assertEquals($sysPlayer->getId(), $payload['player_id']);
         $this->assertEquals($sysPlayer->uuid, $payload['uuid']);
     }
 
@@ -194,7 +212,7 @@ class TokenServiceTest extends TestCase
     {
         // Arrange
         [$sysPlayer, $sysPlayerDevice] = $this->createPlayerAndDevice();
-        [$dtoToken, $sysPlayerToken] = $this->service->generateToken($sysPlayer, $sysPlayerDevice);
+        [$dtoToken, $sysPlayerToken] = $this->service->generateToken($sysPlayer, $sysPlayerDevice, $this->tokenModelFactory(...));
 
         // Act
         $validatedToken = $this->service->validateRefreshToken($dtoToken->refreshToken);
@@ -227,7 +245,7 @@ class TokenServiceTest extends TestCase
     {
         // Arrange
         [$sysPlayer, $sysPlayerDevice] = $this->createPlayerAndDevice();
-        [$dtoToken, $sysPlayerToken] = $this->service->generateToken($sysPlayer, $sysPlayerDevice);
+        [$dtoToken, $sysPlayerToken] = $this->service->generateToken($sysPlayer, $sysPlayerDevice, $this->tokenModelFactory(...));
         
         // トークンを無効化
         $sysPlayerToken->revoke();
@@ -240,7 +258,7 @@ class TokenServiceTest extends TestCase
     }
 
     /**
-     * Test revokeDeviceTokens revokes all tokens for device
+     * Test revokePlayerTokens revokes all tokens for player
      */
     public function test_revoke_device_tokens_revokes_all_tokens(): void
     {
@@ -248,9 +266,9 @@ class TokenServiceTest extends TestCase
         [$sysPlayer, $sysPlayerDevice] = $this->createPlayerAndDevice();
         
         // 複数のトークンを作成
-        [$dtoToken1, $sysPlayerToken1] = $this->service->generateToken($sysPlayer, $sysPlayerDevice);
-        [$dtoToken2, $sysPlayerToken2] = $this->service->generateToken($sysPlayer, $sysPlayerDevice);
-        [$dtoToken3, $sysPlayerToken3] = $this->service->generateToken($sysPlayer, $sysPlayerDevice);
+        [$dtoToken1, $sysPlayerToken1] = $this->service->generateToken($sysPlayer, $sysPlayerDevice, $this->tokenModelFactory(...));
+        [$dtoToken2, $sysPlayerToken2] = $this->service->generateToken($sysPlayer, $sysPlayerDevice, $this->tokenModelFactory(...));
+        [$dtoToken3, $sysPlayerToken3] = $this->service->generateToken($sysPlayer, $sysPlayerDevice, $this->tokenModelFactory(...));
         
         // トークンをDBに保存（バッチINSERT）
         app(QueryManager::class)->execAllQuery();
@@ -261,7 +279,7 @@ class TokenServiceTest extends TestCase
         $this->assertNotNull($this->service->validateRefreshToken($dtoToken3->refreshToken));
 
         // Act
-        $revokedCount = $this->service->revokeDeviceTokens($sysPlayerDevice);
+        $revokedCount = $this->service->revokePlayerTokens($sysPlayer->getId());
         
         // 無効化をDBに保存
         app(QueryManager::class)->execAllQuery();
@@ -269,19 +287,9 @@ class TokenServiceTest extends TestCase
         // Assert
         $this->assertEquals(3, $revokedCount);
 
-        // データベースから直接取得して無効化を確認
-        $tokens = SysPlayerToken::where('sys_player_device_id', $sysPlayerDevice->id)->get();
-        $this->assertCount(3, $tokens);
-        
-        foreach ($tokens as $token) {
-            $this->assertNotNull($token->revoked_at);
-        }
-
-        // データベースでも無効化されていることを確認（有効なトークンが存在しない）
-        $this->assertDatabaseMissing('sys_player_token', [
-            'sys_player_device_id' => $sysPlayerDevice->id,
-            'revoked_at' => null,
-        ], 'sys');
+        // Assert - トークンは物理削除されているため、DBから取得できない
+        $tokens = SysPlayerToken::where('sys_player_id', $sysPlayer->getId())->get();
+        $this->assertCount(0, $tokens);
     }
 
     /**
@@ -291,7 +299,7 @@ class TokenServiceTest extends TestCase
     {
         // Arrange
         [$sysPlayer, $sysPlayerDevice] = $this->createPlayerAndDevice();
-        [$oldDtoToken, $oldSysPlayerToken] = $this->service->generateToken($sysPlayer, $sysPlayerDevice);
+        [$oldDtoToken, $oldSysPlayerToken] = $this->service->generateToken($sysPlayer, $sysPlayerDevice, $this->tokenModelFactory(...));
         
         // 古いトークンをDBに保存
         app(QueryManager::class)->execAllQuery();
@@ -303,7 +311,12 @@ class TokenServiceTest extends TestCase
         sleep(1);
 
         // Act
-        [$newDtoToken, $newSysPlayerToken] = $this->service->rotateToken($oldSysPlayerToken);
+        [$newDtoToken, $newSysPlayerToken] = $this->service->rotateToken(
+            $oldSysPlayerToken,
+            $sysPlayer,
+            $sysPlayerDevice,
+            $this->tokenModelFactory(...)
+        );
         
         // 新しいトークンと古いトークンの無効化をDBに保存
         app(QueryManager::class)->execAllQuery();
@@ -312,13 +325,11 @@ class TokenServiceTest extends TestCase
         $this->assertInstanceOf(TokenDto::class, $newDtoToken);
         $this->assertInstanceOf(SysPlayerToken::class, $newSysPlayerToken);
         $this->assertNotEquals($oldDtoToken->refreshToken, $newDtoToken->refreshToken);
-        $this->assertNotEquals($oldSysPlayerToken->refresh_token_hash, $newSysPlayerToken->refresh_token_hash);
+        $this->assertNotEquals($oldSysPlayerToken->getRefreshTokenHash(), $newSysPlayerToken->getRefreshTokenHash());
 
-        // Assert - 古いトークンが無効化されている（DBから再取得して確認）
-        $oldTokenFromDb = SysPlayerToken::find($oldSysPlayerToken->id);
-        $this->assertNotNull($oldTokenFromDb);
-        $this->assertNotNull($oldTokenFromDb->revoked_at);
-        $this->assertFalse($oldTokenFromDb->isValid());
+        // Assert - 古いトークンは削除されている（DBから取得できない）
+        $oldTokenFromDb = SysPlayerToken::find($oldSysPlayerToken->getId());
+        $this->assertNull($oldTokenFromDb);
 
         // Assert - 古いトークンで検証すると失敗
         $validatedOldToken = $this->service->validateRefreshToken($oldDtoToken->refreshToken);
@@ -327,7 +338,7 @@ class TokenServiceTest extends TestCase
         // Assert - 新しいトークンで検証すると成功
         $validatedNewToken = $this->service->validateRefreshToken($newDtoToken->refreshToken);
         $this->assertInstanceOf(SysPlayerToken::class, $validatedNewToken);
-        $this->assertEquals($newSysPlayerToken->refresh_token_hash, $validatedNewToken->refresh_token_hash);
+        $this->assertEquals($newSysPlayerToken->getRefreshTokenHash(), $validatedNewToken->getRefreshTokenHash());
     }
 
     /**
@@ -339,11 +350,11 @@ class TokenServiceTest extends TestCase
         [$sysPlayer, $sysPlayerDevice] = $this->createPlayerAndDevice();
 
         // Act
-        [$dtoToken, $sysPlayerToken] = $this->service->generateToken($sysPlayer, $sysPlayerDevice);
+        [$dtoToken, $sysPlayerToken] = $this->service->generateToken($sysPlayer, $sysPlayerDevice, $this->tokenModelFactory(...));
 
         // Assert - リフレッシュトークンの有効期限が30日後であることを確認
         $expectedExpiresAt = CarbonImmutable::now()->addDays(30);
-        $actualExpiresAt = CarbonImmutable::parse($sysPlayerToken->expires_at);
+        $actualExpiresAt = CarbonImmutable::parse($sysPlayerToken->getExpiresAt());
 
         // 数秒の誤差は許容
         $this->assertTrue(
@@ -364,9 +375,9 @@ class TokenServiceTest extends TestCase
         [$sysPlayer, $sysPlayerDevice] = $this->createPlayerAndDevice();
 
         // Act - 複数のトークンを生成
-        [$dtoToken1, $sysPlayerToken1] = $this->service->generateToken($sysPlayer, $sysPlayerDevice);
-        [$dtoToken2, $sysPlayerToken2] = $this->service->generateToken($sysPlayer, $sysPlayerDevice);
-        [$dtoToken3, $sysPlayerToken3] = $this->service->generateToken($sysPlayer, $sysPlayerDevice);
+        [$dtoToken1, $sysPlayerToken1] = $this->service->generateToken($sysPlayer, $sysPlayerDevice, $this->tokenModelFactory(...));
+        [$dtoToken2, $sysPlayerToken2] = $this->service->generateToken($sysPlayer, $sysPlayerDevice, $this->tokenModelFactory(...));
+        [$dtoToken3, $sysPlayerToken3] = $this->service->generateToken($sysPlayer, $sysPlayerDevice, $this->tokenModelFactory(...));
         
         // トークンをDBに保存（バッチINSERT）
         app(QueryManager::class)->execAllQuery();

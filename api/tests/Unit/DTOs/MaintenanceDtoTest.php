@@ -6,7 +6,7 @@ use NexusMaintenance\DTOs\MaintenanceDto;
 use NexusUtilities\ClockUtility;
 use PHPUnit\Framework\TestCase;
 
-class SysMaintenanceTest extends TestCase
+class MaintenanceDtoTest extends TestCase
 {
     protected function tearDown(): void
     {

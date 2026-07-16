@@ -2,15 +2,15 @@
 
 namespace LaravelMobileBilling\Tests\Unit\DTOs;
 
-use LaravelMobileBilling\DTOs\PurchaseInfo;
+use LaravelMobileBilling\DTOs\PurchaseDto;
 use PHPUnit\Framework\TestCase;
 
-class PurchaseInfoTest extends TestCase
+class PurchaseDtoTest extends TestCase
 {
     public function test_construct_with_all_parameters()
     {
         $purchaseDate = '2026-07-13 10:00:00';
-        $purchaseInfo = new PurchaseInfo(
+        $purchaseInfo = new PurchaseDto(
             playerId: 123,
             billingPlatform: 'google_play',
             productId: 'com.example.product1',
@@ -34,7 +34,7 @@ class PurchaseInfoTest extends TestCase
     public function test_construct_without_optional_parameters()
     {
         $purchaseDate = '2026-07-13 10:00:00';
-        $purchaseInfo = new PurchaseInfo(
+        $purchaseInfo = new PurchaseDto(
             playerId: 456,
             billingPlatform: 'app_store',
             productId: 'com.example.product2',
@@ -51,7 +51,7 @@ class PurchaseInfoTest extends TestCase
     public function test_to_array()
     {
         $purchaseDate = '2026-07-13 10:00:00';
-        $purchaseInfo = new PurchaseInfo(
+        $purchaseInfo = new PurchaseDto(
             playerId: 123,
             billingPlatform: 'google_play',
             productId: 'com.example.product1',
@@ -78,7 +78,7 @@ class PurchaseInfoTest extends TestCase
     public function test_to_json()
     {
         $purchaseDate = '2026-07-13 10:00:00';
-        $purchaseInfo = new PurchaseInfo(
+        $purchaseInfo = new PurchaseDto(
             playerId: 123,
             billingPlatform: 'google_play',
             productId: 'com.example.product1',

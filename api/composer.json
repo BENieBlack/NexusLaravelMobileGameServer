@@ -33,6 +33,14 @@
         {
             "type": "path",
             "url": "../packages/nexus-maintenance"
+        },
+        {
+            "type": "path",
+            "url": "../packages/nexus-resource"
+        },
+        {
+            "type": "path",
+            "url": "../packages/nexus-resource-delivery"
         }
     ],
     "require": {
@@ -46,7 +54,9 @@
         "nexus/core-unit-of-work": "@dev",
         "nexus/billing": "@dev",
         "nexus/wallet": "@dev",
-        "nexus/maintenance": "@dev"
+        "nexus/maintenance": "@dev",
+        "nexus/resource": "@dev",
+        "nexus/resource-delivery": "@dev"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

@@ -9,6 +9,8 @@ services:
       - ./api:/var/www/html
       - ./packages:/var/www/packages
       - ./.env:/var/www/.env:ro  # Mount root .env as read-only
+    environment:
+      - CLIENT_SECRET=${CLIENT_SECRET:-your-secret-key-change-in-production-12345}
     networks:
       - local-network
 

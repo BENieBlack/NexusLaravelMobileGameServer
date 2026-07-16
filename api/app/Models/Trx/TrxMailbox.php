@@ -16,6 +16,12 @@ use App\Models\Mst\MstMailbox;
  * @property bool $is_opened
  * @property bool $is_received
  * @property bool $is_delete
+ * @property bool $is_protected
+ * @property \Carbon\Carbon|null $expires_at
+ * @property \Carbon\Carbon|null $read_at
+ * @property \Carbon\Carbon|null $received_at
+ * @property string|null $sender_name
+ * @property array|null $custom_params
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  */
@@ -44,6 +50,12 @@ class TrxMailbox extends _BaseTrx
         'is_opened',
         'is_received',
         'is_delete',
+        'is_protected',
+        'expires_at',
+        'read_at',
+        'received_at',
+        'sender_name',
+        'custom_params',
         'created_at',
         'updated_at',
     ];
@@ -56,6 +68,11 @@ class TrxMailbox extends _BaseTrx
         'is_opened' => 'boolean',
         'is_received' => 'boolean',
         'is_delete' => 'boolean',
+        'is_protected' => 'boolean',
+        'expires_at' => 'datetime',
+        'read_at' => 'datetime',
+        'received_at' => 'datetime',
+        'custom_params' => 'array',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -141,6 +158,87 @@ class TrxMailbox extends _BaseTrx
     }
 
     /**
+     * 保護フラグを取得
+     *
+     * @return bool
+     */
+    public function getIsProtected(): bool
+    {
+        return (bool)$this->getAttribute('is_protected');
+    }
+
+    /**
+     * 有効期限を取得
+     *
+     * @return \Carbon\Carbon|null
+     */
+    public function getExpiresAt(): ?\Carbon\Carbon
+    {
+        return $this->getAttribute('expires_at');
+    }
+
+    /**
+     * 既読日時を取得
+     *
+     * @return \Carbon\Carbon|null
+     */
+    public function getReadAt(): ?\Carbon\Carbon
+    {
+        return $this->getAttribute('read_at');
+    }
+
+    /**
+     * 受取日時を取得
+     *
+     * @return \Carbon\Carbon|null
+     */
+    public function getReceivedAt(): ?\Carbon\Carbon
+    {
+        return $this->getAttribute('received_at');
+    }
+
+    /**
+     * 送信者名を取得
+     *
+     * @return string|null
+     */
+    public function getSenderName(): ?string
+    {
+        return $this->getAttribute('sender_name');
+    }
+
+    /**
+     * カスタムパラメータを取得
+     *
+     * @return array|null
+     */
+    public function getCustomParams(): ?array
+    {
+        return $this->getAttribute('custom_params');
+    }
+
+    /**
+     * メールが期限切れかどうか
+     *
+     * @return bool
+     */
+    public function isExpired(): bool
+    {
+        $expiresAt = $this->getExpiresAt();
+        return $expiresAt !== null && $expiresAt->isPast();
+    }
+
+    /**
+     * メールが未読かどうか
+     *
+     * @return bool
+     */
+    public function isUnread(): bool
+    {
+        return $this->getReadAt() === null;
+    }
+
+    /**
      * プレイヤーIDを設定
      *
      * @param int $sysPlayerId
@@ -193,6 +291,72 @@ class TrxMailbox extends _BaseTrx
     public function setIsDelete(bool $isDelete): void
     {
         $this->setAttribute('is_delete', $isDelete);
+    }
+
+    /**
+     * 保護フラグを設定
+     *
+     * @param bool $isProtected
+     * @return void
+     */
+    public function setIsProtected(bool $isProtected): void
+    {
+        $this->setAttribute('is_protected', $isProtected);
+    }
+
+    /**
+     * 有効期限を設定
+     *
+     * @param \Carbon\Carbon|null $expiresAt
+     * @return void
+     */
+    public function setExpiresAt(?\Carbon\Carbon $expiresAt): void
+    {
+        $this->setAttribute('expires_at', $expiresAt);
+    }
+
+    /**
+     * 既読日時を設定
+     *
+     * @param \Carbon\Carbon|null $readAt
+     * @return void
+     */
+    public function setReadAt(?\Carbon\Carbon $readAt): void
+    {
+        $this->setAttribute('read_at', $readAt);
+    }
+
+    /**
+     * 受取日時を設定
+     *
+     * @param \Carbon\Carbon|null $receivedAt
+     * @return void
+     */
+    public function setReceivedAt(?\Carbon\Carbon $receivedAt): void
+    {
+        $this->setAttribute('received_at', $receivedAt);
+    }
+
+    /**
+     * 送信者名を設定
+     *
+     * @param string|null $senderName
+     * @return void
+     */
+    public function setSenderName(?string $senderName): void
+    {
+        $this->setAttribute('sender_name', $senderName);
+    }
+
+    /**
+     * カスタムパラメータを設定
+     *
+     * @param array|null $customParams
+     * @return void
+     */
+    public function setCustomParams(?array $customParams): void
+    {
+        $this->setAttribute('custom_params', $customParams);
     }
 
     /**

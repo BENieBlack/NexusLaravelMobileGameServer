@@ -3,8 +3,8 @@
 namespace App\Providers;
 
 use App\Domain\Auth\Services\TokenValidator;
-use App\Domain\Delivery\Managers\DeliveryManager;
-use App\Domain\Delivery\Managers\DeliveryManagerInterface;
+use NexusResourceDelivery\Managers\ResourceDeliveryManager;
+use NexusResourceDelivery\Managers\ResourceDeliveryManagerInterface;
 use App\Persistence\ApiSession;
 use NexusSecurity\Contracts\TokenValidatorInterface;
 use NexusSecurity\Contracts\PlayerSessionInterface;
@@ -22,12 +22,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // DeliveryManager のバインディング
+        // ResourceDeliveryManager のバインディング
         // リクエストスコープ: 各リクエストごとに新しいインスタンスを生成
         // 配送待ちコンテンツはリクエスト内でのみ保持される
         $this->app->bind(
-            DeliveryManagerInterface::class,
-            DeliveryManager::class
+            ResourceDeliveryManagerInterface::class,
+            ResourceDeliveryManager::class
         );
 
         // Unit of Work パターン用のQueryManagerをシングルトンとして登録

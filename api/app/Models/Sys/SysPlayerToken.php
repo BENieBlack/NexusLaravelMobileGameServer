@@ -3,6 +3,7 @@
 namespace App\Models\Sys;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use NexusAuth\Contracts\TokenModelInterface;
 
 /**
  * SysPlayerToken Model
@@ -21,7 +22,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read SysPlayer $player
  * @property-read SysPlayerDevice $device
  */
-class SysPlayerToken extends _BaseSys
+class SysPlayerToken extends _BaseSys implements TokenModelInterface
 {
 
     /**
@@ -115,11 +116,11 @@ class SysPlayerToken extends _BaseSys
     }
 
     /**
-     * 有効期限を取得
+     * 有効期限をCarbonオブジェクトで取得
      *
      * @return \Illuminate\Support\Carbon
      */
-    public function getExpiresAt(): \Illuminate\Support\Carbon
+    public function getExpiresAtCarbon(): \Illuminate\Support\Carbon
     {
         return $this->getAttribute('expires_at');
     }
@@ -197,7 +198,7 @@ class SysPlayerToken extends _BaseSys
     public function isValid(): bool
     {
         return $this->getRevokedAt() === null 
-            && $this->getExpiresAt() > now();
+            && $this->getExpiresAtCarbon() > now();
     }
 
     /**
@@ -207,7 +208,7 @@ class SysPlayerToken extends _BaseSys
      */
     public function isExpired(): bool
     {
-        return $this->getExpiresAt() <= now();
+        return $this->getExpiresAtCarbon() <= now();
     }
 
     /**
@@ -275,5 +276,39 @@ class SysPlayerToken extends _BaseSys
         }
         
         return $array;
+    }
+
+    // ========================================
+    // NexusAuth TokenModelInterface の実装
+    // ========================================
+
+    /**
+     * プレイヤーIDを取得 (NexusAuth TokenModelInterface)
+     *
+     * @return int
+     */
+    public function getPlayerId(): int
+    {
+        return $this->sys_player_id;
+    }
+
+    /**
+     * リフレッシュトークンを取得 (NexusAuth TokenModelInterface)
+     *
+     * @return string
+     */
+    public function getRefreshToken(): string
+    {
+        return $this->refresh_token_hash;
+    }
+
+    /**
+     * 有効期限を文字列形式で取得 (NexusAuth TokenModelInterface)
+     *
+     * @return string
+     */
+    public function getExpiresAt(): string
+    {
+        return $this->expires_at->format('Y-m-d H:i:s');
     }
 }

@@ -2,10 +2,10 @@
 
 namespace App\Traits;
 
-use App\Domain\Auth\Services\TokenService;
+use NexusAuth\Services\TokenService;
+use NexusAuth\Contracts\TokenModelInterface;
 use App\Exceptions\GameException;
 use App\Exceptions\GameErrorCode;
-use App\Models\Sys\SysPlayerToken;
 
 /**
  * RequiresRefreshTokenTrait
@@ -20,10 +20,10 @@ trait RequiresRefreshTokenTrait
      *
      * @param TokenService $tokenService
      * @param string $refreshToken
-     * @return SysPlayerToken
+     * @return TokenModelInterface
      * @throws GameException リフレッシュトークンが無効または期限切れの場合
      */
-    protected function validateRefreshTokenOrFail(TokenService $tokenService, string $refreshToken): SysPlayerToken
+    protected function validateRefreshTokenOrFail(TokenService $tokenService, string $refreshToken): TokenModelInterface
     {
         $sysPlayerToken = $tokenService->validateRefreshToken($refreshToken);
 
@@ -42,9 +42,9 @@ trait RequiresRefreshTokenTrait
      *
      * @param TokenService $tokenService
      * @param string $refreshToken
-     * @return SysPlayerToken|null
+     * @return TokenModelInterface|null
      */
-    protected function validateRefreshToken(TokenService $tokenService, string $refreshToken): ?SysPlayerToken
+    protected function validateRefreshToken(TokenService $tokenService, string $refreshToken): ?TokenModelInterface
     {
         return $tokenService->validateRefreshToken($refreshToken);
     }

@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Domain\Auth\UseCases;
+namespace App\Domain\Login\UseCases;
 
 use App\Domain\_BaseUseCase;
-use App\Domain\Auth\Services\LoginBonusService;
+use App\Domain\Login\Services\LoginBonusService;
 use NexusResource\DTOs\Resource;
 use App\Exceptions\SystemDataException;
 use App\Http\Responses\Auth\LoginResponse;

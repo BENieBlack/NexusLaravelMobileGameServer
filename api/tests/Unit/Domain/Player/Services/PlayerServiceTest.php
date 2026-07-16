@@ -1,8 +1,8 @@
 <?php
 
-namespace Tests\Unit\Services\Auth;
+namespace Tests\Unit\Domain\Player\Services;
 
-use App\Domain\Auth\Services\PlayerService;
+use App\Domain\Player\Services\PlayerService;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
 use NexusUnitOfWork\Persistence\QueryManager;

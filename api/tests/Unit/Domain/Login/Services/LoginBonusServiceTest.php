@@ -1,8 +1,8 @@
 <?php
 
-namespace Tests\Unit\Domain\Auth\Services;
+namespace Tests\Unit\Domain\Login\Services;
 
-use App\Domain\Auth\Services\LoginBonusService;
+use App\Domain\Login\Services\LoginBonusService;
 use NexusResourceDelivery\Services\ResourceDeliveryService;
 use App\Models\Mst\MstLoginBonus;
 use App\Models\Mst\MstLoginBonusContent;

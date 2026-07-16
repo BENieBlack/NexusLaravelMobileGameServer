@@ -1,8 +1,8 @@
 <?php
 
-namespace Tests\Unit\Services\Auth;
+namespace Tests\Unit\Domain\Version\Services;
 
-use App\Domain\Auth\Services\VersionService;
+use App\Domain\Version\Services\VersionService;
 use App\Exceptions\SystemDataException;
 use App\Models\Sys\SysDeploy;
 use App\Models\Sys\SysDeployAsset;

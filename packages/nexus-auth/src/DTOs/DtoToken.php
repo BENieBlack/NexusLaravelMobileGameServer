@@ -1,20 +1,21 @@
 <?php
 
-namespace App\Domain\Auth\DTOs;
+namespace NexusAuth\DTOs;
 
 use Illuminate\Contracts\Support\Arrayable;
 use JsonSerializable;
 
 /**
- * トークン情報DTO
+ * DtoToken DTO
  * 
  * アクセストークン、リフレッシュトークン、有効期限をまとめたDTO
+ * OAuth2標準のトークンレスポンス形式に準拠
  */
 readonly class DtoToken implements Arrayable, JsonSerializable
 {
     /**
-     * @param string $accessToken アクセストークン（JWT）
-     * @param string $refreshToken リフレッシュトークン（平文）
+     * @param string $accessToken アクセストークン（JWT形式推奨）
+     * @param string $refreshToken リフレッシュトークン
      * @param int $expiresIn アクセストークンの有効期限（秒）
      */
     public function __construct(
@@ -22,6 +23,36 @@ readonly class DtoToken implements Arrayable, JsonSerializable
         public string $refreshToken,
         public int $expiresIn,
     ) {
+    }
+
+    /**
+     * アクセストークン取得
+     *
+     * @return string
+     */
+    public function getAccessToken(): string
+    {
+        return $this->accessToken;
+    }
+
+    /**
+     * リフレッシュトークン取得
+     *
+     * @return string
+     */
+    public function getRefreshToken(): string
+    {
+        return $this->refreshToken;
+    }
+
+    /**
+     * 有効期限（秒）取得
+     *
+     * @return int
+     */
+    public function getExpiresIn(): int
+    {
+        return $this->expiresIn;
     }
 
     /**

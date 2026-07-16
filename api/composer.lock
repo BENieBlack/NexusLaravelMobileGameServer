@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cd70a18458510de4e8c0a2a65fc86994",
+    "content-hash": "0a9305fb51837552520eb402a28dbe92",
     "packages": [
         {
             "name": "brick/math",
@@ -2544,6 +2544,35 @@
                 "source": "https://github.com/nette/utils/tree/v4.1.4"
             },
             "time": "2026-05-11T20:49:54+00:00"
+        },
+        {
+            "name": "nexus/auth",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/nexus-auth",
+                "reference": "27b1b2fb2e0a8a11030b4afe9cb3c494a8948cbf"
+            },
+            "require": {
+                "illuminate/support": "^10.0|^11.0|^12.0",
+                "nexus/core-unit-of-work": "@dev",
+                "nexus/security": "@dev",
+                "nexus/utilities": "@dev",
+                "php": "^8.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "NexusAuth\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Device-based authentication package for mobile games with OAuth2-style token management",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "nexus/billing",
@@ -9967,6 +9996,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "nexus/auth": 20,
         "nexus/billing": 20,
         "nexus/core-persistence": 20,
         "nexus/core-unit-of-work": 20,

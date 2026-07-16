@@ -19,7 +19,7 @@ interface BillingPlatformInterface
      * 
      * クライアントから送信されたレシートをプラットフォームAPIで検証する
      * 
-     * @param ReceiptData $receiptData クライアントから送られたレシート情報
+     * @param ReceiptDataDto $receiptData クライアントから送られたレシート情報
      * @return VerificationResult 検証結果
      * @throws ReceiptVerificationException 検証失敗時
      */

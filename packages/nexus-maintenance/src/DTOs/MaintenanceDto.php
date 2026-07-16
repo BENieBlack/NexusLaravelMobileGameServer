@@ -11,7 +11,7 @@ use NexusUtilities\Traits\JsonSerializableTrait;
  * メンテナンス状態の情報を保持
  * 日時は全てY-m-d H:i:s形式の文字列で保持
  */
-readonly class DtoMaintenance
+readonly class MaintenanceDto
 {
     use JsonSerializableTrait;
     public function __construct(

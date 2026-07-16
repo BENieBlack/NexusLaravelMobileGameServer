@@ -3,7 +3,7 @@
 namespace Tests\Unit\Services;
 
 use NexusMaintenance\Contracts\MaintenanceStorageInterface;
-use NexusMaintenance\DTOs\DtoMaintenance;
+use NexusMaintenance\DTOs\MaintenanceDto;
 use NexusMaintenance\Services\MaintenanceService;
 use NexusUtilities\ClockUtility;
 use Illuminate\Support\Facades\Log;

@@ -6,12 +6,12 @@ use NexusResource\Enums\ResourceType;
 use Ramsey\Uuid\Uuid;
 
 /**
- * Resource
+ * ResourceDto
  *
  * ゲーム内リソースの基本データ構造
  * Diamond、Unit、Equipment、Coin、Itemなど全てのリソースを統一的に表現
  */
-class Resource
+class ResourceDto
 {
     /** @var string 一意のID */
     private string $uniqueId;

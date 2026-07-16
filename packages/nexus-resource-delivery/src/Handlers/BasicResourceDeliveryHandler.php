@@ -3,7 +3,7 @@
 namespace NexusResourceDelivery\Handlers;
 
 use NexusResource\Enums\ResourceType;
-use NexusResourceDelivery\DTOs\ResourceDeliveryContent;
+use NexusResourceDelivery\DTOs\ResourceDeliveryContentDto;
 use App\Domain\Wallet\Services\WalletService;
 
 /**
@@ -31,7 +31,7 @@ class BasicResourceDeliveryHandler implements ResourceDeliveryHandlerInterface
      * 基本リソース配送処理を実行
      * 
      * @param int $sysPlayerId プレイヤーID
-     * @param ResourceDeliveryContent $content 配送コンテンツ
+     * @param ResourceDeliveryContentDto $content 配送コンテンツ
      * @return void
      * @throws \Exception 配送失敗時
      */

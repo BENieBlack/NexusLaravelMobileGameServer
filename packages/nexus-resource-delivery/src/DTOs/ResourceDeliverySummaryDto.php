@@ -10,7 +10,7 @@ use Illuminate\Support\Collection;
  *
  * リソース配送結果についてまとめるDTO
  */
-class ResourceDeliverySummary
+class ResourceDeliverySummaryDto
 {
     /**
      * @var Collection<ResourceDeliveryContent>
@@ -47,7 +47,7 @@ class ResourceDeliverySummary
     /**
      * 別のサマリーをマージ
      *
-     * @param ResourceDeliverySummary $summary
+     * @param ResourceDeliverySummaryDto $summary
      */
     public function merge(ResourceDeliverySummary $summary): void
     {

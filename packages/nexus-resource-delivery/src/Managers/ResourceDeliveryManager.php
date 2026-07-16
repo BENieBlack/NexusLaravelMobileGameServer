@@ -2,8 +2,8 @@
 
 namespace NexusResourceDelivery\Managers;
 
-use NexusResourceDelivery\DTOs\ResourceDeliveryContent;
-use NexusResourceDelivery\DTOs\ResourceDeliveryComplete;
+use NexusResourceDelivery\DTOs\ResourceDeliveryContentDto;
+use NexusResourceDelivery\DTOs\ResourceDeliveryCompleteDto;
 use Illuminate\Support\Collection;
 
 /**
@@ -23,7 +23,7 @@ class ResourceDeliveryManager implements ResourceDeliveryManagerInterface
 {
     /**
      * key: ResourceDeliveryContent.uniqueId
-     * value: ResourceDeliveryContent
+     * value: ResourceDeliveryContentDto
      *
      * 配送前のコンテンツを格納する
      *
@@ -53,7 +53,7 @@ class ResourceDeliveryManager implements ResourceDeliveryManagerInterface
     /**
      * 配送コンテンツを配送前リストに追加する
      *
-     * @param ResourceDeliveryContent $content
+     * @param ResourceDeliveryContentDto $content
      * @return void
      */
     public function addContent(ResourceDeliveryContent $content): void
@@ -83,7 +83,7 @@ class ResourceDeliveryManager implements ResourceDeliveryManagerInterface
      * 配送前リストからコンテンツを取得する
      *
      * @return Collection<string, ResourceDeliveryContent>
-     *   key: ResourceDeliveryContent.uniqueId, value: ResourceDeliveryContent
+     *   key: ResourceDeliveryContent.uniqueId, value: ResourceDeliveryContentDto
      */
     public function getPendingContents(): Collection
     {
@@ -104,7 +104,7 @@ class ResourceDeliveryManager implements ResourceDeliveryManagerInterface
     /**
      * 配送処理を実行した後に実行する処理をまとめたメソッド
      *
-     * @param ResourceDeliveryComplete $sendCompleteData 送信完了データ
+     * @param ResourceDeliveryCompleteDto $sendCompleteData 送信完了データ
      * @return void
      */
     public function afterSend(ResourceDeliveryComplete $sendCompleteData): void
@@ -118,7 +118,7 @@ class ResourceDeliveryManager implements ResourceDeliveryManagerInterface
      * 配送実行済みのコンテンツを、送信完了ステータスへ変更する
      * 配送前リストから削除し、送信完了リストへ整形して追加する
      *
-     * @param ResourceDeliveryContent $content
+     * @param ResourceDeliveryContentDto $content
      * @return void
      */
     private function addSendCompleteContent(ResourceDeliveryContent $content): void

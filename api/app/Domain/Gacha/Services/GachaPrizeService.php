@@ -2,7 +2,7 @@
 
 namespace App\Domain\Gacha\Services;
 
-use NexusResource\DTOs\Resource;
+use NexusResource\DTOs\ResourceDto;
 use NexusResourceDelivery\Services\ResourceDeliveryService;
 
 /**
@@ -48,9 +48,9 @@ class GachaPrizeService
      * @param string $contentType
      * @param string $contentId
      * @param int $amount
-     * @return Resource
+     * @return ResourceDto
      */
-    private function createResource(string $contentType, string $contentId, int $amount): Resource
+    private function createResource(string $contentType, string $contentId, int $amount): ResourceDto
     {
         return match ($contentType) {
             'item' => Resource::item($contentId, $amount),

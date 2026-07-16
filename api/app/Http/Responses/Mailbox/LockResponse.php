@@ -5,20 +5,20 @@ namespace App\Http\Responses\Mailbox;
 use App\Http\Responses\_BaseResponse;
 
 /**
- * ProtectResponse
+ * LockResponse
  *
- * メール保護レスポンス
+ * メールロックレスポンス
  */
-class ProtectResponse extends _BaseResponse
+class LockResponse extends _BaseResponse
 {
     /**
      * @param int $trxMailboxId
-     * @param bool $isProtected
+     * @param bool $isLocked
      * @param bool $success
      */
     public function __construct(
         private int $trxMailboxId,
-        private bool $isProtected,
+        private bool $isLocked,
         private bool $success,
     ) {
     }
@@ -32,7 +32,7 @@ class ProtectResponse extends _BaseResponse
     {
         return [
             'trx_mailbox_id' => $this->trxMailboxId,
-            'is_protected' => $this->isProtected,
+            'is_locked' => $this->isLocked,
             'success' => $this->success,
         ];
     }

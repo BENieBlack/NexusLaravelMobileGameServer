@@ -25,7 +25,7 @@ class ListRequest extends _BaseRequest
             'category' => ['nullable', 'string', Rule::in(Category::all())],
             'priority' => ['nullable', 'string', Rule::in(array_column(Priority::cases(), 'value'))],
             'only_unread' => ['nullable', 'boolean'],
-            'only_protected' => ['nullable', 'boolean'],
+            'only_locked' => ['nullable', 'boolean'],
         ];
     }
 
@@ -60,12 +60,12 @@ class ListRequest extends _BaseRequest
     }
 
     /**
-     * 保護のみフラグを取得
+     * ロックのみフラグを取得
      *
      * @return bool
      */
-    public function getOnlyProtected(): bool
+    public function getOnlyLocked(): bool
     {
-        return (bool)$this->input('only_protected', false);
+        return (bool)$this->input('only_locked', false);
     }
 }

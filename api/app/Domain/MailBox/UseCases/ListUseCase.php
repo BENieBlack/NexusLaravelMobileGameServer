@@ -27,7 +27,7 @@ class ListUseCase extends _BaseUseCase
      * @param string|null $category カテゴリフィルタ
      * @param string|null $priority 優先度フィルタ
      * @param bool $onlyUnread 未読のみ
-     * @param bool $onlyProtected 保護のみ
+     * @param bool $onlyLocked ロックのみ
      * @return ListResponse
      */
     public function exec(
@@ -35,7 +35,7 @@ class ListUseCase extends _BaseUseCase
         ?string $category = null,
         ?string $priority = null,
         bool $onlyUnread = false,
-        bool $onlyProtected = false
+        bool $onlyLocked = false
     ): ListResponse {
         // Enumに変換
         $categoryEnum = $category !== null ? Category::fromString($category) : null;
@@ -47,7 +47,7 @@ class ListUseCase extends _BaseUseCase
             $categoryEnum,
             $priorityEnum,
             $onlyUnread,
-            $onlyProtected
+            $onlyLocked
         );
 
         // カテゴリ別未読数を取得

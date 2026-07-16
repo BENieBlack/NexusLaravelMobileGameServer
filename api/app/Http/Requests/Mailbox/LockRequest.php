@@ -5,11 +5,11 @@ namespace App\Http\Requests\Mailbox;
 use App\Http\Requests\_BaseRequest;
 
 /**
- * ProtectRequest
+ * LockRequest
  *
- * メール保護リクエスト
+ * メールロックリクエスト
  */
-class ProtectRequest extends _BaseRequest
+class LockRequest extends _BaseRequest
 {
     /**
      * バリデーションルール
@@ -20,7 +20,7 @@ class ProtectRequest extends _BaseRequest
     {
         return [
             'trx_mailbox_id' => ['required', 'integer', 'min:1'],
-            'is_protected' => ['required', 'boolean'],
+            'is_locked' => ['required', 'boolean'],
         ];
     }
 
@@ -35,12 +35,12 @@ class ProtectRequest extends _BaseRequest
     }
 
     /**
-     * 保護フラグを取得
+     * ロックフラグを取得
      *
      * @return bool
      */
-    public function getIsProtected(): bool
+    public function getIsLocked(): bool
     {
-        return (bool)$this->input('is_protected');
+        return (bool)$this->input('is_locked');
     }
 }

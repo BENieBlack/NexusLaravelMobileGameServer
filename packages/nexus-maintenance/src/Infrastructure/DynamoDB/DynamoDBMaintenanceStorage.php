@@ -79,11 +79,11 @@ class DynamoDBMaintenanceStorage implements MaintenanceStorageInterface
                 'TableName' => $this->tableName,
                 'Item' => [
                     'id' => ['S' => $this->primaryKey],
-                    'is_maintenance' => ['BOOL' => $sysMaintenance->isMaintenance],
-                    'start_at' => ['S' => $sysMaintenance->startAt ?? ''],
-                    'end_at' => ['S' => $sysMaintenance->endAt ?? ''],
-                    'title' => ['S' => $sysMaintenance->title ?? ''],
-                    'message' => ['S' => $sysMaintenance->message ?? ''],
+                    'is_maintenance' => ['BOOL' => $sysMaintenance->getIsMaintenance()],
+                    'start_at' => ['S' => $sysMaintenance->getStartAt() ?? ''],
+                    'end_at' => ['S' => $sysMaintenance->getEndAt() ?? ''],
+                    'title' => ['S' => $sysMaintenance->getTitle() ?? ''],
+                    'message' => ['S' => $sysMaintenance->getMessage() ?? ''],
                     'updated_at' => ['S' => ClockUtility::nowToString()],
                 ],
             ]);

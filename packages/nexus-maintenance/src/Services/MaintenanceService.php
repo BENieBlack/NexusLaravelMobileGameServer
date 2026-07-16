@@ -81,9 +81,9 @@ class MaintenanceService
             $this->clearCache();
             
             Log::info('Maintenance started', [
-                'start_at' => $sysMaintenance->startAt,
-                'end_at' => $sysMaintenance->endAt,
-                'title' => $sysMaintenance->title,
+                'start_at' => $sysMaintenance->getStartAt(),
+                'end_at' => $sysMaintenance->getEndAt(),
+                'title' => $sysMaintenance->getTitle(),
             ]);
         }
 

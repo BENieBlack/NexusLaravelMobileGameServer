@@ -102,9 +102,9 @@ class TokenServiceTest extends TestCase
 
         // Assert - DtoToken
         $this->assertInstanceOf(TokenDto::class, $dtoToken);
-        $this->assertNotEmpty($dtoToken->accessToken);
-        $this->assertNotEmpty($dtoToken->refreshToken);
-        $this->assertEquals(3600, $dtoToken->expiresIn); // 1時間
+        $this->assertNotEmpty($dtoToken->getAccessToken());
+        $this->assertNotEmpty($dtoToken->getRefreshToken());
+        $this->assertEquals(3600, $dtoToken->getExpiresIn()); // 1時間
 
         // Assert - SysPlayerToken
         $this->assertInstanceOf(SysPlayerToken::class, $sysPlayerToken);
@@ -115,7 +115,7 @@ class TokenServiceTest extends TestCase
         $this->assertNull($sysPlayerToken->getRevokedAt());
 
         // Assert - refresh_token_hashが正しくハッシュ化されている
-        $expectedHash = hash('sha256', $dtoToken->refreshToken);
+        $expectedHash = hash('sha256', $dtoToken->getRefreshToken());
         $this->assertEquals($expectedHash, $sysPlayerToken->getRefreshTokenHash());
 
         // Assert - データベースに保存されている
@@ -215,7 +215,7 @@ class TokenServiceTest extends TestCase
         [$dtoToken, $sysPlayerToken] = $this->service->generateToken($sysPlayer, $sysPlayerDevice, $this->tokenModelFactory(...));
 
         // Act
-        $validatedToken = $this->service->validateRefreshToken($dtoToken->refreshToken);
+        $validatedToken = $this->service->validateRefreshToken($dtoToken->getRefreshToken());
 
         // Assert
         $this->assertInstanceOf(SysPlayerToken::class, $validatedToken);
@@ -251,7 +251,7 @@ class TokenServiceTest extends TestCase
         $sysPlayerToken->revoke();
 
         // Act
-        $validatedToken = $this->service->validateRefreshToken($dtoToken->refreshToken);
+        $validatedToken = $this->service->validateRefreshToken($dtoToken->getRefreshToken());
 
         // Assert
         $this->assertNull($validatedToken);
@@ -274,9 +274,9 @@ class TokenServiceTest extends TestCase
         app(QueryManager::class)->execAllQuery();
 
         // すべて有効であることを確認
-        $this->assertNotNull($this->service->validateRefreshToken($dtoToken1->refreshToken));
-        $this->assertNotNull($this->service->validateRefreshToken($dtoToken2->refreshToken));
-        $this->assertNotNull($this->service->validateRefreshToken($dtoToken3->refreshToken));
+        $this->assertNotNull($this->service->validateRefreshToken($dtoToken1->getRefreshToken()));
+        $this->assertNotNull($this->service->validateRefreshToken($dtoToken2->getRefreshToken()));
+        $this->assertNotNull($this->service->validateRefreshToken($dtoToken3->getRefreshToken()));
 
         // Act
         $revokedCount = $this->service->revokePlayerTokens($sysPlayer->getId());
@@ -324,7 +324,7 @@ class TokenServiceTest extends TestCase
         // Assert - 新しいトークンが作成されている
         $this->assertInstanceOf(TokenDto::class, $newDtoToken);
         $this->assertInstanceOf(SysPlayerToken::class, $newSysPlayerToken);
-        $this->assertNotEquals($oldDtoToken->refreshToken, $newDtoToken->refreshToken);
+        $this->assertNotEquals($oldDtoToken->getRefreshToken(), $newDtoToken->getRefreshToken());
         $this->assertNotEquals($oldSysPlayerToken->getRefreshTokenHash(), $newSysPlayerToken->getRefreshTokenHash());
 
         // Assert - 古いトークンは削除されている（DBから取得できない）
@@ -332,11 +332,11 @@ class TokenServiceTest extends TestCase
         $this->assertNull($oldTokenFromDb);
 
         // Assert - 古いトークンで検証すると失敗
-        $validatedOldToken = $this->service->validateRefreshToken($oldDtoToken->refreshToken);
+        $validatedOldToken = $this->service->validateRefreshToken($oldDtoToken->getRefreshToken());
         $this->assertNull($validatedOldToken);
 
         // Assert - 新しいトークンで検証すると成功
-        $validatedNewToken = $this->service->validateRefreshToken($newDtoToken->refreshToken);
+        $validatedNewToken = $this->service->validateRefreshToken($newDtoToken->getRefreshToken());
         $this->assertInstanceOf(SysPlayerToken::class, $validatedNewToken);
         $this->assertEquals($newSysPlayerToken->getRefreshTokenHash(), $validatedNewToken->getRefreshTokenHash());
     }
@@ -363,7 +363,7 @@ class TokenServiceTest extends TestCase
         );
 
         // Assert - アクセストークンの有効期限が1時間（3600秒）であることを確認
-        $this->assertEquals(3600, $dtoToken->expiresIn);
+        $this->assertEquals(3600, $dtoToken->getExpiresIn());
     }
 
     /**
@@ -383,18 +383,18 @@ class TokenServiceTest extends TestCase
         app(QueryManager::class)->execAllQuery();
 
         // Assert - すべてのトークンが異なることを確認
-        $this->assertNotEquals($dtoToken1->refreshToken, $dtoToken2->refreshToken);
-        $this->assertNotEquals($dtoToken2->refreshToken, $dtoToken3->refreshToken);
-        $this->assertNotEquals($dtoToken1->refreshToken, $dtoToken3->refreshToken);
+        $this->assertNotEquals($dtoToken1->getRefreshToken(), $dtoToken2->getRefreshToken());
+        $this->assertNotEquals($dtoToken2->getRefreshToken(), $dtoToken3->getRefreshToken());
+        $this->assertNotEquals($dtoToken1->getRefreshToken(), $dtoToken3->getRefreshToken());
 
         $this->assertNotEquals($sysPlayerToken1->refresh_token_hash, $sysPlayerToken2->refresh_token_hash);
         $this->assertNotEquals($sysPlayerToken2->refresh_token_hash, $sysPlayerToken3->refresh_token_hash);
         $this->assertNotEquals($sysPlayerToken1->refresh_token_hash, $sysPlayerToken3->refresh_token_hash);
 
         // Assert - すべてのトークンが有効
-        $validatedToken1 = $this->service->validateRefreshToken($dtoToken1->refreshToken);
-        $validatedToken2 = $this->service->validateRefreshToken($dtoToken2->refreshToken);
-        $validatedToken3 = $this->service->validateRefreshToken($dtoToken3->refreshToken);
+        $validatedToken1 = $this->service->validateRefreshToken($dtoToken1->getRefreshToken());
+        $validatedToken2 = $this->service->validateRefreshToken($dtoToken2->getRefreshToken());
+        $validatedToken3 = $this->service->validateRefreshToken($dtoToken3->getRefreshToken());
 
         $this->assertNotNull($validatedToken1);
         $this->assertNotNull($validatedToken2);

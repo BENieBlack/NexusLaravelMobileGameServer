@@ -16,7 +16,7 @@ abstract class _BaseController
      * 
      * エラーハンドリングを含む共通処理
      *
-     * @param callable $useCase UseCaseの実行関数（例: fn() => $useCase->handle($request)）
+     * @param callable $useCase UseCaseの実行関数（例: fn() => $useCase->exec($request)）
      * @return JsonResponse
      */
     protected function execute(callable $useCase): JsonResponse

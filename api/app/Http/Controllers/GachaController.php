@@ -35,7 +35,7 @@ class GachaController extends _BaseController
         return $this->execute(function () use ($request) {
             $sysPlayerId = $this->apiSession->getSysPlayerId();
             
-            return $this->drawUseCase->handle(
+            return $this->drawUseCase->exec(
                 sysPlayerId: $sysPlayerId,
                 mstGachaId: $request->getMstGachaId(),
                 drawCount: $request->getDrawCount(),

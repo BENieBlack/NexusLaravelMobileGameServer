@@ -24,7 +24,7 @@ class AuthController extends _BaseController
     {
         $deviceId = $request->getDeviceId();
         $deviceInfo = $request->getDeviceInfo();
-        return $this->execute(fn() => $useCase->handle($deviceId, $deviceInfo));
+        return $this->execute(fn() => $useCase->exec($deviceId, $deviceInfo));
     }
 
     /**
@@ -41,7 +41,7 @@ class AuthController extends _BaseController
         
         \Log::info('AuthController::signUp executing use case');
         
-        return $this->execute(fn() => $useCase->handle($deviceId, $deviceInfo));
+        return $this->execute(fn() => $useCase->exec($deviceId, $deviceInfo));
     }
 
     /**
@@ -50,7 +50,7 @@ class AuthController extends _BaseController
     public function refreshToken(RefreshTokenRequest $request, RefreshTokenUseCase $useCase): JsonResponse
     {
         $refreshToken = $request->getRefreshToken();
-        return $this->execute(fn() => $useCase->handle($refreshToken));
+        return $this->execute(fn() => $useCase->exec($refreshToken));
     }
 
     /**
@@ -59,7 +59,7 @@ class AuthController extends _BaseController
     public function version(VersionRequest $request, VersionUseCase $useCase): JsonResponse
     {
         $deployVersion = $request->getDeployVersion();
-        return $this->execute(fn() => $useCase->handle($deployVersion));
+        return $this->execute(fn() => $useCase->exec($deployVersion));
     }
 
     /**
@@ -68,6 +68,6 @@ class AuthController extends _BaseController
     public function login(LoginRequest $request, LoginUseCase $useCase): JsonResponse
     {
         $sysPlayerId = ApiSession::getSysPlayerId();
-        return $this->execute(fn() => $useCase->handle($sysPlayerId));
+        return $this->execute(fn() => $useCase->exec($sysPlayerId));
     }
 }

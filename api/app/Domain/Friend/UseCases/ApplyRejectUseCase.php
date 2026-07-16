@@ -30,7 +30,7 @@ class ApplyRejectUseCase extends _BaseUseCase
      * @return ApplyRejectResponse
      * @throws GameException
      */
-    public function handle(int $sysPlayerId, int $sysFriendApplyId): ApplyRejectResponse
+    public function exec(int $sysPlayerId, int $sysFriendApplyId): ApplyRejectResponse
     {
         // トランザクション開始
         return $this->executeWithTransaction(function () use ($sysPlayerId, $sysFriendApplyId) {

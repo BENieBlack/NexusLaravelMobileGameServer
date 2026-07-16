@@ -40,7 +40,7 @@ class FriendController extends _BaseController
         // リクエストパラメータを取得
         $targetMyId = $request->getMyId();
 
-        return $this->execute(fn() => $useCase->handle($sysPlayerId, $targetMyId));
+        return $this->execute(fn() => $useCase->exec($sysPlayerId, $targetMyId));
     }
 
     /**
@@ -63,7 +63,7 @@ class FriendController extends _BaseController
         // リクエストパラメータを取得
         $sysFriendApplyId = $request->getSysFriendApplyId();
 
-        return $this->execute(fn() => $useCase->handle($sysPlayerId, $sysFriendApplyId));
+        return $this->execute(fn() => $useCase->exec($sysPlayerId, $sysFriendApplyId));
     }
 
     /**
@@ -86,7 +86,7 @@ class FriendController extends _BaseController
         // リクエストパラメータを取得
         $sysFriendApplyId = $request->getSysFriendApplyId();
 
-        return $this->execute(fn() => $useCase->handle($sysPlayerId, $sysFriendApplyId));
+        return $this->execute(fn() => $useCase->exec($sysPlayerId, $sysFriendApplyId));
     }
 
     /**
@@ -106,7 +106,7 @@ class FriendController extends _BaseController
             );
         }
 
-        return $this->execute(fn() => $useCase->handle($sysPlayerId));
+        return $this->execute(fn() => $useCase->exec($sysPlayerId));
     }
 
     /**
@@ -126,7 +126,7 @@ class FriendController extends _BaseController
             );
         }
 
-        return $this->execute(fn() => $useCase->handle($sysPlayerId));
+        return $this->execute(fn() => $useCase->exec($sysPlayerId));
     }
 
     /**
@@ -149,6 +149,6 @@ class FriendController extends _BaseController
         // リクエストパラメータを取得
         $targetMyId = $request->getMyId();
 
-        return $this->execute(fn() => $useCase->handle($sysPlayerId, $targetMyId));
+        return $this->execute(fn() => $useCase->exec($sysPlayerId, $targetMyId));
     }
 }

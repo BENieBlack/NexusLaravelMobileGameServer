@@ -37,7 +37,7 @@ class UnitController extends _BaseController
             $sysPlayerId = $this->apiSession->getSysPlayerId();
             
             // UseCaseから直接Responseが返る
-            return $this->unitLevelUpUseCase->handle(
+            return $this->unitLevelUpUseCase->exec(
                 sysPlayerId: $sysPlayerId,
                 trxUnitId: $request->getTrxUnitId(),
                 mstItemId: $request->getMstItemId(),

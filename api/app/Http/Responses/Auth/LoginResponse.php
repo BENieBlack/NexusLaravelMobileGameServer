@@ -2,7 +2,7 @@
 
 namespace App\Http\Responses\Auth;
 
-use App\Domain\Delivery\DTOs\DeliveryContent;
+use NexusResource\DTOs\Resource;
 use App\Http\Responses\_BaseResponse;
 use App\Models\Sys\SysPlayer;
 
@@ -19,7 +19,7 @@ class LoginResponse extends _BaseResponse
      * @param array $trxUnits 所持ユニット一覧
      * @param array $trxItems 所持アイテム一覧
      * @param array $trxWallets ウォレット一覧
-     * @param array<DeliveryContent> $loginBonusContents ログインボーナス内容
+     * @param array<Resource> $loginBonusContents ログインボーナス内容
      */
     public function __construct(
         public readonly SysPlayer $sysPlayer,
@@ -51,7 +51,7 @@ class LoginResponse extends _BaseResponse
                 $this->trxWallets
             ),
             'login_bonus_list' => array_map(
-                fn(DeliveryContent $content) => $content->toArray(),
+                fn(Resource $resource) => $resource->toArray(),
                 $this->loginBonusContents
             ),
         ];

@@ -32,8 +32,15 @@ class AuthController extends _BaseController
      */
     public function signUp(SignUpRequest $request, SignUpUseCase $useCase): JsonResponse
     {
+        \Log::info('AuthController::signUp called', [
+            'device_id' => $request->input('device_id'),
+        ]);
+        
         $deviceId = $request->getDeviceId();
         $deviceInfo = $request->getDeviceInfo();
+        
+        \Log::info('AuthController::signUp executing use case');
+        
         return $this->execute(fn() => $useCase->handle($deviceId, $deviceInfo));
     }
 

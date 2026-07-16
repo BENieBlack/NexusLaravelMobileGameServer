@@ -2,9 +2,9 @@
 
 namespace Tests\Unit\Domain\Gacha\Services;
 
-use App\Domain\Delivery\DTOs\DeliveryContent;
-use App\Domain\Delivery\DTOs\DeliveryResult;
-use App\Domain\Delivery\Services\DeliveryService;
+use NexusResource\DTOs\Resource;
+use NexusResourceDelivery\DTOs\ResourceDeliveryResult;
+use NexusResourceDelivery\Services\ResourceDeliveryService;
 use App\Domain\Gacha\Services\GachaPrizeService;
 use Mockery;
 use Tests\TestCase;
@@ -12,17 +12,17 @@ use Tests\TestCase;
 class GachaPrizeServiceTest extends TestCase
 {
     protected GachaPrizeService $service;
-    protected DeliveryService $mockDeliveryService;
+    protected ResourceDeliveryService $mockResourceDeliveryService;
 
     protected function setUp(): void
     {
         parent::setUp();
         
-        // DeliveryServiceをモック
-        $this->mockDeliveryService = Mockery::mock(DeliveryService::class);
+        // ResourceDeliveryServiceをモック
+        $this->mockResourceDeliveryService = Mockery::mock(ResourceDeliveryService::class);
         
         // GachaPrizeServiceを作成
-        $this->service = new GachaPrizeService($this->mockDeliveryService);
+        $this->service = new GachaPrizeService($this->mockResourceDeliveryService);
     }
 
     protected function tearDown(): void
@@ -60,18 +60,18 @@ class GachaPrizeServiceTest extends TestCase
         ];
 
         // Assert - DeliveryService::addContents and deliver should be called
-        $this->mockDeliveryService->shouldReceive('addContents')
+        $this->mockResourceDeliveryService->shouldReceive('addResources')
             ->once()
             ->with(Mockery::on(function ($arg) {
                 return is_array($arg) 
                     && count($arg) === 1
-                    && $arg[0] instanceof DeliveryContent
-                    && $arg[0]->getType() === 'item'
+                    && $arg[0] instanceof Resource
+                    && $arg[0]->getTypeValue() === 'item'
                     && $arg[0]->getId() === 'item_potion_001'
                     && $arg[0]->getAmount() === 5;
             }));
 
-        $this->mockDeliveryService->shouldReceive('deliver')
+        $this->mockResourceDeliveryService->shouldReceive('deliver')
             ->once()
             ->with(1);
 
@@ -97,18 +97,18 @@ class GachaPrizeServiceTest extends TestCase
         ];
 
         // Assert
-        $this->mockDeliveryService->shouldReceive('addContents')
+        $this->mockResourceDeliveryService->shouldReceive('addResources')
             ->once()
             ->with(Mockery::on(function ($arg) {
                 return is_array($arg) 
                     && count($arg) === 1
-                    && $arg[0] instanceof DeliveryContent
-                    && $arg[0]->getType() === 'unit'
+                    && $arg[0] instanceof Resource
+                    && $arg[0]->getTypeValue() === 'unit'
                     && $arg[0]->getId() === 'unit_hero_001'
                     && $arg[0]->getAmount() === 1;
             }));
 
-        $this->mockDeliveryService->shouldReceive('deliver')
+        $this->mockResourceDeliveryService->shouldReceive('deliver')
             ->once()
             ->with(1);
 
@@ -134,18 +134,18 @@ class GachaPrizeServiceTest extends TestCase
         ];
 
         // Assert
-        $this->mockDeliveryService->shouldReceive('addContents')
+        $this->mockResourceDeliveryService->shouldReceive('addResources')
             ->once()
             ->with(Mockery::on(function ($arg) {
                 return is_array($arg) 
                     && count($arg) === 1
-                    && $arg[0] instanceof DeliveryContent
-                    && $arg[0]->getType() === 'equipment'
+                    && $arg[0] instanceof Resource
+                    && $arg[0]->getTypeValue() === 'equipment'
                     && $arg[0]->getId() === 'equipment_sword_001'
                     && $arg[0]->getAmount() === 1;
             }));
 
-        $this->mockDeliveryService->shouldReceive('deliver')
+        $this->mockResourceDeliveryService->shouldReceive('deliver')
             ->once()
             ->with(1);
 
@@ -181,17 +181,17 @@ class GachaPrizeServiceTest extends TestCase
         ];
 
         // Assert
-        $this->mockDeliveryService->shouldReceive('addContents')
+        $this->mockResourceDeliveryService->shouldReceive('addResources')
             ->once()
             ->with(Mockery::on(function ($arg) {
                 return is_array($arg) 
                     && count($arg) === 3
-                    && $arg[0]->getType() === 'item'
-                    && $arg[1]->getType() === 'unit'
-                    && $arg[2]->getType() === 'equipment';
+                    && $arg[0]->getTypeValue() === 'item'
+                    && $arg[1]->getTypeValue() === 'unit'
+                    && $arg[2]->getTypeValue() === 'equipment';
             }));
 
-        $this->mockDeliveryService->shouldReceive('deliver')
+        $this->mockResourceDeliveryService->shouldReceive('deliver')
             ->once()
             ->with(1);
 
@@ -211,11 +211,11 @@ class GachaPrizeServiceTest extends TestCase
         $prizes = [];
 
         // Assert
-        $this->mockDeliveryService->shouldReceive('addContents')
+        $this->mockResourceDeliveryService->shouldReceive('addResources')
             ->once()
             ->with([]);
 
-        $this->mockDeliveryService->shouldReceive('deliver')
+        $this->mockResourceDeliveryService->shouldReceive('deliver')
             ->once()
             ->with(1);
 
@@ -263,11 +263,11 @@ class GachaPrizeServiceTest extends TestCase
         ];
 
         // Assert
-        $this->mockDeliveryService->shouldReceive('addContents')
+        $this->mockResourceDeliveryService->shouldReceive('addResources')
             ->once()
             ->with(Mockery::any());
 
-        $this->mockDeliveryService->shouldReceive('deliver')
+        $this->mockResourceDeliveryService->shouldReceive('deliver')
             ->once()
             ->with(42);
 

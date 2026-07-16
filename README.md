@@ -90,16 +90,31 @@ docker-compose stop
 ### マイグレーション
 
 ```bash
-# APIプロジェクト - 全データベース
+# APIプロジェクト - システムDB
 docker exec api-php php artisan migrate --database=sys --path=database/migrations/sys
-docker exec api-php php artisan migrate --database=mst --path=database/migrations/mst
-docker exec api-php php artisan migrate --database=log --path=database/migrations/log
-docker exec api-php php artisan migrate --database=trx1 --path=database/migrations/trx
 
-# Toolプロジェクト - 全データベース
+# APIプロジェクト - マスターDB
+docker exec api-php php artisan migrate --database=mst --path=database/migrations/mst
+
+# APIプロジェクト - ログDB
+docker exec api-php php artisan migrate --database=log --path=database/migrations/log
+
+# APIプロジェクト - トランザクションDB（すべてのシャード）
+docker exec api-php php artisan migrate:shards
+
+# Toolプロジェクト - 管理者DB
 docker exec tool-php php artisan migrate --database=adm --path=database/migrations/adm
+
+# Toolプロジェクト - 運営ツールDB
 docker exec tool-php php artisan migrate --database=tol --path=database/migrations/tol
 ```
+
+**シャーディング対応マイグレーション:**
+- `migrate:shards` - すべてのトランザクションシャード（trx1, trx2, ...）に一括マイグレーション
+- `migrate:shards-status` - すべてのシャードのマイグレーション状態を確認
+- `migrate:shards-rollback` - すべてのシャードでロールバック
+
+詳細は [シャーディングマイグレーションシステム](./docs/sharding_migration_system.md) を参照してください。
 
 ### Laravel Sailラッパー
 
@@ -181,12 +196,15 @@ docker exec api-php php artisan migrate:fresh --database=sys --path=database/mig
 - [開発ルール](./DEVELOPMENT_RULES.md) - アーキテクチャ、コーディング規約、データベース設計、API設計
 - [開発環境構築ガイド](./.claude/development.md) - setup.sh、Docker、マイグレーション
 - [データベース設計](./.claude/database.md) - テーブル構造、命名規則、マイグレーション管理
+- [シャーディングマイグレーションシステム](./docs/sharding_migration_system.md) - 動的シャード対応、新規シャード追加手順
 
 ### API固有
 - [API仕様](./.claude/api.md) - エンドポイント、認証、レスポンス形式
 - [API呼び出しフロー](./api/docs/API_FLOW.md) - 推奨されるAPI呼び出し順序
 - [コーディング規約](./api/docs/CODING_CONVENTIONS.md) - Request/Response/Dataクラスの命名規則とディレクトリ構成
 - [Repositoryパターン実装ガイド](./api/docs/REPOSITORY_PATTERN.md) - データアクセス抽象化とキャッシュ戦略
+- [クライアント認証](./docs/client_authentication.md) - 署名検証、デバイス認証
+- [ガチャシステム設計](./docs/gacha_system_design.md) - ガチャロジック、確率制御
 
 ### Tool固有
 - [Tool仕様](./.claude/tool.md) - 運営ツールの機能、データベース構成

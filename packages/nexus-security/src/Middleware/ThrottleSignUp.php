@@ -30,6 +30,11 @@ class ThrottleSignUp
         $ip = $request->ip();
         $deviceId = $request->input('device_id');
         
+        \Log::info('ThrottleSignUp: Checking rate limits', [
+            'ip' => $ip,
+            'device_id' => $deviceId,
+        ]);
+        
         $maxAttemptsPerIp = config('security.throttle_signup.max_attempts_per_ip', 10);
         $maxAttemptsPerDevice = config('security.throttle_signup.max_attempts_per_device', 3);
         $rateLimitWindow = config('security.throttle_signup.rate_limit_window', 3600);
@@ -38,7 +43,14 @@ class ThrottleSignUp
         $ipKey = "signup_rate_limit:ip:{$ip}";
         $ipAttempts = Cache::get($ipKey, 0);
 
+        \Log::info('ThrottleSignUp: IP rate limit check', [
+            'key' => $ipKey,
+            'attempts' => $ipAttempts,
+            'max' => $maxAttemptsPerIp,
+        ]);
+
         if ($ipAttempts >= $maxAttemptsPerIp) {
+            \Log::warning('ThrottleSignUp: IP rate limit exceeded');
             return response()->json([
                 'error' => 'TOO_MANY_REQUESTS',
                 'message' => 'Too many sign up attempts from this IP address. Please try again later.',
@@ -51,7 +63,14 @@ class ThrottleSignUp
             $deviceKey = "signup_rate_limit:device:{$deviceId}";
             $deviceAttempts = Cache::get($deviceKey, 0);
 
+            \Log::info('ThrottleSignUp: Device rate limit check', [
+                'key' => $deviceKey,
+                'attempts' => $deviceAttempts,
+                'max' => $maxAttemptsPerDevice,
+            ]);
+
             if ($deviceAttempts >= $maxAttemptsPerDevice) {
+                \Log::warning('ThrottleSignUp: Device rate limit exceeded');
                 return response()->json([
                     'error' => 'TOO_MANY_REQUESTS',
                     'message' => 'Too many sign up attempts from this device. Please try again later.',

@@ -4,12 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Domain\Mailbox\UseCases\ListUseCase;
 use App\Domain\Mailbox\UseCases\OpenUseCase;
+use App\Domain\Mailbox\UseCases\ProtectUseCase;
+use App\Domain\Mailbox\UseCases\ReceiveAllUseCase;
 use App\Domain\Mailbox\UseCases\ReceiveUseCase;
 use App\Http\Requests\Mailbox\ListRequest;
 use App\Http\Requests\Mailbox\OpenRequest;
+use App\Http\Requests\Mailbox\ProtectRequest;
+use App\Http\Requests\Mailbox\ReceiveAllRequest;
 use App\Http\Requests\Mailbox\ReceiveRequest;
 use App\Http\Responses\Mailbox\ListResponse;
 use App\Http\Responses\Mailbox\OpenResponse;
+use App\Http\Responses\Mailbox\ProtectResponse;
+use App\Http\Responses\Mailbox\ReceiveAllResponse;
 use App\Http\Responses\Mailbox\ReceiveResponse;
 use App\Persistence\ApiSession;
 
@@ -35,7 +41,14 @@ class MailboxController extends _BaseController
     public function list(ListRequest $request, ListUseCase $useCase): ListResponse
     {
         $sysPlayerId = $this->apiSession->getSysPlayerId();
-        return $useCase->handle($sysPlayerId);
+        
+        return $useCase->handle(
+            $sysPlayerId,
+            $request->getCategory(),
+            $request->getPriority(),
+            $request->getOnlyUnread(),
+            $request->getOnlyProtected()
+        );
     }
 
     /**
@@ -62,5 +75,39 @@ class MailboxController extends _BaseController
     {
         $sysPlayerId = $this->apiSession->getSysPlayerId();
         return $useCase->handle($sysPlayerId, $request->getTrxMailboxId());
+    }
+
+    /**
+     * 添付配布物一括受取
+     *
+     * @param ReceiveAllRequest $request
+     * @param ReceiveAllUseCase $useCase
+     * @return ReceiveAllResponse
+     */
+    public function receiveAll(ReceiveAllRequest $request, ReceiveAllUseCase $useCase): ReceiveAllResponse
+    {
+        $sysPlayerId = $this->apiSession->getSysPlayerId();
+        return $useCase->handle(
+            $sysPlayerId,
+            $request->getTrxMailboxIds(),
+            $request->getCategory()
+        );
+    }
+
+    /**
+     * メール保護
+     *
+     * @param ProtectRequest $request
+     * @param ProtectUseCase $useCase
+     * @return ProtectResponse
+     */
+    public function protect(ProtectRequest $request, ProtectUseCase $useCase): ProtectResponse
+    {
+        $sysPlayerId = $this->apiSession->getSysPlayerId();
+        return $useCase->handle(
+            $sysPlayerId,
+            $request->getTrxMailboxId(),
+            $request->getIsProtected()
+        );
     }
 }

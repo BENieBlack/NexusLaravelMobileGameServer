@@ -3,7 +3,7 @@
 namespace Tests\Unit\Domain\Auth\Services;
 
 use App\Domain\Auth\Services\LoginBonusService;
-use App\Domain\Delivery\Services\DeliveryService;
+use NexusResourceDelivery\Services\ResourceDeliveryService;
 use App\Models\Mst\MstLoginBonus;
 use App\Models\Mst\MstLoginBonusContent;
 use App\Persistence\ApiSession;

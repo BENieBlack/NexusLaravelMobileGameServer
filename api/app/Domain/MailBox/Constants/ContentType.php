@@ -3,19 +3,67 @@
 namespace App\Domain\Mailbox\Constants;
 
 /**
- * ContentType
- *
  * メールボックスコンテンツのタイプ定数
  */
-class ContentType
+enum ContentType: string
 {
+    case DIAMOND = 'Diamond';               // ダイヤ
+    case PAID_DIAMOND = 'PaidDiamond';      // 有償ダイヤ
+    case ITEM = 'Item';                     // アイテム
+    case UNIT = 'Unit';                     // ユニット
+    case EQUIPMENT = 'Equipment';           // 装備
+    case GOLD = 'Gold';                     // ゴールド
+    case FOOD = 'Food';                     // 食料
+    case WOOD = 'Wood';                     // 木材
+    case STONE = 'Stone';                   // 石材
+    case STAMINA = 'Stamina';               // スタミナ
+    case EXPERIENCE = 'Experience';         // 経験値
+    case ALLIANCE_POINTS = 'AlliancePoints'; // アライアンスポイント
+    case CUSTOM = 'Custom';                 // カスタムリソース
+
     /**
-     * コンテンツタイプ定数
+     * ラベルを取得
      */
-    public const DIAMOND = 'Diamond';
-    public const ITEM = 'Item';
-    public const UNIT = 'Unit';
-    public const EQUIPMENT = 'Equipment';
+    public function label(): string
+    {
+        return match($this) {
+            self::DIAMOND => 'ダイヤ',
+            self::PAID_DIAMOND => '有償ダイヤ',
+            self::ITEM => 'アイテム',
+            self::UNIT => 'ユニット',
+            self::EQUIPMENT => '装備',
+            self::GOLD => 'ゴールド',
+            self::FOOD => '食料',
+            self::WOOD => '木材',
+            self::STONE => '石材',
+            self::STAMINA => 'スタミナ',
+            self::EXPERIENCE => '経験値',
+            self::ALLIANCE_POINTS => 'アライアンスポイント',
+            self::CUSTOM => 'カスタム',
+        };
+    }
+
+    /**
+     * アイコンを取得
+     */
+    public function icon(): string
+    {
+        return match($this) {
+            self::DIAMOND => '💎',
+            self::PAID_DIAMOND => '💠',
+            self::ITEM => '📦',
+            self::UNIT => '⚔️',
+            self::EQUIPMENT => '🛡️',
+            self::GOLD => '🪙',
+            self::FOOD => '🍖',
+            self::WOOD => '🪵',
+            self::STONE => '🪨',
+            self::STAMINA => '⚡',
+            self::EXPERIENCE => '⭐',
+            self::ALLIANCE_POINTS => '🏰',
+            self::CUSTOM => '❓',
+        };
+    }
 
     /**
      * 全てのタイプを取得
@@ -24,12 +72,7 @@ class ContentType
      */
     public static function all(): array
     {
-        return [
-            self::DIAMOND,
-            self::ITEM,
-            self::UNIT,
-            self::EQUIPMENT,
-        ];
+        return array_column(self::cases(), 'value');
     }
 
     /**
@@ -40,6 +83,14 @@ class ContentType
      */
     public static function isValid(string $type): bool
     {
-        return in_array($type, self::all(), true);
+        return self::tryFrom($type) !== null;
+    }
+
+    /**
+     * 文字列から変換
+     */
+    public static function fromString(string $value): ?self
+    {
+        return self::tryFrom($value);
     }
 }

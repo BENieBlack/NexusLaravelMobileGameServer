@@ -2,7 +2,10 @@
 
 namespace App\Http\Requests\Mailbox;
 
+use App\Domain\MailBox\Constants\Category;
+use App\Domain\MailBox\Constants\Priority;
 use App\Http\Requests\_BaseRequest;
+use Illuminate\Validation\Rule;
 
 /**
  * ListRequest
@@ -19,7 +22,50 @@ class ListRequest extends _BaseRequest
     public function rules(): array
     {
         return [
-            // プレイヤーIDはApiSessionから自動取得
+            'category' => ['nullable', 'string', Rule::in(Category::all())],
+            'priority' => ['nullable', 'string', Rule::in(array_column(Priority::cases(), 'value'))],
+            'only_unread' => ['nullable', 'boolean'],
+            'only_protected' => ['nullable', 'boolean'],
         ];
+    }
+
+    /**
+     * カテゴリを取得
+     *
+     * @return string|null
+     */
+    public function getCategory(): ?string
+    {
+        return $this->input('category');
+    }
+
+    /**
+     * 優先度を取得
+     *
+     * @return string|null
+     */
+    public function getPriority(): ?string
+    {
+        return $this->input('priority');
+    }
+
+    /**
+     * 未読のみフラグを取得
+     *
+     * @return bool
+     */
+    public function getOnlyUnread(): bool
+    {
+        return (bool)$this->input('only_unread', false);
+    }
+
+    /**
+     * 保護のみフラグを取得
+     *
+     * @return bool
+     */
+    public function getOnlyProtected(): bool
+    {
+        return (bool)$this->input('only_protected', false);
     }
 }

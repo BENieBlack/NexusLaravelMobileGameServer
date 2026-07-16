@@ -4,7 +4,7 @@ namespace App\Domain\Auth\UseCases;
 
 use App\Domain\_BaseUseCase;
 use App\Domain\Auth\Services\LoginBonusService;
-use App\Domain\Delivery\DTOs\DeliveryContent;
+use NexusResource\DTOs\Resource;
 use App\Exceptions\SystemDataException;
 use App\Http\Responses\Auth\LoginResponse;
 use App\Repositories\Sys\SysPlayerRepository;

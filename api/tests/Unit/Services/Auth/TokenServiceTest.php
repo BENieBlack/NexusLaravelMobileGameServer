@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\Services\Auth;
 
-use App\Domain\Auth\DTOs\DtoToken;
-use App\Domain\Auth\Services\TokenService;
+use NexusAuth\DTOs\TokenDto;
+use NexusAuth\Services\TokenService;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;

@@ -83,7 +83,7 @@ class SignInUseCaseUnitTest extends TestCase
         $mockToken->expires_at = now()->addDays(30);
         $mockToken->exists = true;
         
-        $dtoToken = new DtoToken(
+        $dtoToken = new TokenDto(
             accessToken: 'access-token-123',
             refreshToken: 'refresh-token-456',
             expiresIn: 3600
@@ -207,7 +207,7 @@ class SignInUseCaseUnitTest extends TestCase
         $mockToken->sys_player_id = 1;
         $mockToken->exists = true;
         
-        $dtoToken = new DtoToken(
+        $dtoToken = new TokenDto(
             accessToken: 'new-access-token',
             refreshToken: 'new-refresh-token',
             expiresIn: 3600
@@ -271,7 +271,7 @@ class SignInUseCaseUnitTest extends TestCase
         $mockToken->id = 100;
         $mockToken->exists = true;
         
-        $dtoToken = new DtoToken(
+        $dtoToken = new TokenDto(
             accessToken: 'access-token',
             refreshToken: 'refresh-token',
             expiresIn: 3600

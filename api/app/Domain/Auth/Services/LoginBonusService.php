@@ -2,9 +2,8 @@
 
 namespace App\Domain\Auth\Services;
 
-use App\Domain\Delivery\Constants\DeliveryConst;
-use App\Domain\Delivery\DTOs\DeliveryContent;
-use App\Domain\Delivery\Services\DeliveryService;
+use NexusResource\DTOs\Resource;
+use NexusResourceDelivery\Services\ResourceDeliveryService;
 use App\Models\Mst\MstLoginBonus;
 use App\Models\Mst\MstLoginBonusContent;
 use App\Models\Trx\TrxLoginBonusHistory;
@@ -23,7 +22,7 @@ class LoginBonusService
 {
     public function __construct(
         private readonly ApiSession $apiSession,
-        private readonly DeliveryService $deliveryService,
+        private readonly ResourceDeliveryService $resourceDeliveryService,
     ) {
     }
 
@@ -32,7 +31,7 @@ class LoginBonusService
      *
      * @param int $sysPlayerId
      * @param string|null $lastLoginAt 最終ログイン日時（UTC、文字列形式）
-     * @return array<DeliveryContent> 配布したログインボーナスの内容
+     * @return array<Resource> 配布したログインボーナスの内容
      * @throws \Exception
      */
     public function checkAndGrantLoginBonus(
@@ -57,7 +56,7 @@ class LoginBonusService
      *
      * @param int $sysPlayerId
      * @param CarbonImmutable $gameDayStart ゲーム内日付の開始時刻
-     * @return array<DeliveryContent> 配布したログインボーナスの内容
+     * @return array<Resource> 配布したログインボーナスの内容
      * @throws \Exception
      */
     private function grantLoginBonus(int $sysPlayerId, CarbonImmutable $gameDayStart): array
@@ -81,19 +80,19 @@ class LoginBonusService
             return [];
         }
 
-        // DeliveryContentに変換
-        $deliveryContents = $contents->map(function ($content) {
-            return $this->convertToDeliveryContent($content);
+        // Resourceに変換
+        $resources = $contents->map(function ($content) {
+            return $this->convertToResource($content);
         })->all();
 
-        // DeliveryServiceで配布
-        $this->deliveryService->addContents($deliveryContents);
-        $this->deliveryService->deliver($sysPlayerId);
+        // ResourceDeliveryServiceで配布
+        $this->resourceDeliveryService->addResources($resources);
+        $this->resourceDeliveryService->deliver($sysPlayerId);
 
         // 履歴を記録（複数報酬対応）
         $this->recordLoginBonusHistory($sysPlayerId, $loginBonus, $contents, $gameDayStart);
 
-        return $deliveryContents;
+        return $resources;
     }
 
     /**
@@ -181,23 +180,23 @@ class LoginBonusService
     }
 
     /**
-     * MstLoginBonusContentをDeliveryContentに変換
+     * MstLoginBonusContentをResourceに変換
      *
      * @param \App\Models\Mst\MstLoginBonusContent $content
-     * @return DeliveryContent
+     * @return Resource
      */
-    private function convertToDeliveryContent($content): DeliveryContent
+    private function convertToResource($content): Resource
     {
         $metadata = [];
         if ($content->is_paid) {
             $metadata['is_paid'] = true;
         }
 
-        return new DeliveryContent(
-            type: $content->content_type,
+        return Resource::fromTypeString(
+            typeString: $content->content_type,
             id: $content->content_id,
             amount: $content->amount,
-            metadata: $metadata,
+            metadata: empty($metadata) ? null : $metadata,
         );
     }
 

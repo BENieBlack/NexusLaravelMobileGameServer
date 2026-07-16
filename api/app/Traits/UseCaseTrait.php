@@ -61,6 +61,13 @@ trait UseCaseTrait
             }
 
         } catch (Exception | Throwable $e) {
+            \Log::error('Transaction failed in UseCase', [
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            
             foreach (['sys', 'trx', 'log'] as $connection) {
                 DB::connection($connection)->rollBack();
             }

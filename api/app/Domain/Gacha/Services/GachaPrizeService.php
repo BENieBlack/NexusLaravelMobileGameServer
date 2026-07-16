@@ -2,19 +2,19 @@
 
 namespace App\Domain\Gacha\Services;
 
-use App\Domain\Delivery\DTOs\DeliveryContent;
-use App\Domain\Delivery\Services\DeliveryService;
+use NexusResource\DTOs\Resource;
+use NexusResourceDelivery\Services\ResourceDeliveryService;
 
 /**
  * GachaPrizeService
  *
  * ガチャ景品の付与を行うサービス
- * DeliveryServiceを使用して統一的に景品を配送
+ * ResourceDeliveryServiceを使用して統一的に景品を配送
  */
 class GachaPrizeService
 {
     public function __construct(
-        private readonly DeliveryService $deliveryService,
+        private readonly ResourceDeliveryService $resourceDeliveryService,
     ) {
     }
 
@@ -27,35 +27,35 @@ class GachaPrizeService
      */
     public function grantPrizes(int $sysPlayerId, array $prizes): void
     {
-        $deliveryContents = [];
+        $resources = [];
 
         foreach ($prizes as $prize) {
-            $deliveryContents[] = $this->createDeliveryContent(
+            $resources[] = $this->createResource(
                 $prize['content_type'],
                 $prize['content_id'],
                 $prize['amount']
             );
         }
 
-        // DeliveryService経由で配送（新しいパターン: addContents + deliver）
-        $this->deliveryService->addContents($deliveryContents);
-        $this->deliveryService->deliver($sysPlayerId);
+        // ResourceDeliveryService経由で配送（新しいパターン: addResources + deliver）
+        $this->resourceDeliveryService->addResources($resources);
+        $this->resourceDeliveryService->deliver($sysPlayerId);
     }
 
     /**
-     * 景品データからDeliveryContentを作成
+     * 景品データからResourceを作成
      *
      * @param string $contentType
      * @param string $contentId
      * @param int $amount
-     * @return DeliveryContent
+     * @return Resource
      */
-    private function createDeliveryContent(string $contentType, string $contentId, int $amount): DeliveryContent
+    private function createResource(string $contentType, string $contentId, int $amount): Resource
     {
         return match ($contentType) {
-            'item' => DeliveryContent::item($contentId, $amount),
-            'unit' => DeliveryContent::unit($contentId, $amount),
-            'equipment' => DeliveryContent::equipment($contentId, $amount),
+            'item' => Resource::item($contentId, $amount),
+            'unit' => Resource::unit($contentId, $amount),
+            'equipment' => Resource::equipment($contentId, $amount),
             default => throw new \Exception("Unsupported content type: {$contentType}"),
         };
     }

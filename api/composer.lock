@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "67b846357fb812bd405a53f1b4fbd9db",
+    "content-hash": "cd70a18458510de4e8c0a2a65fc86994",
     "packages": [
         {
             "name": "brick/math",
@@ -2751,6 +2751,91 @@
                 }
             ],
             "description": "Mobile game features for Laravel including maintenance mode management with support for AWS DynamoDB and Alibaba Cloud TableStore",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "nexus/resource",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/nexus-resource",
+                "reference": "597c84182cfead731507ead34edda8ca7b8a7b8e"
+            },
+            "require": {
+                "php": "^8.1",
+                "ramsey/uuid": "^4.0"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.6",
+                "phpunit/phpunit": "^11.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "NexusResource\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "NexusResource\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nexus Team",
+                    "email": "team@nexus.example.com"
+                }
+            ],
+            "description": "Unified resource representation for game resources (Diamond, Unit, Equipment, Coin, Item, etc.)",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "nexus/resource-delivery",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/nexus-resource-delivery",
+                "reference": "620199c5a7136fe865bc2dbe8f331a657b3289d2"
+            },
+            "require": {
+                "illuminate/database": "^10.0|^11.0|^12.0",
+                "illuminate/support": "^10.0|^11.0|^12.0",
+                "nexus/resource": "*",
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.6",
+                "orchestra/testbench": "^9.0",
+                "phpunit/phpunit": "^11.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "NexusResourceDelivery\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "NexusResourceDelivery\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nexus Team",
+                    "email": "team@nexus.example.com"
+                }
+            ],
+            "description": "Resource delivery system for game resources with handler pattern and delayed delivery support",
             "transport-options": {
                 "relative": true
             }
@@ -9886,6 +9971,8 @@
         "nexus/core-persistence": 20,
         "nexus/core-unit-of-work": 20,
         "nexus/maintenance": 20,
+        "nexus/resource": 20,
+        "nexus/resource-delivery": 20,
         "nexus/security": 20,
         "nexus/utilities": 20,
         "nexus/wallet": 20

@@ -2,6 +2,9 @@
 
 namespace App\Http\Responses\Mailbox;
 
+use App\Domain\MailBox\Constants\Category;
+use App\Domain\MailBox\Constants\ContentType;
+use App\Domain\MailBox\Constants\Priority;
 use App\Http\Responses\_BaseResponse;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -14,9 +17,11 @@ class ListResponse extends _BaseResponse
 {
     /**
      * @param array $mailboxArray
+     * @param array<string, int> $unreadCounts カテゴリ別未読数
      */
     public function __construct(
         private array $mailboxArray,
+        private array $unreadCounts = [],
     ) {
     }
 
@@ -24,11 +29,17 @@ class ListResponse extends _BaseResponse
      * Collectionからレスポンスを生成
      *
      * @param Collection $trxMailboxCollection
+     * @param array<string, int> $unreadCounts
      * @return self
      */
-    public static function fromCollection(Collection $trxMailboxCollection): self
-    {
-        $mailboxArray = $trxMailboxCollection->map(function ($trxMailbox) {
+    public static function fromCollection(
+        Collection $trxMailboxCollection,
+        array $unreadCounts = []
+    ): self {
+        // TemplateEngineをインスタンス化
+        $templateEngine = app(\App\Domain\MailBox\Services\TemplateEngine::class);
+
+        $mailboxArray = $trxMailboxCollection->map(function ($trxMailbox) use ($templateEngine) {
             $mstMailbox = $trxMailbox->mstMailbox;
             $mstMessage = $mstMailbox?->message;
             
@@ -37,29 +48,94 @@ class ListResponse extends _BaseResponse
             $language = 'ja';
             $i18n = $mstMessage?->i18n()->where('language', $language)->first();
 
+            // テンプレートレンダリング用のコンテキスト
+            $context = [
+                'player' => $trxMailbox->trxPlayer ?? null,
+                // alliance, battle などは必要に応じて追加
+            ];
+
+            // カスタムパラメータ取得
+            $customParams = $trxMailbox->getCustomParams() ?? [];
+
+            // タイトル・本文をレンダリング
+            $title = $templateEngine->render(
+                $i18n?->title ?? '',
+                $customParams,
+                $context
+            );
+
+            $body = $templateEngine->render(
+                $i18n?->body ?? '',
+                $customParams,
+                $context
+            );
+
             // コンテンツ情報を取得
             $contentArray = $mstMailbox?->contentCollection->map(function ($content) {
+                $contentType = ContentType::fromString($content->content_type);
+                
                 return [
                     'content_type' => $content->content_type,
+                    'content_type_label' => $contentType?->label() ?? $content->content_type,
+                    'content_type_icon' => $contentType?->icon() ?? '',
                     'content_id' => $content->content_id,
                     'amount' => $content->amount,
+                    'rarity' => $content->rarity,
+                    'is_highlight' => $content->is_highlight ?? false,
                     'sort_desc' => $content->sort_desc,
                 ];
             })->toArray() ?? [];
 
+            // カテゴリ・優先度情報
+            $category = $mstMailbox?->category;
+            $priority = $mstMailbox?->priority;
+
             return [
                 'trx_mailbox_id' => $trxMailbox->id,
                 'mst_mailbox_id' => $trxMailbox->mst_mailbox_id,
-                'title' => $i18n?->title ?? '',
-                'body' => $i18n?->body ?? '',
+                
+                // メール内容（テンプレートレンダリング済み）
+                'title' => $title,
+                'body' => $body,
+                
+                // カテゴリ・優先度
+                'category' => $category?->value ?? null,
+                'category_label' => $category?->label() ?? null,
+                'category_icon' => $category?->icon() ?? null,
+                'priority' => $priority?->value ?? null,
+                'priority_label' => $priority?->label() ?? null,
+                'priority_color' => $priority?->color() ?? null,
+                'priority_icon' => $priority?->icon() ?? null,
+                
+                // 送信者情報
+                'sender_type' => $mstMailbox?->sender_type?->value ?? null,
+                'sender_type_label' => $mstMailbox?->sender_type?->label() ?? null,
+                'sender_id' => $mstMailbox?->sender_id ?? null,
+                'sender_name' => $trxMailbox->sender_name ?? null,
+                
+                // アイコン
+                'icon_url' => $mstMailbox?->icon_url ?? null,
+                
+                // 状態
                 'is_opened' => $trxMailbox->is_opened,
                 'is_received' => $trxMailbox->is_received,
-                'content_array' => $contentArray,
+                'is_protected' => $trxMailbox->is_protected ?? false,
+                'is_expired' => $trxMailbox->isExpired(),
+                'is_unread' => $trxMailbox->isUnread(),
+                
+                // 日時
+                'expires_at' => $trxMailbox->expires_at?->toIso8601String() ?? null,
+                'read_at' => $trxMailbox->read_at?->toIso8601String() ?? null,
+                'received_at' => $trxMailbox->received_at?->toIso8601String() ?? null,
                 'created_at' => $trxMailbox->created_at->toIso8601String(),
+                
+                // 添付物
+                'content_array' => $contentArray,
+                'has_content' => count($contentArray) > 0,
             ];
         })->toArray();
 
-        return new self($mailboxArray);
+        return new self($mailboxArray, $unreadCounts);
     }
 
     /**
@@ -71,6 +147,8 @@ class ListResponse extends _BaseResponse
     {
         return [
             'mailbox_array' => $this->mailboxArray,
+            'unread_counts' => $this->unreadCounts,
+            'total_unread' => array_sum($this->unreadCounts),
         ];
     }
 }

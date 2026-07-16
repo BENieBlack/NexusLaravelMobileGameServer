@@ -9,14 +9,25 @@ class TrxPlayerSeeder extends Seeder
 {
     /**
      * シャーディング対象の接続名
+     * 設定ファイルから動的に取得
      */
-    protected $connections = ['trx1', 'trx2'];
+    protected function getConnections(): array
+    {
+        return array_values(config('sharding.transaction.nodes', []));
+    }
 
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
+        $connections = $this->getConnections();
+
+        if (empty($connections)) {
+            $this->command->error('⚠️  No shard connections configured in config/sharding.php');
+            return;
+        }
+
         // sys_playerテーブルから全プレイヤーを取得
         $players = DB::connection('sys')->table('sys_player')->get();
 
@@ -31,7 +42,7 @@ class TrxPlayerSeeder extends Seeder
             ->get()
             ->keyBy('sys_player_id');
 
-        foreach ($this->connections as $connection) {
+        foreach ($connections as $connection) {
             // べき等性を確保するため、既存データを削除
             DB::connection($connection)->table('trx_player_sns')->truncate();
             DB::connection($connection)->table('trx_player')->truncate();
@@ -44,10 +55,8 @@ class TrxPlayerSeeder extends Seeder
             ->table('sys_sharding_node')
             ->pluck('node_no', 'id');
 
-        $createdCounts = [
-            'trx1' => 0,
-            'trx2' => 0,
-        ];
+        // 動的に作成カウントを初期化
+        $createdCounts = array_fill_keys($connections, 0);
 
         foreach ($players as $player) {
             // プレイヤーの割り当て先シャードを特定
@@ -93,7 +102,10 @@ class TrxPlayerSeeder extends Seeder
         }
 
         $this->command->info('✅ TrxPlayerSeeder: Created player transaction data');
-        $this->command->info('   - trx1: ' . $createdCounts['trx1'] . ' players');
-        $this->command->info('   - trx2: ' . $createdCounts['trx2'] . ' players');
+        
+        // 動的に結果を表示
+        foreach ($createdCounts as $connection => $count) {
+            $this->command->info("   - {$connection}: {$count} players");
+        }
     }
 }

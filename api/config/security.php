@@ -14,6 +14,7 @@ return [
         'secret' => env('CLIENT_SECRET'),
         'timestamp_tolerance' => env('CLIENT_SIGNATURE_TIMESTAMP_TOLERANCE', 300), // 5分
         'nonce_cache_ttl' => env('CLIENT_SIGNATURE_NONCE_CACHE_TTL', 600), // 10分
+        'skip_in_local' => env('CLIENT_SIGNATURE_SKIP_IN_LOCAL', false), // ローカル環境でも検証する
     ],
 
     /*

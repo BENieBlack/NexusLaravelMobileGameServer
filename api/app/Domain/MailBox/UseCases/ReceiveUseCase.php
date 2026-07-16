@@ -3,8 +3,8 @@
 namespace App\Domain\Mailbox\UseCases;
 
 use App\Domain\_BaseUseCase;
-use App\Domain\Delivery\DTOs\DeliveryContent;
-use App\Domain\Delivery\Services\DeliveryService;
+use NexusResource\DTOs\Resource;
+use NexusResourceDelivery\Services\ResourceDeliveryService;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Http\Responses\Mailbox\ReceiveResponse;
@@ -20,7 +20,7 @@ class ReceiveUseCase extends _BaseUseCase
 
     public function __construct(
         private TrxMailboxRepository $trxMailboxRepository,
-        private DeliveryService $deliveryService,
+        private ResourceDeliveryService $resourceDeliveryService,
     ) {
     }
 
@@ -51,19 +51,19 @@ class ReceiveUseCase extends _BaseUseCase
             $mstMailbox = $trxMailbox->mstMailbox;
             $contentCollection = $mstMailbox?->contentCollection ?? collect();
 
-            // DeliveryContent配列に変換
-            $deliveryContentArray = $contentCollection->map(function ($content) {
-                return new DeliveryContent(
-                    type: strtolower($content->getContentType()), // Diamond -> diamond
-                    id: $content->getContentId(),
-                    amount: $content->getAmount(),
+            // Resource配列に変換
+            $resources = $contentCollection->map(function ($content) {
+                return Resource::fromTypeString(
+                    strtolower($content->getContentType()), // Diamond -> diamond
+                    $content->getContentId(),
+                    $content->getAmount(),
                 );
             })->toArray();
 
-            // 配送処理（新しいパターン: addContents + deliver）
-            if (count($deliveryContentArray) > 0) {
-                $this->deliveryService->addContents($deliveryContentArray);
-                $deliverySummary = $this->deliveryService->deliver($sysPlayerId);
+            // 配送処理（新しいパターン: addResources + deliver）
+            if (count($resources) > 0) {
+                $this->resourceDeliveryService->addResources($resources);
+                $deliverySummary = $this->resourceDeliveryService->deliver($sysPlayerId);
 
                 if ($deliverySummary->getTotalCount() === 0) {
                     throw new GameException(GameErrorCode::INTERNAL_ERROR, 'Failed to deliver mailbox content');
@@ -73,7 +73,7 @@ class ReceiveUseCase extends _BaseUseCase
             // 受取済みにする
             $this->trxMailboxRepository->markAsReceived($trxMailbox);
 
-            return new ReceiveResponse($trxMailbox->getId(), true, $deliveryContentArray);
+            return new ReceiveResponse($trxMailbox->getId(), true, $resources);
         });
     }
 }

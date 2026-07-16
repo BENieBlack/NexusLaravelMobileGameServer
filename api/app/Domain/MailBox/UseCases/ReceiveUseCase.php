@@ -32,7 +32,7 @@ class ReceiveUseCase extends _BaseUseCase
      * @return ReceiveResponse
      * @throws GameException
      */
-    public function handle(int $sysPlayerId, int $trxMailboxId): ReceiveResponse
+    public function exec(int $sysPlayerId, int $trxMailboxId): ReceiveResponse
     {
         return $this->executeWithTransaction(function () use ($sysPlayerId, $trxMailboxId) {
             // メールボックス取得

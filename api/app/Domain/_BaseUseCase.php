@@ -21,7 +21,7 @@ use App\Traits\UseCaseTrait;
  * ```php
  * class SomeUseCase extends _BaseUseCase
  * {
- *     public function handle($param): Response
+ *     public function exec($param): Response
  *     {
  *         return $this->executeWithTransaction(function () use ($param) {
  *             // ビジネスロジック
@@ -62,7 +62,7 @@ abstract class _BaseUseCase
      * @param mixed ...$args
      * @return mixed
      */
-    // abstract public function handle(...$args): mixed;
+    // abstract public function exec(...$args): mixed;
 
     /**
      * バリデーション処理（オプション）

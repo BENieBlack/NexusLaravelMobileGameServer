@@ -28,7 +28,7 @@ class ApplyListUseCase extends _BaseUseCase
      * @param int $sysPlayerId プレイヤーID
      * @return ApplyListResponse
      */
-    public function handle(int $sysPlayerId): ApplyListResponse
+    public function exec(int $sysPlayerId): ApplyListResponse
     {
         // トランザクション開始
         return $this->executeWithTransaction(function () use ($sysPlayerId) {

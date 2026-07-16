@@ -43,7 +43,7 @@ class MeUseCase extends _BaseUseCase
      * @return MeResponse
      * @throws \Exception
      */
-    public function handle(int $sysPlayerId): MeResponse
+    public function exec(int $sysPlayerId): MeResponse
     {
         // バリデーション実行
         $this->validation($sysPlayerId);

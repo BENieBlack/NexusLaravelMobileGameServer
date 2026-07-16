@@ -29,7 +29,7 @@ class ProtectUseCase extends _BaseUseCase
      * @return ProtectResponse
      * @throws GameException
      */
-    public function handle(int $sysPlayerId, int $trxMailboxId, bool $isProtected): ProtectResponse
+    public function exec(int $sysPlayerId, int $trxMailboxId, bool $isProtected): ProtectResponse
     {
         return $this->executeWithTransaction(function () use ($sysPlayerId, $trxMailboxId, $isProtected) {
             // メールボックス取得

@@ -81,7 +81,7 @@ class SignUpUseCaseTest extends TestCase
         ];
 
         // Act
-        $response = $this->useCase->handle($deviceId, $deviceInfo);
+        $response = $this->useCase->exec($deviceId, $deviceInfo);
 
         // Assert
         $this->assertInstanceOf(SignUpResponse::class, $response);
@@ -118,7 +118,7 @@ class SignUpUseCaseTest extends TestCase
         $deviceInfo = ['model' => 'Test Device'];
 
         // Act
-        $response = $this->useCase->handle($deviceId, $deviceInfo);
+        $response = $this->useCase->exec($deviceId, $deviceInfo);
 
         // Assert - DtoTokenが正しく生成されている
         $this->assertNotEmpty($response->dtoToken->accessToken);
@@ -143,14 +143,14 @@ class SignUpUseCaseTest extends TestCase
         $deviceInfo = ['model' => 'Test Device'];
         
         // 既存のプレイヤーとデバイスを作成（UseCaseを通して作成）
-        $this->useCase->handle($deviceId, $deviceInfo);
+        $this->useCase->exec($deviceId, $deviceInfo);
 
         // Assert & Act
         $this->expectException(BusinessLogicException::class);
         $this->expectExceptionMessage("Device ID already registered: {$deviceId}");
 
         // 同じデバイスIDでサインアップを試みる
-        $this->useCase->handle($deviceId, $deviceInfo);
+        $this->useCase->exec($deviceId, $deviceInfo);
     }
 
     /**
@@ -164,8 +164,8 @@ class SignUpUseCaseTest extends TestCase
         $deviceInfo = ['model' => 'Test Device'];
 
         // Act
-        $response1 = $this->useCase->handle($deviceId1, $deviceInfo);
-        $response2 = $this->useCase->handle($deviceId2, $deviceInfo);
+        $response1 = $this->useCase->exec($deviceId1, $deviceInfo);
+        $response2 = $this->useCase->exec($deviceId2, $deviceInfo);
 
         // Assert - 異なるプレイヤーが作成されている
         $this->assertNotEquals($response1->sysPlayer->id, $response2->sysPlayer->id);
@@ -188,7 +188,7 @@ class SignUpUseCaseTest extends TestCase
         $deviceInfo = [];
 
         // Act
-        $response = $this->useCase->handle($deviceId, $deviceInfo);
+        $response = $this->useCase->exec($deviceId, $deviceInfo);
 
         // Assert
         $this->assertInstanceOf(SignUpResponse::class, $response);
@@ -210,7 +210,7 @@ class SignUpUseCaseTest extends TestCase
         $deviceInfo = ['model' => 'Test'];
 
         // Act
-        $response = $this->useCase->handle($deviceId, $deviceInfo);
+        $response = $this->useCase->exec($deviceId, $deviceInfo);
 
         // Assert - my_idが8文字の英数字であることを確認
         $this->assertNotNull($response->sysPlayer->getMyId());
@@ -228,7 +228,7 @@ class SignUpUseCaseTest extends TestCase
         $deviceInfo = ['model' => 'Test'];
 
         // 最初のサインアップを成功させる
-        $this->useCase->handle($deviceId, $deviceInfo);
+        $this->useCase->exec($deviceId, $deviceInfo);
 
         // データベースに保存されていることを確認
         $this->assertDatabaseHas('sys_player_device', [
@@ -237,7 +237,7 @@ class SignUpUseCaseTest extends TestCase
 
         // Act & Assert - 同じデバイスIDで再度サインアップを試みる（エラーになる）
         try {
-            $this->useCase->handle($deviceId, $deviceInfo);
+            $this->useCase->exec($deviceId, $deviceInfo);
             $this->fail('Expected BusinessLogicException was not thrown');
         } catch (BusinessLogicException $e) {
             // 例外が発生することを確認

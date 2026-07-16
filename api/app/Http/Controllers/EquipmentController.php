@@ -39,7 +39,7 @@ class EquipmentController extends _BaseController
             $sysPlayerId = $this->apiSession->getSysPlayerId();
             
             // UseCaseから直接Responseが返る
-            return $this->equipmentLevelUpUseCase->handle(
+            return $this->equipmentLevelUpUseCase->exec(
                 sysPlayerId: $sysPlayerId,
                 trxEquipmentId: $request->getTrxEquipmentId(),
                 afterLevel: $request->getAfterLevel(),

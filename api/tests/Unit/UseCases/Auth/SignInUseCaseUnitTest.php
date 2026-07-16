@@ -121,7 +121,7 @@ class SignInUseCaseUnitTest extends TestCase
             ->andReturn($mockToken);
 
         // Act
-        $response = $this->useCase->handle($deviceId, $deviceInfo);
+        $response = $this->useCase->exec($deviceId, $deviceInfo);
 
         // Assert
         $this->assertInstanceOf(SignInResponse::class, $response);
@@ -149,7 +149,7 @@ class SignInUseCaseUnitTest extends TestCase
         $this->expectException(GameException::class);
         $this->expectExceptionMessage("Device ID not found: {$deviceId}");
 
-        $this->useCase->handle($deviceId, $deviceInfo);
+        $this->useCase->exec($deviceId, $deviceInfo);
     }
 
     /**
@@ -180,7 +180,7 @@ class SignInUseCaseUnitTest extends TestCase
         $this->expectException(GameException::class);
         $this->expectExceptionMessage("Player not found for device: {$deviceId}");
 
-        $this->useCase->handle($deviceId, $deviceInfo);
+        $this->useCase->exec($deviceId, $deviceInfo);
     }
 
     /**
@@ -242,7 +242,7 @@ class SignInUseCaseUnitTest extends TestCase
             ->andReturn($mockToken);
 
         // Act
-        $response = $this->useCase->handle($deviceId, $deviceInfo);
+        $response = $this->useCase->exec($deviceId, $deviceInfo);
 
         // Assert - Mock expectations are verified automatically by Mockery
         $this->assertInstanceOf(SignInResponse::class, $response);
@@ -291,7 +291,7 @@ class SignInUseCaseUnitTest extends TestCase
             ->andReturn(true);
 
         // Act
-        $response = $this->useCase->handle($deviceId, $deviceInfo);
+        $response = $this->useCase->exec($deviceId, $deviceInfo);
 
         // Assert - Mock expectations are verified automatically
         $this->assertInstanceOf(SignInResponse::class, $response);

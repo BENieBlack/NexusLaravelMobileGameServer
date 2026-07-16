@@ -34,7 +34,7 @@ class ReceiveAllUseCase extends _BaseUseCase
      * @return ReceiveAllResponse
      * @throws GameException
      */
-    public function handle(
+    public function exec(
         int $sysPlayerId, 
         ?array $trxMailboxIds = null,
         ?string $category = null

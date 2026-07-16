@@ -113,7 +113,7 @@ class RefreshTokenUseCaseTest extends TestCase
         sleep(1);
 
         // Act
-        $response = $this->useCase->handle($oldDtoToken->getRefreshToken());
+        $response = $this->useCase->exec($oldDtoToken->getRefreshToken());
 
         // Assert
         $this->assertInstanceOf(RefreshTokenResponse::class, $response);
@@ -135,7 +135,7 @@ class RefreshTokenUseCaseTest extends TestCase
         sleep(1);
 
         // Act
-        $response = $this->useCase->handle($oldDtoToken->getRefreshToken());
+        $response = $this->useCase->exec($oldDtoToken->getRefreshToken());
 
         // Assert - 新しいトークンは古いトークンと異なる
         $this->assertNotEquals($oldDtoToken->getRefreshToken(), $response->dtoToken->getRefreshToken());
@@ -157,7 +157,7 @@ class RefreshTokenUseCaseTest extends TestCase
         sleep(1);
 
         // Act
-        $response = $this->useCase->handle($oldDtoToken->getRefreshToken());
+        $response = $this->useCase->exec($oldDtoToken->getRefreshToken());
 
         // Assert - 古いトークンはDBから削除されている
         $tokenHash = hash('sha256', $oldDtoToken->getRefreshToken());
@@ -180,7 +180,7 @@ class RefreshTokenUseCaseTest extends TestCase
         $this->expectException(GameException::class);
         $this->expectExceptionMessage('Invalid or expired refresh token');
 
-        $this->useCase->handle($invalidRefreshToken);
+        $this->useCase->exec($invalidRefreshToken);
     }
 
     /**
@@ -198,7 +198,7 @@ class RefreshTokenUseCaseTest extends TestCase
         $this->expectException(GameException::class);
         $this->expectExceptionMessage('Invalid or expired refresh token');
 
-        $this->useCase->handle($oldDtoToken->getRefreshToken());
+        $this->useCase->exec($oldDtoToken->getRefreshToken());
     }
 
     /**
@@ -217,7 +217,7 @@ class RefreshTokenUseCaseTest extends TestCase
         $this->expectException(GameException::class);
         $this->expectExceptionMessage('Invalid or expired refresh token');
 
-        $this->useCase->handle($oldDtoToken->getRefreshToken());
+        $this->useCase->exec($oldDtoToken->getRefreshToken());
     }
 
     /**
@@ -232,17 +232,17 @@ class RefreshTokenUseCaseTest extends TestCase
         sleep(1);
 
         // Act - 1回目のリフレッシュ
-        $response1 = $this->useCase->handle($dtoToken1->getRefreshToken());
+        $response1 = $this->useCase->exec($dtoToken1->getRefreshToken());
         
         sleep(1);
 
         // Act - 2回目のリフレッシュ（1回目で得たトークンを使用）
-        $response2 = $this->useCase->handle($response1->dtoToken->getRefreshToken());
+        $response2 = $this->useCase->exec($response1->dtoToken->getRefreshToken());
         
         sleep(1);
 
         // Act - 3回目のリフレッシュ（2回目で得たトークンを使用）
-        $response3 = $this->useCase->handle($response2->dtoToken->getRefreshToken());
+        $response3 = $this->useCase->exec($response2->dtoToken->getRefreshToken());
 
         // Assert - すべて異なるトークンが返される
         $this->assertNotEquals($dtoToken1->getRefreshToken(), $response1->dtoToken->getRefreshToken());
@@ -277,7 +277,7 @@ class RefreshTokenUseCaseTest extends TestCase
         sleep(2);
 
         // Act
-        $this->useCase->handle($dtoToken->getRefreshToken());
+        $this->useCase->exec($dtoToken->getRefreshToken());
 
         // Assert - last_login_atが更新されている
         $updatedDevice = $this->playerService->selectByDeviceId($sysPlayerDevice->getUuid());
@@ -308,7 +308,7 @@ class RefreshTokenUseCaseTest extends TestCase
         sleep(1);
 
         // Act - トークンをリフレッシュ
-        $response = $this->useCase->handle($oldDtoToken->getRefreshToken());
+        $response = $this->useCase->exec($oldDtoToken->getRefreshToken());
 
         // Assert - 古いトークンはDBから削除されている
         $oldTokenHash = hash('sha256', $oldDtoToken->getRefreshToken());

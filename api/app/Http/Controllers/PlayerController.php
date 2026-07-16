@@ -20,6 +20,6 @@ class PlayerController extends _BaseController
     public function me(MeRequest $request, MeUseCase $useCase): JsonResponse
     {
         $sysPlayerId = $this->apiSession->getSysPlayerId();
-        return $this->execute(fn() => $useCase->handle($sysPlayerId));
+        return $this->execute(fn() => $useCase->exec($sysPlayerId));
     }
 }

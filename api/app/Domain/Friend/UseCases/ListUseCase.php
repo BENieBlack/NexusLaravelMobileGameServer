@@ -29,7 +29,7 @@ class ListUseCase extends _BaseUseCase
      * @param int $sysPlayerId プレイヤーID
      * @return ListResponse
      */
-    public function handle(int $sysPlayerId): ListResponse
+    public function exec(int $sysPlayerId): ListResponse
     {
         // トランザクション開始
         return $this->executeWithTransaction(function () use ($sysPlayerId) {

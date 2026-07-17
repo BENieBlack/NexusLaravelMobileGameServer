@@ -14,13 +14,13 @@ use App\Repositories\Trx\TrxWalletRepository;
 use App\Persistence\ApiSession;
 
 /**
- * ExecUseCase
+ * HomeUseCase
  * 
- * ログイン処理のユースケース
+ * ホーム画面データ取得のユースケース
  * - UTC0時を境界として今日初回ログインであればログインボーナスを配布
  * - trx_unit、trx_item、trx_walletなどのユーザー情報を返す
  */
-class ExecUseCase extends _BaseUseCase
+class HomeUseCase extends _BaseUseCase
 {
     public function __construct(
         private readonly SysPlayerRepository $sysPlayerRepository,

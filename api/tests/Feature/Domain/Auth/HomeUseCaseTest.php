@@ -12,11 +12,11 @@ use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
 
 /**
- * ExecUseCaseのテスト（ログインボーナス機能含む）
+ * HomeUseCaseのテスト（ログインボーナス機能含む）
  * 
  * /auth/loginエンドポイントでのログインボーナス配布をテスト
  */
-class ExecUseCaseTest extends TestCase
+class HomeUseCaseTest extends TestCase
 {
     use RefreshMultipleDatabases;
 

@@ -5,6 +5,8 @@ namespace App\Repositories\Trx;
 use App\Domain\MailBox\Constants\Category;
 use App\Domain\MailBox\Constants\Priority;
 use App\Models\Trx\TrxMailbox;
+use NexusMailbox\Dto\MailboxDto;
+use NexusMailbox\Repositories\MailboxRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -15,7 +17,7 @@ use Illuminate\Database\Eloquent\Collection;
  * 
  * @extends _BaseTrxRepository<TrxMailbox>
  */
-class TrxMailboxRepository extends _BaseTrxRepository
+class TrxMailboxRepository extends _BaseTrxRepository implements MailboxRepositoryInterface
 {
     protected string $modelClass = TrxMailbox::class;
 
@@ -71,25 +73,31 @@ class TrxMailboxRepository extends _BaseTrxRepository
             $query->where('is_protected', true);
         }
 
-        // 優先度 → 作成日時の順でソート
-        $query->orderByRaw("
-            CASE 
-                WHEN EXISTS (
-                    SELECT 1 FROM mst_mailbox 
-                    WHERE mst_mailbox.id = trx_mailbox.mst_mailbox_id 
-                    AND mst_mailbox.priority = 'Urgent'
-                ) THEN 1
-                WHEN EXISTS (
-                    SELECT 1 FROM mst_mailbox 
-                    WHERE mst_mailbox.id = trx_mailbox.mst_mailbox_id 
-                    AND mst_mailbox.priority = 'Important'
-                ) THEN 2
-                ELSE 3
-            END
-        ");
+        // 作成日時の順でソート（優先度ソートはPHP側で実施）
         $query->orderBy('created_at', 'desc');
 
-        return $query->get();
+        $results = $query->get();
+
+        // 優先度順にソート（PHP側で実施）
+        return $results->sort(function ($a, $b) {
+            $priorityA = $a->mstMailbox?->priority;
+            $priorityB = $b->mstMailbox?->priority;
+            
+            // オブジェクトの場合はvalue取得、文字列の場合はそのまま
+            $priorityAValue = is_object($priorityA) ? $priorityA->value : (string) ($priorityA ?? 'Normal');
+            $priorityBValue = is_object($priorityB) ? $priorityB->value : (string) ($priorityB ?? 'Normal');
+            
+            $priorityOrder = ['Urgent' => 1, 'Important' => 2, 'Normal' => 3];
+            $orderA = $priorityOrder[$priorityAValue] ?? 3;
+            $orderB = $priorityOrder[$priorityBValue] ?? 3;
+            
+            if ($orderA !== $orderB) {
+                return $orderA <=> $orderB;
+            }
+            
+            // 優先度が同じ場合は作成日時の降順
+            return $b->created_at <=> $a->created_at;
+        })->values();
     }
 
     /**
@@ -100,22 +108,25 @@ class TrxMailboxRepository extends _BaseTrxRepository
      */
     public function countUnreadByCategory(int $sysPlayerId): array
     {
-        $results = $this->modelClass::query()
-            ->join('mst_mailbox', 'trx_mailbox.mst_mailbox_id', '=', 'mst_mailbox.id')
-            ->where('trx_mailbox.sys_player_id', $sysPlayerId)
-            ->where('trx_mailbox.is_delete', false)
-            ->whereNull('trx_mailbox.read_at')
+        $mailboxes = $this->modelClass::query()
+            ->with('mstMailbox')
+            ->where('sys_player_id', $sysPlayerId)
+            ->where('is_delete', false)
+            ->whereNull('read_at')
             ->where(function ($q) {
-                $q->whereNull('trx_mailbox.expires_at')
-                  ->orWhere('trx_mailbox.expires_at', '>', Carbon::now());
+                $q->whereNull('expires_at')
+                  ->orWhere('expires_at', '>', Carbon::now());
             })
-            ->selectRaw('mst_mailbox.category, COUNT(*) as count')
-            ->groupBy('mst_mailbox.category')
             ->get();
 
         $counts = [];
-        foreach ($results as $result) {
-            $counts[$result->category] = $result->count;
+        foreach ($mailboxes as $mailbox) {
+            $category = $mailbox->mstMailbox?->category;
+            if ($category !== null) {
+                // Categoryオブジェクトの場合はvalue取得、文字列の場合はそのまま
+                $categoryKey = is_object($category) ? $category->value : (string) $category;
+                $counts[$categoryKey] = ($counts[$categoryKey] ?? 0) + 1;
+            }
         }
 
         return $counts;
@@ -161,7 +172,7 @@ class TrxMailboxRepository extends _BaseTrxRepository
     }
 
     /**
-     * 受取済みにする
+     * 受取済みにする（Eloquent Model用）
      *
      * @param TrxMailbox $trxMailbox
      * @return void
@@ -202,4 +213,105 @@ class TrxMailboxRepository extends _BaseTrxRepository
             ->where('expires_at', '<=', Carbon::now())
             ->get();
     }
+
+    /**
+     * {@inheritDoc}
+     * MailboxRepositoryInterface実装
+     */
+    public function findByPlayerId(
+        int $sysPlayerId,
+        ?\NexusMailbox\Constants\Category $category = null,
+        ?\NexusMailbox\Constants\Priority $priority = null,
+        bool $onlyUnread = false,
+        bool $onlyLocked = false
+    ): \Illuminate\Support\Collection {
+        // 既存のselectByPlayerIdを流用し、Enum変換
+        $categoryEnum = $category ? Category::fromString($category->value) : null;
+        $priorityEnum = $priority ? Priority::fromString($priority->value) : null;
+
+        $models = $this->selectByPlayerId($sysPlayerId, $categoryEnum, $priorityEnum, $onlyUnread, $onlyLocked);
+
+        // Eloquent ModelをDTOに変換
+        return $models->map(fn($model) => $this->convertToDto($model));
+    }
+
+    /**
+     * {@inheritDoc}
+     * MailboxRepositoryInterface実装
+     */
+    public function findById(int $id): ?MailboxDto
+    {
+        $model = $this->selectById($id);
+        return $model ? $this->convertToDto($model) : null;
+    }
+
+    /**
+     * {@inheritDoc}
+     * MailboxRepositoryInterface実装
+     */
+    public function save(MailboxDto $mailbox): void
+    {
+        $model = $this->selectById($mailbox->getId());
+        if ($model) {
+            // DTOの値をModelに反映
+            $model->setIsOpened($mailbox->isRead());
+            $model->setIsReceived($mailbox->isReceived());
+            $model->setIsProtected($mailbox->isLocked());
+            $this->setModel($model);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * MailboxRepositoryInterface実装
+     */
+    public function markAsRead(MailboxDto $mailbox): void
+    {
+        $model = $this->selectById($mailbox->getId());
+        if ($model) {
+            $this->markAsOpened($model);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * MailboxRepositoryInterface実装
+     */
+    public function markDtoAsReceived(MailboxDto $mailbox): void
+    {
+        $model = $this->selectById($mailbox->getId());
+        if ($model) {
+            $this->markAsReceived($model);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * MailboxRepositoryInterface実装
+     */
+    public function updateLockStatus(MailboxDto $mailbox, bool $isLocked): void
+    {
+        $model = $this->selectById($mailbox->getId());
+        if ($model) {
+            $this->toggleProtection($model, $isLocked);
+        }
+    }
+
+    /**
+     * Eloquent ModelをDTOに変換
+     */
+    private function convertToDto(TrxMailbox $model): MailboxDto
+    {
+        return new MailboxDto(
+            id: $model->getId(),
+            sysPlayerId: $model->getSysPlayerId(),
+            mstMailboxId: $model->getMstMailboxId(),
+            isRead: $model->getIsOpened(),
+            isReceived: $model->getIsReceived(),
+            isLocked: $model->getIsProtected(),
+            expiresAt: $model->getExpiresAt(),
+            createdAt: $model->getCreatedAt()
+        );
+    }
 }
+

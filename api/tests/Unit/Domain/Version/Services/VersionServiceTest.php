@@ -38,10 +38,8 @@ class VersionServiceTest extends TestCase
         // Redisキャッシュをクリア
         \Illuminate\Support\Facades\Redis::flushdb();
         
-        // Repositoryインスタンスを作成してServiceに注入
-        $deployRepository = new SysDeployRepository(new SysDeploy());
-        $maintenanceRepository = new SysMaintenanceRepository(new SysMaintenance());
-        $this->service = new VersionService($deployRepository, $maintenanceRepository);
+        // DIコンテナからServiceを取得
+        $this->service = app(VersionService::class);
         
         // Suppress log output during tests
         Log::spy();

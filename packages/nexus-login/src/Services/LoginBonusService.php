@@ -4,10 +4,11 @@ namespace NexusLogin\Services;
 
 use NexusResource\DTOs\ResourceDto;
 use NexusResourceDelivery\Services\ResourceDeliveryService;
+use NexusLogin\Repositories\LoginBonusRepositoryInterface;
+use NexusLogin\Repositories\LoginBonusHistoryRepositoryInterface;
 use Carbon\CarbonImmutable;
 use NexusUtilities\ClockUtility;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 
 /**
  * LoginBonusService
@@ -18,6 +19,8 @@ class LoginBonusService
 {
     public function __construct(
         private readonly ResourceDeliveryService $resourceDeliveryService,
+        private readonly LoginBonusRepositoryInterface $bonusRepository,
+        private readonly LoginBonusHistoryRepositoryInterface $historyRepository,
     ) {
     }
 
@@ -73,7 +76,7 @@ class LoginBonusService
         }
 
         // 報酬内容（contents）を取得
-        $contents = $this->getLoginBonusContents((int)$loginBonusData['id']);
+        $contents = $this->getLoginBonusContents($loginBonusData['id']);
 
         if ($contents->isEmpty()) {
             // 報酬が設定されていない場合は何もしない
@@ -106,18 +109,14 @@ class LoginBonusService
     private function getConsecutiveLoginDays(int $sysPlayerId, CarbonImmutable $gameDayStart, string $connectionName): int
     {
         // 最新のログインボーナス履歴を取得
-        $latestHistory = DB::connection($connectionName)
-            ->table('trx_login_bonus_history')
-            ->where('sys_player_id', $sysPlayerId)
-            ->orderBy('received_date', 'desc')
-            ->first();
+        $latestHistory = $this->historyRepository->findLatestByPlayer($sysPlayerId, $connectionName);
 
         if ($latestHistory === null) {
             // 初回ログイン
             return 1;
         }
 
-        $lastReceivedDate = $latestHistory->received_date;
+        $lastReceivedDate = $latestHistory['received_date'];
         $yesterdayStart = $gameDayStart->subDay()->format('Y-m-d H:i:s');
 
         // 前回の受取日時が昨日（ゲーム内日付）かどうかをチェック
@@ -125,12 +124,7 @@ class LoginBonusService
             // 連続ログイン
             // 過去7日間のユニークな受取日数を取得してカウント
             $sevenDaysAgo = $gameDayStart->subDays(7)->format('Y-m-d H:i:s');
-            $count = DB::connection($connectionName)
-                ->table('trx_login_bonus_history')
-                ->where('sys_player_id', $sysPlayerId)
-                ->where('received_date', '>=', $sevenDaysAgo)
-                ->distinct()
-                ->count('received_date');
+            $count = $this->historyRepository->countUniqueDaysSince($sysPlayerId, $sevenDaysAgo, $connectionName);
             
             return $count + 1;
         } else {
@@ -148,44 +142,31 @@ class LoginBonusService
     private function getLoginBonusByConsecutiveDays(int $consecutiveDays): ?array
     {
         // アクティブなログインボーナス設定のloop_daysを取得
-        $activeBonus = DB::connection('mst')
-            ->table('mst_login_bonus')
-            ->where('is_active', true)
-            ->where('day', 1)
-            ->first();
+        $loopDays = $this->bonusRepository->getLoopDaysForActiveBonus();
 
-        if ($activeBonus === null) {
+        if ($loopDays === null) {
             return null;
         }
 
         // loop_daysに基づいてサイクル内の日数を計算
-        $dayInCycle = (($consecutiveDays - 1) % $activeBonus->loop_days) + 1;
+        $dayInCycle = (($consecutiveDays - 1) % $loopDays) + 1;
 
         // 該当する日のログインボーナスを取得
-        $bonusForDay = DB::connection('mst')
-            ->table('mst_login_bonus')
-            ->where('day', $dayInCycle)
-            ->where('is_active', true)
-            ->first();
-
-        return $bonusForDay ? (array) $bonusForDay : null;
+        return $this->bonusRepository->findActiveByDay($dayInCycle);
     }
 
     /**
      * ログインボーナスの報酬内容を取得
      *
-     * @param int $loginBonusId
+     * @param string $loginBonusId
      * @return Collection
      */
-    private function getLoginBonusContents(int $loginBonusId): Collection
+    private function getLoginBonusContents(string $loginBonusId): Collection
     {
-        $contents = DB::connection('mst')
-            ->table('mst_login_bonus_content')
-            ->where('mst_login_bonus_id', $loginBonusId)
-            ->orderBy('sort_order')
-            ->get();
-
-        return collect($contents);
+        $contents = $this->bonusRepository->findContentsByLoginBonusId($loginBonusId);
+        
+        // stdClassに変換して返す（既存コードとの互換性維持）
+        return collect($contents)->map(fn($content) => (object) $content);
     }
 
     /**
@@ -231,9 +212,9 @@ class LoginBonusService
         $receivedDate = $gameDayStart->format('Y-m-d H:i:s');
         
         foreach ($contents as $content) {
-            DB::connection($connectionName)->table('trx_login_bonus_history')->insert([
+            $this->historyRepository->create([
                 'sys_player_id' => $sysPlayerId,
-                'mst_login_bonus_id' => (int)$loginBonusData['id'],
+                'mst_login_bonus_id' => $loginBonusData['id'],
                 'received_date' => $receivedDate,
                 'reward_type' => $content->content_type,
                 'reward_id' => $content->content_id,
@@ -241,7 +222,7 @@ class LoginBonusService
                 'is_paid' => $content->is_paid,
                 'created_at' => now(),
                 'updated_at' => now(),
-            ]);
+            ], $connectionName);
         }
     }
 }

@@ -49,6 +49,26 @@
         {
             "type": "path",
             "url": "../packages/nexus-login"
+        },
+        {
+            "type": "path",
+            "url": "../packages/nexus-version"
+        },
+        {
+            "type": "path",
+            "url": "../packages/nexus-stamina"
+        },
+        {
+            "type": "path",
+            "url": "../packages/nexus-gacha"
+        },
+        {
+            "type": "path",
+            "url": "../packages/nexus-mailbox"
+        },
+        {
+            "type": "path",
+            "url": "../packages/nexus-player"
         }
     ],
     "require": {
@@ -66,7 +86,12 @@
         "nexus/resource": "@dev",
         "nexus/resource-delivery": "@dev",
         "nexus/auth": "@dev",
-        "nexus/login": "@dev"
+        "nexus/login": "@dev",
+        "nexus/version": "@dev",
+        "nexus/stamina": "@dev",
+        "nexus/gacha": "@dev",
+        "nexus/mailbox": "@dev",
+        "nexus/player": "@dev"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

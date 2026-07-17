@@ -3,6 +3,7 @@
 namespace App\Repositories\Sys;
 
 use App\Models\Sys\SysMaintenance;
+use NexusVersion\Repositories\MaintenanceRepositoryInterface;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\Cache;
  * 
  * @extends _BaseSysRepository<SysMaintenance>
  */
-class SysMaintenanceRepository extends _BaseSysRepository
+class SysMaintenanceRepository extends _BaseSysRepository implements MaintenanceRepositoryInterface
 {
     protected string $modelClass = SysMaintenance::class;
 
@@ -49,6 +50,16 @@ class SysMaintenanceRepository extends _BaseSysRepository
                 return $sysMaintenance;
             }
         );
+    }
+
+    /**
+     * {@inheritDoc}
+     * MaintenanceRepositoryInterface実装
+     */
+    public function findCurrent(): ?array
+    {
+        $sysMaintenance = $this->selectCurrentMaintenance();
+        return $sysMaintenance ? $sysMaintenance->toArray() : null;
     }
 
     /**

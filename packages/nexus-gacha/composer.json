@@ -7,11 +7,20 @@
         "nexus/utilities": "@dev",
         "nexus/resource-delivery": "@dev"
     },
+    "require-dev": {
+        "phpunit/phpunit": "^10.0"
+    },
     "autoload": {
         "psr-4": {
             "NexusGacha\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "NexusGacha\\Tests\\": "tests/"
+        }
+    },
     "minimum-stability": "dev",
     "prefer-stable": true
 }
+

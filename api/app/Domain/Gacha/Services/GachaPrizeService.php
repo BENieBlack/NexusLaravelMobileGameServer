@@ -2,19 +2,18 @@
 
 namespace App\Domain\Gacha\Services;
 
-use NexusResource\DTOs\ResourceDto;
-use NexusResourceDelivery\Services\ResourceDeliveryService;
+use NexusGacha\Services\GachaPrizeService as BaseGachaPrizeService;
+use NexusGacha\Dto\GachaPrizeDto;
 
 /**
  * GachaPrizeService
  *
- * ガチャ景品の付与を行うサービス
- * ResourceDeliveryServiceを使用して統一的に景品を配送
+ * パッケージ版のGachaPrizeServiceのラッパー
  */
 class GachaPrizeService
 {
     public function __construct(
-        private readonly ResourceDeliveryService $resourceDeliveryService,
+        private readonly BaseGachaPrizeService $basePrizeService,
     ) {
     }
 
@@ -22,41 +21,23 @@ class GachaPrizeService
      * 景品リストを付与
      *
      * @param int $sysPlayerId
-     * @param array $prizes
+     * @param array $prizes 配列形式の景品リスト
      * @return void
      */
     public function grantPrizes(int $sysPlayerId, array $prizes): void
     {
-        $resources = [];
-
-        foreach ($prizes as $prize) {
-            $resources[] = $this->createResource(
-                $prize['content_type'],
-                $prize['content_id'],
-                $prize['amount']
+        // 配列をDTOに変換
+        $prizeDtos = array_map(function ($prize) {
+            return new GachaPrizeDto(
+                contentType: $prize['content_type'],
+                contentId: $prize['content_id'],
+                amount: $prize['amount'],
+                rarity: $prize['rarity'],
+                isGuaranteed: $prize['is_guaranteed']
             );
-        }
+        }, $prizes);
 
-        // ResourceDeliveryService経由で配送（新しいパターン: addResources + deliver）
-        $this->resourceDeliveryService->addResources($resources);
-        $this->resourceDeliveryService->deliver($sysPlayerId);
-    }
-
-    /**
-     * 景品データからResourceを作成
-     *
-     * @param string $contentType
-     * @param string $contentId
-     * @param int $amount
-     * @return ResourceDto
-     */
-    private function createResource(string $contentType, string $contentId, int $amount): ResourceDto
-    {
-        return match ($contentType) {
-            'item' => ResourceDto::item($contentId, $amount),
-            'unit' => ResourceDto::unit($contentId, $amount),
-            'equipment' => ResourceDto::equipment($contentId, $amount),
-            default => throw new \Exception("Unsupported content type: {$contentType}"),
-        };
+        $this->basePrizeService->grantPrizes($sysPlayerId, $prizeDtos);
     }
 }
+

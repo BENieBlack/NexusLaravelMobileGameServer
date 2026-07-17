@@ -5,6 +5,8 @@ namespace App\Repositories\Sys;
 use App\Models\Sys\SysPlayerDevice;
 use NexusAuth\Contracts\DeviceRepositoryInterface;
 use NexusAuth\Contracts\DeviceModelInterface;
+use NexusPlayer\Repositories\PlayerDeviceRepositoryInterface;
+use NexusPlayer\Dto\PlayerDeviceDto;
 use Illuminate\Support\Collection;
 
 /**
@@ -14,7 +16,7 @@ use Illuminate\Support\Collection;
  * 
  * @extends _BaseSysRepository<SysPlayerDevice>
  */
-class SysPlayerDeviceRepository extends _BaseSysRepository implements DeviceRepositoryInterface
+class SysPlayerDeviceRepository extends _BaseSysRepository implements DeviceRepositoryInterface, PlayerDeviceRepositoryInterface
 {
     protected string $modelClass = SysPlayerDevice::class;
 
@@ -70,4 +72,51 @@ class SysPlayerDeviceRepository extends _BaseSysRepository implements DeviceRepo
 
         return $sysPlayerDeviceCollection;
     }
+
+    /**
+     * {@inheritDoc}
+     * NexusPlayer\Repositories\PlayerDeviceRepositoryInterface実装
+     */
+    public function findByDeviceUuid(string $uuid): ?PlayerDeviceDto
+    {
+        $model = $this->selectByDeviceId($uuid);
+        return $model ? $this->convertToDto($model) : null;
+    }
+
+    /**
+     * {@inheritDoc}
+     * NexusPlayer\Repositories\PlayerDeviceRepositoryInterface実装
+     */
+    public function findByPlayerId(int $sysPlayerId): \Illuminate\Support\Collection
+    {
+        $models = $this->selectListByPlayerId($sysPlayerId);
+        return $models->map(fn($model) => $this->convertToDto($model));
+    }
+
+    /**
+     * {@inheritDoc}
+     * NexusPlayer\Repositories\PlayerDeviceRepositoryInterface実装
+     */
+    public function save(PlayerDeviceDto $device): void
+    {
+        // デバイスの更新はNexusPlayerパッケージでは現在未使用
+        // 必要に応じて実装
+    }
+
+    /**
+     * Eloquent ModelをDTOに変換
+     */
+    private function convertToDto(SysPlayerDevice $model): PlayerDeviceDto
+    {
+        return new PlayerDeviceDto(
+            id: $model->getId(),
+            sysPlayerId: $model->getSysPlayerId(),
+            uuid: $model->getUuid(),
+            deviceInfo: $model->getDeviceInfo(),
+            lastLoginAt: $model->getLastLoginAt(),
+            createdAt: $model->getCreatedAt(),
+            updatedAt: $model->getUpdatedAt()
+        );
+    }
 }
+

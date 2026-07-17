@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e2bb28046a095a61c1c30cca5cc3d7d0",
+    "content-hash": "75ed2a1871912d01e6de6ec80895af5e",
     "packages": [
         {
             "name": "brick/math",
@@ -2729,6 +2729,30 @@
             }
         },
         {
+            "name": "nexus/gacha",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/nexus-gacha",
+                "reference": "80190d56bc644acef8f454fd03414d589d7d8fcc"
+            },
+            "require": {
+                "nexus/resource-delivery": "@dev",
+                "nexus/utilities": "@dev",
+                "php": "^8.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "NexusGacha\\": "src/"
+                }
+            },
+            "description": "Gacha management package for Nexus mobile game",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "nexus/login",
             "version": "dev-main",
             "dist": {
@@ -2770,6 +2794,30 @@
                 }
             ],
             "description": "Login bonus management for mobile games with daily reward cycles",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "nexus/mailbox",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/nexus-mailbox",
+                "reference": "e6da1e1f37dd5eb1c16ce27377221ef73395c539"
+            },
+            "require": {
+                "nexus/resource-delivery": "@dev",
+                "nexus/utilities": "@dev",
+                "php": "^8.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "NexusMailbox\\": "src/"
+                }
+            },
+            "description": "Mailbox management package for Nexus mobile game",
             "transport-options": {
                 "relative": true
             }
@@ -2826,6 +2874,29 @@
                 }
             ],
             "description": "Mobile game features for Laravel including maintenance mode management with support for AWS DynamoDB and Alibaba Cloud TableStore",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "nexus/player",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/nexus-player",
+                "reference": "f27bfe9d85c623643ac07640c8684af8c4d6e9df"
+            },
+            "require": {
+                "nexus/utilities": "@dev",
+                "php": "^8.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "NexusPlayer\\": "src/"
+                }
+            },
+            "description": "Player management package for Nexus mobile game",
             "transport-options": {
                 "relative": true
             }
@@ -2965,6 +3036,33 @@
             }
         },
         {
+            "name": "nexus/stamina",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/nexus-stamina",
+                "reference": "fcf594d781b8df72034cb8139fc99d8c96bed1cf"
+            },
+            "require": {
+                "illuminate/support": "^11.0|^12.0",
+                "nexus/utilities": "@dev",
+                "php": "^8.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "NexusStamina\\": "src/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "Nexus Stamina Package - スタミナ管理パッケージ",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "nexus/utilities",
             "version": "dev-main",
             "dist": {
@@ -3002,6 +3100,33 @@
                 }
             ],
             "description": "Laravel utility classes including ClockUtility and RedisUtility",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "nexus/version",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/nexus-version",
+                "reference": "14f39e5c27691ce8c71f40f9516b3717fdb519c9"
+            },
+            "require": {
+                "illuminate/cache": "^11.0|^12.0",
+                "illuminate/support": "^11.0|^12.0",
+                "php": "^8.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "NexusVersion\\": "src/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "Nexus Version Check Package - バージョンチェック・デプロイ管理パッケージ",
             "transport-options": {
                 "relative": true
             }
@@ -10042,23 +10167,28 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "nexus/auth": 20,
-        "nexus/billing": 20,
+        "nexus/utilities": 20,
+        "nexus/security": 20,
         "nexus/core-persistence": 20,
         "nexus/core-unit-of-work": 20,
-        "nexus/login": 20,
+        "nexus/billing": 20,
+        "nexus/wallet": 20,
         "nexus/maintenance": 20,
         "nexus/resource": 20,
         "nexus/resource-delivery": 20,
-        "nexus/security": 20,
-        "nexus/utilities": 20,
-        "nexus/wallet": 20
+        "nexus/auth": 20,
+        "nexus/login": 20,
+        "nexus/version": 20,
+        "nexus/stamina": 20,
+        "nexus/gacha": 20,
+        "nexus/mailbox": 20,
+        "nexus/player": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": "^8.2"
     },
-    "platform-dev": {},
+    "platform-dev": [],
     "plugin-api-version": "2.6.0"
 }

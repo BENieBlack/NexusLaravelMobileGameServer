@@ -91,7 +91,7 @@ class ResourceDeliveryService
      * @param ResourceDeliveryContentDto $content
      * @return void
      */
-    public function addContent(ResourceDeliveryContent $content): void
+    public function addContent(ResourceDeliveryContentDto $content): void
     {
         $this->deliveryManager->addContent($content);
     }
@@ -289,7 +289,7 @@ class ResourceDeliveryService
      * 配送前のコンテンツをプレビュー（変換後の状態で取得）
      * チュートリアルガチャの引き直し機能などで使用
      *
-     * @return Collection<ResourceDeliveryContent>
+     * @return Collection<ResourceDeliveryContentDto>
      */
     public function getConvertedContentsWithoutSend(): Collection
     {

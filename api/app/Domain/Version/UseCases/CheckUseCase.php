@@ -6,7 +6,12 @@ use App\Domain\_BaseUseCase;
 use App\Domain\Version\Services\VersionService;
 use App\Http\Responses\Auth\VersionResponse;
 
-class VersionUseCase extends _BaseUseCase
+/**
+ * CheckUseCase
+ * 
+ * バージョンチェックのユースケース
+ */
+class CheckUseCase extends _BaseUseCase
 {
     public function __construct(
         private readonly VersionService $versionService

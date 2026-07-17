@@ -3,23 +3,23 @@
 namespace Tests\Unit\Domain\Version\UseCases;
 
 use App\Domain\Version\Services\VersionService;
-use App\Domain\Version\UseCases\VersionUseCase;
+use App\Domain\Version\UseCases\CheckUseCase;
 use App\Http\Responses\Auth\VersionResponse;
 use Mockery;
 use Tests\TestCase;
 
-class VersionUseCaseTest extends TestCase
+class CheckUseCaseTest extends TestCase
 {
     /** @var VersionService&\Mockery\MockInterface */
     private $mockVersionService;
-    private VersionUseCase $useCase;
+    private CheckUseCase $useCase;
 
     protected function setUp(): void
     {
         parent::setUp();
         
         $this->mockVersionService = Mockery::mock(VersionService::class);
-        $this->useCase = new VersionUseCase($this->mockVersionService);
+        $this->useCase = new CheckUseCase($this->mockVersionService);
     }
 
     /**

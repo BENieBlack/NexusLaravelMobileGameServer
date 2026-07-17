@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Domain\Login\UseCases\LoginUseCase;
+use App\Domain\Login\UseCases\ExecUseCase;
 use App\Domain\Auth\UseCases\RefreshTokenUseCase;
 use App\Domain\Auth\UseCases\SignInUseCase;
 use App\Domain\Auth\UseCases\SignUpUseCase;
-use App\Domain\Version\UseCases\VersionUseCase;
+use App\Domain\Version\UseCases\CheckUseCase;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RefreshTokenRequest;
 use App\Http\Requests\Auth\SignInRequest;
@@ -56,7 +56,7 @@ class AuthController extends _BaseController
     /**
      * バージョンチェック処理
      */
-    public function version(VersionRequest $request, VersionUseCase $useCase): JsonResponse
+    public function version(VersionRequest $request, CheckUseCase $useCase): JsonResponse
     {
         $deployVersion = $request->getDeployVersion();
         return $this->execute(fn() => $useCase->exec($deployVersion));
@@ -65,7 +65,7 @@ class AuthController extends _BaseController
     /**
      * ログイン処理（認証済みプレイヤーのログインボーナス配布とユーザー情報取得）
      */
-    public function login(LoginRequest $request, LoginUseCase $useCase): JsonResponse
+    public function login(LoginRequest $request, ExecUseCase $useCase): JsonResponse
     {
         $sysPlayerId = ApiSession::getSysPlayerId();
         return $this->execute(fn() => $useCase->exec($sysPlayerId));

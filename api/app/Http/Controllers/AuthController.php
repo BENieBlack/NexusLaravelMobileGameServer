@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Domain\Login\UseCases\ExecUseCase;
+use App\Domain\Login\UseCases\HomeUseCase;
 use App\Domain\Auth\UseCases\RefreshTokenUseCase;
 use App\Domain\Auth\UseCases\SignInUseCase;
 use App\Domain\Auth\UseCases\SignUpUseCase;
@@ -65,7 +65,7 @@ class AuthController extends _BaseController
     /**
      * ログイン処理（認証済みプレイヤーのログインボーナス配布とユーザー情報取得）
      */
-    public function login(LoginRequest $request, ExecUseCase $useCase): JsonResponse
+    public function login(LoginRequest $request, HomeUseCase $useCase): JsonResponse
     {
         $sysPlayerId = ApiSession::getSysPlayerId();
         return $this->execute(fn() => $useCase->exec($sysPlayerId));

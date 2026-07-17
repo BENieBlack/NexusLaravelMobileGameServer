@@ -2,25 +2,28 @@
 
 namespace App\Domain\Version\Services;
 
+use NexusVersion\Services\VersionService as BaseVersionService;
 use App\Exceptions\SystemDataException;
 use App\Models\Sys\SysDeploy;
 use App\Models\Sys\SysMaintenance;
 use App\Repositories\Sys\SysDeployRepository;
 use App\Repositories\Sys\SysMaintenanceRepository;
 
+/**
+ * VersionService
+ * 
+ * パッケージ版のVersionServiceのラッパー
+ * Eloquent Modelを返すために変換処理を行う
+ */
 class VersionService
 {
-    /**
-     * コンストラクタ
-     *
-     * @param SysDeployRepository $sysDeployRepository
-     * @param SysMaintenanceRepository $sysMaintenanceRepository
-     */
     public function __construct(
         private readonly SysDeployRepository $sysDeployRepository,
-        private readonly SysMaintenanceRepository $sysMaintenanceRepository
+        private readonly SysMaintenanceRepository $sysMaintenanceRepository,
+        private readonly BaseVersionService $baseVersionService
     ) {
     }
+
     /**
      * バージョンチェックを実行
      *
@@ -30,26 +33,18 @@ class VersionService
      */
     public function checkVersion(?int $currentDeployId): array
     {
-        // メンテナンス情報を取得
-        $sysMaintenance = $this->sysMaintenanceRepository->selectCurrentMaintenance();
-
-        // 最新のダウンロード可能なデプロイを取得（リレーション込み）
-        $sysDeploy = $this->sysDeployRepository->selectLatestDownloadable();
-
-        // 最新のデプロイが存在しない場合（あり得ないケース）
-        if ($sysDeploy === null) {
+        try {
+            // パッケージ版のServiceを呼び出し
+            $result = $this->baseVersionService->checkVersion($currentDeployId);
+            
+            // 配列からEloquent Modelに変換
+            $sysDeploy = $result['deploy'] ? $this->sysDeployRepository->selectById($result['deploy']['id']) : null;
+            $sysMaintenance = $result['maintenance'] ? $this->sysMaintenanceRepository->selectCurrentMaintenance() : null;
+            
+            return [$sysDeploy, $sysMaintenance];
+        } catch (\RuntimeException $e) {
             throw SystemDataException::deploy();
         }
-
-        // リレーションを読み込む
-        $sysDeploy->load(['deployMaster', 'deployAsset']);
-
-        // クライアントが最新の場合
-        if ($currentDeployId === $sysDeploy->id) {
-            // DLしないといけないデータは存在しないが、メンテナンス情報は返す
-            return [null, $sysMaintenance];
-        }
-
-        return [$sysDeploy, $sysMaintenance];
     }
 }
+

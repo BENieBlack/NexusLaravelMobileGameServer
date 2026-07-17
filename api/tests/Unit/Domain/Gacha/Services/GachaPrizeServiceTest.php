@@ -5,6 +5,8 @@ namespace Tests\Unit\Domain\Gacha\Services;
 use NexusResource\DTOs\ResourceDto;
 use NexusResourceDelivery\DTOs\ResourceDeliveryResultDto;
 use NexusResourceDelivery\Services\ResourceDeliveryService;
+use NexusGacha\Services\GachaPrizeService as BaseGachaPrizeService;
+use NexusGacha\Dto\GachaPrizeDto;
 use App\Domain\Gacha\Services\GachaPrizeService;
 use Mockery;
 use Tests\TestCase;
@@ -12,17 +14,17 @@ use Tests\TestCase;
 class GachaPrizeServiceTest extends TestCase
 {
     protected GachaPrizeService $service;
-    protected ResourceDeliveryService $mockResourceDeliveryService;
+    protected BaseGachaPrizeService $mockBasePrizeService;
 
     protected function setUp(): void
     {
         parent::setUp();
         
-        // ResourceDeliveryServiceをモック
-        $this->mockResourceDeliveryService = Mockery::mock(ResourceDeliveryService::class);
+        // NexusGacha\Services\GachaPrizeServiceをモック
+        $this->mockBasePrizeService = Mockery::mock(BaseGachaPrizeService::class);
         
         // GachaPrizeServiceを作成
-        $this->service = new GachaPrizeService($this->mockResourceDeliveryService);
+        $this->service = new GachaPrizeService($this->mockBasePrizeService);
     }
 
     protected function tearDown(): void
@@ -56,24 +58,22 @@ class GachaPrizeServiceTest extends TestCase
                 'content_type' => 'item',
                 'content_id' => 'item_potion_001',
                 'amount' => 5,
+                'rarity' => 3,
+                'is_guaranteed' => false,
             ],
         ];
 
         // Assert - DeliveryService::addContents and deliver should be called
-        $this->mockResourceDeliveryService->shouldReceive('addResources')
+        $this->mockBasePrizeService->shouldReceive('grantPrizes')
             ->once()
-            ->with(Mockery::on(function ($arg) {
+            ->with(1, Mockery::on(function ($arg) {
                 return is_array($arg) 
                     && count($arg) === 1
-                    && $arg[0] instanceof ResourceDto
-                    && $arg[0]->getType()->value === 'item'
-                    && $arg[0]->getId() === 'item_potion_001'
+                    && $arg[0] instanceof GachaPrizeDto
+                    && $arg[0]->getContentType() === 'item'
+                    && $arg[0]->getContentId() === 'item_potion_001'
                     && $arg[0]->getAmount() === 5;
             }));
-
-        $this->mockResourceDeliveryService->shouldReceive('deliver')
-            ->once()
-            ->with(1);
 
         // Act
         $this->service->grantPrizes(1, $prizes);
@@ -93,24 +93,22 @@ class GachaPrizeServiceTest extends TestCase
                 'content_type' => 'unit',
                 'content_id' => 'unit_hero_001',
                 'amount' => 1,
+                'rarity' => 5,
+                'is_guaranteed' => true,
             ],
         ];
 
         // Assert
-        $this->mockResourceDeliveryService->shouldReceive('addResources')
+        $this->mockBasePrizeService->shouldReceive('grantPrizes')
             ->once()
-            ->with(Mockery::on(function ($arg) {
+            ->with(1, Mockery::on(function ($arg) {
                 return is_array($arg) 
                     && count($arg) === 1
-                    && $arg[0] instanceof ResourceDto
-                    && $arg[0]->getType()->value === 'unit'
-                    && $arg[0]->getId() === 'unit_hero_001'
+                    && $arg[0] instanceof GachaPrizeDto
+                    && $arg[0]->getContentType() === 'unit'
+                    && $arg[0]->getContentId() === 'unit_hero_001'
                     && $arg[0]->getAmount() === 1;
             }));
-
-        $this->mockResourceDeliveryService->shouldReceive('deliver')
-            ->once()
-            ->with(1);
 
         // Act
         $this->service->grantPrizes(1, $prizes);
@@ -130,24 +128,22 @@ class GachaPrizeServiceTest extends TestCase
                 'content_type' => 'equipment',
                 'content_id' => 'equipment_sword_001',
                 'amount' => 1,
+                'rarity' => 4,
+                'is_guaranteed' => false,
             ],
         ];
 
         // Assert
-        $this->mockResourceDeliveryService->shouldReceive('addResources')
+        $this->mockBasePrizeService->shouldReceive('grantPrizes')
             ->once()
-            ->with(Mockery::on(function ($arg) {
+            ->with(1, Mockery::on(function ($arg) {
                 return is_array($arg) 
                     && count($arg) === 1
-                    && $arg[0] instanceof ResourceDto
-                    && $arg[0]->getType()->value === 'equipment'
-                    && $arg[0]->getId() === 'equipment_sword_001'
+                    && $arg[0] instanceof GachaPrizeDto
+                    && $arg[0]->getContentType() === 'equipment'
+                    && $arg[0]->getContentId() === 'equipment_sword_001'
                     && $arg[0]->getAmount() === 1;
             }));
-
-        $this->mockResourceDeliveryService->shouldReceive('deliver')
-            ->once()
-            ->with(1);
 
         // Act
         $this->service->grantPrizes(1, $prizes);
@@ -167,33 +163,38 @@ class GachaPrizeServiceTest extends TestCase
                 'content_type' => 'item',
                 'content_id' => 'item_gold_001',
                 'amount' => 100,
+                'rarity' => 1,
+                'is_guaranteed' => false,
             ],
             [
                 'content_type' => 'unit',
                 'content_id' => 'unit_warrior_002',
                 'amount' => 1,
+                'rarity' => 4,
+                'is_guaranteed' => false,
             ],
             [
                 'content_type' => 'equipment',
                 'content_id' => 'equipment_shield_003',
                 'amount' => 2,
+                'rarity' => 3,
+                'is_guaranteed' => false,
             ],
         ];
 
         // Assert
-        $this->mockResourceDeliveryService->shouldReceive('addResources')
+        $this->mockBasePrizeService->shouldReceive('grantPrizes')
             ->once()
-            ->with(Mockery::on(function ($arg) {
+            ->with(1, Mockery::on(function ($arg) {
                 return is_array($arg) 
                     && count($arg) === 3
-                    && $arg[0]->getType()->value === 'item'
-                    && $arg[1]->getType()->value === 'unit'
-                    && $arg[2]->getType()->value === 'equipment';
+                    && $arg[0] instanceof GachaPrizeDto
+                    && $arg[0]->getContentType() === 'item'
+                    && $arg[1] instanceof GachaPrizeDto
+                    && $arg[1]->getContentType() === 'unit'
+                    && $arg[2] instanceof GachaPrizeDto
+                    && $arg[2]->getContentType() === 'equipment';
             }));
-
-        $this->mockResourceDeliveryService->shouldReceive('deliver')
-            ->once()
-            ->with(1);
 
         // Act
         $this->service->grantPrizes(1, $prizes);
@@ -211,13 +212,9 @@ class GachaPrizeServiceTest extends TestCase
         $prizes = [];
 
         // Assert
-        $this->mockResourceDeliveryService->shouldReceive('addResources')
+        $this->mockBasePrizeService->shouldReceive('grantPrizes')
             ->once()
-            ->with([]);
-
-        $this->mockResourceDeliveryService->shouldReceive('deliver')
-            ->once()
-            ->with(1);
+            ->with(1, []);
 
         // Act
         $this->service->grantPrizes(1, $prizes);
@@ -237,10 +234,17 @@ class GachaPrizeServiceTest extends TestCase
                 'content_type' => 'unsupported_type',
                 'content_id' => 'some_id',
                 'amount' => 1,
+                'rarity' => 1,
+                'is_guaranteed' => false,
             ],
         ];
 
-        // Assert
+        // Assert - ベースサービスが例外をスローする
+        $this->mockBasePrizeService->shouldReceive('grantPrizes')
+            ->once()
+            ->with(1, Mockery::any())
+            ->andThrow(new \Exception('Unsupported content type: unsupported_type'));
+
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('Unsupported content type: unsupported_type');
 
@@ -259,17 +263,15 @@ class GachaPrizeServiceTest extends TestCase
                 'content_type' => 'item',
                 'content_id' => 'item_crystal_005',
                 'amount' => 10,
+                'rarity' => 2,
+                'is_guaranteed' => false,
             ],
         ];
 
         // Assert
-        $this->mockResourceDeliveryService->shouldReceive('addResources')
+        $this->mockBasePrizeService->shouldReceive('grantPrizes')
             ->once()
-            ->with(Mockery::any());
-
-        $this->mockResourceDeliveryService->shouldReceive('deliver')
-            ->once()
-            ->with(42);
+            ->with(42, Mockery::any());
 
         // Act
         $this->service->grantPrizes(42, $prizes);

@@ -4,17 +4,21 @@ namespace App\Domain\Gacha\Services;
 
 use App\Models\Trx\TrxGacha;
 use App\Repositories\Trx\TrxGachaRepository;
+use NexusGacha\Services\GachaProgressService as BaseGachaProgressService;
+use NexusGacha\Dto\GachaProgressDto;
 use NexusUtilities\ClockUtility;
 
 /**
  * GachaProgressService
  *
- * ガチャの進行状況（リセット、ステップ管理）を行うサービス
+ * パッケージ版のGachaProgressServiceのラッパー
+ * Eloquent Modelを返すために変換処理を行う
  */
 class GachaProgressService
 {
     public function __construct(
         private readonly TrxGachaRepository $trxGachaRepository,
+        private readonly BaseGachaProgressService $baseProgressService,
     ) {
     }
 
@@ -27,6 +31,7 @@ class GachaProgressService
      */
     public function getOrCreateProgress(int $sysPlayerId, string $mstGachaId): TrxGacha
     {
+        // Eloquent Modelに変換
         $progress = TrxGacha::query()
             ->where('sys_player_id', $sysPlayerId)
             ->where('mst_gacha_id', $mstGachaId)
@@ -58,17 +63,12 @@ class GachaProgressService
      */
     public function checkAndResetDaily(TrxGacha $progress): TrxGacha
     {
-        $now = ClockUtility::now();
-        $dailyResetAt = $progress->getAttribute('daily_reset_at');
-        $todayString = $now->startOfDay()->toDateString(); // Y-m-d形式
+        $progressDto = $this->convertToDto($progress);
+        $updatedDto = $this->baseProgressService->checkAndResetDaily($progressDto);
 
-        // daily_reset_atが今日の0時より前ならリセット
-        // 文字列比較: daily_reset_atから日付部分を取得して比較
-        $dailyResetDate = $dailyResetAt !== null ? substr($dailyResetAt, 0, 10) : null;
-        if ($dailyResetDate === null || $dailyResetDate < $todayString) {
-            $progress->setAttribute('daily_draw_count', 0);
-            $progress->setAttribute('daily_reset_at', $now);
-        }
+        // 更新された値をModelに反映
+        $progress->setAttribute('daily_draw_count', $updatedDto->getDailyDrawCount());
+        $progress->setAttribute('daily_reset_at', $updatedDto->getDailyResetAt());
 
         return $progress;
     }
@@ -92,4 +92,21 @@ class GachaProgressService
 
         $this->trxGachaRepository->setModel($progress);
     }
+
+    /**
+     * TrxGachaモデルをDTOに変換
+     */
+    private function convertToDto(TrxGacha $progress): GachaProgressDto
+    {
+        return new GachaProgressDto(
+            sysPlayerId: $progress->sys_player_id,
+            mstGachaId: $progress->mst_gacha_id,
+            currentStep: $progress->current_step,
+            dailyDrawCount: $progress->daily_draw_count,
+            dailyResetAt: $progress->daily_reset_at,
+            totalDrawCount: $progress->total_draw_count,
+            totalResetAt: $progress->total_reset_at
+        );
+    }
 }
+

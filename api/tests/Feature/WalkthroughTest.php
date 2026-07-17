@@ -92,6 +92,11 @@ class WalkthroughTest extends TestCase
         
         ClockUtility::initialize();
         
+        // テスト前にデプロイデータをクリーンアップ
+        DB::connection('sys')->table('sys_deploy')->delete();
+        DB::connection('sys')->table('sys_deploy_master')->where('deploy_key', 202601010)->delete();
+        DB::connection('sys')->table('sys_deploy_asset')->where('deploy_key', 202601010)->delete();
+        
         // シャーディング設定を作成
         $this->seed(\Database\Seeders\SysShardingSeeder::class);
         
@@ -555,6 +560,18 @@ class WalkthroughTest extends TestCase
      */
     private function createMasterData(): void
     {
+        // マスターデータのクリーンアップ（外部キー制約を考慮した順序）
+        // 子テーブルから削除
+        DB::connection('mst')->table('mst_gacha_prize')->whereIn('mst_gacha_id', ['test_gacha_01'])->delete();
+        DB::connection('mst')->table('mst_gacha_rarity_rate')->whereIn('mst_gacha_id', ['test_gacha_01'])->delete();
+        DB::connection('mst')->table('mst_gacha_step')->whereIn('mst_gacha_id', ['test_gacha_01'])->delete();
+        DB::connection('mst')->table('mst_gacha_cost')->whereIn('mst_gacha_id', ['test_gacha_01'])->delete();
+        // 親テーブル削除
+        DB::connection('mst')->table('mst_gacha')->whereIn('id', ['test_gacha_01'])->delete();
+        DB::connection('mst')->table('mst_item')->whereIn('id', ['item_potion_001', 'item_unit_exp_001', 'item_equipment_exp_001', 'unit_exp_potion', 'equipment_exp_potion'])->delete();
+        DB::connection('mst')->table('mst_unit')->whereIn('id', ['unit_warrior_001'])->delete();
+        DB::connection('mst')->table('mst_equipment')->whereIn('id', ['equipment_sword_001'])->delete();
+        
         // アイテムマスター
         DB::connection('mst')->table('mst_item')->insert([
             'id' => 'item_potion_001',
@@ -766,35 +783,28 @@ class WalkthroughTest extends TestCase
      */
     private function clearMstRepositoryCache(): void
     {
-        // Clear Redis cache for master data
-        // マスターデータのキャッシュキーパターンに基づいて削除
-        $cacheKeys = [
-            'mst:mst_gacha:all',
-            'mst:mst_item:all',
-            'mst:mst_unit:all',
-            'mst:mst_equipment:all',
-            'mst:mst_mailbox:all',
-            'mst:mst_message:all',
-            'mst:mst_mailbox_content:all',
-        ];
-        
-        foreach ($cacheKeys as $key) {
-            Cache::forget($key);
-        }
-        
-        // Also clear in-memory cache for repository instances
+        // Repositoryのインスタンスを取得してclearCache()を呼び出す
+        // これでRedisキャッシュとメモリキャッシュの両方がクリアされる
         $repositoryClasses = [
             \App\Repositories\Mst\MstGachaRepository::class,
+            \App\Repositories\Mst\MstGachaCostRepository::class,
+            \App\Repositories\Mst\MstGachaStepRepository::class,
+            \App\Repositories\Mst\MstGachaPrizeRepository::class,
+            \App\Repositories\Mst\MstGachaRarityRateRepository::class,
             \App\Repositories\Mst\MstItemRepository::class,
+            \App\Repositories\Mst\MstUnitRepository::class,
+            \App\Repositories\Mst\MstEquipmentRepository::class,
+            \App\Repositories\Mst\MstMailboxRepository::class,
         ];
         
         foreach ($repositoryClasses as $repositoryClass) {
-            $reflection = new \ReflectionClass($repositoryClass);
-            if ($reflection->hasProperty('models')) {
-                $property = $reflection->getProperty('models');
-                $property->setAccessible(true);
+            try {
                 $repository = app($repositoryClass);
-                $property->setValue($repository, null);
+                if (method_exists($repository, 'clearCache')) {
+                    $repository->clearCache();
+                }
+            } catch (\Exception $e) {
+                // Repository が存在しない場合はスキップ
             }
         }
     }

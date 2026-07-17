@@ -3,7 +3,9 @@
 namespace App\Repositories\Sys;
 
 use App\Models\Sys\SysPlayer;
-use NexusAuth\Contracts\PlayerRepositoryInterface;
+use NexusAuth\Contracts\PlayerRepositoryInterface as AuthPlayerRepositoryInterface;
+use NexusPlayer\Repositories\PlayerRepositoryInterface as PlayerRepoInterface;
+use NexusPlayer\Dto\PlayerDto;
 use NexusUnitOfWork\Contracts\QueryManagerInterface;
 use Illuminate\Support\Str;
 
@@ -14,7 +16,7 @@ use Illuminate\Support\Str;
  * 
  * @extends _BaseSysRepository<SysPlayer>
  */
-class SysPlayerRepository extends _BaseSysRepository implements PlayerRepositoryInterface
+class SysPlayerRepository extends _BaseSysRepository implements AuthPlayerRepositoryInterface, PlayerRepoInterface
 {
     protected string $modelClass = SysPlayer::class;
 
@@ -152,4 +154,68 @@ class SysPlayerRepository extends _BaseSysRepository implements PlayerRepository
         $sysPlayer->last_login_at = $loginAt;
         $this->setModel($sysPlayer);
     }
+
+    /**
+     * {@inheritDoc}
+     * NexusPlayer\Repositories\PlayerRepositoryInterface実装
+     */
+    public function findById(int $id): ?PlayerDto
+    {
+        $model = $this->selectById($id);
+        return $model ? $this->convertToDto($model) : null;
+    }
+
+    /**
+     * {@inheritDoc}
+     * NexusPlayer\Repositories\PlayerRepositoryInterface実装
+     */
+    public function findByMyId(string $myId): ?PlayerDto
+    {
+        $model = $this->selectByMyId($myId);
+        return $model ? $this->convertToDto($model) : null;
+    }
+
+    /**
+     * {@inheritDoc}
+     * NexusPlayer\Repositories\PlayerRepositoryInterface実装
+     */
+    public function findByUuid(string $uuid): ?PlayerDto
+    {
+        $model = $this->selectByUuid($uuid);
+        return $model ? $this->convertToDto($model) : null;
+    }
+
+    /**
+     * {@inheritDoc}
+     * NexusPlayer\Repositories\PlayerRepositoryInterface実装
+     */
+    public function save(PlayerDto $player): void
+    {
+        $model = $this->selectById($player->getId());
+        if ($model) {
+            // DTOの値をModelに反映
+            $model->setName($player->getName());
+            $model->setLevel($player->getLevel());
+            $model->setLevelExp($player->getLevelExp());
+            $this->setModel($model);
+        }
+    }
+
+    /**
+     * Eloquent ModelをDTOに変換
+     */
+    private function convertToDto(SysPlayer $model): PlayerDto
+    {
+        return new PlayerDto(
+            id: $model->getId(),
+            uuid: $model->getUuid(),
+            myId: $model->getMyId(),
+            name: $model->getName(),
+            level: $model->getLevel(),
+            levelExp: $model->getLevelExp(),
+            createdAt: $model->getCreatedAt(),
+            updatedAt: $model->getUpdatedAt()
+        );
+    }
 }
+

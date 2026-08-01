@@ -37,14 +37,14 @@ class VerifyClientSignature
      */
     public function handle(Request $request, Closure $next): Response
     {
-        \Log::info('VerifyClientSignature: Starting verification', [
+        \Log::debug('VerifyClientSignature: Starting verification', [
             'url' => $request->url(),
             'method' => $request->method(),
         ]);
 
         // 開発環境で署名検証をスキップする設定
         if (config('app.env') === 'local' && config('security.client_signature.skip_in_local', false)) {
-            \Log::info('Client signature verification skipped in local environment');
+            \Log::debug('Client signature verification skipped in local environment');
             return $next($request);
         }
 
@@ -53,7 +53,7 @@ class VerifyClientSignature
         $nonce = $request->header('X-Client-Nonce');
         $signature = $request->header('X-Client-Signature');
 
-        \Log::info('VerifyClientSignature: Headers received', [
+        \Log::debug('VerifyClientSignature: Headers received', [
             'timestamp' => $timestamp,
             'nonce' => $nonce ? substr($nonce, 0, 8) . '...' : null,
             'signature' => $signature ? substr($signature, 0, 16) . '...' : null,
@@ -73,7 +73,7 @@ class VerifyClientSignature
         $timeDiff = abs($currentTime - (int)$timestamp);
         $timestampTolerance = config('security.client_signature.timestamp_tolerance', 300);
 
-        \Log::info('VerifyClientSignature: Timestamp check', [
+        \Log::debug('VerifyClientSignature: Timestamp check', [
             'current' => $currentTime,
             'request' => $timestamp,
             'diff' => $timeDiff,
@@ -91,7 +91,7 @@ class VerifyClientSignature
         // 2. ノンスの検証（重複チェック）
         $nonceCacheKey = "client_nonce:{$nonce}";
         
-        \Log::info('VerifyClientSignature: Checking nonce cache');
+        \Log::debug('VerifyClientSignature: Checking nonce cache');
         
         if (Cache::has($nonceCacheKey)) {
             \Log::warning('VerifyClientSignature: Duplicate nonce detected');
@@ -104,14 +104,14 @@ class VerifyClientSignature
         // 3. 署名の検証
         $requestBody = $request->getContent();
         
-        \Log::info('VerifyClientSignature: Generating signature', [
+        \Log::debug('VerifyClientSignature: Generating signature', [
             'body_length' => strlen($requestBody),
         ]);
         
         try {
             $expectedSignature = $this->generateSignature($timestamp, $nonce, $requestBody);
             
-            \Log::info('VerifyClientSignature: Signature generated', [
+            \Log::debug('VerifyClientSignature: Signature generated', [
                 'expected' => substr($expectedSignature, 0, 16) . '...',
                 'received' => substr($signature, 0, 16) . '...',
             ]);
@@ -130,7 +130,7 @@ class VerifyClientSignature
             ], 401);
         }
 
-        \Log::info('VerifyClientSignature: Signature verified successfully');
+        \Log::debug('VerifyClientSignature: Signature verified successfully');
 
         // ノンスをキャッシュに保存（再利用を防止）
         $nonceCacheTtl = config('security.client_signature.nonce_cache_ttl', 600);
@@ -151,7 +151,7 @@ class VerifyClientSignature
     {
         $secret = config('security.client_signature.secret');
         
-        \Log::info('VerifyClientSignature: generateSignature called', [
+        \Log::debug('VerifyClientSignature: generateSignature called', [
             'secret_exists' => !empty($secret),
             'secret_length' => $secret ? strlen($secret) : 0,
         ]);

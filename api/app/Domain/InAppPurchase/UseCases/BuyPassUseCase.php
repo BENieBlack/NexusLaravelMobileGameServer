@@ -102,7 +102,8 @@ class BuyPassUseCase extends _BaseUseCase
                     $mstInAppPurchase,
                     $platform,
                     $billingPlatform,
-                    $unitPrice
+                    $unitPrice,
+                    $verificationResult->transactionId  // トランザクションIDを追加
                 );
                 $paidDiamondAmount = $result['paid_diamond_amount'];
                 $totalPaidDiamondAmount = $result['total_paid_diamond_amount'];
@@ -110,7 +111,7 @@ class BuyPassUseCase extends _BaseUseCase
             }
 
             // 2. パス効果を適用
-            $this->passService->applyPassEffects($mstInAppPurchase);
+            $this->passService->applyPassEffects($sysPlayerId, $mstInAppPurchase);
 
             return new BuyResponse(
                 paidDiamondAmount: $paidDiamondAmount,

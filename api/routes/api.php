@@ -68,8 +68,8 @@ Route::middleware(['auth.token', 'idempotency'])->group(function () {
 // 新規実装では /auth/signup を使用してください
 // 将来のバージョンで削除される予定です
 Route::middleware(['client.signature', 'throttle.signup'])->group(function () {
-    Route::post('/signup', [AuthController::class, 'signUp'])
-        ->deprecated('2026-08-01', 'Use /auth/signup instead');
+    // DEPRECATED: 2026-08-01 - Use /auth/signup instead
+    Route::post('/signup', [AuthController::class, 'signUp']);
 });
 
 // 管理者用メンテナンスAPIエンドポイント

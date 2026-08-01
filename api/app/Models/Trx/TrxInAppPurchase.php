@@ -52,6 +52,7 @@ class TrxInAppPurchase extends _BaseTrx
         'sys_player_id',
         'billing_platform',
         'mst_in_app_purchase_id',
+        'transaction_id',
         'total_purchase_count',
         'purchase_count',
         'purchase_count_reset_at',

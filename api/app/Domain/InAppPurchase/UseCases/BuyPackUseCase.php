@@ -89,7 +89,8 @@ class BuyPackUseCase extends _BaseUseCase
                 $sysPlayerId,
                 $mstInAppPurchase,
                 $platform,
-                $billingPlatform
+                $billingPlatform,
+                $verificationResult->transactionId  // トランザクションIDを追加
             );
 
             return new BuyResponse(

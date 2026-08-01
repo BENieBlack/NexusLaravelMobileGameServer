@@ -34,6 +34,7 @@ class DiamondService
      * @param string $platform プラットフォーム（Apple, Google）
      * @param string $billingPlatform 決済プラットフォーム（AppStore, GooglePlay等）
      * @param float $unitPrice 単価（返金計算用）
+     * @param string $transactionId プラットフォーム固有のトランザクションID
      * @return array{paid_diamond_amount: int, total_paid_diamond_amount: int, total_free_diamond_amount: int}
      */
     public function purchaseDiamond(
@@ -41,7 +42,8 @@ class DiamondService
         MstInAppPurchase $mstInAppPurchase,
         string $platform,
         string $billingPlatform,
-        float $unitPrice
+        float $unitPrice,
+        string $transactionId
     ): array {
         // 1. 購入履歴を取得（Repository経由）
         $purchaseHistory = $this->trxInAppPurchaseRepository->selectByBillingPlatformAndMstInAppPurchaseId(
@@ -85,7 +87,8 @@ class DiamondService
             $sysPlayerId,
             $billingPlatform,
             $mstInAppPurchase,
-            $purchaseHistory
+            $purchaseHistory,
+            $transactionId
         );
 
         return [
@@ -222,13 +225,15 @@ class DiamondService
      * @param string $billingPlatform 決済プラットフォーム
      * @param MstInAppPurchase $mstInAppPurchase 商品マスター
      * @param TrxInAppPurchase|null $purchaseHistory 既存の購入履歴
+     * @param string $transactionId プラットフォーム固有のトランザクションID
      * @return void
      */
     private function updatePurchaseHistory(
         int $sysPlayerId,
         string $billingPlatform,
         MstInAppPurchase $mstInAppPurchase,
-        ?TrxInAppPurchase $purchaseHistory
+        ?TrxInAppPurchase $purchaseHistory,
+        string $transactionId
     ): void {
         if ($purchaseHistory === null) {
             // 初回購入の場合は新規作成
@@ -236,6 +241,7 @@ class DiamondService
                 'sys_player_id' => $sysPlayerId,
                 'billing_platform' => $billingPlatform,
                 'mst_in_app_purchase_id' => $mstInAppPurchase->getId(),
+                'transaction_id' => $transactionId,
                 'total_purchase_count' => 1,
                 'purchase_count' => 1,
                 'purchase_count_reset_at' => $mstInAppPurchase->getPurchaseLimitReset() !== 'None' ? ClockUtility::now() : null,

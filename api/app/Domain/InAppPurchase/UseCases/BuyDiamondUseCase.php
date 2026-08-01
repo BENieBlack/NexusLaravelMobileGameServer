@@ -94,7 +94,8 @@ class BuyDiamondUseCase extends _BaseUseCase
                 $mstInAppPurchase,
                 $platform,
                 $billingPlatform,
-                $unitPrice
+                $unitPrice,
+                $verificationResult->transactionId  // トランザクションIDを追加
             );
 
             return new BuyResponse(

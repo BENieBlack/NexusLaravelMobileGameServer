@@ -52,24 +52,47 @@ abstract class _BaseController
      * 
      * GameException: HTTP 600 + {error_code: int, message: string}
      * その他: HTTP status + {error_code: int, message: string}
+     * 
+     * 本番環境では内部エラー詳細を隠し、ログに記録する
      *
      * @param Throwable $e
      * @return JsonResponse
      */
     protected function handleException(Throwable $e): JsonResponse
     {
+        // 例外の詳細をログに記録
+        \Log::error('Exception in API request', [
+            'exception' => get_class($e),
+            'message' => $e->getMessage(),
+            'code' => $e->getCode(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => $e->getTraceAsString(),
+        ]);
+
         // GameExceptionの場合は600ステータスでerror_codeとmessageを返す
         if ($e instanceof GameException) {
-            return new CustomJsonResponse($e->toArray(), HttpStatusCode::GAME_ERROR);
+            $responseData = $e->toArray();
+            
+            // 本番環境ではメッセージを隠す
+            if (config('app.env') === 'production') {
+                $responseData['message'] = 'An error occurred. Please contact support.';
+            }
+            
+            return new CustomJsonResponse($responseData, HttpStatusCode::GAME_ERROR);
         }
 
         // その他の例外も同じ形式で返す（統一性のため）
         $code = $this->determineStatusCode($e);
         
-        return response()->json([
+        $responseData = [
             'error_code' => $e->getCode() ?: 19999, // デフォルトはINTERNAL_ERROR
-            'message' => $e->getMessage(),
-        ], $code);
+            'message' => config('app.env') === 'production' 
+                ? 'An error occurred. Please contact support.'
+                : $e->getMessage(),
+        ];
+        
+        return response()->json($responseData, $code);
     }
 
     /**

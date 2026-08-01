@@ -15,6 +15,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
         // ミドルウェアエイリアスを登録
         $middleware->alias([
             'auth.token' => \NexusSecurity\Middleware\VerifyAccessToken::class,
+            'auth.admin' => \App\Http\Middleware\VerifyAdminToken::class,
             'idempotency' => \NexusSecurity\Middleware\IdempotencyMiddleware::class,
             'client.signature' => \NexusSecurity\Middleware\VerifyClientSignature::class,
             'throttle.signup' => \NexusSecurity\Middleware\ThrottleSignUp::class,

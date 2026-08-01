@@ -37,13 +37,15 @@ class PackService
      * @param MstInAppPurchase $mstInAppPurchase 商品マスター
      * @param string $platform プラットフォーム（Apple, Google）
      * @param string $billingPlatform 決済プラットフォーム（AppStore, GooglePlay等）
+     * @param string $transactionId プラットフォーム固有のトランザクションID
      * @return array{contents: array, total_free_diamond_amount: int}
      */
     public function purchasePack(
         int $sysPlayerId,
         MstInAppPurchase $mstInAppPurchase,
         string $platform,
-        string $billingPlatform
+        string $billingPlatform,
+        string $transactionId
     ): array {
         // 1. 購入履歴を取得
         $purchaseHistory = TrxInAppPurchase::query()
@@ -100,7 +102,8 @@ class PackService
             $sysPlayerId,
             $billingPlatform,
             $mstInAppPurchase,
-            $purchaseHistory
+            $purchaseHistory,
+            $transactionId
         );
 
         return [
@@ -180,13 +183,15 @@ class PackService
      * @param string $billingPlatform 決済プラットフォーム
      * @param MstInAppPurchase $mstInAppPurchase 商品マスター
      * @param TrxInAppPurchase|null $purchaseHistory 既存の購入履歴
+     * @param string $transactionId プラットフォーム固有のトランザクションID
      * @return void
      */
     private function updatePurchaseHistory(
         int $sysPlayerId,
         string $billingPlatform,
         MstInAppPurchase $mstInAppPurchase,
-        ?TrxInAppPurchase $purchaseHistory
+        ?TrxInAppPurchase $purchaseHistory,
+        string $transactionId
     ): void {
         if ($purchaseHistory === null) {
             // 初回購入の場合は新規作成
@@ -194,6 +199,7 @@ class PackService
                 'sys_player_id' => $sysPlayerId,
                 'billing_platform' => $billingPlatform,
                 'mst_in_app_purchase_id' => $mstInAppPurchase->getId(),
+                'transaction_id' => $transactionId,
                 'total_purchase_count' => 1,
                 'purchase_count' => 1,
                 'purchase_count_reset_at' => $mstInAppPurchase->getPurchaseLimitReset() !== 'None' ? ClockUtility::now() : null,

@@ -63,14 +63,18 @@ Route::middleware(['auth.token', 'idempotency'])->group(function () {
     Route::post('/gacha/draw', [GachaController::class, 'draw']);
 });
 
-// Legacy signup endpoint (for backward compatibility - consider deprecating)
+// Legacy signup endpoint (DEPRECATED - use /auth/signup instead)
+// このエンドポイントは後方互換性のために残されています
+// 新規実装では /auth/signup を使用してください
+// 将来のバージョンで削除される予定です
 Route::middleware(['client.signature', 'throttle.signup'])->group(function () {
-    Route::post('/signup', [AuthController::class, 'signUp']);
+    Route::post('/signup', [AuthController::class, 'signUp'])
+        ->deprecated('2026-08-01', 'Use /auth/signup instead');
 });
 
 // 管理者用メンテナンスAPIエンドポイント
-// TODO: 適切な認証ミドルウェア（例: auth.admin）を追加すること
-Route::prefix('admin')->group(function () {
+// 認証: Bearer トークン認証 + オプションでIP制限
+Route::prefix('admin')->middleware('auth.admin')->group(function () {
     Route::post('/maintenance/start', [AdminMaintenanceController::class, 'start']);
     Route::post('/maintenance/end', [AdminMaintenanceController::class, 'end']);
 });

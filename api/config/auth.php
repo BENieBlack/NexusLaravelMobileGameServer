@@ -112,4 +112,19 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Admin API Authentication
+    |--------------------------------------------------------------------------
+    |
+    | 管理者APIへのアクセスを保護するための設定
+    |
+    | admin_token: 管理者認証に使用するBearerトークン（.envで設定）
+    | admin_allowed_ips: 管理者APIアクセスを許可するIPアドレスのカンマ区切りリスト（オプション）
+    |
+    */
+
+    'admin_token' => env('ADMIN_TOKEN'),
+    'admin_allowed_ips' => env('ADMIN_ALLOWED_IPS', ''),
+
 ];

@@ -26,6 +26,14 @@ interface TokenRepositoryInterface
     public function selectByRefreshToken(string $refreshToken): ?TokenModelInterface;
 
     /**
+     * IDでトークンを削除
+     * 
+     * @param int $tokenId
+     * @return int 削除件数
+     */
+    public function deleteById(int $tokenId): int;
+
+    /**
      * プレイヤーIDでトークンを削除
      * 
      * @param int $playerId

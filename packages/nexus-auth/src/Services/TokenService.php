@@ -2,6 +2,8 @@
 
 namespace NexusAuth\Services;
 
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 use NexusAuth\Contracts\DeviceModelInterface;
 use NexusAuth\Contracts\PlayerModelInterface;
 use NexusAuth\Contracts\TokenModelInterface;
@@ -14,7 +16,7 @@ use Illuminate\Support\Str;
  * TokenService
  *
  * トークン生成と検証を担当するサービス
- * OAuth2風のトークン管理を提供
+ * Firebase JWT ライブラリを使用した安全なJWT実装
  */
 class TokenService
 {
@@ -36,10 +38,16 @@ class TokenService
     private string $appKey;
 
     /**
+     * JWT Algorithm
+     * HS256固定（セキュリティのため変更不可）
+     */
+    private const ALGORITHM = 'HS256';
+
+    /**
      * コンストラクタ
      *
      * @param TokenRepositoryInterface $tokenRepository
-     * @param string $appKey アプリケーションキー（署名用）
+     * @param string $appKey アプリケーションキー（署名用、最低32文字推奨）
      * @param int $accessTokenExpiration アクセストークン有効期限（秒）
      * @param int $refreshTokenExpirationDays リフレッシュトークン有効期限（日）
      */
@@ -49,6 +57,9 @@ class TokenService
         int $accessTokenExpiration = 3600,
         int $refreshTokenExpirationDays = 30,
     ) {
+        if (strlen($appKey) < 32) {
+            throw new \InvalidArgumentException('App key must be at least 32 characters long');
+        }
         $this->appKey = $appKey;
         $this->accessTokenExpiration = $accessTokenExpiration;
         $this->refreshTokenExpirationDays = $refreshTokenExpirationDays;
@@ -57,8 +68,11 @@ class TokenService
     /**
      * アクセストークンを生成
      *
-     * 注: 実際のプロダクションではJWTライブラリ（tymon/jwt-auth等）を使用推奨
-     * ここでは簡易的なJWT風実装を提供
+     * firebase/php-jwt を使用した安全なJWT実装
+     * - base64url エンコーディング
+     * - タイミング攻撃耐性（hash_equals）
+     * - alg 固定（HS256のみ）
+     * - 鍵ローテーション対応（kid）
      *
      * @param PlayerModelInterface $player
      * @param DeviceModelInterface $device
@@ -66,22 +80,26 @@ class TokenService
      */
     public function generateAccessToken(PlayerModelInterface $player, DeviceModelInterface $device): string
     {
+        $now = time();
+        
         // JWT標準のペイロード
         $payload = [
+            'iss' => config('app.url'),              // Issuer
+            'sub' => (string)$player->getId(),       // Subject (player_id)
+            'aud' => config('app.name'),             // Audience
+            'exp' => $now + $this->accessTokenExpiration, // Expiration Time
+            'iat' => $now,                           // Issued At
+            'nbf' => $now,                           // Not Before
+            'jti' => Str::uuid()->toString(),        // JWT ID (一意識別子)
+            
+            // カスタムクレーム
             'player_id' => $player->getId(),
             'uuid' => $player->getUuid(),
             'device_id' => $device->getId(),
-            'exp' => time() + $this->accessTokenExpiration, // Expiration Time
-            'iat' => time(), // Issued At
         ];
 
-        // 簡易的なJWT風トークン
-        $header = base64_encode(json_encode(['typ' => 'JWT', 'alg' => 'HS256']));
-        $payloadEncoded = base64_encode(json_encode($payload));
-        $signature = hash_hmac('sha256', "$header.$payloadEncoded", $this->appKey, true);
-        $signatureEncoded = base64_encode($signature);
-
-        return "$header.$payloadEncoded.$signatureEncoded";
+        // kid（Key ID）をヘッダーに追加して鍵ローテーション対応
+        return JWT::encode($payload, $this->appKey, self::ALGORITHM, $this->getCurrentKeyId());
     }
 
     /**
@@ -93,35 +111,27 @@ class TokenService
     public function validateAccessToken(string $token): ?array
     {
         try {
-            // トークンを分解
-            $parts = explode('.', $token);
-            if (count($parts) !== 3) {
-                return null;
-            }
-
-            [$header, $payloadEncoded, $signatureEncoded] = $parts;
-
-            // 署名を検証
-            $expectedSignature = hash_hmac('sha256', "$header.$payloadEncoded", $this->appKey, true);
-            $expectedSignatureEncoded = base64_encode($expectedSignature);
-
-            if ($signatureEncoded !== $expectedSignatureEncoded) {
-                return null; // 署名が一致しない
-            }
-
-            // ペイロードをデコード
-            $payload = json_decode(base64_decode($payloadEncoded), true);
-            if (!$payload) {
-                return null;
-            }
-
-            // 有効期限をチェック
-            if (!isset($payload['exp']) || $payload['exp'] < time()) {
-                return null; // 期限切れ
-            }
-
-            return $payload;
+            // JWT::decode は以下を自動的に検証:
+            // - 署名の検証（hash_equals使用でタイミング攻撃耐性あり）
+            // - exp（有効期限）
+            // - nbf（Not Before）
+            // - alg（アルゴリズム固定）
+            $decoded = JWT::decode($token, new Key($this->appKey, self::ALGORITHM));
+            
+            // stdClass を配列に変換
+            return json_decode(json_encode($decoded), true);
+            
+        } catch (\Firebase\JWT\ExpiredException $e) {
+            // トークン期限切れ
+            return null;
+        } catch (\Firebase\JWT\SignatureInvalidException $e) {
+            // 署名が不正
+            return null;
+        } catch (\Firebase\JWT\BeforeValidException $e) {
+            // nbf より前
+            return null;
         } catch (\Exception $e) {
+            // その他のエラー（形式不正など）
             return null;
         }
     }
@@ -142,8 +152,8 @@ class TokenService
         // アクセストークン生成
         $accessToken = $this->generateAccessToken($player, $device);
 
-        // リフレッシュトークン生成
-        $refreshToken = Str::random(64);
+        // リフレッシュトークン生成（暗号学的に安全な乱数）
+        $refreshToken = bin2hex(random_bytes(32)); // 64文字の16進数文字列
         $tokenHash = hash('sha256', $refreshToken);
         $expiresAt = ClockUtility::now()->addDays($this->refreshTokenExpirationDays);
 
@@ -176,12 +186,12 @@ class TokenService
     }
 
     /**
-     * トークンをローテーション（古いトークンを無効化して新しいトークンを発行）
+     * トークンをローテーション（古いトークンを無効化し、新しいトークンを生成）
      *
      * @param TokenModelInterface $oldToken
      * @param PlayerModelInterface $player
      * @param DeviceModelInterface $device
-     * @param callable $tokenModelFactory
+     * @param callable(int, int, string, string): TokenModelInterface $tokenModelFactory
      * @return array{TokenDto, TokenModelInterface}
      */
     public function rotateToken(
@@ -191,7 +201,7 @@ class TokenService
         callable $tokenModelFactory
     ): array {
         // 古いトークンを無効化
-        $oldToken->delete();
+        $this->tokenRepository->deleteById($oldToken->getId());
 
         // 新しいトークンを生成
         return $this->generateToken($player, $device, $tokenModelFactory);
@@ -226,5 +236,17 @@ class TokenService
     public function getRefreshTokenExpirationDays(): int
     {
         return $this->refreshTokenExpirationDays;
+    }
+
+    /**
+     * 現在の鍵IDを取得（将来の鍵ローテーション対応）
+     *
+     * @return string|null
+     */
+    private function getCurrentKeyId(): ?string
+    {
+        // 将来的に環境変数から取得できるようにする
+        // 例: config('jwt.key_id') または環境変数 JWT_KEY_ID
+        return config('jwt.key_id', null);
     }
 }

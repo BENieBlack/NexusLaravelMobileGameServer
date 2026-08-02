@@ -13,6 +13,8 @@ use Symfony\Component\HttpFoundation\Response;
  * X-Unique-Request-Identifierヘッダーを使用してリクエストの冪等性を保証する
  * 同じリクエストが重複して送信された場合、キャッシュされたレスポンスを返す
  * 
+ * 事前予約型: Cache::add()で先にキーを確保し、処理中の同時リクエストを409で拒否
+ * 
  * キャッシュストア: Redis
  * キャッシュキー: "idempotency:{player_id}:{unique_request_id}:{path}"
  * キャッシュ期間: 設定可能（デフォルト: 24時間）
@@ -20,6 +22,16 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class IdempotencyMiddleware
 {
+    /**
+     * 処理中を示す値
+     */
+    private const PROCESSING = '__PROCESSING__';
+
+    /**
+     * 処理中の状態を保持する最大時間（秒）
+     * リクエストがこの時間内に完了しない場合は異常とみなす
+     */
+    private const PROCESSING_TIMEOUT = 300; // 5分
     /**
      * Handle an incoming request.
      *
@@ -51,34 +63,69 @@ class IdempotencyMiddleware
         // キャッシュキーを生成
         $cacheKey = $this->buildCacheKey($playerId, $uniqueRequestId, $request->path());
 
-        // キャッシュが存在する場合、キャッシュされたレスポンスを返す
+        // キャッシュが存在する場合
         if (Cache::has($cacheKey)) {
-            $compressed = Cache::get($cacheKey);
+            $cached = Cache::get($cacheKey);
+            
+            // 処理中の場合は409 Conflictを返す
+            if ($cached === self::PROCESSING) {
+                $response = response()->json([
+                    'error_code' => 40900,
+                    'message' => 'Request is being processed. Please retry later.',
+                ], 409);
+                $response->headers->set('X-Idempotency-Cache', 'PROCESSING');
+                return $response;
+            }
             
             // gzip解凍してレスポンスデータを復元
-            $jsonData = gzdecode($compressed);
+            $jsonData = gzdecode($cached);
             $cachedResponse = json_decode($jsonData, true);
             
             // キャッシュされたレスポンスを復元
-            return response()->json(
+            $response = response()->json(
                 $cachedResponse['data'],
                 $cachedResponse['status']
-            )->withHeaders($cachedResponse['headers'] ?? [])
-             ->header('X-Idempotency-Cache', 'HIT'); // キャッシュヒットを示すヘッダー
+            )->withHeaders($cachedResponse['headers'] ?? []);
+            $response->headers->set('X-Idempotency-Cache', 'HIT');
+            return $response;
         }
 
-        // リクエストを処理
-        $response = $next($request);
-
-        // 成功レスポンス（2xx）の場合のみキャッシュする
-        if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
-            $this->cacheResponse($cacheKey, $response);
+        // 事前予約: Cache::add()でアトミックに処理中状態を登録
+        // 既にキーが存在する場合（=同時リクエスト）はfalseが返る
+        $reserved = Cache::add($cacheKey, self::PROCESSING, self::PROCESSING_TIMEOUT);
+        
+        if (!$reserved) {
+            // 予約に失敗（=他のリクエストが先に予約した）
+            $response = response()->json([
+                'error_code' => 40900,
+                'message' => 'Request is being processed. Please retry later.',
+            ], 409);
+            $response->headers->set('X-Idempotency-Cache', 'CONFLICT');
+            return $response;
         }
 
-        // キャッシュミスを示すヘッダーを追加
-        $response->header('X-Idempotency-Cache', 'MISS');
+        try {
+            // リクエストを処理
+            $response = $next($request);
 
-        return $response;
+            // 成功レスポンス（2xx）の場合のみキャッシュする
+            if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
+                $this->cacheResponse($cacheKey, $response);
+            } else {
+                // 失敗した場合は処理中フラグを削除
+                Cache::forget($cacheKey);
+            }
+
+            // キャッシュミスを示すヘッダーを追加
+            $response->headers->set('X-Idempotency-Cache', 'MISS');
+
+            return $response;
+            
+        } catch (\Throwable $e) {
+            // 例外発生時は処理中フラグを削除
+            Cache::forget($cacheKey);
+            throw $e;
+        }
     }
 
     /**

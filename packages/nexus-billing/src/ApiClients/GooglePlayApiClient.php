@@ -55,7 +55,13 @@ class GooglePlayApiClient
             // $accessToken = $this->client->fetchAccessTokenWithAssertion();
             // $response = Http::withToken($accessToken['access_token'])->get($url);
 
-            // 仮実装: モックレスポンス
+            // 仮実装: モックレスポンス（local環境でのみ許可）
+            if (config('app.env') !== 'local') {
+                throw new PlatformApiException(
+                    'Google Play API is not fully implemented. Mock responses are only allowed in local environment.'
+                );
+            }
+            
             Log::warning('GooglePlayApiClient: Using mock response (API not fully implemented)');
             
             return [
@@ -67,6 +73,8 @@ class GooglePlayApiClient
                 'purchaseType' => 0, // 0 = Test purchase
                 'acknowledgementState' => 1, // 1 = Acknowledged
                 'quantity' => 1,
+                'priceAmountMicros' => 1000000, // 1.00 USD in micros (mock value)
+                'priceCurrencyCode' => 'USD',
             ];
 
         } catch (\Exception $e) {
@@ -108,7 +116,13 @@ class GooglePlayApiClient
             // $accessToken = $this->client->fetchAccessTokenWithAssertion();
             // $response = Http::withToken($accessToken['access_token'])->get($url);
 
-            // 仮実装: モックレスポンス
+            // 仮実装: モックレスポンス（local環境でのみ許可）
+            if (config('app.env') !== 'local') {
+                throw new PlatformApiException(
+                    'Google Play Subscription API is not fully implemented. Mock responses are only allowed in local environment.'
+                );
+            }
+            
             Log::warning('GooglePlayApiClient: Using mock response (API not fully implemented)');
             
             return [

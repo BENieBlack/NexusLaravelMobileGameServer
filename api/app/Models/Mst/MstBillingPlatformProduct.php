@@ -13,6 +13,8 @@ class MstBillingPlatformProduct extends _BaseMst
         'platform_product_id',
         'billing_platform',
         'product_type',
+        'price_amount_micros',
+        'price_currency_code',
         'is_active',
     ];
 
@@ -21,6 +23,7 @@ class MstBillingPlatformProduct extends _BaseMst
      */
     protected $casts = [
         'deploy_key' => 'integer',
+        'price_amount_micros' => 'integer',
         'is_active' => 'boolean',
         'created_at' => 'immutable_datetime',
         'updated_at' => 'immutable_datetime',

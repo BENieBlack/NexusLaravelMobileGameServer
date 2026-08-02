@@ -28,6 +28,7 @@ class GameErrorCode
     const INVALID_PRODUCT_TYPE = 10203;
     const PRODUCT_ID_MISMATCH = 10204;
     const RECEIPT_VERIFICATION_FAILED = 10205;
+    const PRICE_MISMATCH = 10206;
 
     // データ検証エラー (10300-10399)
     const INVALID_PARAMETER = 10300;

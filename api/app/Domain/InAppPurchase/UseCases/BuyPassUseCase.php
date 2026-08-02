@@ -7,6 +7,7 @@ use LaravelMobileBilling\DTOs\ReceiptData;
 use LaravelMobileBilling\Facades\BillingFacade;
 use App\Domain\InAppPurchase\Services\DiamondService;
 use App\Domain\InAppPurchase\Services\PassService;
+use App\Domain\InAppPurchase\Services\ValidationService;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Http\Responses\InAppPurchase\BuyResponse;
@@ -23,6 +24,7 @@ class BuyPassUseCase extends _BaseUseCase
     public function __construct(
         private readonly DiamondService $diamondService,
         private readonly PassService $passService,
+        private readonly ValidationService $validationService,
         private readonly BillingFacade $billingFacade,
     ) {
     }
@@ -90,6 +92,13 @@ class BuyPassUseCase extends _BaseUseCase
                     'Product ID mismatch between request and receipt'
                 );
             }
+
+            // 価格検証
+            $this->validationService->validatePurchasePrice(
+                $verificationResult,
+                $mstInAppPurchase,
+                $billingPlatform
+            );
 
             $paidDiamondAmount = 0;
             $totalPaidDiamondAmount = 0;

@@ -4,8 +4,11 @@ namespace App\Domain\InAppPurchase\Services;
 
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
+use App\Models\Mst\MstBillingPlatformProduct;
 use App\Models\Mst\MstInAppPurchase;
 use App\Models\Trx\TrxInAppPurchase;
+use Illuminate\Support\Facades\Log;
+use LaravelMobileBilling\DTOs\VerificationDto;
 use NexusUtilities\ClockUtility;
 
 /**
@@ -98,5 +101,103 @@ class ValidationService
         }
 
         return null;
+    }
+
+    /**
+     * 購入価格を検証
+     * 
+     * レシート検証結果の価格とマスターデータの期待価格を照合する
+     * 
+     * @param VerificationDto $verificationResult レシート検証結果
+     * @param MstInAppPurchase $mstInAppPurchase 商品マスター
+     * @param string $billingPlatform 決済プラットフォーム（AppStore, GooglePlay等）
+     * @throws GameException 価格が不一致の場合
+     * @return void
+     */
+    public function validatePurchasePrice(
+        VerificationDto $verificationResult,
+        MstInAppPurchase $mstInAppPurchase,
+        string $billingPlatform
+    ): void {
+        // 価格情報がない場合（App Storeなど）はスキップ
+        if ($verificationResult->priceAmountMicros === null) {
+            Log::warning('Price validation skipped: No price information in verification result', [
+                'billing_platform' => $billingPlatform,
+                'product_id' => $verificationResult->productId,
+            ]);
+            return;
+        }
+
+        // プラットフォーム商品を取得
+        $platformProduct = $this->getPlatformProduct($mstInAppPurchase, $billingPlatform);
+        
+        // マスターデータに価格が設定されていない場合は警告のみ
+        if ($platformProduct === null || $platformProduct->price_amount_micros === null) {
+            Log::warning('Price validation skipped: No expected price in master data', [
+                'billing_platform' => $billingPlatform,
+                'product_id' => $verificationResult->productId,
+                'actual_price_micros' => $verificationResult->priceAmountMicros,
+                'actual_currency' => $verificationResult->priceCurrencyCode,
+            ]);
+            return;
+        }
+
+        // 価格照合
+        if ($verificationResult->priceAmountMicros !== $platformProduct->price_amount_micros) {
+            Log::error('Price mismatch detected', [
+                'billing_platform' => $billingPlatform,
+                'product_id' => $verificationResult->productId,
+                'expected_price_micros' => $platformProduct->price_amount_micros,
+                'actual_price_micros' => $verificationResult->priceAmountMicros,
+                'expected_currency' => $platformProduct->price_currency_code,
+                'actual_currency' => $verificationResult->priceCurrencyCode,
+            ]);
+
+            throw new GameException(
+                GameErrorCode::PRICE_MISMATCH,
+                'Purchase price does not match expected price'
+            );
+        }
+
+        // 通貨コード照合
+        if ($platformProduct->price_currency_code !== null 
+            && $verificationResult->priceCurrencyCode !== $platformProduct->price_currency_code) {
+            Log::error('Currency mismatch detected', [
+                'billing_platform' => $billingPlatform,
+                'product_id' => $verificationResult->productId,
+                'expected_currency' => $platformProduct->price_currency_code,
+                'actual_currency' => $verificationResult->priceCurrencyCode,
+            ]);
+
+            throw new GameException(
+                GameErrorCode::PRICE_MISMATCH,
+                'Purchase currency does not match expected currency'
+            );
+        }
+
+        Log::info('Price validation passed', [
+            'billing_platform' => $billingPlatform,
+            'product_id' => $verificationResult->productId,
+            'price_micros' => $verificationResult->priceAmountMicros,
+            'currency' => $verificationResult->priceCurrencyCode,
+        ]);
+    }
+
+    /**
+     * プラットフォーム商品を取得
+     * 
+     * @param MstInAppPurchase $mstInAppPurchase 商品マスター
+     * @param string $billingPlatform 決済プラットフォーム
+     * @return MstBillingPlatformProduct|null
+     */
+    private function getPlatformProduct(
+        MstInAppPurchase $mstInAppPurchase,
+        string $billingPlatform
+    ): ?MstBillingPlatformProduct {
+        return match ($billingPlatform) {
+            'AppStore' => $mstInAppPurchase->appStoreProduct,
+            'GooglePlay' => $mstInAppPurchase->googlePlayProduct,
+            default => null,
+        };
     }
 }

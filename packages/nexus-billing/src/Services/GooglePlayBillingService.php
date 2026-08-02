@@ -66,6 +66,8 @@ class GooglePlayBillingService implements BillingPlatformInterface
             quantity: (int)($response['quantity'] ?? 1),
             originalTransactionId: $response['orderId'],
             rawResponse: $response,
+            priceAmountMicros: isset($response['priceAmountMicros']) ? (int)$response['priceAmountMicros'] : null,
+            priceCurrencyCode: $response['priceCurrencyCode'] ?? null,
         );
     }
 

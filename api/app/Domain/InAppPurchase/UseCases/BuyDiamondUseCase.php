@@ -6,6 +6,7 @@ use App\Domain\_BaseUseCase;
 use LaravelMobileBilling\DTOs\ReceiptData;
 use LaravelMobileBilling\Facades\BillingFacade;
 use App\Domain\InAppPurchase\Services\DiamondService;
+use App\Domain\InAppPurchase\Services\ValidationService;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Http\Responses\InAppPurchase\BuyResponse;
@@ -21,6 +22,7 @@ class BuyDiamondUseCase extends _BaseUseCase
 
     public function __construct(
         private readonly DiamondService $diamondService,
+        private readonly ValidationService $validationService,
         private readonly BillingFacade $billingFacade,
     ) {
     }
@@ -83,6 +85,13 @@ class BuyDiamondUseCase extends _BaseUseCase
                     'Product ID mismatch between request and receipt'
                 );
             }
+
+            // 価格検証
+            $this->validationService->validatePurchasePrice(
+                $verificationResult,
+                $mstInAppPurchase,
+                $billingPlatform
+            );
 
             // TODO: 実際のプロダクションでは、決済プラットフォームから価格を取得する
             // ここでは仮の単価を使用（ダイヤ1個あたりの価格）

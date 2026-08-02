@@ -23,6 +23,8 @@ class VerificationDto
         public int $quantity,                      // 購入数量
         public string $originalTransactionId,      // 元のトランザクションID（復元購入等で使用）
         public array $rawResponse,                 // プラットフォームAPIの生レスポンス
+        public readonly ?int $priceAmountMicros = null,      // 価格（マイクロ単位、Google Playのみ）
+        public readonly ?string $priceCurrencyCode = null,   // 通貨コード（Google Playのみ）
     ) {}
 
     /**
@@ -38,6 +40,8 @@ class VerificationDto
             'quantity' => $this->quantity,
             'original_transaction_id' => $this->originalTransactionId,
             'raw_response' => $this->rawResponse,
+            'price_amount_micros' => $this->priceAmountMicros,
+            'price_currency_code' => $this->priceCurrencyCode,
         ];
     }
 }

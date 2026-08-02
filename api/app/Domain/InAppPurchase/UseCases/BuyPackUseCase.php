@@ -6,6 +6,7 @@ use App\Domain\_BaseUseCase;
 use LaravelMobileBilling\DTOs\ReceiptData;
 use LaravelMobileBilling\Facades\BillingFacade;
 use App\Domain\InAppPurchase\Services\PackService;
+use App\Domain\InAppPurchase\Services\ValidationService;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Http\Responses\InAppPurchase\BuyResponse;
@@ -21,6 +22,7 @@ class BuyPackUseCase extends _BaseUseCase
 
     public function __construct(
         private readonly PackService $packService,
+        private readonly ValidationService $validationService,
         private readonly BillingFacade $billingFacade,
     ) {
     }
@@ -83,6 +85,13 @@ class BuyPackUseCase extends _BaseUseCase
                     'Product ID mismatch between request and receipt'
                 );
             }
+
+            // 価格検証
+            $this->validationService->validatePurchasePrice(
+                $verificationResult,
+                $mstInAppPurchase,
+                $billingPlatform
+            );
 
             // パック購入処理
             $result = $this->packService->purchasePack(

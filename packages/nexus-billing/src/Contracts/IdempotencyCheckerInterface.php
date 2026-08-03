@@ -1,8 +1,8 @@
 <?php
 
-namespace LaravelMobileBilling\Contracts;
+namespace NexusBilling\Contracts;
 
-use LaravelMobileBilling\Exceptions\DuplicatePurchaseException;
+use NexusBilling\Exceptions\DuplicatePurchaseException;
 
 /**
  * 冪等性チェックインターフェース

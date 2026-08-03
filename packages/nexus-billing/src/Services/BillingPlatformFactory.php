@@ -1,9 +1,9 @@
 <?php
 
-namespace LaravelMobileBilling\Services;
+namespace NexusBilling\Services;
 
-use LaravelMobileBilling\Constants\BillingConst;
-use LaravelMobileBilling\Contracts\BillingPlatformInterface;
+use NexusBilling\Constants\BillingConst;
+use NexusBilling\Contracts\BillingPlatformInterface;
 use InvalidArgumentException;
 
 /**

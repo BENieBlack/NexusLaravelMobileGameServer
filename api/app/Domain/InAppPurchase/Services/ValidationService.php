@@ -8,7 +8,7 @@ use App\Models\Mst\MstBillingPlatformProduct;
 use App\Models\Mst\MstInAppPurchase;
 use App\Models\Trx\TrxInAppPurchase;
 use Illuminate\Support\Facades\Log;
-use LaravelMobileBilling\DTOs\VerificationDto;
+use NexusBilling\DTOs\VerificationDto;
 use NexusUtilities\ClockUtility;
 
 /**

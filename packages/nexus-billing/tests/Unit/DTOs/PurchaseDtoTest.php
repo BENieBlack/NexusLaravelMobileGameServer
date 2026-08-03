@@ -1,8 +1,8 @@
 <?php
 
-namespace LaravelMobileBilling\Tests\Unit\DTOs;
+namespace NexusBilling\Tests\Unit\DTOs;
 
-use LaravelMobileBilling\DTOs\PurchaseDto;
+use NexusBilling\DTOs\PurchaseDto;
 use PHPUnit\Framework\TestCase;
 
 class PurchaseDtoTest extends TestCase

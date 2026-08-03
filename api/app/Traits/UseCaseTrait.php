@@ -9,17 +9,16 @@ use Throwable;
 
 trait UseCaseTrait
 {
-    const LOG_INSERT_OUTSIDE_TRANSACTION = true; // ログのクエリをトランザクション外で実行するオプション
-
     /**
      * トランザクション付きでコールバックを実行
      *
      * 処理フロー：
      * 1. クリーンアップ処理（オプション、sign_in時のみ）
-     * 2. トランザクション開始（sys, trx, log接続）
+     * 2. トランザクション開始（sys, trx 接続のみ）
      * 3. コールバックを実行（クエリはQueryManagerにキューイング、sysは即座に実行してIDを取得）
-     * 4. キューに溜まったクエリを実行
-     * 5. コミットまたはロールバック
+     * 4. キューに溜まったクエリを実行（ログ以外）
+     * 5. コミットまたはロールバック（sys, trx のみ）
+     * 6. ログをトランザクション外で実行（コミット後）
      *
      * @param callable $callback 実行するビジネスロジック
      * @param int|null $sysPlayerId sign_in時のクリーンアップ用プレイヤーID
@@ -35,8 +34,8 @@ trait UseCaseTrait
         }
 
         // **重要**: トランザクションを先に開始してから$callback()を実行
-        // これにより、PlayerServiceでexecAllQuery()を呼び出したときにトランザクション内で実行される
-        foreach (['sys', 'trx', 'log'] as $connection) {
+        // ログはトランザクションから除外（非原子的な複数DBトランザクション問題を解消）
+        foreach (['sys', 'trx'] as $connection) {
             DB::connection($connection)->beginTransaction();
         }
 
@@ -48,17 +47,19 @@ trait UseCaseTrait
             $result = $callback();
 
             /**
-             * すべてのクエリをフラッシュ（購入ログ、Sys/Trx/通常Logを実行）
+             * すべてのクエリをフラッシュ（ログ以外のSys/Trxを実行）
+             * ログはトランザクション外で実行するため、ここでは実行されない
              */
             $queryManager->flush();
 
-            /**
-             * Log系をコミット後にトランザクション外でINSERTするオプションがOFFの場合は既に実行済み
-             */
-
-            foreach (['sys', 'trx', 'log'] as $connection ){
+            // sys, trx のみコミット
+            foreach (['sys', 'trx'] as $connection ){
                 DB::connection($connection)->commit();
             }
+
+            // **ログをトランザクション外で実行**（P1-1: ログトランザクション分離）
+            // ログ書き込み失敗はビジネストランザクションに影響しない
+            $queryManager->execAllLogs();
 
         } catch (Exception | Throwable $e) {
             \Log::error('Transaction failed in UseCase', [
@@ -68,14 +69,13 @@ trait UseCaseTrait
                 'trace' => $e->getTraceAsString(),
             ]);
             
-            foreach (['sys', 'trx', 'log'] as $connection) {
+            // sys, trx のみロールバック
+            foreach (['sys', 'trx'] as $connection) {
                 DB::connection($connection)->rollBack();
             }
 
             throw $e;
         }
-        
-        // トランザクション外でINSERTするオプションは削除（新QueryManagerでは常にトランザクション内実行）
 
         return $result;
     }

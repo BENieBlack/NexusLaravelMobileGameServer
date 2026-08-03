@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "php": "^8.1",
+        "php": "^8.3",
         "illuminate/support": "^10.0|^11.0|^12.0",
         "illuminate/http": "^10.0|^11.0|^12.0",
         "illuminate/cache": "^10.0|^11.0|^12.0",
@@ -24,18 +24,18 @@
     },
     "autoload": {
         "psr-4": {
-            "LaravelMobileBilling\\": "src/"
+            "NexusBilling\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "LaravelMobileBilling\\Tests\\": "tests/"
+            "NexusBilling\\Tests\\": "tests/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "LaravelMobileBilling\\MobileBillingServiceProvider"
+                "NexusBilling\\MobileBillingServiceProvider"
             ]
         }
     },

@@ -29,6 +29,13 @@ interface QueryManagerInterface
     public function flush(): void;
 
     /**
+     * ログのみをトランザクション外で実行
+     * 
+     * @return void
+     */
+    public function execAllLogs(): void;
+
+    /**
      * すべてのリポジトリをクリア
      * 
      * @return void

@@ -1,13 +1,13 @@
 <?php
 
-namespace LaravelMobileBilling\Facades;
+namespace NexusBilling\Facades;
 
-use LaravelMobileBilling\DTOs\ReceiptData;
-use LaravelMobileBilling\DTOs\SubscriptionStatus;
-use LaravelMobileBilling\DTOs\VerificationResult;
-use LaravelMobileBilling\Exceptions\DuplicatePurchaseException;
-use LaravelMobileBilling\Services\BillingPlatformFactory;
-use LaravelMobileBilling\Services\IdempotencyService;
+use NexusBilling\DTOs\ReceiptData;
+use NexusBilling\DTOs\SubscriptionStatus;
+use NexusBilling\DTOs\VerificationResult;
+use NexusBilling\Exceptions\DuplicatePurchaseException;
+use NexusBilling\Services\BillingPlatformFactory;
+use NexusBilling\Services\IdempotencyService;
 use Exception;
 use Illuminate\Support\Facades\Log;
 

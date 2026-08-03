@@ -1,8 +1,8 @@
 <?php
 
-namespace LaravelMobileBilling\Tests\Unit\DTOs;
+namespace NexusBilling\Tests\Unit\DTOs;
 
-use LaravelMobileBilling\DTOs\ReceiptDto;
+use NexusBilling\DTOs\ReceiptDto;
 use PHPUnit\Framework\TestCase;
 
 class ReceiptDtoTest extends TestCase

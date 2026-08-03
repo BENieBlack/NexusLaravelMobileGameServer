@@ -1,14 +1,14 @@
 <?php
 
-namespace LaravelMobileBilling\Services;
+namespace NexusBilling\Services;
 
-use LaravelMobileBilling\ApiClients\AppStoreApiClient;
-use LaravelMobileBilling\Constants\BillingConst;
-use LaravelMobileBilling\Contracts\BillingPlatformInterface;
-use LaravelMobileBilling\DTOs\ReceiptData;
-use LaravelMobileBilling\DTOs\SubscriptionStatus;
-use LaravelMobileBilling\DTOs\VerificationResult;
-use LaravelMobileBilling\Exceptions\InvalidReceiptException;
+use NexusBilling\ApiClients\AppStoreApiClient;
+use NexusBilling\Constants\BillingConst;
+use NexusBilling\Contracts\BillingPlatformInterface;
+use NexusBilling\DTOs\ReceiptData;
+use NexusBilling\DTOs\SubscriptionStatus;
+use NexusBilling\DTOs\VerificationResult;
+use NexusBilling\Exceptions\InvalidReceiptException;
 use Carbon\CarbonImmutable;
 
 /**

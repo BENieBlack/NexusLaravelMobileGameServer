@@ -1,9 +1,9 @@
 <?php
 
-namespace LaravelMobileBilling\Tests\Unit\Exceptions;
+namespace NexusBilling\Tests\Unit\Exceptions;
 
-use LaravelMobileBilling\Exceptions\PlatformApiException;
-use LaravelMobileBilling\Exceptions\ReceiptVerificationException;
+use NexusBilling\Exceptions\PlatformApiException;
+use NexusBilling\Exceptions\ReceiptVerificationException;
 use PHPUnit\Framework\TestCase;
 
 class PlatformApiExceptionTest extends TestCase

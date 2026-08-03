@@ -1,8 +1,8 @@
 <?php
 
-namespace LaravelMobileBilling\Tests\Unit\DTOs;
+namespace NexusBilling\Tests\Unit\DTOs;
 
-use LaravelMobileBilling\DTOs\SubscriptionDto;
+use NexusBilling\DTOs\SubscriptionDto;
 use PHPUnit\Framework\TestCase;
 
 class SubscriptionDtoTest extends TestCase

@@ -141,26 +141,21 @@ class AppServiceProvider extends ServiceProvider
         );
 
         // ==========================================
-        // Unit of Work Pattern Bindings
-        // ==========================================
-        
-        // Unit of Work パターン用のQueryManagerをシングルトンとして登録
-        $this->app->singleton(QueryManager::class);
-        $this->app->singleton('query.manager', QueryManager::class);
-        
-        // Unit of Work パッケージのQueryManagerInterfaceもバインド
-        $this->app->singleton(UnitOfWorkQueryManagerInterface::class, QueryManager::class);
-
-        // ==========================================
         // Security Package Bindings
         // ==========================================
         
         // セキュリティミドルウェアパッケージ用のインターフェースバインディング
         $this->app->bind(TokenValidatorInterface::class, TokenValidator::class);
-        $this->app->bind(PlayerSessionInterface::class, ApiSession::class);
+        
+        // P2-5: ApiSessionをscopedバインドに変更（リクエストスコープ）
+        // リクエストごとに新しいインスタンスを生成し、リクエスト内では同一インスタンスを共有
+        $this->app->scoped(PlayerSessionInterface::class, ApiSession::class);
         
         // Unit of Work パッケージ用のPlayerSessionResolverInterfaceバインディング
-        $this->app->bind(PlayerSessionResolverInterface::class, ApiSession::class);
+        $this->app->scoped(PlayerSessionResolverInterface::class, ApiSession::class);
+        
+        // ApiSessionクラス自体もscopedバインドとして登録
+        $this->app->scoped(ApiSession::class);
     }
 
     /**

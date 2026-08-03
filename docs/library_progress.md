@@ -1,12 +1,61 @@
 # Laravel Mobile RPG Server - ライブラリ化プロジェクト進捗レポート
 
-生成日: 2026-07-11
+生成日: 2026-08-03（更新）
 
 ## プロジェクト概要
 
 LaravelモバイルRPGサーバーのフレームワーク部分を再利用可能なComposerパッケージとして分離するプロジェクト。
 
-## 完了したパッケージ
+---
+
+## パッケージ移行の完了定義（P2-1）
+
+### ゴール設定
+
+**「`api/app/Domain` 配下にビジネスロジックを置かない。apiはEloquent Repository実装・DI束ね・Controllerのアダプタ層のみ」**
+
+### 完了条件
+
+#### 1. api/app/Domain配下の役割を明確化
+
+以下のみを許可：
+
+- ✅ **Controller**: HTTPリクエスト/レスポンス処理、バリデーション、認証
+- ✅ **UseCase**: ビジネスフロー制御（トランザクション管理のみ、ロジックはServiceに委譲）
+- ✅ **Repository実装**: Eloquentモデルとパッケージインターフェースの橋渡し
+- ✅ **Response DTO**: HTTPレスポンス用のデータ構造
+- ✅ **Adapter**: パッケージインターフェースの実装（例: PlayerLevelServiceAdapter）
+
+以下は禁止（パッケージへ移行必須）：
+
+- ❌ **Service層のビジネスロジック**: 計算、バリデーション、状態変更ロジック
+- ❌ **Domain Model**: エンティティ、値オブジェクト
+- ❌ **複雑な計算ロジック**: 経験値計算、ガチャ抽選など
+
+#### 2. 二重実装の削除
+
+現在、以下のパターンで二重実装が存在：
+
+| 機能 | api/app/Domain | packages | 状態 |
+|------|---------------|----------|------|
+| ログインボーナス | Domain/Login/Services | nexus-login | 🔄 要統合 |
+| ガチャ | Domain/Gacha/Services | nexus-gacha | 🔄 要統合 |
+| スタミナ | Domain/Stamina/Services | nexus-stamina | ✅ パッケージ優先 |
+| プレイヤー管理 | Domain/Player/Services | nexus-player | 🔄 要統合 |
+| リソース配送 | Domain/Resource/Services | nexus-resource-delivery | ✅ パッケージ優先 |
+
+**完了条件**: すべてのビジネスロジックがパッケージに集約され、api側は薄いアダプタ層のみ
+
+#### 3. 残タスクの一元管理
+
+このドキュメント（library_progress.md）に以下を明記：
+
+- [ ] 各パッケージの移行完了チェックリスト
+- [ ] api側に残すファイル一覧
+- [ ] 削除すべきファイル一覧
+- [ ] テスト移行計画（P2-2と連携）
+
+---
 
 ### 1. ✅ laravel-utilities (完了)
 
@@ -271,6 +320,66 @@ return [
 ---
 
 ## 今後のアクション
+
+### P2-2: テスト配置の一本化（優先度：中）
+
+#### 現状の問題
+
+現在、テストが以下のように二重管理されている：
+
+1. **パッケージ側**: `packages/*/tests/` - ユニットテスト
+2. **API側**: `api/tests/Feature/` - 統合テスト
+3. **重複**: 同じロジックのテストがpackagesとapi両方に存在
+
+#### ゴール
+
+**「ロジックテスト = packages / 結線テスト = api の Feature テスト」**
+
+#### 完了条件
+
+##### 1. テスト配置ルールの明確化
+
+| テスト種類 | 配置場所 | 目的 | 例 |
+|-----------|---------|------|-----|
+| ユニットテスト | `packages/*/tests/Unit/` | パッケージ内の単一クラス・メソッドの動作検証 | `GachaServiceTest.php` |
+| 統合テスト（パッケージ内） | `packages/*/tests/Integration/` | パッケージ内の複数クラスの協調動作 | `LoginBonusFlowTest.php` |
+| Feature テスト | `api/tests/Feature/` | HTTPエンドポイント〜DB〜レスポンスの全体動作 | `AuthFlowTest.php` |
+| アダプタテスト | `api/tests/Unit/` | Eloquent Repository実装の動作確認のみ | `SysPlayerRepositoryTest.php` |
+
+##### 2. 重複テストの削除
+
+- [ ] api/tests/Unit配下のビジネスロジックテストをpackages側に移行
+- [ ] api側は薄いアダプタ層のテストのみ残す
+- [ ] packages側のテストカバレッジを80%以上に維持
+
+##### 3. テスト実行環境の統一
+
+```bash
+# パッケージ個別テスト
+cd packages/nexus-login && vendor/bin/phpunit
+
+# API全体テスト（Feature）
+cd api && php artisan test --testsuite=Feature
+
+# 全パッケージ一括テスト（CI用）
+./scripts/test-all-packages.sh
+```
+
+#### 移行手順
+
+1. **Phase 1**: パッケージ側のテストを充実（1週間）
+   - 各パッケージにtests/Unit, tests/Integrationディレクトリを作成
+   - ビジネスロジックテストを移植
+
+2. **Phase 2**: api側の重複テストを削除（3日）
+   - api/tests/Unitから移行済みテストを削除
+   - Featureテストは残す
+
+3. **Phase 3**: CI設定を更新（1日）
+   - GitHub Actionsでpackagesとapiを分離実行
+   - テストカバレッジレポート生成
+
+---
 
 ### 即座に実施すべき項目
 

@@ -150,19 +150,34 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
 
     /**
      * プレイヤーIDからトランザクションDB接続名を取得（インスタンスメソッド）
+     * 
+     * P1-3: Redisキャッシュを使用してシャード解決のDBクエリを削減
+     * キャッシュ階層:
+     * 1. インスタンスキャッシュ（リクエストスコープ）
+     * 2. Redisキャッシュ（TTL: 1時間）
+     * 3. DBクエリ（キャッシュミス時のみ）
      *
      * @return string 接続名（trx1 または trx2）
      * @throws \RuntimeException プレイヤーIDが設定されていない場合、またはシャーディング情報が見つからない場合
      */
     public function getConnectionNameValue(): string
     {
-        // キャッシュがあれば返す
+        // 1. インスタンスキャッシュがあれば返す（リクエストスコープ）
         if ($this->connectionName !== null) {
             return $this->connectionName;
         }
 
         $sysPlayerId = $this->getPlayerId();
+        $cacheKey = "shard:player:{$sysPlayerId}";
 
+        // 2. Redisキャッシュから取得を試みる
+        $cachedConnection = \Cache::get($cacheKey);
+        if ($cachedConnection !== null) {
+            $this->connectionName = $cachedConnection;
+            return $this->connectionName;
+        }
+
+        // 3. キャッシュミス: DBから取得
         // プレイヤーのシャーディングノード情報を取得
         $shardingNodePlayer = DB::connection('sys')
             ->table('sys_sharding_node_player')
@@ -190,6 +205,9 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
 
         // node_noに基づいて接続名を決定（node_no: 1 → trx1, node_no: 2 → trx2）
         $this->connectionName = 'trx' . $shardingNode->node_no;
+
+        // Redisにキャッシュ（TTL: 1時間、シャード割り当ては頻繁に変わらない想定）
+        \Cache::put($cacheKey, $this->connectionName, 3600);
 
         return $this->connectionName;
     }

@@ -1,11 +1,11 @@
 <?php
 
-namespace LaravelMobileBilling\Contracts;
+namespace NexusBilling\Contracts;
 
-use LaravelMobileBilling\DTOs\ReceiptData;
-use LaravelMobileBilling\DTOs\SubscriptionStatus;
-use LaravelMobileBilling\DTOs\VerificationResult;
-use LaravelMobileBilling\Exceptions\ReceiptVerificationException;
+use NexusBilling\DTOs\ReceiptData;
+use NexusBilling\DTOs\SubscriptionStatus;
+use NexusBilling\DTOs\VerificationResult;
+use NexusBilling\Exceptions\ReceiptVerificationException;
 
 /**
  * Billing プラットフォームインターフェース

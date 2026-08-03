@@ -3,8 +3,8 @@
 namespace App\Domain\InAppPurchase\UseCases;
 
 use App\Domain\_BaseUseCase;
-use LaravelMobileBilling\DTOs\ReceiptData;
-use LaravelMobileBilling\Facades\BillingFacade;
+use NexusBilling\DTOs\ReceiptData;
+use NexusBilling\Facades\BillingFacade;
 use App\Domain\InAppPurchase\Services\DiamondService;
 use App\Domain\InAppPurchase\Services\PassService;
 use App\Domain\InAppPurchase\Services\ValidationService;
@@ -65,41 +65,41 @@ class BuyPassUseCase extends _BaseUseCase
         // ここでは仮の単価を使用
         $unitPrice = 1.0;
 
-        // トランザクション開始
+        // **P1-2: 外部API呼び出しをトランザクション外へ**
+        // 一意なリクエストIDを生成（重複防止用）
+        $uniqueRequestId = $sysPlayerId . '_' . $mstInAppPurchase->getId() . '_' . ($receiptData->transactionId ?? time());
+        
+        // レシート検証を実行（トランザクション開始前に外部API呼び出し）
+        $verificationResult = $this->billingFacade->processPurchase(
+            billingPlatform: $billingPlatform,
+            receiptData: $receiptData,
+            uniqueRequestId: $uniqueRequestId
+        );
+
+        // プロダクトIDが一致するか確認
+        if ($verificationResult->productId !== $productId) {
+            throw new GameException(
+                GameErrorCode::PRODUCT_ID_MISMATCH,
+                'Product ID mismatch between request and receipt'
+            );
+        }
+
+        // 価格検証
+        $this->validationService->validatePurchasePrice(
+            $verificationResult,
+            $mstInAppPurchase,
+            $billingPlatform
+        );
+
+        // トランザクション開始（検証成功後）
         return $this->executeWithTransaction(function () use (
             $sysPlayerId,
             $mstInAppPurchase,
             $platform,
             $billingPlatform,
-            $receiptData,
-            $productId,
-            $unitPrice
+            $unitPrice,
+            $verificationResult
         ) {
-            // レシート検証を実行
-            // 一意なリクエストIDを生成（重複防止用）
-            $uniqueRequestId = $sysPlayerId . '_' . $mstInAppPurchase->getId() . '_' . ($receiptData->transactionId ?? time());
-            
-            $verificationResult = $this->billingFacade->processPurchase(
-                billingPlatform: $billingPlatform,
-                receiptData: $receiptData,
-                uniqueRequestId: $uniqueRequestId
-            );
-
-            // プロダクトIDが一致するか確認
-            if ($verificationResult->productId !== $productId) {
-                throw new GameException(
-                    GameErrorCode::PRODUCT_ID_MISMATCH,
-                    'Product ID mismatch between request and receipt'
-                );
-            }
-
-            // 価格検証
-            $this->validationService->validatePurchasePrice(
-                $verificationResult,
-                $mstInAppPurchase,
-                $billingPlatform
-            );
-
             $paidDiamondAmount = 0;
             $totalPaidDiamondAmount = 0;
             $totalFreeDiamondAmount = 0;

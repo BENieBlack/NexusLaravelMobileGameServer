@@ -1,9 +1,9 @@
 <?php
 
-namespace LaravelMobileBilling\Tests\Unit\Exceptions;
+namespace NexusBilling\Tests\Unit\Exceptions;
 
-use LaravelMobileBilling\Exceptions\InvalidReceiptException;
-use LaravelMobileBilling\Exceptions\ReceiptVerificationException;
+use NexusBilling\Exceptions\InvalidReceiptException;
+use NexusBilling\Exceptions\ReceiptVerificationException;
 use PHPUnit\Framework\TestCase;
 
 class InvalidReceiptExceptionTest extends TestCase

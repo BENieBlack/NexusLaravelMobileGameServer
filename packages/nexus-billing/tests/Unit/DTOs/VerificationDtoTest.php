@@ -1,8 +1,8 @@
 <?php
 
-namespace LaravelMobileBilling\Tests\Unit\DTOs;
+namespace NexusBilling\Tests\Unit\DTOs;
 
-use LaravelMobileBilling\DTOs\VerificationDto;
+use NexusBilling\DTOs\VerificationDto;
 use PHPUnit\Framework\TestCase;
 
 class VerificationDtoTest extends TestCase

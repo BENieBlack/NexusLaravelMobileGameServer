@@ -1,8 +1,8 @@
 <?php
 
-namespace LaravelMobileBilling\Services;
+namespace NexusBilling\Services;
 
-use LaravelMobileBilling\DTOs\VerificationResult;
+use NexusBilling\DTOs\VerificationResult;
 use Illuminate\Support\Facades\Cache;
 
 /**

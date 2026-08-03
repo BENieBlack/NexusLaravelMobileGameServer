@@ -1,6 +1,6 @@
 <?php
 
-namespace LaravelMobileBilling\Exceptions;
+namespace NexusBilling\Exceptions;
 
 /**
  * 無効なレシートの例外

@@ -90,7 +90,7 @@ class QueryManager implements QueryManagerInterface
     }
 
     /**
-     * 溜め込んだ全てのモデルを実行する
+     * 溜め込んだ全てのモデルを実行する（ログを除く）
      * 各Repositoryからモデルを取り出し、実行時にINSERT/UPDATEを判定
      *
      * @return void
@@ -101,17 +101,78 @@ class QueryManager implements QueryManagerInterface
         // 操作を収集
         $operations = $this->operationCollector->collect($this->repositories);
 
-        // 各操作を実行
+        // 各操作を実行（ログ以外）
         $this->batchExecutor->executeInserts($operations['inserts']);
         $this->batchExecutor->executeUpdates($operations['updates']);
         $this->batchExecutor->executeDeletes($operations['deletes']);
 
-        // ログのINSERT処理
-        $logInserts = $this->operationCollector->collectLogs($operations['logs']);
-        $this->batchExecutor->executeLogInserts($logInserts);
+        // ログはトランザクション外で実行するため、ここでは実行しない
+        // $operations['logs'] は execAllLogs() で処理される
 
-        // クリア
-        $this->clear();
+        // クリア（ログリポジトリは残す）
+        $this->clearExceptLogs();
+    }
+
+    /**
+     * ログのみを実行する（トランザクション外で呼び出される）
+     *
+     * @return void
+     */
+    public function execAllLogs(): void
+    {
+        try {
+            // 通常ログRepositoryから収集
+            $operations = $this->operationCollector->collect($this->repositories);
+            $logInserts = $this->operationCollector->collectLogs($operations['logs']);
+            
+            // 課金ログRepositoryから収集
+            $purchaseLogInserts = $this->operationCollector->collectLogs($this->purchaseLogRepositories);
+            
+            // 両方を実行
+            $this->batchExecutor->executeLogInserts($logInserts);
+            $this->batchExecutor->executeLogInserts($purchaseLogInserts);
+            
+            // ログRepositoryをクリア
+            foreach ($operations['logs'] as $repository) {
+                $repository->clearQueue();
+            }
+            foreach ($this->purchaseLogRepositories as $repository) {
+                $repository->clearQueue();
+            }
+            
+            // 課金ログリポジトリリストをクリア
+            $this->purchaseLogRepositories = [];
+            
+        } catch (\Exception | \Throwable $e) {
+            // ログ書き込み失敗はビジネストランザクションに影響させない
+            \Log::error('Failed to write logs (non-critical)', [
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+        }
+    }
+
+    /**
+     * ログRepository以外をクリア
+     *
+     * @return void
+     */
+    private function clearExceptLogs(): void
+    {
+        // 各Repositoryのキューをクリア（ログ以外）
+        foreach ($this->repositories as $repository) {
+            if (!($repository instanceof _BaseLogRepository)) {
+                $repository->clearQueue();
+            }
+        }
+
+        // リポジトリリストからログ以外を削除
+        $this->repositories = array_filter(
+            $this->repositories,
+            fn($repository) => $repository instanceof _BaseLogRepository
+        );
     }
 
     /**

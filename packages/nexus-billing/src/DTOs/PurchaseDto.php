@@ -1,6 +1,6 @@
 <?php
 
-namespace LaravelMobileBilling\DTOs;
+namespace NexusBilling\DTOs;
 
 use NexusUtilities\Traits\JsonSerializableTrait;
 

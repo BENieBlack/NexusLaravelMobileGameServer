@@ -1,16 +1,16 @@
 <?php
 
-namespace LaravelMobileBilling;
+namespace NexusBilling;
 
 use Illuminate\Support\ServiceProvider;
-use LaravelMobileBilling\ApiClients\AppStoreApiClient;
-use LaravelMobileBilling\ApiClients\GooglePlayApiClient;
-use LaravelMobileBilling\Contracts\BillingPlatformInterface;
-use LaravelMobileBilling\Facades\BillingFacade;
-use LaravelMobileBilling\Services\AppStoreBillingService;
-use LaravelMobileBilling\Services\BillingPlatformFactory;
-use LaravelMobileBilling\Services\GooglePlayBillingService;
-use LaravelMobileBilling\Services\IdempotencyService;
+use NexusBilling\ApiClients\AppStoreApiClient;
+use NexusBilling\ApiClients\GooglePlayApiClient;
+use NexusBilling\Contracts\BillingPlatformInterface;
+use NexusBilling\Facades\BillingFacade;
+use NexusBilling\Services\AppStoreBillingService;
+use NexusBilling\Services\BillingPlatformFactory;
+use NexusBilling\Services\GooglePlayBillingService;
+use NexusBilling\Services\IdempotencyService;
 
 /**
  * Mobile Billing Service Provider

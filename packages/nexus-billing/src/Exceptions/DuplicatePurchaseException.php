@@ -1,6 +1,6 @@
 <?php
 
-namespace LaravelMobileBilling\Exceptions;
+namespace NexusBilling\Exceptions;
 
 /**
  * 重複購入の例外

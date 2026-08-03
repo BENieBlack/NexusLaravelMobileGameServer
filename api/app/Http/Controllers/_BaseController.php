@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\GameException;
-use App\Exceptions\HttpStatusCode;
-use App\Http\CustomJsonResponse;
 use App\Responses\_BaseResponseInterface;
 use Illuminate\Http\JsonResponse;
 use Throwable;
@@ -50,8 +48,7 @@ abstract class _BaseController
     /**
      * 例外をハンドリングし、エラーレスポンスを返す
      * 
-     * GameException: HTTP 600 + {error_code: int, message: string}
-     * その他: HTTP status + {error_code: int, message: string}
+     * すべての例外: HTTP 200 + {error_code: int, message: string}
      * 
      * 本番環境では内部エラー詳細を隠し、ログに記録する
      *
@@ -70,7 +67,7 @@ abstract class _BaseController
             'trace' => $e->getTraceAsString(),
         ]);
 
-        // GameExceptionの場合は600ステータスでerror_codeとmessageを返す
+        // GameExceptionの場合はerror_codeとmessageを返す
         if ($e instanceof GameException) {
             $responseData = $e->toArray();
             
@@ -79,7 +76,8 @@ abstract class _BaseController
                 $responseData['message'] = 'An error occurred. Please contact support.';
             }
             
-            return new CustomJsonResponse($responseData, HttpStatusCode::GAME_ERROR);
+            // HTTP 200 + error_codeで返す（HTTP 600は廃止）
+            return response()->json($responseData, 200);
         }
 
         // その他の例外も同じ形式で返す（統一性のため）

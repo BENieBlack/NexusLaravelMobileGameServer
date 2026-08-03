@@ -3,7 +3,7 @@
     "description": "Mailbox management package for Nexus mobile game",
     "type": "library",
     "require": {
-        "php": "^8.1",
+        "php": "^8.3",
         "nexus/utilities": "@dev",
         "nexus/resource-delivery": "@dev"
     },

@@ -2,14 +2,14 @@
 
 namespace App\Domain\Unit\Constants;
 
-use NexusGameCommon\Constants\ElementType;
-use NexusGameCommon\Constants\RarityType;
+use App\Domain\Common\Constants\ElementType;
+use App\Domain\Common\Constants\RarityType;
 
 /**
  * ユニット関連の定数定義
  * 
  * ユニットのタイプ定数を管理
- * 属性・レアリティはPackage層（NexusGameCommon）の共通定数を使用
+ * 属性・レアリティは共通定数（App\Domain\Common\Constants）を使用
  */
 class UnitConst
 {
@@ -21,9 +21,9 @@ class UnitConst
     const TYPE_SUPPORT = 'Support';
 
     /**
-     * ユニット属性（Package層の共通定数を使用）
+     * ユニット属性（共通定数を使用）
      * 
-     * @deprecated Use NexusGameCommon\Constants\ElementType instead
+     * @deprecated Use App\Domain\Common\Constants\ElementType instead
      */
     const ELEMENT_FIRE = ElementType::FIRE;
     const ELEMENT_WATER = ElementType::WATER;
@@ -33,9 +33,9 @@ class UnitConst
     const ELEMENT_DARK = ElementType::DARK;
 
     /**
-     * ユニットレアリティ（Package層の共通定数を使用）
+     * ユニットレアリティ（共通定数を使用）
      * 
-     * @deprecated Use NexusGameCommon\Constants\RarityType instead
+     * @deprecated Use App\Domain\Common\Constants\RarityType instead
      */
     const RARITY_UR = RarityType::UR;
     const RARITY_SSR = RarityType::SSR;

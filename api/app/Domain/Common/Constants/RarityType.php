@@ -1,12 +1,12 @@
 <?php
 
-namespace NexusGameCommon\Constants;
+namespace App\Domain\Common\Constants;
 
 /**
  * ゲーム要素のレアリティ（希少度）定数
  * 
  * ユニット、装備、アイテムなど、ゲーム内の様々な要素に共通するレアリティ定義
- * 全モバイルゲームで再利用可能な汎用的な定数クラス
+ * このゲームタイトル固有のドメイン知識
  */
 class RarityType
 {

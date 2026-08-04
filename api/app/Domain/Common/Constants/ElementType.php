@@ -1,12 +1,12 @@
 <?php
 
-namespace NexusGameCommon\Constants;
+namespace App\Domain\Common\Constants;
 
 /**
  * ゲーム要素の属性（エレメント）定数
  * 
  * ユニット、装備、スキルなど、ゲーム内の様々な要素に共通する属性定義
- * 全モバイルゲームで再利用可能な汎用的な定数クラス
+ * このゲームタイトル固有のドメイン知識
  */
 class ElementType
 {

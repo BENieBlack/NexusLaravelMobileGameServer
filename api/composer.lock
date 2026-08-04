@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5e52cb71c64707049bf97a4acf1d5303",
+    "content-hash": "c3b3746031663f66bc5a63a85248a2a2",
     "packages": [
         {
             "name": "brick/math",
@@ -2919,44 +2919,6 @@
                 }
             },
             "description": "Gacha management package for Nexus mobile game",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
-            "name": "nexus/game-common",
-            "version": "dev-main",
-            "dist": {
-                "type": "path",
-                "url": "../packages/nexus-game-common",
-                "reference": "96d333a30cc8a1e21b7e71af42cc363e84a8fb2f"
-            },
-            "require": {
-                "php": "^8.3"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^11.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "NexusGameCommon\\": "src/"
-                }
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "NexusGameCommon\\Tests\\": "tests/"
-                }
-            },
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "S. Nakamura"
-                }
-            ],
-            "description": "Common game domain constants and utilities shared across all games",
             "transport-options": {
                 "relative": true
             }
@@ -10410,32 +10372,31 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "nexus/core-utilities": 20,
-        "nexus/core-security": 20,
-        "nexus/core-persistence": 20,
-        "nexus/core-unit-of-work": 20,
+        "nexus/auth": 20,
         "nexus/billing": 20,
-        "nexus/wallet": 20,
+        "nexus/core-persistence": 20,
+        "nexus/core-security": 20,
+        "nexus/core-unit-of-work": 20,
+        "nexus/core-utilities": 20,
+        "nexus/gacha": 20,
+        "nexus/level": 20,
+        "nexus/login": 20,
+        "nexus/mailbox": 20,
         "nexus/maintenance": 20,
+        "nexus/player": 20,
         "nexus/resource": 20,
         "nexus/resource-delivery": 20,
-        "nexus/auth": 20,
-        "nexus/login": 20,
-        "nexus/version": 20,
         "nexus/stamina": 20,
-        "nexus/gacha": 20,
-        "nexus/mailbox": 20,
-        "nexus/player": 20,
+        "nexus/version": 20,
         "nexus/vip": 20,
-        "nexus/level": 20,
-        "nexus/game-common": 20
+        "nexus/wallet": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": "^8.3"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "platform-overrides": {
         "php": "8.3"
     },

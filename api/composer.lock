@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8262dffda6177334e300d2bf47fb954a",
+    "content-hash": "2b4968a4a71e114398bc86d5f12e97fe",
     "packages": [
         {
             "name": "brick/math",
@@ -2828,6 +2828,36 @@
                 }
             },
             "description": "Gacha management package for Nexus mobile game",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "nexus/level",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/nexus-level",
+                "reference": "92a38c19d2dfc71d1201ad7ce40b18c93cd9d388"
+            },
+            "require": {
+                "php": "^8.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^10.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "NexusLevel\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "NexusLevel\\Tests\\": "tests/"
+                }
+            },
+            "description": "Level management package for Nexus mobile game",
             "transport-options": {
                 "relative": true
             }
@@ -10347,6 +10377,7 @@
         "nexus/core-persistence": 20,
         "nexus/core-unit-of-work": 20,
         "nexus/gacha": 20,
+        "nexus/level": 20,
         "nexus/login": 20,
         "nexus/mailbox": 20,
         "nexus/maintenance": 20,

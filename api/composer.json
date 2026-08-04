@@ -69,6 +69,10 @@
         {
             "type": "path",
             "url": "../packages/nexus-player"
+        },
+        {
+            "type": "path",
+            "url": "../packages/nexus-vip"
         }
     ],
     "require": {
@@ -92,7 +96,8 @@
         "nexus/stamina": "@dev",
         "nexus/gacha": "@dev",
         "nexus/mailbox": "@dev",
-        "nexus/player": "@dev"
+        "nexus/player": "@dev",
+        "nexus/vip": "@dev"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

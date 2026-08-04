@@ -2,49 +2,130 @@
 
 namespace App\Domain\Login\Services;
 
-use NexusLogin\Services\LoginBonusService as BaseLoginBonusService;
-use NexusResource\DTOs\ResourceDto;
-use App\Persistence\ApiSession;
-use Carbon\CarbonImmutable;
+use NexusLogin\Services\_BaseLoginBonusService;
+use NexusResourceDelivery\Services\ResourceDeliveryService;
+use NexusLogin\Repositories\LoginBonusRepositoryInterface;
+use NexusLogin\Repositories\LoginBonusHistoryRepositoryInterface;
+use NexusUtilities\ClockUtility;
+use NexusPersistence\Support\CustomCollection;
 
 /**
- * LoginBonusService
+ * LoginBonusService (Domain層)
  *
- * ログインボーナスの配布処理を担当するサービス
- * パッケージ版のLoginBonusServiceのラッパー
+ * 通常ログインボーナスの配布処理を担当するサービス
+ * _BaseLoginBonusServiceを継承（デフォルト動作そのまま使用）
+ * 
+ * 特性:
+ * - 毎日日跨ぎ後にもらえる
+ * - 設定日数でループする（継承元のデフォルト）
+ * - 1日ログインしなくてもスキップしない（継承元のデフォルト）
  */
-class LoginBonusService
+class LoginBonusService extends _BaseLoginBonusService
 {
     public function __construct(
-        private readonly ApiSession $apiSession,
-        private readonly BaseLoginBonusService $baseService,
+        ResourceDeliveryService $resourceDeliveryService,
+        private readonly LoginBonusRepositoryInterface $bonusRepository,
+        private readonly LoginBonusHistoryRepositoryInterface $historyRepository,
     ) {
+        parent::__construct($resourceDeliveryService);
     }
 
     /**
-     * 今日初回ログインかどうかをチェックし、ログインボーナスを配布する
-     *
-     * @param int $sysPlayerId
-     * @param string|null $lastLoginAt 最終ログイン日時（UTC、文字列形式）
-     * @param CarbonImmutable|null $now 現在時刻（テスト用、通常はnull）
-     * @return array<ResourceDto> 配布したログインボーナスの内容
-     * @throws \Exception
+     * {@inheritDoc}
+     * 
+     * 今日初回ログインかチェック
      */
-    public function checkAndGrantLoginBonus(
-        int $sysPlayerId,
-        ?string $lastLoginAt,
-        ?CarbonImmutable $now = null
-    ): array {
-        // シャーディングされたDB接続名を取得
-        $connectionName = $this->apiSession->getConnectionNameValue();
-        
-        // パッケージ版のServiceに委譲
-        return $this->baseService->checkAndGrantLoginBonus(
-            sysPlayerId: $sysPlayerId,
-            lastLoginAt: $lastLoginAt,
-            connectionName: $connectionName,
-            now: $now
+    public function isEligible(int $sysPlayerId, ?string $lastLoginAt): bool
+    {
+        $currentTimeString = ClockUtility::nowToString();
+
+        // DAY_START_TIMEを考慮して、今日初回ログインかをチェック
+        return $lastLoginAt === null || !ClockUtility::isSameGameDay($currentTimeString, $lastLoginAt);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function getLoginBonusData(int $sysPlayerId, int $currentDay, ?string $lastLoginAt): ?array
+    {
+        // 有効な通常ログインボーナス設定を取得
+        $loginBonus = $this->bonusRepository->findActiveDailyBonus();
+
+        if ($loginBonus === null) {
+            return null;
+        }
+
+        return $loginBonus;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function getBonusContents(array $bonusData, int $currentDay): CustomCollection
+    {
+        // 指定日数の報酬内容を取得
+        $contents = $this->bonusRepository->findContentsByLoginBonusIdAndDay(
+            $bonusData['id'],
+            $currentDay
         );
+
+        // stdClassに変換して返す
+        return (new CustomCollection($contents))->map(fn($content) => (object) $content);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function recordHistory(
+        int $sysPlayerId,
+        array $bonusData,
+        int $currentDay,
+        CustomCollection $contents,
+        string $connectionName
+    ): void {
+        $receivedDate = $this->getGameDayStart()->format('Y-m-d H:i:s');
+
+        foreach ($contents as $content) {
+            $this->historyRepository->create([
+                'sys_player_id' => $sysPlayerId,
+                'mst_login_bonus_id' => $bonusData['id'],
+                'absent_days' => null,
+                'received_date' => $receivedDate,
+                'reward_type' => $content->content_type,
+                'reward_id' => $content->content_id,
+                'reward_amount' => $content->content_quantity * $content->amount,
+                'is_paid' => $content->is_paid ?? false,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ], $connectionName);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function getLastReceivedDay(int $sysPlayerId, string $connectionName): ?int
+    {
+        $lastHistory = $this->historyRepository->findLatestByPlayerId($sysPlayerId, $connectionName);
+        if ($lastHistory === null) {
+            return null;
+        }
+
+        // ログインボーナスIDから日数を取得（例: login_bonus_day_3 -> 3）
+        $bonusId = $lastHistory['mst_login_bonus_id'] ?? '';
+        if (preg_match('/_day_(\d+)$/', $bonusId, $matches)) {
+            return (int) $matches[1];
+        }
+
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function getLoopDays(int $sysPlayerId): ?int
+    {
+        $loginBonus = $this->bonusRepository->findActiveDailyBonus();
+        return $loginBonus['loop_days'] ?? null;
     }
 }
-

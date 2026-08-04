@@ -30,6 +30,7 @@
 | [api.md](./api.md) | API設計、ルーティング、レスポンス形式 |
 | [development.md](./development.md) | 環境構築、Docker、マイグレーション実行方法 |
 | [tool.md](./tool.md) | 運営ツールプロジェクトの説明 |
+| [implementation-history.md](./implementation-history.md) | **実装履歴（マイグレーション実行記録含む）** |
 
 ### 📂 カテゴリ別詳細ドキュメント
 

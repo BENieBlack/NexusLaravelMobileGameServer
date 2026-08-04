@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6a872e112aaff0e05121021faa591187",
+    "content-hash": "8262dffda6177334e300d2bf47fb954a",
     "packages": [
         {
             "name": "brick/math",
@@ -3241,6 +3241,57 @@
                 "proprietary"
             ],
             "description": "Nexus Version Check Package - バージョンチェック・デプロイ管理パッケージ",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "nexus/vip",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/nexus-vip",
+                "reference": "b68af4f97b8c08e9187f9ea45ba6d2939ad0fded"
+            },
+            "require": {
+                "illuminate/database": "^10.0|^11.0|^12.0",
+                "illuminate/support": "^10.0|^11.0|^12.0",
+                "nesbot/carbon": "^2.0|^3.0",
+                "php": "^8.3"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.6",
+                "orchestra/testbench": "^9.0",
+                "phpunit/phpunit": "^11.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "NexusVip\\VipServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "NexusVip\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "NexusVip\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Your Name",
+                    "email": "your.email@example.com"
+                }
+            ],
+            "description": "VIP point and level management system for mobile game servers",
             "transport-options": {
                 "relative": true
             }
@@ -10306,6 +10357,7 @@
         "nexus/stamina": 20,
         "nexus/utilities": 20,
         "nexus/version": 20,
+        "nexus/vip": 20,
         "nexus/wallet": 20
     },
     "prefer-stable": true,

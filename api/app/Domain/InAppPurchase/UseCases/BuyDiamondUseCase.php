@@ -2,94 +2,46 @@
 
 namespace App\Domain\InAppPurchase\UseCases;
 
-use App\Domain\_BaseUseCase;
-use NexusBilling\DTOs\ReceiptData;
-use NexusBilling\Facades\BillingFacade;
 use App\Domain\InAppPurchase\Services\DiamondService;
 use App\Domain\InAppPurchase\Services\ValidationService;
-use App\Exceptions\GameErrorCode;
-use App\Exceptions\GameException;
 use App\Http\Responses\InAppPurchase\BuyResponse;
 use App\Models\Mst\MstInAppPurchase;
+use NexusBilling\DTOs\VerificationDto;
+use NexusBilling\Facades\BillingFacade;
 
 /**
  * BuyDiamondUseCase
  * 
  * ダイヤモンド商品の購入ユースケース
+ * _BaseBuyUseCaseを継承し、ダイヤモンド固有の購入処理を実装
  */
-class BuyDiamondUseCase extends _BaseUseCase
+class BuyDiamondUseCase extends _BaseBuyUseCase
 {
-
     public function __construct(
+        ValidationService $validationService,
+        BillingFacade $billingFacade,
         private readonly DiamondService $diamondService,
-        private readonly ValidationService $validationService,
-        private readonly BillingFacade $billingFacade,
     ) {
+        parent::__construct($validationService, $billingFacade);
     }
 
     /**
+     * {@inheritDoc}
+     * 
      * ダイヤモンド購入処理を実行
-     *
-     * @param int $sysPlayerId プレイヤーID（Controllerで認証済み）
-     * @param MstInAppPurchase $mstInAppPurchase 商品マスター（Controllerで検証済み）
-     * @param string $platform プラットフォーム（Apple, Google）
-     * @param string $billingPlatform 決済プラットフォーム（AppStore, GooglePlay, PayPal, Stripe）
-     * @param string $receipt レシート文字列
-     * @param string|null $transactionId トランザクションID
-     * @param string $productId プロダクトID
-     * @return BuyResponse
-     * @throws GameException
      */
-    public function exec(
+    protected function executePurchase(
         int $sysPlayerId,
         MstInAppPurchase $mstInAppPurchase,
         string $platform,
         string $billingPlatform,
-        string $receipt,
-        ?string $transactionId,
-        string $productId
+        VerificationDto $verificationResult
     ): BuyResponse {
-        // レシートデータを作成
-        $receiptData = new ReceiptData(
-            playerId: $sysPlayerId,
-            billingPlatform: $billingPlatform,
-            receipt: $billingPlatform === 'AppStore' ? $receipt : null,
-            purchaseToken: $billingPlatform === 'GooglePlay' ? $receipt : null,
-            productId: $productId,
-            transactionId: $transactionId
-        );
-
-        // **P1-2: 外部API呼び出しをトランザクション外へ**
-        // 一意なリクエストIDを生成（重複防止用）
-        $uniqueRequestId = $sysPlayerId . '_' . $mstInAppPurchase->getId() . '_' . ($receiptData->transactionId ?? time());
-        
-        // レシート検証を実行（トランザクション開始前に外部API呼び出し）
-        $verificationResult = $this->billingFacade->processPurchase(
-            billingPlatform: $billingPlatform,
-            receiptData: $receiptData,
-            uniqueRequestId: $uniqueRequestId
-        );
-
-        // プロダクトIDが一致するか確認
-        if ($verificationResult->productId !== $productId) {
-            throw new GameException(
-                GameErrorCode::PRODUCT_ID_MISMATCH,
-                'Product ID mismatch between request and receipt'
-            );
-        }
-
-        // 価格検証
-        $this->validationService->validatePurchasePrice(
-            $verificationResult,
-            $mstInAppPurchase,
-            $billingPlatform
-        );
-
         // TODO: 実際のプロダクションでは、決済プラットフォームから価格を取得する
         // ここでは仮の単価を使用（ダイヤ1個あたりの価格）
         $unitPrice = 1.0;
 
-        // トランザクション開始（検証成功後）
+        // トランザクション内でダイヤモンド購入処理を実行
         return $this->executeWithTransaction(function () use (
             $sysPlayerId,
             $mstInAppPurchase,
@@ -105,7 +57,7 @@ class BuyDiamondUseCase extends _BaseUseCase
                 $platform,
                 $billingPlatform,
                 $unitPrice,
-                $verificationResult->transactionId  // トランザクションIDを追加
+                $verificationResult->transactionId
             );
 
             return new BuyResponse(

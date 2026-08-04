@@ -149,4 +149,24 @@ class SysPlayerTokenRepository extends _BaseSysRepository implements TokenReposi
 
         return $count;
     }
+
+    /**
+     * IDでトークンを削除（TokenRepositoryInterfaceの実装）
+     * メモリキャッシュも自動的に更新される
+     *
+     * @param int $tokenId
+     * @return int 削除したトークン数
+     */
+    public function deleteById(int $tokenId): int
+    {
+        $sysPlayerToken = $this->modelClass::find($tokenId);
+
+        if ($sysPlayerToken === null) {
+            return 0;
+        }
+
+        $sysPlayerToken->delete();
+
+        return 1;
+    }
 }

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2b4968a4a71e114398bc86d5f12e97fe",
+    "content-hash": "eb4b8ca28804c8555425961f58283a52",
     "packages": [
         {
             "name": "brick/math",
@@ -2828,6 +2828,44 @@
                 }
             },
             "description": "Gacha management package for Nexus mobile game",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "nexus/game-common",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/nexus-game-common",
+                "reference": "96d333a30cc8a1e21b7e71af42cc363e84a8fb2f"
+            },
+            "require": {
+                "php": "^8.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^11.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "NexusGameCommon\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "NexusGameCommon\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "S. Nakamura"
+                }
+            ],
+            "description": "Common game domain constants and utilities shared across all games",
             "transport-options": {
                 "relative": true
             }
@@ -10377,6 +10415,7 @@
         "nexus/core-persistence": 20,
         "nexus/core-unit-of-work": 20,
         "nexus/gacha": 20,
+        "nexus/game-common": 20,
         "nexus/level": 20,
         "nexus/login": 20,
         "nexus/mailbox": 20,

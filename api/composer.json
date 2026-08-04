@@ -77,6 +77,10 @@
         {
             "type": "path",
             "url": "../packages/nexus-level"
+        },
+        {
+            "type": "path",
+            "url": "../packages/nexus-game-common"
         }
     ],
     "require": {
@@ -102,7 +106,8 @@
         "nexus/mailbox": "@dev",
         "nexus/player": "@dev",
         "nexus/vip": "@dev",
-        "nexus/level": "@dev"
+        "nexus/level": "@dev",
+        "nexus/game-common": "@dev"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

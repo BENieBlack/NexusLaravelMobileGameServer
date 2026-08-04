@@ -3,14 +3,32 @@
 namespace App\Repositories\Mst;
 use App\Models\Mst\MstGachaStepBonusContent;
 use NexusPersistence\Support\CustomCollection;
+use NexusGacha\Repositories\GachaStepBonusContentRepositoryInterface;
 /**
  * MstGachaStepBonusContentRepository
  * 
  * @extends _BaseMstRepository<MstGachaStepBonusContent>
  */
-class MstGachaStepBonusContentRepository extends _BaseMstRepository
+class MstGachaStepBonusContentRepository extends _BaseMstRepository implements GachaStepBonusContentRepositoryInterface
 {
     protected string $modelClass = MstGachaStepBonusContent::class;
+
+    /**
+     * {@inheritDoc}
+     */
+    public function findByBonusId(string $bonusId): CustomCollection
+    {
+        return $this->selectListByBonusId($bonusId);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function findById(string $contentId): mixed
+    {
+        return $this->selectById($contentId);
+    }
+
     /**
      * ステップボーナスIDでコンテンツリストを取得
      *

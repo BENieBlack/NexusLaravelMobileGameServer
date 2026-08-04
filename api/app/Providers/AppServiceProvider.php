@@ -9,7 +9,11 @@ use App\Repositories\Sys\SysPlayerTokenRepository;
 use App\Repositories\Sys\SysDeployRepository;
 use App\Repositories\Sys\SysMaintenanceRepository;
 use App\Repositories\Mst\MstLoginBonusRepository;
-use App\Repositories\Mst\GachaMasterRepository;
+use App\Repositories\Mst\MstGachaRarityRateRepository;
+use App\Repositories\Mst\MstGachaPrizeRepository;
+use App\Repositories\Mst\MstGachaStepRepository;
+use App\Repositories\Mst\MstGachaStepBonusRepository;
+use App\Repositories\Mst\MstGachaStepBonusContentRepository;
 use App\Repositories\Mst\MstPlayerLevelRepository;
 use App\Repositories\Mst\MstVipLevelRepository;
 use App\Repositories\Mst\MstVipLevelRewardRepository;
@@ -34,7 +38,11 @@ use NexusVersion\Repositories\DeployRepositoryInterface;
 use NexusVersion\Repositories\MaintenanceRepositoryInterface;
 use NexusStamina\Repositories\StaminaRepositoryInterface;
 use NexusStamina\Services\PlayerLevelServiceInterface;
-use NexusGacha\Repositories\GachaMasterRepositoryInterface;
+use NexusGacha\Repositories\GachaRarityRateRepositoryInterface;
+use NexusGacha\Repositories\GachaPrizeRepositoryInterface;
+use NexusGacha\Repositories\GachaStepRepositoryInterface;
+use NexusGacha\Repositories\GachaStepBonusRepositoryInterface;
+use NexusGacha\Repositories\GachaStepBonusContentRepositoryInterface;
 use NexusGacha\Repositories\GachaProgressRepositoryInterface;
 use NexusMailbox\Repositories\MailboxRepositoryInterface;
 use NexusPlayer\Repositories\PlayerRepositoryInterface as PlayerRepoInterface;
@@ -127,7 +135,11 @@ class AppServiceProvider extends ServiceProvider
         // ==========================================
         
         // Repository interfaces
-        $this->app->bind(GachaMasterRepositoryInterface::class, MstGachaMasterRepository::class);
+        $this->app->bind(GachaRarityRateRepositoryInterface::class, MstGachaRarityRateRepository::class);
+        $this->app->bind(GachaPrizeRepositoryInterface::class, MstGachaPrizeRepository::class);
+        $this->app->bind(GachaStepRepositoryInterface::class, MstGachaStepRepository::class);
+        $this->app->bind(GachaStepBonusRepositoryInterface::class, MstGachaStepBonusRepository::class);
+        $this->app->bind(GachaStepBonusContentRepositoryInterface::class, MstGachaStepBonusContentRepository::class);
         $this->app->bind(GachaProgressRepositoryInterface::class, TrxGachaRepository::class);
         
         // ==========================================

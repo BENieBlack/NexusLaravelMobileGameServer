@@ -5,15 +5,24 @@ namespace App\Repositories\Mst;
 
 use NexusPersistence\Support\CustomCollection;
 use App\Models\Mst\MstGachaStep;
+use NexusGacha\Repositories\GachaStepRepositoryInterface;
 
 /**
  * MstGachaStepRepository
  * 
  * @extends _BaseMstRepository<MstGachaStep>
  */
-class MstGachaStepRepository extends _BaseMstRepository
+class MstGachaStepRepository extends _BaseMstRepository implements GachaStepRepositoryInterface
 {
     protected string $modelClass = MstGachaStep::class;
+
+    /**
+     * {@inheritDoc}
+     */
+    public function findByGachaIdAndNumber(string $mstGachaId, int $stepNumber): mixed
+    {
+        return $this->selectByGachaIdAndStepNumber($mstGachaId, $stepNumber);
+    }
 
     /**
      * ガチャIDとステップ番号でステップ情報を取得

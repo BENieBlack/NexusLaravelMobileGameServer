@@ -3,7 +3,11 @@
 namespace NexusGacha\Services;
 
 use NexusGacha\Dto\GachaPrizeDto;
-use NexusGacha\Repositories\GachaMasterRepositoryInterface;
+use NexusGacha\Repositories\GachaRarityRateRepositoryInterface;
+use NexusGacha\Repositories\GachaPrizeRepositoryInterface;
+use NexusGacha\Repositories\GachaStepRepositoryInterface;
+use NexusGacha\Repositories\GachaStepBonusRepositoryInterface;
+use NexusGacha\Repositories\GachaStepBonusContentRepositoryInterface;
 
 /**
  * GachaDrawService
@@ -13,7 +17,11 @@ use NexusGacha\Repositories\GachaMasterRepositoryInterface;
 class GachaDrawService
 {
     public function __construct(
-        private readonly GachaMasterRepositoryInterface $masterRepository,
+        private readonly GachaRarityRateRepositoryInterface $rarityRateRepository,
+        private readonly GachaPrizeRepositoryInterface $prizeRepository,
+        private readonly GachaStepRepositoryInterface $stepRepository,
+        private readonly GachaStepBonusRepositoryInterface $stepBonusRepository,
+        private readonly GachaStepBonusContentRepositoryInterface $stepBonusContentRepository,
     ) {
     }
 
@@ -39,14 +47,11 @@ class GachaDrawService
         // ステップアップガチャの場合、ステップ情報を取得
         $stepBonusList = [];
         if ($hasStepUp) {
-            $step = $this->masterRepository->findStepByGachaIdAndNumber($mstGachaId, $currentStep);
+            $step = $this->stepRepository->findByGachaIdAndNumber($mstGachaId, $currentStep);
             if ($step) {
                 // ステップのボーナス景品リストを取得
-                $stepBonusList = $this->masterRepository
-                    ->findStepBonusesByStepId($step->getAttribute('id'))
-                    ->where('is_active', true)
-                    ->sortBy('position')
-                    ->values()
+                $stepBonusList = $this->stepBonusRepository
+                    ->findByStepId($step->getAttribute('id'))
                     ->all();
             }
         }
@@ -119,7 +124,7 @@ class GachaDrawService
                 throw new \Exception("Selected candidate ID is required for choice type");
             }
 
-            $candidate = $this->masterRepository->findCandidateById($selectedCandidateId);
+            $candidate = $this->stepBonusContentRepository->findById($selectedCandidateId);
             if (!$candidate || $candidate->getAttribute('mst_gacha_step_bonus_id') !== $bonus->getAttribute('id')) {
                 throw new \Exception("Invalid candidate ID");
             }
@@ -133,7 +138,7 @@ class GachaDrawService
             );
         } elseif ($selectionType === 'random') {
             // 候補からランダム
-            $candidates = $this->masterRepository->findCandidatesByBonusId($bonus->getAttribute('id'));
+            $candidates = $this->stepBonusContentRepository->findByBonusId($bonus->getAttribute('id'));
             
             if ($candidates->isEmpty()) {
                 throw new \Exception("No candidates found for random selection");
@@ -166,7 +171,7 @@ class GachaDrawService
      */
     private function drawRarity(string $mstGachaId): int
     {
-        $rarityRates = $this->masterRepository->findRarityRatesByGachaId($mstGachaId);
+        $rarityRates = $this->rarityRateRepository->findByGachaId($mstGachaId);
         
         $totalRate = $rarityRates->sum('rate');
         $rand = rand(1, $totalRate);
@@ -193,12 +198,12 @@ class GachaDrawService
      */
     private function drawPrize(string $mstGachaId, int $rarity, bool $pickupOnly): GachaPrizeDto
     {
-        $prizes = $this->masterRepository->findPrizesByGachaIdAndRarity($mstGachaId, $rarity, $pickupOnly);
+        $prizes = $this->prizeRepository->findByGachaIdAndRarity($mstGachaId, $rarity, $pickupOnly);
         
         if ($prizes->isEmpty()) {
             // ピックアップのみで景品がない場合は通常景品から
             if ($pickupOnly) {
-                $prizes = $this->masterRepository->findPrizesByGachaIdAndRarity($mstGachaId, $rarity, false);
+                $prizes = $this->prizeRepository->findByGachaIdAndRarity($mstGachaId, $rarity, false);
             }
         }
 

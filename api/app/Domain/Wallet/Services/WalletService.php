@@ -2,27 +2,29 @@
 
 namespace App\Domain\Wallet\Services;
 
-use App\Models\Trx\TrxWallet;
-use App\Models\Trx\TrxWalletBalance;
-use App\Repositories\Trx\TrxWalletBalanceRepository;
-use App\Repositories\Trx\TrxWalletRepository;
-use NexusUtilities\ClockUtility;
 use LaravelWallet\Contracts\WalletManagerInterface;
 use LaravelWallet\DTOs\CurrencyBalanceDto;
 use LaravelWallet\DTOs\CurrencyOperationResultDto;
-use LaravelWallet\Exceptions\InsufficientBalanceException;
 
 /**
- * WalletService
+ * WalletService (Facade)
  * 
- * 汎用通貨の増減処理を担当するサービス
- * Gold, EventCoin, RaidMedal, PvPPoint等を統合管理
+ * 通貨関連の操作を提供する Facade
+ * 
+ * 既存コードとの互換性のため、このクラスを残します。
+ * 内部では Read/Write Serviceに処理を委譲します。
+ * 
+ * 新規コードでは、以下のServiceを直接使用することを推奨:
+ * - WalletReadService: 残高取得（読み取り専用）
+ * - WalletWriteService: 通貨加算・消費（書き込み）
+ * 
+ * @deprecated 新規コードでは WalletReadService または WalletWriteService を使用してください
  */
 class WalletService implements WalletManagerInterface
 {
     public function __construct(
-        private readonly TrxWalletRepository $trxWalletRepository,
-        private readonly TrxWalletBalanceRepository $trxWalletBalanceRepository,
+        private readonly WalletReadService $walletReadService,
+        private readonly WalletWriteService $walletWriteService,
     ) {
     }
 
@@ -35,6 +37,8 @@ class WalletService implements WalletManagerInterface
      * @param int $paidAmount 有償通貨数（デフォルト: 0）
      * @param string|null $expireAt 有効期限 (Y-m-d H:i:s)（NULLの場合は無期限）
      * @return CurrencyOperationResultDto 操作結果
+     * 
+     * @deprecated WalletWriteService::addCurrency() を使用してください
      */
     public function addCurrency(
         int $playerId,
@@ -43,59 +47,7 @@ class WalletService implements WalletManagerInterface
         int $paidAmount = 0,
         ?string $expireAt = null
     ): CurrencyOperationResultDto {
-        
-        // 1. 現在値を取得または作成（Repository経由）
-        $wallet = $this->trxWalletRepository->selectByMstItemId($playerId, $currencyId);
-
-        if ($wallet === null) {
-            $wallet = new TrxWallet([
-                'sys_player_id' => $playerId,
-                'mst_item_id' => $currencyId,
-                'free_amount' => 0,
-                'paid_amount' => 0,
-            ]);
-            $wallet->exists = false; // INSERT として認識
-        }
-
-        // 2. 通貨加算（無償/有償を個別管理）
-        $wallet->setFreeAmount($wallet->getFreeAmount() + $freeAmount);
-        $wallet->setPaidAmount($wallet->getPaidAmount() + $paidAmount);
-        $this->trxWalletRepository->setModel($wallet);
-
-        // 3. 無償通貨の残高レコード追加（FIFO用）
-        if ($freeAmount > 0) {
-            $freeBalance = new TrxWalletBalance([
-                'sys_player_id' => $playerId,
-                'mst_item_id' => $currencyId,
-                'current_amount' => $freeAmount,
-                'initial_amount' => $freeAmount,
-                'expire_at' => $expireAt,
-                'is_paid' => false,
-            ]);
-            $freeBalance->exists = false; // INSERT として認識
-            $this->trxWalletBalanceRepository->setModel($freeBalance);
-        }
-
-        // 4. 有償通貨の残高レコード追加（FIFO用）
-        if ($paidAmount > 0) {
-            $paidBalance = new TrxWalletBalance([
-                'sys_player_id' => $playerId,
-                'mst_item_id' => $currencyId,
-                'current_amount' => $paidAmount,
-                'initial_amount' => $paidAmount,
-                'expire_at' => $expireAt,
-                'is_paid' => true,
-            ]);
-            $paidBalance->exists = false; // INSERT として認識
-            $this->trxWalletBalanceRepository->setModel($paidBalance);
-        }
-
-        return new CurrencyOperationResultDto(
-            freeAmount: $freeAmount,
-            paidAmount: $paidAmount,
-            totalAmount: $freeAmount + $paidAmount,
-            currentBalance: $wallet->getTotalAmount(),
-        );
+        return $this->walletWriteService->addCurrency($playerId, $currencyId, $freeAmount, $paidAmount, $expireAt);
     }
 
     /**
@@ -105,60 +57,16 @@ class WalletService implements WalletManagerInterface
      * @param string $currencyId 通貨アイテムID
      * @param int $amount 消費する数量
      * @return CurrencyOperationResultDto 操作結果
-     * @throws InsufficientBalanceException 残高不足の場合
+     * @throws \LaravelWallet\Exceptions\InsufficientBalanceException 残高不足の場合
+     * 
+     * @deprecated WalletWriteService::consumeCurrency() を使用してください
      */
     public function consumeCurrency(
         int $playerId,
         string $currencyId,
         int $amount
     ): CurrencyOperationResultDto {
-        // 1. 現在値を取得（Repository経由）
-        $wallet = $this->trxWalletRepository->selectByMstItemId($playerId, $currencyId);
-
-        if ($wallet === null || $wallet->getTotalAmount() < $amount) {
-            $available = $wallet?->getTotalAmount() ?? 0;
-            throw new InsufficientBalanceException($currencyId, $amount, $available);
-        }
-
-        // 2. FIFO順で残高を取得（Repository経由）
-        // 優先順位: is_paid DESC (有償優先) → expire_at ASC (有効期限が近いものから) → id ASC
-        $balanceCollection = $this->trxWalletBalanceRepository->selectAllBalancesByMstItemId($currencyId);
-
-        // 3. FIFO順で消費（有償優先）
-        $remainingAmount = $amount;
-        $consumedFree = 0;
-        $consumedPaid = 0;
-
-        foreach ($balanceCollection as $balance) {
-            if ($remainingAmount <= 0) {
-                break;
-            }
-
-            $consumeFromBalance = min($balance->getCurrentAmount(), $remainingAmount);
-            $balance->setCurrentAmount($balance->getCurrentAmount() - $consumeFromBalance);
-            $this->trxWalletBalanceRepository->setModel($balance);
-
-            // 無償/有償の消費数を記録
-            if ($balance->getIsPaid()) {
-                $consumedPaid += $consumeFromBalance;
-            } else {
-                $consumedFree += $consumeFromBalance;
-            }
-
-            $remainingAmount -= $consumeFromBalance;
-        }
-
-        // 4. 現在値を減算（無償/有償を個別に減算）
-        $wallet->setFreeAmount($wallet->getFreeAmount() - $consumedFree);
-        $wallet->setPaidAmount($wallet->getPaidAmount() - $consumedPaid);
-        $this->trxWalletRepository->setModel($wallet);
-
-        return new CurrencyOperationResultDto(
-            freeAmount: $consumedFree,
-            paidAmount: $consumedPaid,
-            totalAmount: $amount,
-            currentBalance: $wallet->getTotalAmount(),
-        );
+        return $this->walletWriteService->consumeCurrency($playerId, $currencyId, $amount);
     }
 
     /**
@@ -167,25 +75,12 @@ class WalletService implements WalletManagerInterface
      * @param int $playerId プレイヤーID
      * @param string $currencyId 通貨アイテムID
      * @return CurrencyBalanceDto 残高情報
+     * 
+     * @deprecated WalletReadService::getBalance() を使用してください
      */
     public function getBalance(int $playerId, string $currencyId): CurrencyBalanceDto
     {
-        // Repository経由で取得
-        $wallet = $this->trxWalletRepository->selectByMstItemId($playerId, $currencyId);
-
-        if ($wallet === null) {
-            return new CurrencyBalanceDto(
-                freeAmount: 0,
-                paidAmount: 0,
-                totalAmount: 0,
-            );
-        }
-
-        return new CurrencyBalanceDto(
-            freeAmount: $wallet->getFreeAmount(),
-            paidAmount: $wallet->getPaidAmount(),
-            totalAmount: $wallet->getTotalAmount(),
-        );
+        return $this->walletReadService->getBalance($playerId, $currencyId);
     }
 
     /**
@@ -194,45 +89,12 @@ class WalletService implements WalletManagerInterface
      * @param int $playerId プレイヤーID
      * @param string $currencyId 通貨アイテムID
      * @return int 削除された数量
+     * 
+     * @deprecated WalletWriteService::removeExpiredCurrency() を使用してください
      */
     public function removeExpiredCurrency(int $playerId, string $currencyId): int
     {
-        $now = ClockUtility::now();
-
-        // 有効期限切れの残高を取得（Repository経由）
-        $expiredBalanceCollection = $this->trxWalletBalanceRepository->selectAllExpiredBalancesByMstItemId($currencyId, $now);
-
-        $totalExpired = 0;
-        $expiredFree = 0;
-        $expiredPaid = 0;
-
-        foreach ($expiredBalanceCollection as $balance) {
-            $expiredAmount = $balance->getCurrentAmount();
-            $totalExpired += $expiredAmount;
-
-            // 無償/有償の期限切れ数を記録
-            if ($balance->getIsPaid()) {
-                $expiredPaid += $expiredAmount;
-            } else {
-                $expiredFree += $expiredAmount;
-            }
-
-            $balance->setCurrentAmount(0);
-            $this->trxWalletBalanceRepository->setModel($balance);
-        }
-
-        // 現在値から減算（無償/有償を個別に減算）
-        if ($totalExpired > 0) {
-            $wallet = $this->trxWalletRepository->selectByMstItemId($playerId, $currencyId);
-
-            if ($wallet !== null) {
-                $wallet->setFreeAmount(max(0, $wallet->getFreeAmount() - $expiredFree));
-                $wallet->setPaidAmount(max(0, $wallet->getPaidAmount() - $expiredPaid));
-                $this->trxWalletRepository->setModel($wallet);
-            }
-        }
-
-        return $totalExpired;
+        return $this->walletWriteService->removeExpiredCurrency($playerId, $currencyId);
     }
 
     /**
@@ -240,14 +102,12 @@ class WalletService implements WalletManagerInterface
      * 
      * @param int $playerId プレイヤーID
      * @param array<string> $currencyIds 通貨IDリスト
-     * @return array<string, CurrencyBalance> 通貨ID => 残高情報のマップ
+     * @return array<string, CurrencyBalanceDto> 通貨ID => 残高情報のマップ
+     * 
+     * @deprecated WalletReadService::getBulkBalances() を使用してください
      */
     public function getBulkBalances(int $playerId, array $currencyIds): array
     {
-        $result = [];
-        foreach ($currencyIds as $currencyId) {
-            $result[$currencyId] = $this->getBalance($playerId, $currencyId);
-        }
-        return $result;
+        return $this->walletReadService->getBulkBalances($playerId, $currencyIds);
     }
 }

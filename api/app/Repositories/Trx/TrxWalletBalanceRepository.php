@@ -36,7 +36,7 @@ class TrxWalletBalanceRepository extends _BaseTrxRepository
         
         // DBから取得（FIFO順、有償優先）
         // 優先順位: is_paid DESC (有償優先), expire_at ASC (NULLは最後), id ASC
-        return TrxWalletBalance::query()
+        $results = TrxWalletBalance::query()
             ->where('sys_player_id', $sysPlayerId)
             ->where('mst_item_id', $mstItemId)
             ->where('current_amount', '>', 0)
@@ -44,6 +44,9 @@ class TrxWalletBalanceRepository extends _BaseTrxRepository
             ->orderByRaw('expire_at IS NULL, expire_at ASC')
             ->orderBy('id', 'ASC')
             ->get();
+        
+        // CustomCollectionに変換
+        return new CustomCollection($results->all());
     }
 
     /**
@@ -58,11 +61,14 @@ class TrxWalletBalanceRepository extends _BaseTrxRepository
         $sysPlayerId = $this->getSysPlayerId();
         
         // DBから取得
-        return TrxWalletBalance::query()
+        $results = TrxWalletBalance::query()
             ->where('sys_player_id', $sysPlayerId)
             ->where('mst_item_id', $mstItemId)
             ->where('current_amount', '>', 0)
             ->where('expire_at', '<', $now)
             ->get();
+        
+        // CustomCollectionに変換
+        return new CustomCollection($results->all());
     }
 }

@@ -5,7 +5,7 @@ namespace NexusPersistence\Repositories\Sys;
 use NexusPersistence\Models\Sys\_BaseSysInterface;
 use NexusPersistence\Repositories\_BaseRepositoryInterface;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
+use NexusPersistence\Support\CustomCollection;
 
 /**
  * _BaseSysRepositoryInterface

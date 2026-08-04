@@ -2,8 +2,9 @@
 
 namespace App\Repositories\Mst;
 
+
+use NexusPersistence\Support\CustomCollection;
 use App\Models\Mst\MstGachaPrize;
-use Illuminate\Support\Collection;
 
 /**
  * MstGachaPrizeRepository
@@ -20,13 +21,13 @@ class MstGachaPrizeRepository extends _BaseMstRepository
      * @param string $mstGachaId
      * @param int $rarity
      * @param bool $pickupOnly ピックアップのみ取得
-     * @return Collection<int, MstGachaPrize>
+     * @return CustomCollection<int, MstGachaPrize>
      */
     public function selectListByGachaIdAndRarity(
         string $mstGachaId,
         int $rarity,
         bool $pickupOnly = false
-    ): Collection {
+    ): CustomCollection {
         $this->queryOrMemory();
         
         $query = $this->models

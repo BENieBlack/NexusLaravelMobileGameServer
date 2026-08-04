@@ -11,6 +11,7 @@ Base Model and Repository classes for Laravel RPG applications with support for 
 - **Redis Caching**: Redis caching support for master data
 - **Flexible Architecture**: Override static methods for custom session handling
 - **Type Safety**: Full interface support for type hinting
+- **CustomCollection**: Performance-optimized collection class for large datasets
 
 ## Installation
 

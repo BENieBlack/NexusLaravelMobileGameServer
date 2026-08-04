@@ -7,8 +7,8 @@ use App\Models\Mst\MstGachaCost;
 use App\Models\Mst\MstGachaRarityRate;
 use App\Models\Mst\MstGachaPrize;
 use App\Models\Mst\MstGachaStep;
-use App\Models\Mst\MstGachaStepGuaranteed;
-use App\Models\Mst\MstGachaStepGuaranteedCandidate;
+use App\Models\Mst\MstGachaStepBonus;
+use App\Models\Mst\MstGachaStepBonusContent;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -20,8 +20,8 @@ class MstGachaSeeder extends Seeder
     public function run(): void
     {
         // 既存データをクリア
-        DB::connection('mst')->table('mst_gacha_step_guaranteed_candidate')->truncate();
-        DB::connection('mst')->table('mst_gacha_step_guaranteed')->truncate();
+        DB::connection('mst')->table('mst_gacha_step_bonus_content')->truncate();
+        DB::connection('mst')->table('mst_gacha_step_bonus')->truncate();
         DB::connection('mst')->table('mst_gacha_step')->truncate();
         DB::connection('mst')->table('mst_gacha_prize')->truncate();
         DB::connection('mst')->table('mst_gacha_rarity_rate')->truncate();
@@ -162,12 +162,12 @@ class MstGachaSeeder extends Seeder
             'mst_item_id' => null,
         ]);
 
-        MstGachaStepGuaranteed::create([
-            'id' => 'gacha_guaranteed_step1',
+        MstGachaStepBonus::create([
+            'id' => 'gacha_bonus_step1',
             'mst_gacha_step_id' => $step1Id,
-            'guaranteed_type' => 'none',
-            'guaranteed_rarity' => 'SR',
-            'guaranteed_count' => 1,
+            'bonus_type' => 'none',
+            'bonus_rarity' => 'SR',
+            'bonus_count' => 1,
             'position' => 10,
         ]);
 
@@ -189,26 +189,26 @@ class MstGachaSeeder extends Seeder
             'mst_item_id' => null,
         ]);
 
-        $guaranteed2Id = 'gacha_guaranteed_step2';
-        MstGachaStepGuaranteed::create([
-            'id' => $guaranteed2Id,
+        $bonus2Id = 'gacha_bonus_step2';
+        MstGachaStepBonus::create([
+            'id' => $bonus2Id,
             'mst_gacha_step_id' => $step2Id,
-            'guaranteed_type' => 'random',
-            'guaranteed_rarity' => 'SSR',
-            'guaranteed_count' => 1,
+            'bonus_type' => 'random',
+            'bonus_rarity' => 'SSR',
+            'bonus_count' => 1,
             'position' => 10,
         ]);
 
         // ランダム候補（unit_ssr_001 または unit_ssr_002）
-        MstGachaStepGuaranteedCandidate::create([
-            'mst_gacha_step_guaranteed_id' => $guaranteed2Id,
+        MstGachaStepBonusContent::create([
+            'mst_gacha_step_bonus_id' => $bonus2Id,
             'prize_type' => 'unit',
             'prize_target_id' => 'unit_ssr_001',
             'prize_amount' => 1,
         ]);
 
-        MstGachaStepGuaranteedCandidate::create([
-            'mst_gacha_step_guaranteed_id' => $guaranteed2Id,
+        MstGachaStepBonusContent::create([
+            'mst_gacha_step_bonus_id' => $bonus2Id,
             'prize_type' => 'unit',
             'prize_target_id' => 'unit_ssr_002',
             'prize_amount' => 1,
@@ -232,33 +232,33 @@ class MstGachaSeeder extends Seeder
             'mst_item_id' => null,
         ]);
 
-        $guaranteed3Id = 'gacha_guaranteed_step3';
-        MstGachaStepGuaranteed::create([
-            'id' => $guaranteed3Id,
+        $bonus3Id = 'gacha_bonus_step3';
+        MstGachaStepBonus::create([
+            'id' => $bonus3Id,
             'mst_gacha_step_id' => $step3Id,
-            'guaranteed_type' => 'choice',
-            'guaranteed_rarity' => 'SSR',
-            'guaranteed_count' => 1,
+            'bonus_type' => 'choice',
+            'bonus_rarity' => 'SSR',
+            'bonus_count' => 1,
             'position' => 10,
         ]);
 
         // 選択候補（unit_ssr_001, unit_ssr_002, unit_ssr_003）
-        MstGachaStepGuaranteedCandidate::create([
-            'mst_gacha_step_guaranteed_id' => $guaranteed3Id,
+        MstGachaStepBonusContent::create([
+            'mst_gacha_step_bonus_id' => $bonus3Id,
             'prize_type' => 'unit',
             'prize_target_id' => 'unit_ssr_001',
             'prize_amount' => 1,
         ]);
 
-        MstGachaStepGuaranteedCandidate::create([
-            'mst_gacha_step_guaranteed_id' => $guaranteed3Id,
+        MstGachaStepBonusContent::create([
+            'mst_gacha_step_bonus_id' => $bonus3Id,
             'prize_type' => 'unit',
             'prize_target_id' => 'unit_ssr_002',
             'prize_amount' => 1,
         ]);
 
-        MstGachaStepGuaranteedCandidate::create([
-            'mst_gacha_step_guaranteed_id' => $guaranteed3Id,
+        MstGachaStepBonusContent::create([
+            'mst_gacha_step_bonus_id' => $bonus3Id,
             'prize_type' => 'unit',
             'prize_target_id' => 'unit_ssr_003',
             'prize_amount' => 1,

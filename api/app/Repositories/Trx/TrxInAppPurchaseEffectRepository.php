@@ -2,8 +2,9 @@
 
 namespace App\Repositories\Trx;
 
+
+use NexusPersistence\Support\CustomCollection;
 use App\Models\Trx\TrxInAppPurchaseEffect;
-use Illuminate\Support\Collection;
 
 /**
  * TrxInAppPurchaseEffectRepository
@@ -21,9 +22,9 @@ class TrxInAppPurchaseEffectRepository extends _BaseTrxRepository
      * プレイヤーの特定商品の効果を全て取得（有効・無効問わず）
      *
      * @param int $mstInAppPurchaseId
-     * @return Collection<string, TrxInAppPurchaseEffect>
+     * @return CustomCollection<string, TrxInAppPurchaseEffect>
      */
-    public function selectAllEffectsByMstInAppPurchaseId(int $mstInAppPurchaseId): Collection
+    public function selectAllEffectsByMstInAppPurchaseId(int $mstInAppPurchaseId): CustomCollection
     {
         $sysPlayerId = $this->getSysPlayerId();
         $effectCollection = $this->getMapBySysPlayerId($sysPlayerId);

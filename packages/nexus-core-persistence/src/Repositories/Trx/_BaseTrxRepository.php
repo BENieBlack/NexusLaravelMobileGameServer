@@ -5,9 +5,9 @@ namespace NexusPersistence\Repositories\Trx;
 use NexusPersistence\Models\Trx\_BaseTrx;
 use NexusPersistence\Models\Trx\_BaseTrxInterface;
 use NexusPersistence\Repositories\_BaseRepository;
+use NexusPersistence\Support\CustomCollection;
 use NexusUtilities\ClockUtility;
 use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -102,10 +102,10 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
      * キャッシュがあればキャッシュを返す
      * プレイヤーIDはPlayerSessionResolverから自動的に取得される
      *
-     * @return Collection<string, T>
+     * @return CustomCollection<string, T>
      * @throws \RuntimeException プレイヤーIDが取得できない場合
      */
-    public function queryOrMemory(): Collection
+    public function queryOrMemory(): CustomCollection
     {
         // メモリキャッシュにデータがあればそれを返す
         if ($this->models !== null && $this->models->isNotEmpty()) {
@@ -120,12 +120,14 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
         $instance = new $this->modelClass();
         
         // sys_player_idで検索してユニークキーでkeyByしてキャッシュに保存
-        $this->models = $instance::where($this->selectKey, $sysPlayerId)
+        $records = $instance::where($this->selectKey, $sysPlayerId)
             ->get()
             ->keyBy(function ($record) {
                 // ユニークキーのカラム値を連結してキーを生成
                 return implode(':', array_map(fn($key) => $record->{$key}, $this->getUniqueKeys()));
             });
+
+        $this->models = new CustomCollection($records->all());
 
         return $this->models;
     }
@@ -135,9 +137,9 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
      * ユニークキーでkeyByされたCollectionを返す
      *
      * @param int $sysPlayerId
-     * @return Collection<string, T>
+     * @return CustomCollection<string, T>
      */
-    public function getMapBySysPlayerId(int $sysPlayerId): Collection
+    public function getMapBySysPlayerId(int $sysPlayerId): CustomCollection
     {
         // PlayerSessionResolverにプレイヤーIDを設定
         static::setSysPlayerId($sysPlayerId);

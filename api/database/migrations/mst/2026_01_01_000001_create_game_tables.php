@@ -194,7 +194,9 @@ return new class extends Migration
             $table->unsignedBigInteger('mst_in_app_purchase_id')->comment('アプリ内課金商品ID');
             $table->enum('content_type', ['Item', 'Unit', 'FreeDiamond'])->comment('コンテンツタイプ');
             $table->string('content_id')->comment('コンテンツID');
-            $table->unsignedInteger('amount')->default(1)->comment('数量');
+            $table->json('content_option')->nullable()->comment('コンテンツオプション (例: {"grade":1, "level":5})');
+            $table->unsignedInteger('content_quantity')->default(1)->comment('1配布あたりのコンテンツ数量');
+            $table->unsignedInteger('amount')->default(1)->comment('配布回数（content_quantity × amount = 実際の配布量）');
             $table->unsignedInteger('sort_desc')->default(0)->comment('表示順序（降順）');
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');

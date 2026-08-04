@@ -13,6 +13,7 @@ class MstInAppPurchase extends _BaseMst
         'deploy_key',
         'type',
         'paid_diamond_amount',
+        'vip_point',
         'effect_duration_days',
         'purchase_limit',
         'purchase_limit_reset',
@@ -28,6 +29,7 @@ class MstInAppPurchase extends _BaseMst
     protected $casts = [
         'deploy_key' => 'integer',
         'paid_diamond_amount' => 'integer',
+        'vip_point' => 'integer',
         'effect_duration_days' => 'integer',
         'purchase_limit' => 'integer',
         'sort_desc' => 'integer',
@@ -106,6 +108,16 @@ class MstInAppPurchase extends _BaseMst
     public function getPaidDiamondAmount(): ?int
     {
         return $this->getAttribute('paid_diamond_amount');
+    }
+
+    /**
+     * VIPポイントを取得
+     *
+     * @return int
+     */
+    public function getVipPoint(): int
+    {
+        return $this->getAttribute('vip_point');
     }
 
     /**

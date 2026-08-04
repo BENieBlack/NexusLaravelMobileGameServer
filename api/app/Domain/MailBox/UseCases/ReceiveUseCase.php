@@ -9,6 +9,7 @@ use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Http\Responses\Mailbox\ReceiveResponse;
 use App\Repositories\Trx\TrxMailboxRepository;
+use NexusPersistence\Support\CustomCollection;
 
 /**
  * ReceiveUseCase
@@ -49,7 +50,7 @@ class ReceiveUseCase extends _BaseUseCase
 
             // マスターデータから添付物を取得
             $mstMailbox = $trxMailbox->mstMailbox;
-            $contentCollection = $mstMailbox?->contentCollection ?? collect();
+            $contentCollection = $mstMailbox?->contentCollection ?? new CustomCollection();
 
             // Resource配列に変換
             $resources = $contentCollection->map(function ($content) {

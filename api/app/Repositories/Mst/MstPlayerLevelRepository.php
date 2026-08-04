@@ -2,9 +2,10 @@
 
 namespace App\Repositories\Mst;
 
+
+use NexusPersistence\Support\CustomCollection;
 use App\Models\Mst\MstPlayerLevel;
 use NexusPlayer\Repositories\PlayerLevelRepositoryInterface;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -47,7 +48,7 @@ class MstPlayerLevelRepository extends _BaseMstRepository implements PlayerLevel
      * キャッシュからデータを取得、存在しない場合はDBから取得してキャッシュに保存
      * レベルをキーにしてキャッシュ
      */
-    public function queryOrMemory(): Collection
+    public function queryOrMemory(): CustomCollection
     {
         if (isset($this->models)) {
             return $this->models;
@@ -88,7 +89,7 @@ class MstPlayerLevelRepository extends _BaseMstRepository implements PlayerLevel
      * 
      * @return Collection
      */
-    public function selectAll(): Collection
+    public function selectAll(): CustomCollection
     {
         $allRecords = $this->queryOrMemory();
         return $allRecords->sortBy('level')->values();

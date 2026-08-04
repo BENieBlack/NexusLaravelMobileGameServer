@@ -2,10 +2,11 @@
 
 namespace App\Repositories\Sys;
 
+
+use NexusPersistence\Support\CustomCollection;
 use App\Models\Sys\SysPlayerToken;
 use NexusAuth\Contracts\TokenRepositoryInterface;
 use NexusAuth\Contracts\TokenModelInterface;
-use Illuminate\Support\Collection;
 
 /**
  * SysPlayerTokenRepository
@@ -69,9 +70,9 @@ class SysPlayerTokenRepository extends _BaseSysRepository implements TokenReposi
      * メモリキャッシュから検索、なければDBから取得
      *
      * @param int $sysPlayerId sys_player.id（プレイヤーID）
-     * @return Collection<int, SysPlayerToken>
+     * @return CustomCollection<int, SysPlayerToken>
      */
-    public function selectValidListByPlayerId(int $sysPlayerId): Collection
+    public function selectValidListByPlayerId(int $sysPlayerId): CustomCollection
     {
         // メモリキャッシュから検索
         $sysPlayerTokenCollection = $this->getModels()

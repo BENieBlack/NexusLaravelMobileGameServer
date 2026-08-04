@@ -65,7 +65,7 @@ class DrawRequest extends _BaseRequest
     /**
      * 選択候補IDを取得（ステップアップガチャのchoice用）
      * 
-     * @return string|null mst_gacha_step_guaranteed_candidate.id
+     * @return string|null mst_gacha_step_bonus_content.id
      */
     public function getSelectedCandidateId(): ?string
     {

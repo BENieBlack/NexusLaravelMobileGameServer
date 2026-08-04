@@ -2,8 +2,9 @@
 
 namespace App\Repositories\Mst;
 
+
+use NexusPersistence\Support\CustomCollection;
 use App\Models\Mst\MstInAppPurchaseEffect;
-use Illuminate\Support\Collection;
 
 /**
  * MstInAppPurchaseEffectRepository
@@ -20,9 +21,9 @@ class MstInAppPurchaseEffectRepository extends _BaseMstRepository
      * 商品IDで効果を全て取得
      *
      * @param int $mstInAppPurchaseId
-     * @return Collection<int, MstInAppPurchaseEffect>
+     * @return CustomCollection<int, MstInAppPurchaseEffect>
      */
-    public function findAllByMstInAppPurchaseId(int $mstInAppPurchaseId): Collection
+    public function findAllByMstInAppPurchaseId(int $mstInAppPurchaseId): CustomCollection
     {
         return $this->queryOrMemory()
             ->where('mst_in_app_purchase_id', $mstInAppPurchaseId)

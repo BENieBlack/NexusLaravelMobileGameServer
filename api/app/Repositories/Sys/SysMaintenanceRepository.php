@@ -2,9 +2,10 @@
 
 namespace App\Repositories\Sys;
 
+
+use NexusPersistence\Support\CustomCollection;
 use App\Models\Sys\SysMaintenance;
 use NexusVersion\Repositories\MaintenanceRepositoryInterface;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -67,7 +68,7 @@ class SysMaintenanceRepository extends _BaseSysRepository implements Maintenance
      *
      * @return Collection
      */
-    public function selectActiveList(): Collection
+    public function selectActiveList(): CustomCollection
     {
         return $this->modelClass::where('is_active', true)
             ->orderBy('start_at', 'desc')
@@ -79,7 +80,7 @@ class SysMaintenanceRepository extends _BaseSysRepository implements Maintenance
      *
      * @return Collection
      */
-    public function selectUpcomingList(): Collection
+    public function selectUpcomingList(): CustomCollection
     {
         return $this->modelClass::where('is_active', true)
             ->where('start_at', '>', now())

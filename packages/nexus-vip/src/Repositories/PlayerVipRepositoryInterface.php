@@ -15,7 +15,7 @@ interface PlayerVipRepositoryInterface
      * @param int $sysPlayerId
      * @return SysPlayer|null
      */
-    public function findById(int $sysPlayerId): ?SysPlayer;
+    public function findVipInfoById(int $sysPlayerId): ?SysPlayer;
 
     /**
      * モデルを登録（Unit of Workパターンで使用）

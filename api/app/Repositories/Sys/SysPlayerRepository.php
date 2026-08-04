@@ -5,6 +5,7 @@ namespace App\Repositories\Sys;
 use App\Models\Sys\SysPlayer;
 use NexusAuth\Contracts\PlayerRepositoryInterface as AuthPlayerRepositoryInterface;
 use NexusPlayer\Repositories\PlayerRepositoryInterface as PlayerRepoInterface;
+use NexusVip\Repositories\PlayerVipRepositoryInterface;
 use NexusPlayer\Dto\PlayerDto;
 use NexusUnitOfWork\Contracts\QueryManagerInterface;
 use Illuminate\Support\Str;
@@ -16,7 +17,7 @@ use Illuminate\Support\Str;
  * 
  * @extends _BaseSysRepository<SysPlayer>
  */
-class SysPlayerRepository extends _BaseSysRepository implements AuthPlayerRepositoryInterface, PlayerRepoInterface
+class SysPlayerRepository extends _BaseSysRepository implements AuthPlayerRepositoryInterface, PlayerRepoInterface, PlayerVipRepositoryInterface
 {
     protected string $modelClass = SysPlayer::class;
 
@@ -216,6 +217,53 @@ class SysPlayerRepository extends _BaseSysRepository implements AuthPlayerReposi
             createdAt: $model->getCreatedAt(),
             updatedAt: $model->getUpdatedAt()
         );
+    }
+
+    /**
+     * {@inheritDoc}
+     * NexusVip\Repositories\PlayerVipRepositoryInterface実装
+     */
+    public function findVipInfoById(int $sysPlayerId): ?SysPlayer
+    {
+        return $this->selectById($sysPlayerId);
+    }
+
+    /**
+     * {@inheritDoc}
+     * NexusVip\Repositories\PlayerVipRepositoryInterface実装
+     */
+    public function findByLevelRange(int $minLevel, ?int $maxLevel = null, int $limit = 100): array
+    {
+        $query = $this->modelClass::where('vip_level', '>=', $minLevel);
+        
+        if ($maxLevel !== null) {
+            $query->where('vip_level', '<=', $maxLevel);
+        }
+        
+        return $query->orderByDesc('vip_level')
+            ->orderByDesc('vip_point')
+            ->limit($limit)
+            ->get()
+            ->all();
+    }
+
+    /**
+     * {@inheritDoc}
+     * NexusVip\Repositories\PlayerVipRepositoryInterface実装
+     */
+    public function findByPointRange(int $minPoint, ?int $maxPoint = null, int $limit = 100): array
+    {
+        $query = $this->modelClass::where('vip_point', '>=', $minPoint);
+        
+        if ($maxPoint !== null) {
+            $query->where('vip_point', '<=', $maxPoint);
+        }
+        
+        return $query->orderByDesc('vip_point')
+            ->orderByDesc('vip_level')
+            ->limit($limit)
+            ->get()
+            ->all();
     }
 }
 

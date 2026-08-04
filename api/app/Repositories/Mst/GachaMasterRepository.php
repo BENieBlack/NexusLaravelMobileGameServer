@@ -10,11 +10,12 @@ use App\Repositories\Mst\MstGachaStepGuaranteedCandidateRepository;
 use NexusGacha\Repositories\GachaMasterRepositoryInterface;
 
 /**
- * EloquentGachaMasterRepository
+ * GachaMasterRepository
  * 
  * ガチャマスターデータへのアクセスを提供するRepository実装
+ * 複数のガチャ関連テーブル（mst_gacha_rarity_rate, mst_gacha_prize, mst_gacha_step等）を集約
  */
-class EloquentGachaMasterRepository implements GachaMasterRepositoryInterface
+class GachaMasterRepository implements GachaMasterRepositoryInterface
 {
     public function __construct(
         private readonly MstGachaRarityRateRepository $rarityRateRepository,

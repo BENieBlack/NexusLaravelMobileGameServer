@@ -8,13 +8,20 @@ use App\Repositories\Sys\SysPlayerDeviceRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;
 use App\Repositories\Sys\SysDeployRepository;
 use App\Repositories\Sys\SysMaintenanceRepository;
-use App\Repositories\Mst\EloquentLoginBonusRepository;
-use App\Repositories\Mst\EloquentGachaMasterRepository;
+use App\Repositories\Mst\MstLoginBonusRepository;
+use App\Repositories\Mst\GachaMasterRepository;
 use App\Repositories\Mst\MstPlayerLevelRepository;
-use App\Repositories\Trx\EloquentLoginBonusHistoryRepository;
+use App\Repositories\Mst\MstVipLevelRepository;
+use App\Repositories\Mst\MstVipLevelRewardRepository;
+use App\Repositories\Mst\MstVipLoginBonusRepository;
+use App\Repositories\Mst\VipLoginBonusRepositoryInterface;
+use App\Repositories\Log\LogVipPointRepository;
+use App\Repositories\Trx\TrxLoginBonusHistoryRepository;
 use App\Repositories\Trx\TrxStaminaRepository;
 use App\Repositories\Trx\TrxGachaRepository;
 use App\Repositories\Trx\TrxMailboxRepository;
+use App\Repositories\Trx\TrxVipLoginBonusHistoryRepository;
+use App\Repositories\Trx\VipLoginBonusHistoryRepositoryInterface;
 use App\Domain\Player\Services\PlayerLevelServiceAdapter;
 use NexusAuth\Contracts\PlayerRepositoryInterface;
 use NexusAuth\Contracts\DeviceRepositoryInterface;
@@ -33,6 +40,10 @@ use NexusMailbox\Repositories\MailboxRepositoryInterface;
 use NexusPlayer\Repositories\PlayerRepositoryInterface as PlayerRepoInterface;
 use NexusPlayer\Repositories\PlayerDeviceRepositoryInterface;
 use NexusPlayer\Repositories\PlayerLevelRepositoryInterface;
+use NexusVip\Repositories\VipLevelRepositoryInterface;
+use NexusVip\Repositories\VipLevelRewardRepositoryInterface;
+use NexusVip\Repositories\VipPointLogRepositoryInterface;
+use NexusVip\Repositories\PlayerVipRepositoryInterface;
 use NexusResourceDelivery\Managers\ResourceDeliveryManager;
 use NexusResourceDelivery\Managers\ResourceDeliveryManagerInterface;
 use NexusResourceDelivery\Services\ResourceDeliveryService;
@@ -85,8 +96,15 @@ class AppServiceProvider extends ServiceProvider
         // ==========================================
         
         // Repository interfaces
-        $this->app->bind(LoginBonusRepositoryInterface::class, EloquentLoginBonusRepository::class);
-        $this->app->bind(LoginBonusHistoryRepositoryInterface::class, EloquentLoginBonusHistoryRepository::class);
+        $this->app->bind(LoginBonusRepositoryInterface::class, MstLoginBonusRepository::class);
+        $this->app->bind(LoginBonusHistoryRepositoryInterface::class, TrxLoginBonusHistoryRepository::class);
+        
+        // VIPログインボーナス用Repository
+        $this->app->bind(VipLoginBonusRepositoryInterface::class, MstVipLoginBonusRepository::class);
+        $this->app->bind(VipLoginBonusHistoryRepositoryInterface::class, TrxVipLoginBonusHistoryRepository::class);
+        
+        // LoginBonusOrchestrator (singleton)
+        $this->app->singleton(\NexusLogin\Services\LoginBonusOrchestrator::class);
         
         // ==========================================
         // NexusVersion Package Bindings
@@ -109,7 +127,7 @@ class AppServiceProvider extends ServiceProvider
         // ==========================================
         
         // Repository interfaces
-        $this->app->bind(GachaMasterRepositoryInterface::class, EloquentGachaMasterRepository::class);
+        $this->app->bind(GachaMasterRepositoryInterface::class, MstGachaMasterRepository::class);
         $this->app->bind(GachaProgressRepositoryInterface::class, TrxGachaRepository::class);
         
         // ==========================================
@@ -127,6 +145,16 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(PlayerRepoInterface::class, SysPlayerRepository::class);
         $this->app->bind(PlayerDeviceRepositoryInterface::class, SysPlayerDeviceRepository::class);
         $this->app->bind(PlayerLevelRepositoryInterface::class, MstPlayerLevelRepository::class);
+        
+        // ==========================================
+        // NexusVip Package Bindings
+        // ==========================================
+        
+        // Repository interfaces
+        $this->app->bind(VipLevelRepositoryInterface::class, MstVipLevelRepository::class);
+        $this->app->bind(VipLevelRewardRepositoryInterface::class, MstVipLevelRewardRepository::class);
+        $this->app->bind(VipPointLogRepositoryInterface::class, LogVipPointRepository::class);
+        $this->app->bind(PlayerVipRepositoryInterface::class, SysPlayerRepository::class);
         
         // ==========================================
         // ResourceDelivery Package Bindings
@@ -186,6 +214,31 @@ class AppServiceProvider extends ServiceProvider
             $service->registerHandler($app->make(EquipmentDeliveryHandler::class));
             $service->registerHandler($app->make(DiamondDeliveryHandler::class));
             $service->registerHandler($app->make(CurrencyDeliveryHandler::class));
+        });
+
+        // ==========================================
+        // LoginBonusOrchestrator Strategies Registration
+        // ==========================================
+        
+        // LoginBonusOrchestratorに戦略を登録
+        $this->app->afterResolving(\NexusLogin\Services\LoginBonusOrchestrator::class, function ($orchestrator, $app) {
+            // 通常ログインボーナス戦略（優先度: 100）
+            $orchestrator->registerStrategy(
+                $app->make(\App\Domain\Login\Services\LoginBonusService::class),
+                100
+            );
+            
+            // VIPログインボーナス戦略（優先度: 150）
+            $orchestrator->registerStrategy(
+                $app->make(\App\Domain\Login\Services\VipLoginBonusService::class),
+                150
+            );
+            
+            // カムバックログインボーナス戦略（優先度: 200、最優先）
+            $orchestrator->registerStrategy(
+                $app->make(\App\Domain\Login\Services\ComeBackLoginBonusService::class),
+                200
+            );
         });
     }
 }

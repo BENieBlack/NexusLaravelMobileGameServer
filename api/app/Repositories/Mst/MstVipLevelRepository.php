@@ -1,0 +1,101 @@
+<?php
+
+namespace App\Repositories\Mst;
+
+use NexusPersistence\Support\CustomCollection;
+use NexusVip\Models\MstVipLevel;
+use NexusVip\Repositories\VipLevelRepositoryInterface;
+
+/**
+ * MstVipLevelRepository
+ *
+ * VIPレベルマスターのRepository
+ * 
+ * @extends _BaseMstRepository<MstVipLevel>
+ */
+class MstVipLevelRepository extends _BaseMstRepository implements VipLevelRepositoryInterface
+{
+    protected string $modelClass = MstVipLevel::class;
+
+    /**
+     * 全VIPレベルを取得（キャッシュから）
+     * required_point昇順でソート
+     *
+     * @return CustomCollection<MstVipLevel>
+     */
+    public function getAllLevels(): CustomCollection
+    {
+        return $this->queryOrMemory()
+            ->where('is_active', true)
+            ->sortBy('required_point')
+            ->values();
+    }
+
+    /**
+     * VIPレベル番号で検索
+     *
+     * @param int $level VIPレベル
+     * @return MstVipLevel|null
+     */
+    public function findByLevel(int $level): ?MstVipLevel
+    {
+        return $this->queryOrMemory()
+            ->where('level', $level)
+            ->where('is_active', true)
+            ->first();
+    }
+
+    /**
+     * VIPレベルIDで検索
+     *
+     * @param string $id VIPレベルID (例: "vip_5")
+     * @return MstVipLevel|null
+     */
+    public function findById(string $id): ?MstVipLevel
+    {
+        return $this->selectById($id);
+    }
+
+    /**
+     * 必要ポイント以下の最大レベルを取得
+     * 累積VIPポイントから該当するVIPレベルを判定
+     *
+     * @param int $points 累積VIPポイント
+     * @return MstVipLevel
+     */
+    public function findMaxLevelByPoints(int $points): MstVipLevel
+    {
+        // required_point降順でソートし、pointsを超えない最初のレベルを返す
+        $level = $this->queryOrMemory()
+            ->where('is_active', true)
+            ->sortByDesc('required_point')
+            ->first(function (MstVipLevel $vipLevel) use ($points) {
+                return $points >= $vipLevel->getRequiredPoint();
+            });
+
+        // 該当するレベルがない場合はVIP0を返す
+        if ($level === null) {
+            $level = $this->findByLevel(0);
+            
+            // VIP0も見つからない場合は例外
+            if ($level === null) {
+                throw new \RuntimeException('VIP level 0 not found in master data');
+            }
+        }
+
+        return $level;
+    }
+
+    /**
+     * 有効な全VIPレベルをlevel昇順で取得
+     *
+     * @return CustomCollection<MstVipLevel>
+     */
+    public function findAllActiveOrderByLevel(): CustomCollection
+    {
+        return $this->queryOrMemory()
+            ->where('is_active', true)
+            ->sortBy('level')
+            ->values();
+    }
+}

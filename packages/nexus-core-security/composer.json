@@ -1,5 +1,5 @@
 {
-    "name": "nexus/security",
+    "name": "nexus/core-security",
     "description": "Laravel security middleware including client signature verification, idempotency guarantee, rate limiting and access token verification",
     "type": "library",
     "license": "MIT",

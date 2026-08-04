@@ -8,15 +8,13 @@ use App\Models\Trx\TrxEquipment;
 use App\Repositories\Mst\MstEquipmentLevelRepository;
 use App\Repositories\Mst\MstEquipmentRepository;
 use App\Repositories\Trx\TrxEquipmentRepository;
-use App\Persistence\ApiSession;
+use NexusLevel\Services\_BaseLevelService;
 
 /**
  * LevelService
  * 
  * 装備レベル管理を担当するサービス
- * - 経験値加算とレベルアップ処理
- * - レアリティに応じたレベル上限の取得
- * - 累積経験値からのレベル計算
+ * _BaseLevelServiceを継承して、装備固有のレベルアップ処理を実装
  * 
  * レベルアップ仕様:
  * - 経験値は累積方式（リセットされない）
@@ -24,7 +22,7 @@ use App\Persistence\ApiSession;
  * - 最大レベル到達後は経験値が増えてもレベルアップしない
  * - 装備のグレードは変更しない（別途グレードアップ処理が必要）
  */
-class LevelService
+class LevelService extends _BaseLevelService
 {
     /**
      * コンストラクタ
@@ -42,7 +40,6 @@ class LevelService
 
     /**
      * 装備のレベル情報を取得
-     * プレイヤーIDはApiSessionから自動的に取得される
      * 
      * @param int $trxEquipmentId trx_equipment.id（プレイヤー所有装備）
      * @return array{level: int, exp: int, exp_to_next: int|null, rarity: string, max_level: int}
@@ -76,60 +73,29 @@ class LevelService
     }
 
     /**
-     * 経験値を加算し、レベルアップ処理を行う
-     * プレイヤーIDはApiSessionから自動的に取得される
-     * 
-     * レベルアップした場合:
-     * - trx_equipment.levelとlevel_expを更新
+     * 経験値を加算し、レベルアップ処理を行って装備データを返す
      * 
      * @param int $trxEquipmentId trx_equipment.id（プレイヤー所有装備）
      * @param int $exp 加算する経験値
      * @return TrxEquipment 更新後の装備データ
      * @throws \Exception 装備が存在しない場合
      */
-    public function addExp(int $trxEquipmentId, int $exp): TrxEquipment
+    public function addExpAndReturn(int $trxEquipmentId, int $exp): TrxEquipment
     {
-        $trxEquipment = $this->trxEquipmentRepository->selectById($trxEquipmentId);
+        // 基底クラスのテンプレートメソッドを呼び出し
+        parent::addExp($trxEquipmentId, $exp);
         
+        // 更新後の装備データを返す
+        $trxEquipment = $this->trxEquipmentRepository->selectById($trxEquipmentId);
         if ($trxEquipment === null) {
             throw TransactionDataException::equipment($trxEquipmentId);
         }
-
-        // マスターデータからレアリティ情報を取得
-        $mstEquipment = $this->mstEquipmentRepository->selectById($trxEquipment->getMstEquipmentId());
-        if ($mstEquipment === null) {
-            throw MasterDataException::equipment($trxEquipment->getMstEquipmentId());
-        }
-
-        $rarity = $mstEquipment->getRarity();
-        $beforeLevel = $trxEquipment->getLevel();
         
-        // 経験値を加算
-        $newTotalExp = $trxEquipment->getLevelExp() + $exp;
-        
-        // 新しいレベルを計算
-        $afterLevel = $this->mstEquipmentLevelRepository->calculateLevelFromExp($rarity, $newTotalExp);
-        
-        // 最大レベルを超えないように制限
-        $maxLevel = $this->mstEquipmentLevelRepository->getMaxLevel($rarity) ?? 100;
-        $afterLevel = min($afterLevel, $maxLevel);
-        
-        $isLeveledUp = ($afterLevel > $beforeLevel);
-        
-        // 装備情報を更新（Repository経由）
-        $trxEquipment->setLevel($afterLevel);
-        $trxEquipment->setLevelExp($newTotalExp);
-        
-        // Repository経由で更新（updated_at自動設定）
-        $this->trxEquipmentRepository->setModel($trxEquipment);
-        
-        // 更新後の装備データを返す
         return $trxEquipment;
     }
 
     /**
      * 目標レベルまで上げるのに必要な経験値を計算
-     * プレイヤーIDはApiSessionから自動的に取得される
      * 
      * @param int $trxEquipmentId trx_equipment.id（プレイヤー所有装備）
      * @param int $targetLevel 目標レベル
@@ -181,12 +147,12 @@ class LevelService
     /**
      * 次のレベルまでに必要な経験値を取得
      * 
-     * @param string $rarity レアリティ
+     * @param string|null $rarity レアリティ
      * @param int $currentLevel 現在のレベル
      * @param int $currentExp 現在の累積経験値
      * @return int|null 必要な経験値（最大レベルの場合はnull）
      */
-    public function getExpToNextLevel(string $rarity, int $currentLevel, int $currentExp): ?int
+    public function getExpToNextLevel(?string $rarity, int $currentLevel, int $currentExp): ?int
     {
         $nextLevel = $currentLevel + 1;
         $nextLevelData = $this->mstEquipmentLevelRepository->selectByRarityAndLevel($rarity, $nextLevel);
@@ -199,14 +165,83 @@ class LevelService
         return max(0, $nextLevelData->required_exp - $currentExp);
     }
 
+    // ========================================
+    // Abstract Methods の実装
+    // ========================================
+
     /**
-     * 指定レアリティの最大レベルを取得
-     * 
-     * @param string $rarity レアリティ
-     * @return int 最大レベル
+     * {@inheritDoc}
      */
-    public function getMaxLevel(string $rarity): int
+    protected function getEntity(mixed $id): object
+    {
+        $equipment = $this->trxEquipmentRepository->selectById($id);
+        
+        if ($equipment === null) {
+            throw TransactionDataException::equipment($id);
+        }
+        
+        return $equipment;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function getRarity(object $entity): ?string
+    {
+        /** @var TrxEquipment $entity */
+        $mstEquipment = $this->mstEquipmentRepository->selectById($entity->getMstEquipmentId());
+        
+        if ($mstEquipment === null) {
+            throw MasterDataException::equipment($entity->getMstEquipmentId());
+        }
+        
+        return $mstEquipment->getRarity();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function getCurrentLevel(object $entity): int
+    {
+        /** @var TrxEquipment $entity */
+        return $entity->getLevel();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function getCurrentExp(object $entity): int
+    {
+        /** @var TrxEquipment $entity */
+        return $entity->getLevelExp();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function calculateNewLevel(?string $rarity, int $totalExp): int
+    {
+        return $this->mstEquipmentLevelRepository->calculateLevelFromExp($rarity, $totalExp);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function getMaxLevel(?string $rarity): int
     {
         return $this->mstEquipmentLevelRepository->getMaxLevel($rarity) ?? 100;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function updateEntity(object $entity, int $level, int $exp): void
+    {
+        /** @var TrxEquipment $entity */
+        $entity->setLevel($level);
+        $entity->setLevelExp($exp);
+        $this->trxEquipmentRepository->setModel($entity);
+    }
+
+    // onLevelUp()はオーバーライドしない（装備にはレベルアップ時の追加処理がない）
 }

@@ -8,15 +8,13 @@ use App\Models\Trx\TrxUnit;
 use App\Repositories\Mst\MstUnitLevelRepository;
 use App\Repositories\Mst\MstUnitRepository;
 use App\Repositories\Trx\TrxUnitRepository;
-use App\Persistence\ApiSession;
+use NexusLevel\Services\_BaseLevelService;
 
 /**
  * LevelService
  * 
  * ユニットレベル管理を担当するサービス
- * - 経験値加算とレベルアップ処理
- * - レアリティに応じたレベル上限の取得
- * - 累積経験値からのレベル計算
+ * _BaseLevelServiceを継承して、ユニット固有のレベルアップ処理を実装
  * 
  * レベルアップ仕様:
  * - 経験値は累積方式（リセットされない）
@@ -24,7 +22,7 @@ use App\Persistence\ApiSession;
  * - 最大レベル到達後は経験値が増えてもレベルアップしない
  * - ユニットのグレードは変更しない（別途グレードアップ処理が必要）
  */
-class LevelService
+class LevelService extends _BaseLevelService
 {
     /**
      * コンストラクタ
@@ -90,50 +88,31 @@ class LevelService
      * }
      * @throws \Exception ユニットが存在しない場合
      */
-    public function addExp(int $trxUnitId, int $exp): array
+    public function addExpWithDetails(int $trxUnitId, int $exp): array
     {
+        // レアリティと最大レベルを事前取得
         $trxUnit = $this->trxUnitRepository->selectById($trxUnitId);
-        
         if ($trxUnit === null) {
             throw TransactionDataException::unit($trxUnitId);
         }
-
-        // マスターデータからレアリティ情報を取得
+        
         $mstUnit = $this->mstUnitRepository->selectById($trxUnit->getMstUnitId());
         if ($mstUnit === null) {
             throw MasterDataException::unit($trxUnit->getMstUnitId());
         }
-
+        
         $rarity = $mstUnit->getRarity();
-        $beforeLevel = $trxUnit->getLevel();
-        
-        // 経験値を加算
-        $newTotalExp = $trxUnit->getLevelExp() + $exp;
-        
-        // 新しいレベルを計算
-        $afterLevel = $this->mstUnitLevelRepository->calculateLevelFromExp($rarity, $newTotalExp);
-        
-        // 最大レベルを超えないように制限
         $maxLevel = $this->mstUnitLevelRepository->getMaxLevel($rarity) ?? 100;
-        $afterLevel = min($afterLevel, $maxLevel);
         
-        $isLeveledUp = ($afterLevel > $beforeLevel);
+        // 基底クラスのテンプレートメソッドを呼び出し
+        $result = parent::addExp($trxUnitId, $exp);
         
-        // ユニット情報を更新（Repository経由）
-        $trxUnit->setLevel($afterLevel);
-        $trxUnit->setLevelExp($newTotalExp);
-        
-        // Repository経由で更新（updated_at自動設定、ログ記録も自動的に行われる）
-        $this->trxUnitRepository->setModel($trxUnit);
-        
-        // 次のレベルまでの経験値を計算
-        $expToNext = $this->getExpToNextLevel($rarity, $afterLevel, $newTotalExp);
+        // ユニット固有の戻り値を追加
+        $trxUnit = $this->trxUnitRepository->selectById($trxUnitId);
+        $expToNext = $this->getExpToNextLevel($rarity, $trxUnit->getLevel(), $trxUnit->getLevelExp());
         
         return [
-            'is_leveled_up' => $isLeveledUp,
-            'before_level' => $beforeLevel,
-            'after_level' => $afterLevel,
-            'total_exp' => $newTotalExp,
+            ...$result,
             'exp_to_next' => $expToNext,
             'rarity' => $rarity,
             'max_level' => $maxLevel,
@@ -143,12 +122,12 @@ class LevelService
     /**
      * 次のレベルまでに必要な経験値を取得
      * 
-     * @param string $rarity レアリティ
+     * @param string|null $rarity レアリティ
      * @param int $currentLevel 現在のレベル
      * @param int $currentExp 現在の累積経験値
      * @return int|null 必要な経験値（最大レベルの場合はnull）
      */
-    public function getExpToNextLevel(string $rarity, int $currentLevel, int $currentExp): ?int
+    public function getExpToNextLevel(?string $rarity, int $currentLevel, int $currentExp): ?int
     {
         $nextLevel = $currentLevel + 1;
         $nextLevelData = $this->mstUnitLevelRepository->selectByRarityAndLevel($rarity, $nextLevel);
@@ -161,14 +140,83 @@ class LevelService
         return max(0, $nextLevelData->required_exp - $currentExp);
     }
 
+    // ========================================
+    // Abstract Methods の実装
+    // ========================================
+
     /**
-     * 指定レアリティの最大レベルを取得
-     * 
-     * @param string $rarity レアリティ
-     * @return int 最大レベル
+     * {@inheritDoc}
      */
-    public function getMaxLevel(string $rarity): int
+    protected function getEntity(mixed $id): object
+    {
+        $unit = $this->trxUnitRepository->selectById($id);
+        
+        if ($unit === null) {
+            throw TransactionDataException::unit($id);
+        }
+        
+        return $unit;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function getRarity(object $entity): ?string
+    {
+        /** @var TrxUnit $entity */
+        $mstUnit = $this->mstUnitRepository->selectById($entity->getMstUnitId());
+        
+        if ($mstUnit === null) {
+            throw MasterDataException::unit($entity->getMstUnitId());
+        }
+        
+        return $mstUnit->getRarity();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function getCurrentLevel(object $entity): int
+    {
+        /** @var TrxUnit $entity */
+        return $entity->getLevel();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function getCurrentExp(object $entity): int
+    {
+        /** @var TrxUnit $entity */
+        return $entity->getLevelExp();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function calculateNewLevel(?string $rarity, int $totalExp): int
+    {
+        return $this->mstUnitLevelRepository->calculateLevelFromExp($rarity, $totalExp);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function getMaxLevel(?string $rarity): int
     {
         return $this->mstUnitLevelRepository->getMaxLevel($rarity) ?? 100;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function updateEntity(object $entity, int $level, int $exp): void
+    {
+        /** @var TrxUnit $entity */
+        $entity->setLevel($level);
+        $entity->setLevelExp($exp);
+        $this->trxUnitRepository->setModel($entity);
+    }
+
+    // onLevelUp()はオーバーライドしない（ユニットにはレベルアップ時の追加処理がない）
 }

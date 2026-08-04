@@ -2,7 +2,7 @@
 
 namespace App\Domain\MailBox\Services\Placeholders;
 
-use App\Domain\MailBox\Services\PlaceholderResolverInterface;
+use NexusMailbox\Services\Template\PlaceholderResolverInterface;
 
 /**
  * PlayerPlaceholder

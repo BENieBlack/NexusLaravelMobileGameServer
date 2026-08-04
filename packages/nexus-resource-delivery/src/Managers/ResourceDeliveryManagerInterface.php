@@ -4,7 +4,7 @@ namespace NexusResourceDelivery\Managers;
 
 use NexusResourceDelivery\DTOs\ResourceDeliveryContentDto;
 use NexusResourceDelivery\DTOs\ResourceDeliveryCompleteDto;
-use Illuminate\Support\Collection;
+use NexusPersistence\Support\CustomCollection;
 
 /**
  * ResourceDeliveryManagerInterface
@@ -22,22 +22,22 @@ interface ResourceDeliveryManagerInterface
     /**
      * 複数の配送コンテンツを配送前リストにまとめて追加する
      */
-    public function addContents(Collection $contents): void;
+    public function addContents(CustomCollection $contents): void;
 
     /**
      * 配送前リストからコンテンツを取得する
      *
-     * @return Collection<string, ResourceDeliveryContentDto>
+     * @return CustomCollection<string, ResourceDeliveryContentDto>
      */
-    public function getPendingContents(): Collection;
+    public function getPendingContents(): CustomCollection;
 
     /**
      * 送信完了リストからコンテンツを取得する
      *
      * @param string $contentClass コンテンツクラス名
-     * @return Collection<ResourceDeliveryContentDto>
+     * @return CustomCollection<ResourceDeliveryContentDto>
      */
-    public function getSendCompleteContents(string $contentClass): Collection;
+    public function getSendCompleteContents(string $contentClass): CustomCollection;
 
     /**
      * 配送が必要なコンテンツがあるかチェック

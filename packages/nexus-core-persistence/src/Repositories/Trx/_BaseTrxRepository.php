@@ -193,7 +193,7 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
 
         // CacheRecordTraitのキャッシュに保存
         if ($this->models === null) {
-            $this->models = collect();
+            $this->models = new CustomCollection();
         }
         $this->models->put($uniqueKey, $model);
 

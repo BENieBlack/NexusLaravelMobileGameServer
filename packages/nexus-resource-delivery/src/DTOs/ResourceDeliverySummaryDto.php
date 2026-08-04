@@ -3,7 +3,7 @@
 namespace NexusResourceDelivery\DTOs;
 
 use NexusResourceDelivery\Enums\ResourceDeliveryResultReason;
-use Illuminate\Support\Collection;
+use NexusPersistence\Support\CustomCollection;
 
 /**
  * ResourceDeliverySummary
@@ -13,21 +13,21 @@ use Illuminate\Support\Collection;
 class ResourceDeliverySummaryDto
 {
     /**
-     * @var Collection<ResourceDeliveryContent>
+     * @var CustomCollection<ResourceDeliveryContent>
      */
-    private Collection $contents;
+    private CustomCollection $contents;
 
     public function __construct()
     {
-        $this->contents = collect();
+        $this->contents = new CustomCollection();
     }
 
     /**
      * 配送済みコンテンツのリストを取得
      *
-     * @return Collection<ResourceDeliveryContent>
+     * @return CustomCollection<ResourceDeliveryContent>
      */
-    public function getContents(): Collection
+    public function getContents(): CustomCollection
     {
         return $this->contents;
     }
@@ -35,9 +35,9 @@ class ResourceDeliverySummaryDto
     /**
      * 配送済みコンテンツを追加
      *
-     * @param Collection<ResourceDeliveryContent> $contents
+     * @param CustomCollection $contents
      */
-    public function addContents(Collection $contents): void
+    public function addContents(CustomCollection $contents): void
     {
         // 要素を上書きまたは削除をしないようにvaluesしてからmergeする
         $this->contents = $this->contents->values()

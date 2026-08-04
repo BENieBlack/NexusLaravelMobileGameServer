@@ -2,7 +2,7 @@
 
 namespace NexusVip\Repositories;
 
-use Illuminate\Support\Collection;
+use NexusPersistence\Support\CustomCollection;
 use NexusVip\Models\MstVipLevel;
 
 /**
@@ -13,9 +13,9 @@ interface VipLevelRepositoryInterface
     /**
      * 全VIPレベルを取得（キャッシュから）
      *
-     * @return Collection<MstVipLevel>
+     * @return CustomCollection<MstVipLevel>
      */
-    public function getAllLevels(): Collection;
+    public function getAllLevels(): CustomCollection;
 
     /**
      * VIPレベル番号で検索

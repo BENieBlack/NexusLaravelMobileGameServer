@@ -8,11 +8,11 @@ use App\Exceptions\BusinessLogicException;
 use App\Models\Mst\MstGachaCost;
 
 /**
- * GachaCostService
+ * CostService
  *
  * ガチャコストの消費を行うサービス
  */
-class GachaCostService
+class CostService
 {
     public function __construct(
         private readonly DiamondService $diamondService,

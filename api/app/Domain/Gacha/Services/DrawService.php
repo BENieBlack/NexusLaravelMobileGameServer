@@ -5,12 +5,12 @@ namespace App\Domain\Gacha\Services;
 use NexusGacha\Services\GachaDrawService as BaseGachaDrawService;
 
 /**
- * GachaDrawService
+ * DrawService
  *
  * パッケージ版のGachaDrawServiceのラッパー
  * 配列形式で結果を返すために変換処理を行う
  */
-class GachaDrawService
+class DrawService
 {
     public function __construct(
         private readonly BaseGachaDrawService $baseDrawService,

@@ -6,28 +6,28 @@ use App\Models\Mst\MstInAppPurchase;
 use App\Repositories\Trx\TrxInAppPurchaseRepository;
 
 /**
- * DiamondPurchaseService
+ * PurchaseService
  * 
  * ダイヤモンド購入のワークフロー全体を担当するサービス
  * 
  * 責任:
  * - 購入制限チェック
  * - ダイヤモンド加算（DiamondBalanceServiceに委譲）
- * - 購入履歴更新（PurchaseHistoryServiceに委譲）
+ * - 購入履歴更新（HistoryServiceに委譲）
  * 
  * 処理フロー:
  * 1. 購入履歴を取得
  * 2. 購入制限チェック（ValidationService）
  * 3. ダイヤモンド加算（DiamondBalanceService）
- * 4. 購入履歴を更新（PurchaseHistoryService）
+ * 4. 購入履歴を更新（HistoryService）
  */
-class DiamondPurchaseService
+class PurchaseService
 {
     public function __construct(
         private readonly TrxInAppPurchaseRepository $trxInAppPurchaseRepository,
         private readonly ValidationService $validationService,
         private readonly DiamondBalanceService $diamondBalanceService,
-        private readonly PurchaseHistoryService $purchaseHistoryService,
+        private readonly HistoryService $historyService,
     ) {
     }
 
@@ -72,8 +72,8 @@ class DiamondPurchaseService
             $unitPrice
         );
 
-        // 4. 購入履歴を更新（PurchaseHistoryServiceに委譲）
-        $this->purchaseHistoryService->updateOrCreatePurchaseHistory(
+        // 4. 購入履歴を更新（HistoryServiceに委譲）
+        $this->historyService->updateOrCreatePurchaseHistory(
             $sysPlayerId,
             $billingPlatform,
             $mstInAppPurchase,

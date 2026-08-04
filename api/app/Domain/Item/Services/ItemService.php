@@ -3,6 +3,8 @@
 namespace App\Domain\Item\Services;
 
 use App\Models\Trx\TrxItem;
+use App\Domain\Item\Services\ReadService as ItemReadService;
+use App\Domain\Item\Services\WriteService as ItemWriteService;
 
 /**
  * ItemService (Facade)
@@ -10,13 +12,13 @@ use App\Models\Trx\TrxItem;
  * アイテム管理サービスのFacade
  * 
  * このクラスは後方互換性のために維持されています。
- * 新しいコードでは、ItemReadServiceまたはItemWriteServiceを直接使用してください。
+ * 新しいコードでは、ReadServiceまたはWriteServiceを直接使用してください。
  * 
  * Design Pattern: Facade Pattern
- * - Delegates read operations to ItemReadService
- * - Delegates write operations to ItemWriteService
+ * - Delegates read operations to ReadService
+ * - Delegates write operations to WriteService
  * 
- * @deprecated 新規コードではItemReadService/ItemWriteServiceを直接使用してください
+ * @deprecated 新規コードではReadService/WriteServiceを直接使用してください
  */
 class ItemService
 {

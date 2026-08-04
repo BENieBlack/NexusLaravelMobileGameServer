@@ -11,7 +11,7 @@ use LaravelWallet\Exceptions\InsufficientBalanceException;
 use NexusUtilities\ClockUtility;
 
 /**
- * WalletWriteService
+ * WriteService
  * 
  * 通貨残高の書き込み操作を担当するサービス
  * 
@@ -22,10 +22,10 @@ use NexusUtilities\ClockUtility;
  * - 状態変更あり
  * 
  * 設計:
- * - Read側: WalletReadService（状態変更なし）
+ * - Read側: ReadService（状態変更なし）
  * - Write側: このサービス（状態変更あり）
  */
-class WalletWriteService
+class WriteService
 {
     public function __construct(
         private readonly TrxWalletRepository $trxWalletRepository,

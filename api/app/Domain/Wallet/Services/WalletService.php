@@ -5,6 +5,8 @@ namespace App\Domain\Wallet\Services;
 use LaravelWallet\Contracts\WalletManagerInterface;
 use LaravelWallet\DTOs\CurrencyBalanceDto;
 use LaravelWallet\DTOs\CurrencyOperationResultDto;
+use App\Domain\Wallet\Services\ReadService as WalletReadService;
+use App\Domain\Wallet\Services\WriteService as WalletWriteService;
 
 /**
  * WalletService (Facade)
@@ -15,10 +17,10 @@ use LaravelWallet\DTOs\CurrencyOperationResultDto;
  * 内部では Read/Write Serviceに処理を委譲します。
  * 
  * 新規コードでは、以下のServiceを直接使用することを推奨:
- * - WalletReadService: 残高取得（読み取り専用）
- * - WalletWriteService: 通貨加算・消費（書き込み）
+ * - ReadService: 残高取得（読み取り専用）
+ * - WriteService: 通貨加算・消費（書き込み）
  * 
- * @deprecated 新規コードでは WalletReadService または WalletWriteService を使用してください
+ * @deprecated 新規コードでは ReadService または WriteService を使用してください
  */
 class WalletService implements WalletManagerInterface
 {
@@ -38,7 +40,7 @@ class WalletService implements WalletManagerInterface
      * @param string|null $expireAt 有効期限 (Y-m-d H:i:s)（NULLの場合は無期限）
      * @return CurrencyOperationResultDto 操作結果
      * 
-     * @deprecated WalletWriteService::addCurrency() を使用してください
+     * @deprecated WriteService::addCurrency() を使用してください
      */
     public function addCurrency(
         int $playerId,
@@ -59,7 +61,7 @@ class WalletService implements WalletManagerInterface
      * @return CurrencyOperationResultDto 操作結果
      * @throws \LaravelWallet\Exceptions\InsufficientBalanceException 残高不足の場合
      * 
-     * @deprecated WalletWriteService::consumeCurrency() を使用してください
+     * @deprecated WriteService::consumeCurrency() を使用してください
      */
     public function consumeCurrency(
         int $playerId,
@@ -76,7 +78,7 @@ class WalletService implements WalletManagerInterface
      * @param string $currencyId 通貨アイテムID
      * @return CurrencyBalanceDto 残高情報
      * 
-     * @deprecated WalletReadService::getBalance() を使用してください
+     * @deprecated ReadService::getBalance() を使用してください
      */
     public function getBalance(int $playerId, string $currencyId): CurrencyBalanceDto
     {
@@ -90,7 +92,7 @@ class WalletService implements WalletManagerInterface
      * @param string $currencyId 通貨アイテムID
      * @return int 削除された数量
      * 
-     * @deprecated WalletWriteService::removeExpiredCurrency() を使用してください
+     * @deprecated WriteService::removeExpiredCurrency() を使用してください
      */
     public function removeExpiredCurrency(int $playerId, string $currencyId): int
     {
@@ -104,7 +106,7 @@ class WalletService implements WalletManagerInterface
      * @param array<string> $currencyIds 通貨IDリスト
      * @return array<string, CurrencyBalanceDto> 通貨ID => 残高情報のマップ
      * 
-     * @deprecated WalletReadService::getBulkBalances() を使用してください
+     * @deprecated ReadService::getBulkBalances() を使用してください
      */
     public function getBulkBalances(int $playerId, array $currencyIds): array
     {

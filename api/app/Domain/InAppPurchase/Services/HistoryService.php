@@ -8,12 +8,12 @@ use App\Repositories\Trx\TrxInAppPurchaseRepository;
 use NexusUtilities\ClockUtility;
 
 /**
- * PurchaseHistoryService
+ * HistoryService
  * 
  * アプリ内課金の購入履歴を管理するサービス
  * DiamondServiceとPackServiceで共通の購入履歴更新ロジックを提供
  */
-class PurchaseHistoryService
+class HistoryService
 {
     public function __construct(
         private readonly TrxInAppPurchaseRepository $trxInAppPurchaseRepository,

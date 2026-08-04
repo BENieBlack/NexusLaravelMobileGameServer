@@ -11,11 +11,11 @@ use App\Repositories\Mst\MstGachaRepository;
 use NexusUtilities\ClockUtility;
 
 /**
- * GachaValidationService
+ * ValidationService
  *
  * ガチャのバリデーションを行うサービス
  */
-class GachaValidationService
+class ValidationService
 {
     public function __construct(
         private readonly MstGachaRepository $mstGachaRepository,

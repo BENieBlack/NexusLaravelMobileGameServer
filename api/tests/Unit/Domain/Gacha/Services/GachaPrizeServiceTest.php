@@ -7,7 +7,7 @@ use NexusResourceDelivery\DTOs\ResourceDeliveryResultDto;
 use NexusResourceDelivery\Services\ResourceDeliveryService;
 use NexusGacha\Services\GachaPrizeService as BaseGachaPrizeService;
 use NexusGacha\Dto\GachaPrizeDto;
-use App\Domain\Gacha\Services\GachaPrizeService;
+use App\Domain\Gacha\Services\PrizeService as GachaPrizeService;
 use Mockery;
 use Tests\TestCase;
 

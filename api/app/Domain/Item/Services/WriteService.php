@@ -6,7 +6,7 @@ use App\Models\Trx\TrxItem;
 use App\Repositories\Trx\TrxItemRepository;
 
 /**
- * ItemWriteService
+ * WriteService
  *
  * アイテム残高の書き込み専用サービス
  * 
@@ -24,7 +24,7 @@ use App\Repositories\Trx\TrxItemRepository;
  * 1. Consume from paid_amount first
  * 2. If paid_amount is insufficient, consume remaining from free_amount
  */
-class ItemWriteService
+class WriteService
 {
     public function __construct(
         private readonly TrxItemRepository $trxItemRepository,

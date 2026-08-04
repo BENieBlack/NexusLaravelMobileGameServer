@@ -5,7 +5,7 @@ namespace NexusPersistence\Repositories\Mst;
 use NexusPersistence\Models\Mst\_BaseMst;
 use NexusPersistence\Models\Mst\_BaseMstInterface;
 use NexusPersistence\Repositories\_BaseRepository;
-use Illuminate\Support\Collection;
+use NexusPersistence\Support\CustomCollection;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -38,9 +38,9 @@ abstract class _BaseMstRepository extends _BaseRepository implements _BaseMstRep
      * データベースまたはメモリからデータを取得
      * キャッシュ（Redis）から取得、存在しない場合はDBから取得してキャッシュに保存
      * 
-     * @return Collection<int|string, T>
+     * @return CustomCollection<int|string, T>
      */
-    public function queryOrMemory(): Collection
+    public function queryOrMemory(): CustomCollection
     {
         if ($this->models !== null) {
             return $this->models;
@@ -51,15 +51,18 @@ abstract class _BaseMstRepository extends _BaseRepository implements _BaseMstRep
         $cacheKey = "{$this->cachePrefix}:{$tableName}:all";
 
         // Laravel Cacheを使ってキャッシュから取得、なければDBから取得してキャッシュに保存
-        $this->models = Cache::store($this->cacheDriver)->remember(
+        $cached = Cache::store($this->cacheDriver)->remember(
             $cacheKey,
             $this->cacheTtl,
             function () {
                 // 全レコードを取得し、IDをキーにしたコレクションを返す
                 $all = $this->modelClass::all();
-                return $all->keyBy('id');
+                return $all->keyBy('id')->all(); // 配列として保存
             }
         );
+
+        // CustomCollectionとして保存
+        $this->models = new CustomCollection($cached);
 
         return $this->models;
     }
@@ -85,15 +88,15 @@ abstract class _BaseMstRepository extends _BaseRepository implements _BaseMstRep
      * メモリキャッシュから取得
      * 
      * @param array<int|string> $ids
-     * @return Collection<int|string, T>
+     * @return CustomCollection<int|string, T>
      */
-    public function selectListByIds(array $ids): Collection
+    public function selectListByIds(array $ids): CustomCollection
     {
         // 全データをメモリキャッシュにロード
         $this->queryOrMemory();
         
         // メモリキャッシュから複数取得
-        return collect($ids)
+        return (new CustomCollection($ids))
             ->map(fn($id) => $this->getModel($id))
             ->filter() // null を除外
             ->values(); // キーをリセット
@@ -114,11 +117,11 @@ abstract class _BaseMstRepository extends _BaseRepository implements _BaseMstRep
     /**
      * setModels は Mst では使用しない（読み取り専用）
      * 
-     * @param Collection<int|string, mixed> $models
+     * @param CustomCollection<int|string, mixed> $models
      * @return void
      * @throws \BadMethodCallException
      */
-    protected function setModels(Collection $models): void
+    protected function setModels(CustomCollection $models): void
     {
         throw new \BadMethodCallException('setModels() is not supported in MstRepository. MstRepository is read-only.');
     }

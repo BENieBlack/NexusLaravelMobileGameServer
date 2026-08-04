@@ -4,7 +4,7 @@ namespace NexusPersistence\Repositories\Mst;
 
 use NexusPersistence\Models\Mst\_BaseMstInterface;
 use NexusPersistence\Repositories\_BaseRepositoryInterface;
-use Illuminate\Support\Collection;
+use NexusPersistence\Support\CustomCollection;
 
 /**
  * _BaseMstRepositoryInterface

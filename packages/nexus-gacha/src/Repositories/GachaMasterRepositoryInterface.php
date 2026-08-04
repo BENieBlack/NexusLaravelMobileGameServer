@@ -38,23 +38,23 @@ interface GachaMasterRepositoryInterface
     public function findStepByGachaIdAndNumber(string $mstGachaId, int $stepNumber): mixed;
 
     /**
-     * ステップIDでステップ確定景品リストを取得
+     * ステップIDでステップボーナス景品リストを取得
      * 
      * @param string $stepId
      * @return \Illuminate\Support\Collection
      */
-    public function findStepGuaranteedsByStepId(string $stepId): \Illuminate\Support\Collection;
+    public function findStepBonusesByStepId(string $stepId): \Illuminate\Support\Collection;
 
     /**
-     * 確定景品IDで候補リストを取得
+     * ボーナスIDでコンテンツリストを取得
      * 
-     * @param string $guaranteedId
+     * @param string $bonusId
      * @return \Illuminate\Support\Collection
      */
-    public function findCandidatesByGuaranteedId(string $guaranteedId): \Illuminate\Support\Collection;
+    public function findCandidatesByBonusId(string $bonusId): \Illuminate\Support\Collection;
 
     /**
-     * 候補IDで候補を取得
+     * コンテンツIDでコンテンツを取得
      * 
      * @param string $candidateId
      * @return mixed|null

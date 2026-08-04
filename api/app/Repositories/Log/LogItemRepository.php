@@ -2,9 +2,10 @@
 
 namespace App\Repositories\Log;
 
+
+use NexusPersistence\Support\CustomCollection;
 use App\Models\Log\LogItem;
 use NexusUtilities\ClockUtility;
-use Illuminate\Support\Collection;
 
 /**
  * LogItemRepository
@@ -57,9 +58,9 @@ class LogItemRepository extends _BaseLogRepository
      * 特定アイテムのログを取得
      *
      * @param string $mstItemId アイテムマスターID
-     * @return Collection<int, LogItem>
+     * @return CustomCollection<int, LogItem>
      */
-    public function findAllByMstItemId(string $mstItemId): Collection
+    public function findAllByMstItemId(string $mstItemId): CustomCollection
     {
         return $this->queryOrMemory()
             ->where('mst_item_id', $mstItemId)

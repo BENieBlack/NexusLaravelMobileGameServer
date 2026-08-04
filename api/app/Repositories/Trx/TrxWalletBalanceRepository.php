@@ -2,9 +2,10 @@
 
 namespace App\Repositories\Trx;
 
+
+use NexusPersistence\Support\CustomCollection;
 use App\Models\Trx\TrxWalletBalance;
 use App\Persistence\ApiSession;
-use Illuminate\Support\Collection;
 
 /**
  * TrxWalletBalanceRepository
@@ -27,9 +28,9 @@ class TrxWalletBalanceRepository extends _BaseTrxRepository
      * 残高を取得（FIFO順：有償優先 → 有効期限が近いものから）
      * 
      * @param string $mstItemId アイテムID
-     * @return Collection<int, TrxWalletBalance>
+     * @return CustomCollection<int, TrxWalletBalance>
      */
-    public function selectAllBalancesByMstItemId(string $mstItemId): Collection
+    public function selectAllBalancesByMstItemId(string $mstItemId): CustomCollection
     {
         $sysPlayerId = $this->getSysPlayerId();
         
@@ -50,9 +51,9 @@ class TrxWalletBalanceRepository extends _BaseTrxRepository
      * 
      * @param string $mstItemId アイテムID
      * @param \Carbon\CarbonImmutable $now 現在時刻
-     * @return Collection<int, TrxWalletBalance>
+     * @return CustomCollection<int, TrxWalletBalance>
      */
-    public function selectAllExpiredBalancesByMstItemId(string $mstItemId, \Carbon\CarbonImmutable $now): Collection
+    public function selectAllExpiredBalancesByMstItemId(string $mstItemId, \Carbon\CarbonImmutable $now): CustomCollection
     {
         $sysPlayerId = $this->getSysPlayerId();
         

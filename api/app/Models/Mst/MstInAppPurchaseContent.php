@@ -16,6 +16,8 @@ class MstInAppPurchaseContent extends _BaseMst
         'mst_in_app_purchase_id',
         'content_type',
         'content_id',
+        'content_option',
+        'content_quantity',
         'amount',
         'sort_desc',
     ];
@@ -23,6 +25,8 @@ class MstInAppPurchaseContent extends _BaseMst
     protected $casts = [
         'deploy_key' => 'integer',
         'mst_in_app_purchase_id' => 'integer',
+        'content_option' => 'array',
+        'content_quantity' => 'integer',
         'amount' => 'integer',
         'sort_desc' => 'integer',
         'created_at' => 'immutable_datetime',
@@ -116,13 +120,43 @@ class MstInAppPurchaseContent extends _BaseMst
     }
 
     /**
-     * 数量を取得
+     * コンテンツオプションを取得
+     *
+     * @return array|null
+     */
+    public function getContentOption(): ?array
+    {
+        return $this->getAttribute('content_option');
+    }
+
+    /**
+     * コンテンツ数量を取得（1配布あたり）
+     *
+     * @return int
+     */
+    public function getContentQuantity(): int
+    {
+        return $this->getAttribute('content_quantity');
+    }
+
+    /**
+     * 数量を取得（配布回数）
      *
      * @return int
      */
     public function getAmount(): int
     {
         return $this->getAttribute('amount');
+    }
+
+    /**
+     * 実際の配布総量を取得（content_quantity × amount）
+     *
+     * @return int
+     */
+    public function getTotalQuantity(): int
+    {
+        return $this->getContentQuantity() * $this->getAmount();
     }
 
     /**

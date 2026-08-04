@@ -2,8 +2,9 @@
 
 namespace App\Repositories\Mst;
 
+
+use NexusPersistence\Support\CustomCollection;
 use App\Models\Mst\MstUnitLevel;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -42,7 +43,7 @@ class MstUnitLevelRepository extends _BaseMstRepository
      * キャッシュからデータを取得、存在しない場合はDBから取得してキャッシュに保存
      * レアリティをキーにしてキャッシュ
      */
-    public function queryOrMemory(): Collection
+    public function queryOrMemory(): CustomCollection
     {
         if (isset($this->models)) {
             return $this->models;
@@ -86,7 +87,7 @@ class MstUnitLevelRepository extends _BaseMstRepository
      * @param string $rarity レアリティ
      * @return Collection
      */
-    public function selectAllByRarity(string $rarity): Collection
+    public function selectAllByRarity(string $rarity): CustomCollection
     {
         $allRecords = $this->queryOrMemory();
         return $allRecords->where('rarity', $rarity)
@@ -99,7 +100,7 @@ class MstUnitLevelRepository extends _BaseMstRepository
      * 
      * @return Collection
      */
-    public function selectAll(): Collection
+    public function selectAll(): CustomCollection
     {
         return $this->queryOrMemory();
     }

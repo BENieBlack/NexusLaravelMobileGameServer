@@ -4,7 +4,7 @@ namespace NexusPersistence\Repositories\Log;
 
 use NexusPersistence\Models\Log\_BaseLogInterface;
 use NexusPersistence\Repositories\_BaseRepositoryInterface;
-use Illuminate\Support\Collection;
+use NexusPersistence\Support\CustomCollection;
 
 /**
  * _BaseLogRepositoryInterface
@@ -22,9 +22,9 @@ interface _BaseLogRepositoryInterface extends _BaseRepositoryInterface
      * コンストラクタまたはApiSessionで設定されたプレイヤーIDを基にログデータを取得し、
      * メモリにキャッシュされている場合はそれを返す
      *
-     * @return Collection<int, T> ログデータのコレクション
+     * @return CustomCollection<int, T> ログデータのコレクション
      */
-    public function queryOrMemory(): Collection;
+    public function queryOrMemory(): CustomCollection;
 
     /**
      * IDでログレコードを取得

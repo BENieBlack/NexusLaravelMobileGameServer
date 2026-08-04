@@ -4,7 +4,7 @@ namespace NexusPersistence\Repositories\Trx;
 
 use NexusPersistence\Models\Trx\_BaseTrxInterface;
 use NexusPersistence\Repositories\_BaseRepositoryInterface;
-use Illuminate\Support\Collection;
+use NexusPersistence\Support\CustomCollection;
 
 /**
  * _BaseTrxRepositoryInterface
@@ -22,18 +22,18 @@ interface _BaseTrxRepositoryInterface extends _BaseRepositoryInterface
      * コンストラクタまたはApiSessionで設定されたプレイヤーIDを基にデータを取得し、
      * メモリにキャッシュされている場合はそれを返す
      *
-     * @return Collection<string, T> データのコレクション
+     * @return CustomCollection<string, T> データのコレクション
      */
-    public function queryOrMemory(): Collection;
+    public function queryOrMemory(): CustomCollection;
 
     /**
      * データベースまたはメモリからデータを取得（Collection形式）
      * ユニークキーでkeyByされたCollectionを返す
      *
      * @param int $sysPlayerId
-     * @return Collection<string, T>
+     * @return CustomCollection<string, T>
      */
-    public function getMapBySysPlayerId(int $sysPlayerId): Collection;
+    public function getMapBySysPlayerId(int $sysPlayerId): CustomCollection;
 
     /**
      * データベースまたはメモリからデータを取得（配列形式）

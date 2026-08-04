@@ -2,8 +2,9 @@
 
 namespace App\Repositories\Mst;
 
+
+use NexusPersistence\Support\CustomCollection;
 use App\Models\Mst\MstGachaStep;
-use Illuminate\Support\Collection;
 
 /**
  * MstGachaStepRepository
@@ -36,9 +37,9 @@ class MstGachaStepRepository extends _BaseMstRepository
      * ガチャIDでステップリストを取得
      *
      * @param string $mstGachaId
-     * @return Collection<int, MstGachaStep>
+     * @return CustomCollection<int, MstGachaStep>
      */
-    public function selectListByGachaId(string $mstGachaId): Collection
+    public function selectListByGachaId(string $mstGachaId): CustomCollection
     {
         $this->queryOrMemory();
         

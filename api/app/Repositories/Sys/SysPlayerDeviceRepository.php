@@ -2,12 +2,13 @@
 
 namespace App\Repositories\Sys;
 
+
+use NexusPersistence\Support\CustomCollection;
 use App\Models\Sys\SysPlayerDevice;
 use NexusAuth\Contracts\DeviceRepositoryInterface;
 use NexusAuth\Contracts\DeviceModelInterface;
 use NexusPlayer\Repositories\PlayerDeviceRepositoryInterface;
 use NexusPlayer\Dto\PlayerDeviceDto;
-use Illuminate\Support\Collection;
 
 /**
  * SysPlayerDeviceRepository
@@ -52,9 +53,9 @@ class SysPlayerDeviceRepository extends _BaseSysRepository implements DeviceRepo
      * メモリキャッシュから検索、なければDBから取得
      *
      * @param int $sysPlayerId sys_player.id（プレイヤーID）
-     * @return Collection<int, SysPlayerDevice>
+     * @return CustomCollection<int, SysPlayerDevice>
      */
-    public function selectListByPlayerId(int $sysPlayerId): Collection
+    public function selectListByPlayerId(int $sysPlayerId): CustomCollection
     {
         // メモリキャッシュから検索
         $sysPlayerDeviceCollection = $this->getModels()->where('sys_player_id', $sysPlayerId);

@@ -6,7 +6,7 @@ use App\Models\Mst\MstInAppPurchase;
 use App\Models\Trx\TrxInAppPurchaseEffect;
 use App\Repositories\Trx\TrxInAppPurchaseEffectRepository;
 use NexusUtilities\ClockUtility;
-use Illuminate\Support\Collection;
+use NexusPersistence\Support\CustomCollection;
 
 /**
  * PassService
@@ -60,15 +60,15 @@ class PassService
      * 有効期限切れの効果にis_deleteフラグを立てる
      *
      * @param int $sysPlayerId プレイヤーID
-     * @return Collection<int, TrxInAppPurchaseEffect>
+     * @return CustomCollection<int, TrxInAppPurchaseEffect>
      */
-    public function getActiveEffects(int $sysPlayerId): Collection
+    public function getActiveEffects(int $sysPlayerId): CustomCollection
     {
         
         // 全ての効果を取得
         $effects = $this->trxInAppPurchaseEffectRepository->getMapBySysPlayerId($sysPlayerId);
         
-        $activeEffects = collect();
+        $activeEffects = new CustomCollection();
 
         // 有効な効果のみをフィルタし、無効な効果にis_deleteフラグを立てる
         foreach ($effects as $effect) {

@@ -2,6 +2,8 @@
 
 namespace App\Repositories\Sys;
 
+
+use NexusPersistence\Support\CustomCollection;
 use App\Models\Sys\SysFriendApply;
 
 /**
@@ -69,7 +71,7 @@ class SysFriendApplyRepository extends _BaseSysRepository
      * プレイヤーIDで受信したフレンド申請一覧を取得
      *
      * @param int $playerId プレイヤーID
-     * @return \Illuminate\Database\Eloquent\Collection<int, SysFriendApply>
+     * @return \Illuminate\Database\Eloquent\CustomCollection<int, SysFriendApply>
      */
     public function selectReceivedApplies(int $playerId): \Illuminate\Database\Eloquent\Collection
     {
@@ -84,7 +86,7 @@ class SysFriendApplyRepository extends _BaseSysRepository
      * プレイヤーIDで送信したフレンド申請一覧を取得
      *
      * @param int $playerId プレイヤーID
-     * @return \Illuminate\Database\Eloquent\Collection<int, SysFriendApply>
+     * @return \Illuminate\Database\Eloquent\CustomCollection<int, SysFriendApply>
      */
     public function selectSentApplies(int $playerId): \Illuminate\Database\Eloquent\Collection
     {
@@ -101,7 +103,7 @@ class SysFriendApplyRepository extends _BaseSysRepository
      * statusがAppliedのものを取得
      *
      * @param int $playerId プレイヤーID
-     * @return \Illuminate\Database\Eloquent\Collection<int, SysFriendApply>
+     * @return \Illuminate\Database\Eloquent\CustomCollection<int, SysFriendApply>
      */
     public function selectAppliesByPlayerId(int $playerId): \Illuminate\Database\Eloquent\Collection
     {
@@ -122,7 +124,7 @@ class SysFriendApplyRepository extends _BaseSysRepository
      * statusがAcceptedのものを取得
      *
      * @param int $playerId プレイヤーID
-     * @return \Illuminate\Database\Eloquent\Collection<int, SysFriendApply>
+     * @return \Illuminate\Database\Eloquent\CustomCollection<int, SysFriendApply>
      */
     public function selectAcceptedFriendsByPlayerId(int $playerId): \Illuminate\Database\Eloquent\Collection
     {

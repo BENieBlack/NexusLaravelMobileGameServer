@@ -30,6 +30,8 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
         'name',
         'level',
         'level_exp',
+        'vip_point',
+        'total_paid_amount',
         'last_login_at',
     ];
 
@@ -41,6 +43,8 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
     protected $casts = [
         'level' => 'integer',
         'level_exp' => 'integer',
+        'vip_point' => 'integer',
+        'total_paid_amount' => 'decimal:2',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -288,5 +292,71 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
     public function getCreatedAt(): string
     {
         return $this->created_at->format('Y-m-d H:i:s');
+    }
+
+    /**
+     * VIPポイントを取得
+     *
+     * @return int
+     */
+    public function getVipPoint(): int
+    {
+        return $this->getAttribute('vip_point');
+    }
+
+    /**
+     * 累積課金額を取得
+     *
+     * @return float
+     */
+    public function getTotalPaidAmount(): float
+    {
+        return (float) $this->getAttribute('total_paid_amount');
+    }
+
+    /**
+     * VIPポイントを設定
+     *
+     * @param int $point
+     * @return void
+     */
+    public function setVipPoint(int $point): void
+    {
+        $this->setAttribute('vip_point', $point);
+    }
+
+    /**
+     * 累積課金額を設定
+     *
+     * @param float $amount
+     * @return void
+     */
+    public function setTotalPaidAmount(float $amount): void
+    {
+        $this->setAttribute('total_paid_amount', $amount);
+    }
+
+    /**
+     * VIPポイントを加算
+     *
+     * @param int $points
+     * @return void
+     */
+    public function addVipPoint(int $points): void
+    {
+        $currentPoint = $this->getVipPoint();
+        $this->setVipPoint($currentPoint + $points);
+    }
+
+    /**
+     * 累積課金額を加算
+     *
+     * @param float $amount
+     * @return void
+     */
+    public function addTotalPaidAmount(float $amount): void
+    {
+        $current = $this->getTotalPaidAmount();
+        $this->setTotalPaidAmount($current + $amount);
     }
 }

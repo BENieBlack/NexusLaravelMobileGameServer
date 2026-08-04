@@ -11,6 +11,7 @@ use App\Exceptions\GameException;
 use App\Http\Responses\Mailbox\ReceiveAllResponse;
 use App\Repositories\Trx\TrxMailboxRepository;
 use Carbon\Carbon;
+use NexusPersistence\Support\CustomCollection;
 
 /**
  * ReceiveAllUseCase
@@ -46,7 +47,7 @@ class ReceiveAllUseCase extends _BaseUseCase
             // 受取対象メール一覧を取得
             if ($trxMailboxIds !== null && count($trxMailboxIds) > 0) {
                 // 指定IDのメールを取得
-                $trxMailboxCollection = collect($trxMailboxIds)
+                $trxMailboxCollection = (new CustomCollection($trxMailboxIds))
                     ->map(fn($id) => $this->trxMailboxRepository->selectById($id))
                     ->filter(fn($m) => $m !== null && $m->getSysPlayerId() === $sysPlayerId);
             } else {
@@ -85,7 +86,7 @@ class ReceiveAllUseCase extends _BaseUseCase
 
                 // マスターデータから添付物を取得
                 $mstMailbox = $trxMailbox->mstMailbox;
-                $contentCollection = $mstMailbox?->contentCollection ?? collect();
+                $contentCollection = $mstMailbox?->contentCollection ?? new CustomCollection();
 
                 if ($contentCollection->isEmpty()) {
                     // 添付物がなくても受取済みにする

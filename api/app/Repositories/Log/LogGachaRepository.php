@@ -2,9 +2,10 @@
 
 namespace App\Repositories\Log;
 
+
+use NexusPersistence\Support\CustomCollection;
 use App\Models\Log\LogGacha;
 use NexusUtilities\ClockUtility;
-use Illuminate\Support\Collection;
 
 /**
  * LogGachaRepository
@@ -54,9 +55,9 @@ class LogGachaRepository extends _BaseLogRepository
      * 特定ガチャのログを取得
      *
      * @param string $mstGachaId ガチャマスターID
-     * @return Collection<int, LogGacha>
+     * @return CustomCollection<int, LogGacha>
      */
-    public function findAllByMstGachaId(string $mstGachaId): Collection
+    public function findAllByMstGachaId(string $mstGachaId): CustomCollection
     {
         return $this->queryOrMemory()
             ->where('mst_gacha_id', $mstGachaId)

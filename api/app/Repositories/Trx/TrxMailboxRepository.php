@@ -2,6 +2,8 @@
 
 namespace App\Repositories\Trx;
 
+
+use NexusPersistence\Support\CustomCollection;
 use App\Domain\MailBox\Constants\Category;
 use App\Domain\MailBox\Constants\Priority;
 use App\Models\Trx\TrxMailbox;
@@ -37,7 +39,7 @@ class TrxMailboxRepository extends _BaseTrxRepository implements MailboxReposito
         ?Priority $priority = null,
         bool $onlyUnread = false,
         bool $onlyProtected = false
-    ): Collection {
+    ): CustomCollection {
         $query = $this->modelClass::query()
             ->with(['mstMailbox.message', 'mstMailbox.contentCollection'])
             ->where('sys_player_id', $sysPlayerId)
@@ -203,7 +205,7 @@ class TrxMailboxRepository extends _BaseTrxRepository implements MailboxReposito
      * @param int $sysPlayerId
      * @return Collection
      */
-    public function selectExpired(int $sysPlayerId): Collection
+    public function selectExpired(int $sysPlayerId): CustomCollection
     {
         return $this->modelClass::query()
             ->where('sys_player_id', $sysPlayerId)

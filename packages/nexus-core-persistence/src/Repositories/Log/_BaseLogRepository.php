@@ -5,9 +5,9 @@ namespace NexusPersistence\Repositories\Log;
 use NexusPersistence\Models\Log\_BaseLog;
 use NexusPersistence\Models\Log\_BaseLogInterface;
 use NexusPersistence\Repositories\_BaseRepository;
+use NexusPersistence\Support\CustomCollection;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
 
 /**
  * _BaseLogRepository
@@ -86,10 +86,10 @@ abstract class _BaseLogRepository extends _BaseRepository implements _BaseLogRep
      * キャッシュがあればキャッシュを返す
      * プレイヤーIDはPlayerSessionResolverから自動的に取得される
      *
-     * @return Collection<int, T>
+     * @return CustomCollection<int, T>
      * @throws \RuntimeException プレイヤーIDが取得できない場合
      */
-    public function queryOrMemory(): Collection
+    public function queryOrMemory(): CustomCollection
     {
         // メモリキャッシュにデータがあればそれを返す
         if ($this->models !== null && $this->models->isNotEmpty()) {
@@ -104,10 +104,12 @@ abstract class _BaseLogRepository extends _BaseRepository implements _BaseLogRep
         $instance = new $this->modelClass();
 
         // sys_player_idで検索してIDでkeyByしてキャッシュに保存
-        $this->models = $instance::on($this->connection)
+        $records = $instance::on($this->connection)
             ->where($this->selectKey, $sysPlayerId)
             ->get()
             ->keyBy('id');
+
+        $this->models = new CustomCollection($records->all());
 
         return $this->models;
     }

@@ -2,9 +2,10 @@
 
 namespace App\Repositories\Sys;
 
+
+use NexusPersistence\Support\CustomCollection;
 use App\Models\Sys\SysDeploy;
 use NexusVersion\Repositories\DeployRepositoryInterface;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -101,7 +102,7 @@ class SysDeployRepository extends _BaseSysRepository implements DeployRepository
      *
      * @return Collection
      */
-    public function selectActiveList(): Collection
+    public function selectActiveList(): CustomCollection
     {
         return $this->modelClass::where('is_active', true)
             ->orderBy('deploy_key', 'desc')

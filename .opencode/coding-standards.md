@@ -1079,7 +1079,7 @@ class SysPlayerRepository extends _BaseSysRepository
         );
     }
     
-    public function selectListByShardId(int $shardId): Collection
+    public function selectListByShardId(int $shardId): CustomCollection
     {
         return $this->cacheRemember(
             "shard_id:{$shardId}",
@@ -1095,18 +1095,107 @@ class SysPlayerRepository extends _BaseSysRepository
 |-----|-----------|-------|-----|
 | ID検索 | `selectById(int $id)` | 単一モデル | `selectById(123)` |
 | 単一レコード検索 | `selectByXxx()` | 単一モデル | `selectByMyId('player_001')` |
-| 複数レコード検索 | `selectListByXxx()` | コレクション | `selectListByStatus('active')` |
+| 複数レコード検索 | `selectListByXxx()` | CustomCollection | `selectListByStatus('active')` |
 | データ挿入 | `insert()` | モデル | `insert($data)` |
 | データ更新 | `update()` | モデル | `update($model)` |
 | データ削除 | `delete()` | bool | `delete($model)` |
+
+### CustomCollectionの使用
+
+**重要**: このプロジェクトでは、パフォーマンス最適化のため`Illuminate\Support\Collection`ではなく`NexusPersistence\Support\CustomCollection`を使用します。
+
+#### ✅ Good: CustomCollectionを使用
+
+```php
+use NexusPersistence\Support\CustomCollection;
+
+class MstItemRepository extends _BaseMstRepository
+{
+    /**
+     * アクティブなアイテムを取得
+     * 
+     * @return CustomCollection<int, MstItem>
+     */
+    public function selectActiveItems(): CustomCollection
+    {
+        return $this->queryOrMemory()
+            ->where('is_active', true)
+            ->sortBy('sort_order');
+    }
+
+    /**
+     * カテゴリでフィルタ
+     * 
+     * @param string $category
+     * @return CustomCollection<int, MstItem>
+     */
+    public function selectByCategory(string $category): CustomCollection
+    {
+        return $this->queryOrMemory()
+            ->where('category', $category)
+            ->where('is_active', true);
+    }
+}
+```
+
+#### ❌ Bad: Illuminate\Support\Collectionを使用しない
+
+```php
+use Illuminate\Support\Collection;  // NG: 標準Collectionは使わない
+
+class MstItemRepository extends _BaseMstRepository
+{
+    /**
+     * @return Collection<int, MstItem>  // NG
+     */
+    public function selectActiveItems(): Collection  // NG
+    {
+        return $this->queryOrMemory()  // これはCustomCollectionを返す
+            ->where('is_active', true);
+    }
+}
+```
+
+### CustomCollectionを使う理由
+
+1. **パフォーマンス最適化**: 
+   - `filter()`, `where()`, `reject()`などのメソッドで不要なインスタンスコピーを回避
+   - PHP標準の`array_filter`等を使用して高速化
+   - 10,000件のデータ処理で約5倍の速度向上
+
+2. **メモリ効率**:
+   - 大量のマスターデータを扱う際のメモリ使用量を削減
+   - インスタンスコピーによるメモリの無駄を削減
+
+3. **後方互換性**:
+   - `CustomCollection`は`Collection`を継承しているため、既存のメソッドはすべて使用可能
+   - 既存コードとの互換性を保ちながらパフォーマンス向上
 
 ### ルール
 
 - 各データベース（Sys/Mst/Trx）ごとに基底クラスを継承
 - **キャッシュ機能を積極的に活用**（重複クエリの削減）
 - メソッド命名規則に従う
+- **戻り値型は必ず`CustomCollection`を指定**（`Collection`は使わない）
 - キャッシュキーは一意性を保つ（例: `"sys:player:my_id:{$myId}"`）
 - テスト環境では自動的にArrayキャッシュを使用
+
+### 基底Repositoryクラスの仕様
+
+すべての基底Repositoryクラス（`_BaseMstRepository`, `_BaseTrxRepository`, `_BaseSysRepository`, `_BaseLogRepository`）は、`queryOrMemory()`メソッドで`CustomCollection`を返します。
+
+```php
+// 基底クラスでCustomCollectionを返す
+abstract class _BaseRepository
+{
+    /**
+     * データベースまたはメモリからデータを取得
+     * 
+     * @return CustomCollection
+     */
+    abstract public function queryOrMemory(): CustomCollection;
+}
+```
 
 ---
 

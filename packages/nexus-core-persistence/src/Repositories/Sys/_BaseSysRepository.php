@@ -4,8 +4,8 @@ namespace NexusPersistence\Repositories\Sys;
 
 use NexusPersistence\Models\Sys\_BaseSysInterface;
 use NexusPersistence\Repositories\_BaseRepository;
+use NexusPersistence\Support\CustomCollection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -74,7 +74,7 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
 
         // CacheRecordTraitのキャッシュに保存
         if ($this->models === null) {
-            $this->models = collect();
+            $this->models = new CustomCollection();
         }
         $this->models->put($uniqueKey, $model);
 
@@ -132,16 +132,17 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
      * データベースまたはメモリからデータを取得
      * メモリキャッシュのみ使用（特定のRepositoryでRedisを使う場合はオーバーライド）
      * 
-     * @return Collection<int|string, T>
+     * @return CustomCollection<int|string, T>
      */
-    public function queryOrMemory(): Collection
+    public function queryOrMemory(): CustomCollection
     {
         if ($this->models !== null) {
             return $this->models;
         }
 
         // DBから全レコードを取得してメモリキャッシュに保存
-        $this->models = $this->modelClass::all()->keyBy('id');
+        $records = $this->modelClass::all()->keyBy('id');
+        $this->models = new CustomCollection($records->all());
 
         return $this->models;
     }

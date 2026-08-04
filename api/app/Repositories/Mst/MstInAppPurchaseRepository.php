@@ -2,8 +2,9 @@
 
 namespace App\Repositories\Mst;
 
+
+use NexusPersistence\Support\CustomCollection;
 use App\Models\Mst\MstInAppPurchase;
-use Illuminate\Support\Collection;
 
 /**
  * MstInAppPurchaseRepository
@@ -19,9 +20,9 @@ class MstInAppPurchaseRepository extends _BaseMstRepository
     /**
      * 有効な商品を全て取得
      *
-     * @return Collection<int, MstInAppPurchase>
+     * @return CustomCollection<int, MstInAppPurchase>
      */
-    public function findAllActive(): Collection
+    public function findAllActive(): CustomCollection
     {
         return $this->queryOrMemory()
             ->where('is_active', true)
@@ -33,9 +34,9 @@ class MstInAppPurchaseRepository extends _BaseMstRepository
      * タイプで絞り込んで有効な商品を取得
      *
      * @param string $type 商品タイプ (Diamond, Pack, Pass)
-     * @return Collection<int, MstInAppPurchase>
+     * @return CustomCollection<int, MstInAppPurchase>
      */
-    public function findAllActiveByType(string $type): Collection
+    public function findAllActiveByType(string $type): CustomCollection
     {
         return $this->queryOrMemory()
             ->where('type', $type)

@@ -3,7 +3,6 @@
 namespace App\Repositories\Mst;
 
 use App\Models\Mst\MstGachaCost;
-use Illuminate\Support\Collection;
 
 /**
  * MstGachaCostRepository

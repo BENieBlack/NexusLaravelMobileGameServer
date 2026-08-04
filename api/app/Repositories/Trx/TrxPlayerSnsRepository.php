@@ -2,8 +2,9 @@
 
 namespace App\Repositories\Trx;
 
+
+use NexusPersistence\Support\CustomCollection;
 use App\Models\Trx\TrxPlayerSns;
-use Illuminate\Support\Collection;
 
 /**
  * TrxPlayerSnsRepository
@@ -21,9 +22,9 @@ class TrxPlayerSnsRepository extends _BaseTrxRepository
      * プレイヤーIDでSNS連携情報を全て取得
      *
      * @param int $sysPlayerId プレイヤーID
-     * @return Collection<string, TrxPlayerSns>
+     * @return CustomCollection<string, TrxPlayerSns>
      */
-    public function selectAll(int $sysPlayerId): Collection
+    public function selectAll(int $sysPlayerId): CustomCollection
     {
         return $this->getMapBySysPlayerId($sysPlayerId);
     }

@@ -2,7 +2,7 @@
 
 namespace NexusPersistence\Repositories;
 
-use Illuminate\Support\Collection;
+use NexusPersistence\Support\CustomCollection;
 
 /**
  * _BaseRepository
@@ -28,9 +28,9 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
      * データベースから取得したモデルをメモリにキャッシュし、
      * 同一リクエスト内での重複クエリを防ぐ
      *
-     * @var Collection|null
+     * @var CustomCollection|null
      */
-    protected ?Collection $models = null;
+    protected ?CustomCollection $models = null;
 
     /**
      * データベース接続名
@@ -155,13 +155,13 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
      * キャッシュされたモデルを取得
      * キーが指定された場合は、そのキーに一致するモデルのみを返す
      *
-     * @param Collection|null $keys 取得したいモデルのキーのコレクション（nullの場合は全て）
-     * @return Collection
+     * @param CustomCollection|null $keys 取得したいモデルのキーのコレクション（nullの場合は全て）
+     * @return CustomCollection
      */
-    protected function getModels(?Collection $keys = null): Collection
+    protected function getModels(?CustomCollection $keys = null): CustomCollection
     {
         if ($this->models === null) {
-            $this->models = collect();
+            $this->models = new CustomCollection();
         }
 
         // キーが指定されていない場合は全てのモデルを返す
@@ -184,7 +184,7 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
     public function setModel($model): void
     {
         if ($this->models === null) {
-            $this->models = collect();
+            $this->models = new CustomCollection();
         }
         $key = implode(':', array_map(fn($uniqueKey) => $model->{$uniqueKey}, $this->getUniqueKeys()));
         $this->models->put($key, $model);
@@ -193,10 +193,10 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
     /**
      * 複数のモデルをキャッシュに保存
      *
-     * @param Collection $models
+     * @param CustomCollection $models
      * @return void
      */
-    protected function setModels(Collection $models): void
+    protected function setModels(CustomCollection $models): void
     {
         foreach ($models as $model) {
             $this->setModel($model);
@@ -255,9 +255,21 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
      * データベースまたはメモリからデータを取得
      * サブクラスで実装必須
      *
-     * @return Collection
+     * @return CustomCollection
      */
-    abstract public function queryOrMemory(): Collection;
+    abstract public function queryOrMemory(): CustomCollection;
+
+    /**
+     * データベースまたはメモリからデータを取得（CustomCollection版）
+     * パフォーマンス最適化されたCustomCollectionを返す
+     *
+     * @return CustomCollection
+     * @deprecated Use queryOrMemory() directly as it now returns CustomCollection
+     */
+    protected function queryOrMemoryCustom(): CustomCollection
+    {
+        return $this->queryOrMemory();
+    }
 
     /**
      * ユニークキーを取得

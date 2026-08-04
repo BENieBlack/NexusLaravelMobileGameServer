@@ -2,8 +2,9 @@
 
 namespace App\Repositories\Mst;
 
+
+use NexusPersistence\Support\CustomCollection;
 use App\Models\Mst\MstBillingPlatformProduct;
-use Illuminate\Support\Collection;
 
 /**
  * MstBillingPlatformProductRepository
@@ -37,9 +38,9 @@ class MstBillingPlatformProductRepository extends _BaseMstRepository
     /**
      * 有効な商品を全て取得
      *
-     * @return Collection<int, MstBillingPlatformProduct>
+     * @return CustomCollection<int, MstBillingPlatformProduct>
      */
-    public function findAllActive(): Collection
+    public function findAllActive(): CustomCollection
     {
         return $this->queryOrMemory()
             ->where('is_active', true)
@@ -50,9 +51,9 @@ class MstBillingPlatformProductRepository extends _BaseMstRepository
      * プラットフォームで絞り込んで有効な商品を取得
      *
      * @param string $billingPlatform 決済プラットフォーム
-     * @return Collection<int, MstBillingPlatformProduct>
+     * @return CustomCollection<int, MstBillingPlatformProduct>
      */
-    public function findAllActiveByBillingPlatform(string $billingPlatform): Collection
+    public function findAllActiveByBillingPlatform(string $billingPlatform): CustomCollection
     {
         return $this->queryOrMemory()
             ->where('billing_platform', $billingPlatform)

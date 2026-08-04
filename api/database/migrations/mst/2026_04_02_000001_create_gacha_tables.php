@@ -103,7 +103,9 @@ return new class extends Migration
             $table->unsignedTinyInteger('rarity')->comment('レアリティ（1~5）');
             $table->enum('content_type', ['item', 'unit', 'equipment'])->comment('コンテンツタイプ');
             $table->string('content_id')->comment('コンテンツID');
-            $table->unsignedInteger('amount')->default(1)->comment('獲得数量');
+            $table->json('content_option')->nullable()->comment('コンテンツオプション (例: {"grade":1, "level":5})');
+            $table->unsignedInteger('content_quantity')->default(1)->comment('1配布あたりのコンテンツ数量');
+            $table->unsignedInteger('amount')->default(1)->comment('配布回数（content_quantity × amount = 実際の配布量）');
             $table->unsignedInteger('weight')->default(1)->comment('重み（同レアリティ内での排出率）');
             $table->boolean('is_pickup')->default(false)->comment('ピックアップ対象か');
             $table->boolean('is_active')->default(true)->comment('有効フラグ');
@@ -140,21 +142,21 @@ return new class extends Migration
         });
 
         // ========================================
-        // mst_gacha_step_guaranteed: ガチャステップ確定景品マスター
-        // ステップごとの確定景品設定（複数設定可能）
-        // パターン1: SSRがN体確定 → guaranteed_count > 1
-        // パターン2: UnitAとUnitBどちらか確定 → selection_type='random', 候補を別テーブルで定義
-        // パターン3: UnitAとUnitBのどちらかを選択 → selection_type='choice', 候補を別テーブルで定義
+        // mst_gacha_step_bonus: ガチャステップボーナスマスター
+        // ステップごとのボーナス設定（複数設定可能）
+        // パターン1: SSRがN体ボーナス → bonus_count > 1
+        // パターン2: UnitAとUnitBどちらかボーナス → selection_type='random', コンテンツを別テーブルで定義
+        // パターン3: UnitAとUnitBのどちらかを選択 → selection_type='choice', コンテンツを別テーブルで定義
         // ========================================
-        Schema::connection('mst')->create('mst_gacha_step_guaranteed', function (Blueprint $table) {
+        Schema::connection('mst')->create('mst_gacha_step_bonus', function (Blueprint $table) {
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
-            $table->string('id')->primary()->comment('確定景品ID');
+            $table->string('id')->primary()->comment('ステップボーナスID');
             $table->string('mst_gacha_step_id')->comment('ステップID');
-            $table->unsignedInteger('position')->comment('確定位置（1回目、2回目など、0=ランダム位置）');
-            $table->unsignedInteger('guaranteed_count')->default(1)->comment('確定数量（SSRがN体確定など）');
-            $table->enum('selection_type', ['none', 'random', 'choice'])->default('none')->comment('選択タイプ（none=通常抽選, random=候補からランダム, choice=ユーザー選択）');
-            $table->unsignedTinyInteger('guaranteed_rarity')->nullable()->comment('確定レアリティ（NULL=レアリティ指定なし）');
-            $table->enum('guaranteed_content_type', ['item', 'unit', 'equipment'])->nullable()->comment('確定コンテンツタイプ（NULL=任意）');
+            $table->unsignedInteger('position')->comment('ボーナス位置（1回目、2回目など、0=ランダム位置）');
+            $table->unsignedInteger('bonus_count')->default(1)->comment('ボーナス数量（SSRがN体ボーナスなど）');
+            $table->enum('selection_type', ['none', 'random', 'choice'])->default('none')->comment('選択タイプ（none=通常抽選, random=コンテンツからランダム, choice=ユーザー選択）');
+            $table->unsignedTinyInteger('bonus_rarity')->nullable()->comment('ボーナスレアリティ（NULL=レアリティ指定なし）');
+            $table->enum('bonus_content_type', ['item', 'unit', 'equipment'])->nullable()->comment('ボーナスコンテンツタイプ（NULL=任意）');
             $table->boolean('is_pickup_only')->default(false)->comment('ピックアップ限定か');
             $table->boolean('is_active')->default(true)->comment('有効フラグ');
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
@@ -162,20 +164,22 @@ return new class extends Migration
 
             $table->index('deploy_key');
             $table->index('mst_gacha_step_id');
-            $table->unique(['mst_gacha_step_id', 'position'], 'uk_step_guaranteed');
+            $table->unique(['mst_gacha_step_id', 'position'], 'uk_step_bonus');
         });
 
         // ========================================
-        // mst_gacha_step_guaranteed_candidate: ガチャステップ確定景品候補マスター
-        // selection_type='random'または'choice'の場合の候補リスト
+        // mst_gacha_step_bonus_content: ガチャステップボーナスコンテンツマスター
+        // selection_type='random'または'choice'の場合のコンテンツリスト
         // ========================================
-        Schema::connection('mst')->create('mst_gacha_step_guaranteed_candidate', function (Blueprint $table) {
+        Schema::connection('mst')->create('mst_gacha_step_bonus_content', function (Blueprint $table) {
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
-            $table->string('id')->primary()->comment('候補ID');
-            $table->string('mst_gacha_step_guaranteed_id')->comment('確定景品ID');
+            $table->string('id')->primary()->comment('ボーナスコンテンツID');
+            $table->string('mst_gacha_step_bonus_id')->comment('ステップボーナスID');
             $table->enum('content_type', ['item', 'unit', 'equipment'])->comment('コンテンツタイプ');
             $table->string('content_id')->comment('コンテンツID');
-            $table->unsignedInteger('amount')->default(1)->comment('獲得数量');
+            $table->json('content_option')->nullable()->comment('コンテンツオプション (例: {"grade":1, "level":5})');
+            $table->unsignedInteger('content_quantity')->default(1)->comment('1配布あたりのコンテンツ数量');
+            $table->unsignedInteger('amount')->default(1)->comment('配布回数（content_quantity × amount = 実際の配布量）');
             $table->unsignedInteger('weight')->default(1)->comment('重み（selection_typeがrandomの場合の抽選率）');
             $table->unsignedInteger('sort_order')->default(0)->comment('表示順序（selection_typeがchoiceの場合）');
             $table->boolean('is_active')->default(true)->comment('有効フラグ');
@@ -183,7 +187,7 @@ return new class extends Migration
             $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
 
             $table->index('deploy_key');
-            $table->index('mst_gacha_step_guaranteed_id', 'idx_step_guaranteed_id');
+            $table->index('mst_gacha_step_bonus_id', 'idx_step_bonus_id');
         });
     }
 
@@ -192,8 +196,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection('mst')->dropIfExists('mst_gacha_step_guaranteed_candidate');
-        Schema::connection('mst')->dropIfExists('mst_gacha_step_guaranteed');
+        Schema::connection('mst')->dropIfExists('mst_gacha_step_bonus_content');
+        Schema::connection('mst')->dropIfExists('mst_gacha_step_bonus');
         Schema::connection('mst')->dropIfExists('mst_gacha_step');
         Schema::connection('mst')->dropIfExists('mst_gacha_prize');
         Schema::connection('mst')->dropIfExists('mst_gacha_rarity_rate');

@@ -37,13 +37,13 @@ class GachaDrawService
         $prizes = [];
 
         // ステップアップガチャの場合、ステップ情報を取得
-        $stepGuaranteedList = [];
+        $stepBonusList = [];
         if ($hasStepUp) {
             $step = $this->masterRepository->findStepByGachaIdAndNumber($mstGachaId, $currentStep);
             if ($step) {
-                // ステップの確定景品リストを取得
-                $stepGuaranteedList = $this->masterRepository
-                    ->findStepGuaranteedsByStepId($step->getAttribute('id'))
+                // ステップのボーナス景品リストを取得
+                $stepBonusList = $this->masterRepository
+                    ->findStepBonusesByStepId($step->getAttribute('id'))
                     ->where('is_active', true)
                     ->sortBy('position')
                     ->values()
@@ -51,16 +51,16 @@ class GachaDrawService
             }
         }
 
-        // 通常抽選とステップ確定を組み合わせて実行
+        // 通常抽選とステップボーナスを組み合わせて実行
         for ($i = 0; $i < $drawCount; $i++) {
             $position = $i + 1;
             
-            // この位置に確定景品があるかチェック
-            $guaranteed = collect($stepGuaranteedList)->firstWhere('position', $position);
+            // この位置にボーナス景品があるかチェック
+            $bonus = collect($stepBonusList)->firstWhere('position', $position);
             
-            if ($guaranteed) {
-                // 確定景品を抽選
-                $prize = $this->drawGuaranteed($guaranteed, $selectedCandidateId, $mstGachaId);
+            if ($bonus) {
+                // ボーナス景品を抽選
+                $prize = $this->drawBonus($bonus, $selectedCandidateId, $mstGachaId);
             } else {
                 // 通常抽選
                 $prize = $this->drawNormal($mstGachaId);
@@ -69,11 +69,11 @@ class GachaDrawService
             $prizes[] = $prize;
         }
 
-        // position=0（ランダム位置）の確定景品を処理
-        $randomGuaranteedList = collect($stepGuaranteedList)->where('position', 0)->values();
-        foreach ($randomGuaranteedList as $guaranteed) {
-            for ($i = 0; $i < $guaranteed->getAttribute('guaranteed_count'); $i++) {
-                $prize = $this->drawGuaranteed($guaranteed, $selectedCandidateId, $mstGachaId);
+        // position=0（ランダム位置）のボーナス景品を処理
+        $randomBonusList = collect($stepBonusList)->where('position', 0)->values();
+        foreach ($randomBonusList as $bonus) {
+            for ($i = 0; $i < $bonus->getAttribute('bonus_count'); $i++) {
+                $prize = $this->drawBonus($bonus, $selectedCandidateId, $mstGachaId);
                 // ランダムな位置に挿入
                 $randomPosition = rand(0, count($prizes) - 1);
                 $prizes[$randomPosition] = $prize;
@@ -99,19 +99,19 @@ class GachaDrawService
     }
 
     /**
-     * 確定景品抽選
+     * ボーナス景品抽選
      *
-     * @param mixed $guaranteed
+     * @param mixed $bonus
      * @param string|null $selectedCandidateId
      * @param string $mstGachaId
      * @return GachaPrizeDto
      * @throws \Exception
      */
-    private function drawGuaranteed($guaranteed, ?string $selectedCandidateId, string $mstGachaId): GachaPrizeDto
+    private function drawBonus($bonus, ?string $selectedCandidateId, string $mstGachaId): GachaPrizeDto
     {
-        $selectionType = $guaranteed->getAttribute('selection_type');
-        $guaranteedRarity = $guaranteed->getAttribute('guaranteed_rarity');
-        $isPickupOnly = $guaranteed->getAttribute('is_pickup_only');
+        $selectionType = $bonus->getAttribute('selection_type');
+        $bonusRarity = $bonus->getAttribute('bonus_rarity');
+        $isPickupOnly = $bonus->getAttribute('is_pickup_only');
 
         if ($selectionType === 'choice') {
             // ユーザー選択
@@ -120,7 +120,7 @@ class GachaDrawService
             }
 
             $candidate = $this->masterRepository->findCandidateById($selectedCandidateId);
-            if (!$candidate || $candidate->getAttribute('mst_gacha_step_guaranteed_id') !== $guaranteed->getAttribute('id')) {
+            if (!$candidate || $candidate->getAttribute('mst_gacha_step_bonus_id') !== $bonus->getAttribute('id')) {
                 throw new \Exception("Invalid candidate ID");
             }
 
@@ -128,12 +128,12 @@ class GachaDrawService
                 contentType: $candidate->getAttribute('content_type'),
                 contentId: $candidate->getAttribute('content_id'),
                 amount: $candidate->getAttribute('amount'),
-                rarity: $guaranteedRarity,
+                rarity: $bonusRarity,
                 isGuaranteed: true
             );
         } elseif ($selectionType === 'random') {
             // 候補からランダム
-            $candidates = $this->masterRepository->findCandidatesByGuaranteedId($guaranteed->getAttribute('id'));
+            $candidates = $this->masterRepository->findCandidatesByBonusId($bonus->getAttribute('id'));
             
             if ($candidates->isEmpty()) {
                 throw new \Exception("No candidates found for random selection");
@@ -145,13 +145,13 @@ class GachaDrawService
                 contentType: $candidate->getAttribute('content_type'),
                 contentId: $candidate->getAttribute('content_id'),
                 amount: $candidate->getAttribute('amount'),
-                rarity: $guaranteedRarity,
+                rarity: $bonusRarity,
                 isGuaranteed: true
             );
         } else {
             // none: 通常抽選だが確定レアリティ
-            if ($guaranteedRarity) {
-                return $this->drawPrize($mstGachaId, $guaranteedRarity, $isPickupOnly);
+            if ($bonusRarity) {
+                return $this->drawPrize($mstGachaId, $bonusRarity, $isPickupOnly);
             }
 
             return $this->drawNormal($mstGachaId);

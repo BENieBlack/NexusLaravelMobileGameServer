@@ -2,8 +2,9 @@
 
 namespace App\Repositories\Mst;
 
+
+use NexusPersistence\Support\CustomCollection;
 use App\Models\Mst\MstGachaRarityRate;
-use Illuminate\Support\Collection;
 
 /**
  * MstGachaRarityRateRepository
@@ -18,9 +19,9 @@ class MstGachaRarityRateRepository extends _BaseMstRepository
      * ガチャIDでレアリティ排出率リストを取得
      *
      * @param string $mstGachaId
-     * @return Collection<int, MstGachaRarityRate>
+     * @return CustomCollection<int, MstGachaRarityRate>
      */
-    public function selectListByGachaId(string $mstGachaId): Collection
+    public function selectListByGachaId(string $mstGachaId): CustomCollection
     {
         $this->queryOrMemory();
         

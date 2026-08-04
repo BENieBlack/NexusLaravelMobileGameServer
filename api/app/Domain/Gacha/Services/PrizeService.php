@@ -6,11 +6,11 @@ use NexusGacha\Services\GachaPrizeService as BaseGachaPrizeService;
 use NexusGacha\Dto\GachaPrizeDto;
 
 /**
- * GachaPrizeService
+ * PrizeService
  *
  * パッケージ版のGachaPrizeServiceのラッパー
  */
-class GachaPrizeService
+class PrizeService
 {
     public function __construct(
         private readonly BaseGachaPrizeService $basePrizeService,

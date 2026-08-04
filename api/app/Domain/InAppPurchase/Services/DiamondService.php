@@ -3,6 +3,7 @@
 namespace App\Domain\InAppPurchase\Services;
 
 use App\Models\Mst\MstInAppPurchase;
+use App\Domain\InAppPurchase\Services\PurchaseService as DiamondPurchaseService;
 
 /**
  * DiamondService (Facade)
@@ -14,9 +15,9 @@ use App\Models\Mst\MstInAppPurchase;
  * 
  * 新規コードでは、以下のServiceを直接使用することを推奨:
  * - DiamondBalanceService: 残高管理
- * - DiamondPurchaseService: 購入処理
+ * - PurchaseService: 購入処理
  * 
- * @deprecated 新規コードでは DiamondBalanceService または DiamondPurchaseService を使用してください
+ * @deprecated 新規コードでは DiamondBalanceService または PurchaseService を使用してください
  */
 class DiamondService
 {
@@ -37,7 +38,7 @@ class DiamondService
      * @param string $transactionId プラットフォーム固有のトランザクションID
      * @return array{paid_diamond_amount: int, total_paid_diamond_amount: int, total_free_diamond_amount: int}
      * 
-     * @deprecated DiamondPurchaseService::purchaseDiamond() を使用してください
+     * @deprecated PurchaseService::purchaseDiamond() を使用してください
      */
     public function purchaseDiamond(
         int $sysPlayerId,

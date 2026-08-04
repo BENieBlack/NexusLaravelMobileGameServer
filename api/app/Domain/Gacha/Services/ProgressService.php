@@ -9,12 +9,12 @@ use NexusGacha\Dto\GachaProgressDto;
 use NexusUtilities\ClockUtility;
 
 /**
- * GachaProgressService
+ * ProgressService
  *
  * パッケージ版のGachaProgressServiceのラッパー
  * Eloquent Modelを返すために変換処理を行う
  */
-class GachaProgressService
+class ProgressService
 {
     public function __construct(
         private readonly TrxGachaRepository $trxGachaRepository,

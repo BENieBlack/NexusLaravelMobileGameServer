@@ -5,7 +5,7 @@ namespace App\Domain\Item\Services;
 use App\Models\Trx\TrxItem;
 
 /**
- * ItemReadService
+ * ReadService
  *
  * アイテム残高の読み取り専用サービス
  * 
@@ -18,7 +18,7 @@ use App\Models\Trx\TrxItem;
  * - Query operations only
  * - Can be cached or optimized independently
  */
-class ItemReadService
+class ReadService
 {
     /**
      * アイテムの所持数を取得

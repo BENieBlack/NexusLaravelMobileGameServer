@@ -6,7 +6,7 @@ use App\Repositories\Trx\TrxWalletRepository;
 use LaravelWallet\DTOs\CurrencyBalanceDto;
 
 /**
- * WalletReadService
+ * ReadService
  * 
  * 通貨残高の読み取り専用操作を担当するサービス
  * 
@@ -16,9 +16,9 @@ use LaravelWallet\DTOs\CurrencyBalanceDto;
  * 
  * 設計:
  * - Read側: このサービス（状態変更なし）
- * - Write側: WalletWriteService（状態変更あり）
+ * - Write側: WriteService（状態変更あり）
  */
-class WalletReadService
+class ReadService
 {
     public function __construct(
         private readonly TrxWalletRepository $trxWalletRepository,

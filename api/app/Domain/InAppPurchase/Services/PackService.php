@@ -10,6 +10,7 @@ use App\Models\Trx\TrxUnit;
 use App\Repositories\Trx\TrxInAppPurchaseRepository;
 use App\Repositories\Trx\TrxUnitRepository;
 use NexusUtilities\ClockUtility;
+use App\Domain\InAppPurchase\Services\HistoryService as PurchaseHistoryService;
 
 /**
  * PackService

@@ -3,11 +3,11 @@
 namespace App\Domain\Gacha\UseCases;
 
 use App\Domain\_BaseUseCase;
-use App\Domain\Gacha\Services\GachaCostService;
-use App\Domain\Gacha\Services\GachaDrawService;
-use App\Domain\Gacha\Services\GachaPrizeService;
-use App\Domain\Gacha\Services\GachaProgressService;
-use App\Domain\Gacha\Services\GachaValidationService;
+use App\Domain\Gacha\Services\CostService as GachaCostService;
+use App\Domain\Gacha\Services\DrawService as GachaDrawService;
+use App\Domain\Gacha\Services\PrizeService as GachaPrizeService;
+use App\Domain\Gacha\Services\ProgressService as GachaProgressService;
+use App\Domain\Gacha\Services\ValidationService as GachaValidationService;
 use App\Http\Responses\Gacha\DrawResponse;
 use App\Models\Trx\TrxGachaHistory;
 use App\Repositories\Mst\MstGachaStepRepository;

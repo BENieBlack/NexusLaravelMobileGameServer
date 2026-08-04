@@ -5,10 +5,8 @@ namespace App\Domain\InAppPurchase\Services;
 use App\Domain\InAppPurchase\Constants\InAppPurchaseConst;
 use App\Domain\Item\Services\ItemService;
 use App\Models\Mst\MstInAppPurchase;
-use App\Models\Trx\TrxDiamond;
 use App\Models\Trx\TrxInAppPurchase;
 use App\Models\Trx\TrxUnit;
-use App\Repositories\Trx\TrxDiamondRepository;
 use App\Repositories\Trx\TrxInAppPurchaseRepository;
 use App\Repositories\Trx\TrxUnitRepository;
 use NexusUtilities\ClockUtility;
@@ -22,7 +20,7 @@ use NexusUtilities\ClockUtility;
 class PackService
 {
     public function __construct(
-        private readonly TrxDiamondRepository $trxDiamondRepository,
+        private readonly DiamondBalanceService $diamondBalanceService,
         private readonly ItemService $itemService,
         private readonly TrxUnitRepository $trxUnitRepository,
         private readonly TrxInAppPurchaseRepository $trxInAppPurchaseRepository,
@@ -67,8 +65,9 @@ class PackService
         foreach ($contentCollection as $content) {
             switch ($content->getContentType()) {
                 case InAppPurchaseConst::CONTENT_TYPE_FREE_DIAMOND:
-                    // 無償ダイヤモンドを付与
-                    $totalFreeDiamond += $this->grantFreeDiamond($sysPlayerId, $platform, $content->getAmount());
+                    // 無償ダイヤモンドを付与（DiamondBalanceServiceに委譲）
+                    $this->diamondBalanceService->addDiamond($sysPlayerId, $platform, $content->getAmount(), isPaid: false);
+                    $totalFreeDiamond += $content->getAmount();
                     $grantedContentArray[] = [
                         'type' => 'FreeDiamond',
                         'amount' => $content->getAmount(),
@@ -111,37 +110,6 @@ class PackService
             'contents' => $grantedContentArray,
             'total_free_diamond_amount' => $totalFreeDiamond,
         ];
-    }
-
-    /**
-     * 無償ダイヤモンドを付与
-     * 
-     * @param int $sysPlayerId プレイヤーID
-     * @param string $platform プラットフォーム
-     * @param int $amount 付与数
-     * @return int 付与後の合計無償ダイヤモンド数
-     */
-    private function grantFreeDiamond(int $sysPlayerId, string $platform, int $amount): int
-    {
-        $diamond = TrxDiamond::query()
-            ->where('sys_player_id', $sysPlayerId)
-            ->where('platform', $platform)
-            ->first();
-
-        if ($diamond === null) {
-            $diamond = new TrxDiamond([
-                'sys_player_id' => $sysPlayerId,
-                'platform' => $platform,
-                'paid_amount' => 0,
-                'free_amount' => $amount,
-            ]);
-        } else {
-            $diamond->setFreeAmount($diamond->getFreeAmount() + $amount);
-        }
-
-        $this->trxDiamondRepository->setModel($diamond);
-
-        return $diamond->getFreeAmount();
     }
 
     /**

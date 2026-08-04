@@ -27,6 +27,7 @@ class PackService
         private readonly TrxUnitRepository $trxUnitRepository,
         private readonly TrxInAppPurchaseRepository $trxInAppPurchaseRepository,
         private readonly ValidationService $validationService,
+        private readonly PurchaseHistoryService $purchaseHistoryService,
     ) {
     }
 
@@ -98,7 +99,7 @@ class PackService
         }
 
         // 5. 購入履歴を更新
-        $this->updatePurchaseHistory(
+        $this->purchaseHistoryService->updateOrCreatePurchaseHistory(
             $sysPlayerId,
             $billingPlatform,
             $mstInAppPurchase,
@@ -174,56 +175,5 @@ class PackService
         }
 
         return $firstUnitId;
-    }
-
-    /**
-     * 購入履歴を更新
-     * 
-     * @param int $sysPlayerId プレイヤーID
-     * @param string $billingPlatform 決済プラットフォーム
-     * @param MstInAppPurchase $mstInAppPurchase 商品マスター
-     * @param TrxInAppPurchase|null $purchaseHistory 既存の購入履歴
-     * @param string $transactionId プラットフォーム固有のトランザクションID
-     * @return void
-     */
-    private function updatePurchaseHistory(
-        int $sysPlayerId,
-        string $billingPlatform,
-        MstInAppPurchase $mstInAppPurchase,
-        ?TrxInAppPurchase $purchaseHistory,
-        string $transactionId
-    ): void {
-        if ($purchaseHistory === null) {
-            // 初回購入の場合は新規作成
-            $purchaseHistory = new TrxInAppPurchase([
-                'sys_player_id' => $sysPlayerId,
-                'billing_platform' => $billingPlatform,
-                'mst_in_app_purchase_id' => $mstInAppPurchase->getId(),
-                'transaction_id' => $transactionId,
-                'total_purchase_count' => 1,
-                'purchase_count' => 1,
-                'purchase_count_reset_at' => $mstInAppPurchase->getPurchaseLimitReset() !== 'None' ? ClockUtility::now() : null,
-            ]);
-            $this->trxInAppPurchaseRepository->setModel($purchaseHistory);
-            return;
-        }
-
-        // リセットが必要かチェック
-        $newResetDate = $this->validationService->getNewResetDateIfNeeded(
-            $mstInAppPurchase->getPurchaseLimitReset(),
-            $purchaseHistory->getPurchaseCountResetAt()
-        );
-
-        if ($newResetDate !== null) {
-            // リセットが必要な場合
-            $purchaseHistory->setPurchaseCount(1);
-            $purchaseHistory->setPurchaseCountResetAt($newResetDate);
-        } else {
-            // リセット不要の場合
-            $purchaseHistory->setPurchaseCount($purchaseHistory->getPurchaseCount() + 1);
-        }
-
-        $purchaseHistory->setTotalPurchaseCount($purchaseHistory->getTotalPurchaseCount() + 1);
-        $this->trxInAppPurchaseRepository->setModel($purchaseHistory);
     }
 }

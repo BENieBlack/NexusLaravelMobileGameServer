@@ -45,4 +45,28 @@ class TrxDiamondRepository extends _BaseTrxRepository
             ->where('platform', $platform)
             ->first();
     }
+
+    /**
+     * プレイヤーIDで全プラットフォームのダイヤモンドを取得
+     * 
+     * @param int $sysPlayerId プレイヤーID
+     * @return \NexusPersistence\Support\CustomCollection<TrxDiamond>
+     */
+    public function selectByPlayerId(int $sysPlayerId): \NexusPersistence\Support\CustomCollection
+    {
+        // メモリ内キューから検索
+        $queue = $this->queryOrMemory();
+        $fromMemory = $queue->filter(function ($model) use ($sysPlayerId) {
+            return $model->sys_player_id === $sysPlayerId;
+        });
+
+        // DBから検索
+        $fromDb = TrxDiamond::query()
+            ->where('sys_player_id', $sysPlayerId)
+            ->where('is_delete', false)
+            ->get();
+
+        // マージして返す（重複排除）
+        return $fromMemory->merge($fromDb)->unique('id');
+    }
 }

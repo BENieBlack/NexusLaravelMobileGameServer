@@ -6,7 +6,6 @@ use NexusPersistence\Repositories\_BaseRepository;
 use NexusPersistence\Repositories\Log\_BaseLogRepository;
 use NexusPersistence\Repositories\Sys\_BaseSysRepository;
 use NexusPersistence\Repositories\Trx\_BaseTrxRepository;
-use Illuminate\Support\Collection;
 
 /**
  * OperationCollector

@@ -9,7 +9,7 @@ use NexusResourceDelivery\DTOs\ResourceDeliveryPolicyDto;
 use NexusResourceDelivery\DTOs\ResourceDeliverySummaryDto;
 use NexusResourceDelivery\Handlers\ResourceDeliveryHandlerInterface;
 use NexusResourceDelivery\Managers\ResourceDeliveryManagerInterface;
-use Illuminate\Support\Collection;
+use NexusPersistence\Support\CustomCollection;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -71,12 +71,12 @@ class ResourceDeliveryService
      * リソースを追加する（複数）
      * 実際の配送はdeliver()で実行する
      *
-     * @param Collection|array $resources リソースのリスト
+     * @param CustomCollection|array $resources リソースのリスト
      * @return void
      */
-    public function addResources(Collection|array $resources): void
+    public function addResources(CustomCollection|array $resources): void
     {
-        $collection = $resources instanceof Collection ? $resources : collect($resources);
+        $collection = $resources instanceof CustomCollection ? $resources : new CustomCollection($resources);
         
         $contents = $collection->map(function ($resource) {
             return ResourceDeliveryContentDto::fromResource($resource);
@@ -99,12 +99,12 @@ class ResourceDeliveryService
     /**
      * 配送コンテンツを直接追加する（複数）
      *
-     * @param Collection|array $contents
+     * @param CustomCollection|array $contents
      * @return void
      */
-    public function addContents(Collection|array $contents): void
+    public function addContents(CustomCollection|array $contents): void
     {
-        $collection = $contents instanceof Collection ? $contents : collect($contents);
+        $collection = $contents instanceof CustomCollection ? $contents : new CustomCollection($contents);
         $this->deliveryManager->addContents($collection);
     }
 
@@ -291,7 +291,7 @@ class ResourceDeliveryService
      *
      * @return Collection<ResourceDeliveryContentDto>
      */
-    public function getConvertedContentsWithoutSend(): Collection
+    public function getConvertedContentsWithoutSend(): CustomCollection
     {
         // TODO: 変換機能の実装が必要
         return $this->deliveryManager->getPendingContents();

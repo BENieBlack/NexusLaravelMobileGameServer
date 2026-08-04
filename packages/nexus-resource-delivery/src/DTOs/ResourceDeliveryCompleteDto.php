@@ -2,7 +2,7 @@
 
 namespace NexusResourceDelivery\DTOs;
 
-use Illuminate\Support\Collection;
+use NexusPersistence\Support\CustomCollection;
 
 /**
  * ResourceDeliveryComplete
@@ -12,20 +12,20 @@ use Illuminate\Support\Collection;
 class ResourceDeliveryCompleteDto
 {
     /**
-     * @param Collection<ResourceDeliveryContent> $contents 送信完了コンテンツのリスト
+     * @param CustomCollection<ResourceDeliveryContent> $contents 送信完了コンテンツのリスト
      */
     public function __construct(
         
-        private Collection $contents,
+        private CustomCollection $contents,
     ) {
     }
 
     /**
      * 送信完了コンテンツのリストを取得
      *
-     * @return Collection<ResourceDeliveryContent>
+     * @return CustomCollection<ResourceDeliveryContent>
      */
-    public function getContents(): Collection
+    public function getContents(): CustomCollection
     {
         return $this->contents;
     }

@@ -4,7 +4,7 @@ namespace NexusResourceDelivery\Managers;
 
 use NexusResourceDelivery\DTOs\ResourceDeliveryContentDto;
 use NexusResourceDelivery\DTOs\ResourceDeliveryCompleteDto;
-use Illuminate\Support\Collection;
+use NexusPersistence\Support\CustomCollection;
 
 /**
  * ResourceDeliveryManager
@@ -69,10 +69,10 @@ class ResourceDeliveryManager implements ResourceDeliveryManagerInterface
     /**
      * 配送コンテンツを配送前リストにまとめて追加する
      *
-     * @param Collection $contents
+     * @param CustomCollection $contents
      * @return void
      */
-    public function addContents(Collection $contents): void
+    public function addContents(CustomCollection $contents): void
     {
         foreach ($contents as $content) {
             $this->addContent($content);
@@ -82,23 +82,23 @@ class ResourceDeliveryManager implements ResourceDeliveryManagerInterface
     /**
      * 配送前リストからコンテンツを取得する
      *
-     * @return Collection<string, ResourceDeliveryContent>
+     * @return CustomCollection<string, ResourceDeliveryContent>
      *   key: ResourceDeliveryContent.uniqueId, value: ResourceDeliveryContentDto
      */
-    public function getPendingContents(): Collection
+    public function getPendingContents(): CustomCollection
     {
-        return collect($this->needToSendContents);
+        return new CustomCollection($this->needToSendContents);
     }
 
     /**
      * 送信完了リストからコンテンツを取得する
      *
      * @param string $contentClass コンテンツクラス名
-     * @return Collection<ResourceDeliveryContent>
+     * @return CustomCollection<ResourceDeliveryContent>
      */
-    public function getSendCompleteContents(string $contentClass): Collection
+    public function getSendCompleteContents(string $contentClass): CustomCollection
     {
-        return collect($this->sendCompleteContents[$contentClass] ?? []);
+        return new CustomCollection($this->sendCompleteContents[$contentClass] ?? []);
     }
 
     /**

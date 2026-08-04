@@ -3,7 +3,7 @@
 namespace App\Repositories\Tol;
 
 use App\Repositories\_BaseRepositoryInterface;
-use Illuminate\Support\Collection;
+use NexusPersistence\Support\CustomCollection;
 
 /**
  * _BaseTolRepositoryInterface
@@ -20,7 +20,7 @@ interface _BaseTolRepositoryInterface extends _BaseRepositoryInterface
      * メモリにキャッシュされている場合はそれを返す
      * プレイヤーIDは不要（全体データ）
      *
-     * @return Collection 管理者データのコレクション
+     * @return CustomCollection 管理者データのコレクション
      */
-    public function queryOrMemory(): Collection;
+    public function queryOrMemory(): CustomCollection;
 }

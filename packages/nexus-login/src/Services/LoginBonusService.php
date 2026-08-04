@@ -8,7 +8,7 @@ use NexusLogin\Repositories\LoginBonusRepositoryInterface;
 use NexusLogin\Repositories\LoginBonusHistoryRepositoryInterface;
 use Carbon\CarbonImmutable;
 use NexusUtilities\ClockUtility;
-use Illuminate\Support\Collection;
+use NexusPersistence\Support\CustomCollection;
 
 /**
  * LoginBonusService
@@ -159,14 +159,14 @@ class LoginBonusService
      * ログインボーナスの報酬内容を取得
      *
      * @param string $loginBonusId
-     * @return Collection
+     * @return CustomCollection
      */
-    private function getLoginBonusContents(string $loginBonusId): Collection
+    private function getLoginBonusContents(string $loginBonusId): CustomCollection
     {
         $contents = $this->bonusRepository->findContentsByLoginBonusId($loginBonusId);
         
         // stdClassに変換して返す（既存コードとの互換性維持）
-        return collect($contents)->map(fn($content) => (object) $content);
+        return (new CustomCollection($contents))->map(fn($content) => (object) $content);
     }
 
     /**
@@ -195,7 +195,7 @@ class LoginBonusService
      *
      * @param int $sysPlayerId
      * @param array $loginBonusData
-     * @param Collection $contents
+     * @param CustomCollection $contents
      * @param CarbonImmutable $gameDayStart ゲーム内日付の開始時刻
      * @param string $connectionName シャーディングされたDB接続名
      * @return void
@@ -203,7 +203,7 @@ class LoginBonusService
     private function recordLoginBonusHistory(
         int $sysPlayerId,
         array $loginBonusData,
-        Collection $contents,
+        CustomCollection $contents,
         CarbonImmutable $gameDayStart,
         string $connectionName
     ): void {

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1033cab060282f7f8ffd151f0a4e7339",
+    "content-hash": "756bee010dc23a0d6d178df2cf52f723",
     "packages": [
         {
             "name": "brick/math",
@@ -2609,12 +2609,50 @@
             "time": "2026-07-17T23:02:45+00:00"
         },
         {
-            "name": "nexus/billing",
+            "name": "nexus/core-auth",
             "version": "dev-main",
             "dist": {
                 "type": "path",
-                "url": "../packages/nexus-billing",
-                "reference": "5e78ba6d33c6b95cee9e673651ce1c0dcd9dce77"
+                "url": "../packages/nexus-core-auth",
+                "reference": "53bb493d7cbae302ed551e3838fe0a05ba421bdf"
+            },
+            "require": {
+                "firebase/php-jwt": "^6.10",
+                "illuminate/support": "^10.0|^11.0|^12.0",
+                "nexus/core-security": "@dev",
+                "nexus/core-unit-of-work": "@dev",
+                "nexus/core-utilities": "@dev",
+                "php": "^8.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^10.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "NexusAuth\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "NexusAuth\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Device-based authentication package for mobile games with OAuth2-style token management",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "nexus/core-billing",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/nexus-core-billing",
+                "reference": "51a37bf12e5e0f48b758883e3b49541595db3b65"
             },
             "require": {
                 "guzzlehttp/guzzle": "^7.0",
@@ -2657,44 +2695,6 @@
                 }
             ],
             "description": "Mobile billing verification and processing for Laravel with support for AppStore and Google Play",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
-            "name": "nexus/core-auth",
-            "version": "dev-main",
-            "dist": {
-                "type": "path",
-                "url": "../packages/nexus-core-auth",
-                "reference": "53bb493d7cbae302ed551e3838fe0a05ba421bdf"
-            },
-            "require": {
-                "firebase/php-jwt": "^6.10",
-                "illuminate/support": "^10.0|^11.0|^12.0",
-                "nexus/core-security": "@dev",
-                "nexus/core-unit-of-work": "@dev",
-                "nexus/core-utilities": "@dev",
-                "php": "^8.3"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^10.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "NexusAuth\\": "src/"
-                }
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "NexusAuth\\Tests\\": "tests/"
-                }
-            },
-            "license": [
-                "MIT"
-            ],
-            "description": "Device-based authentication package for mobile games with OAuth2-style token management",
             "transport-options": {
                 "relative": true
             }
@@ -10372,8 +10372,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "nexus/billing": 20,
         "nexus/core-auth": 20,
+        "nexus/core-billing": 20,
         "nexus/core-persistence": 20,
         "nexus/core-security": 20,
         "nexus/core-unit-of-work": 20,

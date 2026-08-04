@@ -1,5 +1,5 @@
 {
-    "name": "nexus/auth",
+    "name": "nexus/core-auth",
     "description": "Device-based authentication package for mobile games with OAuth2-style token management",
     "type": "library",
     "license": "MIT",

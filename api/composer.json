@@ -24,6 +24,10 @@
         },
         {
             "type": "path",
+            "url": "../packages/nexus-core-auth"
+        },
+        {
+            "type": "path",
             "url": "../packages/nexus-billing"
         },
         {
@@ -41,10 +45,6 @@
         {
             "type": "path",
             "url": "../packages/nexus-resource-delivery"
-        },
-        {
-            "type": "path",
-            "url": "../packages/nexus-auth"
         },
         {
             "type": "path",
@@ -89,12 +89,12 @@
         "nexus/core-security": "@dev",
         "nexus/core-persistence": "@dev",
         "nexus/core-unit-of-work": "@dev",
+        "nexus/core-auth": "@dev",
         "nexus/billing": "@dev",
         "nexus/wallet": "@dev",
         "nexus/maintenance": "@dev",
         "nexus/resource": "@dev",
         "nexus/resource-delivery": "@dev",
-        "nexus/auth": "@dev",
         "nexus/login": "@dev",
         "nexus/version": "@dev",
         "nexus/stamina": "@dev",

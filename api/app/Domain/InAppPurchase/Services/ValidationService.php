@@ -9,15 +9,31 @@ use App\Models\Mst\MstInAppPurchase;
 use App\Models\Trx\TrxInAppPurchase;
 use Illuminate\Support\Facades\Log;
 use NexusBilling\DTOs\VerificationDto;
-use NexusUtilities\ClockUtility;
+use NexusBilling\Validators\_BasePurchaseLimitValidator;
 
 /**
  * ValidationService
  * 
- * アプリ内課金商品の購入制限をチェックするサービス
+ * アプリ内課金商品の購入制限・価格をチェックするサービス
+ * 購入制限の判定ロジックは_BasePurchaseLimitValidatorに委譲し、
+ * このクラスはゲーム固有のビジネスルールと例外処理を担当
  */
 class ValidationService
 {
+    /**
+     * 購入制限チェッカー
+     * 
+     * @var _BasePurchaseLimitValidator
+     */
+    private _BasePurchaseLimitValidator $limitValidator;
+
+    /**
+     * コンストラクタ
+     */
+    public function __construct()
+    {
+        $this->limitValidator = new _BasePurchaseLimitValidator();
+    }
     /**
      * 購入制限をチェック
      * 
@@ -42,47 +58,28 @@ class ValidationService
             return;
         }
 
-        // リセットが必要かチェック
-        $shouldReset = $this->shouldResetPurchaseCount(
+        // _BasePurchaseLimitValidatorで制限チェック
+        $isExceeded = $this->limitValidator->isLimitExceeded(
+            $mstInAppPurchase->getPurchaseLimit(),
+            $purchaseHistory->purchase_count,
             $mstInAppPurchase->getPurchaseLimitReset(),
             $purchaseHistory->getPurchaseCountResetAt()
         );
 
-        // リセットが必要な場合は、purchase_countをリセット後としてカウント
-        $currentCount = $shouldReset ? 0 : $purchaseHistory->purchase_count;
+        // 制限を超えている場合は例外をスロー
+        if ($isExceeded) {
+            // 有効なカウント数を計算（リセット判定後）
+            $effectiveCount = $this->limitValidator->calculateEffectiveCount(
+                $purchaseHistory->purchase_count,
+                $mstInAppPurchase->getPurchaseLimitReset(),
+                $purchaseHistory->getPurchaseCountResetAt()
+            );
 
-        // 購入制限チェック
-        if ($currentCount >= $mstInAppPurchase->getPurchaseLimit()) {
             throw new GameException(
                 GameErrorCode::PURCHASE_LIMIT_EXCEEDED,
-                "Purchase limit exceeded for this product. Limit: {$mstInAppPurchase->getPurchaseLimit()}, Current: {$currentCount}"
+                "Purchase limit exceeded for this product. Limit: {$mstInAppPurchase->getPurchaseLimit()}, Current: {$effectiveCount}"
             );
         }
-    }
-
-    /**
-     * 購入回数をリセットすべきかチェック
-     * 
-     * @param string $resetType リセット種別（None, Daily, Weekly, Monthly）
-     * @param \DateTimeInterface|null $lastResetAt 最終リセット日時
-     * @return bool リセットが必要な場合true
-     */
-    private function shouldResetPurchaseCount(
-        string $resetType,
-        ?\DateTimeInterface $lastResetAt
-    ): bool {
-        if ($resetType === 'None' || $lastResetAt === null) {
-            return false;
-        }
-
-        $now = ClockUtility::now();
-
-        return match ($resetType) {
-            'Daily' => !ClockUtility::isToday($lastResetAt),
-            'Weekly' => $now->weekOfYear !== ClockUtility::weekOfYear($lastResetAt) || $now->year !== ClockUtility::year($lastResetAt),
-            'Monthly' => $now->month !== ClockUtility::month($lastResetAt) || $now->year !== ClockUtility::year($lastResetAt),
-            default => false,
-        };
     }
 
     /**
@@ -96,11 +93,7 @@ class ValidationService
         string $resetType,
         ?\DateTimeInterface $lastResetAt
     ): ?\DateTimeInterface {
-        if ($this->shouldResetPurchaseCount($resetType, $lastResetAt)) {
-            return ClockUtility::now();
-        }
-
-        return null;
+        return $this->limitValidator->getNewResetDateIfNeeded($resetType, $lastResetAt);
     }
 
     /**

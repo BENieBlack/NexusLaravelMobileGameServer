@@ -28,7 +28,7 @@
         },
         {
             "type": "path",
-            "url": "../packages/nexus-billing"
+            "url": "../packages/nexus-core-billing"
         },
         {
             "type": "path",
@@ -90,7 +90,7 @@
         "nexus/core-persistence": "@dev",
         "nexus/core-unit-of-work": "@dev",
         "nexus/core-auth": "@dev",
-        "nexus/billing": "@dev",
+        "nexus/core-billing": "@dev",
         "nexus/wallet": "@dev",
         "nexus/maintenance": "@dev",
         "nexus/resource": "@dev",

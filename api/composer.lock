@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "eb4b8ca28804c8555425961f58283a52",
+    "content-hash": "5e52cb71c64707049bf97a4acf1d5303",
     "packages": [
         {
             "name": "brick/math",
@@ -1685,16 +1685,16 @@
         },
         {
             "name": "league/commonmark",
-            "version": "2.8.3",
+            "version": "2.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/commonmark.git",
-                "reference": "1902f60f984235023acbe03db6ad614a37b3c3e7"
+                "reference": "5703d83ba3da3b2e356a5fedc848ed6d8ffb6529"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/1902f60f984235023acbe03db6ad614a37b3c3e7",
-                "reference": "1902f60f984235023acbe03db6ad614a37b3c3e7",
+                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/5703d83ba3da3b2e356a5fedc848ed6d8ffb6529",
+                "reference": "5703d83ba3da3b2e356a5fedc848ed6d8ffb6529",
                 "shasum": ""
             },
             "require": {
@@ -1731,7 +1731,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "2.9-dev"
+                    "dev-main": "2.10-dev"
                 }
             },
             "autoload": {
@@ -1788,7 +1788,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-07-12T15:29:16+00:00"
+            "time": "2026-08-03T13:42:31+00:00"
         },
         {
             "name": "league/config",
@@ -2614,14 +2614,14 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-auth",
-                "reference": "3e73b9454547efa473d94bc2d9a1694ba91eda43"
+                "reference": "e649b4cae7f1b031798da760c4ce39c3ff7aa356"
             },
             "require": {
                 "firebase/php-jwt": "^6.10",
                 "illuminate/support": "^10.0|^11.0|^12.0",
+                "nexus/core-security": "@dev",
                 "nexus/core-unit-of-work": "@dev",
-                "nexus/security": "@dev",
-                "nexus/utilities": "@dev",
+                "nexus/core-utilities": "@dev",
                 "php": "^8.3"
             },
             "require-dev": {
@@ -2751,6 +2751,55 @@
             }
         },
         {
+            "name": "nexus/core-security",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/nexus-core-security",
+                "reference": "4ab772d89f0be51fcb2d7a38ba6702b1d1b60d4a"
+            },
+            "require": {
+                "illuminate/cache": "^11.0|^12.0",
+                "illuminate/http": "^11.0|^12.0",
+                "illuminate/support": "^11.0|^12.0",
+                "php": "^8.3"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.6",
+                "phpunit/phpunit": "^11.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "NexusSecurity\\SecurityMiddlewareServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "NexusSecurity\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "NexusSecurity\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "S. Nakamura"
+                }
+            ],
+            "description": "Laravel security middleware including client signature verification, idempotency guarantee, rate limiting and access token verification",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "nexus/core-unit-of-work",
             "version": "dev-main",
             "dist": {
@@ -2801,16 +2850,58 @@
             }
         },
         {
+            "name": "nexus/core-utilities",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/nexus-core-utilities",
+                "reference": "fe427abe05a110a2ca195ad9329bd71b7cc08b09"
+            },
+            "require": {
+                "illuminate/cache": "^11.0|^12.0",
+                "illuminate/support": "^11.0|^12.0",
+                "nesbot/carbon": "^2.0|^3.0",
+                "php": "^8.3"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.6",
+                "phpunit/phpunit": "^11.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "NexusUtilities\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "NexusUtilities\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "S. Nakamura"
+                }
+            ],
+            "description": "Laravel utility classes including ClockUtility and RedisUtility",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "nexus/gacha",
             "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-gacha",
-                "reference": "ee1696375a2746a241cdb9ee25dac76646e7b2a1"
+                "reference": "5ac182895c8306310e27bd6204af202966e2a116"
             },
             "require": {
+                "nexus/core-utilities": "@dev",
                 "nexus/resource-delivery": "@dev",
-                "nexus/utilities": "@dev",
                 "php": "^8.3"
             },
             "require-dev": {
@@ -2906,15 +2997,15 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-login",
-                "reference": "8ae3240f6f8168d19c3526de7f3ef6caf2f9113c"
+                "reference": "ca442ac823d7f6e99da7b565a4755dc70221b476"
             },
             "require": {
                 "illuminate/database": "^12.0",
                 "illuminate/support": "^12.0",
                 "nesbot/carbon": "^2.0|^3.0",
+                "nexus/core-utilities": "*",
                 "nexus/resource": "*",
                 "nexus/resource-delivery": "*",
-                "nexus/utilities": "*",
                 "php": "^8.3"
             },
             "require-dev": {
@@ -2952,11 +3043,11 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-mailbox",
-                "reference": "aa358443844814063dcc4aafc2facf0e4572c662"
+                "reference": "1fd68de8be33d9ffc357f014697609c2971485f4"
             },
             "require": {
+                "nexus/core-utilities": "@dev",
                 "nexus/resource-delivery": "@dev",
-                "nexus/utilities": "@dev",
                 "php": "^8.3"
             },
             "require-dev": {
@@ -3041,10 +3132,10 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-player",
-                "reference": "279a1fac963f89435a8dd7399bbccdcc7ac1793a"
+                "reference": "7aff54d9ccce2ffa0feff76658bff7e5a415b767"
             },
             "require": {
-                "nexus/utilities": "@dev",
+                "nexus/core-utilities": "@dev",
                 "php": "^8.3"
             },
             "require-dev": {
@@ -3152,65 +3243,16 @@
             }
         },
         {
-            "name": "nexus/security",
-            "version": "dev-main",
-            "dist": {
-                "type": "path",
-                "url": "../packages/nexus-security",
-                "reference": "c4fc9951c370216e3f4c97888302e1279133aa19"
-            },
-            "require": {
-                "illuminate/cache": "^11.0|^12.0",
-                "illuminate/http": "^11.0|^12.0",
-                "illuminate/support": "^11.0|^12.0",
-                "php": "^8.3"
-            },
-            "require-dev": {
-                "mockery/mockery": "^1.6",
-                "phpunit/phpunit": "^11.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "NexusSecurity\\SecurityMiddlewareServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "NexusSecurity\\": "src/"
-                }
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "NexusSecurity\\Tests\\": "tests/"
-                }
-            },
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "S. Nakamura"
-                }
-            ],
-            "description": "Laravel security middleware including client signature verification, idempotency guarantee, rate limiting and access token verification",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
             "name": "nexus/stamina",
             "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-stamina",
-                "reference": "9df81d6f09f1f88c7d638186d4996d0db1e87443"
+                "reference": "ee290d79dde21902d4b2783069044983f925b168"
             },
             "require": {
                 "illuminate/support": "^11.0|^12.0",
-                "nexus/utilities": "@dev",
+                "nexus/core-utilities": "@dev",
                 "php": "^8.3"
             },
             "require-dev": {
@@ -3232,48 +3274,6 @@
                 "proprietary"
             ],
             "description": "Nexus Stamina Package - スタミナ管理パッケージ",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
-            "name": "nexus/utilities",
-            "version": "dev-main",
-            "dist": {
-                "type": "path",
-                "url": "../packages/nexus-utilities",
-                "reference": "ed885b4911507c4c7f0b3464be1fb5639168105f"
-            },
-            "require": {
-                "illuminate/cache": "^11.0|^12.0",
-                "illuminate/support": "^11.0|^12.0",
-                "nesbot/carbon": "^2.0|^3.0",
-                "php": "^8.3"
-            },
-            "require-dev": {
-                "mockery/mockery": "^1.6",
-                "phpunit/phpunit": "^11.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "NexusUtilities\\": "src/"
-                }
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "NexusUtilities\\Tests\\": "tests/"
-                }
-            },
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "S. Nakamura"
-                }
-            ],
-            "description": "Laravel utility classes including ClockUtility and RedisUtility",
             "transport-options": {
                 "relative": true
             }
@@ -10410,32 +10410,32 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "nexus/auth": 20,
-        "nexus/billing": 20,
+        "nexus/core-utilities": 20,
+        "nexus/core-security": 20,
         "nexus/core-persistence": 20,
         "nexus/core-unit-of-work": 20,
-        "nexus/gacha": 20,
-        "nexus/game-common": 20,
-        "nexus/level": 20,
-        "nexus/login": 20,
-        "nexus/mailbox": 20,
+        "nexus/billing": 20,
+        "nexus/wallet": 20,
         "nexus/maintenance": 20,
-        "nexus/player": 20,
         "nexus/resource": 20,
         "nexus/resource-delivery": 20,
-        "nexus/security": 20,
-        "nexus/stamina": 20,
-        "nexus/utilities": 20,
+        "nexus/auth": 20,
+        "nexus/login": 20,
         "nexus/version": 20,
+        "nexus/stamina": 20,
+        "nexus/gacha": 20,
+        "nexus/mailbox": 20,
+        "nexus/player": 20,
         "nexus/vip": 20,
-        "nexus/wallet": 20
+        "nexus/level": 20,
+        "nexus/game-common": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": "^8.3"
     },
-    "platform-dev": {},
+    "platform-dev": [],
     "platform-overrides": {
         "php": "8.3"
     },

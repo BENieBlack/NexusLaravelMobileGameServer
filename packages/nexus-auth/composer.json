@@ -17,8 +17,8 @@
         "php": "^8.3",
         "illuminate/support": "^10.0|^11.0|^12.0",
         "firebase/php-jwt": "^6.10",
-        "nexus/utilities": "@dev",
-        "nexus/security": "@dev",
+        "nexus/core-utilities": "@dev",
+        "nexus/core-security": "@dev",
         "nexus/core-unit-of-work": "@dev"
     },
     "require-dev": {

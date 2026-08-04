@@ -185,6 +185,21 @@ return [
             'strict' => true,
             'engine' => null,
         ],
+
+        // 管理DB接続
+        'adm' => [
+            'driver' => 'mysql',
+            'host' => env('DB_ADMIN_HOST', 'db-adm'),
+            'port' => env('DB_ADMIN_PORT', '3306'),
+            'database' => env('DB_ADMIN_DATABASE') ?: env('APP_NAME', 'laravel') . '-' . env('APP_ENV', 'local') . '-adm',
+            'username' => env('DB_ADMIN_USERNAME', 'root'),
+            'password' => env('DB_ADMIN_PASSWORD', 'root'),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => true,
+            'engine' => null,
+        ],
     ],
 
     /*

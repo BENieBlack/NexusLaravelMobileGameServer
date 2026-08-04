@@ -1,5 +1,5 @@
 {
-    "name": "nexus/billing",
+    "name": "nexus/core-billing",
     "description": "Mobile billing verification and processing for Laravel with support for AppStore and Google Play",
     "type": "library",
     "license": "MIT",

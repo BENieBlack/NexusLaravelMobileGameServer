@@ -2,10 +2,14 @@
 
 namespace App\Domain\Unit\Constants;
 
+use NexusGameCommon\Constants\ElementType;
+use NexusGameCommon\Constants\RarityType;
+
 /**
  * ユニット関連の定数定義
  * 
- * ユニットのタイプ、属性、レアリティの定数を管理
+ * ユニットのタイプ定数を管理
+ * 属性・レアリティはPackage層（NexusGameCommon）の共通定数を使用
  */
 class UnitConst
 {
@@ -17,24 +21,28 @@ class UnitConst
     const TYPE_SUPPORT = 'Support';
 
     /**
-     * ユニット属性
+     * ユニット属性（Package層の共通定数を使用）
+     * 
+     * @deprecated Use NexusGameCommon\Constants\ElementType instead
      */
-    const ELEMENT_FIRE = 'Fire';
-    const ELEMENT_WATER = 'Water';
-    const ELEMENT_WIND = 'Wind';
-    const ELEMENT_EARTH = 'Earth';
-    const ELEMENT_LIGHT = 'Light';
-    const ELEMENT_DARK = 'Dark';
+    const ELEMENT_FIRE = ElementType::FIRE;
+    const ELEMENT_WATER = ElementType::WATER;
+    const ELEMENT_WIND = ElementType::WIND;
+    const ELEMENT_EARTH = ElementType::EARTH;
+    const ELEMENT_LIGHT = ElementType::LIGHT;
+    const ELEMENT_DARK = ElementType::DARK;
 
     /**
-     * ユニットレアリティ
+     * ユニットレアリティ（Package層の共通定数を使用）
+     * 
+     * @deprecated Use NexusGameCommon\Constants\RarityType instead
      */
-    const RARITY_UR = 'UR';
-    const RARITY_SSR = 'SSR';
-    const RARITY_SR = 'SR';
-    const RARITY_R = 'R';
-    const RARITY_UC = 'UC';
-    const RARITY_C = 'C';
+    const RARITY_UR = RarityType::UR;
+    const RARITY_SSR = RarityType::SSR;
+    const RARITY_SR = RarityType::SR;
+    const RARITY_R = RarityType::R;
+    const RARITY_UC = RarityType::UC;
+    const RARITY_C = RarityType::C;
 
     /**
      * 全タイプの配列を取得
@@ -53,35 +61,23 @@ class UnitConst
     /**
      * 全属性の配列を取得
      * 
+     * @deprecated Use ElementType::getAll() instead
      * @return array
      */
     public static function getAllElements(): array
     {
-        return [
-            self::ELEMENT_FIRE,
-            self::ELEMENT_WATER,
-            self::ELEMENT_WIND,
-            self::ELEMENT_EARTH,
-            self::ELEMENT_LIGHT,
-            self::ELEMENT_DARK,
-        ];
+        return ElementType::getAll();
     }
 
     /**
      * 全レアリティの配列を取得
      * 
+     * @deprecated Use RarityType::getAll() instead
      * @return array
      */
     public static function getAllRarities(): array
     {
-        return [
-            self::RARITY_UR,
-            self::RARITY_SSR,
-            self::RARITY_SR,
-            self::RARITY_R,
-            self::RARITY_UC,
-            self::RARITY_C,
-        ];
+        return RarityType::getAll();
     }
 
     /**
@@ -98,22 +94,24 @@ class UnitConst
     /**
      * 属性が有効かチェック
      * 
+     * @deprecated Use ElementType::isValid() instead
      * @param string $element
      * @return bool
      */
     public static function isValidElement(string $element): bool
     {
-        return in_array($element, self::getAllElements(), true);
+        return ElementType::isValid($element);
     }
 
     /**
      * レアリティが有効かチェック
      * 
+     * @deprecated Use RarityType::isValid() instead
      * @param string $rarity
      * @return bool
      */
     public static function isValidRarity(string $rarity): bool
     {
-        return in_array($rarity, self::getAllRarities(), true);
+        return RarityType::isValid($rarity);
     }
 }

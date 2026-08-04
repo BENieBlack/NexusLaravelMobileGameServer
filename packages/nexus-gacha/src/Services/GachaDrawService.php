@@ -3,19 +3,34 @@
 namespace NexusGacha\Services;
 
 use NexusGacha\Dto\GachaPrizeDto;
+use NexusGacha\Exceptions\GachaDrawException;
 use NexusGacha\Repositories\GachaRarityRateRepositoryInterface;
 use NexusGacha\Repositories\GachaPrizeRepositoryInterface;
 use NexusGacha\Repositories\GachaStepRepositoryInterface;
 use NexusGacha\Repositories\GachaStepBonusRepositoryInterface;
 use NexusGacha\Repositories\GachaStepBonusContentRepositoryInterface;
+use NexusGacha\Strategies\GachaDrawStrategyInterface;
+use NexusGacha\Strategies\GachaDrawContext;
+use NexusGacha\Strategies\ChoiceDrawStrategy;
+use NexusGacha\Strategies\RandomDrawStrategy;
+use NexusGacha\Strategies\NoneDrawStrategy;
 
 /**
  * GachaDrawService
  * 
  * ガチャの抽選ロジックを担当するサービス
+ * 
+ * Strategy Patternを使用して、selection_typeごとの抽選ロジックを分離しています。
+ * 新しい抽選タイプを追加する場合は、GachaDrawStrategyInterfaceを実装した
+ * 新しいStrategyクラスを作成し、registerStrategy()で登録してください。
  */
 class GachaDrawService
 {
+    /** @var GachaDrawStrategyInterface[] */
+    private array $strategies = [];
+    
+    private readonly GachaDrawContext $context;
+    
     public function __construct(
         private readonly GachaRarityRateRepositoryInterface $rarityRateRepository,
         private readonly GachaPrizeRepositoryInterface $prizeRepository,
@@ -23,6 +38,28 @@ class GachaDrawService
         private readonly GachaStepBonusRepositoryInterface $stepBonusRepository,
         private readonly GachaStepBonusContentRepositoryInterface $stepBonusContentRepository,
     ) {
+        // Contextオブジェクトを作成
+        $this->context = new GachaDrawContext(
+            bonusContentRepository: $this->stepBonusContentRepository,
+            prizeRepository: $this->prizeRepository,
+            rarityRateRepository: $this->rarityRateRepository,
+        );
+        
+        // デフォルトのStrategyを登録
+        $this->registerStrategy(new ChoiceDrawStrategy());
+        $this->registerStrategy(new RandomDrawStrategy());
+        $this->registerStrategy(new NoneDrawStrategy());
+    }
+    
+    /**
+     * 新しい抽選Strategyを登録
+     * 
+     * @param GachaDrawStrategyInterface $strategy 登録するStrategy
+     * @return void
+     */
+    public function registerStrategy(GachaDrawStrategyInterface $strategy): void
+    {
+        $this->strategies[] = $strategy;
     }
 
     /**
@@ -91,157 +128,54 @@ class GachaDrawService
     /**
      * 通常抽選
      *
-     * @param string $mstGachaId
-     * @return GachaPrizeDto
+     * @param string $mstGachaId ガチャID
+     * @return GachaPrizeDto 抽選結果
+     * @throws GachaDrawException 抽選に失敗した場合
      */
     private function drawNormal(string $mstGachaId): GachaPrizeDto
     {
-        // 1. レアリティ抽選
-        $rarity = $this->drawRarity($mstGachaId);
+        // NoneDrawStrategyを使用して通常抽選を実行
+        $noneStrategy = new NoneDrawStrategy();
         
-        // 2. 景品抽選
-        return $this->drawPrize($mstGachaId, $rarity, false);
+        // bonus_rarityとis_pickup_onlyを持たないダミーボーナスを作成
+        $dummyBonus = new class {
+            public function getAttribute(string $key): mixed {
+                return match($key) {
+                    'bonus_rarity' => null,
+                    'is_pickup_only' => false,
+                    'selection_type' => 'none',
+                    default => null,
+                };
+            }
+        };
+        
+        return $noneStrategy->draw($dummyBonus, null, $mstGachaId, $this->context);
     }
 
     /**
      * ボーナス景品抽選
      *
-     * @param mixed $bonus
-     * @param string|null $selectedCandidateId
-     * @param string $mstGachaId
-     * @return GachaPrizeDto
-     * @throws \Exception
+     * @param mixed $bonus ボーナス情報
+     * @param string|null $selectedCandidateId ユーザーが選択したコンテンツID
+     * @param string $mstGachaId ガチャID
+     * @return GachaPrizeDto 抽選結果
+     * @throws GachaDrawException 抽選に失敗した場合
      */
     private function drawBonus($bonus, ?string $selectedCandidateId, string $mstGachaId): GachaPrizeDto
     {
         $selectionType = $bonus->getAttribute('selection_type');
-        $bonusRarity = $bonus->getAttribute('bonus_rarity');
-        $isPickupOnly = $bonus->getAttribute('is_pickup_only');
-
-        if ($selectionType === 'choice') {
-            // ユーザー選択
-            if (!$selectedCandidateId) {
-                throw new \Exception("Selected candidate ID is required for choice type");
-            }
-
-            $candidate = $this->stepBonusContentRepository->findById($selectedCandidateId);
-            if (!$candidate || $candidate->getAttribute('mst_gacha_step_bonus_id') !== $bonus->getAttribute('id')) {
-                throw new \Exception("Invalid candidate ID");
-            }
-
-            return new GachaPrizeDto(
-                contentType: $candidate->getAttribute('content_type'),
-                contentId: $candidate->getAttribute('content_id'),
-                amount: $candidate->getAttribute('amount'),
-                rarity: $bonusRarity,
-                isGuaranteed: true
-            );
-        } elseif ($selectionType === 'random') {
-            // 候補からランダム
-            $candidates = $this->stepBonusContentRepository->findByBonusId($bonus->getAttribute('id'));
-            
-            if ($candidates->isEmpty()) {
-                throw new \Exception("No candidates found for random selection");
-            }
-
-            $candidate = $this->weightedRandom($candidates->all(), 'weight');
-
-            return new GachaPrizeDto(
-                contentType: $candidate->getAttribute('content_type'),
-                contentId: $candidate->getAttribute('content_id'),
-                amount: $candidate->getAttribute('amount'),
-                rarity: $bonusRarity,
-                isGuaranteed: true
-            );
-        } else {
-            // none: 通常抽選だが確定レアリティ
-            if ($bonusRarity) {
-                return $this->drawPrize($mstGachaId, $bonusRarity, $isPickupOnly);
-            }
-
-            return $this->drawNormal($mstGachaId);
-        }
-    }
-
-    /**
-     * レアリティを抽選
-     *
-     * @param string $mstGachaId
-     * @return int
-     */
-    private function drawRarity(string $mstGachaId): int
-    {
-        $rarityRates = $this->rarityRateRepository->findByGachaId($mstGachaId);
         
-        $totalRate = $rarityRates->sum('rate');
-        $rand = rand(1, $totalRate);
-        
-        $accumulated = 0;
-        foreach ($rarityRates as $rarityRate) {
-            $accumulated += $rarityRate->getAttribute('rate');
-            if ($rand <= $accumulated) {
-                return $rarityRate->getAttribute('rarity');
+        // 対応するStrategyを検索
+        foreach ($this->strategies as $strategy) {
+            if ($strategy->supports($selectionType)) {
+                return $strategy->draw($bonus, $selectedCandidateId, $mstGachaId, $this->context);
             }
         }
-
-        // フォールバック（レアリティ1）
-        return 1;
-    }
-
-    /**
-     * 景品を抽選
-     *
-     * @param string $mstGachaId
-     * @param int $rarity
-     * @param bool $pickupOnly
-     * @return GachaPrizeDto
-     */
-    private function drawPrize(string $mstGachaId, int $rarity, bool $pickupOnly): GachaPrizeDto
-    {
-        $prizes = $this->prizeRepository->findByGachaIdAndRarity($mstGachaId, $rarity, $pickupOnly);
         
-        if ($prizes->isEmpty()) {
-            // ピックアップのみで景品がない場合は通常景品から
-            if ($pickupOnly) {
-                $prizes = $this->prizeRepository->findByGachaIdAndRarity($mstGachaId, $rarity, false);
-            }
-        }
-
-        $prize = $this->weightedRandom($prizes->all(), 'weight');
-
-        return new GachaPrizeDto(
-            contentType: $prize->getAttribute('content_type'),
-            contentId: $prize->getAttribute('content_id'),
-            amount: $prize->getAttribute('amount'),
-            rarity: $rarity,
-            isGuaranteed: false
+        // 対応するStrategyが見つからない場合
+        throw new GachaDrawException(
+            "Unsupported selection type: {$selectionType}",
+            GachaDrawException::CODE_UNSUPPORTED_TYPE
         );
-    }
-
-    /**
-     * 重み付きランダム抽選
-     *
-     * @param array $items
-     * @param string $weightKey
-     * @return mixed
-     */
-    private function weightedRandom(array $items, string $weightKey)
-    {
-        if (empty($items)) {
-            throw new \Exception('No items available for weighted random selection');
-        }
-
-        $totalWeight = array_sum(array_map(fn($item) => $item->getAttribute($weightKey), $items));
-        $rand = rand(1, $totalWeight);
-        
-        $accumulated = 0;
-        foreach ($items as $item) {
-            $accumulated += $item->getAttribute($weightKey);
-            if ($rand <= $accumulated) {
-                return $item;
-            }
-        }
-
-        return $items[0];
     }
 }

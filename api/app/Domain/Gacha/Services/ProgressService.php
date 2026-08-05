@@ -4,21 +4,21 @@ namespace App\Domain\Gacha\Services;
 
 use App\Models\Trx\TrxGacha;
 use App\Repositories\Trx\TrxGachaRepository;
-use NexusGacha\Services\GachaProgressService as BaseGachaProgressService;
+use NexusGacha\Services\ProgressService as BaseProgressService;
 use NexusGacha\Dto\GachaProgressDto;
 use NexusUtilities\ClockUtility;
 
 /**
  * ProgressService
  *
- * パッケージ版のGachaProgressServiceのラッパー
+ * パッケージ版のProgressServiceのラッパー
  * Eloquent Modelを返すために変換処理を行う
  */
 class ProgressService
 {
     public function __construct(
         private readonly TrxGachaRepository $trxGachaRepository,
-        private readonly BaseGachaProgressService $baseProgressService,
+        private readonly BaseProgressService $baseProgressService,
     ) {
     }
 

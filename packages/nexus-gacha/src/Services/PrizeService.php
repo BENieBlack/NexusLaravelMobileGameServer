@@ -7,11 +7,11 @@ use NexusResource\DTOs\ResourceDto;
 use NexusResourceDelivery\Services\ResourceDeliveryService;
 
 /**
- * GachaPrizeService
+ * PrizeService
  * 
  * ガチャ景品の付与を行うサービス
  */
-class GachaPrizeService
+class PrizeService
 {
     public function __construct(
         private readonly ResourceDeliveryService $resourceDeliveryService,

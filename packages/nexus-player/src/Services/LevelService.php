@@ -7,11 +7,11 @@ use NexusPlayer\Repositories\PlayerRepositoryInterface;
 use NexusPlayer\Repositories\PlayerLevelRepositoryInterface;
 
 /**
- * PlayerLevelService
+ * LevelService
  * 
  * プレイヤーレベル管理のビジネスロジックを担当するサービス
  */
-class PlayerLevelService
+class LevelService
 {
     public function __construct(
         private readonly PlayerRepositoryInterface $playerRepository,

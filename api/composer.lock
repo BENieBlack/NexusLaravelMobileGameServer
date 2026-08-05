@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "756bee010dc23a0d6d178df2cf52f723",
+    "content-hash": "04d3460dab64e324a839f0555ef1c17c",
     "packages": [
         {
             "name": "brick/math",
@@ -2887,6 +2887,37 @@
                 }
             ],
             "description": "Laravel utility classes including ClockUtility and RedisUtility",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "nexus/friend",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/nexus-friend",
+                "reference": "3e381b95140cd467e7042dacf04980673f728bce"
+            },
+            "require": {
+                "nexus/core-utilities": "@dev",
+                "php": "^8.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^10.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "NexusFriend\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "NexusFriend\\Tests\\": "tests/"
+                }
+            },
+            "description": "Friend management package for Nexus mobile game",
             "transport-options": {
                 "relative": true
             }
@@ -10378,6 +10409,7 @@
         "nexus/core-security": 20,
         "nexus/core-unit-of-work": 20,
         "nexus/core-utilities": 20,
+        "nexus/friend": 20,
         "nexus/gacha": 20,
         "nexus/level": 20,
         "nexus/login": 20,

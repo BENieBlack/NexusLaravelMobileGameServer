@@ -6,9 +6,9 @@ use App\Domain\_BaseUseCase;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Http\Responses\Friend\ApplySendResponse;
-use App\Models\Sys\SysFriendApply;
 use App\Repositories\Sys\SysFriendApplyRepository;
 use App\Repositories\Sys\SysPlayerRepository;
+use NexusFriend\Services\FriendService;
 
 /**
  * ApplySendUseCase
@@ -21,6 +21,7 @@ class ApplySendUseCase extends _BaseUseCase
     public function __construct(
         private readonly SysFriendApplyRepository $sysFriendApplyRepository,
         private readonly SysPlayerRepository $sysPlayerRepository,
+        private readonly FriendService $friendService,
     ) {
     }
 
@@ -48,45 +49,28 @@ class ApplySendUseCase extends _BaseUseCase
 
             $receivePlayerId = $targetPlayer->getId();
 
-            // 2. 自分自身への申請をチェック
-            if ($sysPlayerId === $receivePlayerId) {
-                throw new GameException(
-                    GameErrorCode::CANNOT_SEND_FRIEND_REQUEST_TO_SELF,
-                    'Cannot send friend request to yourself'
-                );
+            // 2. バリデーション（FriendServiceを使用）
+            try {
+                $this->friendService->validateNotSelfApply($sysPlayerId, $receivePlayerId);
+                $this->friendService->validateNoDuplicateApply($sysPlayerId, $receivePlayerId);
+            } catch (\RuntimeException $e) {
+                // パッケージの例外をGameExceptionに変換
+                $errorCode = match($e->getMessage()) {
+                    'Cannot send friend request to yourself' => GameErrorCode::CANNOT_SEND_FRIEND_REQUEST_TO_SELF,
+                    'Friend request already exists' => GameErrorCode::FRIEND_REQUEST_ALREADY_EXISTS,
+                    'Already friends' => GameErrorCode::FRIEND_ALREADY_EXISTS,
+                    default => GameErrorCode::FRIEND_REQUEST_ALREADY_EXISTS,
+                };
+                throw new GameException($errorCode, $e->getMessage());
             }
 
-            // 3. 既存の申請をチェック（双方向）
-            $existingApply = $this->sysFriendApplyRepository->selectByPlayerPair(
-                $sysPlayerId,
-                $receivePlayerId
-            );
-
-            if ($existingApply !== null) {
-                // 既に申請が存在する場合
-                if ($existingApply->getStatus() === SysFriendApply::STATUS_APPLIED) {
-                    throw new GameException(
-                        GameErrorCode::FRIEND_REQUEST_ALREADY_EXISTS,
-                        'Friend request already exists'
-                    );
-                }
-                
-                // 既にフレンドの場合
-                if ($existingApply->getStatus() === SysFriendApply::STATUS_ACCEPTED) {
-                    throw new GameException(
-                        GameErrorCode::FRIEND_ALREADY_EXISTS,
-                        'Already friends'
-                    );
-                }
-            }
-
-            // 4. 新規フレンド申請を作成
+            // 3. 新規フレンド申請を作成
             $sysFriendApply = $this->sysFriendApplyRepository->createApply(
                 $sysPlayerId,
                 $receivePlayerId
             );
 
-            // 5. レスポンスを返す
+            // 4. レスポンスを返す
             return ApplySendResponse::fromModel($sysFriendApply);
         });
     }

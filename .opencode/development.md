@@ -40,7 +40,7 @@
 docker ps
 
 # データベース接続確認（例: sys データベース）
-docker exec db-sys mysql -u root -proot arche-local-sys -e "SHOW TABLES;"
+docker exec db-sys mysql -u root -proot nexus-local-sys -e "SHOW TABLES;"
 
 # アプリケーションアクセス
 # API: http://localhost:8080
@@ -94,13 +94,13 @@ docker exec api-php php artisan migrate:fresh --database=sys --path=database/mig
 
 | データベース | ホスト | ポート | データベース名 | ユーザー名 | パスワード |
 |------------|--------|--------|---------------|-----------|-----------|
-| admin | db-adm | 3306 (33060) | arche-local-adm | root | root |
-| tool | db-tol | 3306 (33061) | arche-local-tol | root | root |
-| sys | db-sys | 3306 (33062) | arche-local-sys | root | root |
-| mst | db-mst | 3306 (33063) | arche-local-mst | root | root |
-| log | db-log | 3306 (33064) | arche-local-log | root | root |
-| trx1 | db-trx1 | 3306 (33065) | arche-local-trx1 | root | root |
-| trx2 | db-trx2 | 3306 (33066) | arche-local-trx2 | root | root |
+| admin | db-adm | 3306 (33060) | nexus-local-adm | root | root |
+| tool | db-tol | 3306 (33061) | nexus-local-tol | root | root |
+| sys | db-sys | 3306 (33062) | nexus-local-sys | root | root |
+| mst | db-mst | 3306 (33063) | nexus-local-mst | root | root |
+| log | db-log | 3306 (33064) | nexus-local-log | root | root |
+| trx1 | db-trx1 | 3306 (33065) | nexus-local-trx1 | root | root |
+| trx2 | db-trx2 | 3306 (33066) | nexus-local-trx2 | root | root |
 
 ※括弧内はホストマシンからアクセスする際のポート番号
 
@@ -264,7 +264,7 @@ docker exec tool-php php artisan migrate --database=tol --path=database/migratio
 
 1. **データベース名**
    - フォーマット: `{APP_NAME}-{APP_ENV}-{接頭辞}`
-   - 例: `arche-local-sys`, `arche-local-mst`, `arche-local-trx1`
+   - 例: `nexus-local-sys`, `nexus-local-mst`, `nexus-local-trx1`
 
 2. **テーブル名**
    - 必ず接頭辞をつける: `sys_`, `mst_`, `log_`, `trx_`, `adm_`, `tol_`

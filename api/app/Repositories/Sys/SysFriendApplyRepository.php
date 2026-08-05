@@ -2,9 +2,10 @@
 
 namespace App\Repositories\Sys;
 
-
-use NexusPersistence\Support\CustomCollection;
+use App\Adapters\Friend\FriendApplyAdapter;
 use App\Models\Sys\SysFriendApply;
+use NexusFriend\Dto\FriendApplyDto;
+use NexusFriend\Repositories\FriendApplyRepositoryInterface;
 
 /**
  * SysFriendApplyRepository
@@ -13,9 +14,127 @@ use App\Models\Sys\SysFriendApply;
  * 
  * @extends _BaseSysRepository<SysFriendApply>
  */
-class SysFriendApplyRepository extends _BaseSysRepository
+class SysFriendApplyRepository extends _BaseSysRepository implements FriendApplyRepositoryInterface
 {
     protected string $modelClass = SysFriendApply::class;
+
+    /**
+     * IDでフレンド申請を検索（Interface実装）
+     *
+     * @param int $friendApplyId フレンド申請ID
+     * @return FriendApplyDto|null
+     */
+    public function findById(int $friendApplyId): ?FriendApplyDto
+    {
+        $model = $this->selectById($friendApplyId);
+        return $model ? FriendApplyAdapter::toDto($model) : null;
+    }
+
+    /**
+     * 申請者と受信者のペアで既存の申請を検索（Interface実装）
+     *
+     * @param int $senderPlayerId 申請者のプレイヤーID
+     * @param int $receiverPlayerId 受信者のプレイヤーID
+     * @return FriendApplyDto|null
+     */
+    public function findByPlayerPair(int $senderPlayerId, int $receiverPlayerId): ?FriendApplyDto
+    {
+        $model = $this->selectByPlayerPair($senderPlayerId, $receiverPlayerId);
+        return $model ? FriendApplyAdapter::toDto($model) : null;
+    }
+
+    /**
+     * プレイヤーIDに関連するフレンド申請一覧を取得（Interface実装）
+     *
+     * @param int $playerId プレイヤーID
+     * @return array<FriendApplyDto>
+     */
+    public function findAppliesByPlayerId(int $playerId): array
+    {
+        $models = $this->selectAppliesByPlayerId($playerId);
+        return FriendApplyAdapter::toDtoArray($models);
+    }
+
+    /**
+     * プレイヤーIDに関連する承認済みフレンド一覧を取得（Interface実装）
+     *
+     * @param int $playerId プレイヤーID
+     * @return array<FriendApplyDto>
+     */
+    public function findAcceptedFriendsByPlayerId(int $playerId): array
+    {
+        $models = $this->selectAcceptedFriendsByPlayerId($playerId);
+        return FriendApplyAdapter::toDtoArray($models);
+    }
+
+    /**
+     * フレンド申請を作成（Interface実装）
+     *
+     * @param int $senderPlayerId 申請者のプレイヤーID
+     * @param int $receiverPlayerId 受信者のプレイヤーID
+     * @return FriendApplyDto
+     */
+    public function create(int $senderPlayerId, int $receiverPlayerId): FriendApplyDto
+    {
+        $model = $this->createApply($senderPlayerId, $receiverPlayerId);
+        return FriendApplyAdapter::toDto($model);
+    }
+
+    /**
+     * フレンド申請を承認（Interface実装）
+     *
+     * @param FriendApplyDto $applyDto 承認するフレンド申請
+     * @return FriendApplyDto 承認後のDTO
+     */
+    public function accept(FriendApplyDto $applyDto): FriendApplyDto
+    {
+        $model = $this->selectById($applyDto->getId());
+        if ($model === null) {
+            throw new \RuntimeException('Friend apply not found');
+        }
+
+        $model->accept();
+        $this->setModel($model);
+
+        return FriendApplyAdapter::toDto($model);
+    }
+
+    /**
+     * フレンド申請を却下（Interface実装）
+     *
+     * @param FriendApplyDto $applyDto 却下するフレンド申請
+     * @return FriendApplyDto 却下後のDTO
+     */
+    public function reject(FriendApplyDto $applyDto): FriendApplyDto
+    {
+        $model = $this->selectById($applyDto->getId());
+        if ($model === null) {
+            throw new \RuntimeException('Friend apply not found');
+        }
+
+        $model->reject();
+        $this->setModel($model);
+
+        return FriendApplyAdapter::toDto($model);
+    }
+
+    /**
+     * フレンド関係を削除（Interface実装）
+     *
+     * @param int $playerId 削除実行者のプレイヤーID
+     * @param int $targetPlayerId 削除対象のプレイヤーID
+     * @return FriendApplyDto|null 削除されたフレンド関係、見つからない場合null
+     */
+    public function deleteFriendRelation(int $playerId, int $targetPlayerId): ?FriendApplyDto
+    {
+        $model = $this->deleteFriendRelationModel($playerId, $targetPlayerId);
+        return $model ? FriendApplyAdapter::toDto($model) : null;
+    }
+
+    // ========================================
+    // 以下、内部用のModelベースメソッド（既存の実装）
+    // ========================================
+
 
     /**
      * IDでフレンド申請を検索
@@ -160,7 +279,7 @@ class SysFriendApplyRepository extends _BaseSysRepository
     }
 
     /**
-     * フレンド関係を削除（論理削除）
+     * フレンド関係を削除（論理削除） - 内部用Modelメソッド
      * 
      * プレイヤーIDと相手プレイヤーIDから、承認済みフレンド関係を削除する
      *
@@ -168,7 +287,7 @@ class SysFriendApplyRepository extends _BaseSysRepository
      * @param int $targetPlayerId 削除対象のプレイヤーID
      * @return SysFriendApply|null 削除されたフレンド関係、見つからない場合null
      */
-    public function deleteFriendRelation(int $playerId, int $targetPlayerId): ?SysFriendApply
+    private function deleteFriendRelationModel(int $playerId, int $targetPlayerId): ?SysFriendApply
     {
         // 双方向で検索（自分がsenderまたはreceiver）
         $friendRelation = $this->modelClass::query()

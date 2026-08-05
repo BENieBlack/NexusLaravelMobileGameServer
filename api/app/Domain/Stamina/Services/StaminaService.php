@@ -3,7 +3,7 @@
 namespace App\Domain\Stamina\Services;
 
 use NexusStamina\Services\StaminaService as BaseStaminaService;
-use App\Domain\Player\Services\LevelService;
+use App\Domain\Player\Services\PlayerLevelService;
 use App\Domain\Stamina\Constants\StaminaConst;
 use App\Models\Trx\TrxStamina;
 use App\Repositories\Trx\TrxStaminaRepository;
@@ -24,7 +24,7 @@ class StaminaService
 
     public function __construct(
         private readonly TrxStaminaRepository $trxStaminaRepository,
-        private readonly LevelService $playerLevelService,
+        private readonly PlayerLevelService $playerLevelService,
         private readonly BaseStaminaService $baseStaminaService,
     ) {
     }

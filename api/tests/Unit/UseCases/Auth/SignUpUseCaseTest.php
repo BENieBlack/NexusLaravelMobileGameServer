@@ -4,7 +4,7 @@ namespace Tests\Unit\UseCases\Auth;
 
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Services\TokenService;
-use App\Domain\Auth\UseCases\SignUpUseCase;
+use App\Domain\Auth\UseCases\AuthSignUpUseCase;
 use App\Exceptions\BusinessLogicException;
 use App\Http\Responses\Auth\SignUpResponse;
 use App\Models\Sys\SysPlayer;
@@ -22,7 +22,7 @@ class SignUpUseCaseTest extends TestCase
 {
     use RefreshMultipleDatabases;
 
-    private SignUpUseCase $useCase;
+    private AuthSignUpUseCase $useCase;
     private PlayerAuthService $playerAuthService;
     private TokenService $tokenService;
     private SysPlayerDeviceRepository $deviceRepository;
@@ -56,7 +56,7 @@ class SignUpUseCaseTest extends TestCase
         $this->tokenService = app(TokenService::class);
 
         // UseCaseを作成
-        $this->useCase = new SignUpUseCase(
+        $this->useCase = new AuthSignUpUseCase(
             $this->playerAuthService,
             $this->tokenService,
             $this->deviceRepository,

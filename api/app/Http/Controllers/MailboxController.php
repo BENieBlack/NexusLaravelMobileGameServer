@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Domain\Mailbox\UseCases\ListUseCase;
-use App\Domain\Mailbox\UseCases\OpenUseCase;
-use App\Domain\Mailbox\UseCases\LockUseCase;
-use App\Domain\Mailbox\UseCases\ReceiveAllUseCase;
-use App\Domain\Mailbox\UseCases\ReceiveUseCase;
+use App\Domain\Mailbox\UseCases\MailboxListUseCase;
+use App\Domain\Mailbox\UseCases\MailboxOpenUseCase;
+use App\Domain\Mailbox\UseCases\MailboxLockUseCase;
+use App\Domain\Mailbox\UseCases\MailboxReceiveAllUseCase;
+use App\Domain\Mailbox\UseCases\MailboxReceiveUseCase;
 use App\Http\Requests\Mailbox\ListRequest;
 use App\Http\Requests\Mailbox\OpenRequest;
 use App\Http\Requests\Mailbox\LockRequest;
@@ -38,7 +38,7 @@ class MailboxController extends _BaseController
      * @param ListUseCase $useCase
      * @return ListResponse
      */
-    public function list(ListRequest $request, ListUseCase $useCase): ListResponse
+    public function list(ListRequest $request, MailboxListUseCase $useCase): ListResponse
     {
         $sysPlayerId = $this->apiSession->getSysPlayerId();
         
@@ -58,7 +58,7 @@ class MailboxController extends _BaseController
      * @param OpenUseCase $useCase
      * @return OpenResponse
      */
-    public function open(OpenRequest $request, OpenUseCase $useCase): OpenResponse
+    public function open(OpenRequest $request, MailboxOpenUseCase $useCase): OpenResponse
     {
         $sysPlayerId = $this->apiSession->getSysPlayerId();
         return $useCase->exec($sysPlayerId, $request->getTrxMailboxId());
@@ -71,7 +71,7 @@ class MailboxController extends _BaseController
      * @param ReceiveUseCase $useCase
      * @return ReceiveResponse
      */
-    public function receive(ReceiveRequest $request, ReceiveUseCase $useCase): ReceiveResponse
+    public function receive(ReceiveRequest $request, MailboxReceiveUseCase $useCase): ReceiveResponse
     {
         $sysPlayerId = $this->apiSession->getSysPlayerId();
         return $useCase->exec($sysPlayerId, $request->getTrxMailboxId());
@@ -84,7 +84,7 @@ class MailboxController extends _BaseController
      * @param ReceiveAllUseCase $useCase
      * @return ReceiveAllResponse
      */
-    public function receiveAll(ReceiveAllRequest $request, ReceiveAllUseCase $useCase): ReceiveAllResponse
+    public function receiveAll(ReceiveAllRequest $request, MailboxReceiveAllUseCase $useCase): ReceiveAllResponse
     {
         $sysPlayerId = $this->apiSession->getSysPlayerId();
         return $useCase->exec(
@@ -101,7 +101,7 @@ class MailboxController extends _BaseController
      * @param LockUseCase $useCase
      * @return LockResponse
      */
-    public function lock(LockRequest $request, LockUseCase $useCase): LockResponse
+    public function lock(LockRequest $request, MailboxLockUseCase $useCase): LockResponse
     {
         $sysPlayerId = $this->apiSession->getSysPlayerId();
         return $useCase->exec(

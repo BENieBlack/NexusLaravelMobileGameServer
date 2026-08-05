@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\UseCases\Auth;
 
-use App\Domain\Auth\UseCases\SignInUseCase;
+use App\Domain\Auth\UseCases\AuthSignInUseCase;
 use App\Exceptions\GameException;
 use App\Exceptions\GameErrorCode;
 use App\Http\Responses\Auth\SignInResponse;
@@ -20,7 +20,7 @@ use Tests\TestCase;
 
 class SignInUseCaseUnitTest extends TestCase
 {
-    private SignInUseCase $useCase;
+    private AuthSignInUseCase $useCase;
     private PlayerAuthService $playerAuthService;
     private TokenService $tokenService;
     private PlayerRepositoryInterface $playerRepository;
@@ -41,7 +41,7 @@ class SignInUseCaseUnitTest extends TestCase
         $this->tokenService = Mockery::mock(TokenService::class);
 
         // Create UseCase with mocked dependencies
-        $this->useCase = new SignInUseCase(
+        $this->useCase = new AuthSignInUseCase(
             $this->playerAuthService,
             $this->tokenService,
             $this->deviceRepository,

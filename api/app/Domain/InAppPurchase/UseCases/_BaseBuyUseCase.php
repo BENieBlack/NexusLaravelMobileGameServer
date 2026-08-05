@@ -3,7 +3,7 @@
 namespace App\Domain\InAppPurchase\UseCases;
 
 use App\Domain\_BaseUseCase;
-use App\Domain\InAppPurchase\Services\ValidationService;
+use App\Domain\InAppPurchase\Services\InAppPurchaseValidationService;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Http\Responses\InAppPurchase\BuyResponse;
@@ -22,7 +22,7 @@ use NexusBilling\Facades\BillingFacade;
 abstract class _BaseBuyUseCase extends _BaseUseCase
 {
     public function __construct(
-        protected readonly ValidationService $validationService,
+        protected readonly InAppPurchaseValidationService $validationService,
         protected readonly BillingFacade $billingFacade,
     ) {
     }

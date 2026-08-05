@@ -29,7 +29,7 @@ trait UseCaseTrait
     {
         // sign_in時のクリーンアップ処理（is_delete=trueのレコードを削除キューに追加）
         if ($sysPlayerId !== null) {
-            $cleanupService = app()->make('App\Domain\Player\Services\CleanupService');
+            $cleanupService = app()->make('App\Domain\Player\Services\PlayerCleanupService');
             $cleanupService->cleanupDeletedRecords($sysPlayerId);
         }
 

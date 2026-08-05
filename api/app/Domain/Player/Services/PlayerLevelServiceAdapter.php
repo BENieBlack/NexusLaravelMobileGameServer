@@ -3,7 +3,7 @@
 namespace App\Domain\Player\Services;
 
 use NexusStamina\Services\PlayerLevelServiceInterface;
-use App\Domain\Player\Services\LevelService;
+use App\Domain\Player\Services\PlayerLevelService;
 
 /**
  * PlayerLevelServiceAdapter
@@ -13,7 +13,7 @@ use App\Domain\Player\Services\LevelService;
 class PlayerLevelServiceAdapter implements PlayerLevelServiceInterface
 {
     public function __construct(
-        private readonly LevelService $levelService
+        private readonly PlayerLevelService $levelService
     ) {
     }
 

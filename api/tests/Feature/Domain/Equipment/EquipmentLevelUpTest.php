@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Domain\Equipment;
 
-use App\Domain\Equipment\UseCases\LevelUpUseCase;
+use App\Domain\Equipment\UseCases\EquipmentLevelUpUseCase;
 use App\Persistence\ApiSession;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\Attributes\Test;
@@ -60,7 +60,7 @@ class EquipmentLevelUpTest extends TestCase
         $this->assertLessThan($afterLevel, $beforeEquipment->level);
         
         // UseCaseを実行
-        $useCase = app(LevelUpUseCase::class);
+        $useCase = app(EquipmentLevelUpUseCase::class);
         $response = $useCase->exec($this->sysPlayerId, $this->trxEquipmentId, $afterLevel);
         
         // レスポンス確認
@@ -94,7 +94,7 @@ class EquipmentLevelUpTest extends TestCase
         $beforeItemAmount = $beforeItem ? ($beforeItem->free_amount + $beforeItem->paid_amount) : 0;
         
         // UseCaseを実行
-        $useCase = app(LevelUpUseCase::class);
+        $useCase = app(EquipmentLevelUpUseCase::class);
         $response = $useCase->exec($this->sysPlayerId, $this->trxEquipmentId, $afterLevel);
         
         // アイテム消費確認
@@ -116,7 +116,7 @@ class EquipmentLevelUpTest extends TestCase
             ->first();
         
         // UseCaseを実行
-        $useCase = app(LevelUpUseCase::class);
+        $useCase = app(EquipmentLevelUpUseCase::class);
         $response = $useCase->exec($this->sysPlayerId, $this->trxEquipmentId, $afterLevel);
         
         // ログ確認

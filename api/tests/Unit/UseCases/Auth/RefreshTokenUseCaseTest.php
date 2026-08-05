@@ -7,7 +7,7 @@ use NexusAuth\Services\TokenService;
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Contracts\PlayerRepositoryInterface;
 use NexusAuth\Contracts\DeviceRepositoryInterface;
-use App\Domain\Auth\UseCases\RefreshTokenUseCase;
+use App\Domain\Auth\UseCases\AuthRefreshTokenUseCase;
 use App\Exceptions\GameException;
 use App\Http\Responses\Auth\RefreshTokenResponse;
 use App\Models\Sys\SysPlayer;
@@ -25,7 +25,7 @@ class RefreshTokenUseCaseTest extends TestCase
 {
     use RefreshMultipleDatabases;
 
-    private RefreshTokenUseCase $useCase;
+    private AuthRefreshTokenUseCase $useCase;
     private PlayerService $playerService;
     private TokenService $tokenService;
     private PlayerAuthService $playerAuthService;
@@ -61,7 +61,7 @@ class RefreshTokenUseCaseTest extends TestCase
         $this->tokenService = app(TokenService::class);
 
         // UseCaseを作成
-        $this->useCase = new RefreshTokenUseCase(
+        $this->useCase = new AuthRefreshTokenUseCase(
             $this->tokenService,
             $this->playerAuthService,
             $this->playerRepository,

@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Domain\Login\UseCases\HomeUseCase;
-use App\Domain\Auth\UseCases\RefreshTokenUseCase;
-use App\Domain\Auth\UseCases\SignInUseCase;
-use App\Domain\Auth\UseCases\SignUpUseCase;
-use App\Domain\Version\UseCases\CheckUseCase;
+use App\Domain\Login\UseCases\LoginHomeUseCase;
+use App\Domain\Auth\UseCases\AuthRefreshTokenUseCase;
+use App\Domain\Auth\UseCases\AuthSignInUseCase;
+use App\Domain\Auth\UseCases\AuthSignUpUseCase;
+use App\Domain\Version\UseCases\VersionCheckUseCase;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RefreshTokenRequest;
 use App\Http\Requests\Auth\SignInRequest;
@@ -20,7 +20,7 @@ class AuthController extends _BaseController
     /**
      * サインイン処理（既存デバイスIDでのログイン）
      */
-    public function signIn(SignInRequest $request, SignInUseCase $useCase): JsonResponse
+    public function signIn(SignInRequest $request, AuthSignInUseCase $useCase): JsonResponse
     {
         $deviceId = $request->getDeviceId();
         $deviceInfo = $request->getDeviceInfo();
@@ -30,7 +30,7 @@ class AuthController extends _BaseController
     /**
      * サインアップ処理（新規プレイヤー作成）
      */
-    public function signUp(SignUpRequest $request, SignUpUseCase $useCase): JsonResponse
+    public function signUp(SignUpRequest $request, AuthSignUpUseCase $useCase): JsonResponse
     {
         \Log::info('AuthController::signUp called', [
             'device_id' => $request->input('device_id'),
@@ -47,7 +47,7 @@ class AuthController extends _BaseController
     /**
      * トークンリフレッシュ処理
      */
-    public function refreshToken(RefreshTokenRequest $request, RefreshTokenUseCase $useCase): JsonResponse
+    public function refreshToken(RefreshTokenRequest $request, AuthRefreshTokenUseCase $useCase): JsonResponse
     {
         $refreshToken = $request->getRefreshToken();
         return $this->execute(fn() => $useCase->exec($refreshToken));
@@ -56,7 +56,7 @@ class AuthController extends _BaseController
     /**
      * バージョンチェック処理
      */
-    public function version(VersionRequest $request, CheckUseCase $useCase): JsonResponse
+    public function version(VersionRequest $request, VersionCheckUseCase $useCase): JsonResponse
     {
         $deployVersion = $request->getDeployVersion();
         return $this->execute(fn() => $useCase->exec($deployVersion));
@@ -65,7 +65,7 @@ class AuthController extends _BaseController
     /**
      * ログイン処理（認証済みプレイヤーのログインボーナス配布とユーザー情報取得）
      */
-    public function login(LoginRequest $request, HomeUseCase $useCase): JsonResponse
+    public function login(LoginRequest $request, LoginHomeUseCase $useCase): JsonResponse
     {
         $sysPlayerId = ApiSession::getSysPlayerId();
         return $this->execute(fn() => $useCase->exec($sysPlayerId));

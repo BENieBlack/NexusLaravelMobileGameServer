@@ -2,18 +2,18 @@
 
 namespace App\Domain\Gacha\Services;
 
-use NexusGacha\Services\GachaDrawService as BaseGachaDrawService;
+use NexusGacha\Services\DrawService as BaseDrawService;
 
 /**
  * DrawService
  *
- * パッケージ版のGachaDrawServiceのラッパー
+ * パッケージ版のDrawServiceのラッパー
  * 配列形式で結果を返すために変換処理を行う
  */
 class DrawService
 {
     public function __construct(
-        private readonly BaseGachaDrawService $baseDrawService,
+        private readonly BaseDrawService $baseDrawService,
     ) {
     }
 

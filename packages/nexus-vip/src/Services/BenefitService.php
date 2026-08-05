@@ -10,10 +10,10 @@ namespace NexusVip\Services;
  * Note: VIPレベルは vip_point から動的に計算される
  * クライアント側でも mst_vip_level を参照して判定可能
  */
-class VipBenefitService
+class BenefitService
 {
     public function __construct(
-        protected VipLevelService $vipLevelService
+        protected LevelService $vipLevelService
     ) {
     }
 

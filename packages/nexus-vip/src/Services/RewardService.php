@@ -10,7 +10,7 @@ use NexusVip\Repositories\VipLevelRewardRepositoryInterface;
  * 
  * VIPレベルアップ時の報酬取得を担当
  */
-class VipRewardService
+class RewardService
 {
     public function __construct(
         protected VipLevelRewardRepositoryInterface $vipLevelRewardRepository

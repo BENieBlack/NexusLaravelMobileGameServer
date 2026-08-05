@@ -13,13 +13,13 @@ use NexusVip\Repositories\VipPointLogRepositoryInterface;
  * 
  * VIPポイントの計算と付与を担当
  */
-class VipPointService
+class PointService
 {
     public function __construct(
         protected PlayerVipRepositoryInterface $playerVipRepository,
         protected VipPointLogRepositoryInterface $vipPointLogRepository,
-        protected VipLevelService $vipLevelService,
-        protected VipRewardService $vipRewardService,
+        protected LevelService $vipLevelService,
+        protected RewardService $vipRewardService,
     ) {
     }
 

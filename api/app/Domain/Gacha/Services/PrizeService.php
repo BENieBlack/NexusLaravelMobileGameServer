@@ -2,18 +2,18 @@
 
 namespace App\Domain\Gacha\Services;
 
-use NexusGacha\Services\GachaPrizeService as BaseGachaPrizeService;
+use NexusGacha\Services\PrizeService as BasePrizeService;
 use NexusGacha\Dto\GachaPrizeDto;
 
 /**
  * PrizeService
  *
- * パッケージ版のGachaPrizeServiceのラッパー
+ * パッケージ版のPrizeServiceのラッパー
  */
 class PrizeService
 {
     public function __construct(
-        private readonly BaseGachaPrizeService $basePrizeService,
+        private readonly BasePrizeService $basePrizeService,
     ) {
     }
 

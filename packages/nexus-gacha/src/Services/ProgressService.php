@@ -7,11 +7,11 @@ use NexusGacha\Repositories\GachaProgressRepositoryInterface;
 use NexusUtilities\ClockUtility;
 
 /**
- * GachaProgressService
+ * ProgressService
  * 
  * ガチャの進行状況（リセット、ステップ管理）を行うサービス
  */
-class GachaProgressService
+class ProgressService
 {
     public function __construct(
         private readonly GachaProgressRepositoryInterface $progressRepository,

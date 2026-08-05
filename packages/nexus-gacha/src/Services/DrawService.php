@@ -16,7 +16,7 @@ use NexusGacha\Strategies\RandomDrawStrategy;
 use NexusGacha\Strategies\NoneDrawStrategy;
 
 /**
- * GachaDrawService
+ * DrawService
  * 
  * ガチャの抽選ロジックを担当するサービス
  * 
@@ -24,7 +24,7 @@ use NexusGacha\Strategies\NoneDrawStrategy;
  * 新しい抽選タイプを追加する場合は、GachaDrawStrategyInterfaceを実装した
  * 新しいStrategyクラスを作成し、registerStrategy()で登録してください。
  */
-class GachaDrawService
+class DrawService
 {
     /** @var GachaDrawStrategyInterface[] */
     private array $strategies = [];

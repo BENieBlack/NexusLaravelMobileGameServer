@@ -12,7 +12,7 @@ use NexusVip\Repositories\VipLevelRepositoryInterface;
  * 
  * VIPレベルの判定と特典情報の取得を担当
  */
-class VipLevelService
+class LevelService
 {
     public function __construct(
         protected VipLevelRepositoryInterface $vipLevelRepository

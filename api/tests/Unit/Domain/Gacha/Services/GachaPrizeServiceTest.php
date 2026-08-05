@@ -5,7 +5,7 @@ namespace Tests\Unit\Domain\Gacha\Services;
 use NexusResource\DTOs\ResourceDto;
 use NexusResourceDelivery\DTOs\ResourceDeliveryResultDto;
 use NexusResourceDelivery\Services\ResourceDeliveryService;
-use NexusGacha\Services\GachaPrizeService as BaseGachaPrizeService;
+use NexusGacha\Services\PrizeService as BasePrizeService;
 use NexusGacha\Dto\GachaPrizeDto;
 use App\Domain\Gacha\Services\PrizeService as GachaPrizeService;
 use Mockery;
@@ -14,14 +14,14 @@ use Tests\TestCase;
 class GachaPrizeServiceTest extends TestCase
 {
     protected GachaPrizeService $service;
-    protected BaseGachaPrizeService $mockBasePrizeService;
+    protected BasePrizeService $mockBasePrizeService;
 
     protected function setUp(): void
     {
         parent::setUp();
         
-        // NexusGacha\Services\GachaPrizeServiceをモック
-        $this->mockBasePrizeService = Mockery::mock(BaseGachaPrizeService::class);
+        // NexusGacha\Services\PrizeServiceをモック
+        $this->mockBasePrizeService = Mockery::mock(BasePrizeService::class);
         
         // GachaPrizeServiceを作成
         $this->service = new GachaPrizeService($this->mockBasePrizeService);

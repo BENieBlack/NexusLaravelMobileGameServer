@@ -6,7 +6,7 @@ Toolプロジェクトは、ゲームの運営管理を行うための管理画�
 
 ## データベース構成
 
-### adm データベース (`arche-local-adm`)
+### adm データベース (`nexus-local-adm`)
 
 管理者アカウントと権限管理を担当するデータベース。
 
@@ -16,7 +16,7 @@ Toolプロジェクトは、ゲームの運営管理を行うための管理画�
 - `jobs`, `job_batches`, `failed_jobs` - Laravelジョブキュー
 - `migrations` - マイグレーション履歴
 
-### tol データベース (`arche-local-tol`)
+### tol データベース (`nexus-local-tol`)
 
 運営ツールの各種機能を担当するデータベース。
 

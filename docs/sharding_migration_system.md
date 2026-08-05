@@ -221,14 +221,14 @@ class TrxPlayerSeeder extends Seeder
 # Transaction Database - Node 3
 DB_TRX3_HOST=db-trx3
 DB_TRX3_PORT=3306
-DB_TRX3_DATABASE=arche-local-trx3
+DB_TRX3_DATABASE=nexus-local-trx3
 DB_TRX3_USERNAME=root
 DB_TRX3_PASSWORD=root
 
 # Transaction Database - Node 4
 DB_TRX4_HOST=db-trx4
 DB_TRX4_PORT=3306
-DB_TRX4_DATABASE=arche-local-trx4
+DB_TRX4_DATABASE=nexus-local-trx4
 DB_TRX4_USERNAME=root
 DB_TRX4_PASSWORD=root
 ```

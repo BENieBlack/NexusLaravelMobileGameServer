@@ -3,7 +3,7 @@
 namespace App\Domain\InAppPurchase\Services;
 
 use App\Models\Mst\MstInAppPurchase;
-use App\Domain\InAppPurchase\Services\PurchaseService as DiamondPurchaseService;
+use App\Domain\InAppPurchase\Services\InAppPurchasePurchaseService;
 
 /**
  * DiamondService (Facade)
@@ -23,7 +23,7 @@ class DiamondService
 {
     public function __construct(
         private readonly DiamondBalanceService $diamondBalanceService,
-        private readonly DiamondPurchaseService $diamondPurchaseService,
+        private readonly InAppPurchasePurchaseService $diamondPurchaseService,
     ) {
     }
 

@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Domain\Friend\UseCases\ApplyAcceptUseCase;
-use App\Domain\Friend\UseCases\ApplyListUseCase;
-use App\Domain\Friend\UseCases\ApplyRejectUseCase;
-use App\Domain\Friend\UseCases\ApplySendUseCase;
-use App\Domain\Friend\UseCases\DeleteUseCase;
-use App\Domain\Friend\UseCases\ListUseCase;
+use App\Domain\Friend\UseCases\FriendApplyAcceptUseCase;
+use App\Domain\Friend\UseCases\FriendApplyListUseCase;
+use App\Domain\Friend\UseCases\FriendApplyRejectUseCase;
+use App\Domain\Friend\UseCases\FriendApplySendUseCase;
+use App\Domain\Friend\UseCases\FriendDeleteUseCase;
+use App\Domain\Friend\UseCases\FriendListUseCase;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Http\Requests\Friend\ApplyAcceptRequest;
@@ -25,7 +25,7 @@ class FriendController extends _BaseController
      * 
      * my_idを受け取り、フレンド申請を作成する
      */
-    public function applySend(ApplySendRequest $request, ApplySendUseCase $useCase): JsonResponse
+    public function applySend(ApplySendRequest $request, FriendApplySendUseCase $useCase): JsonResponse
     {
         // 認証情報を取得
         $sysPlayerId = $request->getAuthenticatedPlayerId();
@@ -48,7 +48,7 @@ class FriendController extends _BaseController
      * 
      * sys_friend_apply_idを受け取り、フレンド申請を承認する
      */
-    public function applyAccept(ApplyAcceptRequest $request, ApplyAcceptUseCase $useCase): JsonResponse
+    public function applyAccept(ApplyAcceptRequest $request, FriendApplyAcceptUseCase $useCase): JsonResponse
     {
         // 認証情報を取得
         $sysPlayerId = $request->getAuthenticatedPlayerId();
@@ -71,7 +71,7 @@ class FriendController extends _BaseController
      * 
      * sys_friend_apply_idを受け取り、フレンド申請を却下する
      */
-    public function applyReject(ApplyRejectRequest $request, ApplyRejectUseCase $useCase): JsonResponse
+    public function applyReject(ApplyRejectRequest $request, FriendApplyRejectUseCase $useCase): JsonResponse
     {
         // 認証情報を取得
         $sysPlayerId = $request->getAuthenticatedPlayerId();
@@ -94,7 +94,7 @@ class FriendController extends _BaseController
      * 
      * 自分が送信または受信したフレンド申請一覧を取得する（status=Applied）
      */
-    public function applyList(ApplyListRequest $request, ApplyListUseCase $useCase): JsonResponse
+    public function applyList(ApplyListRequest $request, FriendApplyListUseCase $useCase): JsonResponse
     {
         // 認証情報を取得
         $sysPlayerId = $request->getAuthenticatedPlayerId();
@@ -114,7 +114,7 @@ class FriendController extends _BaseController
      * 
      * 承認済みのフレンド一覧を取得する（status=Accepted）
      */
-    public function list(ListRequest $request, ListUseCase $useCase): JsonResponse
+    public function list(ListRequest $request, FriendListUseCase $useCase): JsonResponse
     {
         // 認証情報を取得
         $sysPlayerId = $request->getAuthenticatedPlayerId();
@@ -134,7 +134,7 @@ class FriendController extends _BaseController
      * 
      * my_idを受け取り、フレンド関係を削除する
      */
-    public function delete(DeleteRequest $request, DeleteUseCase $useCase): JsonResponse
+    public function delete(DeleteRequest $request, FriendDeleteUseCase $useCase): JsonResponse
     {
         // 認証情報を取得
         $sysPlayerId = $request->getAuthenticatedPlayerId();

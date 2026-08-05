@@ -3,8 +3,8 @@
 namespace App\Domain\Item\Services;
 
 use App\Models\Trx\TrxItem;
-use App\Domain\Item\Services\ReadService as ItemReadService;
-use App\Domain\Item\Services\WriteService as ItemWriteService;
+use App\Domain\Item\Services\ItemReadService;
+use App\Domain\Item\Services\ItemWriteService;
 
 /**
  * ItemService (Facade)

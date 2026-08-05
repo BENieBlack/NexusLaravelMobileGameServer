@@ -5,8 +5,8 @@ namespace App\Domain\Wallet\Services;
 use LaravelWallet\Contracts\WalletManagerInterface;
 use LaravelWallet\DTOs\CurrencyBalanceDto;
 use LaravelWallet\DTOs\CurrencyOperationResultDto;
-use App\Domain\Wallet\Services\ReadService as WalletReadService;
-use App\Domain\Wallet\Services\WriteService as WalletWriteService;
+use App\Domain\Wallet\Services\WalletReadService;
+use App\Domain\Wallet\Services\WalletWriteService;
 
 /**
  * WalletService (Facade)

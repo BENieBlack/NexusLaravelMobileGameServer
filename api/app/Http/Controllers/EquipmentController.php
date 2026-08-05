@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Domain\Equipment\UseCases\LevelUpUseCase;
+use App\Domain\Equipment\UseCases\EquipmentLevelUpUseCase;
 use App\Exceptions\GameException;
 use App\Exceptions\GameErrorCode;
 use App\Http\Requests\Equipment\LevelUpRequest;
@@ -18,7 +18,7 @@ use Illuminate\Http\JsonResponse;
 class EquipmentController extends _BaseController
 {
     public function __construct(
-        private readonly LevelUpUseCase $equipmentLevelUpUseCase,
+        private readonly EquipmentLevelUpUseCase $equipmentLevelUpUseCase,
         private readonly ApiSession $apiSession,
     ) {
     }

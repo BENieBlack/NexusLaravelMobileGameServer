@@ -1386,6 +1386,73 @@ class RandomUtility
 
 DTOは複数のサービス間でデータを受け渡す際に、型安全性と明示性を確保するために使用します。
 
+### DTO実装の重要ルール
+
+#### ✅ 必須事項
+
+**1. プロパティは必ず`private readonly`で宣言**
+
+```php
+// ✅ Good: private readonlyで不変性と型安全性を確保
+class GuildDto
+{
+    public function __construct(
+        private readonly int $id,
+        private readonly string $name,
+        private readonly ?string $description,
+        private readonly int $level,
+    ) {}
+    
+    public function getId(): int
+    {
+        return $this->id;
+    }
+    
+    public function getName(): string
+    {
+        return $this->name;
+    }
+}
+
+// ❌ Bad: public readonlyは使わない（直接アクセスを防ぐため）
+class GuildDto
+{
+    public function __construct(
+        public readonly int $id,           // NG: publicは禁止
+        public readonly string $name,      // NG: publicは禁止
+    ) {}
+}
+```
+
+**2. 外部アクセスは必ずGetterメソッド経由**
+
+```php
+// ✅ Good: Getterメソッドを使用
+$guildId = $guildDto->getId();
+$guildName = $guildDto->getName();
+
+// ❌ Bad: 直接プロパティアクセスは禁止
+$guildId = $guildDto->id;      // NG: 直接アクセス禁止
+$guildName = $guildDto->name;  // NG: 直接アクセス禁止
+```
+
+**3. class_aliasは使用禁止**
+
+```php
+// ❌ Bad: 後方互換性のためのaliasは使わない
+class_alias(ReceiptDto::class, 'NexusBilling\DTOs\ReceiptData'); // NG
+
+// ✅ Good: クラス名を統一し、すべての箇所を一括変更
+// aliasなしで一貫した命名を使用
+```
+
+#### なぜprivate readonlyを使うのか
+
+1. **カプセル化**: 内部実装の隠蔽により、将来の変更に強い設計
+2. **不変性**: readonlyで値の変更を防ぎ、予期しない副作用を回避
+3. **一貫性**: すべてのDTOで同じアクセスパターンを強制
+4. **型安全性**: Getterで明示的な型を保証
+
 ### DeliveryContentの実装例
 
 ```php
@@ -1393,11 +1460,11 @@ DTOは複数のサービス間でデータを受け渡す際に、型安全性�
 class DeliveryContent
 {
     public function __construct(
-        public readonly string $type,
-        public readonly string $id,
-        public readonly int $amount,
-        public readonly array $metadata = [],
-        public readonly ?CarbonImmutable $expireAt = null,
+        private readonly string $type,
+        private readonly string $id,
+        private readonly int $amount,
+        private readonly array $metadata = [],
+        private readonly ?CarbonImmutable $expireAt = null,
     ) {}
 
     public function getType(): string
@@ -1549,10 +1616,13 @@ class DiamondDeliveryHandler implements DeliveryHandlerInterface
 ### ルール
 
 **DTO設計:**
-- [ ] readonlyプロパティで不変性を保証
+- [ ] すべてのプロパティは`private readonly`で宣言
+- [ ] 外部アクセスは必ずGetterメソッド経由
+- [ ] 直接プロパティアクセス（`$dto->property`）は禁止
+- [ ] class_aliasは使用禁止（クラス名を統一）
 - [ ] コンストラクタで必須パラメータを受け取る
 - [ ] metadataは配列型で柔軟性を確保
-- [ ] Getterメソッドを提供
+- [ ] すべてのプロパティにGetterメソッドを提供
 
 **メタデータ活用:**
 - [ ] オプショナルな情報のみをメタデータに格納

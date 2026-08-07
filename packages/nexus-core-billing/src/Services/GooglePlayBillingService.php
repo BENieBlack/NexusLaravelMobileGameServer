@@ -26,9 +26,9 @@ class GooglePlayBillingService implements BillingPlatformInterface
     /**
      * {@inheritDoc}
      */
-    public function verifyReceipt(ReceiptDto $receiptData): VerificationDto
+    public function verifyReceipt(ReceiptDto $receiptDto): VerificationDto
     {
-        if (empty($receiptData->getPurchaseToken()) || empty($receiptData->getProductId())) {
+        if (empty($receiptDto->getPurchaseToken()) || empty($receiptDto->getProductId())) {
             throw new InvalidReceiptException(
                 'Purchase token and product ID are required for Google Play'
             );
@@ -40,8 +40,8 @@ class GooglePlayBillingService implements BillingPlatformInterface
         // 2. Google Play Developer API 呼び出し
         $response = $this->apiClient->verifyPurchase(
             packageName: $packageName,
-            productId: $receiptData->getProductId(),
-            token: $receiptData->getPurchaseToken()
+            productId: $receiptDto->getProductId(),
+            token: $receiptDto->getPurchaseToken()
         );
 
         // 3. 購入状態確認
@@ -61,7 +61,7 @@ class GooglePlayBillingService implements BillingPlatformInterface
         return new VerificationDto(
             isValid: true,
             transactionId: $response['orderId'],
-            productId: $receiptData->getProductId(),
+            productId: $receiptDto->getProductId(),
             purchaseDate: CarbonImmutable::createFromTimestampMs((int)$response['purchaseTimeMillis'])->format('Y-m-d H:i:s'),
             quantity: (int)($response['quantity'] ?? 1),
             originalTransactionId: $response['orderId'],

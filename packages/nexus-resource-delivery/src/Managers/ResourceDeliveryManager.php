@@ -104,12 +104,12 @@ class ResourceDeliveryManager implements ResourceDeliveryManagerInterface
     /**
      * 配送処理を実行した後に実行する処理をまとめたメソッド
      *
-     * @param ResourceDeliveryCompleteDto $sendCompleteData 送信完了データ
+     * @param ResourceDeliveryCompleteDto $resourceDeliveryCompleteDto 送信完了データ
      * @return void
      */
-    public function afterSend(ResourceDeliveryCompleteDto $sendCompleteData): void
+    public function afterSend(ResourceDeliveryCompleteDto $resourceDeliveryCompleteDto): void
     {
-        foreach ($sendCompleteData->getContents() as $content) {
+        foreach ($resourceDeliveryCompleteDto->getContents() as $content) {
             $this->addSendCompleteContent($content);
         }
     }

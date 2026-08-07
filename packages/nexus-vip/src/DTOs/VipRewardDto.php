@@ -8,13 +8,61 @@ namespace NexusVip\DTOs;
 class VipRewardDto
 {
     public function __construct(
-        public readonly string $contentType,
-        public readonly string $contentId,
-        public readonly ?array $contentOption,
-        public readonly int $contentQuantity,
-        public readonly int $amount,
-        public readonly bool $isPaid = false,
+        private readonly string $contentType,
+        private readonly string $contentId,
+        private readonly ?array $contentOption,
+        private readonly int $contentQuantity,
+        private readonly int $amount,
+        private readonly bool $isPaid = false,
     ) {
+    }
+
+    /**
+     * コンテンツタイプを取得
+     */
+    public function getContentType(): string
+    {
+        return $this->contentType;
+    }
+
+    /**
+     * コンテンツIDを取得
+     */
+    public function getContentId(): string
+    {
+        return $this->contentId;
+    }
+
+    /**
+     * コンテンツオプションを取得
+     */
+    public function getContentOption(): ?array
+    {
+        return $this->contentOption;
+    }
+
+    /**
+     * コンテンツ数量を取得
+     */
+    public function getContentQuantity(): int
+    {
+        return $this->contentQuantity;
+    }
+
+    /**
+     * 量を取得
+     */
+    public function getAmount(): int
+    {
+        return $this->amount;
+    }
+
+    /**
+     * 有償かどうかを取得
+     */
+    public function getIsPaid(): bool
+    {
+        return $this->isPaid;
     }
 
     /**

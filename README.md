@@ -204,7 +204,10 @@ docker exec api-php php artisan migrate:fresh --database=sys --path=database/mig
 - [コーディング規約](./api/docs/CODING_CONVENTIONS.md) - Request/Response/Dataクラスの命名規則とディレクトリ構成
 - [Repositoryパターン実装ガイド](./api/docs/REPOSITORY_PATTERN.md) - データアクセス抽象化とキャッシュ戦略
 - [クライアント認証](./docs/client_authentication.md) - 署名検証、デバイス認証
-- [ガチャシステム設計](./docs/gacha_system_design.md) - ガチャロジック、確率制御
+
+### 実装済み機能
+- [ガチャシステム](./gacha_implementation.md) - 通常/ステップアップ/ピックアップガチャ、確率制御、保証機能
+- [ギルドシステム](./docs/guild_implementation.md) - ギルド作成、メンバー管理、申請承認、役職制御
 
 ### Tool固有
 - [Tool仕様](./.claude/tool.md) - 運営ツールの機能、データベース構成

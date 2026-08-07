@@ -4,7 +4,7 @@ namespace NexusBilling\Facades;
 
 use NexusBilling\DTOs\ReceiptDto;
 use NexusBilling\DTOs\SubscriptionStatus;
-use NexusBilling\DTOs\VerificationResult;
+use NexusBilling\DTOs\VerificationDto;
 use NexusBilling\Exceptions\DuplicatePurchaseException;
 use NexusBilling\Services\BillingPlatformFactory;
 use NexusBilling\Services\IdempotencyService;
@@ -33,7 +33,7 @@ class BillingFacade
      * @param string $billingPlatform 決済プラットフォーム（AppStore, GooglePlay等）
      * @param ReceiptDto $receiptData レシート情報
      * @param string $uniqueRequestId 一意なリクエストID（重複防止用）
-     * @return VerificationResult 検証結果
+     * @return VerificationDto 検証結果
      * @throws DuplicatePurchaseException 重複購入の場合
      * @throws Exception その他のエラー
      */
@@ -41,7 +41,7 @@ class BillingFacade
         string $billingPlatform,
         ReceiptDto $receiptData,
         string $uniqueRequestId
-    ): VerificationResult {
+    ): VerificationDto {
         // 1. 冪等性チェック（重複購入防止）
         if ($this->idempotencyService->isDuplicate($uniqueRequestId)) {
             Log::warning('Duplicate purchase request detected', [
@@ -67,8 +67,8 @@ class BillingFacade
 
             Log::info('Receipt verification successful', [
                 'unique_request_id' => $uniqueRequestId,
-                'transaction_id' => $result->transactionId,
-                'product_id' => $result->productId,
+                'transaction_id' => $result->getTransactionId(),
+                'product_id' => $result->getProductId(),
                 'billing_platform' => $billingPlatform,
             ]);
 
@@ -93,12 +93,12 @@ class BillingFacade
      * 
      * @param string $billingPlatform 決済プラットフォーム
      * @param ReceiptDto $receiptData レシート情報
-     * @return VerificationResult 検証結果
+     * @return VerificationDto 検証結果
      */
     public function verifyReceipt(
         string $billingPlatform,
         ReceiptDto $receiptData
-    ): VerificationResult {
+    ): VerificationDto {
         $platform = $this->platformFactory->create($billingPlatform);
         return $platform->verifyReceipt($receiptData);
     }

@@ -3,7 +3,7 @@
 namespace NexusBilling\Contracts;
 
 use NexusBilling\DTOs\ReceiptDto;
-use NexusBilling\DTOs\VerificationResult;
+use NexusBilling\DTOs\VerificationDto;
 use NexusBilling\Exceptions\ReceiptVerificationException;
 
 /**
@@ -19,10 +19,10 @@ interface PurchaseVerifierInterface
      * プラットフォームに応じた適切な検証方法を選択し、レシートを検証する
      * 
      * @param ReceiptDto $receiptData レシート情報
-     * @return VerificationResult 検証結果
+     * @return VerificationDto 検証結果
      * @throws ReceiptVerificationException 検証失敗時
      */
-    public function verify(ReceiptDto $receiptData): VerificationResult;
+    public function verify(ReceiptDto $receiptData): VerificationDto;
 
     /**
      * プラットフォームをサポートしているか確認

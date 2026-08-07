@@ -7,7 +7,7 @@ use NexusBilling\Constants\BillingConst;
 use NexusBilling\Contracts\BillingPlatformInterface;
 use NexusBilling\DTOs\ReceiptDto;
 use NexusBilling\DTOs\SubscriptionStatus;
-use NexusBilling\DTOs\VerificationResult;
+use NexusBilling\DTOs\VerificationDto;
 use NexusBilling\Exceptions\InvalidReceiptException;
 use Carbon\CarbonImmutable;
 
@@ -57,7 +57,7 @@ class AppStoreBillingService implements BillingPlatformInterface
         }
 
         // 5. 検証結果を返す
-        return new VerificationResult(
+        return new VerificationDto(
             isValid: true,
             transactionId: $latestReceipt['transaction_id'],
             productId: $latestReceipt['product_id'],

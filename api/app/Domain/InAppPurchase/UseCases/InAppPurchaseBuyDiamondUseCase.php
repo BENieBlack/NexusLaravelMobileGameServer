@@ -57,7 +57,7 @@ class InAppPurchaseBuyDiamondUseCase extends _BaseBuyUseCase
                 $platform,
                 $billingPlatform,
                 $unitPrice,
-                $verificationResult->transactionId
+                $verificationResult->getTransactionId()
             );
 
             return new BuyResponse(

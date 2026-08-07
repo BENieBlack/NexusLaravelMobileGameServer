@@ -66,7 +66,7 @@ class InAppPurchaseBuyPassUseCase extends _BaseBuyUseCase
                     $platform,
                     $billingPlatform,
                     $unitPrice,
-                    $verificationResult->transactionId
+                    $verificationResult->getTransactionId()
                 );
                 $paidDiamondAmount = $result['paid_diamond_amount'];
                 $totalPaidDiamondAmount = $result['total_paid_diamond_amount'];

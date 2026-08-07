@@ -11,13 +11,61 @@ namespace NexusVip\DTOs;
 class VipInfoDto
 {
     public function __construct(
-        public readonly int $vipPoint,
-        public readonly int $vipLevel,
-        public readonly ?int $pointsToNextLevel,
-        public readonly ?int $nextLevel,
-        public readonly VipBenefitDto $benefits,
-        public readonly float $totalPaidAmount,
+        private readonly int $vipPoint,
+        private readonly int $vipLevel,
+        private readonly ?int $pointsToNextLevel,
+        private readonly ?int $nextLevel,
+        private readonly VipBenefitDto $benefits,
+        private readonly float $totalPaidAmount,
     ) {
+    }
+
+    /**
+     * VIPポイントを取得
+     */
+    public function getVipPoint(): int
+    {
+        return $this->vipPoint;
+    }
+
+    /**
+     * VIPレベルを取得
+     */
+    public function getVipLevel(): int
+    {
+        return $this->vipLevel;
+    }
+
+    /**
+     * 次のレベルまでのポイントを取得
+     */
+    public function getPointsToNextLevel(): ?int
+    {
+        return $this->pointsToNextLevel;
+    }
+
+    /**
+     * 次のレベルを取得
+     */
+    public function getNextLevel(): ?int
+    {
+        return $this->nextLevel;
+    }
+
+    /**
+     * 特典を取得
+     */
+    public function getBenefits(): VipBenefitDto
+    {
+        return $this->benefits;
+    }
+
+    /**
+     * 累計課金額を取得
+     */
+    public function getTotalPaidAmount(): float
+    {
+        return $this->totalPaidAmount;
     }
 
     /**

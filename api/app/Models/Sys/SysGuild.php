@@ -1,0 +1,190 @@
+<?php
+
+namespace App\Models\Sys;
+
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+/**
+ * SysGuild Model
+ * 
+ * ギルド情報テーブル
+ */
+class SysGuild extends _BaseSys
+{
+    /**
+     * テーブル名
+     */
+    protected $table = 'sys_guild';
+
+    /**
+     * 複数代入可能な属性
+     *
+     * @var array<string>
+     */
+    protected $fillable = [
+        'name',
+        'description',
+        'level',
+        'exp',
+        'max_members',
+    ];
+
+    /**
+     * キャストする属性
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'level' => 'integer',
+        'exp' => 'integer',
+        'max_members' => 'integer',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
+    /**
+     * メンバーとのリレーション
+     *
+     * @return HasMany
+     */
+    public function members(): HasMany
+    {
+        return $this->hasMany(SysGuildMember::class, 'sys_guild_id');
+    }
+
+    /**
+     * 申請とのリレーション
+     *
+     * @return HasMany
+     */
+    public function applies(): HasMany
+    {
+        return $this->hasMany(SysGuildApply::class, 'sys_guild_id');
+    }
+
+    /**
+     * IDを取得
+     *
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->getAttribute('id');
+    }
+
+    /**
+     * ギルド名を取得
+     *
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->getAttribute('name');
+    }
+
+    /**
+     * ギルド説明を取得
+     *
+     * @return string|null
+     */
+    public function getDescription(): ?string
+    {
+        return $this->getAttribute('description');
+    }
+
+    /**
+     * レベルを取得
+     *
+     * @return int
+     */
+    public function getLevel(): int
+    {
+        return $this->getAttribute('level');
+    }
+
+    /**
+     * 経験値を取得
+     *
+     * @return int
+     */
+    public function getExp(): int
+    {
+        return $this->getAttribute('exp');
+    }
+
+    /**
+     * 最大メンバー数を取得
+     *
+     * @return int
+     */
+    public function getMaxMembers(): int
+    {
+        return $this->getAttribute('max_members');
+    }
+
+    /**
+     * ギルド名を設定
+     *
+     * @param string $name
+     * @return void
+     */
+    public function setName(string $name): void
+    {
+        $this->setAttribute('name', $name);
+    }
+
+    /**
+     * ギルド説明を設定
+     *
+     * @param string|null $description
+     * @return void
+     */
+    public function setDescription(?string $description): void
+    {
+        $this->setAttribute('description', $description);
+    }
+
+    /**
+     * レベルを設定
+     *
+     * @param int $level
+     * @return void
+     */
+    public function setLevel(int $level): void
+    {
+        $this->setAttribute('level', $level);
+    }
+
+    /**
+     * 経験値を設定
+     *
+     * @param int $exp
+     * @return void
+     */
+    public function setExp(int $exp): void
+    {
+        $this->setAttribute('exp', $exp);
+    }
+
+    /**
+     * 最大メンバー数を設定
+     *
+     * @param int $maxMembers
+     * @return void
+     */
+    public function setMaxMembers(int $maxMembers): void
+    {
+        $this->setAttribute('max_members', $maxMembers);
+    }
+
+    /**
+     * 現在のメンバー数を取得
+     *
+     * @return int
+     */
+    public function getCurrentMemberCount(): int
+    {
+        return $this->members()->count();
+    }
+}

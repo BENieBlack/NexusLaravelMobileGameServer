@@ -25,15 +25,15 @@ class AppStoreBillingService implements BillingPlatformInterface
     /**
      * {@inheritDoc}
      */
-    public function verifyReceipt(ReceiptDto $receiptData): VerificationDto
+    public function verifyReceipt(ReceiptDto $receiptDto): VerificationDto
     {
-        if (empty($receiptData->getReceipt())) {
+        if (empty($receiptDto->getReceipt())) {
             throw new InvalidReceiptException('Receipt data is required for App Store');
         }
 
         // 1. App Store API に送信するペイロード作成
         $payload = [
-            'receipt-data' => $receiptData->getReceipt(),
+            'receipt-data' => $receiptDto->getReceipt(),
             'password' => config('services.app_store.shared_secret'),
             'exclude-old-transactions' => true,
         ];

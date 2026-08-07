@@ -51,7 +51,7 @@ class InAppPurchaseBuyPackUseCase extends _BaseBuyUseCase
                 $mstInAppPurchase,
                 $platform,
                 $billingPlatform,
-                $verificationResult->transactionId
+                $verificationResult->getTransactionId()
             );
 
             return new BuyResponse(

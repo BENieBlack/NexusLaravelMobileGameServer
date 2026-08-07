@@ -44,4 +44,76 @@ class VerificationDto
             'price_currency_code' => $this->priceCurrencyCode,
         ];
     }
+
+    /**
+     * 検証が成功したか取得
+     */
+    public function getIsValid(): bool
+    {
+        return $this->isValid;
+    }
+
+    /**
+     * トランザクションID取得
+     */
+    public function getTransactionId(): string
+    {
+        return $this->transactionId;
+    }
+
+    /**
+     * 商品ID取得
+     */
+    public function getProductId(): string
+    {
+        return $this->productId;
+    }
+
+    /**
+     * 購入日時取得
+     */
+    public function getPurchaseDate(): string
+    {
+        return $this->purchaseDate;
+    }
+
+    /**
+     * 購入数量取得
+     */
+    public function getQuantity(): int
+    {
+        return $this->quantity;
+    }
+
+    /**
+     * 元のトランザクションID取得
+     */
+    public function getOriginalTransactionId(): string
+    {
+        return $this->originalTransactionId;
+    }
+
+    /**
+     * プラットフォームAPIの生レスポンス取得
+     */
+    public function getRawResponse(): array
+    {
+        return $this->rawResponse;
+    }
+
+    /**
+     * 価格（マイクロ単位）取得
+     */
+    public function getPriceAmountMicros(): ?int
+    {
+        return $this->priceAmountMicros;
+    }
+
+    /**
+     * 通貨コード取得
+     */
+    public function getPriceCurrencyCode(): ?string
+    {
+        return $this->priceCurrencyCode;
+    }
 }

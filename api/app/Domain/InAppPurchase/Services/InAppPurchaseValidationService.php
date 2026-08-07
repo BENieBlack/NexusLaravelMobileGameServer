@@ -113,10 +113,10 @@ class InAppPurchaseValidationService
         string $billingPlatform
     ): void {
         // 価格情報がない場合（App Storeなど）はスキップ
-        if ($verificationResult->priceAmountMicros === null) {
+        if ($verificationResult->getPriceAmountMicros() === null) {
             Log::warning('Price validation skipped: No price information in verification result', [
                 'billing_platform' => $billingPlatform,
-                'product_id' => $verificationResult->productId,
+                'product_id' => $verificationResult->getProductId(),
             ]);
             return;
         }
@@ -128,22 +128,22 @@ class InAppPurchaseValidationService
         if ($platformProduct === null || $platformProduct->price_amount_micros === null) {
             Log::warning('Price validation skipped: No expected price in master data', [
                 'billing_platform' => $billingPlatform,
-                'product_id' => $verificationResult->productId,
-                'actual_price_micros' => $verificationResult->priceAmountMicros,
-                'actual_currency' => $verificationResult->priceCurrencyCode,
+                'product_id' => $verificationResult->getProductId(),
+                'actual_price_micros' => $verificationResult->getPriceAmountMicros(),
+                'actual_currency' => $verificationResult->getPriceCurrencyCode(),
             ]);
             return;
         }
 
         // 価格照合
-        if ($verificationResult->priceAmountMicros !== $platformProduct->price_amount_micros) {
+        if ($verificationResult->getPriceAmountMicros() !== $platformProduct->price_amount_micros) {
             Log::error('Price mismatch detected', [
                 'billing_platform' => $billingPlatform,
-                'product_id' => $verificationResult->productId,
+                'product_id' => $verificationResult->getProductId(),
                 'expected_price_micros' => $platformProduct->price_amount_micros,
-                'actual_price_micros' => $verificationResult->priceAmountMicros,
+                'actual_price_micros' => $verificationResult->getPriceAmountMicros(),
                 'expected_currency' => $platformProduct->price_currency_code,
-                'actual_currency' => $verificationResult->priceCurrencyCode,
+                'actual_currency' => $verificationResult->getPriceCurrencyCode(),
             ]);
 
             throw new GameException(
@@ -154,12 +154,12 @@ class InAppPurchaseValidationService
 
         // 通貨コード照合
         if ($platformProduct->price_currency_code !== null 
-            && $verificationResult->priceCurrencyCode !== $platformProduct->price_currency_code) {
+            && $verificationResult->getPriceCurrencyCode() !== $platformProduct->price_currency_code) {
             Log::error('Currency mismatch detected', [
                 'billing_platform' => $billingPlatform,
-                'product_id' => $verificationResult->productId,
+                'product_id' => $verificationResult->getProductId(),
                 'expected_currency' => $platformProduct->price_currency_code,
-                'actual_currency' => $verificationResult->priceCurrencyCode,
+                'actual_currency' => $verificationResult->getPriceCurrencyCode(),
             ]);
 
             throw new GameException(
@@ -170,9 +170,9 @@ class InAppPurchaseValidationService
 
         Log::info('Price validation passed', [
             'billing_platform' => $billingPlatform,
-            'product_id' => $verificationResult->productId,
-            'price_micros' => $verificationResult->priceAmountMicros,
-            'currency' => $verificationResult->priceCurrencyCode,
+            'product_id' => $verificationResult->getProductId(),
+            'price_micros' => $verificationResult->getPriceAmountMicros(),
+            'currency' => $verificationResult->getPriceCurrencyCode(),
         ]);
     }
 

@@ -5,7 +5,7 @@ namespace NexusBilling\Services;
 use NexusBilling\ApiClients\AppStoreApiClient;
 use NexusBilling\Constants\BillingConst;
 use NexusBilling\Contracts\BillingPlatformInterface;
-use NexusBilling\DTOs\ReceiptData;
+use NexusBilling\DTOs\ReceiptDto;
 use NexusBilling\DTOs\SubscriptionStatus;
 use NexusBilling\DTOs\VerificationResult;
 use NexusBilling\Exceptions\InvalidReceiptException;
@@ -25,15 +25,15 @@ class AppStoreBillingService implements BillingPlatformInterface
     /**
      * {@inheritDoc}
      */
-    public function verifyReceipt(ReceiptData $receiptData): VerificationDto
+    public function verifyReceipt(ReceiptDto $receiptData): VerificationDto
     {
-        if (empty($receiptData->receipt)) {
+        if (empty($receiptData->getReceipt())) {
             throw new InvalidReceiptException('Receipt data is required for App Store');
         }
 
         // 1. App Store API に送信するペイロード作成
         $payload = [
-            'receipt-data' => $receiptData->receipt,
+            'receipt-data' => $receiptData->getReceipt(),
             'password' => config('services.app_store.shared_secret'),
             'exclude-old-transactions' => true,
         ];

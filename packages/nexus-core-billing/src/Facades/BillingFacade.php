@@ -2,7 +2,7 @@
 
 namespace NexusBilling\Facades;
 
-use NexusBilling\DTOs\ReceiptData;
+use NexusBilling\DTOs\ReceiptDto;
 use NexusBilling\DTOs\SubscriptionStatus;
 use NexusBilling\DTOs\VerificationResult;
 use NexusBilling\Exceptions\DuplicatePurchaseException;
@@ -39,14 +39,14 @@ class BillingFacade
      */
     public function processPurchase(
         string $billingPlatform,
-        ReceiptData $receiptData,
+        ReceiptDto $receiptData,
         string $uniqueRequestId
     ): VerificationResult {
         // 1. 冪等性チェック（重複購入防止）
         if ($this->idempotencyService->isDuplicate($uniqueRequestId)) {
             Log::warning('Duplicate purchase request detected', [
                 'unique_request_id' => $uniqueRequestId,
-                'player_id' => $receiptData->playerId,
+                'player_id' => $receiptData->getPlayerId(),
                 'billing_platform' => $billingPlatform,
             ]);
 
@@ -77,7 +77,7 @@ class BillingFacade
         } catch (Exception $e) {
             Log::error('Receipt verification failed', [
                 'unique_request_id' => $uniqueRequestId,
-                'player_id' => $receiptData->playerId,
+                'player_id' => $receiptData->getPlayerId(),
                 'billing_platform' => $billingPlatform,
                 'error' => $e->getMessage(),
             ]);
@@ -97,7 +97,7 @@ class BillingFacade
      */
     public function verifyReceipt(
         string $billingPlatform,
-        ReceiptData $receiptData
+        ReceiptDto $receiptData
     ): VerificationResult {
         $platform = $this->platformFactory->create($billingPlatform);
         return $platform->verifyReceipt($receiptData);

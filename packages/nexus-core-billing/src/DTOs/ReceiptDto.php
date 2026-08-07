@@ -85,6 +85,3 @@ class ReceiptDto
         return $this->transactionId;
     }
 }
-
-// Backward compatibility alias
-class_alias(ReceiptDto::class, 'NexusBilling\DTOs\ReceiptData');

@@ -5,7 +5,7 @@ namespace NexusBilling\Services;
 use NexusBilling\ApiClients\GooglePlayApiClient;
 use NexusBilling\Constants\BillingConst;
 use NexusBilling\Contracts\BillingPlatformInterface;
-use NexusBilling\DTOs\ReceiptData;
+use NexusBilling\DTOs\ReceiptDto;
 use NexusBilling\DTOs\SubscriptionStatus;
 use NexusBilling\DTOs\VerificationResult;
 use NexusBilling\Exceptions\DuplicatePurchaseException;
@@ -26,9 +26,9 @@ class GooglePlayBillingService implements BillingPlatformInterface
     /**
      * {@inheritDoc}
      */
-    public function verifyReceipt(ReceiptData $receiptData): VerificationDto
+    public function verifyReceipt(ReceiptDto $receiptData): VerificationDto
     {
-        if (empty($receiptData->purchaseToken) || empty($receiptData->productId)) {
+        if (empty($receiptData->getPurchaseToken()) || empty($receiptData->getProductId())) {
             throw new InvalidReceiptException(
                 'Purchase token and product ID are required for Google Play'
             );
@@ -40,8 +40,8 @@ class GooglePlayBillingService implements BillingPlatformInterface
         // 2. Google Play Developer API 呼び出し
         $response = $this->apiClient->verifyPurchase(
             packageName: $packageName,
-            productId: $receiptData->productId,
-            token: $receiptData->purchaseToken
+            productId: $receiptData->getProductId(),
+            token: $receiptData->getPurchaseToken()
         );
 
         // 3. 購入状態確認
@@ -61,7 +61,7 @@ class GooglePlayBillingService implements BillingPlatformInterface
         return new VerificationResult(
             isValid: true,
             transactionId: $response['orderId'],
-            productId: $receiptData->productId,
+            productId: $receiptData->getProductId(),
             purchaseDate: CarbonImmutable::createFromTimestampMs((int)$response['purchaseTimeMillis'])->format('Y-m-d H:i:s'),
             quantity: (int)($response['quantity'] ?? 1),
             originalTransactionId: $response['orderId'],

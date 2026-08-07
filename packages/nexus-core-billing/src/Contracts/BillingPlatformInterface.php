@@ -2,7 +2,7 @@
 
 namespace NexusBilling\Contracts;
 
-use NexusBilling\DTOs\ReceiptData;
+use NexusBilling\DTOs\ReceiptDto;
 use NexusBilling\DTOs\SubscriptionStatus;
 use NexusBilling\DTOs\VerificationResult;
 use NexusBilling\Exceptions\ReceiptVerificationException;
@@ -23,7 +23,7 @@ interface BillingPlatformInterface
      * @return VerificationResult 検証結果
      * @throws ReceiptVerificationException 検証失敗時
      */
-    public function verifyReceipt(ReceiptData $receiptData): VerificationResult;
+    public function verifyReceipt(ReceiptDto $receiptData): VerificationResult;
 
     /**
      * サブスクリプション状態確認

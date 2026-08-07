@@ -26,6 +26,9 @@ use App\Repositories\Trx\TrxGachaRepository;
 use App\Repositories\Trx\TrxMailboxRepository;
 use App\Repositories\Trx\TrxVipLoginBonusHistoryRepository;
 use App\Repositories\Trx\VipLoginBonusHistoryRepositoryInterface;
+use App\Repositories\Sys\SysGuildRepository;
+use App\Repositories\Sys\SysGuildMemberRepository;
+use App\Repositories\Sys\SysGuildApplyRepository;
 use App\Domain\Player\Services\PlayerLevelServiceAdapter;
 use NexusAuth\Contracts\PlayerRepositoryInterface;
 use NexusAuth\Contracts\DeviceRepositoryInterface;
@@ -52,6 +55,9 @@ use NexusVip\Repositories\VipLevelRepositoryInterface;
 use NexusVip\Repositories\VipLevelRewardRepositoryInterface;
 use NexusVip\Repositories\VipPointLogRepositoryInterface;
 use NexusVip\Repositories\PlayerVipRepositoryInterface;
+use NexusGuild\Repositories\GuildRepositoryInterface;
+use NexusGuild\Repositories\GuildMemberRepositoryInterface;
+use NexusGuild\Repositories\GuildApplyRepositoryInterface;
 use NexusResourceDelivery\Managers\ResourceDeliveryManager;
 use NexusResourceDelivery\Managers\ResourceDeliveryManagerInterface;
 use NexusResourceDelivery\Services\ResourceDeliveryService;
@@ -167,6 +173,15 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(VipLevelRewardRepositoryInterface::class, MstVipLevelRewardRepository::class);
         $this->app->bind(VipPointLogRepositoryInterface::class, LogVipPointRepository::class);
         $this->app->bind(PlayerVipRepositoryInterface::class, SysPlayerRepository::class);
+        
+        // ==========================================
+        // NexusGuild Package Bindings
+        // ==========================================
+        
+        // Repository interfaces
+        $this->app->bind(GuildRepositoryInterface::class, SysGuildRepository::class);
+        $this->app->bind(GuildMemberRepositoryInterface::class, SysGuildMemberRepository::class);
+        $this->app->bind(GuildApplyRepositoryInterface::class, SysGuildApplyRepository::class);
         
         // ==========================================
         // ResourceDelivery Package Bindings

@@ -81,6 +81,10 @@
         {
             "type": "path",
             "url": "../packages/nexus-friend"
+        },
+        {
+            "type": "path",
+            "url": "../packages/nexus-guild"
         }
     ],
     "require": {
@@ -107,7 +111,8 @@
         "nexus/player": "@dev",
         "nexus/vip": "@dev",
         "nexus/level": "@dev",
-        "nexus/friend": "@dev"
+        "nexus/friend": "@dev",
+        "nexus/guild": "@dev"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EquipmentController;
 use App\Http\Controllers\FriendController;
 use App\Http\Controllers\GachaController;
+use App\Http\Controllers\GuildController;
 use App\Http\Controllers\InAppPurchaseController;
 use App\Http\Controllers\MailboxController;
 use App\Http\Controllers\PlayerController;
@@ -26,6 +27,14 @@ Route::post('/auth/refresh_token', [AuthController::class, 'refreshToken']);
 
 // バージョンチェックは認証なしでもアクセス可能（GETのみ）
 Route::get('/auth/version', [AuthController::class, 'version']);
+
+// Guild list/detail endpoints (public access for browsing)
+Route::get('/guild/list', [GuildController::class, 'list']);
+Route::get('/guild/detail', [GuildController::class, 'detail']);
+Route::get('/guild/member/list', [GuildController::class, 'memberList']);
+
+// Guild creation endpoint (temporary public access for testing)
+Route::post('/guild/create', [GuildController::class, 'create']);
 
 // Protected endpoints (require access token)
 // idempotencyミドルウェアを追加して重複リクエストを防止
@@ -51,6 +60,13 @@ Route::middleware(['auth.token', 'idempotency'])->group(function () {
     Route::get('/friend/apply/list', [FriendController::class, 'applyList']);
     Route::get('/friend/list', [FriendController::class, 'list']);
     Route::post('/friend/delete', [FriendController::class, 'delete']);
+    
+    // Guild endpoints
+    Route::post('/guild/apply/send', [GuildController::class, 'applySend']);
+    Route::post('/guild/apply/accept', [GuildController::class, 'applyAccept']);
+    Route::post('/guild/apply/reject', [GuildController::class, 'applyReject']);
+    Route::get('/guild/apply/list', [GuildController::class, 'applyList']);
+    Route::post('/guild/leave', [GuildController::class, 'leave']);
     
     // Mailbox endpoints
     Route::get('/mailbox/list', [MailboxController::class, 'list']);

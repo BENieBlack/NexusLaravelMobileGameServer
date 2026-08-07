@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "04d3460dab64e324a839f0555ef1c17c",
+    "content-hash": "e8dcdab4936311cb8188d74d38cc1438",
     "packages": [
         {
             "name": "brick/math",
@@ -2950,6 +2950,40 @@
                 }
             },
             "description": "Gacha management package for Nexus mobile game",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "nexus/guild",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/nexus-guild",
+                "reference": "9cbd5ef327ea7059f48d6eb970d21c16edfb0f7a"
+            },
+            "require": {
+                "nexus/player": "@dev",
+                "php": "^8.2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^10.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "NexusGuild\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "NexusGuild\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Guild management package for Nexus framework",
             "transport-options": {
                 "relative": true
             }
@@ -10411,6 +10445,7 @@
         "nexus/core-utilities": 20,
         "nexus/friend": 20,
         "nexus/gacha": 20,
+        "nexus/guild": 20,
         "nexus/level": 20,
         "nexus/login": 20,
         "nexus/mailbox": 20,

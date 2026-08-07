@@ -20,11 +20,11 @@ class VerificationDto
         private readonly string $transactionId,              // トランザクションID（ストア固有）
         private readonly string $productId,                  // 商品ID（ストア固有）
         private readonly string $purchaseDate,               // 購入日時 (Y-m-d H:i:s)
-        public int $quantity,                      // 購入数量
-        public string $originalTransactionId,      // 元のトランザクションID（復元購入等で使用）
-        public array $rawResponse,                 // プラットフォームAPIの生レスポンス
-        public readonly ?int $priceAmountMicros = null,      // 価格（マイクロ単位、Google Playのみ）
-        public readonly ?string $priceCurrencyCode = null,   // 通貨コード（Google Playのみ）
+        private readonly int $quantity,                      // 購入数量
+        private readonly string $originalTransactionId,      // 元のトランザクションID（復元購入等で使用）
+        private readonly array $rawResponse,                 // プラットフォームAPIの生レスポンス
+        private readonly ?int $priceAmountMicros = null,     // 価格（マイクロ単位、Google Playのみ）
+        private readonly ?string $priceCurrencyCode = null,  // 通貨コード（Google Playのみ）
     ) {}
 
     /**

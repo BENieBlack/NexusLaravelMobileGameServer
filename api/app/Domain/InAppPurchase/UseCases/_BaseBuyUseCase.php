@@ -139,7 +139,7 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
         MstInAppPurchase $mstInAppPurchase,
         ReceiptData $receiptData
     ): string {
-        return $sysPlayerId . '_' . $mstInAppPurchase->getId() . '_' . ($receiptData->transactionId ?? time());
+        return $sysPlayerId . '_' . $mstInAppPurchase->getId() . '_' . ($receiptData->getTransactionId() ?? time());
     }
 
     /**

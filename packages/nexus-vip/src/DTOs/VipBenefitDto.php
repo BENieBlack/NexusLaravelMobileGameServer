@@ -8,11 +8,43 @@ namespace NexusVip\DTOs;
 class VipBenefitDto
 {
     public function __construct(
-        public readonly int $maxStaminaBonus,
-        public readonly int $dailyDiamondBonus,
-        public readonly float $shopDiscountRate,
-        public readonly float $gachaDiscountRate,
+        private readonly int $maxStaminaBonus,
+        private readonly int $dailyDiamondBonus,
+        private readonly float $shopDiscountRate,
+        private readonly float $gachaDiscountRate,
     ) {
+    }
+
+    /**
+     * 最大スタミナボーナスを取得
+     */
+    public function getMaxStaminaBonus(): int
+    {
+        return $this->maxStaminaBonus;
+    }
+
+    /**
+     * 毎日のダイヤモンドボーナスを取得
+     */
+    public function getDailyDiamondBonus(): int
+    {
+        return $this->dailyDiamondBonus;
+    }
+
+    /**
+     * ショップ割引率を取得
+     */
+    public function getShopDiscountRate(): float
+    {
+        return $this->shopDiscountRate;
+    }
+
+    /**
+     * ガチャ割引率を取得
+     */
+    public function getGachaDiscountRate(): float
+    {
+        return $this->gachaDiscountRate;
     }
 
     /**

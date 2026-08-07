@@ -8,7 +8,7 @@ use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Http\Responses\InAppPurchase\BuyResponse;
 use App\Models\Mst\MstInAppPurchase;
-use NexusBilling\DTOs\ReceiptData;
+use NexusBilling\DTOs\ReceiptDto;
 use NexusBilling\DTOs\VerificationDto;
 use NexusBilling\Facades\BillingFacade;
 
@@ -31,7 +31,7 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
      * 購入処理を実行（Template Method）
      * 
      * 共通フロー:
-     * 1. ReceiptData作成
+     * 1. ReceiptDto作成
      * 2. レシート検証（外部API、トランザクション外）
      * 3. プロダクトID一致確認
      * 4. 価格検証
@@ -100,14 +100,14 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
     }
 
     /**
-     * ReceiptDataを作成
+     * ReceiptDtoを作成
      *
      * @param int $sysPlayerId プレイヤーID
      * @param string $billingPlatform 決済プラットフォーム
      * @param string $receipt レシート文字列
      * @param string|null $transactionId トランザクションID
      * @param string $productId プロダクトID
-     * @return ReceiptData
+     * @return ReceiptDto
      */
     protected function createReceiptData(
         int $sysPlayerId,
@@ -115,8 +115,8 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
         string $receipt,
         ?string $transactionId,
         string $productId
-    ): ReceiptData {
-        return new ReceiptData(
+    ): ReceiptDto {
+        return new ReceiptDto(
             playerId: $sysPlayerId,
             billingPlatform: $billingPlatform,
             receipt: $billingPlatform === 'AppStore' ? $receipt : null,
@@ -131,13 +131,13 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
      *
      * @param int $sysPlayerId プレイヤーID
      * @param MstInAppPurchase $mstInAppPurchase 商品マスター
-     * @param ReceiptData $receiptData レシートデータ
+     * @param ReceiptDto $receiptData レシートデータ
      * @return string
      */
     protected function generateUniqueRequestId(
         int $sysPlayerId,
         MstInAppPurchase $mstInAppPurchase,
-        ReceiptData $receiptData
+        ReceiptDto $receiptData
     ): string {
         return $sysPlayerId . '_' . $mstInAppPurchase->getId() . '_' . ($receiptData->getTransactionId() ?? time());
     }
@@ -146,13 +146,13 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
      * レシートを検証
      *
      * @param string $billingPlatform 決済プラットフォーム
-     * @param ReceiptData $receiptData レシートデータ
+     * @param ReceiptDto $receiptData レシートデータ
      * @param string $uniqueRequestId 一意なリクエストID
      * @return VerificationDto
      */
     protected function verifyReceipt(
         string $billingPlatform,
-        ReceiptData $receiptData,
+        ReceiptDto $receiptData,
         string $uniqueRequestId
     ): VerificationDto {
         return $this->billingFacade->processPurchase(

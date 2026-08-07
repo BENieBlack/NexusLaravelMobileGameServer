@@ -47,8 +47,8 @@ interface ResourceDeliveryManagerInterface
     /**
      * 配送処理を実行した後に実行する処理
      *
-     * @param ResourceDeliveryCompleteDto $sendCompleteData 送信完了データ
+     * @param ResourceDeliveryCompleteDto $resourceDeliveryCompleteDto 送信完了データ
      * @return void
      */
-    public function afterSend(ResourceDeliveryCompleteDto $sendCompleteData): void;
+    public function afterSend(ResourceDeliveryCompleteDto $resourceDeliveryCompleteDto): void;
 }

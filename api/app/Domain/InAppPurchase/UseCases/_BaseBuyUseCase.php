@@ -131,33 +131,33 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
      *
      * @param int $sysPlayerId プレイヤーID
      * @param MstInAppPurchase $mstInAppPurchase 商品マスター
-     * @param ReceiptDto $receiptData レシートデータ
+     * @param ReceiptDto $receiptDto レシートデータ
      * @return string
      */
     protected function generateUniqueRequestId(
         int $sysPlayerId,
         MstInAppPurchase $mstInAppPurchase,
-        ReceiptDto $receiptData
+        ReceiptDto $receiptDto
     ): string {
-        return $sysPlayerId . '_' . $mstInAppPurchase->getId() . '_' . ($receiptData->getTransactionId() ?? time());
+        return $sysPlayerId . '_' . $mstInAppPurchase->getId() . '_' . ($receiptDto->getTransactionId() ?? time());
     }
 
     /**
      * レシートを検証
      *
      * @param string $billingPlatform 決済プラットフォーム
-     * @param ReceiptDto $receiptData レシートデータ
+     * @param ReceiptDto $receiptDto レシートデータ
      * @param string $uniqueRequestId 一意なリクエストID
      * @return VerificationDto
      */
     protected function verifyReceipt(
         string $billingPlatform,
-        ReceiptDto $receiptData,
+        ReceiptDto $receiptDto,
         string $uniqueRequestId
     ): VerificationDto {
         return $this->billingFacade->processPurchase(
             billingPlatform: $billingPlatform,
-            receiptData: $receiptData,
+            receiptDto: $receiptDto,
             uniqueRequestId: $uniqueRequestId
         );
     }

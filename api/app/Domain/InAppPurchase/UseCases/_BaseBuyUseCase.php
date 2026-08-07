@@ -174,7 +174,7 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
         VerificationDto $verificationResult,
         string $productId
     ): void {
-        if ($verificationResult->productId !== $productId) {
+        if ($verificationResult->getProductId() !== $productId) {
             throw new GameException(
                 GameErrorCode::PRODUCT_ID_MISMATCH,
                 'Product ID mismatch between request and receipt'

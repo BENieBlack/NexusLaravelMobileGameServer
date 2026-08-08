@@ -100,8 +100,8 @@ class HomeUseCaseTest extends TestCase
         $response->assertOk();
         $data = $response->json();
         
-        $this->accessToken = $data['data']['dtoToken']['access_token'];
-        $myId = $data['data']['sysPlayer']['my_id'];
+        $this->accessToken = $data['dto_token']['access_token'];
+        $myId = $data['sys_player']['my_id'];
         
         $this->testPlayer = SysPlayer::where('my_id', $myId)->first();
         

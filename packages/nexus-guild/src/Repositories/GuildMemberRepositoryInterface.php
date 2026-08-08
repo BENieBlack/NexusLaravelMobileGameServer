@@ -65,19 +65,19 @@ interface GuildMemberRepositoryInterface
     /**
      * メンバーの役職を更新
      *
-     * @param GuildMemberDto $memberDto 対象メンバー
+     * @param GuildMemberDto $guildMemberDto 対象メンバー
      * @param string $role 新しい役職
      * @return GuildMemberDto 更新後のDTO
      */
-    public function updateRole(GuildMemberDto $memberDto, string $role): GuildMemberDto;
+    public function updateRole(GuildMemberDto $guildMemberDto, string $role): GuildMemberDto;
 
     /**
      * ギルドメンバーを削除
      *
-     * @param GuildMemberDto $memberDto 削除するメンバー
+     * @param GuildMemberDto $guildMemberDto 削除するメンバー
      * @return void
      */
-    public function delete(GuildMemberDto $memberDto): void;
+    public function delete(GuildMemberDto $guildMemberDto): void;
 
     /**
      * プレイヤーIDでメンバー情報を削除

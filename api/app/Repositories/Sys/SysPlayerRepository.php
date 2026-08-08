@@ -190,14 +190,14 @@ class SysPlayerRepository extends _BaseSysRepository implements AuthPlayerReposi
      * {@inheritDoc}
      * NexusPlayer\Repositories\PlayerRepositoryInterface実装
      */
-    public function save(PlayerDto $player): void
+    public function save(PlayerDto $playerDto): void
     {
-        $model = $this->selectById($player->getId());
+        $model = $this->selectById($playerDto->getId());
         if ($model) {
             // DTOの値をModelに反映
-            $model->setName($player->getName());
-            $model->setLevel($player->getLevel());
-            $model->setLevelExp($player->getLevelExp());
+            $model->setName($playerDto->getName());
+            $model->setLevel($playerDto->getLevel());
+            $model->setLevelExp($playerDto->getLevelExp());
             $this->setModel($model);
         }
     }

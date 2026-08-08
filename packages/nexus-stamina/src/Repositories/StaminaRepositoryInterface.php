@@ -23,17 +23,17 @@ interface StaminaRepositoryInterface
     /**
      * スタミナデータを保存
      * 
-     * @param StaminaDto $stamina
+     * @param StaminaDto $staminaDto
      * @return void
      */
-    public function save(StaminaDto $stamina): void;
+    public function save(StaminaDto $staminaDto): void;
 
     /**
      * 新規スタミナデータを作成
      * 
-     * @param StaminaDto $stamina
+     * @param StaminaDto $staminaDto
      * @return StaminaDto 作成されたスタミナDTO
      */
-    public function create(StaminaDto $stamina): StaminaDto;
+    public function create(StaminaDto $staminaDto): StaminaDto;
 }
 

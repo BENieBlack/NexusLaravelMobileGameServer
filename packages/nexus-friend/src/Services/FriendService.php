@@ -65,14 +65,14 @@ class FriendService
      * 
      * 申請の受信者のみが承認/却下できる
      *
-     * @param FriendApplyDto $applyDto フレンド申請DTO
+     * @param FriendApplyDto $friendApplyDto フレンド申請DTO
      * @param int $currentPlayerId 現在のプレイヤーID
      * @return void
      * @throws \RuntimeException 承認権限がない場合
      */
-    public function validateReceiverAuthorization(FriendApplyDto $applyDto, int $currentPlayerId): void
+    public function validateReceiverAuthorization(FriendApplyDto $friendApplyDto, int $currentPlayerId): void
     {
-        if ($applyDto->getReceiverPlayerId() !== $currentPlayerId) {
+        if ($friendApplyDto->getReceiverPlayerId() !== $currentPlayerId) {
             throw new \RuntimeException('Not authorized to accept/reject this request');
         }
     }
@@ -80,21 +80,21 @@ class FriendService
     /**
      * 申請が承認可能な状態かバリデーション
      *
-     * @param FriendApplyDto $applyDto フレンド申請DTO
+     * @param FriendApplyDto $friendApplyDto フレンド申請DTO
      * @return void
      * @throws \RuntimeException 承認できない状態の場合
      */
-    public function validateCanAccept(FriendApplyDto $applyDto): void
+    public function validateCanAccept(FriendApplyDto $friendApplyDto): void
     {
-        if ($applyDto->getStatus() === FriendStatus::ACCEPTED) {
+        if ($friendApplyDto->getStatus() === FriendStatus::ACCEPTED) {
             throw new \RuntimeException('Friend request already accepted');
         }
 
-        if ($applyDto->getStatus() === FriendStatus::DELETED) {
+        if ($friendApplyDto->getStatus() === FriendStatus::DELETED) {
             throw new \RuntimeException('Friend request already deleted');
         }
 
-        if ($applyDto->getStatus() === FriendStatus::REJECTED) {
+        if ($friendApplyDto->getStatus() === FriendStatus::REJECTED) {
             throw new \RuntimeException('Friend request already rejected');
         }
     }
@@ -102,21 +102,21 @@ class FriendService
     /**
      * 申請が却下可能な状態かバリデーション
      *
-     * @param FriendApplyDto $applyDto フレンド申請DTO
+     * @param FriendApplyDto $friendApplyDto フレンド申請DTO
      * @return void
      * @throws \RuntimeException 却下できない状態の場合
      */
-    public function validateCanReject(FriendApplyDto $applyDto): void
+    public function validateCanReject(FriendApplyDto $friendApplyDto): void
     {
-        if ($applyDto->getStatus() === FriendStatus::ACCEPTED) {
+        if ($friendApplyDto->getStatus() === FriendStatus::ACCEPTED) {
             throw new \RuntimeException('Friend request already accepted');
         }
 
-        if ($applyDto->getStatus() === FriendStatus::DELETED) {
+        if ($friendApplyDto->getStatus() === FriendStatus::DELETED) {
             throw new \RuntimeException('Friend request already deleted');
         }
 
-        if ($applyDto->getStatus() === FriendStatus::REJECTED) {
+        if ($friendApplyDto->getStatus() === FriendStatus::REJECTED) {
             throw new \RuntimeException('Friend request already rejected');
         }
     }

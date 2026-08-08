@@ -21,13 +21,13 @@ class SignInResponse implements Responsable
      * @param SysPlayer $sysPlayer プレイヤー情報
      * @param SysPlayerDevice $sysPlayerDevice デバイス情報
      * @param SysPlayerToken $sysPlayerToken トークン情報
-     * @param Token $dtoToken トークン情報DTO
+     * @param Token $tokenDto トークン情報DTO
      */
     public function __construct(
         public readonly SysPlayer $sysPlayer,
         public readonly SysPlayerDevice $sysPlayerDevice,
         public readonly SysPlayerToken $sysPlayerToken,
-        public readonly TokenDto $dtoToken,
+        public readonly TokenDto $tokenDto,
     ) {
     }
 
@@ -43,7 +43,7 @@ class SignInResponse implements Responsable
             'sys_player' => $this->sysPlayer->toArray(),
             'sys_player_device' => $this->sysPlayerDevice->toArray(),
             'sys_player_token' => $this->sysPlayerToken->toArray(),
-            'dto_token' => $this->dtoToken->toArray(),
+            'dto_token' => $this->tokenDto->toArray(),
         ]);
     }
 }

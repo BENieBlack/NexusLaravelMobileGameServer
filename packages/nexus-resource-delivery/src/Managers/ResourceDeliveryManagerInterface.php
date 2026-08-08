@@ -17,7 +17,7 @@ interface ResourceDeliveryManagerInterface
     /**
      * 配送コンテンツを配送前リストに追加する
      */
-    public function addContent(ResourceDeliveryContentDto $content): void;
+    public function addContent(ResourceDeliveryContentDto $resourceDeliveryContentDto): void;
 
     /**
      * 複数の配送コンテンツを配送前リストにまとめて追加する

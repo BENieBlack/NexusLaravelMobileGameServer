@@ -110,58 +110,58 @@ class GuildService
     /**
      * ギルドマスター/サブマスターの権限をバリデーション
      *
-     * @param GuildMemberDto $memberDto メンバー情報
+     * @param GuildMemberDto $guildMemberDto メンバー情報
      * @param string $action アクション名（エラーメッセージ用）
      * @return void
      * @throws GuildException 権限がない場合
      */
-    public function validateMasterOrSubMasterPermission(GuildMemberDto $memberDto, string $action): void
+    public function validateMasterOrSubMasterPermission(GuildMemberDto $guildMemberDto, string $action): void
     {
-        if ($memberDto->getRole() !== GuildRole::MASTER && $memberDto->getRole() !== GuildRole::SUB_MASTER) {
-            throw GuildException::permissionDenied($memberDto->getSysPlayerId(), $action);
+        if ($guildMemberDto->getRole() !== GuildRole::MASTER && $guildMemberDto->getRole() !== GuildRole::SUB_MASTER) {
+            throw GuildException::permissionDenied($guildMemberDto->getSysPlayerId(), $action);
         }
     }
 
     /**
      * ギルドマスターの権限をバリデーション
      *
-     * @param GuildMemberDto $memberDto メンバー情報
+     * @param GuildMemberDto $guildMemberDto メンバー情報
      * @param string $action アクション名（エラーメッセージ用）
      * @return void
      * @throws GuildException 権限がない場合
      */
-    public function validateMasterPermission(GuildMemberDto $memberDto, string $action): void
+    public function validateMasterPermission(GuildMemberDto $guildMemberDto, string $action): void
     {
-        if ($memberDto->getRole() !== GuildRole::MASTER) {
-            throw GuildException::permissionDenied($memberDto->getSysPlayerId(), $action);
+        if ($guildMemberDto->getRole() !== GuildRole::MASTER) {
+            throw GuildException::permissionDenied($guildMemberDto->getSysPlayerId(), $action);
         }
     }
 
     /**
      * 申請が承認可能な状態かバリデーション
      *
-     * @param GuildApplyDto $applyDto 申請DTO
+     * @param GuildApplyDto $guildApplyDto 申請DTO
      * @return void
      * @throws GuildException 承認できない状態の場合
      */
-    public function validateCanAccept(GuildApplyDto $applyDto): void
+    public function validateCanAccept(GuildApplyDto $guildApplyDto): void
     {
-        if ($applyDto->getStatus() !== GuildApplyStatus::APPLIED) {
-            throw GuildException::invalidStatus($applyDto->getStatus());
+        if ($guildApplyDto->getStatus() !== GuildApplyStatus::APPLIED) {
+            throw GuildException::invalidStatus($guildApplyDto->getStatus());
         }
     }
 
     /**
      * 申請が却下可能な状態かバリデーション
      *
-     * @param GuildApplyDto $applyDto 申請DTO
+     * @param GuildApplyDto $guildApplyDto 申請DTO
      * @return void
      * @throws GuildException 却下できない状態の場合
      */
-    public function validateCanReject(GuildApplyDto $applyDto): void
+    public function validateCanReject(GuildApplyDto $guildApplyDto): void
     {
-        if ($applyDto->getStatus() !== GuildApplyStatus::APPLIED) {
-            throw GuildException::invalidStatus($applyDto->getStatus());
+        if ($guildApplyDto->getStatus() !== GuildApplyStatus::APPLIED) {
+            throw GuildException::invalidStatus($guildApplyDto->getStatus());
         }
     }
 

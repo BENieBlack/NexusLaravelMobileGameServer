@@ -16,11 +16,11 @@ interface ResourceDeliveryHandlerInterface
      * 配送処理を実行
      * 
      * @param int $sysPlayerId プレイヤーID
-     * @param ResourceDeliveryContentDto $content 配送コンテンツ
+     * @param ResourceDeliveryContentDto $resourceDeliveryContentDto 配送コンテンツ
      * @return void
      * @throws \Exception 配送失敗時
      */
-    public function handle(int $sysPlayerId, ResourceDeliveryContentDto $content): void;
+    public function handle(int $sysPlayerId, ResourceDeliveryContentDto $resourceDeliveryContentDto): void;
 
     /**
      * このHandlerがサポートするリソースタイプかどうか

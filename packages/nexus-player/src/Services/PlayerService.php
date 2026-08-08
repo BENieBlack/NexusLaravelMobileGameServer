@@ -61,12 +61,12 @@ class PlayerService
     /**
      * プレイヤー情報を更新
      *
-     * @param PlayerDto $player
+     * @param PlayerDto $playerDto
      * @return void
      */
-    public function updatePlayer(PlayerDto $player): void
+    public function updatePlayer(PlayerDto $playerDto): void
     {
-        $this->playerRepository->save($player);
+        $this->playerRepository->save($playerDto);
     }
 
     /**

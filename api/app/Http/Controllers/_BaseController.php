@@ -22,6 +22,11 @@ abstract class _BaseController
         try {
             $response = $useCase();
             
+            // レスポンスがResponsableを実装している場合（Laravelの標準インターフェイス）
+            if ($response instanceof \Illuminate\Contracts\Support\Responsable) {
+                return $response->toResponse(request());
+            }
+            
             // レスポンスが_BaseResponseInterfaceを実装している場合
             if ($response instanceof _BaseResponseInterface) {
                 return $response->toJsonResponse();

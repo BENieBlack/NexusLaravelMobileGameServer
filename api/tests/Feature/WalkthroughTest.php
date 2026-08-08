@@ -254,14 +254,14 @@ class WalkthroughTest extends TestCase
         ]);
 
         $response->assertOk();
-        $data = $response->json('data');
+        $data = $response->json();
         
-        $this->assertArrayHasKey('sysPlayer', $data);
-        $this->assertArrayHasKey('dtoToken', $data);
+        $this->assertArrayHasKey('sys_player', $data);
+        $this->assertArrayHasKey('dto_token', $data);
         
-        $this->accessToken = $data['dtoToken']['access_token'];
-        $this->refreshToken = $data['dtoToken']['refresh_token'];
-        $this->myId = $data['sysPlayer']['my_id'];
+        $this->accessToken = $data['dto_token']['access_token'];
+        $this->refreshToken = $data['dto_token']['refresh_token'];
+        $this->myId = $data['sys_player']['my_id'];
         
         $player = SysPlayer::where('my_id', $this->myId)->first();
         $this->assertNotNull($player);
@@ -296,13 +296,13 @@ class WalkthroughTest extends TestCase
         ]);
 
         $response->assertOk();
-        $data = $response->json('data');
+        $data = $response->json();
         
-        $this->assertArrayHasKey('dtoToken', $data);
+        $this->assertArrayHasKey('dto_token', $data);
         
         // 新しいトークンを保存
-        $this->accessToken = $data['dtoToken']['access_token'];
-        $this->refreshToken = $data['dtoToken']['refresh_token'];
+        $this->accessToken = $data['dto_token']['access_token'];
+        $this->refreshToken = $data['dto_token']['refresh_token'];
     }
 
     /**

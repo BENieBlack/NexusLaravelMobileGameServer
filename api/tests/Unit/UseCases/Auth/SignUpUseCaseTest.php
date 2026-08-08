@@ -120,10 +120,10 @@ class SignUpUseCaseTest extends TestCase
         // Act
         $response = $this->useCase->exec($deviceId, $deviceInfo);
 
-        // Assert - DtoTokenが正しく生成されている
-        $this->assertNotEmpty($response->dtoToken->getAccessToken());
-        $this->assertNotEmpty($response->dtoToken->getRefreshToken());
-        $this->assertEquals(3600, $response->dtoToken->getExpiresIn());
+        // Assert - TokenDtoが正しく生成されている
+        $this->assertNotEmpty($response->tokenDto->getAccessToken());
+        $this->assertNotEmpty($response->tokenDto->getRefreshToken());
+        $this->assertEquals(3600, $response->tokenDto->getExpiresIn());
 
         // Assert - SysPlayerTokenが正しく生成されている
         $this->assertInstanceOf(SysPlayerToken::class, $response->sysPlayerToken);

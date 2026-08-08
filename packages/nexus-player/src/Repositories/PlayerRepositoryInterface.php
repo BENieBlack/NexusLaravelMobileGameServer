@@ -38,10 +38,10 @@ interface PlayerRepositoryInterface
     /**
      * プレイヤーを保存
      * 
-     * @param PlayerDto $player
+     * @param PlayerDto $playerDto
      * @return void
      */
-    public function save(PlayerDto $player): void;
+    public function save(PlayerDto $playerDto): void;
 
     /**
      * My IDの存在確認

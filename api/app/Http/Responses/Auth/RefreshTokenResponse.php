@@ -15,10 +15,10 @@ use Illuminate\Http\JsonResponse;
 class RefreshTokenResponse implements Responsable
 {
     /**
-     * @param Token $dtoToken トークン情報DTO
+     * @param Token $tokenDto トークン情報DTO
      */
     public function __construct(
-        public readonly TokenDto $dtoToken,
+        public readonly TokenDto $tokenDto,
     ) {
     }
 
@@ -31,7 +31,7 @@ class RefreshTokenResponse implements Responsable
     public function toResponse($request): JsonResponse
     {
         return response()->json([
-            'dto_token' => $this->dtoToken->toArray(),
+            'dto_token' => $this->tokenDto->toArray(),
         ]);
     }
 }

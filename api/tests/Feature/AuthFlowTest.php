@@ -69,21 +69,19 @@ class AuthFlowTest extends TestCase
         
         // レスポンス構造を確認
         $signUpResponse->assertJsonStructure([
-            'data' => [
-                'sysPlayer' => ['uuid', 'my_id'],
-                'dtoToken' => ['access_token', 'refresh_token', 'expires_in'],
-            ]
+            'sys_player' => ['uuid', 'my_id'],
+            'dto_token' => ['access_token', 'refresh_token', 'expires_in'],
         ]);
 
         // データを取得
-        $this->assertNotEmpty($signUpData['data']['dtoToken']['access_token']);
-        $this->assertNotEmpty($signUpData['data']['dtoToken']['refresh_token']);
-        $this->assertNotEmpty($signUpData['data']['sysPlayer']['my_id']);
+        $this->assertNotEmpty($signUpData['dto_token']['access_token']);
+        $this->assertNotEmpty($signUpData['dto_token']['refresh_token']);
+        $this->assertNotEmpty($signUpData['sys_player']['my_id']);
 
         // トークンを保存
-        $accessToken = $signUpData['data']['dtoToken']['access_token'];
-        $refreshToken = $signUpData['data']['dtoToken']['refresh_token'];
-        $myId = $signUpData['data']['sysPlayer']['my_id'];
+        $accessToken = $signUpData['dto_token']['access_token'];
+        $refreshToken = $signUpData['dto_token']['refresh_token'];
+        $myId = $signUpData['sys_player']['my_id'];
 
         // ========================================
         // Step 3: GET /player/me (アクセストークン使用)
@@ -113,18 +111,11 @@ class AuthFlowTest extends TestCase
         $signInResponse->assertStatus(200);
         $signInData = $signInResponse->json();
         
-        // レスポンス構造を確認（sign_upと同じ構造の可能性が高い）
-        if (isset($signInData['data'])) {
-            $this->assertNotEmpty($signInData['data']['dtoToken']['access_token']);
-            $this->assertNotEmpty($signInData['data']['dtoToken']['refresh_token']);
-            $this->assertNotEmpty($signInData['data']['dtoToken']['expires_in']);
-            $newAccessToken = $signInData['data']['dtoToken']['access_token'];
-        } else {
-            $this->assertNotEmpty($signInData['access_token']);
-            $this->assertNotEmpty($signInData['refresh_token']);
-            $this->assertNotEmpty($signInData['expires_in']);
-            $newAccessToken = $signInData['access_token'];
-        }
+        // レスポンス構造を確認
+        $this->assertNotEmpty($signInData['dto_token']['access_token']);
+        $this->assertNotEmpty($signInData['dto_token']['refresh_token']);
+        $this->assertNotEmpty($signInData['dto_token']['expires_in']);
+        $newAccessToken = $signInData['dto_token']['access_token'];
 
         // 新しいアクセストークンで再度 /player/me にアクセス
         $meResponse2 = $this->withHeaders([

@@ -251,14 +251,14 @@ class TrxMailboxRepository extends _BaseTrxRepository implements MailboxReposito
      * {@inheritDoc}
      * MailboxRepositoryInterface実装
      */
-    public function save(MailboxDto $mailbox): void
+    public function save(MailboxDto $mailboxDto): void
     {
-        $model = $this->selectById($mailbox->getId());
+        $model = $this->selectById($mailboxDto->getId());
         if ($model) {
             // DTOの値をModelに反映
-            $model->setIsOpened($mailbox->isRead());
-            $model->setIsReceived($mailbox->isReceived());
-            $model->setIsProtected($mailbox->isLocked());
+            $model->setIsOpened($mailboxDto->isRead());
+            $model->setIsReceived($mailboxDto->isReceived());
+            $model->setIsProtected($mailboxDto->isLocked());
             $this->setModel($model);
         }
     }
@@ -267,9 +267,9 @@ class TrxMailboxRepository extends _BaseTrxRepository implements MailboxReposito
      * {@inheritDoc}
      * MailboxRepositoryInterface実装
      */
-    public function markAsRead(MailboxDto $mailbox): void
+    public function markAsRead(MailboxDto $mailboxDto): void
     {
-        $model = $this->selectById($mailbox->getId());
+        $model = $this->selectById($mailboxDto->getId());
         if ($model) {
             $this->markAsOpened($model);
         }
@@ -279,9 +279,9 @@ class TrxMailboxRepository extends _BaseTrxRepository implements MailboxReposito
      * {@inheritDoc}
      * MailboxRepositoryInterface実装
      */
-    public function markDtoAsReceived(MailboxDto $mailbox): void
+    public function markDtoAsReceived(MailboxDto $mailboxDto): void
     {
-        $model = $this->selectById($mailbox->getId());
+        $model = $this->selectById($mailboxDto->getId());
         if ($model) {
             $this->markAsReceived($model);
         }
@@ -291,9 +291,9 @@ class TrxMailboxRepository extends _BaseTrxRepository implements MailboxReposito
      * {@inheritDoc}
      * MailboxRepositoryInterface実装
      */
-    public function updateLockStatus(MailboxDto $mailbox, bool $isLocked): void
+    public function updateLockStatus(MailboxDto $mailboxDto, bool $isLocked): void
     {
-        $model = $this->selectById($mailbox->getId());
+        $model = $this->selectById($mailboxDto->getId());
         if ($model) {
             $this->toggleProtection($model, $isLocked);
         }

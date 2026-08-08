@@ -84,12 +84,12 @@ class SysGuildApplyRepository extends _BaseSysRepository implements GuildApplyRe
     /**
      * ギルド加入申請を承認（Interface実装）
      *
-     * @param GuildApplyDto $applyDto 承認する申請
+     * @param GuildApplyDto $guildApplyDto 承認する申請
      * @return GuildApplyDto 承認後のDTO
      */
-    public function accept(GuildApplyDto $applyDto): GuildApplyDto
+    public function accept(GuildApplyDto $guildApplyDto): GuildApplyDto
     {
-        $model = $this->selectById($applyDto->getId());
+        $model = $this->selectById($guildApplyDto->getId());
         if ($model === null) {
             throw new \RuntimeException('Guild apply not found');
         }
@@ -103,12 +103,12 @@ class SysGuildApplyRepository extends _BaseSysRepository implements GuildApplyRe
     /**
      * ギルド加入申請を却下（Interface実装）
      *
-     * @param GuildApplyDto $applyDto 却下する申請
+     * @param GuildApplyDto $guildApplyDto 却下する申請
      * @return GuildApplyDto 却下後のDTO
      */
-    public function reject(GuildApplyDto $applyDto): GuildApplyDto
+    public function reject(GuildApplyDto $guildApplyDto): GuildApplyDto
     {
-        $model = $this->selectById($applyDto->getId());
+        $model = $this->selectById($guildApplyDto->getId());
         if ($model === null) {
             throw new \RuntimeException('Guild apply not found');
         }

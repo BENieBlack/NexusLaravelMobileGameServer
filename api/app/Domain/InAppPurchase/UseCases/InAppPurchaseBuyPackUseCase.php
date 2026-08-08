@@ -35,7 +35,7 @@ class InAppPurchaseBuyPackUseCase extends _BaseBuyUseCase
         MstInAppPurchase $mstInAppPurchase,
         string $platform,
         string $billingPlatform,
-        VerificationDto $verificationResult
+        VerificationDto $verificationDto
     ): BuyResponse {
         // トランザクション内でパック購入処理を実行
         return $this->executeWithTransaction(function () use (
@@ -43,7 +43,7 @@ class InAppPurchaseBuyPackUseCase extends _BaseBuyUseCase
             $mstInAppPurchase,
             $platform,
             $billingPlatform,
-            $verificationResult
+            $verificationDto
         ) {
             // パック購入処理
             $result = $this->packService->purchasePack(
@@ -51,7 +51,7 @@ class InAppPurchaseBuyPackUseCase extends _BaseBuyUseCase
                 $mstInAppPurchase,
                 $platform,
                 $billingPlatform,
-                $verificationResult->getTransactionId()
+                $verificationDto->getTransactionId()
             );
 
             return new BuyResponse(

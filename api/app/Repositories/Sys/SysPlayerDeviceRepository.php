@@ -98,7 +98,7 @@ class SysPlayerDeviceRepository extends _BaseSysRepository implements DeviceRepo
      * {@inheritDoc}
      * NexusPlayer\Repositories\PlayerDeviceRepositoryInterface実装
      */
-    public function save(PlayerDeviceDto $device): void
+    public function save(PlayerDeviceDto $playerDeviceDto): void
     {
         // デバイスの更新はNexusPlayerパッケージでは現在未使用
         // 必要に応じて実装

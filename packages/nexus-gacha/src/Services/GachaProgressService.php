@@ -49,42 +49,42 @@ class GachaProgressService
     /**
      * 日次リセットが必要かチェックし、必要ならリセット
      *
-     * @param GachaProgressDto $progress
+     * @param GachaProgressDto $gachaProgressDto
      * @return GachaProgressDto
      */
-    public function checkAndResetDaily(GachaProgressDto $progress): GachaProgressDto
+    public function checkAndResetDaily(GachaProgressDto $gachaProgressDto): GachaProgressDto
     {
         $now = ClockUtility::now();
-        $dailyResetAt = $progress->getDailyResetAt();
+        $dailyResetAt = $gachaProgressDto->getDailyResetAt();
         $todayString = $now->startOfDay()->toDateString(); // Y-m-d形式
 
         // daily_reset_atが今日の0時より前ならリセット
         $dailyResetDate = $dailyResetAt !== null ? substr($dailyResetAt, 0, 10) : null;
         if ($dailyResetDate === null || $dailyResetDate < $todayString) {
-            $progress->setDailyDrawCount(0);
-            $progress->setDailyResetAt(ClockUtility::nowToString());
+            $gachaProgressDto->setDailyDrawCount(0);
+            $gachaProgressDto->setDailyResetAt(ClockUtility::nowToString());
         }
 
-        return $progress;
+        return $gachaProgressDto;
     }
 
     /**
      * ガチャ実行後に進行状況を更新
      *
-     * @param GachaProgressDto $progress
+     * @param GachaProgressDto $gachaProgressDto
      * @param int $drawCount
      * @param int|null $nextStep
      * @return void
      */
-    public function updateProgress(GachaProgressDto $progress, int $drawCount, ?int $nextStep = null): void
+    public function updateProgress(GachaProgressDto $gachaProgressDto, int $drawCount, ?int $nextStep = null): void
     {
-        $progress->setDailyDrawCount($progress->getDailyDrawCount() + 1);
-        $progress->setTotalDrawCount($progress->getTotalDrawCount() + $drawCount);
+        $gachaProgressDto->setDailyDrawCount($gachaProgressDto->getDailyDrawCount() + 1);
+        $gachaProgressDto->setTotalDrawCount($gachaProgressDto->getTotalDrawCount() + $drawCount);
         
         if ($nextStep !== null) {
-            $progress->setCurrentStep($nextStep);
+            $gachaProgressDto->setCurrentStep($nextStep);
         }
 
-        $this->progressRepository->save($progress);
+        $this->progressRepository->save($gachaProgressDto);
     }
 }

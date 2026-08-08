@@ -69,21 +69,21 @@ class MaintenanceService
     /**
      * メンテナンスを開始
      * 
-     * @param MaintenanceDto $sysMaintenance メンテナンス情報
+     * @param MaintenanceDto $maintenanceDto メンテナンス情報
      * @return bool 成功時true
      */
-    public function startMaintenance(MaintenanceDto $sysMaintenance): bool
+    public function startMaintenance(MaintenanceDto $maintenanceDto): bool
     {
-        $result = $this->storage->put($sysMaintenance);
+        $result = $this->storage->put($maintenanceDto);
 
         if ($result) {
             // キャッシュをクリア
             $this->clearCache();
             
             Log::info('Maintenance started', [
-                'start_at' => $sysMaintenance->getStartAt(),
-                'end_at' => $sysMaintenance->getEndAt(),
-                'title' => $sysMaintenance->getTitle(),
+                'start_at' => $maintenanceDto->getStartAt(),
+                'end_at' => $maintenanceDto->getEndAt(),
+                'title' => $maintenanceDto->getTitle(),
             ]);
         }
 

@@ -24,17 +24,17 @@ class GuildApplySendResponse extends _BaseResponse
     /**
      * GuildApplyDtoからレスポンスを生成
      *
-     * @param GuildApplyDto $applyDto
+     * @param GuildApplyDto $guildApplyDto
      * @return self
      */
-    public static function fromDto(GuildApplyDto $applyDto): self
+    public static function fromDto(GuildApplyDto $guildApplyDto): self
     {
         return new self(
-            applyId: $applyDto->getId(),
-            guildId: $applyDto->getSysGuildId(),
-            playerId: $applyDto->getSysPlayerId(),
-            status: $applyDto->getStatus(),
-            createdAt: $applyDto->getCreatedAt(),
+            applyId: $guildApplyDto->getId(),
+            guildId: $guildApplyDto->getSysGuildId(),
+            playerId: $guildApplyDto->getSysPlayerId(),
+            status: $guildApplyDto->getStatus(),
+            createdAt: $guildApplyDto->getCreatedAt(),
         );
     }
 

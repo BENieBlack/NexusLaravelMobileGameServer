@@ -64,18 +64,18 @@ interface FriendApplyRepositoryInterface
     /**
      * フレンド申請を承認
      *
-     * @param FriendApplyDto $applyDto 承認するフレンド申請
+     * @param FriendApplyDto $friendApplyDto 承認するフレンド申請
      * @return FriendApplyDto 承認後のDTO
      */
-    public function accept(FriendApplyDto $applyDto): FriendApplyDto;
+    public function accept(FriendApplyDto $friendApplyDto): FriendApplyDto;
 
     /**
      * フレンド申請を却下
      *
-     * @param FriendApplyDto $applyDto 却下するフレンド申請
+     * @param FriendApplyDto $friendApplyDto 却下するフレンド申請
      * @return FriendApplyDto 却下後のDTO
      */
-    public function reject(FriendApplyDto $applyDto): FriendApplyDto;
+    public function reject(FriendApplyDto $friendApplyDto): FriendApplyDto;
 
     /**
      * フレンド関係を削除（論理削除）

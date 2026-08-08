@@ -165,16 +165,16 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
     /**
      * プロダクトIDを検証
      *
-     * @param VerificationDto $verificationResult 検証結果
+     * @param VerificationDto $verificationDto 検証結果
      * @param string $productId プロダクトID
      * @throws GameException
      * @return void
      */
     protected function validateProductId(
-        VerificationDto $verificationResult,
+        VerificationDto $verificationDto,
         string $productId
     ): void {
-        if ($verificationResult->getProductId() !== $productId) {
+        if ($verificationDto->getProductId() !== $productId) {
             throw new GameException(
                 GameErrorCode::PRODUCT_ID_MISMATCH,
                 'Product ID mismatch between request and receipt'
@@ -185,19 +185,19 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
     /**
      * 価格を検証
      *
-     * @param VerificationDto $verificationResult 検証結果
+     * @param VerificationDto $verificationDto 検証結果
      * @param MstInAppPurchase $mstInAppPurchase 商品マスター
      * @param string $billingPlatform 決済プラットフォーム
      * @throws GameException
      * @return void
      */
     protected function validatePrice(
-        VerificationDto $verificationResult,
+        VerificationDto $verificationDto,
         MstInAppPurchase $mstInAppPurchase,
         string $billingPlatform
     ): void {
         $this->validationService->validatePurchasePrice(
-            $verificationResult,
+            $verificationDto,
             $mstInAppPurchase,
             $billingPlatform
         );
@@ -212,7 +212,7 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
      * @param MstInAppPurchase $mstInAppPurchase 商品マスター
      * @param string $platform プラットフォーム
      * @param string $billingPlatform 決済プラットフォーム
-     * @param VerificationDto $verificationResult レシート検証結果
+     * @param VerificationDto $verificationDto レシート検証結果
      * @return BuyResponse
      */
     abstract protected function executePurchase(
@@ -220,6 +220,6 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
         MstInAppPurchase $mstInAppPurchase,
         string $platform,
         string $billingPlatform,
-        VerificationDto $verificationResult
+        VerificationDto $verificationDto
     ): BuyResponse;
 }

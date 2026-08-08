@@ -65,7 +65,7 @@ class AuthRefreshTokenUseCase extends _BaseUseCase
             }
 
             // トークンをローテーション（古いトークンを無効化して新しいトークンを発行）
-            [$dtoToken, $newToken] = $this->tokenService->rotateToken(
+            [$tokenDto, $newToken] = $this->tokenService->rotateToken(
                 $oldToken,
                 $player,
                 $device,
@@ -81,7 +81,7 @@ class AuthRefreshTokenUseCase extends _BaseUseCase
             $this->playerAuthService->updateLastLogin($device->getUuid());
 
             return new RefreshTokenResponse(
-                dtoToken: $dtoToken,
+                tokenDto: $tokenDto,
             );
         });
     }

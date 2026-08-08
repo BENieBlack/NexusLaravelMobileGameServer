@@ -58,12 +58,12 @@ class ResourceDeliveryService
      * リソースを追加する（単一）
      * 実際の配送はdeliver()で実行する
      *
-     * @param ResourceDto $resource リソース
+     * @param ResourceDto $resourceDto リソース
      * @return void
      */
-    public function addResource(ResourceDto $resource): void
+    public function addResource(ResourceDto $resourceDto): void
     {
-        $content = ResourceDeliveryContentDto::fromResource($resource);
+        $content = ResourceDeliveryContentDto::fromResource($resourceDto);
         $this->deliveryManager->addContent($content);
     }
 
@@ -88,12 +88,12 @@ class ResourceDeliveryService
     /**
      * 配送コンテンツを直接追加する（単一）
      *
-     * @param ResourceDeliveryContentDto $content
+     * @param ResourceDeliveryContentDto $resourceDeliveryContentDto
      * @return void
      */
-    public function addContent(ResourceDeliveryContentDto $content): void
+    public function addContent(ResourceDeliveryContentDto $resourceDeliveryContentDto): void
     {
-        $this->deliveryManager->addContent($content);
+        $this->deliveryManager->addContent($resourceDeliveryContentDto);
     }
 
     /**
@@ -113,22 +113,22 @@ class ResourceDeliveryService
      * addResources()で登録されたリソースをまとめて配送する（遅延配送パターン）
      *
      * @param int $sysPlayerId プレイヤーID
-     * @param ResourceDeliveryPolicy|null $policy 配送ポリシー（nullの場合はデフォルト）
+     * @param ResourceDeliveryPolicy|null $resourceDeliveryPolicyDto 配送ポリシー（nullの場合はデフォルト）
      * @return ResourceDeliverySummary 配送結果のサマリー
      * @throws \Exception
      */
     public function deliver(
         int $sysPlayerId,
-        ?ResourceDeliveryPolicyDto $policy = null,
+        ?ResourceDeliveryPolicyDto $resourceDeliveryPolicyDto = null,
     ): ResourceDeliverySummaryDto {
-        if ($policy === null) {
-            $policy = ResourceDeliveryPolicyDto::createDefaultPolicy();
+        if ($resourceDeliveryPolicyDto === null) {
+            $resourceDeliveryPolicyDto = ResourceDeliveryPolicyDto::createDefaultPolicy();
         }
 
         try {
             $summary = $this->execDelivery(
                 sysPlayerId: $sysPlayerId,
-                policy: $policy,
+                resourceDeliveryPolicyDto: $resourceDeliveryPolicyDto,
             );
         } catch (\Throwable $e) {
             Log::error('ResourceDeliveryService::deliver failed', [
@@ -139,7 +139,7 @@ class ResourceDeliveryService
         }
 
         // 配送結果をチェックして、必要に応じて例外を投げる
-        $this->checkAndThrowErrorBySummary($summary, $policy);
+        $this->checkAndThrowErrorBySummary($summary, $resourceDeliveryPolicyDto);
 
         return $summary;
     }
@@ -148,20 +148,20 @@ class ResourceDeliveryService
      * 配送結果をチェックして、必要に応じて例外を投げる
      *
      * @param ResourceDeliverySummaryDto $summary
-     * @param ResourceDeliveryPolicyDto $policy
+     * @param ResourceDeliveryPolicyDto $resourceDeliveryPolicyDto
      * @return void
      * @throws \Exception
      */
     private function checkAndThrowErrorBySummary(
         ResourceDeliverySummaryDto $summary,
-        ResourceDeliveryPolicyDto $policy,
+        ResourceDeliveryPolicyDto $resourceDeliveryPolicyDto,
     ): void {
-        $throwErrorTypes = $policy->getResourceTypesOfThrowErrorWhenResourceLimitReached(
+        $throwErrorTypes = $resourceDeliveryPolicyDto->getResourceTypesOfThrowErrorWhenResourceLimitReached(
             $this->getSupportedTypes(),
         );
 
         if ($summary->hasResourceOverflow($throwErrorTypes)) {
-            $policy->throwResourceLimitReachedExceptionIfSet();
+            $resourceDeliveryPolicyDto->throwResourceLimitReachedExceptionIfSet();
         }
     }
 
@@ -170,12 +170,12 @@ class ResourceDeliveryService
      * 追加リソースの連鎖に対応するため、最大2回ループする
      *
      * @param int $sysPlayerId
-     * @param ResourceDeliveryPolicyDto $policy
+     * @param ResourceDeliveryPolicyDto $resourceDeliveryPolicyDto
      * @return ResourceDeliverySummaryDto
      */
     private function execDelivery(
         int $sysPlayerId,
-        ResourceDeliveryPolicyDto $policy,
+        ResourceDeliveryPolicyDto $resourceDeliveryPolicyDto,
     ): ResourceDeliverySummaryDto {
         $summary = new ResourceDeliverySummaryDto();
 
@@ -185,7 +185,7 @@ class ResourceDeliveryService
                 break;
             }
 
-            $iterationSummary = $this->execDeliveryIteration($sysPlayerId, $policy);
+            $iterationSummary = $this->execDeliveryIteration($sysPlayerId, $resourceDeliveryPolicyDto);
             $summary->merge($iterationSummary);
         }
 
@@ -196,12 +196,12 @@ class ResourceDeliveryService
      * 配送処理の1回分の実行
      *
      * @param int $sysPlayerId
-     * @param ResourceDeliveryPolicyDto $policy
+     * @param ResourceDeliveryPolicyDto $resourceDeliveryPolicyDto
      * @return ResourceDeliverySummaryDto
      */
     private function execDeliveryIteration(
         int $sysPlayerId,
-        ResourceDeliveryPolicyDto $policy,
+        ResourceDeliveryPolicyDto $resourceDeliveryPolicyDto,
     ): ResourceDeliverySummaryDto {
         $summary = new ResourceDeliverySummaryDto();
 

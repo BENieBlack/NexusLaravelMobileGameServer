@@ -30,8 +30,8 @@ interface PlayerDeviceRepositoryInterface
     /**
      * デバイスを保存
      * 
-     * @param PlayerDeviceDto $device
+     * @param PlayerDeviceDto $playerDeviceDto
      * @return void
      */
-    public function save(PlayerDeviceDto $device): void;
+    public function save(PlayerDeviceDto $playerDeviceDto): void;
 }

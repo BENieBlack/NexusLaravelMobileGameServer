@@ -42,10 +42,10 @@ interface MailboxRepositoryInterface
     /**
      * メールボックスを保存
      * 
-     * @param MailboxDto $mailbox
+     * @param MailboxDto $mailboxDto
      * @return void
      */
-    public function save(MailboxDto $mailbox): void;
+    public function save(MailboxDto $mailboxDto): void;
 
     /**
      * カテゴリ別未読数を取得
@@ -58,25 +58,25 @@ interface MailboxRepositoryInterface
     /**
      * 既読にマーク
      * 
-     * @param MailboxDto $mailbox
+     * @param MailboxDto $mailboxDto
      * @return void
      */
-    public function markAsRead(MailboxDto $mailbox): void;
+    public function markAsRead(MailboxDto $mailboxDto): void;
 
     /**
      * 受取済みにマーク（DTO版）
      * 
-     * @param MailboxDto $mailbox
+     * @param MailboxDto $mailboxDto
      * @return void
      */
-    public function markDtoAsReceived(MailboxDto $mailbox): void;
+    public function markDtoAsReceived(MailboxDto $mailboxDto): void;
 
     /**
      * ロック状態を変更
      * 
-     * @param MailboxDto $mailbox
+     * @param MailboxDto $mailboxDto
      * @param bool $isLocked
      * @return void
      */
-    public function updateLockStatus(MailboxDto $mailbox, bool $isLocked): void;
+    public function updateLockStatus(MailboxDto $mailboxDto, bool $isLocked): void;
 }

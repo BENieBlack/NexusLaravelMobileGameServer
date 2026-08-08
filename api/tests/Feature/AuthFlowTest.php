@@ -235,7 +235,7 @@ class AuthFlowTest extends TestCase
 
         $response1->assertOk(); // 200 OK
         $data1 = $response1->json();
-        $myId1 = $data1['data']['sysPlayer']['my_id']; // ネストされた構造からmy_idを取得
+        $myId1 = $data1['sys_player']['my_id'];
 
         // プレイヤーIDを保存してクリーンアップ対象にする
         $player = SysPlayer::where('my_id', $myId1)->first();

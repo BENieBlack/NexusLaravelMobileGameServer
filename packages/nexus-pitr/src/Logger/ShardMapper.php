@@ -19,11 +19,6 @@ class ShardMapper
      */
     public static function getLogConnection(string $trxConnection): string
     {
-        // 後方互換: trx -> log
-        if ($trxConnection === 'trx') {
-            return 'log';
-        }
-        
         // 動的シャーディング: trx1 -> log1, trx2 -> log2, ...
         if (preg_match('/^trx(\d+)$/', $trxConnection, $matches)) {
             $shardNumber = (int) $matches[1];
@@ -46,11 +41,6 @@ class ShardMapper
      */
     public static function getTrxConnection(string $logConnection): string
     {
-        // 後方互換: log -> trx
-        if ($logConnection === 'log') {
-            return 'trx';
-        }
-        
         // 動的シャーディング: log1 -> trx1, log2 -> trx2, ...
         if (preg_match('/^log(\d+)$/', $logConnection, $matches)) {
             $shardNumber = (int) $matches[1];
@@ -106,11 +96,6 @@ class ShardMapper
      */
     public static function isValidTrxConnection(string $trxConnection): bool
     {
-        // 後方互換
-        if ($trxConnection === 'trx') {
-            return true;
-        }
-        
         // 動的シャーディング
         if (preg_match('/^trx(\d+)$/', $trxConnection, $matches)) {
             $shardNumber = (int) $matches[1];
@@ -129,11 +114,6 @@ class ShardMapper
      */
     public static function isValidLogConnection(string $logConnection): bool
     {
-        // 後方互換
-        if ($logConnection === 'log') {
-            return true;
-        }
-        
         // 動的シャーディング
         if (preg_match('/^log(\d+)$/', $logConnection, $matches)) {
             $shardNumber = (int) $matches[1];

@@ -2,7 +2,7 @@
 
 namespace NexusVip\Models;
 
-use App\Models\Mst\_BaseMst;
+use NexusPersistence\Models\Mst\_BaseMst;
 
 /**
  * MstVipLevel Model

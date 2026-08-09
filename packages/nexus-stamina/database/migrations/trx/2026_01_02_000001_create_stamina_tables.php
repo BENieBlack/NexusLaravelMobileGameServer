@@ -4,7 +4,6 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use NexusPitr\Migrations\DynamicShardingTrait;
 
 /**
  * TrxDB用スタミナテーブル作成マイグレーション
@@ -14,28 +13,16 @@ use NexusPitr\Migrations\DynamicShardingTrait;
  */
 return new class extends Migration
 {
-    use DynamicShardingTrait;
 
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        // 各シャードに対してテーブルを作成（動的シャーディング対応）
-        foreach ($this->getTrxConnections() as $connection) {
-            $this->createTablesForConnection($connection);
-        }
-    }
-
-    /**
-     * 指定された接続に対してテーブルを作成
-     */
-    protected function createTablesForConnection(string $connection): void
-    {
         // ========================================
         // trx_stamina: プレイヤースタミナ管理
         // ========================================
-        Schema::connection($connection)->create('trx_stamina', function (Blueprint $table) {
+        Schema::create('trx_stamina', function (Blueprint $table) {
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
             $table->string('type', 50)->default('normal')->comment('スタミナタイプ（normal, raid, pvp, event等）');
             $table->unsignedInteger('current_stamina')->default(0)->comment('現在のスタミナ');
@@ -54,9 +41,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // 各シャードに対してテーブルを削除（動的シャーディング対応）
-        foreach ($this->getTrxConnections() as $connection) {
-            Schema::connection($connection)->dropIfExists('trx_stamina');
-        }
+        Schema::dropIfExists('trx_stamina');
     }
 };

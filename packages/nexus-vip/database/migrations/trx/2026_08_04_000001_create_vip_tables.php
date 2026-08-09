@@ -13,10 +13,6 @@ use Illuminate\Support\Facades\Schema;
  */
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
     {
         // ========================================
         // log_vip_point: VIPポイント変動ログ

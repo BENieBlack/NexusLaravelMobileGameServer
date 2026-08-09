@@ -38,6 +38,7 @@ class TrxRollbackCommand extends Command
         $trxConnections = ShardMapper::getAllTrxConnections();
         
         $this->info('Rolling back TrxDB migrations on all shards...');
+        $this->info('This includes migrations from: api/database/migrations/trx, nexus-player, nexus-resource, nexus-wallet, nexus-stamina, nexus-core-billing');
         $this->newLine();
         
         foreach ($trxConnections as $trxConnection) {
@@ -45,7 +46,6 @@ class TrxRollbackCommand extends Command
             
             $options = [
                 '--database' => $trxConnection,
-                '--path' => 'database/migrations/trx',
                 '--step' => $this->option('step'),
             ];
             

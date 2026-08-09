@@ -20,6 +20,6 @@ return new class extends Migration
         $connections = $this->getTrxConnections();
 
         foreach ($connections as $connection) {
-        Schema::dropIfExists('trx_vip_login_bonus_history');
+    Schema::dropIfExists('trx_vip_login_bonus_history');
     }
 };

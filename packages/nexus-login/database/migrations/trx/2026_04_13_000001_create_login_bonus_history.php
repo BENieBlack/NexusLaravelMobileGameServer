@@ -14,7 +14,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        foreach ($this->getTrxConnections() as $connection) {
-        Schema::dropIfExists('trx_login_bonus_history');
+    Schema::dropIfExists('trx_login_bonus_history');
     }
 };

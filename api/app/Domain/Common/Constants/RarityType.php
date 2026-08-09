@@ -44,6 +44,8 @@ class RarityType
      * 全レアリティの配列を取得
      *
      * 高レア度順（UR → C）で返す
+     *
+     * @return array<int, string>
      */
     public static function getAll(): array
     {

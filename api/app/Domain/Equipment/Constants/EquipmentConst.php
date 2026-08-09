@@ -58,6 +58,8 @@ class EquipmentConst
 
     /**
      * 全タイプの配列を取得
+     *
+     * @return array<int, string>
      */
     public static function getAllTypes(): array
     {

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e8dcdab4936311cb8188d74d38cc1438",
+    "content-hash": "9a779d665087e567629a6c783947b679",
     "packages": [
         {
             "name": "brick/math",
@@ -3149,6 +3149,63 @@
                 }
             ],
             "description": "Mobile game features for Laravel including maintenance mode management with support for AWS DynamoDB and Alibaba Cloud TableStore",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "nexus/pitr",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/nexus-pitr",
+                "reference": "7dafb3818de680ef0dcf11062f9af8e068c90417"
+            },
+            "require": {
+                "illuminate/console": "^12.0",
+                "illuminate/database": "^12.0",
+                "illuminate/support": "^12.0",
+                "php": "^8.3"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.6",
+                "phpunit/phpunit": "^11.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "NexusPitr\\NexusPitrServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "NexusPitr\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "NexusPitr\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "phpunit"
+                ],
+                "test-coverage": [
+                    "phpunit --coverage-html coverage"
+                ]
+            },
+            "license": [
+                "proprietary"
+            ],
+            "authors": [
+                {
+                    "name": "Nexus Team"
+                }
+            ],
+            "description": "Point-In-Time Recovery system for TrxDB using LogDB change history",
             "transport-options": {
                 "relative": true
             }
@@ -10450,6 +10507,7 @@
         "nexus/login": 20,
         "nexus/mailbox": 20,
         "nexus/maintenance": 20,
+        "nexus/pitr": 20,
         "nexus/player": 20,
         "nexus/resource": 20,
         "nexus/resource-delivery": 20,

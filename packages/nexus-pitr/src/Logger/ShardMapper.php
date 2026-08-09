@@ -6,6 +6,7 @@ namespace NexusPitr\Logger;
  * ShardMapper
  * 
  * TrxDB接続とLogDB接続のマッピングを管理
+ * 動的シャーディング対応（DB_TRX_SHARDS環境変数でシャード数を制御）
  */
 class ShardMapper
 {
@@ -18,12 +19,22 @@ class ShardMapper
      */
     public static function getLogConnection(string $trxConnection): string
     {
-        return match ($trxConnection) {
-            'trx1' => 'log1',
-            'trx2' => 'log2',
-            'trx' => 'log', // 開発環境用（シャーディング前）
-            default => throw new \InvalidArgumentException("Unknown trx connection: {$trxConnection}")
-        };
+        // 後方互換: trx -> log
+        if ($trxConnection === 'trx') {
+            return 'log';
+        }
+        
+        // 動的シャーディング: trx1 -> log1, trx2 -> log2, ...
+        if (preg_match('/^trx(\d+)$/', $trxConnection, $matches)) {
+            $shardNumber = (int) $matches[1];
+            $maxShards = self::getMaxShardCount();
+            
+            if ($shardNumber >= 1 && $shardNumber <= $maxShards) {
+                return "log{$shardNumber}";
+            }
+        }
+        
+        throw new \InvalidArgumentException("Unknown trx connection: {$trxConnection}");
     }
     
     /**
@@ -35,12 +46,22 @@ class ShardMapper
      */
     public static function getTrxConnection(string $logConnection): string
     {
-        return match ($logConnection) {
-            'log1' => 'trx1',
-            'log2' => 'trx2',
-            'log' => 'trx', // 開発環境用（シャーディング前）
-            default => throw new \InvalidArgumentException("Unknown log connection: {$logConnection}")
-        };
+        // 後方互換: log -> trx
+        if ($logConnection === 'log') {
+            return 'trx';
+        }
+        
+        // 動的シャーディング: log1 -> trx1, log2 -> trx2, ...
+        if (preg_match('/^log(\d+)$/', $logConnection, $matches)) {
+            $shardNumber = (int) $matches[1];
+            $maxShards = self::getMaxShardCount();
+            
+            if ($shardNumber >= 1 && $shardNumber <= $maxShards) {
+                return "trx{$shardNumber}";
+            }
+        }
+        
+        throw new \InvalidArgumentException("Unknown log connection: {$logConnection}");
     }
     
     /**
@@ -50,7 +71,14 @@ class ShardMapper
      */
     public static function getAllLogConnections(): array
     {
-        return ['log1', 'log2'];
+        $maxShards = self::getMaxShardCount();
+        $connections = [];
+        
+        for ($i = 1; $i <= $maxShards; $i++) {
+            $connections[] = "log{$i}";
+        }
+        
+        return $connections;
     }
     
     /**
@@ -60,7 +88,14 @@ class ShardMapper
      */
     public static function getAllTrxConnections(): array
     {
-        return ['trx1', 'trx2'];
+        $maxShards = self::getMaxShardCount();
+        $connections = [];
+        
+        for ($i = 1; $i <= $maxShards; $i++) {
+            $connections[] = "trx{$i}";
+        }
+        
+        return $connections;
     }
     
     /**
@@ -71,7 +106,19 @@ class ShardMapper
      */
     public static function isValidTrxConnection(string $trxConnection): bool
     {
-        return in_array($trxConnection, ['trx1', 'trx2', 'trx']);
+        // 後方互換
+        if ($trxConnection === 'trx') {
+            return true;
+        }
+        
+        // 動的シャーディング
+        if (preg_match('/^trx(\d+)$/', $trxConnection, $matches)) {
+            $shardNumber = (int) $matches[1];
+            $maxShards = self::getMaxShardCount();
+            return $shardNumber >= 1 && $shardNumber <= $maxShards;
+        }
+        
+        return false;
     }
     
     /**
@@ -82,6 +129,28 @@ class ShardMapper
      */
     public static function isValidLogConnection(string $logConnection): bool
     {
-        return in_array($logConnection, ['log1', 'log2', 'log']);
+        // 後方互換
+        if ($logConnection === 'log') {
+            return true;
+        }
+        
+        // 動的シャーディング
+        if (preg_match('/^log(\d+)$/', $logConnection, $matches)) {
+            $shardNumber = (int) $matches[1];
+            $maxShards = self::getMaxShardCount();
+            return $shardNumber >= 1 && $shardNumber <= $maxShards;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * 最大シャード数を取得
+     * 
+     * @return int
+     */
+    private static function getMaxShardCount(): int
+    {
+        return (int) (getenv('DB_TRX_SHARDS') ?: 2);
     }
 }

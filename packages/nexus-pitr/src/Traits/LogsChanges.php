@@ -1,0 +1,156 @@
+<?php
+
+namespace NexusPitr\Traits;
+
+use DateTime;
+use NexusPitr\Dto\ChangeLogDto;
+
+/**
+ * LogsChanges Trait
+ * 
+ * Repository層にPITRログ記録機能を追加
+ * _BaseTrxRepositoryで使用される
+ */
+trait LogsChanges
+{
+    /**
+     * PITRログのキュー
+     * 
+     * @var array<ChangeLogDto>
+     */
+    private array $pitrLogQueue = [];
+    
+    /**
+     * PITRログをキューに追加（INSERT用）
+     * 
+     * @param int $sysPlayerId
+     * @param array $afterData
+     * @param array $primaryKey
+     * @return void
+     */
+    protected function queueInsertLog(int $sysPlayerId, array $afterData, array $primaryKey): void
+    {
+        $this->pitrLogQueue[] = new ChangeLogDto(
+            uniqueRequestId: $this->getRequestId(),
+            sysPlayerId: $sysPlayerId,
+            shardConnection: $this->connection,
+            tableName: $this->getTableName(),
+            operation: 'INSERT',
+            beforeData: null,
+            afterData: $afterData,
+            primaryKey: $primaryKey,
+            systemAt: new DateTime(),
+            apiEndpoint: $this->getApiEndpoint(),
+            stackTrace: null
+        );
+    }
+    
+    /**
+     * PITRログをキューに追加（UPDATE用）
+     * 
+     * @param int $sysPlayerId
+     * @param array $beforeData
+     * @param array $afterData 差分のみ
+     * @param array $primaryKey
+     * @return void
+     */
+    protected function queueUpdateLog(int $sysPlayerId, array $beforeData, array $afterData, array $primaryKey): void
+    {
+        $this->pitrLogQueue[] = new ChangeLogDto(
+            uniqueRequestId: $this->getRequestId(),
+            sysPlayerId: $sysPlayerId,
+            shardConnection: $this->connection,
+            tableName: $this->getTableName(),
+            operation: 'UPDATE',
+            beforeData: $beforeData,
+            afterData: $afterData, // 差分のみ
+            primaryKey: $primaryKey,
+            systemAt: new DateTime(),
+            apiEndpoint: $this->getApiEndpoint(),
+            stackTrace: null
+        );
+    }
+    
+    /**
+     * PITRログをキューに追加（DELETE用）
+     * 
+     * @param int $sysPlayerId
+     * @param array $beforeData
+     * @param array $primaryKey
+     * @return void
+     */
+    protected function queueDeleteLog(int $sysPlayerId, array $beforeData, array $primaryKey): void
+    {
+        $this->pitrLogQueue[] = new ChangeLogDto(
+            uniqueRequestId: $this->getRequestId(),
+            sysPlayerId: $sysPlayerId,
+            shardConnection: $this->connection,
+            tableName: $this->getTableName(),
+            operation: 'DELETE',
+            beforeData: $beforeData,
+            afterData: null,
+            primaryKey: $primaryKey,
+            systemAt: new DateTime(),
+            apiEndpoint: $this->getApiEndpoint(),
+            stackTrace: null
+        );
+    }
+    
+    /**
+     * PITRログキューを取得
+     * 
+     * @return array<ChangeLogDto>
+     */
+    public function getPitrLogQueue(): array
+    {
+        return $this->pitrLogQueue;
+    }
+    
+    /**
+     * PITRログキューをクリア
+     * 
+     * @return void
+     */
+    public function clearPitrLogQueue(): void
+    {
+        $this->pitrLogQueue = [];
+    }
+    
+    /**
+     * リクエストIDを取得
+     * 
+     * @return string
+     */
+    private function getRequestId(): string
+    {
+        if (function_exists('request')) {
+            return request()->header('X-Request-ID') 
+                ?? request()->header('X-Amzn-Trace-Id') 
+                ?? \Illuminate\Support\Str::uuid()->toString();
+        }
+        
+        return \Illuminate\Support\Str::uuid()->toString();
+    }
+    
+    /**
+     * APIエンドポイントを取得
+     * 
+     * @return string|null
+     */
+    private function getApiEndpoint(): ?string
+    {
+        if (function_exists('request')) {
+            return request()->path() ?? 'console';
+        }
+        
+        return 'console';
+    }
+    
+    /**
+     * テーブル名を取得（抽象メソッド）
+     * _BaseTrxRepositoryで実装される
+     * 
+     * @return string
+     */
+    abstract protected function getTableName(): string;
+}

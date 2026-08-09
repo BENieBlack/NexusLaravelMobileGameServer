@@ -264,4 +264,19 @@ return [
             'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
         ],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | PITR (Point-In-Time Recovery) Configuration
+    |--------------------------------------------------------------------------
+    |
+    | TrxDB故障時のポイントインタイムリカバリー設定
+    | active_trx_connections: トランザクションで使用するTrxDB接続のリスト
+    |
+    */
+    'pitr' => [
+        'active_trx_connections' => explode(',', env('PITR_ACTIVE_TRX_CONNECTIONS', 'trx')),
+        'batch_size' => env('PITR_BATCH_SIZE', 1000),
+        'enable_compression' => env('PITR_ENABLE_COMPRESSION', false),
+    ],
 ];

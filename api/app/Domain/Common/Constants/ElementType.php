@@ -42,6 +42,8 @@ class ElementType
 
     /**
      * 全属性の配列を取得
+     *
+     * @return array<int, string>
      */
     public static function getAll(): array
     {

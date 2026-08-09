@@ -39,7 +39,8 @@ return new class extends Migration
         Schema::connection($connection)->create('trx_wallet', function (Blueprint $table) {
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
             $table->string('mst_item_id')->comment('通貨アイテムID (例: gold, event_coin)');
-            $table->unsignedInteger('amount')->default(0)->comment('現在の残高');
+            $table->unsignedInteger('free_amount')->default(0)->comment('無償通貨数');
+            $table->unsignedInteger('paid_amount')->default(0)->comment('有償通貨数');
             $table->boolean('is_delete')->default(false)->comment('論理削除フラグ');
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
@@ -55,6 +56,7 @@ return new class extends Migration
             $table->id()->comment('残高ID');
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
             $table->string('mst_item_id')->comment('通貨アイテムID (例: gold, event_coin)');
+            $table->boolean('is_paid')->default(false)->comment('有償フラグ（true=有償、false=無償）');
             $table->unsignedInteger('current_amount')->comment('現在の残数');
             $table->unsignedInteger('initial_amount')->comment('取得時の数');
             $table->dateTime('expire_at')->nullable()->comment('有効期限 (NULLの場合は無期限)');

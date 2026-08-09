@@ -52,11 +52,41 @@ return new class extends Migration
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
             $table->string('id')->primary()->comment('メールボックスID');
             $table->string('mst_message_id')->comment('メッセージID');
+            
+            // カテゴリ
+            $table->enum('category', [
+                'System', 'Battle', 'Alliance', 'Friend', 
+                'Trade', 'Reward', 'Personal'
+            ])->default('System')->comment('メールカテゴリ');
+            
+            // 優先度
+            $table->enum('priority', ['Normal', 'Important', 'Urgent'])
+                ->default('Normal')->comment('優先度');
+            
+            // 送信者情報
+            $table->enum('sender_type', ['System', 'Player', 'Alliance', 'NPC'])
+                ->default('System')->comment('送信者タイプ');
+            $table->string('sender_id')->nullable()->comment('送信者ID');
+            
+            // 有効期限（日数）
+            $table->unsignedInteger('expires_in_days')->default(30)
+                ->comment('有効期限（日数、0=無期限）');
+            
+            // アイコンURL
+            $table->string('icon_url', 512)->nullable()
+                ->comment('アイコン画像URL');
+            
+            // 一斉配信フラグ
+            $table->boolean('is_bulk_distributable')->default(false)
+                ->comment('一斉配信可能フラグ');
+            
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
 
             $table->index('deploy_key');
             $table->index('mst_message_id');
+            $table->index('category');
+            $table->index(['category', 'priority']);
         });
 
         // ========================================
@@ -65,11 +95,24 @@ return new class extends Migration
         Schema::connection('mst')->create('mst_mailbox_content', function (Blueprint $table) {
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
             $table->string('mst_mailbox_id')->comment('メールボックスID');
-            $table->enum('content_type', ['Diamond', 'Item', 'Unit', 'Equipment'])->comment('コンテンツタイプ');
+            $table->enum('content_type', [
+                'Diamond', 'PaidDiamond', 'Item', 'Unit', 'Equipment',
+                'Gold', 'Food', 'Wood', 'Stone', 'Stamina',
+                'Experience', 'AlliancePoints', 'Custom'
+            ])->comment('コンテンツタイプ');
             $table->string('content_id')->comment('コンテンツID');
             $table->json('content_option')->nullable()->comment('コンテンツオプション (例: {"grade":1, "level":5})');
             $table->unsignedInteger('content_quantity')->default(1)->comment('1配布あたりのコンテンツ数量');
             $table->unsignedInteger('amount')->default(1)->comment('配布回数（content_quantity × amount = 実際の配布量）');
+            
+            // レアリティ
+            $table->enum('rarity', ['C', 'UC', 'R', 'SR', 'SSR', 'UR'])
+                ->nullable()->comment('レアリティ（表示用）');
+            
+            // ハイライト表示
+            $table->boolean('is_highlight')->default(false)
+                ->comment('ハイライト表示フラグ');
+            
             $table->unsignedInteger('sort_desc')->default(0)->comment('表示順序（降順）');
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');

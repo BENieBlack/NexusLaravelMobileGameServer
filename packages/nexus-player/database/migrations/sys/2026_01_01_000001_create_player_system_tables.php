@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('name', 100)->nullable()->comment('プレイヤー名（後で設定可能）');
             $table->unsignedInteger('level')->default(1)->comment('プレイヤーレベル');
             $table->unsignedBigInteger('level_exp')->default(0)->comment('レベル経験値（累積）');
+            $table->dateTime('last_login_at')->nullable()->comment('最終ログイン日時（UTC）');
             $table->dateTime('created_at')->nullable()->comment('作成日時');
             $table->dateTime('updated_at')->nullable()->comment('更新日時');
 
@@ -28,6 +29,7 @@ return new class extends Migration
             $table->index('uuid');
             $table->index('my_id');
             $table->index('level');
+            $table->index('last_login_at');
         });
 
         // ========================================

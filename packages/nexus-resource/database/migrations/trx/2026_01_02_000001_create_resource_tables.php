@@ -72,7 +72,8 @@ return new class extends Migration
         Schema::connection($connection)->create('trx_item', function (Blueprint $table) {
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
             $table->string('mst_item_id')->comment('マスターアイテムID');
-            $table->unsignedInteger('amount')->comment('所持数');
+            $table->unsignedInteger('free_amount')->default(0)->comment('無償アイテム数');
+            $table->unsignedInteger('paid_amount')->default(0)->comment('有償アイテム数');
             $table->boolean('is_delete')->default(false)->comment('論理削除フラグ');
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');

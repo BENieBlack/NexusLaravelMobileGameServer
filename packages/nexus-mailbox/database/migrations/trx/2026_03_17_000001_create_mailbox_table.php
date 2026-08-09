@@ -35,7 +35,33 @@ return new class extends Migration
             $table->string('mst_mailbox_id')->comment('mst_mailboxテーブルのID');
             $table->boolean('is_opened')->default(false)->comment('既読フラグ');
             $table->boolean('is_received')->default(false)->comment('受取済みフラグ');
+            
+            // 保護フラグ
+            $table->boolean('is_protected')->default(false)
+                ->comment('保護フラグ（削除防止）');
+            
             $table->boolean('is_delete')->default(false)->comment('論理削除フラグ');
+            
+            // 有効期限
+            $table->dateTime('expires_at')->nullable()
+                ->comment('有効期限（NULL=無期限）');
+            
+            // 既読日時
+            $table->dateTime('read_at')->nullable()
+                ->comment('既読日時');
+            
+            // 受取日時
+            $table->dateTime('received_at')->nullable()
+                ->comment('受取日時');
+            
+            // 送信者名（動的）
+            $table->string('sender_name')->nullable()
+                ->comment('送信者名（プレイヤー名など動的に設定）');
+            
+            // カスタムパラメータ（JSONプレースホルダー置換用）
+            $table->json('custom_params')->nullable()
+                ->comment('カスタムパラメータ（テンプレート置換用）');
+            
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
 
@@ -43,6 +69,15 @@ return new class extends Migration
             $table->index(['sys_player_id', 'is_opened', 'is_received']);
             $table->index('mst_mailbox_id');
         });
+        
+        // インデックス追加
+        DB::connection($connection)->statement("
+            CREATE INDEX idx_expires_at ON trx_mailbox(sys_player_id, expires_at);
+        ");
+        
+        DB::connection($connection)->statement("
+            CREATE INDEX idx_protected ON trx_mailbox(sys_player_id, is_protected, is_delete);
+        ");
     }
 
     /**

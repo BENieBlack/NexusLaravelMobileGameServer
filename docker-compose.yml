@@ -11,6 +11,7 @@ services:
       - ./.env:/var/www/.env:ro  # Mount root .env as read-only
     environment:
       - CLIENT_SECRET=${CLIENT_SECRET:-your-secret-key-change-in-production-12345}
+      - DB_TRX_SHARDS=${DB_TRX_SHARDS:-2}
     networks:
       - local-network
 
@@ -125,6 +126,18 @@ services:
     networks:
       - local-network
 
+  db-log3:
+    image: mysql:latest
+    container_name: db-log3
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "33068:3306"
+    volumes:
+      - db_log3_data:/var/lib/mysql
+    networks:
+      - local-network
+
   db-trx1:
     image: mysql:latest
     container_name: db-trx1
@@ -149,6 +162,18 @@ services:
     networks:
       - local-network
 
+  db-trx3:
+    image: mysql:latest
+    container_name: db-trx3
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "33069:3306"
+    volumes:
+      - db_trx3_data:/var/lib/mysql
+    networks:
+      - local-network
+
   redis:
     image: redis:8.4
     container_name: redis
@@ -165,8 +190,10 @@ volumes:
   db_mst_data:
   db_trx1_data:
   db_trx2_data:
+  db_trx3_data:
   db_log1_data:
   db_log2_data:
+  db_log3_data:
   db_admin_data:
   db_sys_data:
   db_tool_data:

@@ -2,6 +2,7 @@
 
 namespace App\Models\Mst;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -136,24 +137,33 @@ class MstLoginBonus extends _BaseMst
 
     /**
      * スコープ: 通常ログインボーナスのみ
+     *
+     * @param  Builder<MstLoginBonus>  $query
+     * @return Builder<MstLoginBonus>
      */
-    public function scopeDailyType($query)
+    public function scopeDailyType(Builder $query): Builder
     {
         return $query->where('type', self::TYPE_DAILY);
     }
 
     /**
      * スコープ: カムバックログインボーナスのみ
+     *
+     * @param  Builder<MstLoginBonus>  $query
+     * @return Builder<MstLoginBonus>
      */
-    public function scopeComebackType($query)
+    public function scopeComebackType(Builder $query): Builder
     {
         return $query->where('type', self::TYPE_COMEBACK);
     }
 
     /**
      * スコープ: 有効なボーナスのみ
+     *
+     * @param  Builder<MstLoginBonus>  $query
+     * @return Builder<MstLoginBonus>
      */
-    public function scopeActive($query)
+    public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }

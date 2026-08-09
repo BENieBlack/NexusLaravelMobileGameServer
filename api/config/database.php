@@ -197,6 +197,38 @@ return [
             'strict' => true,
             'engine' => null,
         ],
+
+        // ========================================
+        // テスト用エイリアス接続
+        // ========================================
+        // テストコードの互換性のため、trx/logという名前でtrx1/log1を参照
+        'trx' => [
+            'driver' => 'mysql',
+            'host' => env('DB_TRX1_HOST', 'db-trx1'),
+            'port' => env('DB_TRX1_PORT', '3306'),
+            'database' => env('DB_TRX1_DATABASE') ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local').'-trx1',
+            'username' => env('DB_TRX1_USERNAME', 'root'),
+            'password' => env('DB_TRX1_PASSWORD', 'root'),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => true,
+            'engine' => null,
+        ],
+
+        'log' => [
+            'driver' => 'mysql',
+            'host' => env('DB_LOG1_HOST', 'db-log1'),
+            'port' => env('DB_LOG1_PORT', '3306'),
+            'database' => env('DB_LOG1_DATABASE') ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local').'-log1',
+            'username' => env('DB_LOG1_USERNAME', 'root'),
+            'password' => env('DB_LOG1_PASSWORD', 'root'),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => true,
+            'engine' => null,
+        ],
     ],
 
     /*

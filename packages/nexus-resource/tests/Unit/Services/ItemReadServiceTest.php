@@ -136,5 +136,51 @@ class ItemReadServiceTest extends TestCase
         $this->assertSame(0, $result['item_nonexistent']);
     }
 
+    /**
+     * @test
+     */
+    public function 空配列を渡すと空配列が返る(): void
+    {
+        // Arrange
+        $sysPlayerId = 1;
+        $mstItemIds = [];
 
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('findItemsByIds')
+            ->with($sysPlayerId, $mstItemIds)
+            ->willReturn([]);
+
+        // Act
+        $result = $this->itemReadService->getItemAmounts($sysPlayerId, $mstItemIds);
+
+        // Assert
+        $this->assertIsArray($result);
+        $this->assertEmpty($result);
+    }
+
+    /**
+     * @test
+     */
+    public function 全て存在しないアイテムの場合は全て0で返る(): void
+    {
+        // Arrange
+        $sysPlayerId = 1;
+        $mstItemIds = ['item_a', 'item_b', 'item_c'];
+
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('findItemsByIds')
+            ->with($sysPlayerId, $mstItemIds)
+            ->willReturn([]); // 全て存在しない
+
+        // Act
+        $result = $this->itemReadService->getItemAmounts($sysPlayerId, $mstItemIds);
+
+        // Assert
+        $this->assertCount(3, $result);
+        $this->assertSame(0, $result['item_a']);
+        $this->assertSame(0, $result['item_b']);
+        $this->assertSame(0, $result['item_c']);
+    }
 }

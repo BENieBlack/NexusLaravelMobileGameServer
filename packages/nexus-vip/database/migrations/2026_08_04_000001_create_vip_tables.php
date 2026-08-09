@@ -21,7 +21,7 @@ return new class extends Migration
         // ========================================
         // log_vip_point: VIPポイント変動ログ
         // ========================================
-        Schema->create('log_vip_point', function (Blueprint $table) {
+        Schema::create('log_vip_point', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->string('unique_request_id')->comment('リクエスト一意ID (log_accessと結合)');
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
@@ -49,6 +49,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema->dropIfExists('log_vip_point');
+        Schema::dropIfExists('log_vip_point');
     }
 };

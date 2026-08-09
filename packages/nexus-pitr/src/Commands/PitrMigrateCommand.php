@@ -38,7 +38,8 @@ class PitrMigrateCommand extends Command
     {
         $logConnections = ShardMapper::getAllLogConnections();
         
-        $this->info('Running PITR migrations on all LogDB shards...');
+        $this->info('Running LogDB migrations on all shards...');
+        $this->info('This includes migrations from: api/database/migrations/log, nexus-pitr, nexus-vip, nexus-core-billing');
         $this->newLine();
         
         foreach ($logConnections as $logConnection) {
@@ -46,7 +47,6 @@ class PitrMigrateCommand extends Command
             
             $options = [
                 '--database' => $logConnection,
-                '--path' => 'database/migrations/log',
             ];
             
             if ($this->option('force')) {
@@ -61,6 +61,7 @@ class PitrMigrateCommand extends Command
                 $options['--step'] = true;
             }
             
+            // Laravelのデフォルトマイグレーション実行（パッケージのマイグレーションを含む）
             $exitCode = Artisan::call('migrate', $options, $this->getOutput());
             
             if ($exitCode !== 0) {
@@ -72,7 +73,7 @@ class PitrMigrateCommand extends Command
             $this->newLine();
         }
         
-        $this->info('🎉 All PITR migrations completed successfully!');
+        $this->info('🎉 All LogDB migrations completed successfully!');
         
         return self::SUCCESS;
     }

@@ -52,7 +52,11 @@ class PitrMigrateCommand extends Command
             '../packages/nexus-vip/database/migrations/log',
         ];
         
-        $this->info('Running LogDB migrations on all shards...');
+        $shardCount = count($logConnections);
+        $shardList = implode(', ', $logConnections);
+        
+        $this->info("Running LogDB migrations on all {$shardCount} shards...");
+        $this->info("Target shards: {$shardList}");
         $this->info('This includes migrations from: nexus-pitr, nexus-player, nexus-resource, nexus-wallet, nexus-stamina, nexus-core-billing, nexus-mailbox, nexus-gacha, nexus-login, nexus-vip');
         $this->newLine();
         

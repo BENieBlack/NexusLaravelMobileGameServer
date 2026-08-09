@@ -8,6 +8,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * SysGuild Model
  *
  * ギルド情報テーブル
+ *
+ * @property int $id
+ * @property string $name
+ * @property string|null $description
+ * @property int $level
+ * @property int $exp
+ * @property int $max_members
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
  */
 class SysGuild extends _BaseSys
 {

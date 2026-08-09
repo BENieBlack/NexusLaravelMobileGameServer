@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Exceptions\InfraErrorCode;
+use App\Http\Responses\ErrorResponse;
 use App\Responses\_BaseResponseInterface;
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Http\JsonResponse;
@@ -77,31 +78,29 @@ abstract class _BaseController
             'trace' => $e->getTraceAsString(),
         ]);
 
-        // GameExceptionの場合はerror_codeとmessageを返す
+        // GameExceptionの場合はHTTP 299のビジネスロジックエラー
         if ($e instanceof GameException) {
-            $responseData = $e->toArray();
+            $errorResponse = ErrorResponse::businessError(
+                errorCode: $e->getErrorCode(),
+                message: $e->getMessage()
+            );
 
-            // 本番環境ではメッセージを隠す
-            if (config('app.env') === 'production') {
-                $responseData['message'] = 'An error occurred. Please contact support.';
-            }
-
-            // HTTP 299 + error_codeで返す
-            // 299: ビジネスロジックエラーを示す独自ステータスコード
-            return response()->json($responseData, 299);
+            // 本番環境ではメッセージをマスク
+            return $errorResponse->maskForProduction()->toJsonResponse();
         }
 
-        // その他の例外も同じ形式で返す（統一性のため）
-        $code = $this->determineStatusCode($e);
+        // その他の例外はシステムエラーとして扱う
+        $httpStatus = $this->determineStatusCode($e);
+        $errorCode = $e->getCode() ?: InfraErrorCode::UNKNOWN_ERROR;
 
-        $responseData = [
-            'error_code' => $e->getCode() ?: InfraErrorCode::UNKNOWN_ERROR,
-            'message' => config('app.env') === 'production'
-                ? 'An error occurred. Please contact support.'
-                : $e->getMessage(),
-        ];
+        $errorResponse = ErrorResponse::withStatus(
+            errorCode: $errorCode,
+            message: $e->getMessage(),
+            httpStatus: $httpStatus
+        );
 
-        return response()->json($responseData, $code);
+        // 本番環境ではメッセージをマスク
+        return $errorResponse->maskForProduction()->toJsonResponse();
     }
 
     /**

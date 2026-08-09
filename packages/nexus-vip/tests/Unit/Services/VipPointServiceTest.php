@@ -3,6 +3,7 @@
 namespace NexusVip\Tests\Unit\Services;
 
 use NexusVip\DTOs\PlayerVipDto;
+use NexusVip\DTOs\VipConfigDto;
 use NexusVip\Events\VipLevelUpEvent;
 use NexusVip\Exceptions\InvalidVipPointException;
 use NexusVip\Models\MstVipLevel;
@@ -12,7 +13,6 @@ use NexusVip\Services\VipLevelService;
 use NexusVip\Services\VipPointService;
 use NexusVip\Services\VipRewardService;
 use PHPUnit\Framework\TestCase;
-use Illuminate\Support\Facades\Event;
 use Mockery;
 
 /**
@@ -24,6 +24,7 @@ class VipPointServiceTest extends TestCase
     private VipPointLogRepositoryInterface $vipPointLogRepository;
     private VipLevelService $vipLevelService;
     private VipRewardService $vipRewardService;
+    private VipConfigDto $config;
     private VipPointService $service;
 
     protected function setUp(): void
@@ -34,17 +35,24 @@ class VipPointServiceTest extends TestCase
         $this->vipPointLogRepository = Mockery::mock(VipPointLogRepositoryInterface::class);
         $this->vipLevelService = Mockery::mock(VipLevelService::class);
         $this->vipRewardService = Mockery::mock(VipRewardService::class);
+        
+        // テスト用設定（ログ・イベント無効）
+        $this->config = new VipConfigDto(
+            enablePointLog: false,
+            enableLevelUpEvent: false,
+            staminaBonusEnabled: true,
+            shopDiscountEnabled: true,
+            gachaDiscountEnabled: true,
+            dailyDiamondEnabled: true,
+        );
 
         $this->service = new VipPointService(
             $this->playerVipRepository,
             $this->vipPointLogRepository,
             $this->vipLevelService,
-            $this->vipRewardService
+            $this->vipRewardService,
+            $this->config
         );
-
-        // config mock
-        config(['vip.enable_point_log' => false]);
-        config(['vip.enable_level_up_event' => false]);
     }
 
     protected function tearDown(): void

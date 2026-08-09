@@ -3,6 +3,7 @@
 namespace NexusVip\Tests\Unit\Services;
 
 use NexusVip\DTOs\VipBenefitDto;
+use NexusVip\DTOs\VipConfigDto;
 use NexusVip\Services\VipBenefitService;
 use NexusVip\Services\VipLevelService;
 use PHPUnit\Framework\TestCase;
@@ -14,6 +15,7 @@ use Mockery;
 class VipBenefitServiceTest extends TestCase
 {
     private VipLevelService $vipLevelService;
+    private VipConfigDto $config;
     private VipBenefitService $service;
 
     protected function setUp(): void
@@ -21,13 +23,18 @@ class VipBenefitServiceTest extends TestCase
         parent::setUp();
 
         $this->vipLevelService = Mockery::mock(VipLevelService::class);
-        $this->service = new VipBenefitService($this->vipLevelService);
-
-        // config mock
-        config(['vip.benefits_enabled.stamina_bonus' => true]);
-        config(['vip.benefits_enabled.shop_discount' => true]);
-        config(['vip.benefits_enabled.gacha_discount' => true]);
-        config(['vip.benefits_enabled.daily_diamond' => true]);
+        
+        // テスト用設定（全特典有効）
+        $this->config = new VipConfigDto(
+            enablePointLog: true,
+            enableLevelUpEvent: true,
+            staminaBonusEnabled: true,
+            shopDiscountEnabled: true,
+            gachaDiscountEnabled: true,
+            dailyDiamondEnabled: true,
+        );
+        
+        $this->service = new VipBenefitService($this->vipLevelService, $this->config);
     }
 
     protected function tearDown(): void
@@ -73,12 +80,21 @@ class VipBenefitServiceTest extends TestCase
     public function スタミナボーナスが無効の場合は基本値を返す(): void
     {
         // Arrange
-        config(['vip.benefits_enabled.stamina_bonus' => false]);
+        $configDisabled = new VipConfigDto(
+            enablePointLog: true,
+            enableLevelUpEvent: true,
+            staminaBonusEnabled: false,
+            shopDiscountEnabled: true,
+            gachaDiscountEnabled: true,
+            dailyDiamondEnabled: true,
+        );
+        $serviceDisabled = new VipBenefitService($this->vipLevelService, $configDisabled);
+        
         $baseMaxStamina = 100;
         $vipLevel = 5;
 
         // Act
-        $result = $this->service->applyStaminaBonus($baseMaxStamina, $vipLevel);
+        $result = $serviceDisabled->applyStaminaBonus($baseMaxStamina, $vipLevel);
 
         // Assert
         $this->assertSame(100, $result);
@@ -151,12 +167,21 @@ class VipBenefitServiceTest extends TestCase
     public function ショップ割引が無効の場合は基本価格を返す(): void
     {
         // Arrange
-        config(['vip.benefits_enabled.shop_discount' => false]);
+        $configDisabled = new VipConfigDto(
+            enablePointLog: true,
+            enableLevelUpEvent: true,
+            staminaBonusEnabled: true,
+            shopDiscountEnabled: false,
+            gachaDiscountEnabled: true,
+            dailyDiamondEnabled: true,
+        );
+        $serviceDisabled = new VipBenefitService($this->vipLevelService, $configDisabled);
+        
         $basePrice = 1000;
         $vipLevel = 5;
 
         // Act
-        $result = $this->service->applyShopDiscount($basePrice, $vipLevel);
+        $result = $serviceDisabled->applyShopDiscount($basePrice, $vipLevel);
 
         // Assert
         $this->assertSame(1000, $result);
@@ -229,12 +254,21 @@ class VipBenefitServiceTest extends TestCase
     public function ガチャ割引が無効の場合は基本価格を返す(): void
     {
         // Arrange
-        config(['vip.benefits_enabled.gacha_discount' => false]);
+        $configDisabled = new VipConfigDto(
+            enablePointLog: true,
+            enableLevelUpEvent: true,
+            staminaBonusEnabled: true,
+            shopDiscountEnabled: true,
+            gachaDiscountEnabled: false,
+            dailyDiamondEnabled: true,
+        );
+        $serviceDisabled = new VipBenefitService($this->vipLevelService, $configDisabled);
+        
         $basePrice = 300;
         $vipLevel = 5;
 
         // Act
-        $result = $this->service->applyGachaDiscount($basePrice, $vipLevel);
+        $result = $serviceDisabled->applyGachaDiscount($basePrice, $vipLevel);
 
         // Assert
         $this->assertSame(300, $result);
@@ -276,11 +310,20 @@ class VipBenefitServiceTest extends TestCase
     public function デイリーダイヤモンドが無効の場合は0を返す(): void
     {
         // Arrange
-        config(['vip.benefits_enabled.daily_diamond' => false]);
+        $configDisabled = new VipConfigDto(
+            enablePointLog: true,
+            enableLevelUpEvent: true,
+            staminaBonusEnabled: true,
+            shopDiscountEnabled: true,
+            gachaDiscountEnabled: true,
+            dailyDiamondEnabled: false,
+        );
+        $serviceDisabled = new VipBenefitService($this->vipLevelService, $configDisabled);
+        
         $vipLevel = 5;
 
         // Act
-        $result = $this->service->getDailyDiamondBonus($vipLevel);
+        $result = $serviceDisabled->getDailyDiamondBonus($vipLevel);
 
         // Assert
         $this->assertSame(0, $result);

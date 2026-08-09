@@ -4,13 +4,16 @@ namespace NexusVip;
 
 use Illuminate\Support\ServiceProvider;
 use NexusVip\Contracts\CurrencyConverterInterface;
+use NexusVip\DTOs\VipConfigDto;
 use NexusVip\Repositories\PlayerVipRepositoryInterface;
 use NexusVip\Repositories\VipLevelRepositoryInterface;
+use NexusVip\Repositories\VipLevelRewardRepositoryInterface;
 use NexusVip\Repositories\VipPointLogRepositoryInterface;
 use NexusVip\Services\CurrencyConverter;
 use NexusVip\Services\VipBenefitService;
 use NexusVip\Services\VipLevelService;
 use NexusVip\Services\VipPointService;
+use NexusVip\Services\VipRewardService;
 
 /**
  * VIPシステムサービスプロバイダー
@@ -28,6 +31,11 @@ class VipServiceProvider extends ServiceProvider
             'vip'
         );
 
+        // VIP設定DTOをシングルトンとして登録
+        $this->app->singleton(VipConfigDto::class, function ($app) {
+            return VipConfigDto::fromConfig();
+        });
+
         // インターフェースと実装のバインド
         // Note: Repository実装クラスは api/app/Repositories に配置されるため、
         // ここではインターフェースのみ定義し、実装は AppServiceProvider でバインドする
@@ -42,20 +50,29 @@ class VipServiceProvider extends ServiceProvider
             );
         });
         
+        // VIP報酬サービス
+        $this->app->singleton(VipRewardService::class, function ($app) {
+            return new VipRewardService(
+                $app->make(VipLevelRewardRepositoryInterface::class)
+            );
+        });
+        
         // VIPポイントサービス
         $this->app->singleton(VipPointService::class, function ($app) {
             return new VipPointService(
                 $app->make(PlayerVipRepositoryInterface::class),
                 $app->make(VipPointLogRepositoryInterface::class),
                 $app->make(VipLevelService::class),
-                $app->make(CurrencyConverterInterface::class)
+                $app->make(VipRewardService::class),
+                $app->make(VipConfigDto::class)
             );
         });
         
         // VIP特典サービス
         $this->app->singleton(VipBenefitService::class, function ($app) {
             return new VipBenefitService(
-                $app->make(VipLevelService::class)
+                $app->make(VipLevelService::class),
+                $app->make(VipConfigDto::class)
             );
         });
     }

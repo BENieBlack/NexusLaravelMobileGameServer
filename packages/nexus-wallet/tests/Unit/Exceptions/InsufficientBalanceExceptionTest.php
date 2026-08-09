@@ -3,6 +3,7 @@
 namespace LaravelWallet\Tests\Unit\Exceptions;
 
 use LaravelWallet\Exceptions\InsufficientBalanceException;
+use LaravelWallet\Exceptions\WalletErrorCode;
 use LaravelWallet\Exceptions\WalletException;
 use PHPUnit\Framework\TestCase;
 
@@ -26,9 +27,9 @@ class InsufficientBalanceExceptionTest extends TestCase
     public function test_exception_code_and_previous()
     {
         $previous = new \Exception('Previous exception');
-        $exception = new InsufficientBalanceException('event_coin', 2000, 1500, 1001, $previous);
+        $exception = new InsufficientBalanceException('event_coin', 2000, 1500, $previous);
 
-        $this->assertSame(1001, $exception->getCode());
+        $this->assertSame(WalletErrorCode::INSUFFICIENT_BALANCE, $exception->getCode());
         $this->assertSame($previous, $exception->getPrevious());
     }
 }

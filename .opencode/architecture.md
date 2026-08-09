@@ -2349,6 +2349,192 @@ class UnitLevelService
 
 ---
 
+## エラーコード体系
+
+### 基本設計
+
+このプロジェクトでは、**エラーの性質に応じて異なる桁数のエラーコード**を使用します：
+
+| レイヤー | 桁数 | 範囲 | 説明 |
+|---------|-----|------|------|
+| **インフラ/汎用エラー** | **3桁以下** | 1-999 | データベース、Redis、暗号化等のインフラレベルエラー |
+| **パッケージ層** | **4桁** | 1000-9999 | 再利用可能なビジネスロジック（nexus-wallet, nexus-vip等） |
+| **アプリケーション層** | **5桁** | 10000-99999 | アプリケーション固有のビジネスロジック |
+
+### インフラ/汎用エラーコード（3桁以下: 1-999）
+
+インフラストラクチャ層やフレームワーク層のエラー：
+
+| カテゴリ | コード範囲 | 例 |
+|---------|----------|---|
+| データベースエラー | 100-199 | 101: DB_CONNECTION_FAILED<br>102: DB_QUERY_ERROR<br>103: DUPLICATE_ENTRY<br>104: FOREIGN_KEY_CONSTRAINT |
+| キャッシュ/Redisエラー | 200-299 | 201: REDIS_CONNECTION_FAILED<br>202: REDIS_TIMEOUT<br>203: CACHE_WRITE_FAILED |
+| 暗号化/セキュリティエラー | 300-399 | 301: ENCRYPTION_FAILED<br>302: DECRYPTION_FAILED<br>303: HASH_VERIFICATION_FAILED<br>304: TOKEN_EXPIRED |
+| データ整合性エラー | 400-499 | 401: MASTER_DATA_NOT_FOUND<br>402: PLAYER_DATA_NOT_FOUND<br>403: DATA_CORRUPTED<br>404: CONSTRAINT_VIOLATION |
+| タイムアウトエラー | 500-599 | 501: REQUEST_TIMEOUT<br>502: DATABASE_TIMEOUT<br>503: EXTERNAL_API_TIMEOUT |
+| 設定/環境エラー | 600-699 | 601: CONFIGURATION_ERROR<br>602: ENVIRONMENT_VARIABLE_MISSING<br>603: FEATURE_DISABLED |
+| 汎用システムエラー | 700-999 | 701: FILE_NOT_FOUND<br>702: PERMISSION_DENIED<br>999: UNKNOWN_ERROR |
+
+### パッケージ層エラーコード（4桁: 1000-9999）
+
+パッケージごとに100単位で割り当て：
+
+| パッケージ | コード範囲 | 例 |
+|-----------|----------|---|
+| nexus-wallet | 1000-1099 | 1001: INSUFFICIENT_BALANCE<br>1002: INVALID_CURRENCY<br>1003: WALLET_NOT_FOUND |
+| nexus-stamina | 1100-1199 | 1101: STAMINA_NOT_ENOUGH<br>1102: STAMINA_OVERFLOW<br>1103: INVALID_RECOVERY_ITEM |
+| nexus-vip | 1200-1299 | 1201: INVALID_VIP_LEVEL<br>1202: VIP_POINT_INSUFFICIENT |
+| nexus-friend | 1300-1399 | 1301: FRIEND_ALREADY_EXISTS<br>1302: FRIEND_LIMIT_EXCEEDED<br>1303: FRIEND_REQUEST_NOT_FOUND |
+| nexus-guild | 1400-1499 | 1401: GUILD_FULL<br>1402: GUILD_NOT_FOUND<br>1403: PERMISSION_DENIED |
+| nexus-mailbox | 1500-1599 | 1501: MAILBOX_NOT_FOUND<br>1502: MAILBOX_ALREADY_RECEIVED<br>1503: MAILBOX_EXPIRED |
+| nexus-gacha | 1600-1699 | 1601: GACHA_INACTIVE<br>1602: GACHA_LIMIT_EXCEEDED<br>1603: NO_PRIZES_AVAILABLE |
+| nexus-login | 1700-1799 | 1701: LOGIN_BONUS_ALREADY_CLAIMED<br>1702: LOGIN_BONUS_NOT_AVAILABLE |
+| nexus-level | 1800-1899 | 1801: MAX_LEVEL_REACHED<br>1802: INSUFFICIENT_EXP |
+| nexus-resource | 1900-1999 | 1901: ITEM_NOT_FOUND<br>1902: ITEM_LIMIT_EXCEEDED |
+| nexus-billing | 2000-2099 | 2001: RECEIPT_VERIFICATION_FAILED<br>2002: DUPLICATE_PURCHASE<br>2003: INVALID_RECEIPT |
+| （予約） | 2100-8999 | 将来のパッケージ用 |
+| 共通パッケージエラー | 9000-9999 | 9001: INVALID_PARAMETER<br>9002: VALIDATION_FAILED |
+
+### アプリケーション層エラーコード（5桁: 10000-99999）
+
+機能ドメインごとに1000単位で割り当て：
+
+| ドメイン | コード範囲 | 例 |
+|---------|----------|---|
+| 認証 (Auth) | 10000-10999 | 10001: AUTHENTICATION_FAILED<br>10002: INVALID_TOKEN<br>10003: DEVICE_ALREADY_EXISTS |
+| プレイヤー (Player) | 11000-11999 | 11001: PLAYER_NAME_INVALID<br>11002: PLAYER_LEVEL_MAX_REACHED |
+| ユニット (Unit) | 12000-12999 | 12001: UNIT_NOT_FOUND<br>12002: UNIT_MAX_LEVEL_REACHED<br>12003: UNIT_EVOLUTION_FAILED |
+| 装備 (Equipment) | 13000-13999 | 13001: EQUIPMENT_NOT_FOUND<br>13002: EQUIPMENT_ENHANCE_FAILED |
+| クエスト (Quest) | 14000-14999 | 14001: QUEST_NOT_AVAILABLE<br>14002: QUEST_ALREADY_COMPLETED |
+| バトル (Battle) | 15000-15999 | 15001: PARTY_FORMATION_INVALID<br>15002: BATTLE_RESULT_INVALID |
+| アプリ内課金 (IAP) | 16000-16999 | 16001: PRODUCT_NOT_FOUND<br>16002: PURCHASE_LIMIT_EXCEEDED |
+| フレンド (Friend) | 17000-17999 | 17001: FRIEND_REQUEST_ALREADY_EXISTS<br>17002: CANNOT_SEND_TO_SELF |
+| ギルド (Guild) | 18000-18999 | 18001: GUILD_NAME_ALREADY_EXISTS<br>18002: PLAYER_ALREADY_IN_GUILD |
+| ガチャ (Gacha) | 19000-19999 | 19001: GACHA_COST_NOT_FOUND<br>19002: GACHA_STEP_NOT_FOUND |
+| メールボックス (Mailbox) | 20000-20999 | 20001: MAILBOX_ATTACHMENT_LIMIT_EXCEEDED |
+| （予約） | 21000-98999 | 将来の機能用 |
+| アプリケーション汎用エラー | 99000-99999 | 99999: INTERNAL_ERROR |
+
+
+### 例外クラスとエラーコードの関係
+
+#### パッケージ層（4桁）
+
+```php
+// packages/nexus-wallet/src/Exceptions/InsufficientBalanceException.php
+namespace LaravelWallet\Exceptions;
+
+class InsufficientBalanceException extends WalletException
+{
+    // パッケージ層は4桁のエラーコード
+    public const ERROR_CODE = 1001;
+    
+    public function __construct(
+        string $currencyId,
+        int $required,
+        int $available,
+        ?\Throwable $previous = null
+    ) {
+        $message = "Insufficient balance for currency '{$currencyId}': required {$required}, available {$available}";
+        parent::__construct($message, self::ERROR_CODE, $previous);
+    }
+}
+```
+
+#### アプリケーション層（5桁）
+
+```php
+// api/app/Exceptions/GameException.php
+namespace App\Exceptions;
+
+class GameException extends Exception
+{
+    public function __construct(
+        int $errorCode,      // 5桁のアプリケーション層エラーコード
+        string $message,
+        ?\Throwable $previous = null
+    ) {
+        parent::__construct($message, $errorCode, $previous);
+    }
+}
+
+// api/app/Exceptions/GameErrorCode.php
+class GameErrorCode
+{
+    // 認証関連（10000-10999）
+    const AUTHENTICATION_FAILED = 10001;
+    const PLAYER_NOT_FOUND = 10002;
+    const INVALID_TOKEN = 10003;
+    
+    // プレイヤー関連（11000-11999）
+    const PLAYER_DATA_CORRUPTED = 11001;
+    const PLAYER_NAME_INVALID = 11002;
+    
+    // システムエラー（99000-99999）
+    const INTERNAL_ERROR = 99999;
+}
+```
+
+### エラーハンドリングの流れ
+
+#### パッケージ例外をアプリケーション層で変換
+
+```php
+// UseCase内でパッケージ例外をキャッチして変換
+class ItemConsumeUseCase
+{
+    public function execute(string $itemId, int $amount): void
+    {
+        try {
+            // パッケージ層のService呼び出し
+            $this->walletService->consume($itemId, $amount);
+        } catch (InsufficientBalanceException $e) {
+            // 4桁のパッケージエラーをそのまま使用するか、
+            // 5桁のアプリケーションエラーにマッピング
+            throw new GameException(
+                GameErrorCode::ITEM_NOT_ENOUGH,  // 5桁
+                "アイテムが不足しています: {$itemId}",
+                $e
+            );
+        }
+    }
+}
+```
+
+#### レスポンス例
+
+```json
+// パッケージ層エラー（4桁）
+HTTP/1.1 299
+{
+  "error_code": 1001,
+  "message": "Insufficient balance for currency 'gold': required 1000, available 500"
+}
+
+// アプリケーション層エラー（5桁）
+HTTP/1.1 299
+{
+  "error_code": 10002,
+  "message": "プレイヤーが見つかりません"
+}
+
+// システムエラー（5桁）
+HTTP/1.1 500
+{
+  "error_code": 99999,
+  "message": "Internal server error"
+}
+```
+
+### 設計方針
+
+1. **パッケージ層は再利用可能** - 4桁コードで他プロジェクトでも使えるよう汎用的に
+2. **アプリケーション層は固有** - 5桁コードでこのゲーム固有のビジネスルールを表現
+3. **桁数で即座に判別可能** - コードを見ただけでパッケージ/アプリケーションを識別
+4. **拡張性** - 各範囲に十分な余裕を持たせ、将来の追加に対応
+
+---
+
 ## 関連ドキュメント
 
 - [コーディング規約](./coding-standards.md) - 各層の実装ルール

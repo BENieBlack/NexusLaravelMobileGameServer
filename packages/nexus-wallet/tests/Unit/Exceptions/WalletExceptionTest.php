@@ -2,6 +2,7 @@
 
 namespace LaravelWallet\Tests\Unit\Exceptions;
 
+use LaravelWallet\Exceptions\WalletErrorCode;
 use LaravelWallet\Exceptions\WalletException;
 use PHPUnit\Framework\TestCase;
 
@@ -12,6 +13,7 @@ class WalletExceptionTest extends TestCase
         $exception = new WalletException();
 
         $this->assertSame("Wallet operation failed", $exception->getMessage());
+        $this->assertSame(WalletErrorCode::WALLET_NOT_FOUND, $exception->getCode());
     }
 
     public function test_custom_message()

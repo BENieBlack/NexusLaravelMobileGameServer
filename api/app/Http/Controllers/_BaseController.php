@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
+use App\Exceptions\InfraErrorCode;
 use App\Responses\_BaseResponseInterface;
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Http\JsonResponse;
@@ -93,7 +95,7 @@ abstract class _BaseController
         $code = $this->determineStatusCode($e);
 
         $responseData = [
-            'error_code' => $e->getCode() ?: 19999, // デフォルトはINTERNAL_ERROR
+            'error_code' => $e->getCode() ?: InfraErrorCode::UNKNOWN_ERROR,
             'message' => config('app.env') === 'production'
                 ? 'An error occurred. Please contact support.'
                 : $e->getMessage(),

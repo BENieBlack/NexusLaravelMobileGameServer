@@ -39,7 +39,7 @@ class TrxMigrateCommand extends Command
         $trxConnections = ShardMapper::getAllTrxConnections();
         
         $this->info('Running TrxDB migrations on all shards...');
-        $this->info('This includes migrations from: api/database/migrations/trx, nexus-player, nexus-resource, nexus-wallet, nexus-stamina, nexus-core-billing');
+        $this->info('This includes migrations from packages: nexus-player, nexus-resource, nexus-wallet, nexus-stamina, nexus-core-billing, nexus-mailbox, nexus-gacha, nexus-login, nexus-vip');
         $this->newLine();
         
         foreach ($trxConnections as $trxConnection) {

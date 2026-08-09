@@ -116,94 +116,56 @@ return [
         // ========================================
         // DB_TRX_SHARDS環境変数でシャード数を指定（デフォルト: 2）
         // 例: DB_TRX_SHARDS=4 の場合、trx1, trx2, trx3, trx4 を生成
-        ...array_merge(
-            // 後方互換用: trx接続（trx1を参照）
-            [
-                'trx' => [
+        ...(function() {
+            $shardCount = (int) env('DB_TRX_SHARDS', 2);
+            $connections = [];
+            
+            for ($i = 1; $i <= $shardCount; $i++) {
+                $connections["trx{$i}"] = [
                     'driver' => 'mysql',
-                    'host' => env('DB_TRX1_HOST', 'db-trx1'),
-                    'port' => env('DB_TRX1_PORT', '3306'),
-                    'database' => env('DB_TRX1_DATABASE') ?: env('APP_NAME', 'laravel') . '-' . env('APP_ENV', 'local') . '-trx1',
-                    'username' => env('DB_TRX1_USERNAME', 'root'),
-                    'password' => env('DB_TRX1_PASSWORD', 'root'),
+                    'host' => env("DB_TRX{$i}_HOST", "db-trx{$i}"),
+                    'port' => env("DB_TRX{$i}_PORT", '3306'),
+                    'database' => env("DB_TRX{$i}_DATABASE") ?: env('APP_NAME', 'laravel') . '-' . env('APP_ENV', 'local') . "-trx{$i}",
+                    'username' => env("DB_TRX{$i}_USERNAME", 'root'),
+                    'password' => env("DB_TRX{$i}_PASSWORD", 'root'),
                     'charset' => 'utf8mb4',
                     'collation' => 'utf8mb4_unicode_ci',
                     'prefix' => '',
                     'strict' => true,
                     'engine' => null,
-                ],
-            ],
-            // 動的生成: trx1, trx2, ...
-            (function() {
-                $shardCount = (int) env('DB_TRX_SHARDS', 2);
-                $connections = [];
-                
-                for ($i = 1; $i <= $shardCount; $i++) {
-                    $connections["trx{$i}"] = [
-                        'driver' => 'mysql',
-                        'host' => env("DB_TRX{$i}_HOST", "db-trx{$i}"),
-                        'port' => env("DB_TRX{$i}_PORT", '3306'),
-                        'database' => env("DB_TRX{$i}_DATABASE") ?: env('APP_NAME', 'laravel') . '-' . env('APP_ENV', 'local') . "-trx{$i}",
-                        'username' => env("DB_TRX{$i}_USERNAME", 'root'),
-                        'password' => env("DB_TRX{$i}_PASSWORD", 'root'),
-                        'charset' => 'utf8mb4',
-                        'collation' => 'utf8mb4_unicode_ci',
-                        'prefix' => '',
-                        'strict' => true,
-                        'engine' => null,
-                    ];
-                }
-                
-                return $connections;
-            })()
-        ),
+                ];
+            }
+            
+            return $connections;
+        })(),
 
         // ========================================
         // 動的シャーディング: LogDB
         // ========================================
         // TrxDBと1:1対応でLogDBシャードを生成
         // DB_TRX_SHARDS=2 の場合、log1, log2 を生成
-        ...array_merge(
-            // 後方互換用: log接続（単一LogDB）
-            [
-                'log' => [
+        ...(function() {
+            $shardCount = (int) env('DB_TRX_SHARDS', 2);
+            $connections = [];
+            
+            for ($i = 1; $i <= $shardCount; $i++) {
+                $connections["log{$i}"] = [
                     'driver' => 'mysql',
-                    'host' => env('DB_LOG_HOST', '127.0.0.1'),
-                    'port' => env('DB_LOG_PORT', '33063'),
-                    'database' => env('DB_LOG_DATABASE') ?: env('APP_NAME', 'laravel') . '-' . env('APP_ENV', 'local') . '-log',
-                    'username' => env('DB_LOG_USERNAME', 'root'),
-                    'password' => env('DB_LOG_PASSWORD', ''),
+                    'host' => env("DB_LOG{$i}_HOST", "db-log{$i}"),
+                    'port' => env("DB_LOG{$i}_PORT", '3306'),
+                    'database' => env("DB_LOG{$i}_DATABASE") ?: env('APP_NAME', 'laravel') . '-' . env('APP_ENV', 'local') . "-log{$i}",
+                    'username' => env("DB_LOG{$i}_USERNAME", 'root'),
+                    'password' => env("DB_LOG{$i}_PASSWORD", 'root'),
                     'charset' => 'utf8mb4',
                     'collation' => 'utf8mb4_unicode_ci',
                     'prefix' => '',
                     'strict' => true,
                     'engine' => null,
-                ],
-            ],
-            // 動的生成: log1, log2, ...
-            (function() {
-                $shardCount = (int) env('DB_TRX_SHARDS', 2);
-                $connections = [];
-                
-                for ($i = 1; $i <= $shardCount; $i++) {
-                    $connections["log{$i}"] = [
-                        'driver' => 'mysql',
-                        'host' => env("DB_LOG{$i}_HOST", "db-log{$i}"),
-                        'port' => env("DB_LOG{$i}_PORT", '3306'),
-                        'database' => env("DB_LOG{$i}_DATABASE") ?: env('APP_NAME', 'laravel') . '-' . env('APP_ENV', 'local') . "-log{$i}",
-                        'username' => env("DB_LOG{$i}_USERNAME", 'root'),
-                        'password' => env("DB_LOG{$i}_PASSWORD", 'root'),
-                        'charset' => 'utf8mb4',
-                        'collation' => 'utf8mb4_unicode_ci',
-                        'prefix' => '',
-                        'strict' => true,
-                        'engine' => null,
-                    ];
-                }
-                
-                return $connections;
-            })()
-        ),
+                ];
+            }
+            
+            return $connections;
+        })(),
 
         // システムDB接続
         'sys' => [

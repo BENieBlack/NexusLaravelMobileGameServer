@@ -23,8 +23,8 @@ return new class extends Migration
             $table->string('mst_in_app_purchase_id')->comment('課金商品マスターID');
             $table->enum('operation_type', ['insert', 'update', 'delete'])->comment('操作タイプ');
             
-            $table->json('old_data')->nullable()->comment('変更前データ');
-            $table->json('new_data')->nullable()->comment('変更後データ');
+            $table->json('before_data')->nullable()->comment('変更前データ');
+            $table->json('after_data')->nullable()->comment('変更後データ');
             $table->json('changed_columns')->nullable()->comment('変更カラムリスト');
             
             $table->string('transaction_id', 255)->nullable()->comment('プラットフォームトランザクションID');
@@ -57,8 +57,8 @@ return new class extends Migration
             $table->unsignedBigInteger('effect_id')->nullable()->comment('エフェクトID');
             $table->enum('operation_type', ['insert', 'update', 'delete'])->comment('操作タイプ');
             
-            $table->json('old_data')->nullable()->comment('変更前データ');
-            $table->json('new_data')->nullable()->comment('変更後データ');
+            $table->json('before_data')->nullable()->comment('変更前データ');
+            $table->json('after_data')->nullable()->comment('変更後データ');
             $table->json('changed_columns')->nullable()->comment('変更カラムリスト');
             
             $table->enum('effect_type', ['IdleRewardMultiplier', 'AdSkip', 'ExpBoost', 'GoldBoost', 'DailyMissionBonus'])->nullable()->comment('効果タイプ');
@@ -91,8 +91,8 @@ return new class extends Migration
             $table->string('platform')->comment('プラットフォーム (Apple, Google)');
             $table->enum('operation_type', ['insert', 'update', 'delete'])->comment('操作タイプ');
             
-            $table->json('old_data')->nullable()->comment('変更前データ');
-            $table->json('new_data')->nullable()->comment('変更後データ');
+            $table->json('before_data')->nullable()->comment('変更前データ');
+            $table->json('after_data')->nullable()->comment('変更後データ');
             $table->json('changed_columns')->nullable()->comment('変更カラムリスト');
             
             $table->integer('paid_amount_diff')->nullable()->comment('有償ダイヤ増減量');
@@ -128,8 +128,8 @@ return new class extends Migration
             $table->string('platform')->comment('プラットフォーム');
             $table->enum('operation_type', ['insert', 'update', 'delete'])->comment('操作タイプ');
             
-            $table->json('old_data')->nullable()->comment('変更前データ');
-            $table->json('new_data')->nullable()->comment('変更後データ');
+            $table->json('before_data')->nullable()->comment('変更前データ');
+            $table->json('after_data')->nullable()->comment('変更後データ');
             $table->json('changed_columns')->nullable()->comment('変更カラムリスト');
             
             $table->integer('amount_diff')->nullable()->comment('残高増減量');

@@ -26,8 +26,8 @@ return new class extends Migration
             $table->enum('operation_type', ['insert', 'update', 'delete'])->comment('操作タイプ');
             
             // State Data
-            $table->json('old_data')->nullable()->comment('変更前データ (is_delete)');
-            $table->json('new_data')->nullable()->comment('変更後データ (is_delete)');
+            $table->json('before_data')->nullable()->comment('変更前データ (is_delete)');
+            $table->json('after_data')->nullable()->comment('変更後データ (is_delete)');
             $table->json('changed_columns')->nullable()->comment('変更カラムリスト');
             
             // Business Context
@@ -58,8 +58,8 @@ return new class extends Migration
             $table->enum('operation_type', ['insert', 'update', 'delete'])->comment('操作タイプ');
             
             // State Data
-            $table->json('old_data')->nullable()->comment('変更前データ (sns_type, sns_user_id, is_delete)');
-            $table->json('new_data')->nullable()->comment('変更後データ');
+            $table->json('before_data')->nullable()->comment('変更前データ (sns_type, sns_user_id, is_delete)');
+            $table->json('after_data')->nullable()->comment('変更後データ');
             $table->json('changed_columns')->nullable()->comment('変更カラムリスト');
             
             // Business Context

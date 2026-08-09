@@ -23,8 +23,8 @@ return new class extends Migration
             $table->string('mst_unit_id')->nullable()->comment('マスターユニットID');
             $table->enum('operation_type', ['insert', 'update', 'delete'])->comment('操作タイプ');
             
-            $table->json('old_data')->nullable()->comment('変更前データ');
-            $table->json('new_data')->nullable()->comment('変更後データ');
+            $table->json('before_data')->nullable()->comment('変更前データ');
+            $table->json('after_data')->nullable()->comment('変更後データ');
             $table->json('changed_columns')->nullable()->comment('変更カラムリスト');
             
             $table->string('reason', 100)->nullable()->comment('変更理由 (gacha, quest_reward, level_up, grade_up, exchange, present, delete)');
@@ -54,8 +54,8 @@ return new class extends Migration
             $table->string('mst_equipment_id')->nullable()->comment('マスター装備ID');
             $table->enum('operation_type', ['insert', 'update', 'delete'])->comment('操作タイプ');
             
-            $table->json('old_data')->nullable()->comment('変更前データ');
-            $table->json('new_data')->nullable()->comment('変更後データ');
+            $table->json('before_data')->nullable()->comment('変更前データ');
+            $table->json('after_data')->nullable()->comment('変更後データ');
             $table->json('changed_columns')->nullable()->comment('変更カラムリスト');
             
             $table->string('reason', 100)->nullable()->comment('変更理由 (gacha, quest_reward, level_up, grade_up, craft, exchange, present, delete)');
@@ -84,8 +84,8 @@ return new class extends Migration
             $table->string('mst_item_id')->comment('マスターアイテムID');
             $table->enum('operation_type', ['insert', 'update', 'delete'])->comment('操作タイプ');
             
-            $table->json('old_data')->nullable()->comment('変更前データ');
-            $table->json('new_data')->nullable()->comment('変更後データ');
+            $table->json('before_data')->nullable()->comment('変更前データ');
+            $table->json('after_data')->nullable()->comment('変更後データ');
             $table->json('changed_columns')->nullable()->comment('変更カラムリスト');
             
             $table->integer('free_amount_diff')->nullable()->comment('無償アイテム増減量');

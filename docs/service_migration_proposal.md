@@ -47,6 +47,15 @@
 | `WalletService` | LaravelWallet package | ✅ 完璧。Facadeパターン |
 | `GachaDrawService` | `nexus-gacha/Services/GachaDrawService` | ✅ 完璧。配列変換ラッパー |
 | `UnitLevelService` | `nexus-level/Services/_BaseLevelService` | ✅ 継承パターン、適切 |
+| `VersionService` | `nexus-version/Services/VersionService` | ✅ 完璧。Wrapperパターン適用済み |
+
+### ✅ オーケストレーション層として適切（移行不要）
+
+| Domain Service | 評価 | 理由 |
+|---|---|---|
+| `InAppPurchasePurchaseService` | ✅ 適切 | 複数Serviceを組み合わせたワークフロー（UseCaseに近い責務） |
+| `GachaCostService` | ✅ 適切 | DiamondService/ItemServiceへの委譲のみ（オーケストレーション） |
+| `DiamondService` (Facade) | ✅ 適切 | 後方互換性のためのFacade（内部で新Serviceに委譲） |
 
 ### 🔄 パッケージに移動すべきService
 
@@ -211,58 +220,91 @@ class ItemWriteService
 
 **後方互換性:** ✅ 既存コードは変更不要（Domain層Wrapperで維持）
 
-##### 2. InAppPurchase関連Service （残りの移行対象候補）
+---
 
-**現状:**
-- `api/app/Domain/InAppPurchase/Services/DiamondBalanceService.php`
-- `api/app/Domain/InAppPurchase/Services/InAppPurchaseService.php`
-- `api/app/Domain/InAppPurchase/Services/InAppPurchaseEffectService.php`
-- `api/app/Domain/InAppPurchase/Services/InAppPurchasePackService.php`
-- `api/app/Domain/InAppPurchase/Services/InAppPurchaseValidationService.php`
-- パッケージ: `nexus-core-billing` 存在
+## 移行完了サマリー（2026-08-10）
 
-**推奨構造:**
+### ✅ 移行完了したService
 
+| Service | パッケージ | コミット | 移行したロジック |
+|---|---|---|---|
+| ItemService系 | nexus-resource | f4fd003 | 有償優先消費、残高チェック、加算/減算 |
+| DiamondBalanceService | nexus-core-billing | f7c9c83 | 無償→有償消費、有償のみ消費、残高チェック、加算 |
+
+### 📊 移行効果
+
+**再利用性向上:**
+- パッケージ化により他プロジェクトでも利用可能
+- DTO基盤で疎結合を実現
+
+**テスタビリティ向上:**
+- パッケージ層は純粋なPHPユニットテスト可能
+- Modelに依存しないテストが可能
+
+**保守性向上:**
+- ビジネスロジックが一箇所に集約
+- 関心の分離により変更影響範囲を最小化
+
+**後方互換性:**
+- 既存コード変更不要（Domain層Wrapperで維持）
+- 段階的な移行が可能
+
+### 🎯 適用したアーキテクチャパターン
+
+**Wrapperパターン:**
 ```
-packages/nexus-core-billing/src/
-  ├── Services/
-  │   ├── DiamondBalanceService.php    # ダイヤモンド残高管理
-  │   ├── PurchaseService.php          # 購入処理
-  │   ├── PurchaseValidationService.php # 購入バリデーション
-  │   ├── PackPurchaseService.php      # パック購入
-  │   └── PassPurchaseService.php      # パス購入
-  ├── DTOs/
-  │   ├── DiamondBalanceDto.php
-  │   ├── PurchaseResultDto.php
-  │   └── PurchaseRequestDto.php
-  └── Repositories/
-      └── PurchaseRepositoryInterface.php
-
-api/app/Domain/InAppPurchase/Services/
-  └── (ラッパー、または直接パッケージServiceを使用)
+Package層（DTO） → ビジネスロジック
+Domain層（Model） → DTO ↔ Model変換 + アプリ固有機能
 ```
 
-#### 優先度：低
+**利点:**
+- Package層: 再利用可能な純粋なロジック
+- Domain層: アプリ固有の追加機能（FIFO管理等）
 
-##### 3. GachaCostService / GachaValidationService
+---
+
+## 今後の移行対象候補（優先度低）
+
+**判定結果: 現状のまま維持推奨**
+
+以下のServiceは現在適切な設計となっているため、移行不要と判断：
+
+### GachaCostService / GachaValidationService
 
 **現状:**
 - `GachaDrawService` / `GachaPrizeService` / `GachaProgressService` はすでに移行済み ✅
-- `GachaCostService` / `GachaValidationService` のみDomain層に残存
+- `GachaCostService` はDomain層に残存
 
-**推奨:**
-- 上記2つもパッケージ `nexus-gacha` に移動
+**判定:**
+- ✅ **移行不要** - オーケストレーション層として適切
+- DiamondService/ItemServiceへの委譲のみ（ビジネスロジックなし）
+- UseCaseに近い責務
 
-##### 4. VersionService
+### InAppPurchase関連Service
 
 **現状:**
-- `api/app/Domain/Version/Services/VersionService.php` - Domain層
-- `packages/nexus-version/src/Services/VersionService.php` - **すでに存在！**
+- `DiamondBalanceService` は移行完了 ✅
+- `InAppPurchasePurchaseService` はDomain層に残存
 
-**推奨:**
-- Domain側のVersionServiceをパッケージServiceのラッパーにする（StaminaServiceパターン）
+**判定:**
+- ✅ **移行不要** - オーケストレーション層として適切
+- 複数Serviceを組み合わせたワークフロー管理（UseCaseに近い責務）
+- ValidationService、DiamondBalanceService、HistoryServiceへの委譲
 
-## 移行手順（ItemServiceの例）
+### VersionService
+
+**現状:**
+- Domain層: `api/app/Domain/Version/Services/VersionService.php`
+- Package層: `packages/nexus-version/src/Services/VersionService.php`
+
+**判定:**
+- ✅ **すでに移行済み** - Wrapperパターン適用済み
+- パッケージServiceへの委譲 + Eloquent Model変換
+- 追加の作業不要
+
+---
+
+## 移行手順（参考：ItemServiceの例）
 
 ### Step 1: パッケージにServiceを作成
 

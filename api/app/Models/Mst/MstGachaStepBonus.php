@@ -44,8 +44,6 @@ class MstGachaStepBonus extends _BaseMst
         'bonus_rarity' => 'integer',
         'is_pickup_only' => 'boolean',
         'is_active' => 'boolean',
-        'created_at' => 'immutable_datetime',
-        'updated_at' => 'immutable_datetime',
     ];
 
     public $timestamps = true;

@@ -45,9 +45,6 @@ class SysGuildMember extends _BaseSys
     protected $casts = [
         'sys_guild_id' => 'integer',
         'sys_player_id' => 'integer',
-        'joined_at' => 'datetime',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
     ];
 
     /**

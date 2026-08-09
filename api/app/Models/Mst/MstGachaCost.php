@@ -38,8 +38,6 @@ class MstGachaCost extends _BaseMst
         'draw_count' => 'integer',
         'cost_amount' => 'integer',
         'is_active' => 'boolean',
-        'created_at' => 'immutable_datetime',
-        'updated_at' => 'immutable_datetime',
     ];
 
     public $timestamps = true;

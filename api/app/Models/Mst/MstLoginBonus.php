@@ -60,10 +60,6 @@ class MstLoginBonus extends _BaseMst
         'valid_days' => 'integer',
         'priority' => 'integer',
         'is_active' => 'boolean',
-        'start_at' => 'immutable_datetime',
-        'end_at' => 'immutable_datetime',
-        'created_at' => 'immutable_datetime',
-        'updated_at' => 'immutable_datetime',
     ];
 
     public $timestamps = true;

@@ -45,8 +45,6 @@ class TrxGachaHistory extends _BaseTrx
         'cost_amount' => 'integer',
         'prizes' => 'array',
         'is_delete' => 'boolean',
-        'created_at' => 'immutable_datetime',
-        'updated_at' => 'immutable_datetime',
     ];
 
     public $timestamps = true;

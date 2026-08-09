@@ -12,7 +12,6 @@ class LogGacha extends _BaseLog
         'sys_player_id' => 'integer',
         'mst_gacha_id' => 'string',
         'result' => 'array',
-        'system_at' => 'datetime',
     ];
 
     protected $fillable = [

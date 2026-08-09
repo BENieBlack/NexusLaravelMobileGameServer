@@ -80,8 +80,6 @@ class MstEquipmentLevel extends _BaseMst
         'rarity' => 'string',
         'level' => 'integer',
         'required_exp' => 'integer',
-        'created_at' => 'immutable_datetime',
-        'updated_at' => 'immutable_datetime',
     ];
 
     /**

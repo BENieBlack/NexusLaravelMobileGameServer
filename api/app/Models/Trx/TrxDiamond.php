@@ -58,8 +58,6 @@ class TrxDiamond extends _BaseTrx
         'sys_player_id' => 'integer',
         'paid_amount' => 'integer',
         'free_amount' => 'integer',
-        'created_at' => 'immutable_datetime',
-        'updated_at' => 'immutable_datetime',
     ];
 
     /**

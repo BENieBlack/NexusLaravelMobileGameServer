@@ -18,7 +18,6 @@ class LogUnit extends _BaseLog
         'after_level' => 'integer',
         'before_level_exp' => 'integer',
         'after_level_exp' => 'integer',
-        'system_at' => 'datetime',
     ];
 
     protected $fillable = [

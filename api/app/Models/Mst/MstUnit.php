@@ -33,8 +33,6 @@ class MstUnit extends _BaseMst
         'attack' => 'integer',
         'defense' => 'integer',
         'speed' => 'integer',
-        'created_at' => 'immutable_datetime',
-        'updated_at' => 'immutable_datetime',
     ];
 
     public $timestamps = true;

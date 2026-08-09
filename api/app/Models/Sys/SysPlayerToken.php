@@ -50,10 +50,6 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
      * @var array<string, string>
      */
     protected $casts = [
-        'expires_at' => 'datetime',
-        'revoked_at' => 'datetime',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
     ];
 
     /**

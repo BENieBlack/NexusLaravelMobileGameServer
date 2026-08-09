@@ -19,7 +19,6 @@ class LogInAppPurchase extends _BaseLog
         'currency_code' => 'string',
         'pay_amount' => 'decimal:2',
         'pay_string' => 'string',
-        'system_at' => 'datetime',
     ];
 
     protected $fillable = [

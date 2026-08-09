@@ -47,8 +47,6 @@ class SysShardingNode extends _BaseSys
         'is_readable' => 'boolean',
         'max_connections' => 'integer',
         'current_player_count' => 'integer',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
     ];
 
     /**

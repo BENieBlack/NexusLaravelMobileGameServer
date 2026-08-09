@@ -41,12 +41,8 @@ class MstGacha extends _BaseMst
         'deploy_key' => 'integer',
         'sort_desc' => 'integer',
         'is_active' => 'boolean',
-        'start_at' => 'immutable_datetime',
-        'end_at' => 'immutable_datetime',
         'daily_limit' => 'integer',
         'has_step_up' => 'boolean',
-        'created_at' => 'immutable_datetime',
-        'updated_at' => 'immutable_datetime',
     ];
 
     public $timestamps = true;

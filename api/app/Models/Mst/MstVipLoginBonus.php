@@ -43,10 +43,6 @@ class MstVipLoginBonus extends _BaseMst
         'vip_level' => 'integer',
         'loop_days' => 'integer',
         'is_active' => 'boolean',
-        'start_at' => 'immutable_datetime',
-        'end_at' => 'immutable_datetime',
-        'created_at' => 'immutable_datetime',
-        'updated_at' => 'immutable_datetime',
     ];
 
     /**

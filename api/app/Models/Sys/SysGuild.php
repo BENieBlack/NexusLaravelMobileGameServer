@@ -47,8 +47,6 @@ class SysGuild extends _BaseSys
         'level' => 'integer',
         'exp' => 'integer',
         'max_members' => 'integer',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
     ];
 
     /**

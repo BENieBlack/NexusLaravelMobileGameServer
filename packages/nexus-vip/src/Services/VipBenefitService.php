@@ -2,6 +2,8 @@
 
 namespace NexusVip\Services;
 
+use NexusVip\DTOs\VipConfigDto;
+
 /**
  * VIP特典サービス
  * 
@@ -13,7 +15,8 @@ namespace NexusVip\Services;
 class VipBenefitService
 {
     public function __construct(
-        protected VipLevelService $vipLevelService
+        protected VipLevelService $vipLevelService,
+        protected VipConfigDto $config,
     ) {
     }
 
@@ -26,12 +29,12 @@ class VipBenefitService
      */
     public function applyStaminaBonus(int $baseMaxStamina, int $vipLevel): int
     {
-        if (!config('vip.benefits_enabled.stamina_bonus', true)) {
+        if (!$this->config->staminaBonusEnabled) {
             return $baseMaxStamina;
         }
 
         $benefits = $this->vipLevelService->getBenefits($vipLevel);
-        return $baseMaxStamina + $benefits->maxStaminaBonus;
+        return $baseMaxStamina + $benefits->getMaxStaminaBonus();
     }
 
     /**
@@ -43,12 +46,12 @@ class VipBenefitService
      */
     public function applyShopDiscount(int $basePrice, int $vipLevel): int
     {
-        if (!config('vip.benefits_enabled.shop_discount', true)) {
+        if (!$this->config->shopDiscountEnabled) {
             return $basePrice;
         }
 
         $benefits = $this->vipLevelService->getBenefits($vipLevel);
-        $discount = $basePrice * $benefits->shopDiscountRate;
+        $discount = $basePrice * $benefits->getShopDiscountRate();
         
         // 最低価格は1
         return max(1, (int) floor($basePrice - $discount));
@@ -63,12 +66,12 @@ class VipBenefitService
      */
     public function applyGachaDiscount(int $basePrice, int $vipLevel): int
     {
-        if (!config('vip.benefits_enabled.gacha_discount', true)) {
+        if (!$this->config->gachaDiscountEnabled) {
             return $basePrice;
         }
 
         $benefits = $this->vipLevelService->getBenefits($vipLevel);
-        $discount = $basePrice * $benefits->gachaDiscountRate;
+        $discount = $basePrice * $benefits->getGachaDiscountRate();
         
         // 最低価格は1
         return max(1, (int) floor($basePrice - $discount));
@@ -82,12 +85,12 @@ class VipBenefitService
      */
     public function getDailyDiamondBonus(int $vipLevel): int
     {
-        if (!config('vip.benefits_enabled.daily_diamond', true)) {
+        if (!$this->config->dailyDiamondEnabled) {
             return 0;
         }
 
         $benefits = $this->vipLevelService->getBenefits($vipLevel);
-        return $benefits->dailyDiamondBonus;
+        return $benefits->getDailyDiamondBonus();
     }
 
     /**

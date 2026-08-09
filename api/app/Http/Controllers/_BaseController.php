@@ -53,7 +53,13 @@ abstract class _BaseController
     /**
      * 例外をハンドリングし、エラーレスポンスを返す
      *
-     * すべての例外: HTTP 200 + {error_code: int, message: string}
+     * GameException（ビジネスロジックエラー）: HTTP 299 + {error_code: int, message: string}
+     * その他の例外（システムエラー）: HTTP 500等 + {error_code: int, message: string}
+     *
+     * HTTP 299を使用する理由:
+     * - 2xx範囲だがHTTP 200（成功）と明確に区別できる
+     * - クライアント側でステータスコードで分岐可能
+     * - レスポンスボディにerror_codeを含むことでエラー種別を詳細に特定
      *
      * 本番環境では内部エラー詳細を隠し、ログに記録する
      */
@@ -78,8 +84,9 @@ abstract class _BaseController
                 $responseData['message'] = 'An error occurred. Please contact support.';
             }
 
-            // HTTP 200 + error_codeで返す（HTTP 600は廃止）
-            return response()->json($responseData, 200);
+            // HTTP 299 + error_codeで返す
+            // 299: ビジネスロジックエラーを示す独自ステータスコード
+            return response()->json($responseData, 299);
         }
 
         // その他の例外も同じ形式で返す（統一性のため）

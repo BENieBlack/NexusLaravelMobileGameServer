@@ -208,10 +208,10 @@ class AuthFlowTest extends TestCase
             'refresh_token' => str_repeat('a', 64), // 64文字の無効なトークン
         ]);
 
-        // エラーが返ることを確認（200 + error_code、422はバリデーションエラー、401は認証エラー、500は内部エラー）
+        // エラーが返ることを確認（299 = GameException、422はバリデーションエラー、401は認証エラー、500は内部エラー）
         $this->assertTrue(
-            in_array($response->status(), [200, 401, 422, 500]),
-            "Expected 200, 401, 422, or 500, got {$response->status()}"
+            in_array($response->status(), [299, 401, 422, 500]),
+            "Expected 299, 401, 422, or 500, got {$response->status()}"
         );
     }
 
@@ -252,7 +252,7 @@ class AuthFlowTest extends TestCase
             ],
         ]);
 
-        $response2->assertStatus(200); // GameExceptionは200 + error_codeを返す
+        $response2->assertStatus(299); // GameExceptionは299 + error_codeを返す
         $data2 = $response2->json();
 
         // エラーレスポンスが正しいことを確認

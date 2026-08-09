@@ -1,19 +1,24 @@
-# LogDBシャーディング設計書
+# LogDBシャーディング設計書（動的シャーディング対応版）
 
 ## 概要
 
-LogDBをTrxDBと同様にシャーディング対応し、スケーラビリティと復旧効率を向上させます。
+LogDBをTrxDBと同様に**動的シャーディング対応**し、スケーラビリティと復旧効率を向上させます。
+
+**新機能**: `DB_TRX_SHARDS`環境変数でシャード数を制御し、手動のコード変更なしでスケール可能。
 
 ## シャーディング方針
 
 ### 基本原則
 
 ```
-TrxDB : LogDB = 1 : 1 の対応関係
+TrxDB : LogDB = 1 : 1 の対応関係（動的）
 ```
 
 - **trx1** → **log1** (trx1の変更ログ専用)
 - **trx2** → **log2** (trx2の変更ログ専用)
+- **trx3** → **log3** (DB_TRX_SHARDS=3以上の場合)
+- **trx4** → **log4** (DB_TRX_SHARDS=4以上の場合)
+- ...（環境変数で自由に拡張可能）
 
 ### 利点
 
@@ -27,6 +32,9 @@ TrxDB : LogDB = 1 : 1 の対応関係
 シャード化LogDB:
   書き込み: シャード毎に分散 → 並列化可能
   読み込み: 対象シャードのみクエリ → 高速
+  
+動的シャーディング:
+  環境変数変更のみでシャード数を増減可能 → 運用柔軟性
 ```
 
 #### 2. 障害影響範囲の隔離
@@ -48,77 +56,160 @@ trx1とtrx2を同時復旧:
 
 ## DB構成
 
+### 環境変数制御
+
+```env
+# シャード数を指定（デフォルト: 2）
+DB_TRX_SHARDS=4
+```
+
+上記設定で自動的に以下が生成されます：
+- trx1, trx2, trx3, trx4（TrxDB接続）
+- log1, log2, log3, log4（LogDB接続）
+
 ### 物理構成
 
 ```
-Docker Compose:
+Docker Compose（DB_TRX_SHARDS=2の場合）:
   db-log1  (MySQL 8.4) ← trx1のログ専用
   db-log2  (MySQL 8.4) ← trx2のログ専用
   
-本番環境:
+Docker Compose（DB_TRX_SHARDS=4の場合）:
+  db-log1  (MySQL 8.4) ← trx1のログ専用
+  db-log2  (MySQL 8.4) ← trx2のログ専用
+  db-log3  (MySQL 8.4) ← trx3のログ専用
+  db-log4  (MySQL 8.4) ← trx4のログ専用
+  
+本番環境（DB_TRX_SHARDS=4の場合）:
   RDS log1 (Multi-AZ) ← trx1のログ専用
   RDS log2 (Multi-AZ) ← trx2のログ専用
+  RDS log3 (Multi-AZ) ← trx3のログ専用
+  RDS log4 (Multi-AZ) ← trx4のログ専用
 ```
 
-### Laravel接続設定
+### Laravel接続設定（動的生成）
 
 ```php
 // config/database.php
 
 'connections' => [
-    // 既存のTrxDB接続
-    'trx1' => [...],
-    'trx2' => [...],
-    
-    // LogDBシャーディング接続（新規追加）
-    'log1' => [
-        'driver' => 'mysql',
-        'host' => env('DB_LOG1_HOST', 'db-log1'),
-        'port' => env('DB_LOG1_PORT', '3306'),
-        'database' => env('DB_LOG1_DATABASE') ?: env('APP_NAME', 'laravel') . '-' . env('APP_ENV', 'local') . '-log1',
-        'username' => env('DB_LOG1_USERNAME', 'root'),
-        'password' => env('DB_LOG1_PASSWORD', 'root'),
-        'charset' => 'utf8mb4',
-        'collation' => 'utf8mb4_unicode_ci',
-        'prefix' => '',
-        'strict' => true,
-        'engine' => null,
-    ],
-    
-    'log2' => [
-        'driver' => 'mysql',
-        'host' => env('DB_LOG2_HOST', 'db-log2'),
-        'port' => env('DB_LOG2_PORT', '3306'),
-        'database' => env('DB_LOG2_DATABASE') ?: env('APP_NAME', 'laravel') . '-' . env('APP_ENV', 'local') . '-log2',
-        'username' => env('DB_LOG2_USERNAME', 'root'),
-        'password' => env('DB_LOG2_PASSWORD', 'root'),
-        'charset' => 'utf8mb4',
-        'collation' => 'utf8mb4_unicode_ci',
-        'prefix' => '',
-        'strict' => true,
-        'engine' => null,
-    ],
-    
-    // 既存の'log'接続は後方互換性のため残す（log_access等の共通ログ用）
-    'log' => [
-        'driver' => 'mysql',
-        'host' => env('DB_LOG_HOST', 'db-log'),
-        'port' => env('DB_LOG_PORT', '3306'),
-        'database' => env('DB_LOG_DATABASE') ?: env('APP_NAME', 'laravel') . '-' . env('APP_ENV', 'local') . '-log',
-        'username' => env('DB_LOG_USERNAME', 'root'),
-        'password' => env('DB_LOG_PASSWORD', 'root'),
-        'charset' => 'utf8mb4',
-        'collation' => 'utf8mb4_unicode_ci',
-        'prefix' => '',
-        'strict' => true,
-        'engine' => null,
-    ],
+    // ========================================
+    // 動的シャーディング: TrxDB
+    // ========================================
+    // DB_TRX_SHARDS環境変数でシャード数を指定（デフォルト: 2）
+    // 例: DB_TRX_SHARDS=4 の場合、trx1, trx2, trx3, trx4 を生成
+    ...array_merge(
+        // 後方互換用: trx接続（trx1を参照）
+        [
+            'trx' => [
+                'driver' => 'mysql',
+                'host' => env('DB_TRX1_HOST', 'db-trx1'),
+                'port' => env('DB_TRX1_PORT', '3306'),
+                'database' => env('DB_TRX1_DATABASE') ?: env('APP_NAME', 'laravel') . '-' . env('APP_ENV', 'local') . '-trx1',
+                'username' => env('DB_TRX1_USERNAME', 'root'),
+                'password' => env('DB_TRX1_PASSWORD', 'root'),
+                'charset' => 'utf8mb4',
+                'collation' => 'utf8mb4_unicode_ci',
+                'prefix' => '',
+                'strict' => true,
+                'engine' => null,
+            ],
+        ],
+        // 動的生成: trx1, trx2, ...
+        (function() {
+            $shardCount = (int) env('DB_TRX_SHARDS', 2);
+            $connections = [];
+            
+            for ($i = 1; $i <= $shardCount; $i++) {
+                $connections["trx{$i}"] = [
+                    'driver' => 'mysql',
+                    'host' => env("DB_TRX{$i}_HOST", "db-trx{$i}"),
+                    'port' => env("DB_TRX{$i}_PORT", '3306'),
+                    'database' => env("DB_TRX{$i}_DATABASE") ?: env('APP_NAME', 'laravel') . '-' . env('APP_ENV', 'local') . "-trx{$i}",
+                    'username' => env("DB_TRX{$i}_USERNAME", 'root'),
+                    'password' => env("DB_TRX{$i}_PASSWORD", 'root'),
+                    'charset' => 'utf8mb4',
+                    'collation' => 'utf8mb4_unicode_ci',
+                    'prefix' => '',
+                    'strict' => true,
+                    'engine' => null,
+                ];
+            }
+            
+            return $connections;
+        })()
+    ),
+
+    // ========================================
+    // 動的シャーディング: LogDB
+    // ========================================
+    // TrxDBと1:1対応でLogDBシャードを生成
+    // DB_TRX_SHARDS=2 の場合、log1, log2 を生成
+    ...array_merge(
+        // 後方互換用: log接続（単一LogDB）
+        [
+            'log' => [
+                'driver' => 'mysql',
+                'host' => env('DB_LOG_HOST', '127.0.0.1'),
+                'port' => env('DB_LOG_PORT', '33063'),
+                'database' => env('DB_LOG_DATABASE') ?: env('APP_NAME', 'laravel') . '-' . env('APP_ENV', 'local') . '-log',
+                'username' => env('DB_LOG_USERNAME', 'root'),
+                'password' => env('DB_LOG_PASSWORD', ''),
+                'charset' => 'utf8mb4',
+                'collation' => 'utf8mb4_unicode_ci',
+                'prefix' => '',
+                'strict' => true,
+                'engine' => null,
+            ],
+        ],
+        // 動的生成: log1, log2, ...
+        (function() {
+            $shardCount = (int) env('DB_TRX_SHARDS', 2);
+            $connections = [];
+            
+            for ($i = 1; $i <= $shardCount; $i++) {
+                $connections["log{$i}"] = [
+                    'driver' => 'mysql',
+                    'host' => env("DB_LOG{$i}_HOST", "db-log{$i}"),
+                    'port' => env("DB_LOG{$i}_PORT", '3306'),
+                    'database' => env("DB_LOG{$i}_DATABASE") ?: env('APP_NAME', 'laravel') . '-' . env('APP_ENV', 'local') . "-log{$i}",
+                    'username' => env("DB_LOG{$i}_USERNAME", 'root'),
+                    'password' => env("DB_LOG{$i}_PASSWORD", 'root'),
+                    'charset' => 'utf8mb4',
+                    'collation' => 'utf8mb4_unicode_ci',
+                    'prefix' => '',
+                    'strict' => true,
+                    'engine' => null,
+                ];
+            }
+            
+            return $connections;
+        })()
+    ),
 ];
+
+// PITR設定
+'pitr' => [
+    'shard_count' => (int) env('DB_TRX_SHARDS', 2),
+    'active_trx_connections' => (function() {
+        $shardCount = (int) env('DB_TRX_SHARDS', 2);
+        $connections = [];
+        for ($i = 1; $i <= $shardCount; $i++) {
+            $connections[] = "trx{$i}";
+        }
+        return $connections;
+    })(),
+    'batch_size' => env('PITR_BATCH_SIZE', 1000),
+    'enable_compression' => env('PITR_ENABLE_COMPRESSION', false),
+],
 ```
 
-### .env設定例
+### .env設定例（DB_TRX_SHARDS=4の場合）
 
 ```env
+# シャード数指定
+DB_TRX_SHARDS=4
+
 # Log1 DB (trx1用)
 DB_LOG1_HOST=db-log1
 DB_LOG1_PORT=3306
@@ -132,6 +223,20 @@ DB_LOG2_PORT=3306
 DB_LOG2_DATABASE=nexus-local-log2
 DB_LOG2_USERNAME=root
 DB_LOG2_PASSWORD=root
+
+# Log3 DB (trx3用)
+DB_LOG3_HOST=db-log3
+DB_LOG3_PORT=3306
+DB_LOG3_DATABASE=nexus-local-log3
+DB_LOG3_USERNAME=root
+DB_LOG3_PASSWORD=root
+
+# Log4 DB (trx4用)
+DB_LOG4_HOST=db-log4
+DB_LOG4_PORT=3306
+DB_LOG4_DATABASE=nexus-local-log4
+DB_LOG4_USERNAME=root
+DB_LOG4_PASSWORD=root
 
 # 共通Log DB (アクセスログ等)
 DB_LOG_HOST=db-log
@@ -179,53 +284,163 @@ log:
 
 ## 実装詳細
 
-### 1. TrxDBとLogDBのマッピング
+### 1. TrxDBとLogDBのマッピング（動的シャーディング対応）
 
 ```php
-// nexus-pitr/src/Logger/ShardMapper.php
+// packages/nexus-pitr/src/Logger/ShardMapper.php
 
 namespace NexusPitr\Logger;
 
+/**
+ * ShardMapper
+ * 
+ * TrxDB接続とLogDB接続のマッピングを管理
+ * 動的シャーディング対応（DB_TRX_SHARDS環境変数でシャード数を制御）
+ */
 class ShardMapper
 {
     /**
      * TrxDB接続名から対応するLogDB接続名を取得
+     * 
+     * @param string $trxConnection
+     * @return string
+     * @throws \InvalidArgumentException
      */
     public static function getLogConnection(string $trxConnection): string
     {
-        return match ($trxConnection) {
-            'trx1' => 'log1',
-            'trx2' => 'log2',
-            default => throw new \InvalidArgumentException("Unknown trx connection: {$trxConnection}")
-        };
+        // 後方互換: trx -> log
+        if ($trxConnection === 'trx') {
+            return 'log';
+        }
+        
+        // 動的シャーディング: trx1 -> log1, trx2 -> log2, ...
+        if (preg_match('/^trx(\d+)$/', $trxConnection, $matches)) {
+            $shardNumber = (int) $matches[1];
+            $maxShards = self::getMaxShardCount();
+            
+            if ($shardNumber >= 1 && $shardNumber <= $maxShards) {
+                return "log{$shardNumber}";
+            }
+        }
+        
+        throw new \InvalidArgumentException("Unknown trx connection: {$trxConnection}");
     }
     
     /**
      * LogDB接続名から対応するTrxDB接続名を取得
+     * 
+     * @param string $logConnection
+     * @return string
+     * @throws \InvalidArgumentException
      */
     public static function getTrxConnection(string $logConnection): string
     {
-        return match ($logConnection) {
-            'log1' => 'trx1',
-            'log2' => 'trx2',
-            default => throw new \InvalidArgumentException("Unknown log connection: {$logConnection}")
-        };
+        // 後方互換: log -> trx
+        if ($logConnection === 'log') {
+            return 'trx';
+        }
+        
+        // 動的シャーディング: log1 -> trx1, log2 -> trx2, ...
+        if (preg_match('/^log(\d+)$/', $logConnection, $matches)) {
+            $shardNumber = (int) $matches[1];
+            $maxShards = self::getMaxShardCount();
+            
+            if ($shardNumber >= 1 && $shardNumber <= $maxShards) {
+                return "trx{$shardNumber}";
+            }
+        }
+        
+        throw new \InvalidArgumentException("Unknown log connection: {$logConnection}");
     }
     
     /**
      * すべてのLogDB接続名を取得
+     * 
+     * @return array<string>
      */
     public static function getAllLogConnections(): array
     {
-        return ['log1', 'log2'];
+        $maxShards = self::getMaxShardCount();
+        $connections = [];
+        
+        for ($i = 1; $i <= $maxShards; $i++) {
+            $connections[] = "log{$i}";
+        }
+        
+        return $connections;
     }
     
     /**
      * すべてのTrxDB接続名を取得
+     * 
+     * @return array<string>
      */
     public static function getAllTrxConnections(): array
     {
-        return ['trx1', 'trx2'];
+        $maxShards = self::getMaxShardCount();
+        $connections = [];
+        
+        for ($i = 1; $i <= $maxShards; $i++) {
+            $connections[] = "trx{$i}";
+        }
+        
+        return $connections;
+    }
+    
+    /**
+     * 指定されたTrxDB接続が有効かチェック
+     * 
+     * @param string $trxConnection
+     * @return bool
+     */
+    public static function isValidTrxConnection(string $trxConnection): bool
+    {
+        // 後方互換
+        if ($trxConnection === 'trx') {
+            return true;
+        }
+        
+        // 動的シャーディング
+        if (preg_match('/^trx(\d+)$/', $trxConnection, $matches)) {
+            $shardNumber = (int) $matches[1];
+            $maxShards = self::getMaxShardCount();
+            return $shardNumber >= 1 && $shardNumber <= $maxShards;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * 指定されたLogDB接続が有効かチェック
+     * 
+     * @param string $logConnection
+     * @return bool
+     */
+    public static function isValidLogConnection(string $logConnection): bool
+    {
+        // 後方互換
+        if ($logConnection === 'log') {
+            return true;
+        }
+        
+        // 動的シャーディング
+        if (preg_match('/^log(\d+)$/', $logConnection, $matches)) {
+            $shardNumber = (int) $matches[1];
+            $maxShards = self::getMaxShardCount();
+            return $shardNumber >= 1 && $shardNumber <= $maxShards;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * 最大シャード数を取得
+     * 
+     * @return int
+     */
+    private static function getMaxShardCount(): int
+    {
+        return (int) (getenv('DB_TRX_SHARDS') ?: 2);
     }
 }
 ```
@@ -408,40 +623,85 @@ volumes:
   db-log-data:
 ```
 
-## マイグレーション戦略
+## マイグレーション戦略（動的シャーディング対応）
 
-### 1. 新規LogDBシャードのマイグレーション
+### 1. 動的マイグレーションコマンド
 
 ```bash
-# log1のマイグレーション実行
-php artisan migrate --database=log1 --path=packages/nexus-pitr/database/migrations
+# すべてのLogDBシャードに対してマイグレーションを実行（DB_TRX_SHARDSに応じて自動）
+php artisan pitr:migrate
 
-# log2のマイグレーション実行
-php artisan migrate --database=log2 --path=packages/nexus-pitr/database/migrations
+# ロールバック
+php artisan pitr:rollback --step=1
 ```
 
-### 2. マイグレーションファイル
+### 2. カスタムArtisanコマンド
 
 ```php
-// packages/nexus-pitr/database/migrations/2026_08_08_000001_create_log_trx_change.php
+// packages/nexus-pitr/src/Commands/PitrMigrateCommand.php
 
-public function up(): void
-{
-    $connections = ['log1', 'log2']; // シャーディング対象接続
-    
-    foreach ($connections as $connection) {
-        Schema::connection($connection)->create('log_trx_change', function (Blueprint $table) {
-            // テーブル定義（設計書通り）
-        });
-    }
-}
+namespace NexusPitr\Commands;
 
-public function down(): void
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Artisan;
+use NexusPitr\Logger\ShardMapper;
+
+/**
+ * PitrMigrateCommand
+ * 
+ * すべてのLogDBシャードに対してマイグレーションを実行
+ * 動的シャーディング対応（DB_TRX_SHARDSに応じてlog1, log2, ...に実行）
+ */
+class PitrMigrateCommand extends Command
 {
-    $connections = ['log1', 'log2'];
-    
-    foreach ($connections as $connection) {
-        Schema::connection($connection)->dropIfExists('log_trx_change');
+    protected $signature = 'pitr:migrate 
+                            {--force : Force the operation to run when in production}
+                            {--seed : Indicates if the seed task should be re-run}
+                            {--step : Force the migrations to be run so they can be rolled back individually}';
+
+    protected $description = 'Run PITR migrations on all LogDB shards dynamically';
+
+    public function handle(): int
+    {
+        $logConnections = ShardMapper::getAllLogConnections();
+        
+        $this->info('Running PITR migrations on all LogDB shards...');
+        $this->newLine();
+        
+        foreach ($logConnections as $logConnection) {
+            $this->info("📦 Migrating LogDB: {$logConnection}");
+            
+            $options = [
+                '--database' => $logConnection,
+                '--path' => 'database/migrations/log',
+            ];
+            
+            if ($this->option('force')) {
+                $options['--force'] = true;
+            }
+            
+            if ($this->option('seed')) {
+                $options['--seed'] = true;
+            }
+            
+            if ($this->option('step')) {
+                $options['--step'] = true;
+            }
+            
+            $exitCode = Artisan::call('migrate', $options, $this->getOutput());
+            
+            if ($exitCode !== 0) {
+                $this->error("❌ Migration failed for {$logConnection}");
+                return self::FAILURE;
+            }
+            
+            $this->info("✅ Migration completed for {$logConnection}");
+            $this->newLine();
+        }
+        
+        $this->info('🎉 All PITR migrations completed successfully!');
+        
+        return self::SUCCESS;
     }
 }
 ```
@@ -504,25 +764,31 @@ ALTER TABLE log_trx_change PARTITION BY RANGE (YEAR(created_at) * 100 + MONTH(cr
 
 ## まとめ
 
-### 推奨: LogDBシャーディング対応
+### 推奨: LogDB動的シャーディング対応
 
-**YES、LogDBもTrxDBと同様にシャーディング対応すべき**
+**YES、LogDBもTrxDBと同様に動的シャーディング対応すべき**
 
 #### 理由
 
 1. ✅ **スケーラビリティ**: 書き込み負荷分散
 2. ✅ **復旧効率**: 対象シャードのみクエリで高速
 3. ✅ **障害隔離**: 影響範囲を最小化
-4. ✅ **将来拡張性**: TrxDB増設時にLogDBも自然に増設可能
+4. ✅ **将来拡張性**: 環境変数のみでシャード数を増減可能
+5. ✅ **運用柔軟性**: コード変更不要でスケール可能
 
 #### 実装コスト
 
-- Docker Compose: コンテナ2つ追加のみ
-- コード変更: ShardMapper追加、数クラス修正
-- マイグレーション: 既存マイグレーションを複数接続に適用
+- Docker Compose: コンテナ数は環境変数で制御
+- コード変更: ShardMapper（動的生成対応）、PitrMigrateCommand（自動マイグレーション）
+- マイグレーション: `php artisan pitr:migrate`で全シャード自動適用
 
 #### ROI
 
-**高い**: 実装コストに対してスケーラビリティと復旧効率の向上が大きい
+**非常に高い**: 動的シャーディングにより運用コストを削減しながらスケーラビリティを確保
 
-次のステップ: この設計でLogDBシャーディング対応を実装しますか？
+#### 導入済み（実装完了）
+
+- ✅ config/database.php: 動的シャーディング対応（DB_TRX_SHARDS環境変数）
+- ✅ ShardMapper: 動的マッピング対応
+- ✅ PitrMigrateCommand: 動的マイグレーション対応
+- ✅ ユニットテスト: 動的シャーディングテスト完備

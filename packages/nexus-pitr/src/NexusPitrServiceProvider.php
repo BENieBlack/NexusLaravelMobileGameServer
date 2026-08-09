@@ -4,8 +4,8 @@ namespace NexusPitr;
 
 use Illuminate\Support\ServiceProvider;
 use NexusPitr\Logger\TrxChangeLogger;
-use NexusPitr\Commands\TrxRecoveryCommand;
-use NexusPitr\Commands\PitrVerifyCommand;
+use NexusPitr\Commands\PitrMigrateCommand;
+use NexusPitr\Commands\PitrRollbackCommand;
 
 class NexusPitrServiceProvider extends ServiceProvider
 {
@@ -41,8 +41,8 @@ class NexusPitrServiceProvider extends ServiceProvider
         // Artisanコマンドを登録
         if ($this->app->runningInConsole()) {
             $this->commands([
-                TrxRecoveryCommand::class,
-                PitrVerifyCommand::class,
+                PitrMigrateCommand::class,
+                PitrRollbackCommand::class,
             ]);
         }
     }

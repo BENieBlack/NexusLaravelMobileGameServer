@@ -13,6 +13,13 @@
             "NexusStamina\\Tests\\": "tests/"
         }
     },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "NexusStamina\\StaminaServiceProvider"
+            ]
+        }
+    },
     "require": {
         "php": "^8.3",
         "illuminate/support": "^11.0|^12.0",

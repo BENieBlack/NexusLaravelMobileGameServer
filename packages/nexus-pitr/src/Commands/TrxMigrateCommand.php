@@ -39,7 +39,7 @@ class TrxMigrateCommand extends Command
         $trxConnections = ShardMapper::getAllTrxConnections();
         
         $this->info('Running TrxDB migrations on all shards...');
-        $this->info('This includes migrations from: api/database/migrations/trx');
+        $this->info('This includes migrations from: api/database/migrations/trx, nexus-player, nexus-resource, nexus-wallet, nexus-stamina, nexus-core-billing');
         $this->newLine();
         
         foreach ($trxConnections as $trxConnection) {
@@ -47,7 +47,6 @@ class TrxMigrateCommand extends Command
             
             $options = [
                 '--database' => $trxConnection,
-                '--path' => 'database/migrations/trx',
             ];
             
             if ($this->option('force')) {
@@ -62,6 +61,7 @@ class TrxMigrateCommand extends Command
                 $options['--step'] = true;
             }
             
+            // Laravelのデフォルトマイグレーション実行（パッケージのマイグレーションを含む）
             $exitCode = Artisan::call('migrate', $options, $this->getOutput());
             
             if ($exitCode !== 0) {

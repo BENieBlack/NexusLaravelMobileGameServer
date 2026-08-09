@@ -10,10 +10,6 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
-        // 各シャードに対してテーブルを作成
-
     /**
      * Run the migrations.
      */

@@ -38,18 +38,18 @@ class PitrMigrateCommand extends Command
     {
         $logConnections = ShardMapper::getAllLogConnections();
         
-        // LogDBマイグレーションパスを定義
+        // LogDBマイグレーションパスを定義（base_path()からの相対パス）
         $logMigrationPaths = [
-            'packages/nexus-pitr/database/migrations/log',
-            'packages/nexus-player/database/migrations/log',
-            'packages/nexus-resource/database/migrations/log',
-            'packages/nexus-wallet/database/migrations/log',
-            'packages/nexus-stamina/database/migrations/log',
-            'packages/nexus-core-billing/database/migrations/log',
-            'packages/nexus-mailbox/database/migrations/log',
-            'packages/nexus-gacha/database/migrations/log',
-            'packages/nexus-login/database/migrations/log',
-            'packages/nexus-vip/database/migrations/log',
+            '../packages/nexus-pitr/database/migrations/log',
+            '../packages/nexus-player/database/migrations/log',
+            '../packages/nexus-resource/database/migrations/log',
+            '../packages/nexus-wallet/database/migrations/log',
+            '../packages/nexus-stamina/database/migrations/log',
+            '../packages/nexus-core-billing/database/migrations/log',
+            '../packages/nexus-mailbox/database/migrations/log',
+            '../packages/nexus-gacha/database/migrations/log',
+            '../packages/nexus-login/database/migrations/log',
+            '../packages/nexus-vip/database/migrations/log',
         ];
         
         $this->info('Running LogDB migrations on all shards...');

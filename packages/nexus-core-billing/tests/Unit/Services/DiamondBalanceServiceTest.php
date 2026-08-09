@@ -1,0 +1,333 @@
+<?php
+
+namespace NexusBilling\Tests\Unit\Services;
+
+use NexusBilling\Services\DiamondBalanceService;
+use NexusBilling\Contracts\DiamondRepositoryInterface;
+use NexusBilling\DTOs\DiamondBalanceDto;
+use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\MockObject\MockObject;
+
+/**
+ * DiamondBalanceServiceのユニットテスト
+ * 
+ * パッケージ層の純粋なビジネスロジックをテスト
+ */
+class DiamondBalanceServiceTest extends TestCase
+{
+    private DiamondBalanceService $diamondBalanceService;
+    private DiamondRepositoryInterface|MockObject $mockRepository;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->mockRepository = $this->createMock(DiamondRepositoryInterface::class);
+        $this->diamondBalanceService = new DiamondBalanceService($this->mockRepository);
+    }
+
+    /**
+     * @test
+     */
+    public function 無償ダイヤを加算できる(): void
+    {
+        // Arrange
+        $sysPlayerId = 1;
+        $platform = 'Apple';
+        $freeAmount = 1000;
+        $paidAmount = 500;
+        $addAmount = 200;
+
+        $existingDto = new DiamondBalanceDto($sysPlayerId, $platform, $paidAmount, $freeAmount);
+
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('findByPlatform')
+            ->with($sysPlayerId, $platform)
+            ->willReturn($existingDto);
+
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('saveDiamond')
+            ->with($this->callback(function (DiamondBalanceDto $dto) use ($freeAmount, $addAmount, $paidAmount) {
+                return $dto->getFreeAmount() === ($freeAmount + $addAmount)
+                    && $dto->getPaidAmount() === $paidAmount;
+            }));
+
+        // Act
+        $result = $this->diamondBalanceService->addDiamond($sysPlayerId, $platform, $addAmount, false);
+
+        // Assert
+        $this->assertInstanceOf(DiamondBalanceDto::class, $result);
+        $this->assertSame($freeAmount + $addAmount, $result->getFreeAmount());
+        $this->assertSame($paidAmount, $result->getPaidAmount());
+    }
+
+    /**
+     * @test
+     */
+    public function 有償ダイヤを加算できる(): void
+    {
+        // Arrange
+        $sysPlayerId = 1;
+        $platform = 'Apple';
+        $freeAmount = 1000;
+        $paidAmount = 500;
+        $addAmount = 300;
+
+        $existingDto = new DiamondBalanceDto($sysPlayerId, $platform, $paidAmount, $freeAmount);
+
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('findByPlatform')
+            ->with($sysPlayerId, $platform)
+            ->willReturn($existingDto);
+
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('saveDiamond');
+
+        // Act
+        $result = $this->diamondBalanceService->addDiamond($sysPlayerId, $platform, $addAmount, true);
+
+        // Assert
+        $this->assertSame($freeAmount, $result->getFreeAmount());
+        $this->assertSame($paidAmount + $addAmount, $result->getPaidAmount());
+    }
+
+    /**
+     * @test
+     */
+    public function 新規プレイヤーに無償ダイヤを加算できる(): void
+    {
+        // Arrange
+        $sysPlayerId = 999;
+        $platform = 'Apple';
+        $addAmount = 1000;
+
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('findByPlatform')
+            ->with($sysPlayerId, $platform)
+            ->willReturn(null);
+
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('saveDiamond')
+            ->with($this->callback(function (DiamondBalanceDto $dto) use ($addAmount) {
+                return $dto->getFreeAmount() === $addAmount
+                    && $dto->getPaidAmount() === 0;
+            }));
+
+        // Act
+        $result = $this->diamondBalanceService->addDiamond($sysPlayerId, $platform, $addAmount, false);
+
+        // Assert
+        $this->assertSame($addAmount, $result->getFreeAmount());
+        $this->assertSame(0, $result->getPaidAmount());
+    }
+
+    /**
+     * @test
+     */
+    public function 残高を取得できる(): void
+    {
+        // Arrange
+        $sysPlayerId = 1;
+        $platform = 'Apple';
+        $freeAmount = 1000;
+        $paidAmount = 500;
+
+        $existingDto = new DiamondBalanceDto($sysPlayerId, $platform, $paidAmount, $freeAmount);
+
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('findByPlatform')
+            ->with($sysPlayerId, $platform)
+            ->willReturn($existingDto);
+
+        // Act
+        $result = $this->diamondBalanceService->getBalance($sysPlayerId, $platform);
+
+        // Assert
+        $this->assertIsArray($result);
+        $this->assertSame($paidAmount, $result['paid_amount']);
+        $this->assertSame($freeAmount, $result['free_amount']);
+        $this->assertSame($paidAmount + $freeAmount, $result['total_amount']);
+    }
+
+    /**
+     * @test
+     */
+    public function 存在しないプレイヤーの残高は0を返す(): void
+    {
+        // Arrange
+        $sysPlayerId = 999;
+        $platform = 'Apple';
+
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('findByPlatform')
+            ->with($sysPlayerId, $platform)
+            ->willReturn(null);
+
+        // Act
+        $result = $this->diamondBalanceService->getBalance($sysPlayerId, $platform);
+
+        // Assert
+        $this->assertSame(0, $result['paid_amount']);
+        $this->assertSame(0, $result['free_amount']);
+        $this->assertSame(0, $result['total_amount']);
+    }
+
+    /**
+     * @test
+     */
+    public function 無償ダイヤのみを消費できる(): void
+    {
+        // Arrange
+        $sysPlayerId = 1;
+        $platform = 'Apple';
+        $freeAmount = 1000;
+        $paidAmount = 500;
+        $consumeAmount = 200;
+
+        $existingDto = new DiamondBalanceDto($sysPlayerId, $platform, $paidAmount, $freeAmount);
+
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('findAllByPlayerId')
+            ->with($sysPlayerId)
+            ->willReturn([$existingDto]);
+
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('saveDiamond');
+
+        // Act
+        $this->diamondBalanceService->consumeDiamond($sysPlayerId, $consumeAmount, false);
+
+        // Assert
+        $this->assertSame($freeAmount - $consumeAmount, $existingDto->getFreeAmount());
+        $this->assertSame($paidAmount, $existingDto->getPaidAmount());
+    }
+
+    /**
+     * @test
+     */
+    public function 無償を使い切った後に有償を消費する(): void
+    {
+        // Arrange
+        $sysPlayerId = 1;
+        $platform = 'Apple';
+        $freeAmount = 500;
+        $paidAmount = 1000;
+        $consumeAmount = 800; // 無償500 + 有償300を消費
+
+        $existingDto = new DiamondBalanceDto($sysPlayerId, $platform, $paidAmount, $freeAmount);
+
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('findAllByPlayerId')
+            ->willReturn([$existingDto]);
+
+        $this->mockRepository
+            ->expects($this->exactly(2))
+            ->method('saveDiamond');
+
+        // Act
+        $this->diamondBalanceService->consumeDiamond($sysPlayerId, $consumeAmount, false);
+
+        // Assert
+        $this->assertSame(0, $existingDto->getFreeAmount());
+        $this->assertSame(700, $existingDto->getPaidAmount()); // 1000 - 300
+    }
+
+    /**
+     * @test
+     */
+    public function 有償ダイヤのみを消費できる(): void
+    {
+        // Arrange
+        $sysPlayerId = 1;
+        $platform = 'Apple';
+        $freeAmount = 1000;
+        $paidAmount = 500;
+        $consumeAmount = 200;
+
+        $existingDto = new DiamondBalanceDto($sysPlayerId, $platform, $paidAmount, $freeAmount);
+
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('findAllByPlayerId')
+            ->with($sysPlayerId)
+            ->willReturn([$existingDto]);
+
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('saveDiamond');
+
+        // Act
+        $this->diamondBalanceService->consumeDiamond($sysPlayerId, $consumeAmount, true);
+
+        // Assert
+        $this->assertSame($freeAmount, $existingDto->getFreeAmount());
+        $this->assertSame($paidAmount - $consumeAmount, $existingDto->getPaidAmount());
+    }
+
+    /**
+     * @test
+     */
+    public function 無償優先消費で残高不足の場合は例外が発生する(): void
+    {
+        // Arrange
+        $sysPlayerId = 1;
+        $platform = 'Apple';
+        $freeAmount = 500;
+        $paidAmount = 300;
+        $consumeAmount = 1000; // 合計800より多い
+
+        $existingDto = new DiamondBalanceDto($sysPlayerId, $platform, $paidAmount, $freeAmount);
+
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('findAllByPlayerId')
+            ->with($sysPlayerId)
+            ->willReturn([$existingDto]);
+
+        // Assert
+        $this->expectException(\Exception::class);
+
+        // Act
+        $this->diamondBalanceService->consumeDiamond($sysPlayerId, $consumeAmount, false);
+    }
+
+    /**
+     * @test
+     */
+    public function 有償ダイヤ消費で残高不足の場合は例外が発生する(): void
+    {
+        // Arrange
+        $sysPlayerId = 1;
+        $platform = 'Apple';
+        $freeAmount = 1000;
+        $paidAmount = 200;
+        $consumeAmount = 300; // 有償残高より多い
+
+        $existingDto = new DiamondBalanceDto($sysPlayerId, $platform, $paidAmount, $freeAmount);
+
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('findAllByPlayerId')
+            ->with($sysPlayerId)
+            ->willReturn([$existingDto]);
+
+        // Assert
+        $this->expectException(\Exception::class);
+
+        // Act
+        $this->diamondBalanceService->consumeDiamond($sysPlayerId, $consumeAmount, true);
+    }
+
+
+}

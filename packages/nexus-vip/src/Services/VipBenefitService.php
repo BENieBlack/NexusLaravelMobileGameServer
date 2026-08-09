@@ -2,7 +2,7 @@
 
 namespace NexusVip\Services;
 
-use NexusVip\DTOs\VipConfig;
+use NexusVip\ValueObjects\VipConfig;
 
 /**
  * VIP特典サービス

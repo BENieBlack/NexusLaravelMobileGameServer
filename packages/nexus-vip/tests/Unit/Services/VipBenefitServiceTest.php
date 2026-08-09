@@ -3,7 +3,7 @@
 namespace NexusVip\Tests\Unit\Services;
 
 use NexusVip\DTOs\VipBenefitDto;
-use NexusVip\DTOs\VipConfig;
+use NexusVip\ValueObjects\VipConfig;
 use NexusVip\Services\VipBenefitService;
 use NexusVip\Services\VipLevelService;
 use PHPUnit\Framework\TestCase;

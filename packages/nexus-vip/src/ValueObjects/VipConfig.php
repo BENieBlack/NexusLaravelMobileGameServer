@@ -1,12 +1,12 @@
 <?php
 
-namespace NexusVip\DTOs;
+namespace NexusVip\ValueObjects;
 
 /**
  * VIP設定 Value Object
  * 
  * VIPシステムの設定値を保持する不変オブジェクト
- * Package層でLaravelに依存しないよう、fromConfig()は削除
+ * Package層でLaravelに依存しないよう、設定の読み込みはApplication層で行う
  */
 class VipConfig
 {

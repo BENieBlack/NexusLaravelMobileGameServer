@@ -228,4 +228,210 @@ class ItemWriteServiceTest extends TestCase
         // Act
         $this->itemWriteService->consumeItem($sysPlayerId, $mstItemId, 20); // 15より多い
     }
+
+    /**
+     * @test
+     */
+    public function 無償と有償を同時に加算できる(): void
+    {
+        // Arrange
+        $sysPlayerId = 1;
+        $mstItemId = 'item_potion_001';
+        $existingFree = 50;
+        $existingPaid = 20;
+        $addFree = 30;
+        $addPaid = 10;
+
+        $existingDto = new ItemDto($sysPlayerId, $mstItemId, $existingFree, $existingPaid);
+
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('findItem')
+            ->with($sysPlayerId, $mstItemId)
+            ->willReturn($existingDto);
+
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('saveItem')
+            ->with($this->callback(function (ItemDto $dto) use ($existingFree, $existingPaid, $addFree, $addPaid) {
+                return $dto->getFreeAmount() === ($existingFree + $addFree)
+                    && $dto->getPaidAmount() === ($existingPaid + $addPaid);
+            }));
+
+        // Act
+        $result = $this->itemWriteService->addItem($sysPlayerId, $mstItemId, $addFree, $addPaid);
+
+        // Assert
+        $this->assertSame($existingFree + $addFree, $result->getFreeAmount());
+        $this->assertSame($existingPaid + $addPaid, $result->getPaidAmount());
+    }
+
+    /**
+     * @test
+     */
+    public function 有償のみ消費して残高がゼロになる(): void
+    {
+        // Arrange
+        $sysPlayerId = 1;
+        $mstItemId = 'item_potion_001';
+        $freeAmount = 100;
+        $paidAmount = 50;
+        $consumeAmount = 50; // 有償をちょうど使い切る
+
+        $existingDto = new ItemDto($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
+
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('findItem')
+            ->willReturn($existingDto);
+
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('saveItem')
+            ->with($this->callback(function (ItemDto $dto) use ($freeAmount) {
+                return $dto->getFreeAmount() === $freeAmount
+                    && $dto->getPaidAmount() === 0;
+            }));
+
+        // Act
+        $result = $this->itemWriteService->consumeItem($sysPlayerId, $mstItemId, $consumeAmount);
+
+        // Assert
+        $this->assertSame($freeAmount, $result->getFreeAmount());
+        $this->assertSame(0, $result->getPaidAmount());
+    }
+
+    /**
+     * @test
+     */
+    public function 無償のみ消費できる_有償がゼロの場合(): void
+    {
+        // Arrange
+        $sysPlayerId = 1;
+        $mstItemId = 'item_potion_001';
+        $freeAmount = 100;
+        $paidAmount = 0;
+        $consumeAmount = 30;
+
+        $existingDto = new ItemDto($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
+
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('findItem')
+            ->willReturn($existingDto);
+
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('saveItem')
+            ->with($this->callback(function (ItemDto $dto) use ($freeAmount, $consumeAmount) {
+                return $dto->getFreeAmount() === ($freeAmount - $consumeAmount)
+                    && $dto->getPaidAmount() === 0;
+            }));
+
+        // Act
+        $result = $this->itemWriteService->consumeItem($sysPlayerId, $mstItemId, $consumeAmount);
+
+        // Assert
+        $this->assertSame($freeAmount - $consumeAmount, $result->getFreeAmount());
+        $this->assertSame(0, $result->getPaidAmount());
+    }
+
+    /**
+     * @test
+     */
+    public function 全て消費して残高がゼロになる(): void
+    {
+        // Arrange
+        $sysPlayerId = 1;
+        $mstItemId = 'item_potion_001';
+        $freeAmount = 50;
+        $paidAmount = 30;
+        $consumeAmount = 80; // 合計80をちょうど使い切る
+
+        $existingDto = new ItemDto($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
+
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('findItem')
+            ->willReturn($existingDto);
+
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('saveItem')
+            ->with($this->callback(function (ItemDto $dto) {
+                return $dto->getFreeAmount() === 0
+                    && $dto->getPaidAmount() === 0;
+            }));
+
+        // Act
+        $result = $this->itemWriteService->consumeItem($sysPlayerId, $mstItemId, $consumeAmount);
+
+        // Assert
+        $this->assertSame(0, $result->getFreeAmount());
+        $this->assertSame(0, $result->getPaidAmount());
+    }
+
+    /**
+     * @test
+     */
+    public function ゼロ加算しても既存残高は変わらない(): void
+    {
+        // Arrange
+        $sysPlayerId = 1;
+        $mstItemId = 'item_potion_001';
+        $freeAmount = 100;
+        $paidAmount = 50;
+
+        $existingDto = new ItemDto($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
+
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('findItem')
+            ->willReturn($existingDto);
+
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('saveItem')
+            ->with($this->callback(function (ItemDto $dto) use ($freeAmount, $paidAmount) {
+                return $dto->getFreeAmount() === $freeAmount
+                    && $dto->getPaidAmount() === $paidAmount;
+            }));
+
+        // Act
+        $result = $this->itemWriteService->addItem($sysPlayerId, $mstItemId, 0, 0);
+
+        // Assert
+        $this->assertSame($freeAmount, $result->getFreeAmount());
+        $this->assertSame($paidAmount, $result->getPaidAmount());
+    }
+
+    /**
+     * @test
+     */
+    public function 新規アイテムをゼロで作成できる(): void
+    {
+        // Arrange
+        $sysPlayerId = 1;
+        $mstItemId = 'item_new';
+
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('findItem')
+            ->willReturn(null);
+
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('saveItem')
+            ->with($this->callback(function (ItemDto $dto) {
+                return $dto->getFreeAmount() === 0
+                    && $dto->getPaidAmount() === 0;
+            }));
+
+        // Act
+        $result = $this->itemWriteService->addItem($sysPlayerId, $mstItemId, 0, 0);
+
+        // Assert
+        $this->assertSame(0, $result->getFreeAmount());
+        $this->assertSame(0, $result->getPaidAmount());
+    }
 }

@@ -12,13 +12,6 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // 各シャードに対してテーブルを作成
-
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
-    {
         // ========================================
         // trx_mailbox: プレイヤーメールボックス
         // ========================================
@@ -64,11 +57,11 @@ return new class extends Migration
         });
         
         // インデックス追加
-        DB::connection($connection)->statement("
+        DB::statement("
             CREATE INDEX idx_expires_at ON trx_mailbox(sys_player_id, expires_at);
         ");
         
-        DB::connection($connection)->statement("
+        DB::statement("
             CREATE INDEX idx_protected ON trx_mailbox(sys_player_id, is_protected, is_delete);
         ");
     }
@@ -78,7 +71,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        foreach ($this->getTrxConnections() as $connection) {
         Schema::dropIfExists('trx_mailbox');
     }
 };

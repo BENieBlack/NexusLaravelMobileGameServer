@@ -2,14 +2,14 @@
 
 namespace NexusVip\Tests\Unit\Services;
 
+use Mockery;
+use NexusPersistence\Support\CustomCollection;
 use NexusVip\DTOs\VipBenefitDto;
 use NexusVip\Exceptions\VipLevelNotFoundException;
 use NexusVip\Models\MstVipLevel;
 use NexusVip\Repositories\VipLevelRepositoryInterface;
 use NexusVip\Services\VipLevelService;
-use NexusPersistence\Support\CustomCollection;
 use PHPUnit\Framework\TestCase;
-use Mockery;
 
 /**
  * VipLevelServiceのユニットテスト
@@ -17,6 +17,7 @@ use Mockery;
 class VipLevelServiceTest extends TestCase
 {
     private VipLevelRepositoryInterface $vipLevelRepository;
+
     private VipLevelService $service;
 
     protected function setUp(): void
@@ -37,7 +38,7 @@ class VipLevelServiceTest extends TestCase
      * @test
      * 累積ポイントからVIPレベルを計算できる
      */
-    public function 累積ポイントからVIPレベルを計算できる(): void
+    public function 累積ポイントから_vi_pレベルを計算できる(): void
     {
         // Arrange
         $totalPoints = 1000;
@@ -136,7 +137,7 @@ class VipLevelServiceTest extends TestCase
      * @test
      * VIPレベルの特典情報を取得できる
      */
-    public function VIPレベルの特典情報を取得できる(): void
+    public function vi_pレベルの特典情報を取得できる(): void
     {
         // Arrange
         $level = 5;
@@ -168,7 +169,7 @@ class VipLevelServiceTest extends TestCase
      * @test
      * 存在しないVIPレベルの特典取得は例外が発生する
      */
-    public function 存在しないVIPレベルの特典取得は例外が発生する(): void
+    public function 存在しない_vi_pレベルの特典取得は例外が発生する(): void
     {
         // Arrange
         $level = 999;
@@ -191,7 +192,7 @@ class VipLevelServiceTest extends TestCase
      * @test
      * VIPレベルマスターデータを取得できる
      */
-    public function VIPレベルマスターデータを取得できる(): void
+    public function vi_pレベルマスターデータを取得できる(): void
     {
         // Arrange
         $level = 3;
@@ -214,7 +215,7 @@ class VipLevelServiceTest extends TestCase
      * @test
      * 存在しないVIPレベルマスターデータ取得は例外が発生する
      */
-    public function 存在しないVIPレベルマスターデータ取得は例外が発生する(): void
+    public function 存在しない_vi_pレベルマスターデータ取得は例外が発生する(): void
     {
         // Arrange
         $level = 999;
@@ -237,7 +238,7 @@ class VipLevelServiceTest extends TestCase
      * @test
      * 全VIPレベルのリストを取得できる
      */
-    public function 全VIPレベルのリストを取得できる(): void
+    public function 全_vi_pレベルのリストを取得できる(): void
     {
         // Arrange
         $mockLevel1 = Mockery::mock(MstVipLevel::class);

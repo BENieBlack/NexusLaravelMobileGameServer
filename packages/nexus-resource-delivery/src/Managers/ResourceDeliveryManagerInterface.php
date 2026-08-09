@@ -2,9 +2,9 @@
 
 namespace NexusResourceDelivery\Managers;
 
-use NexusResourceDelivery\DTOs\ResourceDeliveryContentDto;
-use NexusResourceDelivery\DTOs\ResourceDeliveryCompleteDto;
 use NexusPersistence\Support\CustomCollection;
+use NexusResourceDelivery\DTOs\ResourceDeliveryCompleteDto;
+use NexusResourceDelivery\DTOs\ResourceDeliveryContentDto;
 
 /**
  * ResourceDeliveryManagerInterface
@@ -34,7 +34,7 @@ interface ResourceDeliveryManagerInterface
     /**
      * 送信完了リストからコンテンツを取得する
      *
-     * @param string $contentClass コンテンツクラス名
+     * @param  string  $contentClass  コンテンツクラス名
      * @return CustomCollection<ResourceDeliveryContentDto>
      */
     public function getSendCompleteContents(string $contentClass): CustomCollection;
@@ -47,8 +47,7 @@ interface ResourceDeliveryManagerInterface
     /**
      * 配送処理を実行した後に実行する処理
      *
-     * @param ResourceDeliveryCompleteDto $resourceDeliveryCompleteDto 送信完了データ
-     * @return void
+     * @param  ResourceDeliveryCompleteDto  $resourceDeliveryCompleteDto  送信完了データ
      */
     public function afterSend(ResourceDeliveryCompleteDto $resourceDeliveryCompleteDto): void;
 }

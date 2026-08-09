@@ -14,8 +14,7 @@ class VipRewardDto
         private readonly int $contentQuantity,
         private readonly int $amount,
         private readonly bool $isPaid = false,
-    ) {
-    }
+    ) {}
 
     /**
      * コンテンツタイプを取得

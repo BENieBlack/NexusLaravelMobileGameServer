@@ -14,7 +14,7 @@ class PlayerDeviceDtoTest extends TestCase
      * @test
      * DTOを正常に作成できる
      */
-    public function DTOを正常に作成できる(): void
+    public function dt_oを正常に作成できる(): void
     {
         // Act
         $dto = new PlayerDeviceDto(
@@ -97,7 +97,7 @@ class PlayerDeviceDtoTest extends TestCase
      * @test
      * UUIDが長い文字列でも保持できる
      */
-    public function UUIDが長い文字列でも保持できる(): void
+    public function uui_dが長い文字列でも保持できる(): void
     {
         // Arrange
         $longUuid = str_repeat('a', 255);

@@ -13,7 +13,6 @@ interface VipLevelRewardRepositoryInterface
     /**
      * VIPレベルに対応する報酬一覧を取得
      *
-     * @param int $vipLevel
      * @return CustomCollection<MstVipLevelReward>
      */
     public function findByVipLevel(int $vipLevel): CustomCollection;
@@ -21,7 +20,6 @@ interface VipLevelRewardRepositoryInterface
     /**
      * 有効な報酬のみを取得
      *
-     * @param int $vipLevel
      * @return CustomCollection<MstVipLevelReward>
      */
     public function findActiveByVipLevel(int $vipLevel): CustomCollection;

@@ -6,7 +6,7 @@ use Exception;
 
 /**
  * GuildException
- * 
+ *
  * ギルド関連の例外
  */
 class GuildException extends Exception

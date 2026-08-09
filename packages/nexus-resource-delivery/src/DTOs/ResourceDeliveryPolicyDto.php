@@ -16,8 +16,8 @@ use NexusResourceDelivery\Enums\ResourceDeliveryMethod;
 class ResourceDeliveryPolicyDto
 {
     /**
-     * @param array<string, ResourceDeliveryMethod> $methodMap リソースタイプごとの配送方法
-     * @param \Exception|null $resourceLimitReachedException リソース上限超過時に投げる例外
+     * @param  array<string, ResourceDeliveryMethod>  $methodMap  リソースタイプごとの配送方法
+     * @param  \Exception|null  $resourceLimitReachedException  リソース上限超過時に投げる例外
      */
     public function __construct(
         private array $methodMap = [],
@@ -37,14 +37,11 @@ class ResourceDeliveryPolicyDto
      */
     public static function createDefaultPolicy(): self
     {
-        return new self();
+        return new self;
     }
 
     /**
      * リソース上限超過したら指定された例外を投げるポリシー
-     *
-     * @param \Exception $resourceLimitReachedException
-     * @return self
      */
     public static function createThrowErrorWhenResourceLimitReachedPolicy(
         \Exception $resourceLimitReachedException,
@@ -69,22 +66,16 @@ class ResourceDeliveryPolicyDto
 
     /**
      * リソースタイプごとの配送方法を取得
-     *
-     * @param ResourceType|string $resourceType
-     * @return ResourceDeliveryMethod
      */
     public function getMethodByResourceType(ResourceType|string $resourceType): ResourceDeliveryMethod
     {
         $typeValue = $resourceType instanceof ResourceType ? $resourceType->value : $resourceType;
+
         return $this->methodMap[$typeValue] ?? ResourceDeliveryMethod::NONE;
     }
 
     /**
      * 配送方法を設定
-     *
-     * @param ResourceType|string $resourceType
-     * @param ResourceDeliveryMethod $method
-     * @return void
      */
     public function setMethod(ResourceType|string $resourceType, ResourceDeliveryMethod $method): void
     {
@@ -95,7 +86,6 @@ class ResourceDeliveryPolicyDto
     /**
      * 例外が設定されている場合は例外を投げる
      *
-     * @return void
      * @throws \Exception
      */
     public function throwResourceLimitReachedExceptionIfSet(): void
@@ -108,7 +98,7 @@ class ResourceDeliveryPolicyDto
     /**
      * 指定されたリソースタイプのうち、上限超過時に例外を投げるものを返す
      *
-     * @param array<ResourceType|string> $resourceTypes チェック対象のリソースタイプ
+     * @param  array<ResourceType|string>  $resourceTypes  チェック対象のリソースタイプ
      * @return array<string> 上限超過時に例外を投げるリソースタイプの配列
      */
     public function getResourceTypesOfThrowErrorWhenResourceLimitReached(array $resourceTypes): array

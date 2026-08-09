@@ -44,7 +44,7 @@ class PlayerDtoTest extends TestCase
         );
 
         $dto->setName('New Name');
-        
+
         $this->assertSame('New Name', $dto->getName());
     }
 
@@ -62,7 +62,7 @@ class PlayerDtoTest extends TestCase
         );
 
         $dto->setLevel(50);
-        
+
         $this->assertSame(50, $dto->getLevel());
     }
 
@@ -80,7 +80,7 @@ class PlayerDtoTest extends TestCase
         );
 
         $dto->setLevelExp(1000);
-        
+
         $this->assertSame(1000, $dto->getLevelExp());
     }
 }

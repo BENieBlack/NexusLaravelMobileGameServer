@@ -7,20 +7,18 @@ use NexusVip\Repositories\VipLevelRewardRepositoryInterface;
 
 /**
  * VIP報酬サービス
- * 
+ *
  * VIPレベルアップ時の報酬取得を担当
  */
 class VipRewardService
 {
     public function __construct(
         protected VipLevelRewardRepositoryInterface $vipLevelRewardRepository
-    ) {
-    }
+    ) {}
 
     /**
      * VIPレベルに対応する報酬一覧を取得
      *
-     * @param int $vipLevel
      * @return array<VipRewardDto>
      */
     public function getRewardsByLevel(int $vipLevel): array
@@ -41,21 +39,16 @@ class VipRewardService
 
     /**
      * 報酬があるかチェック
-     *
-     * @param int $vipLevel
-     * @return bool
      */
     public function hasRewards(int $vipLevel): bool
     {
         $rewards = $this->vipLevelRewardRepository->findActiveByVipLevel($vipLevel);
+
         return $rewards->isNotEmpty();
     }
 
     /**
      * 報酬を配列形式で取得（API レスポンス用）
-     *
-     * @param int $vipLevel
-     * @return array
      */
     public function getRewardsArray(int $vipLevel): array
     {

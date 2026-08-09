@@ -2,15 +2,16 @@
 
 namespace NexusResourceDelivery\Services;
 
+use Illuminate\Support\Facades\Log;
+use NexusPersistence\Support\CustomCollection;
 use NexusResource\DTOs\ResourceDto;
-use NexusResourceDelivery\DTOs\ResourceDeliveryContentDto;
+use NexusResource\Enums\ResourceType;
 use NexusResourceDelivery\DTOs\ResourceDeliveryCompleteDto;
+use NexusResourceDelivery\DTOs\ResourceDeliveryContentDto;
 use NexusResourceDelivery\DTOs\ResourceDeliveryPolicyDto;
 use NexusResourceDelivery\DTOs\ResourceDeliverySummaryDto;
 use NexusResourceDelivery\Handlers\ResourceDeliveryHandlerInterface;
 use NexusResourceDelivery\Managers\ResourceDeliveryManagerInterface;
-use NexusPersistence\Support\CustomCollection;
-use Illuminate\Support\Facades\Log;
 
 /**
  * ResourceDeliveryService
@@ -40,14 +41,10 @@ class ResourceDeliveryService
 
     public function __construct(
         private readonly ResourceDeliveryManagerInterface $deliveryManager,
-    ) {
-    }
+    ) {}
 
     /**
      * Handlerを登録
-     *
-     * @param ResourceDeliveryHandlerInterface $handler
-     * @return void
      */
     public function registerHandler(ResourceDeliveryHandlerInterface $handler): void
     {
@@ -58,8 +55,7 @@ class ResourceDeliveryService
      * リソースを追加する（単一）
      * 実際の配送はdeliver()で実行する
      *
-     * @param ResourceDto $resourceDto リソース
-     * @return void
+     * @param  ResourceDto  $resourceDto  リソース
      */
     public function addResource(ResourceDto $resourceDto): void
     {
@@ -71,13 +67,12 @@ class ResourceDeliveryService
      * リソースを追加する（複数）
      * 実際の配送はdeliver()で実行する
      *
-     * @param CustomCollection|array $resources リソースのリスト
-     * @return void
+     * @param  CustomCollection|array  $resources  リソースのリスト
      */
     public function addResources(CustomCollection|array $resources): void
     {
         $collection = $resources instanceof CustomCollection ? $resources : new CustomCollection($resources);
-        
+
         $contents = $collection->map(function ($resource) {
             return ResourceDeliveryContentDto::fromResource($resource);
         });
@@ -87,9 +82,6 @@ class ResourceDeliveryService
 
     /**
      * 配送コンテンツを直接追加する（単一）
-     *
-     * @param ResourceDeliveryContentDto $resourceDeliveryContentDto
-     * @return void
      */
     public function addContent(ResourceDeliveryContentDto $resourceDeliveryContentDto): void
     {
@@ -98,9 +90,6 @@ class ResourceDeliveryService
 
     /**
      * 配送コンテンツを直接追加する（複数）
-     *
-     * @param CustomCollection|array $contents
-     * @return void
      */
     public function addContents(CustomCollection|array $contents): void
     {
@@ -112,9 +101,10 @@ class ResourceDeliveryService
      * DeliveryManagerに登録されたリソースを配送する
      * addResources()で登録されたリソースをまとめて配送する（遅延配送パターン）
      *
-     * @param int $sysPlayerId プレイヤーID
-     * @param ResourceDeliveryPolicy|null $resourceDeliveryPolicyDto 配送ポリシー（nullの場合はデフォルト）
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  ResourceDeliveryPolicy|null  $resourceDeliveryPolicyDto  配送ポリシー（nullの場合はデフォルト）
      * @return ResourceDeliverySummary 配送結果のサマリー
+     *
      * @throws \Exception
      */
     public function deliver(
@@ -147,9 +137,6 @@ class ResourceDeliveryService
     /**
      * 配送結果をチェックして、必要に応じて例外を投げる
      *
-     * @param ResourceDeliverySummaryDto $summary
-     * @param ResourceDeliveryPolicyDto $resourceDeliveryPolicyDto
-     * @return void
      * @throws \Exception
      */
     private function checkAndThrowErrorBySummary(
@@ -168,16 +155,12 @@ class ResourceDeliveryService
     /**
      * 配送処理を実行する内部メソッド
      * 追加リソースの連鎖に対応するため、最大2回ループする
-     *
-     * @param int $sysPlayerId
-     * @param ResourceDeliveryPolicyDto $resourceDeliveryPolicyDto
-     * @return ResourceDeliverySummaryDto
      */
     private function execDelivery(
         int $sysPlayerId,
         ResourceDeliveryPolicyDto $resourceDeliveryPolicyDto,
     ): ResourceDeliverySummaryDto {
-        $summary = new ResourceDeliverySummaryDto();
+        $summary = new ResourceDeliverySummaryDto;
 
         // 最大2回ループ（追加リソースの連鎖に対応）
         for ($i = 0; $i < 2; $i++) {
@@ -194,21 +177,17 @@ class ResourceDeliveryService
 
     /**
      * 配送処理の1回分の実行
-     *
-     * @param int $sysPlayerId
-     * @param ResourceDeliveryPolicyDto $resourceDeliveryPolicyDto
-     * @return ResourceDeliverySummaryDto
      */
     private function execDeliveryIteration(
         int $sysPlayerId,
         ResourceDeliveryPolicyDto $resourceDeliveryPolicyDto,
     ): ResourceDeliverySummaryDto {
-        $summary = new ResourceDeliverySummaryDto();
+        $summary = new ResourceDeliverySummaryDto;
 
         $pendingContents = $this->deliveryManager->getPendingContents();
 
         // タイプごとにグループ化
-        $groupedContents = $pendingContents->groupBy(fn($content) => $content->getTypeValue());
+        $groupedContents = $pendingContents->groupBy(fn ($content) => $content->getTypeValue());
 
         // 各グループに対して配送処理を実行
         foreach ($groupedContents as $type => $contents) {
@@ -219,6 +198,7 @@ class ResourceDeliveryService
                     'type' => $type,
                     'count' => $contents->count(),
                 ]);
+
                 continue;
             }
 
@@ -249,9 +229,6 @@ class ResourceDeliveryService
 
     /**
      * リソースタイプに対応するHandlerを検索
-     *
-     * @param string $type
-     * @return ResourceDeliveryHandlerInterface|null
      */
     private function findHandler(string $type): ?ResourceDeliveryHandlerInterface
     {
@@ -275,7 +252,7 @@ class ResourceDeliveryService
 
         foreach ($this->handlers as $handler) {
             // 全てのResourceTypeに対してチェック
-            foreach (\NexusResource\Enums\ResourceType::all() as $typeValue) {
+            foreach (ResourceType::all() as $typeValue) {
                 if ($handler->supports($typeValue)) {
                     $types[] = $typeValue;
                 }

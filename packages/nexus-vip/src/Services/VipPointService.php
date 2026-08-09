@@ -3,15 +3,15 @@
 namespace NexusVip\Services;
 
 use NexusVip\DTOs\PlayerVipDto;
-use NexusVip\ValueObjects\VipConfig;
 use NexusVip\Events\VipLevelUpEvent;
 use NexusVip\Exceptions\InvalidVipPointException;
 use NexusVip\Repositories\PlayerVipRepositoryInterface;
 use NexusVip\Repositories\VipPointLogRepositoryInterface;
+use NexusVip\ValueObjects\VipConfig;
 
 /**
  * VIPポイントサービス
- * 
+ *
  * VIPポイントの計算と付与を担当
  */
 class VipPointService
@@ -22,17 +22,16 @@ class VipPointService
         protected VipLevelService $vipLevelService,
         protected VipRewardService $vipRewardService,
         protected VipConfig $config,
-    ) {
-    }
+    ) {}
 
     /**
      * VIPポイントを付与
      *
-     * @param int $sysPlayerId プレイヤーID
-     * @param int $points VIPポイント
-     * @param string $reason 理由（purchase, manual_adjustment, campaign）
-     * @param array $metadata メタデータ
-     * @return PlayerVipDto
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  int  $points  VIPポイント
+     * @param  string  $reason  理由（purchase, manual_adjustment, campaign）
+     * @param  array  $metadata  メタデータ
+     *
      * @throws InvalidVipPointException
      */
     public function addPoints(
@@ -47,30 +46,30 @@ class VipPointService
 
         // プレイヤー情報を取得
         $playerVip = $this->playerVipRepository->findVipInfoById($sysPlayerId);
-        
+
         if ($playerVip === null) {
             throw new InvalidVipPointException("Player not found: {$sysPlayerId}");
         }
-        
+
         $beforePoint = $playerVip->getVipPoint();
-        
+
         // 変更前のVIPレベルを計算
         $beforeLevel = $this->vipLevelService->calculateLevel($beforePoint);
-        
+
         // ポイント加算
         $playerVip->addVipPoint($points);
-        
+
         // 課金額を累積（metadataに含まれている場合）
         if (isset($metadata['purchase_amount_jpy'])) {
             $playerVip->addTotalPaidAmount($metadata['purchase_amount_jpy']);
         }
-        
+
         // 変更後のVIPレベルを計算
         $afterLevel = $this->vipLevelService->calculateLevel($playerVip->getVipPoint());
-        
+
         // Repository に保存（Unit of Workパターン）
         $this->playerVipRepository->saveVipInfo($playerVip);
-        
+
         // ログ記録（設定で有効な場合）
         if ($this->config->enablePointLog) {
             $this->logVipPointChange(
@@ -85,7 +84,7 @@ class VipPointService
                 metadata: $metadata
             );
         }
-        
+
         // レベルアップ時のイベント発火（設定で有効な場合）
         if ($afterLevel > $beforeLevel && $this->config->enableLevelUpEvent) {
             // 複数レベルアップした場合は、各レベルの報酬を全て取得
@@ -94,26 +93,15 @@ class VipPointService
                 $levelRewards = $this->vipRewardService->getRewardsArray($level);
                 $allRewards = array_merge($allRewards, $levelRewards);
             }
-            
+
             event(new VipLevelUpEvent($sysPlayerId, $beforeLevel, $afterLevel, $allRewards));
         }
-        
+
         return $playerVip;
     }
 
     /**
      * VIPポイント変動ログを記録
-     *
-     * @param string $uniqueRequestId
-     * @param int $sysPlayerId
-     * @param int $beforeLevel
-     * @param int $afterLevel
-     * @param int $beforePoint
-     * @param int $afterPoint
-     * @param int $pointDiff
-     * @param string $reason
-     * @param array $metadata
-     * @return void
      */
     protected function logVipPointChange(
         string $uniqueRequestId,
@@ -141,9 +129,6 @@ class VipPointService
 
     /**
      * プレイヤーのVIP情報を取得
-     *
-     * @param int $sysPlayerId
-     * @return PlayerVipDto|null
      */
     public function getPlayerVipInfo(int $sysPlayerId): ?PlayerVipDto
     {

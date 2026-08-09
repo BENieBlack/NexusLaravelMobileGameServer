@@ -14,7 +14,7 @@ class GuildDtoTest extends TestCase
      * @test
      * DTOを正常に作成できる
      */
-    public function DTOを正常に作成できる(): void
+    public function dt_oを正常に作成できる(): void
     {
         // Act
         $dto = new GuildDto(
@@ -45,7 +45,7 @@ class GuildDtoTest extends TestCase
      * @test
      * toArray()で配列に変換できる
      */
-    public function toArrayで配列に変換できる(): void
+    public function to_arrayで配列に変換できる(): void
     {
         // Arrange
         $dto = new GuildDto(
@@ -157,8 +157,8 @@ class GuildDtoTest extends TestCase
     {
         // Arrange
         $longName = 'VeryLongGuildNameThatExceedsNormalLengthLimits123456';
-        $longDescription = 'This is a very long description that contains multiple sentences. ' .
-            'It describes the guild in great detail. ' .
+        $longDescription = 'This is a very long description that contains multiple sentences. '.
+            'It describes the guild in great detail. '.
             'It has many characters to test the DTO behavior with long text.';
 
         // Act
@@ -236,7 +236,7 @@ class GuildDtoTest extends TestCase
      * @test
      * toArray()のキーがスネークケースである
      */
-    public function toArrayのキーがスネークケースである(): void
+    public function to_arrayのキーがスネークケースである(): void
     {
         // Arrange
         $dto = new GuildDto(

@@ -6,14 +6,14 @@ namespace NexusMailbox\Services\Template;
  * _BaseTemplateEngine
  *
  * メールテンプレートのプレースホルダー置換エンジン（基底クラス）
- * 
+ *
  * {key}形式のプレースホルダーを実際の値に置換する汎用テンプレートエンジン
  * Application層でこのクラスを継承し、ゲーム固有のResolverを登録して使用する
- * 
+ *
  * Template Method Pattern:
  * - テンプレートのパースと置換ロジックは共通実装（このクラス）
  * - プレースホルダーResolverはサブクラスで登録（拡張ポイント）
- * 
+ *
  * 使用方法:
  * ```php
  * class TemplateEngine extends _BaseTemplateEngine
@@ -25,16 +25,16 @@ namespace NexusMailbox\Services\Template;
  *         $this->registerResolver(new AlliancePlaceholder());
  *     }
  * }
- * 
+ *
  * $engine = new TemplateEngine();
  * $result = $engine->render('Hello {player_name}!', [], ['player' => $player]);
  * // "Hello John!"
  * ```
- * 
+ *
  * Placeholder形式:
  * - {key} - 波括弧で囲まれた英数字とアンダースコアのキー
  * - 例: {player_name}, {alliance_level}, {item_amount}
- * 
+ *
  * 置換優先順位:
  * 1. カスタムパラメータ（$params）
  * 2. Resolver（登録順）
@@ -57,9 +57,6 @@ abstract class _BaseTemplateEngine
 
     /**
      * Resolverを登録
-     *
-     * @param PlaceholderResolverInterface $resolver
-     * @return void
      */
     public function registerResolver(PlaceholderResolverInterface $resolver): void
     {
@@ -69,8 +66,7 @@ abstract class _BaseTemplateEngine
     /**
      * 未解決プレースホルダーの処理方法を設定
      *
-     * @param string $behavior 'empty' or 'keep'
-     * @return void
+     * @param  string  $behavior  'empty' or 'keep'
      */
     public function setUnresolvedBehavior(string $behavior): void
     {
@@ -80,9 +76,9 @@ abstract class _BaseTemplateEngine
     /**
      * テンプレートをレンダリング
      *
-     * @param string $template テンプレート文字列
-     * @param array $params カスタムパラメータ（最優先）
-     * @param array $context コンテキスト情報（player, alliance, battle, etc.）
+     * @param  string  $template  テンプレート文字列
+     * @param  array  $params  カスタムパラメータ（最優先）
+     * @param  array  $context  コンテキスト情報（player, alliance, battle, etc.）
      * @return string レンダリング結果
      */
     public function render(string $template, array $params = [], array $context = []): string
@@ -113,13 +109,12 @@ abstract class _BaseTemplateEngine
     /**
      * プレースホルダーをパース
      *
-     * @param string $template
      * @return array<array{key: string, match: string}>
      */
     protected function parsePlaceholders(string $template): array
     {
         $placeholders = [];
-        
+
         // {key} 形式のプレースホルダーを抽出
         preg_match_all('/{([a-z_]+)}/i', $template, $matches, PREG_SET_ORDER);
 
@@ -136,16 +131,14 @@ abstract class _BaseTemplateEngine
     /**
      * プレースホルダーを解決
      *
-     * @param string $key
-     * @param array $params カスタムパラメータ
-     * @param array $context コンテキスト
-     * @return string|null
+     * @param  array  $params  カスタムパラメータ
+     * @param  array  $context  コンテキスト
      */
     protected function resolvePlaceholder(string $key, array $params, array $context): ?string
     {
         // 1. カスタムパラメータを最優先で確認
         if (isset($params[$key])) {
-            return (string)$params[$key];
+            return (string) $params[$key];
         }
 
         // 2. Resolverで解決

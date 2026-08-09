@@ -4,8 +4,8 @@ namespace NexusResourceDelivery\DTOs;
 
 use NexusResource\DTOs\ResourceDto;
 use NexusResource\Enums\ResourceType;
-use NexusResourceDelivery\Enums\ResourceDeliveryStatus;
 use NexusResourceDelivery\Enums\ResourceDeliveryResultReason;
+use NexusResourceDelivery\Enums\ResourceDeliveryStatus;
 use Ramsey\Uuid\Uuid;
 
 /**
@@ -33,7 +33,7 @@ class ResourceDeliveryContentDto
     /** @var ResourceDeliveryResultReason 配送失敗理由 */
     private ResourceDeliveryResultReason $failureReason;
 
-    /** @var Resource|null 元のリソース（変換前） */
+    /** @var resource|null 元のリソース（変換前） */
     private ?ResourceDto $originalResource = null;
 
     /** @var int ログ用：付与前のリソース量 */
@@ -43,7 +43,7 @@ class ResourceDeliveryContentDto
     private int $afterAmount = 0;
 
     /**
-     * @param ResourceDto $resourceDto リソース
+     * @param  ResourceDto  $resourceDto  リソース
      */
     public function __construct(
         private ResourceDto $resourceDto,
@@ -170,7 +170,7 @@ class ResourceDeliveryContentDto
      */
     public function isSendComplete(): bool
     {
-        return $this->status === ResourceDeliveryStatus::DELIVERED 
+        return $this->status === ResourceDeliveryStatus::DELIVERED
             || $this->status === ResourceDeliveryStatus::RECEIVED;
     }
 
@@ -225,8 +225,8 @@ class ResourceDeliveryContentDto
     /**
      * コンテンツを変換（元のリソースを保存してから新しいリソースに置き換える）
      *
-     * @param ResourceDto $newResource 新しいリソース
-     * @param ResourceDeliveryResultReason $reason 変換理由
+     * @param  ResourceDto  $newResource  新しいリソース
+     * @param  ResourceDeliveryResultReason  $reason  変換理由
      */
     public function convertTo(ResourceDto $newResource, ResourceDeliveryResultReason $reason): void
     {
@@ -282,21 +282,16 @@ class ResourceDeliveryContentDto
 
     /**
      * 配列からResourceDeliveryContentを生成
-     *
-     * @param array $data
-     * @return self
      */
     public static function fromArray(array $data): self
     {
         $resource = Resource::fromArray($data);
+
         return new self($resource);
     }
 
     /**
      * Resourceから生成
-     *
-     * @param ResourceDto $resourceDto
-     * @return self
      */
     public static function fromResource(ResourceDto $resourceDto): self
     {
@@ -305,8 +300,6 @@ class ResourceDeliveryContentDto
 
     /**
      * 配列に変換
-     *
-     * @return array
      */
     public function toArray(): array
     {

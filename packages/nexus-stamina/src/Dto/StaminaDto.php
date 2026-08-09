@@ -4,7 +4,7 @@ namespace NexusStamina\Dto;
 
 /**
  * StaminaDto
- * 
+ *
  * スタミナ情報のDTO
  */
 class StaminaDto
@@ -15,8 +15,7 @@ class StaminaDto
         private int $currentStamina,
         private float $recoveryRateMultiplier,
         private string $lastRecoveryAt,
-    ) {
-    }
+    ) {}
 
     public function getSysPlayerId(): int
     {

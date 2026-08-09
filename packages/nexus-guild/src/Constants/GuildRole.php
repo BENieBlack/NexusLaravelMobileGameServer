@@ -4,7 +4,7 @@ namespace NexusGuild\Constants;
 
 /**
  * GuildRole
- * 
+ *
  * ギルドメンバーの役職定数
  */
 class GuildRole
@@ -26,7 +26,7 @@ class GuildRole
 
     /**
      * 全役職
-     * 
+     *
      * @return array<string>
      */
     public static function all(): array
@@ -40,9 +40,6 @@ class GuildRole
 
     /**
      * 有効な役職かチェック
-     * 
-     * @param string $role
-     * @return bool
      */
     public static function isValid(string $role): bool
     {

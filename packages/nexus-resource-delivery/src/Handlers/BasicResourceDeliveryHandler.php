@@ -2,16 +2,16 @@
 
 namespace NexusResourceDelivery\Handlers;
 
+use App\Domain\Wallet\Services\WalletService;
 use NexusResource\Enums\ResourceType;
 use NexusResourceDelivery\DTOs\ResourceDeliveryContentDto;
-use App\Domain\Wallet\Services\WalletService;
 
 /**
  * BasicResourceDeliveryHandler
- * 
+ *
  * 基本リソース配送処理を担当するHandler
  * WalletServiceを使用して、Food, Wood, Stone, Iron, Stamina, Experience等を加算
- * 
+ *
  * 対応リソース:
  * - ResourceType::FOOD
  * - ResourceType::WOOD
@@ -24,15 +24,14 @@ class BasicResourceDeliveryHandler implements ResourceDeliveryHandlerInterface
 {
     public function __construct(
         private readonly WalletService $walletService,
-    ) {
-    }
+    ) {}
 
     /**
      * 基本リソース配送処理を実行
-     * 
-     * @param int $sysPlayerId プレイヤーID
-     * @param ResourceDeliveryContentDto $resourceDeliveryContentDto 配送コンテンツ
-     * @return void
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  ResourceDeliveryContentDto  $resourceDeliveryContentDto  配送コンテンツ
+     *
      * @throws \Exception 配送失敗時
      */
     public function handle(int $sysPlayerId, ResourceDeliveryContentDto $resourceDeliveryContentDto): void
@@ -40,7 +39,7 @@ class BasicResourceDeliveryHandler implements ResourceDeliveryHandlerInterface
         // 基本リソースは全て無償扱い
         $freeAmount = $resourceDeliveryContentDto->getAmount();
         $paidAmount = 0;
-        
+
         // WalletServiceのaddCurrencyメソッドを使用
         // 基本リソースは有効期限なし
         $this->walletService->addCurrency(
@@ -54,14 +53,13 @@ class BasicResourceDeliveryHandler implements ResourceDeliveryHandlerInterface
 
     /**
      * このHandlerがサポートするリソースタイプかどうか
-     * 
-     * @param ResourceType|string $type リソースタイプ
-     * @return bool
+     *
+     * @param  ResourceType|string  $type  リソースタイプ
      */
     public function supports(ResourceType|string $type): bool
     {
         $typeValue = $type instanceof ResourceType ? $type->value : $type;
-        
+
         return in_array($typeValue, [
             ResourceType::FOOD->value,
             ResourceType::WOOD->value,

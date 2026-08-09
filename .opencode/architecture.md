@@ -221,6 +221,107 @@ app/Domain/Delivery/
 
 ---
 
+### Package層のディレクトリ構造
+
+パッケージ（例: nexus-vip, nexus-gacha等）は以下の構造を持ちます：
+
+```
+packages/{package-name}/
+├── src/
+│   ├── DTOs/                          # データ転送オブジェクト
+│   │   ├── {Name}Dto.php              # Dtoサフィックス（例: PlayerVipDto）
+│   │   └── {Name}ResultDto.php
+│   │
+│   ├── ValueObjects/                  # Value Object（不変オブジェクト）
+│   │   └── {Name}.php                 # サフィックスなし（例: VipConfig）
+│   │
+│   ├── Services/                      # ビジネスロジック
+│   │   └── {Name}Service.php          # Serviceサフィックス
+│   │
+│   ├── Repositories/                  # Repositoryインターフェース
+│   │   └── {Name}RepositoryInterface.php
+│   │
+│   ├── Models/                        # Eloquentモデル（パッケージ専用）
+│   │   └── {Name}.php
+│   │
+│   ├── Events/                        # イベント
+│   │   └── {Name}Event.php
+│   │
+│   ├── Exceptions/                    # 例外クラス
+│   │   └── {Name}Exception.php
+│   │
+│   └── {Package}ServiceProvider.php   # サービスプロバイダー
+│
+├── tests/
+│   └── Unit/
+│       ├── DTOs/
+│       ├── Services/
+│       └── ValueObjects/
+│
+├── config/
+│   └── {package}.php                  # 設定ファイル
+│
+└── composer.json
+```
+
+**例: nexus-vipパッケージ**
+
+```
+packages/nexus-vip/
+├── src/
+│   ├── DTOs/
+│   │   ├── PlayerVipDto.php           # データ転送（Repository ↔ Service）
+│   │   ├── VipBenefitDto.php
+│   │   └── VipLevelDto.php
+│   │
+│   ├── ValueObjects/
+│   │   └── VipConfig.php              # 設定のValue Object（完全不変）
+│   │
+│   ├── Services/
+│   │   ├── VipPointService.php
+│   │   ├── VipLevelService.php
+│   │   └── VipBenefitService.php
+│   │
+│   ├── Repositories/
+│   │   ├── PlayerVipRepositoryInterface.php
+│   │   └── VipLevelRepositoryInterface.php
+│   │
+│   ├── Models/
+│   │   └── MstVipLevel.php
+│   │
+│   ├── Events/
+│   │   └── VipLevelUpEvent.php
+│   │
+│   ├── Exceptions/
+│   │   └── InvalidVipPointException.php
+│   │
+│   └── VipServiceProvider.php
+│
+├── tests/
+│   └── Unit/
+│       ├── DTOs/
+│       │   └── PlayerVipDtoTest.php
+│       └── Services/
+│           └── VipPointServiceTest.php
+│
+├── config/
+│   └── vip.php
+│
+└── composer.json
+```
+
+**DTOs/ と ValueObjects/ の使い分け:**
+
+- **DTOs/**: データ転送用（可変も許容、toArray()あり）
+  - 例: `PlayerVipDto`, `GuildDto`, `DeliveryResultDto`
+
+- **ValueObjects/**: ドメイン概念を表現（完全不変、toArray()なし）
+  - 例: `VipConfig`, `Money`, `DateRange`, `GameSettings`
+
+詳細は [DTO vs Value Object の使い分け](#dto-vs-value-object-の使い分け) を参照してください。
+
+---
+
 ## 各層の責務
 
 ### Presentation Layer（プレゼンテーション層）
@@ -470,6 +571,184 @@ class VersionCheckService
 - モデルのプロパティやリレーションがそのまま使える場合
 - 追加の加工が不要な場合
 - シンプルに保ちたい場合
+
+---
+
+### DTO vs Value Object の使い分け
+
+**DTO (Data Transfer Object)** と **Value Object** は異なる目的と特性を持ちます。
+
+#### DTO (Data Transfer Object)
+
+**目的**: レイヤー間・システム間でデータを転送する
+
+**特徴**:
+- データの「運搬役」
+- 構造は転送要件に依存
+- getter/setterを持つことがある（可変も許容）
+- `toArray()` メソッドを持つ（DB/APIとの変換用）
+- バリデーションロジックは最小限
+
+**配置**: `src/DTOs/` または `app/Domain/{Domain}/DTOs/`
+
+**実装例（nexus-vip）:**
+
+```php
+namespace NexusVip\DTOs;
+
+/**
+ * プレイヤーVIP情報DTO
+ * Repository ↔ Service 間でデータを転送
+ */
+class PlayerVipDto
+{
+    public function __construct(
+        private readonly int $sysPlayerId,
+        private int $vipPoint,              // 可変（setterあり）
+        private float $totalPaidAmount,     // 可変（setterあり）
+    ) {}
+    
+    // getter
+    public function getVipPoint(): int
+    {
+        return $this->vipPoint;
+    }
+    
+    // setter（転送後に値を変更可能）
+    public function addVipPoint(int $points): void
+    {
+        $this->vipPoint += $points;
+    }
+    
+    // 配列変換（DB/API用）
+    public function toArray(): array
+    {
+        return [
+            'sys_player_id' => $this->sysPlayerId,
+            'vip_point' => $this->vipPoint,
+            'total_paid_amount' => $this->totalPaidAmount,
+        ];
+    }
+}
+```
+
+**使用例:**
+```php
+// Repository → Service
+$playerVip = $this->playerVipRepository->findVipInfoById($playerId);  // PlayerVipDto
+$playerVip->addVipPoint(100);  // DTO内で値を変更
+$this->playerVipRepository->save($playerVip);
+```
+
+---
+
+#### Value Object
+
+**目的**: ドメイン概念を表現する不変の値
+
+**特徴**:
+- ビジネスロジックの一部
+- 概念的な「値」を表現（金額、期間、設定など）
+- **完全に不変（immutable）** - すべてのフィールドが `readonly`
+- setter なし
+- `toArray()` なし（転送が目的ではない）
+- 等価性は値で判断（同じ値 = 同じオブジェクト）
+- ビジネスルールを内包できる
+
+**配置**: `src/ValueObjects/` または `app/Domain/{Domain}/ValueObjects/`
+
+**実装例（nexus-vip）:**
+
+```php
+namespace NexusVip\ValueObjects;
+
+/**
+ * VIP設定 Value Object
+ * VIPシステムの設定という「概念」を表現
+ */
+class VipConfig
+{
+    public function __construct(
+        public readonly bool $enablePointLog = true,
+        public readonly bool $enableLevelUpEvent = true,
+        public readonly bool $staminaBonusEnabled = true,
+        public readonly bool $shopDiscountEnabled = true,
+        public readonly bool $gachaDiscountEnabled = true,
+        public readonly bool $dailyDiamondEnabled = true,
+    ) {}
+    
+    // getter も不要（public readonly で直接アクセス可能）
+    // setter は存在しない（完全不変）
+    // toArray() なし（転送目的ではない）
+}
+```
+
+**使用例:**
+```php
+// Application層（ServiceProvider）で生成
+$this->app->singleton(VipConfig::class, function () {
+    return new VipConfig(
+        enablePointLog: config('vip.enable_point_log', true),
+        enableLevelUpEvent: config('vip.enable_level_up_event', true),
+        // ...
+    );
+});
+
+// Package層（Service）で使用
+class VipPointService
+{
+    public function __construct(
+        protected VipConfig $config,  // DI
+    ) {}
+    
+    public function addPoints(int $points): PlayerVipDto
+    {
+        // 設定値を参照（変更不可）
+        if ($this->config->enablePointLog) {
+            $this->logVipPointChange(...);
+        }
+        // ...
+    }
+}
+
+// テストでの使用
+$config = new VipConfig(
+    enablePointLog: false,  // テスト用設定
+    enableLevelUpEvent: false,
+);
+$service = new VipPointService($config);
+```
+
+---
+
+#### 比較表
+
+| 観点 | **DTO** | **Value Object** |
+|------|---------|------------------|
+| **目的** | データ転送 | ドメイン概念の表現 |
+| **可変性** | 可変も許容（setterあり） | 完全不変（readonly のみ） |
+| **toArray()** | ✅ あり（DB/API用） | ❌ なし（転送目的でない） |
+| **ビジネスロジック** | 最小限 | 含むことができる |
+| **等価性判断** | IDベース | 値ベース |
+| **配置** | `DTOs/` | `ValueObjects/` |
+| **使用箇所** | Repository ↔ Service | Service内のロジック |
+| **例** | PlayerVipDto, GuildDto | VipConfig, Money, Period |
+
+---
+
+#### どちらを使うべきか？
+
+**DTOを使うケース:**
+- ✅ Repository と Service 間でデータを運ぶ
+- ✅ 外部API とのデータ交換
+- ✅ 複数のモデルを組み合わせた構造
+- ✅ データベースとの変換が必要（toArray/fromArray）
+
+**Value Objectを使うケース:**
+- ✅ 設定値を表現（VipConfig, GameConfig）
+- ✅ 金額・期間などのドメイン概念（Money, DateRange）
+- ✅ 完全に不変であるべきデータ
+- ✅ ビジネスルールを内包する値（Email, PhoneNumber）
 
 **実装例:**
 

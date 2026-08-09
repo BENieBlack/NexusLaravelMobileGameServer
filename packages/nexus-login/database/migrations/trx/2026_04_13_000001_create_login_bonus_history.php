@@ -7,10 +7,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * 接続先データベース
-     */
-    protected $connections = $this->getTrxConnections();
+    use DynamicShardingTrait;
 
     /**
      * Run the migrations.
@@ -25,6 +22,9 @@ return new class extends Migration
                 $table->id();
                 $table->unsignedBigInteger('sys_player_id')->comment('プレイヤーID');
                 $table->string('mst_login_bonus_id')->comment('ログインボーナスID');
+                $table->unsignedInteger('absent_days')
+                      ->nullable()
+                      ->comment('休眠日数（カムバックボーナスの場合のみ）');
                 $table->date('received_date')->comment('受け取った日付（UTC）');
                 $table->enum('reward_type', ['item', 'unit', 'equipment', 'wallet', 'diamond'])->comment('報酬タイプ');
                 $table->string('reward_id')->comment('報酬ID');
@@ -36,6 +36,7 @@ return new class extends Migration
                 $table->index('sys_player_id');
                 $table->index('received_date');
                 $table->index(['sys_player_id', 'received_date']);
+                $table->index('absent_days', 'idx_absent_days');
             });
         }
     }

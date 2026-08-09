@@ -26,6 +26,8 @@ return new class extends Migration
             $table->string('platform_product_id', 255)->comment('プラットフォーム商品ID');
             $table->enum('billing_platform', ['AppStore', 'GooglePlay', 'PayPal', 'Stripe'])->comment('決済プラットフォーム');
             $table->enum('product_type', ['Consumable', 'NonConsumable', 'Subscription'])->comment('商品種別');
+            $table->unsignedBigInteger('price_amount_micros')->nullable()->comment('価格（マイクロ単位、例: 1,000,000 = 1.00 USD）');
+            $table->string('price_currency_code', 3)->nullable()->comment('通貨コード（ISO 4217、例: USD, JPY）');
             $table->boolean('is_active')->default(true)->comment('有効フラグ');
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
@@ -45,6 +47,7 @@ return new class extends Migration
             $table->id()->comment('アプリ内課金商品ID');
             $table->enum('type', ['Diamond', 'Pack', 'Pass'])->comment('課金商品タイプ');
             $table->unsignedInteger('paid_diamond_amount')->default(0)->comment('有償ダイヤ数');
+            $table->unsignedInteger('vip_point')->default(0)->comment('付与VIPポイント');
             $table->unsignedInteger('effect_duration_days')->nullable()->comment('効果期間（日数）');
             $table->unsignedInteger('purchase_limit')->nullable()->comment('購入制限回数');
             $table->enum('purchase_limit_reset', ['None', 'Daily', 'Weekly', 'Monthly'])->default('None')->comment('購入制限リセット');
@@ -58,6 +61,7 @@ return new class extends Migration
             $table->index('deploy_key');
             $table->index('type');
             $table->index('paid_diamond_amount');
+            $table->index('vip_point');
             $table->index('app_store_product_id');
             $table->index('google_play_product_id');
             $table->index('is_active');

@@ -36,14 +36,16 @@ return new class extends Migration
         // trx_stamina: プレイヤースタミナ管理
         // ========================================
         Schema::connection($connection)->create('trx_stamina', function (Blueprint $table) {
-            $table->id()->comment('スタミナID');
-            $table->unsignedBigInteger('sys_player_id')->unique()->comment('sys_playerテーブルのID');
+            $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
+            $table->string('type', 50)->default('normal')->comment('スタミナタイプ（normal, raid, pvp, event等）');
             $table->unsignedInteger('current_stamina')->default(0)->comment('現在のスタミナ');
             $table->decimal('recovery_rate_multiplier', 5, 2)->default(1.00)->comment('回復速度倍率（VIP特典等）');
             $table->dateTime('last_recovery_at')->comment('最後の回復計算時刻');
             $table->boolean('is_delete')->default(false)->comment('論理削除フラグ');
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
+
+            $table->primary(['sys_player_id', 'type']);
         });
     }
 

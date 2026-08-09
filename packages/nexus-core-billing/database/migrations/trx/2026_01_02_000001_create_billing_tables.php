@@ -39,6 +39,7 @@ return new class extends Migration
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
             $table->string('billing_platform')->comment('決済プラットフォーム (AppStore, GooglePlay, PayPal, Stripe等)');
             $table->string('mst_in_app_purchase_id')->comment('課金商品マスターID');
+            $table->string('transaction_id', 255)->nullable()->comment('プラットフォーム固有のトランザクションID（Apple: transaction_id, Google: orderId）');
             $table->unsignedInteger('total_purchase_count')->default(0)->comment('累計購入回数');
             $table->unsignedInteger('purchase_count')->default(0)->comment('期間内購入回数（リセット可能）');
             $table->dateTime('purchase_count_reset_at')->nullable()->comment('購入回数リセット日時');
@@ -47,6 +48,7 @@ return new class extends Migration
             $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
 
             $table->primary(['sys_player_id', 'billing_platform', 'mst_in_app_purchase_id']);
+            $table->unique(['billing_platform', 'transaction_id'], 'unique_transaction_per_platform');
         });
 
         // ========================================

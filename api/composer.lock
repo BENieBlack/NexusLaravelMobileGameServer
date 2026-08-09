@@ -2928,7 +2928,7 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-gacha",
-                "reference": "5ac182895c8306310e27bd6204af202966e2a116"
+                "reference": "140c833125162716c31874e2daf97a458c1716cb"
             },
             "require": {
                 "nexus/core-utilities": "@dev",
@@ -2939,6 +2939,13 @@
                 "phpunit/phpunit": "^10.0"
             },
             "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "NexusGacha\\GachaServiceProvider"
+                    ]
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "NexusGacha\\": "src/"
@@ -3024,7 +3031,7 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-login",
-                "reference": "ca442ac823d7f6e99da7b565a4755dc70221b476"
+                "reference": "d7a20ec56f26168a99fa8d9687a3b64737f7be84"
             },
             "require": {
                 "illuminate/database": "^12.0",
@@ -3040,6 +3047,13 @@
                 "phpunit/phpunit": "^11.0"
             },
             "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "NexusLogin\\LoginServiceProvider"
+                    ]
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "NexusLogin\\": "src/"
@@ -3070,7 +3084,7 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-mailbox",
-                "reference": "1fd68de8be33d9ffc357f014697609c2971485f4"
+                "reference": "ba88f535c947e413766a57517c0d4bc9cf305040"
             },
             "require": {
                 "nexus/core-utilities": "@dev",
@@ -3082,6 +3096,13 @@
                 "phpunit/phpunit": "^10.0"
             },
             "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "NexusMailbox\\MailboxServiceProvider"
+                    ]
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "NexusMailbox\\": "src/"
@@ -3216,7 +3237,7 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-player",
-                "reference": "7aff54d9ccce2ffa0feff76658bff7e5a415b767"
+                "reference": "797c54289bd464076ae6b139dcccf62f7b64b7ea"
             },
             "require": {
                 "nexus/core-utilities": "@dev",
@@ -3226,6 +3247,13 @@
                 "phpunit/phpunit": "^10.0"
             },
             "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "NexusPlayer\\PlayerServiceProvider"
+                    ]
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "NexusPlayer\\": "src/"
@@ -3247,7 +3275,7 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-resource",
-                "reference": "1be7b3ef897831a1248aff96d5cbe49a8f19c692"
+                "reference": "fa4322fadffacc21adfee681452de7b3fbd1b951"
             },
             "require": {
                 "php": "^8.3",
@@ -3258,6 +3286,13 @@
                 "phpunit/phpunit": "^11.0"
             },
             "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "NexusResource\\ResourceServiceProvider"
+                    ]
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "NexusResource\\": "src/"
@@ -3332,7 +3367,7 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-stamina",
-                "reference": "ee290d79dde21902d4b2783069044983f925b168"
+                "reference": "4e1a79777a2d29e0ac547993f9db704a21a40316"
             },
             "require": {
                 "illuminate/support": "^11.0|^12.0",
@@ -3344,6 +3379,13 @@
                 "phpunit/phpunit": "^11.0"
             },
             "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "NexusStamina\\StaminaServiceProvider"
+                    ]
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "NexusStamina\\": "src/"

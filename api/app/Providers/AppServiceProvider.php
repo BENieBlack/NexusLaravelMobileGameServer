@@ -36,6 +36,8 @@ use App\Repositories\Trx\TrxMailboxRepository;
 use App\Repositories\Trx\TrxStaminaRepository;
 use App\Repositories\Trx\TrxVipLoginBonusHistoryRepository;
 use App\Repositories\Trx\VipLoginBonusHistoryRepositoryInterface;
+use App\Repositories\Trx\WalletBalanceRepository;
+use App\Repositories\Trx\WalletRepository;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use NexusAuth\Contracts\DeviceRepositoryInterface;
@@ -80,6 +82,8 @@ use NexusVip\Repositories\PlayerVipRepositoryInterface;
 use NexusVip\Repositories\VipLevelRepositoryInterface;
 use NexusVip\Repositories\VipLevelRewardRepositoryInterface;
 use NexusVip\Repositories\VipPointLogRepositoryInterface;
+use LaravelWallet\Repositories\WalletRepositoryInterface;
+use LaravelWallet\Repositories\WalletBalanceRepositoryInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -201,6 +205,14 @@ class AppServiceProvider extends ServiceProvider
 
         // Repository interfaces
         $this->app->bind(DiamondRepositoryInterface::class, DiamondRepositoryImpl::class);
+
+        // ==========================================
+        // NexusWallet (LaravelWallet) Package Bindings
+        // ==========================================
+
+        // Repository interfaces
+        $this->app->bind(WalletRepositoryInterface::class, WalletRepository::class);
+        $this->app->bind(WalletBalanceRepositoryInterface::class, WalletBalanceRepository::class);
 
         // ==========================================
         // ResourceDelivery Package Bindings

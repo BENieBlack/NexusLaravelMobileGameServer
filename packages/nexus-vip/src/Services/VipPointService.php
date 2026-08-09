@@ -3,6 +3,7 @@
 namespace NexusVip\Services;
 
 use NexusVip\DTOs\PlayerVipDto;
+use NexusVip\DTOs\VipConfigDto;
 use NexusVip\Events\VipLevelUpEvent;
 use NexusVip\Exceptions\InvalidVipPointException;
 use NexusVip\Repositories\PlayerVipRepositoryInterface;
@@ -20,6 +21,7 @@ class VipPointService
         protected VipPointLogRepositoryInterface $vipPointLogRepository,
         protected VipLevelService $vipLevelService,
         protected VipRewardService $vipRewardService,
+        protected VipConfigDto $config,
     ) {
     }
 
@@ -70,7 +72,7 @@ class VipPointService
         $this->playerVipRepository->saveVipInfo($playerVip);
         
         // ログ記録（設定で有効な場合）
-        if (config('vip.enable_point_log', true)) {
+        if ($this->config->enablePointLog) {
             $this->logVipPointChange(
                 uniqueRequestId: $metadata['unique_request_id'] ?? uniqid('vip_', true),
                 sysPlayerId: $sysPlayerId,
@@ -85,7 +87,7 @@ class VipPointService
         }
         
         // レベルアップ時のイベント発火（設定で有効な場合）
-        if ($afterLevel > $beforeLevel && config('vip.enable_level_up_event', true)) {
+        if ($afterLevel > $beforeLevel && $this->config->enableLevelUpEvent) {
             // 複数レベルアップした場合は、各レベルの報酬を全て取得
             $allRewards = [];
             for ($level = $beforeLevel + 1; $level <= $afterLevel; $level++) {

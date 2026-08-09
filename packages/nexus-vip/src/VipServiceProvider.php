@@ -4,7 +4,7 @@ namespace NexusVip;
 
 use Illuminate\Support\ServiceProvider;
 use NexusVip\Contracts\CurrencyConverterInterface;
-use NexusVip\DTOs\VipConfig;
+use NexusVip\ValueObjects\VipConfig;
 use NexusVip\Repositories\PlayerVipRepositoryInterface;
 use NexusVip\Repositories\VipLevelRepositoryInterface;
 use NexusVip\Repositories\VipLevelRewardRepositoryInterface;

@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Domain\Wallet\Services;
 
-use App\Domain\Wallet\Services\WalletService;
 use App\Persistence\ApiSession;
+use LaravelWallet\Services\WalletService;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use LaravelWallet\Exceptions\InsufficientBalanceException;

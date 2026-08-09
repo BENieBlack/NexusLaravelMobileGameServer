@@ -50,20 +50,22 @@
 
 ### 🔄 パッケージに移動すべきService
 
-#### 優先度：高
+#### ✅ 完了：ItemService / ItemReadService / ItemWriteService
 
-##### 1. ItemService / ItemReadService / ItemWriteService
+**移行完了日:** 2026-08-10  
+**コミット:** f4fd003
 
-**現状:**
-- `api/app/Domain/Item/Services/ItemService.php` - Facade
-- `api/app/Domain/Item/Services/ItemReadService.php` - 読み取り
-- `api/app/Domain/Item/Services/ItemWriteService.php` - 書き込み
-- パッケージ: `nexus-resource` 存在するがServiceなし
+**移行後の構造:**
+- パッケージ層: `nexus-resource/src/Services/Item{Read,Write}Service.php` - DTOベースのビジネスロジック
+- Domain層: `api/app/Domain/Item/Services/Item{Read,Write}Service.php` - Wrapperパターン
+- Repository実装: `api/app/Repositories/Trx/ItemRepositoryImpl.php`
 
-**移動すべきビジネスロジック:**
-- ✅ 有償優先消費ロジック
-- ✅ 残高チェック
-- ✅ 加算/減算のビジネスルール
+**移行したビジネスロジック:**
+- ✅ 有償優先消費ロジック（consumeWithPaidFirst）
+- ✅ 残高チェック（validateSufficientAmount）
+- ✅ 加算/減算のビジネスルール（addItem, consumeItem）
+
+**後方互換性:** ✅ 既存コードは変更不要（Domain層Wrapperで維持）
 
 **推奨構造:**
 
@@ -188,13 +190,13 @@ class ItemWriteService
 
 #### 優先度：中
 
-##### 2. InAppPurchase関連Service
+##### 2. InAppPurchase関連Service （次の移行対象候補）
 
 **現状:**
 - `api/app/Domain/InAppPurchase/Services/DiamondBalanceService.php`
-- `api/app/Domain/InAppPurchase/Services/InAppPurchasePurchaseService.php`
+- `api/app/Domain/InAppPurchase/Services/InAppPurchaseService.php`
+- `api/app/Domain/InAppPurchase/Services/InAppPurchaseEffectService.php`
 - `api/app/Domain/InAppPurchase/Services/InAppPurchasePackService.php`
-- `api/app/Domain/InAppPurchase/Services/InAppPurchasePassService.php`
 - `api/app/Domain/InAppPurchase/Services/InAppPurchaseValidationService.php`
 - パッケージ: `nexus-core-billing` 存在
 

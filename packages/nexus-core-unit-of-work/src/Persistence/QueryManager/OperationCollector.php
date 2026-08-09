@@ -2,10 +2,10 @@
 
 namespace NexusUnitOfWork\Persistence\QueryManager;
 
-use NexusPersistence\Repositories\_BaseRepository;
-use NexusPersistence\Repositories\Log\_BaseLogRepository;
-use NexusPersistence\Repositories\Sys\_BaseSysRepository;
-use NexusPersistence\Repositories\Trx\_BaseTrxRepository;
+use Nexus\Core\Repositories\_BaseRepository;
+use Nexus\Core\Repositories\Log\_BaseLogRepository;
+use Nexus\Core\Repositories\Sys\_BaseSysRepository;
+use Nexus\Core\Repositories\Trx\_BaseTrxRepository;
 
 /**
  * OperationCollector

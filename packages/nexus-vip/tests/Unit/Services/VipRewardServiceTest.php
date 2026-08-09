@@ -3,7 +3,7 @@
 namespace NexusVip\Tests\Unit\Services;
 
 use Mockery;
-use NexusPersistence\Support\CustomCollection;
+use Nexus\Core\Support\CustomCollection;
 use NexusVip\DTOs\VipRewardDto;
 use NexusVip\Models\MstVipLevelReward;
 use NexusVip\Repositories\VipLevelRewardRepositoryInterface;

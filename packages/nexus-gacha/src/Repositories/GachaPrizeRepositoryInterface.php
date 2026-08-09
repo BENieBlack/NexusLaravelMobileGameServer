@@ -2,7 +2,7 @@
 
 namespace NexusGacha\Repositories;
 
-use NexusPersistence\Support\CustomCollection;
+use Nexus\Core\Support\CustomCollection;
 
 /**
  * GachaPrizeRepositoryInterface

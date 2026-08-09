@@ -2,8 +2,8 @@
 
 namespace NexusUnitOfWork\Persistence\QueryManager;
 
-use NexusPersistence\Repositories\Sys\_BaseSysRepository;
-use NexusPersistence\Repositories\Trx\_BaseTrxRepository;
+use Nexus\Core\Repositories\Sys\_BaseSysRepository;
+use Nexus\Core\Repositories\Trx\_BaseTrxRepository;
 use Illuminate\Support\Facades\DB;
 
 /**

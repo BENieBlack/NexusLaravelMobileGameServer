@@ -2,7 +2,7 @@
 
 namespace NexusVip\Repositories;
 
-use NexusPersistence\Support\CustomCollection;
+use Nexus\Core\Support\CustomCollection;
 use NexusVip\Models\MstVipLevelReward;
 
 /**

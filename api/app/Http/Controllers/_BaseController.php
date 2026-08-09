@@ -5,10 +5,10 @@ namespace App\Http\Controllers;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Exceptions\InfraErrorCode;
-use App\Http\Responses\ErrorResponse;
 use App\Responses\_BaseResponseInterface;
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Http\JsonResponse;
+use Nexus\Core\ValueObjects\ErrorResponse;
 use Throwable;
 
 abstract class _BaseController

@@ -4,7 +4,7 @@ namespace NexusMaintenance\Infrastructure\DynamoDB;
 
 use NexusMaintenance\Contracts\MaintenanceStorageInterface;
 use NexusMaintenance\DTOs\MaintenanceDto;
-use NexusUtilities\ClockUtility;
+use Nexus\Core\Utilities\ClockUtility;
 use Aws\DynamoDb\DynamoDbClient;
 use Aws\DynamoDb\Exception\DynamoDbException;
 use Illuminate\Support\Facades\Log;

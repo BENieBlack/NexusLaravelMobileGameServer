@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-use NexusPersistence\Repositories\_BaseRepository as PersistenceBaseRepository;
+use Nexus\Core\Repositories\_BaseRepository as PersistenceBaseRepository;
 
 /**
  * _BaseRepository

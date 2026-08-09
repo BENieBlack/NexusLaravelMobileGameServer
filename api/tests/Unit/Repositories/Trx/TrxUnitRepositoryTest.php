@@ -5,7 +5,7 @@ namespace Tests\Unit\Repositories\Trx;
 use App\Models\Trx\TrxUnit;
 use App\Persistence\ApiSession;
 use App\Repositories\Trx\TrxUnitRepository;
-use NexusUtilities\ClockUtility;
+use Nexus\Core\Utilities\ClockUtility;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
 

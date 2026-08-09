@@ -3,7 +3,7 @@
 namespace App\Repositories\Log;
 
 use App\Persistence\ApiSession;
-use NexusPersistence\Repositories\Log\_BaseLogRepository as PersistenceBaseLogRepository;
+use Nexus\Core\Repositories\Log\_BaseLogRepository as PersistenceBaseLogRepository;
 use NexusUnitOfWork\Traits\UsesUnitOfWork;
 
 /**

@@ -2,7 +2,7 @@
 
 namespace NexusBilling\DTOs;
 
-use NexusUtilities\Traits\JsonSerializableTrait;
+use Nexus\Core\Traits\JsonSerializableTrait;
 
 /**
  * 購入情報DTO

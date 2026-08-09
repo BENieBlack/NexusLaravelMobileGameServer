@@ -7,7 +7,7 @@ namespace App\Http\Controllers\Admin;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use NexusMaintenance\Services\MaintenanceService;
-use NexusUtilities\ClockUtility;
+use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * メンテナンス管理用の管理者APIコントローラー

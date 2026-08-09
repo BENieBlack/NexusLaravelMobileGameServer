@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use NexusPersistence\Models\_BaseModel as PersistenceBaseModel;
+use Nexus\Core\Models\_BaseModel as PersistenceBaseModel;
 
 /**
  * _BaseModel

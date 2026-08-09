@@ -4,7 +4,7 @@ namespace App\Repositories\Mst;
 
 use App\Models\Mst\MstGachaStepBonusContent;
 use NexusGacha\Repositories\GachaStepBonusContentRepositoryInterface;
-use NexusPersistence\Support\CustomCollection;
+use Nexus\Core\Support\CustomCollection;
 
 /**
  * MstGachaStepBonusContentRepository

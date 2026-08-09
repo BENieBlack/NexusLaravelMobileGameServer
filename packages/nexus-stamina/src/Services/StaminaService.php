@@ -5,7 +5,7 @@ namespace NexusStamina\Services;
 use NexusStamina\Constants\StaminaConst;
 use NexusStamina\Dto\StaminaDto;
 use NexusStamina\Repositories\StaminaRepositoryInterface;
-use NexusUtilities\ClockUtility;
+use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * StaminaService

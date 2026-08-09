@@ -2,7 +2,7 @@
 
 namespace LaravelWallet\DTOs;
 
-use NexusUtilities\Traits\JsonSerializableTrait;
+use Nexus\Core\Traits\JsonSerializableTrait;
 
 /**
  * 通貨残高情報DTO

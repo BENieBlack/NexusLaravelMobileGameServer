@@ -1,6 +1,6 @@
 <?php
 
-namespace NexusUtilities;
+namespace NexusUtilities\Utilities;
 
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Contracts\Cache\Repository;

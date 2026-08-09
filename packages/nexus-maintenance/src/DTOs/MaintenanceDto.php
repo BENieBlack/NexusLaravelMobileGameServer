@@ -2,8 +2,8 @@
 
 namespace NexusMaintenance\DTOs;
 
-use NexusUtilities\ClockUtility;
-use NexusUtilities\Traits\JsonSerializableTrait;
+use Nexus\Core\Utilities\ClockUtility;
+use Nexus\Core\Traits\JsonSerializableTrait;
 
 /**
  * メンテナンス情報のDTO

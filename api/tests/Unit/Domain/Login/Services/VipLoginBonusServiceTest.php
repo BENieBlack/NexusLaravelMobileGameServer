@@ -7,7 +7,7 @@ use App\Models\Mst\MstVipLoginBonus;
 use App\Models\Mst\MstVipLoginBonusContent;
 use App\Persistence\ApiSession;
 use Illuminate\Support\Facades\DB;
-use NexusUtilities\ClockUtility;
+use Nexus\Core\Utilities\ClockUtility;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;

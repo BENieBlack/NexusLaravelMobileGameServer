@@ -2,9 +2,9 @@
 
 namespace NexusPersistence\Repositories\Mst;
 
-use NexusPersistence\Models\Mst\_BaseMstInterface;
-use NexusPersistence\Repositories\_BaseRepositoryInterface;
-use NexusPersistence\Support\CustomCollection;
+use Nexus\Core\Models\Mst\_BaseMstInterface;
+use Nexus\Core\Repositories\_BaseRepositoryInterface;
+use Nexus\Core\Support\CustomCollection;
 
 /**
  * _BaseMstRepositoryInterface

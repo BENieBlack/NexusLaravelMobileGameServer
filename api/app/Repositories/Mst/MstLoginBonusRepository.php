@@ -6,7 +6,7 @@ use App\Models\Mst\MstLoginBonus;
 use App\Models\Mst\MstLoginBonusContent;
 use NexusLogin\Repositories\LoginBonusHistoryRepositoryInterface;
 use NexusLogin\Repositories\LoginBonusRepositoryInterface;
-use NexusUtilities\ClockUtility;
+use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * MstLoginBonusRepository

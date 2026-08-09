@@ -2,7 +2,7 @@
 
 namespace App\Repositories\Trx;
 
-use NexusPersistence\Repositories\Trx\_BaseTrxRepositoryInterface as PersistenceBaseTrxRepositoryInterface;
+use Nexus\Core\Repositories\Trx\_BaseTrxRepositoryInterface as PersistenceBaseTrxRepositoryInterface;
 
 /**
  * _BaseTrxRepositoryInterface

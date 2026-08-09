@@ -9,62 +9,63 @@ use NexusVip\Repositories\VipLevelRepositoryInterface;
 
 /**
  * VIPレベルサービス
- * 
+ *
  * VIPレベルの判定と特典情報の取得を担当
  */
 class VipLevelService
 {
     public function __construct(
         protected VipLevelRepositoryInterface $vipLevelRepository
-    ) {
-    }
+    ) {}
 
     /**
      * 累積ポイントからVIPレベルを計算
      *
-     * @param int $totalPoints 累積VIPポイント
+     * @param  int  $totalPoints  累積VIPポイント
      * @return int VIPレベル
      */
     public function calculateLevel(int $totalPoints): int
     {
         $vipLevel = $this->vipLevelRepository->findMaxLevelByPoints($totalPoints);
+
         return $vipLevel->getLevel();
     }
 
     /**
      * 次のレベルまでの必要ポイントを取得
      *
-     * @param int $currentLevel 現在のVIPレベル
-     * @param int $currentPoint 現在の累積VIPポイント
+     * @param  int  $currentLevel  現在のVIPレベル
+     * @param  int  $currentPoint  現在の累積VIPポイント
      * @return int|null 次レベルまでのポイント（最高レベルの場合null）
      */
     public function getPointsToNextLevel(int $currentLevel, int $currentPoint): ?int
     {
         $nextLevel = $this->vipLevelRepository->findByLevel($currentLevel + 1);
-        
+
         if ($nextLevel === null) {
             return null; // 最高レベル
         }
-        
+
         $pointsNeeded = $nextLevel->getRequiredPoint() - $currentPoint;
+
         return max(0, $pointsNeeded);
     }
 
     /**
      * VIPレベルの特典情報を取得
      *
-     * @param int $level VIPレベル
-     * @return VipBenefitDto
+     * @param  int  $level  VIPレベル
+     *
      * @throws VipLevelNotFoundException
      */
     public function getBenefits(int $level): VipBenefitDto
     {
         $vipLevel = $this->vipLevelRepository->findByLevel($level);
-        
+
         if ($vipLevel === null) {
             throw new VipLevelNotFoundException("VIP level {$level} not found");
         }
-        
+
         return new VipBenefitDto(
             maxStaminaBonus: $vipLevel->getMaxStaminaBonus(),
             dailyDiamondBonus: $vipLevel->getDailyDiamondBonus(),
@@ -76,18 +77,18 @@ class VipLevelService
     /**
      * VIPレベルマスターデータを取得
      *
-     * @param int $level VIPレベル
-     * @return MstVipLevel
+     * @param  int  $level  VIPレベル
+     *
      * @throws VipLevelNotFoundException
      */
     public function getVipLevelMaster(int $level): MstVipLevel
     {
         $vipLevel = $this->vipLevelRepository->findByLevel($level);
-        
+
         if ($vipLevel === null) {
             throw new VipLevelNotFoundException("VIP level {$level} not found");
         }
-        
+
         return $vipLevel;
     }
 
@@ -99,7 +100,7 @@ class VipLevelService
     public function getAllLevels(): array
     {
         $levels = $this->vipLevelRepository->getAllLevels();
-        
+
         return $levels->map(function (MstVipLevel $level) {
             return [
                 'level' => $level->getLevel(),

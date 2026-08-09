@@ -4,7 +4,7 @@ namespace NexusGuild\Dto;
 
 /**
  * GuildMemberDto
- * 
+ *
  * ギルドメンバー情報のデータ転送オブジェクト
  */
 class GuildMemberDto
@@ -17,8 +17,7 @@ class GuildMemberDto
         private readonly string $joinedAt,
         private readonly string $createdAt,
         private readonly string $updatedAt,
-    ) {
-    }
+    ) {}
 
     public function getId(): int
     {
@@ -57,7 +56,7 @@ class GuildMemberDto
 
     /**
      * 配列に変換
-     * 
+     *
      * @return array<string, mixed>
      */
     public function toArray(): array

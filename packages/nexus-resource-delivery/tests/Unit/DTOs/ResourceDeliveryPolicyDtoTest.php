@@ -78,7 +78,7 @@ class ResourceDeliveryPolicyDtoTest extends TestCase
      * @test
      * 未設定のリソースタイプはNONEを返す
      */
-    public function 未設定のリソースタイプはNONEを返す(): void
+    public function 未設定のリソースタイプは_non_eを返す(): void
     {
         // Arrange
         $policy = ResourceDeliveryPolicyDto::createDefaultPolicy();
@@ -94,7 +94,7 @@ class ResourceDeliveryPolicyDtoTest extends TestCase
      * @test
      * setMethodで配送方法を設定できる
      */
-    public function setMethodで配送方法を設定できる(): void
+    public function set_methodで配送方法を設定できる(): void
     {
         // Arrange
         $policy = ResourceDeliveryPolicyDto::createDefaultPolicy();
@@ -185,7 +185,7 @@ class ResourceDeliveryPolicyDtoTest extends TestCase
      * @test
      * setMethodで文字列を使って設定できる
      */
-    public function setMethodで文字列を使って設定できる(): void
+    public function set_methodで文字列を使って設定できる(): void
     {
         // Arrange
         $policy = ResourceDeliveryPolicyDto::createDefaultPolicy();

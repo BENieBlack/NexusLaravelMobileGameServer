@@ -8,24 +8,23 @@ use NexusFriend\Repositories\FriendApplyRepositoryInterface;
 
 /**
  * FriendService
- * 
+ *
  * フレンド機能のビジネスロジック
  */
 class FriendService
 {
     public function __construct(
         private readonly FriendApplyRepositoryInterface $repository,
-    ) {
-    }
+    ) {}
 
     /**
      * 重複申請がないかバリデーション
-     * 
+     *
      * 既に申請中またはフレンド関係がある場合は例外をスロー
      *
-     * @param int $senderPlayerId 申請者プレイヤーID
-     * @param int $receiverPlayerId 受信者プレイヤーID
-     * @return void
+     * @param  int  $senderPlayerId  申請者プレイヤーID
+     * @param  int  $receiverPlayerId  受信者プレイヤーID
+     *
      * @throws \RuntimeException 既に申請済みまたはフレンド関係がある場合
      */
     public function validateNoDuplicateApply(int $senderPlayerId, int $receiverPlayerId): void
@@ -48,9 +47,9 @@ class FriendService
     /**
      * 自分自身への申請でないかバリデーション
      *
-     * @param int $senderPlayerId 申請者プレイヤーID
-     * @param int $receiverPlayerId 受信者プレイヤーID
-     * @return void
+     * @param  int  $senderPlayerId  申請者プレイヤーID
+     * @param  int  $receiverPlayerId  受信者プレイヤーID
+     *
      * @throws \RuntimeException 自分自身への申請の場合
      */
     public function validateNotSelfApply(int $senderPlayerId, int $receiverPlayerId): void
@@ -62,12 +61,12 @@ class FriendService
 
     /**
      * 受信者の承認/却下権限をバリデーション
-     * 
+     *
      * 申請の受信者のみが承認/却下できる
      *
-     * @param FriendApplyDto $friendApplyDto フレンド申請DTO
-     * @param int $currentPlayerId 現在のプレイヤーID
-     * @return void
+     * @param  FriendApplyDto  $friendApplyDto  フレンド申請DTO
+     * @param  int  $currentPlayerId  現在のプレイヤーID
+     *
      * @throws \RuntimeException 承認権限がない場合
      */
     public function validateReceiverAuthorization(FriendApplyDto $friendApplyDto, int $currentPlayerId): void
@@ -80,8 +79,8 @@ class FriendService
     /**
      * 申請が承認可能な状態かバリデーション
      *
-     * @param FriendApplyDto $friendApplyDto フレンド申請DTO
-     * @return void
+     * @param  FriendApplyDto  $friendApplyDto  フレンド申請DTO
+     *
      * @throws \RuntimeException 承認できない状態の場合
      */
     public function validateCanAccept(FriendApplyDto $friendApplyDto): void
@@ -102,8 +101,8 @@ class FriendService
     /**
      * 申請が却下可能な状態かバリデーション
      *
-     * @param FriendApplyDto $friendApplyDto フレンド申請DTO
-     * @return void
+     * @param  FriendApplyDto  $friendApplyDto  フレンド申請DTO
+     *
      * @throws \RuntimeException 却下できない状態の場合
      */
     public function validateCanReject(FriendApplyDto $friendApplyDto): void
@@ -124,9 +123,8 @@ class FriendService
     /**
      * フレンド申請を送信
      *
-     * @param int $senderPlayerId 申請者プレイヤーID
-     * @param int $receiverPlayerId 受信者プレイヤーID
-     * @return FriendApplyDto
+     * @param  int  $senderPlayerId  申請者プレイヤーID
+     * @param  int  $receiverPlayerId  受信者プレイヤーID
      */
     public function sendApply(int $senderPlayerId, int $receiverPlayerId): FriendApplyDto
     {
@@ -139,9 +137,9 @@ class FriendService
     /**
      * フレンド申請を承認
      *
-     * @param int $friendApplyId フレンド申請ID
-     * @param int $currentPlayerId 現在のプレイヤーID（受信者）
-     * @return FriendApplyDto
+     * @param  int  $friendApplyId  フレンド申請ID
+     * @param  int  $currentPlayerId  現在のプレイヤーID（受信者）
+     *
      * @throws \RuntimeException 申請が見つからない、または承認できない場合
      */
     public function acceptApply(int $friendApplyId, int $currentPlayerId): FriendApplyDto
@@ -161,9 +159,9 @@ class FriendService
     /**
      * フレンド申請を却下
      *
-     * @param int $friendApplyId フレンド申請ID
-     * @param int $currentPlayerId 現在のプレイヤーID（受信者）
-     * @return FriendApplyDto
+     * @param  int  $friendApplyId  フレンド申請ID
+     * @param  int  $currentPlayerId  現在のプレイヤーID（受信者）
+     *
      * @throws \RuntimeException 申請が見つからない、または却下できない場合
      */
     public function rejectApply(int $friendApplyId, int $currentPlayerId): FriendApplyDto
@@ -183,7 +181,7 @@ class FriendService
     /**
      * フレンド申請一覧を取得
      *
-     * @param int $playerId プレイヤーID
+     * @param  int  $playerId  プレイヤーID
      * @return array<FriendApplyDto>
      */
     public function getApplyList(int $playerId): array
@@ -194,7 +192,7 @@ class FriendService
     /**
      * フレンド一覧を取得
      *
-     * @param int $playerId プレイヤーID
+     * @param  int  $playerId  プレイヤーID
      * @return array<FriendApplyDto>
      */
     public function getFriendList(int $playerId): array
@@ -205,9 +203,9 @@ class FriendService
     /**
      * フレンド関係を削除
      *
-     * @param int $playerId 削除実行者のプレイヤーID
-     * @param int $targetPlayerId 削除対象のプレイヤーID
-     * @return FriendApplyDto
+     * @param  int  $playerId  削除実行者のプレイヤーID
+     * @param  int  $targetPlayerId  削除対象のプレイヤーID
+     *
      * @throws \RuntimeException フレンド関係が見つからない場合
      */
     public function deleteFriend(int $playerId, int $targetPlayerId): FriendApplyDto

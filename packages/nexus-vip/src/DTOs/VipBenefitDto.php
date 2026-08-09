@@ -12,8 +12,7 @@ class VipBenefitDto
         private readonly int $dailyDiamondBonus,
         private readonly float $shopDiscountRate,
         private readonly float $gachaDiscountRate,
-    ) {
-    }
+    ) {}
 
     /**
      * 最大スタミナボーナスを取得
@@ -49,8 +48,6 @@ class VipBenefitDto
 
     /**
      * 配列に変換
-     *
-     * @return array
      */
     public function toArray(): array
     {

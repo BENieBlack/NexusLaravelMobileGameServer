@@ -4,7 +4,7 @@ namespace NexusVip\DTOs;
 
 /**
  * VIP情報レスポンスDTO
- * 
+ *
  * Note: vip_levelはサーバー側で計算して返す
  * クライアント側でも vip_point と mst_vip_level から再計算可能
  */
@@ -17,8 +17,7 @@ class VipInfoDto
         private readonly ?int $nextLevel,
         private readonly VipBenefitDto $benefits,
         private readonly float $totalPaidAmount,
-    ) {
-    }
+    ) {}
 
     /**
      * VIPポイントを取得
@@ -70,8 +69,6 @@ class VipInfoDto
 
     /**
      * 配列に変換
-     *
-     * @return array
      */
     public function toArray(): array
     {

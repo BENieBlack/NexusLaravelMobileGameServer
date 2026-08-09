@@ -4,7 +4,6 @@ namespace NexusVip;
 
 use Illuminate\Support\ServiceProvider;
 use NexusVip\Contracts\CurrencyConverterInterface;
-use NexusVip\ValueObjects\VipConfig;
 use NexusVip\Repositories\PlayerVipRepositoryInterface;
 use NexusVip\Repositories\VipLevelRepositoryInterface;
 use NexusVip\Repositories\VipLevelRewardRepositoryInterface;
@@ -14,6 +13,7 @@ use NexusVip\Services\VipBenefitService;
 use NexusVip\Services\VipLevelService;
 use NexusVip\Services\VipPointService;
 use NexusVip\Services\VipRewardService;
+use NexusVip\ValueObjects\VipConfig;
 
 /**
  * VIPシステムサービスプロバイダー
@@ -47,24 +47,24 @@ class VipServiceProvider extends ServiceProvider
         // インターフェースと実装のバインド
         // Note: Repository実装クラスは api/app/Repositories に配置されるため、
         // ここではインターフェースのみ定義し、実装は AppServiceProvider でバインドする
-        
+
         // 通貨換算サービス
         $this->app->singleton(CurrencyConverterInterface::class, CurrencyConverter::class);
-        
+
         // VIPレベルサービス
         $this->app->singleton(VipLevelService::class, function ($app) {
             return new VipLevelService(
                 $app->make(VipLevelRepositoryInterface::class)
             );
         });
-        
+
         // VIP報酬サービス
         $this->app->singleton(VipRewardService::class, function ($app) {
             return new VipRewardService(
                 $app->make(VipLevelRewardRepositoryInterface::class)
             );
         });
-        
+
         // VIPポイントサービス
         $this->app->singleton(VipPointService::class, function ($app) {
             return new VipPointService(
@@ -75,7 +75,7 @@ class VipServiceProvider extends ServiceProvider
                 $app->make(VipConfig::class)
             );
         });
-        
+
         // VIP特典サービス
         $this->app->singleton(VipBenefitService::class, function ($app) {
             return new VipBenefitService(
@@ -93,7 +93,7 @@ class VipServiceProvider extends ServiceProvider
         // マイグレーションをロード（動的シャーディング対応）
         // 注意: php artisan pitr:migrate で全LogDBシャード（log1, log2, ...）に実行
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
-        
+
         // 設定ファイルの公開
         if ($this->app->runningInConsole()) {
             $this->publishes([

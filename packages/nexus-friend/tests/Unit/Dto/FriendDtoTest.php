@@ -14,7 +14,7 @@ class FriendDtoTest extends TestCase
      * @test
      * DTOを正常に作成できる
      */
-    public function DTOを正常に作成できる(): void
+    public function dt_oを正常に作成できる(): void
     {
         // Act
         $dto = new FriendDto(
@@ -135,7 +135,7 @@ class FriendDtoTest extends TestCase
      * @test
      * マイIDが長い文字列でも保持できる
      */
-    public function マイIDが長い文字列でも保持できる(): void
+    public function マイ_i_dが長い文字列でも保持できる(): void
     {
         // Arrange
         $longMyId = 'very_long_my_id_string_with_uuid_format_12345678901234567890';

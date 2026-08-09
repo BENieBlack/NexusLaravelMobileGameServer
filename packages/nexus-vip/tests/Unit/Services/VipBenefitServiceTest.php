@@ -2,12 +2,12 @@
 
 namespace NexusVip\Tests\Unit\Services;
 
+use Mockery;
 use NexusVip\DTOs\VipBenefitDto;
-use NexusVip\ValueObjects\VipConfig;
 use NexusVip\Services\VipBenefitService;
 use NexusVip\Services\VipLevelService;
+use NexusVip\ValueObjects\VipConfig;
 use PHPUnit\Framework\TestCase;
-use Mockery;
 
 /**
  * VipBenefitServiceのユニットテスト
@@ -15,7 +15,9 @@ use Mockery;
 class VipBenefitServiceTest extends TestCase
 {
     private VipLevelService $vipLevelService;
+
     private VipConfig $config;
+
     private VipBenefitService $service;
 
     protected function setUp(): void
@@ -23,7 +25,7 @@ class VipBenefitServiceTest extends TestCase
         parent::setUp();
 
         $this->vipLevelService = Mockery::mock(VipLevelService::class);
-        
+
         // テスト用設定（全特典有効）
         $this->config = new VipConfig(
             enablePointLog: true,
@@ -33,7 +35,7 @@ class VipBenefitServiceTest extends TestCase
             gachaDiscountEnabled: true,
             dailyDiamondEnabled: true,
         );
-        
+
         $this->service = new VipBenefitService($this->vipLevelService, $this->config);
     }
 
@@ -47,7 +49,7 @@ class VipBenefitServiceTest extends TestCase
      * @test
      * スタミナ上限にVIPボーナスを適用できる
      */
-    public function スタミナ上限にVIPボーナスを適用できる(): void
+    public function スタミナ上限に_vi_pボーナスを適用できる(): void
     {
         // Arrange
         $baseMaxStamina = 100;
@@ -89,7 +91,7 @@ class VipBenefitServiceTest extends TestCase
             dailyDiamondEnabled: true,
         );
         $serviceDisabled = new VipBenefitService($this->vipLevelService, $configDisabled);
-        
+
         $baseMaxStamina = 100;
         $vipLevel = 5;
 
@@ -104,7 +106,7 @@ class VipBenefitServiceTest extends TestCase
      * @test
      * ショップ価格にVIP割引を適用できる
      */
-    public function ショップ価格にVIP割引を適用できる(): void
+    public function ショップ価格に_vi_p割引を適用できる(): void
     {
         // Arrange
         $basePrice = 1000;
@@ -176,7 +178,7 @@ class VipBenefitServiceTest extends TestCase
             dailyDiamondEnabled: true,
         );
         $serviceDisabled = new VipBenefitService($this->vipLevelService, $configDisabled);
-        
+
         $basePrice = 1000;
         $vipLevel = 5;
 
@@ -191,7 +193,7 @@ class VipBenefitServiceTest extends TestCase
      * @test
      * ガチャ価格にVIP割引を適用できる
      */
-    public function ガチャ価格にVIP割引を適用できる(): void
+    public function ガチャ価格に_vi_p割引を適用できる(): void
     {
         // Arrange
         $basePrice = 300;
@@ -263,7 +265,7 @@ class VipBenefitServiceTest extends TestCase
             dailyDiamondEnabled: true,
         );
         $serviceDisabled = new VipBenefitService($this->vipLevelService, $configDisabled);
-        
+
         $basePrice = 300;
         $vipLevel = 5;
 
@@ -319,7 +321,7 @@ class VipBenefitServiceTest extends TestCase
             dailyDiamondEnabled: false,
         );
         $serviceDisabled = new VipBenefitService($this->vipLevelService, $configDisabled);
-        
+
         $vipLevel = 5;
 
         // Act

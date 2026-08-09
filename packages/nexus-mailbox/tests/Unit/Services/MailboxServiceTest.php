@@ -2,23 +2,23 @@
 
 namespace NexusMailbox\Tests\Unit\Services;
 
-use NexusMailbox\Dto\MailboxDto;
-use NexusMailbox\Services\MailboxService;
-use NexusMailbox\Repositories\MailboxRepositoryInterface;
-use NexusMailbox\Constants\Category;
-use NexusMailbox\Constants\Priority;
-use PHPUnit\Framework\TestCase;
 use Illuminate\Support\Collection;
+use NexusMailbox\Constants\Category;
+use NexusMailbox\Dto\MailboxDto;
+use NexusMailbox\Repositories\MailboxRepositoryInterface;
+use NexusMailbox\Services\MailboxService;
+use PHPUnit\Framework\TestCase;
 
 class MailboxServiceTest extends TestCase
 {
     private MailboxRepositoryInterface $mockRepository;
+
     private MailboxService $service;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->mockRepository = $this->createMock(MailboxRepositoryInterface::class);
         $this->service = new MailboxService($this->mockRepository);
     }
@@ -45,7 +45,7 @@ class MailboxServiceTest extends TestCase
     {
         $sysPlayerId = 100;
         $category = Category::SYSTEM;
-        $expectedCollection = new Collection();
+        $expectedCollection = new Collection;
 
         $this->mockRepository
             ->expects($this->once())
@@ -95,15 +95,15 @@ class MailboxServiceTest extends TestCase
         $mailboxId = 1;
         $sysPlayerId = 100;
         $differentPlayerId = 999;
-        
+
         $mailbox = new MailboxDto(
-            $mailboxId, 
-            $differentPlayerId, 
-            'mail_001', 
-            false, 
-            false, 
-            false, 
-            null, 
+            $mailboxId,
+            $differentPlayerId,
+            'mail_001',
+            false,
+            false,
+            false,
+            null,
             '2026-01-01 00:00:00'
         );
 
@@ -122,15 +122,15 @@ class MailboxServiceTest extends TestCase
     {
         $mailboxId = 1;
         $sysPlayerId = 100;
-        
+
         $mailbox = new MailboxDto(
-            $mailboxId, 
-            $sysPlayerId, 
-            'mail_001', 
+            $mailboxId,
+            $sysPlayerId,
+            'mail_001',
             true, // already read
-            false, 
-            false, 
-            null, 
+            false,
+            false,
+            null,
             '2026-01-01 00:00:00'
         );
 
@@ -149,15 +149,15 @@ class MailboxServiceTest extends TestCase
     {
         $mailboxId = 1;
         $sysPlayerId = 100;
-        
+
         $mailbox = new MailboxDto(
-            $mailboxId, 
-            $sysPlayerId, 
-            'mail_001', 
-            false, 
-            false, 
-            false, 
-            null, 
+            $mailboxId,
+            $sysPlayerId,
+            'mail_001',
+            false,
+            false,
+            false,
+            null,
             '2026-01-01 00:00:00'
         );
 
@@ -199,15 +199,15 @@ class MailboxServiceTest extends TestCase
     {
         $mailboxId = 1;
         $sysPlayerId = 100;
-        
+
         $mailbox = new MailboxDto(
-            $mailboxId, 
-            $sysPlayerId, 
-            'mail_001', 
-            false, 
-            false, 
-            false, 
-            null, 
+            $mailboxId,
+            $sysPlayerId,
+            'mail_001',
+            false,
+            false,
+            false,
+            null,
             '2026-01-01 00:00:00'
         );
 
@@ -252,15 +252,15 @@ class MailboxServiceTest extends TestCase
     {
         $mailboxId = 1;
         $sysPlayerId = 100;
-        
+
         $mailbox = new MailboxDto(
-            $mailboxId, 
-            $sysPlayerId, 
-            'mail_001', 
-            false, 
+            $mailboxId,
+            $sysPlayerId,
+            'mail_001',
+            false,
             true, // already received
-            false, 
-            null, 
+            false,
+            null,
             '2026-01-01 00:00:00'
         );
 
@@ -279,15 +279,15 @@ class MailboxServiceTest extends TestCase
     {
         $mailboxId = 1;
         $sysPlayerId = 100;
-        
+
         $mailbox = new MailboxDto(
-            $mailboxId, 
-            $sysPlayerId, 
-            'mail_001', 
-            false, 
-            false, 
-            false, 
-            null, 
+            $mailboxId,
+            $sysPlayerId,
+            'mail_001',
+            false,
+            false,
+            false,
+            null,
             '2026-01-01 00:00:00'
         );
 

@@ -4,7 +4,7 @@ namespace NexusPlayer\Dto;
 
 /**
  * PlayerDto
- * 
+ *
  * プレイヤー情報を表すDTO
  */
 class PlayerDto
@@ -18,8 +18,7 @@ class PlayerDto
         private int $levelExp,
         private readonly string $createdAt,
         private readonly string $updatedAt,
-    ) {
-    }
+    ) {}
 
     public function getId(): int
     {

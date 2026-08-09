@@ -14,7 +14,7 @@ class MailboxDtoTest extends TestCase
      * @test
      * DTOを正常に作成できる
      */
-    public function DTOを正常に作成できる(): void
+    public function dt_oを正常に作成できる(): void
     {
         // Act
         $dto = new MailboxDto(
@@ -180,13 +180,13 @@ class MailboxDtoTest extends TestCase
 
         // Act & Assert
         $this->assertFalse($dto->isRead());
-        
+
         $dto->setIsRead(true);
         $this->assertTrue($dto->isRead());
-        
+
         $dto->setIsRead(false);
         $this->assertFalse($dto->isRead());
-        
+
         $dto->setIsRead(true);
         $this->assertTrue($dto->isRead());
     }
@@ -195,7 +195,7 @@ class MailboxDtoTest extends TestCase
      * @test
      * マスターメールボックスIDが長い文字列でも保持できる
      */
-    public function マスターメールボックスIDが長い文字列でも保持できる(): void
+    public function マスターメールボックス_i_dが長い文字列でも保持できる(): void
     {
         // Arrange
         $longId = 'event_special_2024_new_year_celebration_bonus_reward_mail';

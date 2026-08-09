@@ -2,8 +2,8 @@
 
 namespace NexusResourceDelivery\DTOs;
 
-use NexusResourceDelivery\Enums\ResourceDeliveryResultReason;
 use NexusPersistence\Support\CustomCollection;
+use NexusResourceDelivery\Enums\ResourceDeliveryResultReason;
 
 /**
  * ResourceDeliverySummary
@@ -19,7 +19,7 @@ class ResourceDeliverySummaryDto
 
     public function __construct()
     {
-        $this->contents = new CustomCollection();
+        $this->contents = new CustomCollection;
     }
 
     /**
@@ -34,8 +34,6 @@ class ResourceDeliverySummaryDto
 
     /**
      * 配送済みコンテンツを追加
-     *
-     * @param CustomCollection $contents
      */
     public function addContents(CustomCollection $contents): void
     {
@@ -46,8 +44,6 @@ class ResourceDeliverySummaryDto
 
     /**
      * 別のサマリーをマージ
-     *
-     * @param ResourceDeliverySummaryDto $summary
      */
     public function merge(ResourceDeliverySummaryDto $summary): void
     {
@@ -56,8 +52,6 @@ class ResourceDeliverySummaryDto
 
     /**
      * 配送済みコンテンツの総数を取得
-     *
-     * @return int
      */
     public function getTotalCount(): int
     {
@@ -67,7 +61,7 @@ class ResourceDeliverySummaryDto
     /**
      * 対象のコンテンツの内で、所持上限を超えたリソースがあるかどうか
      *
-     * @param array<string> $resourceTypes チェック対象のリソースタイプ
+     * @param  array<string>  $resourceTypes  チェック対象のリソースタイプ
      * @return bool true: 所持上限を超えたリソースがある, false: 所持上限を超えたリソースはない
      */
     public function hasResourceOverflow(array $resourceTypes): bool

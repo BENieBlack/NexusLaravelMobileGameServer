@@ -2,18 +2,16 @@
 
 namespace NexusVip\Tests\Unit\Services;
 
+use Mockery;
 use NexusVip\DTOs\PlayerVipDto;
-use NexusVip\ValueObjects\VipConfig;
-use NexusVip\Events\VipLevelUpEvent;
 use NexusVip\Exceptions\InvalidVipPointException;
-use NexusVip\Models\MstVipLevel;
 use NexusVip\Repositories\PlayerVipRepositoryInterface;
 use NexusVip\Repositories\VipPointLogRepositoryInterface;
 use NexusVip\Services\VipLevelService;
 use NexusVip\Services\VipPointService;
 use NexusVip\Services\VipRewardService;
+use NexusVip\ValueObjects\VipConfig;
 use PHPUnit\Framework\TestCase;
-use Mockery;
 
 /**
  * VipPointServiceのユニットテスト
@@ -21,10 +19,15 @@ use Mockery;
 class VipPointServiceTest extends TestCase
 {
     private PlayerVipRepositoryInterface $playerVipRepository;
+
     private VipPointLogRepositoryInterface $vipPointLogRepository;
+
     private VipLevelService $vipLevelService;
+
     private VipRewardService $vipRewardService;
+
     private VipConfig $config;
+
     private VipPointService $service;
 
     protected function setUp(): void
@@ -35,7 +38,7 @@ class VipPointServiceTest extends TestCase
         $this->vipPointLogRepository = Mockery::mock(VipPointLogRepositoryInterface::class);
         $this->vipLevelService = Mockery::mock(VipLevelService::class);
         $this->vipRewardService = Mockery::mock(VipRewardService::class);
-        
+
         // テスト用設定（ログ・イベント無効）
         $this->config = new VipConfig(
             enablePointLog: false,
@@ -65,7 +68,7 @@ class VipPointServiceTest extends TestCase
      * @test
      * VIPポイントを正常に付与できる
      */
-    public function VIPポイントを付与できる(): void
+    public function vi_pポイントを付与できる(): void
     {
         // Arrange
         $sysPlayerId = 1;
@@ -100,7 +103,7 @@ class VipPointServiceTest extends TestCase
             ->shouldReceive('saveVipInfo')
             ->once()
             ->with(Mockery::on(function ($dto) {
-                return $dto instanceof PlayerVipDto 
+                return $dto instanceof PlayerVipDto
                     && $dto->getVipPoint() === 100
                     && $dto->getSysPlayerId() === 1;
             }));
@@ -145,7 +148,7 @@ class VipPointServiceTest extends TestCase
             ->shouldReceive('saveVipInfo')
             ->once()
             ->with(Mockery::on(function ($dto) {
-                return $dto instanceof PlayerVipDto 
+                return $dto instanceof PlayerVipDto
                     && $dto->getVipPoint() === 100
                     && $dto->getTotalPaidAmount() === 1000.0;
             }));
@@ -206,7 +209,7 @@ class VipPointServiceTest extends TestCase
      * @test
      * プレイヤーのVIP情報を取得できる
      */
-    public function プレイヤーのVIP情報を取得できる(): void
+    public function プレイヤーの_vi_p情報を取得できる(): void
     {
         // Arrange
         $sysPlayerId = 1;
@@ -234,7 +237,7 @@ class VipPointServiceTest extends TestCase
      * @test
      * 存在しないプレイヤーのVIP情報はnullを返す
      */
-    public function 存在しないプレイヤーのVIP情報はnullを返す(): void
+    public function 存在しないプレイヤーの_vi_p情報はnullを返す(): void
     {
         // Arrange
         $sysPlayerId = 999;

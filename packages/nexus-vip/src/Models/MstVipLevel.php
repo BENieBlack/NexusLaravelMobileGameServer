@@ -6,9 +6,9 @@ use NexusPersistence\Models\Mst\_BaseMst;
 
 /**
  * MstVipLevel Model
- * 
+ *
  * VIPレベルマスターデータ
- * 
+ *
  * @property int $deploy_key
  * @property string $id
  * @property int $level
@@ -26,6 +26,7 @@ class MstVipLevel extends _BaseMst
     protected $table = 'mst_vip_level';
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     /** @var array<int, string> */
@@ -64,8 +65,6 @@ class MstVipLevel extends _BaseMst
 
     /**
      * VIPレベルを取得
-     *
-     * @return int
      */
     public function getLevel(): int
     {
@@ -74,8 +73,6 @@ class MstVipLevel extends _BaseMst
 
     /**
      * 必要VIPポイントを取得
-     *
-     * @return int
      */
     public function getRequiredPoint(): int
     {
@@ -84,8 +81,6 @@ class MstVipLevel extends _BaseMst
 
     /**
      * スタミナ上限ボーナスを取得
-     *
-     * @return int
      */
     public function getMaxStaminaBonus(): int
     {
@@ -94,8 +89,6 @@ class MstVipLevel extends _BaseMst
 
     /**
      * デイリーダイヤモンドボーナスを取得
-     *
-     * @return int
      */
     public function getDailyDiamondBonus(): int
     {
@@ -104,8 +97,6 @@ class MstVipLevel extends _BaseMst
 
     /**
      * ショップ割引率を取得
-     *
-     * @return float
      */
     public function getShopDiscountRate(): float
     {
@@ -114,8 +105,6 @@ class MstVipLevel extends _BaseMst
 
     /**
      * ガチャ割引率を取得
-     *
-     * @return float
      */
     public function getGachaDiscountRate(): float
     {
@@ -124,8 +113,6 @@ class MstVipLevel extends _BaseMst
 
     /**
      * バッジ画像URLを取得
-     *
-     * @return string|null
      */
     public function getDisplayBadgeUrl(): ?string
     {
@@ -134,8 +121,6 @@ class MstVipLevel extends _BaseMst
 
     /**
      * 有効フラグを取得
-     *
-     * @return bool
      */
     public function isActive(): bool
     {
@@ -144,8 +129,6 @@ class MstVipLevel extends _BaseMst
 
     /**
      * レスポンス用配列に変換
-     * 
-     * @return array
      */
     public function toResponseArray(): array
     {

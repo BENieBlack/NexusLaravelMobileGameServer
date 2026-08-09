@@ -10,8 +10,9 @@ use NexusPersistence\Models\Mst\_BaseMst;
 class MstVipLevelReward extends _BaseMst
 {
     protected $table = 'mst_vip_level_reward';
-    
+
     public $incrementing = false;
+
     protected $primaryKey = ['vip_level', 'content_type', 'content_id'];
 
     protected $fillable = [

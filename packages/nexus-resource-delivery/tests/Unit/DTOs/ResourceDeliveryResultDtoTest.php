@@ -2,8 +2,8 @@
 
 namespace NexusResourceDelivery\Tests\Unit\DTOs;
 
-use NexusResourceDelivery\DTOs\ResourceDeliveryResultDto;
 use NexusResourceDelivery\DTOs\ResourceDeliveryContent;
+use NexusResourceDelivery\DTOs\ResourceDeliveryResultDto;
 use PHPUnit\Framework\TestCase;
 
 class ResourceDeliveryResultDtoTest extends TestCase
@@ -35,7 +35,7 @@ class ResourceDeliveryResultDtoTest extends TestCase
         $result = new ResourceDeliveryResultDto(
             deliveredItemArray: [$this->createMockContent('currency', 'gold', 100)],
             failedItemArray: [
-                ['item' => $this->createMockContent('item', 'item_001', 10), 'error' => 'Test error']
+                ['item' => $this->createMockContent('item', 'item_001', 10), 'error' => 'Test error'],
             ],
             totalCount: 2,
             successCount: 1,

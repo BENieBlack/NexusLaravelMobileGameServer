@@ -15,7 +15,7 @@ class FriendApplyDtoTest extends TestCase
      * @test
      * DTOを正常に作成できる
      */
-    public function DTOを正常に作成できる(): void
+    public function dt_oを正常に作成できる(): void
     {
         // Arrange
         $createdAt = new DateTime('2024-01-01 00:00:00');
@@ -81,8 +81,8 @@ class FriendApplyDtoTest extends TestCase
             senderPlayerId: 100,
             receiverPlayerId: 200,
             status: 'pending',
-            createdAt: new DateTime(),
-            updatedAt: new DateTime()
+            createdAt: new DateTime,
+            updatedAt: new DateTime
         );
 
         // Assert
@@ -101,8 +101,8 @@ class FriendApplyDtoTest extends TestCase
             senderPlayerId: 100,
             receiverPlayerId: 200,
             status: 'accepted',
-            createdAt: new DateTime(),
-            updatedAt: new DateTime()
+            createdAt: new DateTime,
+            updatedAt: new DateTime
         );
 
         // Assert
@@ -121,8 +121,8 @@ class FriendApplyDtoTest extends TestCase
             senderPlayerId: 100,
             receiverPlayerId: 200,
             status: 'rejected',
-            createdAt: new DateTime(),
-            updatedAt: new DateTime()
+            createdAt: new DateTime,
+            updatedAt: new DateTime
         );
 
         // Assert
@@ -182,7 +182,7 @@ class FriendApplyDtoTest extends TestCase
      * @test
      * 同じプレイヤーID間の申請も作成できる
      */
-    public function 同じプレイヤーID間の申請も作成できる(): void
+    public function 同じプレイヤー_i_d間の申請も作成できる(): void
     {
         // Act
         $dto = new FriendApplyDto(
@@ -190,8 +190,8 @@ class FriendApplyDtoTest extends TestCase
             senderPlayerId: 100,
             receiverPlayerId: 100,
             status: 'pending',
-            createdAt: new DateTime(),
-            updatedAt: new DateTime()
+            createdAt: new DateTime,
+            updatedAt: new DateTime
         );
 
         // Assert
@@ -203,7 +203,7 @@ class FriendApplyDtoTest extends TestCase
      * @test
      * 大きなIDでも作成できる
      */
-    public function 大きなIDでも作成できる(): void
+    public function 大きな_i_dでも作成できる(): void
     {
         // Act
         $dto = new FriendApplyDto(
@@ -211,8 +211,8 @@ class FriendApplyDtoTest extends TestCase
             senderPlayerId: 888888888,
             receiverPlayerId: 777777777,
             status: 'pending',
-            createdAt: new DateTime(),
-            updatedAt: new DateTime()
+            createdAt: new DateTime,
+            updatedAt: new DateTime
         );
 
         // Assert
@@ -233,8 +233,8 @@ class FriendApplyDtoTest extends TestCase
             senderPlayerId: 100,
             receiverPlayerId: 200,
             status: 'pending',
-            createdAt: new DateTime(),
-            updatedAt: new DateTime()
+            createdAt: new DateTime,
+            updatedAt: new DateTime
         );
 
         // Assert - readonly property cannot be modified

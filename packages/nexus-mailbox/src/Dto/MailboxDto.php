@@ -4,7 +4,7 @@ namespace NexusMailbox\Dto;
 
 /**
  * MailboxDto
- * 
+ *
  * メールボックスアイテムを表すDTO
  */
 class MailboxDto
@@ -18,8 +18,7 @@ class MailboxDto
         private bool $isLocked,
         private readonly ?string $expiresAt,
         private readonly string $createdAt,
-    ) {
-    }
+    ) {}
 
     public function getId(): int
     {

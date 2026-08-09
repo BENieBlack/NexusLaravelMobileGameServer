@@ -3,12 +3,12 @@
 namespace NexusPlayer\Services;
 
 use NexusPlayer\Dto\PlayerDto;
-use NexusPlayer\Repositories\PlayerRepositoryInterface;
 use NexusPlayer\Repositories\PlayerDeviceRepositoryInterface;
+use NexusPlayer\Repositories\PlayerRepositoryInterface;
 
 /**
  * PlayerService
- * 
+ *
  * プレイヤー管理のビジネスロジックを担当するサービス
  */
 class PlayerService
@@ -16,14 +16,10 @@ class PlayerService
     public function __construct(
         private readonly PlayerRepositoryInterface $playerRepository,
         private readonly PlayerDeviceRepositoryInterface $deviceRepository,
-    ) {
-    }
+    ) {}
 
     /**
      * IDでプレイヤーを取得
-     *
-     * @param int $id
-     * @return PlayerDto|null
      */
     public function getPlayerById(int $id): ?PlayerDto
     {
@@ -32,9 +28,6 @@ class PlayerService
 
     /**
      * My IDでプレイヤーを取得
-     *
-     * @param string $myId
-     * @return PlayerDto|null
      */
     public function getPlayerByMyId(string $myId): ?PlayerDto
     {
@@ -43,14 +36,11 @@ class PlayerService
 
     /**
      * デバイスUUIDでプレイヤーを取得
-     *
-     * @param string $deviceUuid
-     * @return PlayerDto|null
      */
     public function getPlayerByDeviceUuid(string $deviceUuid): ?PlayerDto
     {
         $device = $this->deviceRepository->findByDeviceUuid($deviceUuid);
-        
+
         if ($device === null) {
             return null;
         }
@@ -60,9 +50,6 @@ class PlayerService
 
     /**
      * プレイヤー情報を更新
-     *
-     * @param PlayerDto $playerDto
-     * @return void
      */
     public function updatePlayer(PlayerDto $playerDto): void
     {
@@ -71,9 +58,6 @@ class PlayerService
 
     /**
      * My IDの存在確認
-     *
-     * @param string $myId
-     * @return bool
      */
     public function existsByMyId(string $myId): bool
     {

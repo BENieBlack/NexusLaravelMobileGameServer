@@ -10,26 +10,23 @@ namespace NexusResourceDelivery\DTOs;
 class ResourceDeliveryResultDto
 {
     /**
-     * @param array<ResourceDeliveryContent> $deliveredItemArray 配送成功したコンテンツ
-     * @param array<array{item: ResourceDeliveryContent, error: string}> $failedItemArray 配送失敗したコンテンツとエラー情報
-     * @param int $totalCount 総配送試行数
-     * @param int $successCount 成功数
-     * @param int $failedCount 失敗数
+     * @param  array<ResourceDeliveryContent>  $deliveredItemArray  配送成功したコンテンツ
+     * @param  array<array{item: ResourceDeliveryContent, error: string}>  $failedItemArray  配送失敗したコンテンツとエラー情報
+     * @param  int  $totalCount  総配送試行数
+     * @param  int  $successCount  成功数
+     * @param  int  $failedCount  失敗数
      */
     public function __construct(
-        
+
         private readonly array $deliveredItemArray,
         private readonly array $failedItemArray,
-        private readonly int   $totalCount,
-        private readonly int   $successCount,
-        private readonly int   $failedCount,
-    ) {
-    }
+        private readonly int $totalCount,
+        private readonly int $successCount,
+        private readonly int $failedCount,
+    ) {}
 
     /**
      * すべて成功したかどうか
-     *
-     * @return bool
      */
     public function isAllSuccess(): bool
     {
@@ -38,13 +35,11 @@ class ResourceDeliveryResultDto
 
     /**
      * 配列に変換
-     *
-     * @return array
      */
     public function toArray(): array
     {
         return [
-            'delivered_items' => array_map(fn($item) => $item->toArray(), $this->deliveredItemArray),
+            'delivered_items' => array_map(fn ($item) => $item->toArray(), $this->deliveredItemArray),
             'failed_items' => array_map(function ($failed) {
                 return [
                     'item' => $failed['item']->toArray(),
@@ -60,8 +55,7 @@ class ResourceDeliveryResultDto
     /**
      * 成功結果を作成
      *
-     * @param array<ResourceDeliveryContent> $itemArray
-     * @return self
+     * @param  array<ResourceDeliveryContent>  $itemArray
      */
     public static function success(array $itemArray): self
     {
@@ -77,9 +71,8 @@ class ResourceDeliveryResultDto
     /**
      * 部分的成功の結果を作成
      *
-     * @param array<ResourceDeliveryContent> $deliveredArray
-     * @param array<array{item: ResourceDeliveryContent, error: string}> $failedArray
-     * @return self
+     * @param  array<ResourceDeliveryContent>  $deliveredArray
+     * @param  array<array{item: ResourceDeliveryContent, error: string}>  $failedArray
      */
     public static function partial(array $deliveredArray, array $failedArray): self
     {

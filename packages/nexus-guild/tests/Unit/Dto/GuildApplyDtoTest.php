@@ -14,7 +14,7 @@ class GuildApplyDtoTest extends TestCase
      * @test
      * DTOを正常に作成できる
      */
-    public function DTOを正常に作成できる(): void
+    public function dt_oを正常に作成できる(): void
     {
         // Act
         $dto = new GuildApplyDto(
@@ -39,7 +39,7 @@ class GuildApplyDtoTest extends TestCase
      * @test
      * toArray()で配列に変換できる
      */
-    public function toArrayで配列に変換できる(): void
+    public function to_arrayで配列に変換できる(): void
     {
         // Arrange
         $dto = new GuildApplyDto(
@@ -173,7 +173,7 @@ class GuildApplyDtoTest extends TestCase
      * @test
      * 大きなIDでも作成できる
      */
-    public function 大きなIDでも作成できる(): void
+    public function 大きな_i_dでも作成できる(): void
     {
         // Act
         $dto = new GuildApplyDto(
@@ -195,7 +195,7 @@ class GuildApplyDtoTest extends TestCase
      * @test
      * toArray()のキーがスネークケースである
      */
-    public function toArrayのキーがスネークケースである(): void
+    public function to_arrayのキーがスネークケースである(): void
     {
         // Arrange
         $dto = new GuildApplyDto(

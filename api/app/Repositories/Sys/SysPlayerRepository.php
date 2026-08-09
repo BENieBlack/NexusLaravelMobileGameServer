@@ -7,6 +7,7 @@ use NexusAuth\Contracts\PlayerRepositoryInterface as AuthPlayerRepositoryInterfa
 use NexusPlayer\Repositories\PlayerRepositoryInterface as PlayerRepoInterface;
 use NexusVip\Repositories\PlayerVipRepositoryInterface;
 use NexusPlayer\Dto\PlayerDto;
+use NexusVip\DTOs\PlayerVipDto;
 use NexusUnitOfWork\Contracts\QueryManagerInterface;
 use Illuminate\Support\Str;
 
@@ -223,28 +224,25 @@ class SysPlayerRepository extends _BaseSysRepository implements AuthPlayerReposi
      * {@inheritDoc}
      * NexusVip\Repositories\PlayerVipRepositoryInterface実装
      */
-    public function findVipInfoById(int $sysPlayerId): ?SysPlayer
+    public function findVipInfoById(int $sysPlayerId): ?PlayerVipDto
     {
-        return $this->selectById($sysPlayerId);
+        $model = $this->selectById($sysPlayerId);
+        return $model ? $this->convertToPlayerVipDto($model) : null;
     }
 
     /**
      * {@inheritDoc}
      * NexusVip\Repositories\PlayerVipRepositoryInterface実装
      */
-    public function findByLevelRange(int $minLevel, ?int $maxLevel = null, int $limit = 100): array
+    public function saveVipInfo(PlayerVipDto $playerVipDto): void
     {
-        $query = $this->modelClass::where('vip_level', '>=', $minLevel);
-        
-        if ($maxLevel !== null) {
-            $query->where('vip_level', '<=', $maxLevel);
+        $model = $this->selectById($playerVipDto->getSysPlayerId());
+        if ($model) {
+            // DTOの値をModelに反映
+            $model->setVipPoint($playerVipDto->getVipPoint());
+            $model->setTotalPaidAmount($playerVipDto->getTotalPaidAmount());
+            $this->setModel($model);
         }
-        
-        return $query->orderByDesc('vip_level')
-            ->orderByDesc('vip_point')
-            ->limit($limit)
-            ->get()
-            ->all();
     }
 
     /**
@@ -259,11 +257,23 @@ class SysPlayerRepository extends _BaseSysRepository implements AuthPlayerReposi
             $query->where('vip_point', '<=', $maxPoint);
         }
         
-        return $query->orderByDesc('vip_point')
-            ->orderByDesc('vip_level')
+        $models = $query->orderByDesc('vip_point')
             ->limit($limit)
-            ->get()
-            ->all();
+            ->get();
+        
+        return $models->map(fn($model) => $this->convertToPlayerVipDto($model))->all();
+    }
+
+    /**
+     * Eloquent ModelをPlayerVipDtoに変換
+     */
+    private function convertToPlayerVipDto(SysPlayer $model): PlayerVipDto
+    {
+        return new PlayerVipDto(
+            sysPlayerId: $model->getId(),
+            vipPoint: $model->getVipPoint(),
+            totalPaidAmount: $model->getTotalPaidAmount()
+        );
     }
 }
 

@@ -2,24 +2,29 @@
 
 namespace App\Domain\Item\Services;
 
-use App\Models\Trx\TrxItem;
+use NexusResource\Services\ItemReadService as PackageItemReadService;
 
 /**
- * ItemReadService
+ * ItemReadService (Domain層ラッパー)
  *
- * アイテム残高の読み取り専用サービス
+ * パッケージ層のItemReadServiceをラップ
+ * 
+ * Design Pattern: Wrapper Pattern
+ * - Package層: DTOベースの読み取りロジック
+ * - Domain層: パッケージ層への委譲のみ
  * 
  * Responsibilities:
- * - アイテム残高の取得（getItemAmount）
- * - 複数アイテム残高の一括取得（将来的に追加予定）
+ * - パッケージ層Serviceへの委譲
  * 
- * Characteristics:
- * - Read-only operations (no state changes)
- * - Query operations only
- * - Can be cached or optimized independently
+ * Note: ビジネスロジックはパッケージ層（NexusResource\Services\ItemReadService）に存在
  */
 class ItemReadService
 {
+    public function __construct(
+        private readonly PackageItemReadService $packageItemReadService,
+    ) {
+    }
+
     /**
      * アイテムの所持数を取得
      *
@@ -29,11 +34,7 @@ class ItemReadService
      */
     public function getItemAmount(int $sysPlayerId, string $mstItemId): int
     {
-        $trxItem = TrxItem::query()
-            ->where('sys_player_id', $sysPlayerId)
-            ->where('mst_item_id', $mstItemId)
-            ->first();
-
-        return $trxItem ? $trxItem->getTotalAmount() : 0;
+        // パッケージ層に委譲
+        return $this->packageItemReadService->getItemAmount($sysPlayerId, $mstItemId);
     }
 }

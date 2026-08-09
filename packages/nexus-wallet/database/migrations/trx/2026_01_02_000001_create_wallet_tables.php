@@ -4,7 +4,6 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use NexusPitr\Migrations\DynamicShardingTrait;
 
 /**
  * TrxDB用ウォレットテーブル作成マイグレーション
@@ -14,29 +13,17 @@ use NexusPitr\Migrations\DynamicShardingTrait;
  */
 return new class extends Migration
 {
-    use DynamicShardingTrait;
 
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        // 各シャードに対してテーブルを作成（動的シャーディング対応）
-        foreach ($this->getTrxConnections() as $connection) {
-            $this->createTablesForConnection($connection);
-        }
-    }
-
-    /**
-     * 指定された接続に対してテーブルを作成
-     */
-    protected function createTablesForConnection(string $connection): void
-    {
         // ========================================
         // trx_wallet: 汎用通貨現在値管理
         // Gold, EventCoin, RaidMedal等を統合管理
         // ========================================
-        Schema::connection($connection)->create('trx_wallet', function (Blueprint $table) {
+        Schema::create('trx_wallet', function (Blueprint $table) {
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
             $table->string('mst_item_id')->comment('通貨アイテムID (例: gold, event_coin)');
             $table->unsignedInteger('free_amount')->default(0)->comment('無償通貨数');
@@ -52,7 +39,7 @@ return new class extends Migration
         // trx_wallet_balance: 通貨残高管理（取得単位）
         // FIFO方式で消費し、有効期限管理を可能にする
         // ========================================
-        Schema::connection($connection)->create('trx_wallet_balance', function (Blueprint $table) {
+        Schema::create('trx_wallet_balance', function (Blueprint $table) {
             $table->id()->comment('残高ID');
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
             $table->string('mst_item_id')->comment('通貨アイテムID (例: gold, event_coin)');
@@ -73,10 +60,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // 各シャードに対してテーブルを削除（動的シャーディング対応）
-        foreach ($this->getTrxConnections() as $connection) {
-            Schema::connection($connection)->dropIfExists('trx_wallet_balance');
-            Schema::connection($connection)->dropIfExists('trx_wallet');
-        }
+        Schema::dropIfExists('trx_wallet_balance');
+        Schema::dropIfExists('trx_wallet');
     }
 };

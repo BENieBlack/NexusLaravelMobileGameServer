@@ -1,36 +1,29 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use NexusPitr\Migrations\DynamicShardingTrait;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    use DynamicShardingTrait;
-
     /**
      * Run the migrations.
      */
     public function up(): void
     {
         // 各シャードに対してテーブルを作成
-        foreach ($this->getTrxConnections() as $connection) {
-            $this->createTablesForConnection($connection);
-        }
-    }
 
     /**
-     * 指定された接続に対してテーブルを作成
+     * Run the migrations.
      */
-    protected function createTablesForConnection(string $connection): void
+    public function up(): void
     {
         // ========================================
         // trx_gacha_history: ガチャ実行履歴
         // プレイヤーのガチャ実行履歴を記録
         // ========================================
-        Schema::connection($connection)->create('trx_gacha_history', function (Blueprint $table) {
+        Schema::create('trx_gacha_history', function (Blueprint $table) {
             $table->bigIncrements('id')->comment('履歴ID');
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
             $table->string('mst_gacha_id')->comment('ガチャID');
@@ -58,7 +51,7 @@ return new class extends Migration
         // - daily_reset_at < 今日の0時の場合、daily_draw_countを0にリセットしてdaily_reset_atを更新
         // - ガチャ期間が終了した場合、total_draw_countとcurrent_stepをリセットしてtotal_reset_atを更新
         // ========================================
-        Schema::connection($connection)->create('trx_gacha', function (Blueprint $table) {
+        Schema::create('trx_gacha', function (Blueprint $table) {
             $table->bigIncrements('id')->comment('ID');
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
             $table->string('mst_gacha_id')->comment('ガチャID');
@@ -82,8 +75,7 @@ return new class extends Migration
     public function down(): void
     {
         foreach ($this->getTrxConnections() as $connection) {
-            Schema::connection($connection)->dropIfExists('trx_gacha');
-            Schema::connection($connection)->dropIfExists('trx_gacha_history');
-        }
+        Schema::dropIfExists('trx_gacha');
+        Schema::dropIfExists('trx_gacha_history');
     }
 };

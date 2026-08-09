@@ -1,35 +1,28 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use NexusPitr\Migrations\DynamicShardingTrait;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    use DynamicShardingTrait;
-
     /**
      * Run the migrations.
      */
     public function up(): void
     {
         // 各シャードに対してテーブルを作成
-        foreach ($this->getTrxConnections() as $connection) {
-            $this->createTablesForConnection($connection);
-        }
-    }
 
     /**
-     * 指定された接続に対してテーブルを作成
+     * Run the migrations.
      */
-    protected function createTablesForConnection(string $connection): void
+    public function up(): void
     {
         // ========================================
         // trx_mailbox: プレイヤーメールボックス
         // ========================================
-        Schema::connection($connection)->create('trx_mailbox', function (Blueprint $table) {
+        Schema::create('trx_mailbox', function (Blueprint $table) {
             $table->id()->comment('メールボックスID（オートインクリメント）');
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
             $table->string('mst_mailbox_id')->comment('mst_mailboxテーブルのID');
@@ -86,7 +79,6 @@ return new class extends Migration
     public function down(): void
     {
         foreach ($this->getTrxConnections() as $connection) {
-            Schema::connection($connection)->dropIfExists('trx_mailbox');
-        }
+        Schema::dropIfExists('trx_mailbox');
     }
 };

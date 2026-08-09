@@ -42,8 +42,6 @@ class SysGuildApply extends _BaseSys
     protected $casts = [
         'sys_guild_id' => 'integer',
         'sys_player_id' => 'integer',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
     ];
 
     /**

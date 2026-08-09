@@ -54,8 +54,6 @@ class MstLoginBonusContent extends _BaseMst
         'amount' => 'integer',
         'is_paid' => 'boolean',
         'sort_order' => 'integer',
-        'created_at' => 'immutable_datetime',
-        'updated_at' => 'immutable_datetime',
     ];
 
     public $timestamps = true;

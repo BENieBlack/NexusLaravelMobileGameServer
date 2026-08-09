@@ -48,8 +48,6 @@ class MstGachaPrize extends _BaseMst
         'weight' => 'integer',
         'is_pickup' => 'boolean',
         'is_active' => 'boolean',
-        'created_at' => 'immutable_datetime',
-        'updated_at' => 'immutable_datetime',
     ];
 
     public $timestamps = true;

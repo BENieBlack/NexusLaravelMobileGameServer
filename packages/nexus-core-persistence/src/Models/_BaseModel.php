@@ -32,6 +32,61 @@ abstract class _BaseModel extends Model implements _BaseModelInterface
     protected bool $usesUnitOfWork = false;
 
     /**
+     * タイムスタンプフィールドの自動キャストを無効化
+     * パフォーマンス最適化のため、DB取得時はstring型のまま保持し、
+     * toResponseArray()で必要に応じてCarbonにキャストしてISO8601形式で返す
+     * 
+     * @var array<string, string>
+     */
+    protected $casts = [
+        // デフォルトのcreated_at, updated_atのdatetime自動キャストを無効化
+        // サブクラスで必要に応じて個別にキャスト定義可能
+    ];
+
+    /**
+     * Eloquentのデフォルトタイムスタンプ自動キャストを無効化
+     * 
+     * @return bool
+     */
+    public function usesTimestamps()
+    {
+        // タイムスタンプ機能自体は有効だが、Carbonへの自動キャストは行わない
+        return parent::usesTimestamps();
+    }
+
+    /**
+     * 日付属性をCarbon型として取得
+     * 
+     * パフォーマンス最適化のため、DB取得時はstring型で保持し、
+     * このメソッドで必要に応じてCarbon型に変換する
+     * 
+     * @param string $attribute 属性名（例: 'created_at', 'start_at'）
+     * @return \Carbon\Carbon|null
+     */
+    protected function getDateAttribute(string $attribute): ?\Carbon\Carbon
+    {
+        $value = $this->getAttribute($attribute);
+        
+        if ($value === null) {
+            return null;
+        }
+        
+        if ($value instanceof \Carbon\Carbon) {
+            return $value;
+        }
+        
+        if ($value instanceof \DateTimeInterface) {
+            return \Carbon\Carbon::instance($value);
+        }
+        
+        if (is_string($value)) {
+            return \Carbon\Carbon::parse($value);
+        }
+        
+        return null;
+    }
+
+    /**
      * Unit of Workパターンを使用するかどうか
      * 
      * @return bool
@@ -113,6 +168,9 @@ abstract class _BaseModel extends Model implements _BaseModelInterface
     /**
      * APIレスポンス用の配列に変換
      * 
+     * パフォーマンス最適化のため、DB取得時はstring型で保持し、
+     * レスポンス生成時のみCarbonにパースしてISO8601形式に変換する
+     * 
      * @return array<string, mixed>
      */
     public function toResponseArray(): array
@@ -120,9 +178,19 @@ abstract class _BaseModel extends Model implements _BaseModelInterface
         $array = $this->toArray();
         
         // 日付フィールドをISO8601形式に変換
+        // DB取得時はstring型なので、ここで明示的にCarbonにパースする
         foreach ($this->getDates() as $dateField) {
-            if (isset($array[$dateField]) && $this->{$dateField} instanceof \DateTimeInterface) {
-                $array[$dateField] = $this->{$dateField}->toIso8601String();
+            if (isset($array[$dateField]) && is_string($array[$dateField])) {
+                try {
+                    $carbon = \Carbon\Carbon::parse($array[$dateField]);
+                    $array[$dateField] = $carbon->toIso8601String();
+                } catch (\Exception $e) {
+                    // パース失敗時は元の値をそのまま使用
+                    // エラーログは出さずに続行（DBから取得した値は通常パース可能）
+                }
+            } elseif (isset($array[$dateField]) && $array[$dateField] instanceof \DateTimeInterface) {
+                // 既にCarbon/DateTime型の場合（後方互換性のため）
+                $array[$dateField] = $array[$dateField]->toIso8601String();
             }
         }
         

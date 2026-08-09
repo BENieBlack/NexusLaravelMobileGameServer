@@ -37,10 +37,7 @@ class SysDeploy extends _BaseSys
      * @var array
      */
     protected $casts = [
-        'start_at' => 'datetime',
         'is_active' => 'boolean',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
     ];
 
     /**

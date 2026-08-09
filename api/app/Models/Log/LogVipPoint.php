@@ -57,8 +57,6 @@ class LogVipPoint extends Model
         'after_vip_point' => 'integer',
         'point_diff' => 'integer',
         'purchase_amount' => 'decimal:2',
-        'system_at' => 'immutable_datetime',
-        'created_at' => 'immutable_datetime',
     ];
 
     /**

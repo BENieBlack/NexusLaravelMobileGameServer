@@ -44,8 +44,6 @@ class MstGachaStep extends _BaseMst
         'cost_amount' => 'integer',
         'is_loop_start' => 'boolean',
         'is_active' => 'boolean',
-        'created_at' => 'immutable_datetime',
-        'updated_at' => 'immutable_datetime',
     ];
 
     public $timestamps = true;

@@ -24,8 +24,6 @@ class MstInAppPurchaseEffect extends _BaseMst
         'mst_in_app_purchase_id' => 'integer',
         'effect_type' => 'integer',
         'value' => 'integer',
-        'created_at' => 'immutable_datetime',
-        'updated_at' => 'immutable_datetime',
     ];
 
     public $timestamps = true;

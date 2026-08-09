@@ -45,12 +45,8 @@ class TrxGacha extends _BaseTrx
         'sys_player_id' => 'integer',
         'current_step' => 'integer',
         'daily_draw_count' => 'integer',
-        'daily_reset_at' => 'immutable_datetime',
         'total_draw_count' => 'integer',
-        'total_reset_at' => 'immutable_datetime',
         'is_delete' => 'boolean',
-        'created_at' => 'immutable_datetime',
-        'updated_at' => 'immutable_datetime',
     ];
 
     public $timestamps = true;

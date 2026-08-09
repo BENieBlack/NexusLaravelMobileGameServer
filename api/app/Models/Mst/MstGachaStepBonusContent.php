@@ -47,8 +47,6 @@ class MstGachaStepBonusContent extends _BaseMst
         'weight' => 'integer',
         'sort_order' => 'integer',
         'is_active' => 'boolean',
-        'created_at' => 'immutable_datetime',
-        'updated_at' => 'immutable_datetime',
     ];
 
     public $timestamps = true;

@@ -70,8 +70,6 @@ class MstPlayerLevel extends _BaseMst
         'deploy_key' => 'integer',
         'required_exp' => 'integer',
         'max_stamina' => 'integer',
-        'created_at' => 'immutable_datetime',
-        'updated_at' => 'immutable_datetime',
     ];
 
     /**

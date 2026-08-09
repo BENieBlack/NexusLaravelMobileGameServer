@@ -41,8 +41,6 @@ class TrxPlayerSns extends _BaseTrx
 
     protected $casts = [
         'sys_player_id' => 'integer',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
     ];
 
     /**

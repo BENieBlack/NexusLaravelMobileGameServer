@@ -13,7 +13,6 @@ class LogItem extends _BaseLog
         'mst_item_id' => 'string',
         'before_amount' => 'integer',
         'after_amount' => 'integer',
-        'system_at' => 'datetime',
     ];
 
     protected $fillable = [

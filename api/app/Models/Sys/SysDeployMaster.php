@@ -37,9 +37,6 @@ class SysDeployMaster extends _BaseSys
      */
     protected $casts = [
         'deploy_date' => 'date',
-        'deployed_at' => 'datetime',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
     ];
 
     /**

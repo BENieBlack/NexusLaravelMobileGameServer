@@ -44,8 +44,6 @@ class MstMailboxContent extends _BaseMst
         'content_quantity' => 'integer',
         'amount' => 'integer',
         'sort_desc' => 'integer',
-        'created_at' => 'immutable_datetime',
-        'updated_at' => 'immutable_datetime',
     ];
 
     public $timestamps = true;

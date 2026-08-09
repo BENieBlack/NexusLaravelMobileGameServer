@@ -34,8 +34,6 @@ class MstInAppPurchase extends _BaseMst
         'purchase_limit' => 'integer',
         'sort_desc' => 'integer',
         'is_active' => 'boolean',
-        'created_at' => 'immutable_datetime',
-        'updated_at' => 'immutable_datetime',
     ];
 
     public $timestamps = true;

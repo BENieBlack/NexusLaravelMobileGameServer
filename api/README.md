@@ -12,6 +12,23 @@
 - [API呼び出しフロー](docs/API_FLOW.md) - APIの推奨呼び出し順序とエンドポイント仕様
 - [コーディング規約](docs/CODING_CONVENTIONS.md) - プロジェクトのコーディング規約
 
+## Testing
+
+テストを実行するには、プロジェクトルートから以下のコマンドを使用してください：
+
+```bash
+# APIのテストを実行（Dockerを自動起動）
+../command/sail api test
+
+# 特定のテストのみ実行
+../command/sail api test --filter=UserTest
+
+# より詳細な出力で実行
+../command/sail api test --verbose
+```
+
+**注意**: テストコマンドは自動的にDockerコンテナの状態を確認し、起動していない場合は`docker-compose up -d`を実行します。
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:

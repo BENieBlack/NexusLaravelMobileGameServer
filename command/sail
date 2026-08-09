@@ -31,6 +31,19 @@ export APP_SERVICE="$SERVICE"
 # Set the docker-compose file location
 export COMPOSE_FILE="$PROJECT_ROOT/docker-compose.yml"
 
+# Function to ensure Docker containers are running
+ensure_docker_running() {
+    echo "Checking Docker containers..."
+    if ! docker-compose ps | grep -q "Up"; then
+        echo "Starting Docker containers..."
+        docker-compose up -d
+        echo "Waiting for containers to be ready..."
+        sleep 5
+    else
+        echo "Docker containers are already running."
+    fi
+}
+
 # Custom migrate command that handles all databases
 if [ "${ARGS[0]}" = "migrate" ]; then
     # Only run on api service
@@ -47,6 +60,26 @@ if [ "${ARGS[0]}" = "migrate" ]; then
     "$PROJECT_ROOT/api/vendor/bin/sail" artisan migrate --database=log --path=database/migrations/log
     
     exit 0
+fi
+
+# Custom test command for API
+if [ "${ARGS[0]}" = "api" ] && [ "${ARGS[1]}" = "test" ]; then
+    ensure_docker_running
+    
+    echo "Running API tests..."
+    docker-compose exec -T api-php php vendor/bin/phpunit "${ARGS[@]:2}"
+    
+    exit $?
+fi
+
+# Custom test command for Tool
+if [ "${ARGS[0]}" = "tool" ] && [ "${ARGS[1]}" = "test" ]; then
+    ensure_docker_running
+    
+    echo "Running Tool tests..."
+    docker-compose exec -T tool-php php vendor/bin/phpunit "${ARGS[@]:2}"
+    
+    exit $?
 fi
 
 # Delegate to the appropriate Laravel Sail binary

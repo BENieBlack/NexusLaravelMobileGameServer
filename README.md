@@ -130,6 +130,24 @@ docker exec tool-php php artisan migrate --database=tol --path=database/migratio
 ./command/sail --tool npm run dev
 ```
 
+### テスト
+
+```bash
+# APIのテストを実行（Dockerを自動起動）
+./command/sail api test
+
+# Toolのテストを実行（Dockerを自動起動）
+./command/sail tool test
+
+# 特定のテストのみ実行
+./command/sail api test --filter=UserTest
+
+# より詳細な出力で実行
+./command/sail api test --verbose
+```
+
+**注意**: テストコマンドは自動的にDockerコンテナの状態を確認し、起動していない場合は`docker-compose up -d`を実行します。
+
 詳細は [.claude/development.md](./.claude/development.md) を参照してください。
 
 ## アーキテクチャ

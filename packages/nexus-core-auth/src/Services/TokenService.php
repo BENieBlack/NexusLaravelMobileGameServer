@@ -9,7 +9,7 @@ use NexusAuth\Contracts\PlayerModelInterface;
 use NexusAuth\Contracts\TokenModelInterface;
 use NexusAuth\Contracts\TokenRepositoryInterface;
 use NexusAuth\DTOs\TokenDto;
-use NexusUtilities\ClockUtility;
+use Nexus\Core\Utilities\ClockUtility;
 use Illuminate\Support\Str;
 
 /**

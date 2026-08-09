@@ -2,7 +2,7 @@
 
 namespace App\Repositories\Log;
 
-use NexusPersistence\Repositories\Log\_BaseLogRepositoryInterface as PersistenceBaseLogRepositoryInterface;
+use Nexus\Core\Repositories\Log\_BaseLogRepositoryInterface as PersistenceBaseLogRepositoryInterface;
 
 /**
  * _BaseLogRepositoryInterface

@@ -9,7 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use NexusMailbox\Dto\MailboxDto;
 use NexusMailbox\Repositories\MailboxRepositoryInterface;
-use NexusPersistence\Support\CustomCollection;
+use Nexus\Core\Support\CustomCollection;
 
 /**
  * TrxMailboxRepository

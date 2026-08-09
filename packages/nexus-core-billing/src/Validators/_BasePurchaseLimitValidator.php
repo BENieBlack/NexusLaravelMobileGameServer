@@ -4,7 +4,7 @@ namespace NexusBilling\Validators;
 
 use DateTimeInterface;
 use NexusBilling\Constants\PurchaseLimitResetType;
-use NexusUtilities\ClockUtility;
+use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * 購入制限チェッカー（汎用ロジック）

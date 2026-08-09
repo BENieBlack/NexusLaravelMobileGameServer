@@ -5,7 +5,7 @@ namespace Tests;
 use App\Repositories\Mst\_BaseMstRepository;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use NexusSecurity\Middleware\VerifyClientSignature;
-use NexusUtilities\ClockUtility;
+use Nexus\Core\Utilities\ClockUtility;
 
 abstract class TestCase extends BaseTestCase
 {

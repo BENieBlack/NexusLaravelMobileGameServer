@@ -2,7 +2,7 @@
 
 namespace NexusResourceDelivery\Managers;
 
-use NexusPersistence\Support\CustomCollection;
+use Nexus\Core\Support\CustomCollection;
 use NexusResourceDelivery\DTOs\ResourceDeliveryCompleteDto;
 use NexusResourceDelivery\DTOs\ResourceDeliveryContentDto;
 

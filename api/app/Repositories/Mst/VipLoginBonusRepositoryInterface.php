@@ -2,7 +2,7 @@
 
 namespace App\Repositories\Mst;
 
-use NexusPersistence\Support\CustomCollection;
+use Nexus\Core\Support\CustomCollection;
 
 interface VipLoginBonusRepositoryInterface
 {

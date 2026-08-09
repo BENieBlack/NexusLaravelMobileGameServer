@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Responses;
+namespace Nexus\Core\ValueObjects;
 
 use Illuminate\Http\JsonResponse;
 
@@ -9,28 +9,45 @@ use Illuminate\Http\JsonResponse;
  * 
  * HTTP 299エラーレスポンス（ビジネスロジックエラー）およびその他のエラーレスポンスを表すValueObject
  * 
+ * このクラスはnexus-core-utilitiesパッケージに配置され、
+ * アプリケーション層とパッケージ層の両方から使用可能
+ * 
  * HTTP 299を使用する理由:
  * - 2xx範囲なのでネットワーク/プロキシレベルではエラーとして扱われない
  * - HTTP 200（完全な成功）と明確に区別できる
  * - クライアント側で if (status === 299) { handleBusinessError() } のように分岐可能
  * - レスポンスボディのerror_codeでエラー種別を詳細に特定
  * 
+ * エラーコード体系:
+ * - 3桁（1-999）: インフラ/汎用エラー（DB接続失敗101, Redis接続失敗201, 不明エラー999等）
+ * - 4桁（1000-9999）: パッケージ層エラー（nexus-wallet: 1000-1099, nexus-stamina: 1100-1199等）
+ * - 5桁（10000-99999）: アプリケーション層エラー（認証10000台, プレイヤー11000台等）
+ * 
  * 使用例:
  * ```php
- * // ビジネスロジックエラー（HTTP 299）
+ * // アプリケーション層: ビジネスロジックエラー（HTTP 299）
+ * use App\Exceptions\GameErrorCode;
  * return ErrorResponse::businessError(
  *     errorCode: GameErrorCode::PLAYER_NOT_FOUND,
  *     message: 'プレイヤーが見つかりません'
  * )->toJsonResponse();
  * 
- * // システムエラー（HTTP 500）
+ * // パッケージ層: パッケージエラー（HTTP 299）
+ * use LaravelWallet\Exceptions\WalletErrorCode;
+ * return ErrorResponse::businessError(
+ *     errorCode: WalletErrorCode::INSUFFICIENT_BALANCE,
+ *     message: '残高が不足しています'
+ * )->toJsonResponse();
+ * 
+ * // インフラ層: システムエラー（HTTP 500）
+ * use App\Exceptions\InfraErrorCode;
  * return ErrorResponse::systemError(
  *     errorCode: InfraErrorCode::UNKNOWN_ERROR,
  *     message: 'An error occurred'
  * )->toJsonResponse();
  * ```
  */
-final class ErrorResponse implements _BaseResponseInterface
+final class ErrorResponse
 {
     /**
      * @param int $errorCode アプリケーション固有のエラーコード（3桁～5桁）
@@ -46,9 +63,9 @@ final class ErrorResponse implements _BaseResponseInterface
     /**
      * ビジネスロジックエラーを作成（HTTP 299）
      * 
-     * GameExceptionから呼び出される標準的なエラーレスポンス
+     * アプリケーション層（5桁）またはパッケージ層（4桁）のビジネスエラーに使用
      * 
-     * @param int $errorCode 5桁のアプリケーション層エラーコード
+     * @param int $errorCode 4桁または5桁のエラーコード
      * @param string $message エラーメッセージ
      * @return self
      */
@@ -60,7 +77,7 @@ final class ErrorResponse implements _BaseResponseInterface
     /**
      * インフラエラーを作成（HTTP 500）
      * 
-     * DB接続失敗、Redis接続失敗等のインフラレベルエラー
+     * DB接続失敗、Redis接続失敗等のインフラレベルエラー（3桁）に使用
      * 
      * @param int $errorCode 3桁のインフラエラーコード
      * @param string $message エラーメッセージ

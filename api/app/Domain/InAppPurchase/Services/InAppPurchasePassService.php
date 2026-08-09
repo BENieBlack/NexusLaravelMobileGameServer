@@ -5,8 +5,8 @@ namespace App\Domain\InAppPurchase\Services;
 use App\Models\Mst\MstInAppPurchase;
 use App\Models\Trx\TrxInAppPurchaseEffect;
 use App\Repositories\Trx\TrxInAppPurchaseEffectRepository;
-use NexusPersistence\Support\CustomCollection;
-use NexusUtilities\ClockUtility;
+use Nexus\Core\Support\CustomCollection;
+use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * InAppPurchasePassService

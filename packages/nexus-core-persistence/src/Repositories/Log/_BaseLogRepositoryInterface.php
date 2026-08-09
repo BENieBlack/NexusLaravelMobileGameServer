@@ -2,9 +2,9 @@
 
 namespace NexusPersistence\Repositories\Log;
 
-use NexusPersistence\Models\Log\_BaseLogInterface;
-use NexusPersistence\Repositories\_BaseRepositoryInterface;
-use NexusPersistence\Support\CustomCollection;
+use Nexus\Core\Models\Log\_BaseLogInterface;
+use Nexus\Core\Repositories\_BaseRepositoryInterface;
+use Nexus\Core\Support\CustomCollection;
 
 /**
  * _BaseLogRepositoryInterface

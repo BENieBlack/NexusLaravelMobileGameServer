@@ -6,8 +6,8 @@ use NexusResource\DTOs\ResourceDto;
 use NexusResourceDelivery\Services\ResourceDeliveryService;
 use NexusLogin\Contracts\LoginBonusStrategyInterface;
 use Carbon\CarbonImmutable;
-use NexusUtilities\ClockUtility;
-use NexusPersistence\Support\CustomCollection;
+use Nexus\Core\Utilities\ClockUtility;
+use Nexus\Core\Support\CustomCollection;
 
 /**
  * _BaseLoginBonusService

@@ -4,7 +4,7 @@ namespace App\Repositories\Sys;
 
 use App\Models\Sys\SysPlayerToken;
 use NexusAuth\Contracts\TokenRepositoryInterface;
-use NexusPersistence\Support\CustomCollection;
+use Nexus\Core\Support\CustomCollection;
 
 /**
  * SysPlayerTokenRepository

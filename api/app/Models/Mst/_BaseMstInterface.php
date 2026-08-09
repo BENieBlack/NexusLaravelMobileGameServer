@@ -2,7 +2,7 @@
 
 namespace App\Models\Mst;
 
-use NexusPersistence\Models\Mst\_BaseMstInterface as PersistenceBaseMstInterface;
+use Nexus\Core\Models\Mst\_BaseMstInterface as PersistenceBaseMstInterface;
 
 /**
  * _BaseMstInterface

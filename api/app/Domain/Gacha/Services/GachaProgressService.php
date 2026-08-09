@@ -6,7 +6,7 @@ use App\Models\Trx\TrxGacha;
 use App\Repositories\Trx\TrxGachaRepository;
 use NexusGacha\Dto\GachaProgressDto;
 use NexusGacha\Services\GachaProgressService as PackageGachaProgressService;
-use NexusUtilities\ClockUtility;
+use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * GachaProgressService

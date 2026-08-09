@@ -2,10 +2,10 @@
 
 namespace NexusPersistence\Repositories\Log;
 
-use NexusPersistence\Models\Log\_BaseLog;
-use NexusPersistence\Models\Log\_BaseLogInterface;
-use NexusPersistence\Repositories\_BaseRepository;
-use NexusPersistence\Support\CustomCollection;
+use Nexus\Core\Models\Log\_BaseLog;
+use Nexus\Core\Models\Log\_BaseLogInterface;
+use Nexus\Core\Repositories\_BaseRepository;
+use Nexus\Core\Support\CustomCollection;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Model;
 

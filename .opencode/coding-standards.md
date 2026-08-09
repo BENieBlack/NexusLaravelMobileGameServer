@@ -39,7 +39,7 @@
 
 ```php
 // ✅ Good: ClockUtilityを使用
-use NexusUtilities\ClockUtility;
+use Nexus\Core\Utilities\ClockUtility;
 
 $now = ClockUtility::now(); // CarbonImmutableを返す
 $tomorrow = $now->addDay();
@@ -76,7 +76,7 @@ $now = Carbon::now(); // NG
 
 ```php
 // ✅ Good: greaterThanOrEqual/lessThanOrEqualを使用
-use NexusUtilities\ClockUtility;
+use Nexus\Core\Utilities\ClockUtility;
 
 // 開始判定: まだ開始していない（NOW < start_at）
 if (!ClockUtility::greaterThanOrEqual($gacha->start_at)) {
@@ -151,7 +151,7 @@ if ($lastLogin->startOfDay()->lt($today->startOfDay())) { // NG: 重い処理
 
 ```php
 // ✅ Good: ゲーム内日付での判定
-use NexusUtilities\ClockUtility;
+use Nexus\Core\Utilities\ClockUtility;
 
 // 最終ログイン日時とゲーム内の「昨日」の開始時刻を比較
 $gameDayStart = ClockUtility::getGameDayStart(); // 今日のゲーム内日付の開始時刻
@@ -1144,12 +1144,12 @@ class SysPlayerRepository extends _BaseSysRepository
 
 ### CustomCollectionの使用
 
-**重要**: このプロジェクトでは、パフォーマンス最適化のため`Illuminate\Support\Collection`ではなく`NexusPersistence\Support\CustomCollection`を使用します。
+**重要**: このプロジェクトでは、パフォーマンス最適化のため`Illuminate\Support\Collection`ではなく`Nexus\Core\Support\CustomCollection`を使用します。
 
 #### ✅ Good: CustomCollectionを使用
 
 ```php
-use NexusPersistence\Support\CustomCollection;
+use Nexus\Core\Support\CustomCollection;
 
 class MstItemRepository extends _BaseMstRepository
 {

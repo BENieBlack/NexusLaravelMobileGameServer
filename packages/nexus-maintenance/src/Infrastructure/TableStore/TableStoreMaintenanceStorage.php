@@ -4,7 +4,7 @@ namespace NexusMaintenance\Infrastructure\TableStore;
 
 use NexusMaintenance\Contracts\MaintenanceStorageInterface;
 use NexusMaintenance\DTOs\MaintenanceDto;
-use NexusUtilities\ClockUtility;
+use Nexus\Core\Utilities\ClockUtility;
 use Aliyun\OTS\OTSClient;
 use Aliyun\OTS\Consts\PrimaryKeyTypeConst;
 use Aliyun\OTS\Consts\RowExistenceExpectationConst;

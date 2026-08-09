@@ -3,7 +3,7 @@
 namespace App\Repositories\Mst;
 
 use App\Models\Mst\MstInAppPurchase;
-use NexusPersistence\Support\CustomCollection;
+use Nexus\Core\Support\CustomCollection;
 
 /**
  * MstInAppPurchaseRepository

@@ -1,5 +1,5 @@
 {
-    "name": "nexus/core-utilities",
+    "name": "nexus/core",
     "description": "Laravel utility classes including ClockUtility and RedisUtility",
     "type": "library",
     "license": "MIT",

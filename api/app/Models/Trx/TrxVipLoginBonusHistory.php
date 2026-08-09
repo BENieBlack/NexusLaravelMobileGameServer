@@ -3,7 +3,7 @@
 namespace App\Models\Trx;
 
 use Carbon\CarbonImmutable;
-use NexusPersistence\Models\Trx\_BaseTrx;
+use Nexus\Core\Models\Trx\_BaseTrx;
 
 /**
  * TrxVipLoginBonusHistory

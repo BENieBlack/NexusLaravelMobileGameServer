@@ -8,7 +8,7 @@ use App\Models\Mst\MstGacha;
 use App\Models\Mst\MstGachaCost;
 use App\Repositories\Mst\MstGachaCostRepository;
 use App\Repositories\Mst\MstGachaRepository;
-use NexusUtilities\ClockUtility;
+use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * GachaValidationService

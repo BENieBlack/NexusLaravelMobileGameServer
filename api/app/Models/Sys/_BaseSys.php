@@ -2,7 +2,7 @@
 
 namespace App\Models\Sys;
 
-use NexusPersistence\Models\Sys\_BaseSys as PersistenceBaseSys;
+use Nexus\Core\Models\Sys\_BaseSys as PersistenceBaseSys;
 
 /**
  * _BaseSys

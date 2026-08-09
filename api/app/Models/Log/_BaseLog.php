@@ -2,7 +2,7 @@
 
 namespace App\Models\Log;
 
-use NexusPersistence\Models\Log\_BaseLog as PersistenceBaseLog;
+use Nexus\Core\Models\Log\_BaseLog as PersistenceBaseLog;
 
 /**
  * _BaseLog

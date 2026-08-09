@@ -2,7 +2,7 @@
 
 namespace NexusPersistence\Models\Sys;
 
-use NexusPersistence\Models\_BaseModel;
+use Nexus\Core\Models\_BaseModel;
 
 /**
  * _BaseSys

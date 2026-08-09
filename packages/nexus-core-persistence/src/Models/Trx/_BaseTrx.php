@@ -2,7 +2,7 @@
 
 namespace NexusPersistence\Models\Trx;
 
-use NexusPersistence\Models\_BaseModel;
+use Nexus\Core\Models\_BaseModel;
 
 /**
  * _BaseTrx

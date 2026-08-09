@@ -2,9 +2,9 @@
 
 namespace NexusPersistence\Repositories\Sys;
 
-use NexusPersistence\Models\Sys\_BaseSysInterface;
-use NexusPersistence\Repositories\_BaseRepository;
-use NexusPersistence\Support\CustomCollection;
+use Nexus\Core\Models\Sys\_BaseSysInterface;
+use Nexus\Core\Repositories\_BaseRepository;
+use Nexus\Core\Support\CustomCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 

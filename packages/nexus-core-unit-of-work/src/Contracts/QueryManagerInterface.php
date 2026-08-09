@@ -2,7 +2,7 @@
 
 namespace NexusUnitOfWork\Contracts;
 
-use NexusPersistence\Repositories\_BaseRepositoryInterface;
+use Nexus\Core\Repositories\_BaseRepositoryInterface;
 
 /**
  * QueryManagerInterface

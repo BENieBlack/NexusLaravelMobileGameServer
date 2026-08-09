@@ -3,7 +3,7 @@
 namespace NexusResourceDelivery\Services;
 
 use Illuminate\Support\Facades\Log;
-use NexusPersistence\Support\CustomCollection;
+use Nexus\Core\Support\CustomCollection;
 use NexusResource\DTOs\ResourceDto;
 use NexusResource\Enums\ResourceType;
 use NexusResourceDelivery\DTOs\ResourceDeliveryCompleteDto;

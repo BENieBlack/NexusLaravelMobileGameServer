@@ -2,7 +2,7 @@
 
 namespace NexusPersistence\Tests\Support;
 
-use NexusPersistence\Support\CustomCollection;
+use Nexus\Core\Support\CustomCollection;
 use PHPUnit\Framework\TestCase;
 
 /**

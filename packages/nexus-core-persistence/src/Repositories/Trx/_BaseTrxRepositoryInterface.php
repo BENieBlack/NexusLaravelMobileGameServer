@@ -2,9 +2,9 @@
 
 namespace NexusPersistence\Repositories\Trx;
 
-use NexusPersistence\Models\Trx\_BaseTrxInterface;
-use NexusPersistence\Repositories\_BaseRepositoryInterface;
-use NexusPersistence\Support\CustomCollection;
+use Nexus\Core\Models\Trx\_BaseTrxInterface;
+use Nexus\Core\Repositories\_BaseRepositoryInterface;
+use Nexus\Core\Support\CustomCollection;
 
 /**
  * _BaseTrxRepositoryInterface

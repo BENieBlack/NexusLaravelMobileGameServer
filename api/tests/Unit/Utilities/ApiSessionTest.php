@@ -3,7 +3,7 @@
 namespace Tests\Unit\Utilities;
 
 use App\Persistence\ApiSession;
-use NexusUtilities\ClockUtility;
+use Nexus\Core\Utilities\ClockUtility;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

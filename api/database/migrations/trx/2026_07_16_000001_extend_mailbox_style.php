@@ -1,23 +1,21 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use NexusPitr\Migrations\DynamicShardingTrait;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * シャーディング対象の接続名
-     */
-    protected $connections = ['trx1', 'trx2'];
+    use DynamicShardingTrait;
 
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        foreach ($this->connections as $connection) {
+        foreach ($this->getTrxConnections() as $connection) {
             $this->extendTableForConnection($connection);
         }
     }
@@ -68,7 +66,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        foreach ($this->connections as $connection) {
+        foreach ($this->getTrxConnections() as $connection) {
             DB::connection($connection)->statement("DROP INDEX idx_expires_at ON trx_mailbox");
             DB::connection($connection)->statement("DROP INDEX idx_protected ON trx_mailbox");
             

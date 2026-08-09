@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use NexusPitr\Migrations\DynamicShardingTrait;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
@@ -9,7 +10,7 @@ return new class extends Migration
     /**
      * 接続先データベース（シャーディング対応）
      */
-    protected $connections = ['trx1', 'trx2'];
+    protected $connections = $this->getTrxConnections();
 
     /**
      * Run the migrations.
@@ -18,7 +19,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        foreach ($this->connections as $connection) {
+        foreach ($this->getTrxConnections() as $connection) {
             Schema::connection($connection)->table('trx_login_bonus_history', function (Blueprint $table) {
                 // カムバックボーナス用: 休眠日数
                 $table->unsignedInteger('absent_days')
@@ -37,7 +38,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        foreach ($this->connections as $connection) {
+        foreach ($this->getTrxConnections() as $connection) {
             Schema::connection($connection)->table('trx_login_bonus_history', function (Blueprint $table) {
                 $table->dropIndex('idx_absent_days');
                 $table->dropColumn('absent_days');

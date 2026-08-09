@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use NexusPitr\Migrations\DynamicShardingTrait;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -13,7 +14,7 @@ return new class extends Migration
     public function up(): void
     {
         // トランザクションDB接続の一覧を取得
-        $connections = ['trx1', 'trx2'];
+        $connections = $this->getTrxConnections();
 
         foreach ($connections as $connection) {
             Schema::connection($connection)->table('trx_in_app_purchase', function (Blueprint $table) {
@@ -35,7 +36,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        $connections = ['trx1', 'trx2'];
+        $connections = $this->getTrxConnections();
 
         foreach ($connections as $connection) {
             Schema::connection($connection)->table('trx_in_app_purchase', function (Blueprint $table) {

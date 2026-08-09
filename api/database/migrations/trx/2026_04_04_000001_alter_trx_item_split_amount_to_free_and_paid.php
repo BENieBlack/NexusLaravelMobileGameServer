@@ -1,15 +1,13 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use NexusPitr\Migrations\DynamicShardingTrait;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * シャーディング対象の接続名
-     */
-    protected $connections = ['trx1', 'trx2'];
+    use DynamicShardingTrait;
 
     /**
      * Run the migrations.
@@ -17,7 +15,7 @@ return new class extends Migration
     public function up(): void
     {
         // 各シャードに対してテーブルを変更
-        foreach ($this->connections as $connection) {
+        foreach ($this->getTrxConnections() as $connection) {
             Schema::connection($connection)->table('trx_item', function (Blueprint $table) {
                 // amount列を削除
                 $table->dropColumn('amount');
@@ -35,7 +33,7 @@ return new class extends Migration
     public function down(): void
     {
         // 各シャードに対してテーブルを元に戻す
-        foreach ($this->connections as $connection) {
+        foreach ($this->getTrxConnections() as $connection) {
             Schema::connection($connection)->table('trx_item', function (Blueprint $table) {
                 // free_amount, paid_amount列を削除
                 $table->dropColumn(['free_amount', 'paid_amount']);

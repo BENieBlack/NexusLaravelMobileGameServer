@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use NexusPitr\Migrations\DynamicShardingTrait;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
@@ -9,14 +10,14 @@ return new class extends Migration
     /**
      * 接続先データベース
      */
-    protected $connections = ['trx1', 'trx2'];
+    protected $connections = $this->getTrxConnections();
 
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        foreach ($this->connections as $connection) {
+        foreach ($this->getTrxConnections() as $connection) {
             // ========================================
             // trx_login_bonus_history: ログインボーナス履歴
             // ========================================
@@ -44,7 +45,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        foreach ($this->connections as $connection) {
+        foreach ($this->getTrxConnections() as $connection) {
             Schema::connection($connection)->dropIfExists('trx_login_bonus_history');
         }
     }

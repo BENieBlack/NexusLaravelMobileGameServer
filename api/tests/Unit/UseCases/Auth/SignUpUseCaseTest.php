@@ -2,19 +2,18 @@
 
 namespace Tests\Unit\UseCases\Auth;
 
-use NexusAuth\Services\PlayerAuthService;
-use NexusAuth\Services\TokenService;
 use App\Domain\Auth\UseCases\AuthSignUpUseCase;
 use App\Exceptions\BusinessLogicException;
 use App\Http\Responses\Auth\SignUpResponse;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;
-use NexusUnitOfWork\Persistence\QueryManager;
-use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
+use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;
 use Illuminate\Support\Facades\Log;
+use NexusAuth\Services\PlayerAuthService;
+use NexusAuth\Services\TokenService;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
 
@@ -23,9 +22,13 @@ class SignUpUseCaseTest extends TestCase
     use RefreshMultipleDatabases;
 
     private AuthSignUpUseCase $useCase;
+
     private PlayerAuthService $playerAuthService;
+
     private TokenService $tokenService;
+
     private SysPlayerDeviceRepository $deviceRepository;
+
     private SysPlayerTokenRepository $tokenRepository;
 
     /**
@@ -43,10 +46,10 @@ class SignUpUseCaseTest extends TestCase
         parent::setUp();
 
         // Repositories
-        $playerRepository = new SysPlayerRepository(new SysPlayer());
-        $this->deviceRepository = new SysPlayerDeviceRepository(new SysPlayerDevice());
+        $playerRepository = new SysPlayerRepository(new SysPlayer);
+        $this->deviceRepository = new SysPlayerDeviceRepository(new SysPlayerDevice);
         $this->tokenRepository = app(SysPlayerTokenRepository::class);
-        
+
         // NexusAuth Services
         $this->playerAuthService = new PlayerAuthService(
             $playerRepository,
@@ -141,7 +144,7 @@ class SignUpUseCaseTest extends TestCase
         // Arrange - 既存のデバイスを作成
         $deviceId = 'existing-device-uuid';
         $deviceInfo = ['model' => 'Test Device'];
-        
+
         // 既存のプレイヤーとデバイスを作成（UseCaseを通して作成）
         $this->useCase->exec($deviceId, $deviceInfo);
 
@@ -195,7 +198,7 @@ class SignUpUseCaseTest extends TestCase
         $this->assertNotNull($response->sysPlayer->id);
         $this->assertNotNull($response->sysPlayerDevice->id);
         $this->assertEquals($deviceId, $response->sysPlayerDevice->getUuid());
-        
+
         // device_infoは空配列として保存される
         $this->assertEquals([], $response->sysPlayerDevice->device_info);
     }
@@ -241,7 +244,7 @@ class SignUpUseCaseTest extends TestCase
             $this->fail('Expected BusinessLogicException was not thrown');
         } catch (BusinessLogicException $e) {
             // 例外が発生することを確認
-            $this->assertStringContainsString("already registered", $e->getMessage());
+            $this->assertStringContainsString('already registered', $e->getMessage());
         }
 
         // Assert - データベースには1つのデバイスのみ存在することを確認（ロールバック成功）

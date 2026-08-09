@@ -8,8 +8,6 @@ class BuyRequest extends _BaseRequest
 {
     /**
      * リクエストの認可を判定
-     *
-     * @return bool
      */
     public function authorize(): bool
     {
@@ -36,8 +34,6 @@ class BuyRequest extends _BaseRequest
 
     /**
      * アプリ内課金商品IDを取得
-     *
-     * @return int
      */
     public function getMstInAppPurchaseId(): int
     {
@@ -46,8 +42,6 @@ class BuyRequest extends _BaseRequest
 
     /**
      * プラットフォームを取得
-     *
-     * @return string
      */
     public function getPlatform(): string
     {
@@ -56,8 +50,6 @@ class BuyRequest extends _BaseRequest
 
     /**
      * 決済プラットフォームを取得
-     *
-     * @return string
      */
     public function getBillingPlatform(): string
     {
@@ -66,8 +58,6 @@ class BuyRequest extends _BaseRequest
 
     /**
      * レシートを取得
-     *
-     * @return string
      */
     public function getReceipt(): string
     {
@@ -76,8 +66,6 @@ class BuyRequest extends _BaseRequest
 
     /**
      * トランザクションIDを取得
-     *
-     * @return string|null
      */
     public function getTransactionId(): ?string
     {
@@ -86,8 +74,6 @@ class BuyRequest extends _BaseRequest
 
     /**
      * プロダクトIDを取得
-     *
-     * @return string
      */
     public function getProductId(): string
     {
@@ -96,14 +82,13 @@ class BuyRequest extends _BaseRequest
 
     /**
      * 認証済みプレイヤーIDを取得
-     * 
-     * ミドルウェアで設定された値を取得
      *
-     * @return int|null
+     * ミドルウェアで設定された値を取得
      */
     public function getAuthenticatedPlayerId(): ?int
     {
         $playerId = $this->input('authenticated_player_id');
+
         return $playerId ? (int) $playerId : null;
     }
 

@@ -3,7 +3,7 @@
 namespace App\Repositories\Trx;
 
 use App\Models\Trx\TrxDiamond;
-use App\Persistence\ApiSession;
+use NexusPersistence\Support\CustomCollection;
 
 /**
  * TrxDiamondRepository
@@ -11,7 +11,7 @@ use App\Persistence\ApiSession;
  * ダイヤモンド現在値管理Repository
  * 複合主キー: (sys_player_id, platform)
  * データアクセスのみを担当し、ビジネスロジックはServiceに委譲
- * 
+ *
  * @extends _BaseTrxRepository<TrxDiamond>
  */
 class TrxDiamondRepository extends _BaseTrxRepository
@@ -20,18 +20,17 @@ class TrxDiamondRepository extends _BaseTrxRepository
 
     /**
      * プレイヤーIDとプラットフォームでダイヤモンドを取得
-     * 
-     * @param int $sysPlayerId プレイヤーID
-     * @param string $platform プラットフォーム（Apple, Google）
-     * @return TrxDiamond|null
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  string  $platform  プラットフォーム（Apple, Google）
      */
     public function selectByPlatform(int $sysPlayerId, string $platform): ?TrxDiamond
     {
-        
+
         // メモリ内キューから検索
         $queue = $this->queryOrMemory();
         $found = $queue->first(function ($model) use ($sysPlayerId, $platform) {
-            return $model->sys_player_id === $sysPlayerId 
+            return $model->sys_player_id === $sysPlayerId
                 && $model->platform === $platform;
         });
 
@@ -48,11 +47,11 @@ class TrxDiamondRepository extends _BaseTrxRepository
 
     /**
      * プレイヤーIDで全プラットフォームのダイヤモンドを取得
-     * 
-     * @param int $sysPlayerId プレイヤーID
-     * @return \NexusPersistence\Support\CustomCollection<TrxDiamond>
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @return CustomCollection<TrxDiamond>
      */
-    public function selectByPlayerId(int $sysPlayerId): \NexusPersistence\Support\CustomCollection
+    public function selectByPlayerId(int $sysPlayerId): CustomCollection
     {
         // メモリ内キューから検索
         $queue = $this->queryOrMemory();

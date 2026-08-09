@@ -15,7 +15,7 @@ class BaseTrxTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // ApiSessionを初期化
         ClockUtility::initialize();
         ApiSession::setSysPlayerId(1);
@@ -105,7 +105,7 @@ class BaseTrxTest extends TestCase
         // Act: 相対的な変更を記録してクリア
         $item->setPaidAmount(10);
         $this->assertTrue($item->hasRelativeChanges());
-        
+
         $item->clearRelativeChanges();
 
         // Assert: 相対的な変更がクリアされた

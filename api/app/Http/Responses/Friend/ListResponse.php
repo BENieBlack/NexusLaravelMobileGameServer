@@ -8,28 +8,26 @@ use Illuminate\Database\Eloquent\Collection;
 
 /**
  * ListResponse
- * 
+ *
  * フレンドリストAPIのレスポンス
  * status=Acceptedのフレンドのみを返す
  */
 class ListResponse extends _BaseResponse
 {
     /**
-     * @param array<int, array<string, mixed>> $friends
+     * @param  array<int, array<string, mixed>>  $friends
      */
     public function __construct(
         public readonly array $friends,
-    ) {
-    }
+    ) {}
 
     /**
      * SysFriendApplyのCollectionからレスポンスを生成
-     * 
+     *
      * 相手プレイヤーのmy_idのみを返す（自分がsenderかreceiverかに応じて判定）
      *
-     * @param Collection<int, SysFriendApply> $sysFriendApplyCollection
-     * @param int $sysPlayerId 現在のプレイヤーのsys_player_id
-     * @return self
+     * @param  Collection<int, SysFriendApply>  $sysFriendApplyCollection
+     * @param  int  $sysPlayerId  現在のプレイヤーのsys_player_id
      */
     public static function fromCollection(Collection $sysFriendApplyCollection, int $sysPlayerId): self
     {

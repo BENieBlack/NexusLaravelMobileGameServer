@@ -8,7 +8,7 @@ use App\Models\Mst\MstMailbox;
  * MstMailboxRepository
  *
  * メールボックスマスターデータを管理するRepository
- * 
+ *
  * @extends _BaseMstRepository<MstMailbox>
  */
 class MstMailboxRepository extends _BaseMstRepository
@@ -17,9 +17,6 @@ class MstMailboxRepository extends _BaseMstRepository
 
     /**
      * IDでメールボックスマスターを取得
-     *
-     * @param string $mstMailboxId
-     * @return MstMailbox|null
      */
     public function findById(string $mstMailboxId): ?MstMailbox
     {

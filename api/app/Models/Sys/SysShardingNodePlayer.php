@@ -6,12 +6,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * SysShardingNodePlayer Model
- * 
+ *
  * プレイヤーのシャーディングノード割り当てを管理するモデル
  */
 class SysShardingNodePlayer extends _BaseSys
 {
-
     /**
      * テーブル名
      */
@@ -58,8 +57,6 @@ class SysShardingNodePlayer extends _BaseSys
 
     /**
      * sys_player_idを取得
-     *
-     * @return int|null
      */
     public function getSysPlayerId(): ?int
     {
@@ -68,9 +65,6 @@ class SysShardingNodePlayer extends _BaseSys
 
     /**
      * sys_player_idを設定
-     *
-     * @param int $sysPlayerId
-     * @return void
      */
     public function setSysPlayerId(int $sysPlayerId): void
     {
@@ -79,8 +73,6 @@ class SysShardingNodePlayer extends _BaseSys
 
     /**
      * sys_sharding_node_idを取得
-     *
-     * @return int|null
      */
     public function getSysShardingNodeId(): ?int
     {
@@ -89,9 +81,6 @@ class SysShardingNodePlayer extends _BaseSys
 
     /**
      * sys_sharding_node_idを設定
-     *
-     * @param int $sysShardingNodeId
-     * @return void
      */
     public function setSysShardingNodeId(int $sysShardingNodeId): void
     {
@@ -100,8 +89,6 @@ class SysShardingNodePlayer extends _BaseSys
 
     /**
      * assigned_atを取得
-     *
-     * @return \DateTime|null
      */
     public function getAssignedAt(): ?\DateTime
     {
@@ -110,9 +97,6 @@ class SysShardingNodePlayer extends _BaseSys
 
     /**
      * assigned_atを設定
-     *
-     * @param \DateTime|string $assignedAt
-     * @return void
      */
     public function setAssignedAt(\DateTime|string $assignedAt): void
     {
@@ -121,8 +105,6 @@ class SysShardingNodePlayer extends _BaseSys
 
     /**
      * シャーディングノードとのリレーション
-     *
-     * @return BelongsTo
      */
     public function node(): BelongsTo
     {
@@ -131,8 +113,6 @@ class SysShardingNodePlayer extends _BaseSys
 
     /**
      * sys_playerとのリレーション
-     *
-     * @return BelongsTo
      */
     public function sysPlayer(): BelongsTo
     {
@@ -141,9 +121,6 @@ class SysShardingNodePlayer extends _BaseSys
 
     /**
      * プレイヤーIDからノード割り当てを検索
-     *
-     * @param int $sysPlayerId
-     * @return self|null
      */
     public static function findBySysPlayerId(int $sysPlayerId): ?self
     {
@@ -152,9 +129,6 @@ class SysShardingNodePlayer extends _BaseSys
 
     /**
      * プレイヤーIDが割り当て済みかチェック
-     *
-     * @param int $sysPlayerId
-     * @return bool
      */
     public static function isPlayerAssigned(int $sysPlayerId): bool
     {
@@ -163,10 +137,8 @@ class SysShardingNodePlayer extends _BaseSys
 
     /**
      * レスポンス用配列に変換
-     * 
+     *
      * Note: 主キーがsys_player_idであり、idフィールドは存在しない
-     * 
-     * @return array
      */
     public function toResponseArray(): array
     {

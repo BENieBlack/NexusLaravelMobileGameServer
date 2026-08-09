@@ -6,7 +6,7 @@ use App\Http\Requests\_BaseRequest;
 
 /**
  * DrawRequest
- * 
+ *
  * ガチャ実行APIのリクエスト
  */
 class DrawRequest extends _BaseRequest
@@ -44,7 +44,7 @@ class DrawRequest extends _BaseRequest
 
     /**
      * ガチャIDを取得
-     * 
+     *
      * @return string mst_gacha.id
      */
     public function getMstGachaId(): string
@@ -54,7 +54,7 @@ class DrawRequest extends _BaseRequest
 
     /**
      * 実行回数を取得
-     * 
+     *
      * @return int 1連または10連
      */
     public function getDrawCount(): int
@@ -64,7 +64,7 @@ class DrawRequest extends _BaseRequest
 
     /**
      * 選択候補IDを取得（ステップアップガチャのchoice用）
-     * 
+     *
      * @return string|null mst_gacha_step_bonus_content.id
      */
     public function getSelectedCandidateId(): ?string

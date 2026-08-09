@@ -2,15 +2,15 @@
 
 namespace Database\Seeders;
 
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 /**
  * MstVipLoginBonusSeeder
- * 
+ *
  * VIPレベル0〜10のログインボーナス設定データを生成
- * 
+ *
  * VIPレベルが高いほど報酬が豪華になる設計
  * - VIP0: ゴールド中心
  * - VIP5: ゴールド増量 + アイテム
@@ -35,11 +35,11 @@ class MstVipLoginBonusSeeder extends Seeder
     {
         // 外部キー制約を一時的に無効化
         DB::connection('mst')->statement('SET FOREIGN_KEY_CHECKS=0;');
-        
+
         // 既存データをクリア
         DB::connection('mst')->table('mst_vip_login_bonus_content')->truncate();
         DB::connection('mst')->table('mst_vip_login_bonus')->truncate();
-        
+
         // 外部キー制約を再度有効化
         DB::connection('mst')->statement('SET FOREIGN_KEY_CHECKS=1;');
 
@@ -73,9 +73,9 @@ class MstVipLoginBonusSeeder extends Seeder
     /**
      * VIPレベルに応じた日別報酬内容を生成
      *
-     * @param string $bonusId VIPログインボーナスID
-     * @param int $vipLevel VIPレベル
-     * @param \Carbon\Carbon $now 現在日時
+     * @param  string  $bonusId  VIPログインボーナスID
+     * @param  int  $vipLevel  VIPレベル
+     * @param  Carbon  $now  現在日時
      * @return array 報酬内容の配列
      */
     private function generateContentsForVipLevel(string $bonusId, int $vipLevel, $now): array
@@ -89,7 +89,7 @@ class MstVipLoginBonusSeeder extends Seeder
             // 1〜6日目: ゴールド報酬
             if ($day <= 6) {
                 $goldAmount = (int) floor(1000 * $day * $multiplier);
-                
+
                 $contents[] = [
                     'mst_vip_login_bonus_id' => $bonusId,
                     'day' => $day,

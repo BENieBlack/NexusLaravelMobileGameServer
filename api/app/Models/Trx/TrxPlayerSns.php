@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * TrxPlayerSns Model
- * 
+ *
  * プレイヤーのSNS連携情報を管理するモデル
  * PRIMARY KEY: (sys_player_id, sns_type)
  */
@@ -49,14 +49,15 @@ class TrxPlayerSns extends _BaseTrx
      * SNSタイプの定数
      */
     public const TYPE_APPLE = 'apple';
+
     public const TYPE_GOOGLE = 'google';
+
     public const TYPE_X = 'x';
+
     public const TYPE_FACEBOOK = 'facebook';
 
     /**
      * 利用可能なSNSタイプ一覧を取得
-     *
-     * @return array
      */
     public static function getAvailableTypes(): array
     {
@@ -70,14 +71,14 @@ class TrxPlayerSns extends _BaseTrx
 
     /**
      * 複合主キーを設定
-     * 
+     *
      * @param  array  $ids
      * @return $this
      */
     public function setKeysForSaveQuery($query)
     {
         $keys = $this->getKeyName();
-        if (!is_array($keys)) {
+        if (! is_array($keys)) {
             return parent::setKeysForSaveQuery($query);
         }
 
@@ -90,7 +91,7 @@ class TrxPlayerSns extends _BaseTrx
 
     /**
      * 複合主キーの値を取得
-     * 
+     *
      * @param  string  $keyName
      * @return mixed
      */
@@ -109,8 +110,6 @@ class TrxPlayerSns extends _BaseTrx
 
     /**
      * trx_playerとのリレーション
-     *
-     * @return BelongsTo
      */
     public function trxPlayer(): BelongsTo
     {
@@ -119,9 +118,6 @@ class TrxPlayerSns extends _BaseTrx
 
     /**
      * システムプレイヤーIDを設定
-     *
-     * @param int $sysPlayerId
-     * @return void
      */
     public function setSysPlayerId(int $sysPlayerId): void
     {
@@ -130,9 +126,6 @@ class TrxPlayerSns extends _BaseTrx
 
     /**
      * SNSタイプを設定
-     *
-     * @param string $snsType
-     * @return void
      */
     public function setSnsType(string $snsType): void
     {
@@ -141,9 +134,6 @@ class TrxPlayerSns extends _BaseTrx
 
     /**
      * SNSユーザーIDを設定
-     *
-     * @param string $snsUserId
-     * @return void
      */
     public function setSnsUserId(string $snsUserId): void
     {
@@ -152,9 +142,6 @@ class TrxPlayerSns extends _BaseTrx
 
     /**
      * 認証情報を設定
-     *
-     * @param string $auth
-     * @return void
      */
     public function setAuth(string $auth): void
     {
@@ -163,10 +150,8 @@ class TrxPlayerSns extends _BaseTrx
 
     /**
      * レスポンス用配列に変換
-     * 
+     *
      * Note: 複合主キー(sys_player_id, sns_type)のため、idフィールドは存在しない
-     * 
-     * @return array
      */
     public function toResponseArray(): array
     {

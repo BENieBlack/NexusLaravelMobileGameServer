@@ -10,7 +10,7 @@ use NexusUtilities\ClockUtility;
  *
  * ユニット（キャラクター）のログを管理するRepository
  * 通常のログなので isPurchaseLog = false（デフォルト）
- * 
+ *
  * @extends _BaseLogRepository<LogUnit>
  */
 class LogUnitRepository extends _BaseLogRepository
@@ -24,18 +24,6 @@ class LogUnitRepository extends _BaseLogRepository
 
     /**
      * ユニットログを記録（Unit of Work パターン使用）
-     *
-     * @param string $uniqueRequestId
-     * @param int $sysPlayerId
-     * @param int $trxUnitId
-     * @param int $mstUnitId
-     * @param int $beforeGrade
-     * @param int $afterGrade
-     * @param int $beforeLevel
-     * @param int $afterLevel
-     * @param int $beforeLevelExp
-     * @param int $afterLevelExp
-     * @return void
      */
     public function createUnitLog(
         string $uniqueRequestId,

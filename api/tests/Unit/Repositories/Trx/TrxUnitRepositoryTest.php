@@ -3,8 +3,8 @@
 namespace Tests\Unit\Repositories\Trx;
 
 use App\Models\Trx\TrxUnit;
-use App\Repositories\Trx\TrxUnitRepository;
 use App\Persistence\ApiSession;
+use App\Repositories\Trx\TrxUnitRepository;
 use NexusUtilities\ClockUtility;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
@@ -18,12 +18,12 @@ class TrxUnitRepositoryTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // ApiSessionを初期化（テスト用のプレイヤーID=1を設定）
         ClockUtility::initialize();
         ApiSession::setSysPlayerId(1);
-        
-        $this->repository = new TrxUnitRepository();
+
+        $this->repository = new TrxUnitRepository;
     }
 
     /**
@@ -118,7 +118,7 @@ class TrxUnitRepositoryTest extends TestCase
 
         // Assert
         $this->assertCount(2, $result);
-        $this->assertTrue($result->every(fn($unit) => $unit->sys_player_id === $sysPlayerId));
+        $this->assertTrue($result->every(fn ($unit) => $unit->sys_player_id === $sysPlayerId));
     }
 
     /**
@@ -343,7 +343,7 @@ class TrxUnitRepositoryTest extends TestCase
         // Assert
         $this->assertCount(5, $queuedModels);
         for ($i = 0; $i < 5; $i++) {
-            $this->assertEquals("unit_batch_" . ($i + 1), $queuedModels[$i]->mst_unit_id);
+            $this->assertEquals('unit_batch_'.($i + 1), $queuedModels[$i]->mst_unit_id);
             $this->assertEquals($i + 1, $queuedModels[$i]->level);
         }
     }

@@ -5,9 +5,8 @@ namespace Tests\Unit\Domain\Player\Services;
 use App\Domain\Player\Services\PlayerService;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
-use NexusUnitOfWork\Persistence\QueryManager;
-use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
+use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;
 use Illuminate\Support\Facades\Log;
 use Tests\RefreshMultipleDatabases;
@@ -34,10 +33,10 @@ class PlayerServiceTest extends TestCase
         parent::setUp();
 
         // Repositoryインスタンスを作成してServiceに注入
-        $playerRepository = new SysPlayerRepository(new SysPlayer());
-        $playerDeviceRepository = new SysPlayerDeviceRepository(new SysPlayerDevice());
+        $playerRepository = new SysPlayerRepository(new SysPlayer);
+        $playerDeviceRepository = new SysPlayerDeviceRepository(new SysPlayerDevice);
         $playerTokenRepository = app(SysPlayerTokenRepository::class);
-        
+
         $this->service = new PlayerService(
             $playerRepository,
             $playerDeviceRepository,
@@ -198,18 +197,18 @@ class PlayerServiceTest extends TestCase
 
         // 時間を少し進める
         sleep(1);
-        
+
         // Act
         $updateResult = $this->service->updateLastLogin($sysPlayerDevice);
 
         // Assert
         $this->assertTrue($updateResult);
-        
+
         // データベースから再取得して確認
         $updatedDevice = $this->service->selectByDeviceId($sysPlayerDevice->uuid);
         $this->assertNotNull($updatedDevice);
         $this->assertNotNull($updatedDevice->last_login_at);
-        
+
         // last_login_atが更新されていることを確認（元の値と異なる）
         if ($originalLastLogin !== null) {
             $this->assertNotEquals(

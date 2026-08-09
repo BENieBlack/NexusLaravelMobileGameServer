@@ -2,21 +2,20 @@
 
 namespace App\Repositories\Trx;
 
-
-use NexusPersistence\Support\CustomCollection;
 use App\Domain\MailBox\Constants\Category;
 use App\Domain\MailBox\Constants\Priority;
 use App\Models\Trx\TrxMailbox;
-use NexusMailbox\Dto\MailboxDto;
-use NexusMailbox\Repositories\MailboxRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use NexusMailbox\Dto\MailboxDto;
+use NexusMailbox\Repositories\MailboxRepositoryInterface;
+use NexusPersistence\Support\CustomCollection;
 
 /**
  * TrxMailboxRepository
  *
  * プレイヤーのメールボックスデータを管理するRepository
- * 
+ *
  * @extends _BaseTrxRepository<TrxMailbox>
  */
 class TrxMailboxRepository extends _BaseTrxRepository implements MailboxRepositoryInterface
@@ -26,15 +25,14 @@ class TrxMailboxRepository extends _BaseTrxRepository implements MailboxReposito
     /**
      * プレイヤーIDでメールボックス一覧を取得
      *
-     * @param int $sysPlayerId
-     * @param Category|null $category カテゴリフィルタ
-     * @param Priority|null $priority 優先度フィルタ
-     * @param bool $onlyUnread 未読のみ
-     * @param bool $onlyProtected 保護のみ
+     * @param  Category|null  $category  カテゴリフィルタ
+     * @param  Priority|null  $priority  優先度フィルタ
+     * @param  bool  $onlyUnread  未読のみ
+     * @param  bool  $onlyProtected  保護のみ
      * @return Collection
      */
     public function selectByPlayerId(
-        int $sysPlayerId, 
+        int $sysPlayerId,
         ?Category $category = null,
         ?Priority $priority = null,
         bool $onlyUnread = false,
@@ -48,7 +46,7 @@ class TrxMailboxRepository extends _BaseTrxRepository implements MailboxReposito
         // 有効期限切れを除外
         $query->where(function ($q) {
             $q->whereNull('expires_at')
-              ->orWhere('expires_at', '>', Carbon::now());
+                ->orWhere('expires_at', '>', Carbon::now());
         });
 
         // カテゴリフィルタ
@@ -84,19 +82,19 @@ class TrxMailboxRepository extends _BaseTrxRepository implements MailboxReposito
         return $results->sort(function ($a, $b) {
             $priorityA = $a->mstMailbox?->priority;
             $priorityB = $b->mstMailbox?->priority;
-            
+
             // オブジェクトの場合はvalue取得、文字列の場合はそのまま
             $priorityAValue = is_object($priorityA) ? $priorityA->value : (string) ($priorityA ?? 'Normal');
             $priorityBValue = is_object($priorityB) ? $priorityB->value : (string) ($priorityB ?? 'Normal');
-            
+
             $priorityOrder = ['Urgent' => 1, 'Important' => 2, 'Normal' => 3];
             $orderA = $priorityOrder[$priorityAValue] ?? 3;
             $orderB = $priorityOrder[$priorityBValue] ?? 3;
-            
+
             if ($orderA !== $orderB) {
                 return $orderA <=> $orderB;
             }
-            
+
             // 優先度が同じ場合は作成日時の降順
             return $b->created_at <=> $a->created_at;
         })->values();
@@ -105,7 +103,6 @@ class TrxMailboxRepository extends _BaseTrxRepository implements MailboxReposito
     /**
      * カテゴリごとの未読数を取得
      *
-     * @param int $sysPlayerId
      * @return array<string, int>
      */
     public function countUnreadByCategory(int $sysPlayerId): array
@@ -117,7 +114,7 @@ class TrxMailboxRepository extends _BaseTrxRepository implements MailboxReposito
             ->whereNull('read_at')
             ->where(function ($q) {
                 $q->whereNull('expires_at')
-                  ->orWhere('expires_at', '>', Carbon::now());
+                    ->orWhere('expires_at', '>', Carbon::now());
             })
             ->get();
 
@@ -136,33 +133,27 @@ class TrxMailboxRepository extends _BaseTrxRepository implements MailboxReposito
 
     /**
      * IDでメールボックスを取得
-     *
-     * @param int $trxMailboxId
-     * @return TrxMailbox|null
      */
     public function selectById(int $trxMailboxId): ?TrxMailbox
     {
         $trxMailbox = $this->getModel($trxMailboxId);
-        
+
         if ($trxMailbox !== null) {
             /** @var TrxMailbox */
             return $trxMailbox;
         }
-        
+
         $trxMailbox = $this->modelClass::find($trxMailboxId);
-        
+
         if ($trxMailbox !== null) {
             $this->setModel($trxMailbox);
         }
-        
+
         return $trxMailbox;
     }
 
     /**
      * 既読にする
-     *
-     * @param TrxMailbox $trxMailbox
-     * @return void
      */
     public function markAsOpened(TrxMailbox $trxMailbox): void
     {
@@ -175,9 +166,6 @@ class TrxMailboxRepository extends _BaseTrxRepository implements MailboxReposito
 
     /**
      * 受取済みにする（Eloquent Model用）
-     *
-     * @param TrxMailbox $trxMailbox
-     * @return void
      */
     public function markAsReceived(TrxMailbox $trxMailbox): void
     {
@@ -188,10 +176,6 @@ class TrxMailboxRepository extends _BaseTrxRepository implements MailboxReposito
 
     /**
      * 保護状態を切り替える
-     *
-     * @param TrxMailbox $trxMailbox
-     * @param bool $isProtected
-     * @return void
      */
     public function toggleProtection(TrxMailbox $trxMailbox, bool $isProtected): void
     {
@@ -202,7 +186,6 @@ class TrxMailboxRepository extends _BaseTrxRepository implements MailboxReposito
     /**
      * 期限切れメールを取得
      *
-     * @param int $sysPlayerId
      * @return Collection
      */
     public function selectExpired(int $sysPlayerId): CustomCollection
@@ -234,7 +217,7 @@ class TrxMailboxRepository extends _BaseTrxRepository implements MailboxReposito
         $models = $this->selectByPlayerId($sysPlayerId, $categoryEnum, $priorityEnum, $onlyUnread, $onlyLocked);
 
         // Eloquent ModelをDTOに変換
-        return $models->map(fn($model) => $this->convertToDto($model));
+        return $models->map(fn ($model) => $this->convertToDto($model));
     }
 
     /**
@@ -244,6 +227,7 @@ class TrxMailboxRepository extends _BaseTrxRepository implements MailboxReposito
     public function findById(int $id): ?MailboxDto
     {
         $model = $this->selectById($id);
+
         return $model ? $this->convertToDto($model) : null;
     }
 
@@ -316,4 +300,3 @@ class TrxMailboxRepository extends _BaseTrxRepository implements MailboxReposito
         );
     }
 }
-

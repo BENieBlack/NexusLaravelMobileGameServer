@@ -2,13 +2,14 @@
 
 namespace App\Models\Mst;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * MstLoginBonusContent Model
- * 
+ *
  * ログインボーナスの報酬内容
- * 
+ *
  * @property int $deploy_key
  * @property string $mst_login_bonus_id
  * @property string $content_type
@@ -22,11 +23,12 @@ class MstLoginBonusContent extends _BaseMst
     public $table = 'mst_login_bonus_content';
 
     public $incrementing = false;
-    
+
     /**
      * 複合主キー
      */
     protected $primaryKey = ['mst_login_bonus_id', 'content_type', 'content_id'];
+
     protected $keyType = 'string';
 
     /** @var array<int, string> */
@@ -60,14 +62,14 @@ class MstLoginBonusContent extends _BaseMst
 
     /**
      * 複合主キーを設定
-     * 
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @param  Builder  $query
+     * @return Builder
      */
     public function setKeysForSaveQuery($query)
     {
         $keys = $this->getKeyName();
-        if (!is_array($keys)) {
+        if (! is_array($keys)) {
             return parent::setKeysForSaveQuery($query);
         }
 
@@ -80,7 +82,7 @@ class MstLoginBonusContent extends _BaseMst
 
     /**
      * 複合主キーの値を取得
-     * 
+     *
      * @param  string|null  $keyName
      * @return mixed
      */
@@ -99,8 +101,6 @@ class MstLoginBonusContent extends _BaseMst
 
     /**
      * ログインボーナス設定とのリレーション
-     *
-     * @return BelongsTo
      */
     public function loginBonus(): BelongsTo
     {
@@ -109,8 +109,6 @@ class MstLoginBonusContent extends _BaseMst
 
     /**
      * コンテンツタイプを取得
-     *
-     * @return string
      */
     public function getContentType(): string
     {
@@ -119,8 +117,6 @@ class MstLoginBonusContent extends _BaseMst
 
     /**
      * コンテンツIDを取得
-     *
-     * @return string
      */
     public function getContentId(): string
     {
@@ -129,8 +125,6 @@ class MstLoginBonusContent extends _BaseMst
 
     /**
      * コンテンツオプションを取得
-     *
-     * @return array|null
      */
     public function getContentOption(): ?array
     {
@@ -139,8 +133,6 @@ class MstLoginBonusContent extends _BaseMst
 
     /**
      * コンテンツ数量を取得（1配布あたり）
-     *
-     * @return int
      */
     public function getContentQuantity(): int
     {
@@ -149,8 +141,6 @@ class MstLoginBonusContent extends _BaseMst
 
     /**
      * 配布回数を取得
-     *
-     * @return int
      */
     public function getAmount(): int
     {
@@ -159,8 +149,6 @@ class MstLoginBonusContent extends _BaseMst
 
     /**
      * 実際の配布総量を取得（content_quantity × amount）
-     *
-     * @return int
      */
     public function getTotalQuantity(): int
     {
@@ -169,8 +157,6 @@ class MstLoginBonusContent extends _BaseMst
 
     /**
      * 有償フラグを取得
-     *
-     * @return bool
      */
     public function getIsPaid(): bool
     {

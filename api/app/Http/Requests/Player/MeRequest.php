@@ -8,8 +8,6 @@ class MeRequest extends _BaseRequest
 {
     /**
      * リクエストの認可を判定
-     *
-     * @return bool
      */
     public function authorize(): bool
     {
@@ -30,10 +28,8 @@ class MeRequest extends _BaseRequest
 
     /**
      * 認証済みプレイヤーIDを取得
-     * 
-     * ミドルウェアで設定された値を取得
      *
-     * @return int|null
+     * ミドルウェアで設定された値を取得
      */
     public function getAuthenticatedPlayerId(): ?int
     {

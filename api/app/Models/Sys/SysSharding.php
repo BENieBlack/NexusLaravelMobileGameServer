@@ -6,12 +6,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * SysSharding Model
- * 
+ *
  * シャーディング設定を管理するモデル
  */
 class SysSharding extends _BaseSys
 {
-
     /**
      * テーブル名
      */
@@ -48,19 +47,20 @@ class SysSharding extends _BaseSys
      * シャーディング戦略の定数
      */
     public const STRATEGY_HASH = 'hash';
+
     public const STRATEGY_RANGE = 'range';
+
     public const STRATEGY_CONSISTENT = 'consistent';
 
     /**
      * シャーディング対象の定数
      */
     public const TARGET_TRANSACTION = 'transaction';
+
     public const TARGET_LOG = 'log';
 
     /**
      * 利用可能なシャーディング戦略一覧を取得
-     *
-     * @return array
      */
     public static function getAvailableStrategies(): array
     {
@@ -73,8 +73,6 @@ class SysSharding extends _BaseSys
 
     /**
      * 利用可能なシャーディング対象一覧を取得
-     *
-     * @return array
      */
     public static function getAvailableTargets(): array
     {
@@ -86,8 +84,6 @@ class SysSharding extends _BaseSys
 
     /**
      * nameを取得
-     *
-     * @return string|null
      */
     public function getName(): ?string
     {
@@ -96,9 +92,6 @@ class SysSharding extends _BaseSys
 
     /**
      * nameを設定
-     *
-     * @param string $name
-     * @return void
      */
     public function setName(string $name): void
     {
@@ -107,8 +100,6 @@ class SysSharding extends _BaseSys
 
     /**
      * targetを取得
-     *
-     * @return string|null
      */
     public function getTarget(): ?string
     {
@@ -117,9 +108,6 @@ class SysSharding extends _BaseSys
 
     /**
      * targetを設定
-     *
-     * @param string $target
-     * @return void
      */
     public function setTarget(string $target): void
     {
@@ -128,8 +116,6 @@ class SysSharding extends _BaseSys
 
     /**
      * strategyを取得
-     *
-     * @return string|null
      */
     public function getStrategy(): ?string
     {
@@ -138,9 +124,6 @@ class SysSharding extends _BaseSys
 
     /**
      * strategyを設定
-     *
-     * @param string $strategy
-     * @return void
      */
     public function setStrategy(string $strategy): void
     {
@@ -149,8 +132,6 @@ class SysSharding extends _BaseSys
 
     /**
      * sharding_keyを取得
-     *
-     * @return string|null
      */
     public function getShardingKey(): ?string
     {
@@ -159,9 +140,6 @@ class SysSharding extends _BaseSys
 
     /**
      * sharding_keyを設定
-     *
-     * @param string $shardingKey
-     * @return void
      */
     public function setShardingKey(string $shardingKey): void
     {
@@ -170,8 +148,6 @@ class SysSharding extends _BaseSys
 
     /**
      * node_countを取得
-     *
-     * @return int|null
      */
     public function getNodeCount(): ?int
     {
@@ -180,9 +156,6 @@ class SysSharding extends _BaseSys
 
     /**
      * node_countを設定
-     *
-     * @param int $nodeCount
-     * @return void
      */
     public function setNodeCount(int $nodeCount): void
     {
@@ -191,9 +164,6 @@ class SysSharding extends _BaseSys
 
     /**
      * is_activeを設定
-     *
-     * @param bool $isActive
-     * @return void
      */
     public function setIsActive(bool $isActive): void
     {
@@ -202,8 +172,6 @@ class SysSharding extends _BaseSys
 
     /**
      * descriptionを取得
-     *
-     * @return string|null
      */
     public function getDescription(): ?string
     {
@@ -212,9 +180,6 @@ class SysSharding extends _BaseSys
 
     /**
      * descriptionを設定
-     *
-     * @param string|null $description
-     * @return void
      */
     public function setDescription(?string $description): void
     {
@@ -223,8 +188,6 @@ class SysSharding extends _BaseSys
 
     /**
      * シャーディングノードとのリレーション
-     *
-     * @return HasMany
      */
     public function nodes(): HasMany
     {
@@ -233,8 +196,6 @@ class SysSharding extends _BaseSys
 
     /**
      * アクティブなシャーディングノードを取得
-     *
-     * @return HasMany
      */
     public function activeNodes(): HasMany
     {
@@ -243,8 +204,6 @@ class SysSharding extends _BaseSys
 
     /**
      * シャーディングがアクティブかチェック
-     *
-     * @return bool
      */
     public function isActive(): bool
     {
@@ -253,8 +212,6 @@ class SysSharding extends _BaseSys
 
     /**
      * ハッシュ戦略かチェック
-     *
-     * @return bool
      */
     public function isHashStrategy(): bool
     {
@@ -263,8 +220,6 @@ class SysSharding extends _BaseSys
 
     /**
      * レンジ戦略かチェック
-     *
-     * @return bool
      */
     public function isRangeStrategy(): bool
     {
@@ -273,8 +228,6 @@ class SysSharding extends _BaseSys
 
     /**
      * コンシステントハッシュ戦略かチェック
-     *
-     * @return bool
      */
     public function isConsistentStrategy(): bool
     {
@@ -283,20 +236,18 @@ class SysSharding extends _BaseSys
 
     /**
      * レスポンス用配列に変換
-     * 
+     *
      * データベース層の'id'をAPI層の'sys_sharding_id'に変換
-     * 
-     * @return array
      */
     public function toResponseArray(): array
     {
         $array = parent::toResponseArray();
-        
+
         if (isset($array['id'])) {
             $array['sys_sharding_id'] = $array['id'];
             unset($array['id']);
         }
-        
+
         return $array;
     }
 }

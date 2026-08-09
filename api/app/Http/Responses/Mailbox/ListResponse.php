@@ -2,9 +2,8 @@
 
 namespace App\Http\Responses\Mailbox;
 
-use App\Domain\MailBox\Constants\Category;
 use App\Domain\MailBox\Constants\ContentType;
-use App\Domain\MailBox\Constants\Priority;
+use App\Domain\MailBox\Services\TemplateEngine;
 use App\Http\Responses\_BaseResponse;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -16,33 +15,29 @@ use Illuminate\Database\Eloquent\Collection;
 class ListResponse extends _BaseResponse
 {
     /**
-     * @param array $mailboxArray
-     * @param array<string, int> $unreadCounts カテゴリ別未読数
+     * @param  array<string, int>  $unreadCounts  カテゴリ別未読数
      */
     public function __construct(
         private array $mailboxArray,
         private array $unreadCounts = [],
-    ) {
-    }
+    ) {}
 
     /**
      * Collectionからレスポンスを生成
      *
-     * @param Collection $trxMailboxCollection
-     * @param array<string, int> $unreadCounts
-     * @return self
+     * @param  array<string, int>  $unreadCounts
      */
     public static function fromCollection(
         Collection $trxMailboxCollection,
         array $unreadCounts = []
     ): self {
         // TemplateEngineをインスタンス化
-        $templateEngine = app(\App\Domain\MailBox\Services\TemplateEngine::class);
+        $templateEngine = app(TemplateEngine::class);
 
         $mailboxArray = $trxMailboxCollection->map(function ($trxMailbox) use ($templateEngine) {
             $mstMailbox = $trxMailbox->mstMailbox;
             $mstMessage = $mstMailbox?->message;
-            
+
             // TODO: 言語設定はリクエストヘッダーから取得する必要がある
             // 現時点では固定で'ja'を使用
             $language = 'ja';
@@ -73,7 +68,7 @@ class ListResponse extends _BaseResponse
             // コンテンツ情報を取得
             $contentArray = $mstMailbox?->contentCollection->map(function ($content) {
                 $contentType = ContentType::fromString($content->content_type);
-                
+
                 return [
                     'content_type' => $content->content_type,
                     'content_type_label' => $contentType?->label() ?? $content->content_type,
@@ -93,11 +88,11 @@ class ListResponse extends _BaseResponse
             return [
                 'trx_mailbox_id' => $trxMailbox->id,
                 'mst_mailbox_id' => $trxMailbox->mst_mailbox_id,
-                
+
                 // メール内容（テンプレートレンダリング済み）
                 'title' => $title,
                 'body' => $body,
-                
+
                 // カテゴリ・優先度
                 'category' => $category?->value ?? null,
                 'category_label' => $category?->label() ?? null,
@@ -106,29 +101,29 @@ class ListResponse extends _BaseResponse
                 'priority_label' => $priority?->label() ?? null,
                 'priority_color' => $priority?->color() ?? null,
                 'priority_icon' => $priority?->icon() ?? null,
-                
+
                 // 送信者情報
                 'sender_type' => $mstMailbox?->sender_type?->value ?? null,
                 'sender_type_label' => $mstMailbox?->sender_type?->label() ?? null,
                 'sender_id' => $mstMailbox?->sender_id ?? null,
                 'sender_name' => $trxMailbox->sender_name ?? null,
-                
+
                 // アイコン
                 'icon_url' => $mstMailbox?->icon_url ?? null,
-                
+
                 // 状態
                 'is_opened' => $trxMailbox->is_opened,
                 'is_received' => $trxMailbox->is_received,
                 'is_protected' => $trxMailbox->is_protected ?? false,
                 'is_expired' => $trxMailbox->isExpired(),
                 'is_unread' => $trxMailbox->isUnread(),
-                
+
                 // 日時
                 'expires_at' => $trxMailbox->expires_at?->toIso8601String() ?? null,
                 'read_at' => $trxMailbox->read_at?->toIso8601String() ?? null,
                 'received_at' => $trxMailbox->received_at?->toIso8601String() ?? null,
                 'created_at' => $trxMailbox->created_at->toIso8601String(),
-                
+
                 // 添付物
                 'content_array' => $contentArray,
                 'has_content' => count($contentArray) > 0,
@@ -140,8 +135,6 @@ class ListResponse extends _BaseResponse
 
     /**
      * レスポンス配列を取得
-     *
-     * @return array
      */
     public function toArray(): array
     {

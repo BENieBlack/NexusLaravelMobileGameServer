@@ -6,34 +6,34 @@ use Illuminate\Database\Eloquent\Collection;
 
 /**
  * MstPlayerLevel Model
- * 
+ *
  * プレイヤーレベルマスターデータ
  * レベル毎に必要な経験値と最大スタミナを定義
- * 
+ *
  * 【重要】経験値の仕様について
  * ---------------------------------
  * required_expは「レベル1から見て、そのレベルに到達するまでに必要な累積経験値」を表します。
  * レベルアップしても経験値はリセットされません。
- * 
+ *
  * 例:
  * - level1->level2に50exp必要
  * - level2->level3にさらに91exp必要（累積141exp）
- * 
+ *
  * この場合、以下のようにデータが登録されます:
  * - level=1, required_exp=0    (初期状態)
  * - level=2, required_exp=50   (level1から50exp獲得でlevel2になる)
  * - level=3, required_exp=141  (level1から累積141exp獲得でlevel3になる)
- * 
+ *
  * 使用例:
  * ```php
  * // 現在level=2、現在の累積経験値=100のプレイヤー
  * $currentLevel = 2;
  * $currentExp = 100;
- * 
+ *
  * // level3になるために必要な経験値を確認
  * $nextLevelData = MstPlayerLevel::findByLevel(3);
  * $needExp = $nextLevelData->required_exp; // 141
- * 
+ *
  * if ($currentExp >= $needExp) {
  *     // レベルアップ可能 (100 < 141 なので、この例ではまだ不可)
  * }
@@ -76,9 +76,8 @@ class MstPlayerLevel extends _BaseMst
 
     /**
      * 指定レベルのデータを取得
-     * 
-     * @param int $level レベル
-     * @return self|null
+     *
+     * @param  int  $level  レベル
      */
     public static function findByLevel(int $level): ?self
     {
@@ -87,8 +86,6 @@ class MstPlayerLevel extends _BaseMst
 
     /**
      * 全レベルデータを取得（レベル昇順）
-     * 
-     * @return Collection
      */
     public static function getAllLevels(): Collection
     {
@@ -97,8 +94,6 @@ class MstPlayerLevel extends _BaseMst
 
     /**
      * レベルを取得
-     *
-     * @return int
      */
     public function getLevel(): int
     {
@@ -107,8 +102,6 @@ class MstPlayerLevel extends _BaseMst
 
     /**
      * 必要経験値を取得
-     *
-     * @return int
      */
     public function getRequiredExp(): int
     {
@@ -117,8 +110,6 @@ class MstPlayerLevel extends _BaseMst
 
     /**
      * 最大スタミナを取得
-     *
-     * @return int
      */
     public function getMaxStamina(): int
     {
@@ -127,8 +118,6 @@ class MstPlayerLevel extends _BaseMst
 
     /**
      * デプロイキーを取得
-     *
-     * @return int
      */
     public function getDeployKey(): int
     {
@@ -137,54 +126,52 @@ class MstPlayerLevel extends _BaseMst
 
     /**
      * 指定レベルの最大スタミナを取得
-     * 
-     * @param int $level レベル
-     * @return int|null
+     *
+     * @param  int  $level  レベル
      */
     public static function getMaxStaminaForLevel(int $level): ?int
     {
         $data = self::findByLevel($level);
+
         return $data?->getMaxStamina();
     }
 
     /**
      * 指定レベルに必要な累積経験値を取得
-     * 
-     * @param int $level レベル
-     * @return int|null
+     *
+     * @param  int  $level  レベル
      */
     public static function getRequiredExpForLevel(int $level): ?int
     {
         $data = self::findByLevel($level);
+
         return $data?->getRequiredExp();
     }
 
     /**
      * 累積経験値から現在のレベルを計算
-     * 
-     * @param int $exp 累積経験値
+     *
+     * @param  int  $exp  累積経験値
      * @return int 現在のレベル
      */
     public static function calculateLevelFromExp(int $exp): int
     {
         // 全レベルデータを取得
         $levelCollection = self::orderBy('level', 'desc')->get();
-        
+
         // 上から順に探索し、required_exp以上のレベルを見つける
         foreach ($levelCollection as $levelData) {
             if ($exp >= $levelData->getRequiredExp()) {
                 return $levelData->getLevel();
             }
         }
-        
+
         // 最小レベル（1）を返す
         return 1;
     }
 
     /**
      * 最大レベルを取得
-     * 
-     * @return int
      */
     public static function getMaxLevel(): int
     {
@@ -193,10 +180,8 @@ class MstPlayerLevel extends _BaseMst
 
     /**
      * レスポンス用配列に変換
-     * 
+     *
      * Note: 主キーがlevelカラムであり、idフィールドは存在しない
-     * 
-     * @return array
      */
     public function toResponseArray(): array
     {

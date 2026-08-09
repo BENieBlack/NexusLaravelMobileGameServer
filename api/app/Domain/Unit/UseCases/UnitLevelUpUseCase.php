@@ -3,13 +3,13 @@
 namespace App\Domain\Unit\UseCases;
 
 use App\Domain\_BaseUseCase;
-use App\Domain\Unit\Services\UnitLevelService;
 use App\Domain\Item\Services\ItemService;
+use App\Domain\Unit\Services\UnitLevelService;
+use App\Exceptions\BusinessLogicException;
+use App\Exceptions\GameErrorCode;
+use App\Exceptions\GameException;
 use App\Exceptions\MasterDataException;
 use App\Exceptions\TransactionDataException;
-use App\Exceptions\BusinessLogicException;
-use App\Exceptions\GameException;
-use App\Exceptions\GameErrorCode;
 use App\Http\Responses\Unit\LevelUpResponse;
 use App\Repositories\Mst\MstItemRepository;
 use App\Repositories\Trx\TrxUnitRepository;
@@ -37,17 +37,16 @@ class UnitLevelUpUseCase extends _BaseUseCase
         private readonly ItemService $itemService,
         private readonly TrxUnitRepository $trxUnitRepository,
         private readonly MstItemRepository $mstItemRepository,
-    ) {
-    }
+    ) {}
 
     /**
      * バリデーション
-     * 
-     * @param int $sysPlayerId sys_player.id（プレイヤーID）
-     * @param int $trxUnitId trx_unit.id（プレイヤー所有ユニット）
-     * @param string $mstItemId mst_item.id（マスター定義アイテム）
-     * @param int $useCount 使用個数
-     * @return void
+     *
+     * @param  int  $sysPlayerId  sys_player.id（プレイヤーID）
+     * @param  int  $trxUnitId  trx_unit.id（プレイヤー所有ユニット）
+     * @param  string  $mstItemId  mst_item.id（マスター定義アイテム）
+     * @param  int  $useCount  使用個数
+     *
      * @throws TransactionDataException ユニットが存在しない場合
      * @throws GameException ユニットがプレイヤーのものでない場合
      * @throws MasterDataException アイテムマスターが存在しない場合
@@ -57,7 +56,7 @@ class UnitLevelUpUseCase extends _BaseUseCase
     {
         // 1. ユニットの存在確認
         $trxUnit = $this->trxUnitRepository->selectById($trxUnitId);
-        if (!$trxUnit) {
+        if (! $trxUnit) {
             throw TransactionDataException::unit($trxUnitId);
         }
 
@@ -65,13 +64,13 @@ class UnitLevelUpUseCase extends _BaseUseCase
         if ($trxUnit->getSysPlayerId() !== $sysPlayerId) {
             throw new GameException(
                 GameErrorCode::INVALID_PARAMETER,
-                "Unit does not belong to player"
+                'Unit does not belong to player'
             );
         }
 
         // 2. アイテムマスターデータを取得
         $mstItem = $this->mstItemRepository->selectById($mstItemId);
-        if (!$mstItem) {
+        if (! $mstItem) {
             throw MasterDataException::item($mstItemId);
         }
 
@@ -94,11 +93,11 @@ class UnitLevelUpUseCase extends _BaseUseCase
     /**
      * ユニット経験値アイテムを使用してレベルアップ
      *
-     * @param int $sysPlayerId sys_player.id（プレイヤーID）
-     * @param int $trxUnitId trx_unit.id（プレイヤー所有ユニット）
-     * @param string $mstItemId mst_item.id（マスター定義アイテム）
-     * @param int $useCount 使用個数
-     * @return LevelUpResponse
+     * @param  int  $sysPlayerId  sys_player.id（プレイヤーID）
+     * @param  int  $trxUnitId  trx_unit.id（プレイヤー所有ユニット）
+     * @param  string  $mstItemId  mst_item.id（マスター定義アイテム）
+     * @param  int  $useCount  使用個数
+     *
      * @throws \Exception
      */
     public function exec(int $sysPlayerId, int $trxUnitId, string $mstItemId, int $useCount): LevelUpResponse

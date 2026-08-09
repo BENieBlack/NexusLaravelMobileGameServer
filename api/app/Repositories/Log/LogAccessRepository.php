@@ -10,7 +10,7 @@ use NexusUtilities\ClockUtility;
  *
  * アクセスログを管理するRepository
  * リクエスト/レスポンスの全情報を記録
- * 
+ *
  * @extends _BaseLogRepository<LogAccess>
  */
 class LogAccessRepository extends _BaseLogRepository
@@ -25,16 +25,15 @@ class LogAccessRepository extends _BaseLogRepository
     /**
      * アクセスログを記録（Unit of Work パターン使用）
      *
-     * @param string $uniqueRequestId リクエスト一意ID
-     * @param int $sysPlayerId プレイヤーID
-     * @param string $method HTTPメソッド
-     * @param string $endpoint エンドポイント
-     * @param array|null $requestHeader リクエストヘッダー
-     * @param array|null $requestBody リクエストボディ
-     * @param array|null $responseHeader レスポンスヘッダー
-     * @param array|null $responseBody レスポンスボディ
-     * @param int $statusCode ステータスコード
-     * @return void
+     * @param  string  $uniqueRequestId  リクエスト一意ID
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  string  $method  HTTPメソッド
+     * @param  string  $endpoint  エンドポイント
+     * @param  array|null  $requestHeader  リクエストヘッダー
+     * @param  array|null  $requestBody  リクエストボディ
+     * @param  array|null  $responseHeader  レスポンスヘッダー
+     * @param  array|null  $responseBody  レスポンスボディ
+     * @param  int  $statusCode  ステータスコード
      */
     public function createAccessLog(
         string $uniqueRequestId,
@@ -67,9 +66,6 @@ class LogAccessRepository extends _BaseLogRepository
 
     /**
      * リクエストIDでアクセスログを取得
-     *
-     * @param string $uniqueRequestId
-     * @return LogAccess|null
      */
     public function findByUniqueRequestId(string $uniqueRequestId): ?LogAccess
     {

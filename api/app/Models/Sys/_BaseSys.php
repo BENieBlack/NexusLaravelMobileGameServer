@@ -6,7 +6,7 @@ use NexusPersistence\Models\Sys\_BaseSys as PersistenceBaseSys;
 
 /**
  * _BaseSys
- * 
+ *
  * Sysデータベースのモデル基底クラス
  * システム共通データ（全シャード共通）
  */

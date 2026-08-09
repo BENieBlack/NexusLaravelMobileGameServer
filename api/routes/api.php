@@ -43,16 +43,16 @@ Route::middleware(['auth.token', 'idempotency'])->group(function () {
     Route::post('/auth/version', [AuthController::class, 'version']);
     Route::post('/auth/login', [AuthController::class, 'login']);
     Route::get('/player/me', [PlayerController::class, 'me']);
-    
+
     // In-App Purchase endpoints
     Route::post('/in_app_purchase/buy', [InAppPurchaseController::class, 'buy']);
-    
+
     // Unit endpoints
     Route::post('/unit/level_up', [UnitController::class, 'levelUp']);
-    
+
     // Equipment endpoints
     Route::post('/equipment/level_up', [EquipmentController::class, 'levelUp']);
-    
+
     // Friend endpoints
     Route::post('/friend/apply/send', [FriendController::class, 'applySend']);
     Route::post('/friend/apply/accept', [FriendController::class, 'applyAccept']);
@@ -60,21 +60,21 @@ Route::middleware(['auth.token', 'idempotency'])->group(function () {
     Route::get('/friend/apply/list', [FriendController::class, 'applyList']);
     Route::get('/friend/list', [FriendController::class, 'list']);
     Route::post('/friend/delete', [FriendController::class, 'delete']);
-    
+
     // Guild endpoints
     Route::post('/guild/apply/send', [GuildController::class, 'applySend']);
     Route::post('/guild/apply/accept', [GuildController::class, 'applyAccept']);
     Route::post('/guild/apply/reject', [GuildController::class, 'applyReject']);
     Route::get('/guild/apply/list', [GuildController::class, 'applyList']);
     Route::post('/guild/leave', [GuildController::class, 'leave']);
-    
+
     // Mailbox endpoints
     Route::get('/mailbox/list', [MailboxController::class, 'list']);
     Route::post('/mailbox/open', [MailboxController::class, 'open']);
     Route::post('/mailbox/receive', [MailboxController::class, 'receive']);
     Route::post('/mailbox/receive_all', [MailboxController::class, 'receiveAll']);
     Route::post('/mailbox/lock', [MailboxController::class, 'lock']);
-    
+
     // Gacha endpoints
     Route::post('/gacha/draw', [GachaController::class, 'draw']);
 });

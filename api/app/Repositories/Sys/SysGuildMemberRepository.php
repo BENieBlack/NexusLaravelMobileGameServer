@@ -4,14 +4,15 @@ namespace App\Repositories\Sys;
 
 use App\Adapters\Guild\GuildMemberAdapter;
 use App\Models\Sys\SysGuildMember;
+use Illuminate\Database\Eloquent\Collection;
 use NexusGuild\Dto\GuildMemberDto;
 use NexusGuild\Repositories\GuildMemberRepositoryInterface;
 
 /**
  * SysGuildMemberRepository
- * 
+ *
  * ギルドメンバーのRepository実装
- * 
+ *
  * @extends _BaseSysRepository<SysGuildMember>
  */
 class SysGuildMemberRepository extends _BaseSysRepository implements GuildMemberRepositoryInterface
@@ -21,57 +22,57 @@ class SysGuildMemberRepository extends _BaseSysRepository implements GuildMember
     /**
      * IDでギルドメンバーを検索（Interface実装）
      *
-     * @param int $memberId メンバーID
-     * @return GuildMemberDto|null
+     * @param  int  $memberId  メンバーID
      */
     public function findById(int $memberId): ?GuildMemberDto
     {
         $model = $this->selectById($memberId);
+
         return $model ? GuildMemberAdapter::toDto($model) : null;
     }
 
     /**
      * ギルドIDとプレイヤーIDでメンバーを検索（Interface実装）
      *
-     * @param int $guildId ギルドID
-     * @param int $playerId プレイヤーID
-     * @return GuildMemberDto|null
+     * @param  int  $guildId  ギルドID
+     * @param  int  $playerId  プレイヤーID
      */
     public function findByGuildAndPlayer(int $guildId, int $playerId): ?GuildMemberDto
     {
         $model = $this->selectByGuildAndPlayer($guildId, $playerId);
+
         return $model ? GuildMemberAdapter::toDto($model) : null;
     }
 
     /**
      * プレイヤーIDで所属ギルドメンバー情報を検索（Interface実装）
      *
-     * @param int $playerId プレイヤーID
-     * @return GuildMemberDto|null
+     * @param  int  $playerId  プレイヤーID
      */
     public function findByPlayerId(int $playerId): ?GuildMemberDto
     {
         $model = $this->selectByPlayerId($playerId);
+
         return $model ? GuildMemberAdapter::toDto($model) : null;
     }
 
     /**
      * ギルドIDでメンバー一覧を取得（Interface実装）
      *
-     * @param int $guildId ギルドID
+     * @param  int  $guildId  ギルドID
      * @return array<GuildMemberDto>
      */
     public function findByGuildId(int $guildId): array
     {
         $models = $this->selectByGuildId($guildId);
+
         return GuildMemberAdapter::toDtoArray($models);
     }
 
     /**
      * ギルドの現在のメンバー数を取得（Interface実装）
      *
-     * @param int $guildId ギルドID
-     * @return int
+     * @param  int  $guildId  ギルドID
      */
     public function countByGuildId(int $guildId): int
     {
@@ -81,22 +82,22 @@ class SysGuildMemberRepository extends _BaseSysRepository implements GuildMember
     /**
      * ギルドメンバーを作成（Interface実装）
      *
-     * @param int $guildId ギルドID
-     * @param int $playerId プレイヤーID
-     * @param string $role 役職
-     * @return GuildMemberDto
+     * @param  int  $guildId  ギルドID
+     * @param  int  $playerId  プレイヤーID
+     * @param  string  $role  役職
      */
     public function create(int $guildId, int $playerId, string $role): GuildMemberDto
     {
         $model = $this->createMember($guildId, $playerId, $role);
+
         return GuildMemberAdapter::toDto($model);
     }
 
     /**
      * メンバーの役職を更新（Interface実装）
      *
-     * @param GuildMemberDto $memberDto 対象メンバー
-     * @param string $role 新しい役職
+     * @param  GuildMemberDto  $memberDto  対象メンバー
+     * @param  string  $role  新しい役職
      * @return GuildMemberDto 更新後のDTO
      */
     public function updateRole(GuildMemberDto $memberDto, string $role): GuildMemberDto
@@ -115,8 +116,7 @@ class SysGuildMemberRepository extends _BaseSysRepository implements GuildMember
     /**
      * ギルドメンバーを削除（Interface実装）
      *
-     * @param GuildMemberDto $memberDto 削除するメンバー
-     * @return void
+     * @param  GuildMemberDto  $memberDto  削除するメンバー
      */
     public function delete(GuildMemberDto $memberDto): void
     {
@@ -129,8 +129,7 @@ class SysGuildMemberRepository extends _BaseSysRepository implements GuildMember
     /**
      * プレイヤーIDでメンバー情報を削除（Interface実装）
      *
-     * @param int $playerId プレイヤーID
-     * @return void
+     * @param  int  $playerId  プレイヤーID
      */
     public function deleteByPlayerId(int $playerId): void
     {
@@ -144,8 +143,7 @@ class SysGuildMemberRepository extends _BaseSysRepository implements GuildMember
     /**
      * IDでメンバーを検索（Model返却）
      *
-     * @param int $memberId メンバーID
-     * @return SysGuildMember|null
+     * @param  int  $memberId  メンバーID
      */
     public function selectById(int $memberId): ?SysGuildMember
     {
@@ -155,9 +153,8 @@ class SysGuildMemberRepository extends _BaseSysRepository implements GuildMember
     /**
      * ギルドIDとプレイヤーIDでメンバーを検索（Model返却）
      *
-     * @param int $guildId ギルドID
-     * @param int $playerId プレイヤーID
-     * @return SysGuildMember|null
+     * @param  int  $guildId  ギルドID
+     * @param  int  $playerId  プレイヤーID
      */
     public function selectByGuildAndPlayer(int $guildId, int $playerId): ?SysGuildMember
     {
@@ -169,8 +166,7 @@ class SysGuildMemberRepository extends _BaseSysRepository implements GuildMember
     /**
      * プレイヤーIDで所属ギルドメンバー情報を検索（Model返却）
      *
-     * @param int $playerId プレイヤーID
-     * @return SysGuildMember|null
+     * @param  int  $playerId  プレイヤーID
      */
     public function selectByPlayerId(int $playerId): ?SysGuildMember
     {
@@ -180,10 +176,10 @@ class SysGuildMemberRepository extends _BaseSysRepository implements GuildMember
     /**
      * ギルドIDでメンバー一覧を取得（Model返却）
      *
-     * @param int $guildId ギルドID
-     * @return \Illuminate\Database\Eloquent\Collection<SysGuildMember>
+     * @param  int  $guildId  ギルドID
+     * @return Collection<SysGuildMember>
      */
-    public function selectByGuildId(int $guildId): \Illuminate\Database\Eloquent\Collection
+    public function selectByGuildId(int $guildId): Collection
     {
         return SysGuildMember::where('sys_guild_id', $guildId)->get();
     }
@@ -191,14 +187,13 @@ class SysGuildMemberRepository extends _BaseSysRepository implements GuildMember
     /**
      * メンバーを作成（Model返却）
      *
-     * @param int $guildId ギルドID
-     * @param int $playerId プレイヤーID
-     * @param string $role 役職
-     * @return SysGuildMember
+     * @param  int  $guildId  ギルドID
+     * @param  int  $playerId  プレイヤーID
+     * @param  string  $role  役職
      */
     public function createMember(int $guildId, int $playerId, string $role): SysGuildMember
     {
-        $member = new SysGuildMember();
+        $member = new SysGuildMember;
         $member->setSysGuildId($guildId);
         $member->setSysPlayerId($playerId);
         $member->setRole($role);
@@ -210,9 +205,6 @@ class SysGuildMemberRepository extends _BaseSysRepository implements GuildMember
 
     /**
      * Modelを削除
-     *
-     * @param mixed $model
-     * @return void
      */
     public function deleteModel(mixed $model): void
     {

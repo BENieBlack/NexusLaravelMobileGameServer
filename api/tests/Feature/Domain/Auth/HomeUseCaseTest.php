@@ -6,6 +6,9 @@ use App\Models\Mst\MstLoginBonus;
 use App\Models\Mst\MstLoginBonusContent;
 use App\Models\Sys\SysPlayer;
 use Carbon\CarbonImmutable;
+use Database\Seeders\SysShardingSeeder;
+use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Foundation\Testing\RefreshDatabaseState;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;
@@ -13,7 +16,7 @@ use Tests\TestCase;
 
 /**
  * HomeUseCaseのテスト（ログインボーナス機能含む）
- * 
+ *
  * /auth/loginエンドポイントでのログインボーナス配布をテスト
  */
 class HomeUseCaseTest extends TestCase
@@ -21,6 +24,7 @@ class HomeUseCaseTest extends TestCase
     use RefreshMultipleDatabases;
 
     private SysPlayer $testPlayer;
+
     private string $accessToken;
 
     /**
@@ -28,7 +32,7 @@ class HomeUseCaseTest extends TestCase
      */
     protected function refreshTestDatabase(): void
     {
-        if (! \Illuminate\Foundation\Testing\RefreshDatabaseState::$migrated) {
+        if (! RefreshDatabaseState::$migrated) {
             // Run migrate:fresh for each connection with its specific path
             foreach ($this->connectionsToMigrate() as $connection => $path) {
                 // First, drop all tables in the database
@@ -37,7 +41,7 @@ class HomeUseCaseTest extends TestCase
                     '--path' => $path,
                     '--force' => true,
                 ]);
-                
+
                 // Then run fresh migrations
                 $this->artisan('migrate', [
                     '--database' => $connection,
@@ -46,9 +50,9 @@ class HomeUseCaseTest extends TestCase
                 ]);
             }
 
-            $this->app[\Illuminate\Contracts\Console\Kernel::class]->setArtisan(null);
+            $this->app[Kernel::class]->setArtisan(null);
 
-            \Illuminate\Foundation\Testing\RefreshDatabaseState::$migrated = true;
+            RefreshDatabaseState::$migrated = true;
         }
 
         // Feature tests: DON'T use database transactions - clean up in tearDown instead
@@ -57,13 +61,13 @@ class HomeUseCaseTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // シャーディング設定を作成（sign_upに必要）
-        $this->seed(\Database\Seeders\SysShardingSeeder::class);
-        
+        $this->seed(SysShardingSeeder::class);
+
         // テストプレイヤーを作成
         $this->createTestPlayer();
-        
+
         // テスト用のログインボーナスマスターを作成
         $this->createLoginBonusMasterData();
     }
@@ -77,7 +81,7 @@ class HomeUseCaseTest extends TestCase
         DB::connection('trx1')->table('trx_wallet')->truncate();
         DB::connection('mst')->table('mst_login_bonus_content')->delete();
         DB::connection('mst')->table('mst_login_bonus')->delete();
-        
+
         parent::tearDown();
     }
 
@@ -88,7 +92,7 @@ class HomeUseCaseTest extends TestCase
     {
         // sign_upでプレイヤーを作成
         $response = $this->postJson('/api/auth/sign_up', [
-            'device_id' => 'test-device-' . uniqid(),
+            'device_id' => 'test-device-'.uniqid(),
             'device_info' => [
                 'os' => 'iOS',
                 'os_version' => '17.0',
@@ -99,22 +103,22 @@ class HomeUseCaseTest extends TestCase
 
         $response->assertOk();
         $data = $response->json();
-        
+
         $this->accessToken = $data['dto_token']['access_token'];
         $myId = $data['sys_player']['my_id'];
-        
+
         $this->testPlayer = SysPlayer::where('my_id', $myId)->first();
-        
+
         // シャーディングノードへの割り当てを手動で作成（sign_upでは作成されないため）
         $sharding = DB::connection('sys')->table('sys_sharding')
             ->where('name', 'trx_sharding')
             ->first();
-        
+
         $node = DB::connection('sys')->table('sys_sharding_node')
             ->where('sys_sharding_id', $sharding->id)
             ->where('node_name', 'node1')
             ->first();
-        
+
         DB::connection('sys')->table('sys_sharding_node_player')->insert([
             'sys_sharding_node_id' => $node->id,
             'sys_player_id' => $this->testPlayer->id,
@@ -131,7 +135,7 @@ class HomeUseCaseTest extends TestCase
     {
         for ($day = 1; $day <= 7; $day++) {
             $bonusId = "login_bonus_day_{$day}";
-            
+
             MstLoginBonus::create([
                 'id' => $bonusId,
                 'day' => $day,
@@ -173,7 +177,7 @@ class HomeUseCaseTest extends TestCase
 
         // ログインAPI呼び出し
         $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $this->accessToken,
+            'Authorization' => 'Bearer '.$this->accessToken,
         ])->postJson('/api/auth/login');
 
         $response->assertOk();
@@ -189,7 +193,7 @@ class HomeUseCaseTest extends TestCase
         // ログインボーナスが配布されていることを確認
         $loginBonusList = $data['login_bonus_list'];
         $this->assertCount(1, $loginBonusList); // 1日目はアイテムのみ
-        
+
         $this->assertSame('item', $loginBonusList[0]['type']);
         $this->assertSame('item_potion_001', $loginBonusList[0]['id']);
         $this->assertSame(10, $loginBonusList[0]['amount']);
@@ -209,7 +213,7 @@ class HomeUseCaseTest extends TestCase
     {
         // 1回目のログイン
         $response1 = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $this->accessToken,
+            'Authorization' => 'Bearer '.$this->accessToken,
         ])->postJson('/api/auth/login');
 
         $response1->assertOk();
@@ -218,7 +222,7 @@ class HomeUseCaseTest extends TestCase
 
         // 2回目のログイン（同日）
         $response2 = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $this->accessToken,
+            'Authorization' => 'Bearer '.$this->accessToken,
         ])->postJson('/api/auth/login');
 
         $response2->assertOk();
@@ -234,11 +238,11 @@ class HomeUseCaseTest extends TestCase
         // 1日目のログイン
         $day1 = CarbonImmutable::parse('2026-04-20 10:00:00', 'UTC');
         $this->testPlayer->update(['last_login_at' => null]);
-        
+
         $this->travelTo($day1);
-        
+
         $response1 = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $this->accessToken,
+            'Authorization' => 'Bearer '.$this->accessToken,
         ])->postJson('/api/auth/login');
 
         $response1->assertOk();
@@ -251,12 +255,12 @@ class HomeUseCaseTest extends TestCase
         $this->travelTo($day2);
 
         $response2 = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $this->accessToken,
+            'Authorization' => 'Bearer '.$this->accessToken,
         ])->postJson('/api/auth/login');
 
         $response2->assertOk();
         $data2 = $response2->json('data');
-        
+
         $this->assertCount(1, $data2['login_bonus_list']);
         $this->assertSame('item', $data2['login_bonus_list'][0]['type']);
         $this->assertSame(20, $data2['login_bonus_list'][0]['amount']); // 2日目: 20個
@@ -268,13 +272,13 @@ class HomeUseCaseTest extends TestCase
     public function test_7日目に複数報酬が配布される(): void
     {
         $currentDay = CarbonImmutable::parse('2026-04-20 10:00:00', 'UTC');
-        
+
         // 1日目〜7日目まで連続ログイン
         for ($i = 1; $i <= 7; $i++) {
             $this->travelTo($currentDay);
-            
+
             $response = $this->withHeaders([
-                'Authorization' => 'Bearer ' . $this->accessToken,
+                'Authorization' => 'Bearer '.$this->accessToken,
             ])->postJson('/api/auth/login');
 
             $response->assertOk();
@@ -283,10 +287,10 @@ class HomeUseCaseTest extends TestCase
             if ($i === 7) {
                 // 7日目は2つの報酬（アイテム + ダイヤ）
                 $this->assertCount(2, $data['login_bonus_list']);
-                
+
                 $this->assertSame('item', $data['login_bonus_list'][0]['type']);
                 $this->assertSame(70, $data['login_bonus_list'][0]['amount']);
-                
+
                 $this->assertSame('diamond', $data['login_bonus_list'][1]['type']);
                 $this->assertSame(100, $data['login_bonus_list'][1]['amount']);
             } else {
@@ -305,13 +309,13 @@ class HomeUseCaseTest extends TestCase
     public function test_8日目は1日目にループする(): void
     {
         $currentDay = CarbonImmutable::parse('2026-04-20 10:00:00', 'UTC');
-        
+
         // 1日目〜8日目まで連続ログイン
         for ($i = 1; $i <= 8; $i++) {
             $this->travelTo($currentDay);
-            
+
             $response = $this->withHeaders([
-                'Authorization' => 'Bearer ' . $this->accessToken,
+                'Authorization' => 'Bearer '.$this->accessToken,
             ])->postJson('/api/auth/login');
 
             $response->assertOk();
@@ -334,14 +338,14 @@ class HomeUseCaseTest extends TestCase
     public function test_連続ログインが途切れると1日目にリセットされる(): void
     {
         $day1 = CarbonImmutable::parse('2026-04-20 10:00:00', 'UTC');
-        
+
         // 1日目〜3日目まで連続ログイン
         $currentDay = $day1;
         for ($i = 1; $i <= 3; $i++) {
             $this->travelTo($currentDay);
-            
+
             $response = $this->withHeaders([
-                'Authorization' => 'Bearer ' . $this->accessToken,
+                'Authorization' => 'Bearer '.$this->accessToken,
             ])->postJson('/api/auth/login');
 
             $response->assertOk();
@@ -353,7 +357,7 @@ class HomeUseCaseTest extends TestCase
         $this->travelTo($day5);
 
         $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $this->accessToken,
+            'Authorization' => 'Bearer '.$this->accessToken,
         ])->postJson('/api/auth/login');
 
         $response->assertOk();
@@ -373,12 +377,12 @@ class HomeUseCaseTest extends TestCase
         DB::connection('mst')
             ->table('mst_login_bonus')
             ->update(['is_active' => false]);
-        
+
         $this->refreshMstCache();
 
         // ログイン
         $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $this->accessToken,
+            'Authorization' => 'Bearer '.$this->accessToken,
         ])->postJson('/api/auth/login');
 
         $response->assertOk();
@@ -395,7 +399,7 @@ class HomeUseCaseTest extends TestCase
 
         // ログイン
         $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $this->accessToken,
+            'Authorization' => 'Bearer '.$this->accessToken,
         ])->postJson('/api/auth/login');
 
         $response->assertOk();

@@ -8,8 +8,6 @@ class SignInRequest extends _BaseRequest
 {
     /**
      * リクエストの認可を判定
-     *
-     * @return bool
      */
     public function authorize(): bool
     {
@@ -36,8 +34,6 @@ class SignInRequest extends _BaseRequest
 
     /**
      * device_idを取得
-     *
-     * @return string
      */
     public function getDeviceId(): string
     {
@@ -46,8 +42,6 @@ class SignInRequest extends _BaseRequest
 
     /**
      * device_infoを取得
-     *
-     * @return array
      */
     public function getDeviceInfo(): array
     {

@@ -14,7 +14,7 @@ use NexusBilling\Facades\BillingFacade;
 
 /**
  * _BaseBuyUseCase
- * 
+ *
  * アプリ内課金商品購入の共通フロー（Template Method Pattern）
  * レシート検証・価格検証などの共通処理を実装
  * 各商品タイプ（Diamond、Pack、Pass）固有の処理はサブクラスで実装
@@ -24,12 +24,11 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
     public function __construct(
         protected readonly InAppPurchaseValidationService $validationService,
         protected readonly BillingFacade $billingFacade,
-    ) {
-    }
+    ) {}
 
     /**
      * 購入処理を実行（Template Method）
-     * 
+     *
      * 共通フロー:
      * 1. ReceiptDto作成
      * 2. レシート検証（外部API、トランザクション外）
@@ -37,14 +36,14 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
      * 4. 価格検証
      * 5. トランザクション内で購入処理実行（サブクラス実装）
      *
-     * @param int $sysPlayerId プレイヤーID（Controllerで認証済み）
-     * @param MstInAppPurchase $mstInAppPurchase 商品マスター（Controllerで検証済み）
-     * @param string $platform プラットフォーム（Apple, Google）
-     * @param string $billingPlatform 決済プラットフォーム（AppStore, GooglePlay, PayPal, Stripe）
-     * @param string $receipt レシート文字列
-     * @param string|null $transactionId トランザクションID
-     * @param string $productId プロダクトID
-     * @return BuyResponse
+     * @param  int  $sysPlayerId  プレイヤーID（Controllerで認証済み）
+     * @param  MstInAppPurchase  $mstInAppPurchase  商品マスター（Controllerで検証済み）
+     * @param  string  $platform  プラットフォーム（Apple, Google）
+     * @param  string  $billingPlatform  決済プラットフォーム（AppStore, GooglePlay, PayPal, Stripe）
+     * @param  string  $receipt  レシート文字列
+     * @param  string|null  $transactionId  トランザクションID
+     * @param  string  $productId  プロダクトID
+     *
      * @throws GameException
      */
     public function exec(
@@ -102,12 +101,11 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
     /**
      * ReceiptDtoを作成
      *
-     * @param int $sysPlayerId プレイヤーID
-     * @param string $billingPlatform 決済プラットフォーム
-     * @param string $receipt レシート文字列
-     * @param string|null $transactionId トランザクションID
-     * @param string $productId プロダクトID
-     * @return ReceiptDto
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  string  $billingPlatform  決済プラットフォーム
+     * @param  string  $receipt  レシート文字列
+     * @param  string|null  $transactionId  トランザクションID
+     * @param  string  $productId  プロダクトID
      */
     protected function createReceiptData(
         int $sysPlayerId,
@@ -129,26 +127,24 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
     /**
      * 一意なリクエストIDを生成
      *
-     * @param int $sysPlayerId プレイヤーID
-     * @param MstInAppPurchase $mstInAppPurchase 商品マスター
-     * @param ReceiptDto $receiptDto レシートデータ
-     * @return string
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  MstInAppPurchase  $mstInAppPurchase  商品マスター
+     * @param  ReceiptDto  $receiptDto  レシートデータ
      */
     protected function generateUniqueRequestId(
         int $sysPlayerId,
         MstInAppPurchase $mstInAppPurchase,
         ReceiptDto $receiptDto
     ): string {
-        return $sysPlayerId . '_' . $mstInAppPurchase->getId() . '_' . ($receiptDto->getTransactionId() ?? time());
+        return $sysPlayerId.'_'.$mstInAppPurchase->getId().'_'.($receiptDto->getTransactionId() ?? time());
     }
 
     /**
      * レシートを検証
      *
-     * @param string $billingPlatform 決済プラットフォーム
-     * @param ReceiptDto $receiptDto レシートデータ
-     * @param string $uniqueRequestId 一意なリクエストID
-     * @return VerificationDto
+     * @param  string  $billingPlatform  決済プラットフォーム
+     * @param  ReceiptDto  $receiptDto  レシートデータ
+     * @param  string  $uniqueRequestId  一意なリクエストID
      */
     protected function verifyReceipt(
         string $billingPlatform,
@@ -165,10 +161,10 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
     /**
      * プロダクトIDを検証
      *
-     * @param VerificationDto $verificationDto 検証結果
-     * @param string $productId プロダクトID
+     * @param  VerificationDto  $verificationDto  検証結果
+     * @param  string  $productId  プロダクトID
+     *
      * @throws GameException
-     * @return void
      */
     protected function validateProductId(
         VerificationDto $verificationDto,
@@ -185,11 +181,11 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
     /**
      * 価格を検証
      *
-     * @param VerificationDto $verificationDto 検証結果
-     * @param MstInAppPurchase $mstInAppPurchase 商品マスター
-     * @param string $billingPlatform 決済プラットフォーム
+     * @param  VerificationDto  $verificationDto  検証結果
+     * @param  MstInAppPurchase  $mstInAppPurchase  商品マスター
+     * @param  string  $billingPlatform  決済プラットフォーム
+     *
      * @throws GameException
-     * @return void
      */
     protected function validatePrice(
         VerificationDto $verificationDto,
@@ -205,15 +201,14 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
 
     /**
      * 購入処理を実行（サブクラスで実装）
-     * 
+     *
      * トランザクション内で実行される商品タイプ固有の処理
      *
-     * @param int $sysPlayerId プレイヤーID
-     * @param MstInAppPurchase $mstInAppPurchase 商品マスター
-     * @param string $platform プラットフォーム
-     * @param string $billingPlatform 決済プラットフォーム
-     * @param VerificationDto $verificationDto レシート検証結果
-     * @return BuyResponse
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  MstInAppPurchase  $mstInAppPurchase  商品マスター
+     * @param  string  $platform  プラットフォーム
+     * @param  string  $billingPlatform  決済プラットフォーム
+     * @param  VerificationDto  $verificationDto  レシート検証結果
      */
     abstract protected function executePurchase(
         int $sysPlayerId,

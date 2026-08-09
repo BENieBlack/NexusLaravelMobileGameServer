@@ -4,27 +4,31 @@ namespace Tests\Unit\UseCases\Auth;
 
 use App\Domain\Auth\UseCases\AuthSignInUseCase;
 use App\Exceptions\GameException;
-use App\Exceptions\GameErrorCode;
 use App\Http\Responses\Auth\SignInResponse;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;
-use NexusAuth\Services\TokenService;
-use NexusAuth\Services\PlayerAuthService;
-use NexusAuth\Contracts\PlayerRepositoryInterface;
+use Mockery;
 use NexusAuth\Contracts\DeviceRepositoryInterface;
+use NexusAuth\Contracts\PlayerRepositoryInterface;
 use NexusAuth\Contracts\TokenRepositoryInterface;
 use NexusAuth\DTOs\TokenDto;
-use Mockery;
+use NexusAuth\Services\PlayerAuthService;
+use NexusAuth\Services\TokenService;
 use Tests\TestCase;
 
 class SignInUseCaseUnitTest extends TestCase
 {
     private AuthSignInUseCase $useCase;
+
     private PlayerAuthService $playerAuthService;
+
     private TokenService $tokenService;
+
     private PlayerRepositoryInterface $playerRepository;
+
     private DeviceRepositoryInterface $deviceRepository;
+
     private TokenRepositoryInterface $tokenRepository;
 
     protected function setUp(): void
@@ -35,7 +39,7 @@ class SignInUseCaseUnitTest extends TestCase
         $this->playerRepository = Mockery::mock(PlayerRepositoryInterface::class);
         $this->deviceRepository = Mockery::mock(DeviceRepositoryInterface::class);
         $this->tokenRepository = Mockery::mock(TokenRepositoryInterface::class);
-        
+
         // Mock services
         $this->playerAuthService = Mockery::mock(PlayerAuthService::class);
         $this->tokenService = Mockery::mock(TokenService::class);
@@ -64,25 +68,25 @@ class SignInUseCaseUnitTest extends TestCase
         // Arrange
         $deviceId = 'test-device-uuid';
         $deviceInfo = ['model' => 'iPhone 14'];
-        
-        $mockDevice = new SysPlayerDevice();
+
+        $mockDevice = new SysPlayerDevice;
         $mockDevice->id = 10;
         $mockDevice->sys_player_id = 1;
         $mockDevice->uuid = $deviceId;
         $mockDevice->exists = true;
-        
-        $mockPlayer = new SysPlayer();
+
+        $mockPlayer = new SysPlayer;
         $mockPlayer->id = 1;
         $mockPlayer->uuid = 'player-uuid-123';
         $mockPlayer->exists = true;
-        
-        $mockToken = new SysPlayerToken();
+
+        $mockToken = new SysPlayerToken;
         $mockToken->id = 100;
         $mockToken->sys_player_id = 1;
         $mockToken->refresh_token_hash = hash('sha256', 'refresh-token-456');
         $mockToken->expires_at = now()->addDays(30);
         $mockToken->exists = true;
-        
+
         $tokenDto = new TokenDto(
             accessToken: 'access-token-123',
             refreshToken: 'refresh-token-456',
@@ -94,27 +98,27 @@ class SignInUseCaseUnitTest extends TestCase
             ->shouldReceive('selectByDeviceId')
             ->with($deviceId)
             ->andReturn($mockDevice);
-        
+
         $this->playerRepository
             ->shouldReceive('selectById')
             ->with(1)
             ->andReturn($mockPlayer);
-        
+
         $this->tokenRepository
             ->shouldReceive('deleteByPlayerId')
             ->with(1)
             ->andReturn(2);
-        
+
         $this->tokenService
             ->shouldReceive('generateToken')
-            ->with($mockPlayer, $mockDevice, \Mockery::type('callable'))
+            ->with($mockPlayer, $mockDevice, Mockery::type('callable'))
             ->andReturn([$tokenDto, $mockToken]);
-        
+
         $this->playerAuthService
             ->shouldReceive('updateLastLogin')
             ->with($deviceId)
             ->andReturn(true);
-        
+
         $this->tokenRepository
             ->shouldReceive('selectByRefreshToken')
             ->with('refresh-token-456')
@@ -160,8 +164,8 @@ class SignInUseCaseUnitTest extends TestCase
         // Arrange
         $deviceId = 'test-device';
         $deviceInfo = ['model' => 'Test'];
-        
-        $mockDevice = new SysPlayerDevice();
+
+        $mockDevice = new SysPlayerDevice;
         $mockDevice->id = 10;
         $mockDevice->sys_player_id = 999;
         $mockDevice->exists = true;
@@ -170,7 +174,7 @@ class SignInUseCaseUnitTest extends TestCase
             ->shouldReceive('selectByDeviceId')
             ->with($deviceId)
             ->andReturn($mockDevice);
-        
+
         $this->playerRepository
             ->shouldReceive('selectById')
             ->with(999)
@@ -191,22 +195,22 @@ class SignInUseCaseUnitTest extends TestCase
         // Arrange
         $deviceId = 'test-device';
         $deviceInfo = ['model' => 'Test'];
-        
-        $mockDevice = new SysPlayerDevice();
+
+        $mockDevice = new SysPlayerDevice;
         $mockDevice->id = 10;
         $mockDevice->sys_player_id = 1;
         $mockDevice->uuid = $deviceId;
         $mockDevice->exists = true;
-        
-        $mockPlayer = new SysPlayer();
+
+        $mockPlayer = new SysPlayer;
         $mockPlayer->id = 1;
         $mockPlayer->exists = true;
-        
-        $mockToken = new SysPlayerToken();
+
+        $mockToken = new SysPlayerToken;
         $mockToken->id = 100;
         $mockToken->sys_player_id = 1;
         $mockToken->exists = true;
-        
+
         $tokenDto = new TokenDto(
             accessToken: 'new-access-token',
             refreshToken: 'new-refresh-token',
@@ -216,27 +220,27 @@ class SignInUseCaseUnitTest extends TestCase
         $this->deviceRepository
             ->shouldReceive('selectByDeviceId')
             ->andReturn($mockDevice);
-        
+
         $this->playerRepository
             ->shouldReceive('selectById')
             ->andReturn($mockPlayer);
-        
+
         // Expect deleteByPlayerId to be called
         $this->tokenRepository
             ->shouldReceive('deleteByPlayerId')
             ->with(1)
             ->once()
             ->andReturn(3); // 3 tokens deleted
-        
+
         $this->tokenService
             ->shouldReceive('generateToken')
-            ->with($mockPlayer, $mockDevice, \Mockery::type('callable'))
+            ->with($mockPlayer, $mockDevice, Mockery::type('callable'))
             ->andReturn([$tokenDto, $mockToken]);
-        
+
         $this->playerAuthService
             ->shouldReceive('updateLastLogin')
             ->andReturn(true);
-        
+
         $this->tokenRepository
             ->shouldReceive('selectByRefreshToken')
             ->andReturn($mockToken);
@@ -256,21 +260,21 @@ class SignInUseCaseUnitTest extends TestCase
         // Arrange
         $deviceId = 'test-device';
         $deviceInfo = ['model' => 'Test'];
-        
-        $mockDevice = new SysPlayerDevice();
+
+        $mockDevice = new SysPlayerDevice;
         $mockDevice->id = 10;
         $mockDevice->sys_player_id = 1;
         $mockDevice->uuid = $deviceId;
         $mockDevice->exists = true;
-        
-        $mockPlayer = new SysPlayer();
+
+        $mockPlayer = new SysPlayer;
         $mockPlayer->id = 1;
         $mockPlayer->exists = true;
-        
-        $mockToken = new SysPlayerToken();
+
+        $mockToken = new SysPlayerToken;
         $mockToken->id = 100;
         $mockToken->exists = true;
-        
+
         $tokenDto = new TokenDto(
             accessToken: 'access-token',
             refreshToken: 'refresh-token',
@@ -280,9 +284,9 @@ class SignInUseCaseUnitTest extends TestCase
         $this->deviceRepository->shouldReceive('selectByDeviceId')->andReturn($mockDevice);
         $this->playerRepository->shouldReceive('selectById')->andReturn($mockPlayer);
         $this->tokenRepository->shouldReceive('deleteByPlayerId')->andReturn(0);
-        $this->tokenService->shouldReceive('generateToken')->with($mockPlayer, $mockDevice, \Mockery::type('callable'))->andReturn([$tokenDto, $mockToken]);
+        $this->tokenService->shouldReceive('generateToken')->with($mockPlayer, $mockDevice, Mockery::type('callable'))->andReturn([$tokenDto, $mockToken]);
         $this->tokenRepository->shouldReceive('selectByRefreshToken')->andReturn($mockToken);
-        
+
         // Expect updateLastLogin to be called with deviceId
         $this->playerAuthService
             ->shouldReceive('updateLastLogin')

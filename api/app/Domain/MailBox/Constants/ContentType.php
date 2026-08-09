@@ -26,7 +26,7 @@ enum ContentType: string
      */
     public function label(): string
     {
-        return match($this) {
+        return match ($this) {
             self::DIAMOND => 'ダイヤ',
             self::PAID_DIAMOND => '有償ダイヤ',
             self::ITEM => 'アイテム',
@@ -48,7 +48,7 @@ enum ContentType: string
      */
     public function icon(): string
     {
-        return match($this) {
+        return match ($this) {
             self::DIAMOND => '💎',
             self::PAID_DIAMOND => '💠',
             self::ITEM => '📦',
@@ -77,9 +77,6 @@ enum ContentType: string
 
     /**
      * 有効なタイプかどうかを判定
-     *
-     * @param string $type
-     * @return bool
      */
     public static function isValid(string $type): bool
     {

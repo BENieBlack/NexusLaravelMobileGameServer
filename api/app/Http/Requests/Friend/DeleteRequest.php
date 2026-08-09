@@ -8,8 +8,6 @@ class DeleteRequest extends _BaseRequest
 {
     /**
      * リクエストの認可を判定
-     *
-     * @return bool
      */
     public function authorize(): bool
     {
@@ -31,8 +29,6 @@ class DeleteRequest extends _BaseRequest
 
     /**
      * my_idを取得（削除対象のフレンドのmy_id）
-     *
-     * @return string
      */
     public function getMyId(): string
     {
@@ -41,14 +37,13 @@ class DeleteRequest extends _BaseRequest
 
     /**
      * 認証済みプレイヤーIDを取得
-     * 
-     * ミドルウェアで設定された値を取得
      *
-     * @return int|null
+     * ミドルウェアで設定された値を取得
      */
     public function getAuthenticatedPlayerId(): ?int
     {
         $playerId = $this->input('authenticated_player_id');
+
         return $playerId ? (int) $playerId : null;
     }
 

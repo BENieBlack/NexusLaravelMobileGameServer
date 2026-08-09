@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * SysGuildApply Model
- * 
+ *
  * ギルド加入申請テーブル
  */
 class SysGuildApply extends _BaseSys
@@ -41,8 +41,6 @@ class SysGuildApply extends _BaseSys
 
     /**
      * ギルドとのリレーション
-     *
-     * @return BelongsTo
      */
     public function guild(): BelongsTo
     {
@@ -51,8 +49,6 @@ class SysGuildApply extends _BaseSys
 
     /**
      * プレイヤーとのリレーション
-     *
-     * @return BelongsTo
      */
     public function player(): BelongsTo
     {
@@ -61,8 +57,6 @@ class SysGuildApply extends _BaseSys
 
     /**
      * IDを取得
-     *
-     * @return int
      */
     public function getId(): int
     {
@@ -71,8 +65,6 @@ class SysGuildApply extends _BaseSys
 
     /**
      * ギルドIDを取得
-     *
-     * @return int
      */
     public function getSysGuildId(): int
     {
@@ -81,8 +73,6 @@ class SysGuildApply extends _BaseSys
 
     /**
      * プレイヤーIDを取得
-     *
-     * @return int
      */
     public function getSysPlayerId(): int
     {
@@ -91,8 +81,6 @@ class SysGuildApply extends _BaseSys
 
     /**
      * ステータスを取得
-     *
-     * @return string
      */
     public function getStatus(): string
     {
@@ -101,9 +89,6 @@ class SysGuildApply extends _BaseSys
 
     /**
      * ギルドIDを設定
-     *
-     * @param int $guildId
-     * @return void
      */
     public function setSysGuildId(int $guildId): void
     {
@@ -112,9 +97,6 @@ class SysGuildApply extends _BaseSys
 
     /**
      * プレイヤーIDを設定
-     *
-     * @param int $playerId
-     * @return void
      */
     public function setSysPlayerId(int $playerId): void
     {
@@ -123,9 +105,6 @@ class SysGuildApply extends _BaseSys
 
     /**
      * ステータスを設定
-     *
-     * @param string $status
-     * @return void
      */
     public function setStatus(string $status): void
     {

@@ -16,15 +16,13 @@ class ItemRepositoryImpl implements ItemRepositoryInterface
 {
     public function __construct(
         private readonly TrxItemRepository $trxItemRepository,
-    ) {
-    }
+    ) {}
 
     /**
      * アイテムを検索
      *
-     * @param int $sysPlayerId プレイヤーID
-     * @param string $mstItemId アイテムID
-     * @return ItemDto|null
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  string  $mstItemId  アイテムID
      */
     public function findItem(int $sysPlayerId, string $mstItemId): ?ItemDto
     {
@@ -38,9 +36,6 @@ class ItemRepositoryImpl implements ItemRepositoryInterface
 
     /**
      * アイテムを保存（新規作成 or 更新）
-     *
-     * @param ItemDto $itemDto
-     * @return void
      */
     public function saveItem(ItemDto $itemDto): void
     {
@@ -71,8 +66,8 @@ class ItemRepositoryImpl implements ItemRepositoryInterface
     /**
      * 複数アイテムを一括取得
      *
-     * @param int $sysPlayerId プレイヤーID
-     * @param array<string> $mstItemIds アイテムIDリスト
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  array<string>  $mstItemIds  アイテムIDリスト
      * @return array<ItemDto>
      */
     public function findItemsByIds(int $sysPlayerId, array $mstItemIds): array
@@ -82,14 +77,11 @@ class ItemRepositoryImpl implements ItemRepositoryInterface
             ->whereIn('mst_item_id', $mstItemIds)
             ->get();
 
-        return $trxItems->map(fn(TrxItem $trxItem) => $this->modelToDto($trxItem))->all();
+        return $trxItems->map(fn (TrxItem $trxItem) => $this->modelToDto($trxItem))->all();
     }
 
     /**
      * TrxItemモデルをItemDtoに変換
-     *
-     * @param TrxItem $trxItem
-     * @return ItemDto
      */
     private function modelToDto(TrxItem $trxItem): ItemDto
     {

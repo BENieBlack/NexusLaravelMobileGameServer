@@ -2,18 +2,18 @@
 
 namespace App\Models\Sys;
 
+use App\Models\Mst\MstPlayerLevel;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use NexusAuth\Contracts\PlayerModelInterface;
 
 /**
  * SysPlayer Model
- * 
+ *
  * プレイヤーマスターテーブル
  * プレイヤーの基本情報を管理
  */
 class SysPlayer extends _BaseSys implements PlayerModelInterface
 {
-
     /**
      * テーブル名
      */
@@ -51,8 +51,6 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
 
     /**
      * デバイス情報とのリレーション
-     *
-     * @return HasMany
      */
     public function devices(): HasMany
     {
@@ -61,8 +59,6 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
 
     /**
      * トークン情報とのリレーション
-     *
-     * @return HasMany
      */
     public function tokens(): HasMany
     {
@@ -71,9 +67,6 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
 
     /**
      * UUIDからプレイヤーを取得
-     *
-     * @param string $uuid
-     * @return self|null
      */
     public static function findByUuid(string $uuid): ?self
     {
@@ -82,9 +75,6 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
 
     /**
      * my_idからプレイヤーを取得
-     *
-     * @param string $myId
-     * @return self|null
      */
     public static function findByMyId(string $myId): ?self
     {
@@ -93,8 +83,6 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
 
     /**
      * プレイヤーIDを取得
-     *
-     * @return int
      */
     public function getId(): int
     {
@@ -103,8 +91,6 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
 
     /**
      * UUIDを取得
-     *
-     * @return string
      */
     public function getUuid(): string
     {
@@ -113,8 +99,6 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
 
     /**
      * My IDを取得
-     *
-     * @return string
      */
     public function getMyId(): string
     {
@@ -123,8 +107,6 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
 
     /**
      * プレイヤー名を取得
-     *
-     * @return string|null
      */
     public function getName(): ?string
     {
@@ -133,8 +115,6 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
 
     /**
      * レベルを取得
-     *
-     * @return int
      */
     public function getLevel(): int
     {
@@ -143,8 +123,6 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
 
     /**
      * レベル経験値を取得
-     *
-     * @return int
      */
     public function getLevelExp(): int
     {
@@ -153,8 +131,6 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
 
     /**
      * 最終ログイン日時を取得
-     *
-     * @return string|null
      */
     public function getLastLoginAt(): ?string
     {
@@ -163,9 +139,6 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
 
     /**
      * UUIDを設定
-     *
-     * @param string $uuid
-     * @return void
      */
     public function setUuid(string $uuid): void
     {
@@ -174,9 +147,6 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
 
     /**
      * My IDを設定
-     *
-     * @param string $myId
-     * @return void
      */
     public function setMyId(string $myId): void
     {
@@ -185,9 +155,6 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
 
     /**
      * プレイヤー名を設定
-     *
-     * @param string $name
-     * @return void
      */
     public function setName(string $name): void
     {
@@ -196,9 +163,6 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
 
     /**
      * レベルを設定
-     *
-     * @param int $level
-     * @return void
      */
     public function setLevel(int $level): void
     {
@@ -207,9 +171,6 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
 
     /**
      * レベル経験値を設定
-     *
-     * @param int $levelExp
-     * @return void
      */
     public function setLevelExp(int $levelExp): void
     {
@@ -218,9 +179,6 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
 
     /**
      * 最終ログイン日時を設定
-     *
-     * @param string $lastLoginAt
-     * @return void
      */
     public function setLastLoginAt(string $lastLoginAt): void
     {
@@ -229,64 +187,59 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
 
     /**
      * 次のレベルまでに必要な経験値を取得
-     * 
+     *
      * @return int 必要な経験値（レベルが最大の場合は0）
      */
     public function getExpToNextLevel(): int
     {
         $nextLevel = $this->getLevel() + 1;
-        $nextLevelData = \App\Models\Mst\MstPlayerLevel::findByLevel($nextLevel);
-        
+        $nextLevelData = MstPlayerLevel::findByLevel($nextLevel);
+
         if ($nextLevelData === null) {
             // 最大レベルに達している
             return 0;
         }
-        
+
         return max(0, $nextLevelData->getRequiredExp() - $this->getLevelExp());
     }
 
     /**
      * 現在のレベルのマスターデータを取得
-     * 
-     * @return \App\Models\Mst\MstPlayerLevel|null
      */
-    public function getCurrentLevelData(): ?\App\Models\Mst\MstPlayerLevel
+    public function getCurrentLevelData(): ?MstPlayerLevel
     {
-        return \App\Models\Mst\MstPlayerLevel::findByLevel($this->getLevel());
+        return MstPlayerLevel::findByLevel($this->getLevel());
     }
 
     /**
      * 現在のレベルの最大スタミナを取得
-     * 
-     * @return int|null
      */
     public function getMaxStamina(): ?int
     {
         $levelData = $this->getCurrentLevelData();
+
         return $levelData?->getMaxStamina();
     }
 
     /**
      * レスポンス用配列に変換
-     * 
+     *
      * データベース層の'id'は除外（内部IDのため）
-     * 
-     * @return array
      */
     public function toResponseArray(): array
     {
         $array = parent::toResponseArray();
-        
+
         // 内部IDは除外（parent::toResponseArray()で既に除外されている）
         unset($array['id']);
-        
+
         return $array;
     }
 
     /**
      * 作成日時取得
      * PlayerModelInterface implementation
-     * 
+     *
      * @return string Y-m-d H:i:s形式
      */
     public function getCreatedAt(): string
@@ -296,8 +249,6 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
 
     /**
      * VIPポイントを取得
-     *
-     * @return int
      */
     public function getVipPoint(): int
     {
@@ -306,8 +257,6 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
 
     /**
      * 累積課金額を取得
-     *
-     * @return float
      */
     public function getTotalPaidAmount(): float
     {
@@ -316,9 +265,6 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
 
     /**
      * VIPポイントを設定
-     *
-     * @param int $point
-     * @return void
      */
     public function setVipPoint(int $point): void
     {
@@ -327,9 +273,6 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
 
     /**
      * 累積課金額を設定
-     *
-     * @param float $amount
-     * @return void
      */
     public function setTotalPaidAmount(float $amount): void
     {
@@ -338,9 +281,6 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
 
     /**
      * VIPポイントを加算
-     *
-     * @param int $points
-     * @return void
      */
     public function addVipPoint(int $points): void
     {
@@ -350,9 +290,6 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
 
     /**
      * 累積課金額を加算
-     *
-     * @param float $amount
-     * @return void
      */
     public function addTotalPaidAmount(float $amount): void
     {

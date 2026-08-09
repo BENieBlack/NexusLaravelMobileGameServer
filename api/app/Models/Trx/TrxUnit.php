@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * TrxUnit Model
- * 
+ *
  * プレイヤーが所持するユニット（キャラクター）を管理するモデル
  */
 class TrxUnit extends _BaseTrx
@@ -15,15 +15,11 @@ class TrxUnit extends _BaseTrx
 
     /**
      * SELECTキー（プレイヤーIDでSELECT）
-     * 
-     * @var string
      */
     protected string $selectKey = 'sys_player_id';
 
     /**
      * ユニークキー（ユニットはIDで一意）
-     * 
-     * @var array
      */
     protected array $uniqueKeys = ['id'];
 
@@ -49,8 +45,6 @@ class TrxUnit extends _BaseTrx
 
     /**
      * trx_playerとのリレーション
-     *
-     * @return BelongsTo
      */
     public function trxPlayer(): BelongsTo
     {
@@ -59,8 +53,6 @@ class TrxUnit extends _BaseTrx
 
     /**
      * ユニットIDを取得
-     *
-     * @return int
      */
     public function getId(): int
     {
@@ -69,8 +61,6 @@ class TrxUnit extends _BaseTrx
 
     /**
      * プレイヤーIDを取得
-     *
-     * @return int
      */
     public function getSysPlayerId(): int
     {
@@ -79,8 +69,6 @@ class TrxUnit extends _BaseTrx
 
     /**
      * マスターユニットIDを取得
-     *
-     * @return string
      */
     public function getMstUnitId(): string
     {
@@ -89,8 +77,6 @@ class TrxUnit extends _BaseTrx
 
     /**
      * グレードを取得
-     *
-     * @return int
      */
     public function getGrade(): int
     {
@@ -99,8 +85,6 @@ class TrxUnit extends _BaseTrx
 
     /**
      * レベルを取得
-     *
-     * @return int
      */
     public function getLevel(): int
     {
@@ -109,8 +93,6 @@ class TrxUnit extends _BaseTrx
 
     /**
      * レベル経験値を取得
-     *
-     * @return int
      */
     public function getLevelExp(): int
     {
@@ -119,19 +101,14 @@ class TrxUnit extends _BaseTrx
 
     /**
      * 削除フラグを取得
-     *
-     * @return bool
      */
     public function getIsDelete(): bool
     {
-        return (bool)$this->getAttribute('is_delete');
+        return (bool) $this->getAttribute('is_delete');
     }
 
     /**
      * プレイヤーIDを設定
-     *
-     * @param int $sysPlayerId
-     * @return void
      */
     public function setSysPlayerId(int $sysPlayerId): void
     {
@@ -140,9 +117,6 @@ class TrxUnit extends _BaseTrx
 
     /**
      * マスターユニットIDを設定
-     *
-     * @param int $mstUnitId
-     * @return void
      */
     public function setMstUnitId(int $mstUnitId): void
     {
@@ -151,9 +125,6 @@ class TrxUnit extends _BaseTrx
 
     /**
      * グレードを設定
-     *
-     * @param int $grade
-     * @return void
      */
     public function setGrade(int $grade): void
     {
@@ -162,9 +133,6 @@ class TrxUnit extends _BaseTrx
 
     /**
      * レベルを設定
-     *
-     * @param int $level
-     * @return void
      */
     public function setLevel(int $level): void
     {
@@ -173,9 +141,6 @@ class TrxUnit extends _BaseTrx
 
     /**
      * レベル経験値を設定
-     *
-     * @param int $levelExp
-     * @return void
      */
     public function setLevelExp(int $levelExp): void
     {
@@ -184,9 +149,6 @@ class TrxUnit extends _BaseTrx
 
     /**
      * 削除フラグを設定
-     *
-     * @param bool $isDelete
-     * @return void
      */
     public function setIsDelete(bool $isDelete): void
     {
@@ -196,20 +158,19 @@ class TrxUnit extends _BaseTrx
     /**
      * APIレスポンス用の配列に変換
      * id を trx_unit_id に変換
-     * 
+     *
      * @return array<string, mixed>
      */
     public function toResponseArray(): array
     {
         $array = parent::toResponseArray();
-        
+
         // id を trx_unit_id にリネーム
         if (isset($array['id'])) {
             $array['trx_unit_id'] = $array['id'];
             unset($array['id']);
         }
-        
+
         return $array;
     }
 }
-

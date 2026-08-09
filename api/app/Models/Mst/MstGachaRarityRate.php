@@ -4,7 +4,7 @@ namespace App\Models\Mst;
 
 /**
  * MstGachaRarityRate Model
- * 
+ *
  * @property int $deploy_key
  * @property string $id
  * @property string $mst_gacha_id
@@ -16,6 +16,7 @@ class MstGachaRarityRate extends _BaseMst
     public $table = 'mst_gacha_rarity_rate';
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $fillable = [

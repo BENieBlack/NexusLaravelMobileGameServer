@@ -3,13 +3,13 @@
 namespace App\Domain\Mailbox\UseCases;
 
 use App\Domain\_BaseUseCase;
-use NexusResource\DTOs\ResourceDto;
-use NexusResourceDelivery\Services\ResourceDeliveryService;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Http\Responses\Mailbox\ReceiveResponse;
 use App\Repositories\Trx\TrxMailboxRepository;
 use NexusPersistence\Support\CustomCollection;
+use NexusResource\DTOs\ResourceDto;
+use NexusResourceDelivery\Services\ResourceDeliveryService;
 
 /**
  * MailboxReceiveUseCase
@@ -18,19 +18,14 @@ use NexusPersistence\Support\CustomCollection;
  */
 class MailboxReceiveUseCase extends _BaseUseCase
 {
-
     public function __construct(
         private TrxMailboxRepository $trxMailboxRepository,
         private ResourceDeliveryService $resourceDeliveryService,
-    ) {
-    }
+    ) {}
 
     /**
      * 添付配布物を受け取る
      *
-     * @param int $sysPlayerId
-     * @param int $trxMailboxId
-     * @return ReceiveResponse
      * @throws GameException
      */
     public function exec(int $sysPlayerId, int $trxMailboxId): ReceiveResponse
@@ -50,7 +45,7 @@ class MailboxReceiveUseCase extends _BaseUseCase
 
             // マスターデータから添付物を取得
             $mstMailbox = $trxMailbox->mstMailbox;
-            $contentCollection = $mstMailbox?->contentCollection ?? new CustomCollection();
+            $contentCollection = $mstMailbox?->contentCollection ?? new CustomCollection;
 
             // Resource配列に変換
             $resources = $contentCollection->map(function ($content) {

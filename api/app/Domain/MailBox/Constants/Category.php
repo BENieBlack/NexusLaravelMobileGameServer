@@ -20,7 +20,7 @@ enum Category: string
      */
     public function label(): string
     {
-        return match($this) {
+        return match ($this) {
             self::SYSTEM => 'システム',
             self::BATTLE => '戦闘レポート',
             self::ALLIANCE => 'アライアンス',
@@ -36,7 +36,7 @@ enum Category: string
      */
     public function icon(): string
     {
-        return match($this) {
+        return match ($this) {
             self::SYSTEM => '⚙️',
             self::BATTLE => '⚔️',
             self::ALLIANCE => '🏰',
@@ -49,7 +49,7 @@ enum Category: string
 
     /**
      * 全カテゴリを取得
-     * 
+     *
      * @return array<string, string>
      */
     public static function all(): array

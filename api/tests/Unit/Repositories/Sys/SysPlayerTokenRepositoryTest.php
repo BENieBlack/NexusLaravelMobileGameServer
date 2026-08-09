@@ -6,7 +6,6 @@ use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;
 use App\Repositories\Sys\SysPlayerTokenRepository;
-use Carbon\CarbonImmutable;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
 
@@ -19,7 +18,7 @@ class SysPlayerTokenRepositoryTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->repository = new SysPlayerTokenRepository();
+        $this->repository = new SysPlayerTokenRepository;
     }
 
     /**
@@ -171,7 +170,7 @@ class SysPlayerTokenRepositoryTest extends TestCase
 
         // Assert
         $this->assertEquals(3, $count);
-        
+
         // Verify all tokens are revoked
         $tokens = SysPlayerToken::where('sys_player_device_id', $sysPlayerDevice->id)->get();
         foreach ($tokens as $token) {

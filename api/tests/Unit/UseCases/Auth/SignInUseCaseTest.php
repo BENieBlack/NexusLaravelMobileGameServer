@@ -8,12 +8,13 @@ use App\Http\Responses\Auth\SignInResponse;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;
-use NexusAuth\Services\TokenService;
-use NexusAuth\Services\PlayerAuthService;
-use NexusAuth\Contracts\PlayerRepositoryInterface;
-use NexusAuth\Contracts\DeviceRepositoryInterface;
-use NexusAuth\Contracts\TokenRepositoryInterface;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use NexusAuth\Contracts\DeviceRepositoryInterface;
+use NexusAuth\Contracts\PlayerRepositoryInterface;
+use NexusAuth\Contracts\TokenRepositoryInterface;
+use NexusAuth\Services\PlayerAuthService;
+use NexusAuth\Services\TokenService;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
 
@@ -22,10 +23,15 @@ class SignInUseCaseTest extends TestCase
     use RefreshMultipleDatabases;
 
     private AuthSignInUseCase $useCase;
+
     private PlayerAuthService $playerAuthService;
+
     private TokenService $tokenService;
+
     private PlayerRepositoryInterface $playerRepository;
+
     private DeviceRepositoryInterface $deviceRepository;
+
     private TokenRepositoryInterface $tokenRepository;
 
     /**
@@ -46,7 +52,7 @@ class SignInUseCaseTest extends TestCase
         $this->playerRepository = app(PlayerRepositoryInterface::class);
         $this->deviceRepository = app(DeviceRepositoryInterface::class);
         $this->tokenRepository = app(TokenRepositoryInterface::class);
-        
+
         // Servicesを作成
         $this->playerAuthService = app(PlayerAuthService::class);
         $this->tokenService = app(TokenService::class);
@@ -71,7 +77,7 @@ class SignInUseCaseTest extends TestCase
     {
         // プレイヤーを作成
         $player = $this->playerAuthService->createPlayer($deviceId, $deviceInfo);
-        
+
         // デバイスを作成
         $device = SysPlayerDevice::create([
             'sys_player_id' => $player->getId(),
@@ -79,7 +85,7 @@ class SignInUseCaseTest extends TestCase
             'device_info' => $deviceInfo,
             'last_login_at' => now(),
         ]);
-        
+
         return [$player, $device];
     }
 
@@ -91,7 +97,7 @@ class SignInUseCaseTest extends TestCase
         // Arrange
         $deviceId = 'existing-device-uuid-12345';
         $deviceInfo = ['model' => 'iPhone 14', 'os' => 'iOS 16.0'];
-        
+
         [$sysPlayer, $sysPlayerDevice] = $this->createPlayerAndDevice($deviceId, $deviceInfo);
 
         // Act
@@ -101,7 +107,7 @@ class SignInUseCaseTest extends TestCase
         $this->assertInstanceOf(SignInResponse::class, $response);
         $this->assertInstanceOf(SysPlayer::class, $response->sysPlayer);
         $this->assertInstanceOf(SysPlayerDevice::class, $response->sysPlayerDevice);
-        
+
         // 同じプレイヤーとデバイスが返されることを確認
         $this->assertEquals($sysPlayer->getId(), $response->sysPlayer->getId());
         $this->assertEquals($sysPlayerDevice->getId(), $response->sysPlayerDevice->getId());
@@ -116,7 +122,7 @@ class SignInUseCaseTest extends TestCase
         // Arrange
         $deviceId = 'device-for-new-token';
         $deviceInfo = ['model' => 'Test Device'];
-        
+
         $this->createPlayerAndDevice($deviceId, $deviceInfo);
 
         // Act
@@ -156,9 +162,9 @@ class SignInUseCaseTest extends TestCase
         // Arrange
         $deviceId = 'device-for-revoke-test';
         $deviceInfo = ['model' => 'Test'];
-        
+
         [$sysPlayer, $sysPlayerDevice] = $this->createPlayerAndDevice($deviceId, $deviceInfo);
-        
+
         // 2回サインインして古いトークンを作成
         $response1 = $this->useCase->exec($deviceId, $deviceInfo);
         $response2 = $this->useCase->exec($deviceId, $deviceInfo);
@@ -180,10 +186,10 @@ class SignInUseCaseTest extends TestCase
         // Arrange
         $deviceId = 'device-for-last-login-test';
         $deviceInfo = ['model' => 'Test'];
-        
+
         [$sysPlayer, $sysPlayerDevice] = $this->createPlayerAndDevice($deviceId, $deviceInfo);
         $originalLastLoginString = $sysPlayerDevice->getLastLoginAt();
-        $originalLastLogin = $originalLastLoginString !== null ? \Carbon\Carbon::parse($originalLastLoginString) : null;
+        $originalLastLogin = $originalLastLoginString !== null ? Carbon::parse($originalLastLoginString) : null;
 
         // 時間を少し進める
         sleep(1);
@@ -195,11 +201,11 @@ class SignInUseCaseTest extends TestCase
         $updatedDevice = $this->deviceRepository->selectByDeviceId($deviceId);
         $this->assertNotNull($updatedDevice);
         $this->assertNotNull($updatedDevice->getLastLoginAt());
-        
+
         // 元の値と異なることを確認（タイムスタンプが同じか後であることを確認）
         if ($originalLastLogin !== null) {
             $updatedLastLoginString = $updatedDevice->getLastLoginAt();
-            $updatedLastLogin = \Carbon\Carbon::parse($updatedLastLoginString);
+            $updatedLastLogin = Carbon::parse($updatedLastLoginString);
             $this->assertGreaterThanOrEqual(
                 $originalLastLogin->getTimestamp(),
                 $updatedLastLogin->getTimestamp()
@@ -215,7 +221,7 @@ class SignInUseCaseTest extends TestCase
         // Arrange
         $deviceId = 'device-for-multiple-signin';
         $deviceInfo = ['model' => 'Test'];
-        
+
         $this->createPlayerAndDevice($deviceId, $deviceInfo);
 
         // Act - 複数回サインイン
@@ -247,7 +253,7 @@ class SignInUseCaseTest extends TestCase
         // Arrange
         $deviceId = 'device-for-preserve-test';
         $deviceInfo = ['model' => 'Original Device'];
-        
+
         [$sysPlayer, $sysPlayerDevice] = $this->createPlayerAndDevice($deviceId, $deviceInfo);
         $originalMyId = $sysPlayer->getMyId();
         $originalPlayerId = $sysPlayer->getId();

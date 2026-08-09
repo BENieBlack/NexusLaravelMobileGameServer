@@ -11,24 +11,22 @@ use App\Repositories\Sys\SysPlayerRepository;
 
 /**
  * FriendDeleteUseCase
- * 
+ *
  * フレンド削除ユースケース
  */
 class FriendDeleteUseCase extends _BaseUseCase
 {
-
     public function __construct(
         private readonly SysFriendApplyRepository $sysFriendApplyRepository,
         private readonly SysPlayerRepository $sysPlayerRepository,
-    ) {
-    }
+    ) {}
 
     /**
      * フレンド削除処理を実行
      *
-     * @param int $sysPlayerId 削除実行者のプレイヤーID
-     * @param string $targetMyId 削除対象のフレンドのmy_id
-     * @return DeleteResponse
+     * @param  int  $sysPlayerId  削除実行者のプレイヤーID
+     * @param  string  $targetMyId  削除対象のフレンドのmy_id
+     *
      * @throws GameException
      */
     public function exec(int $sysPlayerId, string $targetMyId): DeleteResponse
@@ -37,7 +35,7 @@ class FriendDeleteUseCase extends _BaseUseCase
         return $this->executeWithTransaction(function () use ($sysPlayerId, $targetMyId) {
             // 1. 削除対象のプレイヤーをmy_idで検索
             $targetPlayer = $this->sysPlayerRepository->selectByMyId($targetMyId);
-            
+
             if ($targetPlayer === null) {
                 throw new GameException(
                     GameErrorCode::TARGET_PLAYER_NOT_FOUND,

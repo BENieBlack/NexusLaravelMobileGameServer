@@ -8,8 +8,6 @@ class RefreshTokenRequest extends _BaseRequest
 {
     /**
      * リクエストの認可を判定
-     *
-     * @return bool
      */
     public function authorize(): bool
     {
@@ -31,8 +29,6 @@ class RefreshTokenRequest extends _BaseRequest
 
     /**
      * refresh_tokenを取得
-     *
-     * @return string
      */
     public function getRefreshToken(): string
     {

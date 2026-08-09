@@ -6,7 +6,7 @@ use App\Models\Mst\MstItem;
 
 /**
  * MstItemRepository
- * 
+ *
  * @extends _BaseMstRepository<MstItem>
  */
 class MstItemRepository extends _BaseMstRepository

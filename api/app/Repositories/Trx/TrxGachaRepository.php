@@ -3,15 +3,15 @@
 namespace App\Repositories\Trx;
 
 use App\Models\Trx\TrxGacha;
+use App\Persistence\ApiSession;
 use NexusGacha\Dto\GachaProgressDto;
 use NexusGacha\Repositories\GachaProgressRepositoryInterface;
-use App\Persistence\ApiSession;
 
 /**
  * TrxGachaRepository
  *
  * ガチャプレイヤー進行状況Repository
- * 
+ *
  * @extends _BaseTrxRepository<TrxGacha>
  */
 class TrxGachaRepository extends _BaseTrxRepository implements GachaProgressRepositoryInterface
@@ -27,8 +27,7 @@ class TrxGachaRepository extends _BaseTrxRepository implements GachaProgressRepo
 
     public function __construct(
         private readonly ApiSession $apiSession
-    ) {
-    }
+    ) {}
 
     /**
      * {@inheritDoc}
@@ -41,7 +40,7 @@ class TrxGachaRepository extends _BaseTrxRepository implements GachaProgressRepo
             ->where('is_delete', false)
             ->first();
 
-        if (!$progress) {
+        if (! $progress) {
             return null;
         }
 
@@ -97,4 +96,3 @@ class TrxGachaRepository extends _BaseTrxRepository implements GachaProgressRepo
         return $progressDto;
     }
 }
-

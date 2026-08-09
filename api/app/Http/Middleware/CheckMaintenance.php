@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * メンテナンスチェックミドルウェア
- * 
+ *
  * 全APIリクエストでメンテナンス状態をチェックし、
  * メンテナンス中の場合は503エラーを返す
  */
@@ -22,26 +22,26 @@ class CheckMaintenance
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
         // 除外IP判定（設定で指定されたIPはメンテ中でもアクセス可能）
         $excludedIps = config('maintenance.excluded_ips', []);
         $clientIp = $request->ip();
-        
+
         if (in_array($clientIp, $excludedIps, true)) {
             return $next($request);
         }
 
         // メンテナンス状態チェック
-        if (!$this->maintenanceService->isUnderMaintenance()) {
+        if (! $this->maintenanceService->isUnderMaintenance()) {
             return $next($request);
         }
 
         // メンテナンス中は503エラーを返す
         $sysMaintenance = $this->maintenanceService->getMaintenanceInfo();
-        
+
         return response()->json([
             'error' => 'Service Unavailable',
             'message' => $sysMaintenance->message ?? 'System is currently under maintenance',

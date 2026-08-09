@@ -3,13 +3,15 @@
 namespace App\Domain\Auth\UseCases;
 
 use App\Domain\_BaseUseCase;
-use App\Http\Responses\Auth\RefreshTokenResponse;
-use NexusAuth\Services\TokenService;
-use NexusAuth\Services\PlayerAuthService;
-use NexusAuth\Contracts\PlayerRepositoryInterface;
-use NexusAuth\Contracts\DeviceRepositoryInterface;
-use App\Exceptions\GameException;
 use App\Exceptions\GameErrorCode;
+use App\Exceptions\GameException;
+use App\Http\Responses\Auth\RefreshTokenResponse;
+use App\Models\Sys\SysPlayerDevice;
+use App\Models\Sys\SysPlayerToken;
+use NexusAuth\Contracts\DeviceRepositoryInterface;
+use NexusAuth\Contracts\PlayerRepositoryInterface;
+use NexusAuth\Services\PlayerAuthService;
+use NexusAuth\Services\TokenService;
 
 /**
  * AuthRefreshTokenUseCase
@@ -19,20 +21,18 @@ use App\Exceptions\GameErrorCode;
  */
 class AuthRefreshTokenUseCase extends _BaseUseCase
 {
-
     public function __construct(
         private readonly TokenService $tokenService,
         private readonly PlayerAuthService $playerAuthService,
         private readonly PlayerRepositoryInterface $playerRepository,
         private readonly DeviceRepositoryInterface $deviceRepository,
-    ) {
-    }
+    ) {}
 
     /**
      * トークンリフレッシュ処理を実行
      *
-     * @param string $refreshToken リフレッシュトークン
-     * @return RefreshTokenResponse
+     * @param  string  $refreshToken  リフレッシュトークン
+     *
      * @throws \Exception|\Throwable
      */
     public function exec(string $refreshToken): RefreshTokenResponse
@@ -41,7 +41,7 @@ class AuthRefreshTokenUseCase extends _BaseUseCase
         return $this->executeWithTransaction(function () use ($refreshToken) {
             // リフレッシュトークンを検証（NexusAuth\Services\TokenService使用）
             $oldToken = $this->tokenService->validateRefreshToken($refreshToken);
-            
+
             if ($oldToken === null) {
                 throw new GameException(
                     GameErrorCode::INVALID_TOKEN,
@@ -51,11 +51,11 @@ class AuthRefreshTokenUseCase extends _BaseUseCase
 
             // プレイヤーとデバイスを取得
             $player = $this->playerRepository->selectById($oldToken->getPlayerId());
-            
+
             // SysPlayerTokenからdevice_idを取得
-            /** @var \App\Models\Sys\SysPlayerToken $oldToken */
+            /** @var SysPlayerToken $oldToken */
             $deviceId = $oldToken->getSysPlayerDeviceId();
-            $device = \App\Models\Sys\SysPlayerDevice::find($deviceId);
+            $device = SysPlayerDevice::find($deviceId);
 
             if ($player === null || $device === null) {
                 throw new GameException(
@@ -69,7 +69,7 @@ class AuthRefreshTokenUseCase extends _BaseUseCase
                 $oldToken,
                 $player,
                 $device,
-                fn($playerId, $deviceId, $tokenHash, $expiresAt) => \App\Models\Sys\SysPlayerToken::create([
+                fn ($playerId, $deviceId, $tokenHash, $expiresAt) => SysPlayerToken::create([
                     'sys_player_id' => $playerId,
                     'sys_player_device_id' => $deviceId,
                     'refresh_token_hash' => $tokenHash,

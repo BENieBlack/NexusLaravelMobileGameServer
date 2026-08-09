@@ -2,18 +2,17 @@
 
 namespace App\Repositories\Sys;
 
-
-use NexusPersistence\Support\CustomCollection;
 use App\Models\Sys\SysMaintenance;
-use NexusVersion\Repositories\MaintenanceRepositoryInterface;
 use Illuminate\Support\Facades\Cache;
+use NexusPersistence\Support\CustomCollection;
+use NexusVersion\Repositories\MaintenanceRepositoryInterface;
 
 /**
  * SysMaintenanceRepository
- * 
+ *
  * メンテナンス情報のRepository実装
  * 例外的に Redis キャッシュを使用
- * 
+ *
  * @extends _BaseSysRepository<SysMaintenance>
  */
 class SysMaintenanceRepository extends _BaseSysRepository implements MaintenanceRepositoryInterface
@@ -22,13 +21,11 @@ class SysMaintenanceRepository extends _BaseSysRepository implements Maintenance
 
     /**
      * 現在進行中のメンテナンスを取得（Redis キャッシュ付き）
-     *
-     * @return SysMaintenance|null
      */
     public function selectCurrentMaintenance(): ?SysMaintenance
     {
-        $cacheKey = $this->getCacheKey("current_maintenance");
-        
+        $cacheKey = $this->getCacheKey('current_maintenance');
+
         return Cache::store($this->cacheDriver)->remember(
             $cacheKey,
             $this->cacheTtl,
@@ -38,7 +35,7 @@ class SysMaintenanceRepository extends _BaseSysRepository implements Maintenance
                     ->where('start_at', '<=', $now)
                     ->where(function ($q) use ($now) {
                         $q->whereNull('end_at')
-                          ->orWhere('end_at', '>', $now);
+                            ->orWhere('end_at', '>', $now);
                     })
                     ->orderBy('start_at', 'desc')
                     ->first();
@@ -60,6 +57,7 @@ class SysMaintenanceRepository extends _BaseSysRepository implements Maintenance
     public function findCurrent(): ?array
     {
         $sysMaintenance = $this->selectCurrentMaintenance();
+
         return $sysMaintenance ? $sysMaintenance->toArray() : null;
     }
 

@@ -4,25 +4,29 @@ namespace App\Domain\Item\Constants;
 
 /**
  * WalletConst
- * 
+ *
  * Wallet管理通貨の定数を定義
  */
 class WalletConst
 {
     /**
      * Wallet管理対象の通貨アイテムID
-     * 
+     *
      * これらの通貨は trx_wallet / trx_wallet_balance で管理される
      */
     public const CURRENCY_GOLD = 'gold';
+
     public const CURRENCY_EVENT_COIN = 'event_coin';
+
     public const CURRENCY_RAID_MEDAL = 'raid_medal';
+
     public const CURRENCY_PVP_POINT = 'pvp_point';
+
     public const CURRENCY_GVG_POINT = 'gvg_point';
 
     /**
      * すべてのWallet管理通貨のリスト
-     * 
+     *
      * @var array<string>
      */
     public const WALLET_CURRENCIES = [
@@ -35,7 +39,7 @@ class WalletConst
 
     /**
      * 通貨の表示名マップ
-     * 
+     *
      * @var array<string, string>
      */
     public const CURRENCY_NAMES = [
@@ -48,9 +52,6 @@ class WalletConst
 
     /**
      * 指定されたアイテムIDがWallet管理通貨かどうかをチェック
-     * 
-     * @param string $mstItemId
-     * @return bool
      */
     public static function isWalletCurrency(string $mstItemId): bool
     {
@@ -59,9 +60,6 @@ class WalletConst
 
     /**
      * 通貨の表示名を取得
-     * 
-     * @param string $mstItemId
-     * @return string|null
      */
     public static function getCurrencyName(string $mstItemId): ?string
     {

@@ -4,8 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\Mst\MstGacha;
 use App\Models\Mst\MstGachaCost;
-use App\Models\Mst\MstGachaRarityRate;
 use App\Models\Mst\MstGachaPrize;
+use App\Models\Mst\MstGachaRarityRate;
 use App\Models\Mst\MstGachaStep;
 use App\Models\Mst\MstGachaStepBonus;
 use App\Models\Mst\MstGachaStepBonusContent;
@@ -102,12 +102,12 @@ class MstGachaSeeder extends Seeder
             ['id' => 'gacha_prize_normal_ssr_unit_001', 'rarity' => 'SSR', 'type' => 'unit', 'target_id' => 'unit_ssr_001', 'weight' => 1],
             ['id' => 'gacha_prize_normal_ssr_unit_002', 'rarity' => 'SSR', 'type' => 'unit', 'target_id' => 'unit_ssr_002', 'weight' => 1],
             ['id' => 'gacha_prize_normal_ssr_unit_003', 'rarity' => 'SSR', 'type' => 'unit', 'target_id' => 'unit_ssr_003', 'weight' => 1],
-            
+
             // SR ユニット
             ['id' => 'gacha_prize_normal_sr_unit_001', 'rarity' => 'SR', 'type' => 'unit', 'target_id' => 'unit_sr_001', 'weight' => 2],
             ['id' => 'gacha_prize_normal_sr_unit_002', 'rarity' => 'SR', 'type' => 'unit', 'target_id' => 'unit_sr_002', 'weight' => 2],
             ['id' => 'gacha_prize_normal_sr_unit_003', 'rarity' => 'SR', 'type' => 'unit', 'target_id' => 'unit_sr_003', 'weight' => 2],
-            
+
             // R ユニット
             ['id' => 'gacha_prize_normal_r_unit_001', 'rarity' => 'R', 'type' => 'unit', 'target_id' => 'unit_r_001', 'weight' => 5],
             ['id' => 'gacha_prize_normal_r_unit_002', 'rarity' => 'R', 'type' => 'unit', 'target_id' => 'unit_r_002', 'weight' => 5],

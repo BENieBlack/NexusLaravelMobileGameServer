@@ -43,13 +43,13 @@ class BattlePlaceholder implements PlaceholderResolverInterface
             return null;
         }
 
-        return match($key) {
+        return match ($key) {
             'battle_result' => $battle->result ?? $battle->getResult() ?? null,
             'enemy_name' => $battle->enemy_name ?? $battle->getEnemyName() ?? null,
-            'damage_dealt' => (string)($battle->damage_dealt ?? $battle->getDamageDealt() ?? null),
-            'damage_received' => (string)($battle->damage_received ?? $battle->getDamageReceived() ?? null),
-            'troops_lost' => (string)($battle->troops_lost ?? $battle->getTroopsLost() ?? null),
-            'troops_killed' => (string)($battle->troops_killed ?? $battle->getTroopsKilled() ?? null),
+            'damage_dealt' => (string) ($battle->damage_dealt ?? $battle->getDamageDealt() ?? null),
+            'damage_received' => (string) ($battle->damage_received ?? $battle->getDamageReceived() ?? null),
+            'troops_lost' => (string) ($battle->troops_lost ?? $battle->getTroopsLost() ?? null),
+            'troops_killed' => (string) ($battle->troops_killed ?? $battle->getTroopsKilled() ?? null),
             'battle_time' => $battle->battle_time ?? $battle->getBattleTime() ?? null,
             default => null,
         };

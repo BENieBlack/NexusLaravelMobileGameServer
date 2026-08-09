@@ -16,7 +16,7 @@ class LogPlayerRepositoryTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->repository = new LogPlayerRepository();
+        $this->repository = new LogPlayerRepository;
     }
 
     /**
@@ -178,16 +178,16 @@ class LogPlayerRepositoryTest extends TestCase
 
         // Assert
         $this->assertCount(3, $queuedModels);
-        
+
         // First log: level up
         $this->assertEquals(5, $queuedModels[0]->before_level);
         $this->assertEquals(6, $queuedModels[0]->after_level);
-        
+
         // Second log: exp gain only
         $this->assertEquals(6, $queuedModels[1]->before_level);
         $this->assertEquals(6, $queuedModels[1]->after_level);
         $this->assertEquals(50, $queuedModels[1]->after_level_exp);
-        
+
         // Third log: multiple level ups
         $this->assertEquals(6, $queuedModels[2]->before_level);
         $this->assertEquals(8, $queuedModels[2]->after_level);
@@ -268,14 +268,14 @@ class LogPlayerRepositoryTest extends TestCase
 
         // Assert
         $this->assertCount(3, $queuedModels);
-        
+
         // All logs should be for the same player
-        $this->assertTrue(collect($queuedModels)->every(fn($log) => $log->sys_player_id === 1));
-        
+        $this->assertTrue(collect($queuedModels)->every(fn ($log) => $log->sys_player_id === 1));
+
         // Each request should have unique request ID
         $requestIds = collect($queuedModels)->pluck('unique_request_id')->toArray();
         $this->assertEquals(['request-001', 'request-002', 'request-003'], $requestIds);
-        
+
         // Level progression should be sequential
         $this->assertEquals(1, $queuedModels[0]->before_level);
         $this->assertEquals(2, $queuedModels[0]->after_level);

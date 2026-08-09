@@ -5,11 +5,11 @@ namespace App\Domain\Equipment\UseCases;
 use App\Domain\_BaseUseCase;
 use App\Domain\Equipment\Services\EquipmentLevelService;
 use App\Domain\Item\Services\ItemService;
+use App\Exceptions\BusinessLogicException;
+use App\Exceptions\GameErrorCode;
+use App\Exceptions\GameException;
 use App\Exceptions\MasterDataException;
 use App\Exceptions\TransactionDataException;
-use App\Exceptions\BusinessLogicException;
-use App\Exceptions\GameException;
-use App\Exceptions\GameErrorCode;
 use App\Http\Responses\Equipment\LevelUpResponse;
 use App\Repositories\Log\LogEquipmentRepository;
 use App\Repositories\Mst\MstItemRepository;
@@ -48,16 +48,15 @@ class EquipmentLevelUpUseCase extends _BaseUseCase
         private readonly MstItemRepository $mstItemRepository,
         private readonly TrxEquipmentRepository $trxEquipmentRepository,
         private readonly LogEquipmentRepository $logEquipmentRepository,
-    ) {
-    }
+    ) {}
 
     /**
      * バリデーション
      *
-     * @param int $sysPlayerId sys_player.id（プレイヤーID）
-     * @param int $trxEquipmentId trx_equipment.id（プレイヤー所有装備）
-     * @param int $afterLevel 目標レベル
-     * @return void
+     * @param  int  $sysPlayerId  sys_player.id（プレイヤーID）
+     * @param  int  $trxEquipmentId  trx_equipment.id（プレイヤー所有装備）
+     * @param  int  $afterLevel  目標レベル
+     *
      * @throws TransactionDataException 装備が存在しない場合
      * @throws GameException 装備がプレイヤーのものでない場合、または目標レベルが現在レベル以下の場合
      * @throws MasterDataException アイテムマスターが存在しない場合
@@ -67,7 +66,7 @@ class EquipmentLevelUpUseCase extends _BaseUseCase
     {
         // 1. 装備の存在確認
         $trxEquipment = $this->trxEquipmentRepository->selectById($trxEquipmentId);
-        if (!$trxEquipment) {
+        if (! $trxEquipment) {
             throw TransactionDataException::equipment($trxEquipmentId);
         }
 
@@ -75,7 +74,7 @@ class EquipmentLevelUpUseCase extends _BaseUseCase
         if ($trxEquipment->getSysPlayerId() !== $sysPlayerId) {
             throw new GameException(
                 GameErrorCode::INVALID_PARAMETER,
-                "Equipment does not belong to player"
+                'Equipment does not belong to player'
             );
         }
 
@@ -89,7 +88,7 @@ class EquipmentLevelUpUseCase extends _BaseUseCase
 
         // 2. 経験値アイテムマスターデータを取得
         $mstItem = $this->mstItemRepository->selectById(self::EQUIPMENT_EXP_ITEM_ID);
-        if (!$mstItem) {
+        if (! $mstItem) {
             throw MasterDataException::item(self::EQUIPMENT_EXP_ITEM_ID);
         }
 
@@ -104,7 +103,7 @@ class EquipmentLevelUpUseCase extends _BaseUseCase
 
         // 3. 目標レベルまでに必要な経験値を計算
         $requiredExp = $this->equipmentLevelService->calculateRequiredExp($trxEquipmentId, $afterLevel);
-        
+
         // 4. 必要なアイテム数を計算
         $expPerItem = $mstItem->getValue();
         if ($expPerItem <= 0) {
@@ -125,10 +124,10 @@ class EquipmentLevelUpUseCase extends _BaseUseCase
     /**
      * 装備経験値アイテムを使用して指定レベルまでレベルアップ
      *
-     * @param int $sysPlayerId sys_player.id（プレイヤーID）
-     * @param int $trxEquipmentId trx_equipment.id（プレイヤー所有装備）
-     * @param int $afterLevel 目標レベル
-     * @return LevelUpResponse
+     * @param  int  $sysPlayerId  sys_player.id（プレイヤーID）
+     * @param  int  $trxEquipmentId  trx_equipment.id（プレイヤー所有装備）
+     * @param  int  $afterLevel  目標レベル
+     *
      * @throws \Exception|\Throwable
      */
     public function exec(int $sysPlayerId, int $trxEquipmentId, int $afterLevel): LevelUpResponse
@@ -148,7 +147,7 @@ class EquipmentLevelUpUseCase extends _BaseUseCase
 
             // 必要な経験値を計算
             $requiredExp = $this->equipmentLevelService->calculateRequiredExp($trxEquipmentId, $afterLevel);
-            
+
             // 必要なアイテム数を計算
             $expPerItem = $mstItem->getValue();
             $requiredItemCount = (int) ceil($requiredExp / $expPerItem);

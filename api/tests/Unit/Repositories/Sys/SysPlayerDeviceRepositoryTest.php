@@ -17,7 +17,7 @@ class SysPlayerDeviceRepositoryTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->repository = new SysPlayerDeviceRepository();
+        $this->repository = new SysPlayerDeviceRepository;
     }
 
     /**
@@ -122,7 +122,7 @@ class SysPlayerDeviceRepositoryTest extends TestCase
 
         // Act - Load via selectByDeviceId
         $result1 = $this->repository->selectByDeviceId('test-device-uuid-005');
-        
+
         // Access same device via selectListByPlayerId (should use memory cache)
         $result2 = $this->repository->selectListByPlayerId($sysPlayer->id);
 

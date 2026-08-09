@@ -5,15 +5,16 @@ namespace App\Repositories\Sys;
 use App\Adapters\Guild\GuildAdapter;
 use App\Models\Sys\SysGuild;
 use App\Models\Sys\SysGuildMember;
+use Illuminate\Database\Eloquent\Collection;
 use NexusGuild\Constants\GuildRole;
 use NexusGuild\Dto\GuildDto;
 use NexusGuild\Repositories\GuildRepositoryInterface;
 
 /**
  * SysGuildRepository
- * 
+ *
  * ギルド情報のRepository実装
- * 
+ *
  * @extends _BaseSysRepository<SysGuild>
  */
 class SysGuildRepository extends _BaseSysRepository implements GuildRepositoryInterface
@@ -23,24 +24,24 @@ class SysGuildRepository extends _BaseSysRepository implements GuildRepositoryIn
     /**
      * IDでギルドを検索（Interface実装）
      *
-     * @param int $guildId ギルドID
-     * @return GuildDto|null
+     * @param  int  $guildId  ギルドID
      */
     public function findById(int $guildId): ?GuildDto
     {
         $model = $this->selectById($guildId);
+
         return $model ? GuildAdapter::toDto($model) : null;
     }
 
     /**
      * ギルド名で検索（Interface実装）
      *
-     * @param string $name ギルド名
-     * @return GuildDto|null
+     * @param  string  $name  ギルド名
      */
     public function findByName(string $name): ?GuildDto
     {
         $model = $this->selectByName($name);
+
         return $model ? GuildAdapter::toDto($model) : null;
     }
 
@@ -52,28 +53,29 @@ class SysGuildRepository extends _BaseSysRepository implements GuildRepositoryIn
     public function findAll(): array
     {
         $models = $this->selectAll();
+
         return GuildAdapter::toDtoArray($models);
     }
 
     /**
      * ギルドを作成（Interface実装）
      *
-     * @param string $name ギルド名
-     * @param string $description ギルド説明
-     * @param int $masterPlayerId マスタープレイヤーID
-     * @return GuildDto
+     * @param  string  $name  ギルド名
+     * @param  string  $description  ギルド説明
+     * @param  int  $masterPlayerId  マスタープレイヤーID
      */
     public function create(string $name, string $description, int $masterPlayerId): GuildDto
     {
         $model = $this->createGuild($name, $description, $masterPlayerId);
+
         return GuildAdapter::toDto($model);
     }
 
     /**
      * ギルド情報を更新（Interface実装）
      *
-     * @param GuildDto $guildDto 更新するギルド
-     * @param array<string, mixed> $data 更新データ
+     * @param  GuildDto  $guildDto  更新するギルド
+     * @param  array<string, mixed>  $data  更新データ
      * @return GuildDto 更新後のDTO
      */
     public function update(GuildDto $guildDto, array $data): GuildDto
@@ -107,8 +109,7 @@ class SysGuildRepository extends _BaseSysRepository implements GuildRepositoryIn
     /**
      * ギルドを削除（Interface実装）
      *
-     * @param GuildDto $guildDto 削除するギルド
-     * @return void
+     * @param  GuildDto  $guildDto  削除するギルド
      */
     public function delete(GuildDto $guildDto): void
     {
@@ -121,8 +122,8 @@ class SysGuildRepository extends _BaseSysRepository implements GuildRepositoryIn
     /**
      * ギルド経験値を追加（Interface実装）
      *
-     * @param GuildDto $guildDto 対象ギルド
-     * @param int $exp 追加経験値
+     * @param  GuildDto  $guildDto  対象ギルド
+     * @param  int  $exp  追加経験値
      * @return GuildDto 更新後のDTO
      */
     public function addExp(GuildDto $guildDto, int $exp): GuildDto
@@ -142,9 +143,9 @@ class SysGuildRepository extends _BaseSysRepository implements GuildRepositoryIn
     /**
      * ギルドレベルを更新（Interface実装）
      *
-     * @param GuildDto $guildDto 対象ギルド
-     * @param int $level 新しいレベル
-     * @param int $exp 新しい経験値
+     * @param  GuildDto  $guildDto  対象ギルド
+     * @param  int  $level  新しいレベル
+     * @param  int  $exp  新しい経験値
      * @return GuildDto 更新後のDTO
      */
     public function updateLevel(GuildDto $guildDto, int $level, int $exp): GuildDto
@@ -168,8 +169,7 @@ class SysGuildRepository extends _BaseSysRepository implements GuildRepositoryIn
     /**
      * IDでギルドを検索（Model返却）
      *
-     * @param int $guildId ギルドID
-     * @return SysGuild|null
+     * @param  int  $guildId  ギルドID
      */
     public function selectById(int $guildId): ?SysGuild
     {
@@ -179,8 +179,7 @@ class SysGuildRepository extends _BaseSysRepository implements GuildRepositoryIn
     /**
      * ギルド名で検索（Model返却）
      *
-     * @param string $name ギルド名
-     * @return SysGuild|null
+     * @param  string  $name  ギルド名
      */
     public function selectByName(string $name): ?SysGuild
     {
@@ -190,9 +189,9 @@ class SysGuildRepository extends _BaseSysRepository implements GuildRepositoryIn
     /**
      * 全ギルド一覧を取得（Model返却）
      *
-     * @return \Illuminate\Database\Eloquent\Collection<SysGuild>
+     * @return Collection<SysGuild>
      */
-    public function selectAll(): \Illuminate\Database\Eloquent\Collection
+    public function selectAll(): Collection
     {
         return SysGuild::all();
     }
@@ -200,14 +199,13 @@ class SysGuildRepository extends _BaseSysRepository implements GuildRepositoryIn
     /**
      * ギルドを作成（Model返却）
      *
-     * @param string $name ギルド名
-     * @param string $description ギルド説明
-     * @param int $masterPlayerId マスタープレイヤーID
-     * @return SysGuild
+     * @param  string  $name  ギルド名
+     * @param  string  $description  ギルド説明
+     * @param  int  $masterPlayerId  マスタープレイヤーID
      */
     public function createGuild(string $name, string $description, int $masterPlayerId): SysGuild
     {
-        $guild = new SysGuild();
+        $guild = new SysGuild;
         $guild->setName($name);
         $guild->setDescription($description);
         $guild->setLevel(1);
@@ -216,7 +214,7 @@ class SysGuildRepository extends _BaseSysRepository implements GuildRepositoryIn
         $guild->save();
 
         // マスターメンバーを作成
-        $member = new SysGuildMember();
+        $member = new SysGuildMember;
         $member->setSysGuildId($guild->getId());
         $member->setSysPlayerId($masterPlayerId);
         $member->setRole(GuildRole::MASTER);
@@ -228,9 +226,6 @@ class SysGuildRepository extends _BaseSysRepository implements GuildRepositoryIn
 
     /**
      * Modelを削除
-     *
-     * @param mixed $model
-     * @return void
      */
     public function deleteModel(mixed $model): void
     {

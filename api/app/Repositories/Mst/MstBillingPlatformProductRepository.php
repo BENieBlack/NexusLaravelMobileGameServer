@@ -2,15 +2,14 @@
 
 namespace App\Repositories\Mst;
 
-
-use NexusPersistence\Support\CustomCollection;
 use App\Models\Mst\MstBillingPlatformProduct;
+use NexusPersistence\Support\CustomCollection;
 
 /**
  * MstBillingPlatformProductRepository
  *
  * プラットフォーム課金商品マスターのRepository
- * 
+ *
  * @extends _BaseMstRepository<MstBillingPlatformProduct>
  */
 class MstBillingPlatformProductRepository extends _BaseMstRepository
@@ -20,9 +19,8 @@ class MstBillingPlatformProductRepository extends _BaseMstRepository
     /**
      * プラットフォームと商品IDで課金商品を取得
      *
-     * @param string $billingPlatform 決済プラットフォーム
-     * @param string $platformProductId プラットフォーム商品ID
-     * @return MstBillingPlatformProduct|null
+     * @param  string  $billingPlatform  決済プラットフォーム
+     * @param  string  $platformProductId  プラットフォーム商品ID
      */
     public function findByBillingPlatformAndPlatformProductId(
         string $billingPlatform,
@@ -50,7 +48,7 @@ class MstBillingPlatformProductRepository extends _BaseMstRepository
     /**
      * プラットフォームで絞り込んで有効な商品を取得
      *
-     * @param string $billingPlatform 決済プラットフォーム
+     * @param  string  $billingPlatform  決済プラットフォーム
      * @return CustomCollection<int, MstBillingPlatformProduct>
      */
     public function findAllActiveByBillingPlatform(string $billingPlatform): CustomCollection

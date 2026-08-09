@@ -3,11 +3,10 @@
 namespace Tests\Unit\Repositories\Trx;
 
 use App\Models\Trx\TrxItem;
+use App\Persistence\ApiSession;
 use App\Repositories\Trx\TrxItemRepository;
 use NexusUnitOfWork\Persistence\QueryManager;
-use App\Persistence\ApiSession;
 use NexusUtilities\ClockUtility;
-use Illuminate\Support\Facades\DB;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
 
@@ -16,18 +15,19 @@ class TrxItemRepositoryTest extends TestCase
     use RefreshMultipleDatabases;
 
     protected TrxItemRepository $repository;
+
     protected QueryManager $queryManager;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // ApiSessionを初期化（テスト用のプレイヤーID=1を設定）
         ClockUtility::initialize();
         ApiSession::setSysPlayerId(1);
-        
-        $this->repository = new TrxItemRepository();
-        $this->queryManager = new QueryManager();
+
+        $this->repository = new TrxItemRepository;
+        $this->queryManager = new QueryManager;
     }
 
     /**
@@ -53,7 +53,7 @@ class TrxItemRepositoryTest extends TestCase
         $updatedItem = TrxItem::where('sys_player_id', 1)
             ->where('mst_item_id', 'item_001')
             ->first();
-        
+
         $this->assertEquals(80, $updatedItem->free_amount);
         $this->assertEquals(10, $updatedItem->paid_amount);
     }
@@ -81,7 +81,7 @@ class TrxItemRepositoryTest extends TestCase
         $updatedItem = TrxItem::where('sys_player_id', 1)
             ->where('mst_item_id', 'item_002')
             ->first();
-        
+
         $this->assertEquals(60, $updatedItem->free_amount);
         $this->assertEquals(10, $updatedItem->paid_amount);
     }
@@ -103,7 +103,7 @@ class TrxItemRepositoryTest extends TestCase
         $item->setPaidAmount($item->paid_amount - 10); // 20 - 10 = 10
         $item->setPaidAmount($item->paid_amount - 5);  // 10 - 5 = 5
         $item->setFreeAmount($item->free_amount + 15); // 80 + 15 = 95
-        
+
         $this->repository->setModel($item);
         $this->queryManager->registerRepository($this->repository);
         $this->queryManager->execAllQuery();
@@ -112,7 +112,7 @@ class TrxItemRepositoryTest extends TestCase
         $updatedItem = TrxItem::where('sys_player_id', 1)
             ->where('mst_item_id', 'item_003')
             ->first();
-        
+
         $this->assertEquals(95, $updatedItem->free_amount);
         $this->assertEquals(5, $updatedItem->paid_amount);
     }
@@ -135,7 +135,7 @@ class TrxItemRepositoryTest extends TestCase
         $item1 = TrxItem::where('sys_player_id', 1)
             ->where('mst_item_id', 'item_004')
             ->first();
-        
+
         // リクエスト2: DBから読み込み（free_amount=80, paid_amount=20）
         $item2 = TrxItem::where('sys_player_id', 1)
             ->where('mst_item_id', 'item_004')
@@ -143,19 +143,19 @@ class TrxItemRepositoryTest extends TestCase
 
         // リクエスト1: paid_amount - 10（相対的な更新）
         $item1->setPaidAmount($item1->paid_amount - 10);
-        $repository1 = new TrxItemRepository();
+        $repository1 = new TrxItemRepository;
         $repository1->setModel($item1);
-        $queryManager1 = new QueryManager();
+        $queryManager1 = new QueryManager;
         $queryManager1->registerRepository($repository1);
         $queryManager1->execAllQuery();
 
         // リクエスト2: free_amount - 20（相対的な更新）
         // 注意: item2はまだfree_amount=80を持っているが、相対的な更新により-20が正しく適用される
         $item2->setFreeAmount($item2->free_amount - 20);
-        
-        $repository2 = new TrxItemRepository();
+
+        $repository2 = new TrxItemRepository;
         $repository2->setModel($item2);
-        $queryManager2 = new QueryManager();
+        $queryManager2 = new QueryManager;
         $queryManager2->registerRepository($repository2);
         $queryManager2->execAllQuery();
 
@@ -164,7 +164,7 @@ class TrxItemRepositoryTest extends TestCase
         $finalItem = TrxItem::where('sys_player_id', 1)
             ->where('mst_item_id', 'item_004')
             ->first();
-        
+
         $this->assertEquals(60, $finalItem->free_amount);
         $this->assertEquals(10, $finalItem->paid_amount);
     }
@@ -191,7 +191,7 @@ class TrxItemRepositoryTest extends TestCase
         $createdItem = TrxItem::where('sys_player_id', 1)
             ->where('mst_item_id', 'item_005')
             ->first();
-        
+
         $this->assertNotNull($createdItem);
         $this->assertEquals(40, $createdItem->free_amount);
         $this->assertEquals(10, $createdItem->paid_amount);
@@ -212,10 +212,10 @@ class TrxItemRepositoryTest extends TestCase
 
         // Act: 相対的な変更を記録
         $item->setPaidAmount($item->paid_amount - 10);
-        
+
         // 相対的な変更があることを確認
         $this->assertTrue($item->hasRelativeChanges());
-        
+
         $this->repository->setModel($item);
         $this->queryManager->registerRepository($this->repository);
         $this->queryManager->execAllQuery();

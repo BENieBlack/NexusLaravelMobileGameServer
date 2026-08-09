@@ -17,21 +17,18 @@ class MailboxListUseCase extends _BaseUseCase
 {
     public function __construct(
         private TrxMailboxRepository $trxMailboxRepository,
-    ) {
-    }
+    ) {}
 
     /**
      * メールボックス一覧を取得
      *
-     * @param int $sysPlayerId
-     * @param string|null $category カテゴリフィルタ
-     * @param string|null $priority 優先度フィルタ
-     * @param bool $onlyUnread 未読のみ
-     * @param bool $onlyLocked ロックのみ
-     * @return ListResponse
+     * @param  string|null  $category  カテゴリフィルタ
+     * @param  string|null  $priority  優先度フィルタ
+     * @param  bool  $onlyUnread  未読のみ
+     * @param  bool  $onlyLocked  ロックのみ
      */
     public function exec(
-        int $sysPlayerId, 
+        int $sysPlayerId,
         ?string $category = null,
         ?string $priority = null,
         bool $onlyUnread = false,

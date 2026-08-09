@@ -4,13 +4,13 @@ namespace App\Repositories\Mst;
 
 use App\Models\Mst\MstLoginBonus;
 use App\Models\Mst\MstLoginBonusContent;
-use NexusLogin\Repositories\LoginBonusRepositoryInterface;
 use NexusLogin\Repositories\LoginBonusHistoryRepositoryInterface;
+use NexusLogin\Repositories\LoginBonusRepositoryInterface;
 use NexusUtilities\ClockUtility;
 
 /**
  * MstLoginBonusRepository
- * 
+ *
  * Eloquent ORMを使用したログインボーナスマスタデータへのアクセス実装
  */
 class MstLoginBonusRepository implements LoginBonusRepositoryInterface
@@ -66,7 +66,7 @@ class MstLoginBonusRepository implements LoginBonusRepositoryInterface
         return MstLoginBonusContent::where('mst_login_bonus_id', $loginBonusId)
             ->orderBy('sort_order')
             ->get()
-            ->map(fn($content) => $content->toArray())
+            ->map(fn ($content) => $content->toArray())
             ->all();
     }
 
@@ -82,11 +82,11 @@ class MstLoginBonusRepository implements LoginBonusRepositoryInterface
             ->where('required_absent_days', '<=', $absentDays)
             ->where(function ($query) use ($now) {
                 $query->whereNull('start_at')
-                      ->orWhere('start_at', '<=', $now);
+                    ->orWhere('start_at', '<=', $now);
             })
             ->where(function ($query) use ($now) {
                 $query->whereNull('end_at')
-                      ->orWhere('end_at', '>=', $now);
+                    ->orWhere('end_at', '>=', $now);
             })
             ->orderByDesc('priority')
             ->orderByDesc('required_absent_days')
@@ -119,8 +119,8 @@ class MstLoginBonusRepository implements LoginBonusRepositoryInterface
     /**
      * ログインボーナスIDと日数でコンテンツを取得
      *
-     * @param string $loginBonusId ログインボーナスID
-     * @param int $day 日数
+     * @param  string  $loginBonusId  ログインボーナスID
+     * @param  int  $day  日数
      * @return array コンテンツの配列
      */
     public function findContentsByLoginBonusIdAndDay(string $loginBonusId, int $day): array
@@ -129,7 +129,7 @@ class MstLoginBonusRepository implements LoginBonusRepositoryInterface
         return MstLoginBonusContent::where('mst_login_bonus_id', $loginBonusId)
             ->orderBy('sort_order')
             ->get()
-            ->map(fn($content) => $content->toArray())
+            ->map(fn ($content) => $content->toArray())
             ->all();
     }
 }

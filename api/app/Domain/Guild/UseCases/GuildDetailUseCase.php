@@ -10,21 +10,20 @@ use App\Repositories\Sys\SysGuildRepository;
 
 /**
  * GuildDetailUseCase
- * 
+ *
  * ギルド詳細取得ユースケース
  */
 class GuildDetailUseCase extends _BaseUseCase
 {
     public function __construct(
         private readonly SysGuildRepository $sysGuildRepository,
-    ) {
-    }
+    ) {}
 
     /**
      * ギルド詳細取得処理を実行
      *
-     * @param int $guildId ギルドID
-     * @return GuildDetailResponse
+     * @param  int  $guildId  ギルドID
+     *
      * @throws GameException
      */
     public function exec(int $guildId): GuildDetailResponse

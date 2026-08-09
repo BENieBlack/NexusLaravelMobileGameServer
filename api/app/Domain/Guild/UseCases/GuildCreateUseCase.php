@@ -12,7 +12,7 @@ use NexusGuild\Services\GuildService;
 
 /**
  * GuildCreateUseCase
- * 
+ *
  * ギルド作成ユースケース
  */
 class GuildCreateUseCase extends _BaseUseCase
@@ -20,16 +20,15 @@ class GuildCreateUseCase extends _BaseUseCase
     public function __construct(
         private readonly SysGuildRepository $sysGuildRepository,
         private readonly GuildService $guildService,
-    ) {
-    }
+    ) {}
 
     /**
      * ギルド作成処理を実行
      *
-     * @param int $sysPlayerId プレイヤーID
-     * @param string $name ギルド名
-     * @param string $description ギルド説明
-     * @return GuildCreateResponse
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  string  $name  ギルド名
+     * @param  string  $description  ギルド説明
+     *
      * @throws GameException
      */
     public function exec(int $sysPlayerId, string $name, string $description): GuildCreateResponse

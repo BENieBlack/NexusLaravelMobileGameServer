@@ -2,19 +2,19 @@
 
 namespace App\Domain\Login\Services;
 
-use NexusLogin\Services\_BaseLoginBonusService;
-use NexusResourceDelivery\Services\ResourceDeliveryService;
-use NexusLogin\Repositories\LoginBonusRepositoryInterface;
 use NexusLogin\Repositories\LoginBonusHistoryRepositoryInterface;
-use NexusUtilities\ClockUtility;
+use NexusLogin\Repositories\LoginBonusRepositoryInterface;
+use NexusLogin\Services\_BaseLoginBonusService;
 use NexusPersistence\Support\CustomCollection;
+use NexusResourceDelivery\Services\ResourceDeliveryService;
+use NexusUtilities\ClockUtility;
 
 /**
  * LoginBonusService (Domain層)
  *
  * 通常ログインボーナスの配布処理を担当するサービス
  * _BaseLoginBonusServiceを継承（デフォルト動作そのまま使用）
- * 
+ *
  * 特性:
  * - 毎日日跨ぎ後にもらえる
  * - 設定日数でループする（継承元のデフォルト）
@@ -32,7 +32,7 @@ class LoginBonusService extends _BaseLoginBonusService
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * 今日初回ログインかチェック
      */
     public function isEligible(int $sysPlayerId, ?string $lastLoginAt): bool
@@ -40,7 +40,7 @@ class LoginBonusService extends _BaseLoginBonusService
         $currentTimeString = ClockUtility::nowToString();
 
         // DAY_START_TIMEを考慮して、今日初回ログインかをチェック
-        return $lastLoginAt === null || !ClockUtility::isSameGameDay($currentTimeString, $lastLoginAt);
+        return $lastLoginAt === null || ! ClockUtility::isSameGameDay($currentTimeString, $lastLoginAt);
     }
 
     /**
@@ -70,7 +70,7 @@ class LoginBonusService extends _BaseLoginBonusService
         );
 
         // stdClassに変換して返す
-        return (new CustomCollection($contents))->map(fn($content) => (object) $content);
+        return (new CustomCollection($contents))->map(fn ($content) => (object) $content);
     }
 
     /**
@@ -126,6 +126,7 @@ class LoginBonusService extends _BaseLoginBonusService
     protected function getLoopDays(int $sysPlayerId): ?int
     {
         $loginBonus = $this->bonusRepository->findActiveDailyBonus();
+
         return $loginBonus['loop_days'] ?? null;
     }
 }

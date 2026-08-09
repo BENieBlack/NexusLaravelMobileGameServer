@@ -7,6 +7,7 @@ class MstUnit extends _BaseMst
     public $table = 'mst_unit';
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $fillable = [
@@ -40,10 +41,8 @@ class MstUnit extends _BaseMst
 
     /**
      * レスポンス用配列に変換
-     * 
+     *
      * Note: 主キーが文字列型（semantic ID like "unit_001"）のため、変換不要
-     * 
-     * @return array
      */
     public function toResponseArray(): array
     {
@@ -54,8 +53,6 @@ class MstUnit extends _BaseMst
 
     /**
      * レアリティを取得
-     * 
-     * @return string
      */
     public function getRarity(): string
     {

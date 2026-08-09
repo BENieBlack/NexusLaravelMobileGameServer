@@ -2,13 +2,13 @@
 
 namespace App\Http\Responses\Auth;
 
-use NexusAuth\DTOs\TokenDto;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use NexusAuth\DTOs\TokenDto;
 
 /**
  * SignUpResponse
@@ -19,24 +19,22 @@ use Illuminate\Http\Request;
 class SignUpResponse implements Responsable
 {
     /**
-     * @param SysPlayer $sysPlayer プレイヤー情報
-     * @param SysPlayerDevice $sysPlayerDevice デバイス情報
-     * @param SysPlayerToken $sysPlayerToken トークン情報
-     * @param TokenDto $tokenDto トークン情報DTO
+     * @param  SysPlayer  $sysPlayer  プレイヤー情報
+     * @param  SysPlayerDevice  $sysPlayerDevice  デバイス情報
+     * @param  SysPlayerToken  $sysPlayerToken  トークン情報
+     * @param  TokenDto  $tokenDto  トークン情報DTO
      */
     public function __construct(
         public readonly SysPlayer $sysPlayer,
         public readonly SysPlayerDevice $sysPlayerDevice,
         public readonly SysPlayerToken $sysPlayerToken,
         public readonly TokenDto $tokenDto,
-    ) {
-    }
+    ) {}
 
     /**
      * レスポンスを生成
      *
-     * @param Request $request
-     * @return JsonResponse
+     * @param  Request  $request
      */
     public function toResponse($request): JsonResponse
     {

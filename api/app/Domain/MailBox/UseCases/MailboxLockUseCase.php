@@ -17,16 +17,11 @@ class MailboxLockUseCase extends _BaseUseCase
 {
     public function __construct(
         private TrxMailboxRepository $trxMailboxRepository,
-    ) {
-    }
+    ) {}
 
     /**
      * メールのロック状態を切り替える
      *
-     * @param int $sysPlayerId
-     * @param int $trxMailboxId
-     * @param bool $isLocked
-     * @return LockResponse
      * @throws GameException
      */
     public function exec(int $sysPlayerId, int $trxMailboxId, bool $isLocked): LockResponse

@@ -6,7 +6,7 @@ use NexusPersistence\Models\Trx\_BaseTrx as PersistenceBaseTrx;
 
 /**
  * _BaseTrx
- * 
+ *
  * Trxデータベースのモデル基底クラス
  * Unit of Workパターンで管理されるトランザクションデータ
  */

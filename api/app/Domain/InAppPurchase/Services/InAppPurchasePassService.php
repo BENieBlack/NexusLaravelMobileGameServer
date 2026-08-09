@@ -5,8 +5,8 @@ namespace App\Domain\InAppPurchase\Services;
 use App\Models\Mst\MstInAppPurchase;
 use App\Models\Trx\TrxInAppPurchaseEffect;
 use App\Repositories\Trx\TrxInAppPurchaseEffectRepository;
-use NexusUtilities\ClockUtility;
 use NexusPersistence\Support\CustomCollection;
+use NexusUtilities\ClockUtility;
 
 /**
  * InAppPurchasePassService
@@ -17,19 +17,17 @@ class InAppPurchasePassService
 {
     public function __construct(
         private readonly TrxInAppPurchaseEffectRepository $trxInAppPurchaseEffectRepository,
-    ) {
-    }
+    ) {}
 
     /**
      * Pass購入時に効果を適用
      *
-     * @param int $sysPlayerId プレイヤーID
-     * @param MstInAppPurchase $mstInAppPurchase Pass商品マスター
-     * @return void
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  MstInAppPurchase  $mstInAppPurchase  Pass商品マスター
      */
     public function applyPassEffects(int $sysPlayerId, MstInAppPurchase $mstInAppPurchase): void
     {
-        
+
         // 商品の効果を取得
         $effectCollection = $mstInAppPurchase->effects;
 
@@ -59,16 +57,16 @@ class InAppPurchasePassService
      * プレイヤーの有効なPass効果を取得
      * 有効期限切れの効果にis_deleteフラグを立てる
      *
-     * @param int $sysPlayerId プレイヤーID
+     * @param  int  $sysPlayerId  プレイヤーID
      * @return CustomCollection<int, TrxInAppPurchaseEffect>
      */
     public function getActiveEffects(int $sysPlayerId): CustomCollection
     {
-        
+
         // 全ての効果を取得
         $effects = $this->trxInAppPurchaseEffectRepository->getMapBySysPlayerId($sysPlayerId);
-        
-        $activeEffects = new CustomCollection();
+
+        $activeEffects = new CustomCollection;
 
         // 有効な効果のみをフィルタし、無効な効果にis_deleteフラグを立てる
         foreach ($effects as $effect) {
@@ -87,8 +85,8 @@ class InAppPurchasePassService
     /**
      * プレイヤーの特定効果タイプの効果値の合計を取得
      *
-     * @param int $sysPlayerId プレイヤーID
-     * @param string $effectType 効果タイプ
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  string  $effectType  効果タイプ
      * @return float 効果値の合計
      */
     public function getTotalEffectValue(int $sysPlayerId, string $effectType): float
@@ -101,8 +99,7 @@ class InAppPurchasePassService
     /**
      * Pass効果を無効化
      *
-     * @param int $mstInAppPurchaseId 商品ID
-     * @return void
+     * @param  int  $mstInAppPurchaseId  商品ID
      */
     public function deactivatePassEffects(int $mstInAppPurchaseId): void
     {

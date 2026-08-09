@@ -41,12 +41,11 @@ class LogInAppPurchase extends _BaseLog
      * プラットフォーム定数
      */
     public const PLATFORM_APPLE = 'apple';
+
     public const PLATFORM_GOOGLE = 'google';
 
     /**
      * 利用可能なプラットフォーム一覧を取得
-     *
-     * @return array
      */
     public static function getAvailablePlatforms(): array
     {
@@ -58,8 +57,6 @@ class LogInAppPurchase extends _BaseLog
 
     /**
      * Appleプラットフォームかチェック
-     *
-     * @return bool
      */
     public function isApple(): bool
     {
@@ -68,8 +65,6 @@ class LogInAppPurchase extends _BaseLog
 
     /**
      * Googleプラットフォームかチェック
-     *
-     * @return bool
      */
     public function isGoogle(): bool
     {

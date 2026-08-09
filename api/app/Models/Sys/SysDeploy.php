@@ -2,17 +2,17 @@
 
 namespace App\Models\Sys;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * SysDeploy Model
- * 
+ *
  * デプロイ管理テーブル
  * マスターデータとアセットデータの配信バージョンを管理
  */
 class SysDeploy extends _BaseSys
 {
-
     /**
      * テーブル名
      */
@@ -45,8 +45,6 @@ class SysDeploy extends _BaseSys
 
     /**
      * マスターデプロイとのリレーション
-     *
-     * @return BelongsTo
      */
     public function deployMaster(): BelongsTo
     {
@@ -55,8 +53,6 @@ class SysDeploy extends _BaseSys
 
     /**
      * アセットデプロイとのリレーション
-     *
-     * @return BelongsTo
      */
     public function deployAsset(): BelongsTo
     {
@@ -65,8 +61,6 @@ class SysDeploy extends _BaseSys
 
     /**
      * deploy_keyを取得
-     *
-     * @return int|null
      */
     public function getDeployKey(): ?int
     {
@@ -75,9 +69,6 @@ class SysDeploy extends _BaseSys
 
     /**
      * deploy_keyを設定
-     *
-     * @param int $deployKey
-     * @return void
      */
     public function setDeployKey(int $deployKey): void
     {
@@ -86,8 +77,6 @@ class SysDeploy extends _BaseSys
 
     /**
      * start_atを取得
-     *
-     * @return \DateTime|null
      */
     public function getStartAt(): ?\DateTime
     {
@@ -96,9 +85,6 @@ class SysDeploy extends _BaseSys
 
     /**
      * start_atを設定
-     *
-     * @param \DateTime|string $startAt
-     * @return void
      */
     public function setStartAt(\DateTime|string $startAt): void
     {
@@ -107,8 +93,6 @@ class SysDeploy extends _BaseSys
 
     /**
      * sys_deploy_master_idを取得
-     *
-     * @return int|null
      */
     public function getSysDeployMasterId(): ?int
     {
@@ -117,9 +101,6 @@ class SysDeploy extends _BaseSys
 
     /**
      * sys_deploy_master_idを設定
-     *
-     * @param int $sysDeployMasterId
-     * @return void
      */
     public function setSysDeployMasterId(int $sysDeployMasterId): void
     {
@@ -128,8 +109,6 @@ class SysDeploy extends _BaseSys
 
     /**
      * sys_deploy_asset_idを取得
-     *
-     * @return int|null
      */
     public function getSysDeployAssetId(): ?int
     {
@@ -138,9 +117,6 @@ class SysDeploy extends _BaseSys
 
     /**
      * sys_deploy_asset_idを設定
-     *
-     * @param int $sysDeployAssetId
-     * @return void
      */
     public function setSysDeployAssetId(int $sysDeployAssetId): void
     {
@@ -149,9 +125,6 @@ class SysDeploy extends _BaseSys
 
     /**
      * is_activeを設定
-     *
-     * @param bool $isActive
-     * @return void
      */
     public function setIsActive(bool $isActive): void
     {
@@ -166,7 +139,7 @@ class SysDeploy extends _BaseSys
     public function parseDeployKey(): array
     {
         $keyString = (string) $this->deploy_key;
-        
+
         return [
             'year' => (int) substr($keyString, 0, 4),
             'month' => (int) substr($keyString, 4, 2),
@@ -177,8 +150,6 @@ class SysDeploy extends _BaseSys
 
     /**
      * デプロイが有効かチェック
-     *
-     * @return bool
      */
     public function isActive(): bool
     {
@@ -187,8 +158,6 @@ class SysDeploy extends _BaseSys
 
     /**
      * デプロイが配信開始済みかチェック
-     *
-     * @return bool
      */
     public function isStarted(): bool
     {
@@ -198,8 +167,6 @@ class SysDeploy extends _BaseSys
     /**
      * デプロイがダウンロード可能かチェック
      * 有効かつ配信開始日時を過ぎている場合にtrue
-     *
-     * @return bool
      */
     public function isDownloadable(): bool
     {
@@ -209,8 +176,8 @@ class SysDeploy extends _BaseSys
     /**
      * 現在有効なデプロイを取得（スコープ）
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeActive($query)
     {
@@ -220,19 +187,17 @@ class SysDeploy extends _BaseSys
     /**
      * ダウンロード可能なデプロイを取得（スコープ）
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeDownloadable($query)
     {
         return $query->where('is_active', true)
-                     ->where('start_at', '<=', now());
+            ->where('start_at', '<=', now());
     }
 
     /**
      * 最新のダウンロード可能なデプロイを取得
-     *
-     * @return self|null
      */
     public static function getLatestDownloadable(): ?self
     {
@@ -243,20 +208,18 @@ class SysDeploy extends _BaseSys
 
     /**
      * レスポンス用配列に変換
-     * 
+     *
      * データベース層の'id'をAPI層の'sys_deploy_id'に変換
-     * 
-     * @return array
      */
     public function toResponseArray(): array
     {
         $array = parent::toResponseArray();
-        
+
         if (isset($array['id'])) {
             $array['sys_deploy_id'] = $array['id'];
             unset($array['id']);
         }
-        
+
         return $array;
     }
 }

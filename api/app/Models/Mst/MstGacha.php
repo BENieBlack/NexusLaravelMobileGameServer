@@ -4,7 +4,7 @@ namespace App\Models\Mst;
 
 /**
  * MstGacha Model
- * 
+ *
  * @property int $deploy_key
  * @property string $id
  * @property int $sort_desc
@@ -19,6 +19,7 @@ class MstGacha extends _BaseMst
     public $table = 'mst_gacha';
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     /** @var array<int, string> */

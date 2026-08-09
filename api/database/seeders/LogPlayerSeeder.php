@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class LogPlayerSeeder extends Seeder
 {
@@ -33,11 +32,12 @@ class LogPlayerSeeder extends Seeder
 
         if ($accessLogs->isEmpty()) {
             $this->command->warn('⚠️  LogPlayerSeeder: No matching access logs found. Run LogAccessSeeder first.');
+
             return;
         }
 
         $logCount = 0;
-        
+
         // log_accessのunique_request_idを使用してログを作成
         foreach ($accessLogs as $accessLog) {
             $beforeLevel = rand(1, 99);

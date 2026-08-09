@@ -13,8 +13,6 @@ class LockRequest extends _BaseRequest
 {
     /**
      * バリデーションルール
-     *
-     * @return array
      */
     public function rules(): array
     {
@@ -26,21 +24,17 @@ class LockRequest extends _BaseRequest
 
     /**
      * メールIDを取得
-     *
-     * @return int
      */
     public function getTrxMailboxId(): int
     {
-        return (int)$this->input('trx_mailbox_id');
+        return (int) $this->input('trx_mailbox_id');
     }
 
     /**
      * ロックフラグを取得
-     *
-     * @return bool
      */
     public function getIsLocked(): bool
     {
-        return (bool)$this->input('is_locked');
+        return (bool) $this->input('is_locked');
     }
 }

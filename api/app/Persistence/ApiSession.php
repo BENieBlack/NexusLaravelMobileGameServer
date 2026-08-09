@@ -2,25 +2,25 @@
 
 namespace App\Persistence;
 
-use NexusUtilities\ClockUtility;
-use NexusSecurity\Contracts\PlayerSessionInterface;
-use NexusUnitOfWork\Contracts\PlayerSessionResolverInterface;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
+use NexusSecurity\Contracts\PlayerSessionInterface;
+use NexusUnitOfWork\Contracts\PlayerSessionResolverInterface;
+use NexusUtilities\ClockUtility;
 
 /**
  * ApiSession
- * 
+ *
  * APIコール時に確定したリクエストコンテキスト情報を保持する汎用クラス
  * リクエストスコープで管理され、Middlewareで初期化される
- * 
+ *
  * 管理している情報:
  * - sysPlayerId: 認証されたプレイヤーID
  * - now: リクエスト開始時の固定時刻（ClockUtility::now()）
- * 
+ *
  * 使用例:
  * - Middleware: ApiSession::setSysPlayerId($sysPlayerId)
- * - Repository/Service/UseCase: 
+ * - Repository/Service/UseCase:
  *   - $sysPlayerId = ApiSession::getSysPlayerId()
  *   - $now = ApiSession::getNow()
  * - インスタンス操作: app(ApiSession::class)->getPlayerId()
@@ -29,30 +29,24 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
 {
     /**
      * プレイヤーID
-     *
-     * @var int|null
      */
     private ?int $sysPlayerId = null;
 
     /**
      * リクエスト開始時刻（固定値）
-     *
-     * @var CarbonImmutable|null
      */
     private ?CarbonImmutable $now = null;
 
     /**
      * トランザクションDB接続名のキャッシュ
-     *
-     * @var string|null
      */
     private ?string $connectionName = null;
 
     /**
      * コンストラクタ
      *
-     * @param int|null $sysPlayerId プレイヤーID（オプション）
-     * @param CarbonImmutable|null $now リクエスト開始時刻（オプション）
+     * @param  int|null  $sysPlayerId  プレイヤーID（オプション）
+     * @param  CarbonImmutable|null  $now  リクエスト開始時刻（オプション）
      */
     public function __construct(?int $sysPlayerId = null, ?CarbonImmutable $now = null)
     {
@@ -63,8 +57,7 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
     /**
      * プレイヤーIDを設定（インスタンスメソッド）
      *
-     * @param int $sysPlayerId プレイヤーID
-     * @return void
+     * @param  int  $sysPlayerId  プレイヤーID
      */
     public function setPlayerIdInstance(int $sysPlayerId): void
     {
@@ -75,6 +68,7 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
      * プレイヤーIDを取得（インスタンスメソッド）
      *
      * @return int プレイヤーID
+     *
      * @throws \RuntimeException プレイヤーIDが設定されていない場合
      */
     public function getPlayerId(): int
@@ -90,8 +84,6 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
 
     /**
      * プレイヤーIDが設定されているか確認（インスタンスメソッド）
-     *
-     * @return bool
      */
     public function hasPlayerId(): bool
     {
@@ -101,8 +93,7 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
     /**
      * リクエスト開始時刻を設定（インスタンスメソッド）
      *
-     * @param CarbonImmutable $now リクエスト開始時刻
-     * @return void
+     * @param  CarbonImmutable  $now  リクエスト開始時刻
      */
     public function setNow(CarbonImmutable $now): void
     {
@@ -113,6 +104,7 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
      * リクエスト開始時刻を取得（インスタンスメソッド）
      *
      * @return CarbonImmutable リクエスト開始時刻
+     *
      * @throws \RuntimeException リクエスト開始時刻が設定されていない場合
      */
     public function getNowValue(): CarbonImmutable
@@ -128,8 +120,6 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
 
     /**
      * リクエスト開始時刻が設定されているか確認（インスタンスメソッド）
-     *
-     * @return bool
      */
     public function hasNowValue(): bool
     {
@@ -138,8 +128,6 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
 
     /**
      * セッション情報をクリア（主にテスト用）
-     *
-     * @return void
      */
     public function clear(): void
     {
@@ -150,7 +138,7 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
 
     /**
      * プレイヤーIDからトランザクションDB接続名を取得（インスタンスメソッド）
-     * 
+     *
      * P1-3: Redisキャッシュを使用してシャード解決のDBクエリを削減
      * キャッシュ階層:
      * 1. インスタンスキャッシュ（リクエストスコープ）
@@ -158,6 +146,7 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
      * 3. DBクエリ（キャッシュミス時のみ）
      *
      * @return string 接続名（trx1 または trx2）
+     *
      * @throws \RuntimeException プレイヤーIDが設定されていない場合、またはシャーディング情報が見つからない場合
      */
     public function getConnectionNameValue(): string
@@ -174,6 +163,7 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
         $cachedConnection = \Cache::get($cacheKey);
         if ($cachedConnection !== null) {
             $this->connectionName = $cachedConnection;
+
             return $this->connectionName;
         }
 
@@ -186,8 +176,8 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
 
         if ($shardingNodePlayer === null) {
             throw new \RuntimeException(
-                "Sharding node assignment not found for player ID: {$sysPlayerId}. " .
-                "Player may not be assigned to a shard."
+                "Sharding node assignment not found for player ID: {$sysPlayerId}. ".
+                'Player may not be assigned to a shard.'
             );
         }
 
@@ -204,7 +194,7 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
         }
 
         // node_noに基づいて接続名を決定（node_no: 1 → trx1, node_no: 2 → trx2）
-        $this->connectionName = 'trx' . $shardingNode->node_no;
+        $this->connectionName = 'trx'.$shardingNode->node_no;
 
         // Redisにキャッシュ（TTL: 1時間、シャード割り当ては頻繁に変わらない想定）
         \Cache::put($cacheKey, $this->connectionName, 3600);
@@ -217,14 +207,13 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
      * Middlewareから簡単に呼び出せるヘルパーメソッド
      * リクエスト開始時刻はClockUtility::now()で自動的に設定される
      *
-     * @param int $sysPlayerId プレイヤーID
-     * @return void
+     * @param  int  $sysPlayerId  プレイヤーID
      */
     public static function setSysPlayerId(int $sysPlayerId): void
     {
         $now = ClockUtility::now();
-        
-        if (!app()->bound(self::class)) {
+
+        if (! app()->bound(self::class)) {
             app()->instance(self::class, new self($sysPlayerId, $now));
         } else {
             $instance = app(self::class);
@@ -237,8 +226,7 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
      * 静的ヘルパー: プレイヤーIDを設定（PlayerSessionInterface実装）
      * セキュリティミドルウェアパッケージからの呼び出し用
      *
-     * @param int $playerId プレイヤーID
-     * @return void
+     * @param  int  $playerId  プレイヤーID
      */
     public static function setPlayerId(int $playerId): void
     {
@@ -250,6 +238,7 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
      * どこからでも簡単に呼び出せるヘルパーメソッド
      *
      * @return int プレイヤーID
+     *
      * @throws \RuntimeException プレイヤーIDが設定されていない場合
      */
     public static function getSysPlayerId(): int
@@ -259,12 +248,10 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
 
     /**
      * 静的ヘルパー: プレイヤーIDが設定されているか確認
-     *
-     * @return bool
      */
     public static function hasSysPlayerId(): bool
     {
-        if (!app()->bound(self::class)) {
+        if (! app()->bound(self::class)) {
             return false;
         }
 
@@ -276,6 +263,7 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
      * どこからでも簡単に呼び出せるヘルパーメソッド
      *
      * @return CarbonImmutable リクエスト開始時刻
+     *
      * @throws \RuntimeException リクエスト開始時刻が設定されていない場合
      */
     public static function getNow(): CarbonImmutable
@@ -285,12 +273,10 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
 
     /**
      * 静的ヘルパー: リクエスト開始時刻が設定されているか確認
-     *
-     * @return bool
      */
     public static function hasNow(): bool
     {
-        if (!app()->bound(self::class)) {
+        if (! app()->bound(self::class)) {
             return false;
         }
 
@@ -299,8 +285,6 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
 
     /**
      * 静的ヘルパー: テスト用にApiSessionをクリア
-     *
-     * @return void
      */
     public static function clearForTest(): void
     {
@@ -313,8 +297,9 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
      * 静的ヘルパー: トランザクションDB接続名を取得
      * プレイヤーIDに基づいてシャーディングされたDB接続名を返す
      *
-     * @param string $baseConnection ベース接続名（デフォルト: 'trx'）
+     * @param  string  $baseConnection  ベース接続名（デフォルト: 'trx'）
      * @return string 接続名（trx1 または trx2）
+     *
      * @throws \RuntimeException プレイヤーIDが設定されていない場合、またはシャーディング情報が見つからない場合
      */
     public static function getConnectionName(string $baseConnection = 'trx'): string

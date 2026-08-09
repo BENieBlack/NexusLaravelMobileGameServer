@@ -16,7 +16,7 @@ class SysPlayerRepositoryTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->repository = new SysPlayerRepository();
+        $this->repository = new SysPlayerRepository;
     }
 
     /**
@@ -73,8 +73,6 @@ class SysPlayerRepositoryTest extends TestCase
         $this->assertEquals(2, $queuedModels[0]->level);
         $this->assertTrue($queuedModels[0]->exists);
     }
-
-
 
     /**
      * Test selectById returns player from memory cache
@@ -234,10 +232,10 @@ class SysPlayerRepositoryTest extends TestCase
 
         // Act - Load via selectById
         $result1 = $this->repository->selectById($sysPlayer->id);
-        
+
         // Access same player via my_id (should use memory cache)
         $result2 = $this->repository->selectByMyId('PLY00008');
-        
+
         // Access same player via uuid (should use memory cache)
         $result3 = $this->repository->selectByUuid('test-uuid-008');
 
@@ -331,7 +329,7 @@ class SysPlayerRepositoryTest extends TestCase
         $this->assertNotEmpty($sysPlayer->my_id);
         $this->assertNotEmpty($sysPlayer->name);
         $this->assertEquals(8, strlen($sysPlayer->my_id)); // my_id should be 8 characters
-        
+
         // Verify it was actually inserted into the database
         $dbPlayer = SysPlayer::find($sysPlayer->id);
         $this->assertNotNull($dbPlayer);
@@ -353,7 +351,7 @@ class SysPlayerRepositoryTest extends TestCase
         $this->assertNotEquals($player1->my_id, $player2->my_id);
         $this->assertNotEquals($player1->my_id, $player3->my_id);
         $this->assertNotEquals($player2->my_id, $player3->my_id);
-        
+
         // All should have IDs
         $this->assertNotNull($player1->id);
         $this->assertNotNull($player2->id);

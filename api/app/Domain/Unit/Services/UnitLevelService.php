@@ -12,10 +12,10 @@ use NexusLevel\Services\_BaseLevelService;
 
 /**
  * UnitLevelService
- * 
+ *
  * ユニットレベル管理を担当するサービス
  * _BaseLevelServiceを継承して、ユニット固有のレベルアップ処理を実装
- * 
+ *
  * レベルアップ仕様:
  * - 経験値は累積方式（リセットされない）
  * - レアリティごとに最大レベルが異なる
@@ -26,29 +26,25 @@ class UnitLevelService extends _BaseLevelService
 {
     /**
      * コンストラクタ
-     *
-     * @param MstUnitLevelRepository $mstUnitLevelRepository
-     * @param MstUnitRepository $mstUnitRepository
-     * @param TrxUnitRepository $trxUnitRepository
      */
     public function __construct(
         private readonly MstUnitLevelRepository $mstUnitLevelRepository,
         private readonly MstUnitRepository $mstUnitRepository,
         private readonly TrxUnitRepository $trxUnitRepository,
-    ) {
-    }
+    ) {}
 
     /**
      * ユニットのレベル情報を取得
-     * 
-     * @param int $trxUnitId trx_unit.id（プレイヤー所有ユニット）
+     *
+     * @param  int  $trxUnitId  trx_unit.id（プレイヤー所有ユニット）
      * @return array{level: int, exp: int, exp_to_next: int|null, rarity: string, max_level: int}
+     *
      * @throws \Exception ユニットが存在しない場合
      */
     public function getUnitLevel(int $trxUnitId): array
     {
         $trxUnit = $this->trxUnitRepository->selectById($trxUnitId);
-        
+
         if ($trxUnit === null) {
             throw TransactionDataException::unit($trxUnitId);
         }
@@ -75,8 +71,8 @@ class UnitLevelService extends _BaseLevelService
     /**
      * ユニットに経験値を加算してレベルアップ処理を行う
      *
-     * @param int $trxUnitId trx_unit.id（プレイヤー所有ユニット）
-     * @param int $exp 加算する経験値
+     * @param  int  $trxUnitId  trx_unit.id（プレイヤー所有ユニット）
+     * @param  int  $exp  加算する経験値
      * @return array{
      *   is_leveled_up: bool,
      *   before_level: int,
@@ -86,6 +82,7 @@ class UnitLevelService extends _BaseLevelService
      *   rarity: string,
      *   max_level: int
      * }
+     *
      * @throws \Exception ユニットが存在しない場合
      */
     public function addExpWithDetails(int $trxUnitId, int $exp): array
@@ -95,22 +92,22 @@ class UnitLevelService extends _BaseLevelService
         if ($trxUnit === null) {
             throw TransactionDataException::unit($trxUnitId);
         }
-        
+
         $mstUnit = $this->mstUnitRepository->selectById($trxUnit->getMstUnitId());
         if ($mstUnit === null) {
             throw MasterDataException::unit($trxUnit->getMstUnitId());
         }
-        
+
         $rarity = $mstUnit->getRarity();
         $maxLevel = $this->mstUnitLevelRepository->getMaxLevel($rarity) ?? 100;
-        
+
         // 基底クラスのテンプレートメソッドを呼び出し
         $result = parent::addExp($trxUnitId, $exp);
-        
+
         // ユニット固有の戻り値を追加
         $trxUnit = $this->trxUnitRepository->selectById($trxUnitId);
         $expToNext = $this->getExpToNextLevel($rarity, $trxUnit->getLevel(), $trxUnit->getLevelExp());
-        
+
         return [
             ...$result,
             'exp_to_next' => $expToNext,
@@ -121,22 +118,22 @@ class UnitLevelService extends _BaseLevelService
 
     /**
      * 次のレベルまでに必要な経験値を取得
-     * 
-     * @param string|null $rarity レアリティ
-     * @param int $currentLevel 現在のレベル
-     * @param int $currentExp 現在の累積経験値
+     *
+     * @param  string|null  $rarity  レアリティ
+     * @param  int  $currentLevel  現在のレベル
+     * @param  int  $currentExp  現在の累積経験値
      * @return int|null 必要な経験値（最大レベルの場合はnull）
      */
     public function getExpToNextLevel(?string $rarity, int $currentLevel, int $currentExp): ?int
     {
         $nextLevel = $currentLevel + 1;
         $nextLevelData = $this->mstUnitLevelRepository->selectByRarityAndLevel($rarity, $nextLevel);
-        
+
         if ($nextLevelData === null) {
             // 最大レベルに達している
             return null;
         }
-        
+
         return max(0, $nextLevelData->required_exp - $currentExp);
     }
 
@@ -150,11 +147,11 @@ class UnitLevelService extends _BaseLevelService
     protected function getEntity(mixed $id): object
     {
         $unit = $this->trxUnitRepository->selectById($id);
-        
+
         if ($unit === null) {
             throw TransactionDataException::unit($id);
         }
-        
+
         return $unit;
     }
 
@@ -165,11 +162,11 @@ class UnitLevelService extends _BaseLevelService
     {
         /** @var TrxUnit $entity */
         $mstUnit = $this->mstUnitRepository->selectById($entity->getMstUnitId());
-        
+
         if ($mstUnit === null) {
             throw MasterDataException::unit($entity->getMstUnitId());
         }
-        
+
         return $mstUnit->getRarity();
     }
 

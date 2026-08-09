@@ -7,7 +7,7 @@ use App\Models\Sys\SysFriendApply;
 
 /**
  * ApplyAcceptResponse
- * 
+ *
  * フレンド申請承認APIのレスポンス
  */
 class ApplyAcceptResponse extends _BaseResponse
@@ -19,14 +19,10 @@ class ApplyAcceptResponse extends _BaseResponse
         public readonly string $status,
         public readonly string $createdAt,
         public readonly string $updatedAt,
-    ) {
-    }
+    ) {}
 
     /**
      * SysFriendApplyモデルからレスポンスを生成
-     *
-     * @param SysFriendApply $sysFriendApply
-     * @return self
      */
     public static function fromModel(SysFriendApply $sysFriendApply): self
     {

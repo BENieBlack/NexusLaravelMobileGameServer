@@ -6,7 +6,7 @@ use App\Http\Responses\_BaseResponse;
 
 /**
  * MeResponse
- * 
+ *
  * 認証済みプレイヤー情報レスポンス
  * クライアントに必要最小限の情報のみを返す
  */

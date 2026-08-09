@@ -7,12 +7,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * SysShardingNode Model
- * 
+ *
  * シャーディングノード（各データベースインスタンス）を管理するモデル
  */
 class SysShardingNode extends _BaseSys
 {
-
     /**
      * テーブル名
      */
@@ -56,13 +55,13 @@ class SysShardingNode extends _BaseSys
      * ノードステータスの定数
      */
     public const STATUS_ACTIVE = 'active';
+
     public const STATUS_INACTIVE = 'inactive';
+
     public const STATUS_MAINTENANCE = 'maintenance';
 
     /**
      * 利用可能なステータス一覧を取得
-     *
-     * @return array
      */
     public static function getAvailableStatuses(): array
     {
@@ -75,8 +74,6 @@ class SysShardingNode extends _BaseSys
 
     /**
      * sys_sharding_idを取得
-     *
-     * @return int|null
      */
     public function getSysShardingId(): ?int
     {
@@ -85,9 +82,6 @@ class SysShardingNode extends _BaseSys
 
     /**
      * sys_sharding_idを設定
-     *
-     * @param int $sysShardingId
-     * @return void
      */
     public function setSysShardingId(int $sysShardingId): void
     {
@@ -96,8 +90,6 @@ class SysShardingNode extends _BaseSys
 
     /**
      * node_nameを取得
-     *
-     * @return string|null
      */
     public function getNodeName(): ?string
     {
@@ -106,9 +98,6 @@ class SysShardingNode extends _BaseSys
 
     /**
      * node_nameを設定
-     *
-     * @param string $nodeName
-     * @return void
      */
     public function setNodeName(string $nodeName): void
     {
@@ -117,8 +106,6 @@ class SysShardingNode extends _BaseSys
 
     /**
      * node_noを取得
-     *
-     * @return int|null
      */
     public function getNodeNo(): ?int
     {
@@ -127,9 +114,6 @@ class SysShardingNode extends _BaseSys
 
     /**
      * node_noを設定
-     *
-     * @param int $nodeNo
-     * @return void
      */
     public function setNodeNo(int $nodeNo): void
     {
@@ -138,8 +122,6 @@ class SysShardingNode extends _BaseSys
 
     /**
      * weightを取得
-     *
-     * @return int|null
      */
     public function getWeight(): ?int
     {
@@ -148,9 +130,6 @@ class SysShardingNode extends _BaseSys
 
     /**
      * weightを設定
-     *
-     * @param int $weight
-     * @return void
      */
     public function setWeight(int $weight): void
     {
@@ -159,8 +138,6 @@ class SysShardingNode extends _BaseSys
 
     /**
      * statusを取得
-     *
-     * @return string|null
      */
     public function getStatus(): ?string
     {
@@ -169,9 +146,6 @@ class SysShardingNode extends _BaseSys
 
     /**
      * statusを設定
-     *
-     * @param string $status
-     * @return void
      */
     public function setStatus(string $status): void
     {
@@ -180,9 +154,6 @@ class SysShardingNode extends _BaseSys
 
     /**
      * is_writableを設定
-     *
-     * @param bool $isWritable
-     * @return void
      */
     public function setIsWritable(bool $isWritable): void
     {
@@ -191,9 +162,6 @@ class SysShardingNode extends _BaseSys
 
     /**
      * is_readableを設定
-     *
-     * @param bool $isReadable
-     * @return void
      */
     public function setIsReadable(bool $isReadable): void
     {
@@ -202,8 +170,6 @@ class SysShardingNode extends _BaseSys
 
     /**
      * max_connectionsを取得
-     *
-     * @return int|null
      */
     public function getMaxConnections(): ?int
     {
@@ -212,9 +178,6 @@ class SysShardingNode extends _BaseSys
 
     /**
      * max_connectionsを設定
-     *
-     * @param int $maxConnections
-     * @return void
      */
     public function setMaxConnections(int $maxConnections): void
     {
@@ -223,8 +186,6 @@ class SysShardingNode extends _BaseSys
 
     /**
      * current_player_countを取得
-     *
-     * @return int|null
      */
     public function getCurrentPlayerCount(): ?int
     {
@@ -233,9 +194,6 @@ class SysShardingNode extends _BaseSys
 
     /**
      * current_player_countを設定
-     *
-     * @param int $currentPlayerCount
-     * @return void
      */
     public function setCurrentPlayerCount(int $currentPlayerCount): void
     {
@@ -244,8 +202,6 @@ class SysShardingNode extends _BaseSys
 
     /**
      * シャーディング設定とのリレーション
-     *
-     * @return BelongsTo
      */
     public function sharding(): BelongsTo
     {
@@ -254,8 +210,6 @@ class SysShardingNode extends _BaseSys
 
     /**
      * プレイヤー割り当てとのリレーション
-     *
-     * @return HasMany
      */
     public function playerAssignments(): HasMany
     {
@@ -264,8 +218,6 @@ class SysShardingNode extends _BaseSys
 
     /**
      * ノードがアクティブかチェック
-     *
-     * @return bool
      */
     public function isActive(): bool
     {
@@ -274,8 +226,6 @@ class SysShardingNode extends _BaseSys
 
     /**
      * ノードが書き込み可能かチェック
-     *
-     * @return bool
      */
     public function isWritable(): bool
     {
@@ -284,8 +234,6 @@ class SysShardingNode extends _BaseSys
 
     /**
      * ノードが読み込み可能かチェック
-     *
-     * @return bool
      */
     public function isReadable(): bool
     {
@@ -294,8 +242,6 @@ class SysShardingNode extends _BaseSys
 
     /**
      * ノードがメンテナンス中かチェック
-     *
-     * @return bool
      */
     public function isInMaintenance(): bool
     {
@@ -304,20 +250,16 @@ class SysShardingNode extends _BaseSys
 
     /**
      * ノードがプレイヤーを受け入れ可能かチェック
-     *
-     * @return bool
      */
     public function canAcceptPlayer(): bool
     {
-        return $this->isActive() 
-            && $this->isWritable() 
+        return $this->isActive()
+            && $this->isWritable()
             && $this->current_player_count < $this->max_connections;
     }
 
     /**
      * ノードの使用率を取得（0-100）
-     *
-     * @return float
      */
     public function getUsagePercentage(): float
     {
@@ -330,8 +272,6 @@ class SysShardingNode extends _BaseSys
 
     /**
      * ノード番号から接続名を取得
-     *
-     * @return string
      */
     public function getTrxConnectionName(): string
     {
@@ -340,8 +280,6 @@ class SysShardingNode extends _BaseSys
 
     /**
      * データベース接続設定をconfig/database.phpから取得
-     *
-     * @return array|null
      */
     public function getConnectionConfig(): ?array
     {
@@ -350,8 +288,6 @@ class SysShardingNode extends _BaseSys
 
     /**
      * プレイヤー数をインクリメント
-     *
-     * @return bool
      */
     public function incrementPlayerCount(): bool
     {
@@ -360,33 +296,30 @@ class SysShardingNode extends _BaseSys
 
     /**
      * プレイヤー数をデクリメント
-     *
-     * @return bool
      */
     public function decrementPlayerCount(): bool
     {
         if ($this->current_player_count > 0) {
             return $this->decrement('current_player_count') > 0;
         }
+
         return false;
     }
 
     /**
      * レスポンス用配列に変換
-     * 
+     *
      * データベース層の'id'をAPI層の'sys_sharding_node_id'に変換
-     * 
-     * @return array
      */
     public function toResponseArray(): array
     {
         $array = parent::toResponseArray();
-        
+
         if (isset($array['id'])) {
             $array['sys_sharding_node_id'] = $array['id'];
             unset($array['id']);
         }
-        
+
         return $array;
     }
 }

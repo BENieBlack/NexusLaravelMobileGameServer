@@ -4,10 +4,10 @@ namespace App\Exceptions;
 
 /**
  * MasterDataException
- * 
+ *
  * マスターデータ（mst database）が見つからない場合の例外クラス
  * 静的ファクトリーメソッドでマスターデータごとの例外を生成
- * 
+ *
  * 使用例:
  * - MstUnit, MstItem, MstUnitLevel などが見つからない場合
  * - マスター設定ミスやデータ不整合の検出に使用
@@ -17,8 +17,7 @@ class MasterDataException extends GameException
     /**
      * ユニットマスターデータが見つからない
      *
-     * @param string $mstUnitId ユニットマスターID
-     * @return self
+     * @param  string  $mstUnitId  ユニットマスターID
      */
     public static function unit(string $mstUnitId): self
     {
@@ -31,8 +30,7 @@ class MasterDataException extends GameException
     /**
      * アイテムマスターデータが見つからない
      *
-     * @param string $mstItemId アイテムマスターID
-     * @return self
+     * @param  string  $mstItemId  アイテムマスターID
      */
     public static function item(string $mstItemId): self
     {
@@ -45,9 +43,8 @@ class MasterDataException extends GameException
     /**
      * レベルマスターデータが見つからない
      *
-     * @param string $rarity レアリティ
-     * @param int $level レベル
-     * @return self
+     * @param  string  $rarity  レアリティ
+     * @param  int  $level  レベル
      */
     public static function unitLevel(string $rarity, int $level): self
     {
@@ -60,8 +57,7 @@ class MasterDataException extends GameException
     /**
      * プレイヤーレベルマスターデータが見つからない
      *
-     * @param int $level レベル
-     * @return self
+     * @param  int  $level  レベル
      */
     public static function playerLevel(int $level): self
     {
@@ -74,8 +70,7 @@ class MasterDataException extends GameException
     /**
      * 商品マスターデータが見つからない
      *
-     * @param string $mstProductId 商品マスターID
-     * @return self
+     * @param  string  $mstProductId  商品マスターID
      */
     public static function product(string $mstProductId): self
     {
@@ -88,8 +83,7 @@ class MasterDataException extends GameException
     /**
      * 課金商品マスターデータが見つからない
      *
-     * @param string $mstInAppPurchaseId 課金商品マスターID
-     * @return self
+     * @param  string  $mstInAppPurchaseId  課金商品マスターID
      */
     public static function inAppPurchase(string $mstInAppPurchaseId): self
     {
@@ -102,8 +96,7 @@ class MasterDataException extends GameException
     /**
      * 装備マスターデータが見つからない
      *
-     * @param string $mstEquipmentId 装備マスターID
-     * @return self
+     * @param  string  $mstEquipmentId  装備マスターID
      */
     public static function equipment(string $mstEquipmentId): self
     {
@@ -116,9 +109,8 @@ class MasterDataException extends GameException
     /**
      * 汎用マスターデータが見つからない
      *
-     * @param string $type マスターデータ種別（例: "unit", "item", "level"）
-     * @param string|int $id マスターデータID
-     * @return self
+     * @param  string  $type  マスターデータ種別（例: "unit", "item", "level"）
+     * @param  string|int  $id  マスターデータID
      */
     public static function generic(string $type, string|int $id): self
     {

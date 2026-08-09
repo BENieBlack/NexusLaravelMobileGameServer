@@ -4,8 +4,8 @@ namespace App\Domain\Gacha\Services;
 
 use App\Models\Trx\TrxGacha;
 use App\Repositories\Trx\TrxGachaRepository;
-use NexusGacha\Services\GachaProgressService as PackageGachaProgressService;
 use NexusGacha\Dto\GachaProgressDto;
+use NexusGacha\Services\GachaProgressService as PackageGachaProgressService;
 use NexusUtilities\ClockUtility;
 
 /**
@@ -19,15 +19,10 @@ class GachaProgressService
     public function __construct(
         private readonly TrxGachaRepository $trxGachaRepository,
         private readonly PackageGachaProgressService $baseProgressService,
-    ) {
-    }
+    ) {}
 
     /**
      * ガチャ進行状況を取得または作成
-     *
-     * @param int $sysPlayerId
-     * @param string $mstGachaId
-     * @return TrxGacha
      */
     public function getOrCreateProgress(int $sysPlayerId, string $mstGachaId): TrxGacha
     {
@@ -38,7 +33,7 @@ class GachaProgressService
             ->where('is_delete', false)
             ->first();
 
-        if (!$progress) {
+        if (! $progress) {
             $now = ClockUtility::now();
             $progress = new TrxGacha([
                 'sys_player_id' => $sysPlayerId,
@@ -57,9 +52,6 @@ class GachaProgressService
 
     /**
      * 日次リセットが必要かチェックし、必要ならリセット
-     *
-     * @param TrxGacha $progress
-     * @return TrxGacha
      */
     public function checkAndResetDaily(TrxGacha $progress): TrxGacha
     {
@@ -75,17 +67,12 @@ class GachaProgressService
 
     /**
      * ガチャ実行後に進行状況を更新
-     *
-     * @param TrxGacha $progress
-     * @param int $drawCount
-     * @param int|null $nextStep
-     * @return void
      */
     public function updateProgress(TrxGacha $progress, int $drawCount, ?int $nextStep = null): void
     {
         $progress->setAttribute('daily_draw_count', $progress->getDailyDrawCount() + 1);
         $progress->setAttribute('total_draw_count', $progress->getTotalDrawCount() + $drawCount);
-        
+
         if ($nextStep !== null) {
             $progress->setAttribute('current_step', $nextStep);
         }
@@ -109,4 +96,3 @@ class GachaProgressService
         );
     }
 }
-

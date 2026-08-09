@@ -33,8 +33,6 @@ class MstBillingPlatformProduct extends _BaseMst
 
     /**
      * このプラットフォーム商品を使用しているアプリ内課金商品（AppStore側）
-     *
-     * @return HasMany
      */
     public function inAppPurchasesAsAppStore(): HasMany
     {
@@ -43,8 +41,6 @@ class MstBillingPlatformProduct extends _BaseMst
 
     /**
      * このプラットフォーム商品を使用しているアプリ内課金商品（GooglePlay側）
-     *
-     * @return HasMany
      */
     public function inAppPurchasesAsGooglePlay(): HasMany
     {
@@ -53,20 +49,18 @@ class MstBillingPlatformProduct extends _BaseMst
 
     /**
      * レスポンス用配列に変換
-     * 
+     *
      * データベース層の'id'をAPI層の'mst_billing_platform_product_id'に変換
-     * 
-     * @return array
      */
     public function toResponseArray(): array
     {
         $array = parent::toResponseArray();
-        
+
         if (isset($array['id'])) {
             $array['mst_billing_platform_product_id'] = $array['id'];
             unset($array['id']);
         }
-        
+
         return $array;
     }
 }

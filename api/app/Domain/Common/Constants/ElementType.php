@@ -4,7 +4,7 @@ namespace App\Domain\Common\Constants;
 
 /**
  * ゲーム要素の属性（エレメント）定数
- * 
+ *
  * ユニット、装備、スキルなど、ゲーム内の様々な要素に共通する属性定義
  * このゲームタイトル固有のドメイン知識
  */
@@ -42,8 +42,6 @@ class ElementType
 
     /**
      * 全属性の配列を取得
-     * 
-     * @return array
      */
     public static function getAll(): array
     {
@@ -59,9 +57,6 @@ class ElementType
 
     /**
      * 属性が有効かチェック
-     * 
-     * @param string $element
-     * @return bool
      */
     public static function isValid(string $element): bool
     {

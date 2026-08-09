@@ -2,16 +2,17 @@
 
 namespace Tests\Unit\Services;
 
+use Illuminate\Support\Facades\Log;
 use NexusMaintenance\Contracts\MaintenanceStorageInterface;
 use NexusMaintenance\DTOs\MaintenanceDto;
 use NexusMaintenance\Services\MaintenanceService;
 use NexusUtilities\ClockUtility;
-use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 
 class MaintenanceServiceTest extends TestCase
 {
     private MaintenanceStorageInterface $storage;
+
     private MaintenanceService $service;
 
     protected function setUp(): void
@@ -23,7 +24,7 @@ class MaintenanceServiceTest extends TestCase
 
         // モックストレージを作成
         $this->storage = $this->createMock(MaintenanceStorageInterface::class);
-        
+
         // キャッシュを無効化したサービスを作成（テスト簡略化のため）
         $this->service = new MaintenanceService(
             storage: $this->storage,
@@ -45,7 +46,7 @@ class MaintenanceServiceTest extends TestCase
     public function test_is_under_maintenance_returns_true_when_currently_under_maintenance(): void
     {
         ClockUtility::setNow('2024-01-15 12:00:00');
-        
+
         $sysMaintenance = new MaintenanceDto(
             isMaintenance: true,
             startAt: '2024-01-15 11:00:00',
@@ -58,7 +59,7 @@ class MaintenanceServiceTest extends TestCase
             ->willReturn($sysMaintenance);
 
         $this->assertTrue($this->service->isUnderMaintenance());
-        
+
         ClockUtility::reset();
     }
 

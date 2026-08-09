@@ -6,7 +6,7 @@ use NexusPersistence\Models\Trx\_BaseTrxInterface as PersistenceBaseTrxInterface
 
 /**
  * _BaseTrxInterface
- * 
+ *
  * Trxモデルが実装すべきインターフェース
  */
 interface _BaseTrxInterface extends PersistenceBaseTrxInterface

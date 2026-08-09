@@ -70,8 +70,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        foreach ($this->getTrxConnections() as $connection) {
-        Schema::dropIfExists('trx_gacha');
-        Schema::dropIfExists('trx_gacha_history');
+    Schema::dropIfExists('trx_gacha');
+    Schema::dropIfExists('trx_gacha_history');
     }
 };

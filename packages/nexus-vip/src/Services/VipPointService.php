@@ -3,7 +3,7 @@
 namespace NexusVip\Services;
 
 use NexusVip\DTOs\PlayerVipDto;
-use NexusVip\DTOs\VipConfigDto;
+use NexusVip\DTOs\VipConfig;
 use NexusVip\Events\VipLevelUpEvent;
 use NexusVip\Exceptions\InvalidVipPointException;
 use NexusVip\Repositories\PlayerVipRepositoryInterface;
@@ -21,7 +21,7 @@ class VipPointService
         protected VipPointLogRepositoryInterface $vipPointLogRepository,
         protected VipLevelService $vipLevelService,
         protected VipRewardService $vipRewardService,
-        protected VipConfigDto $config,
+        protected VipConfig $config,
     ) {
     }
 

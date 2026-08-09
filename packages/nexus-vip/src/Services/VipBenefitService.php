@@ -2,7 +2,7 @@
 
 namespace NexusVip\Services;
 
-use NexusVip\DTOs\VipConfigDto;
+use NexusVip\DTOs\VipConfig;
 
 /**
  * VIP特典サービス
@@ -16,7 +16,7 @@ class VipBenefitService
 {
     public function __construct(
         protected VipLevelService $vipLevelService,
-        protected VipConfigDto $config,
+        protected VipConfig $config,
     ) {
     }
 

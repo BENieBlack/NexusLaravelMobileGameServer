@@ -4,7 +4,7 @@ namespace NexusVip;
 
 use Illuminate\Support\ServiceProvider;
 use NexusVip\Contracts\CurrencyConverterInterface;
-use NexusVip\DTOs\VipConfigDto;
+use NexusVip\DTOs\VipConfig;
 use NexusVip\Repositories\PlayerVipRepositoryInterface;
 use NexusVip\Repositories\VipLevelRepositoryInterface;
 use NexusVip\Repositories\VipLevelRewardRepositoryInterface;
@@ -31,9 +31,17 @@ class VipServiceProvider extends ServiceProvider
             'vip'
         );
 
-        // VIP設定DTOをシングルトンとして登録
-        $this->app->singleton(VipConfigDto::class, function ($app) {
-            return VipConfigDto::fromConfig();
+        // VIP設定Value Objectをシングルトンとして登録
+        // Application層でconfig()を読み込み、Package層に渡す
+        $this->app->singleton(VipConfig::class, function ($app) {
+            return new VipConfig(
+                enablePointLog: config('vip.enable_point_log', true),
+                enableLevelUpEvent: config('vip.enable_level_up_event', true),
+                staminaBonusEnabled: config('vip.benefits_enabled.stamina_bonus', true),
+                shopDiscountEnabled: config('vip.benefits_enabled.shop_discount', true),
+                gachaDiscountEnabled: config('vip.benefits_enabled.gacha_discount', true),
+                dailyDiamondEnabled: config('vip.benefits_enabled.daily_diamond', true),
+            );
         });
 
         // インターフェースと実装のバインド
@@ -64,7 +72,7 @@ class VipServiceProvider extends ServiceProvider
                 $app->make(VipPointLogRepositoryInterface::class),
                 $app->make(VipLevelService::class),
                 $app->make(VipRewardService::class),
-                $app->make(VipConfigDto::class)
+                $app->make(VipConfig::class)
             );
         });
         
@@ -72,7 +80,7 @@ class VipServiceProvider extends ServiceProvider
         $this->app->singleton(VipBenefitService::class, function ($app) {
             return new VipBenefitService(
                 $app->make(VipLevelService::class),
-                $app->make(VipConfigDto::class)
+                $app->make(VipConfig::class)
             );
         });
     }

@@ -101,15 +101,27 @@ services:
     networks:
       - local-network
 
-  db-log:
+  db-log1:
     image: mysql:latest
-    container_name: db-log
+    container_name: db-log1
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
       - "33064:3306"
     volumes:
-      - db_data:/var/lib/mysql
+      - db_log1_data:/var/lib/mysql
+    networks:
+      - local-network
+
+  db-log2:
+    image: mysql:latest
+    container_name: db-log2
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "33067:3306"
+    volumes:
+      - db_log2_data:/var/lib/mysql
     networks:
       - local-network
 
@@ -153,7 +165,8 @@ volumes:
   db_mst_data:
   db_trx1_data:
   db_trx2_data:
-  db_data:
+  db_log1_data:
+  db_log2_data:
   db_admin_data:
   db_sys_data:
   db_tool_data:

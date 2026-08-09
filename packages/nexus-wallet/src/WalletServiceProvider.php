@@ -3,10 +3,12 @@
 namespace LaravelWallet;
 
 use Illuminate\Support\ServiceProvider;
+use LaravelWallet\Contracts\WalletManagerInterface;
+use LaravelWallet\Services\WalletService;
 
 /**
  * Wallet Service Provider
- * 
+ *
  * パッケージのサービス登録と初期化を担当
  */
 class WalletServiceProvider extends ServiceProvider
@@ -20,6 +22,11 @@ class WalletServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(
             __DIR__.'/../config/wallet.php', 'wallet'
         );
+
+        // WalletService を WalletManagerInterface として登録
+        // Application層でRepositoryの実装を提供する必要がある
+        $this->app->singleton(WalletService::class);
+        $this->app->singleton(WalletManagerInterface::class, WalletService::class);
     }
 
     /**

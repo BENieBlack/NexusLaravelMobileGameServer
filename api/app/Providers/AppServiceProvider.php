@@ -255,10 +255,8 @@ class AppServiceProvider extends ServiceProvider
         // Load migrations from subdirectories
         $this->loadMigrationsFrom([
             database_path('migrations/mst'),
-            database_path('migrations/trx'),
             database_path('migrations/sys'),
             database_path('migrations/adm'),
-            database_path('migrations/log'),
         ]);
 
         // ==========================================

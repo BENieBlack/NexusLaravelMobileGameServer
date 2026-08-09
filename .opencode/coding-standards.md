@@ -360,10 +360,11 @@ protected $casts = [
 protected $casts = [
     'level' => 'integer',
     // last_login_atはキャストしない（文字列のまま）
+    // created_at, updated_atもキャストしない（_BaseModelでデフォルト無効化済み）
 ];
 
 /**
- * 最終ログイン日時を取得
+ * 最終ログイン日時を取得（文字列型）
  * @return string|null Y-m-d H:i:s形式
  */
 public function getLastLoginAt(): ?string
@@ -385,6 +386,44 @@ public function setLastLoginAt(string $lastLoginAt): void
 - 大量のレコード取得時にCarbonオブジェクトの生成コストを回避
 - 文字列比較でパフォーマンスを向上
 - 必要な時だけ`ClockUtility::parse()`でCarbonに変換
+
+#### ✅ Good: Carbon型が必要な場合は_BaseModel::getDateAttribute()を使用
+
+ビジネスロジック内でCarbon操作が必要な場合（日付比較、差分計算等）は、`_BaseModel::getDateAttribute()`ヘルパーメソッドを使用します。
+
+```php
+/**
+ * メンテナンス開始日時を取得（Carbon型）
+ * ビジネスロジック内でCarbon操作が必要な場合に使用
+ * 
+ * @return \Carbon\Carbon|null
+ */
+public function getStartAt(): ?\Carbon\Carbon
+{
+    return $this->getDateAttribute('start_at');
+}
+
+/**
+ * メンテナンスが進行中かチェック
+ */
+public function isInProgress(): bool
+{
+    $now = ClockUtility::now();
+    $startAt = $this->getStartAt(); // Carbon型で取得
+    $endAt = $this->getEndAt();     // Carbon型で取得
+    
+    $hasStarted = $startAt && $startAt <= $now;
+    $hasNotEnded = !$endAt || $endAt > $now;
+    
+    return $hasStarted && $hasNotEnded;
+}
+```
+
+**`getDateAttribute()`ヘルパーの利点:**
+- DB取得時はstring型で保持（パフォーマンス最適化）
+- 必要な箇所でのみCarbon型に変換（オンデマンド変換）
+- Carbon操作が可能（比較、差分計算、フォーマット等）
+- `_BaseModel`で実装済みのため、全モデルで利用可能
 
 ### 使用例
 
@@ -912,8 +951,8 @@ class SysDeploy extends Model
     // キャスト定義（型安全性の向上）
     protected $casts = [
         'is_active' => 'boolean',
-        'start_at' => 'immutable_datetime',  // ← CarbonImmutable
-        'end_at' => 'immutable_datetime',
+        // start_at, end_at等の日付カラムはキャストしない（_BaseModelでデフォルト無効化済み）
+        // パフォーマンス最適化のため、DB取得時はstring型で保持
     ];
 
     // Mass Assignmentの設定
@@ -955,11 +994,14 @@ class SysDeploy extends Model
 **✅ 実装すべき:**
 - データベース接続の指定（`$connection`）
 - テーブル名の指定（`$table`）
-- キャスト定義（`$casts`、`immutable_datetime`を使用）
+- キャスト定義（`$casts`）
+  - **日付カラム（created_at, updated_at等）はキャストしない**（_BaseModelでデフォルト無効化済み）
+  - **ビジネスカラム（integer, boolean, array等）のみキャスト**
 - Mass Assignmentの設定（`$fillable` または `$guarded`）
 - リレーションメソッド
 - クエリスコープ
 - アクセサ/ミューテータ（必要な場合のみ）
+  - **Carbon型が必要な場合は`getDateAttribute()`ヘルパーを使用**
 
 **❌ 実装してはいけない:**
 - ビジネスロジック → Serviceへ
@@ -1004,9 +1046,8 @@ class LogEquipment extends _BaseLog
         'mst_equipment_id' => 'string',
         'before_grade' => 'integer',
         'after_grade' => 'integer',
-        'system_at' => 'immutable_datetime',
-        // ❌ created_at は含めない（Laravelが自動的にCarbonにキャスト）
-        // ❌ updated_at は含めない（テーブルに存在しない）
+        // system_at, created_atはキャストしない（_BaseModelでデフォルト無効化済み）
+        // パフォーマンス最適化のため、DB取得時はstring型で保持
     ];
 
     protected $fillable = [
@@ -1034,13 +1075,14 @@ class LogEquipment extends _BaseLog
 ✅ **実装すべき:**
 - `_BaseLog`を継承する
 - `$table`を明示的に指定
-- `$casts`にビジネスカラムとsystem_atを含める
+- `$casts`にビジネスカラムのみを含める（integer, boolean, array等）
 - `$fillable`にビジネスカラムとsystem_atを含める
 
 ❌ **実装してはいけない:**
 - `$connection`の指定（`_BaseLog`で設定済み）
 - `UPDATED_AT`の定義（`_BaseLog`で設定済み）
-- `$casts`に`created_at`を含める（Laravelが自動キャスト）
+- `$casts`に`system_at`を含める（_BaseModelでデフォルト無効化済み）
+- `$casts`に`created_at`を含める（_BaseModelでデフォルト無効化済み）
 - `$casts`に`updated_at`を含める（テーブルに存在しない）
 - `$fillable`に`created_at`を含める（自動設定されるため）
 - `$fillable`に`updated_at`を含める（テーブルに存在しない）
@@ -1359,7 +1401,8 @@ class RandomUtility
 **Model:**
 - [ ] データアクセスのみを担当しているか
 - [ ] ビジネスロジックを含んでいないか
-- [ ] `immutable_datetime`キャストを使用しているか
+- [ ] 日付カラム（created_at, updated_at等）を`$casts`に含めていないか
+- [ ] Carbon型が必要な場合は`getDateAttribute()`ヘルパーを使用しているか
 
 **Repository:**
 - [ ] データアクセスを抽象化しているか

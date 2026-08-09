@@ -4,7 +4,7 @@ namespace NexusFriend\Constants;
 
 /**
  * FriendStatus
- * 
+ *
  * フレンド申請のステータス定数
  */
 class FriendStatus
@@ -46,9 +46,6 @@ class FriendStatus
 
     /**
      * 有効なステータスかチェック
-     *
-     * @param string $status
-     * @return bool
      */
     public static function isValid(string $status): bool
     {

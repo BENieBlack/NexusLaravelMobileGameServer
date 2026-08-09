@@ -6,7 +6,7 @@ use DateTime;
 
 /**
  * FriendApplyDto
- * 
+ *
  * フレンド申請データ転送オブジェクト
  */
 readonly class FriendApplyDto
@@ -18,13 +18,10 @@ readonly class FriendApplyDto
         public string $status,
         public DateTime $createdAt,
         public DateTime $updatedAt,
-    ) {
-    }
+    ) {}
 
     /**
      * IDを取得
-     *
-     * @return int
      */
     public function getId(): int
     {
@@ -33,8 +30,6 @@ readonly class FriendApplyDto
 
     /**
      * 送信者プレイヤーIDを取得
-     *
-     * @return int
      */
     public function getSenderPlayerId(): int
     {
@@ -43,8 +38,6 @@ readonly class FriendApplyDto
 
     /**
      * 受信者プレイヤーIDを取得
-     *
-     * @return int
      */
     public function getReceiverPlayerId(): int
     {
@@ -53,8 +46,6 @@ readonly class FriendApplyDto
 
     /**
      * ステータスを取得
-     *
-     * @return string
      */
     public function getStatus(): string
     {
@@ -63,8 +54,6 @@ readonly class FriendApplyDto
 
     /**
      * 作成日時を取得
-     *
-     * @return DateTime
      */
     public function getCreatedAt(): DateTime
     {
@@ -73,8 +62,6 @@ readonly class FriendApplyDto
 
     /**
      * 更新日時を取得
-     *
-     * @return DateTime
      */
     public function getUpdatedAt(): DateTime
     {

@@ -2,13 +2,13 @@
 
 namespace NexusVip\Tests\Unit\Services;
 
+use Mockery;
+use NexusPersistence\Support\CustomCollection;
 use NexusVip\DTOs\VipRewardDto;
 use NexusVip\Models\MstVipLevelReward;
 use NexusVip\Repositories\VipLevelRewardRepositoryInterface;
 use NexusVip\Services\VipRewardService;
-use NexusPersistence\Support\CustomCollection;
 use PHPUnit\Framework\TestCase;
-use Mockery;
 
 /**
  * VipRewardServiceのユニットテスト
@@ -16,6 +16,7 @@ use Mockery;
 class VipRewardServiceTest extends TestCase
 {
     private VipLevelRewardRepositoryInterface $vipLevelRewardRepository;
+
     private VipRewardService $service;
 
     protected function setUp(): void
@@ -36,7 +37,7 @@ class VipRewardServiceTest extends TestCase
      * @test
      * VIPレベルに対応する報酬一覧を取得できる
      */
-    public function VIPレベルに対応する報酬一覧を取得できる(): void
+    public function vi_pレベルに対応する報酬一覧を取得できる(): void
     {
         // Arrange
         $vipLevel = 5;

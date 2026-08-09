@@ -8,14 +8,14 @@ use NexusMailbox\Services\Template\PlaceholderResolverInterface;
  * SystemPlaceholder
  *
  * システム情報のプレースホルダー
- * 
+ *
  * サポートするプレースホルダー:
  * - {timestamp} - 現在の日時（Y-m-d H:i:s形式）
  * - {date} - 現在の日付（Y-m-d形式）
  * - {time} - 現在の時刻（H:i:s形式）
  * - {server_name} - サーバー名
  * - {version} - アプリバージョン
- * 
+ *
  * 使用例:
  * ```php
  * $resolver = new SystemPlaceholder('My Game Server', '1.0.0');
@@ -40,14 +40,13 @@ class SystemPlaceholder implements PlaceholderResolverInterface
     /**
      * コンストラクタ
      *
-     * @param string $serverName サーバー名
-     * @param string $version アプリバージョン
+     * @param  string  $serverName  サーバー名
+     * @param  string  $version  アプリバージョン
      */
     public function __construct(
         private readonly string $serverName = 'Game Server',
         private readonly string $version = '1.0.0',
-    ) {
-    }
+    ) {}
 
     /**
      * {@inheritDoc}
@@ -64,7 +63,7 @@ class SystemPlaceholder implements PlaceholderResolverInterface
     {
         $now = new \DateTimeImmutable('now');
 
-        return match($key) {
+        return match ($key) {
             'timestamp' => $now->format('Y-m-d H:i:s'),
             'date' => $now->format('Y-m-d'),
             'time' => $now->format('H:i:s'),

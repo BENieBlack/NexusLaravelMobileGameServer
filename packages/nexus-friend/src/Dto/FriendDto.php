@@ -4,7 +4,7 @@ namespace NexusFriend\Dto;
 
 /**
  * FriendDto
- * 
+ *
  * フレンド情報データ転送オブジェクト
  */
 readonly class FriendDto
@@ -14,13 +14,10 @@ readonly class FriendDto
         public string $myId,
         public string $name,
         public int $level,
-    ) {
-    }
+    ) {}
 
     /**
      * プレイヤーIDを取得
-     *
-     * @return int
      */
     public function getPlayerId(): int
     {
@@ -29,8 +26,6 @@ readonly class FriendDto
 
     /**
      * マイIDを取得
-     *
-     * @return string
      */
     public function getMyId(): string
     {
@@ -39,8 +34,6 @@ readonly class FriendDto
 
     /**
      * 名前を取得
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -49,8 +42,6 @@ readonly class FriendDto
 
     /**
      * レベルを取得
-     *
-     * @return int
      */
     public function getLevel(): int
     {

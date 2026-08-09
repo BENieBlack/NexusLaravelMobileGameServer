@@ -2,18 +2,20 @@
 
 namespace NexusStamina\Tests\Unit\Services;
 
-use NexusStamina\Services\StaminaService;
-use NexusStamina\Services\PlayerLevelServiceInterface;
-use NexusStamina\Repositories\StaminaRepositoryInterface;
-use NexusStamina\Dto\StaminaDto;
-use NexusStamina\Constants\StaminaConst;
 use Mockery;
+use NexusStamina\Constants\StaminaConst;
+use NexusStamina\Dto\StaminaDto;
+use NexusStamina\Repositories\StaminaRepositoryInterface;
+use NexusStamina\Services\PlayerLevelServiceInterface;
+use NexusStamina\Services\StaminaService;
 use PHPUnit\Framework\TestCase;
 
 class StaminaServiceTest extends TestCase
 {
     private StaminaService $service;
+
     private StaminaRepositoryInterface $staminaRepository;
+
     private PlayerLevelServiceInterface $playerLevelService;
 
     protected function setUp(): void

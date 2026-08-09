@@ -14,7 +14,7 @@ use NexusGuild\Repositories\GuildRepositoryInterface;
 
 /**
  * GuildService
- * 
+ *
  * ギルド機能のビジネスロジック
  */
 class GuildService
@@ -23,14 +23,13 @@ class GuildService
         private readonly GuildRepositoryInterface $guildRepository,
         private readonly GuildApplyRepositoryInterface $applyRepository,
         private readonly GuildMemberRepositoryInterface $memberRepository,
-    ) {
-    }
+    ) {}
 
     /**
      * ギルド名の重複をバリデーション
      *
-     * @param string $name ギルド名
-     * @return void
+     * @param  string  $name  ギルド名
+     *
      * @throws GuildException ギルド名が既に存在する場合
      */
     public function validateGuildNameUnique(string $name): void
@@ -45,8 +44,8 @@ class GuildService
     /**
      * プレイヤーがギルドに所属していないことをバリデーション
      *
-     * @param int $playerId プレイヤーID
-     * @return void
+     * @param  int  $playerId  プレイヤーID
+     *
      * @throws GuildException 既にギルドに所属している場合
      */
     public function validatePlayerNotInGuild(int $playerId): void
@@ -61,8 +60,8 @@ class GuildService
     /**
      * プレイヤーがギルドに所属していることをバリデーション
      *
-     * @param int $playerId プレイヤーID
-     * @return GuildMemberDto
+     * @param  int  $playerId  プレイヤーID
+     *
      * @throws GuildException ギルドに所属していない場合
      */
     public function validatePlayerInGuild(int $playerId): GuildMemberDto
@@ -79,9 +78,9 @@ class GuildService
     /**
      * 重複申請がないかバリデーション
      *
-     * @param int $guildId ギルドID
-     * @param int $playerId プレイヤーID
-     * @return void
+     * @param  int  $guildId  ギルドID
+     * @param  int  $playerId  プレイヤーID
+     *
      * @throws GuildException 既に申請済みの場合
      */
     public function validateNoDuplicateApply(int $guildId, int $playerId): void
@@ -96,8 +95,8 @@ class GuildService
     /**
      * ギルドが満員でないかバリデーション
      *
-     * @param GuildDto $guildDto ギルド
-     * @return void
+     * @param  GuildDto  $guildDto  ギルド
+     *
      * @throws GuildException ギルドが満員の場合
      */
     public function validateGuildNotFull(GuildDto $guildDto): void
@@ -110,9 +109,9 @@ class GuildService
     /**
      * ギルドマスター/サブマスターの権限をバリデーション
      *
-     * @param GuildMemberDto $guildMemberDto メンバー情報
-     * @param string $action アクション名（エラーメッセージ用）
-     * @return void
+     * @param  GuildMemberDto  $guildMemberDto  メンバー情報
+     * @param  string  $action  アクション名（エラーメッセージ用）
+     *
      * @throws GuildException 権限がない場合
      */
     public function validateMasterOrSubMasterPermission(GuildMemberDto $guildMemberDto, string $action): void
@@ -125,9 +124,9 @@ class GuildService
     /**
      * ギルドマスターの権限をバリデーション
      *
-     * @param GuildMemberDto $guildMemberDto メンバー情報
-     * @param string $action アクション名（エラーメッセージ用）
-     * @return void
+     * @param  GuildMemberDto  $guildMemberDto  メンバー情報
+     * @param  string  $action  アクション名（エラーメッセージ用）
+     *
      * @throws GuildException 権限がない場合
      */
     public function validateMasterPermission(GuildMemberDto $guildMemberDto, string $action): void
@@ -140,8 +139,8 @@ class GuildService
     /**
      * 申請が承認可能な状態かバリデーション
      *
-     * @param GuildApplyDto $guildApplyDto 申請DTO
-     * @return void
+     * @param  GuildApplyDto  $guildApplyDto  申請DTO
+     *
      * @throws GuildException 承認できない状態の場合
      */
     public function validateCanAccept(GuildApplyDto $guildApplyDto): void
@@ -154,8 +153,8 @@ class GuildService
     /**
      * 申請が却下可能な状態かバリデーション
      *
-     * @param GuildApplyDto $guildApplyDto 申請DTO
-     * @return void
+     * @param  GuildApplyDto  $guildApplyDto  申請DTO
+     *
      * @throws GuildException 却下できない状態の場合
      */
     public function validateCanReject(GuildApplyDto $guildApplyDto): void
@@ -168,10 +167,9 @@ class GuildService
     /**
      * ギルドを作成
      *
-     * @param string $name ギルド名
-     * @param string $description ギルド説明
-     * @param int $masterPlayerId マスタープレイヤーID
-     * @return GuildDto
+     * @param  string  $name  ギルド名
+     * @param  string  $description  ギルド説明
+     * @param  int  $masterPlayerId  マスタープレイヤーID
      */
     public function createGuild(string $name, string $description, int $masterPlayerId): GuildDto
     {
@@ -184,9 +182,8 @@ class GuildService
     /**
      * ギルド加入申請を送信
      *
-     * @param int $guildId ギルドID
-     * @param int $playerId プレイヤーID
-     * @return GuildApplyDto
+     * @param  int  $guildId  ギルドID
+     * @param  int  $playerId  プレイヤーID
      */
     public function sendApply(int $guildId, int $playerId): GuildApplyDto
     {
@@ -205,9 +202,8 @@ class GuildService
     /**
      * ギルド加入申請を承認
      *
-     * @param int $applyId 申請ID
-     * @param int $currentPlayerId 現在のプレイヤーID（承認者）
-     * @return GuildApplyDto
+     * @param  int  $applyId  申請ID
+     * @param  int  $currentPlayerId  現在のプレイヤーID（承認者）
      */
     public function acceptApply(int $applyId, int $currentPlayerId): GuildApplyDto
     {
@@ -242,9 +238,8 @@ class GuildService
     /**
      * ギルド加入申請を却下
      *
-     * @param int $applyId 申請ID
-     * @param int $currentPlayerId 現在のプレイヤーID（却下者）
-     * @return GuildApplyDto
+     * @param  int  $applyId  申請ID
+     * @param  int  $currentPlayerId  現在のプレイヤーID（却下者）
      */
     public function rejectApply(int $applyId, int $currentPlayerId): GuildApplyDto
     {
@@ -272,8 +267,8 @@ class GuildService
     /**
      * ギルドから脱退
      *
-     * @param int $playerId プレイヤーID
-     * @return void
+     * @param  int  $playerId  プレイヤーID
+     *
      * @throws GuildException マスターは脱退できない
      */
     public function leaveGuild(int $playerId): void
@@ -292,7 +287,7 @@ class GuildService
     /**
      * ギルド申請一覧を取得
      *
-     * @param int $guildId ギルドID
+     * @param  int  $guildId  ギルドID
      * @return array<GuildApplyDto>
      */
     public function getApplyList(int $guildId): array
@@ -303,7 +298,7 @@ class GuildService
     /**
      * ギルドメンバー一覧を取得
      *
-     * @param int $guildId ギルドID
+     * @param  int  $guildId  ギルドID
      * @return array<GuildMemberDto>
      */
     public function getMemberList(int $guildId): array
@@ -314,8 +309,7 @@ class GuildService
     /**
      * プレイヤーの所属ギルドを取得
      *
-     * @param int $playerId プレイヤーID
-     * @return GuildDto|null
+     * @param  int  $playerId  プレイヤーID
      */
     public function getPlayerGuild(int $playerId): ?GuildDto
     {

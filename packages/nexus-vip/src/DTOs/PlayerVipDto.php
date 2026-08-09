@@ -4,7 +4,7 @@ namespace NexusVip\DTOs;
 
 /**
  * プレイヤーVIP情報DTO
- * 
+ *
  * SysPlayerのVIP関連フィールドを抽出したDTO
  */
 class PlayerVipDto
@@ -13,8 +13,7 @@ class PlayerVipDto
         private readonly int $sysPlayerId,
         private int $vipPoint,
         private float $totalPaidAmount,
-    ) {
-    }
+    ) {}
 
     /**
      * プレイヤーIDを取得

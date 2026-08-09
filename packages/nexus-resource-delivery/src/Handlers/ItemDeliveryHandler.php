@@ -2,16 +2,16 @@
 
 namespace NexusResourceDelivery\Handlers;
 
+use App\Domain\Item\Services\ItemService;
 use NexusResource\Enums\ResourceType;
 use NexusResourceDelivery\DTOs\ResourceDeliveryContentDto;
-use App\Domain\Item\Services\ItemService;
 
 /**
  * ItemDeliveryHandler
- * 
+ *
  * アイテム配送処理を担当するHandler
  * ItemServiceを使用して、複合主キー (sys_player_id, mst_item_id) でアイテムを管理
- * 
+ *
  * 対応リソース:
  * - ResourceType::ITEM
  * - ResourceType::CONSUMABLE
@@ -23,15 +23,14 @@ class ItemDeliveryHandler implements ResourceDeliveryHandlerInterface
 {
     public function __construct(
         private readonly ItemService $itemService,
-    ) {
-    }
+    ) {}
 
     /**
      * アイテム配送処理を実行
-     * 
-     * @param int $sysPlayerId プレイヤーID
-     * @param ResourceDeliveryContentDto $resourceDeliveryContentDto 配送コンテンツ
-     * @return void
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  ResourceDeliveryContentDto  $resourceDeliveryContentDto  配送コンテンツ
+     *
      * @throws \Exception 配送失敗時
      */
     public function handle(int $sysPlayerId, ResourceDeliveryContentDto $resourceDeliveryContentDto): void
@@ -46,14 +45,13 @@ class ItemDeliveryHandler implements ResourceDeliveryHandlerInterface
 
     /**
      * このHandlerがサポートするリソースタイプかどうか
-     * 
-     * @param ResourceType|string $type リソースタイプ
-     * @return bool
+     *
+     * @param  ResourceType|string  $type  リソースタイプ
      */
     public function supports(ResourceType|string $type): bool
     {
         $typeValue = $type instanceof ResourceType ? $type->value : $type;
-        
+
         return in_array($typeValue, [
             ResourceType::ITEM->value,
             ResourceType::CONSUMABLE->value,

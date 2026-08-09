@@ -12,13 +12,12 @@ use NexusPersistence\Support\CustomCollection;
 class ResourceDeliveryCompleteDto
 {
     /**
-     * @param CustomCollection<ResourceDeliveryContent> $contents 送信完了コンテンツのリスト
+     * @param  CustomCollection<ResourceDeliveryContent>  $contents  送信完了コンテンツのリスト
      */
     public function __construct(
-        
+
         private CustomCollection $contents,
-    ) {
-    }
+    ) {}
 
     /**
      * 送信完了コンテンツのリストを取得

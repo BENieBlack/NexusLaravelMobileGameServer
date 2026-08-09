@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * ConstantsTest
- * 
+ *
  * 定数クラスのテスト
  */
 class ConstantsTest extends TestCase
@@ -16,7 +16,7 @@ class ConstantsTest extends TestCase
     /**
      * @test
      */
-    public function guildApplyStatus_all_returns_expected_statuses(): void
+    public function guild_apply_status_all_returns_expected_statuses(): void
     {
         $statuses = GuildApplyStatus::all();
 
@@ -29,7 +29,7 @@ class ConstantsTest extends TestCase
     /**
      * @test
      */
-    public function guildApplyStatus_isValid_returns_true_for_valid_status(): void
+    public function guild_apply_status_is_valid_returns_true_for_valid_status(): void
     {
         $this->assertTrue(GuildApplyStatus::isValid('applied'));
         $this->assertTrue(GuildApplyStatus::isValid('accepted'));
@@ -39,7 +39,7 @@ class ConstantsTest extends TestCase
     /**
      * @test
      */
-    public function guildApplyStatus_isValid_returns_false_for_invalid_status(): void
+    public function guild_apply_status_is_valid_returns_false_for_invalid_status(): void
     {
         $this->assertFalse(GuildApplyStatus::isValid('invalid'));
         $this->assertFalse(GuildApplyStatus::isValid('pending'));
@@ -48,7 +48,7 @@ class ConstantsTest extends TestCase
     /**
      * @test
      */
-    public function guildRole_all_returns_expected_roles(): void
+    public function guild_role_all_returns_expected_roles(): void
     {
         $roles = GuildRole::all();
 
@@ -61,7 +61,7 @@ class ConstantsTest extends TestCase
     /**
      * @test
      */
-    public function guildRole_isValid_returns_true_for_valid_role(): void
+    public function guild_role_is_valid_returns_true_for_valid_role(): void
     {
         $this->assertTrue(GuildRole::isValid('master'));
         $this->assertTrue(GuildRole::isValid('sub_master'));
@@ -71,7 +71,7 @@ class ConstantsTest extends TestCase
     /**
      * @test
      */
-    public function guildRole_isValid_returns_false_for_invalid_role(): void
+    public function guild_role_is_valid_returns_false_for_invalid_role(): void
     {
         $this->assertFalse(GuildRole::isValid('invalid'));
         $this->assertFalse(GuildRole::isValid('admin'));

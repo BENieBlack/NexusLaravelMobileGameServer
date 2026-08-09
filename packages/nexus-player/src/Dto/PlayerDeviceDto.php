@@ -4,7 +4,7 @@ namespace NexusPlayer\Dto;
 
 /**
  * PlayerDeviceDto
- * 
+ *
  * プレイヤーデバイス情報を表すDTO
  */
 class PlayerDeviceDto
@@ -17,8 +17,7 @@ class PlayerDeviceDto
         private readonly string $lastLoginAt,
         private readonly string $createdAt,
         private readonly string $updatedAt,
-    ) {
-    }
+    ) {}
 
     public function getId(): int
     {

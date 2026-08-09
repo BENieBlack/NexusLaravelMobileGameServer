@@ -3,11 +3,11 @@
 namespace NexusStamina\Tests\Unit;
 
 use NexusStamina\Dto\StaminaDto;
-use NexusStamina\Services\StaminaService;
 use NexusStamina\Repositories\StaminaRepositoryInterface;
 use NexusStamina\Services\PlayerLevelServiceInterface;
-use PHPUnit\Framework\TestCase;
+use NexusStamina\Services\StaminaService;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /**
  * StaminaService のユニットテスト
@@ -15,7 +15,9 @@ use PHPUnit\Framework\MockObject\MockObject;
 class StaminaServiceTest extends TestCase
 {
     private StaminaRepositoryInterface&MockObject $staminaRepository;
+
     private PlayerLevelServiceInterface&MockObject $levelService;
+
     private StaminaService $service;
 
     protected function setUp(): void
@@ -34,7 +36,7 @@ class StaminaServiceTest extends TestCase
     /**
      * スタミナ取得のテスト
      */
-    public function test_getStamina_returns_stamina_with_auto_recovery(): void
+    public function test_get_stamina_returns_stamina_with_auto_recovery(): void
     {
         $playerId = 1;
         $type = 'normal';
@@ -71,7 +73,7 @@ class StaminaServiceTest extends TestCase
     /**
      * スタミナが存在しない場合のテスト
      */
-    public function test_getStamina_returns_null_when_not_found(): void
+    public function test_get_stamina_returns_null_when_not_found(): void
     {
         $playerId = 1;
         $type = 'normal';
@@ -90,7 +92,7 @@ class StaminaServiceTest extends TestCase
     /**
      * スタミナ消費のテスト
      */
-    public function test_consumeStamina_success(): void
+    public function test_consume_stamina_success(): void
     {
         $playerId = 1;
         $type = 'normal';
@@ -133,7 +135,7 @@ class StaminaServiceTest extends TestCase
     /**
      * スタミナ不足時のテスト
      */
-    public function test_consumeStamina_insufficient(): void
+    public function test_consume_stamina_insufficient(): void
     {
         $playerId = 1;
         $type = 'normal';
@@ -173,7 +175,7 @@ class StaminaServiceTest extends TestCase
     /**
      * アイテムによるスタミナ回復のテスト
      */
-    public function test_recoverStaminaByItem_success(): void
+    public function test_recover_stamina_by_item_success(): void
     {
         $playerId = 1;
         $type = 'normal';
@@ -216,7 +218,7 @@ class StaminaServiceTest extends TestCase
     /**
      * 最大値を超えるアイテム回復のテスト
      */
-    public function test_recoverStaminaByItem_exceeds_max(): void
+    public function test_recover_stamina_by_item_exceeds_max(): void
     {
         $playerId = 1;
         $type = 'normal';
@@ -260,7 +262,7 @@ class StaminaServiceTest extends TestCase
     /**
      * 次回回復までの時間計算テスト
      */
-    public function test_getTimeUntilNextRecovery(): void
+    public function test_get_time_until_next_recovery(): void
     {
         $playerId = 1;
         $type = 'normal';
@@ -296,7 +298,7 @@ class StaminaServiceTest extends TestCase
     /**
      * 最大値時は次回回復時間がnullになることをテスト
      */
-    public function test_getTimeUntilNextRecovery_returns_null_when_full(): void
+    public function test_get_time_until_next_recovery_returns_null_when_full(): void
     {
         $playerId = 1;
         $type = 'normal';

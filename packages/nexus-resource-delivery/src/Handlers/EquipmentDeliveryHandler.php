@@ -2,16 +2,16 @@
 
 namespace NexusResourceDelivery\Handlers;
 
+use App\Repositories\Trx\TrxEquipmentRepository;
 use NexusResource\Enums\ResourceType;
 use NexusResourceDelivery\DTOs\ResourceDeliveryContentDto;
-use App\Repositories\Trx\TrxEquipmentRepository;
 
 /**
  * EquipmentDeliveryHandler
- * 
+ *
  * 装備配送処理を担当するHandler
  * TrxEquipmentRepositoryを使用して、新規装備を作成
- * 
+ *
  * 対応リソース:
  * - ResourceType::EQUIPMENT
  * - ResourceType::WEAPON
@@ -22,15 +22,14 @@ class EquipmentDeliveryHandler implements ResourceDeliveryHandlerInterface
 {
     public function __construct(
         private readonly TrxEquipmentRepository $trxEquipmentRepository,
-    ) {
-    }
+    ) {}
 
     /**
      * 装備配送処理を実行
-     * 
-     * @param int $sysPlayerId プレイヤーID
-     * @param ResourceDeliveryContentDto $resourceDeliveryContentDto 配送コンテンツ
-     * @return void
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  ResourceDeliveryContentDto  $resourceDeliveryContentDto  配送コンテンツ
+     *
      * @throws \Exception 配送失敗時
      */
     public function handle(int $sysPlayerId, ResourceDeliveryContentDto $resourceDeliveryContentDto): void
@@ -52,14 +51,13 @@ class EquipmentDeliveryHandler implements ResourceDeliveryHandlerInterface
 
     /**
      * このHandlerがサポートするリソースタイプかどうか
-     * 
-     * @param ResourceType|string $type リソースタイプ
-     * @return bool
+     *
+     * @param  ResourceType|string  $type  リソースタイプ
      */
     public function supports(ResourceType|string $type): bool
     {
         $typeValue = $type instanceof ResourceType ? $type->value : $type;
-        
+
         return in_array($typeValue, [
             ResourceType::EQUIPMENT->value,
             ResourceType::WEAPON->value,

@@ -4,7 +4,7 @@ namespace NexusGuild\Constants;
 
 /**
  * GuildApplyStatus
- * 
+ *
  * ギルド加入申請のステータス定数
  */
 class GuildApplyStatus
@@ -26,7 +26,7 @@ class GuildApplyStatus
 
     /**
      * 全ステータス
-     * 
+     *
      * @return array<string>
      */
     public static function all(): array
@@ -40,9 +40,6 @@ class GuildApplyStatus
 
     /**
      * 有効なステータスかチェック
-     * 
-     * @param string $status
-     * @return bool
      */
     public static function isValid(string $status): bool
     {

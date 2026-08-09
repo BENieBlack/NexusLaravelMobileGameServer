@@ -2,32 +2,27 @@
 
 namespace NexusMailbox\Services;
 
-use NexusMailbox\Dto\MailboxDto;
-use NexusMailbox\Repositories\MailboxRepositoryInterface;
+use Illuminate\Support\Collection;
 use NexusMailbox\Constants\Category;
 use NexusMailbox\Constants\Priority;
+use NexusMailbox\Dto\MailboxDto;
+use NexusMailbox\Repositories\MailboxRepositoryInterface;
 
 /**
  * MailboxService
- * 
+ *
  * メールボックスのビジネスロジックを担当するサービス
  */
 class MailboxService
 {
     public function __construct(
         private readonly MailboxRepositoryInterface $mailboxRepository,
-    ) {
-    }
+    ) {}
 
     /**
      * メールボックス一覧を取得
      *
-     * @param int $sysPlayerId
-     * @param Category|null $category
-     * @param Priority|null $priority
-     * @param bool $onlyUnread
-     * @param bool $onlyLocked
-     * @return \Illuminate\Support\Collection<MailboxDto>
+     * @return Collection<MailboxDto>
      */
     public function getMailboxList(
         int $sysPlayerId,
@@ -35,7 +30,7 @@ class MailboxService
         ?Priority $priority = null,
         bool $onlyUnread = false,
         bool $onlyLocked = false
-    ): \Illuminate\Support\Collection {
+    ): Collection {
         return $this->mailboxRepository->findByPlayerId(
             $sysPlayerId,
             $category,
@@ -48,7 +43,6 @@ class MailboxService
     /**
      * カテゴリ別未読数を取得
      *
-     * @param int $sysPlayerId
      * @return array<string, int>
      */
     public function getUnreadCounts(int $sysPlayerId): array
@@ -58,10 +52,6 @@ class MailboxService
 
     /**
      * メールを既読にする
-     *
-     * @param int $mailboxId
-     * @param int $sysPlayerId
-     * @return bool
      */
     public function markAsRead(int $mailboxId, int $sysPlayerId): bool
     {
@@ -83,11 +73,6 @@ class MailboxService
 
     /**
      * メールのロック状態を変更
-     *
-     * @param int $mailboxId
-     * @param int $sysPlayerId
-     * @param bool $isLocked
-     * @return bool
      */
     public function updateLockStatus(int $mailboxId, int $sysPlayerId, bool $isLocked): bool
     {
@@ -105,10 +90,6 @@ class MailboxService
 
     /**
      * メールを受取済みにする
-     *
-     * @param int $mailboxId
-     * @param int $sysPlayerId
-     * @return MailboxDto|null
      */
     public function markAsReceived(int $mailboxId, int $sysPlayerId): ?MailboxDto
     {

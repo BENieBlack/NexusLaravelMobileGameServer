@@ -5,6 +5,16 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * PITR用テーブル作成マイグレーション
+ * 
+ * 注意: このマイグレーションは`php artisan pitr:migrate`で実行してください。
+ * PitrMigrateCommandが全LogDBシャード（log1, log2, ...）に対して自動的に実行します。
+ * 
+ * 直接実行する場合（非推奨）:
+ *   php artisan migrate --database=log1 --path=database/migrations/log
+ *   php artisan migrate --database=log2 --path=database/migrations/log
+ */
 return new class extends Migration
 {
     /**
@@ -12,14 +22,17 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // 注意: Schema::connection()は使用しない
+        // PitrMigrateCommandが--databaseオプションで接続を指定するため
+        
         // ========================================
         // log_trx_change: TrxDB統合変更ログ (PITR用)
         // ========================================
-        Schema::connection('log')->create('log_trx_change', function (Blueprint $table) {
+        Schema::create('log_trx_change', function (Blueprint $table) {
             $table->uuid('id')->primary()->comment('ログID (UUID)');
             $table->string('unique_request_id', 100)->comment('リクエスト一意ID');
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
-            $table->string('shard_connection', 20)->comment('シャード接続名 (trx1, trx2)');
+            $table->string('shard_connection', 20)->comment('シャード接続名 (trx1, trx2, ...)');
             $table->string('table_name', 100)->comment('対象テーブル名');
             $table->enum('operation', ['INSERT', 'UPDATE', 'DELETE'])->comment('操作種別');
             $table->json('before_data')->nullable()->comment('変更前データ (JSON)');
@@ -43,7 +56,7 @@ return new class extends Migration
         // ========================================
         // log_pitr_recovery: PITR復旧履歴
         // ========================================
-        Schema::connection('log')->create('log_pitr_recovery', function (Blueprint $table) {
+        Schema::create('log_pitr_recovery', function (Blueprint $table) {
             $table->id()->comment('復旧履歴ID');
             $table->string('recovery_id', 100)->unique()->comment('復旧実行ID (UUID)');
             $table->string('shard_connection', 20)->comment('対象シャード');
@@ -72,7 +85,7 @@ return new class extends Migration
         // ========================================
         // log_pitr_verification: PITR整合性検証ログ
         // ========================================
-        Schema::connection('log')->create('log_pitr_verification', function (Blueprint $table) {
+        Schema::create('log_pitr_verification', function (Blueprint $table) {
             $table->id()->comment('検証ログID');
             $table->string('verification_id', 100)->comment('検証実行ID (UUID)');
             $table->string('shard_connection', 20)->comment('対象シャード');
@@ -99,8 +112,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection('log')->dropIfExists('log_pitr_verification');
-        Schema::connection('log')->dropIfExists('log_pitr_recovery');
-        Schema::connection('log')->dropIfExists('log_trx_change');
+        Schema::dropIfExists('log_pitr_verification');
+        Schema::dropIfExists('log_pitr_recovery');
+        Schema::dropIfExists('log_trx_change');
     }
 };

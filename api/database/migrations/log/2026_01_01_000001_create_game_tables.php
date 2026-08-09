@@ -5,6 +5,12 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * LogDB用ゲームログテーブル作成マイグレーション
+ * 
+ * 注意: このマイグレーションは`php artisan pitr:migrate`で実行してください。
+ * PitrMigrateCommandが全LogDBシャード（log1, log2, ...）に対して自動的に実行します。
+ */
 return new class extends Migration
 {
     /**
@@ -15,7 +21,7 @@ return new class extends Migration
         // ========================================
         // log_access: アクセスログ
         // ========================================
-        Schema::connection('log')->create('log_access', function (Blueprint $table) {
+        Schema->create('log_access', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->string('unique_request_id')->unique()->comment('リクエスト一意ID');
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
@@ -37,7 +43,7 @@ return new class extends Migration
         // ========================================
         // log_player: プレイヤー変更ログ
         // ========================================
-        Schema::connection('log')->create('log_player', function (Blueprint $table) {
+        Schema->create('log_player', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->string('unique_request_id')->unique()->comment('リクエスト一意ID (log_accessと結合)');
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
@@ -56,7 +62,7 @@ return new class extends Migration
         // ========================================
         // log_item: アイテム変更ログ
         // ========================================
-        Schema::connection('log')->create('log_item', function (Blueprint $table) {
+        Schema->create('log_item', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->string('unique_request_id')->unique()->comment('リクエスト一意ID (log_accessと結合)');
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
@@ -75,7 +81,7 @@ return new class extends Migration
         // ========================================
         // log_gacha: ガチャログ
         // ========================================
-        Schema::connection('log')->create('log_gacha', function (Blueprint $table) {
+        Schema->create('log_gacha', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->string('unique_request_id')->unique()->comment('リクエスト一意ID (log_accessと結合)');
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
@@ -93,7 +99,7 @@ return new class extends Migration
         // ========================================
         // log_unit: ユニット変更ログ
         // ========================================
-        Schema::connection('log')->create('log_unit', function (Blueprint $table) {
+        Schema->create('log_unit', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->string('unique_request_id')->unique()->comment('リクエスト一意ID (log_accessと結合)');
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
@@ -118,7 +124,7 @@ return new class extends Migration
         // ========================================
         // log_equipment: 装備変更ログ
         // ========================================
-        Schema::connection('log')->create('log_equipment', function (Blueprint $table) {
+        Schema->create('log_equipment', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->string('unique_request_id')->unique()->comment('リクエスト一意ID (log_accessと結合)');
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
@@ -143,7 +149,7 @@ return new class extends Migration
         // ========================================
         // log_in_app_purchase: アプリ内課金ログ
         // ========================================
-        Schema::connection('log')->create('log_in_app_purchase', function (Blueprint $table) {
+        Schema->create('log_in_app_purchase', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->string('unique_request_id')->unique()->comment('リクエスト一意ID (log_accessと結合)');
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
@@ -173,12 +179,12 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection('log')->dropIfExists('log_equipment');
-        Schema::connection('log')->dropIfExists('log_in_app_purchase');
-        Schema::connection('log')->dropIfExists('log_unit');
-        Schema::connection('log')->dropIfExists('log_gacha');
-        Schema::connection('log')->dropIfExists('log_item');
-        Schema::connection('log')->dropIfExists('log_player');
-        Schema::connection('log')->dropIfExists('log_access');
+        Schema->dropIfExists('log_equipment');
+        Schema->dropIfExists('log_in_app_purchase');
+        Schema->dropIfExists('log_unit');
+        Schema->dropIfExists('log_gacha');
+        Schema->dropIfExists('log_item');
+        Schema->dropIfExists('log_player');
+        Schema->dropIfExists('log_access');
     }
 };

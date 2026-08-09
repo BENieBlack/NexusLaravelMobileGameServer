@@ -4,6 +4,12 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * LogDB用Laravelシステムテーブル作成マイグレーション
+ * 
+ * 注意: このマイグレーションは`php artisan pitr:migrate`で実行してください。
+ * PitrMigrateCommandが全LogDBシャード（log1, log2, ...）に対して自動的に実行します。
+ */
 return new class extends Migration
 {
     /**
@@ -12,20 +18,20 @@ return new class extends Migration
     public function up(): void
     {
         // Cache tables
-        Schema::connection('log')->create('cache', function (Blueprint $table) {
+        Schema->create('cache', function (Blueprint $table) {
             $table->string('key')->primary();
             $table->mediumText('value');
             $table->integer('expiration');
         });
 
-        Schema::connection('log')->create('cache_locks', function (Blueprint $table) {
+        Schema->create('cache_locks', function (Blueprint $table) {
             $table->string('key')->primary();
             $table->string('owner');
             $table->integer('expiration');
         });
 
         // Job tables
-        Schema::connection('log')->create('jobs', function (Blueprint $table) {
+        Schema->create('jobs', function (Blueprint $table) {
             $table->id();
             $table->string('queue')->index();
             $table->longText('payload');
@@ -35,7 +41,7 @@ return new class extends Migration
             $table->unsignedInteger('created_at');
         });
 
-        Schema::connection('log')->create('job_batches', function (Blueprint $table) {
+        Schema->create('job_batches', function (Blueprint $table) {
             $table->string('id')->primary();
             $table->string('name');
             $table->integer('total_jobs');
@@ -48,7 +54,7 @@ return new class extends Migration
             $table->integer('finished_at')->nullable();
         });
 
-        Schema::connection('log')->create('failed_jobs', function (Blueprint $table) {
+        Schema->create('failed_jobs', function (Blueprint $table) {
             $table->id();
             $table->string('uuid')->unique();
             $table->text('connection');
@@ -64,10 +70,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection('log')->dropIfExists('failed_jobs');
-        Schema::connection('log')->dropIfExists('job_batches');
-        Schema::connection('log')->dropIfExists('jobs');
-        Schema::connection('log')->dropIfExists('cache_locks');
-        Schema::connection('log')->dropIfExists('cache');
+        Schema->dropIfExists('failed_jobs');
+        Schema->dropIfExists('job_batches');
+        Schema->dropIfExists('jobs');
+        Schema->dropIfExists('cache_locks');
+        Schema->dropIfExists('cache');
     }
 };

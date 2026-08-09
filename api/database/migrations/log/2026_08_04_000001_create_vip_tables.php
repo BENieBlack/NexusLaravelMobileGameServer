@@ -5,6 +5,12 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * LogDB用VIPログテーブル作成マイグレーション
+ * 
+ * 注意: このマイグレーションは`php artisan pitr:migrate`で実行してください。
+ * PitrMigrateCommandが全LogDBシャード（log1, log2, ...）に対して自動的に実行します。
+ */
 return new class extends Migration
 {
     /**
@@ -15,7 +21,7 @@ return new class extends Migration
         // ========================================
         // log_vip_point: VIPポイント変動ログ
         // ========================================
-        Schema::connection('log')->create('log_vip_point', function (Blueprint $table) {
+        Schema->create('log_vip_point', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->string('unique_request_id')->comment('リクエスト一意ID (log_accessと結合)');
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
@@ -43,6 +49,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection('log')->dropIfExists('log_vip_point');
+        Schema->dropIfExists('log_vip_point');
     }
 };

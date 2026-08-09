@@ -32,8 +32,16 @@ class NexusPitrServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // マイグレーションをロード
-        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        // マイグレーションをロード（動的シャーディング対応）
+        $baseDir = __DIR__.'/../database/migrations';
+        
+        // 各サブディレクトリを個別に読み込む
+        foreach (['mst', 'trx', 'log', 'sys'] as $type) {
+            $path = "{$baseDir}/{$type}";
+            if (is_dir($path)) {
+                $this->loadMigrationsFrom($path);
+            }
+        }
 
         // 設定ファイルを公開
         $this->publishes([

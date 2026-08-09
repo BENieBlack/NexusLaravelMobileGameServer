@@ -16,6 +16,14 @@ class StaminaServiceProvider extends ServiceProvider
     {
         // マイグレーションをロード（動的シャーディング対応）
         // 注意: php artisan trx:migrate で全TrxDBシャード（trx1, trx2, ...）に実行
-        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        $baseDir = __DIR__.'/../database/migrations';
+        
+        // 各サブディレクトリを個別に読み込む
+        foreach (['mst', 'trx', 'log', 'sys'] as $type) {
+            $path = "{$baseDir}/{$type}";
+            if (is_dir($path)) {
+                $this->loadMigrationsFrom($path);
+            }
+        }
     }
 }

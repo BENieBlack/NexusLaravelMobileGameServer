@@ -92,7 +92,15 @@ class VipServiceProvider extends ServiceProvider
     {
         // マイグレーションをロード（動的シャーディング対応）
         // 注意: php artisan pitr:migrate で全LogDBシャード（log1, log2, ...）に実行
-        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        $baseDir = __DIR__.'/../database/migrations';
+        
+        // 各サブディレクトリを個別に読み込む
+        foreach (['mst', 'trx', 'log', 'sys'] as $type) {
+            $path = "{$baseDir}/{$type}";
+            if (is_dir($path)) {
+                $this->loadMigrationsFrom($path);
+            }
+        }
 
         // 設定ファイルの公開
         if ($this->app->runningInConsole()) {

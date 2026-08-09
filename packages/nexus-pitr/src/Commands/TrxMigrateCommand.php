@@ -38,17 +38,17 @@ class TrxMigrateCommand extends Command
     {
         $trxConnections = ShardMapper::getAllTrxConnections();
         
-        // TrxDBマイグレーションパスを定義
+        // TrxDBマイグレーションパスを定義（base_path()からの相対パス）
         $trxMigrationPaths = [
-            'packages/nexus-player/database/migrations/trx',
-            'packages/nexus-resource/database/migrations/trx',
-            'packages/nexus-wallet/database/migrations/trx',
-            'packages/nexus-stamina/database/migrations/trx',
-            'packages/nexus-core-billing/database/migrations/trx',
-            'packages/nexus-mailbox/database/migrations/trx',
-            'packages/nexus-gacha/database/migrations/trx',
-            'packages/nexus-login/database/migrations/trx',
-            'packages/nexus-vip/database/migrations/trx',
+            '../packages/nexus-player/database/migrations/trx',
+            '../packages/nexus-resource/database/migrations/trx',
+            '../packages/nexus-wallet/database/migrations/trx',
+            '../packages/nexus-stamina/database/migrations/trx',
+            '../packages/nexus-core-billing/database/migrations/trx',
+            '../packages/nexus-mailbox/database/migrations/trx',
+            '../packages/nexus-gacha/database/migrations/trx',
+            '../packages/nexus-login/database/migrations/trx',
+            '../packages/nexus-vip/database/migrations/trx',
         ];
         
         $this->info('Running TrxDB migrations on all shards...');

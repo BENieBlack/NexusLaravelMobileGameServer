@@ -60,6 +60,8 @@ use NexusGuild\Repositories\GuildMemberRepositoryInterface;
 use NexusGuild\Repositories\GuildApplyRepositoryInterface;
 use NexusResource\Contracts\ItemRepositoryInterface;
 use App\Repositories\Trx\ItemRepositoryImpl;
+use NexusBilling\Contracts\DiamondRepositoryInterface;
+use App\Repositories\Trx\DiamondRepositoryImpl;
 use NexusResourceDelivery\Managers\ResourceDeliveryManager;
 use NexusResourceDelivery\Managers\ResourceDeliveryManagerInterface;
 use NexusResourceDelivery\Services\ResourceDeliveryService;
@@ -191,6 +193,13 @@ class AppServiceProvider extends ServiceProvider
         
         // Repository interfaces
         $this->app->bind(ItemRepositoryInterface::class, ItemRepositoryImpl::class);
+        
+        // ==========================================
+        // NexusBilling Package Bindings
+        // ==========================================
+        
+        // Repository interfaces
+        $this->app->bind(DiamondRepositoryInterface::class, DiamondRepositoryImpl::class);
         
         // ==========================================
         // ResourceDelivery Package Bindings

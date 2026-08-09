@@ -12,6 +12,11 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * 全APIリクエストでメンテナンス状態をチェックし、
  * メンテナンス中の場合は503エラーを返す
+ *
+ * 除外設定:
+ * - 設定ファイル（config/maintenance.php）でIPアドレスとルートを除外可能
+ * - excluded_ips: メンテ中でもアクセス可能なIPアドレス
+ * - excluded_routes: メンテ中でもアクセス可能なルート（ワイルドカード対応）
  */
 class CheckMaintenance
 {
@@ -34,6 +39,11 @@ class CheckMaintenance
             return $next($request);
         }
 
+        // 除外ルート判定（設定で指定されたルートはメンテ中でもアクセス可能）
+        if ($this->isExcludedRoute($request)) {
+            return $next($request);
+        }
+
         // メンテナンス状態チェック
         if (! $this->maintenanceService->isUnderMaintenance()) {
             return $next($request);
@@ -44,10 +54,35 @@ class CheckMaintenance
 
         return response()->json([
             'error' => 'Service Unavailable',
-            'message' => $sysMaintenance->message ?? 'System is currently under maintenance',
-            'title' => $sysMaintenance->title ?? 'Maintenance',
-            'start_at' => $sysMaintenance?->startAt,
-            'end_at' => $sysMaintenance?->endAt,
+            'message' => $sysMaintenance?->getMessage() ?? 'System is currently under maintenance',
+            'title' => $sysMaintenance?->getTitle() ?? 'Maintenance',
+            'start_at' => $sysMaintenance?->getStartAt(),
+            'end_at' => $sysMaintenance?->getEndAt(),
         ], Response::HTTP_SERVICE_UNAVAILABLE);
+    }
+
+    /**
+     * リクエストが除外ルートに該当するかチェック
+     *
+     * @param  Request  $request
+     * @return bool
+     */
+    private function isExcludedRoute(Request $request): bool
+    {
+        $excludedRoutes = config('maintenance.excluded_routes', []);
+        $currentPath = trim($request->path(), '/');
+
+        foreach ($excludedRoutes as $pattern) {
+            $pattern = trim($pattern, '/');
+
+            // ワイルドカードパターンを正規表現に変換
+            $regex = '#^'.str_replace('\*', '.*', preg_quote($pattern, '#')).'$#';
+
+            if (preg_match($regex, $currentPath)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

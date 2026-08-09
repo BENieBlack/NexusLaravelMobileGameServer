@@ -29,6 +29,12 @@
         "phpunit/phpunit": "^11.0",
         "mockery/mockery": "^1.6"
     },
-    "minimum-stability": "stable",
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../nexus-core-utilities"
+        }
+    ],
+    "minimum-stability": "dev",
     "prefer-stable": true
 }

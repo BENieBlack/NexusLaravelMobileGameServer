@@ -3,7 +3,7 @@
 namespace NexusVip\Tests\Unit\Services;
 
 use NexusVip\DTOs\VipBenefitDto;
-use NexusVip\DTOs\VipConfigDto;
+use NexusVip\DTOs\VipConfig;
 use NexusVip\Services\VipBenefitService;
 use NexusVip\Services\VipLevelService;
 use PHPUnit\Framework\TestCase;
@@ -15,7 +15,7 @@ use Mockery;
 class VipBenefitServiceTest extends TestCase
 {
     private VipLevelService $vipLevelService;
-    private VipConfigDto $config;
+    private VipConfig $config;
     private VipBenefitService $service;
 
     protected function setUp(): void
@@ -25,7 +25,7 @@ class VipBenefitServiceTest extends TestCase
         $this->vipLevelService = Mockery::mock(VipLevelService::class);
         
         // テスト用設定（全特典有効）
-        $this->config = new VipConfigDto(
+        $this->config = new VipConfig(
             enablePointLog: true,
             enableLevelUpEvent: true,
             staminaBonusEnabled: true,
@@ -80,7 +80,7 @@ class VipBenefitServiceTest extends TestCase
     public function スタミナボーナスが無効の場合は基本値を返す(): void
     {
         // Arrange
-        $configDisabled = new VipConfigDto(
+        $configDisabled = new VipConfig(
             enablePointLog: true,
             enableLevelUpEvent: true,
             staminaBonusEnabled: false,
@@ -167,7 +167,7 @@ class VipBenefitServiceTest extends TestCase
     public function ショップ割引が無効の場合は基本価格を返す(): void
     {
         // Arrange
-        $configDisabled = new VipConfigDto(
+        $configDisabled = new VipConfig(
             enablePointLog: true,
             enableLevelUpEvent: true,
             staminaBonusEnabled: true,
@@ -254,7 +254,7 @@ class VipBenefitServiceTest extends TestCase
     public function ガチャ割引が無効の場合は基本価格を返す(): void
     {
         // Arrange
-        $configDisabled = new VipConfigDto(
+        $configDisabled = new VipConfig(
             enablePointLog: true,
             enableLevelUpEvent: true,
             staminaBonusEnabled: true,
@@ -310,7 +310,7 @@ class VipBenefitServiceTest extends TestCase
     public function デイリーダイヤモンドが無効の場合は0を返す(): void
     {
         // Arrange
-        $configDisabled = new VipConfigDto(
+        $configDisabled = new VipConfig(
             enablePointLog: true,
             enableLevelUpEvent: true,
             staminaBonusEnabled: true,

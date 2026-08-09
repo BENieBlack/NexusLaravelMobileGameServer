@@ -1,14 +1,11 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use NexusPitr\Migrations\DynamicShardingTrait;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    use DynamicShardingTrait;
-
     /**
      * Run the migrations.
      *
@@ -16,11 +13,7 @@ return new class extends Migration
      * シャーディング対応（trx1, trx2...）
      */
     public function up(): void
-    {
-        $connections = $this->getTrxConnections(); // シャーディング接続名
-
-        foreach ($connections as $connection) {
-            Schema::connection($connection)->create('trx_vip_login_bonus_history', function (Blueprint $table) {
+            Schema::create('trx_vip_login_bonus_history', function (Blueprint $table) {
                 $table->id();
                 $table->unsignedBigInteger('sys_player_id')->comment('プレイヤーID');
                 $table->string('mst_vip_login_bonus_id', 64)->comment('VIPログインボーナスID');
@@ -47,7 +40,6 @@ return new class extends Migration
         $connections = $this->getTrxConnections();
 
         foreach ($connections as $connection) {
-            Schema::connection($connection)->dropIfExists('trx_vip_login_bonus_history');
-        }
+        Schema::dropIfExists('trx_vip_login_bonus_history');
     }
 };

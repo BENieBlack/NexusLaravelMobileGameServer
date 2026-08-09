@@ -4,7 +4,6 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use NexusPitr\Migrations\DynamicShardingTrait;
 
 /**
  * TrxDB用リソーステーブル作成マイグレーション
@@ -14,28 +13,16 @@ use NexusPitr\Migrations\DynamicShardingTrait;
  */
 return new class extends Migration
 {
-    use DynamicShardingTrait;
 
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        // 各シャードに対してテーブルを作成（動的シャーディング対応）
-        foreach ($this->getTrxConnections() as $connection) {
-            $this->createTablesForConnection($connection);
-        }
-    }
-
-    /**
-     * 指定された接続に対してテーブルを作成
-     */
-    protected function createTablesForConnection(string $connection): void
-    {
         // ========================================
         // trx_unit: プレイヤー所持ユニット
         // ========================================
-        Schema::connection($connection)->create('trx_unit', function (Blueprint $table) {
+        Schema::create('trx_unit', function (Blueprint $table) {
             $table->id()->comment('ユニット所持ID');
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
             $table->string('mst_unit_id')->comment('マスターユニットID');
@@ -52,7 +39,7 @@ return new class extends Migration
         // ========================================
         // trx_equipment: プレイヤー所持装備
         // ========================================
-        Schema::connection($connection)->create('trx_equipment', function (Blueprint $table) {
+        Schema::create('trx_equipment', function (Blueprint $table) {
             $table->id()->comment('装備所持ID');
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
             $table->string('mst_equipment_id')->comment('マスター装備ID');
@@ -69,7 +56,7 @@ return new class extends Migration
         // ========================================
         // trx_item: プレイヤー所持アイテム
         // ========================================
-        Schema::connection($connection)->create('trx_item', function (Blueprint $table) {
+        Schema::create('trx_item', function (Blueprint $table) {
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
             $table->string('mst_item_id')->comment('マスターアイテムID');
             $table->unsignedInteger('free_amount')->default(0)->comment('無償アイテム数');
@@ -87,11 +74,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // 各シャードに対してテーブルを削除（動的シャーディング対応）
-        foreach ($this->getTrxConnections() as $connection) {
-            Schema::connection($connection)->dropIfExists('trx_item');
-            Schema::connection($connection)->dropIfExists('trx_equipment');
-            Schema::connection($connection)->dropIfExists('trx_unit');
-        }
+        Schema::dropIfExists('trx_item');
+        Schema::dropIfExists('trx_equipment');
+        Schema::dropIfExists('trx_unit');
     }
 };

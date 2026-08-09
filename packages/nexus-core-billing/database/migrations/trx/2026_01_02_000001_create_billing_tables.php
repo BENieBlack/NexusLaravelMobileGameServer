@@ -4,7 +4,6 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use NexusPitr\Migrations\DynamicShardingTrait;
 
 /**
  * TrxDB用課金テーブル作成マイグレーション
@@ -14,28 +13,16 @@ use NexusPitr\Migrations\DynamicShardingTrait;
  */
 return new class extends Migration
 {
-    use DynamicShardingTrait;
 
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        // 各シャードに対してテーブルを作成（動的シャーディング対応）
-        foreach ($this->getTrxConnections() as $connection) {
-            $this->createTablesForConnection($connection);
-        }
-    }
-
-    /**
-     * 指定された接続に対してテーブルを作成
-     */
-    protected function createTablesForConnection(string $connection): void
-    {
         // ========================================
         // trx_in_app_purchase: 課金購入履歴管理
         // ========================================
-        Schema::connection($connection)->create('trx_in_app_purchase', function (Blueprint $table) {
+        Schema::create('trx_in_app_purchase', function (Blueprint $table) {
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
             $table->string('billing_platform')->comment('決済プラットフォーム (AppStore, GooglePlay, PayPal, Stripe等)');
             $table->string('mst_in_app_purchase_id')->comment('課金商品マスターID');
@@ -54,7 +41,7 @@ return new class extends Migration
         // ========================================
         // trx_in_app_purchase_effect: Pass課金効果管理
         // ========================================
-        Schema::connection($connection)->create('trx_in_app_purchase_effect', function (Blueprint $table) {
+        Schema::create('trx_in_app_purchase_effect', function (Blueprint $table) {
             $table->id()->comment('レコードID');
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
             $table->unsignedBigInteger('mst_in_app_purchase_id')->comment('課金商品マスターID');
@@ -73,7 +60,7 @@ return new class extends Migration
         // ========================================
         // trx_diamond: ダイヤモンド現在値管理
         // ========================================
-        Schema::connection($connection)->create('trx_diamond', function (Blueprint $table) {
+        Schema::create('trx_diamond', function (Blueprint $table) {
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
             $table->string('platform')->comment('プラットフォーム (Apple, Google)');
             $table->unsignedInteger('paid_amount')->default(0)->comment('有償ダイヤモンド数');
@@ -89,7 +76,7 @@ return new class extends Migration
         // trx_diamond_balance: ダイヤモンド残高管理（購入単位）
         // FIFO方式で消費し、返金計算を可能にする
         // ========================================
-        Schema::connection($connection)->create('trx_diamond_balance', function (Blueprint $table) {
+        Schema::create('trx_diamond_balance', function (Blueprint $table) {
             $table->id()->comment('残高ID');
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
             $table->string('platform')->comment('プラットフォーム (Apple, Google)');
@@ -110,12 +97,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // 各シャードに対してテーブルを削除（動的シャーディング対応）
-        foreach ($this->getTrxConnections() as $connection) {
-            Schema::connection($connection)->dropIfExists('trx_diamond_balance');
-            Schema::connection($connection)->dropIfExists('trx_diamond');
-            Schema::connection($connection)->dropIfExists('trx_in_app_purchase_effect');
-            Schema::connection($connection)->dropIfExists('trx_in_app_purchase');
-        }
+        Schema::dropIfExists('trx_diamond_balance');
+        Schema::dropIfExists('trx_diamond');
+        Schema::dropIfExists('trx_in_app_purchase_effect');
+        Schema::dropIfExists('trx_in_app_purchase');
     }
 };

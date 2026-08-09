@@ -101,7 +101,8 @@ MYSQL_ROOT_PASSWORD="root"
 # Example: arche-local-sys, arche-local-mst, etc.
 DB_SYS_DATABASE="${APP_NAME}-${APP_ENV}-sys"
 DB_MASTER_DATABASE="${APP_NAME}-${APP_ENV}-mst"
-DB_LOG_DATABASE="${APP_NAME}-${APP_ENV}-log"
+DB_LOG1_DATABASE="${APP_NAME}-${APP_ENV}-log1"
+DB_LOG2_DATABASE="${APP_NAME}-${APP_ENV}-log2"
 DB_TRX1_DATABASE="${APP_NAME}-${APP_ENV}-trx1"
 DB_TRX2_DATABASE="${APP_NAME}-${APP_ENV}-trx2"
 DB_ADMIN_DATABASE="${APP_NAME}-${APP_ENV}-adm"
@@ -110,7 +111,8 @@ DB_TOOL_DATABASE="${APP_NAME}-${APP_ENV}-tol"
 echo "Database names:"
 echo "  System: ${DB_SYS_DATABASE}"
 echo "  Master: ${DB_MASTER_DATABASE}"
-echo "  Log: ${DB_LOG_DATABASE}"
+echo "  Log 1: ${DB_LOG1_DATABASE}"
+echo "  Log 2: ${DB_LOG2_DATABASE}"
 echo "  Transaction 1: ${DB_TRX1_DATABASE}"
 echo "  Transaction 2: ${DB_TRX2_DATABASE}"
 echo "  Admin: ${DB_ADMIN_DATABASE}"
@@ -125,7 +127,8 @@ echo "Setting up databases..."
 echo "Creating databases..."
 docker exec db-sys mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS \`${DB_SYS_DATABASE}\`;"
 docker exec db-mst mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS \`${DB_MASTER_DATABASE}\`;"
-docker exec db-log mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS \`${DB_LOG_DATABASE}\`;"
+docker exec db-log1 mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS \`${DB_LOG1_DATABASE}\`;"
+docker exec db-log2 mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS \`${DB_LOG2_DATABASE}\`;"
 docker exec db-trx1 mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS \`${DB_TRX1_DATABASE}\`;"
 docker exec db-trx2 mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS \`${DB_TRX2_DATABASE}\`;"
 docker exec db-adm mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS \`${DB_ADMIN_DATABASE}\`;"
@@ -146,7 +149,13 @@ docker exec db-mst mysql -u root -p${MYSQL_ROOT_PASSWORD} ${DB_MASTER_DATABASE} 
   batch INT NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 
-docker exec db-log mysql -u root -p${MYSQL_ROOT_PASSWORD} ${DB_LOG_DATABASE} -e "CREATE TABLE IF NOT EXISTS migrations (
+docker exec db-log1 mysql -u root -p${MYSQL_ROOT_PASSWORD} ${DB_LOG1_DATABASE} -e "CREATE TABLE IF NOT EXISTS migrations (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  migration VARCHAR(255) NOT NULL,
+  batch INT NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+
+docker exec db-log2 mysql -u root -p${MYSQL_ROOT_PASSWORD} ${DB_LOG2_DATABASE} -e "CREATE TABLE IF NOT EXISTS migrations (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   migration VARCHAR(255) NOT NULL,
   batch INT NOT NULL
@@ -188,11 +197,16 @@ if [ -d "${PROJECT_ROOT}/api" ]; then
   
   # Run migrations for each database
   echo "Running API migrations..."
-  docker exec api-php php artisan migrate --path=database/migrations/sys --database=sys --force
-  docker exec api-php php artisan migrate --path=database/migrations/mst --database=mst --force
-  docker exec api-php php artisan migrate --path=database/migrations/log --database=log --force
-  # Note: trx migrations handle both trx1 and trx2 internally via $connections array
-  docker exec api-php php artisan migrate --path=database/migrations/trx --database=trx1 --force
+  # Standard migrations (MstDB, SysDB)
+  docker exec api-php php artisan migrate --force
+  
+  # TrxDB migrations (all shards: trx1, trx2, ...)
+  echo "Running TrxDB migrations for all shards..."
+  docker exec api-php php artisan trx:migrate --force
+  
+  # LogDB migrations (all shards: log1, log2, ...)
+  echo "Running LogDB migrations for all shards..."
+  docker exec api-php php artisan pitr:migrate --force
 
   success_message "API setup completed."
 else

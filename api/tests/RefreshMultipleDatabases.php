@@ -45,70 +45,26 @@ trait RefreshMultipleDatabases
     }
 
     /**
-     * Define a set of database connections and their migration paths.
+     * Define a set of database connections to migrate.
      *
-     * @return array<string, string|array>
+     * @return array<string, null>
      */
     protected function connectionsToMigrate(): array
     {
         $connections = [
-            'sys' => array_merge(
-                ['database/migrations/sys'],
-                $this->collectPackageMigrationPaths('sys')
-            ),
-            'mst' => array_merge(
-                ['database/migrations/mst'],
-                $this->collectPackageMigrationPaths('mst')
-            ),
+            'sys' => null,
+            'mst' => null,
         ];
 
-        // Add dynamic sharded connections with their migration paths
+        // Add dynamic sharded connections
         $shardCount = (int) env('DB_TRX_SHARDS', 2);
         
-        // Collect all package migration paths for trx and log
-        $trxPaths = $this->collectPackageMigrationPaths('trx');
-        $logPaths = $this->collectPackageMigrationPaths('log');
-        
         for ($i = 1; $i <= $shardCount; $i++) {
-            $connections["trx{$i}"] = $trxPaths;
-            $connections["log{$i}"] = $logPaths;
+            $connections["trx{$i}"] = null;
+            $connections["log{$i}"] = null;
         }
 
         return $connections;
-    }
-
-    /**
-     * Collect migration paths from all packages for a specific database type.
-     *
-     * @param string $type Database type (trx, log, mst, sys, etc.)
-     * @return array<string>
-     */
-    protected function collectPackageMigrationPaths(string $type): array
-    {
-        // packages directory is mounted at /var/www/packages in Docker
-        // But Laravel's migrate command expects paths relative to base_path()
-        // base_path() is /var/www/html, so we use ../packages
-        $basePath = base_path('../packages');
-        $paths = [];
-        
-        if (!is_dir($basePath)) {
-            return $paths;
-        }
-        
-        $packages = scandir($basePath);
-        foreach ($packages as $package) {
-            if ($package === '.' || $package === '..') {
-                continue;
-            }
-            
-            $migrationPath = "{$basePath}/{$package}/database/migrations/{$type}";
-            if (is_dir($migrationPath)) {
-                // Add relative path from base_path()
-                $paths[] = "../packages/{$package}/database/migrations/{$type}";
-            }
-        }
-        
-        return $paths;
     }
 
     /**
@@ -120,15 +76,9 @@ trait RefreshMultipleDatabases
 
         // Migrate additional database connections
         foreach ($this->connectionsToMigrate() as $connection => $paths) {
-            // Handle both single path (string) and multiple paths (array)
-            $pathList = is_array($paths) ? $paths : [$paths];
-            
-            foreach ($pathList as $path) {
-                $this->artisan('migrate', [
-                    '--database' => $connection,
-                    '--path' => $path,
-                ]);
-            }
+            $this->artisan('migrate', [
+                '--database' => $connection,
+            ]);
         }
 
         $this->app[Kernel::class]->setArtisan(null);
@@ -141,17 +91,12 @@ trait RefreshMultipleDatabases
     {
         if (! RefreshDatabaseState::$migrated) {
             // Run migrations for each connection
+            // Note: Don't use --path option as it bypasses ServiceProvider-registered migrations
             foreach ($this->connectionsToMigrate() as $connection => $paths) {
-                // Handle both single path (string) and multiple paths (array)
-                $pathList = is_array($paths) ? $paths : [$paths];
-                
-                foreach ($pathList as $path) {
-                    $this->artisan('migrate', [
-                        '--database' => $connection,
-                        '--path' => $path,
-                        '--force' => true,
-                    ]);
-                }
+                $this->artisan('migrate', [
+                    '--database' => $connection,
+                    '--force' => true,
+                ]);
             }
 
             // Run seeders for sys database after migrations

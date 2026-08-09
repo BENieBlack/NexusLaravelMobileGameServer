@@ -33,40 +33,6 @@ return new class extends Migration
     protected function createTablesForConnection(string $connection): void
     {
         // ========================================
-        // trx_diamond: ダイヤモンド現在値管理
-        // ========================================
-        Schema::connection($connection)->create('trx_diamond', function (Blueprint $table) {
-            $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
-            $table->string('platform')->comment('プラットフォーム (Apple, Google)');
-            $table->unsignedInteger('paid_amount')->default(0)->comment('有償ダイヤモンド数');
-            $table->unsignedInteger('free_amount')->default(0)->comment('無償ダイヤモンド数');
-            $table->boolean('is_delete')->default(false)->comment('論理削除フラグ');
-            $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
-            $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
-
-            $table->primary(['sys_player_id', 'platform']);
-        });
-
-        // ========================================
-        // trx_diamond_balance: ダイヤモンド残高管理（購入単位）
-        // FIFO方式で消費し、返金計算を可能にする
-        // ========================================
-        Schema::connection($connection)->create('trx_diamond_balance', function (Blueprint $table) {
-            $table->id()->comment('残高ID');
-            $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
-            $table->string('platform')->comment('プラットフォーム (Apple, Google)');
-            $table->string('billing_platform')->comment('決済プラットフォーム (AppStore, GooglePlay, PayPal, Stripe等)');
-            $table->unsignedInteger('current_amount')->comment('現在の残高');
-            $table->unsignedInteger('purchase_amount')->comment('購入時の数量');
-            $table->decimal('unit_price', 10, 2)->unsigned()->comment('単価（返金計算用）');
-            $table->boolean('is_delete')->default(false)->comment('論理削除フラグ');
-            $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
-            $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
-
-            $table->index(['sys_player_id', 'platform', 'billing_platform'], 'idx_diamond_balance_player_platform');
-        });
-
-        // ========================================
         // trx_wallet: 汎用通貨現在値管理
         // Gold, EventCoin, RaidMedal等を統合管理
         // ========================================
@@ -109,8 +75,6 @@ return new class extends Migration
         foreach ($this->getTrxConnections() as $connection) {
             Schema::connection($connection)->dropIfExists('trx_wallet_balance');
             Schema::connection($connection)->dropIfExists('trx_wallet');
-            Schema::connection($connection)->dropIfExists('trx_diamond_balance');
-            Schema::connection($connection)->dropIfExists('trx_diamond');
         }
     }
 };

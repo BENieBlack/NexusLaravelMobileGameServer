@@ -1,0 +1,30 @@
+{
+    "name": "nexus/pitr",
+    "description": "Point-In-Time Recovery system for TrxDB using LogDB change history",
+    "type": "library",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Nexus Team"
+        }
+    ],
+    "require": {
+        "php": "^8.4",
+        "illuminate/support": "^12.0",
+        "illuminate/database": "^12.0",
+        "illuminate/console": "^12.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "NexusPitr\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "NexusPitr\\NexusPitrServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable"
+}

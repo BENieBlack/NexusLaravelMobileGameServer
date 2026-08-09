@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use NexusUnitOfWork\Contracts\QueryManagerInterface;
+use NexusPitr\Logger\ShardMapper;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Throwable;
@@ -14,11 +15,11 @@ trait UseCaseTrait
      *
      * 処理フロー：
      * 1. クリーンアップ処理（オプション、sign_in時のみ）
-     * 2. トランザクション開始（sys, trx 接続のみ）
-     * 3. コールバックを実行（クエリはQueryManagerにキューイング、sysは即座に実行してIDを取得）
-     * 4. キューに溜まったクエリを実行（ログ以外）
-     * 5. コミットまたはロールバック（sys, trx のみ）
-     * 6. ログをトランザクション外で実行（コミット後）
+     * 2. トランザクション開始（sys, trx, log を同時に）
+     * 3. コールバックを実行（クエリはQueryManagerにキューイング）
+     * 4. キューに溜まったクエリを実行（TrxDB + LogDB）
+     * 5. すべてを同時にコミット（1つでも失敗したら全てロールバック）
+     * 6. 通常ログをトランザクション外で実行（コミット後）
      *
      * @param callable $callback 実行するビジネスロジック
      * @param int|null $sysPlayerId sign_in時のクリーンアップ用プレイヤーID
@@ -33,32 +34,33 @@ trait UseCaseTrait
             $cleanupService->cleanupDeletedRecords($sysPlayerId);
         }
 
-        // **重要**: トランザクションを先に開始してから$callback()を実行
-        // ログはトランザクションから除外（非原子的な複数DBトランザクション問題を解消）
-        foreach (['sys', 'trx'] as $connection) {
-            DB::connection($connection)->beginTransaction();
+        // 使用する接続を収集（sys + trx + log）
+        $connections = $this->getActiveConnections();
+        
+        // すべてのトランザクションを同時に開始（PITR整合性保証）
+        foreach ($connections as $conn) {
+            DB::connection($conn)->beginTransaction();
         }
 
         $queryManager = app()->make(QueryManagerInterface::class);
         
         try {
             // コールバックを実行（クエリはQueryManagerにキューイングされる）
-            // PlayerServiceなどでexecAllQuery()が呼ばれた場合、トランザクション内で実行される
             $result = $callback();
 
             /**
-             * すべてのクエリをフラッシュ（ログ以外のSys/Trxを実行）
-             * ログはトランザクション外で実行するため、ここでは実行されない
+             * すべてのクエリをフラッシュ（TrxDB + LogDB PITRログ）
+             * PITRログも同一トランザクション内で実行される
              */
             $queryManager->flush();
 
-            // sys, trx のみコミット
-            foreach (['sys', 'trx'] as $connection ){
-                DB::connection($connection)->commit();
+            // すべてを同時にコミット（完全な整合性保証）
+            foreach ($connections as $conn) {
+                DB::connection($conn)->commit();
             }
 
-            // **ログをトランザクション外で実行**（P1-1: ログトランザクション分離）
-            // ログ書き込み失敗はビジネストランザクションに影響しない
+            // **通常ログをトランザクション外で実行**
+            // 通常ログ（log_access等）書き込み失敗はビジネストランザクションに影響しない
             $queryManager->execAllLogs();
 
         } catch (Exception | Throwable $e) {
@@ -69,14 +71,53 @@ trait UseCaseTrait
                 'trace' => $e->getTraceAsString(),
             ]);
             
-            // sys, trx のみロールバック
-            foreach (['sys', 'trx'] as $connection) {
-                DB::connection($connection)->rollBack();
+            // すべてをロールバック（TrxDB + LogDB PITR）
+            foreach ($connections as $conn) {
+                try {
+                    DB::connection($conn)->rollBack();
+                } catch (\Exception $rollbackException) {
+                    \Log::emergency('Rollback failed', [
+                        'connection' => $conn,
+                        'error' => $rollbackException->getMessage(),
+                    ]);
+                }
             }
 
             throw $e;
         }
 
         return $result;
+    }
+
+    /**
+     * アクティブな接続を取得
+     * 
+     * sys + (trx1, trx2, ...) + (log1, log2, ...)
+     *
+     * @return array<string>
+     */
+    private function getActiveConnections(): array
+    {
+        $connections = ['sys'];
+        
+        // TrxDB接続を追加（環境変数で制御可能）
+        $trxConnections = config('database.pitr.active_trx_connections', ['trx']);
+        
+        foreach ($trxConnections as $trxConn) {
+            $connections[] = $trxConn;
+            
+            // 対応するLogDB接続を追加
+            try {
+                $logConn = ShardMapper::getLogConnection($trxConn);
+                $connections[] = $logConn;
+            } catch (\InvalidArgumentException $e) {
+                // LogDBマッピングがない場合はスキップ
+                \Log::warning('LogDB mapping not found for PITR', [
+                    'trx_connection' => $trxConn,
+                ]);
+            }
+        }
+        
+        return $connections;
     }
 }

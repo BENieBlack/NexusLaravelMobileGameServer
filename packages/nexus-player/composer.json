@@ -7,7 +7,8 @@
         "nexus/core-utilities": "@dev"
     },
     "require-dev": {
-        "phpunit/phpunit": "^10.0"
+        "phpunit/phpunit": "^10.0",
+        "mockery/mockery": "^1.6"
     },
     "autoload": {
         "psr-4": {
@@ -19,6 +20,12 @@
             "NexusPlayer\\Tests\\": "tests/"
         }
     },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../nexus-core-utilities"
+        }
+    ],
     "extra": {
         "laravel": {
             "providers": [

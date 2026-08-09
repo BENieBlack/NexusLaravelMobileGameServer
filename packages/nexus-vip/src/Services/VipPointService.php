@@ -2,7 +2,7 @@
 
 namespace NexusVip\Services;
 
-use App\Models\Sys\SysPlayer;
+use NexusVip\DTOs\PlayerVipDto;
 use NexusVip\Events\VipLevelUpEvent;
 use NexusVip\Exceptions\InvalidVipPointException;
 use NexusVip\Repositories\PlayerVipRepositoryInterface;
@@ -30,7 +30,7 @@ class VipPointService
      * @param int $points VIPポイント
      * @param string $reason 理由（purchase, manual_adjustment, campaign）
      * @param array $metadata メタデータ
-     * @return SysPlayer
+     * @return PlayerVipDto
      * @throws InvalidVipPointException
      */
     public function addPoints(
@@ -38,37 +38,36 @@ class VipPointService
         int $points,
         string $reason,
         array $metadata = []
-    ): SysPlayer {
+    ): PlayerVipDto {
         if ($points <= 0) {
             throw new InvalidVipPointException("Points must be positive, got: {$points}");
         }
 
         // プレイヤー情報を取得
-        $player = $this->playerVipRepository->findVipInfoById($sysPlayerId);
+        $playerVip = $this->playerVipRepository->findVipInfoById($sysPlayerId);
         
-        if ($player === null) {
+        if ($playerVip === null) {
             throw new InvalidVipPointException("Player not found: {$sysPlayerId}");
         }
         
-        $beforePoint = $player->getVipPoint();
+        $beforePoint = $playerVip->getVipPoint();
         
         // 変更前のVIPレベルを計算
         $beforeLevel = $this->vipLevelService->calculateLevel($beforePoint);
         
         // ポイント加算
-        $player->addVipPoint($points);
+        $playerVip->addVipPoint($points);
         
         // 課金額を累積（metadataに含まれている場合）
         if (isset($metadata['purchase_amount_jpy'])) {
-            $player->addTotalPaidAmount($metadata['purchase_amount_jpy']);
+            $playerVip->addTotalPaidAmount($metadata['purchase_amount_jpy']);
         }
         
         // 変更後のVIPレベルを計算
-        $afterLevel = $this->vipLevelService->calculateLevel($player->getVipPoint());
+        $afterLevel = $this->vipLevelService->calculateLevel($playerVip->getVipPoint());
         
-        // Repository に登録（Unit of Workパターン）
-        // Note: vip_level カラムは保存しない（クライアント側で計算）
-        $this->playerVipRepository->setModel($player);
+        // Repository に保存（Unit of Workパターン）
+        $this->playerVipRepository->saveVipInfo($playerVip);
         
         // ログ記録（設定で有効な場合）
         if (config('vip.enable_point_log', true)) {
@@ -78,7 +77,7 @@ class VipPointService
                 beforeLevel: $beforeLevel,
                 afterLevel: $afterLevel,
                 beforePoint: $beforePoint,
-                afterPoint: $player->getVipPoint(),
+                afterPoint: $playerVip->getVipPoint(),
                 pointDiff: $points,
                 reason: $reason,
                 metadata: $metadata
@@ -97,7 +96,7 @@ class VipPointService
             event(new VipLevelUpEvent($sysPlayerId, $beforeLevel, $afterLevel, $allRewards));
         }
         
-        return $player;
+        return $playerVip;
     }
 
     /**
@@ -142,10 +141,10 @@ class VipPointService
      * プレイヤーのVIP情報を取得
      *
      * @param int $sysPlayerId
-     * @return SysPlayer|null
+     * @return PlayerVipDto|null
      */
-    public function getPlayerVipInfo(int $sysPlayerId): ?SysPlayer
+    public function getPlayerVipInfo(int $sysPlayerId): ?PlayerVipDto
     {
-        return $this->playerVipRepository->findById($sysPlayerId);
+        return $this->playerVipRepository->findVipInfoById($sysPlayerId);
     }
 }

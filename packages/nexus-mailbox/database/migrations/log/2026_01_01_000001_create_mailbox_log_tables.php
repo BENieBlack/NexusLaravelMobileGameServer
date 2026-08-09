@@ -22,8 +22,8 @@ return new class extends Migration
             $table->unsignedBigInteger('mailbox_id')->nullable()->comment('メールボックスID');
             $table->enum('operation_type', ['insert', 'update', 'delete'])->comment('操作タイプ');
             
-            $table->json('old_data')->nullable()->comment('変更前データ');
-            $table->json('new_data')->nullable()->comment('変更後データ');
+            $table->json('before_data')->nullable()->comment('変更前データ');
+            $table->json('after_data')->nullable()->comment('変更後データ');
             $table->json('changed_columns')->nullable()->comment('変更カラムリスト');
             
             $table->string('mst_mailbox_id')->nullable()->comment('マスターメールボックスID');

@@ -9,7 +9,8 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^10.0",
-        "illuminate/support": "^10.0"
+        "illuminate/support": "^11.0|^12.0",
+        "mockery/mockery": "^1.6"
     },
     "autoload": {
         "psr-4": {
@@ -21,6 +22,20 @@
             "NexusMailbox\\Tests\\": "tests/"
         }
     },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../nexus-core-utilities"
+        },
+        {
+            "type": "path",
+            "url": "../nexus-resource-delivery"
+        },
+        {
+            "type": "path",
+            "url": "../nexus-resource"
+        }
+    ],
     "extra": {
         "laravel": {
             "providers": [

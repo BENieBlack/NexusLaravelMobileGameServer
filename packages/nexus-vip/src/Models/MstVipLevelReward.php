@@ -2,14 +2,13 @@
 
 namespace NexusVip\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use NexusPersistence\Models\Mst\_BaseMst;
 
 /**
  * VIPレベルアップ報酬マスターモデル
  */
-class MstVipLevelReward extends Model
+class MstVipLevelReward extends _BaseMst
 {
-    protected $connection = 'mst';
     protected $table = 'mst_vip_level_reward';
     
     public $incrementing = false;

@@ -5,25 +5,55 @@ namespace App\Exceptions;
 /**
  * GameErrorCode
  *
- * ゲームAPIのエラーコード定数定義
+ * ゲームAPIのエラーコード定数定義（アプリケーション層: 5桁）
  * HTTPステータス299のレスポンスで使用するerror_codeの一覧
  *
- * エラーコード範囲:
- * - 10000-10099: 認証関連エラー
- * - 10100-10199: リソース不足エラー
- * - 10200-10299: アプリ内課金エラー
- * - 10300-10399: データ検証エラー
- * - 10400-10499: リソース未検出エラー
- * - 10500-10599: ビジネスロジックエラー
- * - 10600-10699: フレンド関連エラー
- * - 10700-10799: Mailbox関連エラー
- * - 10800-10899: Gacha関連エラー
- * - 10900-10999: Guild関連エラー
- * - 19900-19999: システムエラー
+ * エラーコード体系：
+ * - インフラ/汎用エラー: 3桁以下（1-999） ← InfraErrorCodeで定義
+ * - パッケージ層: 4桁（1000-9999） ← 各パッケージのErrorCodeクラスで定義
+ * - アプリケーション層: 5桁（10000-99999） ← このクラスで定義
+ *
+ * アプリケーション層エラーコード範囲:
+ * - 10000-10999: 認証関連エラー (Auth)
+ * - 11000-11999: プレイヤー関連エラー (Player)
+ * - 12000-12999: ユニット関連エラー (Unit)
+ * - 13000-13999: 装備関連エラー (Equipment)
+ * - 14000-14999: クエスト関連エラー (Quest)
+ * - 15000-15999: バトル関連エラー (Battle)
+ * - 16000-16999: アプリ内課金関連エラー (InAppPurchase)
+ * - 17000-17999: フレンド関連エラー (Friend)
+ * - 18000-18999: ギルド関連エラー (Guild)
+ * - 19000-19999: ガチャ関連エラー (Gacha)
+ * - 20000-20999: メールボックス関連エラー (Mailbox)
+ * - 99000-99999: アプリケーション汎用エラー
+ *
+ * インフラ層エラーコード（3桁以下）はInfraErrorCodeで定義：
+ * - 100-199: データベースエラー
+ * - 200-299: キャッシュ/Redisエラー
+ * - 300-399: 暗号化/セキュリティエラー
+ * - 400-499: データ整合性エラー（マスタデータ未検出等）
+ * - 500-599: タイムアウトエラー
+ * - 600-699: 設定/環境エラー
+ * - 700-999: 汎用システムエラー
+ *
+ * パッケージ層エラーコード（4桁）は各パッケージで定義：
+ * - nexus-wallet: 1000-1099 (WalletErrorCode)
+ * - nexus-stamina: 1100-1199 (StaminaErrorCode)
+ * - nexus-vip: 1200-1299 (VipErrorCode)
+ * - nexus-friend: 1300-1399 (FriendErrorCode)
+ * - nexus-guild: 1400-1499 (GuildErrorCode)
+ * - nexus-mailbox: 1500-1599 (MailboxErrorCode)
+ * - nexus-gacha: 1600-1699 (GachaErrorCode)
+ * - nexus-login: 1700-1799 (LoginErrorCode)
+ * - nexus-level: 1800-1899 (LevelErrorCode)
+ * - nexus-resource: 1900-1999 (ResourceErrorCode)
+ * - nexus-billing: 2000-2099 (BillingErrorCode)
  */
 class GameErrorCode
 {
-    // 認証関連エラー (10000-10099)
+    // ========================================
+    // 認証関連エラー (10000-10999)
+    // ========================================
     const AUTHENTICATION_FAILED = 10001;
 
     const PLAYER_NOT_FOUND = 10002;
@@ -32,141 +62,226 @@ class GameErrorCode
 
     const DEVICE_ALREADY_EXISTS = 10004;
 
-    // リソース不足エラー (10100-10199)
-    const STAMINA_NOT_ENOUGH = 10100;
+    // ========================================
+    // プレイヤー関連エラー (11000-11999)
+    // ========================================
+    const PLAYER_DATA_CORRUPTED = 11001;
 
-    const DIAMOND_NOT_ENOUGH = 10101;
+    const PLAYER_NAME_INVALID = 11002;
 
-    const ITEM_NOT_ENOUGH = 10102;
+    const PLAYER_LEVEL_MAX_REACHED = 11003;
 
-    // アプリ内課金エラー (10200-10299)
-    const PRODUCT_NOT_FOUND = 10200;
+    // ========================================
+    // ユニット関連エラー (12000-12999)
+    // ========================================
+    const UNIT_NOT_FOUND = 12001;
 
-    const PRODUCT_INACTIVE = 10201;
+    const UNIT_MAX_LEVEL_REACHED = 12002;
 
-    const PURCHASE_LIMIT_EXCEEDED = 10202;
+    const UNIT_EVOLUTION_FAILED = 12003;
 
-    const INVALID_PRODUCT_TYPE = 10203;
+    // ========================================
+    // 装備関連エラー (13000-13999)
+    // ========================================
+    const EQUIPMENT_NOT_FOUND = 13001;
 
-    const PRODUCT_ID_MISMATCH = 10204;
+    const EQUIPMENT_MAX_LEVEL_REACHED = 13002;
 
-    const RECEIPT_VERIFICATION_FAILED = 10205;
+    const EQUIPMENT_ENHANCE_FAILED = 13003;
 
-    const PRICE_MISMATCH = 10206;
+    // ========================================
+    // クエスト関連エラー (14000-14999)
+    // ========================================
+    const QUEST_NOT_FOUND = 14001;
 
-    // データ検証エラー (10300-10399)
-    const INVALID_PARAMETER = 10300;
+    const QUEST_NOT_AVAILABLE = 14002;
 
-    const VALIDATION_FAILED = 10301;
+    const QUEST_ALREADY_COMPLETED = 14003;
 
-    // リソース未検出エラー (10400-10499)
-    const UNIT_NOT_FOUND = 10400;
+    // ========================================
+    // バトル関連エラー (15000-15999)
+    // ========================================
+    const PARTY_FORMATION_INVALID = 15001;
 
-    const MASTER_DATA_NOT_FOUND = 10401;
+    const BATTLE_RESULT_INVALID = 15002;
 
-    const EQUIPMENT_NOT_FOUND = 10402;
+    // ========================================
+    // アプリ内課金関連エラー (16000-16999)
+    // ========================================
+    const PRODUCT_NOT_FOUND = 16001;
 
-    const WALLET_NOT_FOUND = 10403;
+    const PRODUCT_INACTIVE = 16002;
 
-    // ビジネスロジックエラー (10500-10599)
-    const INSUFFICIENT_CURRENCY = 10500;
+    const PURCHASE_LIMIT_EXCEEDED = 16003;
 
-    const INVALID_ITEM_TYPE = 10501;
+    const INVALID_PRODUCT_TYPE = 16004;
 
-    const UNIT_MAX_LEVEL_REACHED = 10502;
+    const PRODUCT_ID_MISMATCH = 16005;
 
-    const INVALID_RESOURCE_TYPE = 10503;
+    const RECEIPT_VERIFICATION_FAILED = 16006;
 
-    // フレンド関連エラー (10600-10699)
-    const FRIEND_REQUEST_ALREADY_EXISTS = 10600;
+    const PRICE_MISMATCH = 16007;
 
-    const FRIEND_ALREADY_EXISTS = 10601;
+    // ========================================
+    // フレンド関連エラー (17000-17999)
+    // ========================================
+    const FRIEND_REQUEST_ALREADY_EXISTS = 17001;
 
-    const FRIEND_REQUEST_NOT_FOUND = 10602;
+    const FRIEND_ALREADY_EXISTS = 17002;
 
-    const TARGET_PLAYER_NOT_FOUND = 10603;
+    const FRIEND_REQUEST_NOT_FOUND = 17003;
 
-    const CANNOT_SEND_FRIEND_REQUEST_TO_SELF = 10604;
+    const TARGET_PLAYER_NOT_FOUND = 17004;
 
-    const FRIEND_APPLY_NOT_FOUND = 10605;
+    const CANNOT_SEND_FRIEND_REQUEST_TO_SELF = 17005;
 
-    const NOT_AUTHORIZED_TO_ACCEPT = 10606;
+    const FRIEND_APPLY_NOT_FOUND = 17006;
 
-    const FRIEND_APPLY_ALREADY_ACCEPTED = 10607;
+    const NOT_AUTHORIZED_TO_ACCEPT = 17007;
 
-    const FRIEND_APPLY_ALREADY_DELETED = 10608;
+    const FRIEND_APPLY_ALREADY_ACCEPTED = 17008;
 
-    const CANNOT_DELETE_SELF = 10609;
+    const FRIEND_APPLY_ALREADY_DELETED = 17009;
 
-    const FRIEND_NOT_FOUND = 10610;
+    const CANNOT_DELETE_SELF = 17010;
 
-    const NOT_AUTHORIZED_TO_REJECT = 10611;
+    const FRIEND_NOT_FOUND = 17011;
 
-    const FRIEND_APPLY_ALREADY_REJECTED = 10612;
+    const NOT_AUTHORIZED_TO_REJECT = 17012;
 
-    // Mailbox (10700-10799)
-    const MAILBOX_NOT_FOUND = 10701;
+    const FRIEND_APPLY_ALREADY_REJECTED = 17013;
 
-    const MAILBOX_ALREADY_RECEIVED = 10702;
+    // ========================================
+    // ギルド関連エラー (18000-18999)
+    // ========================================
+    const GUILD_NOT_FOUND = 18001;
 
-    const MAILBOX_NOT_OPENED = 10703;
+    const GUILD_NAME_ALREADY_EXISTS = 18002;
 
-    // Gacha (10800-10899)
-    const GACHA_NOT_FOUND = 10800;
+    const GUILD_FULL = 18003;
 
-    const GACHA_INACTIVE = 10801;
+    const PLAYER_ALREADY_IN_GUILD = 18004;
 
-    const GACHA_NOT_AVAILABLE = 10802;
+    const PLAYER_NOT_IN_GUILD = 18005;
 
-    const GACHA_DAILY_LIMIT_EXCEEDED = 10803;
+    const GUILD_APPLY_ALREADY_EXISTS = 18006;
 
-    const GACHA_COST_NOT_FOUND = 10804;
+    const GUILD_APPLY_NOT_FOUND = 18007;
 
-    const GACHA_STEP_NOT_FOUND = 10805;
+    const GUILD_INVALID_STATUS = 18008;
 
-    const GACHA_CANDIDATE_NOT_FOUND = 10806;
+    const GUILD_PERMISSION_DENIED = 18009;
 
-    const GACHA_CANDIDATE_REQUIRED = 10807;
+    const GUILD_MASTER_CANNOT_LEAVE = 18010;
 
-    const GACHA_INVALID_DRAW_COUNT = 10808;
+    const GUILD_MEMBER_NOT_FOUND = 18011;
 
-    const GACHA_NO_PRIZES_AVAILABLE = 10809;
+    const GUILD_CREATE_FAILED = 18012;
 
-    // Guild (10900-10999)
-    const GUILD_NOT_FOUND = 10900;
+    const GUILD_APPLY_FAILED = 18013;
 
-    const GUILD_NAME_ALREADY_EXISTS = 10901;
+    const GUILD_APPLY_ACCEPT_FAILED = 18014;
 
-    const GUILD_FULL = 10902;
+    const GUILD_APPLY_REJECT_FAILED = 18015;
 
-    const PLAYER_ALREADY_IN_GUILD = 10903;
+    const GUILD_LEAVE_FAILED = 18016;
 
-    const PLAYER_NOT_IN_GUILD = 10904;
+    // ========================================
+    // ガチャ関連エラー (19000-19999)
+    // ========================================
+    const GACHA_NOT_FOUND = 19001;
 
-    const GUILD_APPLY_ALREADY_EXISTS = 10905;
+    const GACHA_INACTIVE = 19002;
 
-    const GUILD_APPLY_NOT_FOUND = 10906;
+    const GACHA_NOT_AVAILABLE = 19003;
 
-    const GUILD_INVALID_STATUS = 10907;
+    const GACHA_DAILY_LIMIT_EXCEEDED = 19004;
 
-    const GUILD_PERMISSION_DENIED = 10908;
+    const GACHA_COST_NOT_FOUND = 19005;
 
-    const GUILD_MASTER_CANNOT_LEAVE = 10909;
+    const GACHA_STEP_NOT_FOUND = 19006;
 
-    const GUILD_MEMBER_NOT_FOUND = 10910;
+    const GACHA_CANDIDATE_NOT_FOUND = 19007;
 
-    const GUILD_CREATE_FAILED = 10911;
+    const GACHA_CANDIDATE_REQUIRED = 19008;
 
-    const GUILD_APPLY_FAILED = 10912;
+    const GACHA_INVALID_DRAW_COUNT = 19009;
 
-    const GUILD_APPLY_ACCEPT_FAILED = 10913;
+    const GACHA_NO_PRIZES_AVAILABLE = 19010;
 
-    const GUILD_APPLY_REJECT_FAILED = 10914;
+    // ========================================
+    // メールボックス関連エラー (20000-20999)
+    // ========================================
+    const MAILBOX_NOT_FOUND = 20001;
 
-    const GUILD_LEAVE_FAILED = 10915;
+    const MAILBOX_ALREADY_RECEIVED = 20002;
 
-    // システムエラー (19900-19999)
-    const NOT_IMPLEMENTED = 19900;
+    const MAILBOX_NOT_OPENED = 20003;
 
-    const INTERNAL_ERROR = 19999;
+    // ========================================
+    // アプリケーション汎用エラー (99000-99999)
+    // ========================================
+
+    /**
+     * データ検証エラー
+     */
+    const INVALID_PARAMETER = 99001;
+
+    const VALIDATION_FAILED = 99002;
+
+    /**
+     * 未実装機能（アプリケーション層）
+     */
+    const NOT_IMPLEMENTED = 99900;
+
+    /**
+     * 内部エラー（アプリケーション層）
+     *
+     * Note: インフラ層のエラーはInfraErrorCode::UNKNOWN_ERROR (999)を使用
+     */
+    const INTERNAL_ERROR = 99999;
+
+    // ========================================
+    // 非推奨（インフラ層に移行すべき）
+    // ========================================
+
+    /**
+     * @deprecated Use InfraErrorCode::MASTER_DATA_NOT_FOUND (401) instead
+     */
+    const MASTER_DATA_NOT_FOUND = 98003;
+
+    /**
+     * @deprecated Use WalletErrorCode::INSUFFICIENT_BALANCE (1001) instead
+     */
+    const STAMINA_NOT_ENOUGH = 98101;
+
+    /**
+     * @deprecated Use WalletErrorCode::INSUFFICIENT_BALANCE (1001) instead
+     */
+    const DIAMOND_NOT_ENOUGH = 98102;
+
+    /**
+     * @deprecated Use WalletErrorCode::INSUFFICIENT_BALANCE (1001) instead
+     */
+    const ITEM_NOT_ENOUGH = 98103;
+
+    /**
+     * @deprecated Use WalletErrorCode::INSUFFICIENT_BALANCE (1001) instead
+     */
+    const INSUFFICIENT_CURRENCY = 98104;
+
+    /**
+     * @deprecated Use WalletErrorCode::WALLET_NOT_FOUND (1003) instead
+     */
+    const WALLET_NOT_FOUND = 98105;
+
+    /**
+     * @deprecated Define specific invalid type error in relevant domain
+     */
+    const INVALID_ITEM_TYPE = 98004;
+
+    /**
+     * @deprecated Define specific invalid type error in relevant domain
+     */
+    const INVALID_RESOURCE_TYPE = 98005;
 }

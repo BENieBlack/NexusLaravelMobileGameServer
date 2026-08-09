@@ -2,8 +2,9 @@
 
 namespace Tests\Unit\Http\Controllers;
 
-use App\Exceptions\GameException;
 use App\Exceptions\GameErrorCode;
+use App\Exceptions\GameException;
+use App\Exceptions\InfraErrorCode;
 use App\Http\Controllers\_BaseController;
 use Illuminate\Http\JsonResponse;
 use PHPUnit\Framework\Attributes\Test;
@@ -59,7 +60,7 @@ class BaseControllerTest extends TestCase
         $this->assertEquals(500, $response->getStatusCode());
 
         $content = json_decode($response->getContent(), true);
-        $this->assertEquals(GameErrorCode::INTERNAL_ERROR, $content['error_code']);
+        $this->assertEquals(InfraErrorCode::UNKNOWN_ERROR, $content['error_code']);
     }
 
     #[Test]

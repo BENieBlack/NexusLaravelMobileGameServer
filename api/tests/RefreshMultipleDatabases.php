@@ -108,14 +108,13 @@ trait RefreshMultipleDatabases
                 $flagExists = file_exists($flagFile);
                 
                 if (! $flagExists) {
-                    // Run migrations for each connection
-                    // Note: Don't use --path option as it bypasses ServiceProvider-registered migrations
-                    foreach ($this->connectionsToMigrate() as $connection => $paths) {
-                        $this->artisan('migrate', [
-                            '--database' => $connection,
-                            '--force' => true,
-                        ]);
-                    }
+                    // Run migrations once with sys as the default connection
+                    // Migrations use Schema::connection('xxx') to specify target database
+                    // so they will create tables in the correct database regardless of --database option
+                    $this->artisan('migrate', [
+                        '--database' => 'sys',
+                        '--force' => true,
+                    ]);
 
                     // Run seeders for sys database after migrations
                     $this->artisan('db:seed', [

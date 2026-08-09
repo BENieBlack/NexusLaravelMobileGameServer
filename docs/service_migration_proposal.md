@@ -1,0 +1,389 @@
+# Service移行提案：Domain層からパッケージ層へ
+
+## 概要
+
+現在、`api/app/Domain/*/Services/`に配置されているServiceの中で、パッケージ層に移動すべきものを整理し、移行計画を提案します。
+
+## 背景
+
+### 現在の問題点
+
+1. **ビジネスロジックがアプリケーション層に混在**
+   - Domain層（`api/app/Domain`）にビジネスロジックが散在
+   - パッケージ（`packages/nexus-*`）が存在するのに利用されていない
+
+2. **再利用性の低下**
+   - 他のアプリケーション（管理画面、CLI、Job等）から同じロジックを使えない
+   - Eloquent Modelに強く依存している
+
+3. **テストの困難さ**
+   - HTTPに依存したテストが必要
+   - 純粋なビジネスロジックのテストが困難
+
+### 理想的な設計
+
+```
+┌─────────────────────────────────┐
+│ Domain Layer (api/app/Domain)   │
+│ - UseCases                      │
+│ - Service Wrappers (DTO ↔ Model) │
+└────────────┬────────────────────┘
+             │ 依存
+┌────────────▼────────────────────┐
+│ Package Layer (packages/nexus-*) │
+│ - Domain Services (DTO使用)     │
+│ - Business Logic                │
+│ - Repository Interfaces         │
+└─────────────────────────────────┘
+```
+
+## 移行対象のService分析
+
+### ✅ すでに適切に分離されているもの（変更不要）
+
+| Domain Service | Package Service | 評価 |
+|---|---|---|
+| `StaminaService` | `nexus-stamina/Services/StaminaService` | ✅ 完璧。DTO ↔ Model変換のラッパー |
+| `WalletService` | LaravelWallet package | ✅ 完璧。Facadeパターン |
+| `GachaDrawService` | `nexus-gacha/Services/GachaDrawService` | ✅ 完璧。配列変換ラッパー |
+| `UnitLevelService` | `nexus-level/Services/_BaseLevelService` | ✅ 継承パターン、適切 |
+
+### 🔄 パッケージに移動すべきService
+
+#### 優先度：高
+
+##### 1. ItemService / ItemReadService / ItemWriteService
+
+**現状:**
+- `api/app/Domain/Item/Services/ItemService.php` - Facade
+- `api/app/Domain/Item/Services/ItemReadService.php` - 読み取り
+- `api/app/Domain/Item/Services/ItemWriteService.php` - 書き込み
+- パッケージ: `nexus-resource` 存在するがServiceなし
+
+**移動すべきビジネスロジック:**
+- ✅ 有償優先消費ロジック
+- ✅ 残高チェック
+- ✅ 加算/減算のビジネスルール
+
+**推奨構造:**
+
+```
+packages/nexus-resource/src/
+  ├── Services/
+  │   ├── ItemService.php              # Facade (DTO使用)
+  │   ├── ItemReadService.php          # 読み取り専用
+  │   └── ItemWriteService.php         # 書き込み専用
+  ├── DTOs/
+  │   └── ItemDto.php                  # すでに存在
+  ├── Repositories/
+  │   └── ItemRepositoryInterface.php  # インターフェース
+  └── Enums/
+      └── ResourceType.php             # すでに存在
+
+api/app/Domain/Item/Services/
+  ├── ItemService.php                  # ラッパー：DTO → Model変換
+  ├── ItemReadService.php              # ラッパー
+  └── ItemWriteService.php             # ラッパー
+```
+
+**実装例:**
+
+```php
+// packages/nexus-resource/src/Services/ItemWriteService.php
+namespace NexusResource\Services;
+
+use NexusResource\DTOs\ItemDto;
+use NexusResource\Repositories\ItemRepositoryInterface;
+
+class ItemWriteService
+{
+    public function __construct(
+        private readonly ItemRepositoryInterface $itemRepository,
+    ) {}
+    
+    /**
+     * アイテムを消費（有償優先）
+     * 
+     * @param int $playerId
+     * @param string $itemId
+     * @param int $amount
+     * @return ItemDto
+     * @throws InsufficientItemException
+     */
+    public function consumeItem(int $playerId, string $itemId, int $amount): ItemDto
+    {
+        $item = $this->itemRepository->findByPlayerAndItem($playerId, $itemId);
+        
+        if (!$item) {
+            throw new ItemNotFoundException($itemId);
+        }
+        
+        // 残高チェック
+        if ($item->getTotalAmount() < $amount) {
+            throw new InsufficientItemException($itemId, $amount, $item->getTotalAmount());
+        }
+        
+        // 有償優先消費
+        [$paidConsumed, $freeConsumed] = $this->consumeWithPaidFirst(
+            $item->getPaidAmount(),
+            $item->getFreeAmount(),
+            $amount
+        );
+        
+        $item = $item->withConsumedAmounts($paidConsumed, $freeConsumed);
+        
+        return $this->itemRepository->save($item);
+    }
+    
+    /**
+     * 有償優先消費ロジック
+     */
+    private function consumeWithPaidFirst(int $paidAmount, int $freeAmount, int $consumeAmount): array
+    {
+        $paidConsumed = min($paidAmount, $consumeAmount);
+        $freeConsumed = $consumeAmount - $paidConsumed;
+        
+        return [$paidConsumed, $freeConsumed];
+    }
+}
+
+// api/app/Domain/Item/Services/ItemWriteService.php (ラッパー)
+namespace App\Domain\Item\Services;
+
+use NexusResource\Services\ItemWriteService as PackageItemWriteService;
+use App\Models\Trx\TrxItem;
+use App\Repositories\Trx\TrxItemRepository;
+
+class ItemWriteService
+{
+    public function __construct(
+        private readonly PackageItemWriteService $packageItemWriteService,
+        private readonly TrxItemRepository $trxItemRepository,
+    ) {}
+    
+    /**
+     * アイテムを消費（Eloquent Model返却）
+     */
+    public function consumeItem(int $sysPlayerId, string $mstItemId, int $amount): TrxItem
+    {
+        // パッケージServiceを呼び出し（DTOで処理）
+        $itemDto = $this->packageItemWriteService->consumeItem($sysPlayerId, $mstItemId, $amount);
+        
+        // DTOをEloquent Modelに変換
+        $trxItem = $this->trxItemRepository->findByDto($itemDto);
+        
+        // Repositoryにキューイング
+        $this->trxItemRepository->setModel($trxItem);
+        
+        return $trxItem;
+    }
+}
+```
+
+**メリット:**
+- ✅ ビジネスロジックがパッケージに集約
+- ✅ CLI/Job/管理画面から同じロジックを再利用可能
+- ✅ DTOベースの純粋なPHPテストが可能
+- ✅ Eloquent Modelへの依存がアプリケーション層のみに限定
+
+#### 優先度：中
+
+##### 2. InAppPurchase関連Service
+
+**現状:**
+- `api/app/Domain/InAppPurchase/Services/DiamondBalanceService.php`
+- `api/app/Domain/InAppPurchase/Services/InAppPurchasePurchaseService.php`
+- `api/app/Domain/InAppPurchase/Services/InAppPurchasePackService.php`
+- `api/app/Domain/InAppPurchase/Services/InAppPurchasePassService.php`
+- `api/app/Domain/InAppPurchase/Services/InAppPurchaseValidationService.php`
+- パッケージ: `nexus-core-billing` 存在
+
+**推奨構造:**
+
+```
+packages/nexus-core-billing/src/
+  ├── Services/
+  │   ├── DiamondBalanceService.php    # ダイヤモンド残高管理
+  │   ├── PurchaseService.php          # 購入処理
+  │   ├── PurchaseValidationService.php # 購入バリデーション
+  │   ├── PackPurchaseService.php      # パック購入
+  │   └── PassPurchaseService.php      # パス購入
+  ├── DTOs/
+  │   ├── DiamondBalanceDto.php
+  │   ├── PurchaseResultDto.php
+  │   └── PurchaseRequestDto.php
+  └── Repositories/
+      └── PurchaseRepositoryInterface.php
+
+api/app/Domain/InAppPurchase/Services/
+  └── (ラッパー、または直接パッケージServiceを使用)
+```
+
+#### 優先度：低
+
+##### 3. GachaCostService / GachaValidationService
+
+**現状:**
+- `GachaDrawService` / `GachaPrizeService` / `GachaProgressService` はすでに移行済み ✅
+- `GachaCostService` / `GachaValidationService` のみDomain層に残存
+
+**推奨:**
+- 上記2つもパッケージ `nexus-gacha` に移動
+
+##### 4. VersionService
+
+**現状:**
+- `api/app/Domain/Version/Services/VersionService.php` - Domain層
+- `packages/nexus-version/src/Services/VersionService.php` - **すでに存在！**
+
+**推奨:**
+- Domain側のVersionServiceをパッケージServiceのラッパーにする（StaminaServiceパターン）
+
+## 移行手順（ItemServiceの例）
+
+### Step 1: パッケージにServiceを作成
+
+1. DTOを確認・拡張
+2. Repository Interfaceを作成
+3. ServiceをDTOベースで実装
+4. テストを作成（純粋なPHPテスト）
+
+### Step 2: Domain層をラッパー化
+
+1. パッケージServiceをDI
+2. DTOをEloquent Modelに変換するロジックのみ残す
+3. ビジネスロジックはすべてパッケージに委譲
+
+### Step 3: テスト更新
+
+1. パッケージServiceの単体テスト
+2. Domain ラッパーの統合テスト
+3. UseCaseのE2Eテスト
+
+### Step 4: 既存コード更新
+
+1. UseCaseからの呼び出し確認
+2. 他のServiceからの依存確認
+3. 段階的に移行
+
+## 設計パターン
+
+### パターン1: ラッパーパターン（推奨）
+
+**用途:** ビジネスロジックはパッケージ、Eloquent変換はDomain層
+
+```php
+// Package Layer (DTO使用)
+class StaminaService {
+    public function consumeStamina(int $playerId, int $amount): StaminaDto;
+}
+
+// Domain Layer (Model返却)
+class StaminaService {
+    public function __construct(
+        private readonly BaseStaminaService $baseService
+    ) {}
+    
+    public function consumeStamina(int $playerId, int $amount): array {
+        // パッケージServiceを呼び出し
+        $dto = $this->baseService->consumeStamina($playerId, $amount);
+        
+        // 配列に変換して返却（HTTPレスポンス用）
+        return $dto->toArray();
+    }
+}
+```
+
+**メリット:**
+- ✅ 疎結合
+- ✅ パッケージが完全に独立
+- ✅ テストしやすい
+
+### パターン2: Facadeパターン
+
+**用途:** 複数のパッケージServiceを組み合わせる場合
+
+```php
+// Package Layer
+class DiamondBalanceService { ... }
+class PurchaseService { ... }
+
+// Domain Layer (Facade)
+class DiamondService {
+    public function __construct(
+        private readonly DiamondBalanceService $balanceService,
+        private readonly PurchaseService $purchaseService,
+    ) {}
+    
+    public function purchaseDiamond(...) {
+        // 複数Serviceのオーケストレーション
+        return $this->purchaseService->purchaseDiamond(...);
+    }
+}
+```
+
+### パターン3: 継承パターン（限定的に使用）
+
+**用途:** Template Methodパターンで共通ロジックを提供
+
+```php
+// Package Layer (抽象クラス)
+abstract class _BaseLevelService {
+    abstract protected function getEntity(mixed $id): object;
+    abstract protected function updateEntity(object $entity, int $level, int $exp): void;
+    
+    public function addExp(mixed $id, int $exp): array {
+        $entity = $this->getEntity($id);
+        // 共通ロジック
+        $this->updateEntity($entity, $newLevel, $newExp);
+        return $result;
+    }
+}
+
+// Domain Layer (具体実装)
+class UnitLevelService extends _BaseLevelService {
+    protected function getEntity(mixed $id): object {
+        return $this->trxUnitRepository->selectById($id);
+    }
+}
+```
+
+**注意:** 継承は強い結合を生むため、限定的に使用
+
+## まとめ
+
+### 推奨アクション
+
+**優先度：高**
+1. ✅ ItemService をパッケージ `nexus-resource` に移動
+   - 再利用性が高い
+   - ビジネスロジックが明確
+
+**優先度：中**
+2. InAppPurchaseService をパッケージ `nexus-core-billing` に移動
+   - 課金処理は汎用的
+   - 管理画面でも使用される可能性
+
+**優先度：低**
+3. GachaCostService / GachaValidationService を `nexus-gacha` に移動
+4. VersionService を `nexus-version` のラッパーに変更
+
+### 設計原則
+
+1. **パッケージはHTTPに依存しない**
+   - DTOを使用
+   - Request/Responseに依存しない
+
+2. **Domain層はラッパーに徹する**
+   - DTO ↔ Model変換のみ
+   - ビジネスロジックはパッケージに委譲
+
+3. **UseCaseは変更しない**
+   - Domain層のServiceを使い続ける
+   - 内部実装のみ変更
+
+4. **段階的に移行**
+   - 一度にすべて移行しない
+   - 優先度の高いものから順次移行
+
+この方針により、**再利用可能**で**テスタブル**、かつ**保守性の高い**アーキテクチャを実現できます。

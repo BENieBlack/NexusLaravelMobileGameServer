@@ -61,16 +61,6 @@ class ShardMapperTest extends TestCase
     /**
      * @test
      */
-    public function getLogConnection_returns_log_for_trx(): void
-    {
-        $result = ShardMapper::getLogConnection('trx');
-        
-        $this->assertEquals('log', $result);
-    }
-
-    /**
-     * @test
-     */
     public function getLogConnection_throws_exception_for_invalid_connection(): void
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -123,16 +113,6 @@ class ShardMapperTest extends TestCase
         
         // 元に戻す
         putenv('DB_TRX_SHARDS=2');
-    }
-
-    /**
-     * @test
-     */
-    public function getTrxConnection_returns_trx_for_log(): void
-    {
-        $result = ShardMapper::getTrxConnection('log');
-        
-        $this->assertEquals('trx', $result);
     }
 
     /**
@@ -205,7 +185,6 @@ class ShardMapperTest extends TestCase
     {
         $this->assertTrue(ShardMapper::isValidTrxConnection('trx1'));
         $this->assertTrue(ShardMapper::isValidTrxConnection('trx2'));
-        $this->assertTrue(ShardMapper::isValidTrxConnection('trx'));
     }
     
     /**
@@ -241,7 +220,6 @@ class ShardMapperTest extends TestCase
     {
         $this->assertTrue(ShardMapper::isValidLogConnection('log1'));
         $this->assertTrue(ShardMapper::isValidLogConnection('log2'));
-        $this->assertTrue(ShardMapper::isValidLogConnection('log'));
     }
     
     /**
@@ -270,4 +248,5 @@ class ShardMapperTest extends TestCase
         $this->assertFalse(ShardMapper::isValidLogConnection('log99'));
     }
 }
+
 

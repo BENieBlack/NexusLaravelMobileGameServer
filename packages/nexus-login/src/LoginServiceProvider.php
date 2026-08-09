@@ -14,8 +14,15 @@ class LoginServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // マイグレーションをロード（動的シャーディング対応）
-        // 注意: php artisan trx:migrate で全TrxDBシャード（trx1, trx2, ...）に実行
-        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        // マイグレーションをロード（各データベース用に分割）
+        $basePath = __DIR__.'/../database/migrations';
+        
+        // mst, trx, log, sys の各ディレクトリを個別にロード
+        foreach (['mst', 'trx', 'log', 'sys'] as $dbType) {
+            $path = $basePath.'/'.$dbType;
+            if (is_dir($path)) {
+                $this->loadMigrationsFrom($path);
+            }
+        }
     }
 }

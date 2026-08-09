@@ -58,6 +58,8 @@ use NexusVip\Repositories\PlayerVipRepositoryInterface;
 use NexusGuild\Repositories\GuildRepositoryInterface;
 use NexusGuild\Repositories\GuildMemberRepositoryInterface;
 use NexusGuild\Repositories\GuildApplyRepositoryInterface;
+use NexusResource\Contracts\ItemRepositoryInterface;
+use App\Repositories\Trx\ItemRepositoryImpl;
 use NexusResourceDelivery\Managers\ResourceDeliveryManager;
 use NexusResourceDelivery\Managers\ResourceDeliveryManagerInterface;
 use NexusResourceDelivery\Services\ResourceDeliveryService;
@@ -182,6 +184,13 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(GuildRepositoryInterface::class, SysGuildRepository::class);
         $this->app->bind(GuildMemberRepositoryInterface::class, SysGuildMemberRepository::class);
         $this->app->bind(GuildApplyRepositoryInterface::class, SysGuildApplyRepository::class);
+        
+        // ==========================================
+        // NexusResource Package Bindings
+        // ==========================================
+        
+        // Repository interfaces
+        $this->app->bind(ItemRepositoryInterface::class, ItemRepositoryImpl::class);
         
         // ==========================================
         // ResourceDelivery Package Bindings

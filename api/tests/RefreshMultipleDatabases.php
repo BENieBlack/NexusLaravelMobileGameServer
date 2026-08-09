@@ -88,41 +88,52 @@ trait RefreshMultipleDatabases
      */
     protected function refreshTestDatabase(): void
     {
-        $flagFile = storage_path('framework/testing/.migrated');
+        // Use absolute path to ensure same location across all test instances
+        $baseDir = base_path('storage/framework/testing');
+        $flagFile = $baseDir . '/.migrated';
+        $lockFile = $baseDir . '/.migrate.lock';
         
-        if (! file_exists($flagFile)) {
-            echo "\n\n=== Running migrations (no flag file found) ===\n\n";
-            
-            // Ensure directory exists
-            $dir = dirname($flagFile);
-            if (!is_dir($dir)) {
-                mkdir($dir, 0755, true);
+        // Ensure directory exists
+        if (!is_dir($baseDir)) {
+            mkdir($baseDir, 0755, true);
+        }
+        
+        // Acquire exclusive lock
+        $lock = fopen($lockFile, 'c+');
+        
+        if (flock($lock, LOCK_EX)) {
+            try {
+                // Double-check if migrations were already run by another process
+                clearstatcache(true, $flagFile);
+                $flagExists = file_exists($flagFile);
+                
+                if (! $flagExists) {
+                    // Run migrations for each connection
+                    // Note: Don't use --path option as it bypasses ServiceProvider-registered migrations
+                    foreach ($this->connectionsToMigrate() as $connection => $paths) {
+                        $this->artisan('migrate', [
+                            '--database' => $connection,
+                            '--force' => true,
+                        ]);
+                    }
+
+                    // Run seeders for sys database after migrations
+                    $this->artisan('db:seed', [
+                        '--database' => 'sys',
+                        '--class' => 'Database\\Seeders\\SysDeploySeeder',
+                        '--force' => true,
+                    ]);
+
+                    $this->app[Kernel::class]->setArtisan(null);
+
+                    // Create flag file
+                    file_put_contents($flagFile, '1');
+                }
+            } finally {
+                // Release lock
+                flock($lock, LOCK_UN);
+                fclose($lock);
             }
-            
-            // Run migrations for each connection
-            // Note: Don't use --path option as it bypasses ServiceProvider-registered migrations
-            foreach ($this->connectionsToMigrate() as $connection => $paths) {
-                echo "Migrating connection: {$connection}\n";
-                $this->artisan('migrate', [
-                    '--database' => $connection,
-                    '--force' => true,
-                ]);
-            }
-
-            // Run seeders for sys database after migrations
-            $this->artisan('db:seed', [
-                '--database' => 'sys',
-                '--class' => 'Database\\Seeders\\SysDeploySeeder',
-                '--force' => true,
-            ]);
-
-            $this->app[Kernel::class]->setArtisan(null);
-
-            // Create flag file
-            file_put_contents($flagFile, '1');
-            echo "=== Migrations complete (flag file created) ===\n\n";
-        } else {
-            echo "\n=== Skipping migrations (flag file exists) ===\n\n";
         }
 
         $this->beginDatabaseTransaction();

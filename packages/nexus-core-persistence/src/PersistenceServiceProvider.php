@@ -28,6 +28,7 @@ class PersistenceServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // 必要に応じて設定ファイルやマイグレーションを公開可能
+        // Load migrations from specific subdirectories
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations/sys');
     }
 }

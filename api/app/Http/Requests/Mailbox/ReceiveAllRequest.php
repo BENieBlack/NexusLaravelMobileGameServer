@@ -15,8 +15,6 @@ class ReceiveAllRequest extends _BaseRequest
 {
     /**
      * バリデーションルール
-     *
-     * @return array
      */
     public function rules(): array
     {
@@ -39,8 +37,6 @@ class ReceiveAllRequest extends _BaseRequest
 
     /**
      * カテゴリを取得
-     *
-     * @return string|null
      */
     public function getCategory(): ?string
     {

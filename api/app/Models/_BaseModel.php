@@ -6,7 +6,7 @@ use NexusPersistence\Models\_BaseModel as PersistenceBaseModel;
 
 /**
  * _BaseModel
- * 
+ *
  * 全てのモデルの最上位基底クラス
  * 共通の振る舞いとヘルパーメソッドを提供
  */

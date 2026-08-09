@@ -10,8 +10,6 @@ trait RefreshMultipleDatabases
     /**
      * Define hooks to migrate the database before and after each test.
      * This method is automatically called by Laravel's TestCase::setUpTraits()
-     *
-     * @return void
      */
     public function setUpRefreshMultipleDatabases(): void
     {
@@ -20,8 +18,6 @@ trait RefreshMultipleDatabases
 
     /**
      * Define hooks to migrate the database before and after each test.
-     *
-     * @return void
      */
     public function refreshDatabase(): void
     {
@@ -34,8 +30,6 @@ trait RefreshMultipleDatabases
 
     /**
      * Perform any work that should take place before the database has started refreshing.
-     *
-     * @return void
      */
     protected function beforeRefreshingDatabase(): void
     {
@@ -44,8 +38,6 @@ trait RefreshMultipleDatabases
 
     /**
      * Perform any work that should take place once the database has finished refreshing.
-     *
-     * @return void
      */
     protected function afterRefreshingDatabase(): void
     {
@@ -69,8 +61,6 @@ trait RefreshMultipleDatabases
 
     /**
      * Refresh the in-memory database.
-     *
-     * @return void
      */
     protected function refreshInMemoryDatabase(): void
     {
@@ -89,8 +79,6 @@ trait RefreshMultipleDatabases
 
     /**
      * Refresh a conventional test database.
-     *
-     * @return void
      */
     protected function refreshTestDatabase(): void
     {
@@ -103,7 +91,7 @@ trait RefreshMultipleDatabases
                     '--path' => $path,
                     '--force' => true,
                 ]);
-                
+
                 // Then run fresh migrations
                 $this->artisan('migrate', [
                     '--database' => $connection,
@@ -129,8 +117,6 @@ trait RefreshMultipleDatabases
 
     /**
      * Begin a database transaction on all connections.
-     *
-     * @return void
      */
     public function beginDatabaseTransaction(): void
     {

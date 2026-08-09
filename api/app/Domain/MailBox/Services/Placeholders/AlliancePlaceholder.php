@@ -42,13 +42,13 @@ class AlliancePlaceholder implements PlaceholderResolverInterface
             return null;
         }
 
-        return match($key) {
+        return match ($key) {
             'alliance_name' => $alliance->name ?? $alliance->getName() ?? null,
-            'alliance_id' => (string)($alliance->id ?? $alliance->getId() ?? null),
-            'alliance_rank' => (string)($alliance->rank ?? $alliance->getRank() ?? null),
-            'alliance_level' => (string)($alliance->level ?? $alliance->getLevel() ?? null),
-            'member_count' => (string)($alliance->member_count ?? $alliance->getMemberCount() ?? null),
-            'max_members' => (string)($alliance->max_members ?? $alliance->getMaxMembers() ?? null),
+            'alliance_id' => (string) ($alliance->id ?? $alliance->getId() ?? null),
+            'alliance_rank' => (string) ($alliance->rank ?? $alliance->getRank() ?? null),
+            'alliance_level' => (string) ($alliance->level ?? $alliance->getLevel() ?? null),
+            'member_count' => (string) ($alliance->member_count ?? $alliance->getMemberCount() ?? null),
+            'max_members' => (string) ($alliance->max_members ?? $alliance->getMaxMembers() ?? null),
             default => null,
         };
     }

@@ -8,21 +8,19 @@ use App\Http\Responses\Auth\VersionResponse;
 
 /**
  * VersionCheckUseCase
- * 
+ *
  * バージョンチェックのユースケース
  */
 class VersionCheckUseCase extends _BaseUseCase
 {
     public function __construct(
         private readonly VersionService $versionService
-    ) {
-    }
+    ) {}
 
     /**
      * バージョンチェックを実行
      *
-     * @param int|null $deployVersion デプロイバージョン
-     * @return VersionResponse
+     * @param  int|null  $deployVersion  デプロイバージョン
      */
     public function exec(?int $deployVersion): VersionResponse
     {

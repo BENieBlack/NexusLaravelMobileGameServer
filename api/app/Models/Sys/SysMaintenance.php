@@ -12,7 +12,6 @@ use NexusMaintenance\DTOs\MaintenanceDto;
  */
 class SysMaintenance extends _BaseSys
 {
-
     /**
      * テーブル名
      */
@@ -46,8 +45,6 @@ class SysMaintenance extends _BaseSys
 
     /**
      * titleを取得
-     *
-     * @return string|null
      */
     public function getTitle(): ?string
     {
@@ -56,9 +53,6 @@ class SysMaintenance extends _BaseSys
 
     /**
      * titleを設定
-     *
-     * @param string $title
-     * @return void
      */
     public function setTitle(string $title): void
     {
@@ -67,8 +61,6 @@ class SysMaintenance extends _BaseSys
 
     /**
      * messageを取得
-     *
-     * @return string|null
      */
     public function getMessage(): ?string
     {
@@ -77,9 +69,6 @@ class SysMaintenance extends _BaseSys
 
     /**
      * messageを設定
-     *
-     * @param string $message
-     * @return void
      */
     public function setMessage(string $message): void
     {
@@ -88,8 +77,6 @@ class SysMaintenance extends _BaseSys
 
     /**
      * start_atを取得
-     *
-     * @return \DateTime|null
      */
     public function getStartAt(): ?\DateTime
     {
@@ -98,9 +85,6 @@ class SysMaintenance extends _BaseSys
 
     /**
      * start_atを設定
-     *
-     * @param \DateTime|string $startAt
-     * @return void
      */
     public function setStartAt(\DateTime|string $startAt): void
     {
@@ -109,8 +93,6 @@ class SysMaintenance extends _BaseSys
 
     /**
      * end_atを取得
-     *
-     * @return \DateTime|null
      */
     public function getEndAt(): ?\DateTime
     {
@@ -119,9 +101,6 @@ class SysMaintenance extends _BaseSys
 
     /**
      * end_atを設定
-     *
-     * @param \DateTime|string|null $endAt
-     * @return void
      */
     public function setEndAt(\DateTime|string|null $endAt): void
     {
@@ -130,9 +109,6 @@ class SysMaintenance extends _BaseSys
 
     /**
      * is_activeを設定
-     *
-     * @param bool $isActive
-     * @return void
      */
     public function setIsActive(bool $isActive): void
     {
@@ -141,8 +117,6 @@ class SysMaintenance extends _BaseSys
 
     /**
      * メンテナンスが有効かチェック
-     *
-     * @return bool
      */
     public function isActive(): bool
     {
@@ -151,8 +125,6 @@ class SysMaintenance extends _BaseSys
 
     /**
      * メンテナンス期間中かチェック
-     *
-     * @return bool
      */
     public function isInProgress(): bool
     {
@@ -166,7 +138,7 @@ class SysMaintenance extends _BaseSys
     /**
      * 現在有効なメンテナンスを取得（スコープ）
      *
-     * @param Builder $query
+     * @param  Builder  $query
      * @return Builder
      */
     public function scopeActive($query)
@@ -177,24 +149,23 @@ class SysMaintenance extends _BaseSys
     /**
      * 進行中のメンテナンスを取得（スコープ）
      *
-     * @param Builder $query
+     * @param  Builder  $query
      * @return Builder
      */
     public function scopeInProgress($query)
     {
         $now = now();
+
         return $query->where('is_active', true)
-                     ->where('start_at', '<=', $now)
-                     ->where(function ($q) use ($now) {
-                         $q->whereNull('end_at')
-                           ->orWhere('end_at', '>', $now);
-                     });
+            ->where('start_at', '<=', $now)
+            ->where(function ($q) use ($now) {
+                $q->whereNull('end_at')
+                    ->orWhere('end_at', '>', $now);
+            });
     }
 
     /**
      * 現在進行中のメンテナンスを取得
-     *
-     * @return self|null
      */
     public static function getCurrentMaintenance(): ?self
     {
@@ -205,8 +176,6 @@ class SysMaintenance extends _BaseSys
 
     /**
      * MaintenanceDtoに変換
-     *
-     * @return MaintenanceDto
      */
     public function toDto(): MaintenanceDto
     {
@@ -222,20 +191,18 @@ class SysMaintenance extends _BaseSys
 
     /**
      * レスポンス用配列に変換
-     * 
+     *
      * データベース層の'id'をAPI層の'sys_maintenance_id'に変換
-     * 
-     * @return array
      */
     public function toResponseArray(): array
     {
         $array = parent::toResponseArray();
-        
+
         if (isset($array['id'])) {
             $array['sys_maintenance_id'] = $array['id'];
             unset($array['id']);
         }
-        
+
         return $array;
     }
 }

@@ -2,19 +2,18 @@
 
 namespace App\Repositories\Sys;
 
-
-use NexusPersistence\Support\CustomCollection;
 use App\Models\Sys\SysPlayerDevice;
+use Illuminate\Support\Collection;
 use NexusAuth\Contracts\DeviceRepositoryInterface;
-use NexusAuth\Contracts\DeviceModelInterface;
-use NexusPlayer\Repositories\PlayerDeviceRepositoryInterface;
+use NexusPersistence\Support\CustomCollection;
 use NexusPlayer\Dto\PlayerDeviceDto;
+use NexusPlayer\Repositories\PlayerDeviceRepositoryInterface;
 
 /**
  * SysPlayerDeviceRepository
  *
  * プレイヤーデバイス情報のRepository実装
- * 
+ *
  * @extends _BaseSysRepository<SysPlayerDevice>
  */
 class SysPlayerDeviceRepository extends _BaseSysRepository implements DeviceRepositoryInterface, PlayerDeviceRepositoryInterface
@@ -24,9 +23,6 @@ class SysPlayerDeviceRepository extends _BaseSysRepository implements DeviceRepo
     /**
      * デバイスUUID（device_id）からデバイス情報を検索
      * メモリキャッシュから検索、なければDBから取得
-     *
-     * @param string $deviceId
-     * @return SysPlayerDevice|null
      */
     public function selectByDeviceId(string $deviceId): ?SysPlayerDevice
     {
@@ -52,7 +48,7 @@ class SysPlayerDeviceRepository extends _BaseSysRepository implements DeviceRepo
      * プレイヤーIDからデバイス一覧を取得
      * メモリキャッシュから検索、なければDBから取得
      *
-     * @param int $sysPlayerId sys_player.id（プレイヤーID）
+     * @param  int  $sysPlayerId  sys_player.id（プレイヤーID）
      * @return CustomCollection<int, SysPlayerDevice>
      */
     public function selectListByPlayerId(int $sysPlayerId): CustomCollection
@@ -81,6 +77,7 @@ class SysPlayerDeviceRepository extends _BaseSysRepository implements DeviceRepo
     public function findByDeviceUuid(string $uuid): ?PlayerDeviceDto
     {
         $model = $this->selectByDeviceId($uuid);
+
         return $model ? $this->convertToDto($model) : null;
     }
 
@@ -88,10 +85,11 @@ class SysPlayerDeviceRepository extends _BaseSysRepository implements DeviceRepo
      * {@inheritDoc}
      * NexusPlayer\Repositories\PlayerDeviceRepositoryInterface実装
      */
-    public function findByPlayerId(int $sysPlayerId): \Illuminate\Support\Collection
+    public function findByPlayerId(int $sysPlayerId): Collection
     {
         $models = $this->selectListByPlayerId($sysPlayerId);
-        return $models->map(fn($model) => $this->convertToDto($model));
+
+        return $models->map(fn ($model) => $this->convertToDto($model));
     }
 
     /**
@@ -120,4 +118,3 @@ class SysPlayerDeviceRepository extends _BaseSysRepository implements DeviceRepo
         );
     }
 }
-

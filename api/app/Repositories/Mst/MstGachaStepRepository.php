@@ -2,14 +2,13 @@
 
 namespace App\Repositories\Mst;
 
-
-use NexusPersistence\Support\CustomCollection;
 use App\Models\Mst\MstGachaStep;
 use NexusGacha\Repositories\GachaStepRepositoryInterface;
+use NexusPersistence\Support\CustomCollection;
 
 /**
  * MstGachaStepRepository
- * 
+ *
  * @extends _BaseMstRepository<MstGachaStep>
  */
 class MstGachaStepRepository extends _BaseMstRepository implements GachaStepRepositoryInterface
@@ -26,15 +25,11 @@ class MstGachaStepRepository extends _BaseMstRepository implements GachaStepRepo
 
     /**
      * ガチャIDとステップ番号でステップ情報を取得
-     *
-     * @param string $mstGachaId
-     * @param int $stepNumber
-     * @return MstGachaStep|null
      */
     public function selectByGachaIdAndStepNumber(string $mstGachaId, int $stepNumber): ?MstGachaStep
     {
         $this->queryOrMemory();
-        
+
         return $this->models
             ->where('mst_gacha_id', $mstGachaId)
             ->where('step_number', $stepNumber)
@@ -45,13 +40,12 @@ class MstGachaStepRepository extends _BaseMstRepository implements GachaStepRepo
     /**
      * ガチャIDでステップリストを取得
      *
-     * @param string $mstGachaId
      * @return CustomCollection<int, MstGachaStep>
      */
     public function selectListByGachaId(string $mstGachaId): CustomCollection
     {
         $this->queryOrMemory();
-        
+
         return $this->models
             ->where('mst_gacha_id', $mstGachaId)
             ->where('is_active', true)

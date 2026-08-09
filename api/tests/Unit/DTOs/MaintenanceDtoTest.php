@@ -39,7 +39,7 @@ class MaintenanceDtoTest extends TestCase
     public function test_is_currently_under_maintenance_returns_false_before_start_time(): void
     {
         ClockUtility::setNow('2024-01-15 12:00:00');
-        
+
         $sysMaintenance = new MaintenanceDto(
             isMaintenance: true,
             startAt: '2024-01-15 13:00:00', // 1時間後
@@ -52,7 +52,7 @@ class MaintenanceDtoTest extends TestCase
     public function test_is_currently_under_maintenance_returns_true_during_maintenance_period(): void
     {
         ClockUtility::setNow('2024-01-15 12:00:00');
-        
+
         $sysMaintenance = new MaintenanceDto(
             isMaintenance: true,
             startAt: '2024-01-15 11:00:00', // 1時間前
@@ -65,7 +65,7 @@ class MaintenanceDtoTest extends TestCase
     public function test_is_currently_under_maintenance_returns_false_after_end_time(): void
     {
         ClockUtility::setNow('2024-01-15 12:00:00');
-        
+
         $sysMaintenance = new MaintenanceDto(
             isMaintenance: true,
             startAt: '2024-01-15 10:00:00', // 2時間前
@@ -99,7 +99,7 @@ class MaintenanceDtoTest extends TestCase
         $this->assertArrayHasKey('title', $array);
         $this->assertArrayHasKey('message', $array);
         $this->assertArrayHasKey('updated_at', $array);
-        
+
         $this->assertTrue($array['is_maintenance']);
         $this->assertEquals($startAt, $array['start_at']);
         $this->assertEquals($endAt, $array['end_at']);

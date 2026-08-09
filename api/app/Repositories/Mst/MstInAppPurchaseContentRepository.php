@@ -2,15 +2,14 @@
 
 namespace App\Repositories\Mst;
 
-
-use NexusPersistence\Support\CustomCollection;
 use App\Models\Mst\MstInAppPurchaseContent;
+use NexusPersistence\Support\CustomCollection;
 
 /**
  * MstInAppPurchaseContentRepository
  *
  * アプリ内課金商品コンテンツマスターのRepository
- * 
+ *
  * @extends _BaseMstRepository<MstInAppPurchaseContent>
  */
 class MstInAppPurchaseContentRepository extends _BaseMstRepository
@@ -20,7 +19,6 @@ class MstInAppPurchaseContentRepository extends _BaseMstRepository
     /**
      * 商品IDでコンテンツを全て取得
      *
-     * @param int $mstInAppPurchaseId
      * @return CustomCollection<int, MstInAppPurchaseContent>
      */
     public function findAllByMstInAppPurchaseId(int $mstInAppPurchaseId): CustomCollection
@@ -34,8 +32,7 @@ class MstInAppPurchaseContentRepository extends _BaseMstRepository
     /**
      * 商品IDとコンテンツタイプでコンテンツを全て取得
      *
-     * @param int $mstInAppPurchaseId
-     * @param string $contentType コンテンツタイプ (Item, Unit, FreeDiamond)
+     * @param  string  $contentType  コンテンツタイプ (Item, Unit, FreeDiamond)
      * @return CustomCollection<int, MstInAppPurchaseContent>
      */
     public function findAllByMstInAppPurchaseIdAndContentType(

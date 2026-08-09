@@ -11,23 +11,21 @@ use App\Repositories\Sys\SysFriendApplyRepository;
 
 /**
  * FriendApplyAcceptUseCase
- * 
+ *
  * フレンド申請承認ユースケース
  */
 class FriendApplyAcceptUseCase extends _BaseUseCase
 {
-
     public function __construct(
         private readonly SysFriendApplyRepository $sysFriendApplyRepository,
-    ) {
-    }
+    ) {}
 
     /**
      * フレンド申請承認処理を実行
      *
-     * @param int $sysPlayerId 承認者（受信者）のプレイヤーID
-     * @param int $sysFriendApplyId フレンド申請ID
-     * @return ApplyAcceptResponse
+     * @param  int  $sysPlayerId  承認者（受信者）のプレイヤーID
+     * @param  int  $sysFriendApplyId  フレンド申請ID
+     *
      * @throws GameException
      */
     public function exec(int $sysPlayerId, int $sysFriendApplyId): ApplyAcceptResponse
@@ -36,7 +34,7 @@ class FriendApplyAcceptUseCase extends _BaseUseCase
         return $this->executeWithTransaction(function () use ($sysPlayerId, $sysFriendApplyId) {
             // 1. フレンド申請をIDで検索
             $sysFriendApply = $this->sysFriendApplyRepository->selectById($sysFriendApplyId);
-            
+
             if ($sysFriendApply === null) {
                 throw new GameException(
                     GameErrorCode::FRIEND_APPLY_NOT_FOUND,

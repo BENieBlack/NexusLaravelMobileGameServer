@@ -7,16 +7,13 @@ use NexusFriend\Dto\FriendApplyDto;
 
 /**
  * FriendApplyAdapter
- * 
+ *
  * SysFriendApply Model と FriendApplyDto の変換を行うアダプター
  */
 class FriendApplyAdapter
 {
     /**
      * Model から DTO に変換
-     *
-     * @param SysFriendApply $model
-     * @return FriendApplyDto
      */
     public static function toDto(SysFriendApply $model): FriendApplyDto
     {
@@ -33,7 +30,7 @@ class FriendApplyAdapter
     /**
      * Model配列 から DTO配列 に変換
      *
-     * @param iterable<SysFriendApply> $models
+     * @param  iterable<SysFriendApply>  $models
      * @return array<FriendApplyDto>
      */
     public static function toDtoArray(iterable $models): array
@@ -42,6 +39,7 @@ class FriendApplyAdapter
         foreach ($models as $model) {
             $dtos[] = self::toDto($model);
         }
+
         return $dtos;
     }
 }

@@ -15,18 +15,13 @@ use App\Repositories\Trx\TrxMailboxRepository;
  */
 class MailboxOpenUseCase extends _BaseUseCase
 {
-
     public function __construct(
         private TrxMailboxRepository $trxMailboxRepository,
-    ) {
-    }
+    ) {}
 
     /**
      * メールを既読にする
      *
-     * @param int $sysPlayerId
-     * @param int $trxMailboxId
-     * @return OpenResponse
      * @throws GameException
      */
     public function exec(int $sysPlayerId, int $trxMailboxId): OpenResponse

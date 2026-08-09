@@ -11,21 +11,20 @@ use NexusGuild\Services\GuildService;
 
 /**
  * GuildApplyListUseCase
- * 
+ *
  * ギルド加入申請一覧取得ユースケース
  */
 class GuildApplyListUseCase extends _BaseUseCase
 {
     public function __construct(
         private readonly GuildService $guildService,
-    ) {
-    }
+    ) {}
 
     /**
      * ギルド加入申請一覧取得処理を実行
      *
-     * @param int $guildId ギルドID
-     * @return GuildApplyListResponse
+     * @param  int  $guildId  ギルドID
+     *
      * @throws GameException
      */
     public function exec(int $guildId): GuildApplyListResponse

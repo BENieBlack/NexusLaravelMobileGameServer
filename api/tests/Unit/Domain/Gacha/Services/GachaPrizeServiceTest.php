@@ -2,27 +2,25 @@
 
 namespace Tests\Unit\Domain\Gacha\Services;
 
-use NexusResource\DTOs\ResourceDto;
-use NexusResourceDelivery\DTOs\ResourceDeliveryResultDto;
-use NexusResourceDelivery\Services\ResourceDeliveryService;
-use NexusGacha\Services\GachaPrizeService as PackageGachaPrizeService;
-use NexusGacha\Dto\GachaPrizeDto;
 use App\Domain\Gacha\Services\GachaPrizeService;
 use Mockery;
+use NexusGacha\Dto\GachaPrizeDto;
+use NexusGacha\Services\GachaPrizeService as PackageGachaPrizeService;
 use Tests\TestCase;
 
 class GachaPrizeServiceTest extends TestCase
 {
     protected GachaPrizeService $service;
+
     protected PackageGachaPrizeService $mockBasePrizeService;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // NexusGacha\Services\GachaPrizeServiceをモック
         $this->mockBasePrizeService = Mockery::mock(PackageGachaPrizeService::class);
-        
+
         // GachaPrizeServiceを作成
         $this->service = new GachaPrizeService($this->mockBasePrizeService);
     }
@@ -67,7 +65,7 @@ class GachaPrizeServiceTest extends TestCase
         $this->mockBasePrizeService->shouldReceive('grantPrizes')
             ->once()
             ->with(1, Mockery::on(function ($arg) {
-                return is_array($arg) 
+                return is_array($arg)
                     && count($arg) === 1
                     && $arg[0] instanceof GachaPrizeDto
                     && $arg[0]->getContentType() === 'item'
@@ -77,7 +75,7 @@ class GachaPrizeServiceTest extends TestCase
 
         // Act
         $this->service->grantPrizes(1, $prizes);
-        
+
         // Assert - mock expectations were met
         $this->assertTrue(true);
     }
@@ -102,7 +100,7 @@ class GachaPrizeServiceTest extends TestCase
         $this->mockBasePrizeService->shouldReceive('grantPrizes')
             ->once()
             ->with(1, Mockery::on(function ($arg) {
-                return is_array($arg) 
+                return is_array($arg)
                     && count($arg) === 1
                     && $arg[0] instanceof GachaPrizeDto
                     && $arg[0]->getContentType() === 'unit'
@@ -112,7 +110,7 @@ class GachaPrizeServiceTest extends TestCase
 
         // Act
         $this->service->grantPrizes(1, $prizes);
-        
+
         // Assert - mock expectations were met
         $this->assertTrue(true);
     }
@@ -137,7 +135,7 @@ class GachaPrizeServiceTest extends TestCase
         $this->mockBasePrizeService->shouldReceive('grantPrizes')
             ->once()
             ->with(1, Mockery::on(function ($arg) {
-                return is_array($arg) 
+                return is_array($arg)
                     && count($arg) === 1
                     && $arg[0] instanceof GachaPrizeDto
                     && $arg[0]->getContentType() === 'equipment'
@@ -147,7 +145,7 @@ class GachaPrizeServiceTest extends TestCase
 
         // Act
         $this->service->grantPrizes(1, $prizes);
-        
+
         // Assert - mock expectations were met
         $this->assertTrue(true);
     }
@@ -186,7 +184,7 @@ class GachaPrizeServiceTest extends TestCase
         $this->mockBasePrizeService->shouldReceive('grantPrizes')
             ->once()
             ->with(1, Mockery::on(function ($arg) {
-                return is_array($arg) 
+                return is_array($arg)
                     && count($arg) === 3
                     && $arg[0] instanceof GachaPrizeDto
                     && $arg[0]->getContentType() === 'item'
@@ -198,7 +196,7 @@ class GachaPrizeServiceTest extends TestCase
 
         // Act
         $this->service->grantPrizes(1, $prizes);
-        
+
         // Assert - mock expectations were met
         $this->assertTrue(true);
     }
@@ -218,7 +216,7 @@ class GachaPrizeServiceTest extends TestCase
 
         // Act
         $this->service->grantPrizes(1, $prizes);
-        
+
         // Assert - mock expectations were met
         $this->assertTrue(true);
     }
@@ -275,7 +273,7 @@ class GachaPrizeServiceTest extends TestCase
 
         // Act
         $this->service->grantPrizes(42, $prizes);
-        
+
         // Assert - mock expectations were met
         $this->assertTrue(true);
     }

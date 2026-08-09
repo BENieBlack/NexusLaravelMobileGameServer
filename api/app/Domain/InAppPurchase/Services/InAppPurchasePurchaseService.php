@@ -4,19 +4,17 @@ namespace App\Domain\InAppPurchase\Services;
 
 use App\Models\Mst\MstInAppPurchase;
 use App\Repositories\Trx\TrxInAppPurchaseRepository;
-use App\Domain\InAppPurchase\Services\InAppPurchaseValidationService;
-use App\Domain\InAppPurchase\Services\InAppPurchaseHistoryService;
 
 /**
  * InAppPurchasePurchaseService
- * 
+ *
  * ダイヤモンド購入のワークフロー全体を担当するサービス
- * 
+ *
  * 責任:
  * - 購入制限チェック
  * - ダイヤモンド加算（DiamondBalanceServiceに委譲）
  * - 購入履歴更新（HistoryServiceに委譲）
- * 
+ *
  * 処理フロー:
  * 1. 購入履歴を取得
  * 2. 購入制限チェック（ValidationService）
@@ -30,18 +28,17 @@ class InAppPurchasePurchaseService
         private readonly InAppPurchaseValidationService $validationService,
         private readonly DiamondBalanceService $diamondBalanceService,
         private readonly InAppPurchaseHistoryService $historyService,
-    ) {
-    }
+    ) {}
 
     /**
      * ダイヤモンド購入処理
-     * 
-     * @param int $sysPlayerId プレイヤーID
-     * @param MstInAppPurchase $mstInAppPurchase 商品マスター
-     * @param string $platform プラットフォーム（Apple, Google）
-     * @param string $billingPlatform 決済プラットフォーム（AppStore, GooglePlay等）
-     * @param float $unitPrice 単価（返金計算用）
-     * @param string $transactionId プラットフォーム固有のトランザクションID
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  MstInAppPurchase  $mstInAppPurchase  商品マスター
+     * @param  string  $platform  プラットフォーム（Apple, Google）
+     * @param  string  $billingPlatform  決済プラットフォーム（AppStore, GooglePlay等）
+     * @param  float  $unitPrice  単価（返金計算用）
+     * @param  string  $transactionId  プラットフォーム固有のトランザクションID
      * @return array{
      *   paid_diamond_amount: int,
      *   total_paid_diamond_amount: int,

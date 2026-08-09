@@ -8,19 +8,20 @@ use App\Repositories\Trx\TrxWalletBalanceRepository;
 use App\Repositories\Trx\TrxWalletRepository;
 use LaravelWallet\DTOs\CurrencyOperationResultDto;
 use LaravelWallet\Exceptions\InsufficientBalanceException;
+use NexusPersistence\Support\CustomCollection;
 use NexusUtilities\ClockUtility;
 
 /**
  * WalletWriteService
- * 
+ *
  * 通貨残高の書き込み操作を担当するサービス
- * 
+ *
  * 責任:
  * - 通貨の加算（FIFOバランスレコード作成を含む）
  * - 通貨の消費（FIFO方式、有償優先）
  * - 有効期限切れ通貨の削除
  * - 状態変更あり
- * 
+ *
  * 設計:
  * - Read側: ReadService（状態変更なし）
  * - Write側: このサービス（状態変更あり）
@@ -30,17 +31,16 @@ class WalletWriteService
     public function __construct(
         private readonly TrxWalletRepository $trxWalletRepository,
         private readonly TrxWalletBalanceRepository $trxWalletBalanceRepository,
-    ) {
-    }
+    ) {}
 
     /**
      * 通貨を加算
-     * 
-     * @param int $playerId プレイヤーID
-     * @param string $currencyId 通貨アイテムID（例: "gold", "event_coin"）
-     * @param int $freeAmount 無償通貨数（デフォルト: 0）
-     * @param int $paidAmount 有償通貨数（デフォルト: 0）
-     * @param string|null $expireAt 有効期限 (Y-m-d H:i:s)（NULLの場合は無期限）
+     *
+     * @param  int  $playerId  プレイヤーID
+     * @param  string  $currencyId  通貨アイテムID（例: "gold", "event_coin"）
+     * @param  int  $freeAmount  無償通貨数（デフォルト: 0）
+     * @param  int  $paidAmount  有償通貨数（デフォルト: 0）
+     * @param  string|null  $expireAt  有効期限 (Y-m-d H:i:s)（NULLの場合は無期限）
      * @return CurrencyOperationResultDto 操作結果
      */
     public function addCurrency(
@@ -50,7 +50,7 @@ class WalletWriteService
         int $paidAmount = 0,
         ?string $expireAt = null
     ): CurrencyOperationResultDto {
-        
+
         // 1. 現在値を取得または作成（Repository経由）
         $wallet = $this->trxWalletRepository->selectByMstItemId($playerId, $currencyId);
 
@@ -89,11 +89,12 @@ class WalletWriteService
 
     /**
      * 通貨を消費（FIFO方式、有償優先）
-     * 
-     * @param int $playerId プレイヤーID
-     * @param string $currencyId 通貨アイテムID
-     * @param int $amount 消費する数量
+     *
+     * @param  int  $playerId  プレイヤーID
+     * @param  string  $currencyId  通貨アイテムID
+     * @param  int  $amount  消費する数量
      * @return CurrencyOperationResultDto 操作結果
+     *
      * @throws InsufficientBalanceException 残高不足の場合
      */
     public function consumeCurrency(
@@ -131,9 +132,9 @@ class WalletWriteService
 
     /**
      * 有効期限切れの通貨を削除
-     * 
-     * @param int $playerId プレイヤーID
-     * @param string $currencyId 通貨アイテムID
+     *
+     * @param  int  $playerId  プレイヤーID
+     * @param  string  $currencyId  通貨アイテムID
      * @return int 削除された数量
      */
     public function removeExpiredCurrency(int $playerId, string $currencyId): int
@@ -165,13 +166,12 @@ class WalletWriteService
 
     /**
      * バランスレコードを作成
-     * 
-     * @param int $playerId プレイヤーID
-     * @param string $currencyId 通貨アイテムID
-     * @param int $amount 数量
-     * @param string|null $expireAt 有効期限
-     * @param bool $isPaid 有償通貨か
-     * @return void
+     *
+     * @param  int  $playerId  プレイヤーID
+     * @param  string  $currencyId  通貨アイテムID
+     * @param  int  $amount  数量
+     * @param  string|null  $expireAt  有効期限
+     * @param  bool  $isPaid  有償通貨か
      */
     private function createBalanceRecord(
         int $playerId,
@@ -194,9 +194,9 @@ class WalletWriteService
 
     /**
      * バランスから通貨を消費（FIFO）
-     * 
-     * @param \NexusPersistence\Support\CustomCollection $balanceCollection バランスコレクション
-     * @param int $amount 消費する数量
+     *
+     * @param  CustomCollection  $balanceCollection  バランスコレクション
+     * @param  int  $amount  消費する数量
      * @return array{free: int, paid: int} 消費した無償/有償の数量
      */
     private function consumeFromBalances($balanceCollection, int $amount): array
@@ -232,8 +232,8 @@ class WalletWriteService
 
     /**
      * 有効期限切れのバランスを削除
-     * 
-     * @param \NexusPersistence\Support\CustomCollection $expiredBalanceCollection 期限切れバランスコレクション
+     *
+     * @param  CustomCollection  $expiredBalanceCollection  期限切れバランスコレクション
      * @return array{total: int, free: int, paid: int} 削除された総数/無償/有償
      */
     private function removeExpiredBalances($expiredBalanceCollection): array

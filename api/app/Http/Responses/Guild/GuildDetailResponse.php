@@ -7,7 +7,7 @@ use NexusGuild\Dto\GuildDto;
 
 /**
  * GuildDetailResponse
- * 
+ *
  * ギルド詳細取得APIのレスポンス
  */
 class GuildDetailResponse extends _BaseResponse
@@ -22,14 +22,10 @@ class GuildDetailResponse extends _BaseResponse
         public readonly int $currentMembers,
         public readonly string $createdAt,
         public readonly string $updatedAt,
-    ) {
-    }
+    ) {}
 
     /**
      * GuildDtoからレスポンスを生成
-     *
-     * @param GuildDto $guildDto
-     * @return self
      */
     public static function fromDto(GuildDto $guildDto): self
     {

@@ -39,10 +39,10 @@ class PlayerPlaceholder implements PlaceholderResolverInterface
             return null;
         }
 
-        return match($key) {
+        return match ($key) {
             'player_name' => $player->name ?? $player->getName() ?? null,
-            'player_id' => (string)($player->id ?? $player->getSysPlayerId() ?? null),
-            'player_level' => (string)($player->level ?? $player->getLevel() ?? null),
+            'player_id' => (string) ($player->id ?? $player->getSysPlayerId() ?? null),
+            'player_level' => (string) ($player->level ?? $player->getLevel() ?? null),
             default => null,
         };
     }

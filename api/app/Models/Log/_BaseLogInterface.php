@@ -6,7 +6,7 @@ use NexusPersistence\Models\Log\_BaseLogInterface as PersistenceBaseLogInterface
 
 /**
  * _BaseLogInterface
- * 
+ *
  * Logモデルが実装すべきインターフェース
  */
 interface _BaseLogInterface extends PersistenceBaseLogInterface

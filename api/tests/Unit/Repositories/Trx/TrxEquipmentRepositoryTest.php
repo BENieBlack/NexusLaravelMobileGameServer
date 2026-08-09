@@ -3,8 +3,8 @@
 namespace Tests\Unit\Repositories\Trx;
 
 use App\Models\Trx\TrxEquipment;
-use App\Repositories\Trx\TrxEquipmentRepository;
 use App\Persistence\ApiSession;
+use App\Repositories\Trx\TrxEquipmentRepository;
 use NexusUtilities\ClockUtility;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
@@ -18,12 +18,12 @@ class TrxEquipmentRepositoryTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // ApiSessionを初期化（テスト用のプレイヤーID=1を設定）
         ClockUtility::initialize();
         ApiSession::setSysPlayerId(1);
-        
-        $this->repository = new TrxEquipmentRepository();
+
+        $this->repository = new TrxEquipmentRepository;
     }
 
     /**
@@ -111,7 +111,7 @@ class TrxEquipmentRepositoryTest extends TestCase
 
         // Assert
         $this->assertCount(2, $result);
-        $this->assertTrue($result->every(fn($equipment) => $equipment->sys_player_id === $sysPlayerId));
+        $this->assertTrue($result->every(fn ($equipment) => $equipment->sys_player_id === $sysPlayerId));
     }
 
     /**
@@ -196,7 +196,7 @@ class TrxEquipmentRepositoryTest extends TestCase
     {
         // Arrange
         ApiSession::setSysPlayerId(42);
-        $repository = new TrxEquipmentRepository();
+        $repository = new TrxEquipmentRepository;
 
         // Act
         $trxEquipment = $repository->createEquipment(
@@ -259,7 +259,7 @@ class TrxEquipmentRepositoryTest extends TestCase
         // Assert
         $this->assertCount(5, $queuedModels);
         for ($i = 0; $i < 5; $i++) {
-            $this->assertEquals("equipment_batch_" . ($i + 1), $queuedModels[$i]->mst_equipment_id);
+            $this->assertEquals('equipment_batch_'.($i + 1), $queuedModels[$i]->mst_equipment_id);
             $this->assertEquals($i + 1, $queuedModels[$i]->level);
         }
     }

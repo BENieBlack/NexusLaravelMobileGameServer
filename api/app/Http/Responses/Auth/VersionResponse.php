@@ -9,21 +9,18 @@ use App\Models\Sys\SysMaintenance;
 class VersionResponse extends _BaseResponse
 {
     /**
-     * @param bool $needsUpdate マスターデータまたはアセットの更新が必要か
-     * @param SysDeploy|null $sysDeploy 最新のデプロイ情報（リレーション込み）
-     * @param SysMaintenance|null $sysMaintenance メンテナンス情報
+     * @param  bool  $needsUpdate  マスターデータまたはアセットの更新が必要か
+     * @param  SysDeploy|null  $sysDeploy  最新のデプロイ情報（リレーション込み）
+     * @param  SysMaintenance|null  $sysMaintenance  メンテナンス情報
      */
     public function __construct(
         public readonly bool $needsUpdate,
         public readonly ?SysDeploy $sysDeploy = null,
         public readonly ?SysMaintenance $sysMaintenance = null,
-    ) {
-    }
+    ) {}
 
     /**
      * 配列に変換
-     *
-     * @return array
      */
     public function toArray(): array
     {
@@ -39,7 +36,7 @@ class VersionResponse extends _BaseResponse
         if ($this->needsUpdate && $this->sysDeploy !== null) {
             $data['latest_deploy_id'] = $this->sysDeploy->id;
             $data['latest_deploy_key'] = $this->sysDeploy->deploy_key;
-            
+
             // マスターデータ情報
             if ($this->sysDeploy->deployMaster !== null) {
                 $data['dto_master'] = [
@@ -47,7 +44,7 @@ class VersionResponse extends _BaseResponse
                     'hash' => $this->sysDeploy->deployMaster->hash,
                 ];
             }
-            
+
             // アセットデータ情報
             if ($this->sysDeploy->deployAsset !== null) {
                 $data['dto_asset'] = [
@@ -62,9 +59,6 @@ class VersionResponse extends _BaseResponse
 
     /**
      * 更新不要のレスポンスを生成
-     *
-     * @param SysMaintenance|null $sysMaintenance
-     * @return self
      */
     public static function upToDate(?SysMaintenance $sysMaintenance = null): self
     {
@@ -73,10 +67,6 @@ class VersionResponse extends _BaseResponse
 
     /**
      * 更新必要のレスポンスを生成
-     *
-     * @param SysDeploy $sysDeploy
-     * @param SysMaintenance|null $sysMaintenance
-     * @return self
      */
     public static function updateAvailable(
         SysDeploy $sysDeploy,

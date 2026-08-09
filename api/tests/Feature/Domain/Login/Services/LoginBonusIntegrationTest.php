@@ -2,20 +2,16 @@
 
 namespace Tests\Feature\Domain\Login\Services;
 
-use App\Domain\Login\Services\LoginBonusService;
-use App\Domain\Login\Services\ComeBackLoginBonusService;
-use App\Domain\Login\Services\VipLoginBonusService;
-use NexusLogin\Services\LoginBonusOrchestrator;
 use App\Persistence\ApiSession;
-use NexusUtilities\ClockUtility;
 use Illuminate\Support\Facades\DB;
+use NexusLogin\Services\LoginBonusOrchestrator;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
 
 /**
  * ログインボーナス統合テスト
- * 
+ *
  * 複数のログインボーナス（通常・VIP・カムバック）の並行受取と
  * VIPレベル変動時の動作を確認
  */
@@ -24,21 +20,23 @@ class LoginBonusIntegrationTest extends TestCase
     use RefreshMultipleDatabases;
 
     private int $sysPlayerId = 1;
+
     private LoginBonusOrchestrator $orchestrator;
+
     private string $connectionName = 'trx1';
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // テストプレイヤーとシャーディング情報を作成
         $this->createTestPlayer();
-        
+
         ApiSession::clearForTest();
         ApiSession::setSysPlayerId($this->sysPlayerId);
-        
+
         $this->orchestrator = app(LoginBonusOrchestrator::class);
-        
+
         // テスト用のマスターデータを作成
         $this->createLoginBonusMasterData();
         $this->createVipLoginBonusMasterData();
@@ -81,7 +79,7 @@ class LoginBonusIntegrationTest extends TestCase
         // sys_playerを作成
         DB::connection('sys')->table('sys_player')->insert([
             'id' => $this->sysPlayerId,
-            'uuid' => 'test-uuid-' . uniqid(),
+            'uuid' => 'test-uuid-'.uniqid(),
             'my_id' => 'TEST0001',
             'name' => 'Test Player',
             'vip_level' => $vipLevel,
@@ -113,7 +111,7 @@ class LoginBonusIntegrationTest extends TestCase
         DB::connection('sys')->table('sys_player')->where('id', $this->sysPlayerId)->delete();
         DB::connection('sys')->table('sys_sharding_node')->truncate();
         DB::connection('sys')->table('sys_sharding')->truncate();
-        
+
         ApiSession::clearForTest();
         parent::tearDown();
     }
@@ -125,7 +123,7 @@ class LoginBonusIntegrationTest extends TestCase
     {
         for ($day = 1; $day <= 7; $day++) {
             $bonusId = "login_bonus_day_{$day}";
-            
+
             DB::connection('mst')->table('mst_login_bonus')->insert([
                 'id' => $bonusId,
                 'type' => 'daily',
@@ -156,7 +154,7 @@ class LoginBonusIntegrationTest extends TestCase
     {
         foreach ([0, 5, 10] as $vipLevel) {
             $bonusId = "vip_login_lv{$vipLevel}";
-            
+
             DB::connection('mst')->table('mst_vip_login_bonus')->insert([
                 'id' => $bonusId,
                 'vip_level' => $vipLevel,
@@ -169,7 +167,7 @@ class LoginBonusIntegrationTest extends TestCase
             $multiplier = 1 + ($vipLevel * 0.3);
             for ($day = 1; $day <= 7; $day++) {
                 $goldAmount = (int) floor(1000 * $day * $multiplier);
-                
+
                 DB::connection('mst')->table('mst_vip_login_bonus_content')->insert([
                     'mst_vip_login_bonus_id' => $bonusId,
                     'day' => $day,
@@ -191,7 +189,7 @@ class LoginBonusIntegrationTest extends TestCase
     private function createComeBackLoginBonusMasterData(): void
     {
         $bonusId = 'comeback_bonus_7days';
-        
+
         DB::connection('mst')->table('mst_login_bonus')->insert([
             'id' => $bonusId,
             'type' => 'comeback',
@@ -220,7 +218,7 @@ class LoginBonusIntegrationTest extends TestCase
     }
 
     #[Test]
-    public function 通常とVIPのログインボーナスを同じ日に両方受け取れる(): void
+    public function 通常と_vi_pのログインボーナスを同じ日に両方受け取れる(): void
     {
         // Arrange: VIP5のプレイヤー
         DB::connection('sys')->table('sys_player')
@@ -237,11 +235,11 @@ class LoginBonusIntegrationTest extends TestCase
     }
 
     #[Test]
-    public function VIPレベルアップ後は新しいVIPレベルのボーナスを受け取る(): void
+    public function vi_pレベルアップ後は新しい_vi_pレベルのボーナスを受け取る(): void
     {
         // Arrange: VIP0で1日受け取る
         $firstResult = $this->orchestrator->executeAllMerged($this->sysPlayerId, null, $this->connectionName);
-        
+
         // VIP5にレベルアップ
         DB::connection('sys')->table('sys_player')
             ->where('id', $this->sysPlayerId)
@@ -279,7 +277,7 @@ class LoginBonusIntegrationTest extends TestCase
     }
 
     #[Test]
-    public function VIP0からVIP10にレベルアップしても履歴は継続する(): void
+    public function vi_p0から_vi_p10にレベルアップしても履歴は継続する(): void
     {
         // Arrange: VIP0で3日分受け取る
         for ($day = 1; $day <= 3; $day++) {
@@ -289,7 +287,7 @@ class LoginBonusIntegrationTest extends TestCase
                 $lastLoginAt = null;
             }
             $this->orchestrator->executeAllMerged($this->sysPlayerId, $lastLoginAt, $this->connectionName);
-            
+
             // 時間を進める（次の日へ）
             sleep(1);
         }

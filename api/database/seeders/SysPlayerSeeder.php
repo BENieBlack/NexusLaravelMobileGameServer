@@ -21,14 +21,15 @@ class SysPlayerSeeder extends Seeder
         DB::connection('sys')->table('sys_sharding_node_player')->truncate();
         DB::connection('sys')->table('sys_player')->truncate();
         DB::connection('sys')->statement('SET FOREIGN_KEY_CHECKS=1;');
-        
+
         // シャーディングノードを取得
         $shardingNodes = DB::connection('sys')->table('sys_sharding_node')
             ->orderBy('node_no')
             ->get();
-        
+
         if ($shardingNodes->count() === 0) {
             $this->command->warn('⚠️  No sharding nodes found. Run SysShardingSeeder first.');
+
             return;
         }
 
@@ -44,18 +45,18 @@ class SysPlayerSeeder extends Seeder
             ]);
 
             $players[] = $playerId;
-            
+
             // プレイヤーをシャードに割り当て（ラウンドロビン方式）
             $nodeIndex = ($i - 1) % $shardingNodes->count();
             $assignedNode = $shardingNodes[$nodeIndex];
-            
+
             DB::connection('sys')->table('sys_sharding_node_player')->insert([
                 'sys_sharding_node_id' => $assignedNode->id,
                 'sys_player_id' => $playerId,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
-            
+
             // ノードのプレイヤー数を更新
             DB::connection('sys')->table('sys_sharding_node')
                 ->where('id', $assignedNode->id)
@@ -69,9 +70,9 @@ class SysPlayerSeeder extends Seeder
                     'uuid' => (string) Str::uuid(),
                     'device_info' => json_encode([
                         'os' => ['iOS', 'Android'][rand(0, 1)],
-                        'os_version' => rand(13, 17) . '.' . rand(0, 5),
+                        'os_version' => rand(13, 17).'.'.rand(0, 5),
                         'model' => ['iPhone 14 Pro', 'iPhone 15', 'Pixel 7', 'Galaxy S23'][rand(0, 3)],
-                        'app_version' => '1.0.' . rand(0, 10),
+                        'app_version' => '1.0.'.rand(0, 10),
                     ]),
                     'last_login_at' => now()->subHours(rand(1, 72)),
                     'created_at' => now()->subDays(rand(1, 30)),
@@ -105,6 +106,6 @@ class SysPlayerSeeder extends Seeder
         }
 
         $this->command->info('✅ SysPlayerSeeder: 10 players created with devices and tokens');
-        $this->command->info('   - Player IDs: ' . implode(', ', $players));
+        $this->command->info('   - Player IDs: '.implode(', ', $players));
     }
 }

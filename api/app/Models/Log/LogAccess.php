@@ -4,21 +4,21 @@ namespace App\Models\Log;
 
 class LogAccess extends _BaseLog
 {
-        protected $table = 'log_access';
+    protected $table = 'log_access';
 
-        protected $casts = [
-            'id' => 'integer',
-            'unique_request_id' => 'string',
-            'sys_player_id' => 'integer',
-            'method' => 'string',
-            'endpoint' => 'string',
-            'request_header' => 'array',
-            'request_body' => 'array',
-            'response_header' => 'array',
-            'response_body' => 'array',
-            'status_code' => 'integer',
-            'system_at' => 'datetime',
-        ];
+    protected $casts = [
+        'id' => 'integer',
+        'unique_request_id' => 'string',
+        'sys_player_id' => 'integer',
+        'method' => 'string',
+        'endpoint' => 'string',
+        'request_header' => 'array',
+        'request_body' => 'array',
+        'response_header' => 'array',
+        'response_body' => 'array',
+        'status_code' => 'integer',
+        'system_at' => 'datetime',
+    ];
 
     protected $fillable = [
         'id',

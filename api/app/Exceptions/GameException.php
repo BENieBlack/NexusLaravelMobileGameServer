@@ -6,15 +6,15 @@ use Exception;
 
 /**
  * GameException
- * 
+ *
  * ゲームAPIのビジネスロジックエラーを表すカスタム例外クラス
  * HTTPステータスコード600とerror_code, messageをレスポンスとして返す
  */
 class GameException extends Exception
 {
     /**
-     * @param int $errorCode アプリケーション固有のエラーコード
-     * @param string $message エラーメッセージ
+     * @param  int  $errorCode  アプリケーション固有のエラーコード
+     * @param  string  $message  エラーメッセージ
      */
     public function __construct(
         private readonly int $errorCode,
@@ -25,8 +25,6 @@ class GameException extends Exception
 
     /**
      * エラーコードを取得
-     *
-     * @return int
      */
     public function getErrorCode(): int
     {

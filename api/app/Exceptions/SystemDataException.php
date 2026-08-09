@@ -4,10 +4,10 @@ namespace App\Exceptions;
 
 /**
  * SystemDataException
- * 
+ *
  * システムデータ（sys database）が見つからない場合の例外クラス
  * 静的ファクトリーメソッドでリソースごとの例外を生成
- * 
+ *
  * 使用例:
  * - SysDeploy, SysPlayerDevice, SysPlayerToken などが見つからない場合
  * - システム設定やデバイス情報の不整合検出に使用
@@ -17,15 +17,14 @@ class SystemDataException extends GameException
     /**
      * デプロイ情報が見つからない
      *
-     * @param int|null $deployId デプロイID
-     * @return self
+     * @param  int|null  $deployId  デプロイID
      */
     public static function deploy(?int $deployId = null): self
     {
-        $message = $deployId 
+        $message = $deployId
             ? "Deploy data not found: {$deployId}"
-            : "No active deploy data found";
-            
+            : 'No active deploy data found';
+
         return new self(
             GameErrorCode::INTERNAL_ERROR,
             $message
@@ -35,8 +34,7 @@ class SystemDataException extends GameException
     /**
      * プレイヤーデバイス情報が見つからない
      *
-     * @param int $deviceId デバイスID
-     * @return self
+     * @param  int  $deviceId  デバイスID
      */
     public static function playerDevice(int $deviceId): self
     {
@@ -49,22 +47,20 @@ class SystemDataException extends GameException
     /**
      * プレイヤートークンが見つからない
      *
-     * @param string $tokenHash トークンハッシュ
-     * @return self
+     * @param  string  $tokenHash  トークンハッシュ
      */
     public static function playerToken(string $tokenHash): self
     {
         return new self(
             GameErrorCode::INVALID_TOKEN,
-            "Player token not found or expired"
+            'Player token not found or expired'
         );
     }
 
     /**
      * システム設定が見つからない
      *
-     * @param string $key 設定キー
-     * @return self
+     * @param  string  $key  設定キー
      */
     public static function config(string $key): self
     {
@@ -77,9 +73,8 @@ class SystemDataException extends GameException
     /**
      * 汎用システムデータが見つからない
      *
-     * @param string $type データ種別（例: "deploy", "device", "token"）
-     * @param string|int $id データID
-     * @return self
+     * @param  string  $type  データ種別（例: "deploy", "device", "token"）
+     * @param  string|int  $id  データID
      */
     public static function generic(string $type, string|int $id): self
     {

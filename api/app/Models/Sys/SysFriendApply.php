@@ -6,12 +6,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * SysFriendApply Model
- * 
+ *
  * フレンド申請情報を管理するモデル
  */
 class SysFriendApply extends _BaseSys
 {
-
     /**
      * テーブル名
      */
@@ -44,14 +43,15 @@ class SysFriendApply extends _BaseSys
      * ステータス定数
      */
     public const STATUS_APPLIED = 'Applied';
+
     public const STATUS_ACCEPTED = 'Accepted';
+
     public const STATUS_REJECTED = 'Rejected';
+
     public const STATUS_DELETED = 'Deleted';
 
     /**
      * 申請送信者
-     *
-     * @return BelongsTo
      */
     public function sendPlayer(): BelongsTo
     {
@@ -60,8 +60,6 @@ class SysFriendApply extends _BaseSys
 
     /**
      * 申請受信者
-     *
-     * @return BelongsTo
      */
     public function receivePlayer(): BelongsTo
     {
@@ -70,8 +68,6 @@ class SysFriendApply extends _BaseSys
 
     /**
      * IDを取得
-     *
-     * @return int
      */
     public function getId(): int
     {
@@ -80,8 +76,6 @@ class SysFriendApply extends _BaseSys
 
     /**
      * 送信者プレイヤーIDを取得
-     *
-     * @return int
      */
     public function getSenderSysPlayerId(): int
     {
@@ -90,8 +84,6 @@ class SysFriendApply extends _BaseSys
 
     /**
      * 受信者プレイヤーIDを取得
-     *
-     * @return int
      */
     public function getReceiverSysPlayerId(): int
     {
@@ -100,8 +92,6 @@ class SysFriendApply extends _BaseSys
 
     /**
      * ステータスを取得
-     *
-     * @return string
      */
     public function getStatus(): string
     {
@@ -110,9 +100,6 @@ class SysFriendApply extends _BaseSys
 
     /**
      * 送信者プレイヤーIDを設定
-     *
-     * @param int $senderSysPlayerId
-     * @return void
      */
     public function setSenderSysPlayerId(int $senderSysPlayerId): void
     {
@@ -121,9 +108,6 @@ class SysFriendApply extends _BaseSys
 
     /**
      * 受信者プレイヤーIDを設定
-     *
-     * @param int $receiverSysPlayerId
-     * @return void
      */
     public function setReceiverSysPlayerId(int $receiverSysPlayerId): void
     {
@@ -132,9 +116,6 @@ class SysFriendApply extends _BaseSys
 
     /**
      * ステータスを設定
-     *
-     * @param string $status
-     * @return void
      */
     public function setStatus(string $status): void
     {
@@ -143,8 +124,6 @@ class SysFriendApply extends _BaseSys
 
     /**
      * 利用可能なステータス一覧を取得
-     *
-     * @return array
      */
     public static function getAvailableStatuses(): array
     {
@@ -158,8 +137,6 @@ class SysFriendApply extends _BaseSys
 
     /**
      * 申請中かチェック
-     *
-     * @return bool
      */
     public function isApplied(): bool
     {
@@ -168,8 +145,6 @@ class SysFriendApply extends _BaseSys
 
     /**
      * 承認済みかチェック
-     *
-     * @return bool
      */
     public function isAccepted(): bool
     {
@@ -178,8 +153,6 @@ class SysFriendApply extends _BaseSys
 
     /**
      * 却下済みかチェック
-     *
-     * @return bool
      */
     public function isRejected(): bool
     {
@@ -188,8 +161,6 @@ class SysFriendApply extends _BaseSys
 
     /**
      * 削除済みかチェック
-     *
-     * @return bool
      */
     public function isDeleted(): bool
     {
@@ -198,53 +169,50 @@ class SysFriendApply extends _BaseSys
 
     /**
      * フレンド申請を承認
-     *
-     * @return bool
      */
     public function accept(): bool
     {
         $this->status = self::STATUS_ACCEPTED;
+
         return $this->save();
     }
 
     /**
      * フレンド申請を却下
-     *
-     * @return bool
      */
     public function reject(): bool
     {
         $this->status = self::STATUS_REJECTED;
+
         return $this->save();
     }
 
     /**
      * フレンド申請を削除
-     *
-     * @return bool
      */
     public function markAsDeleted(): bool
     {
         $this->status = self::STATUS_DELETED;
+
         return $this->save();
     }
 
     /**
      * APIレスポンス用の配列に変換
      * id を sys_friend_apply_id に変換
-     * 
+     *
      * @return array<string, mixed>
      */
     public function toResponseArray(): array
     {
         $array = parent::toResponseArray();
-        
+
         // id を sys_friend_apply_id にリネーム
         if (isset($array['id'])) {
             $array['sys_friend_apply_id'] = $array['id'];
             unset($array['id']);
         }
-        
+
         return $array;
     }
 }

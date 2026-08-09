@@ -7,16 +7,13 @@ use NexusGuild\Dto\GuildApplyDto;
 
 /**
  * GuildApplyAdapter
- * 
+ *
  * SysGuildApply Model と GuildApplyDto の変換を行うアダプター
  */
 class GuildApplyAdapter
 {
     /**
      * Model から DTO に変換
-     *
-     * @param SysGuildApply $model
-     * @return GuildApplyDto
      */
     public static function toDto(SysGuildApply $model): GuildApplyDto
     {
@@ -33,7 +30,7 @@ class GuildApplyAdapter
     /**
      * Model配列 から DTO配列 に変換
      *
-     * @param iterable<SysGuildApply> $models
+     * @param  iterable<SysGuildApply>  $models
      * @return array<GuildApplyDto>
      */
     public static function toDtoArray(iterable $models): array
@@ -42,6 +39,7 @@ class GuildApplyAdapter
         foreach ($models as $model) {
             $dtos[] = self::toDto($model);
         }
+
         return $dtos;
     }
 }

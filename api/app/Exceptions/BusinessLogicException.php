@@ -4,7 +4,7 @@ namespace App\Exceptions;
 
 /**
  * BusinessLogicException
- * 
+ *
  * ビジネスロジックエラーを表す例外クラス
  * バリデーションは通過したが、ビジネスルール上エラーとなる場合に使用
  */
@@ -13,9 +13,8 @@ class BusinessLogicException extends GameException
     /**
      * スタミナ不足
      *
-     * @param int $required 必要なスタミナ
-     * @param int $current 現在のスタミナ
-     * @return self
+     * @param  int  $required  必要なスタミナ
+     * @param  int  $current  現在のスタミナ
      */
     public static function staminaNotEnough(int $required, int $current): self
     {
@@ -28,9 +27,8 @@ class BusinessLogicException extends GameException
     /**
      * ダイヤモンド不足
      *
-     * @param int $required 必要なダイヤモンド
-     * @param int $current 現在のダイヤモンド
-     * @return self
+     * @param  int  $required  必要なダイヤモンド
+     * @param  int  $current  現在のダイヤモンド
      */
     public static function diamondNotEnough(int $required, int $current): self
     {
@@ -43,10 +41,9 @@ class BusinessLogicException extends GameException
     /**
      * アイテム不足
      *
-     * @param string $itemId アイテムID
-     * @param int $required 必要な数量
-     * @param int $current 現在の数量
-     * @return self
+     * @param  string  $itemId  アイテムID
+     * @param  int  $required  必要な数量
+     * @param  int  $current  現在の数量
      */
     public static function itemNotEnough(string $itemId, int $required, int $current): self
     {
@@ -59,10 +56,9 @@ class BusinessLogicException extends GameException
     /**
      * 通貨不足
      *
-     * @param string $currencyId 通貨ID
-     * @param int $required 必要な金額
-     * @param int $current 現在の金額
-     * @return self
+     * @param  string  $currencyId  通貨ID
+     * @param  int  $required  必要な金額
+     * @param  int  $current  現在の金額
      */
     public static function insufficientCurrency(string $currencyId, int $required, int $current): self
     {
@@ -75,10 +71,9 @@ class BusinessLogicException extends GameException
     /**
      * 不正なアイテムタイプ
      *
-     * @param string $itemId アイテムID
-     * @param string $expectedType 期待されるタイプ
-     * @param string $actualType 実際のタイプ
-     * @return self
+     * @param  string  $itemId  アイテムID
+     * @param  string  $expectedType  期待されるタイプ
+     * @param  string  $actualType  実際のタイプ
      */
     public static function invalidItemType(string $itemId, string $expectedType, string $actualType): self
     {
@@ -91,9 +86,8 @@ class BusinessLogicException extends GameException
     /**
      * ユニット最大レベル到達
      *
-     * @param int $unitId ユニットID
-     * @param int $maxLevel 最大レベル
-     * @return self
+     * @param  int  $unitId  ユニットID
+     * @param  int  $maxLevel  最大レベル
      */
     public static function unitMaxLevelReached(int $unitId, int $maxLevel): self
     {
@@ -106,9 +100,8 @@ class BusinessLogicException extends GameException
     /**
      * 購入制限超過
      *
-     * @param string $productId 商品ID
-     * @param int $limit 購入制限
-     * @return self
+     * @param  string  $productId  商品ID
+     * @param  int  $limit  購入制限
      */
     public static function purchaseLimitExceeded(string $productId, int $limit): self
     {
@@ -121,8 +114,7 @@ class BusinessLogicException extends GameException
     /**
      * 商品が無効
      *
-     * @param string $productId 商品ID
-     * @return self
+     * @param  string  $productId  商品ID
      */
     public static function productInactive(string $productId): self
     {
@@ -135,8 +127,7 @@ class BusinessLogicException extends GameException
     /**
      * 不正なリソースタイプ
      *
-     * @param string $resourceType リソースタイプ
-     * @return self
+     * @param  string  $resourceType  リソースタイプ
      */
     public static function invalidResourceType(string $resourceType): self
     {
@@ -149,8 +140,7 @@ class BusinessLogicException extends GameException
     /**
      * 不正な商品タイプ
      *
-     * @param string $productType 商品タイプ
-     * @return self
+     * @param  string  $productType  商品タイプ
      */
     public static function invalidProductType(string $productType): self
     {
@@ -163,8 +153,7 @@ class BusinessLogicException extends GameException
     /**
      * デバイスID既に登録済み
      *
-     * @param string $deviceId デバイスID
-     * @return self
+     * @param  string  $deviceId  デバイスID
      */
     public static function deviceAlreadyExists(string $deviceId): self
     {

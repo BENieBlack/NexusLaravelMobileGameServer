@@ -10,21 +10,20 @@ use NexusGuild\Services\GuildService;
 
 /**
  * GuildLeaveUseCase
- * 
+ *
  * ギルド脱退ユースケース
  */
 class GuildLeaveUseCase extends _BaseUseCase
 {
     public function __construct(
         private readonly GuildService $guildService,
-    ) {
-    }
+    ) {}
 
     /**
      * ギルド脱退処理を実行
      *
-     * @param int $sysPlayerId プレイヤーID
-     * @return void
+     * @param  int  $sysPlayerId  プレイヤーID
+     *
      * @throws GameException
      */
     public function exec(int $sysPlayerId): void

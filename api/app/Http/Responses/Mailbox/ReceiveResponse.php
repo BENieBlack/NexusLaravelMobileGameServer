@@ -11,22 +11,14 @@ use App\Http\Responses\_BaseResponse;
  */
 class ReceiveResponse extends _BaseResponse
 {
-    /**
-     * @param int $trxMailboxId
-     * @param bool $isReceived
-     * @param array $receivedContentArray
-     */
     public function __construct(
         private int $trxMailboxId,
         private bool $isReceived,
         private array $receivedContentArray,
-    ) {
-    }
+    ) {}
 
     /**
      * レスポンス配列を取得
-     *
-     * @return array
      */
     public function toArray(): array
     {

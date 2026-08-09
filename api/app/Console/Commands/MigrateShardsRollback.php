@@ -40,23 +40,25 @@ class MigrateShardsRollback extends Command
 
         if (empty($shardConnections)) {
             $this->error('No shard connections configured in config/sharding.php');
+
             return self::FAILURE;
         }
 
-        $this->warn('Rolling back migrations on ' . count($shardConnections) . ' shard(s): ' . implode(', ', $shardConnections));
+        $this->warn('Rolling back migrations on '.count($shardConnections).' shard(s): '.implode(', ', $shardConnections));
         $this->newLine();
 
-        if (!$this->option('force') && !$this->confirm('Do you really wish to rollback migrations on all shards?')) {
+        if (! $this->option('force') && ! $this->confirm('Do you really wish to rollback migrations on all shards?')) {
             $this->info('Rollback cancelled.');
+
             return self::SUCCESS;
         }
 
         $hasError = false;
 
         foreach ($shardConnections as $connection) {
-            $this->info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            $this->info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
             $this->info("Rolling back shard: {$connection}");
-            $this->info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            $this->info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
             try {
                 $options = $this->buildRollbackOptions($connection);
@@ -69,7 +71,7 @@ class MigrateShardsRollback extends Command
                     $this->info("✅ Successfully rolled back: {$connection}");
                 }
             } catch (\Exception $e) {
-                $this->error("Error rolling back {$connection}: " . $e->getMessage());
+                $this->error("Error rolling back {$connection}: ".$e->getMessage());
                 $hasError = true;
             }
 
@@ -78,10 +80,12 @@ class MigrateShardsRollback extends Command
 
         if ($hasError) {
             $this->error('Some rollbacks failed. Please check the output above.');
+
             return self::FAILURE;
         }
 
         $this->info('🎉 All shards rolled back successfully!');
+
         return self::SUCCESS;
     }
 

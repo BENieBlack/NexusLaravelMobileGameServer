@@ -20,7 +20,7 @@ return [
         /*
          * シャードノードの設定
          * 'node_no' => 'connection_name' の形式で定義
-         * 
+         *
          * 新しいシャードを追加する場合は、以下を実施：
          * 1. このリストに新しいノードを追加
          * 2. config/database.php に対応する接続設定を追加
@@ -37,7 +37,7 @@ return [
 
     /*
      * 設定から動的にシャード接続名のリストを取得
-     * 
+     *
      * @return array ['trx1', 'trx2', ...]
      */
     'get_shard_connections' => function () {

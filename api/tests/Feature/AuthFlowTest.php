@@ -2,27 +2,27 @@
 
 namespace Tests\Feature;
 
-use App\Models\Sys\SysDeployAsset;
-use App\Models\Sys\SysDeployMaster;
 use App\Models\Sys\SysMaintenance;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
 
 /**
  * AuthFlowTest
- * 
+ *
  * 認証フロー全体の統合テスト
  * version → sign_up → sign_in → player/me の一連の流れをテスト
  */
 class AuthFlowTest extends TestCase
 {
     use RefreshMultipleDatabases;
-    
+
     private string $testDeviceUuid;
+
     private ?int $testPlayerId = null;
 
     /**
@@ -31,7 +31,7 @@ class AuthFlowTest extends TestCase
     public function test_complete_auth_flow_without_maintenance(): void
     {
         // テストデバイスUUIDを生成
-        $this->testDeviceUuid = 'test-device-' . Str::random(20);
+        $this->testDeviceUuid = 'test-device-'.Str::random(20);
 
         // ========================================
         // Step 1: GET /auth/version
@@ -64,9 +64,9 @@ class AuthFlowTest extends TestCase
         ]);
 
         $signUpResponse->assertOk(); // 200 OK
-        
+
         $signUpData = $signUpResponse->json();
-        
+
         // レスポンス構造を確認
         $signUpResponse->assertJsonStructure([
             'sys_player' => ['uuid', 'my_id'],
@@ -87,7 +87,7 @@ class AuthFlowTest extends TestCase
         // Step 3: GET /player/me (アクセストークン使用)
         // ========================================
         $meResponse = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $accessToken,
+            'Authorization' => 'Bearer '.$accessToken,
         ])->getJson('/api/player/me');
 
         $meResponse->assertStatus(200);
@@ -110,7 +110,7 @@ class AuthFlowTest extends TestCase
 
         $signInResponse->assertStatus(200);
         $signInData = $signInResponse->json();
-        
+
         // レスポンス構造を確認
         $this->assertNotEmpty($signInData['dto_token']['access_token']);
         $this->assertNotEmpty($signInData['dto_token']['refresh_token']);
@@ -119,7 +119,7 @@ class AuthFlowTest extends TestCase
 
         // 新しいアクセストークンで再度 /player/me にアクセス
         $meResponse2 = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $newAccessToken,
+            'Authorization' => 'Bearer '.$newAccessToken,
         ])->getJson('/api/player/me');
 
         $meResponse2->assertStatus(200);
@@ -133,13 +133,13 @@ class AuthFlowTest extends TestCase
     public function test_auth_flow_during_maintenance(): void
     {
         // テストデバイスUUIDを生成
-        $this->testDeviceUuid = 'test-device-' . Str::random(20);
+        $this->testDeviceUuid = 'test-device-'.Str::random(20);
 
         // 全てのメンテナンス情報を削除してクリーンな状態にする
-        \Illuminate\Support\Facades\DB::connection('sys')
+        DB::connection('sys')
             ->table('sys_maintenance')
             ->delete(); // DELETE文を直接実行
-        
+
         // メンテナンス情報を作成
         $maintenance = SysMaintenance::create([
             'start_at' => now()->subHour(),
@@ -155,11 +155,11 @@ class AuthFlowTest extends TestCase
 
         $versionResponse->assertStatus(200);
         $versionData = $versionResponse->json();
-        
+
         // メンテナンス情報が返ることを確認（dataキーの中にネストされている）
         $this->assertArrayHasKey('data', $versionData);
         $this->assertArrayHasKey('dto_maintenance', $versionData['data']);
-        
+
         // メンテナンス情報が正しく返されていることを確認（具体的な値ではなく、構造を確認）
         $this->assertIsArray($versionData['data']['dto_maintenance']);
         $this->assertArrayHasKey('title', $versionData['data']['dto_maintenance']);
@@ -167,7 +167,7 @@ class AuthFlowTest extends TestCase
         $this->assertArrayHasKey('start_at', $versionData['data']['dto_maintenance']);
         $this->assertArrayHasKey('end_at', $versionData['data']['dto_maintenance']);
         $this->assertArrayHasKey('is_active', $versionData['data']['dto_maintenance']);
-        
+
         // is_activeがtrueであることを確認（メンテナンス中）
         $this->assertTrue($versionData['data']['dto_maintenance']['is_active']);
 
@@ -220,7 +220,7 @@ class AuthFlowTest extends TestCase
      */
     public function test_sign_up_with_same_device_twice(): void
     {
-        $deviceUuid = 'test-device-dup-' . Str::random(20);
+        $deviceUuid = 'test-device-dup-'.Str::random(20);
 
         // 1回目のサインアップ
         $response1 = $this->postJson('/api/auth/sign_up', [
@@ -254,7 +254,7 @@ class AuthFlowTest extends TestCase
 
         $response2->assertStatus(200); // GameExceptionは200 + error_codeを返す
         $data2 = $response2->json();
-        
+
         // エラーレスポンスが正しいことを確認
         $this->assertArrayHasKey('error_code', $data2);
         $this->assertArrayHasKey('message', $data2);

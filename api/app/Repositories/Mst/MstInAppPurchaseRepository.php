@@ -2,15 +2,14 @@
 
 namespace App\Repositories\Mst;
 
-
-use NexusPersistence\Support\CustomCollection;
 use App\Models\Mst\MstInAppPurchase;
+use NexusPersistence\Support\CustomCollection;
 
 /**
  * MstInAppPurchaseRepository
  *
  * アプリ内課金商品マスターのRepository
- * 
+ *
  * @extends _BaseMstRepository<MstInAppPurchase>
  */
 class MstInAppPurchaseRepository extends _BaseMstRepository
@@ -33,7 +32,7 @@ class MstInAppPurchaseRepository extends _BaseMstRepository
     /**
      * タイプで絞り込んで有効な商品を取得
      *
-     * @param string $type 商品タイプ (Diamond, Pack, Pass)
+     * @param  string  $type  商品タイプ (Diamond, Pack, Pass)
      * @return CustomCollection<int, MstInAppPurchase>
      */
     public function findAllActiveByType(string $type): CustomCollection
@@ -47,29 +46,23 @@ class MstInAppPurchaseRepository extends _BaseMstRepository
 
     /**
      * IDで商品を取得（リレーション付き）
-     *
-     * @param int $mstInAppPurchaseId
-     * @return MstInAppPurchase|null
      */
     public function findByIdWithRelations(int $mstInAppPurchaseId): ?MstInAppPurchase
     {
         $product = $this->selectById($mstInAppPurchaseId);
-        
+
         if ($product === null) {
             return null;
         }
 
         // リレーションをロード（contents, effects）
         $product->load(['contents', 'effects']);
-        
+
         return $product;
     }
 
     /**
      * IDとアクティブ状態で商品を取得
-     *
-     * @param int $mstInAppPurchaseId
-     * @return MstInAppPurchase|null
      */
     public function findActiveById(int $mstInAppPurchaseId): ?MstInAppPurchase
     {

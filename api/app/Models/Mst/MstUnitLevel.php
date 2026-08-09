@@ -2,6 +2,8 @@
 
 namespace App\Models\Mst;
 
+use Illuminate\Database\Eloquent\Builder;
+
 /**
  * MstUnitLevel Model
  *
@@ -75,13 +77,13 @@ class MstUnitLevel extends _BaseMst
     /**
      * 複合主キーを設定
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function setKeysForSaveQuery($query)
     {
         $keys = $this->getKeyName();
-        if (!is_array($keys)) {
+        if (! is_array($keys)) {
             return parent::setKeysForSaveQuery($query);
         }
 
@@ -113,10 +115,8 @@ class MstUnitLevel extends _BaseMst
 
     /**
      * レスポンス用配列に変換
-     * 
+     *
      * Note: 複合主キー(rarity, level)のため、idフィールドは存在しない
-     * 
-     * @return array
      */
     public function toResponseArray(): array
     {

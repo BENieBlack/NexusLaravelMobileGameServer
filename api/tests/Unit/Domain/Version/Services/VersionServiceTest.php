@@ -8,9 +8,9 @@ use App\Models\Sys\SysDeploy;
 use App\Models\Sys\SysDeployAsset;
 use App\Models\Sys\SysDeployMaster;
 use App\Models\Sys\SysMaintenance;
-use App\Repositories\Sys\SysDeployRepository;
-use App\Repositories\Sys\SysMaintenanceRepository;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redis;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
 
@@ -34,13 +34,13 @@ class VersionServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Redisキャッシュをクリア
-        \Illuminate\Support\Facades\Redis::flushdb();
-        
+        Redis::flushdb();
+
         // DIコンテナからServiceを取得
         $this->service = app(VersionService::class);
-        
+
         // Suppress log output during tests
         Log::spy();
     }
@@ -51,13 +51,13 @@ class VersionServiceTest extends TestCase
     public function test_check_version_throws_exception_when_no_deploy_exists(): void
     {
         // キャッシュをクリア
-        \Illuminate\Support\Facades\Cache::store('redis')->clear();
-        
+        Cache::store('redis')->clear();
+
         // すべてのデプロイデータを削除
         SysDeploy::query()->delete();
         SysDeployAsset::query()->delete();
         SysDeployMaster::query()->delete();
-        
+
         // Assert & Act
         $this->expectException(SystemDataException::class);
         $this->service->checkVersion(null);
@@ -69,13 +69,13 @@ class VersionServiceTest extends TestCase
     public function test_check_version_returns_no_update_when_client_is_latest(): void
     {
         // キャッシュをクリア
-        \Illuminate\Support\Facades\Cache::store('redis')->clear();
-        
+        Cache::store('redis')->clear();
+
         // すべてのデプロイデータを削除
         SysDeploy::query()->delete();
         SysDeployAsset::query()->delete();
         SysDeployMaster::query()->delete();
-        
+
         // Arrange
         $master = SysDeployMaster::create([
             'deploy_key' => 202601010,
@@ -114,13 +114,13 @@ class VersionServiceTest extends TestCase
     public function test_check_version_returns_update_available_when_client_is_outdated(): void
     {
         // キャッシュをクリア
-        \Illuminate\Support\Facades\Cache::store('redis')->clear();
-        
+        Cache::store('redis')->clear();
+
         // すべてのデプロイデータを削除
         SysDeploy::query()->delete();
         SysDeployAsset::query()->delete();
         SysDeployMaster::query()->delete();
-        
+
         // Arrange - Create old deploy
         $oldMaster = SysDeployMaster::create([
             'hash' => 'master_hash_001',
@@ -190,14 +190,14 @@ class VersionServiceTest extends TestCase
     public function test_check_version_includes_maintenance_info_when_active(): void
     {
         // キャッシュをクリア
-        \Illuminate\Support\Facades\Cache::store('redis')->clear();
-        
+        Cache::store('redis')->clear();
+
         // すべてのデプロイデータを削除
         SysDeploy::query()->delete();
         SysDeployAsset::query()->delete();
         SysDeployMaster::query()->delete();
         SysMaintenance::query()->delete();
-        
+
         // Arrange - Create maintenance
         $maintenance = SysMaintenance::create([
             'title' => 'Scheduled Maintenance',

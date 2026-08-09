@@ -2,22 +2,23 @@
 
 namespace Tests\Unit\UseCases\Auth;
 
-use App\Domain\Player\Services\PlayerService;
-use NexusAuth\Services\TokenService;
-use NexusAuth\Services\PlayerAuthService;
-use NexusAuth\Contracts\PlayerRepositoryInterface;
-use NexusAuth\Contracts\DeviceRepositoryInterface;
 use App\Domain\Auth\UseCases\AuthRefreshTokenUseCase;
+use App\Domain\Player\Services\PlayerService;
 use App\Exceptions\GameException;
 use App\Http\Responses\Auth\RefreshTokenResponse;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;
-use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
+use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;
-use NexusUnitOfWork\Persistence\QueryManager;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use NexusAuth\Contracts\DeviceRepositoryInterface;
+use NexusAuth\Contracts\PlayerRepositoryInterface;
+use NexusAuth\Services\PlayerAuthService;
+use NexusAuth\Services\TokenService;
+use NexusUnitOfWork\Persistence\QueryManager;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
 
@@ -26,10 +27,15 @@ class RefreshTokenUseCaseTest extends TestCase
     use RefreshMultipleDatabases;
 
     private AuthRefreshTokenUseCase $useCase;
+
     private PlayerService $playerService;
+
     private TokenService $tokenService;
+
     private PlayerAuthService $playerAuthService;
+
     private PlayerRepositoryInterface $playerRepository;
+
     private DeviceRepositoryInterface $deviceRepository;
 
     /**
@@ -50,10 +56,10 @@ class RefreshTokenUseCaseTest extends TestCase
         $this->playerRepository = app(PlayerRepositoryInterface::class);
         $this->deviceRepository = app(DeviceRepositoryInterface::class);
         $tokenRepository = app(SysPlayerTokenRepository::class);
-        
+
         $this->playerService = new PlayerService(
-            new SysPlayerRepository(new SysPlayer()),
-            new SysPlayerDeviceRepository(new SysPlayerDevice()),
+            new SysPlayerRepository(new SysPlayer),
+            new SysPlayerDeviceRepository(new SysPlayerDevice),
             $tokenRepository
         );
 
@@ -77,24 +83,24 @@ class RefreshTokenUseCaseTest extends TestCase
      */
     private function createPlayerDeviceAndToken(): array
     {
-        $result = $this->playerService->createPlayer('test-device-' . uniqid(), ['model' => 'Test']);
+        $result = $this->playerService->createPlayer('test-device-'.uniqid(), ['model' => 'Test']);
         $sysPlayer = $result['sys_player'];
         $sysPlayerDevice = $result['sys_player_device'];
-        
+
         [$tokenDto, $sysPlayerToken] = $this->tokenService->generateToken(
             $sysPlayer,
             $sysPlayerDevice,
-            fn($playerId, $deviceId, $tokenHash, $expiresAt) => \App\Models\Sys\SysPlayerToken::create([
+            fn ($playerId, $deviceId, $tokenHash, $expiresAt) => SysPlayerToken::create([
                 'sys_player_id' => $playerId,
                 'sys_player_device_id' => $deviceId,
                 'refresh_token_hash' => $tokenHash,
                 'expires_at' => $expiresAt,
             ])
         );
-        
+
         // トークンをDBに保存（バッチINSERT）
         app(QueryManager::class)->execAllQuery();
-        
+
         return [$sysPlayer, $sysPlayerDevice, $tokenDto, $sysPlayerToken];
     }
 
@@ -131,7 +137,7 @@ class RefreshTokenUseCaseTest extends TestCase
         // Arrange
         [, , $oldDtoToken, $oldSysPlayerToken] = $this->createPlayerDeviceAndToken();
         $oldSysPlayerToken->load(['player', 'device']);
-        
+
         sleep(1);
 
         // Act
@@ -190,7 +196,7 @@ class RefreshTokenUseCaseTest extends TestCase
     {
         // Arrange
         [, , $oldDtoToken, $oldSysPlayerToken] = $this->createPlayerDeviceAndToken();
-        
+
         // トークンを無効化
         $oldSysPlayerToken->revoke();
 
@@ -208,7 +214,7 @@ class RefreshTokenUseCaseTest extends TestCase
     {
         // Arrange
         [, , $oldDtoToken, $oldSysPlayerToken] = $this->createPlayerDeviceAndToken();
-        
+
         // トークンの有効期限を過去に設定
         $oldSysPlayerToken->expires_at = now()->subDay();
         $oldSysPlayerToken->save();
@@ -233,12 +239,12 @@ class RefreshTokenUseCaseTest extends TestCase
 
         // Act - 1回目のリフレッシュ
         $response1 = $this->useCase->exec($tokenDto1->getRefreshToken());
-        
+
         sleep(1);
 
         // Act - 2回目のリフレッシュ（1回目で得たトークンを使用）
         $response2 = $this->useCase->exec($response1->tokenDto->getRefreshToken());
-        
+
         sleep(1);
 
         // Act - 3回目のリフレッシュ（2回目で得たトークンを使用）
@@ -253,7 +259,7 @@ class RefreshTokenUseCaseTest extends TestCase
         $tokenHash1 = hash('sha256', $tokenDto1->getRefreshToken());
         $tokenHash2 = hash('sha256', $response1->tokenDto->getRefreshToken());
         $tokenHash3 = hash('sha256', $response2->tokenDto->getRefreshToken());
-        
+
         $this->assertNull(SysPlayerToken::where('refresh_token_hash', $tokenHash1)->first());
         $this->assertNull(SysPlayerToken::where('refresh_token_hash', $tokenHash2)->first());
         $this->assertNull(SysPlayerToken::where('refresh_token_hash', $tokenHash3)->first());
@@ -271,7 +277,7 @@ class RefreshTokenUseCaseTest extends TestCase
         [$sysPlayer, $sysPlayerDevice, $tokenDto, $sysPlayerToken] = $this->createPlayerDeviceAndToken();
         $sysPlayerToken->load(['player', 'device']);
         $originalLastLoginAtString = $sysPlayerDevice->getLastLoginAt();
-        $originalLastLoginAt = $originalLastLoginAtString !== null ? \Carbon\Carbon::parse($originalLastLoginAtString) : null;
+        $originalLastLoginAt = $originalLastLoginAtString !== null ? Carbon::parse($originalLastLoginAtString) : null;
 
         // 時間を進める
         sleep(2);
@@ -284,11 +290,11 @@ class RefreshTokenUseCaseTest extends TestCase
         $this->assertNotNull($updatedDevice);
         $updatedLastLoginAtString = $updatedDevice->getLastLoginAt();
         $this->assertNotNull($updatedLastLoginAtString);
-        
+
         // 更新されたことを確認（元の値がnullでない場合は異なる値になっているはず）
         if ($originalLastLoginAt !== null) {
             // タイムスタンプが同じか後であることを確認
-            $updatedLastLoginAt = \Carbon\Carbon::parse($updatedLastLoginAtString);
+            $updatedLastLoginAt = Carbon::parse($updatedLastLoginAtString);
             $this->assertGreaterThanOrEqual(
                 $originalLastLoginAt->getTimestamp(),
                 $updatedLastLoginAt->getTimestamp()
@@ -314,7 +320,7 @@ class RefreshTokenUseCaseTest extends TestCase
         $oldTokenHash = hash('sha256', $oldDtoToken->getRefreshToken());
         $deletedToken = SysPlayerToken::where('refresh_token_hash', $oldTokenHash)->first();
         $this->assertNull($deletedToken);
-        
+
         // Assert - 新しいトークンは有効
         $newTokenHash = hash('sha256', $response->tokenDto->getRefreshToken());
         $newToken = SysPlayerToken::where('refresh_token_hash', $newTokenHash)->first();

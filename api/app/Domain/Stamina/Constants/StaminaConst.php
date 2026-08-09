@@ -4,7 +4,7 @@ namespace App\Domain\Stamina\Constants;
 
 /**
  * スタミナ定数クラス
- * 
+ *
  * スタミナタイプの定義と関連定数を管理
  */
 class StaminaConst
@@ -46,9 +46,6 @@ class StaminaConst
 
     /**
      * スタミナタイプの表示名を取得
-     *
-     * @param string $type
-     * @return string
      */
     public static function getTypeName(string $type): string
     {
@@ -63,9 +60,6 @@ class StaminaConst
 
     /**
      * 有効なスタミナタイプかチェック
-     *
-     * @param string $type
-     * @return bool
      */
     public static function isValidType(string $type): bool
     {

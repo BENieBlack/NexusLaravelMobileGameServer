@@ -12,9 +12,9 @@ use NexusMailbox\Services\Template\Resolvers\SystemPlaceholder;
  * TemplateEngine
  *
  * メールテンプレートのプレースホルダー置換エンジン
- * 
+ *
  * Package層の_BaseTemplateEngineを継承し、ゲーム固有のResolverを登録
- * 
+ *
  * 登録Resolver:
  * - SystemPlaceholder (Package層) - システム情報
  * - PlayerPlaceholder (Game固有) - プレイヤー情報
@@ -33,8 +33,8 @@ class TemplateEngine extends _BaseTemplateEngine
             serverName: config('app.name', 'Game Server'),
             version: config('app.version', '1.0.0')
         ));
-        $this->registerResolver(new PlayerPlaceholder());
-        $this->registerResolver(new AlliancePlaceholder());
-        $this->registerResolver(new BattlePlaceholder());
+        $this->registerResolver(new PlayerPlaceholder);
+        $this->registerResolver(new AlliancePlaceholder);
+        $this->registerResolver(new BattlePlaceholder);
     }
 }

@@ -2,29 +2,30 @@
 
 namespace App\Models\Sys;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use NexusAuth\Contracts\TokenModelInterface;
 
 /**
  * SysPlayerToken Model
- * 
+ *
  * プレイヤートークン管理テーブル
  * リフレッシュトークンのハッシュと有効期限を管理
- * 
+ *
  * @property int $id
  * @property int $sys_player_id
  * @property int $sys_player_device_id
  * @property string $refresh_token_hash
- * @property \Illuminate\Support\Carbon $expires_at
- * @property \Illuminate\Support\Carbon|null $revoked_at
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property Carbon $expires_at
+ * @property Carbon|null $revoked_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  * @property-read SysPlayer $player
  * @property-read SysPlayerDevice $device
  */
 class SysPlayerToken extends _BaseSys implements TokenModelInterface
 {
-
     /**
      * テーブル名
      */
@@ -57,8 +58,6 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
 
     /**
      * プレイヤーとのリレーション
-     *
-     * @return BelongsTo
      */
     public function player(): BelongsTo
     {
@@ -67,8 +66,6 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
 
     /**
      * デバイスとのリレーション
-     *
-     * @return BelongsTo
      */
     public function device(): BelongsTo
     {
@@ -77,8 +74,6 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
 
     /**
      * IDを取得
-     *
-     * @return int
      */
     public function getId(): int
     {
@@ -87,8 +82,6 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
 
     /**
      * プレイヤーIDを取得
-     *
-     * @return int
      */
     public function getSysPlayerId(): int
     {
@@ -97,8 +90,6 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
 
     /**
      * プレイヤーデバイスIDを取得
-     *
-     * @return int
      */
     public function getSysPlayerDeviceId(): int
     {
@@ -107,8 +98,6 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
 
     /**
      * リフレッシュトークンハッシュを取得
-     *
-     * @return string
      */
     public function getRefreshTokenHash(): string
     {
@@ -117,29 +106,22 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
 
     /**
      * 有効期限をCarbonオブジェクトで取得
-     *
-     * @return \Illuminate\Support\Carbon
      */
-    public function getExpiresAtCarbon(): \Illuminate\Support\Carbon
+    public function getExpiresAtCarbon(): Carbon
     {
         return $this->getAttribute('expires_at');
     }
 
     /**
      * 無効化日時を取得
-     *
-     * @return \Illuminate\Support\Carbon|null
      */
-    public function getRevokedAt(): ?\Illuminate\Support\Carbon
+    public function getRevokedAt(): ?Carbon
     {
         return $this->getAttribute('revoked_at');
     }
 
     /**
      * プレイヤーIDを設定
-     *
-     * @param int $sysPlayerId
-     * @return void
      */
     public function setSysPlayerId(int $sysPlayerId): void
     {
@@ -148,9 +130,6 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
 
     /**
      * プレイヤーデバイスIDを設定
-     *
-     * @param int $sysPlayerDeviceId
-     * @return void
      */
     public function setSysPlayerDeviceId(int $sysPlayerDeviceId): void
     {
@@ -159,9 +138,6 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
 
     /**
      * リフレッシュトークンハッシュを設定
-     *
-     * @param string $refreshTokenHash
-     * @return void
      */
     public function setRefreshTokenHash(string $refreshTokenHash): void
     {
@@ -170,41 +146,31 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
 
     /**
      * 有効期限を設定
-     *
-     * @param \Illuminate\Support\Carbon $expiresAt
-     * @return void
      */
-    public function setExpiresAt(\Illuminate\Support\Carbon $expiresAt): void
+    public function setExpiresAt(Carbon $expiresAt): void
     {
         $this->setAttribute('expires_at', $expiresAt);
     }
 
     /**
      * 無効化日時を設定
-     *
-     * @param \Illuminate\Support\Carbon|null $revokedAt
-     * @return void
      */
-    public function setRevokedAt(?\Illuminate\Support\Carbon $revokedAt): void
+    public function setRevokedAt(?Carbon $revokedAt): void
     {
         $this->setAttribute('revoked_at', $revokedAt);
     }
 
     /**
      * トークンが有効かチェック
-     *
-     * @return bool
      */
     public function isValid(): bool
     {
-        return $this->getRevokedAt() === null 
+        return $this->getRevokedAt() === null
             && $this->getExpiresAtCarbon() > now();
     }
 
     /**
      * トークンが期限切れかチェック
-     *
-     * @return bool
      */
     public function isExpired(): bool
     {
@@ -216,18 +182,16 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
      *
      * exists=trueの場合は即座にDB更新、exists=falseの場合はrevoked_atを設定するだけ
      * （exists=falseの場合、後続のexecAllQuery()でINSERTされる）
-     *
-     * @return bool
      */
     public function revoke(): bool
     {
         $this->revoked_at = now();
-        
+
         // 既にDBに存在する場合のみsave()でDB更新
         if ($this->exists) {
             return $this->save();
         }
-        
+
         // exists=falseの場合はrevoked_atを設定するだけ
         // （後続のexecAllQuery()でこのモデルがINSERTされる）
         return true;
@@ -235,9 +199,6 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
 
     /**
      * refresh_token_hashから有効なトークンを取得
-     *
-     * @param string $tokenHash
-     * @return self|null
      */
     public static function findValidByHash(string $tokenHash): ?self
     {
@@ -250,31 +211,29 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
     /**
      * 有効なトークンのスコープ
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeValid($query)
     {
         return $query->whereNull('revoked_at')
-                    ->where('expires_at', '>', now());
+            ->where('expires_at', '>', now());
     }
 
     /**
      * レスポンス用配列に変換
-     * 
+     *
      * データベース層の'id'をAPI層の'sys_player_token_id'に変換
-     * 
-     * @return array
      */
     public function toResponseArray(): array
     {
         $array = parent::toResponseArray();
-        
+
         if (isset($array['id'])) {
             $array['sys_player_token_id'] = $array['id'];
             unset($array['id']);
         }
-        
+
         return $array;
     }
 
@@ -284,8 +243,6 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
 
     /**
      * プレイヤーIDを取得 (NexusAuth TokenModelInterface)
-     *
-     * @return int
      */
     public function getPlayerId(): int
     {
@@ -294,8 +251,6 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
 
     /**
      * リフレッシュトークンを取得 (NexusAuth TokenModelInterface)
-     *
-     * @return string
      */
     public function getRefreshToken(): string
     {
@@ -304,8 +259,6 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
 
     /**
      * 有効期限を文字列形式で取得 (NexusAuth TokenModelInterface)
-     *
-     * @return string
      */
     public function getExpiresAt(): string
     {

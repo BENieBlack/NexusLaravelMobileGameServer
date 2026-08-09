@@ -17,8 +17,8 @@ class MstUnitRepositoryTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->repository = new MstUnitRepository();
-        
+        $this->repository = new MstUnitRepository;
+
         // Clear Redis cache before each test
         Cache::store('redis')->flush();
     }
@@ -125,7 +125,7 @@ class MstUnitRepositoryTest extends TestCase
 
         // Act - First call should query database and cache
         $result1 = $this->repository->selectById('unit_001');
-        
+
         // Create a new unit after first query
         MstUnit::create([
             'id' => 'unit_002',
@@ -166,7 +166,7 @@ class MstUnitRepositoryTest extends TestCase
         Cache::store('redis')->flush();
 
         // Create new repository instance to clear internal state
-        $newRepository = new MstUnitRepository();
+        $newRepository = new MstUnitRepository;
 
         // Create a new unit
         MstUnit::create([
@@ -216,10 +216,10 @@ class MstUnitRepositoryTest extends TestCase
         $types = ['Attack', 'Defense', 'Support'];
         $elements = ['Fire', 'Water', 'Wind'];
         $rarities = ['SSR', 'SR', 'R'];
-        
+
         foreach ($types as $index => $type) {
             MstUnit::create([
-                'id' => 'unit_00' . ($index + 1),
+                'id' => 'unit_00'.($index + 1),
                 'deploy_key' => 202601010,
                 'type' => $type,
                 'element' => $elements[$index],

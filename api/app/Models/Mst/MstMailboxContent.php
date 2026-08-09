@@ -2,19 +2,20 @@
 
 namespace App\Models\Mst;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * MstMailboxContent Model
- * 
+ *
  * @property int $deploy_key
  * @property string $mst_mailbox_id
  * @property string $content_type
  * @property string $content_id
  * @property int $amount
  * @property int $sort_desc
- * @property \Carbon\CarbonImmutable $created_at
- * @property \Carbon\CarbonImmutable $updated_at
+ * @property CarbonImmutable $created_at
+ * @property CarbonImmutable $updated_at
  */
 class MstMailboxContent extends _BaseMst
 {
@@ -61,8 +62,6 @@ class MstMailboxContent extends _BaseMst
 
     /**
      * メールボックスとのリレーション
-     *
-     * @return BelongsTo
      */
     public function mailbox(): BelongsTo
     {
@@ -71,8 +70,6 @@ class MstMailboxContent extends _BaseMst
 
     /**
      * コンテンツタイプを取得
-     *
-     * @return string
      */
     public function getContentType(): string
     {
@@ -81,8 +78,6 @@ class MstMailboxContent extends _BaseMst
 
     /**
      * コンテンツIDを取得
-     *
-     * @return string
      */
     public function getContentId(): string
     {
@@ -91,8 +86,6 @@ class MstMailboxContent extends _BaseMst
 
     /**
      * コンテンツオプションを取得
-     *
-     * @return array|null
      */
     public function getContentOption(): ?array
     {
@@ -101,8 +94,6 @@ class MstMailboxContent extends _BaseMst
 
     /**
      * コンテンツ数量を取得（1配布あたり）
-     *
-     * @return int
      */
     public function getContentQuantity(): int
     {
@@ -111,8 +102,6 @@ class MstMailboxContent extends _BaseMst
 
     /**
      * 数量を取得（配布回数）
-     *
-     * @return int
      */
     public function getAmount(): int
     {
@@ -121,8 +110,6 @@ class MstMailboxContent extends _BaseMst
 
     /**
      * 実際の配布総量を取得（content_quantity × amount）
-     *
-     * @return int
      */
     public function getTotalQuantity(): int
     {
@@ -131,8 +118,6 @@ class MstMailboxContent extends _BaseMst
 
     /**
      * レスポンス用配列に変換
-     * 
-     * @return array
      */
     public function toResponseArray(): array
     {

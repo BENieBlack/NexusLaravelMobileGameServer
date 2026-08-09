@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * MstLoginBonus Model
- * 
+ *
  * @property int $deploy_key
  * @property string $id
  * @property string $type
@@ -24,11 +24,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class MstLoginBonus extends _BaseMst
 {
     public const TYPE_DAILY = 'daily';
+
     public const TYPE_COMEBACK = 'comeback';
 
     public $table = 'mst_login_bonus';
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     /** @var array<int, string> */
@@ -67,13 +69,11 @@ class MstLoginBonus extends _BaseMst
 
     /**
      * ログインボーナス報酬内容とのリレーション
-     *
-     * @return HasMany
      */
     public function contents(): HasMany
     {
         return $this->hasMany(MstLoginBonusContent::class, 'mst_login_bonus_id', 'id')
-                    ->orderBy('sort_order', 'asc');
+            ->orderBy('sort_order', 'asc');
     }
 
     /**
@@ -121,7 +121,7 @@ class MstLoginBonus extends _BaseMst
      */
     public function isWithinPeriod(?\DateTimeImmutable $now = null): bool
     {
-        $now = $now ?? new \DateTimeImmutable();
+        $now = $now ?? new \DateTimeImmutable;
 
         if ($this->start_at !== null && $now < $this->start_at) {
             return false;

@@ -2,18 +2,17 @@
 
 namespace App\Repositories\Sys;
 
-
-use NexusPersistence\Support\CustomCollection;
 use App\Models\Sys\SysDeploy;
-use NexusVersion\Repositories\DeployRepositoryInterface;
 use Illuminate\Support\Facades\Cache;
+use NexusPersistence\Support\CustomCollection;
+use NexusVersion\Repositories\DeployRepositoryInterface;
 
 /**
  * SysDeployRepository
- * 
+ *
  * デプロイ情報のRepository実装
  * 例外的に Redis キャッシュを使用
- * 
+ *
  * @extends _BaseSysRepository<SysDeploy>
  */
 class SysDeployRepository extends _BaseSysRepository implements DeployRepositoryInterface
@@ -22,13 +21,11 @@ class SysDeployRepository extends _BaseSysRepository implements DeployRepository
 
     /**
      * 最新のダウンロード可能なデプロイを取得（Redis キャッシュ付き）
-     *
-     * @return SysDeploy|null
      */
     public function selectLatestDownloadable(): ?SysDeploy
     {
-        $cacheKey = $this->getCacheKey("latest_downloadable");
-        
+        $cacheKey = $this->getCacheKey('latest_downloadable');
+
         return Cache::store($this->cacheDriver)->remember(
             $cacheKey,
             $this->cacheTtl,
@@ -56,6 +53,7 @@ class SysDeployRepository extends _BaseSysRepository implements DeployRepository
     public function findLatestDownloadable(): ?array
     {
         $sysDeploy = $this->selectLatestDownloadable();
+
         return $sysDeploy ? $this->toArray($sysDeploy) : null;
     }
 
@@ -66,19 +64,17 @@ class SysDeployRepository extends _BaseSysRepository implements DeployRepository
     public function findById(int $deployId): ?array
     {
         $sysDeploy = $this->selectById($deployId);
+
         return $sysDeploy ? $this->toArray($sysDeploy) : null;
     }
 
     /**
      * デプロイキーからデプロイを検索（Redis キャッシュ付き）
-     *
-     * @param int $deployKey
-     * @return SysDeploy|null
      */
     public function selectByDeployKey(int $deployKey): ?SysDeploy
     {
         $cacheKey = $this->getCacheKey("deploy_key:{$deployKey}");
-        
+
         return Cache::store($this->cacheDriver)->remember(
             $cacheKey,
             $this->cacheTtl,
@@ -111,9 +107,6 @@ class SysDeployRepository extends _BaseSysRepository implements DeployRepository
 
     /**
      * IDで検索（オーバーライドして Redis キャッシュ付き、リレーション付き）
-     *
-     * @param int $sysDeployId
-     * @return SysDeploy|null
      */
     public function selectById(int $sysDeployId): ?SysDeploy
     {
@@ -138,19 +131,16 @@ class SysDeployRepository extends _BaseSysRepository implements DeployRepository
 
     /**
      * SysDeployモデルを配列に変換
-     * 
-     * @param SysDeploy $sysDeploy
-     * @return array
      */
     private function toArray(SysDeploy $sysDeploy): array
     {
         $data = $sysDeploy->toArray();
-        
+
         // リレーションも含める
         if ($sysDeploy->relationLoaded('deployMaster')) {
             $data['deploy_master'] = $sysDeploy->deployMaster?->toArray();
         }
-        
+
         if ($sysDeploy->relationLoaded('deployAsset')) {
             $data['deploy_asset'] = $sysDeploy->deployAsset?->toArray();
         }

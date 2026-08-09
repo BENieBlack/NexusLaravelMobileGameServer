@@ -3,15 +3,14 @@
 namespace App\Domain\Mailbox\UseCases;
 
 use App\Domain\_BaseUseCase;
-use NexusResource\DTOs\ResourceDto;
-use NexusResourceDelivery\Services\ResourceDeliveryService;
 use App\Domain\MailBox\Constants\Category;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Http\Responses\Mailbox\ReceiveAllResponse;
 use App\Repositories\Trx\TrxMailboxRepository;
-use Carbon\Carbon;
 use NexusPersistence\Support\CustomCollection;
+use NexusResource\DTOs\ResourceDto;
+use NexusResourceDelivery\Services\ResourceDeliveryService;
 
 /**
  * MailboxReceiveAllUseCase
@@ -23,20 +22,18 @@ class MailboxReceiveAllUseCase extends _BaseUseCase
     public function __construct(
         private TrxMailboxRepository $trxMailboxRepository,
         private ResourceDeliveryService $resourceDeliveryService,
-    ) {
-    }
+    ) {}
 
     /**
      * 複数メールの添付物を一括で受け取る
      *
-     * @param int $sysPlayerId
-     * @param array<int>|null $trxMailboxIds 受取対象のメールID配列（nullの場合は全て）
-     * @param string|null $category カテゴリフィルタ
-     * @return ReceiveAllResponse
+     * @param  array<int>|null  $trxMailboxIds  受取対象のメールID配列（nullの場合は全て）
+     * @param  string|null  $category  カテゴリフィルタ
+     *
      * @throws GameException
      */
     public function exec(
-        int $sysPlayerId, 
+        int $sysPlayerId,
         ?array $trxMailboxIds = null,
         ?string $category = null
     ): ReceiveAllResponse {
@@ -48,8 +45,8 @@ class MailboxReceiveAllUseCase extends _BaseUseCase
             if ($trxMailboxIds !== null && count($trxMailboxIds) > 0) {
                 // 指定IDのメールを取得
                 $trxMailboxCollection = (new CustomCollection($trxMailboxIds))
-                    ->map(fn($id) => $this->trxMailboxRepository->selectById($id))
-                    ->filter(fn($m) => $m !== null && $m->getSysPlayerId() === $sysPlayerId);
+                    ->map(fn ($id) => $this->trxMailboxRepository->selectById($id))
+                    ->filter(fn ($m) => $m !== null && $m->getSysPlayerId() === $sysPlayerId);
             } else {
                 // 全ての未受取メールを取得
                 $trxMailboxCollection = $this->trxMailboxRepository->selectByPlayerId(
@@ -58,7 +55,7 @@ class MailboxReceiveAllUseCase extends _BaseUseCase
                     null,
                     false,
                     false
-                )->filter(fn($m) => !$m->getIsReceived() && !$m->isExpired());
+                )->filter(fn ($m) => ! $m->getIsReceived() && ! $m->isExpired());
             }
 
             if ($trxMailboxCollection->isEmpty()) {
@@ -75,24 +72,27 @@ class MailboxReceiveAllUseCase extends _BaseUseCase
                 // 既に受取済みならスキップ
                 if ($trxMailbox->getIsReceived()) {
                     $skippedCount++;
+
                     continue;
                 }
 
                 // 期限切れならスキップ
                 if ($trxMailbox->isExpired()) {
                     $skippedCount++;
+
                     continue;
                 }
 
                 // マスターデータから添付物を取得
                 $mstMailbox = $trxMailbox->mstMailbox;
-                $contentCollection = $mstMailbox?->contentCollection ?? new CustomCollection();
+                $contentCollection = $mstMailbox?->contentCollection ?? new CustomCollection;
 
                 if ($contentCollection->isEmpty()) {
                     // 添付物がなくても受取済みにする
                     $this->trxMailboxRepository->markAsReceived($trxMailbox);
                     $receivedMailboxIds[] = $trxMailbox->getId();
                     $totalMailCount++;
+
                     continue;
                 }
 

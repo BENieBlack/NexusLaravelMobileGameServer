@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class LogGachaSeeder extends Seeder
 {
@@ -30,6 +29,7 @@ class LogGachaSeeder extends Seeder
 
         if ($accessLogs->isEmpty()) {
             $this->command->warn('⚠️  LogGachaSeeder: No matching access logs found. Run LogAccessSeeder first.');
+
             return;
         }
 
@@ -38,13 +38,14 @@ class LogGachaSeeder extends Seeder
 
         if (empty($masterUnits)) {
             $this->command->warn('⚠️  LogGachaSeeder: No master units found. Run MstUnitSeeder first.');
+
             return;
         }
 
         $gachaTypes = ['gacha_premium', 'gacha_normal', 'gacha_limited', 'gacha_daily'];
 
         $logCount = 0;
-        
+
         // log_accessのunique_request_idを使用してログを作成
         foreach ($accessLogs as $accessLog) {
             // ガチャ結果を生成（1回〜10連）

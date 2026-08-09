@@ -16,7 +16,7 @@ enum Priority: string
      */
     public function label(): string
     {
-        return match($this) {
+        return match ($this) {
             self::NORMAL => '通常',
             self::IMPORTANT => '重要',
             self::URGENT => '緊急',
@@ -28,7 +28,7 @@ enum Priority: string
      */
     public function color(): string
     {
-        return match($this) {
+        return match ($this) {
             self::NORMAL => '#6C757D',      // グレー
             self::IMPORTANT => '#FF9800',   // オレンジ
             self::URGENT => '#F44336',      // 赤
@@ -40,7 +40,7 @@ enum Priority: string
      */
     public function icon(): string
     {
-        return match($this) {
+        return match ($this) {
             self::NORMAL => '📧',
             self::IMPORTANT => '⚠️',
             self::URGENT => '🔴',

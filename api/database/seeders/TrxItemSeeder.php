@@ -22,6 +22,7 @@ class TrxItemSeeder extends Seeder
 
         if (empty($masterItems)) {
             $this->command->warn('⚠️  TrxItemSeeder: No master items found. Run MstItemSeeder first.');
+
             return;
         }
 
@@ -30,6 +31,7 @@ class TrxItemSeeder extends Seeder
 
         if ($players->isEmpty()) {
             $this->command->warn('⚠️  TrxItemSeeder: No players found. Run SysPlayerSeeder first.');
+
             return;
         }
 
@@ -59,13 +61,13 @@ class TrxItemSeeder extends Seeder
             // プレイヤーの割り当て先シャードを特定
             $shardAssignment = $playerShardMap[$player->id] ?? null;
 
-            if (!$shardAssignment) {
+            if (! $shardAssignment) {
                 continue;
             }
 
             $nodeNo = $shardNodes[$shardAssignment->sys_sharding_node_id] ?? null;
-            
-            if (!$nodeNo) {
+
+            if (! $nodeNo) {
                 continue;
             }
 
@@ -74,17 +76,17 @@ class TrxItemSeeder extends Seeder
             // 各プレイヤーに5〜10種類のアイテムを付与
             $itemCount = rand(5, 10);
             $selectedItems = array_rand(array_flip($masterItems), $itemCount);
-            
-            if (!is_array($selectedItems)) {
+
+            if (! is_array($selectedItems)) {
                 $selectedItems = [$selectedItems];
             }
 
             foreach ($selectedItems as $mstItemId) {
                 $totalAmount = rand(1, 999);
                 $paidRatio = rand(0, 30) / 100; // 0-30%が有償
-                $paidAmount = (int)($totalAmount * $paidRatio);
+                $paidAmount = (int) ($totalAmount * $paidRatio);
                 $freeAmount = $totalAmount - $paidAmount;
-                
+
                 DB::connection($connection)->table('trx_item')->insert([
                     'sys_player_id' => $player->id,
                     'mst_item_id' => $mstItemId,
@@ -99,7 +101,7 @@ class TrxItemSeeder extends Seeder
         }
 
         $this->command->info('✅ TrxItemSeeder: Created item ownership data');
-        $this->command->info('   - trx1: ' . $createdCounts['trx1'] . ' items');
-        $this->command->info('   - trx2: ' . $createdCounts['trx2'] . ' items');
+        $this->command->info('   - trx1: '.$createdCounts['trx1'].' items');
+        $this->command->info('   - trx2: '.$createdCounts['trx2'].' items');
     }
 }

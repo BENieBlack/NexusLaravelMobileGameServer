@@ -14,7 +14,7 @@ use NexusGuild\Services\GuildService;
 
 /**
  * GuildApplyAcceptUseCase
- * 
+ *
  * ギルド加入申請承認ユースケース
  */
 class GuildApplyAcceptUseCase extends _BaseUseCase
@@ -23,15 +23,14 @@ class GuildApplyAcceptUseCase extends _BaseUseCase
         private readonly SysGuildApplyRepository $sysGuildApplyRepository,
         private readonly SysGuildMemberRepository $sysGuildMemberRepository,
         private readonly GuildService $guildService,
-    ) {
-    }
+    ) {}
 
     /**
      * ギルド加入申請承認処理を実行
      *
-     * @param int $sysPlayerId 承認するプレイヤーID（マスター/サブマスター）
-     * @param int $applyId 申請ID
-     * @return GuildApplyAcceptResponse
+     * @param  int  $sysPlayerId  承認するプレイヤーID（マスター/サブマスター）
+     * @param  int  $applyId  申請ID
+     *
      * @throws GameException
      */
     public function exec(int $sysPlayerId, int $applyId): GuildApplyAcceptResponse

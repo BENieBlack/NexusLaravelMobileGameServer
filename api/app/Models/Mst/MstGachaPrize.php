@@ -4,7 +4,7 @@ namespace App\Models\Mst;
 
 /**
  * MstGachaPrize Model
- * 
+ *
  * @property int $deploy_key
  * @property string $id
  * @property string $mst_gacha_id
@@ -21,6 +21,7 @@ class MstGachaPrize extends _BaseMst
     public $table = 'mst_gacha_prize';
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $fillable = [
@@ -55,8 +56,6 @@ class MstGachaPrize extends _BaseMst
 
     /**
      * コンテンツタイプを取得
-     *
-     * @return string
      */
     public function getContentType(): string
     {
@@ -65,8 +64,6 @@ class MstGachaPrize extends _BaseMst
 
     /**
      * コンテンツIDを取得
-     *
-     * @return string
      */
     public function getContentId(): string
     {
@@ -75,8 +72,6 @@ class MstGachaPrize extends _BaseMst
 
     /**
      * コンテンツオプションを取得
-     *
-     * @return array|null
      */
     public function getContentOption(): ?array
     {
@@ -85,8 +80,6 @@ class MstGachaPrize extends _BaseMst
 
     /**
      * コンテンツ数量を取得（1配布あたり）
-     *
-     * @return int
      */
     public function getContentQuantity(): int
     {
@@ -95,8 +88,6 @@ class MstGachaPrize extends _BaseMst
 
     /**
      * 配布回数を取得
-     *
-     * @return int
      */
     public function getAmount(): int
     {
@@ -105,8 +96,6 @@ class MstGachaPrize extends _BaseMst
 
     /**
      * 実際の配布総量を取得（content_quantity × amount）
-     *
-     * @return int
      */
     public function getTotalQuantity(): int
     {

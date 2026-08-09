@@ -2,21 +2,22 @@
 
 namespace App\Models\Trx;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * TrxEquipment Model
- * 
+ *
  * プレイヤーが所持する装備を管理するモデル
- * 
+ *
  * @property int $id
  * @property int $sys_player_id
  * @property string $mst_equipment_id
  * @property int $grade
  * @property int $level
  * @property int $level_exp
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  */
 class TrxEquipment extends _BaseTrx
 {
@@ -24,14 +25,12 @@ class TrxEquipment extends _BaseTrx
 
     /**
      * SELECTキー（プレイヤーIDでSELECT）
-     * 
-     * @var string
      */
     protected string $selectKey = 'sys_player_id';
 
     /**
      * ユニークキー（装備はIDで一意）
-     * 
+     *
      * @var array<int, string>
      */
     protected array $uniqueKeys = ['id'];
@@ -72,8 +71,6 @@ class TrxEquipment extends _BaseTrx
 
     /**
      * 装備IDを取得
-     *
-     * @return int
      */
     public function getId(): int
     {
@@ -82,8 +79,6 @@ class TrxEquipment extends _BaseTrx
 
     /**
      * プレイヤーIDを取得
-     *
-     * @return int
      */
     public function getSysPlayerId(): int
     {
@@ -92,8 +87,6 @@ class TrxEquipment extends _BaseTrx
 
     /**
      * マスター装備IDを取得
-     *
-     * @return string
      */
     public function getMstEquipmentId(): string
     {
@@ -102,8 +95,6 @@ class TrxEquipment extends _BaseTrx
 
     /**
      * グレードを取得
-     *
-     * @return int
      */
     public function getGrade(): int
     {
@@ -112,8 +103,6 @@ class TrxEquipment extends _BaseTrx
 
     /**
      * レベルを取得
-     *
-     * @return int
      */
     public function getLevel(): int
     {
@@ -122,8 +111,6 @@ class TrxEquipment extends _BaseTrx
 
     /**
      * レベル経験値を取得
-     *
-     * @return int
      */
     public function getLevelExp(): int
     {
@@ -132,19 +119,14 @@ class TrxEquipment extends _BaseTrx
 
     /**
      * 削除フラグを取得
-     *
-     * @return bool
      */
     public function getIsDelete(): bool
     {
-        return (bool)$this->getAttribute('is_delete');
+        return (bool) $this->getAttribute('is_delete');
     }
 
     /**
      * プレイヤーIDを設定
-     *
-     * @param int $sysPlayerId
-     * @return void
      */
     public function setSysPlayerId(int $sysPlayerId): void
     {
@@ -153,9 +135,6 @@ class TrxEquipment extends _BaseTrx
 
     /**
      * マスター装備IDを設定
-     *
-     * @param string $mstEquipmentId
-     * @return void
      */
     public function setMstEquipmentId(string $mstEquipmentId): void
     {
@@ -164,9 +143,6 @@ class TrxEquipment extends _BaseTrx
 
     /**
      * グレードを設定
-     *
-     * @param int $grade
-     * @return void
      */
     public function setGrade(int $grade): void
     {
@@ -175,9 +151,6 @@ class TrxEquipment extends _BaseTrx
 
     /**
      * レベルを設定
-     *
-     * @param int $level
-     * @return void
      */
     public function setLevel(int $level): void
     {
@@ -186,9 +159,6 @@ class TrxEquipment extends _BaseTrx
 
     /**
      * レベル経験値を設定
-     *
-     * @param int $levelExp
-     * @return void
      */
     public function setLevelExp(int $levelExp): void
     {
@@ -197,9 +167,6 @@ class TrxEquipment extends _BaseTrx
 
     /**
      * 削除フラグを設定
-     *
-     * @param bool $isDelete
-     * @return void
      */
     public function setIsDelete(bool $isDelete): void
     {
@@ -209,19 +176,19 @@ class TrxEquipment extends _BaseTrx
     /**
      * APIレスポンス用の配列に変換
      * id を trx_equipment_id に変換
-     * 
+     *
      * @return array<string, mixed>
      */
     public function toResponseArray(): array
     {
         $array = parent::toResponseArray();
-        
+
         // id を trx_equipment_id にリネーム
         if (isset($array['id'])) {
             $array['trx_equipment_id'] = $array['id'];
             unset($array['id']);
         }
-        
+
         return $array;
     }
 }

@@ -13,7 +13,7 @@ class RedisUtilityTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // テスト前にRedisをクリア
         RedisUtility::flush();
     }
@@ -22,7 +22,7 @@ class RedisUtilityTest extends TestCase
     {
         // テスト後にRedisをクリア
         RedisUtility::flush();
-        
+
         parent::tearDown();
     }
 
@@ -93,10 +93,10 @@ class RedisUtilityTest extends TestCase
     public function foreverメソッドが永続保存する()
     {
         RedisUtility::forever('permanent_key', 'permanent_value');
-        
+
         $value = RedisUtility::get('permanent_key');
         $this->assertEquals('permanent_value', $value);
-        
+
         // Note: TTLの確認はLaravelのキャッシュプレフィックスの影響でスキップ
     }
 
@@ -136,6 +136,7 @@ class RedisUtilityTest extends TestCase
         // 初回はクロージャが実行される
         $result = RedisUtility::remember('remember_key', 60, function () use (&$callCount) {
             $callCount++;
+
             return 'computed_value';
         });
 
@@ -145,6 +146,7 @@ class RedisUtilityTest extends TestCase
         // 2回目はキャッシュから取得
         $result = RedisUtility::remember('remember_key', 60, function () use (&$callCount) {
             $callCount++;
+
             return 'computed_value';
         });
 
@@ -175,7 +177,7 @@ class RedisUtilityTest extends TestCase
         $largeData = [
             'items' => array_fill(0, 100, [
                 'id' => rand(1, 1000),
-                'name' => 'Item_' . rand(1, 100),
+                'name' => 'Item_'.rand(1, 100),
                 'description' => 'This is a test item with a longer description',
             ]),
         ];
@@ -200,6 +202,7 @@ class RedisUtilityTest extends TestCase
         // 初回はクロージャが実行される
         $result = RedisUtility::rememberCompressed('compressed_remember', 60, function () use (&$callCount, $data) {
             $callCount++;
+
             return $data;
         });
 
@@ -209,6 +212,7 @@ class RedisUtilityTest extends TestCase
         // 2回目はキャッシュから取得
         $result = RedisUtility::rememberCompressed('compressed_remember', 60, function () use (&$callCount, $data) {
             $callCount++;
+
             return $data;
         });
 
@@ -268,7 +272,7 @@ class RedisUtilityTest extends TestCase
         // clearでも同じ
         RedisUtility::put('key4', 'value4', 60);
         $this->assertTrue(RedisUtility::has('key4'));
-        
+
         RedisUtility::clear();
         $this->assertFalse(RedisUtility::has('key4'));
     }

@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 
 /**
  * _BaseRequest
- * 
+ *
  * すべてのリクエストクラスの基底クラス
  * 共通のバリデーション処理やヘルパーメソッドを提供
  */
@@ -14,10 +14,8 @@ abstract class _BaseRequest extends FormRequest implements _BaseRequestInterface
 {
     /**
      * リクエストの認可を判定
-     * 
-     * デフォルトではtrueを返す（各リクエストクラスでオーバーライド可能）
      *
-     * @return bool
+     * デフォルトではtrueを返す（各リクエストクラスでオーバーライド可能）
      */
     public function authorize(): bool
     {
@@ -26,7 +24,7 @@ abstract class _BaseRequest extends FormRequest implements _BaseRequestInterface
 
     /**
      * バリデーションルール
-     * 
+     *
      * 各リクエストクラスで必ずオーバーライドすること
      *
      * @return array<string, mixed>
@@ -35,7 +33,7 @@ abstract class _BaseRequest extends FormRequest implements _BaseRequestInterface
 
     /**
      * カスタムバリデーションメッセージ
-     * 
+     *
      * 必要に応じて各リクエストクラスでオーバーライド
      *
      * @return array<string, string>
@@ -47,7 +45,7 @@ abstract class _BaseRequest extends FormRequest implements _BaseRequestInterface
 
     /**
      * バリデーション属性名のカスタマイズ
-     * 
+     *
      * 必要に応じて各リクエストクラスでオーバーライド
      *
      * @return array<string, string>
@@ -59,10 +57,8 @@ abstract class _BaseRequest extends FormRequest implements _BaseRequestInterface
 
     /**
      * X-Unique-Request-Identifierヘッダーを取得
-     * 
-     * 冪等性保証のためのユニークリクエスト識別子
      *
-     * @return string|null
+     * 冪等性保証のためのユニークリクエスト識別子
      */
     public function getUniqueRequestIdentifier(): ?string
     {
@@ -71,10 +67,8 @@ abstract class _BaseRequest extends FormRequest implements _BaseRequestInterface
 
     /**
      * 認証済みプレイヤーIDを取得
-     * 
-     * VerifyAccessTokenミドルウェアで設定される
      *
-     * @return int|null
+     * VerifyAccessTokenミドルウェアで設定される
      */
     public function getAuthenticatedPlayerId(): ?int
     {

@@ -2,10 +2,10 @@
 
 namespace App\Traits;
 
-use NexusUnitOfWork\Contracts\QueryManagerInterface;
-use NexusPitr\Logger\ShardMapper;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use NexusPitr\Logger\ShardMapper;
+use NexusUnitOfWork\Contracts\QueryManagerInterface;
 use Throwable;
 
 trait UseCaseTrait
@@ -21,9 +21,10 @@ trait UseCaseTrait
      * 5. すべてを同時にコミット（1つでも失敗したら全てロールバック）
      * 6. 通常ログをトランザクション外で実行（コミット後）
      *
-     * @param callable $callback 実行するビジネスロジック
-     * @param int|null $sysPlayerId sign_in時のクリーンアップ用プレイヤーID
+     * @param  callable  $callback  実行するビジネスロジック
+     * @param  int|null  $sysPlayerId  sign_in時のクリーンアップ用プレイヤーID
      * @return mixed コールバックの戻り値
+     *
      * @throws Exception|Throwable トランザクション実行中にエラーが発生した場合
      */
     public function executeWithTransaction(callable $callback, ?int $sysPlayerId = null): mixed
@@ -36,14 +37,14 @@ trait UseCaseTrait
 
         // 使用する接続を収集（sys + trx + log）
         $connections = $this->getActiveConnections();
-        
+
         // すべてのトランザクションを同時に開始（PITR整合性保証）
         foreach ($connections as $conn) {
             DB::connection($conn)->beginTransaction();
         }
 
         $queryManager = app()->make(QueryManagerInterface::class);
-        
+
         try {
             // コールバックを実行（クエリはQueryManagerにキューイングされる）
             $result = $callback();
@@ -63,19 +64,19 @@ trait UseCaseTrait
             // 通常ログ（log_access等）書き込み失敗はビジネストランザクションに影響しない
             $queryManager->execAllLogs();
 
-        } catch (Exception | Throwable $e) {
+        } catch (Exception|Throwable $e) {
             \Log::error('Transaction failed in UseCase', [
                 'error' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            
+
             // すべてをロールバック（TrxDB + LogDB PITR）
             foreach ($connections as $conn) {
                 try {
                     DB::connection($conn)->rollBack();
-                } catch (\Exception $rollbackException) {
+                } catch (Exception $rollbackException) {
                     \Log::emergency('Rollback failed', [
                         'connection' => $conn,
                         'error' => $rollbackException->getMessage(),
@@ -91,7 +92,7 @@ trait UseCaseTrait
 
     /**
      * アクティブな接続を取得
-     * 
+     *
      * sys + (trx1, trx2, ...) + (log1, log2, ...)
      *
      * @return array<string>
@@ -99,13 +100,13 @@ trait UseCaseTrait
     private function getActiveConnections(): array
     {
         $connections = ['sys'];
-        
+
         // TrxDB接続を追加（環境変数で制御可能）
         $trxConnections = config('database.pitr.active_trx_connections', ['trx']);
-        
+
         foreach ($trxConnections as $trxConn) {
             $connections[] = $trxConn;
-            
+
             // 対応するLogDB接続を追加
             try {
                 $logConn = ShardMapper::getLogConnection($trxConn);
@@ -117,7 +118,7 @@ trait UseCaseTrait
                 ]);
             }
         }
-        
+
         return $connections;
     }
 }

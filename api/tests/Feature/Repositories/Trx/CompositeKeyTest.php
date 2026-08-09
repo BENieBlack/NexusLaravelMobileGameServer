@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Repositories\Trx;
 
-use App\Repositories\Trx\TrxItemRepository;
 use App\Persistence\ApiSession;
+use App\Repositories\Trx\TrxItemRepository;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;
@@ -34,35 +34,35 @@ class CompositeKeyTest extends TestCase
     public function 複合キーが正しく設定されている(): void
     {
         $this->insertTestData();
-        
+
         ApiSession::setSysPlayerId($this->sysPlayerId);
-        $repo = new TrxItemRepository();
-        
+        $repo = new TrxItemRepository;
+
         $reflection = new \ReflectionClass($repo);
         $uniqueKeysProperty = $reflection->getProperty('uniqueKeys');
         $uniqueKeysProperty->setAccessible(true);
         $uniqueKeys = $uniqueKeysProperty->getValue($repo);
-        
+
         $this->assertSame(['sys_player_id', 'mst_item_id'], $uniqueKeys);
     }
 
     #[Test]
-    public function queryOrMemoryでデータ取得ができる(): void
+    public function query_or_memoryでデータ取得ができる(): void
     {
         $this->insertTestData();
-        
+
         ApiSession::setSysPlayerId($this->sysPlayerId);
-        $repo = new TrxItemRepository();
-        
+        $repo = new TrxItemRepository;
+
         $items = $repo->queryOrMemory();
-        
+
         $this->assertSame(2, $items->count());
-        
+
         $item1 = $items->where('mst_item_id', 'item_001')->first();
         $this->assertNotNull($item1);
         $this->assertSame(8, $item1->free_amount);
         $this->assertSame(2, $item1->paid_amount);
-        
+
         $item2 = $items->where('mst_item_id', 'item_002')->first();
         $this->assertNotNull($item2);
         $this->assertSame(4, $item2->free_amount);
@@ -73,29 +73,29 @@ class CompositeKeyTest extends TestCase
     public function 複合キーでのキャッシュ動作が正しい(): void
     {
         $this->insertTestData();
-        
+
         ApiSession::setSysPlayerId($this->sysPlayerId);
-        $repo = new TrxItemRepository();
-        
+        $repo = new TrxItemRepository;
+
         $items = $repo->queryOrMemory();
         $item = $items->first();
-        
+
         $this->assertNotNull($item);
-        
+
         $originalFreeAmount = $item->free_amount;
         $item->free_amount = $originalFreeAmount + 10;
-        
+
         $reflection = new \ReflectionClass($repo);
         $setModelMethod = $reflection->getMethod('setModel');
         $setModelMethod->setAccessible(true);
         $setModelMethod->invoke($repo, $item);
-        
+
         // キャッシュから取得
         $cached = $repo->queryOrMemory()
             ->where('sys_player_id', $item->sys_player_id)
             ->where('mst_item_id', $item->mst_item_id)
             ->first();
-        
+
         $this->assertNotNull($cached);
         $this->assertSame($item->free_amount, $cached->free_amount);
     }
@@ -104,7 +104,7 @@ class CompositeKeyTest extends TestCase
     {
         // 既存データをクリア
         DB::connection('trx1')->table('trx_item')->where('sys_player_id', $this->sysPlayerId)->delete();
-        
+
         DB::connection('trx1')->table('trx_item')->insert([
             [
                 'sys_player_id' => $this->sysPlayerId,

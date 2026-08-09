@@ -6,7 +6,7 @@ use App\Http\Requests\_BaseRequest;
 
 /**
  * LevelUpRequest
- * 
+ *
  * 装備レベルアップAPIのリクエスト
  * 指定したafter_levelまで装備をレベルアップする
  */
@@ -45,7 +45,7 @@ class LevelUpRequest extends _BaseRequest
 
     /**
      * トランザクション装備IDを取得
-     * 
+     *
      * @return int trx_equipment.id（プレイヤー所有装備）
      */
     public function getTrxEquipmentId(): int
@@ -55,7 +55,7 @@ class LevelUpRequest extends _BaseRequest
 
     /**
      * 目標レベルを取得
-     * 
+     *
      * @return int 目標レベル
      */
     public function getAfterLevel(): int
@@ -65,8 +65,6 @@ class LevelUpRequest extends _BaseRequest
 
     /**
      * 認証済みプレイヤーIDを取得
-     *
-     * @return int|null
      */
     public function getAuthenticatedPlayerId(): ?int
     {

@@ -2,17 +2,17 @@
 
 namespace Tests\Unit\Services\Auth;
 
-use NexusAuth\DTOs\TokenDto;
-use NexusAuth\Services\TokenService;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;
-use NexusUnitOfWork\Persistence\QueryManager;
-use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
+use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Log;
+use NexusAuth\DTOs\TokenDto;
+use NexusAuth\Services\TokenService;
+use NexusUnitOfWork\Persistence\QueryManager;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
 
@@ -21,6 +21,7 @@ class TokenServiceTest extends TestCase
     use RefreshMultipleDatabases;
 
     private TokenService $service;
+
     private SysPlayerTokenRepository $tokenRepository;
 
     /**
@@ -67,19 +68,19 @@ class TokenServiceTest extends TestCase
      */
     private function createPlayerAndDevice(): array
     {
-        $playerRepository = new SysPlayerRepository(new SysPlayer());
-        $deviceRepository = new SysPlayerDeviceRepository(new SysPlayerDevice());
+        $playerRepository = new SysPlayerRepository(new SysPlayer);
+        $deviceRepository = new SysPlayerDeviceRepository(new SysPlayerDevice);
 
         $sysPlayer = $playerRepository->createPlayerAndCommit();
-        
+
         $sysPlayerDevice = new SysPlayerDevice([
             'sys_player_id' => $sysPlayer->getId(),
-            'uuid' => 'test-device-' . uniqid(),
+            'uuid' => 'test-device-'.uniqid(),
             'device_info' => ['model' => 'Test Device'],
             'last_login_at' => now(),
         ]);
         $deviceRepository->setModel($sysPlayerDevice);
-        
+
         // デバイスをDBに保存（バッチINSERT）
         app(QueryManager::class)->execAllQuery();
 
@@ -96,7 +97,7 @@ class TokenServiceTest extends TestCase
 
         // Act
         [$tokenDto, $sysPlayerToken] = $this->service->generateToken($sysPlayer, $sysPlayerDevice, $this->tokenModelFactory(...));
-        
+
         // トークンをDBに保存（バッチINSERT）
         app(QueryManager::class)->execAllQuery();
 
@@ -192,7 +193,7 @@ class TokenServiceTest extends TestCase
         // Arrange
         [$sysPlayer, $sysPlayerDevice] = $this->createPlayerAndDevice();
         $accessToken = $this->service->generateAccessToken($sysPlayer, $sysPlayerDevice);
-        
+
         // トークンを改ざん
         $parts = explode('.', $accessToken);
         $parts[1] = base64_encode(json_encode(['player_id' => 99999]));
@@ -246,7 +247,7 @@ class TokenServiceTest extends TestCase
         // Arrange
         [$sysPlayer, $sysPlayerDevice] = $this->createPlayerAndDevice();
         [$tokenDto, $sysPlayerToken] = $this->service->generateToken($sysPlayer, $sysPlayerDevice, $this->tokenModelFactory(...));
-        
+
         // トークンを無効化
         $sysPlayerToken->revoke();
 
@@ -264,12 +265,12 @@ class TokenServiceTest extends TestCase
     {
         // Arrange
         [$sysPlayer, $sysPlayerDevice] = $this->createPlayerAndDevice();
-        
+
         // 複数のトークンを作成
         [$tokenDto1, $sysPlayerToken1] = $this->service->generateToken($sysPlayer, $sysPlayerDevice, $this->tokenModelFactory(...));
         [$tokenDto2, $sysPlayerToken2] = $this->service->generateToken($sysPlayer, $sysPlayerDevice, $this->tokenModelFactory(...));
         [$tokenDto3, $sysPlayerToken3] = $this->service->generateToken($sysPlayer, $sysPlayerDevice, $this->tokenModelFactory(...));
-        
+
         // トークンをDBに保存（バッチINSERT）
         app(QueryManager::class)->execAllQuery();
 
@@ -280,7 +281,7 @@ class TokenServiceTest extends TestCase
 
         // Act
         $revokedCount = $this->service->revokePlayerTokens($sysPlayer->getId());
-        
+
         // 無効化をDBに保存
         app(QueryManager::class)->execAllQuery();
 
@@ -300,7 +301,7 @@ class TokenServiceTest extends TestCase
         // Arrange
         [$sysPlayer, $sysPlayerDevice] = $this->createPlayerAndDevice();
         [$oldDtoToken, $oldSysPlayerToken] = $this->service->generateToken($sysPlayer, $sysPlayerDevice, $this->tokenModelFactory(...));
-        
+
         // 古いトークンをDBに保存
         app(QueryManager::class)->execAllQuery();
 
@@ -317,7 +318,7 @@ class TokenServiceTest extends TestCase
             $sysPlayerDevice,
             $this->tokenModelFactory(...)
         );
-        
+
         // 新しいトークンと古いトークンの無効化をDBに保存
         app(QueryManager::class)->execAllQuery();
 
@@ -359,7 +360,7 @@ class TokenServiceTest extends TestCase
         // 数秒の誤差は許容
         $this->assertTrue(
             $actualExpiresAt->diffInSeconds($expectedExpiresAt) < 5,
-            "Expected expires_at to be approximately 30 days from now"
+            'Expected expires_at to be approximately 30 days from now'
         );
 
         // Assert - アクセストークンの有効期限が1時間（3600秒）であることを確認
@@ -378,7 +379,7 @@ class TokenServiceTest extends TestCase
         [$tokenDto1, $sysPlayerToken1] = $this->service->generateToken($sysPlayer, $sysPlayerDevice, $this->tokenModelFactory(...));
         [$tokenDto2, $sysPlayerToken2] = $this->service->generateToken($sysPlayer, $sysPlayerDevice, $this->tokenModelFactory(...));
         [$tokenDto3, $sysPlayerToken3] = $this->service->generateToken($sysPlayer, $sysPlayerDevice, $this->tokenModelFactory(...));
-        
+
         // トークンをDBに保存（バッチINSERT）
         app(QueryManager::class)->execAllQuery();
 

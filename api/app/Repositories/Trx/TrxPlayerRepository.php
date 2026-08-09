@@ -9,11 +9,10 @@ use App\Models\Trx\TrxPlayer;
  *
  * プレイヤートランザクションデータ管理Repository
  * データアクセスのみを担当し、ビジネスロジックはServiceに委譲
- * 
+ *
  * @extends _BaseTrxRepository<TrxPlayer>
  */
 class TrxPlayerRepository extends _BaseTrxRepository
 {
     protected string $modelClass = TrxPlayer::class;
 }
-

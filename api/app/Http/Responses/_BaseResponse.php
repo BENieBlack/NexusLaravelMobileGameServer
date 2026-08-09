@@ -8,15 +8,15 @@ use JsonSerializable;
 
 /**
  * _BaseResponse
- * 
+ *
  * すべてのレスポンスクラスの基底クラス
  * 共通のシリアライゼーション処理を提供
  */
-abstract class _BaseResponse implements Arrayable, JsonSerializable, _BaseResponseInterface
+abstract class _BaseResponse implements _BaseResponseInterface, Arrayable, JsonSerializable
 {
     /**
      * 配列に変換
-     * 
+     *
      * 各レスポンスクラスで必ずオーバーライドすること
      *
      * @return array<string, mixed>
@@ -25,7 +25,7 @@ abstract class _BaseResponse implements Arrayable, JsonSerializable, _BaseRespon
 
     /**
      * JSON シリアライズ
-     * 
+     *
      * toArray()を呼び出してJSON形式に変換
      *
      * @return array<string, mixed>
@@ -37,12 +37,11 @@ abstract class _BaseResponse implements Arrayable, JsonSerializable, _BaseRespon
 
     /**
      * JsonResponseに変換
-     * 
+     *
      * デフォルトではHTTPステータスコード200でレスポンスを返す
      * 必要に応じて各レスポンスクラスでオーバーライド可能
      *
-     * @param int $status HTTPステータスコード
-     * @return JsonResponse
+     * @param  int  $status  HTTPステータスコード
      */
     public function toJsonResponse(int $status = 200): JsonResponse
     {

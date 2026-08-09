@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * TrxPlayer Model
- * 
+ *
  * プレイヤーのシャード固有データを管理するモデル
  * ※プレイヤーの基本情報はSysPlayerに保存される
  */
@@ -32,15 +32,11 @@ class TrxPlayer extends _BaseTrx
 
     /**
      * SELECTキー（この場合はPKと同じ）
-     * 
-     * @var string
      */
     protected string $selectKey = 'sys_player_id';
 
     /**
      * ユニークキー（プレイヤーはsys_player_idで一意）
-     * 
-     * @var array
      */
     protected array $uniqueKeys = ['sys_player_id'];
 
@@ -59,8 +55,6 @@ class TrxPlayer extends _BaseTrx
 
     /**
      * sys_playerとのリレーション
-     *
-     * @return BelongsTo
      */
     public function sysPlayer(): BelongsTo
     {
@@ -69,9 +63,6 @@ class TrxPlayer extends _BaseTrx
 
     /**
      * システムプレイヤーIDを設定
-     *
-     * @param int $sysPlayerId
-     * @return void
      */
     public function setSysPlayerId(int $sysPlayerId): void
     {
@@ -80,14 +71,11 @@ class TrxPlayer extends _BaseTrx
 
     /**
      * レスポンス用配列に変換
-     * 
+     *
      * Note: 主キーがsys_player_idであり、idフィールドは存在しない
-     * 
-     * @return array
      */
     public function toResponseArray(): array
     {
         return parent::toResponseArray();
     }
 }
-

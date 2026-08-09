@@ -14,18 +14,10 @@ class GachaDrawService
 {
     public function __construct(
         private readonly PackageGachaDrawService $baseDrawService,
-    ) {
-    }
+    ) {}
 
     /**
      * ガチャを実行して景品リストを取得
-     *
-     * @param string $mstGachaId
-     * @param int $drawCount
-     * @param bool $hasStepUp
-     * @param int $currentStep
-     * @param string|null $selectedCandidateId
-     * @return array
      */
     public function draw(
         string $mstGachaId,
@@ -43,7 +35,6 @@ class GachaDrawService
         );
 
         // DTOを配列に変換
-        return array_map(fn($prize) => $prize->toArray(), $prizes);
+        return array_map(fn ($prize) => $prize->toArray(), $prizes);
     }
 }
-

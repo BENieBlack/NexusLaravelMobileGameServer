@@ -2,16 +2,15 @@
 
 namespace App\Repositories\Log;
 
-
-use NexusPersistence\Support\CustomCollection;
 use App\Models\Log\LogItem;
+use NexusPersistence\Support\CustomCollection;
 use NexusUtilities\ClockUtility;
 
 /**
  * LogItemRepository
  *
  * アイテム変更ログを管理するRepository
- * 
+ *
  * @extends _BaseLogRepository<LogItem>
  */
 class LogItemRepository extends _BaseLogRepository
@@ -26,12 +25,11 @@ class LogItemRepository extends _BaseLogRepository
     /**
      * アイテムログを記録（Unit of Work パターン使用）
      *
-     * @param string $uniqueRequestId リクエスト一意ID
-     * @param int $sysPlayerId プレイヤーID
-     * @param string $mstItemId アイテムマスターID
-     * @param int $beforeAmount 変更前数量
-     * @param int $afterAmount 変更後数量
-     * @return void
+     * @param  string  $uniqueRequestId  リクエスト一意ID
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  string  $mstItemId  アイテムマスターID
+     * @param  int  $beforeAmount  変更前数量
+     * @param  int  $afterAmount  変更後数量
      */
     public function createItemLog(
         string $uniqueRequestId,
@@ -57,7 +55,7 @@ class LogItemRepository extends _BaseLogRepository
     /**
      * 特定アイテムのログを取得
      *
-     * @param string $mstItemId アイテムマスターID
+     * @param  string  $mstItemId  アイテムマスターID
      * @return CustomCollection<int, LogItem>
      */
     public function findAllByMstItemId(string $mstItemId): CustomCollection
@@ -70,9 +68,6 @@ class LogItemRepository extends _BaseLogRepository
 
     /**
      * リクエストIDでアイテムログを取得
-     *
-     * @param string $uniqueRequestId
-     * @return LogItem|null
      */
     public function findByUniqueRequestId(string $uniqueRequestId): ?LogItem
     {

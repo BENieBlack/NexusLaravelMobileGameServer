@@ -5,19 +5,22 @@ namespace Tests\Unit\Domain\Version\UseCases;
 use App\Domain\Version\Services\VersionService;
 use App\Domain\Version\UseCases\VersionCheckUseCase;
 use App\Http\Responses\Auth\VersionResponse;
+use App\Models\Sys\SysDeploy;
 use Mockery;
+use Mockery\MockInterface;
 use Tests\TestCase;
 
 class CheckUseCaseTest extends TestCase
 {
-    /** @var VersionService&\Mockery\MockInterface */
+    /** @var VersionService&MockInterface */
     private $mockVersionService;
+
     private VersionCheckUseCase $useCase;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->mockVersionService = Mockery::mock(VersionService::class);
         $this->useCase = new VersionCheckUseCase($this->mockVersionService);
     }
@@ -51,7 +54,7 @@ class CheckUseCaseTest extends TestCase
     {
         // Arrange
         $deployVersion = null;
-        $mockDeploy = Mockery::mock(\App\Models\Sys\SysDeploy::class);
+        $mockDeploy = Mockery::mock(SysDeploy::class);
 
         // VersionService returns tuple array [sysDeploy, sysMaintenance] with sysDeploy (update available)
         $this->mockVersionService

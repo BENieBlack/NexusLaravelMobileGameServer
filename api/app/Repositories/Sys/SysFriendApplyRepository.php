@@ -4,14 +4,16 @@ namespace App\Repositories\Sys;
 
 use App\Adapters\Friend\FriendApplyAdapter;
 use App\Models\Sys\SysFriendApply;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\CustomCollection;
 use NexusFriend\Dto\FriendApplyDto;
 use NexusFriend\Repositories\FriendApplyRepositoryInterface;
 
 /**
  * SysFriendApplyRepository
- * 
+ *
  * フレンド申請情報のRepository実装
- * 
+ *
  * @extends _BaseSysRepository<SysFriendApply>
  */
 class SysFriendApplyRepository extends _BaseSysRepository implements FriendApplyRepositoryInterface
@@ -21,69 +23,71 @@ class SysFriendApplyRepository extends _BaseSysRepository implements FriendApply
     /**
      * IDでフレンド申請を検索（Interface実装）
      *
-     * @param int $friendApplyId フレンド申請ID
-     * @return FriendApplyDto|null
+     * @param  int  $friendApplyId  フレンド申請ID
      */
     public function findById(int $friendApplyId): ?FriendApplyDto
     {
         $model = $this->selectById($friendApplyId);
+
         return $model ? FriendApplyAdapter::toDto($model) : null;
     }
 
     /**
      * 申請者と受信者のペアで既存の申請を検索（Interface実装）
      *
-     * @param int $senderPlayerId 申請者のプレイヤーID
-     * @param int $receiverPlayerId 受信者のプレイヤーID
-     * @return FriendApplyDto|null
+     * @param  int  $senderPlayerId  申請者のプレイヤーID
+     * @param  int  $receiverPlayerId  受信者のプレイヤーID
      */
     public function findByPlayerPair(int $senderPlayerId, int $receiverPlayerId): ?FriendApplyDto
     {
         $model = $this->selectByPlayerPair($senderPlayerId, $receiverPlayerId);
+
         return $model ? FriendApplyAdapter::toDto($model) : null;
     }
 
     /**
      * プレイヤーIDに関連するフレンド申請一覧を取得（Interface実装）
      *
-     * @param int $playerId プレイヤーID
+     * @param  int  $playerId  プレイヤーID
      * @return array<FriendApplyDto>
      */
     public function findAppliesByPlayerId(int $playerId): array
     {
         $models = $this->selectAppliesByPlayerId($playerId);
+
         return FriendApplyAdapter::toDtoArray($models);
     }
 
     /**
      * プレイヤーIDに関連する承認済みフレンド一覧を取得（Interface実装）
      *
-     * @param int $playerId プレイヤーID
+     * @param  int  $playerId  プレイヤーID
      * @return array<FriendApplyDto>
      */
     public function findAcceptedFriendsByPlayerId(int $playerId): array
     {
         $models = $this->selectAcceptedFriendsByPlayerId($playerId);
+
         return FriendApplyAdapter::toDtoArray($models);
     }
 
     /**
      * フレンド申請を作成（Interface実装）
      *
-     * @param int $senderPlayerId 申請者のプレイヤーID
-     * @param int $receiverPlayerId 受信者のプレイヤーID
-     * @return FriendApplyDto
+     * @param  int  $senderPlayerId  申請者のプレイヤーID
+     * @param  int  $receiverPlayerId  受信者のプレイヤーID
      */
     public function create(int $senderPlayerId, int $receiverPlayerId): FriendApplyDto
     {
         $model = $this->createApply($senderPlayerId, $receiverPlayerId);
+
         return FriendApplyAdapter::toDto($model);
     }
 
     /**
      * フレンド申請を承認（Interface実装）
      *
-     * @param FriendApplyDto $friendApplyDto 承認するフレンド申請
+     * @param  FriendApplyDto  $friendApplyDto  承認するフレンド申請
      * @return FriendApplyDto 承認後のDTO
      */
     public function accept(FriendApplyDto $friendApplyDto): FriendApplyDto
@@ -102,7 +106,7 @@ class SysFriendApplyRepository extends _BaseSysRepository implements FriendApply
     /**
      * フレンド申請を却下（Interface実装）
      *
-     * @param FriendApplyDto $friendApplyDto 却下するフレンド申請
+     * @param  FriendApplyDto  $friendApplyDto  却下するフレンド申請
      * @return FriendApplyDto 却下後のDTO
      */
     public function reject(FriendApplyDto $friendApplyDto): FriendApplyDto
@@ -121,13 +125,14 @@ class SysFriendApplyRepository extends _BaseSysRepository implements FriendApply
     /**
      * フレンド関係を削除（Interface実装）
      *
-     * @param int $playerId 削除実行者のプレイヤーID
-     * @param int $targetPlayerId 削除対象のプレイヤーID
+     * @param  int  $playerId  削除実行者のプレイヤーID
+     * @param  int  $targetPlayerId  削除対象のプレイヤーID
      * @return FriendApplyDto|null 削除されたフレンド関係、見つからない場合null
      */
     public function deleteFriendRelation(int $playerId, int $targetPlayerId): ?FriendApplyDto
     {
         $model = $this->deleteFriendRelationModel($playerId, $targetPlayerId);
+
         return $model ? FriendApplyAdapter::toDto($model) : null;
     }
 
@@ -135,37 +140,34 @@ class SysFriendApplyRepository extends _BaseSysRepository implements FriendApply
     // 以下、内部用のModelベースメソッド（既存の実装）
     // ========================================
 
-
     /**
      * IDでフレンド申請を検索
      *
-     * @param int $sysFriendApplyId フレンド申請ID
-     * @return SysFriendApply|null
+     * @param  int  $sysFriendApplyId  フレンド申請ID
      */
     public function selectById(int $sysFriendApplyId): ?SysFriendApply
     {
         $sysFriendApply = $this->getModel($sysFriendApplyId);
-        
+
         if ($sysFriendApply !== null) {
             /** @var SysFriendApply */
             return $sysFriendApply;
         }
-        
+
         $sysFriendApply = $this->modelClass::find($sysFriendApplyId);
-        
+
         if ($sysFriendApply !== null) {
             $this->setModel($sysFriendApply);
         }
-        
+
         return $sysFriendApply;
     }
 
     /**
      * 申請者と受信者のペアで既存の申請を検索（双方向チェック）
      *
-     * @param int $applyPlayerId 申請者のプレイヤーID
-     * @param int $receivePlayerId 受信者のプレイヤーID
-     * @return SysFriendApply|null
+     * @param  int  $applyPlayerId  申請者のプレイヤーID
+     * @param  int  $receivePlayerId  受信者のプレイヤーID
      */
     public function selectByPlayerPair(int $applyPlayerId, int $receivePlayerId): ?SysFriendApply
     {
@@ -173,15 +175,15 @@ class SysFriendApplyRepository extends _BaseSysRepository implements FriendApply
         return $this->modelClass::query()
             ->where(function ($query) use ($applyPlayerId, $receivePlayerId) {
                 $query->where('sender_sys_player_id', $applyPlayerId)
-                      ->where('receiver_sys_player_id', $receivePlayerId);
+                    ->where('receiver_sys_player_id', $receivePlayerId);
             })
             ->orWhere(function ($query) use ($applyPlayerId, $receivePlayerId) {
                 $query->where('sender_sys_player_id', $receivePlayerId)
-                      ->where('receiver_sys_player_id', $applyPlayerId);
+                    ->where('receiver_sys_player_id', $applyPlayerId);
             })
             ->whereIn('status', [
                 SysFriendApply::STATUS_APPLIED,
-                SysFriendApply::STATUS_ACCEPTED
+                SysFriendApply::STATUS_ACCEPTED,
             ])
             ->first();
     }
@@ -189,10 +191,10 @@ class SysFriendApplyRepository extends _BaseSysRepository implements FriendApply
     /**
      * プレイヤーIDで受信したフレンド申請一覧を取得
      *
-     * @param int $playerId プレイヤーID
-     * @return \Illuminate\Database\Eloquent\CustomCollection<int, SysFriendApply>
+     * @param  int  $playerId  プレイヤーID
+     * @return CustomCollection<int, SysFriendApply>
      */
-    public function selectReceivedApplies(int $playerId): \Illuminate\Database\Eloquent\Collection
+    public function selectReceivedApplies(int $playerId): Collection
     {
         return $this->modelClass::query()
             ->where('receiver_sys_player_id', $playerId)
@@ -204,10 +206,10 @@ class SysFriendApplyRepository extends _BaseSysRepository implements FriendApply
     /**
      * プレイヤーIDで送信したフレンド申請一覧を取得
      *
-     * @param int $playerId プレイヤーID
-     * @return \Illuminate\Database\Eloquent\CustomCollection<int, SysFriendApply>
+     * @param  int  $playerId  プレイヤーID
+     * @return CustomCollection<int, SysFriendApply>
      */
-    public function selectSentApplies(int $playerId): \Illuminate\Database\Eloquent\Collection
+    public function selectSentApplies(int $playerId): Collection
     {
         return $this->modelClass::query()
             ->where('sender_sys_player_id', $playerId)
@@ -221,16 +223,16 @@ class SysFriendApplyRepository extends _BaseSysRepository implements FriendApply
      * sender_sys_player_idまたはreceiver_sys_player_idが自分で、
      * statusがAppliedのものを取得
      *
-     * @param int $playerId プレイヤーID
-     * @return \Illuminate\Database\Eloquent\CustomCollection<int, SysFriendApply>
+     * @param  int  $playerId  プレイヤーID
+     * @return CustomCollection<int, SysFriendApply>
      */
-    public function selectAppliesByPlayerId(int $playerId): \Illuminate\Database\Eloquent\Collection
+    public function selectAppliesByPlayerId(int $playerId): Collection
     {
         return $this->modelClass::query()
             ->with(['sendPlayer', 'receivePlayer'])
             ->where(function ($query) use ($playerId) {
                 $query->where('sender_sys_player_id', $playerId)
-                      ->orWhere('receiver_sys_player_id', $playerId);
+                    ->orWhere('receiver_sys_player_id', $playerId);
             })
             ->where('status', SysFriendApply::STATUS_APPLIED)
             ->orderBy('created_at', 'desc')
@@ -242,16 +244,16 @@ class SysFriendApplyRepository extends _BaseSysRepository implements FriendApply
      * sender_sys_player_idまたはreceiver_sys_player_idが自分で、
      * statusがAcceptedのものを取得
      *
-     * @param int $playerId プレイヤーID
-     * @return \Illuminate\Database\Eloquent\CustomCollection<int, SysFriendApply>
+     * @param  int  $playerId  プレイヤーID
+     * @return CustomCollection<int, SysFriendApply>
      */
-    public function selectAcceptedFriendsByPlayerId(int $playerId): \Illuminate\Database\Eloquent\Collection
+    public function selectAcceptedFriendsByPlayerId(int $playerId): Collection
     {
         return $this->modelClass::query()
             ->with(['sendPlayer', 'receivePlayer'])
             ->where(function ($query) use ($playerId) {
                 $query->where('sender_sys_player_id', $playerId)
-                      ->orWhere('receiver_sys_player_id', $playerId);
+                    ->orWhere('receiver_sys_player_id', $playerId);
             })
             ->where('status', SysFriendApply::STATUS_ACCEPTED)
             ->orderBy('created_at', 'desc')
@@ -261,9 +263,8 @@ class SysFriendApplyRepository extends _BaseSysRepository implements FriendApply
     /**
      * フレンド申請を作成
      *
-     * @param int $applyPlayerId 申請者のプレイヤーID
-     * @param int $receivePlayerId 受信者のプレイヤーID
-     * @return SysFriendApply
+     * @param  int  $applyPlayerId  申請者のプレイヤーID
+     * @param  int  $receivePlayerId  受信者のプレイヤーID
      */
     public function createApply(int $applyPlayerId, int $receivePlayerId): SysFriendApply
     {
@@ -272,19 +273,19 @@ class SysFriendApplyRepository extends _BaseSysRepository implements FriendApply
             'receiver_sys_player_id' => $receivePlayerId,
             'status' => SysFriendApply::STATUS_APPLIED,
         ]);
-        
+
         $this->setModel($sysFriendApply);
-        
+
         return $sysFriendApply;
     }
 
     /**
      * フレンド関係を削除（論理削除） - 内部用Modelメソッド
-     * 
+     *
      * プレイヤーIDと相手プレイヤーIDから、承認済みフレンド関係を削除する
      *
-     * @param int $playerId 削除実行者のプレイヤーID
-     * @param int $targetPlayerId 削除対象のプレイヤーID
+     * @param  int  $playerId  削除実行者のプレイヤーID
+     * @param  int  $targetPlayerId  削除対象のプレイヤーID
      * @return SysFriendApply|null 削除されたフレンド関係、見つからない場合null
      */
     private function deleteFriendRelationModel(int $playerId, int $targetPlayerId): ?SysFriendApply
@@ -293,16 +294,16 @@ class SysFriendApplyRepository extends _BaseSysRepository implements FriendApply
         $friendRelation = $this->modelClass::query()
             ->where(function ($query) use ($playerId, $targetPlayerId) {
                 $query->where('sender_sys_player_id', $playerId)
-                      ->where('receiver_sys_player_id', $targetPlayerId);
+                    ->where('receiver_sys_player_id', $targetPlayerId);
             })
             ->orWhere(function ($query) use ($playerId, $targetPlayerId) {
                 $query->where('sender_sys_player_id', $targetPlayerId)
-                      ->where('receiver_sys_player_id', $playerId);
+                    ->where('receiver_sys_player_id', $playerId);
             })
             ->where('status', SysFriendApply::STATUS_ACCEPTED)
             ->first();
 
-        if (!$friendRelation) {
+        if (! $friendRelation) {
             return null;
         }
 

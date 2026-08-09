@@ -12,7 +12,7 @@ use App\Repositories\Trx\TrxUnitRepository;
 
 /**
  * PlayerCleanupService
- * 
+ *
  * プレイヤーの論理削除フラグが立っているレコードを物理削除するサービス
  * sign_in時に実行される
  */
@@ -26,14 +26,10 @@ class PlayerCleanupService
         private readonly TrxEquipmentRepository $trxEquipmentRepository,
         private readonly TrxStaminaRepository $trxStaminaRepository,
         private readonly TrxInAppPurchaseEffectRepository $trxInAppPurchaseEffectRepository,
-    ) {
-    }
+    ) {}
 
     /**
      * is_delete=trueのレコードを削除キューに追加
-     *
-     * @param int $sysPlayerId
-     * @return void
      */
     public function cleanupDeletedRecords(int $sysPlayerId): void
     {

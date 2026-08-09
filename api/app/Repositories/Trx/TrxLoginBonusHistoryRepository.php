@@ -7,7 +7,7 @@ use NexusLogin\Repositories\LoginBonusHistoryRepositoryInterface;
 
 /**
  * TrxLoginBonusHistoryRepository
- * 
+ *
  * Query Builderを使用したログインボーナス履歴データへのアクセス実装
  */
 class TrxLoginBonusHistoryRepository implements LoginBonusHistoryRepositoryInterface
@@ -60,8 +60,8 @@ class TrxLoginBonusHistoryRepository implements LoginBonusHistoryRepositoryInter
     /**
      * プレイヤーの最初のカムバックボーナス受取履歴を取得
      *
-     * @param int $sysPlayerId プレイヤーID
-     * @param string $connectionName シャーディングされたDB接続名
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  string  $connectionName  シャーディングされたDB接続名
      * @return array|null 最初のカムバック履歴（なければnull）
      */
     public function findFirstComebackByPlayerId(int $sysPlayerId, string $connectionName): ?array
@@ -79,10 +79,10 @@ class TrxLoginBonusHistoryRepository implements LoginBonusHistoryRepositoryInter
     /**
      * 指定日に特定のボーナスを受け取ったかチェック
      *
-     * @param int $sysPlayerId プレイヤーID
-     * @param string $bonusId ログインボーナスID
-     * @param string $receivedDate 受け取り日時（Y-m-d H:i:s形式）
-     * @param string $connectionName シャーディングされたDB接続名
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  string  $bonusId  ログインボーナスID
+     * @param  string  $receivedDate  受け取り日時（Y-m-d H:i:s形式）
+     * @param  string  $connectionName  シャーディングされたDB接続名
      * @return array|null 履歴（なければnull）
      */
     public function findByPlayerAndBonusAndDate(int $sysPlayerId, string $bonusId, string $receivedDate, string $connectionName): ?array

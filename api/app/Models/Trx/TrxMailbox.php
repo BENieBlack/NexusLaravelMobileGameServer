@@ -2,14 +2,15 @@
 
 namespace App\Models\Trx;
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Mst\MstMailbox;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * TrxMailbox Model
- * 
+ *
  * プレイヤーのメールボックスデータを管理するモデル
- * 
+ *
  * @property int $id
  * @property int $sys_player_id
  * @property string $mst_mailbox_id
@@ -17,13 +18,13 @@ use App\Models\Mst\MstMailbox;
  * @property bool $is_received
  * @property bool $is_delete
  * @property bool $is_protected
- * @property \Carbon\Carbon|null $expires_at
- * @property \Carbon\Carbon|null $read_at
- * @property \Carbon\Carbon|null $received_at
+ * @property Carbon|null $expires_at
+ * @property Carbon|null $read_at
+ * @property Carbon|null $received_at
  * @property string|null $sender_name
  * @property array|null $custom_params
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  */
 class TrxMailbox extends _BaseTrx
 {
@@ -31,14 +32,12 @@ class TrxMailbox extends _BaseTrx
 
     /**
      * SELECTキー（プレイヤーIDでSELECT）
-     * 
-     * @var string
      */
     protected string $selectKey = 'sys_player_id';
 
     /**
      * ユニークキー（IDで一意）
-     * 
+     *
      * @var array<int, string>
      */
     protected array $uniqueKeys = ['id'];
@@ -79,8 +78,6 @@ class TrxMailbox extends _BaseTrx
 
     /**
      * trx_playerとのリレーション
-     *
-     * @return BelongsTo
      */
     public function trxPlayer(): BelongsTo
     {
@@ -89,8 +86,6 @@ class TrxMailbox extends _BaseTrx
 
     /**
      * mst_mailboxとのリレーション
-     *
-     * @return BelongsTo
      */
     public function mstMailbox(): BelongsTo
     {
@@ -99,8 +94,6 @@ class TrxMailbox extends _BaseTrx
 
     /**
      * メールボックスIDを取得
-     *
-     * @return int
      */
     public function getId(): int
     {
@@ -109,8 +102,6 @@ class TrxMailbox extends _BaseTrx
 
     /**
      * プレイヤーIDを取得
-     *
-     * @return int
      */
     public function getSysPlayerId(): int
     {
@@ -119,8 +110,6 @@ class TrxMailbox extends _BaseTrx
 
     /**
      * マスターメールボックスIDを取得
-     *
-     * @return string
      */
     public function getMstMailboxId(): string
     {
@@ -129,78 +118,62 @@ class TrxMailbox extends _BaseTrx
 
     /**
      * 開封フラグを取得
-     *
-     * @return bool
      */
     public function getIsOpened(): bool
     {
-        return (bool)$this->getAttribute('is_opened');
+        return (bool) $this->getAttribute('is_opened');
     }
 
     /**
      * 受取フラグを取得
-     *
-     * @return bool
      */
     public function getIsReceived(): bool
     {
-        return (bool)$this->getAttribute('is_received');
+        return (bool) $this->getAttribute('is_received');
     }
 
     /**
      * 削除フラグを取得
-     *
-     * @return bool
      */
     public function getIsDelete(): bool
     {
-        return (bool)$this->getAttribute('is_delete');
+        return (bool) $this->getAttribute('is_delete');
     }
 
     /**
      * 保護フラグを取得
-     *
-     * @return bool
      */
     public function getIsProtected(): bool
     {
-        return (bool)$this->getAttribute('is_protected');
+        return (bool) $this->getAttribute('is_protected');
     }
 
     /**
      * 有効期限を取得
-     *
-     * @return \Carbon\Carbon|null
      */
-    public function getExpiresAt(): ?\Carbon\Carbon
+    public function getExpiresAt(): ?Carbon
     {
         return $this->getAttribute('expires_at');
     }
 
     /**
      * 既読日時を取得
-     *
-     * @return \Carbon\Carbon|null
      */
-    public function getReadAt(): ?\Carbon\Carbon
+    public function getReadAt(): ?Carbon
     {
         return $this->getAttribute('read_at');
     }
 
     /**
      * 受取日時を取得
-     *
-     * @return \Carbon\Carbon|null
      */
-    public function getReceivedAt(): ?\Carbon\Carbon
+    public function getReceivedAt(): ?Carbon
     {
         return $this->getAttribute('received_at');
     }
 
     /**
      * 送信者名を取得
-     *
-     * @return string|null
      */
     public function getSenderName(): ?string
     {
@@ -209,8 +182,6 @@ class TrxMailbox extends _BaseTrx
 
     /**
      * カスタムパラメータを取得
-     *
-     * @return array|null
      */
     public function getCustomParams(): ?array
     {
@@ -219,19 +190,16 @@ class TrxMailbox extends _BaseTrx
 
     /**
      * メールが期限切れかどうか
-     *
-     * @return bool
      */
     public function isExpired(): bool
     {
         $expiresAt = $this->getExpiresAt();
+
         return $expiresAt !== null && $expiresAt->isPast();
     }
 
     /**
      * メールが未読かどうか
-     *
-     * @return bool
      */
     public function isUnread(): bool
     {
@@ -240,9 +208,6 @@ class TrxMailbox extends _BaseTrx
 
     /**
      * プレイヤーIDを設定
-     *
-     * @param int $sysPlayerId
-     * @return void
      */
     public function setSysPlayerId(int $sysPlayerId): void
     {
@@ -251,9 +216,6 @@ class TrxMailbox extends _BaseTrx
 
     /**
      * マスターメールボックスIDを設定
-     *
-     * @param string $mstMailboxId
-     * @return void
      */
     public function setMstMailboxId(string $mstMailboxId): void
     {
@@ -262,9 +224,6 @@ class TrxMailbox extends _BaseTrx
 
     /**
      * 開封フラグを設定
-     *
-     * @param bool $isOpened
-     * @return void
      */
     public function setIsOpened(bool $isOpened): void
     {
@@ -273,9 +232,6 @@ class TrxMailbox extends _BaseTrx
 
     /**
      * 受取フラグを設定
-     *
-     * @param bool $isReceived
-     * @return void
      */
     public function setIsReceived(bool $isReceived): void
     {
@@ -284,9 +240,6 @@ class TrxMailbox extends _BaseTrx
 
     /**
      * 削除フラグを設定
-     *
-     * @param bool $isDelete
-     * @return void
      */
     public function setIsDelete(bool $isDelete): void
     {
@@ -295,9 +248,6 @@ class TrxMailbox extends _BaseTrx
 
     /**
      * 保護フラグを設定
-     *
-     * @param bool $isProtected
-     * @return void
      */
     public function setIsProtected(bool $isProtected): void
     {
@@ -306,42 +256,30 @@ class TrxMailbox extends _BaseTrx
 
     /**
      * 有効期限を設定
-     *
-     * @param \Carbon\Carbon|null $expiresAt
-     * @return void
      */
-    public function setExpiresAt(?\Carbon\Carbon $expiresAt): void
+    public function setExpiresAt(?Carbon $expiresAt): void
     {
         $this->setAttribute('expires_at', $expiresAt);
     }
 
     /**
      * 既読日時を設定
-     *
-     * @param \Carbon\Carbon|null $readAt
-     * @return void
      */
-    public function setReadAt(?\Carbon\Carbon $readAt): void
+    public function setReadAt(?Carbon $readAt): void
     {
         $this->setAttribute('read_at', $readAt);
     }
 
     /**
      * 受取日時を設定
-     *
-     * @param \Carbon\Carbon|null $receivedAt
-     * @return void
      */
-    public function setReceivedAt(?\Carbon\Carbon $receivedAt): void
+    public function setReceivedAt(?Carbon $receivedAt): void
     {
         $this->setAttribute('received_at', $receivedAt);
     }
 
     /**
      * 送信者名を設定
-     *
-     * @param string|null $senderName
-     * @return void
      */
     public function setSenderName(?string $senderName): void
     {
@@ -350,9 +288,6 @@ class TrxMailbox extends _BaseTrx
 
     /**
      * カスタムパラメータを設定
-     *
-     * @param array|null $customParams
-     * @return void
      */
     public function setCustomParams(?array $customParams): void
     {
@@ -361,19 +296,17 @@ class TrxMailbox extends _BaseTrx
 
     /**
      * レスポンス用配列に変換
-     * 
-     * @return array
      */
     public function toResponseArray(): array
     {
         $array = $this->toArray();
-        
+
         // IDカラムはtrx_mailbox_idとして返す
         if (isset($array['id'])) {
             $array['trx_mailbox_id'] = $array['id'];
             unset($array['id']);
         }
-        
+
         return $array;
     }
 }

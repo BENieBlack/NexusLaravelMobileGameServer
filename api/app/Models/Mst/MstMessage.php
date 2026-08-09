@@ -2,21 +2,23 @@
 
 namespace App\Models\Mst;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * MstMessage Model
- * 
+ *
  * @property int $deploy_key
  * @property string $id
- * @property \Carbon\CarbonImmutable $created_at
- * @property \Carbon\CarbonImmutable $updated_at
+ * @property CarbonImmutable $created_at
+ * @property CarbonImmutable $updated_at
  */
 class MstMessage extends _BaseMst
 {
     public $table = 'mst_message';
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     /** @var array<int, string> */
@@ -38,8 +40,6 @@ class MstMessage extends _BaseMst
 
     /**
      * 多言語データとのリレーション
-     *
-     * @return HasMany
      */
     public function i18n(): HasMany
     {
@@ -48,8 +48,6 @@ class MstMessage extends _BaseMst
 
     /**
      * レスポンス用配列に変換
-     * 
-     * @return array
      */
     public function toResponseArray(): array
     {

@@ -2,15 +2,14 @@
 
 namespace App\Repositories\Mst;
 
-
-use NexusPersistence\Support\CustomCollection;
 use App\Models\Mst\MstInAppPurchaseEffect;
+use NexusPersistence\Support\CustomCollection;
 
 /**
  * MstInAppPurchaseEffectRepository
  *
  * アプリ内課金商品効果マスターのRepository
- * 
+ *
  * @extends _BaseMstRepository<MstInAppPurchaseEffect>
  */
 class MstInAppPurchaseEffectRepository extends _BaseMstRepository
@@ -20,7 +19,6 @@ class MstInAppPurchaseEffectRepository extends _BaseMstRepository
     /**
      * 商品IDで効果を全て取得
      *
-     * @param int $mstInAppPurchaseId
      * @return CustomCollection<int, MstInAppPurchaseEffect>
      */
     public function findAllByMstInAppPurchaseId(int $mstInAppPurchaseId): CustomCollection
@@ -33,9 +31,7 @@ class MstInAppPurchaseEffectRepository extends _BaseMstRepository
     /**
      * 商品IDと効果タイプで効果を取得
      *
-     * @param int $mstInAppPurchaseId
-     * @param string $effectType 効果タイプ
-     * @return MstInAppPurchaseEffect|null
+     * @param  string  $effectType  効果タイプ
      */
     public function findByMstInAppPurchaseIdAndEffectType(
         int $mstInAppPurchaseId,

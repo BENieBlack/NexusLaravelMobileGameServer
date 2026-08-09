@@ -4,7 +4,7 @@ namespace App\Models\Mst;
 
 /**
  * MstGachaStepBonusContent Model
- * 
+ *
  * @property int $deploy_key
  * @property string $id
  * @property string $mst_gacha_step_bonus_id
@@ -22,6 +22,7 @@ class MstGachaStepBonusContent extends _BaseMst
     public $table = 'mst_gacha_step_bonus_content';
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $fillable = [
@@ -54,8 +55,6 @@ class MstGachaStepBonusContent extends _BaseMst
 
     /**
      * ステップボーナスIDを取得
-     *
-     * @return string
      */
     public function getMstGachaStepBonusId(): string
     {
@@ -64,8 +63,6 @@ class MstGachaStepBonusContent extends _BaseMst
 
     /**
      * コンテンツタイプを取得
-     *
-     * @return string
      */
     public function getContentType(): string
     {
@@ -74,8 +71,6 @@ class MstGachaStepBonusContent extends _BaseMst
 
     /**
      * コンテンツIDを取得
-     *
-     * @return string
      */
     public function getContentId(): string
     {
@@ -84,8 +79,6 @@ class MstGachaStepBonusContent extends _BaseMst
 
     /**
      * コンテンツオプションを取得
-     *
-     * @return array|null
      */
     public function getContentOption(): ?array
     {
@@ -94,8 +87,6 @@ class MstGachaStepBonusContent extends _BaseMst
 
     /**
      * コンテンツ数量を取得（1配布あたり）
-     *
-     * @return int
      */
     public function getContentQuantity(): int
     {
@@ -104,8 +95,6 @@ class MstGachaStepBonusContent extends _BaseMst
 
     /**
      * 配布回数を取得
-     *
-     * @return int
      */
     public function getAmount(): int
     {
@@ -114,8 +103,6 @@ class MstGachaStepBonusContent extends _BaseMst
 
     /**
      * 実際の配布総量を取得（content_quantity × amount）
-     *
-     * @return int
      */
     public function getTotalQuantity(): int
     {
@@ -124,8 +111,6 @@ class MstGachaStepBonusContent extends _BaseMst
 
     /**
      * 重みを取得（randomの場合の抽選確率）
-     *
-     * @return int
      */
     public function getWeight(): int
     {
@@ -134,8 +119,6 @@ class MstGachaStepBonusContent extends _BaseMst
 
     /**
      * 表示順序を取得（choiceの場合）
-     *
-     * @return int
      */
     public function getSortOrder(): int
     {
@@ -144,8 +127,6 @@ class MstGachaStepBonusContent extends _BaseMst
 
     /**
      * 有効フラグを取得
-     *
-     * @return bool
      */
     public function isActive(): bool
     {

@@ -9,24 +9,22 @@ use NexusFriend\Dto\FriendApplyDto;
 
 /**
  * ApplyListResponse
- * 
+ *
  * フレンド申請リストAPIのレスポンス
  */
 class ApplyListResponse extends _BaseResponse
 {
     /**
-     * @param array<int, array<string, mixed>> $applies
+     * @param  array<int, array<string, mixed>>  $applies
      */
     public function __construct(
         public readonly array $applies,
-    ) {
-    }
+    ) {}
 
     /**
      * SysFriendApplyのCollectionからレスポンスを生成
      *
-     * @param Collection<int, SysFriendApply> $sysFriendApplyCollection
-     * @return self
+     * @param  Collection<int, SysFriendApply>  $sysFriendApplyCollection
      */
     public static function fromCollection(Collection $sysFriendApplyCollection): self
     {
@@ -46,12 +44,11 @@ class ApplyListResponse extends _BaseResponse
 
     /**
      * FriendApplyDto配列からレスポンスを生成
-     * 
+     *
      * 注意: この実装は暫定的なもので、現在はModelのリレーション情報に依存しています
      * 将来的にはDTOに必要な情報を含めるべきです
      *
-     * @param array<FriendApplyDto> $dtos
-     * @return self
+     * @param  array<FriendApplyDto>  $dtos
      */
     public static function fromDtoArray(array $dtos): self
     {
@@ -59,7 +56,7 @@ class ApplyListResponse extends _BaseResponse
         foreach ($dtos as $dto) {
             // DTOからModelを取得してリレーション情報を使用（暫定対応）
             $model = SysFriendApply::with(['sendPlayer', 'receivePlayer'])->find($dto->getId());
-            
+
             if ($model) {
                 $applyArray[] = [
                     'sys_friend_apply_id' => $dto->getId(),

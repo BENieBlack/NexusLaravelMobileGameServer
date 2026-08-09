@@ -2,16 +2,16 @@
 
 namespace App\Repositories\Log;
 
-use NexusPersistence\Support\CustomCollection;
 use App\Models\Log\LogVipPoint;
-use NexusVip\Repositories\VipPointLogRepositoryInterface;
+use NexusPersistence\Support\CustomCollection;
 use NexusUtilities\ClockUtility;
+use NexusVip\Repositories\VipPointLogRepositoryInterface;
 
 /**
  * LogVipPointRepository
  *
  * VIPポイント変動ログを管理するRepository
- * 
+ *
  * @extends _BaseLogRepository<LogVipPoint>
  */
 class LogVipPointRepository extends _BaseLogRepository implements VipPointLogRepositoryInterface
@@ -25,17 +25,6 @@ class LogVipPointRepository extends _BaseLogRepository implements VipPointLogRep
 
     /**
      * VIPポイント変動ログを記録
-     *
-     * @param string $uniqueRequestId
-     * @param int $sysPlayerId
-     * @param int $beforeLevel
-     * @param int $afterLevel
-     * @param int $beforePoint
-     * @param int $afterPoint
-     * @param int $pointDiff
-     * @param string $reason
-     * @param array $metadata
-     * @return void
      */
     public function log(
         string $uniqueRequestId,
@@ -70,10 +59,6 @@ class LogVipPointRepository extends _BaseLogRepository implements VipPointLogRep
 
     /**
      * プレイヤーのVIPポイント履歴を取得
-     *
-     * @param int $sysPlayerId
-     * @param int $limit
-     * @return array
      */
     public function getHistory(int $sysPlayerId, int $limit = 100): array
     {
@@ -102,9 +87,6 @@ class LogVipPointRepository extends _BaseLogRepository implements VipPointLogRep
 
     /**
      * リクエストIDでログを取得
-     *
-     * @param string $uniqueRequestId
-     * @return LogVipPoint|null
      */
     public function findByUniqueRequestId(string $uniqueRequestId): ?LogVipPoint
     {
@@ -116,9 +98,6 @@ class LogVipPointRepository extends _BaseLogRepository implements VipPointLogRep
     /**
      * 特定期間のVIPポイント変動ログを取得
      *
-     * @param int $sysPlayerId
-     * @param \DateTimeImmutable $startDate
-     * @param \DateTimeImmutable $endDate
      * @return CustomCollection<int, LogVipPoint>
      */
     public function findByPeriod(
@@ -130,6 +109,7 @@ class LogVipPointRepository extends _BaseLogRepository implements VipPointLogRep
             ->where('sys_player_id', $sysPlayerId)
             ->filter(function (LogVipPoint $log) use ($startDate, $endDate) {
                 $systemAt = $log->getSystemAt();
+
                 return $systemAt >= $startDate && $systemAt <= $endDate;
             })
             ->sortByDesc('system_at')
@@ -139,9 +119,6 @@ class LogVipPointRepository extends _BaseLogRepository implements VipPointLogRep
     /**
      * 変更理由で絞り込んでログを取得
      *
-     * @param int $sysPlayerId
-     * @param string $reason
-     * @param int $limit
      * @return CustomCollection<int, LogVipPoint>
      */
     public function findByReason(int $sysPlayerId, string $reason, int $limit = 100): CustomCollection

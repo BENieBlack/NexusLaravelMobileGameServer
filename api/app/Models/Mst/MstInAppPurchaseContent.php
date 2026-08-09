@@ -9,6 +9,7 @@ class MstInAppPurchaseContent extends _BaseMst
     public $table = 'mst_in_app_purchase_content';
 
     protected $primaryKey = null;
+
     public $incrementing = false;
 
     protected $fillable = [
@@ -51,8 +52,6 @@ class MstInAppPurchaseContent extends _BaseMst
 
     /**
      * 親のアプリ内課金商品
-     *
-     * @return BelongsTo
      */
     public function inAppPurchase(): BelongsTo
     {
@@ -61,8 +60,6 @@ class MstInAppPurchaseContent extends _BaseMst
 
     /**
      * コンテンツがItemの場合のリレーション
-     *
-     * @return BelongsTo
      */
     public function item(): BelongsTo
     {
@@ -71,8 +68,6 @@ class MstInAppPurchaseContent extends _BaseMst
 
     /**
      * コンテンツがUnitの場合のリレーション
-     *
-     * @return BelongsTo
      */
     public function unit(): BelongsTo
     {
@@ -81,8 +76,6 @@ class MstInAppPurchaseContent extends _BaseMst
 
     /**
      * デプロイキーを取得
-     *
-     * @return int
      */
     public function getDeployKey(): int
     {
@@ -91,8 +84,6 @@ class MstInAppPurchaseContent extends _BaseMst
 
     /**
      * アプリ内課金IDを取得
-     *
-     * @return int
      */
     public function getMstInAppPurchaseId(): int
     {
@@ -101,8 +92,6 @@ class MstInAppPurchaseContent extends _BaseMst
 
     /**
      * コンテンツタイプを取得
-     *
-     * @return string
      */
     public function getContentType(): string
     {
@@ -111,8 +100,6 @@ class MstInAppPurchaseContent extends _BaseMst
 
     /**
      * コンテンツIDを取得
-     *
-     * @return string
      */
     public function getContentId(): string
     {
@@ -121,8 +108,6 @@ class MstInAppPurchaseContent extends _BaseMst
 
     /**
      * コンテンツオプションを取得
-     *
-     * @return array|null
      */
     public function getContentOption(): ?array
     {
@@ -131,8 +116,6 @@ class MstInAppPurchaseContent extends _BaseMst
 
     /**
      * コンテンツ数量を取得（1配布あたり）
-     *
-     * @return int
      */
     public function getContentQuantity(): int
     {
@@ -141,8 +124,6 @@ class MstInAppPurchaseContent extends _BaseMst
 
     /**
      * 数量を取得（配布回数）
-     *
-     * @return int
      */
     public function getAmount(): int
     {
@@ -151,8 +132,6 @@ class MstInAppPurchaseContent extends _BaseMst
 
     /**
      * 実際の配布総量を取得（content_quantity × amount）
-     *
-     * @return int
      */
     public function getTotalQuantity(): int
     {
@@ -161,8 +140,6 @@ class MstInAppPurchaseContent extends _BaseMst
 
     /**
      * ソート順を取得
-     *
-     * @return int
      */
     public function getSortDesc(): int
     {
@@ -171,10 +148,8 @@ class MstInAppPurchaseContent extends _BaseMst
 
     /**
      * レスポンス用配列に変換
-     * 
+     *
      * Note: 複合主キー(mst_in_app_purchase_id, content_type, content_id)のため、idフィールドは存在しない
-     * 
-     * @return array
      */
     public function toResponseArray(): array
     {

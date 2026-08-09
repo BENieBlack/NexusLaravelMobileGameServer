@@ -2,16 +2,16 @@
 
 namespace App\Domain\Stamina\Services;
 
-use NexusStamina\Services\StaminaService as BaseStaminaService;
 use App\Domain\Player\Services\PlayerLevelService;
 use App\Domain\Stamina\Constants\StaminaConst;
 use App\Models\Trx\TrxStamina;
 use App\Repositories\Trx\TrxStaminaRepository;
+use NexusStamina\Services\StaminaService as BaseStaminaService;
 use NexusUtilities\ClockUtility;
 
 /**
  * StaminaService
- * 
+ *
  * パッケージ版のStaminaServiceのラッパー
  * Eloquent Modelを返すために変換処理を行う
  */
@@ -26,15 +26,13 @@ class StaminaService
         private readonly TrxStaminaRepository $trxStaminaRepository,
         private readonly PlayerLevelService $playerLevelService,
         private readonly BaseStaminaService $baseStaminaService,
-    ) {
-    }
+    ) {}
 
     /**
      * プレイヤーのスタミナ情報を取得（時間経過での自動回復を適用）
-     * 
-     * @param int $sysPlayerId プレイヤーID
-     * @param string $type スタミナタイプ
-     * @return TrxStamina|null
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  string  $type  スタミナタイプ
      */
     public function getStamina(int $sysPlayerId, string $type = StaminaConst::TYPE_NORMAL): ?TrxStamina
     {
@@ -43,11 +41,10 @@ class StaminaService
 
     /**
      * 新しいプレイヤーのスタミナを初期化
-     * 
-     * @param int $sysPlayerId プレイヤーID
-     * @param int $initialStamina 初期スタミナ量
-     * @param string $type スタミナタイプ
-     * @return TrxStamina
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  int  $initialStamina  初期スタミナ量
+     * @param  string  $type  スタミナタイプ
      */
     public function initializeStamina(int $sysPlayerId, int $initialStamina, string $type = StaminaConst::TYPE_NORMAL): TrxStamina
     {
@@ -71,10 +68,10 @@ class StaminaService
 
     /**
      * スタミナを消費
-     * 
-     * @param int $sysPlayerId プレイヤーID
-     * @param int $amount 消費量
-     * @param string $type スタミナタイプ
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  int  $amount  消費量
+     * @param  string  $type  スタミナタイプ
      * @return array{success: bool, remaining: int, message: string}
      */
     public function consumeStamina(int $sysPlayerId, int $amount, string $type = StaminaConst::TYPE_NORMAL): array
@@ -84,10 +81,10 @@ class StaminaService
 
     /**
      * スタミナ回復アイテム使用
-     * 
-     * @param int $sysPlayerId プレイヤーID
-     * @param int $amount 回復量
-     * @param string $type スタミナタイプ
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  int  $amount  回復量
+     * @param  string  $type  スタミナタイプ
      * @return array{success: bool, total: int, message: string}
      */
     public function recoverStaminaByItem(int $sysPlayerId, int $amount, string $type = StaminaConst::TYPE_NORMAL): array
@@ -97,10 +94,9 @@ class StaminaService
 
     /**
      * VIP特典などで回復速度倍率を更新
-     * 
-     * @param float $multiplier 回復速度倍率
-     * @param string $type スタミナタイプ
-     * @return void
+     *
+     * @param  float  $multiplier  回復速度倍率
+     * @param  string  $type  スタミナタイプ
      */
     public function updateRecoveryRateMultiplier(float $multiplier, string $type = StaminaConst::TYPE_NORMAL): void
     {
@@ -114,9 +110,9 @@ class StaminaService
 
     /**
      * 次回スタミナ回復までの残り時間を取得（秒）
-     * 
-     * @param int $sysPlayerId プレイヤーID
-     * @param string $type スタミナタイプ
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  string  $type  スタミナタイプ
      * @return int|null 残り秒数
      */
     public function getTimeUntilNextRecovery(int $sysPlayerId, string $type = StaminaConst::TYPE_NORMAL): ?int
@@ -126,15 +122,15 @@ class StaminaService
 
     /**
      * 最大スタミナまで完全回復するのに必要な時間を取得（秒）
-     * 
-     * @param int $sysPlayerId プレイヤーID
-     * @param string $type スタミナタイプ
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  string  $type  スタミナタイプ
      * @return int 必要な秒数
      */
     public function getTimeToFullRecovery(int $sysPlayerId, string $type = StaminaConst::TYPE_NORMAL): int
     {
         $stamina = $this->trxStaminaRepository->selectByType($type);
-        
+
         if ($stamina === null) {
             return 0;
         }
@@ -147,8 +143,7 @@ class StaminaService
 
         $requiredPoints = $maxStamina - $stamina->getCurrentStamina();
         $baseSeconds = $requiredPoints * self::RECOVERY_INTERVAL_SECONDS;
-        
-        return (int)ceil($baseSeconds / $stamina->getRecoveryRateMultiplier());
+
+        return (int) ceil($baseSeconds / $stamina->getRecoveryRateMultiplier());
     }
 }
-

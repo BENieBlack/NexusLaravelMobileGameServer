@@ -3,17 +3,16 @@
 namespace Tests\Feature\Domain\InAppPurchase\Services;
 
 use App\Domain\InAppPurchase\Services\DiamondService;
-use App\Models\Trx\TrxDiamond;
 use App\Persistence\ApiSession;
-use NexusUnitOfWork\Persistence\QueryManager;
 use Illuminate\Support\Facades\DB;
+use NexusUnitOfWork\Persistence\QueryManager;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
 
 /**
  * DiamondServiceのテスト
- * 
+ *
  * 無償/有償ダイヤモンドの管理、消費順序をテスト
  * DiamondServiceは無償→有償の順で消費する仕様
  */
@@ -22,8 +21,11 @@ class DiamondServiceTest extends TestCase
     use RefreshMultipleDatabases;
 
     private int $sysPlayerId = 1;
+
     private string $platform = 'Apple';
+
     private DiamondService $diamondService;
+
     private QueryManager $queryManager;
 
     /**
@@ -40,7 +42,7 @@ class DiamondServiceTest extends TestCase
         parent::setUp();
         ApiSession::clearForTest();
         ApiSession::setSysPlayerId($this->sysPlayerId);
-        
+
         $this->diamondService = app(DiamondService::class);
         $this->queryManager = app(QueryManager::class);
     }
@@ -50,7 +52,7 @@ class DiamondServiceTest extends TestCase
         // Clear all test data
         DB::connection('trx1')->table('trx_diamond')->truncate();
         DB::connection('trx1')->table('trx_diamond_balance')->truncate();
-        
+
         ApiSession::clearForTest();
         $this->queryManager->clear();
         parent::tearDown();
@@ -300,7 +302,7 @@ class DiamondServiceTest extends TestCase
 
         ApiSession::clearForTest();
         ApiSession::setSysPlayerId($this->sysPlayerId);
-        
+
         // Add to Google platform
         $this->diamondService->addDiamond($this->sysPlayerId, 'Google', 2000, isPaid: false);
         $this->queryManager->execAllQuery();

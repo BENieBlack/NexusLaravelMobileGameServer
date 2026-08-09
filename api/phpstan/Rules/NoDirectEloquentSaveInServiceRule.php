@@ -7,6 +7,7 @@ namespace App\PHPStan\Rules;
 use PhpParser\Node;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
+use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
 
 /**
@@ -31,27 +32,26 @@ class NoDirectEloquentSaveInServiceRule implements Rule
     /**
      * ルールのチェック処理
      *
-     * @param Node\Expr\MethodCall $node
-     * @param Scope $scope
-     * @return array<int, \PHPStan\Rules\RuleError>
+     * @param  Node\Expr\MethodCall  $node
+     * @return array<int, RuleError>
      */
     public function processNode(Node $node, Scope $scope): array
     {
         // Service層のファイルかチェック
         $filePath = $scope->getFile();
-        if (!$this->isServiceFile($filePath)) {
+        if (! $this->isServiceFile($filePath)) {
             return [];
         }
 
         // メソッド名をチェック
-        if (!$node->name instanceof Node\Identifier) {
+        if (! $node->name instanceof Node\Identifier) {
             return [];
         }
 
         $methodName = $node->name->toString();
         $forbiddenMethods = ['save', 'update', 'delete', 'forceDelete'];
 
-        if (!in_array($methodName, $forbiddenMethods, true)) {
+        if (! in_array($methodName, $forbiddenMethods, true)) {
             return [];
         }
 
@@ -59,9 +59,9 @@ class NoDirectEloquentSaveInServiceRule implements Rule
         return [
             RuleErrorBuilder::message(
                 sprintf(
-                    'Service層で直接Eloquentの %s() を呼び出さないでください。' . PHP_EOL .
-                    'Repository経由で操作してください：' . PHP_EOL .
-                    '  - Trx Repository: $this->repository->setModel($model)' . PHP_EOL .
+                    'Service層で直接Eloquentの %s() を呼び出さないでください。'.PHP_EOL.
+                    'Repository経由で操作してください：'.PHP_EOL.
+                    '  - Trx Repository: $this->repository->setModel($model)'.PHP_EOL.
                     '  - Sys Repository: $this->repository->updatePlayer($player)',
                     $methodName
                 )

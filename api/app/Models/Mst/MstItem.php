@@ -4,7 +4,7 @@ namespace App\Models\Mst;
 
 /**
  * MstItem Model
- * 
+ *
  * @property int $deploy_key
  * @property string $id
  * @property string $type
@@ -16,6 +16,7 @@ class MstItem extends _BaseMst
     public $table = 'mst_item';
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     /** @var array<int, string> */
@@ -41,8 +42,6 @@ class MstItem extends _BaseMst
 
     /**
      * アイテムタイプを取得
-     *
-     * @return string
      */
     public function getType(): string
     {
@@ -51,8 +50,6 @@ class MstItem extends _BaseMst
 
     /**
      * アイテム効果を取得
-     *
-     * @return string
      */
     public function getEffect(): string
     {
@@ -61,8 +58,6 @@ class MstItem extends _BaseMst
 
     /**
      * アイテム値を取得
-     *
-     * @return int
      */
     public function getValue(): int
     {
@@ -71,10 +66,8 @@ class MstItem extends _BaseMst
 
     /**
      * レスポンス用配列に変換
-     * 
+     *
      * Note: 主キーが文字列型（semantic ID like "item_gold", "item_exp_potion"）のため、変換不要
-     * 
-     * @return array
      */
     public function toResponseArray(): array
     {

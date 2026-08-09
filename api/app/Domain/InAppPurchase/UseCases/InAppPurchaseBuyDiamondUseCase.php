@@ -11,7 +11,7 @@ use NexusBilling\Facades\BillingFacade;
 
 /**
  * InAppPurchaseBuyDiamondUseCase
- * 
+ *
  * ダイヤモンド商品の購入ユースケース
  * _BaseBuyUseCaseを継承し、ダイヤモンド固有の購入処理を実装
  */
@@ -27,7 +27,7 @@ class InAppPurchaseBuyDiamondUseCase extends _BaseBuyUseCase
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * ダイヤモンド購入処理を実行
      */
     protected function executePurchase(

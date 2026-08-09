@@ -6,9 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * LogVipPoint Model
- * 
+ *
  * VIPポイント変動ログ
- * 
+ *
  * @property int $id
  * @property string $unique_request_id
  * @property int $sys_player_id
@@ -27,6 +27,7 @@ use Illuminate\Database\Eloquent\Model;
 class LogVipPoint extends Model
 {
     protected $connection = 'log';
+
     protected $table = 'log_vip_point';
 
     public $timestamps = false;

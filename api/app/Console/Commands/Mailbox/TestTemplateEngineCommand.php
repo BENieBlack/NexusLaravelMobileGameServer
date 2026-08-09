@@ -28,8 +28,6 @@ class TestTemplateEngineCommand extends Command
 
     /**
      * コマンド実行
-     *
-     * @return int
      */
     public function handle(): int
     {
@@ -85,11 +83,12 @@ class TestTemplateEngineCommand extends Command
         $this->info('[サポートプレースホルダー一覧]');
         $supported = $engine->getSupportedPlaceholders();
         foreach ($supported as $resolverName => $keys) {
-            $this->line("{$resolverName}: " . implode(', ', $keys));
+            $this->line("{$resolverName}: ".implode(', ', $keys));
         }
         $this->newLine();
 
         $this->info('テスト完了');
+
         return Command::SUCCESS;
     }
 }

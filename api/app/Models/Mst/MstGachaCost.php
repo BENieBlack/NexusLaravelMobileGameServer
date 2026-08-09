@@ -4,7 +4,7 @@ namespace App\Models\Mst;
 
 /**
  * MstGachaCost Model
- * 
+ *
  * @property int $deploy_key
  * @property string $id
  * @property string $mst_gacha_id
@@ -19,6 +19,7 @@ class MstGachaCost extends _BaseMst
     public $table = 'mst_gacha_cost';
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $fillable = [

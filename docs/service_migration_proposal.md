@@ -190,7 +190,28 @@ class ItemWriteService
 
 #### 優先度：中
 
-##### 2. InAppPurchase関連Service （次の移行対象候補）
+##### ✅ 完了：DiamondBalanceService
+
+**移行完了日:** 2026-08-10  
+**コミット:** f7c9c83
+
+**移行後の構造:**
+- パッケージ層: `nexus-core-billing/src/Services/DiamondBalanceService.php` - DTOベースのビジネスロジック
+- Domain層: `api/app/Domain/InAppPurchase/Services/DiamondBalanceService.php` - Wrapperパターン + FIFO管理追加機能
+- Repository実装: `api/app/Repositories/Trx/DiamondRepositoryImpl.php`
+
+**移行したビジネスロジック:**
+- ✅ 無償→有償消費ロジック（consumeFreeThenPaidDiamond）
+- ✅ 有償のみ消費ロジック（consumePaidDiamond）
+- ✅ 残高チェック（validatePaidBalance, validateTotalBalance）
+- ✅ 加算ロジック（addDiamond）
+
+**Domain層に残した追加機能:**
+- addPaidDiamondWithBalance() - FIFO管理用バランスレコード作成（アプリ固有機能）
+
+**後方互換性:** ✅ 既存コードは変更不要（Domain層Wrapperで維持）
+
+##### 2. InAppPurchase関連Service （残りの移行対象候補）
 
 **現状:**
 - `api/app/Domain/InAppPurchase/Services/DiamondBalanceService.php`

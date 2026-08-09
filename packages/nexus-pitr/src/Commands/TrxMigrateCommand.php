@@ -38,6 +38,19 @@ class TrxMigrateCommand extends Command
     {
         $trxConnections = ShardMapper::getAllTrxConnections();
         
+        // TrxDBマイグレーションパスを定義
+        $trxMigrationPaths = [
+            'packages/nexus-player/database/migrations/trx',
+            'packages/nexus-resource/database/migrations/trx',
+            'packages/nexus-wallet/database/migrations/trx',
+            'packages/nexus-stamina/database/migrations/trx',
+            'packages/nexus-core-billing/database/migrations/trx',
+            'packages/nexus-mailbox/database/migrations/trx',
+            'packages/nexus-gacha/database/migrations/trx',
+            'packages/nexus-login/database/migrations/trx',
+            'packages/nexus-vip/database/migrations/trx',
+        ];
+        
         $this->info('Running TrxDB migrations on all shards...');
         $this->info('This includes migrations from packages: nexus-player, nexus-resource, nexus-wallet, nexus-stamina, nexus-core-billing, nexus-mailbox, nexus-gacha, nexus-login, nexus-vip');
         $this->newLine();
@@ -47,6 +60,7 @@ class TrxMigrateCommand extends Command
             
             $options = [
                 '--database' => $trxConnection,
+                '--path' => $trxMigrationPaths,
             ];
             
             if ($this->option('force')) {
@@ -61,7 +75,7 @@ class TrxMigrateCommand extends Command
                 $options['--step'] = true;
             }
             
-            // Laravelのデフォルトマイグレーション実行（パッケージのマイグレーションを含む）
+            // TrxDBマイグレーション実行（trxサブディレクトリのみ）
             $exitCode = Artisan::call('migrate', $options, $this->getOutput());
             
             if ($exitCode !== 0) {

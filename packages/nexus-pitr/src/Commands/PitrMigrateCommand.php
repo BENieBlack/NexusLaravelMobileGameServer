@@ -38,8 +38,22 @@ class PitrMigrateCommand extends Command
     {
         $logConnections = ShardMapper::getAllLogConnections();
         
+        // LogDBマイグレーションパスを定義
+        $logMigrationPaths = [
+            'packages/nexus-pitr/database/migrations/log',
+            'packages/nexus-player/database/migrations/log',
+            'packages/nexus-resource/database/migrations/log',
+            'packages/nexus-wallet/database/migrations/log',
+            'packages/nexus-stamina/database/migrations/log',
+            'packages/nexus-core-billing/database/migrations/log',
+            'packages/nexus-mailbox/database/migrations/log',
+            'packages/nexus-gacha/database/migrations/log',
+            'packages/nexus-login/database/migrations/log',
+            'packages/nexus-vip/database/migrations/log',
+        ];
+        
         $this->info('Running LogDB migrations on all shards...');
-        $this->info('This includes migrations from: api/database/migrations/log, nexus-pitr, nexus-vip, nexus-core-billing');
+        $this->info('This includes migrations from: nexus-pitr, nexus-player, nexus-resource, nexus-wallet, nexus-stamina, nexus-core-billing, nexus-mailbox, nexus-gacha, nexus-login, nexus-vip');
         $this->newLine();
         
         foreach ($logConnections as $logConnection) {
@@ -47,6 +61,7 @@ class PitrMigrateCommand extends Command
             
             $options = [
                 '--database' => $logConnection,
+                '--path' => $logMigrationPaths,
             ];
             
             if ($this->option('force')) {
@@ -61,7 +76,7 @@ class PitrMigrateCommand extends Command
                 $options['--step'] = true;
             }
             
-            // Laravelのデフォルトマイグレーション実行（パッケージのマイグレーションを含む）
+            // LogDBマイグレーション実行（logサブディレクトリのみ）
             $exitCode = Artisan::call('migrate', $options, $this->getOutput());
             
             if ($exitCode !== 0) {

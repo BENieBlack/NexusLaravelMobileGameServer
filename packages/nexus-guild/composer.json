@@ -18,8 +18,19 @@
         "nexus/player": "@dev"
     },
     "require-dev": {
-        "phpunit/phpunit": "^10.0"
+        "phpunit/phpunit": "^10.0",
+        "mockery/mockery": "^1.6"
     },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../nexus-player"
+        },
+        {
+            "type": "path",
+            "url": "../nexus-core-utilities"
+        }
+    ],
     "minimum-stability": "dev",
     "prefer-stable": true
 }

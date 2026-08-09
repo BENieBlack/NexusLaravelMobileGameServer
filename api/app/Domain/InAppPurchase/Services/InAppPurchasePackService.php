@@ -10,12 +10,10 @@ use App\Models\Trx\TrxUnit;
 use App\Repositories\Trx\TrxInAppPurchaseRepository;
 use App\Repositories\Trx\TrxUnitRepository;
 use NexusUtilities\ClockUtility;
-use App\Domain\InAppPurchase\Services\InAppPurchaseHistoryService;
-use App\Domain\InAppPurchase\Services\InAppPurchaseValidationService;
 
 /**
  * InAppPurchasePackService
- * 
+ *
  * Pack商品購入時のトランザクション処理を担当するサービス
  * Pack商品はダイヤモンド、アイテム、ユニットを含むことができる
  */
@@ -28,17 +26,16 @@ class InAppPurchasePackService
         private readonly TrxInAppPurchaseRepository $trxInAppPurchaseRepository,
         private readonly InAppPurchaseValidationService $validationService,
         private readonly InAppPurchaseHistoryService $purchaseHistoryService,
-    ) {
-    }
+    ) {}
 
     /**
      * Pack購入処理
-     * 
-     * @param int $sysPlayerId プレイヤーID
-     * @param MstInAppPurchase $mstInAppPurchase 商品マスター
-     * @param string $platform プラットフォーム（Apple, Google）
-     * @param string $billingPlatform 決済プラットフォーム（AppStore, GooglePlay等）
-     * @param string $transactionId プラットフォーム固有のトランザクションID
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  MstInAppPurchase  $mstInAppPurchase  商品マスター
+     * @param  string  $platform  プラットフォーム（Apple, Google）
+     * @param  string  $billingPlatform  決済プラットフォーム（AppStore, GooglePlay等）
+     * @param  string  $transactionId  プラットフォーム固有のトランザクションID
      * @return array{contents: array, total_free_diamond_amount: int}
      */
     public function purchasePack(
@@ -116,10 +113,10 @@ class InAppPurchasePackService
 
     /**
      * ユニットを付与
-     * 
-     * @param int $sysPlayerId プレイヤーID
-     * @param string $mstUnitId ユニットマスターID
-     * @param int $count 付与数
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  string  $mstUnitId  ユニットマスターID
+     * @param  int  $count  付与数
      * @return int 付与されたユニットのID
      */
     private function grantUnit(int $sysPlayerId, string $mstUnitId, int $count = 1): int

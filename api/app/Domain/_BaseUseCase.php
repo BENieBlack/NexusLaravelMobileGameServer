@@ -59,7 +59,7 @@ abstract class _BaseUseCase
      *
      * 各UseCaseで独自のシグネチャとロジックを実装する
      *
-     * @param mixed ...$args
+     * @param  mixed  ...$args
      * @return mixed
      */
     // abstract public function exec(...$args): mixed;
@@ -73,8 +73,9 @@ abstract class _BaseUseCase
      * - ビジネスルールの検証
      * - データ整合性チェック
      *
-     * @param mixed ...$args
+     * @param  mixed  ...$args
      * @return void
+     *
      * @throws \Exception バリデーション失敗時
      */
     // public function validation(...$args): void {}

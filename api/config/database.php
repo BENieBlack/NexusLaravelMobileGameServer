@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Str;
+use Pdo\Mysql;
 
 return [
     /*
@@ -57,7 +58,7 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                (PHP_VERSION_ID >= 80500 ? \Pdo\Mysql::ATTR_SSL_CA : \PDO::MYSQL_ATTR_SSL_CA) => env('MYSQL_ATTR_SSL_CA'),
+                (PHP_VERSION_ID >= 80500 ? Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA) => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
         ],
 
@@ -97,7 +98,7 @@ return [
             'url' => env('DB_MASTER_URL'),
             'host' => env('DB_MASTER_HOST', '127.0.0.1'),
             'port' => env('DB_MASTER_PORT', '33062'),
-            'database' => env('DB_MASTER_DATABASE') ?: env('APP_NAME', 'laravel') . '-' . env('APP_ENV', 'local') . '-mst',
+            'database' => env('DB_MASTER_DATABASE') ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local').'-mst',
             'username' => env('DB_MASTER_USERNAME', 'root'),
             'password' => env('DB_MASTER_PASSWORD', ''),
             'unix_socket' => env('MASTER_DB_SOCKET', ''),
@@ -116,16 +117,16 @@ return [
         // ========================================
         // DB_TRX_SHARDS環境変数でシャード数を指定（デフォルト: 2）
         // 例: DB_TRX_SHARDS=4 の場合、trx1, trx2, trx3, trx4 を生成
-        ...(function() {
+        ...(function () {
             $shardCount = (int) env('DB_TRX_SHARDS', 2);
             $connections = [];
-            
+
             for ($i = 1; $i <= $shardCount; $i++) {
                 $connections["trx{$i}"] = [
                     'driver' => 'mysql',
                     'host' => env("DB_TRX{$i}_HOST", "db-trx{$i}"),
                     'port' => env("DB_TRX{$i}_PORT", '3306'),
-                    'database' => env("DB_TRX{$i}_DATABASE") ?: env('APP_NAME', 'laravel') . '-' . env('APP_ENV', 'local') . "-trx{$i}",
+                    'database' => env("DB_TRX{$i}_DATABASE") ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local')."-trx{$i}",
                     'username' => env("DB_TRX{$i}_USERNAME", 'root'),
                     'password' => env("DB_TRX{$i}_PASSWORD", 'root'),
                     'charset' => 'utf8mb4',
@@ -135,7 +136,7 @@ return [
                     'engine' => null,
                 ];
             }
-            
+
             return $connections;
         })(),
 
@@ -144,16 +145,16 @@ return [
         // ========================================
         // TrxDBと1:1対応でLogDBシャードを生成
         // DB_TRX_SHARDS=2 の場合、log1, log2 を生成
-        ...(function() {
+        ...(function () {
             $shardCount = (int) env('DB_TRX_SHARDS', 2);
             $connections = [];
-            
+
             for ($i = 1; $i <= $shardCount; $i++) {
                 $connections["log{$i}"] = [
                     'driver' => 'mysql',
                     'host' => env("DB_LOG{$i}_HOST", "db-log{$i}"),
                     'port' => env("DB_LOG{$i}_PORT", '3306'),
-                    'database' => env("DB_LOG{$i}_DATABASE") ?: env('APP_NAME', 'laravel') . '-' . env('APP_ENV', 'local') . "-log{$i}",
+                    'database' => env("DB_LOG{$i}_DATABASE") ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local')."-log{$i}",
                     'username' => env("DB_LOG{$i}_USERNAME", 'root'),
                     'password' => env("DB_LOG{$i}_PASSWORD", 'root'),
                     'charset' => 'utf8mb4',
@@ -163,7 +164,7 @@ return [
                     'engine' => null,
                 ];
             }
-            
+
             return $connections;
         })(),
 
@@ -172,7 +173,7 @@ return [
             'driver' => 'mysql',
             'host' => env('DB_SYSTEM_HOST', 'db-sys'),
             'port' => env('DB_SYSTEM_PORT', '3306'),
-            'database' => env('DB_SYSTEM_DATABASE') ?: env('APP_NAME', 'laravel') . '-' . env('APP_ENV', 'local') . '-sys',
+            'database' => env('DB_SYSTEM_DATABASE') ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local').'-sys',
             'username' => env('DB_SYSTEM_USERNAME', 'root'),
             'password' => env('DB_SYSTEM_PASSWORD', 'root'),
             'charset' => 'utf8mb4',
@@ -187,7 +188,7 @@ return [
             'driver' => 'mysql',
             'host' => env('DB_ADMIN_HOST', 'db-adm'),
             'port' => env('DB_ADMIN_PORT', '3306'),
-            'database' => env('DB_ADMIN_DATABASE') ?: env('APP_NAME', 'laravel') . '-' . env('APP_ENV', 'local') . '-adm',
+            'database' => env('DB_ADMIN_DATABASE') ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local').'-adm',
             'username' => env('DB_ADMIN_USERNAME', 'root'),
             'password' => env('DB_ADMIN_PASSWORD', 'root'),
             'charset' => 'utf8mb4',
@@ -273,12 +274,13 @@ return [
     */
     'pitr' => [
         'shard_count' => (int) env('DB_TRX_SHARDS', 2),
-        'active_trx_connections' => (function() {
+        'active_trx_connections' => (function () {
             $shardCount = (int) env('DB_TRX_SHARDS', 2);
             $connections = [];
             for ($i = 1; $i <= $shardCount; $i++) {
                 $connections[] = "trx{$i}";
             }
+
             return $connections;
         })(),
         'batch_size' => env('PITR_BATCH_SIZE', 1000),

@@ -12,10 +12,10 @@ use NexusLevel\Services\_BaseLevelService;
 
 /**
  * EquipmentLevelService
- * 
+ *
  * 装備レベル管理を担当するサービス
  * _BaseLevelServiceを継承して、装備固有のレベルアップ処理を実装
- * 
+ *
  * レベルアップ仕様:
  * - 経験値は累積方式（リセットされない）
  * - レアリティごとに最大レベルが異なる
@@ -26,29 +26,25 @@ class EquipmentLevelService extends _BaseLevelService
 {
     /**
      * コンストラクタ
-     *
-     * @param MstEquipmentLevelRepository $mstEquipmentLevelRepository
-     * @param MstEquipmentRepository $mstEquipmentRepository
-     * @param TrxEquipmentRepository $trxEquipmentRepository
      */
     public function __construct(
         private readonly MstEquipmentLevelRepository $mstEquipmentLevelRepository,
         private readonly MstEquipmentRepository $mstEquipmentRepository,
         private readonly TrxEquipmentRepository $trxEquipmentRepository,
-    ) {
-    }
+    ) {}
 
     /**
      * 装備のレベル情報を取得
-     * 
-     * @param int $trxEquipmentId trx_equipment.id（プレイヤー所有装備）
+     *
+     * @param  int  $trxEquipmentId  trx_equipment.id（プレイヤー所有装備）
      * @return array{level: int, exp: int, exp_to_next: int|null, rarity: string, max_level: int}
+     *
      * @throws \Exception 装備が存在しない場合
      */
     public function getEquipmentLevel(int $trxEquipmentId): array
     {
         $trxEquipment = $this->trxEquipmentRepository->selectById($trxEquipmentId);
-        
+
         if ($trxEquipment === null) {
             throw TransactionDataException::equipment($trxEquipmentId);
         }
@@ -74,38 +70,40 @@ class EquipmentLevelService extends _BaseLevelService
 
     /**
      * 経験値を加算し、レベルアップ処理を行って装備データを返す
-     * 
-     * @param int $trxEquipmentId trx_equipment.id（プレイヤー所有装備）
-     * @param int $exp 加算する経験値
+     *
+     * @param  int  $trxEquipmentId  trx_equipment.id（プレイヤー所有装備）
+     * @param  int  $exp  加算する経験値
      * @return TrxEquipment 更新後の装備データ
+     *
      * @throws \Exception 装備が存在しない場合
      */
     public function addExpAndReturn(int $trxEquipmentId, int $exp): TrxEquipment
     {
         // 基底クラスのテンプレートメソッドを呼び出し
         parent::addExp($trxEquipmentId, $exp);
-        
+
         // 更新後の装備データを返す
         $trxEquipment = $this->trxEquipmentRepository->selectById($trxEquipmentId);
         if ($trxEquipment === null) {
             throw TransactionDataException::equipment($trxEquipmentId);
         }
-        
+
         return $trxEquipment;
     }
 
     /**
      * 目標レベルまで上げるのに必要な経験値を計算
-     * 
-     * @param int $trxEquipmentId trx_equipment.id（プレイヤー所有装備）
-     * @param int $targetLevel 目標レベル
+     *
+     * @param  int  $trxEquipmentId  trx_equipment.id（プレイヤー所有装備）
+     * @param  int  $targetLevel  目標レベル
      * @return int 必要な経験値（0の場合は既に目標レベルに到達または超えている）
+     *
      * @throws \Exception 装備が存在しない場合
      */
     public function calculateRequiredExp(int $trxEquipmentId, int $targetLevel): int
     {
         $trxEquipment = $this->trxEquipmentRepository->selectById($trxEquipmentId);
-        
+
         if ($trxEquipment === null) {
             throw TransactionDataException::equipment($trxEquipmentId);
         }
@@ -117,26 +115,26 @@ class EquipmentLevelService extends _BaseLevelService
         }
 
         $rarity = $mstEquipment->getRarity();
-        
+
         // 目標レベルに必要な累積経験値を取得
         $targetRequiredExp = $this->mstEquipmentLevelRepository->getRequiredExpForLevel($rarity, $targetLevel);
-        
+
         if ($targetRequiredExp === null) {
             // 目標レベルが存在しない（最大レベルを超えている）
             throw new \Exception("Target level {$targetLevel} does not exist for rarity {$rarity}");
         }
-        
+
         // 現在の経験値との差分を計算
         $requiredExp = $targetRequiredExp - $trxEquipment->getLevelExp();
-        
+
         return max(0, $requiredExp);
     }
 
     /**
      * 累積経験値から理論上のレベルを計算（純粋計算）
-     * 
-     * @param string $rarity レアリティ
-     * @param int $exp 累積経験値
+     *
+     * @param  string  $rarity  レアリティ
+     * @param  int  $exp  累積経験値
      * @return int レベル
      */
     public function calculateLevelFromExp(string $rarity, int $exp): int
@@ -146,22 +144,22 @@ class EquipmentLevelService extends _BaseLevelService
 
     /**
      * 次のレベルまでに必要な経験値を取得
-     * 
-     * @param string|null $rarity レアリティ
-     * @param int $currentLevel 現在のレベル
-     * @param int $currentExp 現在の累積経験値
+     *
+     * @param  string|null  $rarity  レアリティ
+     * @param  int  $currentLevel  現在のレベル
+     * @param  int  $currentExp  現在の累積経験値
      * @return int|null 必要な経験値（最大レベルの場合はnull）
      */
     public function getExpToNextLevel(?string $rarity, int $currentLevel, int $currentExp): ?int
     {
         $nextLevel = $currentLevel + 1;
         $nextLevelData = $this->mstEquipmentLevelRepository->selectByRarityAndLevel($rarity, $nextLevel);
-        
+
         if ($nextLevelData === null) {
             // 最大レベルに達している
             return null;
         }
-        
+
         return max(0, $nextLevelData->required_exp - $currentExp);
     }
 
@@ -175,11 +173,11 @@ class EquipmentLevelService extends _BaseLevelService
     protected function getEntity(mixed $id): object
     {
         $equipment = $this->trxEquipmentRepository->selectById($id);
-        
+
         if ($equipment === null) {
             throw TransactionDataException::equipment($id);
         }
-        
+
         return $equipment;
     }
 
@@ -190,11 +188,11 @@ class EquipmentLevelService extends _BaseLevelService
     {
         /** @var TrxEquipment $entity */
         $mstEquipment = $this->mstEquipmentRepository->selectById($entity->getMstEquipmentId());
-        
+
         if ($mstEquipment === null) {
             throw MasterDataException::equipment($entity->getMstEquipmentId());
         }
-        
+
         return $mstEquipment->getRarity();
     }
 

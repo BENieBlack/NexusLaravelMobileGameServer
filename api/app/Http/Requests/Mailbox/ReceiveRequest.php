@@ -13,8 +13,6 @@ class ReceiveRequest extends _BaseRequest
 {
     /**
      * バリデーションルール
-     *
-     * @return array
      */
     public function rules(): array
     {
@@ -25,11 +23,9 @@ class ReceiveRequest extends _BaseRequest
 
     /**
      * メールボックスIDを取得
-     *
-     * @return int
      */
     public function getTrxMailboxId(): int
     {
-        return (int)$this->input('trx_mailbox_id');
+        return (int) $this->input('trx_mailbox_id');
     }
 }

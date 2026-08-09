@@ -10,7 +10,7 @@ use NexusUtilities\ClockUtility;
  *
  * アプリ内課金のログを管理するRepository
  * 課金関連のログなので isPurchaseLog = true
- * 
+ *
  * @extends _BaseLogRepository<LogInAppPurchase>
  */
 class LogInAppPurchaseRepository extends _BaseLogRepository
@@ -25,19 +25,6 @@ class LogInAppPurchaseRepository extends _BaseLogRepository
     /**
      * 課金ログを記録（Unit of Work パターン使用）
      * 課金ログはトランザクション内で実行される
-     *
-     * @param string $uniqueRequestId
-     * @param int $sysPlayerId
-     * @param string $platform
-     * @param string $billingPlatform
-     * @param string $receiptId
-     * @param array $receipt
-     * @param string $status
-     * @param string $mstInAppPurchaseId
-     * @param string $currencyCode
-     * @param float $payAmount
-     * @param string $payString
-     * @return void
      */
     public function createPurchaseLog(
         string $uniqueRequestId,

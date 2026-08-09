@@ -8,26 +8,23 @@ use App\Repositories\Sys\SysFriendApplyRepository;
 
 /**
  * FriendListUseCase
- * 
+ *
  * フレンドリスト取得ユースケース
  * status=Acceptedのフレンド関係を取得
  */
 class FriendListUseCase extends _BaseUseCase
 {
-
     public function __construct(
         private readonly SysFriendApplyRepository $sysFriendApplyRepository,
-    ) {
-    }
+    ) {}
 
     /**
      * フレンドリスト取得処理を実行
-     * 
+     *
      * sender_sys_player_idまたはreceiver_sys_player_idが自分で、
      * statusがAcceptedのものを取得
      *
-     * @param int $sysPlayerId プレイヤーID
-     * @return ListResponse
+     * @param  int  $sysPlayerId  プレイヤーID
      */
     public function exec(int $sysPlayerId): ListResponse
     {

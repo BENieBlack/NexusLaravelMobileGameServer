@@ -2,17 +2,18 @@
 
 namespace App\Models\Trx;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * TrxInAppPurchaseEffect Model
- * 
+ *
  * Pass課金の効果を管理するモデル
  * PRIMARY KEY: id (auto increment)
- * 
+ *
  * 仕様：同じ効果を複数回購入可能（効果のスタック/累積）
  * - 例：ExpBoostを2回購入 → 2つのレコードが作成され、効果が累積
- * 
+ *
  * effect_type: 効果タイプ（IdleRewardMultiplier, AdSkip等）
  * value: 効果値（倍率や数値）
  * expires_at: 効果の有効期限
@@ -39,8 +40,6 @@ class TrxInAppPurchaseEffect extends _BaseTrx
 
     /**
      * SELECTキー（プレイヤーIDでSELECT）
-     * 
-     * @var string
      */
     protected string $selectKey = 'sys_player_id';
 
@@ -69,8 +68,6 @@ class TrxInAppPurchaseEffect extends _BaseTrx
 
     /**
      * trx_playerとのリレーション
-     *
-     * @return BelongsTo
      */
     public function trxPlayer(): BelongsTo
     {
@@ -79,8 +76,6 @@ class TrxInAppPurchaseEffect extends _BaseTrx
 
     /**
      * trx_in_app_purchaseとのリレーション
-     *
-     * @return BelongsTo
      */
     public function trxInAppPurchase(): BelongsTo
     {
@@ -89,8 +84,6 @@ class TrxInAppPurchaseEffect extends _BaseTrx
 
     /**
      * 効果が有効かチェック
-     * 
-     * @return bool
      */
     public function isEffective(): bool
     {
@@ -99,19 +92,14 @@ class TrxInAppPurchaseEffect extends _BaseTrx
 
     /**
      * 有効フラグを取得
-     *
-     * @return bool
      */
     public function getIsActive(): bool
     {
-        return (bool)$this->getAttribute('is_active');
+        return (bool) $this->getAttribute('is_active');
     }
 
     /**
      * 有効フラグを設定
-     *
-     * @param bool $isActive
-     * @return void
      */
     public function setIsActive(bool $isActive): void
     {
@@ -120,30 +108,22 @@ class TrxInAppPurchaseEffect extends _BaseTrx
 
     /**
      * 有効期限を取得
-     *
-     * @return \Carbon\CarbonImmutable
      */
-    public function getExpiresAt(): \Carbon\CarbonImmutable
+    public function getExpiresAt(): CarbonImmutable
     {
         return $this->getAttribute('expires_at');
     }
 
     /**
      * 有効期限を設定
-     *
-     * @param \Carbon\CarbonImmutable $expiresAt
-     * @return void
      */
-    public function setExpiresAt(\Carbon\CarbonImmutable $expiresAt): void
+    public function setExpiresAt(CarbonImmutable $expiresAt): void
     {
         $this->setAttribute('expires_at', $expiresAt);
     }
 
     /**
      * システムプレイヤーIDを設定
-     *
-     * @param int $sysPlayerId
-     * @return void
      */
     public function setSysPlayerId(int $sysPlayerId): void
     {
@@ -152,9 +132,6 @@ class TrxInAppPurchaseEffect extends _BaseTrx
 
     /**
      * マスター課金商品IDを設定
-     *
-     * @param int $mstInAppPurchaseId
-     * @return void
      */
     public function setMstInAppPurchaseId(int $mstInAppPurchaseId): void
     {
@@ -163,9 +140,6 @@ class TrxInAppPurchaseEffect extends _BaseTrx
 
     /**
      * 効果タイプを設定
-     *
-     * @param string $effectType
-     * @return void
      */
     public function setEffectType(string $effectType): void
     {
@@ -174,9 +148,6 @@ class TrxInAppPurchaseEffect extends _BaseTrx
 
     /**
      * 効果値を設定
-     *
-     * @param float $value
-     * @return void
      */
     public function setValue(float $value): void
     {
@@ -185,9 +156,6 @@ class TrxInAppPurchaseEffect extends _BaseTrx
 
     /**
      * 削除フラグを設定
-     *
-     * @param bool $isDelete
-     * @return void
      */
     public function setIsDelete(bool $isDelete): void
     {
@@ -196,20 +164,18 @@ class TrxInAppPurchaseEffect extends _BaseTrx
 
     /**
      * レスポンス用配列に変換
-     * 
+     *
      * データベース層の'id'をAPI層の'trx_in_app_purchase_effect_id'に変換
-     * 
-     * @return array
      */
     public function toResponseArray(): array
     {
         $array = parent::toResponseArray();
-        
+
         if (isset($array['id'])) {
             $array['trx_in_app_purchase_effect_id'] = $array['id'];
             unset($array['id']);
         }
-        
+
         return $array;
     }
 }

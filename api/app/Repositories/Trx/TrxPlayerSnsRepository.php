@@ -2,16 +2,15 @@
 
 namespace App\Repositories\Trx;
 
-
-use NexusPersistence\Support\CustomCollection;
 use App\Models\Trx\TrxPlayerSns;
+use NexusPersistence\Support\CustomCollection;
 
 /**
  * TrxPlayerSnsRepository
  *
  * プレイヤーのSNS連携情報のRepository
  * 複合主キー (sys_player_id, sns_type) を持つテーブル
- * 
+ *
  * @extends _BaseTrxRepository<TrxPlayerSns>
  */
 class TrxPlayerSnsRepository extends _BaseTrxRepository
@@ -21,7 +20,7 @@ class TrxPlayerSnsRepository extends _BaseTrxRepository
     /**
      * プレイヤーIDでSNS連携情報を全て取得
      *
-     * @param int $sysPlayerId プレイヤーID
+     * @param  int  $sysPlayerId  プレイヤーID
      * @return CustomCollection<string, TrxPlayerSns>
      */
     public function selectAll(int $sysPlayerId): CustomCollection
@@ -32,13 +31,12 @@ class TrxPlayerSnsRepository extends _BaseTrxRepository
     /**
      * プレイヤーIDとSNSタイプで連携情報を取得
      *
-     * @param int $sysPlayerId プレイヤーID
-     * @param string $snsType SNSタイプ (apple, google, x, facebook)
-     * @return TrxPlayerSns|null
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  string  $snsType  SNSタイプ (apple, google, x, facebook)
      */
     public function selectBySnsType(int $sysPlayerId, string $snsType): ?TrxPlayerSns
     {
-        
+
         return $this->getMapBySysPlayerId($sysPlayerId)
             ->where('sns_type', $snsType)
             ->where('is_delete', false)
@@ -49,9 +47,8 @@ class TrxPlayerSnsRepository extends _BaseTrxRepository
      * SNSユーザーIDで連携情報を取得（全プレイヤー対象）
      * 認証時に使用
      *
-     * @param string $snsType SNSタイプ
-     * @param string $snsUserId SNSユーザーID
-     * @return TrxPlayerSns|null
+     * @param  string  $snsType  SNSタイプ
+     * @param  string  $snsUserId  SNSユーザーID
      */
     public function selectBySnsTypeAndSnsUserId(string $snsType, string $snsUserId): ?TrxPlayerSns
     {
@@ -65,9 +62,8 @@ class TrxPlayerSnsRepository extends _BaseTrxRepository
     /**
      * 連携が存在するかチェック
      *
-     * @param int $sysPlayerId プレイヤーID
-     * @param string $snsType SNSタイプ
-     * @return bool
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  string  $snsType  SNSタイプ
      */
     public function existsBySnsType(int $sysPlayerId, string $snsType): bool
     {
@@ -77,8 +73,7 @@ class TrxPlayerSnsRepository extends _BaseTrxRepository
     /**
      * 有効な連携数を取得
      *
-     * @param int $sysPlayerId プレイヤーID
-     * @return int
+     * @param  int  $sysPlayerId  プレイヤーID
      */
     public function countActive(int $sysPlayerId): int
     {

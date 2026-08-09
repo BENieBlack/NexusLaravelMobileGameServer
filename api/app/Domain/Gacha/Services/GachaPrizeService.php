@@ -2,8 +2,8 @@
 
 namespace App\Domain\Gacha\Services;
 
-use NexusGacha\Services\GachaPrizeService as PackageGachaPrizeService;
 use NexusGacha\Dto\GachaPrizeDto;
+use NexusGacha\Services\GachaPrizeService as PackageGachaPrizeService;
 
 /**
  * GachaPrizeService
@@ -14,15 +14,12 @@ class GachaPrizeService
 {
     public function __construct(
         private readonly PackageGachaPrizeService $basePrizeService,
-    ) {
-    }
+    ) {}
 
     /**
      * 景品リストを付与
      *
-     * @param int $sysPlayerId
-     * @param array $prizes 配列形式の景品リスト
-     * @return void
+     * @param  array  $prizes  配列形式の景品リスト
      */
     public function grantPrizes(int $sysPlayerId, array $prizes): void
     {
@@ -40,4 +37,3 @@ class GachaPrizeService
         $this->basePrizeService->grantPrizes($sysPlayerId, $prizeDtos);
     }
 }
-

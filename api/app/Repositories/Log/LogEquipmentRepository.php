@@ -10,7 +10,7 @@ use NexusUtilities\ClockUtility;
  *
  * 装備のログを管理するRepository
  * 通常のログなので isPurchaseLog = false（デフォルト）
- * 
+ *
  * @extends _BaseLogRepository<LogEquipment>
  */
 class LogEquipmentRepository extends _BaseLogRepository
@@ -31,18 +31,6 @@ class LogEquipmentRepository extends _BaseLogRepository
 
     /**
      * 装備ログを記録（Unit of Work パターン使用）
-     *
-     * @param string $uniqueRequestId
-     * @param int $sysPlayerId
-     * @param int $trxEquipmentId
-     * @param string $mstEquipmentId
-     * @param int $beforeGrade
-     * @param int $afterGrade
-     * @param int $beforeLevel
-     * @param int $beforeLevelExp
-     * @param int $afterLevel
-     * @param int $afterLevelExp
-     * @return void
      */
     public function createEquipmentLog(
         string $uniqueRequestId,

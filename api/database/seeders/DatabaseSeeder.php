@@ -24,7 +24,7 @@ class DatabaseSeeder extends Seeder
             MstItemSeeder::class,
             MstEquipmentSeeder::class,
             MstPlayerLevelSeeder::class,
-            
+
             // 課金関連マスターデータ（MstBillingPlatformProductが先、MstInAppPurchaseが依存）
             MstBillingPlatformProductSeeder::class,
             MstInAppPurchaseSeeder::class,
@@ -37,13 +37,13 @@ class DatabaseSeeder extends Seeder
         $this->call([
             // シャーディング設定（プレイヤー作成前に必要）
             SysShardingSeeder::class,
-            
+
             // プレイヤー基本情報（全ての依存元）
             SysPlayerSeeder::class,
-            
+
             // デプロイ管理（プレイヤーに依存しない）
             SysDeploySeeder::class,
-            
+
             // フレンド申請（プレイヤーに依存）
             SysFriendApplySeeder::class,
         ]);
@@ -55,10 +55,10 @@ class DatabaseSeeder extends Seeder
         $this->call([
             // プレイヤートランザクションデータ（シャーディング対応）
             TrxPlayerSeeder::class,
-            
+
             // プレイヤー所持ユニット（プレイヤーとマスターに依存）
             TrxUnitSeeder::class,
-            
+
             // プレイヤー所持アイテム（プレイヤーとマスターに依存）
             TrxItemSeeder::class,
         ]);
@@ -71,19 +71,19 @@ class DatabaseSeeder extends Seeder
             $this->call([
                 // アクセスログ（大量データ）
                 LogAccessSeeder::class,
-                
+
                 // 課金ログ
                 LogInAppPurchaseSeeder::class,
-                
+
                 // プレイヤー変更ログ
                 LogPlayerSeeder::class,
-                
+
                 // アイテム変更ログ
                 LogItemSeeder::class,
-                
+
                 // ユニット変更ログ
                 LogUnitSeeder::class,
-                
+
                 // ガチャログ
                 LogGachaSeeder::class,
             ]);

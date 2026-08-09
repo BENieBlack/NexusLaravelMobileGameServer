@@ -16,6 +16,7 @@ class MeUseCaseTest extends TestCase
     use RefreshMultipleDatabases;
 
     private PlayerMeUseCase $useCase;
+
     private SysPlayerRepository $playerRepository;
 
     /**
@@ -33,7 +34,7 @@ class MeUseCaseTest extends TestCase
         parent::setUp();
 
         // Repositoryを作成
-        $this->playerRepository = new SysPlayerRepository(new SysPlayer());
+        $this->playerRepository = new SysPlayerRepository(new SysPlayer);
 
         // UseCaseを作成
         $this->useCase = new PlayerMeUseCase($this->playerRepository);
@@ -149,7 +150,7 @@ class MeUseCaseTest extends TestCase
     {
         // Arrange
         $sysPlayer = $this->createPlayer();
-        
+
         // プレイヤーの名前を設定
         $sysPlayer->name = 'Test Player Name';
         $sysPlayer->save();

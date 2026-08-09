@@ -17,8 +17,8 @@ class MstItemRepositoryTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->repository = new MstItemRepository();
-        
+        $this->repository = new MstItemRepository;
+
         // Clear Redis cache before each test
         Cache::store('redis')->flush();
     }
@@ -127,7 +127,7 @@ class MstItemRepositoryTest extends TestCase
 
         // Act - First call should query database and cache
         $result1 = $this->repository->selectById('item_001');
-        
+
         // Create a new item after first query
         MstItem::create([
             'id' => 'item_002',
@@ -168,7 +168,7 @@ class MstItemRepositoryTest extends TestCase
         Cache::store('redis')->flush();
 
         // Create new repository instance to clear internal state
-        $newRepository = new MstItemRepository();
+        $newRepository = new MstItemRepository;
 
         // Create a new item
         MstItem::create([

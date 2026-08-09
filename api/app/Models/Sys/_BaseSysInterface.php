@@ -6,7 +6,7 @@ use NexusPersistence\Models\Sys\_BaseSysInterface as PersistenceBaseSysInterface
 
 /**
  * _BaseSysInterface
- * 
+ *
  * Sysモデルが実装すべきインターフェース
  */
 interface _BaseSysInterface extends PersistenceBaseSysInterface

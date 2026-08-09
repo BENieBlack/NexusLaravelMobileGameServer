@@ -4,12 +4,13 @@ namespace App\Http\Responses\Unit;
 
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 /**
  * LevelUpResponse
- * 
+ *
  * ユニットレベルアップAPIのレスポンス
- * 
+ *
  * 命名規約:
  * - Bool値: is_* / has_* プレフィックス
  * - 変更前後: before_* / after_*
@@ -26,14 +27,12 @@ class LevelUpResponse implements Responsable
         public readonly int $maxLevel,
         public readonly int $itemUsed,
         public readonly int $expGained,
-    ) {
-    }
+    ) {}
 
     /**
      * レスポンスを生成
      *
-     * @param \Illuminate\Http\Request $request
-     * @return JsonResponse
+     * @param  Request  $request
      */
     public function toResponse($request): JsonResponse
     {

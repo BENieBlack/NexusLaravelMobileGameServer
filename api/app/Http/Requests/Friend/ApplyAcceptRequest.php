@@ -8,8 +8,6 @@ class ApplyAcceptRequest extends _BaseRequest
 {
     /**
      * リクエストの認可を判定
-     *
-     * @return bool
      */
     public function authorize(): bool
     {
@@ -31,8 +29,6 @@ class ApplyAcceptRequest extends _BaseRequest
 
     /**
      * sys_friend_apply_idを取得
-     *
-     * @return int
      */
     public function getSysFriendApplyId(): int
     {
@@ -41,14 +37,13 @@ class ApplyAcceptRequest extends _BaseRequest
 
     /**
      * 認証済みプレイヤーIDを取得
-     * 
-     * ミドルウェアで設定された値を取得
      *
-     * @return int|null
+     * ミドルウェアで設定された値を取得
      */
     public function getAuthenticatedPlayerId(): ?int
     {
         $playerId = $this->input('authenticated_player_id');
+
         return $playerId ? (int) $playerId : null;
     }
 

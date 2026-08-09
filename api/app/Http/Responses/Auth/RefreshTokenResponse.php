@@ -2,31 +2,30 @@
 
 namespace App\Http\Responses\Auth;
 
-use NexusAuth\DTOs\TokenDto;
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use NexusAuth\DTOs\TokenDto;
 
 /**
  * RefreshTokenResponse
- * 
+ *
  * トークンリフレッシュAPIのレスポンス
  * dto_token のみを返す（プレイヤー情報は含まない）
  */
 class RefreshTokenResponse implements Responsable
 {
     /**
-     * @param Token $tokenDto トークン情報DTO
+     * @param  Token  $tokenDto  トークン情報DTO
      */
     public function __construct(
         public readonly TokenDto $tokenDto,
-    ) {
-    }
+    ) {}
 
     /**
      * レスポンスを生成
      *
-     * @param \Illuminate\Http\Request $request
-     * @return JsonResponse
+     * @param  Request  $request
      */
     public function toResponse($request): JsonResponse
     {

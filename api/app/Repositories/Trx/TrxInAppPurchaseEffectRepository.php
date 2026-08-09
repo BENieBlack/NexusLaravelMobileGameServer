@@ -2,16 +2,15 @@
 
 namespace App\Repositories\Trx;
 
-
-use NexusPersistence\Support\CustomCollection;
 use App\Models\Trx\TrxInAppPurchaseEffect;
+use NexusPersistence\Support\CustomCollection;
 
 /**
  * TrxInAppPurchaseEffectRepository
  *
  * Pass課金効果の管理を行うリポジトリ
  * データアクセスのみを担当し、ビジネスロジックはServiceに委譲
- * 
+ *
  * @extends _BaseTrxRepository<TrxInAppPurchaseEffect>
  */
 class TrxInAppPurchaseEffectRepository extends _BaseTrxRepository
@@ -21,7 +20,6 @@ class TrxInAppPurchaseEffectRepository extends _BaseTrxRepository
     /**
      * プレイヤーの特定商品の効果を全て取得（有効・無効問わず）
      *
-     * @param int $mstInAppPurchaseId
      * @return CustomCollection<string, TrxInAppPurchaseEffect>
      */
     public function selectAllEffectsByMstInAppPurchaseId(int $mstInAppPurchaseId): CustomCollection

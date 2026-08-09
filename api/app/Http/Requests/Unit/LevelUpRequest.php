@@ -6,7 +6,7 @@ use App\Http\Requests\_BaseRequest;
 
 /**
  * LevelUpRequest
- * 
+ *
  * ユニットレベルアップAPIのリクエスト
  */
 class LevelUpRequest extends _BaseRequest
@@ -47,7 +47,7 @@ class LevelUpRequest extends _BaseRequest
 
     /**
      * トランザクションユニットIDを取得
-     * 
+     *
      * @return int trx_unit.id（プレイヤー所有ユニット）
      */
     public function getTrxUnitId(): int
@@ -57,7 +57,7 @@ class LevelUpRequest extends _BaseRequest
 
     /**
      * マスターアイテムIDを取得
-     * 
+     *
      * @return string mst_item.id（マスター定義アイテム）
      */
     public function getMstItemId(): string
@@ -67,8 +67,6 @@ class LevelUpRequest extends _BaseRequest
 
     /**
      * 使用個数を取得
-     *
-     * @return int
      */
     public function getUseCount(): int
     {
@@ -77,8 +75,6 @@ class LevelUpRequest extends _BaseRequest
 
     /**
      * 認証済みプレイヤーIDを取得
-     *
-     * @return int|null
      */
     public function getAuthenticatedPlayerId(): ?int
     {

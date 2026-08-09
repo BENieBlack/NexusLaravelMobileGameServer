@@ -2,18 +2,19 @@
 
 namespace App\Models\Mst;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * MstMessageI18n Model
- * 
+ *
  * @property int $deploy_key
  * @property string $mst_message_id
  * @property string $language
  * @property string $title
  * @property string $body
- * @property \Carbon\CarbonImmutable $created_at
- * @property \Carbon\CarbonImmutable $updated_at
+ * @property CarbonImmutable $created_at
+ * @property CarbonImmutable $updated_at
  */
 class MstMessageI18n extends _BaseMst
 {
@@ -53,8 +54,6 @@ class MstMessageI18n extends _BaseMst
 
     /**
      * メッセージマスターとのリレーション
-     *
-     * @return BelongsTo
      */
     public function message(): BelongsTo
     {
@@ -63,8 +62,6 @@ class MstMessageI18n extends _BaseMst
 
     /**
      * レスポンス用配列に変換
-     * 
-     * @return array
      */
     public function toResponseArray(): array
     {

@@ -9,9 +9,7 @@ use NexusPersistence\Repositories\Trx\_BaseTrxRepositoryInterface as Persistence
  *
  * TrxデータRepository用のインターフェース
  * メモリキャッシュのみを使用し、ユニークキーで管理
- * 
+ *
  * @template T of \App\Models\Trx\_BaseTrxInterface
  */
-interface _BaseTrxRepositoryInterface extends PersistenceBaseTrxRepositoryInterface
-{
-}
+interface _BaseTrxRepositoryInterface extends PersistenceBaseTrxRepositoryInterface {}

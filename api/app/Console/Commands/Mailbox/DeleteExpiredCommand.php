@@ -2,9 +2,11 @@
 
 namespace App\Console\Commands\Mailbox;
 
+use App\Models\Trx\TrxMailbox;
 use App\Repositories\Trx\TrxMailboxRepository;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * DeleteExpiredCommand
@@ -41,18 +43,16 @@ class DeleteExpiredCommand extends Command
 
     /**
      * コマンド実行
-     *
-     * @return int
      */
     public function handle(): int
     {
         $isDryRun = $this->option('dry-run');
         $playerId = $this->option('player-id');
-        $limit = (int)$this->option('limit');
+        $limit = (int) $this->option('limit');
 
         $this->info('期限切れメール削除バッチを開始します');
-        $this->info('実行時刻: ' . Carbon::now()->toDateTimeString());
-        
+        $this->info('実行時刻: '.Carbon::now()->toDateTimeString());
+
         if ($isDryRun) {
             $this->warn('[DRY RUN モード] 実際には削除しません');
         }
@@ -72,6 +72,7 @@ class DeleteExpiredCommand extends Command
 
         if ($totalCount === 0) {
             $this->info('期限切れメールは見つかりませんでした');
+
             return Command::SUCCESS;
         }
 
@@ -91,6 +92,7 @@ class DeleteExpiredCommand extends Command
                 if ($mailbox->getIsProtected()) {
                     $skippedCount++;
                     $bar->advance();
+
                     continue;
                 }
 
@@ -98,11 +100,12 @@ class DeleteExpiredCommand extends Command
                 if ($mailbox->getIsDelete()) {
                     $skippedCount++;
                     $bar->advance();
+
                     continue;
                 }
 
                 // Dry runでなければ削除
-                if (!$isDryRun) {
+                if (! $isDryRun) {
                     $mailbox->setIsDelete(true);
                     $this->trxMailboxRepository->setModel($mailbox);
                 }
@@ -123,7 +126,7 @@ class DeleteExpiredCommand extends Command
         $this->info('=== 処理結果 ===');
         $this->info("削除: {$deletedCount} 件");
         $this->info("スキップ: {$skippedCount} 件");
-        
+
         if ($errorCount > 0) {
             $this->error("エラー: {$errorCount} 件");
         }
@@ -140,14 +143,10 @@ class DeleteExpiredCommand extends Command
 
     /**
      * 期限切れメールを取得
-     *
-     * @param int|null $playerId
-     * @param int $limit
-     * @return \Illuminate\Database\Eloquent\Collection
      */
-    private function getExpiredMailboxes(?int $playerId, int $limit): \Illuminate\Database\Eloquent\Collection
+    private function getExpiredMailboxes(?int $playerId, int $limit): Collection
     {
-        $query = \App\Models\Trx\TrxMailbox::query()
+        $query = TrxMailbox::query()
             ->where('is_delete', false)
             ->where('is_protected', false)
             ->whereNotNull('expires_at')

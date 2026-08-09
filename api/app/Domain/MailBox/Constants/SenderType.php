@@ -17,7 +17,7 @@ enum SenderType: string
      */
     public function label(): string
     {
-        return match($this) {
+        return match ($this) {
             self::SYSTEM => 'システム運営',
             self::PLAYER => 'プレイヤー',
             self::ALLIANCE => 'アライアンス',

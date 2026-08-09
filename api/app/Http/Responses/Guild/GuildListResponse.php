@@ -7,24 +7,22 @@ use NexusGuild\Dto\GuildDto;
 
 /**
  * GuildListResponse
- * 
+ *
  * ギルド一覧取得APIのレスポンス
  */
 class GuildListResponse extends _BaseResponse
 {
     /**
-     * @param array<array<string, mixed>> $guilds
+     * @param  array<array<string, mixed>>  $guilds
      */
     public function __construct(
         public readonly array $guilds,
-    ) {
-    }
+    ) {}
 
     /**
      * GuildDto配列からレスポンスを生成
      *
-     * @param array<GuildDto> $guildDtos
-     * @return self
+     * @param  array<GuildDto>  $guildDtos
      */
     public static function fromDtoArray(array $guildDtos): self
     {

@@ -4,10 +4,10 @@ namespace App\Exceptions;
 
 /**
  * TransactionDataException
- * 
+ *
  * トランザクションデータ（trx1/trx2 database, sys database）が見つからない場合の例外クラス
  * 静的ファクトリーメソッドでリソースごとの例外を生成
- * 
+ *
  * 使用例:
  * - TrxUnit, TrxItem, SysPlayer などが見つからない場合
  * - プレイヤー所有データの不整合検出に使用
@@ -17,8 +17,7 @@ class TransactionDataException extends GameException
     /**
      * プレイヤーが見つからない
      *
-     * @param int $playerId プレイヤーID
-     * @return self
+     * @param  int  $playerId  プレイヤーID
      */
     public static function player(int $playerId): self
     {
@@ -31,8 +30,7 @@ class TransactionDataException extends GameException
     /**
      * プレイヤー（UUID）が見つからない
      *
-     * @param string $uuid プレイヤーUUID
-     * @return self
+     * @param  string  $uuid  プレイヤーUUID
      */
     public static function playerByUuid(string $uuid): self
     {
@@ -45,8 +43,7 @@ class TransactionDataException extends GameException
     /**
      * プレイヤー（My ID）が見つからない
      *
-     * @param string $myId プレイヤーMy ID
-     * @return self
+     * @param  string  $myId  プレイヤーMy ID
      */
     public static function playerByMyId(string $myId): self
     {
@@ -59,8 +56,7 @@ class TransactionDataException extends GameException
     /**
      * ユニットが見つからない
      *
-     * @param int $unitId ユニットID
-     * @return self
+     * @param  int  $unitId  ユニットID
      */
     public static function unit(int $unitId): self
     {
@@ -73,8 +69,7 @@ class TransactionDataException extends GameException
     /**
      * アイテムが見つからない
      *
-     * @param string $itemId アイテムID
-     * @return self
+     * @param  string  $itemId  アイテムID
      */
     public static function item(string $itemId): self
     {
@@ -87,8 +82,7 @@ class TransactionDataException extends GameException
     /**
      * 装備が見つからない
      *
-     * @param int $equipmentId 装備ID
-     * @return self
+     * @param  int  $equipmentId  装備ID
      */
     public static function equipment(int $equipmentId): self
     {
@@ -101,8 +95,7 @@ class TransactionDataException extends GameException
     /**
      * ウォレットが見つからない
      *
-     * @param string $itemId アイテムID
-     * @return self
+     * @param  string  $itemId  アイテムID
      */
     public static function wallet(string $itemId): self
     {
@@ -115,9 +108,8 @@ class TransactionDataException extends GameException
     /**
      * ダイヤモンドデータが見つからない
      *
-     * @param int $playerId プレイヤーID
-     * @param string $platform プラットフォーム
-     * @return self
+     * @param  int  $playerId  プレイヤーID
+     * @param  string  $platform  プラットフォーム
      */
     public static function diamond(int $playerId, string $platform): self
     {
@@ -130,8 +122,7 @@ class TransactionDataException extends GameException
     /**
      * スタミナデータが見つからない
      *
-     * @param int $playerId プレイヤーID
-     * @return self
+     * @param  int  $playerId  プレイヤーID
      */
     public static function stamina(int $playerId): self
     {
@@ -144,9 +135,8 @@ class TransactionDataException extends GameException
     /**
      * 汎用トランザクションデータが見つからない
      *
-     * @param string $type データ種別（例: "unit", "item", "player"）
-     * @param string|int $id データID
-     * @return self
+     * @param  string  $type  データ種別（例: "unit", "item", "player"）
+     * @param  string|int  $id  データID
      */
     public static function generic(string $type, string|int $id): self
     {

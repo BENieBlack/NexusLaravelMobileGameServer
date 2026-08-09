@@ -7,24 +7,22 @@ use NexusGuild\Dto\GuildApplyDto;
 
 /**
  * GuildApplyListResponse
- * 
+ *
  * ギルド加入申請一覧取得APIのレスポンス
  */
 class GuildApplyListResponse extends _BaseResponse
 {
     /**
-     * @param array<array<string, mixed>> $applies
+     * @param  array<array<string, mixed>>  $applies
      */
     public function __construct(
         public readonly array $applies,
-    ) {
-    }
+    ) {}
 
     /**
      * GuildApplyDto配列からレスポンスを生成
      *
-     * @param array<GuildApplyDto> $applyDtos
-     * @return self
+     * @param  array<GuildApplyDto>  $applyDtos
      */
     public static function fromDtoArray(array $applyDtos): self
     {

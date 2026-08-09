@@ -16,15 +16,13 @@ class DiamondRepositoryImpl implements DiamondRepositoryInterface
 {
     public function __construct(
         private readonly TrxDiamondRepository $trxDiamondRepository,
-    ) {
-    }
+    ) {}
 
     /**
      * プレイヤーIDとプラットフォームでダイヤモンドを検索
      *
-     * @param int $sysPlayerId プレイヤーID
-     * @param string $platform プラットフォーム（Apple, Google）
-     * @return DiamondBalanceDto|null
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  string  $platform  プラットフォーム（Apple, Google）
      */
     public function findByPlatform(int $sysPlayerId, string $platform): ?DiamondBalanceDto
     {
@@ -36,21 +34,18 @@ class DiamondRepositoryImpl implements DiamondRepositoryInterface
     /**
      * プレイヤーIDで全プラットフォームのダイヤモンドを取得
      *
-     * @param int $sysPlayerId プレイヤーID
+     * @param  int  $sysPlayerId  プレイヤーID
      * @return array<DiamondBalanceDto>
      */
     public function findAllByPlayerId(int $sysPlayerId): array
     {
         $trxDiamonds = $this->trxDiamondRepository->selectByPlayerId($sysPlayerId);
 
-        return $trxDiamonds->map(fn(TrxDiamond $trxDiamond) => $this->modelToDto($trxDiamond))->all();
+        return $trxDiamonds->map(fn (TrxDiamond $trxDiamond) => $this->modelToDto($trxDiamond))->all();
     }
 
     /**
      * ダイヤモンド残高を保存（新規作成 or 更新）
-     *
-     * @param DiamondBalanceDto $diamondDto
-     * @return void
      */
     public function saveDiamond(DiamondBalanceDto $diamondDto): void
     {
@@ -80,9 +75,6 @@ class DiamondRepositoryImpl implements DiamondRepositoryInterface
 
     /**
      * TrxDiamondモデルをDiamondBalanceDtoに変換
-     *
-     * @param TrxDiamond $trxDiamond
-     * @return DiamondBalanceDto
      */
     private function modelToDto(TrxDiamond $trxDiamond): DiamondBalanceDto
     {

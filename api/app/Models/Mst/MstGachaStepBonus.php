@@ -4,7 +4,7 @@ namespace App\Models\Mst;
 
 /**
  * MstGachaStepBonus Model
- * 
+ *
  * @property int $deploy_key
  * @property string $id
  * @property string $mst_gacha_step_id
@@ -21,6 +21,7 @@ class MstGachaStepBonus extends _BaseMst
     public $table = 'mst_gacha_step_bonus';
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $fillable = [
@@ -51,8 +52,6 @@ class MstGachaStepBonus extends _BaseMst
 
     /**
      * ボーナス数量を取得
-     *
-     * @return int
      */
     public function getBonusCount(): int
     {
@@ -71,8 +70,6 @@ class MstGachaStepBonus extends _BaseMst
 
     /**
      * ボーナスレアリティを取得
-     *
-     * @return int|null
      */
     public function getBonusRarity(): ?int
     {
@@ -81,8 +78,6 @@ class MstGachaStepBonus extends _BaseMst
 
     /**
      * ボーナスコンテンツタイプを取得
-     *
-     * @return string|null
      */
     public function getBonusContentType(): ?string
     {
@@ -91,8 +86,6 @@ class MstGachaStepBonus extends _BaseMst
 
     /**
      * ピックアップ限定かを取得
-     *
-     * @return bool
      */
     public function isPickupOnly(): bool
     {
@@ -101,8 +94,6 @@ class MstGachaStepBonus extends _BaseMst
 
     /**
      * 有効フラグを取得
-     *
-     * @return bool
      */
     public function isActive(): bool
     {

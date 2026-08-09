@@ -2,20 +2,20 @@
 
 namespace App\Domain\Login\Services;
 
-use NexusLogin\Services\_BaseLoginBonusService;
-use NexusResourceDelivery\Services\ResourceDeliveryService;
 use App\Repositories\Mst\VipLoginBonusRepositoryInterface;
-use App\Repositories\Trx\VipLoginBonusHistoryRepositoryInterface;
 use App\Repositories\Sys\SysPlayerRepository;
-use NexusUtilities\ClockUtility;
+use App\Repositories\Trx\VipLoginBonusHistoryRepositoryInterface;
+use NexusLogin\Services\_BaseLoginBonusService;
 use NexusPersistence\Support\CustomCollection;
+use NexusResourceDelivery\Services\ResourceDeliveryService;
+use NexusUtilities\ClockUtility;
 
 /**
  * VipLoginBonusService (Domain層)
  *
  * VIPログインボーナスの配布処理を担当するサービス
  * _BaseLoginBonusServiceを継承（通常ログインボーナスと同じ動作）
- * 
+ *
  * 特性:
  * - 毎日日跨ぎ後にもらえる
  * - VIPレベルに応じて報酬が異なる
@@ -35,7 +35,7 @@ class VipLoginBonusService extends _BaseLoginBonusService
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * 今日初回ログインかチェック
      */
     public function isEligible(int $sysPlayerId, ?string $lastLoginAt): bool
@@ -97,7 +97,7 @@ class VipLoginBonusService extends _BaseLoginBonusService
         );
 
         // stdClassに変換して返す
-        return $contents->map(fn($content) => (object) $content);
+        return $contents->map(fn ($content) => (object) $content);
     }
 
     /**
@@ -130,6 +130,7 @@ class VipLoginBonusService extends _BaseLoginBonusService
     protected function getLastReceivedDay(int $sysPlayerId, string $connectionName): ?int
     {
         $lastHistory = $this->vipHistoryRepository->findLatestByPlayerId($sysPlayerId, $connectionName);
+
         return $lastHistory['day'] ?? null;
     }
 
@@ -145,6 +146,7 @@ class VipLoginBonusService extends _BaseLoginBonusService
         }
 
         $vipBonus = $this->vipBonusRepository->findActiveByVipLevel($player->vip_level);
+
         return $vipBonus['loop_days'] ?? null;
     }
 }

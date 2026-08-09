@@ -12,24 +12,25 @@ use NexusUnitOfWork\Traits\UsesUnitOfWork;
  * Trxデータベース用のRepository基底クラス
  * ユニークキーで管理し、同じキーのモデルは上書き（最終状態を保持）
  * プレイヤーIDはApiSessionから自動的に取得される
- * 
+ *
  * @template T of \App\Models\Trx\_BaseTrxInterface
+ *
  * @implements _BaseTrxRepositoryInterface<T>
  */
 abstract class _BaseTrxRepository extends PersistenceBaseTrxRepository implements _BaseTrxRepositoryInterface
 {
     use UsesUnitOfWork;
-    
+
     protected static function hasSysPlayerId(): bool
     {
         return ApiSession::hasSysPlayerId();
     }
-    
+
     protected static function getSysPlayerId(): int
     {
         return ApiSession::getSysPlayerId();
     }
-    
+
     protected static function setSysPlayerId(int $sysPlayerId): void
     {
         ApiSession::setSysPlayerId($sysPlayerId);

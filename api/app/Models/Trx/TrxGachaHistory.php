@@ -4,9 +4,9 @@ namespace App\Models\Trx;
 
 /**
  * TrxGachaHistory Model
- * 
+ *
  * ガチャ実行履歴モデル
- * 
+ *
  * @property int $id
  * @property int $sys_player_id
  * @property string $mst_gacha_id
@@ -22,6 +22,7 @@ class TrxGachaHistory extends _BaseTrx
     protected $table = 'trx_gacha_history';
 
     public $incrementing = true;
+
     protected $keyType = 'int';
 
     protected string $selectKey = 'sys_player_id';

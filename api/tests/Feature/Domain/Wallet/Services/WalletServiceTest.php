@@ -3,21 +3,18 @@
 namespace Tests\Feature\Domain\Wallet\Services;
 
 use App\Domain\Wallet\Services\WalletService;
-use App\Models\Trx\TrxWallet;
-use App\Models\Trx\TrxWalletBalance;
 use App\Persistence\ApiSession;
-use NexusUnitOfWork\Persistence\QueryManager;
-use App\Repositories\Trx\TrxWalletBalanceRepository;
-use App\Repositories\Trx\TrxWalletRepository;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
+use LaravelWallet\Exceptions\InsufficientBalanceException;
+use NexusUnitOfWork\Persistence\QueryManager;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
 
 /**
  * WalletServiceのテスト
- * 
+ *
  * 無償/有償通貨の管理、FIFO消費、有効期限管理をテスト
  */
 class WalletServiceTest extends TestCase
@@ -25,7 +22,9 @@ class WalletServiceTest extends TestCase
     use RefreshMultipleDatabases;
 
     private int $sysPlayerId = 1;
+
     private WalletService $walletService;
+
     private QueryManager $queryManager;
 
     /**
@@ -42,7 +41,7 @@ class WalletServiceTest extends TestCase
         parent::setUp();
         ApiSession::clearForTest();
         ApiSession::setSysPlayerId($this->sysPlayerId);
-        
+
         $this->walletService = app(WalletService::class);
         $this->queryManager = app(QueryManager::class);
     }
@@ -52,7 +51,7 @@ class WalletServiceTest extends TestCase
         // Clear all test data
         DB::connection('trx1')->table('trx_wallet')->truncate();
         DB::connection('trx1')->table('trx_wallet_balance')->truncate();
-        
+
         ApiSession::clearForTest();
         $this->queryManager->clear();
         parent::tearDown();
@@ -182,9 +181,9 @@ class WalletServiceTest extends TestCase
             ->get();
 
         $this->assertCount(2, $balances);
-        $this->assertTrue((bool)$balances[0]->is_paid);
+        $this->assertTrue((bool) $balances[0]->is_paid);
         $this->assertSame(500, $balances[0]->current_amount);
-        $this->assertFalse((bool)$balances[1]->is_paid);
+        $this->assertFalse((bool) $balances[1]->is_paid);
         $this->assertSame(1000, $balances[1]->current_amount);
     }
 
@@ -325,7 +324,7 @@ class WalletServiceTest extends TestCase
         ApiSession::setSysPlayerId($this->sysPlayerId);
 
         // Execute & Verify
-        $this->expectException(\LaravelWallet\Exceptions\InsufficientBalanceException::class);
+        $this->expectException(InsufficientBalanceException::class);
 
         $this->walletService->consumeCurrency(
             $this->sysPlayerId,
@@ -337,7 +336,7 @@ class WalletServiceTest extends TestCase
     #[Test]
     public function 存在しない通貨を消費すると例外が発生する(): void
     {
-        $this->expectException(\LaravelWallet\Exceptions\InsufficientBalanceException::class);
+        $this->expectException(InsufficientBalanceException::class);
 
         $this->walletService->consumeCurrency(
             $this->sysPlayerId,
@@ -347,7 +346,7 @@ class WalletServiceTest extends TestCase
     }
 
     #[Test]
-    public function getBalanceで残高を取得できる(): void
+    public function get_balanceで残高を取得できる(): void
     {
         // Prepare
         $this->walletService->addCurrency(
@@ -371,7 +370,7 @@ class WalletServiceTest extends TestCase
     }
 
     #[Test]
-    public function 存在しない通貨のgetBalanceは0を返す(): void
+    public function 存在しない通貨のget_balanceは0を返す(): void
     {
         $balance = $this->walletService->getBalance($this->sysPlayerId, 'nonexistent');
         $this->assertSame(0, $balance->getFreeAmount());
@@ -482,7 +481,7 @@ class WalletServiceTest extends TestCase
     }
 
     #[Test]
-    public function FIFO順で有効期限が近いものから消費される(): void
+    public function fif_o順で有効期限が近いものから消費される(): void
     {
         // Prepare: Add 2 paid currency with different expiration dates
         $nearExpire = CarbonImmutable::now()->addDays(1);
@@ -742,20 +741,19 @@ class WalletServiceTest extends TestCase
             ->get();
 
         // Paid #1: consumed completely
-        $this->assertTrue((bool)$balances[0]->is_paid);
+        $this->assertTrue((bool) $balances[0]->is_paid);
         $this->assertSame(0, $balances[0]->current_amount);
 
         // Paid #2: consumed completely
-        $this->assertTrue((bool)$balances[1]->is_paid);
+        $this->assertTrue((bool) $balances[1]->is_paid);
         $this->assertSame(0, $balances[1]->current_amount);
 
         // Free #1: consumed 100
-        $this->assertFalse((bool)$balances[2]->is_paid);
+        $this->assertFalse((bool) $balances[2]->is_paid);
         $this->assertSame(300, $balances[2]->current_amount);  // 400 - 100
 
         // Free #2: not consumed
-        $this->assertFalse((bool)$balances[3]->is_paid);
+        $this->assertFalse((bool) $balances[3]->is_paid);
         $this->assertSame(200, $balances[3]->current_amount);
     }
 }
-

@@ -13,7 +13,7 @@ use NexusBilling\Validators\_BasePurchaseLimitValidator;
 
 /**
  * InAppPurchaseValidationService
- * 
+ *
  * アプリ内課金商品の購入制限・価格をチェックするサービス
  * 購入制限の判定ロジックは_BasePurchaseLimitValidatorに委譲し、
  * このクラスはゲーム固有のビジネスルールと例外処理を担当
@@ -22,8 +22,6 @@ class InAppPurchaseValidationService
 {
     /**
      * 購入制限チェッカー
-     * 
-     * @var _BasePurchaseLimitValidator
      */
     private _BasePurchaseLimitValidator $limitValidator;
 
@@ -32,16 +30,17 @@ class InAppPurchaseValidationService
      */
     public function __construct()
     {
-        $this->limitValidator = new _BasePurchaseLimitValidator();
+        $this->limitValidator = new _BasePurchaseLimitValidator;
     }
+
     /**
      * 購入制限をチェック
-     * 
-     * @param MstInAppPurchase $mstInAppPurchase 商品マスター
-     * @param TrxInAppPurchase|null $purchaseHistory 購入履歴（初回購入時はnull）
-     * @param string $billingPlatform 決済プラットフォーム
+     *
+     * @param  MstInAppPurchase  $mstInAppPurchase  商品マスター
+     * @param  TrxInAppPurchase|null  $purchaseHistory  購入履歴（初回購入時はnull）
+     * @param  string  $billingPlatform  決済プラットフォーム
+     *
      * @throws GameException 購入制限に引っかかった場合
-     * @return void
      */
     public function validatePurchaseLimit(
         MstInAppPurchase $mstInAppPurchase,
@@ -84,9 +83,9 @@ class InAppPurchaseValidationService
 
     /**
      * リセットが必要な場合の新しいリセット日時を取得
-     * 
-     * @param string $resetType リセット種別（None, Daily, Weekly, Monthly）
-     * @param \DateTimeInterface|null $lastResetAt 最終リセット日時
+     *
+     * @param  string  $resetType  リセット種別（None, Daily, Weekly, Monthly）
+     * @param  \DateTimeInterface|null  $lastResetAt  最終リセット日時
      * @return \DateTimeInterface|null 新しいリセット日時（リセット不要ならnull）
      */
     public function getNewResetDateIfNeeded(
@@ -98,14 +97,14 @@ class InAppPurchaseValidationService
 
     /**
      * 購入価格を検証
-     * 
+     *
      * レシート検証結果の価格とマスターデータの期待価格を照合する
-     * 
-     * @param VerificationDto $verificationDto レシート検証結果
-     * @param MstInAppPurchase $mstInAppPurchase 商品マスター
-     * @param string $billingPlatform 決済プラットフォーム（AppStore, GooglePlay等）
+     *
+     * @param  VerificationDto  $verificationDto  レシート検証結果
+     * @param  MstInAppPurchase  $mstInAppPurchase  商品マスター
+     * @param  string  $billingPlatform  決済プラットフォーム（AppStore, GooglePlay等）
+     *
      * @throws GameException 価格が不一致の場合
-     * @return void
      */
     public function validatePurchasePrice(
         VerificationDto $verificationDto,
@@ -118,12 +117,13 @@ class InAppPurchaseValidationService
                 'billing_platform' => $billingPlatform,
                 'product_id' => $verificationDto->getProductId(),
             ]);
+
             return;
         }
 
         // プラットフォーム商品を取得
         $platformProduct = $this->getPlatformProduct($mstInAppPurchase, $billingPlatform);
-        
+
         // マスターデータに価格が設定されていない場合は警告のみ
         if ($platformProduct === null || $platformProduct->price_amount_micros === null) {
             Log::warning('Price validation skipped: No expected price in master data', [
@@ -132,6 +132,7 @@ class InAppPurchaseValidationService
                 'actual_price_micros' => $verificationDto->getPriceAmountMicros(),
                 'actual_currency' => $verificationDto->getPriceCurrencyCode(),
             ]);
+
             return;
         }
 
@@ -153,7 +154,7 @@ class InAppPurchaseValidationService
         }
 
         // 通貨コード照合
-        if ($platformProduct->price_currency_code !== null 
+        if ($platformProduct->price_currency_code !== null
             && $verificationResult->getPriceCurrencyCode() !== $platformProduct->price_currency_code) {
             Log::error('Currency mismatch detected', [
                 'billing_platform' => $billingPlatform,
@@ -178,10 +179,9 @@ class InAppPurchaseValidationService
 
     /**
      * プラットフォーム商品を取得
-     * 
-     * @param MstInAppPurchase $mstInAppPurchase 商品マスター
-     * @param string $billingPlatform 決済プラットフォーム
-     * @return MstBillingPlatformProduct|null
+     *
+     * @param  MstInAppPurchase  $mstInAppPurchase  商品マスター
+     * @param  string  $billingPlatform  決済プラットフォーム
      */
     private function getPlatformProduct(
         MstInAppPurchase $mstInAppPurchase,

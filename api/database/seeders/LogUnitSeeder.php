@@ -30,21 +30,22 @@ class LogUnitSeeder extends Seeder
 
         if ($accessLogs->isEmpty()) {
             $this->command->warn('⚠️  LogUnitSeeder: No matching access logs found. Run LogAccessSeeder first.');
+
             return;
         }
 
         // trx_unitからユニットデータを取得（シャーディング対応）
         $connections = ['trx1', 'trx2'];
         $units = [];
-        
+
         foreach ($connections as $connection) {
             $shardUnits = DB::connection($connection)
                 ->table('trx_unit')
                 ->select('id', 'sys_player_id', 'mst_unit_id')
                 ->get();
-            
+
             foreach ($shardUnits as $unit) {
-                if (!isset($units[$unit->sys_player_id])) {
+                if (! isset($units[$unit->sys_player_id])) {
                     $units[$unit->sys_player_id] = [];
                 }
                 $units[$unit->sys_player_id][] = [
@@ -56,21 +57,22 @@ class LogUnitSeeder extends Seeder
 
         if (empty($units)) {
             $this->command->warn('⚠️  LogUnitSeeder: No units found. Run TrxUnitSeeder first.');
+
             return;
         }
 
         $logCount = 0;
-        
+
         // log_accessのunique_request_idを使用してログを作成
         foreach ($accessLogs as $accessLog) {
             // プレイヤーのユニットリストを取得
-            if (!isset($units[$accessLog->sys_player_id]) || empty($units[$accessLog->sys_player_id])) {
+            if (! isset($units[$accessLog->sys_player_id]) || empty($units[$accessLog->sys_player_id])) {
                 continue;
             }
-            
+
             $playerUnits = $units[$accessLog->sys_player_id];
             $unit = $playerUnits[array_rand($playerUnits)];
-            
+
             $beforeGrade = rand(1, 10);
             $afterGrade = $beforeGrade + rand(0, 2);
             $beforeLevel = rand(1, 99);

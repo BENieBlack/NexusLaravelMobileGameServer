@@ -4,15 +4,16 @@ namespace App\Repositories\Sys;
 
 use App\Adapters\Guild\GuildApplyAdapter;
 use App\Models\Sys\SysGuildApply;
+use Illuminate\Database\Eloquent\Collection;
 use NexusGuild\Constants\GuildApplyStatus;
 use NexusGuild\Dto\GuildApplyDto;
 use NexusGuild\Repositories\GuildApplyRepositoryInterface;
 
 /**
  * SysGuildApplyRepository
- * 
+ *
  * ギルド加入申請のRepository実装
- * 
+ *
  * @extends _BaseSysRepository<SysGuildApply>
  */
 class SysGuildApplyRepository extends _BaseSysRepository implements GuildApplyRepositoryInterface
@@ -22,69 +23,71 @@ class SysGuildApplyRepository extends _BaseSysRepository implements GuildApplyRe
     /**
      * IDでギルド加入申請を検索（Interface実装）
      *
-     * @param int $applyId 申請ID
-     * @return GuildApplyDto|null
+     * @param  int  $applyId  申請ID
      */
     public function findById(int $applyId): ?GuildApplyDto
     {
         $model = $this->selectById($applyId);
+
         return $model ? GuildApplyAdapter::toDto($model) : null;
     }
 
     /**
      * ギルドIDとプレイヤーIDで既存の申請を検索（Interface実装）
      *
-     * @param int $guildId ギルドID
-     * @param int $playerId プレイヤーID
-     * @return GuildApplyDto|null
+     * @param  int  $guildId  ギルドID
+     * @param  int  $playerId  プレイヤーID
      */
     public function findByGuildAndPlayer(int $guildId, int $playerId): ?GuildApplyDto
     {
         $model = $this->selectByGuildAndPlayer($guildId, $playerId);
+
         return $model ? GuildApplyAdapter::toDto($model) : null;
     }
 
     /**
      * ギルドIDに関連する申請一覧を取得（Interface実装）
      *
-     * @param int $guildId ギルドID
+     * @param  int  $guildId  ギルドID
      * @return array<GuildApplyDto>
      */
     public function findAppliesByGuildId(int $guildId): array
     {
         $models = $this->selectAppliesByGuildId($guildId);
+
         return GuildApplyAdapter::toDtoArray($models);
     }
 
     /**
      * プレイヤーIDに関連する申請一覧を取得（Interface実装）
      *
-     * @param int $playerId プレイヤーID
+     * @param  int  $playerId  プレイヤーID
      * @return array<GuildApplyDto>
      */
     public function findAppliesByPlayerId(int $playerId): array
     {
         $models = $this->selectAppliesByPlayerId($playerId);
+
         return GuildApplyAdapter::toDtoArray($models);
     }
 
     /**
      * ギルド加入申請を作成（Interface実装）
      *
-     * @param int $guildId ギルドID
-     * @param int $playerId プレイヤーID
-     * @return GuildApplyDto
+     * @param  int  $guildId  ギルドID
+     * @param  int  $playerId  プレイヤーID
      */
     public function create(int $guildId, int $playerId): GuildApplyDto
     {
         $model = $this->createApply($guildId, $playerId);
+
         return GuildApplyAdapter::toDto($model);
     }
 
     /**
      * ギルド加入申請を承認（Interface実装）
      *
-     * @param GuildApplyDto $guildApplyDto 承認する申請
+     * @param  GuildApplyDto  $guildApplyDto  承認する申請
      * @return GuildApplyDto 承認後のDTO
      */
     public function accept(GuildApplyDto $guildApplyDto): GuildApplyDto
@@ -103,7 +106,7 @@ class SysGuildApplyRepository extends _BaseSysRepository implements GuildApplyRe
     /**
      * ギルド加入申請を却下（Interface実装）
      *
-     * @param GuildApplyDto $guildApplyDto 却下する申請
+     * @param  GuildApplyDto  $guildApplyDto  却下する申請
      * @return GuildApplyDto 却下後のDTO
      */
     public function reject(GuildApplyDto $guildApplyDto): GuildApplyDto
@@ -121,9 +124,6 @@ class SysGuildApplyRepository extends _BaseSysRepository implements GuildApplyRe
 
     /**
      * Modelを削除
-     *
-     * @param mixed $model
-     * @return void
      */
     public function deleteModel(mixed $model): void
     {
@@ -133,8 +133,7 @@ class SysGuildApplyRepository extends _BaseSysRepository implements GuildApplyRe
     /**
      * プレイヤーIDで申請を削除（Interface実装）
      *
-     * @param int $playerId プレイヤーID
-     * @return void
+     * @param  int  $playerId  プレイヤーID
      */
     public function deleteByPlayerId(int $playerId): void
     {
@@ -148,8 +147,7 @@ class SysGuildApplyRepository extends _BaseSysRepository implements GuildApplyRe
     /**
      * IDで申請を検索（Model返却）
      *
-     * @param int $applyId 申請ID
-     * @return SysGuildApply|null
+     * @param  int  $applyId  申請ID
      */
     public function selectById(int $applyId): ?SysGuildApply
     {
@@ -159,9 +157,8 @@ class SysGuildApplyRepository extends _BaseSysRepository implements GuildApplyRe
     /**
      * ギルドIDとプレイヤーIDで既存の申請を検索（Model返却）
      *
-     * @param int $guildId ギルドID
-     * @param int $playerId プレイヤーID
-     * @return SysGuildApply|null
+     * @param  int  $guildId  ギルドID
+     * @param  int  $playerId  プレイヤーID
      */
     public function selectByGuildAndPlayer(int $guildId, int $playerId): ?SysGuildApply
     {
@@ -174,10 +171,10 @@ class SysGuildApplyRepository extends _BaseSysRepository implements GuildApplyRe
     /**
      * ギルドIDに関連する申請一覧を取得（Model返却）
      *
-     * @param int $guildId ギルドID
-     * @return \Illuminate\Database\Eloquent\Collection<SysGuildApply>
+     * @param  int  $guildId  ギルドID
+     * @return Collection<SysGuildApply>
      */
-    public function selectAppliesByGuildId(int $guildId): \Illuminate\Database\Eloquent\Collection
+    public function selectAppliesByGuildId(int $guildId): Collection
     {
         return SysGuildApply::where('sys_guild_id', $guildId)
             ->where('status', GuildApplyStatus::APPLIED)
@@ -187,10 +184,10 @@ class SysGuildApplyRepository extends _BaseSysRepository implements GuildApplyRe
     /**
      * プレイヤーIDに関連する申請一覧を取得（Model返却）
      *
-     * @param int $playerId プレイヤーID
-     * @return \Illuminate\Database\Eloquent\Collection<SysGuildApply>
+     * @param  int  $playerId  プレイヤーID
+     * @return Collection<SysGuildApply>
      */
-    public function selectAppliesByPlayerId(int $playerId): \Illuminate\Database\Eloquent\Collection
+    public function selectAppliesByPlayerId(int $playerId): Collection
     {
         return SysGuildApply::where('sys_player_id', $playerId)
             ->where('status', GuildApplyStatus::APPLIED)
@@ -200,13 +197,12 @@ class SysGuildApplyRepository extends _BaseSysRepository implements GuildApplyRe
     /**
      * 申請を作成（Model返却）
      *
-     * @param int $guildId ギルドID
-     * @param int $playerId プレイヤーID
-     * @return SysGuildApply
+     * @param  int  $guildId  ギルドID
+     * @param  int  $playerId  プレイヤーID
      */
     public function createApply(int $guildId, int $playerId): SysGuildApply
     {
-        $apply = new SysGuildApply();
+        $apply = new SysGuildApply;
         $apply->setSysGuildId($guildId);
         $apply->setSysPlayerId($playerId);
         $apply->setStatus(GuildApplyStatus::APPLIED);

@@ -3,16 +3,14 @@
 namespace Tests\Feature\Guild;
 
 use App\Models\Sys\SysGuild;
-use App\Models\Sys\SysGuildApply;
 use App\Models\Sys\SysGuildMember;
 use App\Models\Sys\SysPlayer;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
 
 /**
  * GuildBasicFlowTest
- * 
+ *
  * ギルド機能の基本フローテスト
  */
 class GuildBasicFlowTest extends TestCase
@@ -26,8 +24,8 @@ class GuildBasicFlowTest extends TestCase
     {
         // テストプレイヤーを作成
         $player = SysPlayer::create([
-            'uuid' => 'test-uuid-' . uniqid(),
-            'my_id' => 'TEST' . rand(1000, 9999),
+            'uuid' => 'test-uuid-'.uniqid(),
+            'my_id' => 'TEST'.rand(1000, 9999),
             'name' => 'Test Player',
             'level' => 1,
             'level_exp' => 0,
@@ -80,22 +78,22 @@ class GuildBasicFlowTest extends TestCase
     {
         // テストギルドを3つ作成
         $player1 = SysPlayer::create([
-            'uuid' => 'test-uuid-1-' . uniqid(),
-            'my_id' => 'TST1' . rand(1000, 9999),
+            'uuid' => 'test-uuid-1-'.uniqid(),
+            'my_id' => 'TST1'.rand(1000, 9999),
             'name' => 'Player 1',
             'level' => 1,
             'level_exp' => 0,
         ]);
         $player2 = SysPlayer::create([
-            'uuid' => 'test-uuid-2-' . uniqid(),
-            'my_id' => 'TST2' . rand(1000, 9999),
+            'uuid' => 'test-uuid-2-'.uniqid(),
+            'my_id' => 'TST2'.rand(1000, 9999),
             'name' => 'Player 2',
             'level' => 1,
             'level_exp' => 0,
         ]);
         $player3 = SysPlayer::create([
-            'uuid' => 'test-uuid-3-' . uniqid(),
-            'my_id' => 'TST3' . rand(1000, 9999),
+            'uuid' => 'test-uuid-3-'.uniqid(),
+            'my_id' => 'TST3'.rand(1000, 9999),
             'name' => 'Player 3',
             'level' => 1,
             'level_exp' => 0,
@@ -175,8 +173,8 @@ class GuildBasicFlowTest extends TestCase
     {
         // テストギルドを作成
         $player = SysPlayer::create([
-            'uuid' => 'test-uuid-detail-' . uniqid(),
-            'my_id' => 'TSTD' . rand(1000, 9999),
+            'uuid' => 'test-uuid-detail-'.uniqid(),
+            'my_id' => 'TSTD'.rand(1000, 9999),
             'name' => 'Detail Player',
             'level' => 1,
             'level_exp' => 0,
@@ -196,7 +194,7 @@ class GuildBasicFlowTest extends TestCase
         ]);
 
         // ギルド詳細を取得
-        $response = $this->getJson('/api/guild/detail?guild_id=' . $guild->id);
+        $response = $this->getJson('/api/guild/detail?guild_id='.$guild->id);
 
         $response->assertOk();
         $response->assertJsonStructure([
@@ -227,22 +225,22 @@ class GuildBasicFlowTest extends TestCase
     {
         // テストギルドを作成
         $master = SysPlayer::create([
-            'uuid' => 'test-uuid-master-' . uniqid(),
-            'my_id' => 'MSTR' . rand(1000, 9999),
+            'uuid' => 'test-uuid-master-'.uniqid(),
+            'my_id' => 'MSTR'.rand(1000, 9999),
             'name' => 'Master Player',
             'level' => 1,
             'level_exp' => 0,
         ]);
         $subMaster = SysPlayer::create([
-            'uuid' => 'test-uuid-sub-' . uniqid(),
-            'my_id' => 'SUBS' . rand(1000, 9999),
+            'uuid' => 'test-uuid-sub-'.uniqid(),
+            'my_id' => 'SUBS'.rand(1000, 9999),
             'name' => 'Sub Master Player',
             'level' => 1,
             'level_exp' => 0,
         ]);
         $member = SysPlayer::create([
-            'uuid' => 'test-uuid-member-' . uniqid(),
-            'my_id' => 'MEMB' . rand(1000, 9999),
+            'uuid' => 'test-uuid-member-'.uniqid(),
+            'my_id' => 'MEMB'.rand(1000, 9999),
             'name' => 'Member Player',
             'level' => 1,
             'level_exp' => 0,
@@ -278,7 +276,7 @@ class GuildBasicFlowTest extends TestCase
         ]);
 
         // メンバー一覧を取得
-        $response = $this->getJson('/api/guild/member/list?guild_id=' . $guild->id);
+        $response = $this->getJson('/api/guild/member/list?guild_id='.$guild->id);
 
         $response->assertOk();
         $response->assertJsonStructure([
@@ -297,7 +295,7 @@ class GuildBasicFlowTest extends TestCase
 
         $members = $response->json('data.members');
         $this->assertCount(3, $members);
-        
+
         // 役職を確認
         $roles = array_column($members, 'role');
         $this->assertContains('master', $roles);

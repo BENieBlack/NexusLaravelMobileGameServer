@@ -3,22 +3,23 @@
 namespace App\Models\Trx;
 
 use App\Models\Sys\SysPlayer;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * TrxStamina Model
- * 
+ *
  * プレイヤーのスタミナ管理（タイプ別）
- * 
+ *
  * PRIMARY KEY: (sys_player_id, type)
- * 
+ *
  * @property int $sys_player_id
  * @property string $type スタミナタイプ（normal, raid, pvp, event等）
  * @property int $current_stamina 現在のスタミナ
  * @property float $recovery_rate_multiplier 回復速度倍率（VIP特典等）
- * @property \Carbon\CarbonImmutable $last_recovery_at 最後の回復計算時刻
- * @property \Carbon\CarbonImmutable $created_at
- * @property \Carbon\CarbonImmutable $updated_at
+ * @property CarbonImmutable $last_recovery_at 最後の回復計算時刻
+ * @property CarbonImmutable $created_at
+ * @property CarbonImmutable $updated_at
  */
 class TrxStamina extends _BaseTrx
 {
@@ -41,14 +42,12 @@ class TrxStamina extends _BaseTrx
 
     /**
      * SELECTキー（sys_player_idで検索）
-     * 
-     * @var string
      */
     protected string $selectKey = 'sys_player_id';
 
     /**
      * ユニークキー（sys_player_id + typeで一意）
-     * 
+     *
      * @var array<array<string>>
      */
     protected array $uniqueKeys = [['sys_player_id', 'type']];
@@ -74,8 +73,6 @@ class TrxStamina extends _BaseTrx
 
     /**
      * sys_playerとのリレーション
-     *
-     * @return BelongsTo
      */
     public function sysPlayer(): BelongsTo
     {
@@ -84,8 +81,6 @@ class TrxStamina extends _BaseTrx
 
     /**
      * スタミナタイプを取得
-     *
-     * @return string
      */
     public function getType(): string
     {
@@ -94,8 +89,6 @@ class TrxStamina extends _BaseTrx
 
     /**
      * 現在スタミナを取得
-     *
-     * @return int
      */
     public function getCurrentStamina(): int
     {
@@ -104,19 +97,16 @@ class TrxStamina extends _BaseTrx
 
     /**
      * 回復速度倍率を取得
-     *
-     * @return float
      */
     public function getRecoveryRateMultiplier(): float
     {
-        return (float)$this->getAttribute('recovery_rate_multiplier');
+        return (float) $this->getAttribute('recovery_rate_multiplier');
     }
 
     /**
      * 通常スタミナ枠が上限に達しているか
-     * 
-     * @param int $maxStamina プレイヤーの最大スタミナ（レベル依存）
-     * @return bool
+     *
+     * @param  int  $maxStamina  プレイヤーの最大スタミナ（レベル依存）
      */
     public function isCurrentStaminaFull(int $maxStamina): bool
     {
@@ -125,9 +115,8 @@ class TrxStamina extends _BaseTrx
 
     /**
      * スタミナが足りているか
-     * 
-     * @param int $required 必要なスタミナ量
-     * @return bool
+     *
+     * @param  int  $required  必要なスタミナ量
      */
     public function hasEnoughStamina(int $required): bool
     {
@@ -136,9 +125,6 @@ class TrxStamina extends _BaseTrx
 
     /**
      * スタミナタイプを設定
-     *
-     * @param string $type
-     * @return void
      */
     public function setType(string $type): void
     {
@@ -147,9 +133,6 @@ class TrxStamina extends _BaseTrx
 
     /**
      * システムプレイヤーIDを設定
-     *
-     * @param int $sysPlayerId
-     * @return void
      */
     public function setSysPlayerId(int $sysPlayerId): void
     {
@@ -158,9 +141,6 @@ class TrxStamina extends _BaseTrx
 
     /**
      * 現在スタミナを設定
-     *
-     * @param int $currentStamina
-     * @return void
      */
     public function setCurrentStamina(int $currentStamina): void
     {
@@ -169,9 +149,6 @@ class TrxStamina extends _BaseTrx
 
     /**
      * 回復速度倍率を設定
-     *
-     * @param float $recoveryRateMultiplier
-     * @return void
      */
     public function setRecoveryRateMultiplier(float $recoveryRateMultiplier): void
     {
@@ -181,8 +158,7 @@ class TrxStamina extends _BaseTrx
     /**
      * 最後の回復計算時刻を設定
      *
-     * @param string $lastRecoveryAt Y-m-d H:i:s形式
-     * @return void
+     * @param  string  $lastRecoveryAt  Y-m-d H:i:s形式
      */
     public function setLastRecoveryAt(string $lastRecoveryAt): void
     {
@@ -191,8 +167,6 @@ class TrxStamina extends _BaseTrx
 
     /**
      * レスポンス用配列に変換
-     * 
-     * @return array
      */
     public function toResponseArray(): array
     {

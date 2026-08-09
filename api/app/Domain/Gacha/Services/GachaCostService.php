@@ -17,15 +17,11 @@ class GachaCostService
     public function __construct(
         private readonly DiamondService $diamondService,
         private readonly ItemService $itemService,
-    ) {
-    }
+    ) {}
 
     /**
      * ガチャコストを消費
      *
-     * @param int $sysPlayerId
-     * @param MstGachaCost $cost
-     * @return void
      * @throws BusinessLogicException
      */
     public function consumeCost(int $sysPlayerId, MstGachaCost $cost): void
@@ -44,8 +40,8 @@ class GachaCostService
 
             case 'item':
                 $costId = $cost->getAttribute('cost_id');
-                if (!$costId) {
-                    throw new \Exception("cost_id is required for item cost type");
+                if (! $costId) {
+                    throw new \Exception('cost_id is required for item cost type');
                 }
                 $this->itemService->consumeItem($sysPlayerId, $costId, $costAmount);
                 break;

@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Adm\AdmAccount;
+
 return [
 
     /*
@@ -62,7 +64,7 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', App\Models\Adm\AdmAccount::class),
+            'model' => env('AUTH_MODEL', AdmAccount::class),
         ],
 
         // 'users' => [

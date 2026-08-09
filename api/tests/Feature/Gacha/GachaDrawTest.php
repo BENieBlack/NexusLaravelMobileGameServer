@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Gacha;
 
-use NexusAuth\Services\TokenService;
 use App\Models\Mst\MstGacha;
 use App\Models\Mst\MstGachaCost;
 use App\Models\Mst\MstGachaPrize;
@@ -12,18 +11,19 @@ use App\Models\Mst\MstItem;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;
+use App\Models\Trx\TrxDiamond;
+use App\Models\Trx\TrxEquipment;
 use App\Models\Trx\TrxItem;
 use App\Models\Trx\TrxUnit;
-use App\Models\Trx\TrxEquipment;
-use App\Models\Trx\TrxDiamond;
 use App\Persistence\ApiSession;
+use NexusAuth\Services\TokenService;
 use NexusUtilities\ClockUtility;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
 
 /**
  * GachaDrawTest
- * 
+ *
  * ガチャ実行API (/api/gacha/draw) の統合テスト
  * 全てのコンテンツタイプ (item, unit, equipment) の排出をテスト
  */
@@ -32,21 +32,23 @@ class GachaDrawTest extends TestCase
     use RefreshMultipleDatabases;
 
     private int $testPlayerId;
+
     private string $testAccessToken;
+
     private string $testGachaId = 'test_gacha_all_contents';
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         ClockUtility::initialize();
-        
+
         // テストプレイヤーとトークンを作成
         $this->createTestPlayer();
-        
+
         // ガチャマスターデータを作成
         $this->createGachaMasterData();
-        
+
         // Mstリポジトリのキャッシュをクリアして、新しく作成したデータを読み込ませる
         $this->refreshMstCache();
     }
@@ -75,7 +77,7 @@ class GachaDrawTest extends TestCase
         $tokenService = app(TokenService::class);
         $accessToken = $tokenService->generateAccessToken($player, $device);
         $this->testAccessToken = $accessToken;
-        
+
         // リフレッシュトークンも保存
         SysPlayerToken::create([
             'sys_player_id' => $player->id,
@@ -83,10 +85,10 @@ class GachaDrawTest extends TestCase
             'refresh_token_hash' => hash('sha256', 'test-refresh-token-gacha'),
             'expires_at' => ClockUtility::now()->addDays(30),
         ]);
-        
+
         // ApiSessionにプレイヤーIDを設定
         ApiSession::setSysPlayerId($this->testPlayerId);
-        
+
         // 初期ダイヤモンドを付与（ガチャコスト用）
         TrxDiamond::create([
             'sys_player_id' => $this->testPlayerId,
@@ -115,7 +117,7 @@ class GachaDrawTest extends TestCase
 
         // ガチャコスト（ダイヤモンド100個）
         MstGachaCost::create([
-            'id' => $this->testGachaId . '_cost_1',
+            'id' => $this->testGachaId.'_cost_1',
             'deploy_key' => 202601010,
             'mst_gacha_id' => $this->testGachaId,
             'draw_count' => 1,
@@ -126,7 +128,7 @@ class GachaDrawTest extends TestCase
 
         // ガチャコスト（10連: ダイヤモンド900個）
         MstGachaCost::create([
-            'id' => $this->testGachaId . '_cost_10',
+            'id' => $this->testGachaId.'_cost_10',
             'deploy_key' => 202601010,
             'mst_gacha_id' => $this->testGachaId,
             'draw_count' => 10,
@@ -138,7 +140,7 @@ class GachaDrawTest extends TestCase
         // ガチャステップ（通常ガチャ）
         MstGachaStep::create([
             'deploy_key' => 202601010,
-            'id' => $this->testGachaId . '_step_1',
+            'id' => $this->testGachaId.'_step_1',
             'mst_gacha_id' => $this->testGachaId,
             'step_number' => 1,
             'draw_count' => 1,
@@ -148,15 +150,15 @@ class GachaDrawTest extends TestCase
 
         // レアリティ排出率（rarity 3: 70%, rarity 4: 30%）
         MstGachaRarityRate::create([
-            'id' => $this->testGachaId . '_rate_r3',
+            'id' => $this->testGachaId.'_rate_r3',
             'deploy_key' => 202601010,
             'mst_gacha_id' => $this->testGachaId,
             'rarity' => 3,
             'rate' => 7000, // 70%
         ]);
-        
+
         MstGachaRarityRate::create([
-            'id' => $this->testGachaId . '_rate_r4',
+            'id' => $this->testGachaId.'_rate_r4',
             'deploy_key' => 202601010,
             'mst_gacha_id' => $this->testGachaId,
             'rarity' => 4,
@@ -165,7 +167,7 @@ class GachaDrawTest extends TestCase
 
         // ガチャプール（各コンテンツタイプ）
         $this->createGachaPools();
-        
+
         // マスターアイテムを作成
         $this->createMasterItems();
     }
@@ -178,7 +180,7 @@ class GachaDrawTest extends TestCase
         // Item (rarity 3)
         MstGachaPrize::create([
             'deploy_key' => 202601010,
-            'id' => $this->testGachaId . '_prize_item_r3',
+            'id' => $this->testGachaId.'_prize_item_r3',
             'mst_gacha_id' => $this->testGachaId,
             'rarity' => 3,
             'content_type' => 'item',
@@ -191,7 +193,7 @@ class GachaDrawTest extends TestCase
         // Item (rarity 4) - 追加
         MstGachaPrize::create([
             'deploy_key' => 202601010,
-            'id' => $this->testGachaId . '_prize_item_r4',
+            'id' => $this->testGachaId.'_prize_item_r4',
             'mst_gacha_id' => $this->testGachaId,
             'rarity' => 4,
             'content_type' => 'item',
@@ -204,7 +206,7 @@ class GachaDrawTest extends TestCase
         // Unit (rarity 3) - 追加
         MstGachaPrize::create([
             'deploy_key' => 202601010,
-            'id' => $this->testGachaId . '_prize_unit_r3',
+            'id' => $this->testGachaId.'_prize_unit_r3',
             'mst_gacha_id' => $this->testGachaId,
             'rarity' => 3,
             'content_type' => 'unit',
@@ -217,7 +219,7 @@ class GachaDrawTest extends TestCase
         // Unit (rarity 4)
         MstGachaPrize::create([
             'deploy_key' => 202601010,
-            'id' => $this->testGachaId . '_prize_unit_r4',
+            'id' => $this->testGachaId.'_prize_unit_r4',
             'mst_gacha_id' => $this->testGachaId,
             'rarity' => 4,
             'content_type' => 'unit',
@@ -230,7 +232,7 @@ class GachaDrawTest extends TestCase
         // Equipment (rarity 3) - 追加
         MstGachaPrize::create([
             'deploy_key' => 202601010,
-            'id' => $this->testGachaId . '_prize_equipment_r3',
+            'id' => $this->testGachaId.'_prize_equipment_r3',
             'mst_gacha_id' => $this->testGachaId,
             'rarity' => 3,
             'content_type' => 'equipment',
@@ -243,7 +245,7 @@ class GachaDrawTest extends TestCase
         // Equipment (rarity 4)
         MstGachaPrize::create([
             'deploy_key' => 202601010,
-            'id' => $this->testGachaId . '_prize_equipment_r4',
+            'id' => $this->testGachaId.'_prize_equipment_r4',
             'mst_gacha_id' => $this->testGachaId,
             'rarity' => 4,
             'content_type' => 'equipment',
@@ -278,7 +280,7 @@ class GachaDrawTest extends TestCase
 
     /**
      * Test: ガチャ実行で全てのコンテンツタイプが排出可能（統合テスト）
-     * 
+     *
      * 1連ガチャを引いて、item/unit/equipmentのいずれかが排出されることを確認
      */
     public function test_gacha_draw_works_with_all_content_types(): void
@@ -291,12 +293,12 @@ class GachaDrawTest extends TestCase
 
         // Act
         $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $this->testAccessToken,
+            'Authorization' => 'Bearer '.$this->testAccessToken,
         ])->postJson('/api/gacha/draw', $requestData);
 
         // Assert
         $response->assertStatus(200);
-        
+
         $data = $response->json('data');
         $this->assertArrayHasKey('prizes', $data);
         $this->assertCount(1, $data['prizes']);
@@ -309,7 +311,7 @@ class GachaDrawTest extends TestCase
         $itemCount = TrxItem::where('sys_player_id', $this->testPlayerId)->count();
         $unitCount = TrxUnit::where('sys_player_id', $this->testPlayerId)->count();
         $equipmentCount = TrxEquipment::where('sys_player_id', $this->testPlayerId)->count();
-        
+
         $totalCount = $itemCount + $unitCount + $equipmentCount;
         $this->assertEquals(1, $totalCount, 'Should have 1 item distributed');
     }

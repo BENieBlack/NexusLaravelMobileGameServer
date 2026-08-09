@@ -42,8 +42,6 @@ class MstInAppPurchase extends _BaseMst
 
     /**
      * AppStore側のプラットフォーム商品
-     *
-     * @return BelongsTo
      */
     public function appStoreProduct(): BelongsTo
     {
@@ -52,8 +50,6 @@ class MstInAppPurchase extends _BaseMst
 
     /**
      * GooglePlay側のプラットフォーム商品
-     *
-     * @return BelongsTo
      */
     public function googlePlayProduct(): BelongsTo
     {
@@ -62,8 +58,6 @@ class MstInAppPurchase extends _BaseMst
 
     /**
      * 商品コンテンツ（Pack/Pass用）
-     *
-     * @return HasMany
      */
     public function contents(): HasMany
     {
@@ -72,8 +66,6 @@ class MstInAppPurchase extends _BaseMst
 
     /**
      * Pass商品の効果
-     *
-     * @return HasMany
      */
     public function effects(): HasMany
     {
@@ -82,8 +74,6 @@ class MstInAppPurchase extends _BaseMst
 
     /**
      * IDを取得
-     *
-     * @return int
      */
     public function getId(): int
     {
@@ -92,8 +82,6 @@ class MstInAppPurchase extends _BaseMst
 
     /**
      * 課金タイプを取得
-     *
-     * @return string
      */
     public function getType(): string
     {
@@ -102,8 +90,6 @@ class MstInAppPurchase extends _BaseMst
 
     /**
      * 有償ダイヤモンド数を取得
-     *
-     * @return int|null
      */
     public function getPaidDiamondAmount(): ?int
     {
@@ -112,8 +98,6 @@ class MstInAppPurchase extends _BaseMst
 
     /**
      * VIPポイントを取得
-     *
-     * @return int
      */
     public function getVipPoint(): int
     {
@@ -122,8 +106,6 @@ class MstInAppPurchase extends _BaseMst
 
     /**
      * 効果期間（日数）を取得
-     *
-     * @return int|null
      */
     public function getEffectDurationDays(): ?int
     {
@@ -132,8 +114,6 @@ class MstInAppPurchase extends _BaseMst
 
     /**
      * 購入制限を取得
-     *
-     * @return int|null
      */
     public function getPurchaseLimit(): ?int
     {
@@ -142,8 +122,6 @@ class MstInAppPurchase extends _BaseMst
 
     /**
      * 購入制限リセット期間を取得
-     *
-     * @return string|null
      */
     public function getPurchaseLimitReset(): ?string
     {
@@ -152,20 +130,18 @@ class MstInAppPurchase extends _BaseMst
 
     /**
      * レスポンス用配列に変換
-     * 
+     *
      * データベース層の'id'をAPI層の'mst_in_app_purchase_id'に変換
-     * 
-     * @return array
      */
     public function toResponseArray(): array
     {
         $array = parent::toResponseArray();
-        
+
         if (isset($array['id'])) {
             $array['mst_in_app_purchase_id'] = $array['id'];
             unset($array['id']);
         }
-        
+
         return $array;
     }
 }

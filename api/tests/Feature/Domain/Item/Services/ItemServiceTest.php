@@ -3,17 +3,16 @@
 namespace Tests\Feature\Domain\Item\Services;
 
 use App\Domain\Item\Services\ItemService;
-use App\Models\Trx\TrxItem;
 use App\Persistence\ApiSession;
-use NexusUnitOfWork\Persistence\QueryManager;
 use Illuminate\Support\Facades\DB;
+use NexusUnitOfWork\Persistence\QueryManager;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
 
 /**
  * ItemServiceのテスト
- * 
+ *
  * 無償/有償アイテムの管理、有償優先消費をテスト
  */
 class ItemServiceTest extends TestCase
@@ -21,7 +20,9 @@ class ItemServiceTest extends TestCase
     use RefreshMultipleDatabases;
 
     private int $sysPlayerId = 1;
+
     private ItemService $itemService;
+
     private QueryManager $queryManager;
 
     /**
@@ -38,7 +39,7 @@ class ItemServiceTest extends TestCase
         parent::setUp();
         ApiSession::clearForTest();
         ApiSession::setSysPlayerId($this->sysPlayerId);
-        
+
         $this->itemService = app(ItemService::class);
         $this->queryManager = app(QueryManager::class);
     }
@@ -47,7 +48,7 @@ class ItemServiceTest extends TestCase
     {
         // Clear all test data
         DB::connection('trx1')->table('trx_item')->truncate();
-        
+
         ApiSession::clearForTest();
         $this->queryManager->clear();
         parent::tearDown();
@@ -282,7 +283,7 @@ class ItemServiceTest extends TestCase
     }
 
     #[Test]
-    public function getItemAmountで合計数を取得できる(): void
+    public function get_item_amountで合計数を取得できる(): void
     {
         // Prepare
         $this->itemService->addItem(
@@ -304,7 +305,7 @@ class ItemServiceTest extends TestCase
     }
 
     #[Test]
-    public function 存在しないアイテムのgetItemAmountは0を返す(): void
+    public function 存在しないアイテムのget_item_amountは0を返す(): void
     {
         $amount = $this->itemService->getItemAmount($this->sysPlayerId, 'item_nonexistent');
         $this->assertSame(0, $amount);

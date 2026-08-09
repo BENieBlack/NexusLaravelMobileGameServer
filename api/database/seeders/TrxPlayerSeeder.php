@@ -25,6 +25,7 @@ class TrxPlayerSeeder extends Seeder
 
         if (empty($connections)) {
             $this->command->error('⚠️  No shard connections configured in config/sharding.php');
+
             return;
         }
 
@@ -33,6 +34,7 @@ class TrxPlayerSeeder extends Seeder
 
         if ($players->isEmpty()) {
             $this->command->warn('⚠️  TrxPlayerSeeder: No players found. Run SysPlayerSeeder first.');
+
             return;
         }
 
@@ -62,15 +64,17 @@ class TrxPlayerSeeder extends Seeder
             // プレイヤーの割り当て先シャードを特定
             $shardAssignment = $playerShardMap[$player->id] ?? null;
 
-            if (!$shardAssignment) {
+            if (! $shardAssignment) {
                 $this->command->warn("⚠️  Player {$player->id} has no shard assignment. Skipping.");
+
                 continue;
             }
 
             $nodeNo = $shardNodes[$shardAssignment->sys_sharding_node_id] ?? null;
-            
-            if (!$nodeNo) {
+
+            if (! $nodeNo) {
                 $this->command->warn("⚠️  Cannot find node_no for player {$player->id}. Skipping.");
+
                 continue;
             }
 
@@ -91,8 +95,8 @@ class TrxPlayerSeeder extends Seeder
                 DB::connection($connection)->table('trx_player_sns')->insert([
                     'sys_player_id' => $player->id,
                     'sns_type' => $selectedSns,
-                    'sns_user_id' => 'sns_' . $player->id . '_' . $selectedSns,
-                    'auth' => hash('sha256', 'auth_' . $player->id),
+                    'sns_user_id' => 'sns_'.$player->id.'_'.$selectedSns,
+                    'auth' => hash('sha256', 'auth_'.$player->id),
                     'created_at' => now()->subDays(rand(1, 20)),
                     'updated_at' => now()->subDays(rand(0, 10)),
                 ]);
@@ -102,7 +106,7 @@ class TrxPlayerSeeder extends Seeder
         }
 
         $this->command->info('✅ TrxPlayerSeeder: Created player transaction data');
-        
+
         // 動的に結果を表示
         foreach ($createdCounts as $connection => $count) {
             $this->command->info("   - {$connection}: {$count} players");

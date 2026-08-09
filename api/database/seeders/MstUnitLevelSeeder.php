@@ -8,7 +8,7 @@ use Illuminate\Database\Seeder;
 
 /**
  * MstUnitLevelSeeder
- * 
+ *
  * ユニットのレベルアップに必要な経験値データを生成
  * レアリティごとに異なる経験値曲線を設定
  */
@@ -34,8 +34,6 @@ class MstUnitLevelSeeder extends Seeder
 
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
     public function run(): void
     {
@@ -48,7 +46,7 @@ class MstUnitLevelSeeder extends Seeder
             for ($level = 1; $level <= self::MAX_LEVEL; $level++) {
                 // 累積経験値の計算
                 // 経験値曲線: level^2 * 100 * レアリティ倍率
-                $requiredExp = (int)floor(pow($level, 2) * 100 * $multiplier);
+                $requiredExp = (int) floor(pow($level, 2) * 100 * $multiplier);
 
                 $data[] = [
                     'deploy_key' => $deployKey,
@@ -67,8 +65,8 @@ class MstUnitLevelSeeder extends Seeder
         }
 
         $this->command->info('MstUnitLevel seeded successfully!');
-        $this->command->info('Total records: ' . count($data));
-        $this->command->info('Rarities: ' . implode(', ', UnitConst::getAllRarities()));
-        $this->command->info('Max Level: ' . self::MAX_LEVEL);
+        $this->command->info('Total records: '.count($data));
+        $this->command->info('Rarities: '.implode(', ', UnitConst::getAllRarities()));
+        $this->command->info('Max Level: '.self::MAX_LEVEL);
     }
 }

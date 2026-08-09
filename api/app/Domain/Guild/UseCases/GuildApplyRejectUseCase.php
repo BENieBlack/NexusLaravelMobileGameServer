@@ -11,22 +11,21 @@ use NexusGuild\Services\GuildService;
 
 /**
  * GuildApplyRejectUseCase
- * 
+ *
  * ギルド加入申請却下ユースケース
  */
 class GuildApplyRejectUseCase extends _BaseUseCase
 {
     public function __construct(
         private readonly GuildService $guildService,
-    ) {
-    }
+    ) {}
 
     /**
      * ギルド加入申請却下処理を実行
      *
-     * @param int $sysPlayerId 却下するプレイヤーID（マスター/サブマスター）
-     * @param int $applyId 申請ID
-     * @return GuildApplyRejectResponse
+     * @param  int  $sysPlayerId  却下するプレイヤーID（マスター/サブマスター）
+     * @param  int  $applyId  申請ID
+     *
      * @throws GameException
      */
     public function exec(int $sysPlayerId, int $applyId): GuildApplyRejectResponse

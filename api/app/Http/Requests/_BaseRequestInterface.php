@@ -4,15 +4,13 @@ namespace App\Http\Requests;
 
 /**
  * _BaseRequestInterface
- * 
+ *
  * すべてのリクエストクラスが実装すべきインターフェース
  */
 interface _BaseRequestInterface
 {
     /**
      * リクエストの認可を判定
-     *
-     * @return bool
      */
     public function authorize(): bool;
 

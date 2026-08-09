@@ -3,17 +3,16 @@
 namespace App\Repositories\Trx;
 
 use App\Models\Trx\TrxUnit;
-use App\Repositories\Log\LogUnitRepository;
 use App\Persistence\ApiSession;
+use App\Repositories\Log\LogUnitRepository;
 use NexusUtilities\ClockUtility;
-use Illuminate\Contracts\Container\BindingResolutionException;
 
 /**
  * TrxUnitRepository
  *
  * プレイヤーが所持するユニット（キャラクター）を管理するRepository
  * QueryManager保存時にLogUnitRepositoryへログを記録する
- * 
+ *
  * @extends _BaseTrxRepository<TrxUnit>
  */
 class TrxUnitRepository extends _BaseTrxRepository
@@ -32,9 +31,6 @@ class TrxUnitRepository extends _BaseTrxRepository
 
     /**
      * LogUnitRepositoryを設定
-     *
-     * @param LogUnitRepository $logUnitRepository
-     * @return void
      */
     public function setLogRepository(LogUnitRepository $logUnitRepository): void
     {
@@ -43,9 +39,6 @@ class TrxUnitRepository extends _BaseTrxRepository
 
     /**
      * UniqueRequestIdを設定
-     *
-     * @param string $uniqueRequestId
-     * @return void
      */
     public function setUniqueRequestId(string $uniqueRequestId): void
     {
@@ -56,9 +49,8 @@ class TrxUnitRepository extends _BaseTrxRepository
      * モデル保存後のフック - ログを記録
      * QueryManagerがsave時に呼び出す
      *
-     * @param TrxUnit $model
-     * @param array<string, mixed> $originalState
-     * @return void
+     * @param  TrxUnit  $model
+     * @param  array<string, mixed>  $originalState
      */
     public function afterSave($model, array $originalState): void
     {
@@ -87,14 +79,14 @@ class TrxUnitRepository extends _BaseTrxRepository
      * IDでユニットを検索
      * queryOrMemory()経由でキャッシュからfilterして取得
      *
-     * @param int $trxUnitId trx_unit.id（プレイヤー所有ユニット）
+     * @param  int  $trxUnitId  trx_unit.id（プレイヤー所有ユニット）
      * @return TrxUnit|null ユニット（見つからない場合はnull）
      */
     public function selectById(int $trxUnitId): ?TrxUnit
     {
         // queryOrMemory()で全データをキャッシュにロード（ApiSessionから$sysPlayerIdを取得）
         $this->queryOrMemory();
-        
+
         // キャッシュから取得
         return $this->getModel($trxUnitId);
     }
@@ -102,15 +94,13 @@ class TrxUnitRepository extends _BaseTrxRepository
     /**
      * ユニットのレベルを上げる（例）
      *
-     * @param int $trxUnitId trx_unit.id（プレイヤー所有ユニット）
-     * @param int $expToAdd
-     * @return void
+     * @param  int  $trxUnitId  trx_unit.id（プレイヤー所有ユニット）
      */
     public function addExp(int $trxUnitId, int $expToAdd): void
     {
         // queryOrMemory()で全データをキャッシュにロード（ApiSessionから$sysPlayerIdを取得）
         $this->queryOrMemory();
-        
+
         $trxUnit = $this->getModel($trxUnitId);
 
         if ($trxUnit) {
@@ -130,14 +120,13 @@ class TrxUnitRepository extends _BaseTrxRepository
     /**
      * ユニットのグレードを上げる（例）
      *
-     * @param int $trxUnitId trx_unit.id（プレイヤー所有ユニット）
-     * @return void
+     * @param  int  $trxUnitId  trx_unit.id（プレイヤー所有ユニット）
      */
     public function upgradeGrade(int $trxUnitId): void
     {
         // queryOrMemory()で全データをキャッシュにロード（ApiSessionから$sysPlayerIdを取得）
         $this->queryOrMemory();
-        
+
         $trxUnit = $this->getModel($trxUnitId);
 
         if ($trxUnit) {
@@ -151,10 +140,10 @@ class TrxUnitRepository extends _BaseTrxRepository
     /**
      * 新規ユニットを作成
      *
-     * @param int $sysPlayerId プレイヤーID
-     * @param string $mstUnitId ユニットマスターID
-     * @param int|null $grade 初期グレード（nullの場合は1）
-     * @param int|null $level 初期レベル（nullの場合は1）
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  string  $mstUnitId  ユニットマスターID
+     * @param  int|null  $grade  初期グレード（nullの場合は1）
+     * @param  int|null  $level  初期レベル（nullの場合は1）
      * @return TrxUnit 作成されたユニット
      */
     public function createUnit(
@@ -163,7 +152,7 @@ class TrxUnitRepository extends _BaseTrxRepository
         ?int $level = null
     ): TrxUnit {
         $sysPlayerId = ApiSession::getSysPlayerId();
-        
+
         $trxUnit = new TrxUnit([
             'sys_player_id' => $sysPlayerId,
             'mst_unit_id' => $mstUnitId,

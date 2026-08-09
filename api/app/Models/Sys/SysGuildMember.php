@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * SysGuildMember Model
- * 
+ *
  * ギルドメンバーテーブル
  */
 class SysGuildMember extends _BaseSys
@@ -43,8 +43,6 @@ class SysGuildMember extends _BaseSys
 
     /**
      * ギルドとのリレーション
-     *
-     * @return BelongsTo
      */
     public function guild(): BelongsTo
     {
@@ -53,8 +51,6 @@ class SysGuildMember extends _BaseSys
 
     /**
      * プレイヤーとのリレーション
-     *
-     * @return BelongsTo
      */
     public function player(): BelongsTo
     {
@@ -63,8 +59,6 @@ class SysGuildMember extends _BaseSys
 
     /**
      * IDを取得
-     *
-     * @return int
      */
     public function getId(): int
     {
@@ -73,8 +67,6 @@ class SysGuildMember extends _BaseSys
 
     /**
      * ギルドIDを取得
-     *
-     * @return int
      */
     public function getSysGuildId(): int
     {
@@ -83,8 +75,6 @@ class SysGuildMember extends _BaseSys
 
     /**
      * プレイヤーIDを取得
-     *
-     * @return int
      */
     public function getSysPlayerId(): int
     {
@@ -93,8 +83,6 @@ class SysGuildMember extends _BaseSys
 
     /**
      * 役職を取得
-     *
-     * @return string
      */
     public function getRole(): string
     {
@@ -103,8 +91,6 @@ class SysGuildMember extends _BaseSys
 
     /**
      * 加入日時を取得
-     *
-     * @return string
      */
     public function getJoinedAt(): string
     {
@@ -113,9 +99,6 @@ class SysGuildMember extends _BaseSys
 
     /**
      * ギルドIDを設定
-     *
-     * @param int $guildId
-     * @return void
      */
     public function setSysGuildId(int $guildId): void
     {
@@ -124,9 +107,6 @@ class SysGuildMember extends _BaseSys
 
     /**
      * プレイヤーIDを設定
-     *
-     * @param int $playerId
-     * @return void
      */
     public function setSysPlayerId(int $playerId): void
     {
@@ -135,9 +115,6 @@ class SysGuildMember extends _BaseSys
 
     /**
      * 役職を設定
-     *
-     * @param string $role
-     * @return void
      */
     public function setRole(string $role): void
     {
@@ -146,9 +123,6 @@ class SysGuildMember extends _BaseSys
 
     /**
      * 加入日時を設定
-     *
-     * @param string $joinedAt
-     * @return void
      */
     public function setJoinedAt(string $joinedAt): void
     {

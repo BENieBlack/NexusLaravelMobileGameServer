@@ -3,14 +3,14 @@
 namespace App\Repositories\Trx;
 
 use App\Models\Trx\TrxEquipment;
+use App\Persistence\ApiSession;
 use NexusUtilities\ClockUtility;
-use Illuminate\Contracts\Container\BindingResolutionException;
 
 /**
  * TrxEquipmentRepository
  *
  * プレイヤーが所持する装備を管理するRepository
- * 
+ *
  * @extends _BaseTrxRepository<TrxEquipment>
  */
 class TrxEquipmentRepository extends _BaseTrxRepository
@@ -22,14 +22,14 @@ class TrxEquipmentRepository extends _BaseTrxRepository
      * IDで装備を検索
      * queryOrMemory()経由でキャッシュからfilterして取得
      *
-     * @param int $trxEquipmentId trx_equipment.id（プレイヤー所有装備）
+     * @param  int  $trxEquipmentId  trx_equipment.id（プレイヤー所有装備）
      * @return TrxEquipment|null 装備（見つからない場合はnull）
      */
     public function selectById(int $trxEquipmentId): ?TrxEquipment
     {
         // queryOrMemory()で全データをキャッシュにロード（内部の$sysPlayerIdを使用）
         $this->queryOrMemory();
-        
+
         // キャッシュから取得
         return $this->getModel($trxEquipmentId);
     }
@@ -37,9 +37,9 @@ class TrxEquipmentRepository extends _BaseTrxRepository
     /**
      * 新規装備を作成
      *
-     * @param string $mstEquipmentId 装備マスターID
-     * @param int|null $level 初期レベル（nullの場合は1）
-     * @param int|null $grade 初期グレード（nullの場合は1）
+     * @param  string  $mstEquipmentId  装備マスターID
+     * @param  int|null  $level  初期レベル（nullの場合は1）
+     * @param  int|null  $grade  初期グレード（nullの場合は1）
      * @return TrxEquipment 作成された装備
      */
     public function createEquipment(
@@ -47,8 +47,8 @@ class TrxEquipmentRepository extends _BaseTrxRepository
         ?int $level = null,
         ?int $grade = null
     ): TrxEquipment {
-        $sysPlayerId = \App\Persistence\ApiSession::getSysPlayerId();
-        
+        $sysPlayerId = ApiSession::getSysPlayerId();
+
         $trxEquipment = new TrxEquipment([
             'sys_player_id' => $sysPlayerId,
             'mst_equipment_id' => $mstEquipmentId,

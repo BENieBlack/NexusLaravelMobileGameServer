@@ -2,23 +2,23 @@
 
 namespace App\Domain\InAppPurchase\Services;
 
-use NexusBilling\Services\DiamondBalanceService as PackageDiamondBalanceService;
-use App\Repositories\Trx\TrxDiamondBalanceRepository;
 use App\Models\Trx\TrxDiamondBalance;
+use App\Repositories\Trx\TrxDiamondBalanceRepository;
+use NexusBilling\Services\DiamondBalanceService as PackageDiamondBalanceService;
 
 /**
  * DiamondBalanceService (Domain層ラッパー)
- * 
+ *
  * パッケージ層のDiamondBalanceServiceをラップ
- * 
+ *
  * Design Pattern: Wrapper Pattern
  * - Package層: DTOベースのビジネスロジック
  * - Domain層: パッケージ層への委譲
- * 
+ *
  * Responsibilities:
  * - パッケージ層Serviceへの委譲
  * - 追加機能（FIFOバランスレコード作成）
- * 
+ *
  * Note: コアのビジネスロジックはパッケージ層（NexusBilling\Services\DiamondBalanceService）に存在
  */
 class DiamondBalanceService
@@ -26,14 +26,13 @@ class DiamondBalanceService
     public function __construct(
         private readonly PackageDiamondBalanceService $packageDiamondBalanceService,
         private readonly TrxDiamondBalanceRepository $trxDiamondBalanceRepository,
-    ) {
-    }
+    ) {}
 
     /**
      * ダイヤモンド残高を取得
-     * 
-     * @param int $sysPlayerId プレイヤーID
-     * @param string $platform プラットフォーム（Apple, Google）
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  string  $platform  プラットフォーム（Apple, Google）
      * @return array{paid_amount: int, free_amount: int, total_amount: int}
      */
     public function getBalance(int $sysPlayerId, string $platform): array
@@ -44,12 +43,11 @@ class DiamondBalanceService
 
     /**
      * ダイヤモンドを加算（有償/無償）
-     * 
-     * @param int $sysPlayerId プレイヤーID
-     * @param string $platform プラットフォーム（Apple, Google）
-     * @param int $amount 加算する数量
-     * @param bool $isPaid 有償ダイヤモンドか（falseの場合は無償）
-     * @return void
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  string  $platform  プラットフォーム（Apple, Google）
+     * @param  int  $amount  加算する数量
+     * @param  bool  $isPaid  有償ダイヤモンドか（falseの場合は無償）
      */
     public function addDiamond(int $sysPlayerId, string $platform, int $amount, bool $isPaid = false): void
     {
@@ -59,15 +57,14 @@ class DiamondBalanceService
 
     /**
      * 有償ダイヤモンドを加算し、FIFO用のバランスレコードを作成
-     * 
+     *
      * Note: この機能はDomain層特有の追加機能（FIFO管理）のため、ここに残す
-     * 
-     * @param int $sysPlayerId プレイヤーID
-     * @param string $platform プラットフォーム（Apple, Google）
-     * @param string $billingPlatform 決済プラットフォーム（AppStore, GooglePlay等）
-     * @param int $amount 加算する数量
-     * @param float $unitPrice 単価（返金計算用）
-     * @return void
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  string  $platform  プラットフォーム（Apple, Google）
+     * @param  string  $billingPlatform  決済プラットフォーム（AppStore, GooglePlay等）
+     * @param  int  $amount  加算する数量
+     * @param  float  $unitPrice  単価（返金計算用）
      */
     public function addPaidDiamondWithBalance(
         int $sysPlayerId,
@@ -93,11 +90,11 @@ class DiamondBalanceService
 
     /**
      * ダイヤモンドを消費（無償 → 有償の順で消費、または有償のみ）
-     * 
-     * @param int $sysPlayerId プレイヤーID
-     * @param int $amount 消費する数量
-     * @param bool $isPaidOnly 有償ダイヤのみを消費するか（falseの場合は無償→有償の順）
-     * @return void
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  int  $amount  消費する数量
+     * @param  bool  $isPaidOnly  有償ダイヤのみを消費するか（falseの場合は無償→有償の順）
+     *
      * @throws \Exception 残高不足の場合
      */
     public function consumeDiamond(int $sysPlayerId, int $amount, bool $isPaidOnly = false): void

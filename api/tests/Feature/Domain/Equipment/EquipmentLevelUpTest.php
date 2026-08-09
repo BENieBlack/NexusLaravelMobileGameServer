@@ -19,6 +19,7 @@ class EquipmentLevelUpTest extends TestCase
     use RefreshMultipleDatabases;
 
     private int $sysPlayerId = 1;
+
     private int $trxEquipmentId = 1;
 
     /**
@@ -47,32 +48,32 @@ class EquipmentLevelUpTest extends TestCase
     public function 装備のレベルアップができる(): void
     {
         ApiSession::setSysPlayerId($this->sysPlayerId);
-        
+
         $afterLevel = 10;
-        
+
         // 実行前の状態確認
         $beforeEquipment = DB::connection('trx1')
             ->table('trx_equipment')
             ->where('id', $this->trxEquipmentId)
             ->first();
-        
+
         $this->assertNotNull($beforeEquipment);
         $this->assertLessThan($afterLevel, $beforeEquipment->level);
-        
+
         // UseCaseを実行
         $useCase = app(EquipmentLevelUpUseCase::class);
         $response = $useCase->exec($this->sysPlayerId, $this->trxEquipmentId, $afterLevel);
-        
+
         // レスポンス確認
         $this->assertNotNull($response->trxEquipment);
         $this->assertSame($afterLevel, $response->trxEquipment->level);
-        
+
         // データベース確認
         $afterEquipment = DB::connection('trx1')
             ->table('trx_equipment')
             ->where('id', $this->trxEquipmentId)
             ->first();
-        
+
         $this->assertSame($afterLevel, $afterEquipment->level);
         $this->assertGreaterThan($beforeEquipment->level, $afterEquipment->level);
     }
@@ -81,22 +82,22 @@ class EquipmentLevelUpTest extends TestCase
     public function レベルアップ時にアイテムが消費される(): void
     {
         ApiSession::setSysPlayerId($this->sysPlayerId);
-        
+
         $afterLevel = 7;
-        
+
         // 実行前のアイテム所持数
         $beforeItem = DB::connection('trx1')
             ->table('trx_item')
             ->where('sys_player_id', $this->sysPlayerId)
             ->where('mst_item_id', 'equipment_exp_potion')
             ->first();
-        
+
         $beforeItemAmount = $beforeItem ? ($beforeItem->free_amount + $beforeItem->paid_amount) : 0;
-        
+
         // UseCaseを実行
         $useCase = app(EquipmentLevelUpUseCase::class);
         $response = $useCase->exec($this->sysPlayerId, $this->trxEquipmentId, $afterLevel);
-        
+
         // アイテム消費確認
         $this->assertNotNull($response->trxItem);
         $afterItemAmount = $response->trxItem->getFreeAmount() + $response->trxItem->getPaidAmount();
@@ -107,18 +108,18 @@ class EquipmentLevelUpTest extends TestCase
     public function レベルアップ時にログが記録される(): void
     {
         ApiSession::setSysPlayerId($this->sysPlayerId);
-        
+
         $afterLevel = 7;
-        
+
         $beforeEquipment = DB::connection('trx1')
             ->table('trx_equipment')
             ->where('id', $this->trxEquipmentId)
             ->first();
-        
+
         // UseCaseを実行
         $useCase = app(EquipmentLevelUpUseCase::class);
         $response = $useCase->exec($this->sysPlayerId, $this->trxEquipmentId, $afterLevel);
-        
+
         // ログ確認
         $log = DB::connection('log')
             ->table('log_equipment')
@@ -126,7 +127,7 @@ class EquipmentLevelUpTest extends TestCase
             ->where('trx_equipment_id', $this->trxEquipmentId)
             ->orderBy('id', 'desc')
             ->first();
-        
+
         $this->assertNotNull($log);
         $this->assertSame($beforeEquipment->level, $log->before_level);
         $this->assertSame($afterLevel, $log->after_level);
@@ -142,7 +143,7 @@ class EquipmentLevelUpTest extends TestCase
         DB::connection('mst')->table('mst_equipment_level')->where('rarity', 'SR')->delete();
         DB::connection('mst')->table('mst_item__l10n')->where('mst_item_id', 'equipment_exp_potion')->delete();
         DB::connection('mst')->table('mst_item')->where('id', 'equipment_exp_potion')->delete();
-        
+
         // マスターデータ
         DB::connection('mst')->table('mst_equipment')->insert([
             'id' => 'equipment_001',

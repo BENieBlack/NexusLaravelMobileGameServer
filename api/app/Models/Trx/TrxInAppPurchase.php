@@ -2,14 +2,16 @@
 
 namespace App\Models\Trx;
 
+use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * TrxInAppPurchase Model
- * 
+ *
  * 課金購入履歴を管理するモデル
  * PRIMARY KEY: (sys_player_id, billing_platform, mst_in_app_purchase_id)
- * 
+ *
  * billing_platform: 課金プラットフォーム（apple, google）
  * purchase_count: 期間内購入回数（リセット可能）
  * total_purchase_count: 累計購入回数（リセットされない）
@@ -36,15 +38,11 @@ class TrxInAppPurchase extends _BaseTrx
 
     /**
      * SELECTキー（プレイヤーIDでSELECT）
-     * 
-     * @var string
      */
     protected string $selectKey = 'sys_player_id';
 
     /**
      * ユニークキー（課金商品は複合キーで一意）
-     * 
-     * @var array
      */
     protected array $uniqueKeys = ['sys_player_id', 'billing_platform', 'mst_in_app_purchase_id'];
 
@@ -72,14 +70,14 @@ class TrxInAppPurchase extends _BaseTrx
 
     /**
      * 複合主キーを設定
-     * 
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @param  Builder  $query
+     * @return Builder
      */
     public function setKeysForSaveQuery($query)
     {
         $keys = $this->getKeyName();
-        if (!is_array($keys)) {
+        if (! is_array($keys)) {
             return parent::setKeysForSaveQuery($query);
         }
 
@@ -92,7 +90,7 @@ class TrxInAppPurchase extends _BaseTrx
 
     /**
      * 複合主キーの値を取得
-     * 
+     *
      * @param  string|null  $keyName
      * @return mixed
      */
@@ -111,8 +109,6 @@ class TrxInAppPurchase extends _BaseTrx
 
     /**
      * trx_playerとのリレーション
-     *
-     * @return BelongsTo
      */
     public function trxPlayer(): BelongsTo
     {
@@ -121,30 +117,22 @@ class TrxInAppPurchase extends _BaseTrx
 
     /**
      * 購入回数リセット日時を取得
-     *
-     * @return \Carbon\CarbonImmutable|null
      */
-    public function getPurchaseCountResetAt(): ?\Carbon\CarbonImmutable
+    public function getPurchaseCountResetAt(): ?CarbonImmutable
     {
         return $this->getAttribute('purchase_count_reset_at');
     }
 
     /**
      * 購入回数リセット日時を設定
-     *
-     * @param \Carbon\CarbonImmutable|null $purchaseCountResetAt
-     * @return void
      */
-    public function setPurchaseCountResetAt(?\Carbon\CarbonImmutable $purchaseCountResetAt): void
+    public function setPurchaseCountResetAt(?CarbonImmutable $purchaseCountResetAt): void
     {
         $this->setAttribute('purchase_count_reset_at', $purchaseCountResetAt);
     }
 
     /**
      * システムプレイヤーIDを設定
-     *
-     * @param int $sysPlayerId
-     * @return void
      */
     public function setSysPlayerId(int $sysPlayerId): void
     {
@@ -153,9 +141,6 @@ class TrxInAppPurchase extends _BaseTrx
 
     /**
      * 決済プラットフォームを設定
-     *
-     * @param string $billingPlatform
-     * @return void
      */
     public function setBillingPlatform(string $billingPlatform): void
     {
@@ -164,9 +149,6 @@ class TrxInAppPurchase extends _BaseTrx
 
     /**
      * マスター課金商品IDを設定
-     *
-     * @param int $mstInAppPurchaseId
-     * @return void
      */
     public function setMstInAppPurchaseId(int $mstInAppPurchaseId): void
     {
@@ -175,9 +157,6 @@ class TrxInAppPurchase extends _BaseTrx
 
     /**
      * 累計購入回数を設定
-     *
-     * @param int $totalPurchaseCount
-     * @return void
      */
     public function setTotalPurchaseCount(int $totalPurchaseCount): void
     {
@@ -186,9 +165,6 @@ class TrxInAppPurchase extends _BaseTrx
 
     /**
      * 期間内購入回数を設定
-     *
-     * @param int $purchaseCount
-     * @return void
      */
     public function setPurchaseCount(int $purchaseCount): void
     {
@@ -197,10 +173,8 @@ class TrxInAppPurchase extends _BaseTrx
 
     /**
      * レスポンス用配列に変換
-     * 
+     *
      * Note: 複合主キー(sys_player_id, billing_platform, mst_in_app_purchase_id)のため、idフィールドは存在しない
-     * 
-     * @return array
      */
     public function toResponseArray(): array
     {

@@ -11,22 +11,14 @@ use App\Http\Responses\_BaseResponse;
  */
 class LockResponse extends _BaseResponse
 {
-    /**
-     * @param int $trxMailboxId
-     * @param bool $isLocked
-     * @param bool $success
-     */
     public function __construct(
         private int $trxMailboxId,
         private bool $isLocked,
         private bool $success,
-    ) {
-    }
+    ) {}
 
     /**
      * レスポンス配列を取得
-     *
-     * @return array
      */
     public function toArray(): array
     {

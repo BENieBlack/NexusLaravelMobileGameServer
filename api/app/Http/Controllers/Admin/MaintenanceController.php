@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
-use NexusMaintenance\Services\MaintenanceService;
-use NexusMaintenance\DTOs\MaintenanceDto;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use NexusMaintenance\Services\MaintenanceService;
 use NexusUtilities\ClockUtility;
 
 /**
@@ -17,8 +16,7 @@ class MaintenanceController
 {
     public function __construct(
         private readonly MaintenanceService $maintenanceService
-    ) {
-    }
+    ) {}
 
     /**
      * メンテナンス状態を取得

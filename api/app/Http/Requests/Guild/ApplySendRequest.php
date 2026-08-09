@@ -8,8 +8,6 @@ class ApplySendRequest extends _BaseRequest
 {
     /**
      * リクエストの認可を判定
-     *
-     * @return bool
      */
     public function authorize(): bool
     {
@@ -30,8 +28,6 @@ class ApplySendRequest extends _BaseRequest
 
     /**
      * ギルドIDを取得
-     *
-     * @return int
      */
     public function getGuildId(): int
     {
@@ -40,12 +36,11 @@ class ApplySendRequest extends _BaseRequest
 
     /**
      * 認証済みプレイヤーIDを取得
-     *
-     * @return int|null
      */
     public function getAuthenticatedPlayerId(): ?int
     {
         $playerId = $this->input('authenticated_player_id');
+
         return $playerId ? (int) $playerId : null;
     }
 

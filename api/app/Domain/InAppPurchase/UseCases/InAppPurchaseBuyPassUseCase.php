@@ -12,7 +12,7 @@ use NexusBilling\Facades\BillingFacade;
 
 /**
  * InAppPurchaseBuyPassUseCase
- * 
+ *
  * パス商品の購入ユースケース
  * _BaseBuyUseCaseを継承し、パス固有の購入処理を実装
  */
@@ -29,7 +29,7 @@ class InAppPurchaseBuyPassUseCase extends _BaseBuyUseCase
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * パス購入処理を実行
      * 1. ダイヤモンド付与（あれば）
      * 2. パス効果適用

@@ -6,10 +6,11 @@ use App\Domain\_BaseUseCase;
 use App\Exceptions\BusinessLogicException;
 use App\Http\Responses\Auth\SignUpResponse;
 use App\Models\Sys\SysPlayerDevice;
-use NexusAuth\Services\TokenService;
-use NexusAuth\Services\PlayerAuthService;
+use App\Models\Sys\SysPlayerToken;
 use NexusAuth\Contracts\DeviceRepositoryInterface;
 use NexusAuth\Contracts\TokenRepositoryInterface;
+use NexusAuth\Services\PlayerAuthService;
+use NexusAuth\Services\TokenService;
 use Throwable;
 
 /**
@@ -21,14 +22,12 @@ use Throwable;
  */
 class AuthSignUpUseCase extends _BaseUseCase
 {
-
     public function __construct(
         private readonly PlayerAuthService $playerAuthService,
         private readonly TokenService $tokenService,
         private readonly DeviceRepositoryInterface $deviceRepository,
         private readonly TokenRepositoryInterface $tokenRepository,
-    ) {
-    }
+    ) {}
 
     /**
      * サインアップ処理を実行
@@ -36,9 +35,9 @@ class AuthSignUpUseCase extends _BaseUseCase
      * 新規デバイスIDの場合のみプレイヤーを作成
      * 既存デバイスIDの場合はエラーを返す（sign_inを使用すべき）
      *
-     * @param string $deviceId デバイスID
-     * @param array $deviceInfo デバイス情報
-     * @return SignUpResponse
+     * @param  string  $deviceId  デバイスID
+     * @param  array  $deviceInfo  デバイス情報
+     *
      * @throws BusinessLogicException|Throwable 既存デバイスIDの場合
      */
     public function exec(string $deviceId, array $deviceInfo): SignUpResponse
@@ -68,7 +67,7 @@ class AuthSignUpUseCase extends _BaseUseCase
             [$tokenDto, $sysPlayerToken] = $this->tokenService->generateToken(
                 $player,
                 $sysPlayerDevice,
-                fn($playerId, $deviceId, $tokenHash, $expiresAt) => \App\Models\Sys\SysPlayerToken::create([
+                fn ($playerId, $deviceId, $tokenHash, $expiresAt) => SysPlayerToken::create([
                     'sys_player_id' => $playerId,
                     'sys_player_device_id' => $deviceId,
                     'refresh_token_hash' => $tokenHash,

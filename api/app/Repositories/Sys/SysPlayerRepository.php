@@ -3,19 +3,20 @@
 namespace App\Repositories\Sys;
 
 use App\Models\Sys\SysPlayer;
-use NexusAuth\Contracts\PlayerRepositoryInterface as AuthPlayerRepositoryInterface;
-use NexusPlayer\Repositories\PlayerRepositoryInterface as PlayerRepoInterface;
-use NexusVip\Repositories\PlayerVipRepositoryInterface;
-use NexusPlayer\Dto\PlayerDto;
-use NexusVip\DTOs\PlayerVipDto;
-use NexusUnitOfWork\Contracts\QueryManagerInterface;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Str;
+use NexusAuth\Contracts\PlayerRepositoryInterface as AuthPlayerRepositoryInterface;
+use NexusPlayer\Dto\PlayerDto;
+use NexusPlayer\Repositories\PlayerRepositoryInterface as PlayerRepoInterface;
+use NexusUnitOfWork\Contracts\QueryManagerInterface;
+use NexusVip\DTOs\PlayerVipDto;
+use NexusVip\Repositories\PlayerVipRepositoryInterface;
 
 /**
  * SysPlayerRepository
  *
  * プレイヤー情報のRepository実装
- * 
+ *
  * @extends _BaseSysRepository<SysPlayer>
  */
 class SysPlayerRepository extends _BaseSysRepository implements AuthPlayerRepositoryInterface, PlayerRepoInterface, PlayerVipRepositoryInterface
@@ -50,8 +51,7 @@ class SysPlayerRepository extends _BaseSysRepository implements AuthPlayerReposi
      * IDでプレイヤーを検索
      * メモリキャッシュから取得、なければDBから取得
      *
-     * @param int $sysPlayerId プレイヤーID
-     * @return SysPlayer|null
+     * @param  int  $sysPlayerId  プレイヤーID
      */
     public function selectById(int $sysPlayerId): ?SysPlayer
     {
@@ -76,9 +76,6 @@ class SysPlayerRepository extends _BaseSysRepository implements AuthPlayerReposi
     /**
      * my_idからプレイヤーを検索
      * メモリキャッシュから検索、なければDBから取得
-     *
-     * @param string $myId
-     * @return SysPlayer|null
      */
     public function selectByMyId(string $myId): ?SysPlayer
     {
@@ -103,9 +100,6 @@ class SysPlayerRepository extends _BaseSysRepository implements AuthPlayerReposi
     /**
      * UUIDからプレイヤーを検索
      * メモリキャッシュから検索、なければDBから取得
-     *
-     * @param string $uuid
-     * @return SysPlayer|null
      */
     public function selectByUuid(string $uuid): ?SysPlayer
     {
@@ -129,9 +123,6 @@ class SysPlayerRepository extends _BaseSysRepository implements AuthPlayerReposi
 
     /**
      * my_idが既に存在するかチェック
-     *
-     * @param string $myId
-     * @return bool
      */
     public function existsByMyId(string $myId): bool
     {
@@ -146,12 +137,8 @@ class SysPlayerRepository extends _BaseSysRepository implements AuthPlayerReposi
 
     /**
      * 最終ログイン日時を更新
-     *
-     * @param SysPlayer $sysPlayer
-     * @param \Carbon\CarbonImmutable $loginAt
-     * @return void
      */
-    public function updateLastLoginAt(SysPlayer $sysPlayer, \Carbon\CarbonImmutable $loginAt): void
+    public function updateLastLoginAt(SysPlayer $sysPlayer, CarbonImmutable $loginAt): void
     {
         $sysPlayer->last_login_at = $loginAt;
         $this->setModel($sysPlayer);
@@ -164,6 +151,7 @@ class SysPlayerRepository extends _BaseSysRepository implements AuthPlayerReposi
     public function findById(int $id): ?PlayerDto
     {
         $model = $this->selectById($id);
+
         return $model ? $this->convertToDto($model) : null;
     }
 
@@ -174,6 +162,7 @@ class SysPlayerRepository extends _BaseSysRepository implements AuthPlayerReposi
     public function findByMyId(string $myId): ?PlayerDto
     {
         $model = $this->selectByMyId($myId);
+
         return $model ? $this->convertToDto($model) : null;
     }
 
@@ -184,6 +173,7 @@ class SysPlayerRepository extends _BaseSysRepository implements AuthPlayerReposi
     public function findByUuid(string $uuid): ?PlayerDto
     {
         $model = $this->selectByUuid($uuid);
+
         return $model ? $this->convertToDto($model) : null;
     }
 
@@ -227,6 +217,7 @@ class SysPlayerRepository extends _BaseSysRepository implements AuthPlayerReposi
     public function findVipInfoById(int $sysPlayerId): ?PlayerVipDto
     {
         $model = $this->selectById($sysPlayerId);
+
         return $model ? $this->convertToPlayerVipDto($model) : null;
     }
 
@@ -252,16 +243,16 @@ class SysPlayerRepository extends _BaseSysRepository implements AuthPlayerReposi
     public function findByPointRange(int $minPoint, ?int $maxPoint = null, int $limit = 100): array
     {
         $query = $this->modelClass::where('vip_point', '>=', $minPoint);
-        
+
         if ($maxPoint !== null) {
             $query->where('vip_point', '<=', $maxPoint);
         }
-        
+
         $models = $query->orderByDesc('vip_point')
             ->limit($limit)
             ->get();
-        
-        return $models->map(fn($model) => $this->convertToPlayerVipDto($model))->all();
+
+        return $models->map(fn ($model) => $this->convertToPlayerVipDto($model))->all();
     }
 
     /**
@@ -276,4 +267,3 @@ class SysPlayerRepository extends _BaseSysRepository implements AuthPlayerReposi
         );
     }
 }
-

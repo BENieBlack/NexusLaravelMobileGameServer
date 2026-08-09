@@ -6,7 +6,7 @@ use NexusPersistence\Models\Mst\_BaseMst as PersistenceBaseMst;
 
 /**
  * _BaseMst
- * 
+ *
  * Mstデータベースのモデル基底クラス
  * マスターデータ（読み取り専用）
  */

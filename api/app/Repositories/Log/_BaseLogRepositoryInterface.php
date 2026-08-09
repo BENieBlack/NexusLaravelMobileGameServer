@@ -9,9 +9,7 @@ use NexusPersistence\Repositories\Log\_BaseLogRepositoryInterface as Persistence
  *
  * LogデータRepository用のインターフェース
  * ログはINSERT ONLYでキャッシュなし
- * 
+ *
  * @template T of \App\Models\Log\_BaseLogInterface
  */
-interface _BaseLogRepositoryInterface extends PersistenceBaseLogRepositoryInterface
-{
-}
+interface _BaseLogRepositoryInterface extends PersistenceBaseLogRepositoryInterface {}

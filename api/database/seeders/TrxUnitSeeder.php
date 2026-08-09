@@ -22,6 +22,7 @@ class TrxUnitSeeder extends Seeder
 
         if (empty($masterUnits)) {
             $this->command->warn('⚠️  TrxUnitSeeder: No master units found. Run MstUnitSeeder first.');
+
             return;
         }
 
@@ -30,6 +31,7 @@ class TrxUnitSeeder extends Seeder
 
         if ($players->isEmpty()) {
             $this->command->warn('⚠️  TrxUnitSeeder: No players found. Run SysPlayerSeeder first.');
+
             return;
         }
 
@@ -59,13 +61,13 @@ class TrxUnitSeeder extends Seeder
             // プレイヤーの割り当て先シャードを特定
             $shardAssignment = $playerShardMap[$player->id] ?? null;
 
-            if (!$shardAssignment) {
+            if (! $shardAssignment) {
                 continue;
             }
 
             $nodeNo = $shardNodes[$shardAssignment->sys_sharding_node_id] ?? null;
-            
-            if (!$nodeNo) {
+
+            if (! $nodeNo) {
                 continue;
             }
 
@@ -90,7 +92,7 @@ class TrxUnitSeeder extends Seeder
         }
 
         $this->command->info('✅ TrxUnitSeeder: Created unit ownership data');
-        $this->command->info('   - trx1: ' . $createdCounts['trx1'] . ' units');
-        $this->command->info('   - trx2: ' . $createdCounts['trx2'] . ' units');
+        $this->command->info('   - trx1: '.$createdCounts['trx1'].' units');
+        $this->command->info('   - trx2: '.$createdCounts['trx2'].' units');
     }
 }

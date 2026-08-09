@@ -4,6 +4,7 @@ namespace App\Domain\Player\Services;
 
 use App\Domain\Stamina\Constants\StaminaConst;
 use App\Models\Sys\SysPlayer;
+use App\Models\Trx\TrxStamina;
 use App\Repositories\Mst\MstPlayerLevelRepository;
 use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Trx\TrxStaminaRepository;
@@ -12,10 +13,10 @@ use NexusUtilities\ClockUtility;
 
 /**
  * PlayerLevelService
- * 
+ *
  * プレイヤーレベル管理を担当するサービス
  * _BaseLevelServiceを継承して、プレイヤー固有のレベルアップ処理を実装
- * 
+ *
  * レベルアップ仕様:
  * - レベルアップ時、現在スタミナは新しい最大値まで全回復（報酬）
  * - 経験値は累積方式（リセットされない）
@@ -25,29 +26,25 @@ class PlayerLevelService extends _BaseLevelService
 {
     /**
      * コンストラクタ
-     *
-     * @param MstPlayerLevelRepository $mstPlayerLevelRepository
-     * @param SysPlayerRepository $sysPlayerRepository
-     * @param TrxStaminaRepository $trxStaminaRepository
      */
     public function __construct(
         private readonly MstPlayerLevelRepository $mstPlayerLevelRepository,
         private readonly SysPlayerRepository $sysPlayerRepository,
         private readonly TrxStaminaRepository $trxStaminaRepository,
-    ) {
-    }
+    ) {}
 
     /**
      * プレイヤーのレベル情報を取得
-     * 
-     * @param int $sysPlayerId プレイヤーID
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
      * @return array{level: int, exp: int, exp_to_next: int, max_stamina: int}
+     *
      * @throws \Exception プレイヤーが存在しない場合
      */
     public function getPlayerLevel(int $sysPlayerId): array
     {
         $player = $this->sysPlayerRepository->selectById($sysPlayerId);
-        
+
         if ($player === null) {
             throw new \Exception("Player not found: {$sysPlayerId}");
         }
@@ -62,13 +59,13 @@ class PlayerLevelService extends _BaseLevelService
 
     /**
      * 経験値を加算し、レベルアップ処理を行う
-     * 
+     *
      * レベルアップした場合:
      * - sys_player.levelとlevel_expを更新
      * - trx_stamina.current_staminaを新しい最大値に設定（全回復）
-     * 
-     * @param int $sysPlayerId プレイヤーID
-     * @param int $exp 加算する経験値
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  int  $exp  加算する経験値
      * @return array{
      *   is_leveled_up: bool,
      *   before_level: int,
@@ -78,6 +75,7 @@ class PlayerLevelService extends _BaseLevelService
      *   before_max_stamina: int,
      *   after_max_stamina: int
      * }
+     *
      * @throws \Exception プレイヤーが存在しない場合
      */
     public function addExpWithStamina(int $sysPlayerId, int $exp): array
@@ -85,13 +83,13 @@ class PlayerLevelService extends _BaseLevelService
         // 基底クラスのテンプレートメソッドを呼び出し
         $player = $this->sysPlayerRepository->selectById($sysPlayerId);
         $beforeMaxStamina = $player?->getMaxStamina() ?? 50;
-        
+
         $result = parent::addExp($sysPlayerId, $exp);
-        
+
         // プレイヤー固有の戻り値を追加
         $player = $this->sysPlayerRepository->selectById($sysPlayerId);
         $afterMaxStamina = $player?->getMaxStamina() ?? 50;
-        
+
         return [
             ...$result,
             'exp_to_next' => $player?->getExpToNextLevel() ?? 0,
@@ -102,15 +100,16 @@ class PlayerLevelService extends _BaseLevelService
 
     /**
      * プレイヤーの最大スタミナを取得（レベルに基づく）
-     * 
-     * @param int $sysPlayerId プレイヤーID
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
      * @return int 最大スタミナ
+     *
      * @throws \Exception プレイヤーが存在しない場合
      */
     public function getMaxStamina(int $sysPlayerId): int
     {
         $player = $this->sysPlayerRepository->selectById($sysPlayerId);
-        
+
         if ($player === null) {
             throw new \Exception("Player not found: {$sysPlayerId}");
         }
@@ -120,8 +119,8 @@ class PlayerLevelService extends _BaseLevelService
 
     /**
      * 累積経験値から理論上のレベルを計算（純粋計算）
-     * 
-     * @param int $exp 累積経験値
+     *
+     * @param  int  $exp  累積経験値
      * @return int レベル
      */
     public function calculateLevelFromExp(int $exp): int
@@ -131,22 +130,22 @@ class PlayerLevelService extends _BaseLevelService
 
     /**
      * 次のレベルまでに必要な経験値を取得
-     * 
-     * @param string|null $rarity レアリティ（プレイヤーの場合はnull）
-     * @param int $currentLevel 現在のレベル
-     * @param int $currentExp 現在の累積経験値
+     *
+     * @param  string|null  $rarity  レアリティ（プレイヤーの場合はnull）
+     * @param  int  $currentLevel  現在のレベル
+     * @param  int  $currentExp  現在の累積経験値
      * @return int 必要な経験値（最大レベルの場合は0）
      */
     public function getExpToNextLevel(?string $rarity, int $currentLevel, int $currentExp): int
     {
         $nextLevel = $currentLevel + 1;
         $nextLevelData = $this->mstPlayerLevelRepository->selectByLevel($nextLevel);
-        
+
         if ($nextLevelData === null) {
             // 最大レベルに達している
             return 0;
         }
-        
+
         return max(0, $nextLevelData->getRequiredExp() - $currentExp);
     }
 
@@ -160,11 +159,11 @@ class PlayerLevelService extends _BaseLevelService
     protected function getEntity(mixed $id): object
     {
         $player = $this->sysPlayerRepository->selectById($id);
-        
+
         if ($player === null) {
             throw new \Exception("Player not found: {$id}");
         }
-        
+
         return $player;
     }
 
@@ -224,16 +223,16 @@ class PlayerLevelService extends _BaseLevelService
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * プレイヤー固有の処理：レベルアップ時にスタミナを全回復
      */
     protected function onLevelUp(object $entity, int $beforeLevel, int $afterLevel): void
     {
         /** @var SysPlayer $entity */
         $sysPlayerId = $entity->getId();
-        $newMaxStamina = $this->mstPlayerLevelRepository->getMaxStaminaForLevel($afterLevel) 
+        $newMaxStamina = $this->mstPlayerLevelRepository->getMaxStaminaForLevel($afterLevel)
             ?? ($entity->getMaxStamina() ?? 50);
-        
+
         $this->refillStaminaOnLevelUp($sysPlayerId, $newMaxStamina);
     }
 
@@ -243,23 +242,22 @@ class PlayerLevelService extends _BaseLevelService
 
     /**
      * レベルアップ時にスタミナを全回復（プライベートメソッド）
-     * 
+     *
      * 自然回復計算を行った後、最大スタミナ分を加算します。
      * 結果として最大スタミナを超過することができます。
-     * 
-     * @param int $sysPlayerId プレイヤーID
-     * @param int $newMaxStamina 新しい最大スタミナ
-     * @return void
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  int  $newMaxStamina  新しい最大スタミナ
      */
     private function refillStaminaOnLevelUp(int $sysPlayerId, int $newMaxStamina): void
     {
         $stamina = $this->trxStaminaRepository->selectByType(StaminaConst::TYPE_NORMAL);
-        
+
         if ($stamina === null) {
             // スタミナレコードが存在しない場合は作成
             $now = ClockUtility::now();
 
-            $trxStamina = new \App\Models\Trx\TrxStamina([
+            $trxStamina = new TrxStamina([
                 'sys_player_id' => $sysPlayerId,
                 'type' => StaminaConst::TYPE_NORMAL,
                 'current_stamina' => $newMaxStamina,
@@ -271,12 +269,13 @@ class PlayerLevelService extends _BaseLevelService
 
             $trxStamina->exists = false;
             $this->trxStaminaRepository->setModel($trxStamina);
+
             return;
         }
-        
+
         // 自然回復計算を適用
         $this->applyAutoRecoveryForLevelUp($stamina, $newMaxStamina);
-        
+
         // 最大スタミナ分を加算（最大値超過可能）
         $stamina->setCurrentStamina($stamina->getCurrentStamina() + $newMaxStamina);
         $this->trxStaminaRepository->setModel($stamina);
@@ -284,14 +283,13 @@ class PlayerLevelService extends _BaseLevelService
 
     /**
      * レベルアップ時の自然回復計算（プライベートメソッド）
-     * 
+     *
      * StaminaServiceと同じロジックで自然回復を計算します。
-     * 
-     * @param \App\Models\Trx\TrxStamina $stamina スタミナモデル
-     * @param int $maxStamina プレイヤーの最大スタミナ
-     * @return void
+     *
+     * @param  TrxStamina  $stamina  スタミナモデル
+     * @param  int  $maxStamina  プレイヤーの最大スタミナ
      */
-    private function applyAutoRecoveryForLevelUp(\App\Models\Trx\TrxStamina $stamina, int $maxStamina): void
+    private function applyAutoRecoveryForLevelUp(TrxStamina $stamina, int $maxStamina): void
     {
         // すでに最大値の場合は回復不要
         if ($stamina->isCurrentStaminaFull($maxStamina)) {
@@ -300,22 +298,22 @@ class PlayerLevelService extends _BaseLevelService
 
         // 経過秒数を計算
         $elapsedSeconds = ClockUtility::diffInSeconds($stamina->last_recovery_at);
-        
+
         // 回復速度倍率を適用（5分 = 300秒で1ポイント回復）
         $effectiveElapsedSeconds = $elapsedSeconds * $stamina->getRecoveryRateMultiplier();
-        
+
         // 回復ポイント数を計算
-        $recoveredPoints = (int)floor($effectiveElapsedSeconds / 300);
-        
+        $recoveredPoints = (int) floor($effectiveElapsedSeconds / 300);
+
         if ($recoveredPoints > 0) {
             // 新しいスタミナ値を計算
             $newStamina = min($stamina->getCurrentStamina() + $recoveredPoints, $maxStamina);
-            
+
             // 次回回復基準時刻を計算（余剰秒数は切り捨て）
             $recoveredSeconds = $recoveredPoints * 300;
             $lastRecoveryAt = ClockUtility::parse($stamina->last_recovery_at);
-            $newLastRecoveryAt = $lastRecoveryAt->addSeconds((int)floor($recoveredSeconds / $stamina->getRecoveryRateMultiplier()));
-            
+            $newLastRecoveryAt = $lastRecoveryAt->addSeconds((int) floor($recoveredSeconds / $stamina->getRecoveryRateMultiplier()));
+
             // 値を更新
             $stamina->setCurrentStamina($newStamina);
             $stamina->setLastRecoveryAt($newLastRecoveryAt->format('Y-m-d H:i:s'));

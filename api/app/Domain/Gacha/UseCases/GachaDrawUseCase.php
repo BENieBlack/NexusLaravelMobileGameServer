@@ -31,17 +31,11 @@ class GachaDrawUseCase extends _BaseUseCase
         private readonly GachaPrizeService $prizeService,
         private readonly MstGachaStepRepository $stepRepository,
         private readonly TrxGachaHistoryRepository $historyRepository,
-    ) {
-    }
+    ) {}
 
     /**
      * ガチャ実行
      *
-     * @param int $sysPlayerId
-     * @param string $mstGachaId
-     * @param int $drawCount
-     * @param string|null $selectedCandidateId
-     * @return DrawResponse
      * @throws \Exception
      */
     public function exec(
@@ -120,15 +114,10 @@ class GachaDrawUseCase extends _BaseUseCase
 
     /**
      * 次のステップを計算
-     *
-     * @param string $mstGachaId
-     * @param int $currentStep
-     * @param bool $hasStepUp
-     * @return int|null
      */
     private function calculateNextStep(string $mstGachaId, int $currentStep, bool $hasStepUp): ?int
     {
-        if (!$hasStepUp) {
+        if (! $hasStepUp) {
             return null;
         }
 
@@ -155,12 +144,7 @@ class GachaDrawUseCase extends _BaseUseCase
     /**
      * ガチャ履歴を保存
      *
-     * @param int $sysPlayerId
-     * @param string $mstGachaId
-     * @param int $drawCount
-     * @param mixed $cost
-     * @param array $prizes
-     * @return void
+     * @param  mixed  $cost
      */
     private function saveHistory(int $sysPlayerId, string $mstGachaId, int $drawCount, $cost, array $prizes): void
     {

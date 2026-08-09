@@ -9,13 +9,12 @@ use NexusAuth\Contracts\PlayerModelInterface;
 
 /**
  * SysPlayerDevice Model
- * 
+ *
  * プレイヤーデバイス情報テーブル
  * デバイス固有IDとデバイス情報を管理
  */
 class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
 {
-
     /**
      * テーブル名
      */
@@ -47,8 +46,6 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
 
     /**
      * プレイヤーとのリレーション
-     *
-     * @return BelongsTo
      */
     public function player(): BelongsTo
     {
@@ -57,8 +54,6 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
 
     /**
      * トークン情報とのリレーション
-     *
-     * @return HasMany
      */
     public function tokens(): HasMany
     {
@@ -67,9 +62,6 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
 
     /**
      * device_id (uuid) からデバイスを取得
-     *
-     * @param string $deviceId
-     * @return self|null
      */
     public static function findByDeviceId(string $deviceId): ?self
     {
@@ -78,19 +70,16 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
 
     /**
      * 最終ログイン日時を更新
-     *
-     * @return bool
      */
     public function updateLastLogin(): bool
     {
         $this->last_login_at = now();
+
         return $this->save();
     }
 
     /**
      * sys_player_idを取得
-     *
-     * @return int|null
      */
     public function getSysPlayerId(): ?int
     {
@@ -99,9 +88,6 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
 
     /**
      * sys_player_idを設定
-     *
-     * @param int $sysPlayerId
-     * @return void
      */
     public function setSysPlayerId(int $sysPlayerId): void
     {
@@ -110,8 +96,6 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
 
     /**
      * uuidを取得 (内部用: nullable)
-     *
-     * @return string|null
      */
     public function getUuidNullable(): ?string
     {
@@ -120,8 +104,6 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
 
     /**
      * uuidを取得 (NexusAuth DeviceModelInterface)
-     *
-     * @return string
      */
     public function getUuid(): string
     {
@@ -130,9 +112,6 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
 
     /**
      * uuidを設定
-     *
-     * @param string $uuid
-     * @return void
      */
     public function setUuid(string $uuid): void
     {
@@ -141,8 +120,6 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
 
     /**
      * device_infoを取得
-     *
-     * @return array|null
      */
     public function getDeviceInfo(): ?array
     {
@@ -151,9 +128,6 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
 
     /**
      * device_infoを設定
-     *
-     * @param array $deviceInfo
-     * @return void
      */
     public function setDeviceInfo(array $deviceInfo): void
     {
@@ -162,8 +136,6 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
 
     /**
      * last_login_atをDateTimeオブジェクトで取得 (内部用)
-     *
-     * @return \DateTime|null
      */
     public function getLastLoginAtDateTime(): ?\DateTime
     {
@@ -172,20 +144,16 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
 
     /**
      * last_login_atを文字列形式で取得 (NexusAuth DeviceModelInterface)
-     *
-     * @return string|null
      */
     public function getLastLoginAt(): ?string
     {
         $lastLoginAt = $this->getAttribute('last_login_at');
+
         return $lastLoginAt ? $lastLoginAt->format('Y-m-d H:i:s') : null;
     }
 
     /**
      * last_login_atを設定
-     *
-     * @param \DateTime|string $lastLoginAt
-     * @return void
      */
     public function setLastLoginAt(\DateTime|string $lastLoginAt): void
     {
@@ -194,20 +162,18 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
 
     /**
      * レスポンス用配列に変換
-     * 
+     *
      * データベース層の'id'をAPI層の'sys_player_device_id'に変換
-     * 
-     * @return array
      */
     public function toResponseArray(): array
     {
         $array = parent::toResponseArray();
-        
+
         if (isset($array['id'])) {
             $array['sys_player_device_id'] = $array['id'];
             unset($array['id']);
         }
-        
+
         return $array;
     }
 
@@ -217,8 +183,6 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
 
     /**
      * IDを取得 (NexusAuth DeviceModelInterface)
-     *
-     * @return int
      */
     public function getId(): int
     {
@@ -227,8 +191,6 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
 
     /**
      * プレイヤーIDを取得 (NexusAuth DeviceModelInterface)
-     *
-     * @return int
      */
     public function getPlayerId(): int
     {
@@ -237,8 +199,6 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
 
     /**
      * プレイヤーを取得 (NexusAuth DeviceModelInterface)
-     *
-     * @return PlayerModelInterface|null
      */
     public function getPlayer(): ?PlayerModelInterface
     {

@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Artisan;
 
 /**
  * シャーディング対応データベースマイグレーションコマンド
- * 
+ *
  * 設定されたすべてのトランザクションシャードに対してマイグレーションを実行します。
  */
 class MigrateShards extends Command
@@ -45,18 +45,19 @@ class MigrateShards extends Command
 
         if (empty($shardConnections)) {
             $this->error('No shard connections configured in config/sharding.php');
+
             return self::FAILURE;
         }
 
-        $this->info('Running migrations on ' . count($shardConnections) . ' shard(s): ' . implode(', ', $shardConnections));
+        $this->info('Running migrations on '.count($shardConnections).' shard(s): '.implode(', ', $shardConnections));
         $this->newLine();
 
         $hasError = false;
 
         foreach ($shardConnections as $connection) {
-            $this->info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            $this->info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
             $this->info("Processing shard: {$connection}");
-            $this->info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            $this->info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
             try {
                 $command = $this->getMigrateCommand();
@@ -71,7 +72,7 @@ class MigrateShards extends Command
                     $this->info("✅ Successfully migrated: {$connection}");
                 }
             } catch (\Exception $e) {
-                $this->error("Error migrating {$connection}: " . $e->getMessage());
+                $this->error("Error migrating {$connection}: ".$e->getMessage());
                 $hasError = true;
             }
 
@@ -80,10 +81,12 @@ class MigrateShards extends Command
 
         if ($hasError) {
             $this->error('Some migrations failed. Please check the output above.');
+
             return self::FAILURE;
         }
 
         $this->info('🎉 All shards migrated successfully!');
+
         return self::SUCCESS;
     }
 

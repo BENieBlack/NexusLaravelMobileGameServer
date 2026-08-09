@@ -10,7 +10,7 @@ use NexusVip\Repositories\VipLevelRepositoryInterface;
  * MstVipLevelRepository
  *
  * VIPレベルマスターのRepository
- * 
+ *
  * @extends _BaseMstRepository<MstVipLevel>
  */
 class MstVipLevelRepository extends _BaseMstRepository implements VipLevelRepositoryInterface
@@ -34,8 +34,7 @@ class MstVipLevelRepository extends _BaseMstRepository implements VipLevelReposi
     /**
      * VIPレベル番号で検索
      *
-     * @param int $level VIPレベル
-     * @return MstVipLevel|null
+     * @param  int  $level  VIPレベル
      */
     public function findByLevel(int $level): ?MstVipLevel
     {
@@ -48,8 +47,7 @@ class MstVipLevelRepository extends _BaseMstRepository implements VipLevelReposi
     /**
      * VIPレベルIDで検索
      *
-     * @param string $id VIPレベルID (例: "vip_5")
-     * @return MstVipLevel|null
+     * @param  string  $id  VIPレベルID (例: "vip_5")
      */
     public function findById(string $id): ?MstVipLevel
     {
@@ -60,8 +58,7 @@ class MstVipLevelRepository extends _BaseMstRepository implements VipLevelReposi
      * 必要ポイント以下の最大レベルを取得
      * 累積VIPポイントから該当するVIPレベルを判定
      *
-     * @param int $points 累積VIPポイント
-     * @return MstVipLevel
+     * @param  int  $points  累積VIPポイント
      */
     public function findMaxLevelByPoints(int $points): MstVipLevel
     {
@@ -76,7 +73,7 @@ class MstVipLevelRepository extends _BaseMstRepository implements VipLevelReposi
         // 該当するレベルがない場合はVIP0を返す
         if ($level === null) {
             $level = $this->findByLevel(0);
-            
+
             // VIP0も見つからない場合は例外
             if ($level === null) {
                 throw new \RuntimeException('VIP level 0 not found in master data');

@@ -4,7 +4,7 @@ namespace App\Models\Mst;
 
 /**
  * MstEquipment Model
- * 
+ *
  * @property int $deploy_key
  * @property string $id
  * @property string $type
@@ -21,6 +21,7 @@ class MstEquipment extends _BaseMst
     public $table = 'mst_equipment';
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     /** @var array<int, string> */
@@ -55,10 +56,8 @@ class MstEquipment extends _BaseMst
 
     /**
      * レスポンス用配列に変換
-     * 
+     *
      * Note: 主キーが文字列型（semantic ID like "equipment_sword_001"）のため、変換不要
-     * 
-     * @return array
      */
     public function toResponseArray(): array
     {
@@ -69,8 +68,6 @@ class MstEquipment extends _BaseMst
 
     /**
      * レアリティを取得
-     * 
-     * @return string
      */
     public function getRarity(): string
     {

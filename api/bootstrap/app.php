@@ -1,8 +1,14 @@
 <?php
 
+use App\Http\Middleware\CheckMaintenance;
+use App\Http\Middleware\VerifyAdminToken;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use NexusSecurity\Middleware\IdempotencyMiddleware;
+use NexusSecurity\Middleware\ThrottleSignUp;
+use NexusSecurity\Middleware\VerifyAccessToken;
+use NexusSecurity\Middleware\VerifyClientSignature;
 
 $app = Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -14,12 +20,12 @@ $app = Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // ミドルウェアエイリアスを登録
         $middleware->alias([
-            'auth.token' => \NexusSecurity\Middleware\VerifyAccessToken::class,
-            'auth.admin' => \App\Http\Middleware\VerifyAdminToken::class,
-            'idempotency' => \NexusSecurity\Middleware\IdempotencyMiddleware::class,
-            'client.signature' => \NexusSecurity\Middleware\VerifyClientSignature::class,
-            'throttle.signup' => \NexusSecurity\Middleware\ThrottleSignUp::class,
-            'maintenance' => \App\Http\Middleware\CheckMaintenance::class,
+            'auth.token' => VerifyAccessToken::class,
+            'auth.admin' => VerifyAdminToken::class,
+            'idempotency' => IdempotencyMiddleware::class,
+            'client.signature' => VerifyClientSignature::class,
+            'throttle.signup' => ThrottleSignUp::class,
+            'maintenance' => CheckMaintenance::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

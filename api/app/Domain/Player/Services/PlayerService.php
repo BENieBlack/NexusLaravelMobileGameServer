@@ -4,9 +4,9 @@ namespace App\Domain\Player\Services;
 
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
-use NexusUnitOfWork\Contracts\QueryManagerInterface;
-use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
+use App\Repositories\Sys\SysPlayerRepository;
+use NexusUnitOfWork\Contracts\QueryManagerInterface;
 
 /**
  * PlayerService
@@ -17,24 +17,20 @@ class PlayerService
 {
     /**
      * コンストラクタ
-     *
-     * @param SysPlayerRepository $sysPlayerRepository
-     * @param SysPlayerDeviceRepository $sysPlayerDeviceRepository
      */
     public function __construct(
         private readonly SysPlayerRepository $sysPlayerRepository,
         private readonly SysPlayerDeviceRepository $sysPlayerDeviceRepository
-    ) {
-    }
+    ) {}
 
     /**
      * 新しいプレイヤーを作成
-     * 
+     *
      * プレイヤーは即座にコミットしてIDを取得し、デバイスはバッチINSERTで保存します。
      * このメソッド内でexecAllQuery()を実行して、デバイスのIDを取得します。
      *
-     * @param string $deviceId デバイスUUID
-     * @param array<string, mixed>|null $deviceInfo デバイス情報（JSON）
+     * @param  string  $deviceId  デバイスUUID
+     * @param  array<string, mixed>|null  $deviceInfo  デバイス情報（JSON）
      * @return array{sys_player: SysPlayer, sys_player_device: SysPlayerDevice}
      */
     public function createPlayer(
@@ -53,7 +49,7 @@ class PlayerService
         ]);
 
         $this->sysPlayerDeviceRepository->setModel($sysPlayerDevice);
-        
+
         // 3. バッチINSERTを実行してデバイスのIDを取得
         app(QueryManagerInterface::class)->flush();
 
@@ -66,8 +62,7 @@ class PlayerService
     /**
      * 既存デバイスからプレイヤーとデバイス情報を取得
      *
-     * @param string $deviceUuid デバイスUUID
-     * @return SysPlayerDevice|null
+     * @param  string  $deviceUuid  デバイスUUID
      */
     public function selectByDeviceId(string $deviceUuid): ?SysPlayerDevice
     {
@@ -77,8 +72,7 @@ class PlayerService
     /**
      * IDでプレイヤーを検索
      *
-     * @param int $id プレイヤーID
-     * @return SysPlayer|null
+     * @param  int  $id  プレイヤーID
      */
     public function selectById(int $id): ?SysPlayer
     {
@@ -87,9 +81,6 @@ class PlayerService
 
     /**
      * デバイスの最終ログイン日時を更新
-     *
-     * @param SysPlayerDevice $sysPlayerDevice
-     * @return bool
      */
     public function updateLastLogin(SysPlayerDevice $sysPlayerDevice): bool
     {

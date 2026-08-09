@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use Tests\RefreshMultipleDatabases;
 use Illuminate\Support\Str;
+use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
 
 class AuthSignUpTest extends TestCase
@@ -27,7 +27,7 @@ class AuthSignUpTest extends TestCase
     public function test_user_can_sign_up()
     {
         // Arrange: Prepare the data for sign-up
-        $deviceId = 'test-device-' . \Illuminate\Support\Str::uuid();
+        $deviceId = 'test-device-'.Str::uuid();
 
         // Act: Call the sign-up endpoint
         $response = $this->postJson('/api/signup', [
@@ -42,7 +42,7 @@ class AuthSignUpTest extends TestCase
 
         // Assert: Check the response and database
         $response->assertOk(); // 200 OK
-        
+
         // Check basic response structure
         $this->assertNotNull($response->json());
     }

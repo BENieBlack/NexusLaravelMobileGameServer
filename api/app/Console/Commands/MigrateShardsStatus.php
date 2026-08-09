@@ -41,10 +41,11 @@ class MigrateShardsStatus extends Command
 
         if (empty($shardConnections)) {
             $this->error('No shard connections configured in config/sharding.php');
+
             return self::FAILURE;
         }
 
-        $this->info('Checking migration status for ' . count($shardConnections) . ' shard(s)');
+        $this->info('Checking migration status for '.count($shardConnections).' shard(s)');
         $this->newLine();
 
         foreach ($shardConnections as $connection) {
@@ -60,9 +61,9 @@ class MigrateShardsStatus extends Command
      */
     protected function showStatusForConnection(string $connection): int
     {
-        $this->info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        $this->info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         $this->info("Migration status for: {$connection}");
-        $this->info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        $this->info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
         $options = [
             '--database' => $connection,

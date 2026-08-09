@@ -2,14 +2,15 @@
 
 namespace App\Models\Trx;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * TrxDiamond Model
- * 
+ *
  * ダイヤモンド現在値を管理するモデル
  * PRIMARY KEY: (sys_player_id, platform)
- * 
+ *
  * platform: プラットフォーム（Apple, Google）
  * paid_amount: 有償ダイヤモンド数
  * free_amount: 無償ダイヤモンド数
@@ -35,15 +36,11 @@ class TrxDiamond extends _BaseTrx
 
     /**
      * SELECTキー（プレイヤーIDでSELECT）
-     * 
-     * @var string
      */
     protected string $selectKey = 'sys_player_id';
 
     /**
      * ユニークキー（複合キーで一意）
-     * 
-     * @var array
      */
     protected array $uniqueKeys = ['sys_player_id', 'platform'];
 
@@ -67,14 +64,14 @@ class TrxDiamond extends _BaseTrx
 
     /**
      * 複合主キーを設定
-     * 
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @param  Builder  $query
+     * @return Builder
      */
     public function setKeysForSaveQuery($query)
     {
         $keys = $this->getKeyName();
-        if (!is_array($keys)) {
+        if (! is_array($keys)) {
             return parent::setKeysForSaveQuery($query);
         }
 
@@ -87,7 +84,7 @@ class TrxDiamond extends _BaseTrx
 
     /**
      * 複合主キーの値を取得
-     * 
+     *
      * @param  string|null  $keyName
      * @return mixed
      */
@@ -106,8 +103,6 @@ class TrxDiamond extends _BaseTrx
 
     /**
      * trx_playerとのリレーション
-     *
-     * @return BelongsTo
      */
     public function trxPlayer(): BelongsTo
     {
@@ -116,8 +111,6 @@ class TrxDiamond extends _BaseTrx
 
     /**
      * 有償ダイヤモンド数を取得
-     *
-     * @return int
      */
     public function getPaidAmount(): int
     {
@@ -126,9 +119,6 @@ class TrxDiamond extends _BaseTrx
 
     /**
      * 有償ダイヤモンド数を設定
-     *
-     * @param int $paidAmount
-     * @return void
      */
     public function setPaidAmount(int $paidAmount): void
     {
@@ -137,8 +127,6 @@ class TrxDiamond extends _BaseTrx
 
     /**
      * 無償ダイヤモンド数を取得
-     *
-     * @return int
      */
     public function getFreeAmount(): int
     {
@@ -147,9 +135,6 @@ class TrxDiamond extends _BaseTrx
 
     /**
      * 無償ダイヤモンド数を設定
-     *
-     * @param int $freeAmount
-     * @return void
      */
     public function setFreeAmount(int $freeAmount): void
     {
@@ -158,9 +143,6 @@ class TrxDiamond extends _BaseTrx
 
     /**
      * プラットフォームを設定
-     *
-     * @param string $platform
-     * @return void
      */
     public function setPlatform(string $platform): void
     {
@@ -169,9 +151,6 @@ class TrxDiamond extends _BaseTrx
 
     /**
      * システムプレイヤーIDを設定
-     *
-     * @param int $sysPlayerId
-     * @return void
      */
     public function setSysPlayerId(int $sysPlayerId): void
     {
@@ -180,10 +159,8 @@ class TrxDiamond extends _BaseTrx
 
     /**
      * レスポンス用配列に変換
-     * 
+     *
      * Note: 複合主キー(sys_player_id, platform)のため、idフィールドは存在しない
-     * 
-     * @return array
      */
     public function toResponseArray(): array
     {

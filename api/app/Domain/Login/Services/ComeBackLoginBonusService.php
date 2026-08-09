@@ -2,20 +2,20 @@
 
 namespace App\Domain\Login\Services;
 
-use NexusLogin\Services\_BaseLoginBonusService;
-use NexusResourceDelivery\Services\ResourceDeliveryService;
-use NexusLogin\Repositories\LoginBonusRepositoryInterface;
-use NexusLogin\Repositories\LoginBonusHistoryRepositoryInterface;
-use NexusUtilities\ClockUtility;
-use NexusPersistence\Support\CustomCollection;
 use Carbon\CarbonImmutable;
+use NexusLogin\Repositories\LoginBonusHistoryRepositoryInterface;
+use NexusLogin\Repositories\LoginBonusRepositoryInterface;
+use NexusLogin\Services\_BaseLoginBonusService;
+use NexusPersistence\Support\CustomCollection;
+use NexusResourceDelivery\Services\ResourceDeliveryService;
+use NexusUtilities\ClockUtility;
 
 /**
  * ComeBackLoginBonusService (Domain層)
  *
  * カムバックログインボーナスの配布処理を担当するサービス
  * _BaseLoginBonusServiceを継承し、差分のみオーバーライド
- * 
+ *
  * 特性（通常ログインボーナスとの差分）:
  * - N日以上ログインしていないユーザーがログインすると発火
  * - 設定期間で終了する（ループしない） ← shouldLoop()をオーバーライド
@@ -52,7 +52,7 @@ class ComeBackLoginBonusService extends _BaseLoginBonusService
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * カムバックボーナスはループしない
      */
     protected function shouldLoop(): bool
@@ -62,7 +62,7 @@ class ComeBackLoginBonusService extends _BaseLoginBonusService
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * カムバックボーナスはスキップする（毎日ログインが必要）
      */
     protected function shouldSkipOnAbsence(): bool
@@ -72,7 +72,7 @@ class ComeBackLoginBonusService extends _BaseLoginBonusService
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * カムバック開始日からの経過日数を計算（スキップあり）
      */
     protected function calculateCurrentDay(int $sysPlayerId, ?string $lastLoginAt, string $connectionName): int
@@ -137,7 +137,7 @@ class ComeBackLoginBonusService extends _BaseLoginBonusService
             $currentDay
         );
 
-        return (new CustomCollection($contents))->map(fn($content) => (object) $content);
+        return (new CustomCollection($contents))->map(fn ($content) => (object) $content);
     }
 
     /**

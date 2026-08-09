@@ -6,7 +6,7 @@ use Illuminate\Http\JsonResponse;
 
 /**
  * _BaseResponseInterface
- * 
+ *
  * すべてのレスポンスクラスが実装すべきインターフェース
  */
 interface _BaseResponseInterface
@@ -20,16 +20,13 @@ interface _BaseResponseInterface
 
     /**
      * JSON シリアライズ
-     *
-     * @return mixed
      */
     public function jsonSerialize(): mixed;
 
     /**
      * JsonResponseに変換
      *
-     * @param int $status HTTPステータスコード
-     * @return JsonResponse
+     * @param  int  $status  HTTPステータスコード
      */
     public function toJsonResponse(int $status = 200): JsonResponse;
 }

@@ -3,11 +3,10 @@
 namespace App\Models\Sys;
 
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * SysGuild Model
- * 
+ *
  * ギルド情報テーブル
  */
 class SysGuild extends _BaseSys
@@ -45,8 +44,6 @@ class SysGuild extends _BaseSys
 
     /**
      * メンバーとのリレーション
-     *
-     * @return HasMany
      */
     public function members(): HasMany
     {
@@ -55,8 +52,6 @@ class SysGuild extends _BaseSys
 
     /**
      * 申請とのリレーション
-     *
-     * @return HasMany
      */
     public function applies(): HasMany
     {
@@ -65,8 +60,6 @@ class SysGuild extends _BaseSys
 
     /**
      * IDを取得
-     *
-     * @return int
      */
     public function getId(): int
     {
@@ -75,8 +68,6 @@ class SysGuild extends _BaseSys
 
     /**
      * ギルド名を取得
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -85,8 +76,6 @@ class SysGuild extends _BaseSys
 
     /**
      * ギルド説明を取得
-     *
-     * @return string|null
      */
     public function getDescription(): ?string
     {
@@ -95,8 +84,6 @@ class SysGuild extends _BaseSys
 
     /**
      * レベルを取得
-     *
-     * @return int
      */
     public function getLevel(): int
     {
@@ -105,8 +92,6 @@ class SysGuild extends _BaseSys
 
     /**
      * 経験値を取得
-     *
-     * @return int
      */
     public function getExp(): int
     {
@@ -115,8 +100,6 @@ class SysGuild extends _BaseSys
 
     /**
      * 最大メンバー数を取得
-     *
-     * @return int
      */
     public function getMaxMembers(): int
     {
@@ -125,9 +108,6 @@ class SysGuild extends _BaseSys
 
     /**
      * ギルド名を設定
-     *
-     * @param string $name
-     * @return void
      */
     public function setName(string $name): void
     {
@@ -136,9 +116,6 @@ class SysGuild extends _BaseSys
 
     /**
      * ギルド説明を設定
-     *
-     * @param string|null $description
-     * @return void
      */
     public function setDescription(?string $description): void
     {
@@ -147,9 +124,6 @@ class SysGuild extends _BaseSys
 
     /**
      * レベルを設定
-     *
-     * @param int $level
-     * @return void
      */
     public function setLevel(int $level): void
     {
@@ -158,9 +132,6 @@ class SysGuild extends _BaseSys
 
     /**
      * 経験値を設定
-     *
-     * @param int $exp
-     * @return void
      */
     public function setExp(int $exp): void
     {
@@ -169,9 +140,6 @@ class SysGuild extends _BaseSys
 
     /**
      * 最大メンバー数を設定
-     *
-     * @param int $maxMembers
-     * @return void
      */
     public function setMaxMembers(int $maxMembers): void
     {
@@ -180,8 +148,6 @@ class SysGuild extends _BaseSys
 
     /**
      * 現在のメンバー数を取得
-     *
-     * @return int
      */
     public function getCurrentMemberCount(): int
     {

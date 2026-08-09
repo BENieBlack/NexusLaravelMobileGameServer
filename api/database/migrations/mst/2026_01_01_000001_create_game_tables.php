@@ -231,7 +231,7 @@ return new class extends Migration
             $table->unsignedInteger('max_stamina')->comment('このレベルでの最大スタミナ');
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
-            
+
             $table->index('deploy_key');
         });
 

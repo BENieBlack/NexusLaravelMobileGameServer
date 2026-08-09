@@ -20,6 +20,7 @@ class SysFriendApplySeeder extends Seeder
 
         if (count($players) < 2) {
             $this->command->warn('⚠️  SysFriendApplySeeder: Not enough players. Run SysPlayerSeeder first.');
+
             return;
         }
 
@@ -83,9 +84,9 @@ class SysFriendApplySeeder extends Seeder
 
         DB::connection('sys')->table('sys_friend_apply')->insert($friendApplies);
 
-        $this->command->info('✅ SysFriendApplySeeder: Created ' . count($friendApplies) . ' friend applies');
-        $this->command->info('   - Accepted: ' . collect($friendApplies)->where('status', 'Accepted')->count());
-        $this->command->info('   - Applied: ' . collect($friendApplies)->where('status', 'Applied')->count());
-        $this->command->info('   - Deleted: ' . collect($friendApplies)->where('status', 'Deleted')->count());
+        $this->command->info('✅ SysFriendApplySeeder: Created '.count($friendApplies).' friend applies');
+        $this->command->info('   - Accepted: '.collect($friendApplies)->where('status', 'Accepted')->count());
+        $this->command->info('   - Applied: '.collect($friendApplies)->where('status', 'Applied')->count());
+        $this->command->info('   - Deleted: '.collect($friendApplies)->where('status', 'Deleted')->count());
     }
 }

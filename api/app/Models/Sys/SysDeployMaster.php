@@ -2,15 +2,13 @@
 
 namespace App\Models\Sys;
 
-
 /**
  * SysDeployMaster Model
- * 
+ *
  * マスターデータのデプロイ履歴を管理するモデル
  */
 class SysDeployMaster extends _BaseSys
 {
-
     /**
      * テーブル名
      */
@@ -48,15 +46,17 @@ class SysDeployMaster extends _BaseSys
      * デプロイステータスの定数
      */
     public const STATUS_SCHEDULED = 'scheduled';
+
     public const STATUS_IN_PROGRESS = 'in_progress';
+
     public const STATUS_COMPLETED = 'completed';
+
     public const STATUS_FAILED = 'failed';
+
     public const STATUS_ROLLED_BACK = 'rolled_back';
 
     /**
      * 利用可能なステータス一覧を取得
-     *
-     * @return array
      */
     public static function getAvailableStatuses(): array
     {
@@ -71,8 +71,6 @@ class SysDeployMaster extends _BaseSys
 
     /**
      * deploy_keyを取得
-     *
-     * @return int|null
      */
     public function getDeployKey(): ?int
     {
@@ -81,9 +79,6 @@ class SysDeployMaster extends _BaseSys
 
     /**
      * deploy_keyを設定
-     *
-     * @param int $deployKey
-     * @return void
      */
     public function setDeployKey(int $deployKey): void
     {
@@ -92,8 +87,6 @@ class SysDeployMaster extends _BaseSys
 
     /**
      * hashを取得
-     *
-     * @return string|null
      */
     public function getHash(): ?string
     {
@@ -102,9 +95,6 @@ class SysDeployMaster extends _BaseSys
 
     /**
      * hashを設定
-     *
-     * @param string $hash
-     * @return void
      */
     public function setHash(string $hash): void
     {
@@ -113,8 +103,6 @@ class SysDeployMaster extends _BaseSys
 
     /**
      * deploy_dateを取得
-     *
-     * @return \DateTime|null
      */
     public function getDeployDate(): ?\DateTime
     {
@@ -123,9 +111,6 @@ class SysDeployMaster extends _BaseSys
 
     /**
      * deploy_dateを設定
-     *
-     * @param \DateTime|string $deployDate
-     * @return void
      */
     public function setDeployDate(\DateTime|string $deployDate): void
     {
@@ -134,8 +119,6 @@ class SysDeployMaster extends _BaseSys
 
     /**
      * deploy_countを取得
-     *
-     * @return int|null
      */
     public function getDeployCount(): ?int
     {
@@ -144,9 +127,6 @@ class SysDeployMaster extends _BaseSys
 
     /**
      * deploy_countを設定
-     *
-     * @param int $deployCount
-     * @return void
      */
     public function setDeployCount(int $deployCount): void
     {
@@ -155,8 +135,6 @@ class SysDeployMaster extends _BaseSys
 
     /**
      * statusを取得
-     *
-     * @return string|null
      */
     public function getStatus(): ?string
     {
@@ -165,9 +143,6 @@ class SysDeployMaster extends _BaseSys
 
     /**
      * statusを設定
-     *
-     * @param string $status
-     * @return void
      */
     public function setStatus(string $status): void
     {
@@ -176,8 +151,6 @@ class SysDeployMaster extends _BaseSys
 
     /**
      * deployed_byを取得
-     *
-     * @return string|null
      */
     public function getDeployedBy(): ?string
     {
@@ -186,9 +159,6 @@ class SysDeployMaster extends _BaseSys
 
     /**
      * deployed_byを設定
-     *
-     * @param string $deployedBy
-     * @return void
      */
     public function setDeployedBy(string $deployedBy): void
     {
@@ -197,8 +167,6 @@ class SysDeployMaster extends _BaseSys
 
     /**
      * deployed_atを取得
-     *
-     * @return \DateTime|null
      */
     public function getDeployedAt(): ?\DateTime
     {
@@ -207,9 +175,6 @@ class SysDeployMaster extends _BaseSys
 
     /**
      * deployed_atを設定
-     *
-     * @param \DateTime|string $deployedAt
-     * @return void
      */
     public function setDeployedAt(\DateTime|string $deployedAt): void
     {
@@ -218,8 +183,6 @@ class SysDeployMaster extends _BaseSys
 
     /**
      * descriptionを取得
-     *
-     * @return string|null
      */
     public function getDescription(): ?string
     {
@@ -228,9 +191,6 @@ class SysDeployMaster extends _BaseSys
 
     /**
      * descriptionを設定
-     *
-     * @param string $description
-     * @return void
      */
     public function setDescription(string $description): void
     {
@@ -245,7 +205,7 @@ class SysDeployMaster extends _BaseSys
     public function parseDeployKey(): array
     {
         $keyString = (string) $this->deploy_key;
-        
+
         return [
             'year' => (int) substr($keyString, 0, 4),
             'month' => (int) substr($keyString, 4, 2),
@@ -256,8 +216,6 @@ class SysDeployMaster extends _BaseSys
 
     /**
      * デプロイが完了しているかチェック
-     *
-     * @return bool
      */
     public function isCompleted(): bool
     {
@@ -266,8 +224,6 @@ class SysDeployMaster extends _BaseSys
 
     /**
      * デプロイが失敗しているかチェック
-     *
-     * @return bool
      */
     public function isFailed(): bool
     {
@@ -276,8 +232,6 @@ class SysDeployMaster extends _BaseSys
 
     /**
      * デプロイがロールバック済みかチェック
-     *
-     * @return bool
      */
     public function isRolledBack(): bool
     {
@@ -286,23 +240,19 @@ class SysDeployMaster extends _BaseSys
 
     /**
      * ハッシュが有効かチェック
-     *
-     * @return bool
      */
     public function hasValidHash(): bool
     {
-        return !empty($this->hash) && strlen($this->hash) === 64;
+        return ! empty($this->hash) && strlen($this->hash) === 64;
     }
 
     /**
      * ハッシュからバージョン文字列を生成（短縮版）
      * セキュリティのため、ハッシュの最初の8文字のみを使用
-     *
-     * @return string|null
      */
     public function getVersionString(): ?string
     {
-        if (!$this->hasValidHash()) {
+        if (! $this->hasValidHash()) {
             return null;
         }
 
@@ -311,20 +261,18 @@ class SysDeployMaster extends _BaseSys
 
     /**
      * レスポンス用配列に変換
-     * 
+     *
      * データベース層の'id'をAPI層の'sys_deploy_master_id'に変換
-     * 
-     * @return array
      */
     public function toResponseArray(): array
     {
         $array = parent::toResponseArray();
-        
+
         if (isset($array['id'])) {
             $array['sys_deploy_master_id'] = $array['id'];
             unset($array['id']);
         }
-        
+
         return $array;
     }
 }

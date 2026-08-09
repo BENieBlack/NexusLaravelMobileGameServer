@@ -8,20 +8,17 @@ use NexusGuild\Services\GuildService;
 
 /**
  * GuildListUseCase
- * 
+ *
  * ギルド一覧取得ユースケース
  */
 class GuildListUseCase extends _BaseUseCase
 {
     public function __construct(
         private readonly GuildService $guildService,
-    ) {
-    }
+    ) {}
 
     /**
      * ギルド一覧取得処理を実行
-     *
-     * @return GuildListResponse
      */
     public function exec(): GuildListResponse
     {

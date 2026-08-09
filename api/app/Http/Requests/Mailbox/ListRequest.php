@@ -16,8 +16,6 @@ class ListRequest extends _BaseRequest
 {
     /**
      * バリデーションルール
-     *
-     * @return array
      */
     public function rules(): array
     {
@@ -31,8 +29,6 @@ class ListRequest extends _BaseRequest
 
     /**
      * カテゴリを取得
-     *
-     * @return string|null
      */
     public function getCategory(): ?string
     {
@@ -41,8 +37,6 @@ class ListRequest extends _BaseRequest
 
     /**
      * 優先度を取得
-     *
-     * @return string|null
      */
     public function getPriority(): ?string
     {
@@ -51,21 +45,17 @@ class ListRequest extends _BaseRequest
 
     /**
      * 未読のみフラグを取得
-     *
-     * @return bool
      */
     public function getOnlyUnread(): bool
     {
-        return (bool)$this->input('only_unread', false);
+        return (bool) $this->input('only_unread', false);
     }
 
     /**
      * ロックのみフラグを取得
-     *
-     * @return bool
      */
     public function getOnlyLocked(): bool
     {
-        return (bool)$this->input('only_locked', false);
+        return (bool) $this->input('only_locked', false);
     }
 }

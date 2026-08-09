@@ -6,7 +6,7 @@ use App\Http\Responses\_BaseResponse;
 
 /**
  * DeleteResponse
- * 
+ *
  * フレンド削除APIのレスポンス
  */
 class DeleteResponse extends _BaseResponse
@@ -15,14 +15,12 @@ class DeleteResponse extends _BaseResponse
         public readonly bool $success,
         public readonly string $deletedMyId,
         public readonly string $message,
-    ) {
-    }
+    ) {}
 
     /**
      * 成功レスポンスを生成
      *
-     * @param string $deletedMyId 削除されたフレンドのmy_id
-     * @return self
+     * @param  string  $deletedMyId  削除されたフレンドのmy_id
      */
     public static function success(string $deletedMyId): self
     {

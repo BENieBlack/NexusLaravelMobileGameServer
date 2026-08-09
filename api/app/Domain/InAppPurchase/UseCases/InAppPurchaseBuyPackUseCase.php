@@ -11,7 +11,7 @@ use NexusBilling\Facades\BillingFacade;
 
 /**
  * InAppPurchaseBuyPackUseCase
- * 
+ *
  * パック商品の購入ユースケース
  * _BaseBuyUseCaseを継承し、パック固有の購入処理を実装
  */
@@ -27,7 +27,7 @@ class InAppPurchaseBuyPackUseCase extends _BaseBuyUseCase
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * パック購入処理を実行
      */
     protected function executePurchase(

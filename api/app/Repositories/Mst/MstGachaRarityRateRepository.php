@@ -2,14 +2,13 @@
 
 namespace App\Repositories\Mst;
 
-
-use NexusPersistence\Support\CustomCollection;
 use App\Models\Mst\MstGachaRarityRate;
 use NexusGacha\Repositories\GachaRarityRateRepositoryInterface;
+use NexusPersistence\Support\CustomCollection;
 
 /**
  * MstGachaRarityRateRepository
- * 
+ *
  * @extends _BaseMstRepository<MstGachaRarityRate>
  */
 class MstGachaRarityRateRepository extends _BaseMstRepository implements GachaRarityRateRepositoryInterface
@@ -27,13 +26,12 @@ class MstGachaRarityRateRepository extends _BaseMstRepository implements GachaRa
     /**
      * ガチャIDでレアリティ排出率リストを取得
      *
-     * @param string $mstGachaId
      * @return CustomCollection<int, MstGachaRarityRate>
      */
     public function selectListByGachaId(string $mstGachaId): CustomCollection
     {
         $this->queryOrMemory();
-        
+
         return $this->models
             ->where('mst_gacha_id', $mstGachaId)
             ->sortBy('rarity')

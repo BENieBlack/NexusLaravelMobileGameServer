@@ -2,17 +2,15 @@
 
 namespace App\Repositories\Sys;
 
-
-use NexusPersistence\Support\CustomCollection;
 use App\Models\Sys\SysPlayerToken;
 use NexusAuth\Contracts\TokenRepositoryInterface;
-use NexusAuth\Contracts\TokenModelInterface;
+use NexusPersistence\Support\CustomCollection;
 
 /**
  * SysPlayerTokenRepository
  *
  * プレイヤートークン情報のRepository実装
- * 
+ *
  * @extends _BaseSysRepository<SysPlayerToken>
  */
 class SysPlayerTokenRepository extends _BaseSysRepository implements TokenRepositoryInterface
@@ -22,9 +20,6 @@ class SysPlayerTokenRepository extends _BaseSysRepository implements TokenReposi
     /**
      * refresh_tokenからトークンを取得（TokenRepositoryInterfaceの実装）
      * メモリキャッシュから検索、なければDBから取得
-     *
-     * @param string $refreshToken
-     * @return SysPlayerToken|null
      */
     public function selectByRefreshToken(string $refreshToken): ?SysPlayerToken
     {
@@ -34,9 +29,6 @@ class SysPlayerTokenRepository extends _BaseSysRepository implements TokenReposi
     /**
      * refresh_token_hashから有効なトークンを取得
      * メモリキャッシュから検索、なければDBから取得
-     *
-     * @param string $tokenHash
-     * @return SysPlayerToken|null
      */
     public function selectValidByHash(string $tokenHash): ?SysPlayerToken
     {
@@ -69,7 +61,7 @@ class SysPlayerTokenRepository extends _BaseSysRepository implements TokenReposi
      * プレイヤーIDに紐づく有効なトークン一覧を取得
      * メモリキャッシュから検索、なければDBから取得
      *
-     * @param int $sysPlayerId sys_player.id（プレイヤーID）
+     * @param  int  $sysPlayerId  sys_player.id（プレイヤーID）
      * @return CustomCollection<int, SysPlayerToken>
      */
     public function selectValidListByPlayerId(int $sysPlayerId): CustomCollection
@@ -78,7 +70,7 @@ class SysPlayerTokenRepository extends _BaseSysRepository implements TokenReposi
         $sysPlayerTokenCollection = $this->getModels()
             ->where('sys_player_id', $sysPlayerId)
             ->whereNull('revoked_at')
-            ->filter(fn($sysPlayerToken) => $sysPlayerToken->getExpiresAt() > now());
+            ->filter(fn ($sysPlayerToken) => $sysPlayerToken->getExpiresAt() > now());
 
         if ($sysPlayerTokenCollection->isNotEmpty()) {
             return $sysPlayerTokenCollection->values();
@@ -101,7 +93,6 @@ class SysPlayerTokenRepository extends _BaseSysRepository implements TokenReposi
      * デバイスIDに紐づくトークンを無効化
      * メモリキャッシュも自動的に更新される
      *
-     * @param int $deviceId
      * @return int 無効化したトークン数
      */
     public function revokeDeviceTokens(int $deviceId): int
@@ -131,7 +122,6 @@ class SysPlayerTokenRepository extends _BaseSysRepository implements TokenReposi
      * プレイヤーIDに紐づくトークンを削除（TokenRepositoryInterfaceの実装）
      * メモリキャッシュも自動的に更新される
      *
-     * @param int $playerId
      * @return int 削除したトークン数
      */
     public function deleteByPlayerId(int $playerId): int
@@ -154,7 +144,6 @@ class SysPlayerTokenRepository extends _BaseSysRepository implements TokenReposi
      * IDでトークンを削除（TokenRepositoryInterfaceの実装）
      * メモリキャッシュも自動的に更新される
      *
-     * @param int $tokenId
      * @return int 削除したトークン数
      */
     public function deleteById(int $tokenId): int

@@ -5,12 +5,11 @@ namespace App\Domain\InAppPurchase\Services;
 use App\Models\Mst\MstInAppPurchase;
 use App\Models\Trx\TrxInAppPurchase;
 use App\Repositories\Trx\TrxInAppPurchaseRepository;
-use App\Domain\InAppPurchase\Services\InAppPurchaseValidationService;
 use NexusUtilities\ClockUtility;
 
 /**
  * InAppPurchaseHistoryService
- * 
+ *
  * アプリ内課金の購入履歴を管理するサービス
  * DiamondServiceとPackServiceで共通の購入履歴更新ロジックを提供
  */
@@ -19,18 +18,16 @@ class InAppPurchaseHistoryService
     public function __construct(
         private readonly TrxInAppPurchaseRepository $trxInAppPurchaseRepository,
         private readonly InAppPurchaseValidationService $validationService,
-    ) {
-    }
+    ) {}
 
     /**
      * 購入履歴を更新または作成
-     * 
-     * @param int $sysPlayerId プレイヤーID
-     * @param string $billingPlatform 決済プラットフォーム（AppStore, GooglePlay等）
-     * @param MstInAppPurchase $mstInAppPurchase 商品マスター
-     * @param TrxInAppPurchase|null $purchaseHistory 既存の購入履歴（存在する場合）
-     * @param string $transactionId プラットフォーム固有のトランザクションID
-     * @return void
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  string  $billingPlatform  決済プラットフォーム（AppStore, GooglePlay等）
+     * @param  MstInAppPurchase  $mstInAppPurchase  商品マスター
+     * @param  TrxInAppPurchase|null  $purchaseHistory  既存の購入履歴（存在する場合）
+     * @param  string  $transactionId  プラットフォーム固有のトランザクションID
      */
     public function updateOrCreatePurchaseHistory(
         int $sysPlayerId,
@@ -51,6 +48,7 @@ class InAppPurchaseHistoryService
                 'purchase_count_reset_at' => $mstInAppPurchase->getPurchaseLimitReset() !== 'None' ? ClockUtility::now() : null,
             ]);
             $this->trxInAppPurchaseRepository->setModel($purchaseHistory);
+
             return;
         }
 

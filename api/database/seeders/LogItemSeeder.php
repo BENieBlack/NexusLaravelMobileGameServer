@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class LogItemSeeder extends Seeder
 {
@@ -33,6 +32,7 @@ class LogItemSeeder extends Seeder
 
         if ($accessLogs->isEmpty()) {
             $this->command->warn('⚠️  LogItemSeeder: No matching access logs found. Run LogAccessSeeder first.');
+
             return;
         }
 
@@ -41,11 +41,12 @@ class LogItemSeeder extends Seeder
 
         if (empty($masterItems)) {
             $this->command->warn('⚠️  LogItemSeeder: No master items found. Run MstItemSeeder first.');
+
             return;
         }
 
         $logCount = 0;
-        
+
         // log_accessのunique_request_idを使用してログを作成
         foreach ($accessLogs as $accessLog) {
             $mstItemId = $masterItems[array_rand($masterItems)];

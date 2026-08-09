@@ -9,6 +9,7 @@ class MstInAppPurchaseEffect extends _BaseMst
     public $table = 'mst_in_app_purchase_effect';
 
     protected $primaryKey = null;
+
     public $incrementing = false;
 
     protected $fillable = [
@@ -44,8 +45,6 @@ class MstInAppPurchaseEffect extends _BaseMst
 
     /**
      * 親のアプリ内課金商品
-     *
-     * @return BelongsTo
      */
     public function inAppPurchase(): BelongsTo
     {
@@ -54,8 +53,6 @@ class MstInAppPurchaseEffect extends _BaseMst
 
     /**
      * 効果タイプを取得
-     *
-     * @return string
      */
     public function getEffectType(): string
     {
@@ -64,8 +61,6 @@ class MstInAppPurchaseEffect extends _BaseMst
 
     /**
      * 効果値を取得
-     *
-     * @return int|float
      */
     public function getValue(): int|float
     {
@@ -74,10 +69,8 @@ class MstInAppPurchaseEffect extends _BaseMst
 
     /**
      * レスポンス用配列に変換
-     * 
+     *
      * Note: 複合主キー(mst_in_app_purchase_id, effect_type)のため、idフィールドは存在しない
-     * 
-     * @return array
      */
     public function toResponseArray(): array
     {

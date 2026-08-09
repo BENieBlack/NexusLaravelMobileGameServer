@@ -2,20 +2,21 @@
 
 namespace App\Models\Trx;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * TrxWallet Model
- * 
+ *
  * 汎用通貨現在値を管理するモデル
  * PRIMARY KEY: (sys_player_id, mst_item_id)
- * 
+ *
  * Gold, EventCoin, RaidMedal, PvPPoint, GvGPoint等を統合管理
- * 
+ *
  * mst_item_id: 通貨アイテムID (string型: "gold", "event_coin"等)
  * free_amount: 無償通貨数
  * paid_amount: 有償通貨数
- * 
+ *
  * FIFO管理・有効期限管理が必要な通貨を管理
  * trx_wallet_balanceテーブルで取得単位の詳細管理を行う
  */
@@ -40,15 +41,11 @@ class TrxWallet extends _BaseTrx
 
     /**
      * SELECTキー（プレイヤーIDでSELECT）
-     * 
-     * @var string
      */
     protected string $selectKey = 'sys_player_id';
 
     /**
      * ユニークキー（複合キーで一意）
-     * 
-     * @var array
      */
     protected array $uniqueKeys = ['sys_player_id', 'mst_item_id'];
 
@@ -73,14 +70,14 @@ class TrxWallet extends _BaseTrx
 
     /**
      * 複合主キーを設定
-     * 
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @param  Builder  $query
+     * @return Builder
      */
     public function setKeysForSaveQuery($query)
     {
         $keys = $this->getKeyName();
-        if (!is_array($keys)) {
+        if (! is_array($keys)) {
             return parent::setKeysForSaveQuery($query);
         }
 
@@ -93,7 +90,7 @@ class TrxWallet extends _BaseTrx
 
     /**
      * 複合主キーの値を取得
-     * 
+     *
      * @param  string|null  $keyName
      * @return mixed
      */
@@ -112,8 +109,6 @@ class TrxWallet extends _BaseTrx
 
     /**
      * trx_playerとのリレーション
-     *
-     * @return BelongsTo
      */
     public function trxPlayer(): BelongsTo
     {
@@ -122,10 +117,8 @@ class TrxWallet extends _BaseTrx
 
     /**
      * レスポンス用配列に変換
-     * 
+     *
      * Note: 複合主キー(sys_player_id, mst_item_id)のため、idフィールドは存在しない
-     * 
-     * @return array
      */
     public function toResponseArray(): array
     {
@@ -136,8 +129,6 @@ class TrxWallet extends _BaseTrx
 
     /**
      * 無償通貨の残高を取得
-     * 
-     * @return int
      */
     public function getFreeAmount(): int
     {
@@ -146,8 +137,6 @@ class TrxWallet extends _BaseTrx
 
     /**
      * 有償通貨の残高を取得
-     * 
-     * @return int
      */
     public function getPaidAmount(): int
     {
@@ -156,8 +145,6 @@ class TrxWallet extends _BaseTrx
 
     /**
      * 合計残高を取得（無償 + 有償）
-     * 
-     * @return int
      */
     public function getTotalAmount(): int
     {
@@ -168,9 +155,6 @@ class TrxWallet extends _BaseTrx
 
     /**
      * 無償通貨の残高を設定
-     * 
-     * @param int $freeAmount
-     * @return void
      */
     public function setFreeAmount(int $freeAmount): void
     {
@@ -179,9 +163,6 @@ class TrxWallet extends _BaseTrx
 
     /**
      * 有償通貨の残高を設定
-     * 
-     * @param int $paidAmount
-     * @return void
      */
     public function setPaidAmount(int $paidAmount): void
     {
@@ -190,9 +171,6 @@ class TrxWallet extends _BaseTrx
 
     /**
      * システムプレイヤーIDを設定
-     *
-     * @param int $sysPlayerId
-     * @return void
      */
     public function setSysPlayerId(int $sysPlayerId): void
     {
@@ -201,9 +179,6 @@ class TrxWallet extends _BaseTrx
 
     /**
      * マスターアイテムIDを設定
-     *
-     * @param string $mstItemId
-     * @return void
      */
     public function setMstItemId(string $mstItemId): void
     {

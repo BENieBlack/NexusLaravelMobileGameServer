@@ -7,7 +7,7 @@ use App\Models\Sys\SysFriendApply;
 
 /**
  * ApplySendResponse
- * 
+ *
  * フレンド申請送信APIのレスポンス
  */
 class ApplySendResponse extends _BaseResponse
@@ -18,14 +18,10 @@ class ApplySendResponse extends _BaseResponse
         public readonly int $receiverSysPlayerId,
         public readonly string $status,
         public readonly string $createdAt,
-    ) {
-    }
+    ) {}
 
     /**
      * SysFriendApplyモデルからレスポンスを生成
-     *
-     * @param SysFriendApply $sysFriendApply
-     * @return self
      */
     public static function fromModel(SysFriendApply $sysFriendApply): self
     {

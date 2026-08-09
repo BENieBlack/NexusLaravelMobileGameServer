@@ -2,16 +2,15 @@
 
 namespace App\Repositories\Log;
 
-
-use NexusPersistence\Support\CustomCollection;
 use App\Models\Log\LogGacha;
+use NexusPersistence\Support\CustomCollection;
 use NexusUtilities\ClockUtility;
 
 /**
  * LogGachaRepository
  *
  * ガチャログを管理するRepository
- * 
+ *
  * @extends _BaseLogRepository<LogGacha>
  */
 class LogGachaRepository extends _BaseLogRepository
@@ -26,11 +25,10 @@ class LogGachaRepository extends _BaseLogRepository
     /**
      * ガチャログを記録（Unit of Work パターン使用）
      *
-     * @param string $uniqueRequestId リクエスト一意ID
-     * @param int $sysPlayerId プレイヤーID
-     * @param string $mstGachaId ガチャマスターID
-     * @param array|null $result ガチャ結果
-     * @return void
+     * @param  string  $uniqueRequestId  リクエスト一意ID
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  string  $mstGachaId  ガチャマスターID
+     * @param  array|null  $result  ガチャ結果
      */
     public function createGachaLog(
         string $uniqueRequestId,
@@ -54,7 +52,7 @@ class LogGachaRepository extends _BaseLogRepository
     /**
      * 特定ガチャのログを取得
      *
-     * @param string $mstGachaId ガチャマスターID
+     * @param  string  $mstGachaId  ガチャマスターID
      * @return CustomCollection<int, LogGacha>
      */
     public function findAllByMstGachaId(string $mstGachaId): CustomCollection
@@ -67,9 +65,6 @@ class LogGachaRepository extends _BaseLogRepository
 
     /**
      * リクエストIDでガチャログを取得
-     *
-     * @param string $uniqueRequestId
-     * @return LogGacha|null
      */
     public function findByUniqueRequestId(string $uniqueRequestId): ?LogGacha
     {

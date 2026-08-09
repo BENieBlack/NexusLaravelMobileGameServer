@@ -7,7 +7,7 @@ use NexusGuild\Dto\GuildApplyDto;
 
 /**
  * GuildApplyAcceptResponse
- * 
+ *
  * ギルド加入申請承認APIのレスポンス
  */
 class GuildApplyAcceptResponse extends _BaseResponse
@@ -18,14 +18,10 @@ class GuildApplyAcceptResponse extends _BaseResponse
         public readonly int $playerId,
         public readonly string $status,
         public readonly string $updatedAt,
-    ) {
-    }
+    ) {}
 
     /**
      * GuildApplyDtoからレスポンスを生成
-     *
-     * @param GuildApplyDto $guildApplyDto
-     * @return self
      */
     public static function fromDto(GuildApplyDto $guildApplyDto): self
     {

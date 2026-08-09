@@ -3,15 +3,16 @@
 namespace App\Domain\Auth\UseCases;
 
 use App\Domain\_BaseUseCase;
-use App\Exceptions\GameException;
 use App\Exceptions\GameErrorCode;
+use App\Exceptions\GameException;
 use App\Http\Responses\Auth\SignInResponse;
+use App\Models\Sys\SysPlayerToken;
 use Exception;
-use NexusAuth\Services\TokenService;
-use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Contracts\DeviceRepositoryInterface;
 use NexusAuth\Contracts\PlayerRepositoryInterface;
 use NexusAuth\Contracts\TokenRepositoryInterface;
+use NexusAuth\Services\PlayerAuthService;
+use NexusAuth\Services\TokenService;
 use Throwable;
 
 /**
@@ -23,24 +24,22 @@ use Throwable;
  */
 class AuthSignInUseCase extends _BaseUseCase
 {
-
     public function __construct(
         private readonly PlayerAuthService $playerAuthService,
         private readonly TokenService $tokenService,
         private readonly DeviceRepositoryInterface $deviceRepository,
         private readonly PlayerRepositoryInterface $playerRepository,
         private readonly TokenRepositoryInterface $tokenRepository,
-    ) {
-    }
+    ) {}
 
     /**
      * サインイン処理を実行
      *
      * 既存デバイスIDで新しいトークンを発行
      *
-     * @param string $deviceId デバイスID
-     * @param array $deviceInfo デバイス情報（現在未使用だが将来的な拡張のため保持）
-     * @return SignInResponse
+     * @param  string  $deviceId  デバイスID
+     * @param  array  $deviceInfo  デバイス情報（現在未使用だが将来的な拡張のため保持）
+     *
      * @throws GameException デバイスIDが存在しない場合
      * @throws Exception|Throwable
      */
@@ -75,7 +74,7 @@ class AuthSignInUseCase extends _BaseUseCase
             [$tokenDto, $sysPlayerToken] = $this->tokenService->generateToken(
                 $sysPlayer,
                 $sysPlayerDevice,
-                fn($playerId, $deviceId, $tokenHash, $expiresAt) => \App\Models\Sys\SysPlayerToken::create([
+                fn ($playerId, $deviceId, $tokenHash, $expiresAt) => SysPlayerToken::create([
                     'sys_player_id' => $playerId,
                     'sys_player_device_id' => $deviceId,
                     'refresh_token_hash' => $tokenHash,

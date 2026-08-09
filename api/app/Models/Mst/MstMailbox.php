@@ -5,12 +5,13 @@ namespace App\Models\Mst;
 use App\Domain\MailBox\Constants\Category;
 use App\Domain\MailBox\Constants\Priority;
 use App\Domain\MailBox\Constants\SenderType;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * MstMailbox Model
- * 
+ *
  * @property int $deploy_key
  * @property string $id
  * @property string $mst_message_id
@@ -21,14 +22,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $expires_in_days
  * @property string|null $icon_url
  * @property bool $is_bulk_distributable
- * @property \Carbon\CarbonImmutable $created_at
- * @property \Carbon\CarbonImmutable $updated_at
+ * @property CarbonImmutable $created_at
+ * @property CarbonImmutable $updated_at
  */
 class MstMailbox extends _BaseMst
 {
     public $table = 'mst_mailbox';
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     /** @var array<int, string> */
@@ -63,8 +65,6 @@ class MstMailbox extends _BaseMst
 
     /**
      * メッセージとのリレーション
-     *
-     * @return BelongsTo
      */
     public function message(): BelongsTo
     {
@@ -73,8 +73,6 @@ class MstMailbox extends _BaseMst
 
     /**
      * コンテンツとのリレーション
-     *
-     * @return HasMany
      */
     public function contentCollection(): HasMany
     {
@@ -115,32 +113,30 @@ class MstMailbox extends _BaseMst
 
     /**
      * レスポンス用配列に変換
-     * 
-     * @return array
      */
     public function toResponseArray(): array
     {
         $array = parent::toResponseArray();
-        
+
         // Enumを文字列に変換
         if (isset($array['category']) && $array['category'] instanceof Category) {
             $array['category'] = $array['category']->value;
             $array['category_label'] = $array['category']->label();
             $array['category_icon'] = $array['category']->icon();
         }
-        
+
         if (isset($array['priority']) && $array['priority'] instanceof Priority) {
             $array['priority'] = $array['priority']->value;
             $array['priority_label'] = $array['priority']->label();
             $array['priority_color'] = $array['priority']->color();
             $array['priority_icon'] = $array['priority']->icon();
         }
-        
+
         if (isset($array['sender_type']) && $array['sender_type'] instanceof SenderType) {
             $array['sender_type'] = $array['sender_type']->value;
             $array['sender_type_label'] = $array['sender_type']->label();
         }
-        
+
         return $array;
     }
 }

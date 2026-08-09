@@ -15,12 +15,11 @@ class InAppPurchaseController extends _BaseController
 {
     public function __construct(
         private readonly MstInAppPurchaseRepository $mstInAppPurchaseRepository,
-    ) {
-    }
+    ) {}
 
     /**
      * アプリ内課金購入処理
-     * 
+     *
      * 商品タイプに応じてUseCaseを分岐
      */
     public function buy(
@@ -31,8 +30,8 @@ class InAppPurchaseController extends _BaseController
     ): JsonResponse {
         // 認証情報を取得
         $sysPlayerId = $request->getAuthenticatedPlayerId();
-        
-        if (!$sysPlayerId) {
+
+        if (! $sysPlayerId) {
             throw new GameException(
                 GameErrorCode::AUTHENTICATION_FAILED,
                 'Player ID not found in request'
@@ -57,7 +56,7 @@ class InAppPurchaseController extends _BaseController
         }
 
         // 商品タイプに応じてUseCaseを選択
-        return $this->execute(fn() => match ($product->getType()) {
+        return $this->execute(fn () => match ($product->getType()) {
             'Diamond' => $buyDiamondUseCase->exec($sysPlayerId, $product, $platform, $billingPlatform, $receipt, $transactionId, $productId),
             'Pack' => $buyPackUseCase->exec($sysPlayerId, $product, $platform, $billingPlatform, $receipt, $transactionId, $productId),
             'Pass' => $buyPassUseCase->exec($sysPlayerId, $product, $platform, $billingPlatform, $receipt, $transactionId, $productId),

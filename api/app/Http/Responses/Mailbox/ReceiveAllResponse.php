@@ -2,7 +2,6 @@
 
 namespace App\Http\Responses\Mailbox;
 
-use NexusResourceDelivery\DTOs\ResourceDeliverySummaryDto;
 use App\Http\Responses\_BaseResponse;
 
 /**
@@ -13,11 +12,11 @@ use App\Http\Responses\_BaseResponse;
 class ReceiveAllResponse extends _BaseResponse
 {
     /**
-     * @param array<int> $receivedMailboxIds 受取完了したメールID配列
-     * @param int $totalCount 受取完了したメール数
-     * @param int $skippedCount スキップされたメール数
-     * @param array $deliveryContents 配送されたアイテム情報
-     * @param ResourceDeliverySummary|null $deliverySummary 配送サマリー
+     * @param  array<int>  $receivedMailboxIds  受取完了したメールID配列
+     * @param  int  $totalCount  受取完了したメール数
+     * @param  int  $skippedCount  スキップされたメール数
+     * @param  array  $deliveryContents  配送されたアイテム情報
+     * @param  ResourceDeliverySummary|null  $deliverySummary  配送サマリー
      */
     public function __construct(
         private array $receivedMailboxIds,
@@ -25,13 +24,10 @@ class ReceiveAllResponse extends _BaseResponse
         private int $skippedCount,
         private array $deliveryContents,
         private ?ResourceDeliverySummary $deliverySummary = null,
-    ) {
-    }
+    ) {}
 
     /**
      * レスポンス配列を取得
-     *
-     * @return array
      */
     public function toArray(): array
     {

@@ -12,7 +12,7 @@ use NexusGuild\Services\GuildService;
 
 /**
  * GuildApplySendUseCase
- * 
+ *
  * ギルド加入申請送信ユースケース
  */
 class GuildApplySendUseCase extends _BaseUseCase
@@ -20,15 +20,14 @@ class GuildApplySendUseCase extends _BaseUseCase
     public function __construct(
         private readonly SysGuildRepository $sysGuildRepository,
         private readonly GuildService $guildService,
-    ) {
-    }
+    ) {}
 
     /**
      * ギルド加入申請送信処理を実行
      *
-     * @param int $sysPlayerId プレイヤーID
-     * @param int $guildId ギルドID
-     * @return GuildApplySendResponse
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  int  $guildId  ギルドID
+     *
      * @throws GameException
      */
     public function exec(int $sysPlayerId, int $guildId): GuildApplySendResponse

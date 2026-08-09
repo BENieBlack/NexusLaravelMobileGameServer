@@ -2,45 +2,43 @@
 
 namespace App\Repositories\Trx;
 
-
-use NexusPersistence\Support\CustomCollection;
 use App\Models\Trx\TrxStamina;
-use NexusStamina\Repositories\StaminaRepositoryInterface;
-use NexusStamina\Dto\StaminaDto;
 use App\Persistence\ApiSession;
+use Illuminate\Support\Collection;
+use NexusStamina\Dto\StaminaDto;
+use NexusStamina\Repositories\StaminaRepositoryInterface;
 
 /**
  * TrxStaminaRepository
- * 
+ *
  * スタミナデータの永続化のみを担当
  * ビジネスロジックはStaminaServiceに実装
- * 
+ *
  * PRIMARY KEY: (sys_player_id, type)
- * 
+ *
  * @extends _BaseTrxRepository<TrxStamina>
  */
 class TrxStaminaRepository extends _BaseTrxRepository implements StaminaRepositoryInterface
 {
     protected string $modelClass = TrxStamina::class;
+
     protected string $selectKey = 'sys_player_id';
 
     public function __construct(
         private readonly ApiSession $apiSession
-    ) {
-    }
+    ) {}
 
     /**
      * プレイヤーの指定タイプのスタミナ情報を取得
      * queryOrMemory()経由でキャッシュからfilterして取得
      *
-     * @param string $type スタミナタイプ
-     * @return TrxStamina|null
+     * @param  string  $type  スタミナタイプ
      */
     public function selectByType(string $type): ?TrxStamina
     {
         // queryOrMemory()で全データをキャッシュにロード（ApiSessionから$sysPlayerIdを取得）
         $modelCollection = $this->queryOrMemory();
-        
+
         // typeでフィルタして取得
         /** @var TrxStamina|null */
         return $modelCollection->where('type', $type)->first();
@@ -51,7 +49,7 @@ class TrxStaminaRepository extends _BaseTrxRepository implements StaminaReposito
      *
      * @return \Illuminate\Support\CustomCollection<int, TrxStamina>
      */
-    public function selectAllByPlayer(): \Illuminate\Support\Collection
+    public function selectAllByPlayer(): Collection
     {
         // queryOrMemory()で全データをキャッシュにロード
         return $this->queryOrMemory();
@@ -74,7 +72,7 @@ class TrxStaminaRepository extends _BaseTrxRepository implements StaminaReposito
             $this->apiSession->setSysPlayerId($originalPlayerId);
         }
 
-        if (!$stamina) {
+        if (! $stamina) {
             return null;
         }
 
@@ -94,7 +92,7 @@ class TrxStaminaRepository extends _BaseTrxRepository implements StaminaReposito
     public function save(StaminaDto $staminaDto): void
     {
         $stamina = $this->selectByType($staminaDto->getType());
-        
+
         if ($stamina) {
             $stamina->current_stamina = $staminaDto->getCurrentStamina();
             $stamina->recovery_rate_multiplier = $staminaDto->getRecoveryRateMultiplier();
@@ -118,8 +116,7 @@ class TrxStaminaRepository extends _BaseTrxRepository implements StaminaReposito
         ]);
         $stamina->exists = false;
         $this->setModel($stamina);
-        
+
         return $staminaDto;
     }
 }
-

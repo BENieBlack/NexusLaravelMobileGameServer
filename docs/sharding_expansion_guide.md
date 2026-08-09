@@ -163,7 +163,43 @@ docker exec db-trx3 mysql -uroot -proot -e "CREATE DATABASE IF NOT EXISTS \`nexu
 docker exec db-log3 mysql -uroot -proot -e "CREATE DATABASE IF NOT EXISTS \`nexus-local-log3\`;"
 ```
 
-#### 3.3 api-phpコンテナの再起動
+#### 3.3 テスト用データベースの作成
+
+テストを実行する場合は、テスト用データベースも作成します：
+
+```bash
+# TrxDB3テスト用データベースの作成
+docker exec db-trx3 mysql -uroot -proot -e "CREATE DATABASE IF NOT EXISTS \`arche-testing-trx3\`;"
+
+# LogDB3テスト用データベースの作成
+docker exec db-log3 mysql -uroot -proot -e "CREATE DATABASE IF NOT EXISTS \`arche-testing-log3\`;"
+```
+
+#### 3.4 phpunit.xmlの更新
+
+**重要:** テストを実行する場合は、`api/phpunit.xml`に新しいシャードのテスト環境変数を追加する必要があります。
+
+`api/phpunit.xml`のphpセクションに以下を追加：
+
+```xml
+<!-- Transaction DB Testing - Node 3 -->
+<env name="DB_TRX3_HOST" value="db-trx3"/>
+<env name="DB_TRX3_PORT" value="3306"/>
+<env name="DB_TRX3_DATABASE" value="arche-testing-trx3"/>
+<env name="DB_TRX3_USERNAME" value="root"/>
+<env name="DB_TRX3_PASSWORD" value="root"/>
+
+<!-- Log DB Testing - Node 3 -->
+<env name="DB_LOG3_HOST" value="db-log3"/>
+<env name="DB_LOG3_PORT" value="3306"/>
+<env name="DB_LOG3_DATABASE" value="arche-testing-log3"/>
+<env name="DB_LOG3_USERNAME" value="root"/>
+<env name="DB_LOG3_PASSWORD" value="root"/>
+```
+
+**注意:** この設定を追加しないと、テスト実行時に "Unknown database" エラーが発生します。
+
+#### 3.5 api-phpコンテナの再起動
 
 環境変数の変更を反映させるため、api-phpコンテナを再起動します：
 
@@ -177,7 +213,7 @@ docker compose up -d api-php
 docker compose restart api-php
 ```
 
-#### 3.4 環境変数の確認
+#### 3.6 環境変数の確認
 
 正しく設定されているか確認：
 
@@ -433,11 +469,18 @@ docker exec db-log2 mysqldump -uroot -proot nexus-local-log2 > backup_log2_$(dat
 
 ## まとめ
 
-シャード増設は以下の4ステップで完了します：
+シャード増設は以下の手順で完了します：
 
 1. ✅ **環境変数設定** (.env, api/.env, docker-compose.yml)
 2. ✅ **Dockerコンテナ起動** (docker compose up -d)
 3. ✅ **データベース作成** (CREATE DATABASE)
-4. ✅ **マイグレーション実行** (trx:migrate, pitr:migrate)
+4. ✅ **テスト用データベース作成** (CREATE DATABASE for testing)
+5. ✅ **phpunit.xml更新** (新しいシャードのテスト環境変数を追加)
+6. ✅ **マイグレーション実行** (trx:migrate, pitr:migrate)
+
+**注意事項:**
+- テストを実行する場合は、必ず`api/phpunit.xml`に新しいシャードの設定を追加してください
+- テスト用データベース名は本番と異なる命名規則（`arche-testing-*`）を使用します
+- phpunit.xmlの更新を忘れると、テスト実行時にデータベース接続エラーが発生します
 
 完全動的シャーディングにより、アプリケーションコードの変更なしに、簡単にスケールアウトが可能です。

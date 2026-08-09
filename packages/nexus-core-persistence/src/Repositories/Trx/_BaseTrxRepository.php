@@ -9,6 +9,7 @@ use NexusPersistence\Support\CustomCollection;
 use NexusUtilities\ClockUtility;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Facades\DB;
+use NexusPitr\Traits\LogsChanges;
 
 /**
  * _BaseTrxRepository
@@ -22,6 +23,7 @@ use Illuminate\Support\Facades\DB;
  */
 abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRepositoryInterface
 {
+    use LogsChanges;
     protected string $selectKey = 'sys_player_id';
 
     /**
@@ -210,6 +212,14 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
      */
     protected function deleteModel($model): void
     {
+        // PITRログをキューに追加
+        $sysPlayerId = $model->getAttribute('sys_player_id');
+        $this->queueDeleteLog(
+            sysPlayerId: $sysPlayerId,
+            beforeData: $model->getOriginal(),
+            primaryKey: $this->getPrimaryKeyValues($model)
+        );
+        
         // 親クラスのdeleteModelを呼び出し
         parent::deleteModel($model);
     }
@@ -224,8 +234,65 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
      */
     public function afterSave($model, array $originalState): void
     {
-        // デフォルトでは何もしない
-        // サブクラスでオーバーライドしてログ記録処理を実装
+        // PITR変更ログを記録
+        $this->recordPitrLog($model, $originalState);
+    }
+
+    /**
+     * PITR変更ログをキューに追加
+     * 
+     * @param _BaseTrx $model 保存されたモデル（最終状態）
+     * @param array<string, mixed> $originalState 変更前の状態
+     * @return void
+     */
+    protected function recordPitrLog($model, array $originalState): void
+    {
+        $sysPlayerId = $model->getAttribute('sys_player_id');
+        
+        if (empty($originalState)) {
+            // INSERT操作
+            $this->queueInsertLog(
+                sysPlayerId: $sysPlayerId,
+                afterData: $model->getAttributes(),
+                primaryKey: $this->getPrimaryKeyValues($model)
+            );
+        } else {
+            // UPDATE操作（差分がある場合のみ）
+            $afterData = $model->getAttributes();
+            $diff = array_diff_assoc($afterData, $originalState);
+            
+            if (!empty($diff)) {
+                $this->queueUpdateLog(
+                    sysPlayerId: $sysPlayerId,
+                    beforeData: $originalState,
+                    afterData: $diff, // 差分のみ記録
+                    primaryKey: $this->getPrimaryKeyValues($model)
+                );
+            }
+        }
+    }
+
+    /**
+     * 主キーの値を取得
+     * 
+     * @param _BaseTrx $model
+     * @return array<string, mixed>
+     */
+    protected function getPrimaryKeyValues($model): array
+    {
+        $keyName = $model->getKeyName();
+        
+        if (is_array($keyName)) {
+            // 複合主キー
+            $pk = [];
+            foreach ($keyName as $key) {
+                $pk[$key] = $model->getAttribute($key);
+            }
+            return $pk;
+        } else {
+            // 単一主キー
+            return [$keyName => $model->getKey()];
+        }
     }
 
     /**
@@ -248,6 +315,7 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
         parent::clearQueue();
         $this->originalStateArray = [];
         $this->newModelCounter = 0;
+        $this->clearPitrLogQueue(); // PITRログキューもクリア
     }
 
     /**

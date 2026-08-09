@@ -6,8 +6,10 @@ use NexusUnitOfWork\Contracts\QueryManagerInterface;
 use NexusPersistence\Repositories\_BaseRepositoryInterface;
 use NexusPersistence\Repositories\Log\_BaseLogRepository;
 use NexusPersistence\Repositories\Sys\_BaseSysRepository;
+use NexusPersistence\Repositories\Trx\_BaseTrxRepository;
 use NexusUnitOfWork\Persistence\QueryManager\OperationCollector;
 use NexusUnitOfWork\Persistence\QueryManager\BatchExecutor;
+use NexusPitr\Logger\TrxChangeLogger;
 
 /**
  * QueryManager
@@ -106,11 +108,60 @@ class QueryManager implements QueryManagerInterface
         $this->batchExecutor->executeUpdates($operations['updates']);
         $this->batchExecutor->executeDeletes($operations['deletes']);
 
+        // PITRログをLogDBに記録（同一トランザクション内で実行）
+        $this->flushPitrLogs();
+
         // ログはトランザクション外で実行するため、ここでは実行しない
         // $operations['logs'] は execAllLogs() で処理される
 
         // クリア（ログリポジトリは残す）
         $this->clearExceptLogs();
+    }
+
+    /**
+     * PITRログをLogDBに記録（同一トランザクション内で実行）
+     * 
+     * @return void
+     */
+    private function flushPitrLogs(): void
+    {
+        try {
+            $trxChangeLogger = app()->make(TrxChangeLogger::class);
+            $allPitrLogs = [];
+            
+            // 全TrxRepositoryからPITRログを収集
+            foreach ($this->repositories as $repository) {
+                if ($repository instanceof _BaseTrxRepository) {
+                    $pitrLogs = $repository->getPitrLogQueue();
+                    if (!empty($pitrLogs)) {
+                        $allPitrLogs = array_merge($allPitrLogs, $pitrLogs);
+                    }
+                }
+            }
+            
+            // LogDBにバッチ記録（同一トランザクション内）
+            if (!empty($allPitrLogs)) {
+                $trxChangeLogger->logBatch($allPitrLogs);
+            }
+            
+            // PITRログキューをクリア
+            foreach ($this->repositories as $repository) {
+                if ($repository instanceof _BaseTrxRepository) {
+                    $repository->clearPitrLogQueue();
+                }
+            }
+            
+        } catch (\Exception $e) {
+            // PITRログ記録失敗は致命的エラー（トランザクション全体を失敗させる）
+            \Log::error('Failed to write PITR logs (critical)', [
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            
+            throw $e; // トランザクションをロールバックさせる
+        }
     }
 
     /**

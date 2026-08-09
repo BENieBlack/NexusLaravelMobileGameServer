@@ -18,6 +18,7 @@
         </include>
     </source>
     <php>
+        <env name="APP_NAME" value="nexus"/>
         <env name="APP_ENV" value="testing"/>
         <env name="APP_URL" value="http://localhost"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
@@ -34,39 +35,70 @@
         <env name="REDIS_HOST" value="redis"/>
         <env name="REDIS_PORT" value="6379"/>
 
+        <!-- Sharding Configuration for Testing -->
+        <env name="DB_TRX_SHARDS" value="3"/>
+
         <!-- System DB Testing -->
         <env name="DB_SYSTEM_HOST" value="db-sys"/>
         <env name="DB_SYSTEM_PORT" value="3306"/>
-        <env name="DB_SYSTEM_DATABASE" value="arche-testing-sys"/>
+        <env name="DB_SYSTEM_DATABASE" value="nexus-testing-sys"/>
         <env name="DB_SYSTEM_USERNAME" value="root"/>
         <env name="DB_SYSTEM_PASSWORD" value="root"/>
 
         <!-- Master DB Testing -->
         <env name="DB_MASTER_HOST" value="db-mst"/>
         <env name="DB_MASTER_PORT" value="3306"/>
-        <env name="DB_MASTER_DATABASE" value="arche-testing-mst"/>
+        <env name="DB_MASTER_DATABASE" value="nexus-testing-mst"/>
         <env name="DB_MASTER_USERNAME" value="root"/>
         <env name="DB_MASTER_PASSWORD" value="root"/>
 
-        <!-- Log DB Testing -->
-        <env name="DB_LOG_HOST" value="db-log"/>
+        <!-- Log DB Testing (generic) -->
+        <env name="DB_LOG_HOST" value="db-log1"/>
         <env name="DB_LOG_PORT" value="3306"/>
-        <env name="DB_LOG_DATABASE" value="arche-testing-log"/>
+        <env name="DB_LOG_DATABASE" value="nexus-testing-log1"/>
         <env name="DB_LOG_USERNAME" value="root"/>
         <env name="DB_LOG_PASSWORD" value="root"/>
+
+        <!-- Log DB Testing - Node 1 -->
+        <env name="DB_LOG1_HOST" value="db-log1"/>
+        <env name="DB_LOG1_PORT" value="3306"/>
+        <env name="DB_LOG1_DATABASE" value="nexus-testing-log1"/>
+        <env name="DB_LOG1_USERNAME" value="root"/>
+        <env name="DB_LOG1_PASSWORD" value="root"/>
+
+        <!-- Log DB Testing - Node 2 -->
+        <env name="DB_LOG2_HOST" value="db-log2"/>
+        <env name="DB_LOG2_PORT" value="3306"/>
+        <env name="DB_LOG2_DATABASE" value="nexus-testing-log2"/>
+        <env name="DB_LOG2_USERNAME" value="root"/>
+        <env name="DB_LOG2_PASSWORD" value="root"/>
+
+        <!-- Log DB Testing - Node 3 -->
+        <env name="DB_LOG3_HOST" value="db-log3"/>
+        <env name="DB_LOG3_PORT" value="3306"/>
+        <env name="DB_LOG3_DATABASE" value="nexus-testing-log3"/>
+        <env name="DB_LOG3_USERNAME" value="root"/>
+        <env name="DB_LOG3_PASSWORD" value="root"/>
 
         <!-- Transaction DB Testing - Node 1 -->
         <env name="DB_TRX1_HOST" value="db-trx1"/>
         <env name="DB_TRX1_PORT" value="3306"/>
-        <env name="DB_TRX1_DATABASE" value="arche-testing-trx1"/>
+        <env name="DB_TRX1_DATABASE" value="nexus-testing-trx1"/>
         <env name="DB_TRX1_USERNAME" value="root"/>
         <env name="DB_TRX1_PASSWORD" value="root"/>
 
         <!-- Transaction DB Testing - Node 2 -->
         <env name="DB_TRX2_HOST" value="db-trx2"/>
         <env name="DB_TRX2_PORT" value="3306"/>
-        <env name="DB_TRX2_DATABASE" value="arche-testing-trx2"/>
+        <env name="DB_TRX2_DATABASE" value="nexus-testing-trx2"/>
         <env name="DB_TRX2_USERNAME" value="root"/>
         <env name="DB_TRX2_PASSWORD" value="root"/>
+
+        <!-- Transaction DB Testing - Node 3 -->
+        <env name="DB_TRX3_HOST" value="db-trx3"/>
+        <env name="DB_TRX3_PORT" value="3306"/>
+        <env name="DB_TRX3_DATABASE" value="nexus-testing-trx3"/>
+        <env name="DB_TRX3_USERNAME" value="root"/>
+        <env name="DB_TRX3_PASSWORD" value="root"/>
     </php>
 </phpunit>

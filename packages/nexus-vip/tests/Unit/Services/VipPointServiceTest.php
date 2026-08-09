@@ -3,7 +3,7 @@
 namespace NexusVip\Tests\Unit\Services;
 
 use NexusVip\DTOs\PlayerVipDto;
-use NexusVip\DTOs\VipConfigDto;
+use NexusVip\DTOs\VipConfig;
 use NexusVip\Events\VipLevelUpEvent;
 use NexusVip\Exceptions\InvalidVipPointException;
 use NexusVip\Models\MstVipLevel;
@@ -24,7 +24,7 @@ class VipPointServiceTest extends TestCase
     private VipPointLogRepositoryInterface $vipPointLogRepository;
     private VipLevelService $vipLevelService;
     private VipRewardService $vipRewardService;
-    private VipConfigDto $config;
+    private VipConfig $config;
     private VipPointService $service;
 
     protected function setUp(): void
@@ -37,7 +37,7 @@ class VipPointServiceTest extends TestCase
         $this->vipRewardService = Mockery::mock(VipRewardService::class);
         
         // テスト用設定（ログ・イベント無効）
-        $this->config = new VipConfigDto(
+        $this->config = new VipConfig(
             enablePointLog: false,
             enableLevelUpEvent: false,
             staminaBonusEnabled: true,

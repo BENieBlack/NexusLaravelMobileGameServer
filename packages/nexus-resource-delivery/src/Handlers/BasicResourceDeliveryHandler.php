@@ -2,7 +2,7 @@
 
 namespace NexusResourceDelivery\Handlers;
 
-use App\Domain\Wallet\Services\WalletService;
+use LaravelWallet\Services\WalletService;
 use NexusResource\Enums\ResourceType;
 use NexusResourceDelivery\DTOs\ResourceDeliveryContentDto;
 

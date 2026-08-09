@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Log;
 use NexusMaintenance\Contracts\MaintenanceStorageInterface;
 use NexusMaintenance\DTOs\MaintenanceDto;
 use NexusMaintenance\Services\MaintenanceService;
-use NexusUtilities\ClockUtility;
+use Nexus\Core\Utilities\ClockUtility;
 use Tests\TestCase;
 
 class MaintenanceServiceTest extends TestCase

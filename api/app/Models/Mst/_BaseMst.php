@@ -2,7 +2,7 @@
 
 namespace App\Models\Mst;
 
-use NexusPersistence\Models\Mst\_BaseMst as PersistenceBaseMst;
+use Nexus\Core\Models\Mst\_BaseMst as PersistenceBaseMst;
 
 /**
  * _BaseMst

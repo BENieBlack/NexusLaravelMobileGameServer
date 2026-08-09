@@ -3,7 +3,7 @@
 namespace NexusMaintenance\Tests\Unit\DTOs;
 
 use NexusMaintenance\DTOs\MaintenanceDto;
-use NexusUtilities\ClockUtility;
+use NexusUtilities\Utilities\ClockUtility;
 use PHPUnit\Framework\TestCase;
 
 class MaintenanceDtoTest extends TestCase

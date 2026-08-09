@@ -8,7 +8,7 @@ use App\Models\Mst\MstLoginBonusContent;
 use App\Persistence\ApiSession;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
-use NexusUtilities\ClockUtility;
+use Nexus\Core\Utilities\ClockUtility;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;

@@ -3,7 +3,7 @@
 namespace App\Repositories\Log;
 
 use App\Models\Log\LogPlayer;
-use NexusUtilities\ClockUtility;
+use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * LogPlayerRepository

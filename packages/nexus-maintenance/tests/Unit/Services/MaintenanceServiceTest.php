@@ -5,7 +5,7 @@ namespace NexusMaintenance\Tests\Unit\Services;
 use NexusMaintenance\Contracts\MaintenanceStorageInterface;
 use NexusMaintenance\DTOs\MaintenanceDto;
 use NexusMaintenance\Services\MaintenanceService;
-use NexusUtilities\ClockUtility;
+use NexusUtilities\Utilities\ClockUtility;
 use PHPUnit\Framework\TestCase;
 
 class MaintenanceServiceTest extends TestCase

@@ -4,7 +4,7 @@ namespace App\Repositories\Mst;
 
 use App\Models\Mst\MstVipLoginBonus;
 use App\Models\Mst\MstVipLoginBonusContent;
-use NexusPersistence\Support\CustomCollection;
+use Nexus\Core\Support\CustomCollection;
 
 class MstVipLoginBonusRepository extends _BaseMstRepository implements VipLoginBonusRepositoryInterface
 {

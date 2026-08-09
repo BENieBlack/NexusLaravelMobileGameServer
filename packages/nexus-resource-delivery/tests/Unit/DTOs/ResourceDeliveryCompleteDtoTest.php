@@ -2,7 +2,7 @@
 
 namespace NexusResourceDelivery\Tests\Unit\DTOs;
 
-use NexusPersistence\Support\CustomCollection;
+use Nexus\Core\Support\CustomCollection;
 use NexusResourceDelivery\DTOs\ResourceDeliveryCompleteDto;
 use PHPUnit\Framework\TestCase;
 

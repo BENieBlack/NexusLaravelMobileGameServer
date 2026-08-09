@@ -2,7 +2,7 @@
 
 namespace App\Repositories\Mst;
 
-use NexusPersistence\Support\CustomCollection;
+use Nexus\Core\Support\CustomCollection;
 use NexusVip\Models\MstVipLevel;
 use NexusVip\Repositories\VipLevelRepositoryInterface;
 

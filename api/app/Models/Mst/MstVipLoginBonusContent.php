@@ -3,7 +3,7 @@
 namespace App\Models\Mst;
 
 use Carbon\CarbonImmutable;
-use NexusPersistence\Models\Mst\_BaseMst;
+use Nexus\Core\Models\Mst\_BaseMst;
 
 /**
  * MstVipLoginBonusContent

@@ -2,7 +2,7 @@
 
 namespace App\Repositories\Sys;
 
-use NexusPersistence\Repositories\Sys\_BaseSysRepositoryInterface as PersistenceBaseSysRepositoryInterface;
+use Nexus\Core\Repositories\Sys\_BaseSysRepositoryInterface as PersistenceBaseSysRepositoryInterface;
 
 /**
  * _BaseSysRepositoryInterface

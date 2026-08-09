@@ -8,15 +8,11 @@
     "repositories": [
         {
             "type": "path",
-            "url": "../packages/nexus-core-utilities"
+            "url": "../packages/nexus-core"
         },
         {
             "type": "path",
             "url": "../packages/nexus-core-security"
-        },
-        {
-            "type": "path",
-            "url": "../packages/nexus-core-persistence"
         },
         {
             "type": "path",
@@ -97,9 +93,8 @@
         "firebase/php-jwt": "^6.10",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
-        "nexus/core-utilities": "@dev",
+        "nexus/core": "@dev",
         "nexus/core-security": "@dev",
-        "nexus/core-persistence": "@dev",
         "nexus/core-unit-of-work": "@dev",
         "nexus/core-auth": "@dev",
         "nexus/core-billing": "@dev",

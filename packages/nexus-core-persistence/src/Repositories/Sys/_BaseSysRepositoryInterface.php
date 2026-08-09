@@ -2,10 +2,10 @@
 
 namespace NexusPersistence\Repositories\Sys;
 
-use NexusPersistence\Models\Sys\_BaseSysInterface;
-use NexusPersistence\Repositories\_BaseRepositoryInterface;
+use Nexus\Core\Models\Sys\_BaseSysInterface;
+use Nexus\Core\Repositories\_BaseRepositoryInterface;
 use Illuminate\Database\Eloquent\Model;
-use NexusPersistence\Support\CustomCollection;
+use Nexus\Core\Support\CustomCollection;
 
 /**
  * _BaseSysRepositoryInterface

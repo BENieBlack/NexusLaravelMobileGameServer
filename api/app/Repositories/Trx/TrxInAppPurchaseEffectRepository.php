@@ -3,7 +3,7 @@
 namespace App\Repositories\Trx;
 
 use App\Models\Trx\TrxInAppPurchaseEffect;
-use NexusPersistence\Support\CustomCollection;
+use Nexus\Core\Support\CustomCollection;
 
 /**
  * TrxInAppPurchaseEffectRepository

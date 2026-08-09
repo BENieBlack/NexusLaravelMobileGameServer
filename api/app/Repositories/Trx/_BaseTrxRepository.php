@@ -3,7 +3,7 @@
 namespace App\Repositories\Trx;
 
 use App\Persistence\ApiSession;
-use NexusPersistence\Repositories\Trx\_BaseTrxRepository as PersistenceBaseTrxRepository;
+use Nexus\Core\Repositories\Trx\_BaseTrxRepository as PersistenceBaseTrxRepository;
 use NexusUnitOfWork\Traits\UsesUnitOfWork;
 
 /**

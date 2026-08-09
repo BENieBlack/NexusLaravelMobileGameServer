@@ -2,10 +2,10 @@
 
 namespace NexusPersistence\Repositories\Mst;
 
-use NexusPersistence\Models\Mst\_BaseMst;
-use NexusPersistence\Models\Mst\_BaseMstInterface;
-use NexusPersistence\Repositories\_BaseRepository;
-use NexusPersistence\Support\CustomCollection;
+use Nexus\Core\Models\Mst\_BaseMst;
+use Nexus\Core\Models\Mst\_BaseMstInterface;
+use Nexus\Core\Repositories\_BaseRepository;
+use Nexus\Core\Support\CustomCollection;
 use Illuminate\Support\Facades\Cache;
 
 /**

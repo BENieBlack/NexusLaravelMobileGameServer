@@ -9,7 +9,7 @@ use App\Models\Trx\TrxInAppPurchase;
 use App\Models\Trx\TrxUnit;
 use App\Repositories\Trx\TrxInAppPurchaseRepository;
 use App\Repositories\Trx\TrxUnitRepository;
-use NexusUtilities\ClockUtility;
+use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * InAppPurchasePackService

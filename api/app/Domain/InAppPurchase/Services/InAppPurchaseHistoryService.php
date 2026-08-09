@@ -5,7 +5,7 @@ namespace App\Domain\InAppPurchase\Services;
 use App\Models\Mst\MstInAppPurchase;
 use App\Models\Trx\TrxInAppPurchase;
 use App\Repositories\Trx\TrxInAppPurchaseRepository;
-use NexusUtilities\ClockUtility;
+use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * InAppPurchaseHistoryService

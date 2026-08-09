@@ -2,7 +2,7 @@
 
 namespace App\Repositories\Sys;
 
-use NexusPersistence\Repositories\Sys\_BaseSysRepository as PersistenceBaseSysRepository;
+use Nexus\Core\Repositories\Sys\_BaseSysRepository as PersistenceBaseSysRepository;
 use NexusUnitOfWork\Traits\UsesUnitOfWork;
 
 /**

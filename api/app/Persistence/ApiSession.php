@@ -6,7 +6,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use NexusSecurity\Contracts\PlayerSessionInterface;
 use NexusUnitOfWork\Contracts\PlayerSessionResolverInterface;
-use NexusUtilities\ClockUtility;
+use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * ApiSession

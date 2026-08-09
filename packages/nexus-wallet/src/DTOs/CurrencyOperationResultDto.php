@@ -2,7 +2,7 @@
 
 namespace LaravelWallet\DTOs;
 
-use NexusUtilities\Traits\JsonSerializableTrait;
+use Nexus\Core\Traits\JsonSerializableTrait;
 
 /**
  * 通貨操作結果DTO

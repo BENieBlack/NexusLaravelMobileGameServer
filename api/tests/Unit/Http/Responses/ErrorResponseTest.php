@@ -4,8 +4,8 @@ namespace Tests\Unit\Http\Responses;
 
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\InfraErrorCode;
-use App\Http\Responses\ErrorResponse;
 use Illuminate\Http\JsonResponse;
+use Nexus\Core\ValueObjects\ErrorResponse;
 use Tests\TestCase;
 
 /**

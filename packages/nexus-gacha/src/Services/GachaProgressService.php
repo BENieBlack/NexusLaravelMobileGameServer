@@ -4,7 +4,7 @@ namespace NexusGacha\Services;
 
 use NexusGacha\Dto\GachaProgressDto;
 use NexusGacha\Repositories\GachaProgressRepositoryInterface;
-use NexusUtilities\ClockUtility;
+use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * GachaProgressService

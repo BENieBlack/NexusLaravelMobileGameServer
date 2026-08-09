@@ -6,9 +6,9 @@ use App\Repositories\Mst\VipLoginBonusRepositoryInterface;
 use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Trx\VipLoginBonusHistoryRepositoryInterface;
 use NexusLogin\Services\_BaseLoginBonusService;
-use NexusPersistence\Support\CustomCollection;
+use Nexus\Core\Support\CustomCollection;
 use NexusResourceDelivery\Services\ResourceDeliveryService;
-use NexusUtilities\ClockUtility;
+use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * VipLoginBonusService (Domain層)

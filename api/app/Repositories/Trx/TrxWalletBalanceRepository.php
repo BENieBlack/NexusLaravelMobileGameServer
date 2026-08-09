@@ -4,7 +4,7 @@ namespace App\Repositories\Trx;
 
 use App\Models\Trx\TrxWalletBalance;
 use Carbon\CarbonImmutable;
-use NexusPersistence\Support\CustomCollection;
+use Nexus\Core\Support\CustomCollection;
 
 /**
  * TrxWalletBalanceRepository

@@ -1,6 +1,6 @@
 <?php
 
-namespace NexusUtilities;
+namespace NexusUtilities\Utilities;
 
 use Carbon\CarbonImmutable;
 

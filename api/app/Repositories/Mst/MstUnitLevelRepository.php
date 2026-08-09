@@ -4,7 +4,7 @@ namespace App\Repositories\Mst;
 
 use App\Models\Mst\MstUnitLevel;
 use Illuminate\Support\Facades\Cache;
-use NexusPersistence\Support\CustomCollection;
+use Nexus\Core\Support\CustomCollection;
 
 /**
  * MstUnitLevelRepository

@@ -5,7 +5,7 @@ namespace App\Repositories\Sys;
 use App\Models\Sys\SysPlayerDevice;
 use Illuminate\Support\Collection;
 use NexusAuth\Contracts\DeviceRepositoryInterface;
-use NexusPersistence\Support\CustomCollection;
+use Nexus\Core\Support\CustomCollection;
 use NexusPlayer\Dto\PlayerDeviceDto;
 use NexusPlayer\Repositories\PlayerDeviceRepositoryInterface;
 

@@ -2,7 +2,7 @@
 
 namespace App\Models\Trx;
 
-use NexusPersistence\Models\Trx\_BaseTrxInterface as PersistenceBaseTrxInterface;
+use Nexus\Core\Models\Trx\_BaseTrxInterface as PersistenceBaseTrxInterface;
 
 /**
  * _BaseTrxInterface

@@ -9,7 +9,7 @@ use App\Repositories\Mst\MstPlayerLevelRepository;
 use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Trx\TrxStaminaRepository;
 use NexusLevel\Services\_BaseLevelService;
-use NexusUtilities\ClockUtility;
+use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * PlayerLevelService

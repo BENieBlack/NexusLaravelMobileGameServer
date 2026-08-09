@@ -2,11 +2,11 @@
 
 namespace NexusPersistence\Repositories\Trx;
 
-use NexusPersistence\Models\Trx\_BaseTrx;
-use NexusPersistence\Models\Trx\_BaseTrxInterface;
-use NexusPersistence\Repositories\_BaseRepository;
-use NexusPersistence\Support\CustomCollection;
-use NexusUtilities\ClockUtility;
+use Nexus\Core\Models\Trx\_BaseTrx;
+use Nexus\Core\Models\Trx\_BaseTrxInterface;
+use Nexus\Core\Repositories\_BaseRepository;
+use Nexus\Core\Support\CustomCollection;
+use Nexus\Core\Utilities\ClockUtility;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Facades\DB;
 use NexusPitr\Traits\LogsChanges;

@@ -5,7 +5,7 @@ namespace App\Repositories\Trx;
 use App\Models\Trx\TrxUnit;
 use App\Persistence\ApiSession;
 use App\Repositories\Log\LogUnitRepository;
-use NexusUtilities\ClockUtility;
+use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * TrxUnitRepository

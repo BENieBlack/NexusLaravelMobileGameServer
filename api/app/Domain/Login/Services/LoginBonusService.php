@@ -5,9 +5,9 @@ namespace App\Domain\Login\Services;
 use NexusLogin\Repositories\LoginBonusHistoryRepositoryInterface;
 use NexusLogin\Repositories\LoginBonusRepositoryInterface;
 use NexusLogin\Services\_BaseLoginBonusService;
-use NexusPersistence\Support\CustomCollection;
+use Nexus\Core\Support\CustomCollection;
 use NexusResourceDelivery\Services\ResourceDeliveryService;
-use NexusUtilities\ClockUtility;
+use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * LoginBonusService (Domain層)

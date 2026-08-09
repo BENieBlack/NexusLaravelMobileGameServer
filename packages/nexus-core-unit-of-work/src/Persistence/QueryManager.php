@@ -3,10 +3,10 @@
 namespace NexusUnitOfWork\Persistence;
 
 use NexusUnitOfWork\Contracts\QueryManagerInterface;
-use NexusPersistence\Repositories\_BaseRepositoryInterface;
-use NexusPersistence\Repositories\Log\_BaseLogRepository;
-use NexusPersistence\Repositories\Sys\_BaseSysRepository;
-use NexusPersistence\Repositories\Trx\_BaseTrxRepository;
+use Nexus\Core\Repositories\_BaseRepositoryInterface;
+use Nexus\Core\Repositories\Log\_BaseLogRepository;
+use Nexus\Core\Repositories\Sys\_BaseSysRepository;
+use Nexus\Core\Repositories\Trx\_BaseTrxRepository;
 use NexusUnitOfWork\Persistence\QueryManager\OperationCollector;
 use NexusUnitOfWork\Persistence\QueryManager\BatchExecutor;
 use NexusPitr\Logger\TrxChangeLogger;

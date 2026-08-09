@@ -3,8 +3,8 @@
 namespace App\Repositories\Log;
 
 use App\Models\Log\LogVipPoint;
-use NexusPersistence\Support\CustomCollection;
-use NexusUtilities\ClockUtility;
+use Nexus\Core\Support\CustomCollection;
+use Nexus\Core\Utilities\ClockUtility;
 use NexusVip\Repositories\VipPointLogRepositoryInterface;
 
 /**

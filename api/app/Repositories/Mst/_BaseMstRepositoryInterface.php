@@ -2,7 +2,7 @@
 
 namespace App\Repositories\Mst;
 
-use NexusPersistence\Repositories\Mst\_BaseMstRepositoryInterface as PersistenceBaseMstRepositoryInterface;
+use Nexus\Core\Repositories\Mst\_BaseMstRepositoryInterface as PersistenceBaseMstRepositoryInterface;
 
 /**
  * _BaseMstRepositoryInterface

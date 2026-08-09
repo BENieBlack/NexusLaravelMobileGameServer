@@ -4,7 +4,7 @@ namespace App\Repositories\Sys;
 
 use App\Models\Sys\SysMaintenance;
 use Illuminate\Support\Facades\Cache;
-use NexusPersistence\Support\CustomCollection;
+use Nexus\Core\Support\CustomCollection;
 use NexusVersion\Repositories\MaintenanceRepositoryInterface;
 
 /**

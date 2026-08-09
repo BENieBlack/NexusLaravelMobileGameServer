@@ -2,7 +2,7 @@
 
 namespace App\Models\Sys;
 
-use NexusPersistence\Models\Sys\_BaseSysInterface as PersistenceBaseSysInterface;
+use Nexus\Core\Models\Sys\_BaseSysInterface as PersistenceBaseSysInterface;
 
 /**
  * _BaseSysInterface

@@ -7,7 +7,7 @@ use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Http\Responses\Mailbox\ReceiveResponse;
 use App\Repositories\Trx\TrxMailboxRepository;
-use NexusPersistence\Support\CustomCollection;
+use Nexus\Core\Support\CustomCollection;
 use NexusResource\DTOs\ResourceDto;
 use NexusResourceDelivery\Services\ResourceDeliveryService;
 

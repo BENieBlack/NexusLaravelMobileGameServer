@@ -2,7 +2,7 @@
 
 namespace NexusPersistence\Repositories;
 
-use NexusPersistence\Support\CustomCollection;
+use Nexus\Core\Support\CustomCollection;
 
 /**
  * _BaseRepository

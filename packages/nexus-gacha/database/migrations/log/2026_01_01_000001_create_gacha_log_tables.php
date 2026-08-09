@@ -23,8 +23,8 @@ return new class extends Migration
             $table->string('mst_gacha_id')->nullable()->comment('マスターガチャID');
             $table->enum('operation_type', ['insert', 'update', 'delete'])->comment('操作タイプ');
             
-            $table->json('old_data')->nullable()->comment('変更前データ');
-            $table->json('new_data')->nullable()->comment('変更後データ');
+            $table->json('before_data')->nullable()->comment('変更前データ');
+            $table->json('after_data')->nullable()->comment('変更後データ');
             $table->json('changed_columns')->nullable()->comment('変更カラムリスト');
             
             $table->unsignedInteger('current_step')->nullable()->comment('現在のステップ');

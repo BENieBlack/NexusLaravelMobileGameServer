@@ -39,9 +39,6 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
      */
     protected $casts = [
         'device_info' => 'array',
-        'last_login_at' => 'datetime',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
     ];
 
     /**

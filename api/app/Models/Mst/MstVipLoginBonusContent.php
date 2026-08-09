@@ -42,8 +42,6 @@ class MstVipLoginBonusContent extends _BaseMst
         'content_option' => 'array',
         'content_quantity' => 'integer',
         'amount' => 'integer',
-        'created_at' => 'immutable_datetime',
-        'updated_at' => 'immutable_datetime',
     ];
 
     /**

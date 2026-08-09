@@ -39,8 +39,6 @@ class TrxUnit extends _BaseTrx
         'grade' => 'integer',
         'level' => 'integer',
         'level_exp' => 'integer',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
     ];
 
     /**

@@ -60,10 +60,7 @@ class TrxInAppPurchaseEffect extends _BaseTrx
         'sys_player_id' => 'integer',
         'mst_in_app_purchase_id' => 'integer',
         'value' => 'decimal:2',
-        'expires_at' => 'immutable_datetime',
         'is_active' => 'boolean',
-        'created_at' => 'immutable_datetime',
-        'updated_at' => 'immutable_datetime',
     ];
 
     /**

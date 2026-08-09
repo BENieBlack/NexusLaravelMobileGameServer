@@ -64,8 +64,6 @@ class TrxWallet extends _BaseTrx
         'mst_item_id' => 'string',
         'free_amount' => 'integer',
         'paid_amount' => 'integer',
-        'created_at' => 'immutable_datetime',
-        'updated_at' => 'immutable_datetime',
     ];
 
     /**

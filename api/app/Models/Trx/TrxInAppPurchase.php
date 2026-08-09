@@ -63,9 +63,6 @@ class TrxInAppPurchase extends _BaseTrx
         'sys_player_id' => 'integer',
         'total_purchase_count' => 'integer',
         'purchase_count' => 'integer',
-        'purchase_count_reset_at' => 'immutable_datetime',
-        'created_at' => 'immutable_datetime',
-        'updated_at' => 'immutable_datetime',
     ];
 
     /**

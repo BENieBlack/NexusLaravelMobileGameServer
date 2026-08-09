@@ -42,11 +42,8 @@ class SysDeployAsset extends _BaseSys
      */
     protected $casts = [
         'deploy_date' => 'date',
-        'deployed_at' => 'datetime',
         'total_size' => 'integer',
         'file_count' => 'integer',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
     ];
 
     /**

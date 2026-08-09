@@ -36,11 +36,7 @@ class SysMaintenance extends _BaseSys
      * @var array
      */
     protected $casts = [
-        'start_at' => 'datetime',
-        'end_at' => 'datetime',
         'is_active' => 'boolean',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
     ];
 
     /**
@@ -77,10 +73,12 @@ class SysMaintenance extends _BaseSys
 
     /**
      * start_atを取得
+     * 
+     * DB取得時はstring型で保持されているため、Carbon型に変換して返す
      */
-    public function getStartAt(): ?\DateTime
+    public function getStartAt(): ?\Carbon\Carbon
     {
-        return $this->getAttribute('start_at');
+        return $this->getDateAttribute('start_at');
     }
 
     /**
@@ -93,10 +91,12 @@ class SysMaintenance extends _BaseSys
 
     /**
      * end_atを取得
+     * 
+     * DB取得時はstring型で保持されているため、Carbon型に変換して返す
      */
-    public function getEndAt(): ?\DateTime
+    public function getEndAt(): ?\Carbon\Carbon
     {
-        return $this->getAttribute('end_at');
+        return $this->getDateAttribute('end_at');
     }
 
     /**

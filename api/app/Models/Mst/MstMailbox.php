@@ -57,8 +57,6 @@ class MstMailbox extends _BaseMst
         'sender_type' => SenderType::class,
         'expires_in_days' => 'integer',
         'is_bulk_distributable' => 'boolean',
-        'created_at' => 'immutable_datetime',
-        'updated_at' => 'immutable_datetime',
     ];
 
     public $timestamps = true;

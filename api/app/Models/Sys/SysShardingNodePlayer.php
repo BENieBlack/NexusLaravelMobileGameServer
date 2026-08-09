@@ -50,9 +50,6 @@ class SysShardingNodePlayer extends _BaseSys
     protected $casts = [
         'sys_player_id' => 'integer',
         'sys_sharding_node_id' => 'integer',
-        'assigned_at' => 'datetime',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
     ];
 
     /**

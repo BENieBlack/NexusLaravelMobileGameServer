@@ -50,8 +50,6 @@ class TrxDiamondBalance extends _BaseTrx
         'current_amount' => 'integer',
         'purchase_amount' => 'integer',
         'unit_price' => 'decimal:2',
-        'created_at' => 'immutable_datetime',
-        'updated_at' => 'immutable_datetime',
     ];
 
     /**

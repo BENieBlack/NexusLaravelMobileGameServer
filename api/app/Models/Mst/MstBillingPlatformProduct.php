@@ -25,8 +25,6 @@ class MstBillingPlatformProduct extends _BaseMst
         'deploy_key' => 'integer',
         'price_amount_micros' => 'integer',
         'is_active' => 'boolean',
-        'created_at' => 'immutable_datetime',
-        'updated_at' => 'immutable_datetime',
     ];
 
     public $timestamps = true;

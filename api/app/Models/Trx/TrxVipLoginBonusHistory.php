@@ -35,8 +35,5 @@ class TrxVipLoginBonusHistory extends _BaseTrx
         'sys_player_id' => 'integer',
         'day' => 'integer',
         'vip_level' => 'integer',
-        'received_at' => 'immutable_datetime',
-        'created_at' => 'immutable_datetime',
-        'updated_at' => 'immutable_datetime',
     ];
 }

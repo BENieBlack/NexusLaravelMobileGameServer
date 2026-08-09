@@ -32,8 +32,6 @@ class MstMessage extends _BaseMst
      */
     protected $casts = [
         'deploy_key' => 'integer',
-        'created_at' => 'immutable_datetime',
-        'updated_at' => 'immutable_datetime',
     ];
 
     public $timestamps = true;

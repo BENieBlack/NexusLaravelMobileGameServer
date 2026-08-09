@@ -45,8 +45,6 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
         'level_exp' => 'integer',
         'vip_point' => 'integer',
         'total_paid_amount' => 'decimal:2',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
     ];
 
     /**

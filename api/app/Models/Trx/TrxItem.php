@@ -53,8 +53,6 @@ class TrxItem extends _BaseTrx
         'sys_player_id' => 'integer',
         'free_amount' => 'integer',
         'paid_amount' => 'integer',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
     ];
 
     /**

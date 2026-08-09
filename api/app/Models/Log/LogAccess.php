@@ -17,7 +17,6 @@ class LogAccess extends _BaseLog
         'response_header' => 'array',
         'response_body' => 'array',
         'status_code' => 'integer',
-        'system_at' => 'datetime',
     ];
 
     protected $fillable = [

@@ -18,7 +18,6 @@ class LogEquipment extends _BaseLog
         'before_level_exp' => 'integer',
         'after_level' => 'integer',
         'after_level_exp' => 'integer',
-        'system_at' => 'datetime',
     ];
 
     protected $fillable = [

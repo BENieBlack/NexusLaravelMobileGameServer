@@ -68,12 +68,7 @@ class TrxMailbox extends _BaseTrx
         'is_received' => 'boolean',
         'is_delete' => 'boolean',
         'is_protected' => 'boolean',
-        'expires_at' => 'datetime',
-        'read_at' => 'datetime',
-        'received_at' => 'datetime',
         'custom_params' => 'array',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
     ];
 
     /**

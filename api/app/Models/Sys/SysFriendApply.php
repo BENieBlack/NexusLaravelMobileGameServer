@@ -35,8 +35,6 @@ class SysFriendApply extends _BaseSys
     protected $casts = [
         'sender_sys_player_id' => 'integer',
         'receiver_sys_player_id' => 'integer',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
     ];
 
     /**

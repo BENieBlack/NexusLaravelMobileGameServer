@@ -31,8 +31,6 @@ class MstGachaRarityRate extends _BaseMst
         'deploy_key' => 'integer',
         'rarity' => 'integer',
         'rate' => 'integer',
-        'created_at' => 'immutable_datetime',
-        'updated_at' => 'immutable_datetime',
     ];
 
     public $timestamps = true;

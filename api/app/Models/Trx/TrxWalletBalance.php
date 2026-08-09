@@ -55,9 +55,6 @@ class TrxWalletBalance extends _BaseTrx
         'is_paid' => 'boolean',
         'current_amount' => 'integer',
         'initial_amount' => 'integer',
-        'expire_at' => 'immutable_datetime',
-        'created_at' => 'immutable_datetime',
-        'updated_at' => 'immutable_datetime',
     ];
 
     /**

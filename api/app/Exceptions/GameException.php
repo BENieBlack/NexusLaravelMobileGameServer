@@ -8,7 +8,13 @@ use Exception;
  * GameException
  *
  * ゲームAPIのビジネスロジックエラーを表すカスタム例外クラス
- * HTTPステータスコード600とerror_code, messageをレスポンスとして返す
+ * HTTPステータスコード299とerror_code, messageをレスポンスとして返す
+ *
+ * HTTP 299を使用する理由:
+ * - 2xx範囲なのでネットワーク/プロキシレベルではエラーとして扱われない
+ * - HTTP 200（完全な成功）と明確に区別できる
+ * - クライアント側で if (status === 299) { handleBusinessError() } のように分岐可能
+ * - レスポンスボディのerror_codeでエラー種別を詳細に特定
  */
 class GameException extends Exception
 {

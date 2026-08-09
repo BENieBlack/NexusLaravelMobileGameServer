@@ -3,7 +3,7 @@
 namespace NexusVip\Services;
 
 use NexusVip\DTOs\PlayerVipDto;
-use NexusVip\DTOs\VipConfig;
+use NexusVip\ValueObjects\VipConfig;
 use NexusVip\Events\VipLevelUpEvent;
 use NexusVip\Exceptions\InvalidVipPointException;
 use NexusVip\Repositories\PlayerVipRepositoryInterface;

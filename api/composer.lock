@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9a779d665087e567629a6c783947b679",
+    "content-hash": "05787a5ea52ab0a75f406c3350c80309",
     "packages": [
         {
             "name": "brick/math",
@@ -2897,13 +2897,14 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-friend",
-                "reference": "3e381b95140cd467e7042dacf04980673f728bce"
+                "reference": "01fec5e5c0890f28364984f04b9b0feb21d8b2fc"
             },
             "require": {
                 "nexus/core-utilities": "@dev",
                 "php": "^8.3"
             },
             "require-dev": {
+                "mockery/mockery": "^1.6",
                 "phpunit/phpunit": "^10.0"
             },
             "type": "library",
@@ -2967,13 +2968,14 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-guild",
-                "reference": "9cbd5ef327ea7059f48d6eb970d21c16edfb0f7a"
+                "reference": "93f6ef789a3665eccfaaf57544f2cb41121a3d50"
             },
             "require": {
                 "nexus/player": "@dev",
                 "php": "^8.2"
             },
             "require-dev": {
+                "mockery/mockery": "^1.6",
                 "phpunit/phpunit": "^10.0"
             },
             "type": "library",
@@ -3084,7 +3086,7 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-mailbox",
-                "reference": "ba88f535c947e413766a57517c0d4bc9cf305040"
+                "reference": "cbb9345fc1805a7d711034e5a42444ea1449bef2"
             },
             "require": {
                 "nexus/core-utilities": "@dev",
@@ -3092,7 +3094,8 @@
                 "php": "^8.3"
             },
             "require-dev": {
-                "illuminate/support": "^10.0",
+                "illuminate/support": "^11.0|^12.0",
+                "mockery/mockery": "^1.6",
                 "phpunit/phpunit": "^10.0"
             },
             "type": "library",
@@ -3237,13 +3240,14 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-player",
-                "reference": "797c54289bd464076ae6b139dcccf62f7b64b7ea"
+                "reference": "7740e58206fee217879b12065078bc11aef6ed48"
             },
             "require": {
                 "nexus/core-utilities": "@dev",
                 "php": "^8.3"
             },
             "require-dev": {
+                "mockery/mockery": "^1.6",
                 "phpunit/phpunit": "^10.0"
             },
             "type": "library",
@@ -3323,11 +3327,12 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-resource-delivery",
-                "reference": "8d9d3b45f717ef35f554c16a257c5b83e5b78ef5"
+                "reference": "e314926524ac1b21fd2d9e335f9d3c773393a0c6"
             },
             "require": {
                 "illuminate/database": "^10.0|^11.0|^12.0",
                 "illuminate/support": "^10.0|^11.0|^12.0",
+                "nexus/core-persistence": "@dev",
                 "nexus/resource": "*",
                 "php": "^8.3"
             },
@@ -3367,7 +3372,7 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-stamina",
-                "reference": "4e1a79777a2d29e0ac547993f9db704a21a40316"
+                "reference": "1a313ddc93e5592359bd089c922a1b3d75c4a926"
             },
             "require": {
                 "illuminate/support": "^11.0|^12.0",
@@ -3445,12 +3450,13 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-vip",
-                "reference": "b68af4f97b8c08e9187f9ea45ba6d2939ad0fded"
+                "reference": "1ab2d693b6c64014c85c9f5923b50a4a78bbe63d"
             },
             "require": {
                 "illuminate/database": "^10.0|^11.0|^12.0",
                 "illuminate/support": "^10.0|^11.0|^12.0",
                 "nesbot/carbon": "^2.0|^3.0",
+                "nexus/core-persistence": "@dev",
                 "php": "^8.3"
             },
             "require-dev": {
@@ -7562,6 +7568,47 @@
             "time": "2025-04-30T06:54:44+00:00"
         },
         {
+            "name": "iamcal/sql-parser",
+            "version": "v0.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/iamcal/SQLParser.git",
+                "reference": "610392f38de49a44dab08dc1659960a29874c4b8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/iamcal/SQLParser/zipball/610392f38de49a44dab08dc1659960a29874c4b8",
+                "reference": "610392f38de49a44dab08dc1659960a29874c4b8",
+                "shasum": ""
+            },
+            "require-dev": {
+                "php-coveralls/php-coveralls": "^1.0",
+                "phpunit/phpunit": "^5|^6|^7|^8|^9"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "iamcal\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Cal Henderson",
+                    "email": "cal@iamcal.com"
+                }
+            ],
+            "description": "MySQL schema parser",
+            "support": {
+                "issues": "https://github.com/iamcal/SQLParser/issues",
+                "source": "https://github.com/iamcal/SQLParser/tree/v0.7"
+            },
+            "time": "2026-01-28T22:20:33+00:00"
+        },
+        {
             "name": "jean85/pretty-package-versions",
             "version": "2.1.1",
             "source": {
@@ -7620,6 +7667,96 @@
                 "source": "https://github.com/Jean85/pretty-package-versions/tree/2.1.1"
             },
             "time": "2025-03-19T14:43:43+00:00"
+        },
+        {
+            "name": "larastan/larastan",
+            "version": "v3.10.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/larastan/larastan.git",
+                "reference": "2970f83398154178a739609c244577267c7ee8eb"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/larastan/larastan/zipball/2970f83398154178a739609c244577267c7ee8eb",
+                "reference": "2970f83398154178a739609c244577267c7ee8eb",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "iamcal/sql-parser": "^0.7.0",
+                "illuminate/console": "^11.44.2 || ^12.4.1 || ^13",
+                "illuminate/container": "^11.44.2 || ^12.4.1 || ^13",
+                "illuminate/contracts": "^11.44.2 || ^12.4.1 || ^13",
+                "illuminate/database": "^11.44.2 || ^12.4.1 || ^13",
+                "illuminate/http": "^11.44.2 || ^12.4.1 || ^13",
+                "illuminate/pipeline": "^11.44.2 || ^12.4.1 || ^13",
+                "illuminate/support": "^11.44.2 || ^12.4.1 || ^13",
+                "php": "^8.2",
+                "phpstan/phpstan": "^2.2.0"
+            },
+            "require-dev": {
+                "doctrine/coding-standard": "^14",
+                "laravel/framework": "^11.44.2 || ^12.7.2 || ^13",
+                "mockery/mockery": "^1.6.12",
+                "nikic/php-parser": "^5.4",
+                "orchestra/canvas": "^v9.2.2 || ^10.0.1 || ^11",
+                "orchestra/testbench-core": "^9.12.0 || ^10.1 || ^11",
+                "phpstan/phpstan-deprecation-rules": "^2.0.1",
+                "phpunit/phpunit": "^10.5.35 || ^11.5.15 || ^12.5.8 || ^13.1.8"
+            },
+            "suggest": {
+                "orchestra/testbench": "Using Larastan for analysing a package needs Testbench",
+                "phpmyadmin/sql-parser": "Install to enable Larastan's optional phpMyAdmin-based SQL parser automatically"
+            },
+            "type": "phpstan-extension",
+            "extra": {
+                "phpstan": {
+                    "includes": [
+                        "extension.neon"
+                    ]
+                },
+                "branch-alias": {
+                    "dev-master": "3.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Larastan\\Larastan\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Can Vural",
+                    "email": "can9119@gmail.com"
+                }
+            ],
+            "description": "Larastan - Discover bugs in your code without running it. A phpstan/phpstan extension for Laravel",
+            "keywords": [
+                "PHPStan",
+                "code analyse",
+                "code analysis",
+                "larastan",
+                "laravel",
+                "package",
+                "php",
+                "static analysis"
+            ],
+            "support": {
+                "issues": "https://github.com/larastan/larastan/issues",
+                "source": "https://github.com/larastan/larastan/tree/v3.10.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/canvural",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-05-28T08:00:58+00:00"
         },
         {
             "name": "laravel/pail",

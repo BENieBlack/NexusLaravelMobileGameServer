@@ -3,6 +3,7 @@
 namespace App\Models\Mst;
 
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use NexusPersistence\Models\Mst\_BaseMst;
 
 /**
@@ -50,8 +51,10 @@ class MstVipLoginBonus extends _BaseMst
 
     /**
      * VIPログインボーナスコンテンツとのリレーション
+     *
+     * @return HasMany<MstVipLoginBonusContent, $this>
      */
-    public function contents()
+    public function contents(): HasMany
     {
         return $this->hasMany(MstVipLoginBonusContent::class, 'mst_vip_login_bonus_id', 'id');
     }

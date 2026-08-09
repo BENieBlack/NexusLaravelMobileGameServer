@@ -8,6 +8,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * SysGuildMember Model
  *
  * ギルドメンバーテーブル
+ *
+ * @property int $id
+ * @property int $sys_guild_id
+ * @property int $sys_player_id
+ * @property string $role
+ * @property int $contribution
+ * @property \Illuminate\Support\Carbon $joined_at
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
  */
 class SysGuildMember extends _BaseSys
 {

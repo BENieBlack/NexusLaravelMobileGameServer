@@ -8,6 +8,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * SysGuildApply Model
  *
  * ギルド加入申請テーブル
+ *
+ * @property int $id
+ * @property int $sys_player_id
+ * @property int $sys_guild_id
+ * @property string|null $message
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
  */
 class SysGuildApply extends _BaseSys
 {

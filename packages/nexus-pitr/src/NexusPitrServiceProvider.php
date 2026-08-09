@@ -6,6 +6,8 @@ use Illuminate\Support\ServiceProvider;
 use NexusPitr\Logger\TrxChangeLogger;
 use NexusPitr\Commands\PitrMigrateCommand;
 use NexusPitr\Commands\PitrRollbackCommand;
+use NexusPitr\Commands\TrxMigrateCommand;
+use NexusPitr\Commands\TrxRollbackCommand;
 
 class NexusPitrServiceProvider extends ServiceProvider
 {
@@ -43,6 +45,8 @@ class NexusPitrServiceProvider extends ServiceProvider
             $this->commands([
                 PitrMigrateCommand::class,
                 PitrRollbackCommand::class,
+                TrxMigrateCommand::class,
+                TrxRollbackCommand::class,
             ]);
         }
     }

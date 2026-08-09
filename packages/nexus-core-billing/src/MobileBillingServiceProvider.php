@@ -81,6 +81,10 @@ class MobileBillingServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // マイグレーションをロード（動的シャーディング対応）
+        // 注意: php artisan pitr:migrate で全LogDBシャード（log1, log2, ...）に実行
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        
         // 設定ファイルの公開
         if ($this->app->runningInConsole()) {
             $this->publishes([

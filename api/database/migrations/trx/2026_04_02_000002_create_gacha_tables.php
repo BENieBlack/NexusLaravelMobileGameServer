@@ -1,16 +1,14 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use NexusPitr\Migrations\DynamicShardingTrait;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * シャーディング対象の接続名
-     */
-    protected $connections = ['trx1', 'trx2'];
+    use DynamicShardingTrait;
 
     /**
      * Run the migrations.
@@ -18,7 +16,7 @@ return new class extends Migration
     public function up(): void
     {
         // 各シャードに対してテーブルを作成
-        foreach ($this->connections as $connection) {
+        foreach ($this->getTrxConnections() as $connection) {
             $this->createTablesForConnection($connection);
         }
     }
@@ -83,7 +81,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        foreach ($this->connections as $connection) {
+        foreach ($this->getTrxConnections() as $connection) {
             Schema::connection($connection)->dropIfExists('trx_gacha');
             Schema::connection($connection)->dropIfExists('trx_gacha_history');
         }

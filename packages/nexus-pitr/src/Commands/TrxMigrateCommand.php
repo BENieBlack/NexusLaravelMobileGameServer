@@ -7,19 +7,19 @@ use Illuminate\Support\Facades\Artisan;
 use NexusPitr\Logger\ShardMapper;
 
 /**
- * PitrMigrateCommand
+ * TrxMigrateCommand
  * 
- * すべてのLogDBシャードに対してマイグレーションを実行
- * 動的シャーディング対応（DB_TRX_SHARDSに応じてlog1, log2, ...に実行）
+ * すべてのTrxDBシャードに対してマイグレーションを実行
+ * 動的シャーディング対応（DB_TRX_SHARDSに応じてtrx1, trx2, ...に実行）
  */
-class PitrMigrateCommand extends Command
+class TrxMigrateCommand extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'pitr:migrate 
+    protected $signature = 'trx:migrate 
                             {--force : Force the operation to run when in production}
                             {--seed : Indicates if the seed task should be re-run}
                             {--step : Force the migrations to be run so they can be rolled back individually}';
@@ -29,24 +29,25 @@ class PitrMigrateCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Run PITR migrations on all LogDB shards dynamically';
+    protected $description = 'Run TrxDB migrations on all shards dynamically';
 
     /**
      * Execute the console command.
      */
     public function handle(): int
     {
-        $logConnections = ShardMapper::getAllLogConnections();
+        $trxConnections = ShardMapper::getAllTrxConnections();
         
-        $this->info('Running LogDB migrations on all shards...');
-        $this->info('This includes migrations from: api/database/migrations/log, nexus-pitr, nexus-vip, nexus-core-billing');
+        $this->info('Running TrxDB migrations on all shards...');
+        $this->info('This includes migrations from: api/database/migrations/trx');
         $this->newLine();
         
-        foreach ($logConnections as $logConnection) {
-            $this->info("📦 Migrating LogDB: {$logConnection}");
+        foreach ($trxConnections as $trxConnection) {
+            $this->info("📦 Migrating TrxDB: {$trxConnection}");
             
             $options = [
-                '--database' => $logConnection,
+                '--database' => $trxConnection,
+                '--path' => 'database/migrations/trx',
             ];
             
             if ($this->option('force')) {
@@ -61,19 +62,18 @@ class PitrMigrateCommand extends Command
                 $options['--step'] = true;
             }
             
-            // Laravelのデフォルトマイグレーション実行（パッケージのマイグレーションを含む）
             $exitCode = Artisan::call('migrate', $options, $this->getOutput());
             
             if ($exitCode !== 0) {
-                $this->error("❌ Migration failed for {$logConnection}");
+                $this->error("❌ Migration failed for {$trxConnection}");
                 return self::FAILURE;
             }
             
-            $this->info("✅ Migration completed for {$logConnection}");
+            $this->info("✅ Migration completed for {$trxConnection}");
             $this->newLine();
         }
         
-        $this->info('🎉 All LogDB migrations completed successfully!');
+        $this->info('🎉 All TrxDB migrations completed successfully!');
         
         return self::SUCCESS;
     }

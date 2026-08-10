@@ -86,7 +86,7 @@ class SysPlayerTokenRepository extends _BaseSysRepository implements TokenReposi
             $this->setModel($sysPlayerToken);
         }
 
-        return $sysPlayerTokenCollection;
+        return new CustomCollection($sysPlayerTokenCollection->all());
     }
 
     /**

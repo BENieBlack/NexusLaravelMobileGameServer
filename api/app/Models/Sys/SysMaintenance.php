@@ -74,9 +74,9 @@ class SysMaintenance extends _BaseSys
     /**
      * start_atを取得
      * 
-     * DB取得時はstring型で保持されているため、Carbon型に変換して返す
+     * DB取得時はstring型で保持されているため、CarbonImmutable型に変換して返す
      */
-    public function getStartAt(): ?\Carbon\Carbon
+    public function getStartAt(): ?\Carbon\CarbonImmutable
     {
         return $this->getDateAttribute('start_at');
     }
@@ -84,7 +84,7 @@ class SysMaintenance extends _BaseSys
     /**
      * start_atを設定
      */
-    public function setStartAt(\DateTime|string $startAt): void
+    public function setStartAt(\DateTimeInterface|string $startAt): void
     {
         $this->setAttribute('start_at', $startAt);
     }
@@ -92,9 +92,9 @@ class SysMaintenance extends _BaseSys
     /**
      * end_atを取得
      * 
-     * DB取得時はstring型で保持されているため、Carbon型に変換して返す
+     * DB取得時はstring型で保持されているため、CarbonImmutable型に変換して返す
      */
-    public function getEndAt(): ?\Carbon\Carbon
+    public function getEndAt(): ?\Carbon\CarbonImmutable
     {
         return $this->getDateAttribute('end_at');
     }
@@ -102,7 +102,7 @@ class SysMaintenance extends _BaseSys
     /**
      * end_atを設定
      */
-    public function setEndAt(\DateTime|string|null $endAt): void
+    public function setEndAt(\DateTimeInterface|string|null $endAt): void
     {
         $this->setAttribute('end_at', $endAt);
     }

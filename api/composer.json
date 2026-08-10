@@ -85,6 +85,10 @@
         {
             "type": "path",
             "url": "../packages/nexus-pitr"
+        },
+        {
+            "type": "path",
+            "url": "../packages/nexus-core-persistence"
         }
     ],
     "require": {
@@ -112,7 +116,8 @@
         "nexus/level": "@dev",
         "nexus/friend": "@dev",
         "nexus/guild": "@dev",
-        "nexus/pitr": "@dev"
+        "nexus/pitr": "@dev",
+        "nexus/core-persistence": "@dev"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

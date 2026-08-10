@@ -55,15 +55,15 @@ abstract class _BaseModel extends Model implements _BaseModelInterface
     }
 
     /**
-     * 日付属性をCarbon型として取得
+     * 日付属性をCarbonImmutable型として取得
      * 
      * パフォーマンス最適化のため、DB取得時はstring型で保持し、
-     * このメソッドで必要に応じてCarbon型に変換する
+     * このメソッドで必要に応じてCarbonImmutable型に変換する
      * 
      * @param string $attribute 属性名（例: 'created_at', 'start_at'）
-     * @return \Carbon\Carbon|null
+     * @return \Carbon\CarbonImmutable|null
      */
-    protected function getDateAttribute(string $attribute): ?\Carbon\Carbon
+    protected function getDateAttribute(string $attribute): ?\Carbon\CarbonImmutable
     {
         $value = $this->getAttribute($attribute);
         
@@ -71,16 +71,16 @@ abstract class _BaseModel extends Model implements _BaseModelInterface
             return null;
         }
         
-        if ($value instanceof \Carbon\Carbon) {
+        if ($value instanceof \Carbon\CarbonImmutable) {
             return $value;
         }
         
         if ($value instanceof \DateTimeInterface) {
-            return \Carbon\Carbon::instance($value);
+            return \Carbon\CarbonImmutable::instance($value);
         }
         
         if (is_string($value)) {
-            return \Carbon\Carbon::parse($value);
+            return \Carbon\CarbonImmutable::parse($value);
         }
         
         return null;

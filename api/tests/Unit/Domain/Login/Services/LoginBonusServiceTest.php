@@ -156,12 +156,13 @@ class LoginBonusServiceTest extends TestCase
     public function 初回ログイン時にログインボーナスが配布される(): void
     {
         $now = CarbonImmutable::parse('2026-04-20 10:00:00', 'UTC');
+        ClockUtility::setNow($now);
 
         // 初回ログイン（lastLoginAt = null）
-        $result = $this->loginBonusService->checkAndGrantLoginBonus(
+        $result = $this->loginBonusService->process(
             $this->sysPlayerId,
             null,
-            $now
+            'trx1'
         );
 
         // 1日目の報酬が配布されることを確認
@@ -188,7 +189,7 @@ class LoginBonusServiceTest extends TestCase
         ClockUtility::setNow($today);
 
         // 1回目のログイン
-        $result1 = $this->loginBonusService->checkAndGrantLoginBonus(
+        $result1 = $this->loginBonusService->process(
             $this->sysPlayerId,
             null
         );
@@ -197,7 +198,7 @@ class LoginBonusServiceTest extends TestCase
         // 同日の2回目のログイン（lastLoginAt = 今日の午前中）
         $lastLoginAt = $today->setTime(9, 0, 0)->toDateTimeString();
         ClockUtility::setNow($today->setTime(15, 0, 0)); // 同日の午後
-        $result2 = $this->loginBonusService->checkAndGrantLoginBonus(
+        $result2 = $this->loginBonusService->process(
             $this->sysPlayerId,
             $lastLoginAt
         );
@@ -215,7 +216,7 @@ class LoginBonusServiceTest extends TestCase
         ClockUtility::setNow($day1);
 
         // 1日目
-        $this->loginBonusService->checkAndGrantLoginBonus(
+        $this->loginBonusService->process(
             $this->sysPlayerId,
             null
         );
@@ -225,7 +226,7 @@ class LoginBonusServiceTest extends TestCase
         ClockUtility::setNow($day2);
         $lastLoginAt = $day1->toDateTimeString();
 
-        $result = $this->loginBonusService->checkAndGrantLoginBonus(
+        $result = $this->loginBonusService->process(
             $this->sysPlayerId,
             $lastLoginAt
         );
@@ -282,7 +283,7 @@ class LoginBonusServiceTest extends TestCase
         for ($i = 1; $i <= 6; $i++) {
             ClockUtility::setNow($currentDay);
             $lastLoginAt = $i === 1 ? null : $currentDay->subDay()->toDateTimeString();
-            $this->loginBonusService->checkAndGrantLoginBonus(
+            $this->loginBonusService->process(
                 $this->sysPlayerId,
                 $lastLoginAt
             );
@@ -292,7 +293,7 @@ class LoginBonusServiceTest extends TestCase
         // 7日目
         ClockUtility::setNow($currentDay);
         $lastLoginAt = $currentDay->subDay()->toDateTimeString();
-        $result = $this->loginBonusService->checkAndGrantLoginBonus(
+        $result = $this->loginBonusService->process(
             $this->sysPlayerId,
             $lastLoginAt
         );
@@ -353,7 +354,7 @@ class LoginBonusServiceTest extends TestCase
         ClockUtility::setNow($currentDay);
 
         // ログイン
-        $this->loginBonusService->checkAndGrantLoginBonus(
+        $this->loginBonusService->process(
             $this->sysPlayerId,
             null
         );
@@ -391,7 +392,7 @@ class LoginBonusServiceTest extends TestCase
         for ($i = 1; $i <= 7; $i++) {
             ClockUtility::setNow($currentDay);
             $lastLoginAt = $i === 1 ? null : $currentDay->subDay()->toDateTimeString();
-            $this->loginBonusService->checkAndGrantLoginBonus(
+            $this->loginBonusService->process(
                 $this->sysPlayerId,
                 $lastLoginAt
             );
@@ -401,7 +402,7 @@ class LoginBonusServiceTest extends TestCase
         // 8日目
         ClockUtility::setNow($currentDay);
         $lastLoginAt = $currentDay->subDay()->toDateTimeString();
-        $result = $this->loginBonusService->checkAndGrantLoginBonus(
+        $result = $this->loginBonusService->process(
             $this->sysPlayerId,
             $lastLoginAt
         );
@@ -434,7 +435,7 @@ class LoginBonusServiceTest extends TestCase
         for ($i = 1; $i <= 3; $i++) {
             ClockUtility::setNow($currentDay);
             $lastLoginAt = $i === 1 ? null : $currentDay->subDay()->toDateTimeString();
-            $this->loginBonusService->checkAndGrantLoginBonus(
+            $this->loginBonusService->process(
                 $this->sysPlayerId,
                 $lastLoginAt
             );
@@ -446,7 +447,7 @@ class LoginBonusServiceTest extends TestCase
         ClockUtility::setNow($day5);
         $lastLoginAt = $day1->addDays(2)->toDateTimeString(); // 3日目が最終ログイン
 
-        $result = $this->loginBonusService->checkAndGrantLoginBonus(
+        $result = $this->loginBonusService->process(
             $this->sysPlayerId,
             $lastLoginAt
         );
@@ -465,7 +466,7 @@ class LoginBonusServiceTest extends TestCase
         // 4月20日 23:59:59にログイン
         $day1Evening = CarbonImmutable::parse('2026-04-20 23:59:59', 'UTC');
         ClockUtility::setNow($day1Evening);
-        $result1 = $this->loginBonusService->checkAndGrantLoginBonus(
+        $result1 = $this->loginBonusService->process(
             $this->sysPlayerId,
             null
         );
@@ -476,7 +477,7 @@ class LoginBonusServiceTest extends TestCase
         ClockUtility::setNow($day2Morning);
         $lastLoginAt = $day1Evening->toDateTimeString();
 
-        $result2 = $this->loginBonusService->checkAndGrantLoginBonus(
+        $result2 = $this->loginBonusService->process(
             $this->sysPlayerId,
             $lastLoginAt
         );
@@ -501,7 +502,7 @@ class LoginBonusServiceTest extends TestCase
         $now = CarbonImmutable::parse('2026-04-20 10:00:00', 'UTC');
         ClockUtility::setNow($now);
 
-        $result = $this->loginBonusService->checkAndGrantLoginBonus(
+        $result = $this->loginBonusService->process(
             $this->sysPlayerId,
             null
         );
@@ -526,7 +527,7 @@ class LoginBonusServiceTest extends TestCase
         $now = CarbonImmutable::parse('2026-04-20 10:00:00', 'UTC');
         ClockUtility::setNow($now);
 
-        $result = $this->loginBonusService->checkAndGrantLoginBonus(
+        $result = $this->loginBonusService->process(
             $this->sysPlayerId,
             null
         );

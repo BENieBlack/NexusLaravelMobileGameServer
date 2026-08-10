@@ -3,19 +3,19 @@
 namespace Tests\Unit\Models;
 
 use App\Models\Sys\SysMaintenance;
-use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Tests\TestCase;
 
 /**
  * _BaseModelの日付型キャスト最適化テスト
  * 
- * DB取得時はstring型で保持し、必要に応じてCarbon型に変換する
+ * DB取得時はstring型で保持し、必要に応じてCarbonImmutable型に変換する
  * パフォーマンス最適化のための実装が正しく動作することを確認
  */
 class BaseModelDateCastTest extends TestCase
 {
     /**
-     * getDateAttribute()がstring→Carbon変換を正しく行うことを確認
+     * getDateAttribute()がstring→CarbonImmutable変換を正しく行うことを確認
      */
     public function test_getDateAttribute_converts_string_to_carbon(): void
     {
@@ -24,7 +24,7 @@ class BaseModelDateCastTest extends TestCase
         
         $result = $model->getStartAt();
         
-        $this->assertInstanceOf(Carbon::class, $result);
+        $this->assertInstanceOf(CarbonImmutable::class, $result);
         $this->assertEquals('2026-01-01 12:00:00', $result->format('Y-m-d H:i:s'));
     }
 

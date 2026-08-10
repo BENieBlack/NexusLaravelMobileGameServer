@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4684fb1d3a8e545815dda6308535555a",
+    "content-hash": "74e4bb3523d5d9f4ce8e21c24d4353bd",
     "packages": [
         {
             "name": "brick/math",
@@ -2751,6 +2751,57 @@
             }
         },
         {
+            "name": "nexus/core-persistence",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/nexus-core-persistence",
+                "reference": "0ad244d655c3e3fda1832c908930d62ac00c94eb"
+            },
+            "require": {
+                "illuminate/cache": "^10.0|^11.0|^12.0",
+                "illuminate/database": "^10.0|^11.0|^12.0",
+                "illuminate/support": "^10.0|^11.0|^12.0",
+                "php": "^8.3"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.6",
+                "orchestra/testbench": "^9.0",
+                "phpunit/phpunit": "^11.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "NexusPersistence\\PersistenceServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "NexusPersistence\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "NexusPersistence\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Your Name",
+                    "email": "your.email@example.com"
+                }
+            ],
+            "description": "Base Model and Repository classes for Laravel game applications with support for multiple data types (Trx, Log, Sys, Mst)",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "nexus/core-security",
             "version": "dev-main",
             "dist": {
@@ -3373,7 +3424,7 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-version",
-                "reference": "1c26360923a97d3a262d8407f7df4dd02fd8af7c"
+                "reference": "d15e47f90cce3863c49cffe7da94073f396f5a4f"
             },
             "require": {
                 "illuminate/cache": "^11.0|^12.0",
@@ -3384,6 +3435,13 @@
                 "phpunit/phpunit": "^10.0"
             },
             "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "NexusVersion\\NexusVersionServiceProvider"
+                    ]
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "NexusVersion\\": "src/"
@@ -10632,32 +10690,33 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "nexus/core": 20,
-        "nexus/core-auth": 20,
-        "nexus/core-billing": 20,
         "nexus/core-security": 20,
         "nexus/core-unit-of-work": 20,
-        "nexus/friend": 20,
-        "nexus/gacha": 20,
-        "nexus/guild": 20,
-        "nexus/level": 20,
-        "nexus/login": 20,
-        "nexus/mailbox": 20,
+        "nexus/core-auth": 20,
+        "nexus/core-billing": 20,
+        "nexus/wallet": 20,
         "nexus/maintenance": 20,
-        "nexus/pitr": 20,
-        "nexus/player": 20,
         "nexus/resource": 20,
         "nexus/resource-delivery": 20,
-        "nexus/stamina": 20,
+        "nexus/login": 20,
         "nexus/version": 20,
+        "nexus/stamina": 20,
+        "nexus/gacha": 20,
+        "nexus/mailbox": 20,
+        "nexus/player": 20,
         "nexus/vip": 20,
-        "nexus/wallet": 20
+        "nexus/level": 20,
+        "nexus/friend": 20,
+        "nexus/guild": 20,
+        "nexus/pitr": 20,
+        "nexus/core-persistence": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": "^8.3"
     },
-    "platform-dev": {},
+    "platform-dev": [],
     "platform-overrides": {
         "php": "8.3"
     },

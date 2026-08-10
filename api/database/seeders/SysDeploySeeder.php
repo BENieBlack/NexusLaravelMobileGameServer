@@ -16,6 +16,10 @@ class SysDeploySeeder extends Seeder
         DB::connection('sys')->table('sys_deploy')->truncate();
         DB::connection('sys')->table('sys_deploy_asset')->truncate();
         DB::connection('sys')->table('sys_deploy_master')->truncate();
+        
+        // シャーディング関連データも削除
+        DB::connection('sys')->table('sys_sharding_node')->truncate();
+        DB::connection('sys')->table('sys_sharding')->truncate();
 
         // マスターデータデプロイ履歴を作成
         $masterDeploys = [
@@ -157,6 +161,37 @@ class SysDeploySeeder extends Seeder
             DB::connection('sys')->table('sys_deploy')->insert($deploy);
         }
 
-        $this->command->info('✅ SysDeploySeeder: Created 3 master deploys, 3 asset deploys, and 3 unified deploys');
+        // シャーディング設定を作成
+        $shardingId = DB::connection('sys')->table('sys_sharding')->insertGetId([
+            'name' => 'trx_sharding',
+            'target' => 'transaction',
+            'strategy' => 'hash',
+            'sharding_key' => 'player_id',
+            'node_count' => (int) env('DB_TRX_SHARDS', 3),
+            'is_active' => true,
+            'description' => 'Transaction data sharding',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // シャーディングノードを作成
+        $shardCount = (int) env('DB_TRX_SHARDS', 3);
+        for ($i = 1; $i <= $shardCount; $i++) {
+            DB::connection('sys')->table('sys_sharding_node')->insert([
+                'sys_sharding_id' => $shardingId,
+                'node_name' => "node{$i}",
+                'node_no' => $i,
+                'weight' => 100,
+                'status' => 'active',
+                'is_writable' => true,
+                'is_readable' => true,
+                'max_connections' => 10000,
+                'current_player_count' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        $this->command->info('✅ SysDeploySeeder: Created 3 master deploys, 3 asset deploys, 3 unified deploys, and ' . $shardCount . ' sharding nodes');
     }
 }

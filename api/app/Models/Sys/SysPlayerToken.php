@@ -2,9 +2,9 @@
 
 namespace App\Models\Sys;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 use NexusAuth\Contracts\TokenModelInterface;
 
 /**
@@ -17,10 +17,10 @@ use NexusAuth\Contracts\TokenModelInterface;
  * @property int $sys_player_id
  * @property int $sys_player_device_id
  * @property string $refresh_token_hash
- * @property Carbon $expires_at
- * @property Carbon|null $revoked_at
- * @property Carbon $created_at
- * @property Carbon $updated_at
+ * @property CarbonImmutable $expires_at
+ * @property CarbonImmutable|null $revoked_at
+ * @property CarbonImmutable $created_at
+ * @property CarbonImmutable $updated_at
  * @property-read SysPlayer $player
  * @property-read SysPlayerDevice $device
  */
@@ -101,19 +101,19 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
     }
 
     /**
-     * 有効期限をCarbonオブジェクトで取得
+     * 有効期限をCarbonImmutableオブジェクトで取得
      */
-    public function getExpiresAtCarbon(): Carbon
+    public function getExpiresAtCarbon(): ?CarbonImmutable
     {
-        return $this->getAttribute('expires_at');
+        return $this->getDateAttribute('expires_at');
     }
 
     /**
      * 無効化日時を取得
      */
-    public function getRevokedAt(): ?Carbon
+    public function getRevokedAt(): ?CarbonImmutable
     {
-        return $this->getAttribute('revoked_at');
+        return $this->getDateAttribute('revoked_at');
     }
 
     /**
@@ -143,7 +143,7 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
     /**
      * 有効期限を設定
      */
-    public function setExpiresAt(Carbon $expiresAt): void
+    public function setExpiresAt(\DateTimeInterface|string $expiresAt): void
     {
         $this->setAttribute('expires_at', $expiresAt);
     }
@@ -151,7 +151,7 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
     /**
      * 無効化日時を設定
      */
-    public function setRevokedAt(?Carbon $revokedAt): void
+    public function setRevokedAt(\DateTimeInterface|string|null $revokedAt): void
     {
         $this->setAttribute('revoked_at', $revokedAt);
     }
@@ -258,6 +258,6 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
      */
     public function getExpiresAt(): string
     {
-        return $this->expires_at->format('Y-m-d H:i:s');
+        return $this->getExpiresAtCarbon()->format('Y-m-d H:i:s');
     }
 }

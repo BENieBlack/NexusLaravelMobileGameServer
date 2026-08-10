@@ -144,7 +144,7 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
      */
     public function getLastLoginAt(): ?string
     {
-        $lastLoginAt = $this->getAttribute('last_login_at');
+        $lastLoginAt = $this->getDateAttribute('last_login_at');
 
         return $lastLoginAt ? $lastLoginAt->format('Y-m-d H:i:s') : null;
     }
@@ -152,7 +152,7 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
     /**
      * last_login_atを設定
      */
-    public function setLastLoginAt(\DateTime|string $lastLoginAt): void
+    public function setLastLoginAt(\DateTimeInterface|string $lastLoginAt): void
     {
         $this->setAttribute('last_login_at', $lastLoginAt);
     }

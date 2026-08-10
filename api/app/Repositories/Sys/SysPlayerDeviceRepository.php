@@ -67,7 +67,7 @@ class SysPlayerDeviceRepository extends _BaseSysRepository implements DeviceRepo
             $this->setModel($sysPlayerDevice);
         }
 
-        return $sysPlayerDeviceCollection;
+        return new CustomCollection($sysPlayerDeviceCollection->all());
     }
 
     /**

@@ -59,9 +59,11 @@ class LoginHomeUseCase extends _BaseUseCase
             $sysPlayer = $this->sysPlayerRepository->selectById($sysPlayerId);
 
             // ログインボーナスをチェック・配布
-            $loginBonusContents = $this->loginBonusService->checkAndGrantLoginBonus(
+            // 履歴はプレイヤーのシャードに記録するため、接続名を渡す
+            $loginBonusContents = $this->loginBonusService->process(
                 $sysPlayerId,
-                $sysPlayer->getLastLoginAt()
+                $sysPlayer->getLastLoginAt(),
+                ApiSession::getConnectionName('trx')
             );
 
             // 最終ログイン日時を更新

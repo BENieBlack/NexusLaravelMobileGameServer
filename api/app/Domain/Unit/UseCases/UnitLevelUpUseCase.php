@@ -116,7 +116,8 @@ class UnitLevelUpUseCase extends _BaseUseCase
             $expPerItem = $mstItem->getValue();
             $totalExp = $expPerItem * $useCount;
 
-            $result = $this->unitLevelService->addExp($trxUnitId, $totalExp);
+            // addExp()は基底の4キーのみ返すため、レアリティ等を含む詳細版を使う
+            $result = $this->unitLevelService->addExpWithDetails($trxUnitId, $totalExp);
 
             // Responseオブジェクトを生成して返す
             return new LevelUpResponse(

@@ -51,6 +51,9 @@ class ServiceLayerTest extends TestCase
 
     /**
      * Service層のクラスが 'Service' で終わっているかチェック
+     *
+     * 例外: パッケージ層のインターフェース・基底クラスを実装するアダプタは、
+     * 実装先の契約名に揃えた命名（TokenValidator, TemplateEngine など）を許容する。
      */
     public function test_service_classes_must_end_with_service_suffix(): void
     {
@@ -60,15 +63,53 @@ class ServiceLayerTest extends TestCase
 
         foreach ($serviceFiles as $file) {
             $className = basename($file, '.php');
-            if (! str_ends_with($className, 'Service')) {
-                $violations[] = $className;
+
+            if (str_ends_with($className, 'Service')) {
+                continue;
             }
+
+            if ($this->implementsPackageContract($file, $className)) {
+                continue;
+            }
+
+            $violations[] = $className;
         }
 
         $this->assertEmpty(
             $violations,
-            "Service層のクラスは 'Service' で終わる必要があります: ".implode(', ', $violations)
+            "Service層のクラスは 'Service' で終わる必要があります".
+            "（パッケージ層の契約を実装するアダプタは除く）: ".implode(', ', $violations)
         );
+    }
+
+    /**
+     * パッケージ層（Nexus*名前空間）のインターフェースまたは基底クラスを実装しているか
+     */
+    private function implementsPackageContract(string $file, string $className): bool
+    {
+        // app/Domain/{Domain}/Services/{Class}.php → App\Domain\{Domain}\Services\{Class}
+        $domain = basename(dirname($file, 2));
+        $fqcn = "App\\Domain\\{$domain}\\Services\\{$className}";
+
+        if (! class_exists($fqcn)) {
+            return false;
+        }
+
+        $reflection = new \ReflectionClass($fqcn);
+
+        $ancestors = $reflection->getInterfaceNames();
+
+        if ($parent = $reflection->getParentClass()) {
+            $ancestors[] = $parent->getName();
+        }
+
+        foreach ($ancestors as $ancestor) {
+            if (str_starts_with($ancestor, 'Nexus')) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -95,6 +136,8 @@ class ServiceLayerTest extends TestCase
 
     /**
      * Repository層のクラスが 'Repository' で終わっているかチェック
+     *
+     * インターフェース宣言は実装と同居させる方針のため、'RepositoryInterface' も許容する。
      */
     public function test_repository_classes_must_end_with_repository_suffix(): void
     {
@@ -113,14 +156,14 @@ class ServiceLayerTest extends TestCase
                 continue;
             }
 
-            if (! str_ends_with($className, 'Repository')) {
+            if (! str_ends_with($className, 'Repository') && ! str_ends_with($className, 'RepositoryInterface')) {
                 $violations[] = $className;
             }
         }
 
         $this->assertEmpty(
             $violations,
-            "Repository層のクラスは 'Repository' で終わる必要があります: ".implode(', ', $violations)
+            "Repository層のクラスは 'Repository' または 'RepositoryInterface' で終わる必要があります: ".implode(', ', $violations)
         );
     }
 }

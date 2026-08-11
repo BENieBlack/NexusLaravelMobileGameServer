@@ -7,12 +7,12 @@ use NexusResource\Contracts\ItemRepositoryInterface;
 use NexusResource\DTOs\ItemDto;
 
 /**
- * ItemRepositoryImpl
+ * ItemRepository
  *
  * ItemRepositoryInterfaceの実装クラス
  * TrxItemモデル ↔ ItemDto の変換を担当
  */
-class ItemRepositoryImpl implements ItemRepositoryInterface
+class ItemRepository implements ItemRepositoryInterface
 {
     public function __construct(
         private readonly TrxItemRepository $trxItemRepository,

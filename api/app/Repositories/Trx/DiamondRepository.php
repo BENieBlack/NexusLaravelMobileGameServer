@@ -7,12 +7,12 @@ use NexusBilling\Contracts\DiamondRepositoryInterface;
 use NexusBilling\DTOs\DiamondBalanceDto;
 
 /**
- * DiamondRepositoryImpl
+ * DiamondRepository
  *
  * DiamondRepositoryInterfaceの実装クラス
  * TrxDiamondモデル ↔ DiamondBalanceDto の変換を担当
  */
-class DiamondRepositoryImpl implements DiamondRepositoryInterface
+class DiamondRepository implements DiamondRepositoryInterface
 {
     public function __construct(
         private readonly TrxDiamondRepository $trxDiamondRepository,

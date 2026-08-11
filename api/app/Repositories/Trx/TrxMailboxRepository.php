@@ -79,7 +79,7 @@ class TrxMailboxRepository extends _BaseTrxRepository implements MailboxReposito
         $results = $query->get();
 
         // 優先度順にソート（PHP側で実施）
-        return $results->sort(function ($a, $b) {
+        $sorted = $results->sort(function ($a, $b) {
             $priorityA = $a->mstMailbox?->priority;
             $priorityB = $b->mstMailbox?->priority;
 
@@ -98,6 +98,8 @@ class TrxMailboxRepository extends _BaseTrxRepository implements MailboxReposito
             // 優先度が同じ場合は作成日時の降順
             return $b->created_at <=> $a->created_at;
         })->values();
+
+        return new CustomCollection($sorted->all());
     }
 
     /**

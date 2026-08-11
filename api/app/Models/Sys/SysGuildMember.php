@@ -3,6 +3,7 @@
 namespace App\Models\Sys;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * SysGuildMember Model
@@ -100,7 +101,7 @@ class SysGuildMember extends _BaseSys
      */
     public function getJoinedAt(): string
     {
-        return $this->getAttribute('joined_at')->format('Y-m-d H:i:s');
+        return ClockUtility::parse((string) $this->getAttribute('joined_at'))->format('Y-m-d H:i:s');
     }
 
     /**

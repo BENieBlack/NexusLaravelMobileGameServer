@@ -5,6 +5,7 @@ namespace App\Models\Sys;
 use App\Models\Mst\MstPlayerLevel;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use NexusAuth\Contracts\PlayerModelInterface;
+use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * SysPlayer Model
@@ -242,7 +243,7 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
      */
     public function getCreatedAt(): string
     {
-        return $this->created_at->format('Y-m-d H:i:s');
+        return ClockUtility::parse((string) $this->created_at)->format('Y-m-d H:i:s');
     }
 
     /**

@@ -7,6 +7,7 @@ use LaravelWallet\Services\WalletService;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use LaravelWallet\Exceptions\InsufficientBalanceException;
+use Nexus\Core\Utilities\ClockUtility;
 use NexusUnitOfWork\Persistence\QueryManager;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;
@@ -451,7 +452,8 @@ class WalletServiceTest extends TestCase
         // Execute
         $expired = $this->walletService->removeExpiredCurrency(
             $this->sysPlayerId,
-            'event_coin'
+            'event_coin',
+            ClockUtility::nowToString()
         );
         $this->queryManager->execAllQuery();
 

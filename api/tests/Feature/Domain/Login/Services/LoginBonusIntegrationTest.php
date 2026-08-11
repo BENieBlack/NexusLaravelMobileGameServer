@@ -46,35 +46,48 @@ class LoginBonusIntegrationTest extends TestCase
     /**
      * テストプレイヤーとシャーディング情報を作成
      */
-    private function createTestPlayer(int $vipLevel = 0, int $vipPoint = 0): void
+    private function createTestPlayer(int $vipPoint = 0): void
     {
-        // sys_shardingを作成
-        $shardingId = DB::connection('sys')->table('sys_sharding')->insertGetId([
-            'name' => 'trx_sharding',
-            'target' => 'transaction',
-            'strategy' => 'hash',
-            'sharding_key' => 'player_id',
-            'node_count' => 2,
-            'is_active' => true,
-            'description' => 'Test sharding',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        // sys_shardingを作成（SysDeploySeederが既に作っている場合はそれを使う）
+        $shardingId = DB::connection('sys')->table('sys_sharding')
+            ->where('name', 'trx_sharding')
+            ->value('id');
 
-        // sys_sharding_nodeを作成
-        $nodeId = DB::connection('sys')->table('sys_sharding_node')->insertGetId([
-            'sys_sharding_id' => $shardingId,
-            'node_name' => 'node1',
-            'node_no' => 1,
-            'weight' => 100,
-            'status' => 'active',
-            'is_writable' => true,
-            'is_readable' => true,
-            'max_connections' => 10000,
-            'current_player_count' => 0,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        if (! $shardingId) {
+            $shardingId = DB::connection('sys')->table('sys_sharding')->insertGetId([
+                'name' => 'trx_sharding',
+                'target' => 'transaction',
+                'strategy' => 'hash',
+                'sharding_key' => 'player_id',
+                'node_count' => 2,
+                'is_active' => true,
+                'description' => 'Test sharding',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        // sys_sharding_nodeを作成（存在しなければ）
+        $nodeId = DB::connection('sys')->table('sys_sharding_node')
+            ->where('sys_sharding_id', $shardingId)
+            ->where('node_name', 'node1')
+            ->value('id');
+
+        if (! $nodeId) {
+            $nodeId = DB::connection('sys')->table('sys_sharding_node')->insertGetId([
+                'sys_sharding_id' => $shardingId,
+                'node_name' => 'node1',
+                'node_no' => 1,
+                'weight' => 100,
+                'status' => 'active',
+                'is_writable' => true,
+                'is_readable' => true,
+                'max_connections' => 10000,
+                'current_player_count' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
 
         // sys_playerを作成
         DB::connection('sys')->table('sys_player')->insert([
@@ -82,7 +95,6 @@ class LoginBonusIntegrationTest extends TestCase
             'uuid' => 'test-uuid-'.uniqid(),
             'my_id' => 'TEST0001',
             'name' => 'Test Player',
-            'vip_level' => $vipLevel,
             'vip_point' => $vipPoint,
             'created_at' => now(),
             'updated_at' => now(),
@@ -223,7 +235,7 @@ class LoginBonusIntegrationTest extends TestCase
         // Arrange: VIP5のプレイヤー
         DB::connection('sys')->table('sys_player')
             ->where('id', $this->sysPlayerId)
-            ->update(['vip_level' => 5, 'vip_point' => 5000]);
+            ->update(['vip_point' => 5000]); // 5000pt = VIP5
 
         $lastLoginAt = null;
 
@@ -243,7 +255,7 @@ class LoginBonusIntegrationTest extends TestCase
         // VIP5にレベルアップ
         DB::connection('sys')->table('sys_player')
             ->where('id', $this->sysPlayerId)
-            ->update(['vip_level' => 5, 'vip_point' => 5000]);
+            ->update(['vip_point' => 5000]); // 5000pt = VIP5
 
         // 翌日ログイン
         $lastLoginAt = now()->subDay()->format('Y-m-d H:i:s');
@@ -262,8 +274,7 @@ class LoginBonusIntegrationTest extends TestCase
         DB::connection('sys')->table('sys_player')
             ->where('id', $this->sysPlayerId)
             ->update([
-                'vip_level' => 5,
-                'vip_point' => 5000,
+                'vip_point' => 5000, // 5000pt = VIP5
                 'last_login_at' => now()->subDays(8)->format('Y-m-d H:i:s'),
             ]);
 
@@ -295,7 +306,7 @@ class LoginBonusIntegrationTest extends TestCase
         // VIP10にレベルアップ
         DB::connection('sys')->table('sys_player')
             ->where('id', $this->sysPlayerId)
-            ->update(['vip_level' => 10, 'vip_point' => 10000]);
+            ->update(['vip_point' => 100000]); // 100000pt = VIP10
 
         $lastLoginAt = now()->subDay()->format('Y-m-d H:i:s');
 

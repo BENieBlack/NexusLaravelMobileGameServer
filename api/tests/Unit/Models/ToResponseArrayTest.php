@@ -11,6 +11,7 @@ use App\Models\Trx\TrxEquipment;
 use App\Models\Trx\TrxStamina;
 use App\Models\Trx\TrxUnit;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * toResponseArray() メソッドのテスト
@@ -21,7 +22,8 @@ class ToResponseArrayTest extends TestCase
     /**
      * TrxUnit: id → trx_unit_id に変換されること
      */
-    public function trx_unit_converts_id_to_trx_unit_id()
+    #[Test]
+    public function test_trx_unit_converts_id_to_trx_unit_id()
     {
         $unit = new TrxUnit;
         $unit->id = 123;
@@ -40,7 +42,8 @@ class ToResponseArrayTest extends TestCase
     /**
      * TrxEquipment: id → trx_equipment_id に変換されること
      */
-    public function trx_equipment_converts_id_to_trx_equipment_id()
+    #[Test]
+    public function test_trx_equipment_converts_id_to_trx_equipment_id()
     {
         $equipment = new TrxEquipment;
         $equipment->id = 456;
@@ -59,7 +62,8 @@ class ToResponseArrayTest extends TestCase
     /**
      * TrxDiamondBalance: id → trx_diamond_balance_id に変換されること
      */
-    public function trx_diamond_balance_converts_id_to_trx_diamond_balance_id()
+    #[Test]
+    public function test_trx_diamond_balance_converts_id_to_trx_diamond_balance_id()
     {
         $balance = new TrxDiamondBalance;
         $balance->id = 789;
@@ -78,9 +82,11 @@ class ToResponseArrayTest extends TestCase
     }
 
     /**
-     * TrxStamina: 複合主キー (sys_player_id, type) を持つこと
+     * TrxStamina: 複合主キー (sys_player_id, type) のうち、
+     * 内部IDであるsys_player_idはレスポンスに含めない
      */
-    public function trx_stamina_has_composite_primary_key()
+    #[Test]
+    public function test_trx_stamina_excludes_internal_player_id()
     {
         $stamina = new TrxStamina;
         $stamina->sys_player_id = 1;
@@ -90,18 +96,21 @@ class ToResponseArrayTest extends TestCase
 
         $response = $stamina->toResponseArray();
 
-        $this->assertArrayHasKey('sys_player_id', $response);
-        $this->assertEquals(1, $response['sys_player_id']);
+        // sys_player_idは内部情報のため除外される
+        $this->assertArrayNotHasKey('sys_player_id', $response);
+
         $this->assertArrayHasKey('type', $response);
         $this->assertEquals(StaminaConst::TYPE_NORMAL, $response['type']);
+        $this->assertArrayHasKey('current_stamina', $response);
         $this->assertArrayNotHasKey('id', $response);
         $this->assertArrayNotHasKey('trx_stamina_id', $response);
     }
 
     /**
-     * SysPlayer: id → sys_player_id に変換されること
+     * SysPlayer: 内部ID(id)とuuidは除外され、公開IDのmy_idが返ること
      */
-    public function sys_player_converts_id_to_sys_player_id()
+    #[Test]
+    public function test_sys_player_excludes_internal_id()
     {
         $player = new SysPlayer;
         $player->id = 222;
@@ -113,15 +122,22 @@ class ToResponseArrayTest extends TestCase
 
         $response = $player->toResponseArray();
 
-        $this->assertArrayHasKey('sys_player_id', $response);
-        $this->assertEquals(222, $response['sys_player_id']);
+        // 内部IDは公開しない（クライアントにはmy_idを渡す）
         $this->assertArrayNotHasKey('id', $response);
+        $this->assertArrayNotHasKey('sys_player_id', $response);
+        $this->assertArrayNotHasKey('uuid', $response);
+
+        $this->assertArrayHasKey('my_id', $response);
+        $this->assertEquals('MY123456', $response['my_id']);
+        $this->assertArrayHasKey('level', $response);
+        $this->assertEquals(20, $response['level']);
     }
 
     /**
      * SysFriendApply: id → sys_friend_apply_id に変換されること
      */
-    public function sys_friend_apply_converts_id_to_sys_friend_apply_id()
+    #[Test]
+    public function test_sys_friend_apply_converts_id_to_sys_friend_apply_id()
     {
         $friendApply = new SysFriendApply;
         $friendApply->id = 333;
@@ -139,7 +155,8 @@ class ToResponseArrayTest extends TestCase
     /**
      * MstInAppPurchase: id → mst_in_app_purchase_id に変換されること
      */
-    public function mst_in_app_purchase_converts_id_to_mst_in_app_purchase_id()
+    #[Test]
+    public function test_mst_in_app_purchase_converts_id_to_mst_in_app_purchase_id()
     {
         $purchase = new MstInAppPurchase;
         $purchase->id = 444;

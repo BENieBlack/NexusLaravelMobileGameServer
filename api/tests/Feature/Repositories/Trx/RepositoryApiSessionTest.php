@@ -5,7 +5,7 @@ namespace Tests\Feature\Repositories\Trx;
 use App\Persistence\ApiSession;
 use App\Repositories\Log\LogEquipmentRepository;
 use App\Repositories\Trx\TrxEquipmentRepository;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\RefreshMultipleDatabases;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -16,7 +16,7 @@ use Tests\TestCase;
  */
 class RepositoryApiSessionTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshMultipleDatabases;
 
     private int $sysPlayerId = 1;
 

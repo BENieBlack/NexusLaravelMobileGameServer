@@ -66,7 +66,7 @@ DB_LOG3_PASSWORD=root
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
-      - "33069:3306"  # ホストポート（他と重複しないように）
+      - "63163:3306"  # ホストポート（他と重複しないように）
     volumes:
       - db_trx3_data:/var/lib/mysql
     networks:
@@ -79,7 +79,7 @@ DB_LOG3_PASSWORD=root
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
-      - "33068:3306"  # ホストポート（他と重複しないように）
+      - "63263:3306"  # ホストポート（他と重複しないように）
     volumes:
       - db_log3_data:/var/lib/mysql
     networks:
@@ -120,13 +120,13 @@ volumes:
 #### 2.4 ポート番号の参考
 
 既存のポート割り当て例：
-- db-mst: 33063
-- db-log1: 33064
-- db-trx1: 33065
-- db-trx2: 33066
-- db-log2: 33067
-- **db-log3: 33068（新規）**
-- **db-trx3: 33069（新規）**
+- db-mst: 63063
+- db-log1: 63261
+- db-trx1: 63161
+- db-trx2: 63162
+- db-log2: 63262
+- **db-log3: 63263（新規）**
+- **db-trx3: 63163（新規）**
 
 ### ステップ3: Dockerコンテナの起動
 
@@ -143,12 +143,12 @@ docker compose ps | grep -E "(db-trx|db-log)"
 
 期待される出力例：
 ```
-db-log1    mysql:latest    ...    Up    0.0.0.0:33064->3306/tcp
-db-log2    mysql:latest    ...    Up    0.0.0.0:33067->3306/tcp
-db-log3    mysql:latest    ...    Up    0.0.0.0:33068->3306/tcp
-db-trx1    mysql:latest    ...    Up    0.0.0.0:33065->3306/tcp
-db-trx2    mysql:latest    ...    Up    0.0.0.0:33066->3306/tcp
-db-trx3    mysql:latest    ...    Up    0.0.0.0:33069->3306/tcp
+db-log1    mysql:latest    ...    Up    0.0.0.0:63261->3306/tcp
+db-log2    mysql:latest    ...    Up    0.0.0.0:63262->3306/tcp
+db-log3    mysql:latest    ...    Up    0.0.0.0:63263->3306/tcp
+db-trx1    mysql:latest    ...    Up    0.0.0.0:63161->3306/tcp
+db-trx2    mysql:latest    ...    Up    0.0.0.0:63162->3306/tcp
+db-trx3    mysql:latest    ...    Up    0.0.0.0:63163->3306/tcp
 ```
 
 #### 3.2 データベースの作成

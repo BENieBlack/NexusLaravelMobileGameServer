@@ -43,8 +43,8 @@ docker ps
 docker exec db-sys mysql -u root -proot nexus-local-sys -e "SHOW TABLES;"
 
 # アプリケーションアクセス
-# API: http://localhost:8080
-# Tool: http://localhost
+# API: http://localhost:8090
+# Tool: http://localhost:8091
 ```
 
 #### トラブルシューティング
@@ -74,19 +74,19 @@ docker exec api-php php artisan migrate:fresh --database=sys --path=database/mig
 - **api-php** - APIのPHPアプリケーション
 - **tool-nginx** - 運営ツールのWebサーバー（ポート: 80）
 - **tool-php** - 運営ツールのPHPアプリケーション
-- **db-adm** - 管理者アカウントデータベース（ポート: 33060）
+- **db-adm** - 管理者アカウントデータベース（ポート: 63060）
   - 管理者アカウント・権限管理
-- **db-tol** - 運営ツールデータベース（ポート: 33061）
+- **db-tol** - 運営ツールデータベース（ポート: 63061）
   - マスター状況、アセット、バナー、キャッシュ制御等
-- **db-sys** - システム管理データベース（ポート: 33062）
+- **db-sys** - システム管理データベース（ポート: 63062）
   - シャーディング管理、デプロイ管理、プレイヤーマスター
-- **db-mst** - ゲームマスターデータベース（ポート: 33063）
+- **db-mst** - ゲームマスターデータベース（ポート: 63063）
   - アイテム、キャラクター、スキルなどのマスターデータ
-- **db-log** - ログデータベース（ポート: 33064）
+- **db-log** - ログデータベース（ポート: 63261）
   - APIログ、ガチャログ、課金ログなど
-- **db-trx1** - トランザクションデータベース1（ポート: 33065）
+- **db-trx1** - トランザクションデータベース1（ポート: 63161）
   - プレイヤーのトランザクションデータ（シャード1）
-- **db-trx2** - トランザクションデータベース2（ポート: 33066）
+- **db-trx2** - トランザクションデータベース2（ポート: 63162）
   - プレイヤーのトランザクションデータ（シャード2）
 - **redis** - Redisキャッシュサーバー
 
@@ -94,13 +94,13 @@ docker exec api-php php artisan migrate:fresh --database=sys --path=database/mig
 
 | データベース | ホスト | ポート | データベース名 | ユーザー名 | パスワード |
 |------------|--------|--------|---------------|-----------|-----------|
-| admin | db-adm | 3306 (33060) | nexus-local-adm | root | root |
-| tool | db-tol | 3306 (33061) | nexus-local-tol | root | root |
-| sys | db-sys | 3306 (33062) | nexus-local-sys | root | root |
-| mst | db-mst | 3306 (33063) | nexus-local-mst | root | root |
-| log | db-log | 3306 (33064) | nexus-local-log | root | root |
-| trx1 | db-trx1 | 3306 (33065) | nexus-local-trx1 | root | root |
-| trx2 | db-trx2 | 3306 (33066) | nexus-local-trx2 | root | root |
+| admin | db-adm | 3306 (63060) | nexus-local-adm | root | root |
+| tool | db-tol | 3306 (63061) | nexus-local-tol | root | root |
+| sys | db-sys | 3306 (63062) | nexus-local-sys | root | root |
+| mst | db-mst | 3306 (63063) | nexus-local-mst | root | root |
+| log | db-log | 3306 (63261) | nexus-local-log | root | root |
+| trx1 | db-trx1 | 3306 (63161) | nexus-local-trx1 | root | root |
+| trx2 | db-trx2 | 3306 (63162) | nexus-local-trx2 | root | root |
 
 ※括弧内はホストマシンからアクセスする際のポート番号
 

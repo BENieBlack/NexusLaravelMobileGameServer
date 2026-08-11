@@ -247,7 +247,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
-      - "33067:3306"
+      - "63262:3306"
     volumes:
       - db_trx3_data:/var/lib/mysql
     networks:
@@ -259,7 +259,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
-      - "33068:3306"
+      - "63263:3306"
     volumes:
       - db_trx4_data:/var/lib/mysql
     networks:

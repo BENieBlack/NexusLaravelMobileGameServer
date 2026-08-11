@@ -151,7 +151,7 @@ Docker Compose（DB_TRX_SHARDS=4の場合）:
             'log' => [
                 'driver' => 'mysql',
                 'host' => env('DB_LOG_HOST', '127.0.0.1'),
-                'port' => env('DB_LOG_PORT', '33063'),
+                'port' => env('DB_LOG_PORT', '63063'),
                 'database' => env('DB_LOG_DATABASE') ?: env('APP_NAME', 'laravel') . '-' . env('APP_ENV', 'local') . '-log',
                 'username' => env('DB_LOG_USERNAME', 'root'),
                 'password' => env('DB_LOG_PASSWORD', ''),
@@ -613,7 +613,7 @@ services:
     volumes:
       - db-log-data:/var/lib/mysql
     ports:
-      - "33063:3306"
+      - "63063:3306"
 
 volumes:
   db-trx1-data:

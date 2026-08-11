@@ -44,7 +44,7 @@ class VipLoginBonusServiceTest extends TestCase
     /**
      * テストプレイヤーとシャーディング情報を作成
      */
-    private function createTestPlayer(int $vipLevel = 0, int $vipPoint = 0): void
+    private function createTestPlayer(int $vipPoint = 0): void
     {
         // sys_shardingを作成（存在しなければ）
         $shardingId = DB::connection('sys')->table('sys_sharding')
@@ -87,13 +87,12 @@ class VipLoginBonusServiceTest extends TestCase
             ]);
         }
 
-        // sys_playerを作成（VIPレベル・VIPポイント付き）
+        // sys_playerを作成（VIPレベルはvip_pointから算出されるため保持しない）
         DB::connection('sys')->table('sys_player')->insert([
             'id' => $this->sysPlayerId,
             'uuid' => 'test-uuid-'.uniqid(),
             'my_id' => 'TEST0001',
             'name' => 'Test Player',
-            'vip_level' => $vipLevel,
             'vip_point' => $vipPoint,
             'created_at' => now(),
             'updated_at' => now(),
@@ -146,7 +145,7 @@ class VipLoginBonusServiceTest extends TestCase
                 MstVipLoginBonusContent::create([
                     'mst_vip_login_bonus_id' => $bonusId,
                     'day' => $day,
-                    'content_type' => 'currency',
+                    'content_type' => 'gold',
                     'content_id' => 'gold',
                     'content_option' => null,
                     'content_quantity' => $goldAmount,
@@ -175,19 +174,26 @@ class VipLoginBonusServiceTest extends TestCase
         // Arrange: VIP5のプレイヤーを作成
         DB::connection('sys')->table('sys_player')
             ->where('id', $this->sysPlayerId)
-            ->update(['vip_level' => 5, 'vip_point' => 5000]);
+            ->update(['vip_point' => 5000]); // 5000pt = VIP5
 
         $lastLoginAt = null;
 
         // Act
-        $result = $this->vipLoginBonusService->grant($this->sysPlayerId, $lastLoginAt);
+        $result = $this->vipLoginBonusService->process($this->sysPlayerId, $lastLoginAt, 'trx1');
 
-        // Assert
-        $this->assertNotNull($result, 'VIP5プレイヤーはボーナスを受け取れるべき');
-        $this->assertEquals(1, $result['current_day'], '初回は1日目のボーナスを受け取るべき');
+        // Assert: process()は配布したResourceDtoの配列を返す
+        $this->assertCount(1, $result, 'VIP5プレイヤーはボーナスを受け取れるべき');
 
         // VIP5の1日目のゴールド量を確認（1000 * 1 * 2.5 = 2500）
-        $this->assertGreaterThan(1000, $result['contents'][0]->content_quantity, 'VIP5はVIP0より多くのゴールドを受け取るべき');
+        $this->assertSame(2500, $result[0]->getAmount(), 'VIP5はVIP0より多くのゴールドを受け取るべき');
+
+        // 履歴で1日目として記録されていることを確認
+        $history = DB::connection('trx1')->table('trx_vip_login_bonus_history')
+            ->where('sys_player_id', $this->sysPlayerId)
+            ->orderBy('id', 'desc')
+            ->first();
+
+        $this->assertSame(1, (int) $history->day, '初回は1日目のボーナスを受け取るべき');
     }
 
     #[Test]
@@ -198,7 +204,7 @@ class VipLoginBonusServiceTest extends TestCase
         $lastLoginAt = $currentTime->format('Y-m-d H:i:s');
 
         // 1回目の受け取り
-        $this->vipLoginBonusService->grant($this->sysPlayerId, null);
+        $this->vipLoginBonusService->process($this->sysPlayerId, null, 'trx1');
 
         // Act: 同じ日に再度受け取ろうとする
         $isEligible = $this->vipLoginBonusService->isEligible($this->sysPlayerId, $lastLoginAt);
@@ -227,11 +233,21 @@ class VipLoginBonusServiceTest extends TestCase
         }
 
         // Act: 8日目にログイン（1日目に戻るべき）
-        $result = $this->vipLoginBonusService->grant($this->sysPlayerId, now()->subDay()->format('Y-m-d H:i:s'));
+        $result = $this->vipLoginBonusService->process(
+            $this->sysPlayerId,
+            ClockUtility::now()->subDay()->format('Y-m-d H:i:s'),
+            'trx1'
+        );
 
         // Assert
-        $this->assertNotNull($result, '8日目にボーナスを受け取れるべき');
-        $this->assertEquals(1, $result['current_day'], '8日目は1日目にループするべき');
+        $this->assertCount(1, $result, '8日目にボーナスを受け取れるべき');
+
+        $history = DB::connection($connectionName)->table('trx_vip_login_bonus_history')
+            ->where('sys_player_id', $this->sysPlayerId)
+            ->orderBy('id', 'desc')
+            ->first();
+
+        $this->assertSame(1, (int) $history->day, '8日目は1日目にループするべき');
     }
 
     #[Test]
@@ -240,7 +256,7 @@ class VipLoginBonusServiceTest extends TestCase
         // Arrange: VIP3のプレイヤー（VIP3のマスターデータは作成していない）
         DB::connection('sys')->table('sys_player')
             ->where('id', $this->sysPlayerId)
-            ->update(['vip_level' => 3, 'vip_point' => 3000]);
+            ->update(['vip_point' => 1000]); // 1000pt = VIP3（VIP3のボーナスマスタは未作成）
 
         $lastLoginAt = null;
 
@@ -274,17 +290,20 @@ class VipLoginBonusServiceTest extends TestCase
         // VIP5にレベルアップ
         DB::connection('sys')->table('sys_player')
             ->where('id', $this->sysPlayerId)
-            ->update(['vip_level' => 5, 'vip_point' => 5000]);
+            ->update(['vip_point' => 5000]); // 5000pt = VIP5
 
         // Act: 4日目にログイン
-        $result = $this->vipLoginBonusService->grant($this->sysPlayerId, now()->subDay()->format('Y-m-d H:i:s'));
+        $result = $this->vipLoginBonusService->process(
+            $this->sysPlayerId,
+            ClockUtility::now()->subDay()->format('Y-m-d H:i:s'),
+            'trx1'
+        );
 
         // Assert
-        $this->assertNotNull($result, 'VIPレベルアップ後もボーナスを受け取れるべき');
-        $this->assertEquals(4, $result['current_day'], '4日目のボーナスを受け取るべき');
+        $this->assertCount(1, $result, 'VIPレベルアップ後もボーナスを受け取れるべき');
 
         // VIP5の4日目のゴールド量を確認（1000 * 4 * 2.5 = 10000）
-        $this->assertEquals(10000, $result['contents'][0]->content_quantity, 'VIP5の報酬量になるべき');
+        $this->assertSame(10000, $result[0]->getAmount(), 'VIP5の報酬量になるべき');
 
         // 履歴を確認
         $history = DB::connection($connectionName)->table('trx_vip_login_bonus_history')
@@ -292,6 +311,7 @@ class VipLoginBonusServiceTest extends TestCase
             ->orderBy('id', 'desc')
             ->first();
 
+        $this->assertSame(4, (int) $history->day, '4日目のボーナスを受け取るべき');
         $this->assertEquals(5, $history->vip_level, '履歴にVIP5として記録されるべき');
         $this->assertEquals('vip_login_lv5', $history->mst_vip_login_bonus_id, 'VIP5のボーナスIDが記録されるべき');
     }

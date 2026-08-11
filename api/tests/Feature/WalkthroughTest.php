@@ -18,8 +18,6 @@ use App\Repositories\Mst\MstItemRepository;
 use App\Repositories\Mst\MstMailboxRepository;
 use App\Repositories\Mst\MstUnitRepository;
 use Database\Seeders\SysShardingSeeder;
-use Illuminate\Contracts\Console\Kernel;
-use Illuminate\Foundation\Testing\RefreshDatabaseState;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Nexus\Core\Utilities\ClockUtility;
@@ -68,30 +66,8 @@ class WalkthroughTest extends TestCase
      */
     protected function refreshTestDatabase(): void
     {
-        if (! RefreshDatabaseState::$migrated) {
-            // Run migrate:fresh for each connection with its specific path
-            foreach ($this->connectionsToMigrate() as $connection => $path) {
-                // First, drop all tables in the database
-                $this->artisan('migrate:reset', [
-                    '--database' => $connection,
-                    '--path' => $path,
-                    '--force' => true,
-                ]);
-
-                // Then run fresh migrations
-                $this->artisan('migrate', [
-                    '--database' => $connection,
-                    '--path' => $path,
-                    '--force' => true,
-                ]);
-            }
-
-            $this->app[Kernel::class]->setArtisan(null);
-
-            RefreshDatabaseState::$migrated = true;
-        }
-
         // Feature tests: DON'T use database transactions - clean up in tearDown instead
+        $this->ensureDatabasesMigrated();
     }
 
     protected function setUp(): void
@@ -500,7 +476,8 @@ class WalkthroughTest extends TestCase
         ]);
 
         $response->assertOk();
-        $data = $response->json('data');
+        // ガチャAPIは _BaseResponse::toJsonResponse() でトップレベルに返す（dataラッパー無し）
+        $data = $response->json();
 
         $this->assertArrayHasKey('prizes', $data);
         $this->assertCount(1, $data['prizes']);
@@ -541,14 +518,15 @@ class WalkthroughTest extends TestCase
         ]);
 
         $response->assertOk();
-        $data = $response->json('data');
+        // LevelUpResponseはトップレベルにスネークケースで返す
+        $data = $response->json();
 
         // Verify response structure (level up may or may not happen depending on exp requirements)
-        $this->assertArrayHasKey('isLeveledUp', $data);
-        $this->assertArrayHasKey('beforeLevel', $data);
-        $this->assertArrayHasKey('afterLevel', $data);
-        $this->assertArrayHasKey('expGained', $data);
-        $this->assertGreaterThan(0, $data['expGained']);
+        $this->assertArrayHasKey('is_leveled_up', $data);
+        $this->assertArrayHasKey('before_level', $data);
+        $this->assertArrayHasKey('after_level', $data);
+        $this->assertArrayHasKey('exp_gained', $data);
+        $this->assertGreaterThan(0, $data['exp_gained']);
     }
 
     /**

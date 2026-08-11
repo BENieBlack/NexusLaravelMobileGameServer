@@ -4,7 +4,7 @@ namespace Tests\Feature\Repositories\Trx;
 
 use App\Persistence\ApiSession;
 use App\Repositories\Trx\TrxEquipmentRepository;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\RefreshMultipleDatabases;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -14,7 +14,7 @@ use Tests\TestCase;
  */
 class RepositoryDeleteTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshMultipleDatabases;
 
     private int $sysPlayerId = 1;
 

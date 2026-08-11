@@ -24,6 +24,22 @@ class TrxWalletBalanceRepository extends _BaseTrxRepository
     protected string $modelClass = TrxWalletBalance::class;
 
     /**
+     * IDで残高を検索
+     * queryOrMemory()経由でキャッシュからfilterして取得
+     *
+     * @param  int  $trxWalletBalanceId  trx_wallet_balance.id
+     * @return TrxWalletBalance|null 残高（見つからない場合はnull）
+     */
+    public function selectById(int $trxWalletBalanceId): ?TrxWalletBalance
+    {
+        // queryOrMemory()で全データをキャッシュにロード（内部の$sysPlayerIdを使用）
+        $this->queryOrMemory();
+
+        // キャッシュから取得
+        return $this->getModel($trxWalletBalanceId);
+    }
+
+    /**
      * 残高を取得（FIFO順：有償優先 → 有効期限が近いものから）
      *
      * @param  string  $mstItemId  アイテムID

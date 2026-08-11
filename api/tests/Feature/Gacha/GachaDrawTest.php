@@ -299,7 +299,7 @@ class GachaDrawTest extends TestCase
         // Assert
         $response->assertStatus(200);
 
-        $data = $response->json('data');
+        $data = $response->json();
         $this->assertArrayHasKey('prizes', $data);
         $this->assertCount(1, $data['prizes']);
 

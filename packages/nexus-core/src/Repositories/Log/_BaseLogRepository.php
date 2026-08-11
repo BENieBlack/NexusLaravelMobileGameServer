@@ -26,7 +26,7 @@ abstract class _BaseLogRepository extends _BaseRepository implements _BaseLogRep
      *
      * @var string
      */
-    protected string $connection = 'log';
+    protected string $connection = 'log1';
 
     /**
      * 課金ログかどうか

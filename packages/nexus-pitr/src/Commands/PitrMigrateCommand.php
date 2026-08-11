@@ -40,6 +40,7 @@ class PitrMigrateCommand extends Command
         
         // LogDBマイグレーションパスを定義（base_path()からの相対パス）
         $logMigrationPaths = [
+            'database/migrations/log',
             '../packages/nexus-pitr/database/migrations/log',
             '../packages/nexus-player/database/migrations/log',
             '../packages/nexus-resource/database/migrations/log',

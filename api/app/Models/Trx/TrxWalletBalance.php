@@ -85,6 +85,14 @@ class TrxWalletBalance extends _BaseTrx
     // ===== Getter Methods =====
 
     /**
+     * 残高IDを取得
+     */
+    public function getId(): int
+    {
+        return $this->getAttribute('id');
+    }
+
+    /**
      * 有償フラグを取得
      */
     public function getIsPaid(): bool
@@ -98,6 +106,22 @@ class TrxWalletBalance extends _BaseTrx
     public function getCurrentAmount(): int
     {
         return $this->current_amount;
+    }
+
+    /**
+     * 初期取得数量を取得
+     */
+    public function getInitialAmount(): int
+    {
+        return $this->initial_amount;
+    }
+
+    /**
+     * 有効期限を取得（無期限の場合はnull）
+     */
+    public function getExpireAt(): ?CarbonImmutable
+    {
+        return $this->getDateAttribute('expire_at');
     }
 
     // ===== Setter Methods =====

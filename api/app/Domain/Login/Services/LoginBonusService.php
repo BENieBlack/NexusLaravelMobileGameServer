@@ -48,8 +48,8 @@ class LoginBonusService extends _BaseLoginBonusService
      */
     protected function getLoginBonusData(int $sysPlayerId, int $currentDay, ?string $lastLoginAt): ?array
     {
-        // 有効な通常ログインボーナス設定を取得
-        $loginBonus = $this->bonusRepository->findActiveDailyBonus();
+        // mst_login_bonusは日数ごとに1レコード持つため、該当日の設定を取得する
+        $loginBonus = $this->bonusRepository->findActiveByDay($currentDay);
 
         if ($loginBonus === null) {
             return null;

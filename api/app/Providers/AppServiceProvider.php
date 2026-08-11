@@ -28,8 +28,8 @@ use App\Repositories\Sys\SysMaintenanceRepository;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
 use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;
-use App\Repositories\Trx\DiamondRepositoryImpl;
-use App\Repositories\Trx\ItemRepositoryImpl;
+use App\Repositories\Trx\DiamondRepository;
+use App\Repositories\Trx\ItemRepository;
 use App\Repositories\Trx\TrxGachaRepository;
 use App\Repositories\Trx\TrxLoginBonusHistoryRepository;
 use App\Repositories\Trx\TrxMailboxRepository;
@@ -197,14 +197,14 @@ class AppServiceProvider extends ServiceProvider
         // ==========================================
 
         // Repository interfaces
-        $this->app->bind(ItemRepositoryInterface::class, ItemRepositoryImpl::class);
+        $this->app->bind(ItemRepositoryInterface::class, ItemRepository::class);
 
         // ==========================================
         // NexusBilling Package Bindings
         // ==========================================
 
         // Repository interfaces
-        $this->app->bind(DiamondRepositoryInterface::class, DiamondRepositoryImpl::class);
+        $this->app->bind(DiamondRepositoryInterface::class, DiamondRepository::class);
 
         // ==========================================
         // NexusWallet (LaravelWallet) Package Bindings

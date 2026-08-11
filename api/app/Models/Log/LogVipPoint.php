@@ -26,7 +26,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class LogVipPoint extends Model
 {
-    protected $connection = 'log';
+    protected $connection = 'log1';
 
     protected $table = 'log_vip_point';
 

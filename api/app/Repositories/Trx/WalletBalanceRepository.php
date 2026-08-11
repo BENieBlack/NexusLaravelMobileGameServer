@@ -4,6 +4,7 @@ namespace App\Repositories\Trx;
 
 use App\Models\Trx\TrxWalletBalance;
 use LaravelWallet\Repositories\WalletBalanceRepositoryInterface;
+use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * WalletBalanceRepository
@@ -51,7 +52,11 @@ class WalletBalanceRepository implements WalletBalanceRepositoryInterface
      */
     public function findAllExpiredByCurrencyId(int $playerId, string $currencyId, string $currentTime): iterable
     {
-        $balances = $this->trxWalletBalanceRepository->selectAllExpiredBalancesByMstItemId($currencyId, $currentTime);
+        // パッケージ側は時刻を文字列で扱うため、Application層のCarbonImmutableに変換する
+        $balances = $this->trxWalletBalanceRepository->selectAllExpiredBalancesByMstItemId(
+            $currencyId,
+            ClockUtility::parse($currentTime)
+        );
 
         foreach ($balances as $balance) {
             yield (object) [

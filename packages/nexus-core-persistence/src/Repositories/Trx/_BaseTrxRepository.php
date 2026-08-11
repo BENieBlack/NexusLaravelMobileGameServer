@@ -32,7 +32,7 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
      *
      * @var string
      */
-    protected string $connection = 'trx';
+    protected string $connection = 'trx1';
 
     /**
      * キャッシュされたプレイヤーID（パフォーマンス最適化）

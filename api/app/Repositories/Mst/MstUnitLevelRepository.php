@@ -53,14 +53,17 @@ class MstUnitLevelRepository extends _BaseMstRepository
         $cacheKey = "{$this->cachePrefix}:{$tableName}:all";
 
         // Laravel Cacheを使ってキャッシュから取得、なければDBから取得してキャッシュに保存
-        $this->models = Cache::store($this->cacheDriver)->remember(
+        $cached = Cache::store($this->cacheDriver)->remember(
             $cacheKey,
             $this->cacheTtl,
             function () use ($modelInstance) {
-                // 全レコードを取得
-                return $modelInstance::all();
+                // 全レコードを取得（配列として保存）
+                return $modelInstance::all()->all();
             }
         );
+
+        // CustomCollectionとして保持する
+        $this->models = new CustomCollection($cached);
 
         return $this->models;
     }

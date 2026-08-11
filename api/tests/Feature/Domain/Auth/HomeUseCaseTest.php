@@ -7,8 +7,6 @@ use App\Models\Mst\MstLoginBonusContent;
 use App\Models\Sys\SysPlayer;
 use Carbon\CarbonImmutable;
 use Database\Seeders\SysShardingSeeder;
-use Illuminate\Contracts\Console\Kernel;
-use Illuminate\Foundation\Testing\RefreshDatabaseState;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;
@@ -32,30 +30,8 @@ class HomeUseCaseTest extends TestCase
      */
     protected function refreshTestDatabase(): void
     {
-        if (! RefreshDatabaseState::$migrated) {
-            // Run migrate:fresh for each connection with its specific path
-            foreach ($this->connectionsToMigrate() as $connection => $path) {
-                // First, drop all tables in the database
-                $this->artisan('migrate:reset', [
-                    '--database' => $connection,
-                    '--path' => $path,
-                    '--force' => true,
-                ]);
-
-                // Then run fresh migrations
-                $this->artisan('migrate', [
-                    '--database' => $connection,
-                    '--path' => $path,
-                    '--force' => true,
-                ]);
-            }
-
-            $this->app[Kernel::class]->setArtisan(null);
-
-            RefreshDatabaseState::$migrated = true;
-        }
-
         // Feature tests: DON'T use database transactions - clean up in tearDown instead
+        $this->ensureDatabasesMigrated();
     }
 
     protected function setUp(): void
@@ -335,7 +311,7 @@ class HomeUseCaseTest extends TestCase
     }
 
     #[Test]
-    public function test_連続ログインが途切れると1日目にリセットされる(): void
+    public function test_連続ログインが途切れても日数は継続される(): void
     {
         $day1 = CarbonImmutable::parse('2026-04-20 10:00:00', 'UTC');
 
@@ -363,9 +339,10 @@ class HomeUseCaseTest extends TestCase
         $response->assertOk();
         $data = $response->json('data');
 
-        // 1日目にリセットされる
+        // 休眠してもリセットされず、前回受け取り分（3日目）の次＝4日目が配布される
+        // 休眠プレイヤー向けの救済はカムバックボーナス側が担当する
         $this->assertCount(1, $data['login_bonus_list']);
-        $this->assertSame(10, $data['login_bonus_list'][0]['amount']); // 1日目の報酬
+        $this->assertSame(40, $data['login_bonus_list'][0]['amount']); // 4日目の報酬
 
         $this->travelBack();
     }

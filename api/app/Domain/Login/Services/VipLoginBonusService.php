@@ -8,6 +8,7 @@ use App\Repositories\Trx\VipLoginBonusHistoryRepositoryInterface;
 use NexusLogin\Services\_BaseLoginBonusService;
 use Nexus\Core\Support\CustomCollection;
 use NexusResourceDelivery\Services\ResourceDeliveryService;
+use NexusVip\Services\VipLevelService;
 use Nexus\Core\Utilities\ClockUtility;
 
 /**
@@ -29,6 +30,7 @@ class VipLoginBonusService extends _BaseLoginBonusService
         private readonly VipLoginBonusRepositoryInterface $vipBonusRepository,
         private readonly VipLoginBonusHistoryRepositoryInterface $vipHistoryRepository,
         private readonly SysPlayerRepository $playerRepository,
+        private readonly VipLevelService $vipLevelService,
     ) {
         parent::__construct($resourceDeliveryService);
     }
@@ -48,14 +50,14 @@ class VipLoginBonusService extends _BaseLoginBonusService
         }
 
         // VIPレベルを取得
-        $player = $this->playerRepository->findVipInfoById($sysPlayerId);
+        $vipLevel = $this->resolveVipLevel($sysPlayerId);
 
-        if ($player === null) {
+        if ($vipLevel === null) {
             return false;
         }
 
         // VIPレベルに対応するVIPログインボーナスがあるかチェック
-        $vipBonus = $this->vipBonusRepository->findActiveByVipLevel($player->vip_level);
+        $vipBonus = $this->vipBonusRepository->findActiveByVipLevel($vipLevel);
 
         return $vipBonus !== null;
     }
@@ -66,21 +68,21 @@ class VipLoginBonusService extends _BaseLoginBonusService
     protected function getLoginBonusData(int $sysPlayerId, int $currentDay, ?string $lastLoginAt): ?array
     {
         // プレイヤーのVIPレベルを取得
-        $player = $this->playerRepository->findVipInfoById($sysPlayerId);
+        $vipLevel = $this->resolveVipLevel($sysPlayerId);
 
-        if ($player === null) {
+        if ($vipLevel === null) {
             return null;
         }
 
         // VIPレベルに対応するVIPログインボーナス設定を取得
-        $vipBonus = $this->vipBonusRepository->findActiveByVipLevel($player->vip_level);
+        $vipBonus = $this->vipBonusRepository->findActiveByVipLevel($vipLevel);
 
         if ($vipBonus === null) {
             return null;
         }
 
         // VIPレベルを追加
-        $vipBonus['current_vip_level'] = $player->vip_level;
+        $vipBonus['current_vip_level'] = $vipLevel;
 
         return $vipBonus;
     }
@@ -139,14 +141,32 @@ class VipLoginBonusService extends _BaseLoginBonusService
      */
     protected function getLoopDays(int $sysPlayerId): ?int
     {
+        $vipLevel = $this->resolveVipLevel($sysPlayerId);
+
+        if ($vipLevel === null) {
+            return null;
+        }
+
+        $vipBonus = $this->vipBonusRepository->findActiveByVipLevel($vipLevel);
+
+        return $vipBonus['loop_days'] ?? null;
+    }
+
+    /**
+     * プレイヤーのVIPレベルを取得
+     *
+     * VIPレベルはカラムに保持せず、累積VIPポイントから算出する。
+     *
+     * @return int|null VIPレベル、プレイヤーが存在しない場合はnull
+     */
+    private function resolveVipLevel(int $sysPlayerId): ?int
+    {
         $player = $this->playerRepository->findVipInfoById($sysPlayerId);
 
         if ($player === null) {
             return null;
         }
 
-        $vipBonus = $this->vipBonusRepository->findActiveByVipLevel($player->vip_level);
-
-        return $vipBonus['loop_days'] ?? null;
+        return $this->vipLevelService->calculateLevel($player->getVipPoint());
     }
 }

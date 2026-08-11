@@ -18,7 +18,7 @@ abstract class _BaseTrx extends _BaseModel implements _BaseTrxInterface
      * 
      * @var string
      */
-    protected $connection = 'trx';
+    protected $connection = 'trx1';
 
     /**
      * Unit of Workパターンを使用

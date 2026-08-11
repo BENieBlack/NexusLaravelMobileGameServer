@@ -5,7 +5,7 @@ namespace App\Http\Responses\Mailbox;
 use App\Domain\MailBox\Constants\ContentType;
 use App\Domain\MailBox\Services\TemplateEngine;
 use App\Http\Responses\_BaseResponse;
-use Illuminate\Database\Eloquent\Collection;
+use Nexus\Core\Support\CustomCollection;
 
 /**
  * ListResponse
@@ -23,12 +23,12 @@ class ListResponse extends _BaseResponse
     ) {}
 
     /**
-     * Collectionからレスポンスを生成
+     * CustomCollectionからレスポンスを生成
      *
      * @param  array<string, int>  $unreadCounts
      */
     public static function fromCollection(
-        Collection $trxMailboxCollection,
+        CustomCollection $trxMailboxCollection,
         array $unreadCounts = []
     ): self {
         // TemplateEngineをインスタンス化

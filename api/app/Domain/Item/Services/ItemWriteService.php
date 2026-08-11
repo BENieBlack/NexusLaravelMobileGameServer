@@ -68,6 +68,11 @@ class ItemWriteService
             throw new \Exception("Item not found after consumption: {$mstItemId}");
         }
 
+        // 消費結果はUnitOfWorkのキューに積まれただけでDBには未反映のため、
+        // 再取得したモデルにはDTOの最新値を反映して返す
+        $trxItem->setFreeAmount($itemDto->getFreeAmount());
+        $trxItem->setPaidAmount($itemDto->getPaidAmount());
+
         return $trxItem;
     }
 }

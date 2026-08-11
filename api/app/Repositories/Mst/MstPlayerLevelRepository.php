@@ -58,16 +58,17 @@ class MstPlayerLevelRepository extends _BaseMstRepository implements PlayerLevel
         $cacheKey = "{$this->cachePrefix}:{$tableName}:all";
 
         // Laravel Cacheを使ってキャッシュから取得、なければDBから取得してキャッシュに保存
-        $this->models = Cache::store($this->cacheDriver)->remember(
+        $cached = Cache::store($this->cacheDriver)->remember(
             $cacheKey,
             $this->cacheTtl,
             function () use ($modelInstance) {
-                // 全レコードを取得し、levelをキーにしたコレクションを返す
-                $all = $modelInstance::all();
-
-                return $all->keyBy('level');
+                // 全レコードを取得し、levelをキーにした配列として保存
+                return $modelInstance::all()->keyBy('level')->all();
             }
         );
+
+        // CustomCollectionとして保持する
+        $this->models = new CustomCollection($cached);
 
         return $this->models;
     }

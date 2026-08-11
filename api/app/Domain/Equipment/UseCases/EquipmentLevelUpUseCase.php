@@ -157,7 +157,8 @@ class EquipmentLevelUpUseCase extends _BaseUseCase
 
             // 経験値を加算（更新後の装備データを取得）
             $totalExp = $expPerItem * $requiredItemCount;
-            $trxEquipment = $this->equipmentLevelService->addExp($trxEquipmentId, $totalExp);
+            // addExp()は集計結果の配列を返すため、更新後のモデルを返すメソッドを使う
+            $trxEquipment = $this->equipmentLevelService->addExpAndReturn($trxEquipmentId, $totalExp);
 
             // ログを記録
             $this->logEquipmentRepository->createEquipmentLog(

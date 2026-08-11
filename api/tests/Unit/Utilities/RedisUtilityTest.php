@@ -2,8 +2,9 @@
 
 namespace Tests\Unit\Utilities;
 
-use App\Utilities\RedisUtility;
+use Nexus\Core\Utilities\RedisUtility;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * RedisUtilityのユニットテスト
@@ -29,7 +30,8 @@ class RedisUtilityTest extends TestCase
     /**
      * 基本的なput/getが動作する
      */
-    public function 基本的なput_getが動作する()
+    #[Test]
+    public function test_基本的なput_getが動作する()
     {
         // Put
         $result = RedisUtility::put('test_key', 'test_value', 60);
@@ -43,7 +45,8 @@ class RedisUtilityTest extends TestCase
     /**
      * 配列データの保存と取得ができる
      */
-    public function 配列データの保存と取得ができる()
+    #[Test]
+    public function test_配列データの保存と取得ができる()
     {
         $data = [
             'name' => 'テストユーザー',
@@ -60,7 +63,8 @@ class RedisUtilityTest extends TestCase
     /**
      * hasメソッドが正しく動作する
      */
-    public function hasメソッドが正しく動作する()
+    #[Test]
+    public function test_hasメソッドが正しく動作する()
     {
         // キーが存在しない
         $this->assertFalse(RedisUtility::has('non_existent_key'));
@@ -75,7 +79,8 @@ class RedisUtilityTest extends TestCase
     /**
      * forgetメソッドが正しく動作する
      */
-    public function forgetメソッドが正しく動作する()
+    #[Test]
+    public function test_forgetメソッドが正しく動作する()
     {
         // キーを保存
         RedisUtility::put('delete_me', 'value', 60);
@@ -90,7 +95,8 @@ class RedisUtilityTest extends TestCase
     /**
      * foreverメソッドが永続保存する
      */
-    public function foreverメソッドが永続保存する()
+    #[Test]
+    public function test_foreverメソッドが永続保存する()
     {
         RedisUtility::forever('permanent_key', 'permanent_value');
 
@@ -103,7 +109,8 @@ class RedisUtilityTest extends TestCase
     /**
      * increment_decrementが動作する
      */
-    public function increment_decrementが動作する()
+    #[Test]
+    public function test_increment_decrementが動作する()
     {
         // 初期値
         RedisUtility::put('counter', 10, 60);
@@ -129,7 +136,8 @@ class RedisUtilityTest extends TestCase
     /**
      * rememberメソッドがキャッシュを使用する
      */
-    public function rememberメソッドがキャッシュを使用する()
+    #[Test]
+    public function test_rememberメソッドがキャッシュを使用する()
     {
         $callCount = 0;
 
@@ -157,7 +165,8 @@ class RedisUtilityTest extends TestCase
     /**
      * pullメソッドが取得後に削除する
      */
-    public function pullメソッドが取得後に削除する()
+    #[Test]
+    public function test_pullメソッドが取得後に削除する()
     {
         RedisUtility::put('pull_key', 'pull_value', 60);
 
@@ -172,7 +181,8 @@ class RedisUtilityTest extends TestCase
     /**
      * putCompressedとgetCompressedが動作する
      */
-    public function putCompressedとgetCompressedが動作する()
+    #[Test]
+    public function test_putCompressedとgetCompressedが動作する()
     {
         $largeData = [
             'items' => array_fill(0, 100, [
@@ -194,7 +204,8 @@ class RedisUtilityTest extends TestCase
     /**
      * rememberCompressedがキャッシュを使用する
      */
-    public function rememberCompressedがキャッシュを使用する()
+    #[Test]
+    public function test_rememberCompressedがキャッシュを使用する()
     {
         $callCount = 0;
         $data = ['large' => 'data'];
@@ -223,7 +234,8 @@ class RedisUtilityTest extends TestCase
     /**
      * prefixKeyがプレフィックスを付与する
      */
-    public function prefixKeyがプレフィックスを付与する()
+    #[Test]
+    public function test_prefixKeyがプレフィックスを付与する()
     {
         $key = RedisUtility::prefixKey('user', '123');
         $this->assertEquals('user:123', $key);
@@ -235,7 +247,8 @@ class RedisUtilityTest extends TestCase
     /**
      * addメソッドが既存キーには上書きしない
      */
-    public function addメソッドが既存キーには上書きしない()
+    #[Test]
+    public function test_addメソッドが既存キーには上書きしない()
     {
         // 初回は成功
         $result = RedisUtility::add('add_key', 'first_value', 60);
@@ -251,7 +264,8 @@ class RedisUtilityTest extends TestCase
     /**
      * flushとclearが全てのキャッシュをクリアする
      */
-    public function flushとclearが全てのキャッシュをクリアする()
+    #[Test]
+    public function test_flushとclearが全てのキャッシュをクリアする()
     {
         // 複数のキーを保存
         RedisUtility::put('key1', 'value1', 60);
@@ -280,7 +294,8 @@ class RedisUtilityTest extends TestCase
     /**
      * deleteManyが複数のキーを削除する
      */
-    public function deleteManyが複数のキーを削除する()
+    #[Test]
+    public function test_deleteManyが複数のキーを削除する()
     {
         // 複数のキーを保存
         RedisUtility::put('delete1', 'value1', 60);
@@ -301,7 +316,8 @@ class RedisUtilityTest extends TestCase
     /**
      * 存在しないキーのgetはデフォルト値を返す
      */
-    public function 存在しないキーのgetはデフォルト値を返す()
+    #[Test]
+    public function test_存在しないキーのgetはデフォルト値を返す()
     {
         $value = RedisUtility::get('non_existent', 'default_value');
         $this->assertEquals('default_value', $value);
@@ -313,7 +329,8 @@ class RedisUtilityTest extends TestCase
     /**
      * 存在しないキーのgetCompressedはデフォルト値を返す
      */
-    public function 存在しないキーのgetCompressedはデフォルト値を返す()
+    #[Test]
+    public function test_存在しないキーのgetCompressedはデフォルト値を返す()
     {
         $value = RedisUtility::getCompressed('non_existent', ['default' => 'data']);
         $this->assertEquals(['default' => 'data'], $value);

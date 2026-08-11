@@ -17,7 +17,7 @@ abstract class _BaseLog extends _BaseModel implements _BaseLogInterface
      * 
      * @var string
      */
-    protected $connection = 'log';
+    protected $connection = 'log1';
 
     /**
      * Unit of Workパターンを使用

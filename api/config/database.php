@@ -97,7 +97,7 @@ return [
             'driver' => 'mysql',
             'url' => env('DB_MASTER_URL'),
             'host' => env('DB_MASTER_HOST', '127.0.0.1'),
-            'port' => env('DB_MASTER_PORT', '33062'),
+            'port' => env('DB_MASTER_PORT', '3306'),
             'database' => env('DB_MASTER_DATABASE') ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local').'-mst',
             'username' => env('DB_MASTER_USERNAME', 'root'),
             'password' => env('DB_MASTER_PASSWORD', ''),

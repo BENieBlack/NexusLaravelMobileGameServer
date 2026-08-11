@@ -51,7 +51,10 @@ cp .env.example .env
 
 ## データベース構成
 
-このプロジェクトは7つのMySQLデータベースを使用します：
+このプロジェクトは10個のMySQLデータベースを使用します。
+うち trx / log はプレイヤー単位でシャーディングされます。
+
+### 非シャーディングDB
 
 | データベース | 用途 | ポート | プロジェクト |
 |------------|------|--------|------------|
@@ -59,16 +62,28 @@ cp .env.example .env
 | **tol** | 運営ツール機能（バナー、メンテナンス等） | 63061 | Tool |
 | **sys** | システム管理（シャーディング、デプロイ、**プレイヤー公開情報**） | 63062 | API |
 | **mst** | ゲームマスターデータ（アイテム、キャラクター等） | 63063 | API |
-| **log** | ゲームログ（API、ガチャ、課金等） | 63261 | API |
-| **trx1** | プレイヤートランザクションデータ（シャード1） | 63161 | API |
-| **trx2** | プレイヤートランザクションデータ（シャード2） | 63162 | API |
 
-**sysデータベースの重要な役割**: プレイヤー名、レベル、戦闘力、パーティ編成などの「他プレイヤーから参照される公開情報」を保持します。これにより、ランキング表示やフレンド検索時にシャーディング先（trx1/trx2）までアクセスせずに高速に情報を取得できます。
+### シャーディングDB
+
+trxとlogは**同じ番号どうしが1対1で対応**します（trx1の変更ログはlog1に記録される）。
+シャード数は `.env` の `DB_TRX_SHARDS` で制御し、現在は **3** です。
+
+| シャード | trx（プレイヤーデータ） | ポート | log（変更ログ・PITR） | ポート |
+|---------|----------------------|--------|---------------------|--------|
+| 1 | **trx1** | 63161 | **log1** | 63261 |
+| 2 | **trx2** | 63162 | **log2** | 63262 |
+| 3 | **trx3** | 63163 | **log3** | 63263 |
+
+プレイヤーがどのシャードに属するかは sys データベースの
+`sys_sharding` / `sys_sharding_node` / `sys_sharding_node_player` で管理します。
+シャード追加の手順は [docs/sharding_expansion_guide.md](./docs/sharding_expansion_guide.md) を参照してください。
+
+**sysデータベースの重要な役割**: プレイヤー名、レベル、戦闘力、パーティ編成などの「他プレイヤーから参照される公開情報」を保持します。これにより、ランキング表示やフレンド検索時にシャーディング先（trx1〜trxN）までアクセスせずに高速に情報を取得できます。
 
 接続情報:
 - ユーザー名: `root`
 - パスワード: `root`
-- データベース名: `arche-local-{接頭辞}`（例: `arche-local-sys`）
+- データベース名: `{APP_NAME}-{APP_ENV}-{接頭辞}`（例: `nexus-local-sys`、`nexus-local-trx1`）
 
 詳細は [.claude/database.md](./.claude/database.md) を参照してください。
 
@@ -96,11 +111,11 @@ docker exec api-php php artisan migrate --database=sys --path=database/migration
 # APIプロジェクト - マスターDB
 docker exec api-php php artisan migrate --database=mst --path=database/migrations/mst
 
-# APIプロジェクト - ログDB
-docker exec api-php php artisan migrate --database=log --path=database/migrations/log
+# APIプロジェクト - トランザクションDB（すべてのシャード: trx1, trx2, ...）
+docker exec api-php php artisan trx:migrate
 
-# APIプロジェクト - トランザクションDB（すべてのシャード）
-docker exec api-php php artisan migrate:shards
+# APIプロジェクト - ログDB（すべてのシャード: log1, log2, ...）
+docker exec api-php php artisan pitr:migrate
 
 # Toolプロジェクト - 管理者DB
 docker exec tool-php php artisan migrate --database=adm --path=database/migrations/adm

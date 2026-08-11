@@ -169,10 +169,10 @@ docker exec db-log3 mysql -uroot -proot -e "CREATE DATABASE IF NOT EXISTS \`nexu
 
 ```bash
 # TrxDB3テスト用データベースの作成
-docker exec db-trx3 mysql -uroot -proot -e "CREATE DATABASE IF NOT EXISTS \`arche-testing-trx3\`;"
+docker exec db-trx3 mysql -uroot -proot -e "CREATE DATABASE IF NOT EXISTS \`nexus-testing-trx3\`;"
 
 # LogDB3テスト用データベースの作成
-docker exec db-log3 mysql -uroot -proot -e "CREATE DATABASE IF NOT EXISTS \`arche-testing-log3\`;"
+docker exec db-log3 mysql -uroot -proot -e "CREATE DATABASE IF NOT EXISTS \`nexus-testing-log3\`;"
 ```
 
 #### 3.4 phpunit.xmlの更新
@@ -185,14 +185,14 @@ docker exec db-log3 mysql -uroot -proot -e "CREATE DATABASE IF NOT EXISTS \`arch
 <!-- Transaction DB Testing - Node 3 -->
 <env name="DB_TRX3_HOST" value="db-trx3"/>
 <env name="DB_TRX3_PORT" value="3306"/>
-<env name="DB_TRX3_DATABASE" value="arche-testing-trx3"/>
+<env name="DB_TRX3_DATABASE" value="nexus-testing-trx3"/>
 <env name="DB_TRX3_USERNAME" value="root"/>
 <env name="DB_TRX3_PASSWORD" value="root"/>
 
 <!-- Log DB Testing - Node 3 -->
 <env name="DB_LOG3_HOST" value="db-log3"/>
 <env name="DB_LOG3_PORT" value="3306"/>
-<env name="DB_LOG3_DATABASE" value="arche-testing-log3"/>
+<env name="DB_LOG3_DATABASE" value="nexus-testing-log3"/>
 <env name="DB_LOG3_USERNAME" value="root"/>
 <env name="DB_LOG3_PASSWORD" value="root"/>
 ```
@@ -480,7 +480,7 @@ docker exec db-log2 mysqldump -uroot -proot nexus-local-log2 > backup_log2_$(dat
 
 **注意事項:**
 - テストを実行する場合は、必ず`api/phpunit.xml`に新しいシャードの設定を追加してください
-- テスト用データベース名は本番と異なる命名規則（`arche-testing-*`）を使用します
+- テスト用データベース名は本番と異なる命名規則（`nexus-testing-*`）を使用します
 - phpunit.xmlの更新を忘れると、テスト実行時にデータベース接続エラーが発生します
 
 完全動的シャーディングにより、アプリケーションコードの変更なしに、簡単にスケールアウトが可能です。

@@ -25,10 +25,6 @@
     "repositories": [
         {
             "type": "path",
-            "url": "../nexus-core-utilities"
-        },
-        {
-            "type": "path",
             "url": "../nexus-resource-delivery"
         },
         {
@@ -46,4 +42,3 @@
     "minimum-stability": "dev",
     "prefer-stable": true
 }
-

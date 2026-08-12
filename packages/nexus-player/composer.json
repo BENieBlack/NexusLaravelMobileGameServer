@@ -20,12 +20,6 @@
             "NexusPlayer\\Tests\\": "tests/"
         }
     },
-    "repositories": [
-        {
-            "type": "path",
-            "url": "../nexus-core-utilities"
-        }
-    ],
     "extra": {
         "laravel": {
             "providers": [
@@ -36,4 +30,3 @@
     "minimum-stability": "dev",
     "prefer-stable": true
 }
-

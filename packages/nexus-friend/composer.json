@@ -10,12 +10,6 @@
         "phpunit/phpunit": "^10.0",
         "mockery/mockery": "^1.6"
     },
-    "repositories": [
-        {
-            "type": "path",
-            "url": "../nexus-core-utilities"
-        }
-    ],
     "autoload": {
         "psr-4": {
             "NexusFriend\\": "src/"

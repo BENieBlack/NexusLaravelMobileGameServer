@@ -2,6 +2,7 @@
     "name": "nexus/gacha",
     "description": "Gacha management package for Nexus mobile game",
     "type": "library",
+    "license": "MIT",
     "require": {
         "php": "^8.3",
         "nexus/core": "@dev",

@@ -2,7 +2,7 @@
     "name": "nexus/pitr",
     "description": "Point-In-Time Recovery system for TrxDB using LogDB change history",
     "type": "library",
-    "license": "proprietary",
+    "license": "MIT",
     "authors": [
         {
             "name": "Nexus Team"

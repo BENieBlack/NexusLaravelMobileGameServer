@@ -2,6 +2,7 @@
     "name": "nexus/level",
     "description": "Level management package for Nexus mobile game",
     "type": "library",
+    "license": "MIT",
     "require": {
         "php": "^8.3"
     },

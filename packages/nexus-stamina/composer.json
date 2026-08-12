@@ -2,7 +2,7 @@
     "name": "nexus/stamina",
     "description": "Nexus Stamina Package - スタミナ管理パッケージ",
     "type": "library",
-    "license": "proprietary",
+    "license": "MIT",
     "autoload": {
         "psr-4": {
             "NexusStamina\\": "src/"

@@ -716,7 +716,7 @@ Potential features for future implementation:
 
 ## References
 
-- **Gacha System**: See `gacha_implementation.md` for another feature implementation example
+- **Gacha System**: See `docs/gacha_implementation.md` for another feature implementation example
 - **Repository Pattern**: All packages follow the same Repository Interface pattern
 - **DTO Pattern**: All DTOs use `private readonly` with Getter methods
 - **Naming Convention**: All classes include domain name (Guild*)

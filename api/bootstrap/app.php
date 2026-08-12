@@ -6,6 +6,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use NexusSecurity\Middleware\IdempotencyMiddleware;
+use NexusSecurity\Middleware\ThrottleAuth;
 use NexusSecurity\Middleware\ThrottleSignUp;
 use NexusSecurity\Middleware\VerifyAccessToken;
 use NexusSecurity\Middleware\VerifyClientSignature;
@@ -25,6 +26,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
             'idempotency' => IdempotencyMiddleware::class,
             'client.signature' => VerifyClientSignature::class,
             'throttle.signup' => ThrottleSignUp::class,
+            'throttle.auth' => ThrottleAuth::class,
             'maintenance' => CheckMaintenance::class,
         ]);
     })

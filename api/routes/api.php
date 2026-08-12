@@ -44,8 +44,14 @@ Route::middleware('maintenance')->group(function () {
         Route::post('/auth/sign_up', [AuthController::class, 'signUp']);
     });
 
-    Route::post('/auth/sign_in', [AuthController::class, 'signIn']);
-    Route::post('/auth/refresh_token', [AuthController::class, 'refreshToken']);
+    // 認証情報を受け取るエンドポイントはレート制限を適用する
+    Route::middleware('throttle.auth:sign_in')->group(function () {
+        Route::post('/auth/sign_in', [AuthController::class, 'signIn']);
+    });
+
+    Route::middleware('throttle.auth:refresh_token')->group(function () {
+        Route::post('/auth/refresh_token', [AuthController::class, 'refreshToken']);
+    });
 
     // Guild list/detail endpoints (public access for browsing)
     Route::get('/guild/list', [GuildController::class, 'list']);

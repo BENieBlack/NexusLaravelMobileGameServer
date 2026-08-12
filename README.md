@@ -241,7 +241,7 @@ docker exec api-php php artisan migrate:fresh --database=sys --path=database/mig
 - [クライアント認証](./docs/client_authentication.md) - 署名検証、デバイス認証
 
 ### 実装済み機能
-- [ガチャシステム](./gacha_implementation.md) - 通常/ステップアップ/ピックアップガチャ、確率制御、保証機能
+- [ガチャシステム](./docs/gacha_implementation.md) - 通常/ステップアップ/ピックアップガチャ、確率制御、保証機能
 - [ギルドシステム](./docs/guild_implementation.md) - ギルド作成、メンバー管理、申請承認、役職制御
 
 ### Tool固有

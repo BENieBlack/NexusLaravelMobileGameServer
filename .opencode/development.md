@@ -290,8 +290,8 @@ docker exec tool-php php artisan migrate --database=tol --path=database/migratio
    - ブランチ名は日本語でも可（例: `feature/メールボックス機能`）
 
 4. **リモートリポジトリ**
-   - URL: `（git remote -v で確認）`
-   - SSH設定: `（SSHエイリアス）`エイリアスを使用
+   - `git remote -v` で確認する
+   - SSHエイリアスを使う場合は各自の `~/.ssh/config` で設定する
 
 ### 開発フロー
 

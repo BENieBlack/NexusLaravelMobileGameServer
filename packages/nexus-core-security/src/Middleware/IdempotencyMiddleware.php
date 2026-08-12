@@ -53,7 +53,7 @@ class IdempotencyMiddleware
         }
 
         // プレイヤーIDを取得（認証済みの場合）
-        $playerId = $request->input('authenticated_player_id');
+        $playerId = $request->attributes->get('authenticated_player_id');
 
         // 認証されていない場合（sign_up/sign_inなど）は冪等性チェックをスキップ
         if (!$playerId) {

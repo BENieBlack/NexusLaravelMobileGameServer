@@ -60,11 +60,11 @@ class VerifyAccessToken
             ], 401);
         }
 
-        // リクエストにプレイヤー情報を追加
-        $request->merge([
-            'authenticated_player_id' => $payload['player_id'],
-            'authenticated_uuid' => $payload['uuid'] ?? null,
-        ]);
+        // 認証情報はリクエスト属性に設定する
+        // input()に混ぜるとクライアント入力と区別が付かず、
+        // ミドルウェアの適用漏れがそのまま認証バイパスになるため
+        $request->attributes->set('authenticated_player_id', $payload['player_id']);
+        $request->attributes->set('authenticated_uuid', $payload['uuid'] ?? null);
 
         // PlayerSessionにプレイヤーIDを設定（アプリケーション全体で利用可能）
         if ($this->playerSession) {

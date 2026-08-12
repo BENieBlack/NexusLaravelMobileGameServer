@@ -25,10 +25,6 @@
         {
             "type": "path",
             "url": "../nexus-player"
-        },
-        {
-            "type": "path",
-            "url": "../nexus-core-utilities"
         }
     ],
     "minimum-stability": "dev",

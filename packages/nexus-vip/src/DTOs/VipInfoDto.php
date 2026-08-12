@@ -15,7 +15,7 @@ class VipInfoDto
         private readonly int $vipLevel,
         private readonly ?int $pointsToNextLevel,
         private readonly ?int $nextLevel,
-        private readonly VipBenefitDto $benefits,
+        private readonly VipBenefit $benefits,
         private readonly float $totalPaidAmount,
     ) {}
 
@@ -54,7 +54,7 @@ class VipInfoDto
     /**
      * 特典を取得
      */
-    public function getBenefits(): VipBenefitDto
+    public function getBenefits(): VipBenefit
     {
         return $this->benefits;
     }

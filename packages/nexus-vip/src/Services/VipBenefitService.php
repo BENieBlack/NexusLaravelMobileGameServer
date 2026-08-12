@@ -28,13 +28,12 @@ class VipBenefitService
      */
     public function applyStaminaBonus(int $baseMaxStamina, int $vipLevel): int
     {
-        if (! $this->config->staminaBonusEnabled) {
+        if (! $this->config->isStaminaBonusEnabled()) {
             return $baseMaxStamina;
         }
 
-        $benefits = $this->vipLevelService->getBenefits($vipLevel);
-
-        return $baseMaxStamina + $benefits->getMaxStaminaBonus();
+        return $this->vipLevelService->getBenefits($vipLevel)
+            ->applyStaminaBonus($baseMaxStamina);
     }
 
     /**
@@ -46,15 +45,12 @@ class VipBenefitService
      */
     public function applyShopDiscount(int $basePrice, int $vipLevel): int
     {
-        if (! $this->config->shopDiscountEnabled) {
+        if (! $this->config->isShopDiscountEnabled()) {
             return $basePrice;
         }
 
-        $benefits = $this->vipLevelService->getBenefits($vipLevel);
-        $discount = $basePrice * $benefits->getShopDiscountRate();
-
-        // 最低価格は1
-        return max(1, (int) floor($basePrice - $discount));
+        return $this->vipLevelService->getBenefits($vipLevel)
+            ->applyShopDiscount($basePrice);
     }
 
     /**
@@ -66,15 +62,12 @@ class VipBenefitService
      */
     public function applyGachaDiscount(int $basePrice, int $vipLevel): int
     {
-        if (! $this->config->gachaDiscountEnabled) {
+        if (! $this->config->isGachaDiscountEnabled()) {
             return $basePrice;
         }
 
-        $benefits = $this->vipLevelService->getBenefits($vipLevel);
-        $discount = $basePrice * $benefits->getGachaDiscountRate();
-
-        // 最低価格は1
-        return max(1, (int) floor($basePrice - $discount));
+        return $this->vipLevelService->getBenefits($vipLevel)
+            ->applyGachaDiscount($basePrice);
     }
 
     /**
@@ -85,7 +78,7 @@ class VipBenefitService
      */
     public function getDailyDiamondBonus(int $vipLevel): int
     {
-        if (! $this->config->dailyDiamondEnabled) {
+        if (! $this->config->isDailyDiamondEnabled()) {
             return 0;
         }
 

@@ -2,7 +2,7 @@
 
 namespace LaravelWallet\Services;
 
-use LaravelWallet\DTOs\CurrencyBalanceDto;
+use LaravelWallet\ValueObjects\CurrencyBalance;
 use LaravelWallet\DTOs\CurrencyOperationResultDto;
 use LaravelWallet\Exceptions\InsufficientBalanceException;
 use LaravelWallet\Repositories\WalletBalanceRepositoryInterface;
@@ -26,24 +26,20 @@ class WalletService
      *
      * @param int $playerId プレイヤーID
      * @param string $currencyId 通貨アイテムID
-     * @return CurrencyBalanceDto 残高情報
+     * @return CurrencyBalance 残高情報
      */
-    public function getBalance(int $playerId, string $currencyId): CurrencyBalanceDto
+    public function getBalance(int $playerId, string $currencyId): CurrencyBalance
     {
         $wallet = $this->walletRepository->findByCurrencyId($playerId, $currencyId);
 
         if ($wallet === null) {
-            return new CurrencyBalanceDto(
-                freeAmount: 0,
-                paidAmount: 0,
-                totalAmount: 0,
-            );
+            return CurrencyBalance::zero();
         }
 
-        return new CurrencyBalanceDto(
+        // 合計値はCurrencyBalanceが内訳から算出するため渡さない
+        return new CurrencyBalance(
             freeAmount: $wallet->free_amount,
             paidAmount: $wallet->paid_amount,
-            totalAmount: $wallet->total_amount,
         );
     }
 
@@ -167,7 +163,7 @@ class WalletService
      *
      * @param int $playerId プレイヤーID
      * @param array<string> $currencyIds 通貨IDリスト
-     * @return array<string, CurrencyBalanceDto> 通貨ID => 残高情報のマップ
+     * @return array<string, CurrencyBalance> 通貨ID => 残高情報のマップ
      */
     public function getBulkBalances(int $playerId, array $currencyIds): array
     {

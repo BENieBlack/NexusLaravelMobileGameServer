@@ -2,7 +2,7 @@
 
 namespace NexusVip\Services;
 
-use NexusVip\DTOs\VipBenefitDto;
+use NexusVip\ValueObjects\VipBenefit;
 use NexusVip\Exceptions\VipLevelNotFoundException;
 use NexusVip\Models\MstVipLevel;
 use NexusVip\Repositories\VipLevelRepositoryInterface;
@@ -58,7 +58,7 @@ class VipLevelService
      *
      * @throws VipLevelNotFoundException
      */
-    public function getBenefits(int $level): VipBenefitDto
+    public function getBenefits(int $level): VipBenefit
     {
         $vipLevel = $this->vipLevelRepository->findByLevel($level);
 
@@ -66,7 +66,7 @@ class VipLevelService
             throw new VipLevelNotFoundException("VIP level {$level} not found");
         }
 
-        return new VipBenefitDto(
+        return new VipBenefit(
             maxStaminaBonus: $vipLevel->getMaxStaminaBonus(),
             dailyDiamondBonus: $vipLevel->getDailyDiamondBonus(),
             shopDiscountRate: $vipLevel->getShopDiscountRate(),

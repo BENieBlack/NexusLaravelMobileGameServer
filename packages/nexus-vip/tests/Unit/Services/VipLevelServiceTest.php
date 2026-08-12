@@ -4,7 +4,7 @@ namespace NexusVip\Tests\Unit\Services;
 
 use Mockery;
 use Nexus\Core\Support\CustomCollection;
-use NexusVip\DTOs\VipBenefitDto;
+use NexusVip\ValueObjects\VipBenefit;
 use NexusVip\Exceptions\VipLevelNotFoundException;
 use NexusVip\Models\MstVipLevel;
 use NexusVip\Repositories\VipLevelRepositoryInterface;
@@ -158,7 +158,7 @@ class VipLevelServiceTest extends TestCase
         $result = $this->service->getBenefits($level);
 
         // Assert
-        $this->assertInstanceOf(VipBenefitDto::class, $result);
+        $this->assertInstanceOf(VipBenefit::class, $result);
         $this->assertSame(50, $result->getMaxStaminaBonus());
         $this->assertSame(10, $result->getDailyDiamondBonus());
         $this->assertSame(0.1, $result->getShopDiscountRate());

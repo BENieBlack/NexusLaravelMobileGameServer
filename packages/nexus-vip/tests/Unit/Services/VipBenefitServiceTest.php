@@ -3,7 +3,7 @@
 namespace NexusVip\Tests\Unit\Services;
 
 use Mockery;
-use NexusVip\DTOs\VipBenefitDto;
+use NexusVip\ValueObjects\VipBenefit;
 use NexusVip\Services\VipBenefitService;
 use NexusVip\Services\VipLevelService;
 use NexusVip\ValueObjects\VipConfig;
@@ -55,7 +55,7 @@ class VipBenefitServiceTest extends TestCase
         $baseMaxStamina = 100;
         $vipLevel = 5;
 
-        $benefitDto = new VipBenefitDto(
+        $benefitDto = new VipBenefit(
             maxStaminaBonus: 50,
             dailyDiamondBonus: 10,
             shopDiscountRate: 0.1,
@@ -112,7 +112,7 @@ class VipBenefitServiceTest extends TestCase
         $basePrice = 1000;
         $vipLevel = 5;
 
-        $benefitDto = new VipBenefitDto(
+        $benefitDto = new VipBenefit(
             maxStaminaBonus: 50,
             dailyDiamondBonus: 10,
             shopDiscountRate: 0.1,
@@ -142,7 +142,7 @@ class VipBenefitServiceTest extends TestCase
         $basePrice = 5;
         $vipLevel = 10;
 
-        $benefitDto = new VipBenefitDto(
+        $benefitDto = new VipBenefit(
             maxStaminaBonus: 100,
             dailyDiamondBonus: 50,
             shopDiscountRate: 0.9, // 90%割引
@@ -199,7 +199,7 @@ class VipBenefitServiceTest extends TestCase
         $basePrice = 300;
         $vipLevel = 5;
 
-        $benefitDto = new VipBenefitDto(
+        $benefitDto = new VipBenefit(
             maxStaminaBonus: 50,
             dailyDiamondBonus: 10,
             shopDiscountRate: 0.1,
@@ -229,7 +229,7 @@ class VipBenefitServiceTest extends TestCase
         $basePrice = 10;
         $vipLevel = 10;
 
-        $benefitDto = new VipBenefitDto(
+        $benefitDto = new VipBenefit(
             maxStaminaBonus: 100,
             dailyDiamondBonus: 50,
             shopDiscountRate: 0.5,
@@ -285,7 +285,7 @@ class VipBenefitServiceTest extends TestCase
         // Arrange
         $vipLevel = 5;
 
-        $benefitDto = new VipBenefitDto(
+        $benefitDto = new VipBenefit(
             maxStaminaBonus: 50,
             dailyDiamondBonus: 20,
             shopDiscountRate: 0.1,

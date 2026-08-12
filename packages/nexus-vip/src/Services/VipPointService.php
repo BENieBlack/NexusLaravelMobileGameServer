@@ -71,7 +71,7 @@ class VipPointService
         $this->playerVipRepository->saveVipInfo($playerVip);
 
         // ログ記録（設定で有効な場合）
-        if ($this->config->enablePointLog) {
+        if ($this->config->isPointLogEnabled()) {
             $this->logVipPointChange(
                 uniqueRequestId: $metadata['unique_request_id'] ?? uniqid('vip_', true),
                 sysPlayerId: $sysPlayerId,
@@ -86,7 +86,7 @@ class VipPointService
         }
 
         // レベルアップ時のイベント発火（設定で有効な場合）
-        if ($afterLevel > $beforeLevel && $this->config->enableLevelUpEvent) {
+        if ($afterLevel > $beforeLevel && $this->config->isLevelUpEventEnabled()) {
             // 複数レベルアップした場合は、各レベルの報酬を全て取得
             $allRewards = [];
             for ($level = $beforeLevel + 1; $level <= $afterLevel; $level++) {

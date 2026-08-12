@@ -1909,58 +1909,58 @@ parameters:
 			path: app/Domain/Login/Services/VipLoginBonusService.php
 
 		-
-			message: '#^Method App\\Domain\\MailBox\\Constants\\Category\:\:all\(\) should return array\<string, string\> but returns array\<int, string\>\.$#'
+			message: '#^Method App\\Domain\\Mailbox\\Constants\\Category\:\:all\(\) should return array\<string, string\> but returns array\<int, string\>\.$#'
 			identifier: return.type
 			count: 1
-			path: app/Domain/MailBox/Constants/Category.php
+			path: app/Domain/Mailbox/Constants/Category.php
 
 		-
-			message: '#^Method App\\Domain\\MailBox\\Services\\Placeholders\\AlliancePlaceholder\:\:resolve\(\) has parameter \$context with no value type specified in iterable type array\.$#'
+			message: '#^Method App\\Domain\\Mailbox\\Services\\Placeholders\\AlliancePlaceholder\:\:resolve\(\) has parameter \$context with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: app/Domain/MailBox/Services/Placeholders/AlliancePlaceholder.php
+			path: app/Domain/Mailbox/Services/Placeholders/AlliancePlaceholder.php
 
 		-
-			message: '#^Method App\\Domain\\MailBox\\Services\\Placeholders\\BattlePlaceholder\:\:resolve\(\) has parameter \$context with no value type specified in iterable type array\.$#'
+			message: '#^Method App\\Domain\\Mailbox\\Services\\Placeholders\\BattlePlaceholder\:\:resolve\(\) has parameter \$context with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: app/Domain/MailBox/Services/Placeholders/BattlePlaceholder.php
+			path: app/Domain/Mailbox/Services/Placeholders/BattlePlaceholder.php
 
 		-
-			message: '#^Method App\\Domain\\MailBox\\Services\\Placeholders\\PlayerPlaceholder\:\:resolve\(\) has parameter \$context with no value type specified in iterable type array\.$#'
+			message: '#^Method App\\Domain\\Mailbox\\Services\\Placeholders\\PlayerPlaceholder\:\:resolve\(\) has parameter \$context with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: app/Domain/MailBox/Services/Placeholders/PlayerPlaceholder.php
+			path: app/Domain/Mailbox/Services/Placeholders/PlayerPlaceholder.php
 
 		-
 			message: '#^Access to undefined constant App\\Exceptions\\GameErrorCode\:\:MAILBOX_ALREADY_DELETED\.$#'
 			identifier: classConstant.notFound
 			count: 1
-			path: app/Domain/MailBox/UseCases/MailboxLockUseCase.php
+			path: app/Domain/Mailbox/UseCases/MailboxLockUseCase.php
 
 		-
 			message: '#^Parameter \$deliverySummary of class App\\Http\\Responses\\Mailbox\\ReceiveAllResponse constructor expects App\\Http\\Responses\\Mailbox\\ResourceDeliverySummary\|null, NexusResourceDelivery\\DTOs\\ResourceDeliverySummaryDto\|null given\.$#'
 			identifier: argument.type
 			count: 1
-			path: app/Domain/MailBox/UseCases/MailboxReceiveAllUseCase.php
+			path: app/Domain/Mailbox/UseCases/MailboxReceiveAllUseCase.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>contentCollection" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: app/Domain/MailBox/UseCases/MailboxReceiveAllUseCase.php
+			path: app/Domain/Mailbox/UseCases/MailboxReceiveAllUseCase.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$contentCollection\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Domain/MailBox/UseCases/MailboxReceiveUseCase.php
+			path: app/Domain/Mailbox/UseCases/MailboxReceiveUseCase.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>contentCollection" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: app/Domain/MailBox/UseCases/MailboxReceiveUseCase.php
+			path: app/Domain/Mailbox/UseCases/MailboxReceiveUseCase.php
 
 		-
 			message: '#^Method App\\Domain\\Unit\\Constants\\UnitConst\:\:getAllElements\(\) return type has no value type specified in iterable type array\.$#'
@@ -2382,11 +2382,6 @@ parameters:
 			count: 1
 			path: app/Http/Responses/InAppPurchase/BuyResponse.php
 
-		-
-			message: '#^Enum App\\Domain\\Mailbox\\Constants\\ContentType referenced with incorrect case\: App\\Domain\\MailBox\\Constants\\ContentType\.$#'
-			identifier: enum.nameCase
-			count: 2
-			path: app/Http/Responses/Mailbox/ListResponse.php
 
 		-
 			message: '#^Method App\\Http\\Responses\\Mailbox\\ListResponse\:\:__construct\(\) has parameter \$mailboxArray with no value type specified in iterable type array\.$#'

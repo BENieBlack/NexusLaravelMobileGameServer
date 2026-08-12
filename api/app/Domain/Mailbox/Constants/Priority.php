@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\MailBox\Constants;
+namespace App\Domain\Mailbox\Constants;
 
 /**
  * メールの優先度定数

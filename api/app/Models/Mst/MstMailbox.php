@@ -2,9 +2,9 @@
 
 namespace App\Models\Mst;
 
-use App\Domain\MailBox\Constants\Category;
-use App\Domain\MailBox\Constants\Priority;
-use App\Domain\MailBox\Constants\SenderType;
+use App\Domain\Mailbox\Constants\Category;
+use App\Domain\Mailbox\Constants\Priority;
+use App\Domain\Mailbox\Constants\SenderType;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;

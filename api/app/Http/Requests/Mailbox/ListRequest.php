@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Mailbox;
 
-use App\Domain\MailBox\Constants\Category;
-use App\Domain\MailBox\Constants\Priority;
+use App\Domain\Mailbox\Constants\Category;
+use App\Domain\Mailbox\Constants\Priority;
 use App\Http\Requests\_BaseRequest;
 use Illuminate\Validation\Rule;
 

@@ -117,11 +117,11 @@ docker exec api-php php artisan trx:migrate
 # APIプロジェクト - ログDB（すべてのシャード: log1, log2, ...）
 docker exec api-php php artisan pitr:migrate
 
-# Toolプロジェクト - 管理者DB
-docker exec tool-php php artisan migrate --database=adm --path=database/migrations/adm
+# Toolプロジェクト - 管理者DB（接続名は admin、マイグレーションのパスは adm）
+docker exec tool-php php artisan migrate --database=admin --path=database/migrations/adm
 
-# Toolプロジェクト - 運営ツールDB
-docker exec tool-php php artisan migrate --database=tol --path=database/migrations/tol
+# Toolプロジェクト - 運営ツールDB（接続名は tool、マイグレーションのパスは tol）
+docker exec tool-php php artisan migrate --database=tool --path=database/migrations/tol
 ```
 
 **シャーディング対応マイグレーション:**

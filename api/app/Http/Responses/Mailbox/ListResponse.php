@@ -2,8 +2,8 @@
 
 namespace App\Http\Responses\Mailbox;
 
-use App\Domain\MailBox\Constants\ContentType;
-use App\Domain\MailBox\Services\TemplateEngine;
+use App\Domain\Mailbox\Constants\ContentType;
+use App\Domain\Mailbox\Services\TemplateEngine;
 use App\Http\Responses\_BaseResponse;
 use Nexus\Core\Support\CustomCollection;
 

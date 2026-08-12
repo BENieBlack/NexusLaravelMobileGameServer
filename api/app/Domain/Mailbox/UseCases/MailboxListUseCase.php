@@ -3,8 +3,8 @@
 namespace App\Domain\Mailbox\UseCases;
 
 use App\Domain\_BaseUseCase;
-use App\Domain\MailBox\Constants\Category;
-use App\Domain\MailBox\Constants\Priority;
+use App\Domain\Mailbox\Constants\Category;
+use App\Domain\Mailbox\Constants\Priority;
 use App\Http\Responses\Mailbox\ListResponse;
 use App\Repositories\Trx\TrxMailboxRepository;
 

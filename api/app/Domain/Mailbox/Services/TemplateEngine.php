@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Domain\MailBox\Services;
+namespace App\Domain\Mailbox\Services;
 
-use App\Domain\MailBox\Services\Placeholders\AlliancePlaceholder;
-use App\Domain\MailBox\Services\Placeholders\BattlePlaceholder;
-use App\Domain\MailBox\Services\Placeholders\PlayerPlaceholder;
+use App\Domain\Mailbox\Services\Placeholders\AlliancePlaceholder;
+use App\Domain\Mailbox\Services\Placeholders\BattlePlaceholder;
+use App\Domain\Mailbox\Services\Placeholders\PlayerPlaceholder;
 use NexusMailbox\Services\Template\_BaseTemplateEngine;
 use NexusMailbox\Services\Template\Resolvers\SystemPlaceholder;
 

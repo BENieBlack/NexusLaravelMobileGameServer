@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands\Mailbox;
 
-use App\Domain\MailBox\Services\TemplateEngine;
+use App\Domain\Mailbox\Services\TemplateEngine;
 use Illuminate\Console\Command;
 
 /**

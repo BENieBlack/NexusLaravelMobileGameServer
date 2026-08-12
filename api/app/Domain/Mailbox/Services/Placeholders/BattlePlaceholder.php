@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\MailBox\Services\Placeholders;
+namespace App\Domain\Mailbox\Services\Placeholders;
 
 use NexusMailbox\Services\Template\PlaceholderResolverInterface;
 

@@ -4,8 +4,8 @@ namespace App\Models\Sys;
 
 use App\Models\Mst\MstPlayerLevel;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use NexusAuth\Contracts\PlayerModelInterface;
 use Nexus\Core\Utilities\ClockUtility;
+use NexusAuth\Contracts\PlayerModelInterface;
 
 /**
  * SysPlayer Model

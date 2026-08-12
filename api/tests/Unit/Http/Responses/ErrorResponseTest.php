@@ -10,12 +10,12 @@ use Tests\TestCase;
 
 /**
  * ErrorResponseのテスト
- * 
+ *
  * HTTP 299エラーレスポンス（ビジネスロジックエラー）のValueObjectテスト
  */
 class ErrorResponseTest extends TestCase
 {
-    public function test_businessError_creates_http_299_response(): void
+    public function test_business_error_creates_http_299_response(): void
     {
         // Arrange & Act
         $errorResponse = ErrorResponse::businessError(
@@ -30,7 +30,7 @@ class ErrorResponseTest extends TestCase
         $this->assertEquals(299, $errorResponse->getHttpStatus());
     }
 
-    public function test_systemError_creates_http_500_response(): void
+    public function test_system_error_creates_http_500_response(): void
     {
         // Arrange & Act
         $errorResponse = ErrorResponse::systemError(
@@ -45,7 +45,7 @@ class ErrorResponseTest extends TestCase
         $this->assertEquals(500, $errorResponse->getHttpStatus());
     }
 
-    public function test_withStatus_creates_custom_http_status_response(): void
+    public function test_with_status_creates_custom_http_status_response(): void
     {
         // Arrange & Act
         $errorResponse = ErrorResponse::withStatus(
@@ -60,7 +60,7 @@ class ErrorResponseTest extends TestCase
         $this->assertEquals(403, $errorResponse->getHttpStatus());
     }
 
-    public function test_toArray_returns_correct_structure(): void
+    public function test_to_array_returns_correct_structure(): void
     {
         // Arrange
         $errorResponse = ErrorResponse::businessError(
@@ -79,7 +79,7 @@ class ErrorResponseTest extends TestCase
         $this->assertEquals('Not enough stamina', $array['message']);
     }
 
-    public function test_toJsonResponse_returns_json_response_with_correct_status(): void
+    public function test_to_json_response_returns_json_response_with_correct_status(): void
     {
         // Arrange
         $errorResponse = ErrorResponse::businessError(
@@ -99,7 +99,7 @@ class ErrorResponseTest extends TestCase
         $this->assertEquals('Player not found', $content['message']);
     }
 
-    public function test_toJsonResponse_can_override_status_code(): void
+    public function test_to_json_response_can_override_status_code(): void
     {
         // Arrange
         $errorResponse = ErrorResponse::businessError(
@@ -114,7 +114,7 @@ class ErrorResponseTest extends TestCase
         $this->assertEquals(400, $jsonResponse->getStatusCode());
     }
 
-    public function test_maskForProduction_masks_message_in_production_env(): void
+    public function test_mask_for_production_masks_message_in_production_env(): void
     {
         // Arrange
         config(['app.env' => 'production']);
@@ -132,7 +132,7 @@ class ErrorResponseTest extends TestCase
         $this->assertEquals(299, $maskedResponse->getHttpStatus());
     }
 
-    public function test_maskForProduction_does_not_mask_message_in_local_env(): void
+    public function test_mask_for_production_does_not_mask_message_in_local_env(): void
     {
         // Arrange
         config(['app.env' => 'local']);
@@ -148,7 +148,7 @@ class ErrorResponseTest extends TestCase
         $this->assertEquals('Detailed error message', $maskedResponse->getMessage());
     }
 
-    public function test_jsonSerialize_returns_array(): void
+    public function test_json_serialize_returns_array(): void
     {
         // Arrange
         $errorResponse = ErrorResponse::businessError(

@@ -3,8 +3,8 @@
 namespace App\Repositories\Mst;
 
 use App\Models\Mst\MstGachaPrize;
-use NexusGacha\Repositories\GachaPrizeRepositoryInterface;
 use Nexus\Core\Support\CustomCollection;
+use NexusGacha\Repositories\GachaPrizeRepositoryInterface;
 
 /**
  * MstGachaPrizeRepository

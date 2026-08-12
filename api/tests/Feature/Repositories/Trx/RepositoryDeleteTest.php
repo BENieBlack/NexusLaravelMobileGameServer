@@ -4,9 +4,9 @@ namespace Tests\Feature\Repositories\Trx;
 
 use App\Persistence\ApiSession;
 use App\Repositories\Trx\TrxEquipmentRepository;
-use Tests\RefreshMultipleDatabases;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
 
 /**

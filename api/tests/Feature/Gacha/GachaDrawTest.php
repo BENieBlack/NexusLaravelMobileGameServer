@@ -16,8 +16,8 @@ use App\Models\Trx\TrxEquipment;
 use App\Models\Trx\TrxItem;
 use App\Models\Trx\TrxUnit;
 use App\Persistence\ApiSession;
-use NexusAuth\Services\TokenService;
 use Nexus\Core\Utilities\ClockUtility;
+use NexusAuth\Services\TokenService;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
 

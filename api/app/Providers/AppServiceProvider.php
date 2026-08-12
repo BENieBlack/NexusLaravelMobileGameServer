@@ -40,6 +40,8 @@ use App\Repositories\Trx\WalletBalanceRepository;
 use App\Repositories\Trx\WalletRepository;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use LaravelWallet\Repositories\WalletBalanceRepositoryInterface;
+use LaravelWallet\Repositories\WalletRepositoryInterface;
 use NexusAuth\Contracts\DeviceRepositoryInterface;
 use NexusAuth\Contracts\PlayerRepositoryInterface;
 use NexusAuth\Contracts\TokenRepositoryInterface;
@@ -82,8 +84,6 @@ use NexusVip\Repositories\PlayerVipRepositoryInterface;
 use NexusVip\Repositories\VipLevelRepositoryInterface;
 use NexusVip\Repositories\VipLevelRewardRepositoryInterface;
 use NexusVip\Repositories\VipPointLogRepositoryInterface;
-use LaravelWallet\Repositories\WalletRepositoryInterface;
-use LaravelWallet\Repositories\WalletBalanceRepositoryInterface;
 
 class AppServiceProvider extends ServiceProvider
 {

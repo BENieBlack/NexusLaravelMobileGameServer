@@ -16,7 +16,7 @@ class SysDeploySeeder extends Seeder
         DB::connection('sys')->table('sys_deploy')->truncate();
         DB::connection('sys')->table('sys_deploy_asset')->truncate();
         DB::connection('sys')->table('sys_deploy_master')->truncate();
-        
+
         // シャーディング関連データも削除
         DB::connection('sys')->table('sys_sharding_node')->truncate();
         DB::connection('sys')->table('sys_sharding')->truncate();
@@ -192,6 +192,6 @@ class SysDeploySeeder extends Seeder
             ]);
         }
 
-        $this->command->info('✅ SysDeploySeeder: Created 3 master deploys, 3 asset deploys, 3 unified deploys, and ' . $shardCount . ' sharding nodes');
+        $this->command->info('✅ SysDeploySeeder: Created 3 master deploys, 3 asset deploys, 3 unified deploys, and '.$shardCount.' sharding nodes');
     }
 }

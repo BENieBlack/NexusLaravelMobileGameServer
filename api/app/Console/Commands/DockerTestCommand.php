@@ -46,11 +46,11 @@ class DockerTestCommand extends Command
         $testCommand = ['docker-compose', 'exec', '-T', 'api-php', 'php', 'artisan', 'test'];
 
         if ($filter = $this->option('filter')) {
-            $testCommand[] = '--filter=' . $filter;
+            $testCommand[] = '--filter='.$filter;
         }
 
         if ($testsuite = $this->option('testsuite')) {
-            $testCommand[] = '--testsuite=' . $testsuite;
+            $testCommand[] = '--testsuite='.$testsuite;
         }
 
         return $this->runProcess($testCommand, true);
@@ -72,8 +72,8 @@ class DockerTestCommand extends Command
             $this->info("Migrating {$db['connection']}...");
             $this->runProcess([
                 'docker-compose', 'exec', '-T', 'api-php', 'php', 'artisan', 'migrate:fresh',
-                '--database=' . $db['connection'],
-                '--path=' . $db['path'],
+                '--database='.$db['connection'],
+                '--path='.$db['path'],
                 '--force',
             ]);
         }
@@ -106,7 +106,7 @@ class DockerTestCommand extends Command
         }
 
         if (! $process->isSuccessful()) {
-            $this->error('Command failed: ' . implode(' ', $command));
+            $this->error('Command failed: '.implode(' ', $command));
         }
 
         return $exitCode;

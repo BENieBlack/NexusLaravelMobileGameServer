@@ -3,10 +3,10 @@
 namespace Tests\Feature\Domain\Wallet\Services;
 
 use App\Persistence\ApiSession;
-use LaravelWallet\Services\WalletService;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use LaravelWallet\Exceptions\InsufficientBalanceException;
+use LaravelWallet\Services\WalletService;
 use Nexus\Core\Utilities\ClockUtility;
 use NexusUnitOfWork\Persistence\QueryManager;
 use PHPUnit\Framework\Attributes\Test;

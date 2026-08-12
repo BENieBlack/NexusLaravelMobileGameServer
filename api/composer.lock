@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "74e4bb3523d5d9f4ce8e21c24d4353bd",
+    "content-hash": "4684fb1d3a8e545815dda6308535555a",
     "packages": [
         {
             "name": "brick/math",
@@ -2751,57 +2751,6 @@
             }
         },
         {
-            "name": "nexus/core-persistence",
-            "version": "dev-main",
-            "dist": {
-                "type": "path",
-                "url": "../packages/nexus-core-persistence",
-                "reference": "0ad244d655c3e3fda1832c908930d62ac00c94eb"
-            },
-            "require": {
-                "illuminate/cache": "^10.0|^11.0|^12.0",
-                "illuminate/database": "^10.0|^11.0|^12.0",
-                "illuminate/support": "^10.0|^11.0|^12.0",
-                "php": "^8.3"
-            },
-            "require-dev": {
-                "mockery/mockery": "^1.6",
-                "orchestra/testbench": "^9.0",
-                "phpunit/phpunit": "^11.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "NexusPersistence\\PersistenceServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "NexusPersistence\\": "src/"
-                }
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "NexusPersistence\\Tests\\": "tests/"
-                }
-            },
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Your Name",
-                    "email": "your.email@example.com"
-                }
-            ],
-            "description": "Base Model and Repository classes for Laravel game applications with support for multiple data types (Trx, Log, Sys, Mst)",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
             "name": "nexus/core-security",
             "version": "dev-main",
             "dist": {
@@ -2906,7 +2855,7 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-friend",
-                "reference": "622c4e33e5026cfd04ba9b1944a9836f68a55ed0"
+                "reference": "3c2822336030c4bd6f489050932ca881e147a827"
             },
             "require": {
                 "nexus/core": "@dev",
@@ -2977,7 +2926,7 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-guild",
-                "reference": "93f6ef789a3665eccfaaf57544f2cb41121a3d50"
+                "reference": "d52709c7c5c5f2251aa6e73008c4cdc44a902ef0"
             },
             "require": {
                 "nexus/player": "@dev",
@@ -3095,7 +3044,7 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-mailbox",
-                "reference": "36b68e8ededae7ac96b37a56c71650f3128c1139"
+                "reference": "33c90955e7055be84b9b3250745d7359654ae7fc"
             },
             "require": {
                 "nexus/core": "@dev",
@@ -3249,7 +3198,7 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-player",
-                "reference": "01f6dcf4ba43a66be4c6cf5fe557944d8bbd754a"
+                "reference": "5ee5d0f60606fe33d9f9d7dcef22af7328f2ff06"
             },
             "require": {
                 "nexus/core": "@dev",
@@ -3381,7 +3330,7 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-stamina",
-                "reference": "27d65c0e9cf5e16af02c4446afae171ce16347ea"
+                "reference": "eede70a78b5206751e2c1d1b2de6272bfa7f6cc5"
             },
             "require": {
                 "illuminate/support": "^11.0|^12.0",
@@ -10708,8 +10657,7 @@
         "nexus/level": 20,
         "nexus/friend": 20,
         "nexus/guild": 20,
-        "nexus/pitr": 20,
-        "nexus/core-persistence": 20
+        "nexus/pitr": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

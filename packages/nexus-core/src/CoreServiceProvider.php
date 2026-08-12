@@ -31,6 +31,8 @@ class CoreServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // 必要に応じて追加
+        // シャーディング管理テーブルのマイグレーション
+        // （nexus-core-persistence 統合時に移設）
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations/sys');
     }
 }

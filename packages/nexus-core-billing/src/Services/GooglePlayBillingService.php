@@ -6,7 +6,7 @@ use NexusBilling\ApiClients\GooglePlayApiClient;
 use NexusBilling\Constants\BillingConst;
 use NexusBilling\Contracts\BillingPlatformInterface;
 use NexusBilling\DTOs\ReceiptDto;
-use NexusBilling\DTOs\SubscriptionStatus;
+use NexusBilling\ValueObjects\Subscription;
 use NexusBilling\DTOs\VerificationDto;
 use NexusBilling\Exceptions\DuplicatePurchaseException;
 use NexusBilling\Exceptions\InvalidReceiptException;
@@ -91,7 +91,7 @@ class GooglePlayBillingService implements BillingPlatformInterface
         $isActive = isset($response['paymentState']) && $response['paymentState'] === 1;
         $autoRenew = $response['autoRenewing'] ?? false;
 
-        return new SubscriptionStatus(
+        return new Subscription(
             isActive: $isActive,
             expiresAt: CarbonImmutable::createFromTimestampMs((int)$response['expiryTimeMillis'])->format('Y-m-d H:i:s'),
             autoRenew: $autoRenew,

@@ -3,7 +3,7 @@
 namespace NexusBilling\Contracts;
 
 use NexusBilling\DTOs\ReceiptDto;
-use NexusBilling\DTOs\SubscriptionStatus;
+use NexusBilling\ValueObjects\Subscription;
 use NexusBilling\DTOs\VerificationDto;
 use NexusBilling\Exceptions\ReceiptVerificationException;
 
@@ -31,10 +31,10 @@ interface BillingPlatformInterface
      * サブスクリプション商品の現在の状態を取得する
      * 
      * @param string $subscriptionId サブスクリプションID（プラットフォーム固有）
-     * @return SubscriptionStatus サブスクリプション状態
+     * @return Subscription サブスクリプション状態
      * @throws ReceiptVerificationException API通信エラー等
      */
-    public function getSubscriptionStatus(string $subscriptionId): SubscriptionStatus;
+    public function getSubscriptionStatus(string $subscriptionId): Subscription;
 
     /**
      * 返金確認

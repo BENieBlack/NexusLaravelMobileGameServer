@@ -3,7 +3,7 @@
 namespace NexusBilling\Facades;
 
 use NexusBilling\DTOs\ReceiptDto;
-use NexusBilling\DTOs\SubscriptionStatus;
+use NexusBilling\ValueObjects\Subscription;
 use NexusBilling\DTOs\VerificationDto;
 use NexusBilling\Exceptions\DuplicatePurchaseException;
 use NexusBilling\Services\BillingPlatformFactory;
@@ -108,12 +108,12 @@ class BillingFacade
      * 
      * @param string $billingPlatform 決済プラットフォーム
      * @param string $subscriptionId サブスクリプションID
-     * @return SubscriptionStatus サブスクリプション状態
+     * @return Subscription サブスクリプション状態
      */
     public function checkSubscription(
         string $billingPlatform,
         string $subscriptionId
-    ): SubscriptionStatus {
+    ): Subscription {
         $platform = $this->platformFactory->create($billingPlatform);
         
         return $platform->getSubscriptionStatus($subscriptionId);

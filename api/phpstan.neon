@@ -1,10 +1,33 @@
 includes:
     - vendor/larastan/larastan/extension.neon
+    # 既存の指摘はbaselineに退避し、新規に混入した分だけを検出する
+    # baselineを減らす作業は別途進める
+    - phpstan-baseline.neon
 
 parameters:
     level: 6
     paths:
         - app
+        - ../packages/nexus-core/src
+        - ../packages/nexus-core-auth/src
+        - ../packages/nexus-core-billing/src
+        - ../packages/nexus-core-security/src
+        - ../packages/nexus-core-unit-of-work/src
+        - ../packages/nexus-friend/src
+        - ../packages/nexus-gacha/src
+        - ../packages/nexus-guild/src
+        - ../packages/nexus-level/src
+        - ../packages/nexus-login/src
+        - ../packages/nexus-mailbox/src
+        - ../packages/nexus-maintenance/src
+        - ../packages/nexus-pitr/src
+        - ../packages/nexus-player/src
+        - ../packages/nexus-resource/src
+        - ../packages/nexus-resource-delivery/src
+        - ../packages/nexus-stamina/src
+        - ../packages/nexus-version/src
+        - ../packages/nexus-vip/src
+        - ../packages/nexus-wallet/src
     excludePaths:
         - app/Providers/*
         - app/Console/*

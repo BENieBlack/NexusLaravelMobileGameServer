@@ -19,7 +19,7 @@ class VipLevelUpEvent
      * @param  int  $sysPlayerId  プレイヤーID
      * @param  int  $beforeLevel  変更前VIPレベル
      * @param  int  $afterLevel  変更後VIPレベル
-     * @param  array  $rewards  レベルアップ報酬リスト（VipRewardDto[]のarray形式）
+     * @param  array  $rewards  レベルアップ報酬リスト（VipReward[]のarray形式）
      */
     public function __construct(
         public readonly int $sysPlayerId,

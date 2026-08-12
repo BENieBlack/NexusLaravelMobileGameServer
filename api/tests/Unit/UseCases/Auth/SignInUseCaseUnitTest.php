@@ -12,7 +12,7 @@ use Mockery;
 use NexusAuth\Contracts\DeviceRepositoryInterface;
 use NexusAuth\Contracts\PlayerRepositoryInterface;
 use NexusAuth\Contracts\TokenRepositoryInterface;
-use NexusAuth\DTOs\TokenDto;
+use NexusAuth\ValueObjects\Token;
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Services\TokenService;
 use Tests\TestCase;
@@ -87,7 +87,7 @@ class SignInUseCaseUnitTest extends TestCase
         $mockToken->expires_at = now()->addDays(30);
         $mockToken->exists = true;
 
-        $tokenDto = new TokenDto(
+        $tokenDto = new Token(
             accessToken: 'access-token-123',
             refreshToken: 'refresh-token-456',
             expiresIn: 3600
@@ -211,7 +211,7 @@ class SignInUseCaseUnitTest extends TestCase
         $mockToken->sys_player_id = 1;
         $mockToken->exists = true;
 
-        $tokenDto = new TokenDto(
+        $tokenDto = new Token(
             accessToken: 'new-access-token',
             refreshToken: 'new-refresh-token',
             expiresIn: 3600
@@ -275,7 +275,7 @@ class SignInUseCaseUnitTest extends TestCase
         $mockToken->id = 100;
         $mockToken->exists = true;
 
-        $tokenDto = new TokenDto(
+        $tokenDto = new Token(
             accessToken: 'access-token',
             refreshToken: 'refresh-token',
             expiresIn: 3600

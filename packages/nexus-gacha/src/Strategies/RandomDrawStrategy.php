@@ -2,7 +2,7 @@
 
 namespace NexusGacha\Strategies;
 
-use NexusGacha\Dto\GachaPrizeDto;
+use NexusGacha\ValueObjects\GachaPrize;
 use NexusGacha\Exceptions\GachaDrawException;
 
 /**
@@ -39,7 +39,7 @@ class RandomDrawStrategy implements GachaDrawStrategyInterface
         ?string $selectedCandidateId,
         string $mstGachaId,
         GachaDrawContext $context
-    ): GachaPrizeDto {
+    ): GachaPrize {
         // 1. 候補コンテンツを取得
         $candidates = $context->bonusContentRepository->findByBonusId($bonus->getAttribute('id'));
         
@@ -55,7 +55,7 @@ class RandomDrawStrategy implements GachaDrawStrategyInterface
         $candidate = $this->weightedRandom($candidates->all(), 'weight');
 
         // 4. 景品DTOを生成
-        return new GachaPrizeDto(
+        return new GachaPrize(
             contentType: $candidate->getAttribute('content_type'),
             contentId: $candidate->getAttribute('content_id'),
             amount: $candidate->getAttribute('amount'),

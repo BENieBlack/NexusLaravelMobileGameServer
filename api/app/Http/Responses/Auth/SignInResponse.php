@@ -8,7 +8,7 @@ use App\Models\Sys\SysPlayerToken;
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use NexusAuth\DTOs\TokenDto;
+use NexusAuth\ValueObjects\Token;
 
 /**
  * SignInResponse
@@ -28,7 +28,7 @@ class SignInResponse implements Responsable
         public readonly SysPlayer $sysPlayer,
         public readonly SysPlayerDevice $sysPlayerDevice,
         public readonly SysPlayerToken $sysPlayerToken,
-        public readonly TokenDto $tokenDto,
+        public readonly Token $tokenDto,
     ) {}
 
     /**

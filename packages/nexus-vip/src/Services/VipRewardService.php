@@ -2,7 +2,7 @@
 
 namespace NexusVip\Services;
 
-use NexusVip\DTOs\VipRewardDto;
+use NexusVip\ValueObjects\VipReward;
 use NexusVip\Repositories\VipLevelRewardRepositoryInterface;
 
 /**
@@ -19,14 +19,14 @@ class VipRewardService
     /**
      * VIPレベルに対応する報酬一覧を取得
      *
-     * @return array<VipRewardDto>
+     * @return array<VipReward>
      */
     public function getRewardsByLevel(int $vipLevel): array
     {
         $rewards = $this->vipLevelRewardRepository->findActiveByVipLevel($vipLevel);
 
         return $rewards->map(function ($reward) {
-            return new VipRewardDto(
+            return new VipReward(
                 contentType: $reward->getContentType(),
                 contentId: $reward->getContentId(),
                 contentOption: $reward->getContentOption(),
@@ -54,7 +54,7 @@ class VipRewardService
     {
         $rewards = $this->getRewardsByLevel($vipLevel);
 
-        return array_map(function (VipRewardDto $reward) {
+        return array_map(function (VipReward $reward) {
             return $reward->toArray();
         }, $rewards);
     }

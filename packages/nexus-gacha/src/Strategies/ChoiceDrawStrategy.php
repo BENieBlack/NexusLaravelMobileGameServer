@@ -2,7 +2,7 @@
 
 namespace NexusGacha\Strategies;
 
-use NexusGacha\Dto\GachaPrizeDto;
+use NexusGacha\ValueObjects\GachaPrize;
 use NexusGacha\Exceptions\GachaDrawException;
 
 /**
@@ -39,7 +39,7 @@ class ChoiceDrawStrategy implements GachaDrawStrategyInterface
         ?string $selectedCandidateId,
         string $mstGachaId,
         GachaDrawContext $context
-    ): GachaPrizeDto {
+    ): GachaPrize {
         // 1. ユーザー選択IDの検証
         if (!$selectedCandidateId) {
             throw new GachaDrawException(
@@ -60,7 +60,7 @@ class ChoiceDrawStrategy implements GachaDrawStrategyInterface
         }
 
         // 4. 景品DTOを生成
-        return new GachaPrizeDto(
+        return new GachaPrize(
             contentType: $candidate->getAttribute('content_type'),
             contentId: $candidate->getAttribute('content_id'),
             amount: $candidate->getAttribute('amount'),

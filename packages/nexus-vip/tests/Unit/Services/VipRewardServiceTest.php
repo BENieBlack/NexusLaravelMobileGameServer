@@ -4,7 +4,7 @@ namespace NexusVip\Tests\Unit\Services;
 
 use Mockery;
 use Nexus\Core\Support\CustomCollection;
-use NexusVip\DTOs\VipRewardDto;
+use NexusVip\ValueObjects\VipReward;
 use NexusVip\Models\MstVipLevelReward;
 use NexusVip\Repositories\VipLevelRewardRepositoryInterface;
 use NexusVip\Services\VipRewardService;
@@ -72,10 +72,10 @@ class VipRewardServiceTest extends TestCase
         // Assert
         $this->assertIsArray($result);
         $this->assertCount(2, $result);
-        $this->assertInstanceOf(VipRewardDto::class, $result[0]);
+        $this->assertInstanceOf(VipReward::class, $result[0]);
         $this->assertSame('diamond', $result[0]->getContentType());
         $this->assertSame(100, $result[0]->getContentQuantity());
-        $this->assertInstanceOf(VipRewardDto::class, $result[1]);
+        $this->assertInstanceOf(VipReward::class, $result[1]);
         $this->assertSame('item', $result[1]->getContentType());
         $this->assertSame(10, $result[1]->getContentQuantity());
     }

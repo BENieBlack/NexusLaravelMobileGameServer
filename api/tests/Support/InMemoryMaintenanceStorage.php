@@ -3,7 +3,7 @@
 namespace Tests\Support;
 
 use NexusMaintenance\Contracts\MaintenanceStorageInterface;
-use NexusMaintenance\DTOs\MaintenanceDto;
+use NexusMaintenance\ValueObjects\Maintenance;
 
 /**
  * テスト用のメンテナンスストレージ
@@ -14,14 +14,14 @@ use NexusMaintenance\DTOs\MaintenanceDto;
  */
 class InMemoryMaintenanceStorage implements MaintenanceStorageInterface
 {
-    private ?MaintenanceDto $maintenance = null;
+    private ?Maintenance $maintenance = null;
 
-    public function get(): ?MaintenanceDto
+    public function get(): ?Maintenance
     {
         return $this->maintenance;
     }
 
-    public function put(MaintenanceDto $maintenanceDto): bool
+    public function put(Maintenance $maintenanceDto): bool
     {
         $this->maintenance = $maintenanceDto;
 

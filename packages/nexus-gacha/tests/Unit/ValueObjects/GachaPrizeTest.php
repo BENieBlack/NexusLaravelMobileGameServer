@@ -1,15 +1,15 @@
 <?php
 
-namespace NexusGacha\Tests\Unit\Dto;
+namespace NexusGacha\Tests\Unit\ValueObjects;
 
-use NexusGacha\Dto\GachaPrizeDto;
+use NexusGacha\ValueObjects\GachaPrize;
 use PHPUnit\Framework\TestCase;
 
-class GachaPrizeDtoTest extends TestCase
+class GachaPrizeTest extends TestCase
 {
     public function test_constructor_sets_properties_correctly(): void
     {
-        $dto = new GachaPrizeDto(
+        $dto = new GachaPrize(
             contentType: 'Item',
             contentId: 'item_001',
             amount: 10,
@@ -26,7 +26,7 @@ class GachaPrizeDtoTest extends TestCase
 
     public function test_is_guaranteed_returns_true_when_set(): void
     {
-        $dto = new GachaPrizeDto(
+        $dto = new GachaPrize(
             contentType: 'Unit',
             contentId: 'unit_ssr_001',
             amount: 1,
@@ -39,7 +39,7 @@ class GachaPrizeDtoTest extends TestCase
 
     public function test_to_array_returns_correct_structure(): void
     {
-        $dto = new GachaPrizeDto(
+        $dto = new GachaPrize(
             contentType: 'Equipment',
             contentId: 'equip_001',
             amount: 1,
@@ -60,7 +60,7 @@ class GachaPrizeDtoTest extends TestCase
 
     public function test_to_array_includes_guaranteed_flag(): void
     {
-        $dto = new GachaPrizeDto(
+        $dto = new GachaPrize(
             contentType: 'Unit',
             contentId: 'unit_001',
             amount: 1,

@@ -2,7 +2,7 @@
 
 namespace NexusGacha\Strategies;
 
-use NexusGacha\Dto\GachaPrizeDto;
+use NexusGacha\ValueObjects\GachaPrize;
 use NexusGacha\Exceptions\GachaDrawException;
 
 /**
@@ -34,7 +34,7 @@ interface GachaDrawStrategyInterface
      * @param string|null $selectedCandidateId ユーザーが選択したコンテンツID（choice型の場合）
      * @param string $mstGachaId ガチャID
      * @param GachaDrawContext $context 抽選に必要な依存オブジェクト
-     * @return GachaPrizeDto 抽選結果の景品情報
+     * @return GachaPrize 抽選結果の景品情報
      * @throws GachaDrawException 抽選に失敗した場合
      */
     public function draw(
@@ -42,5 +42,5 @@ interface GachaDrawStrategyInterface
         ?string $selectedCandidateId,
         string $mstGachaId,
         GachaDrawContext $context
-    ): GachaPrizeDto;
+    ): GachaPrize;
 }

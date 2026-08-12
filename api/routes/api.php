@@ -52,9 +52,6 @@ Route::middleware('maintenance')->group(function () {
     Route::get('/guild/detail', [GuildController::class, 'detail']);
     Route::get('/guild/member/list', [GuildController::class, 'memberList']);
 
-    // Guild creation endpoint (temporary public access for testing)
-    Route::post('/guild/create', [GuildController::class, 'create']);
-
     // Protected endpoints (require access token)
     // idempotencyミドルウェアを追加して重複リクエストを防止
     Route::middleware(['auth.token', 'idempotency'])->group(function () {
@@ -81,6 +78,7 @@ Route::middleware('maintenance')->group(function () {
         Route::post('/friend/delete', [FriendController::class, 'delete']);
 
         // Guild endpoints
+        Route::post('/guild/create', [GuildController::class, 'create']);
         Route::post('/guild/apply/send', [GuildController::class, 'applySend']);
         Route::post('/guild/apply/accept', [GuildController::class, 'applyAccept']);
         Route::post('/guild/apply/reject', [GuildController::class, 'applyReject']);

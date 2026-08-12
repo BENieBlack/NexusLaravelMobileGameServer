@@ -39,7 +39,7 @@ class ApplyAcceptRequest extends _BaseRequest
      */
     public function getAuthenticatedPlayerId(): ?int
     {
-        $playerId = $this->input('authenticated_player_id');
+        $playerId = $this->attributes->get('authenticated_player_id');
 
         return $playerId ? (int) $playerId : null;
     }

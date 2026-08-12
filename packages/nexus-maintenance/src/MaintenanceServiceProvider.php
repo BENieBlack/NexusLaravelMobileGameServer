@@ -3,6 +3,7 @@
 namespace NexusMaintenance;
 
 use NexusMaintenance\Contracts\MaintenanceStorageInterface;
+use NexusMaintenance\Infrastructure\Database\DatabaseMaintenanceStorage;
 use NexusMaintenance\Infrastructure\DynamoDB\DynamoDBMaintenanceStorage;
 use NexusMaintenance\Infrastructure\TableStore\TableStoreMaintenanceStorage;
 use NexusMaintenance\Services\MaintenanceService;
@@ -30,6 +31,7 @@ class MaintenanceServiceProvider extends ServiceProvider
             $driver = config('maintenance.driver', 'dynamodb');
 
             return match ($driver) {
+                'database' => $this->createDatabaseStorage(),
                 'dynamodb' => $this->createDynamoDBStorage(),
                 'tablestore' => $this->createTableStoreStorage(),
                 default => throw new \InvalidArgumentException("Unsupported maintenance driver: {$driver}"),
@@ -55,6 +57,16 @@ class MaintenanceServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/../config/maintenance.php' => config_path('maintenance.php'),
         ], 'config');
+    }
+
+    /**
+     * RDB ストレージを作成
+     *
+     * 外部SDKを必要としないため、ローカル開発やクラウド非依存の構成で使う
+     */
+    private function createDatabaseStorage(): DatabaseMaintenanceStorage
+    {
+        return new DatabaseMaintenanceStorage(config('maintenance.database', []));
     }
 
     /**

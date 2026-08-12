@@ -13,8 +13,19 @@ return [
     // メンテナンス機能の有効/無効
     'enabled' => env('MAINTENANCE_ENABLED', true),
 
-    // ストレージドライバー: dynamodb, tablestore
-    'driver' => env('MAINTENANCE_DRIVER', 'dynamodb'),
+    // ストレージドライバー: database, dynamodb, tablestore
+    // databaseは外部SDK不要でsys_maintenanceテーブルを使う（ローカル開発の既定）
+    'driver' => env('MAINTENANCE_DRIVER', 'database'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Database Configuration
+    |--------------------------------------------------------------------------
+    */
+    'database' => [
+        'connection' => env('MAINTENANCE_DB_CONNECTION', 'sys'),
+        'table' => env('MAINTENANCE_DB_TABLE', 'sys_maintenance'),
+    ],
 
     /*
     |--------------------------------------------------------------------------

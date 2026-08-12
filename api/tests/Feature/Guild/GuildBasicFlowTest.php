@@ -22,18 +22,26 @@ class GuildBasicFlowTest extends TestCase
      */
     public function test_guild_create(): void
     {
-        // テストプレイヤーを作成
-        $player = SysPlayer::create([
-            'uuid' => 'test-uuid-'.uniqid(),
-            'my_id' => 'TEST'.rand(1000, 9999),
-            'name' => 'Test Player',
-            'level' => 1,
-            'level_exp' => 0,
+        // サインアップして実際のアクセストークンを取得する
+        // （認証情報はリクエスト入力ではなくトークンから解決されるため）
+        $signUp = $this->postJson('/api/auth/sign_up', [
+            'device_id' => 'test-device-'.uniqid(),
+            'device_info' => [
+                'os' => 'iOS',
+                'os_version' => '17.0',
+                'model' => 'iPhone 15 Pro',
+                'app_version' => '1.0.0',
+            ],
         ]);
+        $signUp->assertOk();
+
+        $accessToken = $signUp->json('dto_token.access_token');
+        $player = SysPlayer::where('my_id', $signUp->json('sys_player.my_id'))->firstOrFail();
 
         // ギルド作成
-        $response = $this->postJson('/api/guild/create', [
-            'authenticated_player_id' => $player->id,
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer '.$accessToken,
+        ])->postJson('/api/guild/create', [
             'name' => 'Test Guild',
             'description' => 'This is a test guild',
         ]);
@@ -68,6 +76,36 @@ class GuildBasicFlowTest extends TestCase
         $this->assertDatabaseHas('sys_guild_member', [
             'sys_player_id' => $player->id,
             'role' => 'master',
+        ], 'sys');
+    }
+
+    /**
+     * 未認証ではギルドを作成できないことのテスト
+     *
+     * 以前は authenticated_player_id をリクエスト入力から読んでいたため、
+     * 任意のプレイヤーIDを名乗ってギルドを作成できた
+     */
+    public function test_guild_create_requires_authentication(): void
+    {
+        $player = SysPlayer::create([
+            'uuid' => 'test-uuid-'.uniqid(),
+            'my_id' => 'TEST'.rand(1000, 9999),
+            'name' => 'Test Player',
+            'level' => 1,
+            'level_exp' => 0,
+        ]);
+
+        // 他人のプレイヤーIDを入力に混ぜてもなりすませない
+        $response = $this->postJson('/api/guild/create', [
+            'authenticated_player_id' => $player->id,
+            'name' => 'Spoofed Guild',
+            'description' => 'should not be created',
+        ]);
+
+        $response->assertStatus(401);
+
+        $this->assertDatabaseMissing('sys_guild', [
+            'name' => 'Spoofed Guild',
         ], 'sys');
     }
 

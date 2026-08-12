@@ -33,6 +33,6 @@ class MeRequest extends _BaseRequest
      */
     public function getAuthenticatedPlayerId(): ?int
     {
-        return $this->input('authenticated_player_id');
+        return $this->attributes->get('authenticated_player_id');
     }
 }

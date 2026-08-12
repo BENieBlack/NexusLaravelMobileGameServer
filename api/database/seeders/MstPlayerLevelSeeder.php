@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Nexus\Core\Models\Mst\_BaseMst;
 
 /**
  * MstPlayerLevelSeeder
@@ -44,6 +45,9 @@ class MstPlayerLevelSeeder extends Seeder
      */
     public function run(): void
     {
+        // マスターデータの投入なので書き込みを許可する
+        _BaseMst::allowWrites();
+
         // 既存データをクリア
         DB::connection('mst')->table('mst_player_level')->truncate();
 

@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Domain\Unit\Constants\UnitConst;
 use App\Models\Mst\MstUnitLevel;
 use Illuminate\Database\Seeder;
+use Nexus\Core\Models\Mst\_BaseMst;
 
 /**
  * MstUnitLevelSeeder
@@ -37,6 +38,9 @@ class MstUnitLevelSeeder extends Seeder
      */
     public function run(): void
     {
+        // マスターデータの投入なので書き込みを許可する
+        _BaseMst::allowWrites();
+
         $data = [];
         $deployKey = 202601010;
 

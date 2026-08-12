@@ -8,6 +8,7 @@ use App\Models\Mst\MstInAppPurchaseContent;
 use App\Models\Mst\MstInAppPurchaseEffect;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Nexus\Core\Models\Mst\_BaseMst;
 
 class MstInAppPurchaseSeeder extends Seeder
 {
@@ -16,6 +17,9 @@ class MstInAppPurchaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // マスターデータの投入なので書き込みを許可する
+        _BaseMst::allowWrites();
+
         // 既存データをクリア（外部キー制約がないため順序は自由）
         DB::connection('mst')->table('mst_in_app_purchase_effect')->truncate();
         DB::connection('mst')->table('mst_in_app_purchase_content')->truncate();

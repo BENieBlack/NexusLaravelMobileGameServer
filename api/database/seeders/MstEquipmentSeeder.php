@@ -6,6 +6,7 @@ use App\Domain\Equipment\Constants\EquipmentConst;
 use App\Models\Mst\MstEquipment;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Nexus\Core\Models\Mst\_BaseMst;
 
 class MstEquipmentSeeder extends Seeder
 {
@@ -14,6 +15,9 @@ class MstEquipmentSeeder extends Seeder
      */
     public function run(): void
     {
+        // マスターデータの投入なので書き込みを許可する
+        _BaseMst::allowWrites();
+
         // 既存データをクリア
         DB::connection('mst')->table('mst_equipment')->truncate();
 

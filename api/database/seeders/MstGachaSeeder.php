@@ -11,6 +11,7 @@ use App\Models\Mst\MstGachaStepBonus;
 use App\Models\Mst\MstGachaStepBonusContent;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Nexus\Core\Models\Mst\_BaseMst;
 
 class MstGachaSeeder extends Seeder
 {
@@ -19,6 +20,9 @@ class MstGachaSeeder extends Seeder
      */
     public function run(): void
     {
+        // マスターデータの投入なので書き込みを許可する
+        _BaseMst::allowWrites();
+
         // 既存データをクリア
         DB::connection('mst')->table('mst_gacha_step_bonus_content')->truncate();
         DB::connection('mst')->table('mst_gacha_step_bonus')->truncate();

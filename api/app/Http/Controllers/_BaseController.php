@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Exceptions\InfraErrorCode;
 use App\Responses\_BaseResponseInterface;

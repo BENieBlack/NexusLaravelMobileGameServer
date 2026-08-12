@@ -26,7 +26,7 @@ class BaseControllerTest extends TestCase
     }
 
     #[Test]
-    public function gameExceptionはHTTP299を返す(): void
+    public function game_exceptionは_htt_p299を返す(): void
     {
         // Arrange
         $exception = new GameException(
@@ -47,7 +47,7 @@ class BaseControllerTest extends TestCase
     }
 
     #[Test]
-    public function その他の例外はHTTP500を返す(): void
+    public function その他の例外は_htt_p500を返す(): void
     {
         // Arrange
         $exception = new \RuntimeException('Internal error', 0);
@@ -64,7 +64,7 @@ class BaseControllerTest extends TestCase
     }
 
     #[Test]
-    public function HTTPステータスコード範囲の例外は該当コードを返す(): void
+    public function htt_pステータスコード範囲の例外は該当コードを返す(): void
     {
         // Arrange
         $exception = new \RuntimeException('Not found', 404);
@@ -81,7 +81,7 @@ class BaseControllerTest extends TestCase
     }
 
     #[Test]
-    public function executeメソッドでGameExceptionがキャッチされHTTP299を返す(): void
+    public function executeメソッドで_game_exceptionがキャッチされ_htt_p299を返す(): void
     {
         // Act
         $response = $this->controller->testExecuteWithGameException();
@@ -95,7 +95,7 @@ class BaseControllerTest extends TestCase
     }
 
     #[Test]
-    public function executeメソッドで配列が返された場合はHTTP200を返す(): void
+    public function executeメソッドで配列が返された場合は_htt_p200を返す(): void
     {
         // Act
         $response = $this->controller->testExecuteWithArray();

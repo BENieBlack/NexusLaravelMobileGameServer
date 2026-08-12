@@ -12,9 +12,9 @@ use Mockery;
 use NexusAuth\Contracts\DeviceRepositoryInterface;
 use NexusAuth\Contracts\PlayerRepositoryInterface;
 use NexusAuth\Contracts\TokenRepositoryInterface;
-use NexusAuth\ValueObjects\Token;
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Services\TokenService;
+use NexusAuth\ValueObjects\Token;
 use Tests\TestCase;
 
 class SignInUseCaseUnitTest extends TestCase

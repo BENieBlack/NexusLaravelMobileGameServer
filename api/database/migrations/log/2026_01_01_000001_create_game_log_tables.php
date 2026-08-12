@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 
 /**
  * LogDB用ゲームログテーブル作成マイグレーション
- * 
+ *
  * 注意: このマイグレーションは`php artisan pitr:migrate`で実行してください。
  * PitrMigrateCommandが全LogDBシャード（log1, log2, ...）に対して自動的に実行します。
  */
@@ -72,7 +72,7 @@ return new class extends Migration
             $table->dateTime('system_at')->comment('システム日時');
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
-            
+
             $table->index('sys_player_id');
             $table->index('mst_item_id');
             $table->index('system_at');
@@ -90,7 +90,7 @@ return new class extends Migration
             $table->dateTime('system_at')->comment('システム日時');
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
-            
+
             $table->index('sys_player_id');
             $table->index('mst_gacha_id');
             $table->index('system_at');
@@ -114,7 +114,7 @@ return new class extends Migration
             $table->dateTime('system_at')->comment('システム日時');
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
-            
+
             $table->index('sys_player_id');
             $table->index('trx_unit_id');
             $table->index('mst_unit_id');
@@ -139,7 +139,7 @@ return new class extends Migration
             $table->dateTime('system_at')->comment('システム日時');
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
-            
+
             $table->index('sys_player_id');
             $table->index('trx_equipment_id');
             $table->index('mst_equipment_id');

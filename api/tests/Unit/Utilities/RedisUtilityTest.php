@@ -3,8 +3,8 @@
 namespace Tests\Unit\Utilities;
 
 use Nexus\Core\Utilities\RedisUtility;
-use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 
 /**
  * RedisUtilityのユニットテスト
@@ -182,7 +182,7 @@ class RedisUtilityTest extends TestCase
      * putCompressedとgetCompressedが動作する
      */
     #[Test]
-    public function test_putCompressedとgetCompressedが動作する()
+    public function test_put_compressedとget_compressedが動作する()
     {
         $largeData = [
             'items' => array_fill(0, 100, [
@@ -205,7 +205,7 @@ class RedisUtilityTest extends TestCase
      * rememberCompressedがキャッシュを使用する
      */
     #[Test]
-    public function test_rememberCompressedがキャッシュを使用する()
+    public function test_remember_compressedがキャッシュを使用する()
     {
         $callCount = 0;
         $data = ['large' => 'data'];
@@ -235,7 +235,7 @@ class RedisUtilityTest extends TestCase
      * prefixKeyがプレフィックスを付与する
      */
     #[Test]
-    public function test_prefixKeyがプレフィックスを付与する()
+    public function test_prefix_keyがプレフィックスを付与する()
     {
         $key = RedisUtility::prefixKey('user', '123');
         $this->assertEquals('user:123', $key);
@@ -295,7 +295,7 @@ class RedisUtilityTest extends TestCase
      * deleteManyが複数のキーを削除する
      */
     #[Test]
-    public function test_deleteManyが複数のキーを削除する()
+    public function test_delete_manyが複数のキーを削除する()
     {
         // 複数のキーを保存
         RedisUtility::put('delete1', 'value1', 60);
@@ -330,7 +330,7 @@ class RedisUtilityTest extends TestCase
      * 存在しないキーのgetCompressedはデフォルト値を返す
      */
     #[Test]
-    public function test_存在しないキーのgetCompressedはデフォルト値を返す()
+    public function test_存在しないキーのget_compressedはデフォルト値を返す()
     {
         $value = RedisUtility::getCompressed('non_existent', ['default' => 'data']);
         $this->assertEquals(['default' => 'data'], $value);

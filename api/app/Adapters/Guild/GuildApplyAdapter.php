@@ -3,8 +3,8 @@
 namespace App\Adapters\Guild;
 
 use App\Models\Sys\SysGuildApply;
-use NexusGuild\Dto\GuildApplyDto;
 use Nexus\Core\Utilities\ClockUtility;
+use NexusGuild\Dto\GuildApplyDto;
 
 /**
  * GuildApplyAdapter

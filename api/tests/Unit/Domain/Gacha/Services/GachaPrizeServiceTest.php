@@ -4,8 +4,8 @@ namespace Tests\Unit\Domain\Gacha\Services;
 
 use App\Domain\Gacha\Services\GachaPrizeService;
 use Mockery;
-use NexusGacha\ValueObjects\GachaPrize;
 use NexusGacha\Services\GachaPrizeService as PackageGachaPrizeService;
+use NexusGacha\ValueObjects\GachaPrize;
 use Tests\TestCase;
 
 class GachaPrizeServiceTest extends TestCase

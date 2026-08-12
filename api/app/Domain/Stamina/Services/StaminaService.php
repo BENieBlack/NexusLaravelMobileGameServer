@@ -6,8 +6,8 @@ use App\Domain\Player\Services\PlayerLevelService;
 use App\Domain\Stamina\Constants\StaminaConst;
 use App\Models\Trx\TrxStamina;
 use App\Repositories\Trx\TrxStaminaRepository;
-use NexusStamina\Services\StaminaService as BaseStaminaService;
 use Nexus\Core\Utilities\ClockUtility;
+use NexusStamina\Services\StaminaService as BaseStaminaService;
 
 /**
  * StaminaService

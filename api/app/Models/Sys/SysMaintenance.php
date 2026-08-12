@@ -2,6 +2,7 @@
 
 namespace App\Models\Sys;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use NexusMaintenance\ValueObjects\Maintenance;
 
@@ -73,10 +74,10 @@ class SysMaintenance extends _BaseSys
 
     /**
      * start_atを取得
-     * 
+     *
      * DB取得時はstring型で保持されているため、CarbonImmutable型に変換して返す
      */
-    public function getStartAt(): ?\Carbon\CarbonImmutable
+    public function getStartAt(): ?CarbonImmutable
     {
         return $this->getDateAttribute('start_at');
     }
@@ -91,10 +92,10 @@ class SysMaintenance extends _BaseSys
 
     /**
      * end_atを取得
-     * 
+     *
      * DB取得時はstring型で保持されているため、CarbonImmutable型に変換して返す
      */
-    public function getEndAt(): ?\Carbon\CarbonImmutable
+    public function getEndAt(): ?CarbonImmutable
     {
         return $this->getDateAttribute('end_at');
     }

@@ -5,6 +5,7 @@ namespace App\Repositories\Trx;
 use App\Models\Trx\TrxStamina;
 use App\Persistence\ApiSession;
 use Illuminate\Support\Collection;
+use Illuminate\Support\CustomCollection;
 use NexusStamina\Dto\StaminaDto;
 use NexusStamina\Repositories\StaminaRepositoryInterface;
 
@@ -47,7 +48,7 @@ class TrxStaminaRepository extends _BaseTrxRepository implements StaminaReposito
     /**
      * プレイヤーの全てのスタミナ情報を取得
      *
-     * @return \Illuminate\Support\CustomCollection<int, TrxStamina>
+     * @return CustomCollection<int, TrxStamina>
      */
     public function selectAllByPlayer(): Collection
     {

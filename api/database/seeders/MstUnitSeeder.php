@@ -6,6 +6,7 @@ use App\Domain\Unit\Constants\UnitConst;
 use App\Models\Mst\MstUnit;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Nexus\Core\Models\Mst\_BaseMst;
 
 class MstUnitSeeder extends Seeder
 {
@@ -14,6 +15,9 @@ class MstUnitSeeder extends Seeder
      */
     public function run(): void
     {
+        // マスターデータの投入なので書き込みを許可する
+        _BaseMst::allowWrites();
+
         // 既存データをクリア
         DB::connection('mst')->table('mst_unit')->truncate();
 

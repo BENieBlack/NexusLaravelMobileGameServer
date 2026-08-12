@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Nexus\Core\Models\Mst\_BaseMst;
 
 /**
  * MstVipLoginBonusSeeder
@@ -33,6 +34,9 @@ class MstVipLoginBonusSeeder extends Seeder
      */
     public function run(): void
     {
+        // マスターデータの投入なので書き込みを許可する
+        _BaseMst::allowWrites();
+
         // 外部キー制約を一時的に無効化
         DB::connection('mst')->statement('SET FOREIGN_KEY_CHECKS=0;');
 

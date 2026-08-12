@@ -3,7 +3,7 @@
 namespace App\Domain\Mailbox\UseCases;
 
 use App\Domain\_BaseUseCase;
-use App\Domain\MailBox\Constants\Category;
+use App\Domain\Mailbox\Constants\Category;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Http\Responses\Mailbox\ReceiveAllResponse;

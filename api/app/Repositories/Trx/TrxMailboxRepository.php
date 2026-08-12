@@ -2,8 +2,8 @@
 
 namespace App\Repositories\Trx;
 
-use App\Domain\MailBox\Constants\Category;
-use App\Domain\MailBox\Constants\Priority;
+use App\Domain\Mailbox\Constants\Category;
+use App\Domain\Mailbox\Constants\Priority;
 use App\Models\Trx\TrxMailbox;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;

@@ -46,4 +46,20 @@ return [
         'max_attempts_per_device' => env('THROTTLE_SIGNUP_MAX_ATTEMPTS_PER_DEVICE', 3),
         'rate_limit_window' => env('THROTTLE_SIGNUP_RATE_LIMIT_WINDOW', 3600), // 1時間
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Throttle Auth
+    |--------------------------------------------------------------------------
+    |
+    | sign_in / refresh_token のレート制限設定
+    | クレデンシャルスタッフィングやトークン総当たりを抑制する
+    |
+    */
+    'throttle_auth' => [
+        'enabled' => env('THROTTLE_AUTH_ENABLED', true),
+        'max_attempts_per_ip' => env('THROTTLE_AUTH_MAX_ATTEMPTS_PER_IP', 30),
+        'max_attempts_per_credential' => env('THROTTLE_AUTH_MAX_ATTEMPTS_PER_CREDENTIAL', 10),
+        'rate_limit_window' => env('THROTTLE_AUTH_RATE_LIMIT_WINDOW', 900), // 15分
+    ],
 ];

@@ -149,19 +149,62 @@ class VerifyClientSignature
      */
     private function generateSignature(string $timestamp, string $nonce, string $body): string
     {
-        $secret = config('security.client_signature.secret');
-        
-        \Log::debug('VerifyClientSignature: generateSignature called', [
-            'secret_exists' => !empty($secret),
-            'secret_length' => $secret ? strlen($secret) : 0,
-        ]);
-        
-        if (!$secret) {
-            throw new \RuntimeException('CLIENT_SECRET is not configured');
-        }
+        $secret = $this->resolveSecret();
 
         $message = "{$timestamp}:{$nonce}:{$body}";
-        
+
         return hash_hmac('sha256', $message, $secret);
+    }
+
+    /**
+     * 署名に使う秘密鍵を取得する
+     *
+     * 未設定、またはサンプル値のまま運用されるのを防ぐ。
+     * リポジトリが公開されている以上、サンプル値は誰でも知り得るため、
+     * ローカル以外でそのまま使うと署名検証が意味をなさない。
+     *
+     * @throws \RuntimeException 鍵が未設定、またはローカル以外でサンプル値の場合
+     */
+    private function resolveSecret(): string
+    {
+        $secret = (string) config('security.client_signature.secret', '');
+
+        if ($secret === '') {
+            throw new \RuntimeException(
+                'CLIENT_SECRET is not configured. '.
+                'Generate one with `openssl rand -hex 32` and set it in your environment.'
+            );
+        }
+
+        // ローカルはサンプル値のままでも動かす（開発の利便のため）
+        if (config('app.env') === 'local') {
+            return $secret;
+        }
+
+        if ($this->isPlaceholderSecret($secret)) {
+            throw new \RuntimeException(
+                'CLIENT_SECRET is still set to a sample value. '.
+                'This value is publicly known and provides no protection. '.
+                'Generate one with `openssl rand -hex 32` and set it in your environment.'
+            );
+        }
+
+        return $secret;
+    }
+
+    /**
+     * サンプル値・強度不足の鍵かどうか
+     */
+    private function isPlaceholderSecret(string $secret): bool
+    {
+        // リポジトリに含まれるサンプル値の断片
+        foreach (['your-secret-key', 'change-in-production', 'your_secret'] as $marker) {
+            if (stripos($secret, $marker) !== false) {
+                return true;
+            }
+        }
+
+        // openssl rand -hex 32 は64文字。短すぎる鍵は総当たり耐性が無い
+        return strlen($secret) < 32;
     }
 }

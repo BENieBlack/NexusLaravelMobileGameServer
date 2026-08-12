@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\ValueObjects;
 
-use NexusMaintenance\ValueObjects\Maintenance;
 use Nexus\Core\Utilities\ClockUtility;
+use NexusMaintenance\ValueObjects\Maintenance;
 use PHPUnit\Framework\TestCase;
 
 class MaintenanceTest extends TestCase

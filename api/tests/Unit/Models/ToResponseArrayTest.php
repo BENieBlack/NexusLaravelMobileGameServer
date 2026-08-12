@@ -10,8 +10,8 @@ use App\Models\Trx\TrxDiamondBalance;
 use App\Models\Trx\TrxEquipment;
 use App\Models\Trx\TrxStamina;
 use App\Models\Trx\TrxUnit;
-use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 
 /**
  * toResponseArray() メソッドのテスト

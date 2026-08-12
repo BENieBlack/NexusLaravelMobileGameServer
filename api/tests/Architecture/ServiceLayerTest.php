@@ -78,7 +78,7 @@ class ServiceLayerTest extends TestCase
         $this->assertEmpty(
             $violations,
             "Service層のクラスは 'Service' で終わる必要があります".
-            "（パッケージ層の契約を実装するアダプタは除く）: ".implode(', ', $violations)
+            '（パッケージ層の契約を実装するアダプタは除く）: '.implode(', ', $violations)
         );
     }
 

@@ -7,9 +7,9 @@ use App\Domain\MailBox\Constants\Priority;
 use App\Models\Trx\TrxMailbox;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Nexus\Core\Support\CustomCollection;
 use NexusMailbox\Dto\MailboxDto;
 use NexusMailbox\Repositories\MailboxRepositoryInterface;
-use Nexus\Core\Support\CustomCollection;
 
 /**
  * TrxMailboxRepository

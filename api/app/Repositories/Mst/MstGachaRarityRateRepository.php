@@ -3,8 +3,8 @@
 namespace App\Repositories\Mst;
 
 use App\Models\Mst\MstGachaRarityRate;
-use NexusGacha\Repositories\GachaRarityRateRepositoryInterface;
 use Nexus\Core\Support\CustomCollection;
+use NexusGacha\Repositories\GachaRarityRateRepositoryInterface;
 
 /**
  * MstGachaRarityRateRepository

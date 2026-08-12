@@ -3,6 +3,7 @@
 namespace App\Models\Sys;
 
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * SysGuild Model
@@ -15,8 +16,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $level
  * @property int $exp
  * @property int $max_members
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  */
 class SysGuild extends _BaseSys
 {

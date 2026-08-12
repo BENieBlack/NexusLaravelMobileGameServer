@@ -2,8 +2,8 @@
 
 namespace App\Domain\Gacha\Services;
 
-use NexusGacha\ValueObjects\GachaPrize;
 use NexusGacha\Services\GachaPrizeService as PackageGachaPrizeService;
+use NexusGacha\ValueObjects\GachaPrize;
 
 /**
  * GachaPrizeService

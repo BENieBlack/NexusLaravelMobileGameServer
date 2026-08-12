@@ -3,8 +3,8 @@
 namespace App\Repositories\Sys;
 
 use App\Models\Sys\SysPlayerToken;
-use NexusAuth\Contracts\TokenRepositoryInterface;
 use Nexus\Core\Support\CustomCollection;
+use NexusAuth\Contracts\TokenRepositoryInterface;
 
 /**
  * SysPlayerTokenRepository

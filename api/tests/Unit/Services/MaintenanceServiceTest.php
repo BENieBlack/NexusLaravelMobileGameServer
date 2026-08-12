@@ -3,10 +3,10 @@
 namespace Tests\Unit\Services;
 
 use Illuminate\Support\Facades\Log;
-use NexusMaintenance\Contracts\MaintenanceStorageInterface;
-use NexusMaintenance\ValueObjects\Maintenance;
-use NexusMaintenance\Services\MaintenanceService;
 use Nexus\Core\Utilities\ClockUtility;
+use NexusMaintenance\Contracts\MaintenanceStorageInterface;
+use NexusMaintenance\Services\MaintenanceService;
+use NexusMaintenance\ValueObjects\Maintenance;
 use Tests\TestCase;
 
 class MaintenanceServiceTest extends TestCase

@@ -5,8 +5,8 @@ namespace Tests\Unit\Middleware;
 use App\Http\Middleware\CheckMaintenance;
 use Illuminate\Http\Request;
 use Mockery;
-use NexusMaintenance\ValueObjects\Maintenance;
 use NexusMaintenance\Services\MaintenanceService;
+use NexusMaintenance\ValueObjects\Maintenance;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
@@ -103,7 +103,7 @@ class CheckMaintenanceTest extends TestCase
     }
 
     #[Test]
-    public function 除外IPからのアクセスはメンテナンス中でも通す(): void
+    public function 除外_i_pからのアクセスはメンテナンス中でも通す(): void
     {
         // Arrange
         config(['maintenance.excluded_ips' => ['192.168.1.100']]);

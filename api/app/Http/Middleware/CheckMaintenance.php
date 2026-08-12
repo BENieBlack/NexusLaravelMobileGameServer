@@ -63,9 +63,6 @@ class CheckMaintenance
 
     /**
      * リクエストが除外ルートに該当するかチェック
-     *
-     * @param  Request  $request
-     * @return bool
      */
     private function isExcludedRoute(Request $request): bool
     {

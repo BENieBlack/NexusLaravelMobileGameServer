@@ -3,6 +3,7 @@
 namespace App\Models\Sys;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * SysGuildApply Model
@@ -13,8 +14,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $sys_player_id
  * @property int $sys_guild_id
  * @property string|null $message
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  */
 class SysGuildApply extends _BaseSys
 {

@@ -1,0 +1,165 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # 静的解析とフォーマットはDB不要なので分離して速く回す
+  static-analysis:
+    name: 静的解析・フォーマット
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: PHPのセットアップ
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_mysql, redis, bcmath, zip
+          coverage: none
+
+      - name: Composerキャッシュの復元
+        uses: actions/cache@v4
+        with:
+          path: api/vendor
+          key: composer-${{ hashFiles('api/composer.lock') }}
+          restore-keys: composer-
+
+      - name: 依存関係のインストール
+        working-directory: api
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: コードフォーマットの検証
+        working-directory: api
+        run: ./vendor/bin/pint --test
+
+      - name: 静的解析
+        working-directory: api
+        run: ./vendor/bin/phpstan analyse --memory-limit=2G --no-progress
+
+  test:
+    name: テスト
+    runs-on: ubuntu-latest
+
+    # trx/logはシャーディングしているため、シャード数ぶんのDBを立てる
+    services:
+      mysql-sys:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: nexus-testing-sys
+        ports: ['33062:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -uroot -proot"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+      mysql-mst:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: nexus-testing-mst
+        ports: ['33063:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -uroot -proot"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+      mysql-trx1:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: nexus-testing-trx1
+        ports: ['33161:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -uroot -proot"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+      mysql-trx2:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: nexus-testing-trx2
+        ports: ['33162:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -uroot -proot"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+      mysql-log1:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: nexus-testing-log1
+        ports: ['33261:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -uroot -proot"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+      mysql-log2:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: nexus-testing-log2
+        ports: ['33262:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -uroot -proot"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+      redis:
+        image: redis:8.4
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+
+    env:
+      # CIのサービスコンテナはlocalhost経由で見えるため、
+      # phpunit.xmlのDocker用ホスト名(db-sys等)を上書きする
+      DB_TRX_SHARDS: 2
+      DB_SYSTEM_HOST: 127.0.0.1
+      DB_SYSTEM_PORT: 33062
+      DB_MASTER_HOST: 127.0.0.1
+      DB_MASTER_PORT: 33063
+      DB_TRX1_HOST: 127.0.0.1
+      DB_TRX1_PORT: 33161
+      DB_TRX2_HOST: 127.0.0.1
+      DB_TRX2_PORT: 33162
+      DB_LOG1_HOST: 127.0.0.1
+      DB_LOG1_PORT: 33261
+      DB_LOG2_HOST: 127.0.0.1
+      DB_LOG2_PORT: 33262
+      DB_LOG_HOST: 127.0.0.1
+      DB_LOG_PORT: 33261
+      REDIS_HOST: 127.0.0.1
+      REDIS_PORT: 6379
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: PHPのセットアップ
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_mysql, redis, bcmath, zip
+          coverage: none
+
+      - name: Composerキャッシュの復元
+        uses: actions/cache@v4
+        with:
+          path: api/vendor
+          key: composer-${{ hashFiles('api/composer.lock') }}
+          restore-keys: composer-
+
+      - name: 依存関係のインストール
+        working-directory: api
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: .envの準備
+        run: cp .env.example .env
+
+      - name: アプリケーションキーの生成
+        working-directory: api
+        run: php artisan key:generate
+
+      - name: テスト
+        working-directory: api
+        run: php artisan test

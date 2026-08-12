@@ -4,9 +4,9 @@ namespace App\Persistence;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
+use Nexus\Core\Utilities\ClockUtility;
 use NexusSecurity\Contracts\PlayerSessionInterface;
 use NexusUnitOfWork\Contracts\PlayerSessionResolverInterface;
-use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * ApiSession

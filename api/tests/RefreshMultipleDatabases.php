@@ -57,7 +57,7 @@ trait RefreshMultipleDatabases
 
         // Add dynamic sharded connections
         $shardCount = (int) env('DB_TRX_SHARDS', 2);
-        
+
         for ($i = 1; $i <= $shardCount; $i++) {
             $connections["trx{$i}"] = null;
             $connections["log{$i}"] = null;

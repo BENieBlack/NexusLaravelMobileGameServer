@@ -5,8 +5,8 @@ namespace Tests\Feature\Repositories\Trx;
 use App\Persistence\ApiSession;
 use App\Repositories\Log\LogEquipmentRepository;
 use App\Repositories\Trx\TrxEquipmentRepository;
-use Tests\RefreshMultipleDatabases;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
 
 /**

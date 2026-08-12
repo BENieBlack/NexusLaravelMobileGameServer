@@ -6,7 +6,7 @@ use NexusBilling\ApiClients\AppStoreApiClient;
 use NexusBilling\Constants\BillingConst;
 use NexusBilling\Contracts\BillingPlatformInterface;
 use NexusBilling\DTOs\ReceiptDto;
-use NexusBilling\DTOs\SubscriptionStatus;
+use NexusBilling\ValueObjects\Subscription;
 use NexusBilling\DTOs\VerificationDto;
 use NexusBilling\Exceptions\InvalidReceiptException;
 use Carbon\CarbonImmutable;
@@ -76,7 +76,7 @@ class AppStoreBillingService implements BillingPlatformInterface
         // TODO: App Store Server API を使用した実装
         // 現在は未実装
         
-        return new SubscriptionStatus(
+        return new Subscription(
             isActive: false,
             expiresAt: CarbonImmutable::now()->format('Y-m-d H:i:s'),
             autoRenew: false,

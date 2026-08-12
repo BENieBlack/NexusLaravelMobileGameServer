@@ -25,30 +25,30 @@ test-fresh: up migrate-fresh seed ## マイグレーション実行後にテス�
 	docker-compose exec -T api-php php artisan config:clear
 	docker-compose exec -T api-php php artisan test
 
-test-unit: ## ユニットテストのみ実行（DB不要、ローカル実行）
-	cd api && php artisan config:clear
-	cd api && php artisan test --filter="ErrorResponse|BaseModelDateCast|MaintenanceDto|CheckMaintenance|BaseController|ExampleTest"
+test-unit: up ## ユニットテストのみ実行（Docker環境）
+	docker-compose exec -T api-php php artisan config:clear
+	docker-compose exec -T api-php php artisan test --testsuite=Unit
 
 test-feature: up ## 統合テストのみ実行（Docker環境）
 	docker-compose exec -T api-php php artisan config:clear
 	docker-compose exec -T api-php php artisan test --testsuite=Feature
 
-phpstan: ## PHPStan静的解析を実行
-	cd api && ./vendor/bin/phpstan analyse --memory-limit=2G
+phpstan: up ## PHPStan静的解析を実行（Docker環境）
+	docker-compose exec -T api-php ./vendor/bin/phpstan analyse --memory-limit=2G
 
 check: phpstan test-unit ## 静的解析とユニットテストを実行
 
 migrate: up ## マイグレーションを実行
-	docker-compose exec -T api-php php artisan migrate --database=sys --path=database/migrations/sys --force
-	docker-compose exec -T api-php php artisan migrate --database=mst --path=database/migrations/mst --force
-	docker-compose exec -T api-php php artisan migrate --database=trx --path=database/migrations/trx --force
-	docker-compose exec -T api-php php artisan migrate --database=log --path=database/migrations/log --force
+	docker-compose exec -T api-php php artisan migrate --database=sys --path=database/migrations/sys --path=../packages/nexus-core/database/migrations/sys --path=../packages/nexus-friend/database/migrations/sys --path=../packages/nexus-guild/database/migrations/sys --path=../packages/nexus-maintenance/database/migrations/sys --path=../packages/nexus-player/database/migrations/sys --path=../packages/nexus-version/database/migrations/sys --path=../packages/nexus-vip/database/migrations/sys --force
+	docker-compose exec -T api-php php artisan migrate --database=mst --path=database/migrations/mst --path=../packages/nexus-core-billing/database/migrations/mst --path=../packages/nexus-gacha/database/migrations/mst --path=../packages/nexus-login/database/migrations/mst --path=../packages/nexus-mailbox/database/migrations/mst --path=../packages/nexus-player/database/migrations/mst --path=../packages/nexus-resource/database/migrations/mst --path=../packages/nexus-vip/database/migrations/mst --force
+	docker-compose exec -T api-php php artisan trx:migrate --force
+	docker-compose exec -T api-php php artisan pitr:migrate --force
 
 migrate-fresh: up ## マイグレーションをリセットして再実行
-	docker-compose exec -T api-php php artisan migrate:fresh --database=sys --path=database/migrations/sys --force
-	docker-compose exec -T api-php php artisan migrate:fresh --database=mst --path=database/migrations/mst --force
-	docker-compose exec -T api-php php artisan migrate:fresh --database=trx --path=database/migrations/trx --force
-	docker-compose exec -T api-php php artisan migrate:fresh --database=log --path=database/migrations/log --force
+	docker-compose exec -T api-php php artisan migrate:fresh --database=sys --path=database/migrations/sys --path=../packages/nexus-core/database/migrations/sys --path=../packages/nexus-friend/database/migrations/sys --path=../packages/nexus-guild/database/migrations/sys --path=../packages/nexus-maintenance/database/migrations/sys --path=../packages/nexus-player/database/migrations/sys --path=../packages/nexus-version/database/migrations/sys --path=../packages/nexus-vip/database/migrations/sys --force
+	docker-compose exec -T api-php php artisan migrate:fresh --database=mst --path=database/migrations/mst --path=../packages/nexus-core-billing/database/migrations/mst --path=../packages/nexus-gacha/database/migrations/mst --path=../packages/nexus-login/database/migrations/mst --path=../packages/nexus-mailbox/database/migrations/mst --path=../packages/nexus-player/database/migrations/mst --path=../packages/nexus-resource/database/migrations/mst --path=../packages/nexus-vip/database/migrations/mst --force
+	docker-compose exec -T api-php php artisan migrate:shards --force
+	docker-compose exec -T api-php php artisan pitr:migrate --force
 
 seed: up ## シーダーを実行
 	docker-compose exec -T api-php php artisan db:seed --database=sys --class=Database\\Seeders\\SysDeploySeeder --force

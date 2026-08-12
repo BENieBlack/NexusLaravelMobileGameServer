@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Mst\MstBillingPlatformProduct;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Nexus\Core\Models\Mst\_BaseMst;
 
 class MstBillingPlatformProductSeeder extends Seeder
 {
@@ -13,6 +14,9 @@ class MstBillingPlatformProductSeeder extends Seeder
      */
     public function run(): void
     {
+        // マスターデータの投入なので書き込みを許可する
+        _BaseMst::allowWrites();
+
         // 既存データをクリア
         DB::connection('mst')->table('mst_billing_platform_product')->truncate();
 

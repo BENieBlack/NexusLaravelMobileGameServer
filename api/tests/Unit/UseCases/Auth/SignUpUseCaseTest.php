@@ -123,7 +123,7 @@ class SignUpUseCaseTest extends TestCase
         // Act
         $response = $this->useCase->exec($deviceId, $deviceInfo);
 
-        // Assert - TokenDtoが正しく生成されている
+        // Assert - Tokenが正しく生成されている
         $this->assertNotEmpty($response->tokenDto->getAccessToken());
         $this->assertNotEmpty($response->tokenDto->getRefreshToken());
         $this->assertEquals(3600, $response->tokenDto->getExpiresIn());

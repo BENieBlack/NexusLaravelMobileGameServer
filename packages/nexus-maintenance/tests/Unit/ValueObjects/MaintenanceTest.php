@@ -1,12 +1,12 @@
 <?php
 
-namespace NexusMaintenance\Tests\Unit\DTOs;
+namespace NexusMaintenance\Tests\Unit\ValueObjects;
 
-use NexusMaintenance\DTOs\MaintenanceDto;
-use NexusUtilities\Utilities\ClockUtility;
+use NexusMaintenance\ValueObjects\Maintenance;
+use Nexus\Core\Utilities\ClockUtility;
 use PHPUnit\Framework\TestCase;
 
-class MaintenanceDtoTest extends TestCase
+class MaintenanceTest extends TestCase
 {
     protected function tearDown(): void
     {
@@ -16,7 +16,7 @@ class MaintenanceDtoTest extends TestCase
 
     public function test_is_currently_under_maintenance_returns_false_when_not_maintenance_mode(): void
     {
-        $sysMaintenance = new MaintenanceDto(
+        $sysMaintenance = new Maintenance(
             isMaintenance: false,
             startAt: null,
             endAt: null,
@@ -27,7 +27,7 @@ class MaintenanceDtoTest extends TestCase
 
     public function test_is_currently_under_maintenance_returns_true_when_in_maintenance_mode_without_time_range(): void
     {
-        $sysMaintenance = new MaintenanceDto(
+        $sysMaintenance = new Maintenance(
             isMaintenance: true,
             startAt: null,
             endAt: null,
@@ -40,7 +40,7 @@ class MaintenanceDtoTest extends TestCase
     {
         ClockUtility::setNow('2024-01-15 12:00:00');
         
-        $sysMaintenance = new MaintenanceDto(
+        $sysMaintenance = new Maintenance(
             isMaintenance: true,
             startAt: '2024-01-15 13:00:00', // 1時間後
             endAt: null,
@@ -53,7 +53,7 @@ class MaintenanceDtoTest extends TestCase
     {
         ClockUtility::setNow('2024-01-15 12:00:00');
         
-        $sysMaintenance = new MaintenanceDto(
+        $sysMaintenance = new Maintenance(
             isMaintenance: true,
             startAt: '2024-01-15 11:00:00', // 1時間前
             endAt: '2024-01-15 13:00:00',   // 1時間後
@@ -66,7 +66,7 @@ class MaintenanceDtoTest extends TestCase
     {
         ClockUtility::setNow('2024-01-15 12:00:00');
         
-        $sysMaintenance = new MaintenanceDto(
+        $sysMaintenance = new Maintenance(
             isMaintenance: true,
             startAt: '2024-01-15 10:00:00', // 2時間前
             endAt: '2024-01-15 11:00:00',   // 1時間前
@@ -81,7 +81,7 @@ class MaintenanceDtoTest extends TestCase
         $endAt = '2024-01-15 13:00:00';
         $updatedAt = '2024-01-15 11:00:00';
 
-        $sysMaintenance = new MaintenanceDto(
+        $sysMaintenance = new Maintenance(
             isMaintenance: true,
             startAt: $startAt,
             endAt: $endAt,
@@ -119,7 +119,7 @@ class MaintenanceDtoTest extends TestCase
             'updated_at' => '2024-01-01 09:00:00',
         ];
 
-        $sysMaintenance = MaintenanceDto::fromArray($data);
+        $sysMaintenance = Maintenance::fromArray($data);
 
         $this->assertTrue($sysMaintenance->getIsMaintenance());
         $this->assertEquals('2024-01-01 10:00:00', $sysMaintenance->getStartAt());
@@ -131,7 +131,7 @@ class MaintenanceDtoTest extends TestCase
 
     public function test_to_json_returns_valid_json_string(): void
     {
-        $sysMaintenance = new MaintenanceDto(
+        $sysMaintenance = new Maintenance(
             isMaintenance: true,
             startAt: '2024-01-01 10:00:00',
             endAt: '2024-01-01 12:00:00',

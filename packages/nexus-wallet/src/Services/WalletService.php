@@ -3,7 +3,7 @@
 namespace LaravelWallet\Services;
 
 use LaravelWallet\ValueObjects\CurrencyBalance;
-use LaravelWallet\DTOs\CurrencyOperationResultDto;
+use LaravelWallet\ValueObjects\CurrencyOperationResult;
 use LaravelWallet\Exceptions\InsufficientBalanceException;
 use LaravelWallet\Repositories\WalletBalanceRepositoryInterface;
 use LaravelWallet\Repositories\WalletRepositoryInterface;
@@ -51,7 +51,7 @@ class WalletService
      * @param int $freeAmount 無償通貨数（デフォルト: 0）
      * @param int $paidAmount 有償通貨数（デフォルト: 0）
      * @param string|null $expireAt 有効期限 (Y-m-d H:i:s)（NULLの場合は無期限）
-     * @return CurrencyOperationResultDto 操作結果
+     * @return CurrencyOperationResult 操作結果
      */
     public function addCurrency(
         int $playerId,
@@ -59,7 +59,7 @@ class WalletService
         int $freeAmount = 0,
         int $paidAmount = 0,
         ?string $expireAt = null
-    ): CurrencyOperationResultDto {
+    ): CurrencyOperationResult {
         // 1. 現在値を取得または新規作成
         $wallet = $this->walletRepository->findByCurrencyId($playerId, $currencyId);
 
@@ -79,10 +79,9 @@ class WalletService
             $this->walletBalanceRepository->create($playerId, $currencyId, $paidAmount, isPaid: true, expireAt: $expireAt);
         }
 
-        return new CurrencyOperationResultDto(
+        return new CurrencyOperationResult(
             freeAmount: $freeAmount,
             paidAmount: $paidAmount,
-            totalAmount: $freeAmount + $paidAmount,
             currentBalance: $newFreeAmount + $newPaidAmount,
         );
     }
@@ -93,7 +92,7 @@ class WalletService
      * @param int $playerId プレイヤーID
      * @param string $currencyId 通貨アイテムID
      * @param int $amount 消費する数量
-     * @return CurrencyOperationResultDto 操作結果
+     * @return CurrencyOperationResult 操作結果
      *
      * @throws InsufficientBalanceException 残高不足の場合
      */
@@ -101,7 +100,7 @@ class WalletService
         int $playerId,
         string $currencyId,
         int $amount
-    ): CurrencyOperationResultDto {
+    ): CurrencyOperationResult {
         // 1. 現在値を取得
         $wallet = $this->walletRepository->findByCurrencyId($playerId, $currencyId);
 
@@ -121,10 +120,9 @@ class WalletService
         $newPaidAmount = $wallet->paid_amount - $consumedAmounts['paid'];
         $this->walletRepository->save($playerId, $currencyId, $newFreeAmount, $newPaidAmount);
 
-        return new CurrencyOperationResultDto(
+        return new CurrencyOperationResult(
             freeAmount: $consumedAmounts['free'],
             paidAmount: $consumedAmounts['paid'],
-            totalAmount: $amount,
             currentBalance: $newFreeAmount + $newPaidAmount,
         );
     }

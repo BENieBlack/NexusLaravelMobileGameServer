@@ -2,7 +2,7 @@
 
 namespace NexusGacha\Strategies;
 
-use NexusGacha\Dto\GachaPrizeDto;
+use NexusGacha\ValueObjects\GachaPrize;
 use NexusGacha\Exceptions\GachaDrawException;
 
 /**
@@ -40,7 +40,7 @@ class NoneDrawStrategy implements GachaDrawStrategyInterface
         ?string $selectedCandidateId,
         string $mstGachaId,
         GachaDrawContext $context
-    ): GachaPrizeDto {
+    ): GachaPrize {
         $bonusRarity = $bonus->getAttribute('bonus_rarity');
         $isPickupOnly = $bonus->getAttribute('is_pickup_only');
         
@@ -58,10 +58,10 @@ class NoneDrawStrategy implements GachaDrawStrategyInterface
      * 
      * @param string $mstGachaId ガチャID
      * @param GachaDrawContext $context コンテキスト
-     * @return GachaPrizeDto 景品情報
+     * @return GachaPrize 景品情報
      * @throws GachaDrawException
      */
-    private function drawNormal(string $mstGachaId, GachaDrawContext $context): GachaPrizeDto
+    private function drawNormal(string $mstGachaId, GachaDrawContext $context): GachaPrize
     {
         // 1. レアリティ抽選
         $rarity = $this->drawRarity($mstGachaId, $context);
@@ -114,7 +114,7 @@ class NoneDrawStrategy implements GachaDrawStrategyInterface
      * @param bool $pickupOnly ピックアップのみ抽選するか
      * @param bool $isGuaranteed 確定抽選か
      * @param GachaDrawContext $context コンテキスト
-     * @return GachaPrizeDto 景品情報
+     * @return GachaPrize 景品情報
      * @throws GachaDrawException 景品データが見つからない場合
      */
     private function drawPrize(
@@ -123,7 +123,7 @@ class NoneDrawStrategy implements GachaDrawStrategyInterface
         bool $pickupOnly,
         bool $isGuaranteed,
         GachaDrawContext $context
-    ): GachaPrizeDto {
+    ): GachaPrize {
         $prizes = $context->prizeRepository->findByGachaIdAndRarity($mstGachaId, $rarity, $pickupOnly);
         
         // ピックアップのみで景品がない場合は通常景品から
@@ -141,7 +141,7 @@ class NoneDrawStrategy implements GachaDrawStrategyInterface
         // 重み付きランダム抽選
         $prize = $this->weightedRandom($prizes->all(), 'weight');
 
-        return new GachaPrizeDto(
+        return new GachaPrize(
             contentType: $prize->getAttribute('content_type'),
             contentId: $prize->getAttribute('content_id'),
             amount: $prize->getAttribute('amount'),

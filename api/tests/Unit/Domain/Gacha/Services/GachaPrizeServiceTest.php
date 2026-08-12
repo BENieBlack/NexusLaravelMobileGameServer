@@ -4,7 +4,7 @@ namespace Tests\Unit\Domain\Gacha\Services;
 
 use App\Domain\Gacha\Services\GachaPrizeService;
 use Mockery;
-use NexusGacha\Dto\GachaPrizeDto;
+use NexusGacha\ValueObjects\GachaPrize;
 use NexusGacha\Services\GachaPrizeService as PackageGachaPrizeService;
 use Tests\TestCase;
 
@@ -67,7 +67,7 @@ class GachaPrizeServiceTest extends TestCase
             ->with(1, Mockery::on(function ($arg) {
                 return is_array($arg)
                     && count($arg) === 1
-                    && $arg[0] instanceof GachaPrizeDto
+                    && $arg[0] instanceof GachaPrize
                     && $arg[0]->getContentType() === 'item'
                     && $arg[0]->getContentId() === 'item_potion_001'
                     && $arg[0]->getAmount() === 5;
@@ -102,7 +102,7 @@ class GachaPrizeServiceTest extends TestCase
             ->with(1, Mockery::on(function ($arg) {
                 return is_array($arg)
                     && count($arg) === 1
-                    && $arg[0] instanceof GachaPrizeDto
+                    && $arg[0] instanceof GachaPrize
                     && $arg[0]->getContentType() === 'unit'
                     && $arg[0]->getContentId() === 'unit_hero_001'
                     && $arg[0]->getAmount() === 1;
@@ -137,7 +137,7 @@ class GachaPrizeServiceTest extends TestCase
             ->with(1, Mockery::on(function ($arg) {
                 return is_array($arg)
                     && count($arg) === 1
-                    && $arg[0] instanceof GachaPrizeDto
+                    && $arg[0] instanceof GachaPrize
                     && $arg[0]->getContentType() === 'equipment'
                     && $arg[0]->getContentId() === 'equipment_sword_001'
                     && $arg[0]->getAmount() === 1;
@@ -186,11 +186,11 @@ class GachaPrizeServiceTest extends TestCase
             ->with(1, Mockery::on(function ($arg) {
                 return is_array($arg)
                     && count($arg) === 3
-                    && $arg[0] instanceof GachaPrizeDto
+                    && $arg[0] instanceof GachaPrize
                     && $arg[0]->getContentType() === 'item'
-                    && $arg[1] instanceof GachaPrizeDto
+                    && $arg[1] instanceof GachaPrize
                     && $arg[1]->getContentType() === 'unit'
-                    && $arg[2] instanceof GachaPrizeDto
+                    && $arg[2] instanceof GachaPrize
                     && $arg[2]->getContentType() === 'equipment';
             }));
 

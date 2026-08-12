@@ -5,7 +5,7 @@ namespace Tests\Unit\Middleware;
 use App\Http\Middleware\CheckMaintenance;
 use Illuminate\Http\Request;
 use Mockery;
-use NexusMaintenance\DTOs\MaintenanceDto;
+use NexusMaintenance\ValueObjects\Maintenance;
 use NexusMaintenance\Services\MaintenanceService;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\HttpFoundation\Response;
@@ -63,7 +63,7 @@ class CheckMaintenanceTest extends TestCase
     public function メンテナンス中は503エラーを返す(): void
     {
         // Arrange
-        $maintenanceDto = new MaintenanceDto(
+        $maintenanceDto = new Maintenance(
             isMaintenance: true,
             startAt: '2026-08-10 00:00:00',
             endAt: '2026-08-10 03:00:00',
@@ -198,7 +198,7 @@ class CheckMaintenanceTest extends TestCase
             'maintenance/status',
         ]]);
 
-        $maintenanceDto = new MaintenanceDto(
+        $maintenanceDto = new Maintenance(
             isMaintenance: true,
             startAt: '2026-08-10 00:00:00',
             endAt: '2026-08-10 03:00:00',

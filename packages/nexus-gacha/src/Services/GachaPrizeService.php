@@ -2,7 +2,7 @@
 
 namespace NexusGacha\Services;
 
-use NexusGacha\Dto\GachaPrizeDto;
+use NexusGacha\ValueObjects\GachaPrize;
 use NexusResource\DTOs\ResourceDto;
 use NexusResourceDelivery\Services\ResourceDeliveryService;
 
@@ -22,7 +22,7 @@ class GachaPrizeService
      * 景品リストを付与
      *
      * @param int $sysPlayerId
-     * @param array<GachaPrizeDto> $prizes
+     * @param array<GachaPrize> $prizes
      * @return void
      */
     public function grantPrizes(int $sysPlayerId, array $prizes): void

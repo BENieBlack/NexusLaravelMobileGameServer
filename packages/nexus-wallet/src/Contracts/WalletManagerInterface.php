@@ -3,7 +3,7 @@
 namespace LaravelWallet\Contracts;
 
 use LaravelWallet\ValueObjects\CurrencyBalance;
-use LaravelWallet\DTOs\CurrencyOperationResultDto;
+use LaravelWallet\ValueObjects\CurrencyOperationResult;
 use LaravelWallet\Exceptions\InsufficientBalanceException;
 use LaravelWallet\Exceptions\InvalidCurrencyException;
 
@@ -23,7 +23,7 @@ interface WalletManagerInterface
      * @param int $freeAmount 無償通貨数（デフォルト: 0）
      * @param int $paidAmount 有償通貨数（デフォルト: 0）
      * @param string|null $expireAt 有効期限 (Y-m-d H:i:s)（NULLの場合は無期限）
-     * @return CurrencyOperationResultDto 操作結果
+     * @return CurrencyOperationResult 操作結果
      * @throws InvalidCurrencyException 無効な通貨IDの場合
      */
     public function addCurrency(
@@ -32,7 +32,7 @@ interface WalletManagerInterface
         int $freeAmount = 0,
         int $paidAmount = 0,
         ?string $expireAt = null
-    ): CurrencyOperationResultDto;
+    ): CurrencyOperationResult;
 
     /**
      * 通貨を消費（FIFO方式、有償優先）
@@ -40,7 +40,7 @@ interface WalletManagerInterface
      * @param int $playerId プレイヤーID
      * @param string $currencyId 通貨ID
      * @param int $amount 消費する数量
-     * @return CurrencyOperationResultDto 操作結果
+     * @return CurrencyOperationResult 操作結果
      * @throws InsufficientBalanceException 残高不足の場合
      * @throws InvalidCurrencyException 無効な通貨IDの場合
      */
@@ -48,7 +48,7 @@ interface WalletManagerInterface
         int $playerId,
         string $currencyId,
         int $amount
-    ): CurrencyOperationResultDto;
+    ): CurrencyOperationResult;
 
     /**
      * 通貨残高を取得

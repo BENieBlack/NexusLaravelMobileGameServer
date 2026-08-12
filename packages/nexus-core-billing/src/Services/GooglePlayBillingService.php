@@ -74,7 +74,7 @@ class GooglePlayBillingService implements BillingPlatformInterface
     /**
      * {@inheritDoc}
      */
-    public function getSubscriptionStatus(string $subscriptionId): SubscriptionDto
+    public function getSubscriptionStatus(string $subscriptionId): Subscription
     {
         // サブスクリプショントークンと商品IDが必要
         // 実際の実装では別途パラメータが必要

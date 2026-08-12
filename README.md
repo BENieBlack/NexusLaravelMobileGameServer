@@ -226,7 +226,9 @@ docker exec api-php php artisan migrate:fresh --database=sys --path=database/mig
 ## ドキュメント
 
 ### プロジェクト全体
-- [開発ルール](./DEVELOPMENT_RULES.md) - アーキテクチャ、コーディング規約、データベース設計、API設計
+- [アーキテクチャ](./.claude/architecture.md) - レイヤ構成、パッケージ分割の方針
+- [コーディング規約](./.claude/coding-standards.md) - 実装ルール、レイヤごとの責務
+- [命名規約](./.claude/naming-conventions.md) - クラス・テーブル・カラムの命名
 - [開発環境構築ガイド](./.claude/development.md) - setup.sh、Docker、マイグレーション
 - [データベース設計](./.claude/database.md) - テーブル構造、命名規則、マイグレーション管理
 - [シャーディングマイグレーションシステム](./docs/sharding_migration_system.md) - 動的シャード対応、新規シャード追加手順

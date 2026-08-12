@@ -8,7 +8,7 @@ use App\Models\Sys\SysPlayerToken;
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use NexusAuth\DTOs\TokenDto;
+use NexusAuth\ValueObjects\Token;
 
 /**
  * SignUpResponse
@@ -22,13 +22,13 @@ class SignUpResponse implements Responsable
      * @param  SysPlayer  $sysPlayer  プレイヤー情報
      * @param  SysPlayerDevice  $sysPlayerDevice  デバイス情報
      * @param  SysPlayerToken  $sysPlayerToken  トークン情報
-     * @param  TokenDto  $tokenDto  トークン情報DTO
+     * @param  Token  $tokenDto  トークン情報DTO
      */
     public function __construct(
         public readonly SysPlayer $sysPlayer,
         public readonly SysPlayerDevice $sysPlayerDevice,
         public readonly SysPlayerToken $sysPlayerToken,
-        public readonly TokenDto $tokenDto,
+        public readonly Token $tokenDto,
     ) {}
 
     /**

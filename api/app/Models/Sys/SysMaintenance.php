@@ -3,7 +3,7 @@
 namespace App\Models\Sys;
 
 use Illuminate\Database\Eloquent\Builder;
-use NexusMaintenance\DTOs\MaintenanceDto;
+use NexusMaintenance\ValueObjects\Maintenance;
 
 /**
  * SysMaintenance Model
@@ -175,11 +175,11 @@ class SysMaintenance extends _BaseSys
     }
 
     /**
-     * MaintenanceDtoに変換
+     * Maintenanceに変換
      */
-    public function toDto(): MaintenanceDto
+    public function toDto(): Maintenance
     {
-        return new MaintenanceDto(
+        return new Maintenance(
             isMaintenance: $this->is_active,
             startAt: $this->start_at?->format('Y-m-d H:i:s'),
             endAt: $this->end_at?->format('Y-m-d H:i:s'),

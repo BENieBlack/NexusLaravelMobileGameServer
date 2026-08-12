@@ -2,7 +2,7 @@
 
 namespace NexusGacha\Services;
 
-use NexusGacha\Dto\GachaPrizeDto;
+use NexusGacha\ValueObjects\GachaPrize;
 use NexusGacha\Exceptions\GachaDrawException;
 use NexusGacha\Repositories\GachaRarityRateRepositoryInterface;
 use NexusGacha\Repositories\GachaPrizeRepositoryInterface;
@@ -70,7 +70,7 @@ class GachaDrawService
      * @param bool $hasStepUp
      * @param int $currentStep
      * @param string|null $selectedCandidateId
-     * @return array<GachaPrizeDto>
+     * @return array<GachaPrize>
      */
     public function draw(
         string $mstGachaId,
@@ -129,10 +129,10 @@ class GachaDrawService
      * 通常抽選
      *
      * @param string $mstGachaId ガチャID
-     * @return GachaPrizeDto 抽選結果
+     * @return GachaPrize 抽選結果
      * @throws GachaDrawException 抽選に失敗した場合
      */
-    private function drawNormal(string $mstGachaId): GachaPrizeDto
+    private function drawNormal(string $mstGachaId): GachaPrize
     {
         // NoneDrawStrategyを使用して通常抽選を実行
         $noneStrategy = new NoneDrawStrategy();
@@ -158,10 +158,10 @@ class GachaDrawService
      * @param mixed $bonus ボーナス情報
      * @param string|null $selectedCandidateId ユーザーが選択したコンテンツID
      * @param string $mstGachaId ガチャID
-     * @return GachaPrizeDto 抽選結果
+     * @return GachaPrize 抽選結果
      * @throws GachaDrawException 抽選に失敗した場合
      */
-    private function drawBonus($bonus, ?string $selectedCandidateId, string $mstGachaId): GachaPrizeDto
+    private function drawBonus($bonus, ?string $selectedCandidateId, string $mstGachaId): GachaPrize
     {
         $selectionType = $bonus->getAttribute('selection_type');
         

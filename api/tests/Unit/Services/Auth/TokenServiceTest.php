@@ -10,7 +10,7 @@ use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Log;
-use NexusAuth\DTOs\TokenDto;
+use NexusAuth\ValueObjects\Token;
 use NexusAuth\Services\TokenService;
 use NexusUnitOfWork\Persistence\QueryManager;
 use Tests\RefreshMultipleDatabases;
@@ -102,7 +102,7 @@ class TokenServiceTest extends TestCase
         app(QueryManager::class)->execAllQuery();
 
         // Assert - DtoToken
-        $this->assertInstanceOf(TokenDto::class, $tokenDto);
+        $this->assertInstanceOf(Token::class, $tokenDto);
         $this->assertNotEmpty($tokenDto->getAccessToken());
         $this->assertNotEmpty($tokenDto->getRefreshToken());
         $this->assertEquals(3600, $tokenDto->getExpiresIn()); // 1時間
@@ -323,7 +323,7 @@ class TokenServiceTest extends TestCase
         app(QueryManager::class)->execAllQuery();
 
         // Assert - 新しいトークンが作成されている
-        $this->assertInstanceOf(TokenDto::class, $newDtoToken);
+        $this->assertInstanceOf(Token::class, $newDtoToken);
         $this->assertInstanceOf(SysPlayerToken::class, $newSysPlayerToken);
         $this->assertNotEquals($oldDtoToken->getRefreshToken(), $newDtoToken->getRefreshToken());
         $this->assertNotEquals($oldSysPlayerToken->getRefreshTokenHash(), $newSysPlayerToken->getRefreshTokenHash());

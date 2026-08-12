@@ -6,7 +6,7 @@ use NexusAuth\Services\TokenService;
 use NexusAuth\Contracts\TokenRepositoryInterface;
 use NexusAuth\Contracts\PlayerModelInterface;
 use NexusAuth\Contracts\DeviceModelInterface;
-use NexusAuth\DTOs\TokenDto;
+use NexusAuth\ValueObjects\Token;
 use PHPUnit\Framework\TestCase;
 
 class TokenServiceTest extends TestCase
@@ -82,7 +82,7 @@ class TokenServiceTest extends TestCase
 
         $result = $this->service->verifyAccessToken($token);
 
-        $this->assertInstanceOf(TokenDto::class, $result);
+        $this->assertInstanceOf(Token::class, $result);
         $this->assertSame(100, $result->getPlayerId());
         $this->assertSame('uuid-12345', $result->getUuid());
         $this->assertSame(1, $result->getDeviceId());

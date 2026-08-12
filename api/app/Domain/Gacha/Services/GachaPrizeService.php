@@ -2,7 +2,7 @@
 
 namespace App\Domain\Gacha\Services;
 
-use NexusGacha\Dto\GachaPrizeDto;
+use NexusGacha\ValueObjects\GachaPrize;
 use NexusGacha\Services\GachaPrizeService as PackageGachaPrizeService;
 
 /**
@@ -25,7 +25,7 @@ class GachaPrizeService
     {
         // 配列をDTOに変換
         $prizeDtos = array_map(function ($prize) {
-            return new GachaPrizeDto(
+            return new GachaPrize(
                 contentType: $prize['content_type'],
                 contentId: $prize['content_id'],
                 amount: $prize['amount'],

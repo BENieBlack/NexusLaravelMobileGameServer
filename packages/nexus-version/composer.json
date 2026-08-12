@@ -2,7 +2,7 @@
     "name": "nexus/version",
     "description": "Nexus Version Check Package - バージョンチェック・デプロイ管理パッケージ",
     "type": "library",
-    "license": "proprietary",
+    "license": "MIT",
     "autoload": {
         "psr-4": {
             "NexusVersion\\": "src/"

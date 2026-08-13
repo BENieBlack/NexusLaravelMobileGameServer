@@ -30,7 +30,7 @@ class LogGachaRepository extends _BaseLogRepository
      * @param  string  $mstGachaId  ガチャマスターID
      * @param  array|null  $result  ガチャ結果
      */
-    public function createGachaLog(
+    public function insertGachaLog(
         string $uniqueRequestId,
         int $sysPlayerId,
         string $mstGachaId,

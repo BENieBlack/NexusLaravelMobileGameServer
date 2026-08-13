@@ -99,7 +99,7 @@ class VipLevelService
      */
     public function getAllLevels(): array
     {
-        $levels = $this->vipLevelRepository->getAllLevels();
+        $levels = $this->vipLevelRepository->selectAllLevels();
 
         return $levels->map(function (MstVipLevel $level) {
             return [

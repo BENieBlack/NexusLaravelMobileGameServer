@@ -101,7 +101,7 @@ class MstPlayerLevelRepository extends _BaseMstRepository
      *
      * @param  int  $level  レベル
      */
-    public function getMaxStaminaForLevel(int $level): ?int
+    public function findMaxStaminaForLevel(int $level): ?int
     {
         $levelData = $this->selectByLevel($level);
 
@@ -136,7 +136,7 @@ class MstPlayerLevelRepository extends _BaseMstRepository
     /**
      * 最大レベルを取得
      */
-    public function getMaxLevel(): int
+    public function selectMaxLevel(): int
     {
         $allRecords = $this->queryOrMemory();
 
@@ -148,7 +148,7 @@ class MstPlayerLevelRepository extends _BaseMstRepository
      *
      * @param  int  $level  レベル
      */
-    public function getRequiredExpForLevel(int $level): ?int
+    public function findRequiredExpForLevel(int $level): ?int
     {
         $levelData = $this->selectByLevel($level);
 

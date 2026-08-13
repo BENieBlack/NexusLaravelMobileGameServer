@@ -69,7 +69,7 @@ class StaminaService
             lastRecoveryAt: $now
         );
 
-        return $this->staminaRepository->create($staminaDto);
+        return $this->staminaRepository->insert($staminaDto);
     }
 
     /**

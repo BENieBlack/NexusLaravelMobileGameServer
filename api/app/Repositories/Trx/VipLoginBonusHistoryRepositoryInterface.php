@@ -7,7 +7,7 @@ interface VipLoginBonusHistoryRepositoryInterface
     /**
      * VIPログインボーナス履歴を作成
      */
-    public function create(array $data, string $connectionName): array;
+    public function insert(array $data, string $connectionName): array;
 
     /**
      * プレイヤーの最新VIPログインボーナス履歴を取得

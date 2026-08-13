@@ -79,7 +79,7 @@ class TrxGachaRepository extends _BaseTrxRepository implements GachaProgressRepo
     /**
      * {@inheritDoc}
      */
-    public function create(GachaProgressDto $progressDto): GachaProgressDto
+    public function insert(GachaProgressDto $progressDto): GachaProgressDto
     {
         $progress = new TrxGacha([
             'sys_player_id' => $progressDto->getSysPlayerId(),

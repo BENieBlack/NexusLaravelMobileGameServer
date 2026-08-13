@@ -15,7 +15,7 @@ interface PlayerRepositoryInterface
      * 
      * @return PlayerModelInterface
      */
-    public function createPlayerAndCommit(): PlayerModelInterface;
+    public function insertPlayerAndCommit(): PlayerModelInterface;
 
     /**
      * IDでプレイヤーを検索

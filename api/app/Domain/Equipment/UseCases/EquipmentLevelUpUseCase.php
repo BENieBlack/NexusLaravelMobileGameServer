@@ -161,7 +161,7 @@ class EquipmentLevelUpUseCase extends _BaseUseCase
             $trxEquipment = $this->equipmentLevelService->addExpAndReturn($trxEquipmentId, $totalExp);
 
             // ログを記録
-            $this->logEquipmentRepository->createEquipmentLog(
+            $this->logEquipmentRepository->insertEquipmentLog(
                 uniqueRequestId: $uniqueRequestId,
                 sysPlayerId: $sysPlayerId,
                 trxEquipmentId: $trxEquipmentId,

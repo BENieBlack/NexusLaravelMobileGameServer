@@ -48,7 +48,7 @@ class MeUseCaseTest extends TestCase
      */
     private function createPlayer(): SysPlayer
     {
-        return $this->playerRepository->createPlayerAndCommit();
+        return $this->playerRepository->insertPlayerAndCommit();
     }
 
     /**

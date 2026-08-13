@@ -146,7 +146,7 @@ class SysFriendApplyRepository extends _BaseSysRepository
      * @param  int  $applyPlayerId  申請者のプレイヤーID
      * @param  int  $receivePlayerId  受信者のプレイヤーID
      */
-    public function createApply(int $applyPlayerId, int $receivePlayerId): SysFriendApply
+    public function insertApply(int $applyPlayerId, int $receivePlayerId): SysFriendApply
     {
         $sysFriendApply = new SysFriendApply([
             'sender_sys_player_id' => $applyPlayerId,

@@ -23,7 +23,7 @@ class MstVipLevelRepository extends _BaseMstRepository implements VipLevelReposi
      *
      * @return CustomCollection<MstVipLevel>
      */
-    public function getAllLevels(): CustomCollection
+    public function selectAllLevels(): CustomCollection
     {
         return $this->queryOrMemory()
             ->where('is_active', true)

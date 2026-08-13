@@ -24,10 +24,10 @@ interface PlayerLevelRepositoryInterface
     /**
      * 最大レベルを取得
      */
-    public function getMaxLevel(): int;
+    public function selectMaxLevel(): int;
 
     /**
      * レベルに対応する最大スタミナを取得
      */
-    public function getMaxStaminaForLevel(int $level): ?int;
+    public function findMaxStaminaForLevel(int $level): ?int;
 }

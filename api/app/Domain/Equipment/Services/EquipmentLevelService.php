@@ -56,7 +56,7 @@ class EquipmentLevelService extends _BaseLevelService
         }
 
         $rarity = $mstEquipment->getRarity();
-        $maxLevel = $this->mstEquipmentLevelRepository->getMaxLevel($rarity) ?? 100;
+        $maxLevel = $this->mstEquipmentLevelRepository->selectMaxLevel($rarity) ?? 100;
         $expToNext = $this->getExpToNextLevel($rarity, $trxEquipment->getLevel(), $trxEquipment->getLevelExp());
 
         return [
@@ -117,7 +117,7 @@ class EquipmentLevelService extends _BaseLevelService
         $rarity = $mstEquipment->getRarity();
 
         // 目標レベルに必要な累積経験値を取得
-        $targetRequiredExp = $this->mstEquipmentLevelRepository->getRequiredExpForLevel($rarity, $targetLevel);
+        $targetRequiredExp = $this->mstEquipmentLevelRepository->findRequiredExpForLevel($rarity, $targetLevel);
 
         if ($targetRequiredExp === null) {
             // 目標レベルが存在しない（最大レベルを超えている）
@@ -227,7 +227,7 @@ class EquipmentLevelService extends _BaseLevelService
      */
     protected function getMaxLevel(?string $rarity): int
     {
-        return $this->mstEquipmentLevelRepository->getMaxLevel($rarity) ?? 100;
+        return $this->mstEquipmentLevelRepository->selectMaxLevel($rarity) ?? 100;
     }
 
     /**

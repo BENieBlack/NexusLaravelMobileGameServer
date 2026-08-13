@@ -71,7 +71,7 @@ class SysGuildMemberRepository extends _BaseSysRepository
      * @param  int  $playerId  プレイヤーID
      * @param  string  $role  役職
      */
-    public function createMember(int $guildId, int $playerId, string $role): SysGuildMember
+    public function insertMember(int $guildId, int $playerId, string $role): SysGuildMember
     {
         $member = new SysGuildMember;
         $member->setSysGuildId($guildId);

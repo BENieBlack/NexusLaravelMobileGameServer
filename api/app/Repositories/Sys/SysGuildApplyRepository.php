@@ -77,7 +77,7 @@ class SysGuildApplyRepository extends _BaseSysRepository
      * @param  int  $guildId  ギルドID
      * @param  int  $playerId  プレイヤーID
      */
-    public function createApply(int $guildId, int $playerId): SysGuildApply
+    public function insertApply(int $guildId, int $playerId): SysGuildApply
     {
         $apply = new SysGuildApply;
         $apply->setSysGuildId($guildId);

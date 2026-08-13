@@ -69,9 +69,9 @@ class GuildApplyRepositoryAdapter implements GuildApplyRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function create(int $guildId, int $playerId): GuildApplyDto
+    public function insert(int $guildId, int $playerId): GuildApplyDto
     {
-        $model = $this->sysGuildApplyRepository->createApply($guildId, $playerId);
+        $model = $this->sysGuildApplyRepository->insertApply($guildId, $playerId);
 
         return GuildApplyAdapter::toDto($model);
     }

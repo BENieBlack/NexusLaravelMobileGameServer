@@ -63,7 +63,7 @@ class FriendApplySendUseCase extends _BaseUseCase
             }
 
             // 3. 新規フレンド申請を作成
-            $sysFriendApply = $this->sysFriendApplyRepository->createApply(
+            $sysFriendApply = $this->sysFriendApplyRepository->insertApply(
                 $sysPlayerId,
                 $receivePlayerId
             );

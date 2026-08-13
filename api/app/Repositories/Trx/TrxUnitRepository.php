@@ -60,7 +60,7 @@ class TrxUnitRepository extends _BaseTrxRepository
             $beforeLevel = $originalState['level'] ?? $model->getLevel();
             $beforeLevelExp = $originalState['level_exp'] ?? $model->getLevelExp();
 
-            $this->logUnitRepository->createUnitLog(
+            $this->logUnitRepository->insertUnitLog(
                 $this->uniqueRequestId,
                 $model->getSysPlayerId(),
                 $model->getId(),
@@ -146,7 +146,7 @@ class TrxUnitRepository extends _BaseTrxRepository
      * @param  int|null  $level  初期レベル（nullの場合は1）
      * @return TrxUnit 作成されたユニット
      */
-    public function createUnit(
+    public function insertUnit(
         string $mstUnitId,
         ?int $grade = null,
         ?int $level = null

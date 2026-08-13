@@ -28,5 +28,5 @@ interface StaminaRepositoryInterface
      *
      * @return StaminaDto 作成されたスタミナDTO
      */
-    public function create(StaminaDto $staminaDto): StaminaDto;
+    public function insert(StaminaDto $staminaDto): StaminaDto;
 }

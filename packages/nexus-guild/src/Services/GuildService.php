@@ -176,7 +176,7 @@ class GuildService
         $this->validateGuildNameUnique($name);
         $this->validatePlayerNotInGuild($masterPlayerId);
 
-        return $this->guildRepository->create($name, $description, $masterPlayerId);
+        return $this->guildRepository->insert($name, $description, $masterPlayerId);
     }
 
     /**
@@ -196,7 +196,7 @@ class GuildService
         $this->validateNoDuplicateApply($guildId, $playerId);
         $this->validateGuildNotFull($guild);
 
-        return $this->applyRepository->create($guildId, $playerId);
+        return $this->applyRepository->insert($guildId, $playerId);
     }
 
     /**

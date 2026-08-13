@@ -47,16 +47,16 @@ class PlayerLevelRepositoryAdapter implements PlayerLevelRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function getMaxLevel(): int
+    public function selectMaxLevel(): int
     {
-        return $this->mstPlayerLevelRepository->getMaxLevel();
+        return $this->mstPlayerLevelRepository->selectMaxLevel();
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getMaxStaminaForLevel(int $level): ?int
+    public function findMaxStaminaForLevel(int $level): ?int
     {
-        return $this->mstPlayerLevelRepository->getMaxStaminaForLevel($level);
+        return $this->mstPlayerLevelRepository->findMaxStaminaForLevel($level);
     }
 }

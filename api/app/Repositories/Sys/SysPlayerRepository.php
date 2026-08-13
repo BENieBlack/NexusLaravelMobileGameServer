@@ -28,7 +28,7 @@ class SysPlayerRepository extends _BaseSysRepository implements AuthPlayerReposi
      *
      * @return SysPlayer 作成されたプレイヤー（IDが設定済み）
      */
-    public function createPlayerAndCommit(): SysPlayer
+    public function insertPlayerAndCommit(): SysPlayer
     {
         $sysPlayer = new SysPlayer([
             'my_id' => Str::random(8),

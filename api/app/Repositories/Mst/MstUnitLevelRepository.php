@@ -113,7 +113,7 @@ class MstUnitLevelRepository extends _BaseMstRepository
      *
      * @param  string  $rarity  レアリティ
      */
-    public function getMaxLevel(string $rarity): ?int
+    public function selectMaxLevel(string $rarity): ?int
     {
         $allRecords = $this->queryOrMemory();
 
@@ -152,7 +152,7 @@ class MstUnitLevelRepository extends _BaseMstRepository
      * @param  string  $rarity  レアリティ
      * @param  int  $level  レベル
      */
-    public function getRequiredExpForLevel(string $rarity, int $level): ?int
+    public function findRequiredExpForLevel(string $rarity, int $level): ?int
     {
         $levelData = $this->selectByRarityAndLevel($rarity, $level);
 
@@ -167,7 +167,7 @@ class MstUnitLevelRepository extends _BaseMstRepository
      * @param  int  $currentExp  現在の累積経験値
      * @return int|null 残り経験値（最大レベルの場合はnull）
      */
-    public function getRemainingExpForNextLevel(string $rarity, int $currentLevel, int $currentExp): ?int
+    public function calcRemainingExpForNextLevel(string $rarity, int $currentLevel, int $currentExp): ?int
     {
         $nextLevel = $currentLevel + 1;
         $nextLevelData = $this->selectByRarityAndLevel($rarity, $nextLevel);

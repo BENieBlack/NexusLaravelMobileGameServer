@@ -22,7 +22,7 @@ class MstLoginBonusRepository implements LoginBonusRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function getLoopDaysForActiveBonus(): ?int
+    public function selectLoopDaysForActiveBonus(): ?int
     {
         return MstLoginBonus::dailyType()
             ->active()

@@ -74,9 +74,9 @@ class GuildMemberRepositoryAdapter implements GuildMemberRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function create(int $guildId, int $playerId, string $role): GuildMemberDto
+    public function insert(int $guildId, int $playerId, string $role): GuildMemberDto
     {
-        $model = $this->sysGuildMemberRepository->createMember($guildId, $playerId, $role);
+        $model = $this->sysGuildMemberRepository->insertMember($guildId, $playerId, $role);
 
         return GuildMemberAdapter::toDto($model);
     }

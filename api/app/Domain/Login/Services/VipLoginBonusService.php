@@ -115,7 +115,7 @@ class VipLoginBonusService extends _BaseLoginBonusService
         $receivedAt = $this->getGameDayStart()->format('Y-m-d H:i:s');
 
         // VIPログインボーナス履歴テーブルに記録
-        $this->vipHistoryRepository->create([
+        $this->vipHistoryRepository->insert([
             'sys_player_id' => $sysPlayerId,
             'mst_vip_login_bonus_id' => $bonusData['id'],
             'day' => $currentDay,

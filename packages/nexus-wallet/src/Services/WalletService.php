@@ -71,12 +71,12 @@ class WalletService
 
         // 3. 無償通貨の残高レコード追加（FIFO用）
         if ($freeAmount > 0) {
-            $this->walletBalanceRepository->create($playerId, $currencyId, $freeAmount, isPaid: false, expireAt: $expireAt);
+            $this->walletBalanceRepository->insert($playerId, $currencyId, $freeAmount, isPaid: false, expireAt: $expireAt);
         }
 
         // 4. 有償通貨の残高レコード追加（FIFO用）
         if ($paidAmount > 0) {
-            $this->walletBalanceRepository->create($playerId, $currencyId, $paidAmount, isPaid: true, expireAt: $expireAt);
+            $this->walletBalanceRepository->insert($playerId, $currencyId, $paidAmount, isPaid: true, expireAt: $expireAt);
         }
 
         return new CurrencyOperationResult(

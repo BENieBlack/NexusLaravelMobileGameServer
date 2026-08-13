@@ -26,7 +26,7 @@ class LogPlayerRepository extends _BaseLogRepository
      * プレイヤーログを記録（Unit of Work パターン使用）
      * 通常ログなので設定に応じてトランザクション内/外で実行される
      */
-    public function createPlayerLog(
+    public function insertPlayerLog(
         string $uniqueRequestId,
         int $sysPlayerId,
         int $beforeLevel,

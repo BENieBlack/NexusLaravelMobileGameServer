@@ -50,7 +50,7 @@ class TrxLoginBonusHistoryRepository implements LoginBonusHistoryRepositoryInter
     /**
      * {@inheritDoc}
      */
-    public function create(array $data, string $connectionName): void
+    public function insert(array $data, string $connectionName): void
     {
         DB::connection($connectionName)
             ->table('trx_login_bonus_history')

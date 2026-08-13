@@ -153,7 +153,7 @@ class ComeBackLoginBonusService extends _BaseLoginBonusService
         $receivedDate = $this->getGameDayStart()->format('Y-m-d H:i:s');
 
         foreach ($contents as $content) {
-            $this->historyRepository->create([
+            $this->historyRepository->insert([
                 'sys_player_id' => $sysPlayerId,
                 'mst_login_bonus_id' => $bonusData['id'],
                 'absent_days' => $bonusData['absent_days'],

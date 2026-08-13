@@ -35,7 +35,7 @@ class LogAccessRepository extends _BaseLogRepository
      * @param  array|null  $responseBody  レスポンスボディ
      * @param  int  $statusCode  ステータスコード
      */
-    public function createAccessLog(
+    public function insertAccessLog(
         string $uniqueRequestId,
         int $sysPlayerId,
         string $method,

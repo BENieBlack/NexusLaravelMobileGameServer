@@ -71,7 +71,7 @@ class TokenServiceTest extends TestCase
         $playerRepository = new SysPlayerRepository(new SysPlayer);
         $deviceRepository = new SysPlayerDeviceRepository(new SysPlayerDevice);
 
-        $sysPlayer = $playerRepository->createPlayerAndCommit();
+        $sysPlayer = $playerRepository->insertPlayerAndCommit();
 
         $sysPlayerDevice = new SysPlayerDevice([
             'sys_player_id' => $sysPlayer->getId(),

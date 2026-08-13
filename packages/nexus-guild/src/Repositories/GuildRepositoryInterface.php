@@ -39,7 +39,7 @@ interface GuildRepositoryInterface
      * @param  string  $description  ギルド説明
      * @param  int  $masterPlayerId  マスタープレイヤーID
      */
-    public function create(string $name, string $description, int $masterPlayerId): GuildDto;
+    public function insert(string $name, string $description, int $masterPlayerId): GuildDto;
 
     /**
      * ギルド情報を更新

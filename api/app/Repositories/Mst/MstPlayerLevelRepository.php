@@ -5,7 +5,6 @@ namespace App\Repositories\Mst;
 use App\Models\Mst\MstPlayerLevel;
 use Illuminate\Support\Facades\Cache;
 use Nexus\Core\Support\CustomCollection;
-use NexusPlayer\Repositories\PlayerLevelRepositoryInterface;
 
 /**
  * MstPlayerLevelRepository
@@ -39,7 +38,7 @@ use NexusPlayer\Repositories\PlayerLevelRepositoryInterface;
  *
  * @extends _BaseMstRepository<MstPlayerLevel>
  */
-class MstPlayerLevelRepository extends _BaseMstRepository implements PlayerLevelRepositoryInterface
+class MstPlayerLevelRepository extends _BaseMstRepository
 {
     protected string $modelClass = MstPlayerLevel::class;
 
@@ -154,24 +153,5 @@ class MstPlayerLevelRepository extends _BaseMstRepository implements PlayerLevel
         $levelData = $this->selectByLevel($level);
 
         return $levelData?->required_exp;
-    }
-
-    /**
-     * {@inheritDoc}
-     * NexusPlayer\Repositories\PlayerLevelRepositoryInterface実装
-     */
-    public function findByLevel(int $level): ?array
-    {
-        $model = $this->selectByLevel($level);
-
-        if ($model === null) {
-            return null;
-        }
-
-        return [
-            'level' => $model->getLevel(),
-            'required_exp' => $model->getRequiredExp(),
-            'max_stamina' => $model->getMaxStamina(),
-        ];
     }
 }

@@ -18,7 +18,7 @@ class MstGachaPrizeRepository extends _BaseMstRepository implements GachaPrizeRe
     /**
      * {@inheritDoc}
      */
-    public function findByGachaIdAndRarity(string $mstGachaId, int $rarity, bool $pickupOnly): CustomCollection
+    public function selectByGachaIdAndRarity(string $mstGachaId, int $rarity, bool $pickupOnly): CustomCollection
     {
         return $this->selectListByGachaIdAndRarity($mstGachaId, $rarity, $pickupOnly);
     }

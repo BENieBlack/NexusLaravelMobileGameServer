@@ -24,7 +24,7 @@ class ItemRepository implements ItemRepositoryInterface
      * @param  int  $sysPlayerId  プレイヤーID
      * @param  string  $mstItemId  アイテムID
      */
-    public function findItem(int $sysPlayerId, string $mstItemId): ?ItemDto
+    public function selectItem(int $sysPlayerId, string $mstItemId): ?ItemDto
     {
         $trxItem = TrxItem::query()
             ->where('sys_player_id', $sysPlayerId)
@@ -70,7 +70,7 @@ class ItemRepository implements ItemRepositoryInterface
      * @param  array<string>  $mstItemIds  アイテムIDリスト
      * @return array<ItemDto>
      */
-    public function findItemsByIds(int $sysPlayerId, array $mstItemIds): array
+    public function selectItemsByIds(int $sysPlayerId, array $mstItemIds): array
     {
         $trxItems = TrxItem::query()
             ->where('sys_player_id', $sysPlayerId)

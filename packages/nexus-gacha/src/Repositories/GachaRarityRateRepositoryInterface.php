@@ -17,5 +17,5 @@ interface GachaRarityRateRepositoryInterface
      * @param string $mstGachaId
      * @return CustomCollection
      */
-    public function findByGachaId(string $mstGachaId): CustomCollection;
+    public function selectByGachaId(string $mstGachaId): CustomCollection;
 }

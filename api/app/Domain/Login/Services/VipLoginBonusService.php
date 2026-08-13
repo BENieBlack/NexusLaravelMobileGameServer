@@ -57,7 +57,7 @@ class VipLoginBonusService extends _BaseLoginBonusService
         }
 
         // VIPレベルに対応するVIPログインボーナスがあるかチェック
-        $vipBonus = $this->vipBonusRepository->findActiveByVipLevel($vipLevel);
+        $vipBonus = $this->vipBonusRepository->selectActiveByVipLevel($vipLevel);
 
         return $vipBonus !== null;
     }
@@ -75,7 +75,7 @@ class VipLoginBonusService extends _BaseLoginBonusService
         }
 
         // VIPレベルに対応するVIPログインボーナス設定を取得
-        $vipBonus = $this->vipBonusRepository->findActiveByVipLevel($vipLevel);
+        $vipBonus = $this->vipBonusRepository->selectActiveByVipLevel($vipLevel);
 
         if ($vipBonus === null) {
             return null;
@@ -93,7 +93,7 @@ class VipLoginBonusService extends _BaseLoginBonusService
     protected function getBonusContents(array $bonusData, int $currentDay): CustomCollection
     {
         // 指定日数の報酬内容を取得
-        $contents = $this->vipBonusRepository->findContentsByBonusIdAndDay(
+        $contents = $this->vipBonusRepository->selectContentsByBonusIdAndDay(
             $bonusData['id'],
             $currentDay
         );
@@ -131,7 +131,7 @@ class VipLoginBonusService extends _BaseLoginBonusService
      */
     protected function getLastReceivedDay(int $sysPlayerId, string $connectionName): ?int
     {
-        $lastHistory = $this->vipHistoryRepository->findLatestByPlayerId($sysPlayerId, $connectionName);
+        $lastHistory = $this->vipHistoryRepository->selectLatestByPlayerId($sysPlayerId, $connectionName);
 
         return $lastHistory['day'] ?? null;
     }
@@ -147,7 +147,7 @@ class VipLoginBonusService extends _BaseLoginBonusService
             return null;
         }
 
-        $vipBonus = $this->vipBonusRepository->findActiveByVipLevel($vipLevel);
+        $vipBonus = $this->vipBonusRepository->selectActiveByVipLevel($vipLevel);
 
         return $vipBonus['loop_days'] ?? null;
     }
@@ -161,7 +161,8 @@ class VipLoginBonusService extends _BaseLoginBonusService
      */
     private function resolveVipLevel(int $sysPlayerId): ?int
     {
-        $player = $this->playerRepository->findVipInfoById($sysPlayerId);
+        // RepositoryはModelを返す。VIPポイントはModelから直接読む
+        $player = $this->playerRepository->selectById($sysPlayerId);
 
         if ($player === null) {
             return null;

@@ -27,7 +27,7 @@ class WalletBalanceRepository implements WalletBalanceRepositoryInterface
      * @param  string  $currencyId  通貨アイテムID
      * @return iterable<object> { id: int, is_paid: bool, current_amount: int, initial_amount: int, expire_at: ?string }
      */
-    public function findAllByCurrencyIdFifoOrder(int $playerId, string $currencyId): iterable
+    public function selectAllByCurrencyIdFifoOrder(int $playerId, string $currencyId): iterable
     {
         $balances = $this->trxWalletBalanceRepository->selectAllBalancesByMstItemId($currencyId);
 
@@ -50,7 +50,7 @@ class WalletBalanceRepository implements WalletBalanceRepositoryInterface
      * @param  string  $currentTime  現在時刻 (Y-m-d H:i:s)
      * @return iterable<object> { id: int, is_paid: bool, current_amount: int }
      */
-    public function findAllExpiredByCurrencyId(int $playerId, string $currencyId, string $currentTime): iterable
+    public function selectAllExpiredByCurrencyId(int $playerId, string $currencyId, string $currentTime): iterable
     {
         // パッケージ側は時刻を文字列で扱うため、Application層のCarbonImmutableに変換する
         $balances = $this->trxWalletBalanceRepository->selectAllExpiredBalancesByMstItemId(

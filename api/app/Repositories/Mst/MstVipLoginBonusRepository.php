@@ -13,7 +13,7 @@ class MstVipLoginBonusRepository extends _BaseMstRepository implements VipLoginB
     /**
      * {@inheritDoc}
      */
-    public function findActiveByVipLevel(int $vipLevel): ?array
+    public function selectActiveByVipLevel(int $vipLevel): ?array
     {
         $model = MstVipLoginBonus::active()
             ->forVipLevel($vipLevel)
@@ -25,7 +25,7 @@ class MstVipLoginBonusRepository extends _BaseMstRepository implements VipLoginB
     /**
      * {@inheritDoc}
      */
-    public function findContentsByBonusIdAndDay(string $vipLoginBonusId, int $day): CustomCollection
+    public function selectContentsByBonusIdAndDay(string $vipLoginBonusId, int $day): CustomCollection
     {
         $contents = MstVipLoginBonusContent::where('mst_vip_login_bonus_id', $vipLoginBonusId)
             ->where('day', $day)

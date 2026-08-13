@@ -547,25 +547,25 @@ parameters:
 			path: ../packages/nexus-core/src/Utilities/RedisUtility.php
 
 		-
-			message: '#^Method NexusGacha\\Repositories\\GachaPrizeRepositoryInterface\:\:findByGachaIdAndRarity\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
+			message: '#^Method NexusGacha\\Repositories\\GachaPrizeRepositoryInterface\:\:selectByGachaIdAndRarity\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
 			path: ../packages/nexus-gacha/src/Repositories/GachaPrizeRepositoryInterface.php
 
 		-
-			message: '#^Method NexusGacha\\Repositories\\GachaRarityRateRepositoryInterface\:\:findByGachaId\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
+			message: '#^Method NexusGacha\\Repositories\\GachaRarityRateRepositoryInterface\:\:selectByGachaId\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
 			path: ../packages/nexus-gacha/src/Repositories/GachaRarityRateRepositoryInterface.php
 
 		-
-			message: '#^Method NexusGacha\\Repositories\\GachaStepBonusContentRepositoryInterface\:\:findByBonusId\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
+			message: '#^Method NexusGacha\\Repositories\\GachaStepBonusContentRepositoryInterface\:\:selectByBonusId\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
 			path: ../packages/nexus-gacha/src/Repositories/GachaStepBonusContentRepositoryInterface.php
 
 		-
-			message: '#^Method NexusGacha\\Repositories\\GachaStepBonusRepositoryInterface\:\:findByStepId\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
+			message: '#^Method NexusGacha\\Repositories\\GachaStepBonusRepositoryInterface\:\:selectByStepId\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
 			path: ../packages/nexus-gacha/src/Repositories/GachaStepBonusRepositoryInterface.php
@@ -607,25 +607,25 @@ parameters:
 			path: ../packages/nexus-login/src/Repositories/LoginBonusHistoryRepositoryInterface.php
 
 		-
-			message: '#^Method NexusLogin\\Repositories\\LoginBonusHistoryRepositoryInterface\:\:findLatestByPlayer\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method NexusLogin\\Repositories\\LoginBonusHistoryRepositoryInterface\:\:selectLatestByPlayer\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: ../packages/nexus-login/src/Repositories/LoginBonusHistoryRepositoryInterface.php
 
 		-
-			message: '#^Method NexusLogin\\Repositories\\LoginBonusRepositoryInterface\:\:findActiveByDay\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method NexusLogin\\Repositories\\LoginBonusRepositoryInterface\:\:selectActiveByDay\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: ../packages/nexus-login/src/Repositories/LoginBonusRepositoryInterface.php
 
 		-
-			message: '#^Method NexusLogin\\Repositories\\LoginBonusRepositoryInterface\:\:findContentsByLoginBonusId\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method NexusLogin\\Repositories\\LoginBonusRepositoryInterface\:\:selectContentsByLoginBonusId\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: ../packages/nexus-login/src/Repositories/LoginBonusRepositoryInterface.php
 
 		-
-			message: '#^Method NexusLogin\\Repositories\\LoginBonusRepositoryInterface\:\:findEligibleComebackBonus\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method NexusLogin\\Repositories\\LoginBonusRepositoryInterface\:\:selectEligibleComebackBonus\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: ../packages/nexus-login/src/Repositories/LoginBonusRepositoryInterface.php
@@ -685,7 +685,7 @@ parameters:
 			path: ../packages/nexus-login/src/Services/_BaseLoginBonusService.php
 
 		-
-			message: '#^Method NexusMailbox\\Repositories\\MailboxRepositoryInterface\:\:findByPlayerId\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			message: '#^Method NexusMailbox\\Repositories\\MailboxRepositoryInterface\:\:selectByPlayerId\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
 			path: ../packages/nexus-mailbox/src/Repositories/MailboxRepositoryInterface.php
@@ -955,7 +955,7 @@ parameters:
 			path: ../packages/nexus-player/src/Dto/PlayerDeviceDto.php
 
 		-
-			message: '#^Method NexusPlayer\\Repositories\\PlayerDeviceRepositoryInterface\:\:findByPlayerId\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			message: '#^Method NexusPlayer\\Repositories\\PlayerDeviceRepositoryInterface\:\:selectByPlayerId\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
 			path: ../packages/nexus-player/src/Repositories/PlayerDeviceRepositoryInterface.php
@@ -1279,19 +1279,19 @@ parameters:
 			path: ../packages/nexus-resource/src/DTOs/ResourceDto.php
 
 		-
-			message: '#^Method NexusVersion\\Repositories\\DeployRepositoryInterface\:\:findById\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method NexusVersion\\Repositories\\DeployRepositoryInterface\:\:selectById\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: ../packages/nexus-version/src/Repositories/DeployRepositoryInterface.php
 
 		-
-			message: '#^Method NexusVersion\\Repositories\\DeployRepositoryInterface\:\:findLatestDownloadable\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method NexusVersion\\Repositories\\DeployRepositoryInterface\:\:selectLatestDownloadable\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: ../packages/nexus-version/src/Repositories/DeployRepositoryInterface.php
 
 		-
-			message: '#^Method NexusVersion\\Repositories\\MaintenanceRepositoryInterface\:\:findCurrent\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method NexusVersion\\Repositories\\MaintenanceRepositoryInterface\:\:selectCurrent\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: ../packages/nexus-version/src/Repositories/MaintenanceRepositoryInterface.php
@@ -1387,13 +1387,13 @@ parameters:
 			path: ../packages/nexus-vip/src/Repositories/VipLevelRepositoryInterface.php
 
 		-
-			message: '#^Method NexusVip\\Repositories\\VipLevelRewardRepositoryInterface\:\:findActiveByVipLevel\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
+			message: '#^Method NexusVip\\Repositories\\VipLevelRewardRepositoryInterface\:\:selectActiveByVipLevel\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
 			path: ../packages/nexus-vip/src/Repositories/VipLevelRewardRepositoryInterface.php
 
 		-
-			message: '#^Method NexusVip\\Repositories\\VipLevelRewardRepositoryInterface\:\:findByVipLevel\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
+			message: '#^Method NexusVip\\Repositories\\VipLevelRewardRepositoryInterface\:\:selectByVipLevel\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
 			path: ../packages/nexus-vip/src/Repositories/VipLevelRewardRepositoryInterface.php
@@ -1783,19 +1783,19 @@ parameters:
 			path: app/Domain/Item/Constants/ItemConst.php
 
 		-
-			message: '#^Call to an undefined method NexusLogin\\Repositories\\LoginBonusHistoryRepositoryInterface\:\:findByPlayerAndBonusAndDate\(\)\.$#'
+			message: '#^Call to an undefined method NexusLogin\\Repositories\\LoginBonusHistoryRepositoryInterface\:\:selectByPlayerAndBonusAndDate\(\)\.$#'
 			identifier: method.notFound
 			count: 1
 			path: app/Domain/Login/Services/ComeBackLoginBonusService.php
 
 		-
-			message: '#^Call to an undefined method NexusLogin\\Repositories\\LoginBonusHistoryRepositoryInterface\:\:findFirstComebackByPlayerId\(\)\.$#'
+			message: '#^Call to an undefined method NexusLogin\\Repositories\\LoginBonusHistoryRepositoryInterface\:\:selectFirstComebackByPlayerId\(\)\.$#'
 			identifier: method.notFound
 			count: 1
 			path: app/Domain/Login/Services/ComeBackLoginBonusService.php
 
 		-
-			message: '#^Call to an undefined method NexusLogin\\Repositories\\LoginBonusRepositoryInterface\:\:findContentsByLoginBonusIdAndDay\(\)\.$#'
+			message: '#^Call to an undefined method NexusLogin\\Repositories\\LoginBonusRepositoryInterface\:\:selectContentsByLoginBonusIdAndDay\(\)\.$#'
 			identifier: method.notFound
 			count: 1
 			path: app/Domain/Login/Services/ComeBackLoginBonusService.php
@@ -1831,19 +1831,19 @@ parameters:
 			path: app/Domain/Login/Services/ComeBackLoginBonusService.php
 
 		-
-			message: '#^Call to an undefined method NexusLogin\\Repositories\\LoginBonusHistoryRepositoryInterface\:\:findLatestByPlayerId\(\)\.$#'
+			message: '#^Call to an undefined method NexusLogin\\Repositories\\LoginBonusHistoryRepositoryInterface\:\:selectLatestByPlayerId\(\)\.$#'
 			identifier: method.notFound
 			count: 1
 			path: app/Domain/Login/Services/LoginBonusService.php
 
 		-
-			message: '#^Call to an undefined method NexusLogin\\Repositories\\LoginBonusRepositoryInterface\:\:findActiveDailyBonus\(\)\.$#'
+			message: '#^Call to an undefined method NexusLogin\\Repositories\\LoginBonusRepositoryInterface\:\:selectActiveDailyBonus\(\)\.$#'
 			identifier: method.notFound
 			count: 1
 			path: app/Domain/Login/Services/LoginBonusService.php
 
 		-
-			message: '#^Call to an undefined method NexusLogin\\Repositories\\LoginBonusRepositoryInterface\:\:findContentsByLoginBonusIdAndDay\(\)\.$#'
+			message: '#^Call to an undefined method NexusLogin\\Repositories\\LoginBonusRepositoryInterface\:\:selectContentsByLoginBonusIdAndDay\(\)\.$#'
 			identifier: method.notFound
 			count: 1
 			path: app/Domain/Login/Services/LoginBonusService.php
@@ -2381,7 +2381,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Http/Responses/InAppPurchase/BuyResponse.php
-
 
 		-
 			message: '#^Method App\\Http\\Responses\\Mailbox\\ListResponse\:\:__construct\(\) has parameter \$mailboxArray with no value type specified in iterable type array\.$#'
@@ -3962,7 +3961,7 @@ parameters:
 			path: app/Repositories/Log/LogGachaRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Log\\LogGachaRepository\:\:findAllByMstGachaId\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Log\\LogGacha\> but returns Nexus\\Core\\Support\\CustomCollection\<int, Nexus\\Core\\Models\\Log\\_BaseLogInterface\>\.$#'
+			message: '#^Method App\\Repositories\\Log\\LogGachaRepository\:\:selectAllByMstGachaId\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Log\\LogGacha\> but returns Nexus\\Core\\Support\\CustomCollection\<int, Nexus\\Core\\Models\\Log\\_BaseLogInterface\>\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Repositories/Log/LogGachaRepository.php
@@ -3974,22 +3973,10 @@ parameters:
 			path: app/Repositories/Log/LogInAppPurchaseRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Log\\LogItemRepository\:\:findAllByMstItemId\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Log\\LogItem\> but returns Nexus\\Core\\Support\\CustomCollection\<int, Nexus\\Core\\Models\\Log\\_BaseLogInterface\>\.$#'
+			message: '#^Method App\\Repositories\\Log\\LogItemRepository\:\:selectAllByMstItemId\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Log\\LogItem\> but returns Nexus\\Core\\Support\\CustomCollection\<int, Nexus\\Core\\Models\\Log\\_BaseLogInterface\>\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Repositories/Log/LogItemRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Log\\LogVipPointRepository\:\:findByPeriod\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Log\\LogVipPoint\> but returns Nexus\\Core\\Support\\CustomCollection\<int, Nexus\\Core\\Models\\Log\\_BaseLogInterface\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Repositories/Log/LogVipPointRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Log\\LogVipPointRepository\:\:findByReason\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Log\\LogVipPoint\> but returns Nexus\\Core\\Support\\CustomCollection\<int, Nexus\\Core\\Models\\Log\\_BaseLogInterface\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Repositories/Log/LogVipPointRepository.php
 
 		-
 			message: '#^Method App\\Repositories\\Log\\LogVipPointRepository\:\:getHistory\(\) return type has no value type specified in iterable type array\.$#'
@@ -4000,6 +3987,18 @@ parameters:
 		-
 			message: '#^Method App\\Repositories\\Log\\LogVipPointRepository\:\:log\(\) has parameter \$metadata with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
+			count: 1
+			path: app/Repositories/Log/LogVipPointRepository.php
+
+		-
+			message: '#^Method App\\Repositories\\Log\\LogVipPointRepository\:\:selectByPeriod\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Log\\LogVipPoint\> but returns Nexus\\Core\\Support\\CustomCollection\<int, Nexus\\Core\\Models\\Log\\_BaseLogInterface\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Repositories/Log/LogVipPointRepository.php
+
+		-
+			message: '#^Method App\\Repositories\\Log\\LogVipPointRepository\:\:selectByReason\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Log\\LogVipPoint\> but returns Nexus\\Core\\Support\\CustomCollection\<int, Nexus\\Core\\Models\\Log\\_BaseLogInterface\>\.$#'
+			identifier: return.type
 			count: 1
 			path: app/Repositories/Log/LogVipPointRepository.php
 
@@ -4028,13 +4027,13 @@ parameters:
 			path: app/Repositories/Log/_BaseLogRepositoryInterface.php
 
 		-
-			message: '#^Method App\\Repositories\\Mst\\MstBillingPlatformProductRepository\:\:findAllActive\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Mst\\MstBillingPlatformProduct\> but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
+			message: '#^Method App\\Repositories\\Mst\\MstBillingPlatformProductRepository\:\:selectAllActive\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Mst\\MstBillingPlatformProduct\> but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Repositories/Mst/MstBillingPlatformProductRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Mst\\MstBillingPlatformProductRepository\:\:findAllActiveByBillingPlatform\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Mst\\MstBillingPlatformProduct\> but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
+			message: '#^Method App\\Repositories\\Mst\\MstBillingPlatformProductRepository\:\:selectAllActiveByBillingPlatform\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Mst\\MstBillingPlatformProduct\> but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Repositories/Mst/MstBillingPlatformProductRepository.php
@@ -4082,43 +4081,43 @@ parameters:
 			path: app/Repositories/Mst/MstEquipmentLevelRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Mst\\MstGachaPrizeRepository\:\:findByGachaIdAndRarity\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
+			message: '#^Method App\\Repositories\\Mst\\MstGachaPrizeRepository\:\:selectByGachaIdAndRarity\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Repositories/Mst/MstGachaPrizeRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Mst\\MstGachaRarityRateRepository\:\:findByGachaId\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
+			message: '#^Method App\\Repositories\\Mst\\MstGachaRarityRateRepository\:\:selectByGachaId\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Repositories/Mst/MstGachaRarityRateRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Mst\\MstGachaStepBonusContentRepository\:\:findByBonusId\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
+			message: '#^Method App\\Repositories\\Mst\\MstGachaStepBonusContentRepository\:\:selectByBonusId\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Repositories/Mst/MstGachaStepBonusContentRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Mst\\MstGachaStepBonusRepository\:\:findByStepId\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
+			message: '#^Method App\\Repositories\\Mst\\MstGachaStepBonusRepository\:\:selectByStepId\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Repositories/Mst/MstGachaStepBonusRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Mst\\MstInAppPurchaseContentRepository\:\:findAllByMstInAppPurchaseId\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Mst\\MstInAppPurchaseContent\> but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
+			message: '#^Method App\\Repositories\\Mst\\MstInAppPurchaseContentRepository\:\:selectAllByMstInAppPurchaseId\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Mst\\MstInAppPurchaseContent\> but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Repositories/Mst/MstInAppPurchaseContentRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Mst\\MstInAppPurchaseContentRepository\:\:findAllByMstInAppPurchaseIdAndContentType\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Mst\\MstInAppPurchaseContent\> but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
+			message: '#^Method App\\Repositories\\Mst\\MstInAppPurchaseContentRepository\:\:selectAllByMstInAppPurchaseIdAndContentType\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Mst\\MstInAppPurchaseContent\> but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Repositories/Mst/MstInAppPurchaseContentRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Mst\\MstInAppPurchaseEffectRepository\:\:findAllByMstInAppPurchaseId\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Mst\\MstInAppPurchaseEffect\> but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
+			message: '#^Method App\\Repositories\\Mst\\MstInAppPurchaseEffectRepository\:\:selectAllByMstInAppPurchaseId\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Mst\\MstInAppPurchaseEffect\> but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Repositories/Mst/MstInAppPurchaseEffectRepository.php
@@ -4130,49 +4129,49 @@ parameters:
 			path: app/Repositories/Mst/MstInAppPurchaseRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Mst\\MstInAppPurchaseRepository\:\:findAllActive\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Mst\\MstInAppPurchase\> but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
+			message: '#^Method App\\Repositories\\Mst\\MstInAppPurchaseRepository\:\:selectAllActive\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Mst\\MstInAppPurchase\> but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Repositories/Mst/MstInAppPurchaseRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Mst\\MstInAppPurchaseRepository\:\:findAllActiveByType\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Mst\\MstInAppPurchase\> but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
+			message: '#^Method App\\Repositories\\Mst\\MstInAppPurchaseRepository\:\:selectAllActiveByType\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Mst\\MstInAppPurchase\> but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Repositories/Mst/MstInAppPurchaseRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Mst\\MstInAppPurchaseRepository\:\:findByIdWithRelations\(\) should return App\\Models\\Mst\\MstInAppPurchase\|null but returns Nexus\\Core\\Models\\Mst\\_BaseMstInterface\.$#'
+			message: '#^Method App\\Repositories\\Mst\\MstInAppPurchaseRepository\:\:selectByIdWithRelations\(\) should return App\\Models\\Mst\\MstInAppPurchase\|null but returns Nexus\\Core\\Models\\Mst\\_BaseMstInterface\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Repositories/Mst/MstInAppPurchaseRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Mst\\MstLoginBonusRepository\:\:findActiveByDay\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method App\\Repositories\\Mst\\MstLoginBonusRepository\:\:selectActiveByDay\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Repositories/Mst/MstLoginBonusRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Mst\\MstLoginBonusRepository\:\:findActiveDailyBonus\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method App\\Repositories\\Mst\\MstLoginBonusRepository\:\:selectActiveDailyBonus\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Repositories/Mst/MstLoginBonusRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Mst\\MstLoginBonusRepository\:\:findContentsByLoginBonusId\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method App\\Repositories\\Mst\\MstLoginBonusRepository\:\:selectContentsByLoginBonusId\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Repositories/Mst/MstLoginBonusRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Mst\\MstLoginBonusRepository\:\:findContentsByLoginBonusIdAndDay\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method App\\Repositories\\Mst\\MstLoginBonusRepository\:\:selectContentsByLoginBonusIdAndDay\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Repositories/Mst/MstLoginBonusRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Mst\\MstLoginBonusRepository\:\:findEligibleComebackBonus\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method App\\Repositories\\Mst\\MstLoginBonusRepository\:\:selectEligibleComebackBonus\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Repositories/Mst/MstLoginBonusRepository.php
@@ -4280,24 +4279,6 @@ parameters:
 			path: app/Repositories/Mst/MstUnitLevelRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRepository\:\:findAllActiveOrderByLevel\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Repositories/Mst/MstVipLevelRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRepository\:\:findAllActiveOrderByLevel\(\) should return iterable\<NexusVip\\Models\\MstVipLevel\>&Nexus\\Core\\Support\\CustomCollection but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Repositories/Mst/MstVipLevelRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRepository\:\:findById\(\) should return NexusVip\\Models\\MstVipLevel\|null but returns Nexus\\Core\\Models\\Mst\\_BaseMstInterface\|null\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Repositories/Mst/MstVipLevelRepository.php
-
-		-
 			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRepository\:\:getAllLevels\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
@@ -4310,55 +4291,73 @@ parameters:
 			path: app/Repositories/Mst/MstVipLevelRepository.php
 
 		-
+			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRepository\:\:selectAllActiveOrderByLevel\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Repositories/Mst/MstVipLevelRepository.php
+
+		-
+			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRepository\:\:selectAllActiveOrderByLevel\(\) should return iterable\<NexusVip\\Models\\MstVipLevel\>&Nexus\\Core\\Support\\CustomCollection but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Repositories/Mst/MstVipLevelRepository.php
+
+		-
+			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRepository\:\:selectById\(\) should return NexusVip\\Models\\MstVipLevel\|null but returns Nexus\\Core\\Models\\Mst\\_BaseMstInterface\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Repositories/Mst/MstVipLevelRepository.php
+
+		-
 			message: '#^Type NexusVip\\Models\\MstVipLevel in generic type App\\Repositories\\Mst\\_BaseMstRepository\<NexusVip\\Models\\MstVipLevel\> in PHPDoc tag @extends is not subtype of template type T of App\\Models\\Mst\\_BaseMstInterface of class App\\Repositories\\Mst\\_BaseMstRepository\.$#'
 			identifier: generics.notSubtype
 			count: 1
 			path: app/Repositories/Mst/MstVipLevelRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRewardRepository\:\:findActiveByLevelRange\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
+			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRewardRepository\:\:selectActiveByLevelRange\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Repositories/Mst/MstVipLevelRewardRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRewardRepository\:\:findActiveByLevelRange\(\) should return iterable\<NexusVip\\Models\\MstVipLevelReward\>&Nexus\\Core\\Support\\CustomCollection but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
+			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRewardRepository\:\:selectActiveByLevelRange\(\) should return iterable\<NexusVip\\Models\\MstVipLevelReward\>&Nexus\\Core\\Support\\CustomCollection but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Repositories/Mst/MstVipLevelRewardRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRewardRepository\:\:findActiveByVipLevel\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
+			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRewardRepository\:\:selectActiveByVipLevel\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Repositories/Mst/MstVipLevelRewardRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRewardRepository\:\:findActiveByVipLevel\(\) should return iterable\<NexusVip\\Models\\MstVipLevelReward\>&Nexus\\Core\\Support\\CustomCollection but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
+			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRewardRepository\:\:selectActiveByVipLevel\(\) should return iterable\<NexusVip\\Models\\MstVipLevelReward\>&Nexus\\Core\\Support\\CustomCollection but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Repositories/Mst/MstVipLevelRewardRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRewardRepository\:\:findAllActive\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
+			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRewardRepository\:\:selectAllActive\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Repositories/Mst/MstVipLevelRewardRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRewardRepository\:\:findAllActive\(\) should return iterable\<NexusVip\\Models\\MstVipLevelReward\>&Nexus\\Core\\Support\\CustomCollection but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
+			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRewardRepository\:\:selectAllActive\(\) should return iterable\<NexusVip\\Models\\MstVipLevelReward\>&Nexus\\Core\\Support\\CustomCollection but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Repositories/Mst/MstVipLevelRewardRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRewardRepository\:\:findByVipLevel\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
+			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRewardRepository\:\:selectByVipLevel\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Repositories/Mst/MstVipLevelRewardRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRewardRepository\:\:findByVipLevel\(\) should return iterable\<NexusVip\\Models\\MstVipLevelReward\>&Nexus\\Core\\Support\\CustomCollection but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
+			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRewardRepository\:\:selectByVipLevel\(\) should return iterable\<NexusVip\\Models\\MstVipLevelReward\>&Nexus\\Core\\Support\\CustomCollection but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Repositories/Mst/MstVipLevelRewardRepository.php
@@ -4376,25 +4375,25 @@ parameters:
 			path: app/Repositories/Mst/MstVipLoginBonusRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Mst\\MstVipLoginBonusRepository\:\:findActiveByVipLevel\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method App\\Repositories\\Mst\\MstVipLoginBonusRepository\:\:selectActiveByVipLevel\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Repositories/Mst/MstVipLoginBonusRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Mst\\MstVipLoginBonusRepository\:\:findContentsByBonusIdAndDay\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
+			message: '#^Method App\\Repositories\\Mst\\MstVipLoginBonusRepository\:\:selectContentsByBonusIdAndDay\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Repositories/Mst/MstVipLoginBonusRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Mst\\VipLoginBonusRepositoryInterface\:\:findActiveByVipLevel\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method App\\Repositories\\Mst\\VipLoginBonusRepositoryInterface\:\:selectActiveByVipLevel\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Repositories/Mst/VipLoginBonusRepositoryInterface.php
 
 		-
-			message: '#^Method App\\Repositories\\Mst\\VipLoginBonusRepositoryInterface\:\:findContentsByBonusIdAndDay\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
+			message: '#^Method App\\Repositories\\Mst\\VipLoginBonusRepositoryInterface\:\:selectContentsByBonusIdAndDay\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Repositories/Mst/VipLoginBonusRepositoryInterface.php
@@ -4412,18 +4411,6 @@ parameters:
 			path: app/Repositories/Mst/_BaseMstRepositoryInterface.php
 
 		-
-			message: '#^Method App\\Repositories\\Sys\\SysDeployRepository\:\:findById\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Sys/SysDeployRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Sys\\SysDeployRepository\:\:findLatestDownloadable\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Sys/SysDeployRepository.php
-
-		-
 			message: '#^Method App\\Repositories\\Sys\\SysDeployRepository\:\:selectActiveList\(\) has invalid return type App\\Repositories\\Sys\\Collection\.$#'
 			identifier: class.notFound
 			count: 1
@@ -4436,76 +4423,10 @@ parameters:
 			path: app/Repositories/Sys/SysDeployRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Sys\\SysDeployRepository\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Sys/SysDeployRepository.php
-
-		-
 			message: '#^PHPDoc tag @return with type App\\Repositories\\Sys\\Collection is not subtype of native type Nexus\\Core\\Support\\CustomCollection\.$#'
 			identifier: return.phpDocType
 			count: 1
 			path: app/Repositories/Sys/SysDeployRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Sys\\SysFriendApplyRepository\:\:selectAcceptedFriendsByPlayerId\(\) has invalid return type Illuminate\\Database\\Eloquent\\CustomCollection\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Repositories/Sys/SysFriendApplyRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Sys\\SysFriendApplyRepository\:\:selectAcceptedFriendsByPlayerId\(\) return type with generic class Illuminate\\Database\\Eloquent\\Collection does not specify its types\: TKey, TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Repositories/Sys/SysFriendApplyRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Sys\\SysFriendApplyRepository\:\:selectAppliesByPlayerId\(\) has invalid return type Illuminate\\Database\\Eloquent\\CustomCollection\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Repositories/Sys/SysFriendApplyRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Sys\\SysFriendApplyRepository\:\:selectAppliesByPlayerId\(\) return type with generic class Illuminate\\Database\\Eloquent\\Collection does not specify its types\: TKey, TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Repositories/Sys/SysFriendApplyRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Sys\\SysFriendApplyRepository\:\:selectReceivedApplies\(\) has invalid return type Illuminate\\Database\\Eloquent\\CustomCollection\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Repositories/Sys/SysFriendApplyRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Sys\\SysFriendApplyRepository\:\:selectReceivedApplies\(\) return type with generic class Illuminate\\Database\\Eloquent\\Collection does not specify its types\: TKey, TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Repositories/Sys/SysFriendApplyRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Sys\\SysFriendApplyRepository\:\:selectSentApplies\(\) has invalid return type Illuminate\\Database\\Eloquent\\CustomCollection\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Repositories/Sys/SysFriendApplyRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Sys\\SysFriendApplyRepository\:\:selectSentApplies\(\) return type with generic class Illuminate\\Database\\Eloquent\\Collection does not specify its types\: TKey, TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Repositories/Sys/SysFriendApplyRepository.php
-
-		-
-			message: '#^PHPDoc tag @return with type Illuminate\\Database\\Eloquent\\CustomCollection\<int, App\\Models\\Sys\\SysFriendApply\> is not subtype of native type Illuminate\\Database\\Eloquent\\Collection\.$#'
-			identifier: return.phpDocType
-			count: 4
-			path: app/Repositories/Sys/SysFriendApplyRepository.php
-
-		-
-			message: '#^Parameter \#1 \$models of static method App\\Adapters\\Friend\\FriendApplyAdapter\:\:toDtoArray\(\) expects iterable\<App\\Models\\Sys\\SysFriendApply\>, Illuminate\\Database\\Eloquent\\Collection given\.$#'
-			identifier: argument.type
-			count: 2
-			path: app/Repositories/Sys/SysFriendApplyRepository.php
 
 		-
 			message: '#^Method App\\Repositories\\Sys\\SysGuildApplyRepository\:\:selectAppliesByGuildId\(\) return type with generic class Illuminate\\Database\\Eloquent\\Collection does not specify its types\: TKey, TModel$#'
@@ -4532,12 +4453,6 @@ parameters:
 			path: app/Repositories/Sys/SysGuildRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Sys\\SysMaintenanceRepository\:\:findCurrent\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Sys/SysMaintenanceRepository.php
-
-		-
 			message: '#^Method App\\Repositories\\Sys\\SysMaintenanceRepository\:\:selectActiveList\(\) has invalid return type App\\Repositories\\Sys\\Collection\.$#'
 			identifier: class.notFound
 			count: 1
@@ -4546,6 +4461,12 @@ parameters:
 		-
 			message: '#^Method App\\Repositories\\Sys\\SysMaintenanceRepository\:\:selectActiveList\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
+			count: 1
+			path: app/Repositories/Sys/SysMaintenanceRepository.php
+
+		-
+			message: '#^Method App\\Repositories\\Sys\\SysMaintenanceRepository\:\:selectCurrent\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: app/Repositories/Sys/SysMaintenanceRepository.php
 
@@ -4580,7 +4501,7 @@ parameters:
 			path: app/Repositories/Sys/SysPlayerDeviceRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Sys\\SysPlayerDeviceRepository\:\:findByPlayerId\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			message: '#^Method App\\Repositories\\Sys\\SysPlayerDeviceRepository\:\:selectByPlayerId\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Repositories/Sys/SysPlayerDeviceRepository.php
@@ -4588,12 +4509,6 @@ parameters:
 		-
 			message: '#^Access to an undefined property App\\Models\\Sys\\SysPlayer\:\:\$last_login_at\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/Repositories/Sys/SysPlayerRepository.php
-
-		-
-			message: '#^Call to an undefined method App\\Models\\Sys\\SysPlayer\:\:getUpdatedAt\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/Repositories/Sys/SysPlayerRepository.php
 
@@ -4646,40 +4561,28 @@ parameters:
 			path: app/Repositories/Trx/TrxLoginBonusHistoryRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Trx\\TrxLoginBonusHistoryRepository\:\:findByPlayerAndBonusAndDate\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method App\\Repositories\\Trx\\TrxLoginBonusHistoryRepository\:\:selectByPlayerAndBonusAndDate\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Repositories/Trx/TrxLoginBonusHistoryRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Trx\\TrxLoginBonusHistoryRepository\:\:findFirstComebackByPlayerId\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method App\\Repositories\\Trx\\TrxLoginBonusHistoryRepository\:\:selectFirstComebackByPlayerId\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Repositories/Trx/TrxLoginBonusHistoryRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Trx\\TrxLoginBonusHistoryRepository\:\:findLatestByPlayer\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method App\\Repositories\\Trx\\TrxLoginBonusHistoryRepository\:\:selectLatestByPlayer\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Repositories/Trx/TrxLoginBonusHistoryRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Trx\\TrxLoginBonusHistoryRepository\:\:findLatestByPlayerId\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method App\\Repositories\\Trx\\TrxLoginBonusHistoryRepository\:\:selectLatestByPlayerId\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Repositories/Trx/TrxLoginBonusHistoryRepository.php
-
-		-
-			message: '#^Call to an undefined method App\\Models\\Trx\\TrxMailbox\:\:getCreatedAt\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Repositories/Trx/TrxMailboxRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Trx\\TrxMailboxRepository\:\:findByPlayerId\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Repositories/Trx/TrxMailboxRepository.php
 
 		-
 			message: '#^Method App\\Repositories\\Trx\\TrxMailboxRepository\:\:selectByPlayerId\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
@@ -4766,13 +4669,13 @@ parameters:
 			path: app/Repositories/Trx/TrxVipLoginBonusHistoryRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Trx\\TrxVipLoginBonusHistoryRepository\:\:findByPlayerAndBonusAndDate\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method App\\Repositories\\Trx\\TrxVipLoginBonusHistoryRepository\:\:selectByPlayerAndBonusAndDate\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Repositories/Trx/TrxVipLoginBonusHistoryRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Trx\\TrxVipLoginBonusHistoryRepository\:\:findLatestByPlayerId\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method App\\Repositories\\Trx\\TrxVipLoginBonusHistoryRepository\:\:selectLatestByPlayerId\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Repositories/Trx/TrxVipLoginBonusHistoryRepository.php
@@ -4790,13 +4693,13 @@ parameters:
 			path: app/Repositories/Trx/VipLoginBonusHistoryRepositoryInterface.php
 
 		-
-			message: '#^Method App\\Repositories\\Trx\\VipLoginBonusHistoryRepositoryInterface\:\:findByPlayerAndBonusAndDate\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method App\\Repositories\\Trx\\VipLoginBonusHistoryRepositoryInterface\:\:selectByPlayerAndBonusAndDate\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Repositories/Trx/VipLoginBonusHistoryRepositoryInterface.php
 
 		-
-			message: '#^Method App\\Repositories\\Trx\\VipLoginBonusHistoryRepositoryInterface\:\:findLatestByPlayerId\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method App\\Repositories\\Trx\\VipLoginBonusHistoryRepositoryInterface\:\:selectLatestByPlayerId\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Repositories/Trx/VipLoginBonusHistoryRepositoryInterface.php

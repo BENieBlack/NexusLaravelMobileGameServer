@@ -16,7 +16,7 @@ interface GuildMemberRepositoryInterface
      *
      * @param  int  $memberId  メンバーID
      */
-    public function findById(int $memberId): ?GuildMemberDto;
+    public function selectById(int $memberId): ?GuildMemberDto;
 
     /**
      * ギルドIDとプレイヤーIDでメンバーを検索
@@ -24,14 +24,14 @@ interface GuildMemberRepositoryInterface
      * @param  int  $guildId  ギルドID
      * @param  int  $playerId  プレイヤーID
      */
-    public function findByGuildAndPlayer(int $guildId, int $playerId): ?GuildMemberDto;
+    public function selectByGuildAndPlayer(int $guildId, int $playerId): ?GuildMemberDto;
 
     /**
      * プレイヤーIDで所属ギルドメンバー情報を検索
      *
      * @param  int  $playerId  プレイヤーID
      */
-    public function findByPlayerId(int $playerId): ?GuildMemberDto;
+    public function selectByPlayerId(int $playerId): ?GuildMemberDto;
 
     /**
      * ギルドIDでメンバー一覧を取得
@@ -39,7 +39,7 @@ interface GuildMemberRepositoryInterface
      * @param  int  $guildId  ギルドID
      * @return array<GuildMemberDto>
      */
-    public function findByGuildId(int $guildId): array;
+    public function selectByGuildId(int $guildId): array;
 
     /**
      * ギルドの現在のメンバー数を取得

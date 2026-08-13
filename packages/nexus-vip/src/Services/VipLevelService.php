@@ -26,7 +26,7 @@ class VipLevelService
      */
     public function calculateLevel(int $totalPoints): int
     {
-        $vipLevel = $this->vipLevelRepository->findMaxLevelByPoints($totalPoints);
+        $vipLevel = $this->vipLevelRepository->selectMaxLevelByPoints($totalPoints);
 
         return $vipLevel->getLevel();
     }
@@ -40,7 +40,7 @@ class VipLevelService
      */
     public function getPointsToNextLevel(int $currentLevel, int $currentPoint): ?int
     {
-        $nextLevel = $this->vipLevelRepository->findByLevel($currentLevel + 1);
+        $nextLevel = $this->vipLevelRepository->selectByLevel($currentLevel + 1);
 
         if ($nextLevel === null) {
             return null; // 最高レベル
@@ -60,7 +60,7 @@ class VipLevelService
      */
     public function getBenefits(int $level): VipBenefit
     {
-        $vipLevel = $this->vipLevelRepository->findByLevel($level);
+        $vipLevel = $this->vipLevelRepository->selectByLevel($level);
 
         if ($vipLevel === null) {
             throw new VipLevelNotFoundException("VIP level {$level} not found");
@@ -83,7 +83,7 @@ class VipLevelService
      */
     public function getVipLevelMaster(int $level): MstVipLevel
     {
-        $vipLevel = $this->vipLevelRepository->findByLevel($level);
+        $vipLevel = $this->vipLevelRepository->selectByLevel($level);
 
         if ($vipLevel === null) {
             throw new VipLevelNotFoundException("VIP level {$level} not found");

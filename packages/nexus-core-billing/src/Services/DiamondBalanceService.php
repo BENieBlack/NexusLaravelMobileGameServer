@@ -40,7 +40,7 @@ class DiamondBalanceService
      */
     public function getBalance(int $sysPlayerId, string $platform): array
     {
-        $diamondDto = $this->diamondRepository->findByPlatform($sysPlayerId, $platform);
+        $diamondDto = $this->diamondRepository->selectByPlatform($sysPlayerId, $platform);
         
         if ($diamondDto === null) {
             return [
@@ -68,7 +68,7 @@ class DiamondBalanceService
      */
     public function addDiamond(int $sysPlayerId, string $platform, int $amount, bool $isPaid = false): DiamondBalanceDto
     {
-        $diamondDto = $this->diamondRepository->findByPlatform($sysPlayerId, $platform);
+        $diamondDto = $this->diamondRepository->selectByPlatform($sysPlayerId, $platform);
 
         if ($diamondDto) {
             // 既存レコードがある場合は加算
@@ -105,7 +105,7 @@ class DiamondBalanceService
     public function consumeDiamond(int $sysPlayerId, int $amount, bool $isPaidOnly = false): void
     {
         // 全プラットフォームのダイヤモンドを取得
-        $diamondDtos = $this->diamondRepository->findAllByPlayerId($sysPlayerId);
+        $diamondDtos = $this->diamondRepository->selectAllByPlayerId($sysPlayerId);
 
         if (empty($diamondDtos)) {
             throw new \Exception("ダイヤモンド残高が不足しています。必要: {$amount}, 現在: 0");

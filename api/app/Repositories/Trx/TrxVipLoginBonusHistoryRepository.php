@@ -23,7 +23,7 @@ class TrxVipLoginBonusHistoryRepository extends _BaseTrxRepository implements Vi
     /**
      * {@inheritDoc}
      */
-    public function findLatestByPlayerId(int $sysPlayerId, string $connectionName): ?array
+    public function selectLatestByPlayerId(int $sysPlayerId, string $connectionName): ?array
     {
         $model = TrxVipLoginBonusHistory::on($connectionName)
             ->where('sys_player_id', $sysPlayerId)
@@ -37,7 +37,7 @@ class TrxVipLoginBonusHistoryRepository extends _BaseTrxRepository implements Vi
     /**
      * {@inheritDoc}
      */
-    public function findByPlayerAndBonusAndDate(
+    public function selectByPlayerAndBonusAndDate(
         int $sysPlayerId,
         string $vipLoginBonusId,
         string $receivedDate,

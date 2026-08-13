@@ -46,7 +46,7 @@ class InAppPurchaseController extends _BaseController
         $productId = $request->getProductId();
 
         // 商品マスター取得（Repository経由）
-        $product = $this->mstInAppPurchaseRepository->findActiveById($request->getMstInAppPurchaseId());
+        $product = $this->mstInAppPurchaseRepository->selectActiveById($request->getMstInAppPurchaseId());
 
         if ($product === null) {
             throw new GameException(

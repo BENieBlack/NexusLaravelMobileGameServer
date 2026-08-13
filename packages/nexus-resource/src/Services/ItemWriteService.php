@@ -39,7 +39,7 @@ class ItemWriteService
     public function addItem(int $sysPlayerId, string $mstItemId, int $freeAmount = 0, int $paidAmount = 0): ItemDto
     {
         // 既存のアイテムを取得
-        $itemDto = $this->itemRepository->findItem($sysPlayerId, $mstItemId);
+        $itemDto = $this->itemRepository->selectItem($sysPlayerId, $mstItemId);
 
         if ($itemDto) {
             // 既存アイテムがある場合は加算
@@ -74,7 +74,7 @@ class ItemWriteService
     public function consumeItem(int $sysPlayerId, string $mstItemId, int $amount): ItemDto
     {
         // 既存のアイテムを取得
-        $itemDto = $this->itemRepository->findItem($sysPlayerId, $mstItemId);
+        $itemDto = $this->itemRepository->selectItem($sysPlayerId, $mstItemId);
 
         if (!$itemDto) {
             throw new \Exception("Item not found: {$mstItemId}");

@@ -19,7 +19,7 @@ interface ItemRepositoryInterface
      * @param string $mstItemId アイテムID
      * @return ItemDto|null
      */
-    public function findItem(int $sysPlayerId, string $mstItemId): ?ItemDto;
+    public function selectItem(int $sysPlayerId, string $mstItemId): ?ItemDto;
 
     /**
      * アイテムを保存（新規作成 or 更新）
@@ -36,5 +36,5 @@ interface ItemRepositoryInterface
      * @param array<string> $mstItemIds アイテムIDリスト
      * @return array<ItemDto>
      */
-    public function findItemsByIds(int $sysPlayerId, array $mstItemIds): array;
+    public function selectItemsByIds(int $sysPlayerId, array $mstItemIds): array;
 }

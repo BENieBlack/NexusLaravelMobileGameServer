@@ -5,12 +5,9 @@ namespace App\Repositories\Sys;
 use App\Models\Sys\SysPlayer;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Str;
+use Nexus\Core\Support\CustomCollection;
 use NexusAuth\Contracts\PlayerRepositoryInterface as AuthPlayerRepositoryInterface;
-use NexusPlayer\Dto\PlayerDto;
-use NexusPlayer\Repositories\PlayerRepositoryInterface as PlayerRepoInterface;
 use NexusUnitOfWork\Contracts\QueryManagerInterface;
-use NexusVip\DTOs\PlayerVipDto;
-use NexusVip\Repositories\PlayerVipRepositoryInterface;
 
 /**
  * SysPlayerRepository
@@ -19,7 +16,7 @@ use NexusVip\Repositories\PlayerVipRepositoryInterface;
  *
  * @extends _BaseSysRepository<SysPlayer>
  */
-class SysPlayerRepository extends _BaseSysRepository implements AuthPlayerRepositoryInterface, PlayerRepoInterface, PlayerVipRepositoryInterface
+class SysPlayerRepository extends _BaseSysRepository implements AuthPlayerRepositoryInterface
 {
     protected string $modelClass = SysPlayer::class;
 
@@ -145,102 +142,11 @@ class SysPlayerRepository extends _BaseSysRepository implements AuthPlayerReposi
     }
 
     /**
-     * {@inheritDoc}
-     * NexusPlayer\Repositories\PlayerRepositoryInterface実装
+     * VIPポイントの範囲でプレイヤーを取得
+     *
+     * @return CustomCollection<int, SysPlayer>
      */
-    public function findById(int $id): ?PlayerDto
-    {
-        $model = $this->selectById($id);
-
-        return $model ? $this->convertToDto($model) : null;
-    }
-
-    /**
-     * {@inheritDoc}
-     * NexusPlayer\Repositories\PlayerRepositoryInterface実装
-     */
-    public function findByMyId(string $myId): ?PlayerDto
-    {
-        $model = $this->selectByMyId($myId);
-
-        return $model ? $this->convertToDto($model) : null;
-    }
-
-    /**
-     * {@inheritDoc}
-     * NexusPlayer\Repositories\PlayerRepositoryInterface実装
-     */
-    public function findByUuid(string $uuid): ?PlayerDto
-    {
-        $model = $this->selectByUuid($uuid);
-
-        return $model ? $this->convertToDto($model) : null;
-    }
-
-    /**
-     * {@inheritDoc}
-     * NexusPlayer\Repositories\PlayerRepositoryInterface実装
-     */
-    public function save(PlayerDto $playerDto): void
-    {
-        $model = $this->selectById($playerDto->getId());
-        if ($model) {
-            // DTOの値をModelに反映
-            $model->setName($playerDto->getName());
-            $model->setLevel($playerDto->getLevel());
-            $model->setLevelExp($playerDto->getLevelExp());
-            $this->setModel($model);
-        }
-    }
-
-    /**
-     * Eloquent ModelをDTOに変換
-     */
-    private function convertToDto(SysPlayer $model): PlayerDto
-    {
-        return new PlayerDto(
-            id: $model->getId(),
-            uuid: $model->getUuid(),
-            myId: $model->getMyId(),
-            name: $model->getName(),
-            level: $model->getLevel(),
-            levelExp: $model->getLevelExp(),
-            createdAt: $model->getCreatedAt(),
-            updatedAt: $model->getUpdatedAt()
-        );
-    }
-
-    /**
-     * {@inheritDoc}
-     * NexusVip\Repositories\PlayerVipRepositoryInterface実装
-     */
-    public function findVipInfoById(int $sysPlayerId): ?PlayerVipDto
-    {
-        $model = $this->selectById($sysPlayerId);
-
-        return $model ? $this->convertToPlayerVipDto($model) : null;
-    }
-
-    /**
-     * {@inheritDoc}
-     * NexusVip\Repositories\PlayerVipRepositoryInterface実装
-     */
-    public function saveVipInfo(PlayerVipDto $playerVipDto): void
-    {
-        $model = $this->selectById($playerVipDto->getSysPlayerId());
-        if ($model) {
-            // DTOの値をModelに反映
-            $model->setVipPoint($playerVipDto->getVipPoint());
-            $model->setTotalPaidAmount($playerVipDto->getTotalPaidAmount());
-            $this->setModel($model);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * NexusVip\Repositories\PlayerVipRepositoryInterface実装
-     */
-    public function findByPointRange(int $minPoint, ?int $maxPoint = null, int $limit = 100): array
+    public function selectByVipPointRange(int $minPoint, ?int $maxPoint = null, int $limit = 100): CustomCollection
     {
         $query = $this->modelClass::where('vip_point', '>=', $minPoint);
 
@@ -252,18 +158,6 @@ class SysPlayerRepository extends _BaseSysRepository implements AuthPlayerReposi
             ->limit($limit)
             ->get();
 
-        return $models->map(fn ($model) => $this->convertToPlayerVipDto($model))->all();
-    }
-
-    /**
-     * Eloquent ModelをPlayerVipDtoに変換
-     */
-    private function convertToPlayerVipDto(SysPlayer $model): PlayerVipDto
-    {
-        return new PlayerVipDto(
-            sysPlayerId: $model->getId(),
-            vipPoint: $model->getVipPoint(),
-            totalPaidAmount: $model->getTotalPaidAmount()
-        );
+        return new CustomCollection($models->all());
     }
 }

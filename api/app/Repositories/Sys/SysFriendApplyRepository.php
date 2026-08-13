@@ -2,12 +2,8 @@
 
 namespace App\Repositories\Sys;
 
-use App\Adapters\Friend\FriendApplyAdapter;
 use App\Models\Sys\SysFriendApply;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\CustomCollection;
-use NexusFriend\Dto\FriendApplyDto;
-use NexusFriend\Repositories\FriendApplyRepositoryInterface;
 
 /**
  * SysFriendApplyRepository
@@ -16,125 +12,9 @@ use NexusFriend\Repositories\FriendApplyRepositoryInterface;
  *
  * @extends _BaseSysRepository<SysFriendApply>
  */
-class SysFriendApplyRepository extends _BaseSysRepository implements FriendApplyRepositoryInterface
+class SysFriendApplyRepository extends _BaseSysRepository
 {
     protected string $modelClass = SysFriendApply::class;
-
-    /**
-     * IDでフレンド申請を検索（Interface実装）
-     *
-     * @param  int  $friendApplyId  フレンド申請ID
-     */
-    public function findById(int $friendApplyId): ?FriendApplyDto
-    {
-        $model = $this->selectById($friendApplyId);
-
-        return $model ? FriendApplyAdapter::toDto($model) : null;
-    }
-
-    /**
-     * 申請者と受信者のペアで既存の申請を検索（Interface実装）
-     *
-     * @param  int  $senderPlayerId  申請者のプレイヤーID
-     * @param  int  $receiverPlayerId  受信者のプレイヤーID
-     */
-    public function findByPlayerPair(int $senderPlayerId, int $receiverPlayerId): ?FriendApplyDto
-    {
-        $model = $this->selectByPlayerPair($senderPlayerId, $receiverPlayerId);
-
-        return $model ? FriendApplyAdapter::toDto($model) : null;
-    }
-
-    /**
-     * プレイヤーIDに関連するフレンド申請一覧を取得（Interface実装）
-     *
-     * @param  int  $playerId  プレイヤーID
-     * @return array<FriendApplyDto>
-     */
-    public function findAppliesByPlayerId(int $playerId): array
-    {
-        $models = $this->selectAppliesByPlayerId($playerId);
-
-        return FriendApplyAdapter::toDtoArray($models);
-    }
-
-    /**
-     * プレイヤーIDに関連する承認済みフレンド一覧を取得（Interface実装）
-     *
-     * @param  int  $playerId  プレイヤーID
-     * @return array<FriendApplyDto>
-     */
-    public function findAcceptedFriendsByPlayerId(int $playerId): array
-    {
-        $models = $this->selectAcceptedFriendsByPlayerId($playerId);
-
-        return FriendApplyAdapter::toDtoArray($models);
-    }
-
-    /**
-     * フレンド申請を作成（Interface実装）
-     *
-     * @param  int  $senderPlayerId  申請者のプレイヤーID
-     * @param  int  $receiverPlayerId  受信者のプレイヤーID
-     */
-    public function create(int $senderPlayerId, int $receiverPlayerId): FriendApplyDto
-    {
-        $model = $this->createApply($senderPlayerId, $receiverPlayerId);
-
-        return FriendApplyAdapter::toDto($model);
-    }
-
-    /**
-     * フレンド申請を承認（Interface実装）
-     *
-     * @param  FriendApplyDto  $friendApplyDto  承認するフレンド申請
-     * @return FriendApplyDto 承認後のDTO
-     */
-    public function accept(FriendApplyDto $friendApplyDto): FriendApplyDto
-    {
-        $model = $this->selectById($friendApplyDto->getId());
-        if ($model === null) {
-            throw new \RuntimeException('Friend apply not found');
-        }
-
-        $model->accept();
-        $this->setModel($model);
-
-        return FriendApplyAdapter::toDto($model);
-    }
-
-    /**
-     * フレンド申請を却下（Interface実装）
-     *
-     * @param  FriendApplyDto  $friendApplyDto  却下するフレンド申請
-     * @return FriendApplyDto 却下後のDTO
-     */
-    public function reject(FriendApplyDto $friendApplyDto): FriendApplyDto
-    {
-        $model = $this->selectById($friendApplyDto->getId());
-        if ($model === null) {
-            throw new \RuntimeException('Friend apply not found');
-        }
-
-        $model->reject();
-        $this->setModel($model);
-
-        return FriendApplyAdapter::toDto($model);
-    }
-
-    /**
-     * フレンド関係を削除（Interface実装）
-     *
-     * @param  int  $playerId  削除実行者のプレイヤーID
-     * @param  int  $targetPlayerId  削除対象のプレイヤーID
-     * @return FriendApplyDto|null 削除されたフレンド関係、見つからない場合null
-     */
-    public function deleteFriendRelation(int $playerId, int $targetPlayerId): ?FriendApplyDto
-    {
-        $model = $this->deleteFriendRelationModel($playerId, $targetPlayerId);
-
-        return $model ? FriendApplyAdapter::toDto($model) : null;
-    }
 
     // ========================================
     // 以下、内部用のModelベースメソッド（既存の実装）
@@ -192,7 +72,7 @@ class SysFriendApplyRepository extends _BaseSysRepository implements FriendApply
      * プレイヤーIDで受信したフレンド申請一覧を取得
      *
      * @param  int  $playerId  プレイヤーID
-     * @return CustomCollection<int, SysFriendApply>
+     * @return Collection<int, SysFriendApply>
      */
     public function selectReceivedApplies(int $playerId): Collection
     {
@@ -207,7 +87,7 @@ class SysFriendApplyRepository extends _BaseSysRepository implements FriendApply
      * プレイヤーIDで送信したフレンド申請一覧を取得
      *
      * @param  int  $playerId  プレイヤーID
-     * @return CustomCollection<int, SysFriendApply>
+     * @return Collection<int, SysFriendApply>
      */
     public function selectSentApplies(int $playerId): Collection
     {
@@ -224,7 +104,7 @@ class SysFriendApplyRepository extends _BaseSysRepository implements FriendApply
      * statusがAppliedのものを取得
      *
      * @param  int  $playerId  プレイヤーID
-     * @return CustomCollection<int, SysFriendApply>
+     * @return Collection<int, SysFriendApply>
      */
     public function selectAppliesByPlayerId(int $playerId): Collection
     {
@@ -245,7 +125,7 @@ class SysFriendApplyRepository extends _BaseSysRepository implements FriendApply
      * statusがAcceptedのものを取得
      *
      * @param  int  $playerId  プレイヤーID
-     * @return CustomCollection<int, SysFriendApply>
+     * @return Collection<int, SysFriendApply>
      */
     public function selectAcceptedFriendsByPlayerId(int $playerId): Collection
     {
@@ -288,7 +168,7 @@ class SysFriendApplyRepository extends _BaseSysRepository implements FriendApply
      * @param  int  $targetPlayerId  削除対象のプレイヤーID
      * @return SysFriendApply|null 削除されたフレンド関係、見つからない場合null
      */
-    private function deleteFriendRelationModel(int $playerId, int $targetPlayerId): ?SysFriendApply
+    public function deleteFriendRelationModel(int $playerId, int $targetPlayerId): ?SysFriendApply
     {
         // 双方向で検索（自分がsenderまたはreceiver）
         $friendRelation = $this->modelClass::query()

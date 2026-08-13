@@ -41,7 +41,7 @@ class RandomDrawStrategy implements GachaDrawStrategyInterface
         GachaDrawContext $context
     ): GachaPrize {
         // 1. 候補コンテンツを取得
-        $candidates = $context->bonusContentRepository->findByBonusId($bonus->getAttribute('id'));
+        $candidates = $context->bonusContentRepository->selectByBonusId($bonus->getAttribute('id'));
         
         // 2. 候補が存在するか検証
         if ($candidates->isEmpty()) {

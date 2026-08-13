@@ -17,7 +17,7 @@ interface GachaStepBonusContentRepositoryInterface
      * @param string $bonusId
      * @return CustomCollection
      */
-    public function findByBonusId(string $bonusId): CustomCollection;
+    public function selectByBonusId(string $bonusId): CustomCollection;
 
     /**
      * コンテンツIDでコンテンツを取得
@@ -25,5 +25,5 @@ interface GachaStepBonusContentRepositoryInterface
      * @param string $contentId
      * @return mixed|null
      */
-    public function findById(string $contentId): mixed;
+    public function selectById(string $contentId): mixed;
 }

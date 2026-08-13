@@ -16,7 +16,7 @@ interface StaminaRepositoryInterface
      *
      * @return StaminaDto|null スタミナDTO、存在しない場合はnull
      */
-    public function findByPlayerAndType(int $sysPlayerId, string $type): ?StaminaDto;
+    public function selectByPlayerAndType(int $sysPlayerId, string $type): ?StaminaDto;
 
     /**
      * スタミナデータを保存

@@ -15,24 +15,25 @@ use App\Repositories\Mst\MstGachaStepBonusContentRepository;
 use App\Repositories\Mst\MstGachaStepBonusRepository;
 use App\Repositories\Mst\MstGachaStepRepository;
 use App\Repositories\Mst\MstLoginBonusRepository;
-use App\Repositories\Mst\MstPlayerLevelRepository;
 use App\Repositories\Mst\MstVipLevelRepository;
 use App\Repositories\Mst\MstVipLevelRewardRepository;
 use App\Repositories\Mst\MstVipLoginBonusRepository;
+use App\Repositories\Mst\PlayerLevelRepositoryAdapter;
 use App\Repositories\Mst\VipLoginBonusRepositoryInterface;
-use App\Repositories\Sys\SysDeployRepository;
-use App\Repositories\Sys\SysGuildApplyRepository;
-use App\Repositories\Sys\SysGuildMemberRepository;
-use App\Repositories\Sys\SysGuildRepository;
+use App\Repositories\Sys\DeployRepositoryAdapter;
+use App\Repositories\Sys\GuildApplyRepositoryAdapter;
+use App\Repositories\Sys\GuildMemberRepositoryAdapter;
+use App\Repositories\Sys\GuildRepositoryAdapter;
+use App\Repositories\Sys\PlayerRepositoryAdapter;
 use App\Repositories\Sys\SysMaintenanceRepository;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
 use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;
 use App\Repositories\Trx\DiamondRepository;
 use App\Repositories\Trx\ItemRepository;
+use App\Repositories\Trx\MailboxRepositoryAdapter;
 use App\Repositories\Trx\TrxGachaRepository;
 use App\Repositories\Trx\TrxLoginBonusHistoryRepository;
-use App\Repositories\Trx\TrxMailboxRepository;
 use App\Repositories\Trx\TrxStaminaRepository;
 use App\Repositories\Trx\TrxVipLoginBonusHistoryRepository;
 use App\Repositories\Trx\VipLoginBonusHistoryRepositoryInterface;
@@ -134,7 +135,7 @@ class AppServiceProvider extends ServiceProvider
         // ==========================================
 
         // Repository interfaces
-        $this->app->bind(DeployRepositoryInterface::class, SysDeployRepository::class);
+        $this->app->bind(DeployRepositoryInterface::class, DeployRepositoryAdapter::class);
         $this->app->bind(MaintenanceRepositoryInterface::class, SysMaintenanceRepository::class);
 
         // ==========================================
@@ -162,16 +163,16 @@ class AppServiceProvider extends ServiceProvider
         // ==========================================
 
         // Repository interfaces
-        $this->app->bind(MailboxRepositoryInterface::class, TrxMailboxRepository::class);
+        $this->app->bind(MailboxRepositoryInterface::class, MailboxRepositoryAdapter::class);
 
         // ==========================================
         // NexusPlayer Package Bindings
         // ==========================================
 
         // Repository interfaces
-        $this->app->bind(PlayerRepoInterface::class, SysPlayerRepository::class);
+        $this->app->bind(PlayerRepoInterface::class, PlayerRepositoryAdapter::class);
         $this->app->bind(PlayerDeviceRepositoryInterface::class, SysPlayerDeviceRepository::class);
-        $this->app->bind(PlayerLevelRepositoryInterface::class, MstPlayerLevelRepository::class);
+        $this->app->bind(PlayerLevelRepositoryInterface::class, PlayerLevelRepositoryAdapter::class);
 
         // ==========================================
         // NexusVip Package Bindings
@@ -181,16 +182,16 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(VipLevelRepositoryInterface::class, MstVipLevelRepository::class);
         $this->app->bind(VipLevelRewardRepositoryInterface::class, MstVipLevelRewardRepository::class);
         $this->app->bind(VipPointLogRepositoryInterface::class, LogVipPointRepository::class);
-        $this->app->bind(PlayerVipRepositoryInterface::class, SysPlayerRepository::class);
+        $this->app->bind(PlayerVipRepositoryInterface::class, PlayerRepositoryAdapter::class);
 
         // ==========================================
         // NexusGuild Package Bindings
         // ==========================================
 
         // Repository interfaces
-        $this->app->bind(GuildRepositoryInterface::class, SysGuildRepository::class);
-        $this->app->bind(GuildMemberRepositoryInterface::class, SysGuildMemberRepository::class);
-        $this->app->bind(GuildApplyRepositoryInterface::class, SysGuildApplyRepository::class);
+        $this->app->bind(GuildRepositoryInterface::class, GuildRepositoryAdapter::class);
+        $this->app->bind(GuildMemberRepositoryInterface::class, GuildMemberRepositoryAdapter::class);
+        $this->app->bind(GuildApplyRepositoryInterface::class, GuildApplyRepositoryAdapter::class);
 
         // ==========================================
         // NexusResource Package Bindings

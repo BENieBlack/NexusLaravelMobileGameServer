@@ -27,7 +27,7 @@ class GachaProgressService
      */
     public function getOrCreateProgress(int $sysPlayerId, string $mstGachaId): GachaProgressDto
     {
-        $progress = $this->progressRepository->findByPlayerAndGacha($sysPlayerId, $mstGachaId);
+        $progress = $this->progressRepository->selectByPlayerAndGacha($sysPlayerId, $mstGachaId);
 
         if (!$progress) {
             $now = ClockUtility::nowToString();

@@ -18,7 +18,7 @@ class MstGachaStepBonusContentRepository extends _BaseMstRepository implements G
     /**
      * {@inheritDoc}
      */
-    public function findByBonusId(string $bonusId): CustomCollection
+    public function selectByBonusId(string $bonusId): CustomCollection
     {
         return $this->selectListByBonusId($bonusId);
     }
@@ -26,9 +26,9 @@ class MstGachaStepBonusContentRepository extends _BaseMstRepository implements G
     /**
      * {@inheritDoc}
      */
-    public function findById(string $contentId): mixed
+    public function selectById($contentId): mixed
     {
-        return $this->selectById($contentId);
+        return parent::selectById($contentId);
     }
 
     /**

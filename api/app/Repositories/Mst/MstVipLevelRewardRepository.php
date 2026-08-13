@@ -23,7 +23,7 @@ class MstVipLevelRewardRepository extends _BaseMstRepository implements VipLevel
      *
      * @return CustomCollection<MstVipLevelReward>
      */
-    public function findByVipLevel(int $vipLevel): CustomCollection
+    public function selectByVipLevel(int $vipLevel): CustomCollection
     {
         return $this->queryOrMemory()
             ->where('vip_level', $vipLevel)
@@ -37,7 +37,7 @@ class MstVipLevelRewardRepository extends _BaseMstRepository implements VipLevel
      *
      * @return CustomCollection<MstVipLevelReward>
      */
-    public function findActiveByVipLevel(int $vipLevel): CustomCollection
+    public function selectActiveByVipLevel(int $vipLevel): CustomCollection
     {
         return $this->queryOrMemory()
             ->where('vip_level', $vipLevel)
@@ -54,7 +54,7 @@ class MstVipLevelRewardRepository extends _BaseMstRepository implements VipLevel
      * @param  int  $toLevel  終了VIPレベル（含む）
      * @return CustomCollection<MstVipLevelReward>
      */
-    public function findActiveByLevelRange(int $fromLevel, int $toLevel): CustomCollection
+    public function selectActiveByLevelRange(int $fromLevel, int $toLevel): CustomCollection
     {
         return $this->queryOrMemory()
             ->where('is_active', true)
@@ -72,7 +72,7 @@ class MstVipLevelRewardRepository extends _BaseMstRepository implements VipLevel
      *
      * @return CustomCollection<MstVipLevelReward>
      */
-    public function findAllActive(): CustomCollection
+    public function selectAllActive(): CustomCollection
     {
         return $this->queryOrMemory()
             ->where('is_active', true)

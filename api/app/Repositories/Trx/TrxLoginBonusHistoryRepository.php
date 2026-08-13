@@ -15,7 +15,7 @@ class TrxLoginBonusHistoryRepository implements LoginBonusHistoryRepositoryInter
     /**
      * {@inheritDoc}
      */
-    public function findLatestByPlayer(int $sysPlayerId, string $connectionName): ?array
+    public function selectLatestByPlayer(int $sysPlayerId, string $connectionName): ?array
     {
         $result = DB::connection($connectionName)
             ->table('trx_login_bonus_history')
@@ -29,9 +29,9 @@ class TrxLoginBonusHistoryRepository implements LoginBonusHistoryRepositoryInter
     /**
      * findLatestByPlayerのエイリアス
      */
-    public function findLatestByPlayerId(int $sysPlayerId, string $connectionName): ?array
+    public function selectLatestByPlayerId(int $sysPlayerId, string $connectionName): ?array
     {
-        return $this->findLatestByPlayer($sysPlayerId, $connectionName);
+        return $this->selectLatestByPlayer($sysPlayerId, $connectionName);
     }
 
     /**
@@ -64,7 +64,7 @@ class TrxLoginBonusHistoryRepository implements LoginBonusHistoryRepositoryInter
      * @param  string  $connectionName  シャーディングされたDB接続名
      * @return array|null 最初のカムバック履歴（なければnull）
      */
-    public function findFirstComebackByPlayerId(int $sysPlayerId, string $connectionName): ?array
+    public function selectFirstComebackByPlayerId(int $sysPlayerId, string $connectionName): ?array
     {
         $result = DB::connection($connectionName)
             ->table('trx_login_bonus_history')
@@ -85,7 +85,7 @@ class TrxLoginBonusHistoryRepository implements LoginBonusHistoryRepositoryInter
      * @param  string  $connectionName  シャーディングされたDB接続名
      * @return array|null 履歴（なければnull）
      */
-    public function findByPlayerAndBonusAndDate(int $sysPlayerId, string $bonusId, string $receivedDate, string $connectionName): ?array
+    public function selectByPlayerAndBonusAndDate(int $sysPlayerId, string $bonusId, string $receivedDate, string $connectionName): ?array
     {
         $result = DB::connection($connectionName)
             ->table('trx_login_bonus_history')

@@ -45,7 +45,7 @@ class ComeBackLoginBonusService extends _BaseLoginBonusService
         $absentDays = $this->calculateAbsentDays($lastLoginAt);
 
         // 有効なカムバックボーナス設定があるかチェック
-        $bonus = $this->bonusRepository->findEligibleComebackBonus($absentDays);
+        $bonus = $this->bonusRepository->selectEligibleComebackBonus($absentDays);
 
         return $bonus !== null;
     }
@@ -81,7 +81,7 @@ class ComeBackLoginBonusService extends _BaseLoginBonusService
         $this->currentConnectionName = $connectionName;
 
         // カムバックボーナス初回受け取り日を取得
-        $firstComebackHistory = $this->historyRepository->findFirstComebackByPlayerId($sysPlayerId, $connectionName);
+        $firstComebackHistory = $this->historyRepository->selectFirstComebackByPlayerId($sysPlayerId, $connectionName);
 
         if ($firstComebackHistory === null) {
             // 初回カムバック = 1日目
@@ -105,7 +105,7 @@ class ComeBackLoginBonusService extends _BaseLoginBonusService
         $absentDays = $this->calculateAbsentDays($lastLoginAt);
 
         // 優先度順でカムバックボーナスを取得
-        $bonus = $this->bonusRepository->findEligibleComebackBonus($absentDays);
+        $bonus = $this->bonusRepository->selectEligibleComebackBonus($absentDays);
 
         if ($bonus === null) {
             return null;
@@ -132,7 +132,7 @@ class ComeBackLoginBonusService extends _BaseLoginBonusService
      */
     protected function getBonusContents(array $bonusData, int $currentDay): CustomCollection
     {
-        $contents = $this->bonusRepository->findContentsByLoginBonusIdAndDay(
+        $contents = $this->bonusRepository->selectContentsByLoginBonusIdAndDay(
             $bonusData['id'],
             $currentDay
         );
@@ -190,7 +190,7 @@ class ComeBackLoginBonusService extends _BaseLoginBonusService
     {
         $receivedDate = $this->getGameDayStart()->format('Y-m-d H:i:s');
 
-        $history = $this->historyRepository->findByPlayerAndBonusAndDate(
+        $history = $this->historyRepository->selectByPlayerAndBonusAndDate(
             $sysPlayerId,
             $bonusId,
             $receivedDate,

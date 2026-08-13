@@ -74,7 +74,7 @@ class SysPlayerDeviceRepository extends _BaseSysRepository implements DeviceRepo
      * {@inheritDoc}
      * NexusPlayer\Repositories\PlayerDeviceRepositoryInterface実装
      */
-    public function findByDeviceUuid(string $uuid): ?PlayerDeviceDto
+    public function selectByDeviceUuid(string $uuid): ?PlayerDeviceDto
     {
         $model = $this->selectByDeviceId($uuid);
 
@@ -85,7 +85,7 @@ class SysPlayerDeviceRepository extends _BaseSysRepository implements DeviceRepo
      * {@inheritDoc}
      * NexusPlayer\Repositories\PlayerDeviceRepositoryInterface実装
      */
-    public function findByPlayerId(int $sysPlayerId): Collection
+    public function selectByPlayerId(int $sysPlayerId): Collection
     {
         $models = $this->selectListByPlayerId($sysPlayerId);
 

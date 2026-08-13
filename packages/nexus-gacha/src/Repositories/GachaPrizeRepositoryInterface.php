@@ -19,5 +19,5 @@ interface GachaPrizeRepositoryInterface
      * @param bool $pickupOnly
      * @return CustomCollection
      */
-    public function findByGachaIdAndRarity(string $mstGachaId, int $rarity, bool $pickupOnly): CustomCollection;
+    public function selectByGachaIdAndRarity(string $mstGachaId, int $rarity, bool $pickupOnly): CustomCollection;
 }

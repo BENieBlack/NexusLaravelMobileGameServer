@@ -2,6 +2,7 @@
 
 namespace App\Domain\Guild\UseCases;
 
+use App\Adapters\Guild\GuildAdapter;
 use App\Domain\_BaseUseCase;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
@@ -28,16 +29,16 @@ class GuildDetailUseCase extends _BaseUseCase
      */
     public function exec(int $guildId): GuildDetailResponse
     {
-        // ギルド情報を取得
-        $guildDto = $this->sysGuildRepository->findById($guildId);
+        // RepositoryはModelを返すため、DTOへの変換はここで行う
+        $guild = $this->sysGuildRepository->selectById($guildId);
 
-        if ($guildDto === null) {
+        if ($guild === null) {
             throw new GameException(
                 GameErrorCode::GUILD_NOT_FOUND,
                 "Guild not found: {$guildId}"
             );
         }
 
-        return GuildDetailResponse::fromDto($guildDto);
+        return GuildDetailResponse::fromDto(GuildAdapter::toDto($guild));
     }
 }

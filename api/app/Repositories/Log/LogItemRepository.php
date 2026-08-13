@@ -58,7 +58,7 @@ class LogItemRepository extends _BaseLogRepository
      * @param  string  $mstItemId  アイテムマスターID
      * @return CustomCollection<int, LogItem>
      */
-    public function findAllByMstItemId(string $mstItemId): CustomCollection
+    public function selectAllByMstItemId(string $mstItemId): CustomCollection
     {
         return $this->queryOrMemory()
             ->where('mst_item_id', $mstItemId)
@@ -69,7 +69,7 @@ class LogItemRepository extends _BaseLogRepository
     /**
      * リクエストIDでアイテムログを取得
      */
-    public function findByUniqueRequestId(string $uniqueRequestId): ?LogItem
+    public function selectByUniqueRequestId(string $uniqueRequestId): ?LogItem
     {
         return $this->queryOrMemory()
             ->where('unique_request_id', $uniqueRequestId)

@@ -14,7 +14,7 @@ interface DeployRepositoryInterface
      * 
      * @return array|null デプロイデータの連想配列、存在しない場合はnull
      */
-    public function findLatestDownloadable(): ?array;
+    public function selectLatestDownloadable(): ?array;
 
     /**
      * IDでデプロイを検索
@@ -22,5 +22,5 @@ interface DeployRepositoryInterface
      * @param int $deployId
      * @return array|null デプロイデータの連想配列、存在しない場合はnull
      */
-    public function findById(int $deployId): ?array;
+    public function selectById(int $deployId): ?array;
 }

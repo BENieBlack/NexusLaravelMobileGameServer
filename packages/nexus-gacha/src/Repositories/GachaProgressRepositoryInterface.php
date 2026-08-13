@@ -18,7 +18,7 @@ interface GachaProgressRepositoryInterface
      * @param string $mstGachaId
      * @return GachaProgressDto|null
      */
-    public function findByPlayerAndGacha(int $sysPlayerId, string $mstGachaId): ?GachaProgressDto;
+    public function selectByPlayerAndGacha(int $sysPlayerId, string $mstGachaId): ?GachaProgressDto;
 
     /**
      * 進行状況を保存

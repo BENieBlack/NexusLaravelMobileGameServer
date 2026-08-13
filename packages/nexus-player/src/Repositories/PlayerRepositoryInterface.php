@@ -14,17 +14,17 @@ interface PlayerRepositoryInterface
     /**
      * IDでプレイヤーを取得
      */
-    public function findById(int $id): ?PlayerDto;
+    public function selectById(int $id): ?PlayerDto;
 
     /**
      * My IDでプレイヤーを取得
      */
-    public function findByMyId(string $myId): ?PlayerDto;
+    public function selectByMyId(string $myId): ?PlayerDto;
 
     /**
      * UUIDでプレイヤーを取得
      */
-    public function findByUuid(string $uuid): ?PlayerDto;
+    public function selectByUuid(string $uuid): ?PlayerDto;
 
     /**
      * プレイヤーを保存

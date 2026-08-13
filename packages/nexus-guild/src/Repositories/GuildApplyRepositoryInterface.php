@@ -16,7 +16,7 @@ interface GuildApplyRepositoryInterface
      *
      * @param  int  $applyId  申請ID
      */
-    public function findById(int $applyId): ?GuildApplyDto;
+    public function selectById(int $applyId): ?GuildApplyDto;
 
     /**
      * ギルドIDとプレイヤーIDで既存の申請を検索
@@ -26,7 +26,7 @@ interface GuildApplyRepositoryInterface
      * @param  int  $guildId  ギルドID
      * @param  int  $playerId  プレイヤーID
      */
-    public function findByGuildAndPlayer(int $guildId, int $playerId): ?GuildApplyDto;
+    public function selectByGuildAndPlayer(int $guildId, int $playerId): ?GuildApplyDto;
 
     /**
      * ギルドIDに関連する申請一覧を取得
@@ -36,7 +36,7 @@ interface GuildApplyRepositoryInterface
      * @param  int  $guildId  ギルドID
      * @return array<GuildApplyDto>
      */
-    public function findAppliesByGuildId(int $guildId): array;
+    public function selectAppliesByGuildId(int $guildId): array;
 
     /**
      * プレイヤーIDに関連する申請一覧を取得
@@ -46,7 +46,7 @@ interface GuildApplyRepositoryInterface
      * @param  int  $playerId  プレイヤーID
      * @return array<GuildApplyDto>
      */
-    public function findAppliesByPlayerId(int $playerId): array;
+    public function selectAppliesByPlayerId(int $playerId): array;
 
     /**
      * ギルド加入申請を作成

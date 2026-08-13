@@ -17,5 +17,5 @@ interface GachaStepBonusRepositoryInterface
      * @param string $stepId
      * @return CustomCollection
      */
-    public function findByStepId(string $stepId): CustomCollection;
+    public function selectByStepId(string $stepId): CustomCollection;
 }

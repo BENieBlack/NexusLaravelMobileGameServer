@@ -88,7 +88,7 @@ class LogVipPointRepository extends _BaseLogRepository implements VipPointLogRep
     /**
      * リクエストIDでログを取得
      */
-    public function findByUniqueRequestId(string $uniqueRequestId): ?LogVipPoint
+    public function selectByUniqueRequestId(string $uniqueRequestId): ?LogVipPoint
     {
         return $this->queryOrMemory()
             ->where('unique_request_id', $uniqueRequestId)
@@ -100,7 +100,7 @@ class LogVipPointRepository extends _BaseLogRepository implements VipPointLogRep
      *
      * @return CustomCollection<int, LogVipPoint>
      */
-    public function findByPeriod(
+    public function selectByPeriod(
         int $sysPlayerId,
         \DateTimeImmutable $startDate,
         \DateTimeImmutable $endDate
@@ -121,7 +121,7 @@ class LogVipPointRepository extends _BaseLogRepository implements VipPointLogRep
      *
      * @return CustomCollection<int, LogVipPoint>
      */
-    public function findByReason(int $sysPlayerId, string $reason, int $limit = 100): CustomCollection
+    public function selectByReason(int $sysPlayerId, string $reason, int $limit = 100): CustomCollection
     {
         return $this->queryOrMemory()
             ->where('sys_player_id', $sysPlayerId)

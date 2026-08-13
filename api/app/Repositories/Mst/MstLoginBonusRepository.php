@@ -33,7 +33,7 @@ class MstLoginBonusRepository implements LoginBonusRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function findActiveByDay(int $day): ?array
+    public function selectActiveByDay(int $day): ?array
     {
         $bonus = MstLoginBonus::dailyType()
             ->active()
@@ -48,7 +48,7 @@ class MstLoginBonusRepository implements LoginBonusRepositoryInterface
      *
      * @return array|null ログインボーナス設定
      */
-    public function findActiveDailyBonus(): ?array
+    public function selectActiveDailyBonus(): ?array
     {
         $bonus = MstLoginBonus::dailyType()
             ->active()
@@ -61,7 +61,7 @@ class MstLoginBonusRepository implements LoginBonusRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function findContentsByLoginBonusId(string $loginBonusId): array
+    public function selectContentsByLoginBonusId(string $loginBonusId): array
     {
         return MstLoginBonusContent::where('mst_login_bonus_id', $loginBonusId)
             ->orderBy('sort_order')
@@ -73,7 +73,7 @@ class MstLoginBonusRepository implements LoginBonusRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function findEligibleComebackBonus(int $absentDays): ?array
+    public function selectEligibleComebackBonus(int $absentDays): ?array
     {
         $now = ClockUtility::now();
 
@@ -123,7 +123,7 @@ class MstLoginBonusRepository implements LoginBonusRepositoryInterface
      * @param  int  $day  日数
      * @return array コンテンツの配列
      */
-    public function findContentsByLoginBonusIdAndDay(string $loginBonusId, int $day): array
+    public function selectContentsByLoginBonusIdAndDay(string $loginBonusId, int $day): array
     {
         // カムバックボーナスの場合、dayは無視して全コンテンツを返す
         return MstLoginBonusContent::where('mst_login_bonus_id', $loginBonusId)

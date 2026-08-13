@@ -14,7 +14,7 @@ interface PlayerLevelRepositoryInterface
      *
      * @return array{level: int, required_exp: int, max_stamina: int}|null
      */
-    public function findByLevel(int $level): ?array;
+    public function selectByLevel(int $level): ?array;
 
     /**
      * 累積経験値からレベルを計算

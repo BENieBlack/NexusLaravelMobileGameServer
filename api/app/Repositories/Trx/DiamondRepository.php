@@ -24,7 +24,7 @@ class DiamondRepository implements DiamondRepositoryInterface
      * @param  int  $sysPlayerId  プレイヤーID
      * @param  string  $platform  プラットフォーム（Apple, Google）
      */
-    public function findByPlatform(int $sysPlayerId, string $platform): ?DiamondBalanceDto
+    public function selectByPlatform(int $sysPlayerId, string $platform): ?DiamondBalanceDto
     {
         $trxDiamond = $this->trxDiamondRepository->selectByPlatform($sysPlayerId, $platform);
 
@@ -37,7 +37,7 @@ class DiamondRepository implements DiamondRepositoryInterface
      * @param  int  $sysPlayerId  プレイヤーID
      * @return array<DiamondBalanceDto>
      */
-    public function findAllByPlayerId(int $sysPlayerId): array
+    public function selectAllByPlayerId(int $sysPlayerId): array
     {
         $trxDiamonds = $this->trxDiamondRepository->selectByPlayerId($sysPlayerId);
 

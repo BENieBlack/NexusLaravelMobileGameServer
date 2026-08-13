@@ -30,7 +30,7 @@ class WalletService
      */
     public function getBalance(int $playerId, string $currencyId): CurrencyBalance
     {
-        $wallet = $this->walletRepository->findByCurrencyId($playerId, $currencyId);
+        $wallet = $this->walletRepository->selectByCurrencyId($playerId, $currencyId);
 
         if ($wallet === null) {
             return CurrencyBalance::zero();
@@ -61,7 +61,7 @@ class WalletService
         ?string $expireAt = null
     ): CurrencyOperationResult {
         // 1. 現在値を取得または新規作成
-        $wallet = $this->walletRepository->findByCurrencyId($playerId, $currencyId);
+        $wallet = $this->walletRepository->selectByCurrencyId($playerId, $currencyId);
 
         $newFreeAmount = ($wallet->free_amount ?? 0) + $freeAmount;
         $newPaidAmount = ($wallet->paid_amount ?? 0) + $paidAmount;
@@ -102,7 +102,7 @@ class WalletService
         int $amount
     ): CurrencyOperationResult {
         // 1. 現在値を取得
-        $wallet = $this->walletRepository->findByCurrencyId($playerId, $currencyId);
+        $wallet = $this->walletRepository->selectByCurrencyId($playerId, $currencyId);
 
         if ($wallet === null || $wallet->total_amount < $amount) {
             $available = $wallet?->total_amount ?? 0;
@@ -110,7 +110,7 @@ class WalletService
         }
 
         // 2. FIFO順で残高を取得（有償優先 → 有効期限が近いものから → ID順）
-        $balances = $this->walletBalanceRepository->findAllByCurrencyIdFifoOrder($playerId, $currencyId);
+        $balances = $this->walletBalanceRepository->selectAllByCurrencyIdFifoOrder($playerId, $currencyId);
 
         // 3. FIFO順で消費
         $consumedAmounts = $this->consumeFromBalances($balances, $amount);
@@ -138,13 +138,13 @@ class WalletService
     public function removeExpiredCurrency(int $playerId, string $currencyId, string $currentTime): int
     {
         // 有効期限切れの残高を取得
-        $expiredBalances = $this->walletBalanceRepository->findAllExpiredByCurrencyId($playerId, $currencyId, $currentTime);
+        $expiredBalances = $this->walletBalanceRepository->selectAllExpiredByCurrencyId($playerId, $currencyId, $currentTime);
 
         $expiredAmounts = $this->removeExpiredBalances($expiredBalances);
 
         // 現在値から減算
         if ($expiredAmounts['total'] > 0) {
-            $wallet = $this->walletRepository->findByCurrencyId($playerId, $currencyId);
+            $wallet = $this->walletRepository->selectByCurrencyId($playerId, $currencyId);
 
             if ($wallet !== null) {
                 $newFreeAmount = max(0, $wallet->free_amount - $expiredAmounts['free']);

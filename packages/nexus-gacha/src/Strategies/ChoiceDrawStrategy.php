@@ -49,7 +49,7 @@ class ChoiceDrawStrategy implements GachaDrawStrategyInterface
         }
 
         // 2. 選択されたコンテンツの取得
-        $candidate = $context->bonusContentRepository->findById($selectedCandidateId);
+        $candidate = $context->bonusContentRepository->selectById($selectedCandidateId);
         
         // 3. コンテンツの妥当性検証
         if (!$candidate || $candidate->getAttribute('mst_gacha_step_bonus_id') !== $bonus->getAttribute('id')) {

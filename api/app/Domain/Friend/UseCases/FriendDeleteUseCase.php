@@ -54,7 +54,7 @@ class FriendDeleteUseCase extends _BaseUseCase
             }
 
             // 3. フレンド関係を削除
-            $deletedRelation = $this->sysFriendApplyRepository->deleteFriendRelation(
+            $deletedRelation = $this->sysFriendApplyRepository->deleteFriendRelationModel(
                 $sysPlayerId,
                 $targetPlayerId
             );

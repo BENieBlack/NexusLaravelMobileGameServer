@@ -23,7 +23,7 @@ class VipRewardService
      */
     public function getRewardsByLevel(int $vipLevel): array
     {
-        $rewards = $this->vipLevelRewardRepository->findActiveByVipLevel($vipLevel);
+        $rewards = $this->vipLevelRewardRepository->selectActiveByVipLevel($vipLevel);
 
         return $rewards->map(function ($reward) {
             return new VipReward(
@@ -42,7 +42,7 @@ class VipRewardService
      */
     public function hasRewards(int $vipLevel): bool
     {
-        $rewards = $this->vipLevelRewardRepository->findActiveByVipLevel($vipLevel);
+        $rewards = $this->vipLevelRewardRepository->selectActiveByVipLevel($vipLevel);
 
         return $rewards->isNotEmpty();
     }

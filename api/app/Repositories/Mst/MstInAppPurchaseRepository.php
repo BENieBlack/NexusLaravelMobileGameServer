@@ -21,7 +21,7 @@ class MstInAppPurchaseRepository extends _BaseMstRepository
      *
      * @return CustomCollection<int, MstInAppPurchase>
      */
-    public function findAllActive(): CustomCollection
+    public function selectAllActive(): CustomCollection
     {
         return $this->queryOrMemory()
             ->where('is_active', true)
@@ -35,7 +35,7 @@ class MstInAppPurchaseRepository extends _BaseMstRepository
      * @param  string  $type  商品タイプ (Diamond, Pack, Pass)
      * @return CustomCollection<int, MstInAppPurchase>
      */
-    public function findAllActiveByType(string $type): CustomCollection
+    public function selectAllActiveByType(string $type): CustomCollection
     {
         return $this->queryOrMemory()
             ->where('type', $type)
@@ -47,7 +47,7 @@ class MstInAppPurchaseRepository extends _BaseMstRepository
     /**
      * IDで商品を取得（リレーション付き）
      */
-    public function findByIdWithRelations(int $mstInAppPurchaseId): ?MstInAppPurchase
+    public function selectByIdWithRelations(int $mstInAppPurchaseId): ?MstInAppPurchase
     {
         $product = $this->selectById($mstInAppPurchaseId);
 
@@ -64,7 +64,7 @@ class MstInAppPurchaseRepository extends _BaseMstRepository
     /**
      * IDとアクティブ状態で商品を取得
      */
-    public function findActiveById(int $mstInAppPurchaseId): ?MstInAppPurchase
+    public function selectActiveById(int $mstInAppPurchaseId): ?MstInAppPurchase
     {
         return $this->queryOrMemory()
             ->where('id', $mstInAppPurchaseId)

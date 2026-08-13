@@ -16,21 +16,21 @@ interface GuildRepositoryInterface
      *
      * @param  int  $guildId  ギルドID
      */
-    public function findById(int $guildId): ?GuildDto;
+    public function selectById(int $guildId): ?GuildDto;
 
     /**
      * ギルド名で検索
      *
      * @param  string  $name  ギルド名
      */
-    public function findByName(string $name): ?GuildDto;
+    public function selectByName(string $name): ?GuildDto;
 
     /**
      * 全ギルド一覧を取得
      *
      * @return array<GuildDto>
      */
-    public function findAll(): array;
+    public function selectAll(): array;
 
     /**
      * ギルドを作成

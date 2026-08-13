@@ -26,7 +26,7 @@ class PlayerLevelService
      */
     public function getPlayerLevel(int $sysPlayerId): array
     {
-        $player = $this->playerRepository->findById($sysPlayerId);
+        $player = $this->playerRepository->selectById($sysPlayerId);
 
         if ($player === null) {
             throw new \Exception("Player not found: {$sysPlayerId}");
@@ -60,7 +60,7 @@ class PlayerLevelService
      */
     public function addExp(int $sysPlayerId, int $exp): array
     {
-        $player = $this->playerRepository->findById($sysPlayerId);
+        $player = $this->playerRepository->selectById($sysPlayerId);
 
         if ($player === null) {
             throw new \Exception("Player not found: {$sysPlayerId}");
@@ -114,7 +114,7 @@ class PlayerLevelService
      */
     public function getMaxStamina(int $sysPlayerId): int
     {
-        $player = $this->playerRepository->findById($sysPlayerId);
+        $player = $this->playerRepository->selectById($sysPlayerId);
 
         if ($player === null) {
             throw new \Exception("Player not found: {$sysPlayerId}");
@@ -137,7 +137,7 @@ class PlayerLevelService
     private function getExpToNextLevel(int $currentLevel, int $currentExp): int
     {
         $nextLevel = $currentLevel + 1;
-        $nextLevelData = $this->levelRepository->findByLevel($nextLevel);
+        $nextLevelData = $this->levelRepository->selectByLevel($nextLevel);
 
         if ($nextLevelData === null) {
             // 最大レベルに達している

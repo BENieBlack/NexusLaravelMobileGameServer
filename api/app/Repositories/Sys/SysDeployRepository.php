@@ -5,7 +5,6 @@ namespace App\Repositories\Sys;
 use App\Models\Sys\SysDeploy;
 use Illuminate\Support\Facades\Cache;
 use Nexus\Core\Support\CustomCollection;
-use NexusVersion\Repositories\DeployRepositoryInterface;
 
 /**
  * SysDeployRepository
@@ -15,7 +14,7 @@ use NexusVersion\Repositories\DeployRepositoryInterface;
  *
  * @extends _BaseSysRepository<SysDeploy>
  */
-class SysDeployRepository extends _BaseSysRepository implements DeployRepositoryInterface
+class SysDeployRepository extends _BaseSysRepository
 {
     protected string $modelClass = SysDeploy::class;
 
@@ -44,28 +43,6 @@ class SysDeployRepository extends _BaseSysRepository implements DeployRepository
                 return $sysDeploy;
             }
         );
-    }
-
-    /**
-     * {@inheritDoc}
-     * DeployRepositoryInterface実装
-     */
-    public function findLatestDownloadable(): ?array
-    {
-        $sysDeploy = $this->selectLatestDownloadable();
-
-        return $sysDeploy ? $this->toArray($sysDeploy) : null;
-    }
-
-    /**
-     * {@inheritDoc}
-     * DeployRepositoryInterface実装
-     */
-    public function findById(int $deployId): ?array
-    {
-        $sysDeploy = $this->selectById($deployId);
-
-        return $sysDeploy ? $this->toArray($sysDeploy) : null;
     }
 
     /**
@@ -127,24 +104,5 @@ class SysDeployRepository extends _BaseSysRepository implements DeployRepository
                 return $sysDeploy;
             }
         );
-    }
-
-    /**
-     * SysDeployモデルを配列に変換
-     */
-    private function toArray(SysDeploy $sysDeploy): array
-    {
-        $data = $sysDeploy->toArray();
-
-        // リレーションも含める
-        if ($sysDeploy->relationLoaded('deployMaster')) {
-            $data['deploy_master'] = $sysDeploy->deployMaster?->toArray();
-        }
-
-        if ($sysDeploy->relationLoaded('deployAsset')) {
-            $data['deploy_asset'] = $sysDeploy->deployAsset?->toArray();
-        }
-
-        return $data;
     }
 }

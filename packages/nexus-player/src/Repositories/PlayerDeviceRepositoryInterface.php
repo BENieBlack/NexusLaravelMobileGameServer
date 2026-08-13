@@ -15,14 +15,14 @@ interface PlayerDeviceRepositoryInterface
     /**
      * デバイスUUIDでデバイス情報を取得
      */
-    public function findByDeviceUuid(string $uuid): ?PlayerDeviceDto;
+    public function selectByDeviceUuid(string $uuid): ?PlayerDeviceDto;
 
     /**
      * プレイヤーIDでデバイス一覧を取得
      *
      * @return Collection<PlayerDeviceDto>
      */
-    public function findByPlayerId(int $sysPlayerId): Collection;
+    public function selectByPlayerId(int $sysPlayerId): Collection;
 
     /**
      * デバイスを保存

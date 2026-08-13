@@ -55,7 +55,7 @@ class LogGachaRepository extends _BaseLogRepository
      * @param  string  $mstGachaId  ガチャマスターID
      * @return CustomCollection<int, LogGacha>
      */
-    public function findAllByMstGachaId(string $mstGachaId): CustomCollection
+    public function selectAllByMstGachaId(string $mstGachaId): CustomCollection
     {
         return $this->queryOrMemory()
             ->where('mst_gacha_id', $mstGachaId)
@@ -66,7 +66,7 @@ class LogGachaRepository extends _BaseLogRepository
     /**
      * リクエストIDでガチャログを取得
      */
-    public function findByUniqueRequestId(string $uniqueRequestId): ?LogGacha
+    public function selectByUniqueRequestId(string $uniqueRequestId): ?LogGacha
     {
         return $this->queryOrMemory()
             ->where('unique_request_id', $uniqueRequestId)

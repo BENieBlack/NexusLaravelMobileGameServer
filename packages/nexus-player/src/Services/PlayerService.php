@@ -23,7 +23,7 @@ class PlayerService
      */
     public function getPlayerById(int $id): ?PlayerDto
     {
-        return $this->playerRepository->findById($id);
+        return $this->playerRepository->selectById($id);
     }
 
     /**
@@ -31,7 +31,7 @@ class PlayerService
      */
     public function getPlayerByMyId(string $myId): ?PlayerDto
     {
-        return $this->playerRepository->findByMyId($myId);
+        return $this->playerRepository->selectByMyId($myId);
     }
 
     /**
@@ -39,13 +39,13 @@ class PlayerService
      */
     public function getPlayerByDeviceUuid(string $deviceUuid): ?PlayerDto
     {
-        $device = $this->deviceRepository->findByDeviceUuid($deviceUuid);
+        $device = $this->deviceRepository->selectByDeviceUuid($deviceUuid);
 
         if ($device === null) {
             return null;
         }
 
-        return $this->playerRepository->findById($device->getSysPlayerId());
+        return $this->playerRepository->selectById($device->getSysPlayerId());
     }
 
     /**

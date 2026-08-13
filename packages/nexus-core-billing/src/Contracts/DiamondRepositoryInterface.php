@@ -19,7 +19,7 @@ interface DiamondRepositoryInterface
      * @param string $platform プラットフォーム（Apple, Google）
      * @return DiamondBalanceDto|null
      */
-    public function findByPlatform(int $sysPlayerId, string $platform): ?DiamondBalanceDto;
+    public function selectByPlatform(int $sysPlayerId, string $platform): ?DiamondBalanceDto;
 
     /**
      * プレイヤーIDで全プラットフォームのダイヤモンドを取得
@@ -27,7 +27,7 @@ interface DiamondRepositoryInterface
      * @param int $sysPlayerId プレイヤーID
      * @return array<DiamondBalanceDto>
      */
-    public function findAllByPlayerId(int $sysPlayerId): array;
+    public function selectAllByPlayerId(int $sysPlayerId): array;
 
     /**
      * ダイヤモンド残高を保存（新規作成 or 更新）

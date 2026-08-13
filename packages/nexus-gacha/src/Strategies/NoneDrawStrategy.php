@@ -80,7 +80,7 @@ class NoneDrawStrategy implements GachaDrawStrategyInterface
      */
     private function drawRarity(string $mstGachaId, GachaDrawContext $context): int
     {
-        $rarityRates = $context->rarityRateRepository->findByGachaId($mstGachaId);
+        $rarityRates = $context->rarityRateRepository->selectByGachaId($mstGachaId);
         
         if ($rarityRates->isEmpty()) {
             throw new GachaDrawException(
@@ -124,11 +124,11 @@ class NoneDrawStrategy implements GachaDrawStrategyInterface
         bool $isGuaranteed,
         GachaDrawContext $context
     ): GachaPrize {
-        $prizes = $context->prizeRepository->findByGachaIdAndRarity($mstGachaId, $rarity, $pickupOnly);
+        $prizes = $context->prizeRepository->selectByGachaIdAndRarity($mstGachaId, $rarity, $pickupOnly);
         
         // ピックアップのみで景品がない場合は通常景品から
         if ($prizes->isEmpty() && $pickupOnly) {
-            $prizes = $context->prizeRepository->findByGachaIdAndRarity($mstGachaId, $rarity, false);
+            $prizes = $context->prizeRepository->selectByGachaIdAndRarity($mstGachaId, $rarity, false);
         }
         
         if ($prizes->isEmpty()) {

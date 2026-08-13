@@ -15,12 +15,12 @@ interface VipLevelRewardRepositoryInterface
      *
      * @return CustomCollection<MstVipLevelReward>
      */
-    public function findByVipLevel(int $vipLevel): CustomCollection;
+    public function selectByVipLevel(int $vipLevel): CustomCollection;
 
     /**
      * 有効な報酬のみを取得
      *
      * @return CustomCollection<MstVipLevelReward>
      */
-    public function findActiveByVipLevel(int $vipLevel): CustomCollection;
+    public function selectActiveByVipLevel(int $vipLevel): CustomCollection;
 }

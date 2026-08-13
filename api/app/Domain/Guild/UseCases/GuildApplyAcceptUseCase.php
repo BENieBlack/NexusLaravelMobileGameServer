@@ -42,7 +42,7 @@ class GuildApplyAcceptUseCase extends _BaseUseCase
                 $applyDto = $this->guildService->acceptApply($applyId, $sysPlayerId);
 
                 // メンバーとして追加
-                $this->sysGuildMemberRepository->create(
+                $this->sysGuildMemberRepository->createMember(
                     $applyDto->getSysGuildId(),
                     $applyDto->getSysPlayerId(),
                     GuildRole::MEMBER

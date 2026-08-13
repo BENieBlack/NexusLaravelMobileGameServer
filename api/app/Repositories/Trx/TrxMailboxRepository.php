@@ -8,8 +8,6 @@ use App\Models\Trx\TrxMailbox;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Nexus\Core\Support\CustomCollection;
-use NexusMailbox\Dto\MailboxDto;
-use NexusMailbox\Repositories\MailboxRepositoryInterface;
 
 /**
  * TrxMailboxRepository
@@ -18,7 +16,7 @@ use NexusMailbox\Repositories\MailboxRepositoryInterface;
  *
  * @extends _BaseTrxRepository<TrxMailbox>
  */
-class TrxMailboxRepository extends _BaseTrxRepository implements MailboxRepositoryInterface
+class TrxMailboxRepository extends _BaseTrxRepository
 {
     protected string $modelClass = TrxMailbox::class;
 
@@ -199,106 +197,5 @@ class TrxMailboxRepository extends _BaseTrxRepository implements MailboxReposito
             ->whereNotNull('expires_at')
             ->where('expires_at', '<=', Carbon::now())
             ->get();
-    }
-
-    /**
-     * {@inheritDoc}
-     * MailboxRepositoryInterface実装
-     */
-    public function findByPlayerId(
-        int $sysPlayerId,
-        ?\NexusMailbox\Constants\Category $category = null,
-        ?\NexusMailbox\Constants\Priority $priority = null,
-        bool $onlyUnread = false,
-        bool $onlyLocked = false
-    ): \Illuminate\Support\Collection {
-        // 既存のselectByPlayerIdを流用し、Enum変換
-        $categoryEnum = $category ? Category::fromString($category->value) : null;
-        $priorityEnum = $priority ? Priority::fromString($priority->value) : null;
-
-        $models = $this->selectByPlayerId($sysPlayerId, $categoryEnum, $priorityEnum, $onlyUnread, $onlyLocked);
-
-        // Eloquent ModelをDTOに変換
-        return $models->map(fn ($model) => $this->convertToDto($model));
-    }
-
-    /**
-     * {@inheritDoc}
-     * MailboxRepositoryInterface実装
-     */
-    public function findById(int $id): ?MailboxDto
-    {
-        $model = $this->selectById($id);
-
-        return $model ? $this->convertToDto($model) : null;
-    }
-
-    /**
-     * {@inheritDoc}
-     * MailboxRepositoryInterface実装
-     */
-    public function save(MailboxDto $mailboxDto): void
-    {
-        $model = $this->selectById($mailboxDto->getId());
-        if ($model) {
-            // DTOの値をModelに反映
-            $model->setIsOpened($mailboxDto->isRead());
-            $model->setIsReceived($mailboxDto->isReceived());
-            $model->setIsProtected($mailboxDto->isLocked());
-            $this->setModel($model);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * MailboxRepositoryInterface実装
-     */
-    public function markAsRead(MailboxDto $mailboxDto): void
-    {
-        $model = $this->selectById($mailboxDto->getId());
-        if ($model) {
-            $this->markAsOpened($model);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * MailboxRepositoryInterface実装
-     */
-    public function markDtoAsReceived(MailboxDto $mailboxDto): void
-    {
-        $model = $this->selectById($mailboxDto->getId());
-        if ($model) {
-            $this->markAsReceived($model);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * MailboxRepositoryInterface実装
-     */
-    public function updateLockStatus(MailboxDto $mailboxDto, bool $isLocked): void
-    {
-        $model = $this->selectById($mailboxDto->getId());
-        if ($model) {
-            $this->toggleProtection($model, $isLocked);
-        }
-    }
-
-    /**
-     * Eloquent ModelをDTOに変換
-     */
-    private function convertToDto(TrxMailbox $model): MailboxDto
-    {
-        return new MailboxDto(
-            id: $model->getId(),
-            sysPlayerId: $model->getSysPlayerId(),
-            mstMailboxId: $model->getMstMailboxId(),
-            isRead: $model->getIsOpened(),
-            isReceived: $model->getIsReceived(),
-            isLocked: $model->getIsProtected(),
-            expiresAt: $model->getExpiresAt(),
-            createdAt: $model->getCreatedAt()
-        );
     }
 }

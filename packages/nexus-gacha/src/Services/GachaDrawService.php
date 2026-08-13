@@ -84,11 +84,11 @@ class GachaDrawService
         // ステップアップガチャの場合、ステップ情報を取得
         $stepBonusList = [];
         if ($hasStepUp) {
-            $step = $this->stepRepository->findByGachaIdAndNumber($mstGachaId, $currentStep);
+            $step = $this->stepRepository->selectByGachaIdAndNumber($mstGachaId, $currentStep);
             if ($step) {
                 // ステップのボーナス景品リストを取得
                 $stepBonusList = $this->stepBonusRepository
-                    ->findByStepId($step->getAttribute('id'))
+                    ->selectByStepId($step->getAttribute('id'))
                     ->all();
             }
         }

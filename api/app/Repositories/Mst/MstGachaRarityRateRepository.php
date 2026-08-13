@@ -18,7 +18,7 @@ class MstGachaRarityRateRepository extends _BaseMstRepository implements GachaRa
     /**
      * {@inheritDoc}
      */
-    public function findByGachaId(string $mstGachaId): CustomCollection
+    public function selectByGachaId(string $mstGachaId): CustomCollection
     {
         return $this->selectListByGachaId($mstGachaId);
     }

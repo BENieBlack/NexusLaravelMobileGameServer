@@ -18,7 +18,7 @@ class MstMailboxRepository extends _BaseMstRepository
     /**
      * IDでメールボックスマスターを取得
      */
-    public function findById(string $mstMailboxId): ?MstMailbox
+    public function selectById($mstMailboxId): ?MstMailbox
     {
         return $this->modelClass::find($mstMailboxId);
     }

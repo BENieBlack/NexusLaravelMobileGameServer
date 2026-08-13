@@ -31,7 +31,7 @@ class MailboxService
         bool $onlyUnread = false,
         bool $onlyLocked = false
     ): Collection {
-        return $this->mailboxRepository->findByPlayerId(
+        return $this->mailboxRepository->selectByPlayerId(
             $sysPlayerId,
             $category,
             $priority,
@@ -55,7 +55,7 @@ class MailboxService
      */
     public function markAsRead(int $mailboxId, int $sysPlayerId): bool
     {
-        $mailbox = $this->mailboxRepository->findById($mailboxId);
+        $mailbox = $this->mailboxRepository->selectById($mailboxId);
 
         if ($mailbox === null || $mailbox->getSysPlayerId() !== $sysPlayerId) {
             return false;
@@ -76,7 +76,7 @@ class MailboxService
      */
     public function updateLockStatus(int $mailboxId, int $sysPlayerId, bool $isLocked): bool
     {
-        $mailbox = $this->mailboxRepository->findById($mailboxId);
+        $mailbox = $this->mailboxRepository->selectById($mailboxId);
 
         if ($mailbox === null || $mailbox->getSysPlayerId() !== $sysPlayerId) {
             return false;
@@ -93,7 +93,7 @@ class MailboxService
      */
     public function markAsReceived(int $mailboxId, int $sysPlayerId): ?MailboxDto
     {
-        $mailbox = $this->mailboxRepository->findById($mailboxId);
+        $mailbox = $this->mailboxRepository->selectById($mailboxId);
 
         if ($mailbox === null || $mailbox->getSysPlayerId() !== $sysPlayerId) {
             return null;

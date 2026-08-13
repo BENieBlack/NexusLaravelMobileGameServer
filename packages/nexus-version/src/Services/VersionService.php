@@ -28,10 +28,10 @@ class VersionService
     public function checkVersion(?int $currentDeployId): array
     {
         // メンテナンス情報を取得
-        $maintenance = $this->maintenanceRepository->findCurrent();
+        $maintenance = $this->maintenanceRepository->selectCurrent();
 
         // 最新のダウンロード可能なデプロイを取得
-        $latestDeploy = $this->deployRepository->findLatestDownloadable();
+        $latestDeploy = $this->deployRepository->selectLatestDownloadable();
 
         // 最新のデプロイが存在しない場合（あり得ないケース）
         if ($latestDeploy === null) {

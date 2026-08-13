@@ -17,7 +17,7 @@ interface PlayerVipRepositoryInterface
     /**
      * プレイヤーVIP情報を保存（Unit of Workパターンで使用）
      */
-    public function saveVipInfo(PlayerVipDto $playerVipDto): void;
+    public function persistVipInfo(PlayerVipDto $playerVipDto): void;
 
     /**
      * VIPポイントの範囲でプレイヤーを検索

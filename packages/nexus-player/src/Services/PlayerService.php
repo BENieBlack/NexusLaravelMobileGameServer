@@ -53,7 +53,7 @@ class PlayerService
      */
     public function updatePlayer(PlayerDto $playerDto): void
     {
-        $this->playerRepository->save($playerDto);
+        $this->playerRepository->persist($playerDto);
     }
 
     /**

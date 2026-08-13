@@ -3,20 +3,20 @@
 namespace App\Repositories\Sys;
 
 use App\Models\Sys\SysPlayerDevice;
-use Illuminate\Support\Collection;
 use Nexus\Core\Support\CustomCollection;
 use NexusAuth\Contracts\DeviceRepositoryInterface;
-use NexusPlayer\Dto\PlayerDeviceDto;
-use NexusPlayer\Repositories\PlayerDeviceRepositoryInterface;
 
 /**
  * SysPlayerDeviceRepository
  *
  * プレイヤーデバイス情報のRepository実装
  *
+ * 常にEloquent Modelを返す。DTOが必要な箇所は
+ * PlayerDeviceRepositoryAdapterを経由すること。
+ *
  * @extends _BaseSysRepository<SysPlayerDevice>
  */
-class SysPlayerDeviceRepository extends _BaseSysRepository implements DeviceRepositoryInterface, PlayerDeviceRepositoryInterface
+class SysPlayerDeviceRepository extends _BaseSysRepository implements DeviceRepositoryInterface
 {
     protected string $modelClass = SysPlayerDevice::class;
 
@@ -68,53 +68,5 @@ class SysPlayerDeviceRepository extends _BaseSysRepository implements DeviceRepo
         }
 
         return new CustomCollection($sysPlayerDeviceCollection->all());
-    }
-
-    /**
-     * {@inheritDoc}
-     * NexusPlayer\Repositories\PlayerDeviceRepositoryInterface実装
-     */
-    public function selectByDeviceUuid(string $uuid): ?PlayerDeviceDto
-    {
-        $model = $this->selectByDeviceId($uuid);
-
-        return $model ? $this->convertToDto($model) : null;
-    }
-
-    /**
-     * {@inheritDoc}
-     * NexusPlayer\Repositories\PlayerDeviceRepositoryInterface実装
-     */
-    public function selectByPlayerId(int $sysPlayerId): Collection
-    {
-        $models = $this->selectListByPlayerId($sysPlayerId);
-
-        return $models->map(fn ($model) => $this->convertToDto($model));
-    }
-
-    /**
-     * {@inheritDoc}
-     * NexusPlayer\Repositories\PlayerDeviceRepositoryInterface実装
-     */
-    public function save(PlayerDeviceDto $playerDeviceDto): void
-    {
-        // デバイスの更新はNexusPlayerパッケージでは現在未使用
-        // 必要に応じて実装
-    }
-
-    /**
-     * Eloquent ModelをDTOに変換
-     */
-    private function convertToDto(SysPlayerDevice $model): PlayerDeviceDto
-    {
-        return new PlayerDeviceDto(
-            id: $model->getId(),
-            sysPlayerId: $model->getSysPlayerId(),
-            uuid: $model->getUuid(),
-            deviceInfo: $model->getDeviceInfo(),
-            lastLoginAt: $model->getLastLoginAt(),
-            createdAt: $model->getCreatedAt(),
-            updatedAt: $model->getUpdatedAt()
-        );
     }
 }

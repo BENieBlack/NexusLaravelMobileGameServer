@@ -6,8 +6,6 @@ use App\Models\Trx\TrxStamina;
 use App\Persistence\ApiSession;
 use Illuminate\Support\Collection;
 use Illuminate\Support\CustomCollection;
-use NexusStamina\Dto\StaminaDto;
-use NexusStamina\Repositories\StaminaRepositoryInterface;
 
 /**
  * TrxStaminaRepository
@@ -15,11 +13,14 @@ use NexusStamina\Repositories\StaminaRepositoryInterface;
  * スタミナデータの永続化のみを担当
  * ビジネスロジックはStaminaServiceに実装
  *
+ * 常にEloquent Modelを返す。DTOが必要な箇所は
+ * StaminaRepositoryAdapterを経由すること。
+ *
  * PRIMARY KEY: (sys_player_id, type)
  *
  * @extends _BaseTrxRepository<TrxStamina>
  */
-class TrxStaminaRepository extends _BaseTrxRepository implements StaminaRepositoryInterface
+class TrxStaminaRepository extends _BaseTrxRepository
 {
     protected string $modelClass = TrxStamina::class;
 
@@ -57,12 +58,13 @@ class TrxStaminaRepository extends _BaseTrxRepository implements StaminaReposito
     }
 
     /**
-     * {@inheritDoc}
-     * StaminaRepositoryInterface実装
+     * 指定プレイヤーの指定タイプのスタミナ情報を取得
+     *
+     * ApiSessionのプレイヤーIDを一時的に差し替えてから
+     * selectByType()のキャッシュ機構を利用する。
      */
-    public function selectByPlayerAndType(int $sysPlayerId, string $type): ?StaminaDto
+    public function selectByPlayerAndType(int $sysPlayerId, string $type): ?TrxStamina
     {
-        // ApiSessionを一時的に設定
         $originalPlayerId = $this->apiSession->getSysPlayerId();
         $this->apiSession->setSysPlayerId($sysPlayerId);
 
@@ -73,51 +75,29 @@ class TrxStaminaRepository extends _BaseTrxRepository implements StaminaReposito
             $this->apiSession->setSysPlayerId($originalPlayerId);
         }
 
-        if (! $stamina) {
-            return null;
-        }
-
-        return new StaminaDto(
-            sysPlayerId: $stamina->sys_player_id,
-            type: $stamina->type,
-            currentStamina: $stamina->current_stamina,
-            recoveryRateMultiplier: $stamina->recovery_rate_multiplier,
-            lastRecoveryAt: $stamina->last_recovery_at
-        );
+        return $stamina;
     }
 
     /**
-     * {@inheritDoc}
-     * StaminaRepositoryInterface実装
+     * スタミナレコードを新規登録キューに積む
      */
-    public function save(StaminaDto $staminaDto): void
-    {
-        $stamina = $this->selectByType($staminaDto->getType());
-
-        if ($stamina) {
-            $stamina->current_stamina = $staminaDto->getCurrentStamina();
-            $stamina->recovery_rate_multiplier = $staminaDto->getRecoveryRateMultiplier();
-            $stamina->last_recovery_at = $staminaDto->getLastRecoveryAt();
-            $this->setModel($stamina);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * StaminaRepositoryInterface実装
-     */
-    public function insert(StaminaDto $staminaDto): StaminaDto
-    {
+    public function insertStamina(
+        int $sysPlayerId,
+        string $type,
+        int $currentStamina,
+        float $recoveryRateMultiplier,
+        mixed $lastRecoveryAt
+    ): TrxStamina {
         $stamina = new TrxStamina([
-            'sys_player_id' => $staminaDto->getSysPlayerId(),
-            'type' => $staminaDto->getType(),
-            'current_stamina' => $staminaDto->getCurrentStamina(),
-            'recovery_rate_multiplier' => $staminaDto->getRecoveryRateMultiplier(),
-            'last_recovery_at' => $staminaDto->getLastRecoveryAt(),
+            'sys_player_id' => $sysPlayerId,
+            'type' => $type,
+            'current_stamina' => $currentStamina,
+            'recovery_rate_multiplier' => $recoveryRateMultiplier,
+            'last_recovery_at' => $lastRecoveryAt,
         ]);
         $stamina->exists = false;
         $this->setModel($stamina);
 
-        return $staminaDto;
+        return $stamina;
     }
 }

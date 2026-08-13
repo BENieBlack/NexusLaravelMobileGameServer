@@ -50,7 +50,7 @@ PITR_ENABLE_COMPRESSION=false           # JSON圧縮（オプション）
 
 ```php
 // 既存コード（変更不要）
-$playerRepository->save($player); // INSERT/UPDATEを自動でLogDBに記録
+$playerRepository->persist($player); // INSERT/UPDATEを自動でLogDBに記録
 $playerRepository->delete($player); // DELETEを自動でLogDBに記録
 ```
 
@@ -70,7 +70,7 @@ class PlayerService
         return $this->executeWithTransaction(function () use ($data) {
             // この中の処理は TrxDB + LogDB で同時トランザクション
             $player = new Player($data);
-            $this->playerRepository->save($player);
+            $this->playerRepository->persist($player);
             
             return $player;
         });

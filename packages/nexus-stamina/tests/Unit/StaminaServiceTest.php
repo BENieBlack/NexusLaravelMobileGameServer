@@ -59,7 +59,7 @@ class StaminaServiceTest extends TestCase
 
         $this->staminaRepository
             ->expects($this->once())
-            ->method('findByPlayerAndType')
+            ->method('selectByPlayerAndType')
             ->with($playerId, $type)
             ->willReturn($staminaDto);
 
@@ -80,7 +80,7 @@ class StaminaServiceTest extends TestCase
 
         $this->staminaRepository
             ->expects($this->once())
-            ->method('findByPlayerAndType')
+            ->method('selectByPlayerAndType')
             ->with($playerId, $type)
             ->willReturn(null);
 
@@ -115,13 +115,13 @@ class StaminaServiceTest extends TestCase
 
         $this->staminaRepository
             ->expects($this->once())
-            ->method('findByPlayerAndType')
+            ->method('selectByPlayerAndType')
             ->with($playerId, $type)
             ->willReturn($staminaDto);
 
         $this->staminaRepository
             ->expects($this->once())
-            ->method('save')
+            ->method('persist')
             ->with($this->callback(function ($dto) {
                 return $dto->getCurrentStamina() === 40;
             }));
@@ -158,13 +158,13 @@ class StaminaServiceTest extends TestCase
 
         $this->staminaRepository
             ->expects($this->once())
-            ->method('findByPlayerAndType')
+            ->method('selectByPlayerAndType')
             ->with($playerId, $type)
             ->willReturn($staminaDto);
 
         $this->staminaRepository
             ->expects($this->never())
-            ->method('save');
+            ->method('persist');
 
         $result = $this->service->consumeStamina($playerId, $amount, $type);
 
@@ -198,13 +198,13 @@ class StaminaServiceTest extends TestCase
 
         $this->staminaRepository
             ->expects($this->once())
-            ->method('findByPlayerAndType')
+            ->method('selectByPlayerAndType')
             ->with($playerId, $type)
             ->willReturn($staminaDto);
 
         $this->staminaRepository
             ->expects($this->once())
-            ->method('save')
+            ->method('persist')
             ->with($this->callback(function ($dto) {
                 return $dto->getCurrentStamina() === 70;
             }));
@@ -241,13 +241,13 @@ class StaminaServiceTest extends TestCase
 
         $this->staminaRepository
             ->expects($this->once())
-            ->method('findByPlayerAndType')
+            ->method('selectByPlayerAndType')
             ->with($playerId, $type)
             ->willReturn($staminaDto);
 
         $this->staminaRepository
             ->expects($this->once())
-            ->method('save')
+            ->method('persist')
             ->with($this->callback(function ($dto) {
                 // 最大値を超えることができる
                 return $dto->getCurrentStamina() === 150;
@@ -285,7 +285,7 @@ class StaminaServiceTest extends TestCase
 
         $this->staminaRepository
             ->expects($this->once())
-            ->method('findByPlayerAndType')
+            ->method('selectByPlayerAndType')
             ->with($playerId, $type)
             ->willReturn($staminaDto);
 
@@ -320,7 +320,7 @@ class StaminaServiceTest extends TestCase
 
         $this->staminaRepository
             ->expects($this->once())
-            ->method('findByPlayerAndType')
+            ->method('selectByPlayerAndType')
             ->with($playerId, $type)
             ->willReturn($staminaDto);
 

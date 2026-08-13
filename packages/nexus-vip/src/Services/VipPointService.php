@@ -68,7 +68,7 @@ class VipPointService
         $afterLevel = $this->vipLevelService->calculateLevel($playerVip->getVipPoint());
 
         // Repository に保存（Unit of Workパターン）
-        $this->playerVipRepository->saveVipInfo($playerVip);
+        $this->playerVipRepository->persistVipInfo($playerVip);
 
         // ログ記録（設定で有効な場合）
         if ($this->config->isPointLogEnabled()) {

@@ -6,12 +6,12 @@ use App\Models\Trx\TrxWallet;
 use LaravelWallet\Repositories\WalletRepositoryInterface;
 
 /**
- * WalletRepository
+ * WalletRepositoryAdapter
  *
  * nexus-walletパッケージのWalletRepositoryInterfaceを実装
  * Application層のTrxWalletRepositoryをラップ
  */
-class WalletRepository implements WalletRepositoryInterface
+class WalletRepositoryAdapter implements WalletRepositoryInterface
 {
     public function __construct(
         private readonly TrxWalletRepository $trxWalletRepository,
@@ -47,7 +47,7 @@ class WalletRepository implements WalletRepositoryInterface
      * @param  int  $freeAmount  無償通貨数
      * @param  int  $paidAmount  有償通貨数
      */
-    public function save(int $playerId, string $currencyId, int $freeAmount, int $paidAmount): void
+    public function persist(int $playerId, string $currencyId, int $freeAmount, int $paidAmount): void
     {
         $wallet = $this->trxWalletRepository->selectByMstItemId($playerId, $currencyId);
 

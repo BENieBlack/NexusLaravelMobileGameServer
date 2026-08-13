@@ -27,5 +27,5 @@ interface WalletRepositoryInterface
      * @param int $paidAmount 有償通貨数
      * @return void
      */
-    public function save(int $playerId, string $currencyId, int $freeAmount, int $paidAmount): void;
+    public function persist(int $playerId, string $currencyId, int $freeAmount, int $paidAmount): void;
 }

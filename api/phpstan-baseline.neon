@@ -1615,7 +1615,7 @@ parameters:
 			path: app/Domain/Gacha/Services/GachaValidationService.php
 
 		-
-			message: '#^Method App\\Domain\\Gacha\\UseCases\\GachaDrawUseCase\:\:saveHistory\(\) has parameter \$prizes with no value type specified in iterable type array\.$#'
+			message: '#^Method App\\Domain\\Gacha\\UseCases\\GachaDrawUseCase\:\:persistHistory\(\) has parameter \$prizes with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Domain/Gacha/UseCases/GachaDrawUseCase.php
@@ -4027,6 +4027,42 @@ parameters:
 			path: app/Repositories/Log/_BaseLogRepositoryInterface.php
 
 		-
+			message: '#^Method App\\Repositories\\Mst\\LoginBonusRepositoryAdapter\:\:selectActiveByDay\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Repositories/Mst/LoginBonusRepositoryAdapter.php
+
+		-
+			message: '#^Method App\\Repositories\\Mst\\LoginBonusRepositoryAdapter\:\:selectActiveDailyBonus\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Repositories/Mst/LoginBonusRepositoryAdapter.php
+
+		-
+			message: '#^Method App\\Repositories\\Mst\\LoginBonusRepositoryAdapter\:\:selectContentsByLoginBonusId\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Repositories/Mst/LoginBonusRepositoryAdapter.php
+
+		-
+			message: '#^Method App\\Repositories\\Mst\\LoginBonusRepositoryAdapter\:\:selectContentsByLoginBonusIdAndDay\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Repositories/Mst/LoginBonusRepositoryAdapter.php
+
+		-
+			message: '#^Method App\\Repositories\\Mst\\LoginBonusRepositoryAdapter\:\:selectEligibleComebackBonus\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Repositories/Mst/LoginBonusRepositoryAdapter.php
+
+		-
+			message: '#^Property App\\Repositories\\Mst\\LoginBonusRepositoryAdapter\:\:\$historyRepository is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: app/Repositories/Mst/LoginBonusRepositoryAdapter.php
+
+		-
 			message: '#^Method App\\Repositories\\Mst\\MstBillingPlatformProductRepository\:\:selectAllActive\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Mst\\MstBillingPlatformProduct\> but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
 			identifier: return.type
 			count: 1
@@ -4145,42 +4181,6 @@ parameters:
 			identifier: return.type
 			count: 1
 			path: app/Repositories/Mst/MstInAppPurchaseRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Mst\\MstLoginBonusRepository\:\:selectActiveByDay\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Mst/MstLoginBonusRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Mst\\MstLoginBonusRepository\:\:selectActiveDailyBonus\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Mst/MstLoginBonusRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Mst\\MstLoginBonusRepository\:\:selectContentsByLoginBonusId\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Mst/MstLoginBonusRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Mst\\MstLoginBonusRepository\:\:selectContentsByLoginBonusIdAndDay\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Mst/MstLoginBonusRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Mst\\MstLoginBonusRepository\:\:selectEligibleComebackBonus\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Mst/MstLoginBonusRepository.php
-
-		-
-			message: '#^Property App\\Repositories\\Mst\\MstLoginBonusRepository\:\:\$historyRepository is never read, only written\.$#'
-			identifier: property.onlyWritten
-			count: 1
-			path: app/Repositories/Mst/MstLoginBonusRepository.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Mst\\MstPlayerLevel\:\:\$max_stamina\.$#'
@@ -4411,6 +4411,18 @@ parameters:
 			path: app/Repositories/Mst/_BaseMstRepositoryInterface.php
 
 		-
+			message: '#^Call to an undefined method App\\Models\\Sys\\SysPlayerDevice\:\:getCreatedAt\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Repositories/Sys/PlayerDeviceRepositoryAdapter.php
+
+		-
+			message: '#^Call to an undefined method App\\Models\\Sys\\SysPlayerDevice\:\:getUpdatedAt\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Repositories/Sys/PlayerDeviceRepositoryAdapter.php
+
+		-
 			message: '#^Method App\\Repositories\\Sys\\SysDeployRepository\:\:selectActiveList\(\) has invalid return type App\\Repositories\\Sys\\Collection\.$#'
 			identifier: class.notFound
 			count: 1
@@ -4489,24 +4501,6 @@ parameters:
 			path: app/Repositories/Sys/SysMaintenanceRepository.php
 
 		-
-			message: '#^Call to an undefined method App\\Models\\Sys\\SysPlayerDevice\:\:getCreatedAt\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Repositories/Sys/SysPlayerDeviceRepository.php
-
-		-
-			message: '#^Call to an undefined method App\\Models\\Sys\\SysPlayerDevice\:\:getUpdatedAt\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Repositories/Sys/SysPlayerDeviceRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Sys\\SysPlayerDeviceRepository\:\:selectByPlayerId\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Repositories/Sys/SysPlayerDeviceRepository.php
-
-		-
 			message: '#^Access to an undefined property App\\Models\\Sys\\SysPlayer\:\:\$last_login_at\.$#'
 			identifier: property.notFound
 			count: 1
@@ -4523,6 +4517,42 @@ parameters:
 			identifier: missingType.generics
 			count: 1
 			path: app/Repositories/Sys/_BaseSysRepositoryInterface.php
+
+		-
+			message: '#^Method App\\Repositories\\Trx\\LoginBonusHistoryRepositoryAdapter\:\:insert\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Repositories/Trx/LoginBonusHistoryRepositoryAdapter.php
+
+		-
+			message: '#^Method App\\Repositories\\Trx\\LoginBonusHistoryRepositoryAdapter\:\:selectByPlayerAndBonusAndDate\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Repositories/Trx/LoginBonusHistoryRepositoryAdapter.php
+
+		-
+			message: '#^Method App\\Repositories\\Trx\\LoginBonusHistoryRepositoryAdapter\:\:selectFirstComebackByPlayerId\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Repositories/Trx/LoginBonusHistoryRepositoryAdapter.php
+
+		-
+			message: '#^Method App\\Repositories\\Trx\\LoginBonusHistoryRepositoryAdapter\:\:selectLatestByPlayer\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Repositories/Trx/LoginBonusHistoryRepositoryAdapter.php
+
+		-
+			message: '#^Method App\\Repositories\\Trx\\LoginBonusHistoryRepositoryAdapter\:\:selectLatestByPlayerId\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Repositories/Trx/LoginBonusHistoryRepositoryAdapter.php
+
+		-
+			message: '#^Property App\\Models\\Trx\\TrxStamina\:\:\$last_recovery_at \(Carbon\\CarbonImmutable\) does not accept string\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: app/Repositories/Trx/StaminaRepositoryAdapter.php
 
 		-
 			message: '#^Method App\\Repositories\\Trx\\TrxDiamondRepository\:\:selectByPlayerId\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
@@ -4553,36 +4583,6 @@ parameters:
 			identifier: return.type
 			count: 1
 			path: app/Repositories/Trx/TrxInAppPurchaseEffectRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Trx\\TrxLoginBonusHistoryRepository\:\:insert\(\) has parameter \$data with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Trx/TrxLoginBonusHistoryRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Trx\\TrxLoginBonusHistoryRepository\:\:selectByPlayerAndBonusAndDate\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Trx/TrxLoginBonusHistoryRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Trx\\TrxLoginBonusHistoryRepository\:\:selectFirstComebackByPlayerId\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Trx/TrxLoginBonusHistoryRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Trx\\TrxLoginBonusHistoryRepository\:\:selectLatestByPlayer\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Trx/TrxLoginBonusHistoryRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Trx\\TrxLoginBonusHistoryRepository\:\:selectLatestByPlayerId\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Trx/TrxLoginBonusHistoryRepository.php
 
 		-
 			message: '#^Method App\\Repositories\\Trx\\TrxMailboxRepository\:\:selectByPlayerId\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
@@ -4623,12 +4623,6 @@ parameters:
 		-
 			message: '#^PHPDoc tag @return with type Illuminate\\Support\\CustomCollection\<int, App\\Models\\Trx\\TrxStamina\> is not subtype of native type Illuminate\\Support\\Collection\.$#'
 			identifier: return.phpDocType
-			count: 1
-			path: app/Repositories/Trx/TrxStaminaRepository.php
-
-		-
-			message: '#^Property App\\Models\\Trx\\TrxStamina\:\:\$last_recovery_at \(Carbon\\CarbonImmutable\) does not accept string\.$#'
-			identifier: assign.propertyType
 			count: 1
 			path: app/Repositories/Trx/TrxStaminaRepository.php
 

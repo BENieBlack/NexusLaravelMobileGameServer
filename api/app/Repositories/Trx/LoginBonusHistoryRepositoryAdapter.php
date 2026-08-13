@@ -6,11 +6,11 @@ use Illuminate\Support\Facades\DB;
 use NexusLogin\Repositories\LoginBonusHistoryRepositoryInterface;
 
 /**
- * TrxLoginBonusHistoryRepository
+ * LoginBonusHistoryRepositoryAdapter
  *
  * Query Builderを使用したログインボーナス履歴データへのアクセス実装
  */
-class TrxLoginBonusHistoryRepository implements LoginBonusHistoryRepositoryInterface
+class LoginBonusHistoryRepositoryAdapter implements LoginBonusHistoryRepositoryInterface
 {
     /**
      * {@inheritDoc}

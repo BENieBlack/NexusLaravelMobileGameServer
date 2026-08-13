@@ -87,7 +87,7 @@ class GachaDrawUseCase extends _BaseUseCase
             $this->progressService->updateProgress($progress, $drawCount, $nextStep);
 
             // 9. 履歴保存
-            $this->saveHistory($sysPlayerId, $mstGachaId, $drawCount, $cost, $prizes);
+            $this->persistHistory($sysPlayerId, $mstGachaId, $drawCount, $cost, $prizes);
 
             // 10. レスポンス生成
             $nextStepInfo = null;
@@ -146,7 +146,7 @@ class GachaDrawUseCase extends _BaseUseCase
      *
      * @param  mixed  $cost
      */
-    private function saveHistory(int $sysPlayerId, string $mstGachaId, int $drawCount, $cost, array $prizes): void
+    private function persistHistory(int $sysPlayerId, string $mstGachaId, int $drawCount, $cost, array $prizes): void
     {
         $history = new TrxGachaHistory([
             'sys_player_id' => $sysPlayerId,

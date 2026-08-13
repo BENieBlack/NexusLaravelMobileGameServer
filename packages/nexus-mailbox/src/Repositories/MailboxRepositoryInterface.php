@@ -35,7 +35,7 @@ interface MailboxRepositoryInterface
     /**
      * メールボックスを保存
      */
-    public function save(MailboxDto $mailboxDto): void;
+    public function persist(MailboxDto $mailboxDto): void;
 
     /**
      * カテゴリ別未読数を取得

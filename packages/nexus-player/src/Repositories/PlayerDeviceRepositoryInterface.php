@@ -27,5 +27,5 @@ interface PlayerDeviceRepositoryInterface
     /**
      * デバイスを保存
      */
-    public function save(PlayerDeviceDto $playerDeviceDto): void;
+    public function persist(PlayerDeviceDto $playerDeviceDto): void;
 }

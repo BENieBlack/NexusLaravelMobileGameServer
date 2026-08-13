@@ -7,12 +7,12 @@ use LaravelWallet\Repositories\WalletBalanceRepositoryInterface;
 use Nexus\Core\Utilities\ClockUtility;
 
 /**
- * WalletBalanceRepository
+ * WalletBalanceRepositoryAdapter
  *
  * nexus-walletパッケージのWalletBalanceRepositoryInterfaceを実装
  * Application層のTrxWalletBalanceRepositoryをラップ
  */
-class WalletBalanceRepository implements WalletBalanceRepositoryInterface
+class WalletBalanceRepositoryAdapter implements WalletBalanceRepositoryInterface
 {
     public function __construct(
         private readonly TrxWalletBalanceRepository $trxWalletBalanceRepository,

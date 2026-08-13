@@ -84,7 +84,7 @@ class PlayerLevelService
         // プレイヤー情報を更新
         $player->setLevel($afterLevel);
         $player->setLevelExp($newTotalExp);
-        $this->playerRepository->save($player);
+        $this->playerRepository->persist($player);
 
         // レベルアップした場合の最大スタミナを計算
         if ($isLeveledUp) {

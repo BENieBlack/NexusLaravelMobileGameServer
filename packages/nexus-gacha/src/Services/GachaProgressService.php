@@ -85,6 +85,6 @@ class GachaProgressService
             $gachaProgressDto->setCurrentStep($nextStep);
         }
 
-        $this->progressRepository->save($gachaProgressDto);
+        $this->progressRepository->persist($gachaProgressDto);
     }
 }

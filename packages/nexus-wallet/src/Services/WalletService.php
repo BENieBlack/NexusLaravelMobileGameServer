@@ -67,7 +67,7 @@ class WalletService
         $newPaidAmount = ($wallet->paid_amount ?? 0) + $paidAmount;
 
         // 2. 現在値を更新
-        $this->walletRepository->save($playerId, $currencyId, $newFreeAmount, $newPaidAmount);
+        $this->walletRepository->persist($playerId, $currencyId, $newFreeAmount, $newPaidAmount);
 
         // 3. 無償通貨の残高レコード追加（FIFO用）
         if ($freeAmount > 0) {
@@ -118,7 +118,7 @@ class WalletService
         // 4. 現在値を減算
         $newFreeAmount = $wallet->free_amount - $consumedAmounts['free'];
         $newPaidAmount = $wallet->paid_amount - $consumedAmounts['paid'];
-        $this->walletRepository->save($playerId, $currencyId, $newFreeAmount, $newPaidAmount);
+        $this->walletRepository->persist($playerId, $currencyId, $newFreeAmount, $newPaidAmount);
 
         return new CurrencyOperationResult(
             freeAmount: $consumedAmounts['free'],
@@ -149,7 +149,7 @@ class WalletService
             if ($wallet !== null) {
                 $newFreeAmount = max(0, $wallet->free_amount - $expiredAmounts['free']);
                 $newPaidAmount = max(0, $wallet->paid_amount - $expiredAmounts['paid']);
-                $this->walletRepository->save($playerId, $currencyId, $newFreeAmount, $newPaidAmount);
+                $this->walletRepository->persist($playerId, $currencyId, $newFreeAmount, $newPaidAmount);
             }
         }
 

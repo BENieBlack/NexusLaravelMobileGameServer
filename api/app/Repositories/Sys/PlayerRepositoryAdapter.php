@@ -57,7 +57,7 @@ class PlayerRepositoryAdapter implements PlayerRepoInterface, PlayerVipRepositor
     /**
      * {@inheritDoc}
      */
-    public function save(PlayerDto $playerDto): void
+    public function persist(PlayerDto $playerDto): void
     {
         $model = $this->sysPlayerRepository->selectById($playerDto->getId());
 
@@ -85,7 +85,7 @@ class PlayerRepositoryAdapter implements PlayerRepoInterface, PlayerVipRepositor
     /**
      * {@inheritDoc}
      */
-    public function saveVipInfo(PlayerVipDto $playerVipDto): void
+    public function persistVipInfo(PlayerVipDto $playerVipDto): void
     {
         $model = $this->sysPlayerRepository->selectById($playerVipDto->getSysPlayerId());
 

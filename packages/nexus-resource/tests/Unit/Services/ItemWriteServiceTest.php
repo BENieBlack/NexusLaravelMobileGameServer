@@ -50,10 +50,10 @@ class ItemWriteServiceTest extends TestCase
             ->with($sysPlayerId, $mstItemId)
             ->willReturn(null);
 
-        // saveItemが1回呼ばれることを確認
+        // persistItemが1回呼ばれることを確認
         $this->mockRepository
             ->expects($this->once())
-            ->method('saveItem')
+            ->method('persistItem')
             ->with($this->callback(function (ItemDto $dto) use ($sysPlayerId, $mstItemId, $freeAmount, $paidAmount) {
                 return $dto->getSysPlayerId() === $sysPlayerId
                     && $dto->getMstItemId() === $mstItemId
@@ -94,10 +94,10 @@ class ItemWriteServiceTest extends TestCase
             ->with($sysPlayerId, $mstItemId)
             ->willReturn($existingDto);
 
-        // saveItemが1回呼ばれることを確認
+        // persistItemが1回呼ばれることを確認
         $this->mockRepository
             ->expects($this->once())
-            ->method('saveItem')
+            ->method('persistItem')
             ->with($this->callback(function (ItemDto $dto) use ($existingFree, $existingPaid, $addFree, $addPaid) {
                 return $dto->getFreeAmount() === ($existingFree + $addFree)
                     && $dto->getPaidAmount() === ($existingPaid + $addPaid);
@@ -133,7 +133,7 @@ class ItemWriteServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('saveItem')
+            ->method('persistItem')
             ->with($this->callback(function (ItemDto $dto) use ($freeAmount, $paidAmount, $consumeAmount) {
                 // 有償から優先的に消費されるので、無償は変わらず、有償が減る
                 return $dto->getFreeAmount() === $freeAmount
@@ -169,7 +169,7 @@ class ItemWriteServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('saveItem')
+            ->method('persistItem')
             ->with($this->callback(function (ItemDto $dto) use ($freeAmount, $consumeAmount, $paidAmount) {
                 // 有償50を全て消費、残り30を無償から消費
                 return $dto->getFreeAmount() === ($freeAmount - ($consumeAmount - $paidAmount))
@@ -252,7 +252,7 @@ class ItemWriteServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('saveItem')
+            ->method('persistItem')
             ->with($this->callback(function (ItemDto $dto) use ($existingFree, $existingPaid, $addFree, $addPaid) {
                 return $dto->getFreeAmount() === ($existingFree + $addFree)
                     && $dto->getPaidAmount() === ($existingPaid + $addPaid);
@@ -287,7 +287,7 @@ class ItemWriteServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('saveItem')
+            ->method('persistItem')
             ->with($this->callback(function (ItemDto $dto) use ($freeAmount) {
                 return $dto->getFreeAmount() === $freeAmount
                     && $dto->getPaidAmount() === 0;
@@ -322,7 +322,7 @@ class ItemWriteServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('saveItem')
+            ->method('persistItem')
             ->with($this->callback(function (ItemDto $dto) use ($freeAmount, $consumeAmount) {
                 return $dto->getFreeAmount() === ($freeAmount - $consumeAmount)
                     && $dto->getPaidAmount() === 0;
@@ -357,7 +357,7 @@ class ItemWriteServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('saveItem')
+            ->method('persistItem')
             ->with($this->callback(function (ItemDto $dto) {
                 return $dto->getFreeAmount() === 0
                     && $dto->getPaidAmount() === 0;
@@ -391,7 +391,7 @@ class ItemWriteServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('saveItem')
+            ->method('persistItem')
             ->with($this->callback(function (ItemDto $dto) use ($freeAmount, $paidAmount) {
                 return $dto->getFreeAmount() === $freeAmount
                     && $dto->getPaidAmount() === $paidAmount;
@@ -421,7 +421,7 @@ class ItemWriteServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('saveItem')
+            ->method('persistItem')
             ->with($this->callback(function (ItemDto $dto) {
                 return $dto->getFreeAmount() === 0
                     && $dto->getPaidAmount() === 0;

@@ -100,7 +100,7 @@ class VipPointServiceTest extends TestCase
             ->andReturn(1);
 
         $this->playerVipRepository
-            ->shouldReceive('saveVipInfo')
+            ->shouldReceive('persistVipInfo')
             ->once()
             ->with(Mockery::on(function ($dto) {
                 return $dto instanceof PlayerVipDto
@@ -145,7 +145,7 @@ class VipPointServiceTest extends TestCase
             ->andReturn(0, 1);
 
         $this->playerVipRepository
-            ->shouldReceive('saveVipInfo')
+            ->shouldReceive('persistVipInfo')
             ->once()
             ->with(Mockery::on(function ($dto) {
                 return $dto instanceof PlayerVipDto

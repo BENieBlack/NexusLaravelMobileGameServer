@@ -65,7 +65,7 @@ class MailboxRepositoryAdapter implements MailboxRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function save(MailboxDto $mailboxDto): void
+    public function persist(MailboxDto $mailboxDto): void
     {
         $model = $this->trxMailboxRepository->selectById($mailboxDto->getId());
 

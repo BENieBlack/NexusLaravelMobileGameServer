@@ -104,7 +104,7 @@ class StaminaService
         // スタミナを消費
         $stamina->setCurrentStamina($stamina->getCurrentStamina() - $amount);
 
-        $this->staminaRepository->save($stamina);
+        $this->staminaRepository->persist($stamina);
 
         return [
             'success' => true,
@@ -136,7 +136,7 @@ class StaminaService
         // スタミナを回復（最大値を超過可能）
         $stamina->setCurrentStamina($stamina->getCurrentStamina() + $amount);
 
-        $this->staminaRepository->save($stamina);
+        $this->staminaRepository->persist($stamina);
 
         return [
             'success' => true,

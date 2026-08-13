@@ -7,12 +7,12 @@ use NexusResource\Contracts\ItemRepositoryInterface;
 use NexusResource\DTOs\ItemDto;
 
 /**
- * ItemRepository
+ * ItemRepositoryAdapter
  *
  * ItemRepositoryInterfaceの実装クラス
  * TrxItemモデル ↔ ItemDto の変換を担当
  */
-class ItemRepository implements ItemRepositoryInterface
+class ItemRepositoryAdapter implements ItemRepositoryInterface
 {
     public function __construct(
         private readonly TrxItemRepository $trxItemRepository,
@@ -37,7 +37,7 @@ class ItemRepository implements ItemRepositoryInterface
     /**
      * アイテムを保存（新規作成 or 更新）
      */
-    public function saveItem(ItemDto $itemDto): void
+    public function persistItem(ItemDto $itemDto): void
     {
         $trxItem = TrxItem::query()
             ->where('sys_player_id', $itemDto->getSysPlayerId())

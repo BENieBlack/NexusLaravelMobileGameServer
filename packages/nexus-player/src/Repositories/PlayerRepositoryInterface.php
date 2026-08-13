@@ -29,7 +29,7 @@ interface PlayerRepositoryInterface
     /**
      * プレイヤーを保存
      */
-    public function save(PlayerDto $playerDto): void;
+    public function persist(PlayerDto $playerDto): void;
 
     /**
      * My IDの存在確認

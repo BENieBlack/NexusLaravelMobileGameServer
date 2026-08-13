@@ -27,7 +27,7 @@ interface ItemRepositoryInterface
      * @param ItemDto $itemDto
      * @return void
      */
-    public function saveItem(ItemDto $itemDto): void;
+    public function persistItem(ItemDto $itemDto): void;
 
     /**
      * 複数アイテムを一括取得

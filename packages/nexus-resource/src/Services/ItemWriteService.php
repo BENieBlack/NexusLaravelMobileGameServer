@@ -56,7 +56,7 @@ class ItemWriteService
         }
 
         // 保存
-        $this->itemRepository->saveItem($itemDto);
+        $this->itemRepository->persistItem($itemDto);
 
         return $itemDto;
     }
@@ -87,7 +87,7 @@ class ItemWriteService
         $this->consumeWithPaidFirst($itemDto, $amount);
 
         // 保存
-        $this->itemRepository->saveItem($itemDto);
+        $this->itemRepository->persistItem($itemDto);
 
         return $itemDto;
     }

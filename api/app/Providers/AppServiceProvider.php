@@ -9,12 +9,12 @@ use App\Domain\Login\Services\VipLoginBonusService;
 use App\Domain\Player\Services\PlayerLevelServiceAdapter;
 use App\Persistence\ApiSession;
 use App\Repositories\Log\LogVipPointRepository;
+use App\Repositories\Mst\LoginBonusRepositoryAdapter;
 use App\Repositories\Mst\MstGachaPrizeRepository;
 use App\Repositories\Mst\MstGachaRarityRateRepository;
 use App\Repositories\Mst\MstGachaStepBonusContentRepository;
 use App\Repositories\Mst\MstGachaStepBonusRepository;
 use App\Repositories\Mst\MstGachaStepRepository;
-use App\Repositories\Mst\MstLoginBonusRepository;
 use App\Repositories\Mst\MstVipLevelRepository;
 use App\Repositories\Mst\MstVipLevelRewardRepository;
 use App\Repositories\Mst\MstVipLoginBonusRepository;
@@ -24,21 +24,22 @@ use App\Repositories\Sys\DeployRepositoryAdapter;
 use App\Repositories\Sys\GuildApplyRepositoryAdapter;
 use App\Repositories\Sys\GuildMemberRepositoryAdapter;
 use App\Repositories\Sys\GuildRepositoryAdapter;
+use App\Repositories\Sys\PlayerDeviceRepositoryAdapter;
 use App\Repositories\Sys\PlayerRepositoryAdapter;
 use App\Repositories\Sys\SysMaintenanceRepository;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
 use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;
-use App\Repositories\Trx\DiamondRepository;
-use App\Repositories\Trx\ItemRepository;
+use App\Repositories\Trx\DiamondRepositoryAdapter;
+use App\Repositories\Trx\GachaProgressRepositoryAdapter;
+use App\Repositories\Trx\ItemRepositoryAdapter;
+use App\Repositories\Trx\LoginBonusHistoryRepositoryAdapter;
 use App\Repositories\Trx\MailboxRepositoryAdapter;
-use App\Repositories\Trx\TrxGachaRepository;
-use App\Repositories\Trx\TrxLoginBonusHistoryRepository;
-use App\Repositories\Trx\TrxStaminaRepository;
+use App\Repositories\Trx\StaminaRepositoryAdapter;
 use App\Repositories\Trx\TrxVipLoginBonusHistoryRepository;
 use App\Repositories\Trx\VipLoginBonusHistoryRepositoryInterface;
-use App\Repositories\Trx\WalletBalanceRepository;
-use App\Repositories\Trx\WalletRepository;
+use App\Repositories\Trx\WalletBalanceRepositoryAdapter;
+use App\Repositories\Trx\WalletRepositoryAdapter;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use LaravelWallet\Repositories\WalletBalanceRepositoryInterface;
@@ -120,8 +121,8 @@ class AppServiceProvider extends ServiceProvider
         // ==========================================
 
         // Repository interfaces
-        $this->app->bind(LoginBonusRepositoryInterface::class, MstLoginBonusRepository::class);
-        $this->app->bind(LoginBonusHistoryRepositoryInterface::class, TrxLoginBonusHistoryRepository::class);
+        $this->app->bind(LoginBonusRepositoryInterface::class, LoginBonusRepositoryAdapter::class);
+        $this->app->bind(LoginBonusHistoryRepositoryInterface::class, LoginBonusHistoryRepositoryAdapter::class);
 
         // VIPログインボーナス用Repository
         $this->app->bind(VipLoginBonusRepositoryInterface::class, MstVipLoginBonusRepository::class);
@@ -143,7 +144,7 @@ class AppServiceProvider extends ServiceProvider
         // ==========================================
 
         // Repository interfaces
-        $this->app->bind(StaminaRepositoryInterface::class, TrxStaminaRepository::class);
+        $this->app->bind(StaminaRepositoryInterface::class, StaminaRepositoryAdapter::class);
         $this->app->bind(PlayerLevelServiceInterface::class, PlayerLevelServiceAdapter::class);
 
         // ==========================================
@@ -156,7 +157,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(GachaStepRepositoryInterface::class, MstGachaStepRepository::class);
         $this->app->bind(GachaStepBonusRepositoryInterface::class, MstGachaStepBonusRepository::class);
         $this->app->bind(GachaStepBonusContentRepositoryInterface::class, MstGachaStepBonusContentRepository::class);
-        $this->app->bind(GachaProgressRepositoryInterface::class, TrxGachaRepository::class);
+        $this->app->bind(GachaProgressRepositoryInterface::class, GachaProgressRepositoryAdapter::class);
 
         // ==========================================
         // NexusMailbox Package Bindings
@@ -171,7 +172,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Repository interfaces
         $this->app->bind(PlayerRepoInterface::class, PlayerRepositoryAdapter::class);
-        $this->app->bind(PlayerDeviceRepositoryInterface::class, SysPlayerDeviceRepository::class);
+        $this->app->bind(PlayerDeviceRepositoryInterface::class, PlayerDeviceRepositoryAdapter::class);
         $this->app->bind(PlayerLevelRepositoryInterface::class, PlayerLevelRepositoryAdapter::class);
 
         // ==========================================
@@ -198,22 +199,22 @@ class AppServiceProvider extends ServiceProvider
         // ==========================================
 
         // Repository interfaces
-        $this->app->bind(ItemRepositoryInterface::class, ItemRepository::class);
+        $this->app->bind(ItemRepositoryInterface::class, ItemRepositoryAdapter::class);
 
         // ==========================================
         // NexusBilling Package Bindings
         // ==========================================
 
         // Repository interfaces
-        $this->app->bind(DiamondRepositoryInterface::class, DiamondRepository::class);
+        $this->app->bind(DiamondRepositoryInterface::class, DiamondRepositoryAdapter::class);
 
         // ==========================================
         // NexusWallet (LaravelWallet) Package Bindings
         // ==========================================
 
         // Repository interfaces
-        $this->app->bind(WalletRepositoryInterface::class, WalletRepository::class);
-        $this->app->bind(WalletBalanceRepositoryInterface::class, WalletBalanceRepository::class);
+        $this->app->bind(WalletRepositoryInterface::class, WalletRepositoryAdapter::class);
+        $this->app->bind(WalletBalanceRepositoryInterface::class, WalletBalanceRepositoryAdapter::class);
 
         // ==========================================
         // ResourceDelivery Package Bindings

@@ -54,7 +54,7 @@ class StaminaServiceTest extends TestCase
             lastRecoveryAt: '2026-01-15 10:00:00'
         );
 
-        $this->staminaRepository->shouldReceive('create')
+        $this->staminaRepository->shouldReceive('insert')
             ->once()
             ->with(Mockery::on(function ($dto) use ($sysPlayerId, $initialStamina) {
                 return $dto instanceof StaminaDto
@@ -82,7 +82,7 @@ class StaminaServiceTest extends TestCase
         // Arrange
         $sysPlayerId = 1;
 
-        $this->staminaRepository->shouldReceive('findByPlayerAndType')
+        $this->staminaRepository->shouldReceive('selectByPlayerAndType')
             ->once()
             ->with($sysPlayerId, StaminaConst::TYPE_NORMAL)
             ->andReturn(null);
@@ -111,7 +111,7 @@ class StaminaServiceTest extends TestCase
             lastRecoveryAt: '2026-01-15 10:00:00'
         );
 
-        $this->staminaRepository->shouldReceive('findByPlayerAndType')
+        $this->staminaRepository->shouldReceive('selectByPlayerAndType')
             ->once()
             ->with($sysPlayerId, StaminaConst::TYPE_NORMAL)
             ->andReturn($stamina);
@@ -121,7 +121,7 @@ class StaminaServiceTest extends TestCase
             ->with($sysPlayerId)
             ->andReturn(100);
 
-        $this->staminaRepository->shouldReceive('save')
+        $this->staminaRepository->shouldReceive('persist')
             ->once()
             ->with(Mockery::on(function ($dto) {
                 return $dto->getCurrentStamina() === 70; // 100 - 30
@@ -153,7 +153,7 @@ class StaminaServiceTest extends TestCase
             lastRecoveryAt: '2026-01-15 10:00:00'
         );
 
-        $this->staminaRepository->shouldReceive('findByPlayerAndType')
+        $this->staminaRepository->shouldReceive('selectByPlayerAndType')
             ->once()
             ->with($sysPlayerId, StaminaConst::TYPE_NORMAL)
             ->andReturn($stamina);
@@ -189,7 +189,7 @@ class StaminaServiceTest extends TestCase
             lastRecoveryAt: '2026-01-15 10:00:00'
         );
 
-        $this->staminaRepository->shouldReceive('findByPlayerAndType')
+        $this->staminaRepository->shouldReceive('selectByPlayerAndType')
             ->once()
             ->with($sysPlayerId, StaminaConst::TYPE_NORMAL)
             ->andReturn($stamina);
@@ -199,7 +199,7 @@ class StaminaServiceTest extends TestCase
             ->with($sysPlayerId)
             ->andReturn(100);
 
-        $this->staminaRepository->shouldReceive('save')
+        $this->staminaRepository->shouldReceive('persist')
             ->once()
             ->with(Mockery::on(function ($dto) {
                 return $dto->getCurrentStamina() === 100; // 50 + 50
@@ -231,7 +231,7 @@ class StaminaServiceTest extends TestCase
             lastRecoveryAt: '2026-01-15 10:00:00'
         );
 
-        $this->staminaRepository->shouldReceive('findByPlayerAndType')
+        $this->staminaRepository->shouldReceive('selectByPlayerAndType')
             ->once()
             ->with($sysPlayerId, StaminaConst::TYPE_NORMAL)
             ->andReturn($stamina);
@@ -241,7 +241,7 @@ class StaminaServiceTest extends TestCase
             ->with($sysPlayerId)
             ->andReturn(100);
 
-        $this->staminaRepository->shouldReceive('save')
+        $this->staminaRepository->shouldReceive('persist')
             ->once()
             ->with(Mockery::on(function ($dto) {
                 return $dto->getCurrentStamina() === 150; // 最大値超過を許可
@@ -264,7 +264,7 @@ class StaminaServiceTest extends TestCase
         $sysPlayerId = 1;
         $amount = 30;
 
-        $this->staminaRepository->shouldReceive('findByPlayerAndType')
+        $this->staminaRepository->shouldReceive('selectByPlayerAndType')
             ->once()
             ->with($sysPlayerId, StaminaConst::TYPE_NORMAL)
             ->andReturn(null);
@@ -287,7 +287,7 @@ class StaminaServiceTest extends TestCase
         $sysPlayerId = 1;
         $amount = 50;
 
-        $this->staminaRepository->shouldReceive('findByPlayerAndType')
+        $this->staminaRepository->shouldReceive('selectByPlayerAndType')
             ->once()
             ->with($sysPlayerId, StaminaConst::TYPE_NORMAL)
             ->andReturn(null);

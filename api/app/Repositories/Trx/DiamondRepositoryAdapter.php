@@ -7,12 +7,12 @@ use NexusBilling\Contracts\DiamondRepositoryInterface;
 use NexusBilling\DTOs\DiamondBalanceDto;
 
 /**
- * DiamondRepository
+ * DiamondRepositoryAdapter
  *
  * DiamondRepositoryInterfaceの実装クラス
  * TrxDiamondモデル ↔ DiamondBalanceDto の変換を担当
  */
-class DiamondRepository implements DiamondRepositoryInterface
+class DiamondRepositoryAdapter implements DiamondRepositoryInterface
 {
     public function __construct(
         private readonly TrxDiamondRepository $trxDiamondRepository,
@@ -47,7 +47,7 @@ class DiamondRepository implements DiamondRepositoryInterface
     /**
      * ダイヤモンド残高を保存（新規作成 or 更新）
      */
-    public function saveDiamond(DiamondBalanceDto $diamondDto): void
+    public function persistDiamond(DiamondBalanceDto $diamondDto): void
     {
         $trxDiamond = $this->trxDiamondRepository->selectByPlatform(
             $diamondDto->getSysPlayerId(),

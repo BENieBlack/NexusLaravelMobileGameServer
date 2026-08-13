@@ -9,11 +9,11 @@ use NexusLogin\Repositories\LoginBonusHistoryRepositoryInterface;
 use NexusLogin\Repositories\LoginBonusRepositoryInterface;
 
 /**
- * MstLoginBonusRepository
+ * LoginBonusRepositoryAdapter
  *
  * Eloquent ORMを使用したログインボーナスマスタデータへのアクセス実装
  */
-class MstLoginBonusRepository implements LoginBonusRepositoryInterface
+class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
 {
     public function __construct(
         private readonly LoginBonusHistoryRepositoryInterface $historyRepository,

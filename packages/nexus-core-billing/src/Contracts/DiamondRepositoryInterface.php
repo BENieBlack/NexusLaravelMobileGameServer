@@ -35,5 +35,5 @@ interface DiamondRepositoryInterface
      * @param DiamondBalanceDto $diamondDto
      * @return void
      */
-    public function saveDiamond(DiamondBalanceDto $diamondDto): void;
+    public function persistDiamond(DiamondBalanceDto $diamondDto): void;
 }

@@ -26,7 +26,7 @@ interface GachaProgressRepositoryInterface
      * @param GachaProgressDto $gachaProgressDto
      * @return void
      */
-    public function save(GachaProgressDto $gachaProgressDto): void;
+    public function persist(GachaProgressDto $gachaProgressDto): void;
 
     /**
      * 新規進行状況を作成

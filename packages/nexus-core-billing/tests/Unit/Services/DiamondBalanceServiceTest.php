@@ -48,7 +48,7 @@ class DiamondBalanceServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('saveDiamond')
+            ->method('persistDiamond')
             ->with($this->callback(function (DiamondBalanceDto $dto) use ($freeAmount, $addAmount, $paidAmount) {
                 return $dto->getFreeAmount() === ($freeAmount + $addAmount)
                     && $dto->getPaidAmount() === $paidAmount;
@@ -85,7 +85,7 @@ class DiamondBalanceServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('saveDiamond');
+            ->method('persistDiamond');
 
         // Act
         $result = $this->diamondBalanceService->addDiamond($sysPlayerId, $platform, $addAmount, true);
@@ -113,7 +113,7 @@ class DiamondBalanceServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('saveDiamond')
+            ->method('persistDiamond')
             ->with($this->callback(function (DiamondBalanceDto $dto) use ($addAmount) {
                 return $dto->getFreeAmount() === $addAmount
                     && $dto->getPaidAmount() === 0;
@@ -202,7 +202,7 @@ class DiamondBalanceServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('saveDiamond');
+            ->method('persistDiamond');
 
         // Act
         $this->diamondBalanceService->consumeDiamond($sysPlayerId, $consumeAmount, false);
@@ -233,7 +233,7 @@ class DiamondBalanceServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->exactly(2))
-            ->method('saveDiamond');
+            ->method('persistDiamond');
 
         // Act
         $this->diamondBalanceService->consumeDiamond($sysPlayerId, $consumeAmount, false);
@@ -265,7 +265,7 @@ class DiamondBalanceServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('saveDiamond');
+            ->method('persistDiamond');
 
         // Act
         $this->diamondBalanceService->consumeDiamond($sysPlayerId, $consumeAmount, true);
@@ -347,7 +347,7 @@ class DiamondBalanceServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('saveDiamond')
+            ->method('persistDiamond')
             ->with($this->callback(function (DiamondBalanceDto $dto) use ($addAmount) {
                 return $dto->getPaidAmount() === $addAmount
                     && $dto->getFreeAmount() === 0;
@@ -383,7 +383,7 @@ class DiamondBalanceServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->atLeast(2))
-            ->method('saveDiamond');
+            ->method('persistDiamond');
 
         // Act
         $this->diamondBalanceService->consumeDiamond($sysPlayerId, $consumeAmount, false);
@@ -438,7 +438,7 @@ class DiamondBalanceServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->exactly(2))
-            ->method('saveDiamond');
+            ->method('persistDiamond');
 
         // Act
         $this->diamondBalanceService->consumeDiamond($sysPlayerId, $consumeAmount, false);
@@ -469,7 +469,7 @@ class DiamondBalanceServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('saveDiamond');
+            ->method('persistDiamond');
 
         // Act
         $this->diamondBalanceService->consumeDiamond($sysPlayerId, $consumeAmount, true);
@@ -499,7 +499,7 @@ class DiamondBalanceServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('saveDiamond')
+            ->method('persistDiamond')
             ->with($this->callback(function (DiamondBalanceDto $dto) use ($freeAmount, $paidAmount) {
                 return $dto->getFreeAmount() === $freeAmount
                     && $dto->getPaidAmount() === $paidAmount;
@@ -535,7 +535,7 @@ class DiamondBalanceServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->exactly(2))
-            ->method('saveDiamond');
+            ->method('persistDiamond');
 
         // Act
         $this->diamondBalanceService->consumeDiamond($sysPlayerId, $consumeAmount, true);

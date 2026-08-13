@@ -88,7 +88,7 @@ class DiamondBalanceService
         }
 
         // 保存
-        $this->diamondRepository->saveDiamond($diamondDto);
+        $this->diamondRepository->persistDiamond($diamondDto);
 
         return $diamondDto;
     }
@@ -178,7 +178,7 @@ class DiamondBalanceService
 
             $consume = min($paidAmount, $remaining);
             $diamondDto->setPaidAmount($paidAmount - $consume);
-            $this->diamondRepository->saveDiamond($diamondDto);
+            $this->diamondRepository->persistDiamond($diamondDto);
             $remaining -= $consume;
         }
     }
@@ -203,7 +203,7 @@ class DiamondBalanceService
 
             $consume = min($freeAmount, $remaining);
             $diamondDto->setFreeAmount($freeAmount - $consume);
-            $this->diamondRepository->saveDiamond($diamondDto);
+            $this->diamondRepository->persistDiamond($diamondDto);
             $remaining -= $consume;
         }
 

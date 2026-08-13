@@ -21,7 +21,7 @@ interface StaminaRepositoryInterface
     /**
      * スタミナデータを保存
      */
-    public function save(StaminaDto $staminaDto): void;
+    public function persist(StaminaDto $staminaDto): void;
 
     /**
      * 新規スタミナデータを作成

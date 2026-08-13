@@ -34,7 +34,7 @@ class ItemReadService
      */
     public function getItemAmount(int $sysPlayerId, string $mstItemId): int
     {
-        $itemDto = $this->itemRepository->findItem($sysPlayerId, $mstItemId);
+        $itemDto = $this->itemRepository->selectItem($sysPlayerId, $mstItemId);
 
         return $itemDto ? $itemDto->getTotalAmount() : 0;
     }
@@ -48,7 +48,7 @@ class ItemReadService
      */
     public function getItemAmounts(int $sysPlayerId, array $mstItemIds): array
     {
-        $itemDtos = $this->itemRepository->findItemsByIds($sysPlayerId, $mstItemIds);
+        $itemDtos = $this->itemRepository->selectItemsByIds($sysPlayerId, $mstItemIds);
 
         $amounts = [];
         foreach ($itemDtos as $itemDto) {

@@ -36,7 +36,7 @@ class MstVipLevelRepository extends _BaseMstRepository implements VipLevelReposi
      *
      * @param  int  $level  VIPレベル
      */
-    public function findByLevel(int $level): ?MstVipLevel
+    public function selectByLevel(int $level): ?MstVipLevel
     {
         return $this->queryOrMemory()
             ->where('level', $level)
@@ -49,9 +49,9 @@ class MstVipLevelRepository extends _BaseMstRepository implements VipLevelReposi
      *
      * @param  string  $id  VIPレベルID (例: "vip_5")
      */
-    public function findById(string $id): ?MstVipLevel
+    public function selectById($id): ?MstVipLevel
     {
-        return $this->selectById($id);
+        return parent::selectById($id);
     }
 
     /**
@@ -60,7 +60,7 @@ class MstVipLevelRepository extends _BaseMstRepository implements VipLevelReposi
      *
      * @param  int  $points  累積VIPポイント
      */
-    public function findMaxLevelByPoints(int $points): MstVipLevel
+    public function selectMaxLevelByPoints(int $points): MstVipLevel
     {
         // required_point降順でソートし、pointsを超えない最初のレベルを返す
         $level = $this->queryOrMemory()
@@ -72,7 +72,7 @@ class MstVipLevelRepository extends _BaseMstRepository implements VipLevelReposi
 
         // 該当するレベルがない場合はVIP0を返す
         if ($level === null) {
-            $level = $this->findByLevel(0);
+            $level = $this->selectByLevel(0);
 
             // VIP0も見つからない場合は例外
             if ($level === null) {
@@ -88,7 +88,7 @@ class MstVipLevelRepository extends _BaseMstRepository implements VipLevelReposi
      *
      * @return CustomCollection<MstVipLevel>
      */
-    public function findAllActiveOrderByLevel(): CustomCollection
+    public function selectAllActiveOrderByLevel(): CustomCollection
     {
         return $this->queryOrMemory()
             ->where('is_active', true)

@@ -21,7 +21,7 @@ class MstInAppPurchaseContentRepository extends _BaseMstRepository
      *
      * @return CustomCollection<int, MstInAppPurchaseContent>
      */
-    public function findAllByMstInAppPurchaseId(int $mstInAppPurchaseId): CustomCollection
+    public function selectAllByMstInAppPurchaseId(int $mstInAppPurchaseId): CustomCollection
     {
         return $this->queryOrMemory()
             ->where('mst_in_app_purchase_id', $mstInAppPurchaseId)
@@ -35,7 +35,7 @@ class MstInAppPurchaseContentRepository extends _BaseMstRepository
      * @param  string  $contentType  コンテンツタイプ (Item, Unit, FreeDiamond)
      * @return CustomCollection<int, MstInAppPurchaseContent>
      */
-    public function findAllByMstInAppPurchaseIdAndContentType(
+    public function selectAllByMstInAppPurchaseIdAndContentType(
         int $mstInAppPurchaseId,
         string $contentType
     ): CustomCollection {

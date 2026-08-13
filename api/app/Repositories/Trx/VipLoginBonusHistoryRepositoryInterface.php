@@ -12,12 +12,12 @@ interface VipLoginBonusHistoryRepositoryInterface
     /**
      * プレイヤーの最新VIPログインボーナス履歴を取得
      */
-    public function findLatestByPlayerId(int $sysPlayerId, string $connectionName): ?array;
+    public function selectLatestByPlayerId(int $sysPlayerId, string $connectionName): ?array;
 
     /**
      * プレイヤーとVIPログインボーナスIDと日付から履歴を取得
      */
-    public function findByPlayerAndBonusAndDate(
+    public function selectByPlayerAndBonusAndDate(
         int $sysPlayerId,
         string $vipLoginBonusId,
         string $receivedDate,

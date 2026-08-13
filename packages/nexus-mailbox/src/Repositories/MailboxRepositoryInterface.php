@@ -19,7 +19,7 @@ interface MailboxRepositoryInterface
      *
      * @return Collection<MailboxDto>
      */
-    public function findByPlayerId(
+    public function selectByPlayerId(
         int $sysPlayerId,
         ?Category $category = null,
         ?Priority $priority = null,
@@ -30,7 +30,7 @@ interface MailboxRepositoryInterface
     /**
      * IDでメールボックスを取得
      */
-    public function findById(int $id): ?MailboxDto;
+    public function selectById(int $id): ?MailboxDto;
 
     /**
      * メールボックスを保存

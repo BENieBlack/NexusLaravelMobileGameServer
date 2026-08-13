@@ -54,7 +54,7 @@ class SysMaintenanceRepository extends _BaseSysRepository implements Maintenance
      * {@inheritDoc}
      * MaintenanceRepositoryInterface実装
      */
-    public function findCurrent(): ?array
+    public function selectCurrent(): ?array
     {
         $sysMaintenance = $this->selectCurrentMaintenance();
 

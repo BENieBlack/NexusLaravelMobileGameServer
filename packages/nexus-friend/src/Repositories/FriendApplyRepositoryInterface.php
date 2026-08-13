@@ -16,7 +16,7 @@ interface FriendApplyRepositoryInterface
      *
      * @param  int  $friendApplyId  フレンド申請ID
      */
-    public function findById(int $friendApplyId): ?FriendApplyDto;
+    public function selectById(int $friendApplyId): ?FriendApplyDto;
 
     /**
      * 申請者と受信者のペアで既存の申請を検索（双方向チェック）
@@ -26,7 +26,7 @@ interface FriendApplyRepositoryInterface
      * @param  int  $senderPlayerId  申請者のプレイヤーID
      * @param  int  $receiverPlayerId  受信者のプレイヤーID
      */
-    public function findByPlayerPair(int $senderPlayerId, int $receiverPlayerId): ?FriendApplyDto;
+    public function selectByPlayerPair(int $senderPlayerId, int $receiverPlayerId): ?FriendApplyDto;
 
     /**
      * プレイヤーIDに関連するフレンド申請一覧を取得
@@ -37,7 +37,7 @@ interface FriendApplyRepositoryInterface
      * @param  int  $playerId  プレイヤーID
      * @return array<FriendApplyDto>
      */
-    public function findAppliesByPlayerId(int $playerId): array;
+    public function selectAppliesByPlayerId(int $playerId): array;
 
     /**
      * プレイヤーIDに関連する承認済みフレンド一覧を取得
@@ -48,7 +48,7 @@ interface FriendApplyRepositoryInterface
      * @param  int  $playerId  プレイヤーID
      * @return array<FriendApplyDto>
      */
-    public function findAcceptedFriendsByPlayerId(int $playerId): array;
+    public function selectAcceptedFriendsByPlayerId(int $playerId): array;
 
     /**
      * フレンド申請を作成

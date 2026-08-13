@@ -22,19 +22,19 @@ interface VipLevelRepositoryInterface
      *
      * @param  int  $level  VIPレベル
      */
-    public function findByLevel(int $level): ?MstVipLevel;
+    public function selectByLevel(int $level): ?MstVipLevel;
 
     /**
      * VIPレベルIDで検索
      *
      * @param  string  $id  VIPレベルID (例: "vip_5")
      */
-    public function findById(string $id): ?MstVipLevel;
+    public function selectById(string $id): ?MstVipLevel;
 
     /**
      * 必要ポイント以下の最大レベルを取得
      *
      * @param  int  $points  累積VIPポイント
      */
-    public function findMaxLevelByPoints(int $points): MstVipLevel;
+    public function selectMaxLevelByPoints(int $points): MstVipLevel;
 }

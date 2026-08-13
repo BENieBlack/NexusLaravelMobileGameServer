@@ -21,7 +21,7 @@ class MstInAppPurchaseEffectRepository extends _BaseMstRepository
      *
      * @return CustomCollection<int, MstInAppPurchaseEffect>
      */
-    public function findAllByMstInAppPurchaseId(int $mstInAppPurchaseId): CustomCollection
+    public function selectAllByMstInAppPurchaseId(int $mstInAppPurchaseId): CustomCollection
     {
         return $this->queryOrMemory()
             ->where('mst_in_app_purchase_id', $mstInAppPurchaseId)
@@ -33,7 +33,7 @@ class MstInAppPurchaseEffectRepository extends _BaseMstRepository
      *
      * @param  string  $effectType  効果タイプ
      */
-    public function findByMstInAppPurchaseIdAndEffectType(
+    public function selectByMstInAppPurchaseIdAndEffectType(
         int $mstInAppPurchaseId,
         string $effectType
     ): ?MstInAppPurchaseEffect {

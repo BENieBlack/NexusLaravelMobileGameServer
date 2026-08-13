@@ -16,7 +16,7 @@ interface WalletRepositoryInterface
      * @param string $currencyId 通貨アイテムID
      * @return object|null { free_amount: int, paid_amount: int, total_amount: int } または null
      */
-    public function findByCurrencyId(int $playerId, string $currencyId): ?object;
+    public function selectByCurrencyId(int $playerId, string $currencyId): ?object;
 
     /**
      * 通貨現在値を保存（INSERT or UPDATE）

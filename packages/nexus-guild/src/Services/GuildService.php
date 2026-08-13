@@ -34,7 +34,7 @@ class GuildService
      */
     public function validateGuildNameUnique(string $name): void
     {
-        $existingGuild = $this->guildRepository->findByName($name);
+        $existingGuild = $this->guildRepository->selectByName($name);
 
         if ($existingGuild !== null) {
             throw GuildException::guildNameAlreadyExists($name);
@@ -50,7 +50,7 @@ class GuildService
      */
     public function validatePlayerNotInGuild(int $playerId): void
     {
-        $member = $this->memberRepository->findByPlayerId($playerId);
+        $member = $this->memberRepository->selectByPlayerId($playerId);
 
         if ($member !== null) {
             throw GuildException::alreadyInGuild($playerId);
@@ -66,7 +66,7 @@ class GuildService
      */
     public function validatePlayerInGuild(int $playerId): GuildMemberDto
     {
-        $member = $this->memberRepository->findByPlayerId($playerId);
+        $member = $this->memberRepository->selectByPlayerId($playerId);
 
         if ($member === null) {
             throw GuildException::notInGuild($playerId);
@@ -85,7 +85,7 @@ class GuildService
      */
     public function validateNoDuplicateApply(int $guildId, int $playerId): void
     {
-        $existingApply = $this->applyRepository->findByGuildAndPlayer($guildId, $playerId);
+        $existingApply = $this->applyRepository->selectByGuildAndPlayer($guildId, $playerId);
 
         if ($existingApply !== null) {
             throw GuildException::applyAlreadyExists($guildId, $playerId);
@@ -187,7 +187,7 @@ class GuildService
      */
     public function sendApply(int $guildId, int $playerId): GuildApplyDto
     {
-        $guild = $this->guildRepository->findById($guildId);
+        $guild = $this->guildRepository->selectById($guildId);
         if ($guild === null) {
             throw GuildException::guildNotFound($guildId);
         }
@@ -207,13 +207,13 @@ class GuildService
      */
     public function acceptApply(int $applyId, int $currentPlayerId): GuildApplyDto
     {
-        $applyDto = $this->applyRepository->findById($applyId);
+        $applyDto = $this->applyRepository->selectById($applyId);
         if ($applyDto === null) {
             throw GuildException::applyNotFound($applyId);
         }
 
         // 承認者がギルドメンバーであることを確認
-        $approverMember = $this->memberRepository->findByGuildAndPlayer(
+        $approverMember = $this->memberRepository->selectByGuildAndPlayer(
             $applyDto->getSysGuildId(),
             $currentPlayerId
         );
@@ -226,7 +226,7 @@ class GuildService
         $this->validateCanAccept($applyDto);
 
         // ギルドが満員でないか再確認
-        $guild = $this->guildRepository->findById($applyDto->getSysGuildId());
+        $guild = $this->guildRepository->selectById($applyDto->getSysGuildId());
         if ($guild === null) {
             throw GuildException::guildNotFound($applyDto->getSysGuildId());
         }
@@ -243,13 +243,13 @@ class GuildService
      */
     public function rejectApply(int $applyId, int $currentPlayerId): GuildApplyDto
     {
-        $applyDto = $this->applyRepository->findById($applyId);
+        $applyDto = $this->applyRepository->selectById($applyId);
         if ($applyDto === null) {
             throw GuildException::applyNotFound($applyId);
         }
 
         // 却下者がギルドメンバーであることを確認
-        $rejecterMember = $this->memberRepository->findByGuildAndPlayer(
+        $rejecterMember = $this->memberRepository->selectByGuildAndPlayer(
             $applyDto->getSysGuildId(),
             $currentPlayerId
         );
@@ -292,7 +292,7 @@ class GuildService
      */
     public function getApplyList(int $guildId): array
     {
-        return $this->applyRepository->findAppliesByGuildId($guildId);
+        return $this->applyRepository->selectAppliesByGuildId($guildId);
     }
 
     /**
@@ -303,7 +303,7 @@ class GuildService
      */
     public function getMemberList(int $guildId): array
     {
-        return $this->memberRepository->findByGuildId($guildId);
+        return $this->memberRepository->selectByGuildId($guildId);
     }
 
     /**
@@ -313,12 +313,12 @@ class GuildService
      */
     public function getPlayerGuild(int $playerId): ?GuildDto
     {
-        $member = $this->memberRepository->findByPlayerId($playerId);
+        $member = $this->memberRepository->selectByPlayerId($playerId);
         if ($member === null) {
             return null;
         }
 
-        return $this->guildRepository->findById($member->getSysGuildId());
+        return $this->guildRepository->selectById($member->getSysGuildId());
     }
 
     /**
@@ -328,6 +328,6 @@ class GuildService
      */
     public function getAllGuilds(): array
     {
-        return $this->guildRepository->findAll();
+        return $this->guildRepository->selectAll();
     }
 }

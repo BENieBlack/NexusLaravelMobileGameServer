@@ -12,7 +12,7 @@ interface PlayerVipRepositoryInterface
     /**
      * プレイヤーIDでVIP情報を検索
      */
-    public function findVipInfoById(int $sysPlayerId): ?PlayerVipDto;
+    public function selectVipInfoById(int $sysPlayerId): ?PlayerVipDto;
 
     /**
      * プレイヤーVIP情報を保存（Unit of Workパターンで使用）
@@ -27,5 +27,5 @@ interface PlayerVipRepositoryInterface
      * @param  int  $limit  取得件数
      * @return array<PlayerVipDto>
      */
-    public function findByPointRange(int $minPoint, ?int $maxPoint = null, int $limit = 100): array;
+    public function selectByPointRange(int $minPoint, ?int $maxPoint = null, int $limit = 100): array;
 }

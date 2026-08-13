@@ -18,7 +18,7 @@ class MstGachaStepBonusRepository extends _BaseMstRepository implements GachaSte
     /**
      * {@inheritDoc}
      */
-    public function findByStepId(string $stepId): CustomCollection
+    public function selectByStepId(string $stepId): CustomCollection
     {
         $this->queryOrMemory();
 

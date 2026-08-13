@@ -29,7 +29,7 @@ class FriendService
      */
     public function validateNoDuplicateApply(int $senderPlayerId, int $receiverPlayerId): void
     {
-        $existingApply = $this->repository->findByPlayerPair($senderPlayerId, $receiverPlayerId);
+        $existingApply = $this->repository->selectByPlayerPair($senderPlayerId, $receiverPlayerId);
 
         if ($existingApply === null) {
             return;
@@ -144,7 +144,7 @@ class FriendService
      */
     public function acceptApply(int $friendApplyId, int $currentPlayerId): FriendApplyDto
     {
-        $applyDto = $this->repository->findById($friendApplyId);
+        $applyDto = $this->repository->selectById($friendApplyId);
 
         if ($applyDto === null) {
             throw new \RuntimeException('Friend apply not found');
@@ -166,7 +166,7 @@ class FriendService
      */
     public function rejectApply(int $friendApplyId, int $currentPlayerId): FriendApplyDto
     {
-        $applyDto = $this->repository->findById($friendApplyId);
+        $applyDto = $this->repository->selectById($friendApplyId);
 
         if ($applyDto === null) {
             throw new \RuntimeException('Friend apply not found');
@@ -186,7 +186,7 @@ class FriendService
      */
     public function getApplyList(int $playerId): array
     {
-        return $this->repository->findAppliesByPlayerId($playerId);
+        return $this->repository->selectAppliesByPlayerId($playerId);
     }
 
     /**
@@ -197,7 +197,7 @@ class FriendService
      */
     public function getFriendList(int $playerId): array
     {
-        return $this->repository->findAcceptedFriendsByPlayerId($playerId);
+        return $this->repository->selectAcceptedFriendsByPlayerId($playerId);
     }
 
     /**

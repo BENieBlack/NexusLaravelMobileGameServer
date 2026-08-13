@@ -34,7 +34,7 @@ class StaminaService
      */
     public function getStamina(int $sysPlayerId, string $type = StaminaConst::TYPE_NORMAL): ?StaminaDto
     {
-        $stamina = $this->staminaRepository->findByPlayerAndType($sysPlayerId, $type);
+        $stamina = $this->staminaRepository->selectByPlayerAndType($sysPlayerId, $type);
 
         if ($stamina === null) {
             return null;
@@ -196,7 +196,7 @@ class StaminaService
      */
     public function getTimeUntilNextRecovery(int $sysPlayerId, string $type = StaminaConst::TYPE_NORMAL): ?int
     {
-        $stamina = $this->staminaRepository->findByPlayerAndType($sysPlayerId, $type);
+        $stamina = $this->staminaRepository->selectByPlayerAndType($sysPlayerId, $type);
 
         if ($stamina === null) {
             return null;

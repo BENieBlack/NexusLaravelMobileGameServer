@@ -19,7 +19,7 @@ interface WalletBalanceRepositoryInterface
      * @param string $currencyId 通貨アイテムID
      * @return iterable<object> { id: int, is_paid: bool, current_amount: int, initial_amount: int, expire_at: ?string }
      */
-    public function findAllByCurrencyIdFifoOrder(int $playerId, string $currencyId): iterable;
+    public function selectAllByCurrencyIdFifoOrder(int $playerId, string $currencyId): iterable;
 
     /**
      * 有効期限切れの残高レコードを取得
@@ -29,7 +29,7 @@ interface WalletBalanceRepositoryInterface
      * @param string $currentTime 現在時刻 (Y-m-d H:i:s)
      * @return iterable<object> { id: int, is_paid: bool, current_amount: int }
      */
-    public function findAllExpiredByCurrencyId(int $playerId, string $currencyId, string $currentTime): iterable;
+    public function selectAllExpiredByCurrencyId(int $playerId, string $currencyId, string $currentTime): iterable;
 
     /**
      * 残高レコードを作成

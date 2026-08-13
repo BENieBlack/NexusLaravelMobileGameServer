@@ -16,7 +16,7 @@ interface LoginBonusHistoryRepositoryInterface
      * @param string $connectionName DB接続名
      * @return array|null 履歴データの連想配列、存在しない場合はnull
      */
-    public function findLatestByPlayer(int $sysPlayerId, string $connectionName): ?array;
+    public function selectLatestByPlayer(int $sysPlayerId, string $connectionName): ?array;
 
     /**
      * 指定日時以降のユニークな受取日数をカウント

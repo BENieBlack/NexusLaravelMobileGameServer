@@ -67,7 +67,7 @@ class LogAccessRepository extends _BaseLogRepository
     /**
      * リクエストIDでアクセスログを取得
      */
-    public function findByUniqueRequestId(string $uniqueRequestId): ?LogAccess
+    public function selectByUniqueRequestId(string $uniqueRequestId): ?LogAccess
     {
         return $this->queryOrMemory()
             ->where('unique_request_id', $uniqueRequestId)

@@ -32,7 +32,7 @@ class TrxGachaRepository extends _BaseTrxRepository implements GachaProgressRepo
     /**
      * {@inheritDoc}
      */
-    public function findByPlayerAndGacha(int $sysPlayerId, string $mstGachaId): ?GachaProgressDto
+    public function selectByPlayerAndGacha(int $sysPlayerId, string $mstGachaId): ?GachaProgressDto
     {
         $progress = TrxGacha::query()
             ->where('sys_player_id', $sysPlayerId)

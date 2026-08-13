@@ -11,7 +11,7 @@ interface VipLoginBonusRepositoryInterface
      *
      * @param  int  $vipLevel  VIPレベル
      */
-    public function findActiveByVipLevel(int $vipLevel): ?array;
+    public function selectActiveByVipLevel(int $vipLevel): ?array;
 
     /**
      * VIPログインボーナスIDと日数から報酬内容を取得
@@ -19,5 +19,5 @@ interface VipLoginBonusRepositoryInterface
      * @param  string  $vipLoginBonusId  VIPログインボーナスID
      * @param  int  $day  日数
      */
-    public function findContentsByBonusIdAndDay(string $vipLoginBonusId, int $day): CustomCollection;
+    public function selectContentsByBonusIdAndDay(string $vipLoginBonusId, int $day): CustomCollection;
 }

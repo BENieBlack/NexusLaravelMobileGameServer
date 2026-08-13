@@ -49,7 +49,7 @@ class LoginBonusService extends _BaseLoginBonusService
     protected function getLoginBonusData(int $sysPlayerId, int $currentDay, ?string $lastLoginAt): ?array
     {
         // mst_login_bonusは日数ごとに1レコード持つため、該当日の設定を取得する
-        $loginBonus = $this->bonusRepository->findActiveByDay($currentDay);
+        $loginBonus = $this->bonusRepository->selectActiveByDay($currentDay);
 
         if ($loginBonus === null) {
             return null;
@@ -64,7 +64,7 @@ class LoginBonusService extends _BaseLoginBonusService
     protected function getBonusContents(array $bonusData, int $currentDay): CustomCollection
     {
         // 指定日数の報酬内容を取得
-        $contents = $this->bonusRepository->findContentsByLoginBonusIdAndDay(
+        $contents = $this->bonusRepository->selectContentsByLoginBonusIdAndDay(
             $bonusData['id'],
             $currentDay
         );
@@ -106,7 +106,7 @@ class LoginBonusService extends _BaseLoginBonusService
      */
     protected function getLastReceivedDay(int $sysPlayerId, string $connectionName): ?int
     {
-        $lastHistory = $this->historyRepository->findLatestByPlayerId($sysPlayerId, $connectionName);
+        $lastHistory = $this->historyRepository->selectLatestByPlayerId($sysPlayerId, $connectionName);
         if ($lastHistory === null) {
             return null;
         }
@@ -125,7 +125,7 @@ class LoginBonusService extends _BaseLoginBonusService
      */
     protected function getLoopDays(int $sysPlayerId): ?int
     {
-        $loginBonus = $this->bonusRepository->findActiveDailyBonus();
+        $loginBonus = $this->bonusRepository->selectActiveDailyBonus();
 
         return $loginBonus['loop_days'] ?? null;
     }

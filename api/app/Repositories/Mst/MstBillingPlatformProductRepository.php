@@ -22,7 +22,7 @@ class MstBillingPlatformProductRepository extends _BaseMstRepository
      * @param  string  $billingPlatform  決済プラットフォーム
      * @param  string  $platformProductId  プラットフォーム商品ID
      */
-    public function findByBillingPlatformAndPlatformProductId(
+    public function selectByBillingPlatformAndPlatformProductId(
         string $billingPlatform,
         string $platformProductId
     ): ?MstBillingPlatformProduct {
@@ -38,7 +38,7 @@ class MstBillingPlatformProductRepository extends _BaseMstRepository
      *
      * @return CustomCollection<int, MstBillingPlatformProduct>
      */
-    public function findAllActive(): CustomCollection
+    public function selectAllActive(): CustomCollection
     {
         return $this->queryOrMemory()
             ->where('is_active', true)
@@ -51,7 +51,7 @@ class MstBillingPlatformProductRepository extends _BaseMstRepository
      * @param  string  $billingPlatform  決済プラットフォーム
      * @return CustomCollection<int, MstBillingPlatformProduct>
      */
-    public function findAllActiveByBillingPlatform(string $billingPlatform): CustomCollection
+    public function selectAllActiveByBillingPlatform(string $billingPlatform): CustomCollection
     {
         return $this->queryOrMemory()
             ->where('billing_platform', $billingPlatform)

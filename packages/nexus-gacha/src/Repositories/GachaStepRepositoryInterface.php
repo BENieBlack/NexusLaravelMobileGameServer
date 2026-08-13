@@ -16,5 +16,5 @@ interface GachaStepRepositoryInterface
      * @param int $stepNumber
      * @return mixed|null
      */
-    public function findByGachaIdAndNumber(string $mstGachaId, int $stepNumber): mixed;
+    public function selectByGachaIdAndNumber(string $mstGachaId, int $stepNumber): mixed;
 }

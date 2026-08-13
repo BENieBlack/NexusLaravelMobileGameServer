@@ -14,5 +14,5 @@ interface MaintenanceRepositoryInterface
      * 
      * @return array|null メンテナンスデータの連想配列、存在しない場合はnull
      */
-    public function findCurrent(): ?array;
+    public function selectCurrent(): ?array;
 }

@@ -60,7 +60,7 @@ class TrxStaminaRepository extends _BaseTrxRepository implements StaminaReposito
      * {@inheritDoc}
      * StaminaRepositoryInterface実装
      */
-    public function findByPlayerAndType(int $sysPlayerId, string $type): ?StaminaDto
+    public function selectByPlayerAndType(int $sysPlayerId, string $type): ?StaminaDto
     {
         // ApiSessionを一時的に設定
         $originalPlayerId = $this->apiSession->getSysPlayerId();

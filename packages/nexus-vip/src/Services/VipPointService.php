@@ -45,7 +45,7 @@ class VipPointService
         }
 
         // プレイヤー情報を取得
-        $playerVip = $this->playerVipRepository->findVipInfoById($sysPlayerId);
+        $playerVip = $this->playerVipRepository->selectVipInfoById($sysPlayerId);
 
         if ($playerVip === null) {
             throw new InvalidVipPointException("Player not found: {$sysPlayerId}");
@@ -132,6 +132,6 @@ class VipPointService
      */
     public function getPlayerVipInfo(int $sysPlayerId): ?PlayerVipDto
     {
-        return $this->playerVipRepository->findVipInfoById($sysPlayerId);
+        return $this->playerVipRepository->selectVipInfoById($sysPlayerId);
     }
 }

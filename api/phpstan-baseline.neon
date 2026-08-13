@@ -601,7 +601,7 @@ parameters:
 			path: ../packages/nexus-gacha/src/ValueObjects/GachaPrize.php
 
 		-
-			message: '#^Method NexusLogin\\Repositories\\LoginBonusHistoryRepositoryInterface\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			message: '#^Method NexusLogin\\Repositories\\LoginBonusHistoryRepositoryInterface\:\:insert\(\) has parameter \$data with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: ../packages/nexus-login/src/Repositories/LoginBonusHistoryRepositoryInterface.php
@@ -1381,7 +1381,7 @@ parameters:
 			path: ../packages/nexus-vip/src/Models/MstVipLevelReward.php
 
 		-
-			message: '#^Method NexusVip\\Repositories\\VipLevelRepositoryInterface\:\:getAllLevels\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
+			message: '#^Method NexusVip\\Repositories\\VipLevelRepositoryInterface\:\:selectAllLevels\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
 			path: ../packages/nexus-vip/src/Repositories/VipLevelRepositoryInterface.php
@@ -3931,31 +3931,31 @@ parameters:
 			path: app/Models/Trx/TrxWalletBalance.php
 
 		-
-			message: '#^Method App\\Repositories\\Log\\LogAccessRepository\:\:createAccessLog\(\) has parameter \$requestBody with no value type specified in iterable type array\.$#'
+			message: '#^Method App\\Repositories\\Log\\LogAccessRepository\:\:insertAccessLog\(\) has parameter \$requestBody with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Repositories/Log/LogAccessRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Log\\LogAccessRepository\:\:createAccessLog\(\) has parameter \$requestHeader with no value type specified in iterable type array\.$#'
+			message: '#^Method App\\Repositories\\Log\\LogAccessRepository\:\:insertAccessLog\(\) has parameter \$requestHeader with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Repositories/Log/LogAccessRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Log\\LogAccessRepository\:\:createAccessLog\(\) has parameter \$responseBody with no value type specified in iterable type array\.$#'
+			message: '#^Method App\\Repositories\\Log\\LogAccessRepository\:\:insertAccessLog\(\) has parameter \$responseBody with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Repositories/Log/LogAccessRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Log\\LogAccessRepository\:\:createAccessLog\(\) has parameter \$responseHeader with no value type specified in iterable type array\.$#'
+			message: '#^Method App\\Repositories\\Log\\LogAccessRepository\:\:insertAccessLog\(\) has parameter \$responseHeader with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Repositories/Log/LogAccessRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Log\\LogGachaRepository\:\:createGachaLog\(\) has parameter \$result with no value type specified in iterable type array\.$#'
+			message: '#^Method App\\Repositories\\Log\\LogGachaRepository\:\:insertGachaLog\(\) has parameter \$result with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Repositories/Log/LogGachaRepository.php
@@ -3967,7 +3967,7 @@ parameters:
 			path: app/Repositories/Log/LogGachaRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Log\\LogInAppPurchaseRepository\:\:createPurchaseLog\(\) has parameter \$receipt with no value type specified in iterable type array\.$#'
+			message: '#^Method App\\Repositories\\Log\\LogInAppPurchaseRepository\:\:insertPurchaseLog\(\) has parameter \$receipt with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Repositories/Log/LogInAppPurchaseRepository.php
@@ -4279,18 +4279,6 @@ parameters:
 			path: app/Repositories/Mst/MstUnitLevelRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRepository\:\:getAllLevels\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Repositories/Mst/MstVipLevelRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRepository\:\:getAllLevels\(\) should return iterable\<NexusVip\\Models\\MstVipLevel\>&Nexus\\Core\\Support\\CustomCollection but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Repositories/Mst/MstVipLevelRepository.php
-
-		-
 			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRepository\:\:selectAllActiveOrderByLevel\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
@@ -4298,6 +4286,18 @@ parameters:
 
 		-
 			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRepository\:\:selectAllActiveOrderByLevel\(\) should return iterable\<NexusVip\\Models\\MstVipLevel\>&Nexus\\Core\\Support\\CustomCollection but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Repositories/Mst/MstVipLevelRepository.php
+
+		-
+			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRepository\:\:selectAllLevels\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Repositories/Mst/MstVipLevelRepository.php
+
+		-
+			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRepository\:\:selectAllLevels\(\) should return iterable\<NexusVip\\Models\\MstVipLevel\>&Nexus\\Core\\Support\\CustomCollection but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Repositories/Mst/MstVipLevelRepository.php
@@ -4555,7 +4555,7 @@ parameters:
 			path: app/Repositories/Trx/TrxInAppPurchaseEffectRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Trx\\TrxLoginBonusHistoryRepository\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			message: '#^Method App\\Repositories\\Trx\\TrxLoginBonusHistoryRepository\:\:insert\(\) has parameter \$data with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Repositories/Trx/TrxLoginBonusHistoryRepository.php
@@ -4645,7 +4645,7 @@ parameters:
 			path: app/Repositories/Trx/TrxUnitRepository.php
 
 		-
-			message: '#^Parameter \#4 \$mstUnitId of method App\\Repositories\\Log\\LogUnitRepository\:\:createUnitLog\(\) expects int, string given\.$#'
+			message: '#^Parameter \#4 \$mstUnitId of method App\\Repositories\\Log\\LogUnitRepository\:\:insertUnitLog\(\) expects int, string given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Repositories/Trx/TrxUnitRepository.php
@@ -4657,13 +4657,13 @@ parameters:
 			path: app/Repositories/Trx/TrxVipLoginBonusHistoryRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Trx\\TrxVipLoginBonusHistoryRepository\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			message: '#^Method App\\Repositories\\Trx\\TrxVipLoginBonusHistoryRepository\:\:insert\(\) has parameter \$data with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Repositories/Trx/TrxVipLoginBonusHistoryRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Trx\\TrxVipLoginBonusHistoryRepository\:\:create\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method App\\Repositories\\Trx\\TrxVipLoginBonusHistoryRepository\:\:insert\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Repositories/Trx/TrxVipLoginBonusHistoryRepository.php
@@ -4681,13 +4681,13 @@ parameters:
 			path: app/Repositories/Trx/TrxVipLoginBonusHistoryRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Trx\\VipLoginBonusHistoryRepositoryInterface\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			message: '#^Method App\\Repositories\\Trx\\VipLoginBonusHistoryRepositoryInterface\:\:insert\(\) has parameter \$data with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Repositories/Trx/VipLoginBonusHistoryRepositoryInterface.php
 
 		-
-			message: '#^Method App\\Repositories\\Trx\\VipLoginBonusHistoryRepositoryInterface\:\:create\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method App\\Repositories\\Trx\\VipLoginBonusHistoryRepositoryInterface\:\:insert\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Repositories/Trx/VipLoginBonusHistoryRepositoryInterface.php

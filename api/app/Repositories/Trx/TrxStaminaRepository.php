@@ -106,7 +106,7 @@ class TrxStaminaRepository extends _BaseTrxRepository implements StaminaReposito
      * {@inheritDoc}
      * StaminaRepositoryInterface実装
      */
-    public function create(StaminaDto $staminaDto): StaminaDto
+    public function insert(StaminaDto $staminaDto): StaminaDto
     {
         $stamina = new TrxStamina([
             'sys_player_id' => $staminaDto->getSysPlayerId(),

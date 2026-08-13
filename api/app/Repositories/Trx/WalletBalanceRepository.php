@@ -76,7 +76,7 @@ class WalletBalanceRepository implements WalletBalanceRepositoryInterface
      * @param  bool  $isPaid  有償フラグ
      * @param  string|null  $expireAt  有効期限 (Y-m-d H:i:s)、NULLの場合は無期限
      */
-    public function create(int $playerId, string $currencyId, int $amount, bool $isPaid, ?string $expireAt): void
+    public function insert(int $playerId, string $currencyId, int $amount, bool $isPaid, ?string $expireAt): void
     {
         $balance = new TrxWalletBalance([
             'sys_player_id' => $playerId,

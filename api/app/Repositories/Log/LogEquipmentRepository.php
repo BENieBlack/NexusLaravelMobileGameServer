@@ -32,7 +32,7 @@ class LogEquipmentRepository extends _BaseLogRepository
     /**
      * 装備ログを記録（Unit of Work パターン使用）
      */
-    public function createEquipmentLog(
+    public function insertEquipmentLog(
         string $uniqueRequestId,
         int $sysPlayerId,
         int $trxEquipmentId,

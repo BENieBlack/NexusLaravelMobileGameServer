@@ -55,7 +55,7 @@ interface GuildMemberRepositoryInterface
      * @param  int  $playerId  プレイヤーID
      * @param  string  $role  役職
      */
-    public function create(int $guildId, int $playerId, string $role): GuildMemberDto;
+    public function insert(int $guildId, int $playerId, string $role): GuildMemberDto;
 
     /**
      * メンバーの役職を更新

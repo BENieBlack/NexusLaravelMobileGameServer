@@ -42,7 +42,7 @@ class TrxEquipmentRepository extends _BaseTrxRepository
      * @param  int|null  $grade  初期グレード（nullの場合は1）
      * @return TrxEquipment 作成された装備
      */
-    public function createEquipment(
+    public function insertEquipment(
         string $mstEquipmentId,
         ?int $level = null,
         ?int $grade = null

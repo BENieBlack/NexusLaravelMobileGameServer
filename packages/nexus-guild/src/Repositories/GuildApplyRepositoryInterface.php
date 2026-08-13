@@ -54,7 +54,7 @@ interface GuildApplyRepositoryInterface
      * @param  int  $guildId  ギルドID
      * @param  int  $playerId  プレイヤーID
      */
-    public function create(int $guildId, int $playerId): GuildApplyDto;
+    public function insert(int $guildId, int $playerId): GuildApplyDto;
 
     /**
      * ギルド加入申請を承認

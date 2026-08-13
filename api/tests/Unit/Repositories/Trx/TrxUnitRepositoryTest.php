@@ -167,7 +167,7 @@ class TrxUnitRepositoryTest extends TestCase
     public function test_create_unit_creates_new_unit_and_queues_it(): void
     {
         // Act
-        $trxUnit = $this->repository->createUnit(
+        $trxUnit = $this->repository->insertUnit(
             mstUnitId: 'unit_005',
             grade: 2,
             level: 5
@@ -193,7 +193,7 @@ class TrxUnitRepositoryTest extends TestCase
     public function test_create_unit_with_default_values(): void
     {
         // Act
-        $trxUnit = $this->repository->createUnit(
+        $trxUnit = $this->repository->insertUnit(
             mstUnitId: 'unit_006'
         );
 
@@ -331,7 +331,7 @@ class TrxUnitRepositoryTest extends TestCase
     {
         // Arrange & Act
         for ($i = 1; $i <= 5; $i++) {
-            $this->repository->createUnit(
+            $this->repository->insertUnit(
                 mstUnitId: "unit_batch_{$i}",
                 grade: 1,
                 level: $i

@@ -25,7 +25,7 @@ class LogPlayerRepositoryTest extends TestCase
     public function test_create_player_log_creates_and_queues_log(): void
     {
         // Act
-        $this->repository->createPlayerLog(
+        $this->repository->insertPlayerLog(
             uniqueRequestId: 'test-request-001',
             sysPlayerId: 1,
             beforeLevel: 1,
@@ -84,7 +84,7 @@ class LogPlayerRepositoryTest extends TestCase
     {
         // Act
         for ($i = 1; $i <= 5; $i++) {
-            $this->repository->createPlayerLog(
+            $this->repository->insertPlayerLog(
                 uniqueRequestId: "test-request-batch-{$i}",
                 sysPlayerId: $i,
                 beforeLevel: $i,
@@ -113,7 +113,7 @@ class LogPlayerRepositoryTest extends TestCase
     public function test_clear_queue_removes_all_queued_logs(): void
     {
         // Arrange
-        $this->repository->createPlayerLog(
+        $this->repository->insertPlayerLog(
             uniqueRequestId: 'test-request-003',
             sysPlayerId: 1,
             beforeLevel: 1,
@@ -122,7 +122,7 @@ class LogPlayerRepositoryTest extends TestCase
             afterLevelExp: 50
         );
 
-        $this->repository->createPlayerLog(
+        $this->repository->insertPlayerLog(
             uniqueRequestId: 'test-request-004',
             sysPlayerId: 2,
             beforeLevel: 3,
@@ -145,7 +145,7 @@ class LogPlayerRepositoryTest extends TestCase
     public function test_log_records_various_level_changes(): void
     {
         // Act - Level up without exp overflow
-        $this->repository->createPlayerLog(
+        $this->repository->insertPlayerLog(
             uniqueRequestId: 'test-level-up-1',
             sysPlayerId: 1,
             beforeLevel: 5,
@@ -155,7 +155,7 @@ class LogPlayerRepositoryTest extends TestCase
         );
 
         // Act - Exp gain without level up
-        $this->repository->createPlayerLog(
+        $this->repository->insertPlayerLog(
             uniqueRequestId: 'test-exp-gain',
             sysPlayerId: 1,
             beforeLevel: 6,
@@ -165,7 +165,7 @@ class LogPlayerRepositoryTest extends TestCase
         );
 
         // Act - Multiple level ups
-        $this->repository->createPlayerLog(
+        $this->repository->insertPlayerLog(
             uniqueRequestId: 'test-multi-level',
             sysPlayerId: 1,
             beforeLevel: 6,
@@ -199,7 +199,7 @@ class LogPlayerRepositoryTest extends TestCase
     public function test_log_entry_has_required_timestamps(): void
     {
         // Act
-        $this->repository->createPlayerLog(
+        $this->repository->insertPlayerLog(
             uniqueRequestId: 'test-timestamp',
             sysPlayerId: 1,
             beforeLevel: 1,
@@ -237,7 +237,7 @@ class LogPlayerRepositoryTest extends TestCase
     public function test_logs_track_same_player_across_requests(): void
     {
         // Act - Track player 1 across 3 different requests
-        $this->repository->createPlayerLog(
+        $this->repository->insertPlayerLog(
             uniqueRequestId: 'request-001',
             sysPlayerId: 1,
             beforeLevel: 1,
@@ -246,7 +246,7 @@ class LogPlayerRepositoryTest extends TestCase
             afterLevelExp: 0
         );
 
-        $this->repository->createPlayerLog(
+        $this->repository->insertPlayerLog(
             uniqueRequestId: 'request-002',
             sysPlayerId: 1,
             beforeLevel: 2,
@@ -255,7 +255,7 @@ class LogPlayerRepositoryTest extends TestCase
             afterLevelExp: 25
         );
 
-        $this->repository->createPlayerLog(
+        $this->repository->insertPlayerLog(
             uniqueRequestId: 'request-003',
             sysPlayerId: 1,
             beforeLevel: 3,

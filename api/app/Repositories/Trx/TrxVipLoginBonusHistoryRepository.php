@@ -11,7 +11,7 @@ class TrxVipLoginBonusHistoryRepository extends _BaseTrxRepository implements Vi
     /**
      * {@inheritDoc}
      */
-    public function create(array $data, string $connectionName): array
+    public function insert(array $data, string $connectionName): array
     {
         $model = new TrxVipLoginBonusHistory($data);
         $model->setConnection($connectionName);

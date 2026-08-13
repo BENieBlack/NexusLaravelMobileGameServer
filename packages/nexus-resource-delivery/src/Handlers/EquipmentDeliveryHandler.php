@@ -41,7 +41,7 @@ class EquipmentDeliveryHandler implements ResourceDeliveryHandlerInterface
 
         // 指定された数量分の装備を作成
         for ($i = 0; $i < $resourceDeliveryContentDto->getAmount(); $i++) {
-            $this->trxEquipmentRepository->createEquipment(
+            $this->trxEquipmentRepository->insertEquipment(
                 $resourceDeliveryContentDto->getId(),
                 $level,
                 $grade

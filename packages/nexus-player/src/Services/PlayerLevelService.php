@@ -33,7 +33,7 @@ class PlayerLevelService
         }
 
         $expToNext = $this->getExpToNextLevel($player->getLevel(), $player->getLevelExp());
-        $maxStamina = $this->levelRepository->getMaxStaminaForLevel($player->getLevel()) ?? 50;
+        $maxStamina = $this->levelRepository->findMaxStaminaForLevel($player->getLevel()) ?? 50;
 
         return [
             'level' => $player->getLevel(),
@@ -67,7 +67,7 @@ class PlayerLevelService
         }
 
         $beforeLevel = $player->getLevel();
-        $beforeMaxStamina = $this->levelRepository->getMaxStaminaForLevel($beforeLevel) ?? 50;
+        $beforeMaxStamina = $this->levelRepository->findMaxStaminaForLevel($beforeLevel) ?? 50;
 
         // 経験値を加算
         $newTotalExp = $player->getLevelExp() + $exp;
@@ -76,7 +76,7 @@ class PlayerLevelService
         $afterLevel = $this->levelRepository->calculateLevelFromExp($newTotalExp);
 
         // 最大レベルを超えないように制限
-        $maxLevel = $this->levelRepository->getMaxLevel();
+        $maxLevel = $this->levelRepository->selectMaxLevel();
         $afterLevel = min($afterLevel, $maxLevel);
 
         $isLeveledUp = ($afterLevel > $beforeLevel);
@@ -88,7 +88,7 @@ class PlayerLevelService
 
         // レベルアップした場合の最大スタミナを計算
         if ($isLeveledUp) {
-            $afterMaxStamina = $this->levelRepository->getMaxStaminaForLevel($afterLevel) ?? $beforeMaxStamina;
+            $afterMaxStamina = $this->levelRepository->findMaxStaminaForLevel($afterLevel) ?? $beforeMaxStamina;
         } else {
             $afterMaxStamina = $beforeMaxStamina;
         }
@@ -120,7 +120,7 @@ class PlayerLevelService
             throw new \Exception("Player not found: {$sysPlayerId}");
         }
 
-        return $this->levelRepository->getMaxStaminaForLevel($player->getLevel()) ?? 50;
+        return $this->levelRepository->findMaxStaminaForLevel($player->getLevel()) ?? 50;
     }
 
     /**

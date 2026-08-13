@@ -207,7 +207,7 @@ class PlayerLevelService extends _BaseLevelService
      */
     protected function getMaxLevel(?string $rarity): int
     {
-        return $this->mstPlayerLevelRepository->getMaxLevel();
+        return $this->mstPlayerLevelRepository->selectMaxLevel();
     }
 
     /**
@@ -230,7 +230,7 @@ class PlayerLevelService extends _BaseLevelService
     {
         /** @var SysPlayer $entity */
         $sysPlayerId = $entity->getId();
-        $newMaxStamina = $this->mstPlayerLevelRepository->getMaxStaminaForLevel($afterLevel)
+        $newMaxStamina = $this->mstPlayerLevelRepository->findMaxStaminaForLevel($afterLevel)
             ?? ($entity->getMaxStamina() ?? 50);
 
         $this->refillStaminaOnLevelUp($sysPlayerId, $newMaxStamina);

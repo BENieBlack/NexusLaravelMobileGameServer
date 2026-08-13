@@ -35,5 +35,5 @@ interface LoginBonusHistoryRepositoryInterface
      * @param string $connectionName DB接続名
      * @return void
      */
-    public function create(array $data, string $connectionName): void;
+    public function insert(array $data, string $connectionName): void;
 }

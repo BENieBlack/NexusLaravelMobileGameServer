@@ -31,7 +31,7 @@ class LogItemRepository extends _BaseLogRepository
      * @param  int  $beforeAmount  変更前数量
      * @param  int  $afterAmount  変更後数量
      */
-    public function createItemLog(
+    public function insertItemLog(
         string $uniqueRequestId,
         int $sysPlayerId,
         string $mstItemId,

@@ -25,7 +25,7 @@ class LogUnitRepository extends _BaseLogRepository
     /**
      * ユニットログを記録（Unit of Work パターン使用）
      */
-    public function createUnitLog(
+    public function insertUnitLog(
         string $uniqueRequestId,
         int $sysPlayerId,
         int $trxUnitId,

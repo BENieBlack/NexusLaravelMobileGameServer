@@ -38,7 +38,7 @@ class PlayerService
         ?array $deviceInfo = null
     ): array {
         // 1. プレイヤーを作成して即座にコミット（IDを取得）
-        $sysPlayer = $this->sysPlayerRepository->createPlayerAndCommit();
+        $sysPlayer = $this->sysPlayerRepository->insertPlayerAndCommit();
 
         // 2. デバイスを作成してメモリに登録（バッチINSERT対象）
         $sysPlayerDevice = new SysPlayerDevice([

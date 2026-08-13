@@ -59,7 +59,7 @@ class SysGuildRepository extends _BaseSysRepository
      * @param  string  $description  ギルド説明
      * @param  int  $masterPlayerId  マスタープレイヤーID
      */
-    public function createGuild(string $name, string $description, int $masterPlayerId): SysGuild
+    public function insertGuild(string $name, string $description, int $masterPlayerId): SysGuild
     {
         $guild = new SysGuild;
         $guild->setName($name);

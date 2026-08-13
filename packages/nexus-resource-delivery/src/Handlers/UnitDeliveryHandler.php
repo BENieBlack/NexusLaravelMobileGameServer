@@ -38,7 +38,7 @@ class UnitDeliveryHandler implements ResourceDeliveryHandlerInterface
 
         // 指定された数量分のユニットを作成
         for ($i = 0; $i < $resourceDeliveryContentDto->getAmount(); $i++) {
-            $this->trxUnitRepository->createUnit(
+            $this->trxUnitRepository->insertUnit(
                 $resourceDeliveryContentDto->getId(),
                 $grade,
                 $level

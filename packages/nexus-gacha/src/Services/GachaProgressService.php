@@ -40,7 +40,7 @@ class GachaProgressService
                 totalDrawCount: 0,
                 totalResetAt: $now
             );
-            $progress = $this->progressRepository->create($progress);
+            $progress = $this->progressRepository->insert($progress);
         }
 
         return $progress;

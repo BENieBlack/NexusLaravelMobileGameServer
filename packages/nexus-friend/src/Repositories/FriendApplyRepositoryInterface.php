@@ -56,7 +56,7 @@ interface FriendApplyRepositoryInterface
      * @param  int  $senderPlayerId  申請者のプレイヤーID
      * @param  int  $receiverPlayerId  受信者のプレイヤーID
      */
-    public function create(int $senderPlayerId, int $receiverPlayerId): FriendApplyDto;
+    public function insert(int $senderPlayerId, int $receiverPlayerId): FriendApplyDto;
 
     /**
      * フレンド申請を承認

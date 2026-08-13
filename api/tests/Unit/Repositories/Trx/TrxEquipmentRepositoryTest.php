@@ -158,7 +158,7 @@ class TrxEquipmentRepositoryTest extends TestCase
     public function test_create_equipment_creates_new_equipment_and_queues_it(): void
     {
         // Act
-        $trxEquipment = $this->repository->createEquipment(
+        $trxEquipment = $this->repository->insertEquipment(
             mstEquipmentId: 'equipment_005',
             level: 5
         );
@@ -181,7 +181,7 @@ class TrxEquipmentRepositoryTest extends TestCase
     public function test_create_equipment_with_default_level(): void
     {
         // Act
-        $trxEquipment = $this->repository->createEquipment(
+        $trxEquipment = $this->repository->insertEquipment(
             mstEquipmentId: 'equipment_006'
         );
 
@@ -199,7 +199,7 @@ class TrxEquipmentRepositoryTest extends TestCase
         $repository = new TrxEquipmentRepository;
 
         // Act
-        $trxEquipment = $repository->createEquipment(
+        $trxEquipment = $repository->insertEquipment(
             mstEquipmentId: 'equipment_007',
             level: 3
         );
@@ -248,7 +248,7 @@ class TrxEquipmentRepositoryTest extends TestCase
     {
         // Arrange & Act
         for ($i = 1; $i <= 5; $i++) {
-            $this->repository->createEquipment(
+            $this->repository->insertEquipment(
                 mstEquipmentId: "equipment_batch_{$i}",
                 level: $i
             );
@@ -293,7 +293,7 @@ class TrxEquipmentRepositoryTest extends TestCase
     public function test_create_equipment_sets_timestamps(): void
     {
         // Act
-        $trxEquipment = $this->repository->createEquipment(
+        $trxEquipment = $this->repository->insertEquipment(
             mstEquipmentId: 'equipment_013',
             level: 2
         );

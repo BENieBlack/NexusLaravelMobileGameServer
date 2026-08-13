@@ -15,7 +15,7 @@ interface VipLevelRepositoryInterface
      *
      * @return CustomCollection<MstVipLevel>
      */
-    public function getAllLevels(): CustomCollection;
+    public function selectAllLevels(): CustomCollection;
 
     /**
      * VIPレベル番号で検索

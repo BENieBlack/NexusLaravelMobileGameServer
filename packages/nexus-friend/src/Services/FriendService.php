@@ -131,7 +131,7 @@ class FriendService
         $this->validateNotSelfApply($senderPlayerId, $receiverPlayerId);
         $this->validateNoDuplicateApply($senderPlayerId, $receiverPlayerId);
 
-        return $this->repository->create($senderPlayerId, $receiverPlayerId);
+        return $this->repository->insert($senderPlayerId, $receiverPlayerId);
     }
 
     /**

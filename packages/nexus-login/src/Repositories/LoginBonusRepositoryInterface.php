@@ -14,7 +14,7 @@ interface LoginBonusRepositoryInterface
      * 
      * @return int|null ループ日数、設定がない場合はnull
      */
-    public function getLoopDaysForActiveBonus(): ?int;
+    public function selectLoopDaysForActiveBonus(): ?int;
 
     /**
      * 指定された日のアクティブなログインボーナスを取得

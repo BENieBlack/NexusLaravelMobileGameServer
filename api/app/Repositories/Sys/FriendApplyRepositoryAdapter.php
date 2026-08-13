@@ -68,9 +68,9 @@ class FriendApplyRepositoryAdapter implements FriendApplyRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function create(int $senderPlayerId, int $receiverPlayerId): FriendApplyDto
+    public function insert(int $senderPlayerId, int $receiverPlayerId): FriendApplyDto
     {
-        $model = $this->sysFriendApplyRepository->createApply($senderPlayerId, $receiverPlayerId);
+        $model = $this->sysFriendApplyRepository->insertApply($senderPlayerId, $receiverPlayerId);
 
         return FriendApplyAdapter::toDto($model);
     }

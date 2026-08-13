@@ -56,7 +56,7 @@ class UnitLevelService extends _BaseLevelService
         }
 
         $rarity = $mstUnit->getRarity();
-        $maxLevel = $this->mstUnitLevelRepository->getMaxLevel($rarity) ?? 100;
+        $maxLevel = $this->mstUnitLevelRepository->selectMaxLevel($rarity) ?? 100;
         $expToNext = $this->getExpToNextLevel($rarity, $trxUnit->getLevel(), $trxUnit->getLevelExp());
 
         return [
@@ -99,7 +99,7 @@ class UnitLevelService extends _BaseLevelService
         }
 
         $rarity = $mstUnit->getRarity();
-        $maxLevel = $this->mstUnitLevelRepository->getMaxLevel($rarity) ?? 100;
+        $maxLevel = $this->mstUnitLevelRepository->selectMaxLevel($rarity) ?? 100;
 
         // 基底クラスのテンプレートメソッドを呼び出し
         $result = parent::addExp($trxUnitId, $exp);
@@ -201,7 +201,7 @@ class UnitLevelService extends _BaseLevelService
      */
     protected function getMaxLevel(?string $rarity): int
     {
-        return $this->mstUnitLevelRepository->getMaxLevel($rarity) ?? 100;
+        return $this->mstUnitLevelRepository->selectMaxLevel($rarity) ?? 100;
     }
 
     /**

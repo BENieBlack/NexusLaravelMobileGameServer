@@ -41,7 +41,7 @@ class PlayerAuthService
         ?array $deviceInfo = null
     ): PlayerModelInterface {
         // 1. プレイヤーを作成して即座にコミット（IDを取得）
-        $player = $this->playerRepository->createPlayerAndCommit();
+        $player = $this->playerRepository->insertPlayerAndCommit();
 
         // 2. デバイスを作成
         // Note: アプリケーション層でSysPlayerDeviceモデルを作成する必要がある

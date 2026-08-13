@@ -34,5 +34,5 @@ interface GachaProgressRepositoryInterface
      * @param GachaProgressDto $gachaProgressDto
      * @return GachaProgressDto
      */
-    public function create(GachaProgressDto $gachaProgressDto): GachaProgressDto;
+    public function insert(GachaProgressDto $gachaProgressDto): GachaProgressDto;
 }

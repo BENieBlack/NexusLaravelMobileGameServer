@@ -119,7 +119,7 @@ abstract class _BaseMst extends _BaseModel implements _BaseMstInterface
     {
         $this->assertWritable('update');
 
-        return parent::update($attributes, $options);
+        return self::allowDirectWrites(fn () => parent::update($attributes, $options));
     }
 
     /**
@@ -131,7 +131,7 @@ abstract class _BaseMst extends _BaseModel implements _BaseMstInterface
     {
         $this->assertWritable('delete');
 
-        return parent::delete();
+        return self::allowDirectWrites(fn () => parent::delete());
     }
 
     /**
@@ -143,7 +143,7 @@ abstract class _BaseMst extends _BaseModel implements _BaseMstInterface
     {
         $this->assertWritable('forceDelete');
 
-        return parent::forceDelete();
+        return self::allowDirectWrites(fn () => parent::forceDelete());
     }
 
     /**

@@ -62,15 +62,22 @@ interface _BaseRepositoryInterface
     public function getTableName(): string;
 
     /**
-     * is_delete=trueでマークされたレコードを物理削除
+     * 論理削除（is_delete=trueを立てる）
      *
-     * queryOrMemory()で取得したキャッシュから is_delete=true のレコードを
-     * フィルタリングし、deleteQueueに追加して物理削除を実行
+     * 実体はUPDATEなのでmodelQueueに溜め込まれる。
      *
-     * 物理削除は危険な操作なので、_BaseRepositoryで統一的に実装し、
-     * サブクラスでの挙動変更を防ぐ
-     *
+     * @param mixed $model
      * @return void
      */
-    public function terminate(): void;
+    public function softDeleteModel($model): void;
+
+    /**
+     * 物理削除（DELETE文で行を消す）
+     *
+     * deleteQueueに溜め込まれ、フラッシュ時にDELETEが実行される。
+     *
+     * @param mixed $model
+     * @return void
+     */
+    public function hardDeleteModel($model): void;
 }

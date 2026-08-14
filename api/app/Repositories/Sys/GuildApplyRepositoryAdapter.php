@@ -105,17 +105,13 @@ class GuildApplyRepositoryAdapter implements GuildApplyRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function deleteModel(mixed $model): void
-    {
-        $this->sysGuildApplyRepository->deleteModel($model);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function deleteByPlayerId(int $playerId): void
     {
-        SysGuildApply::where('sys_player_id', $playerId)->delete();
+        $models = SysGuildApply::where('sys_player_id', $playerId)->get();
+
+        foreach ($models as $model) {
+            $this->sysGuildApplyRepository->hardDeleteModel($model);
+        }
     }
 
     /**

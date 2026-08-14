@@ -86,12 +86,4 @@ class SysGuildRepository extends _BaseSysRepository
 
         return $guild;
     }
-
-    /**
-     * Modelを削除
-     */
-    public function deleteModel(mixed $model): void
-    {
-        $model->delete();
-    }
 }

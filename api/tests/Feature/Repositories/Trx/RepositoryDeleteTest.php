@@ -62,7 +62,7 @@ class RepositoryDeleteTest extends TestCase
     }
 
     #[Test]
-    public function delete_modelで論理削除できる(): void
+    public function soft_delete_modelで論理削除できる(): void
     {
         ApiSession::setSysPlayerId($this->sysPlayerId);
         $repo = new TrxEquipmentRepository;
@@ -73,10 +73,7 @@ class RepositoryDeleteTest extends TestCase
         $this->assertNotNull($equipmentToDelete);
         $this->assertFalse((bool) $equipmentToDelete->is_delete);
 
-        $reflection = new \ReflectionClass($repo);
-        $deleteModelMethod = $reflection->getMethod('deleteModel');
-        $deleteModelMethod->setAccessible(true);
-        $deleteModelMethod->invoke($repo, $equipmentToDelete);
+        $repo->softDeleteModel($equipmentToDelete);
 
         $this->assertTrue((bool) $equipmentToDelete->is_delete);
 
@@ -84,43 +81,63 @@ class RepositoryDeleteTest extends TestCase
         $cached = $repo->queryOrMemory()->where('id', $equipmentToDelete->id)->first();
         $this->assertTrue((bool) $cached->is_delete);
 
-        // modelQueueに追加されたか確認
+        // 論理削除はUPDATEなのでmodelQueueに積まれる
+        $reflection = new \ReflectionClass($repo);
         $modelQueueProperty = $reflection->getProperty('modelQueue');
         $modelQueueProperty->setAccessible(true);
-        $modelQueue = $modelQueueProperty->getValue($repo);
 
-        $this->assertGreaterThan(0, count($modelQueue));
+        $this->assertGreaterThan(0, count($modelQueueProperty->getValue($repo)));
+
+        // deleteQueueには積まれない
+        $deleteQueueProperty = $reflection->getProperty('deleteQueue');
+        $deleteQueueProperty->setAccessible(true);
+
+        $this->assertCount(0, $deleteQueueProperty->getValue($repo));
     }
 
     #[Test]
-    public function terminateで物理削除準備ができる(): void
+    public function hard_delete_modelで物理削除キューに積まれる(): void
     {
         ApiSession::setSysPlayerId($this->sysPlayerId);
         $repo = new TrxEquipmentRepository;
 
         $equipments = $repo->queryOrMemory();
-        $equipmentToTerminate = $equipments->last();
+        $equipmentToDelete = $equipments->last();
 
-        $this->assertNotNull($equipmentToTerminate);
+        $this->assertNotNull($equipmentToDelete);
 
-        // まず論理削除マークを設定
-        $equipmentToTerminate->is_delete = true;
+        $repo->hardDeleteModel($equipmentToDelete);
+
         $reflection = new \ReflectionClass($repo);
-        $setModelMethod = $reflection->getMethod('setModel');
-        $setModelMethod->setAccessible(true);
-        $setModelMethod->invoke($repo, $equipmentToTerminate);
 
-        // terminate()を呼び出してdeleteQueueに追加
-        $terminateMethod = $reflection->getMethod('terminate');
-        $terminateMethod->setAccessible(true);
-        $terminateMethod->invoke($repo, $equipmentToTerminate);
-
-        // deleteQueueに追加されたか確認
+        // 物理削除はdeleteQueueに積まれる
         $deleteQueueProperty = $reflection->getProperty('deleteQueue');
         $deleteQueueProperty->setAccessible(true);
-        $deleteQueue = $deleteQueueProperty->getValue($repo);
 
-        $this->assertGreaterThan(0, count($deleteQueue));
+        $this->assertGreaterThan(0, count($deleteQueueProperty->getValue($repo)));
+
+        // is_deleteフラグは立てない
+        $this->assertFalse((bool) $equipmentToDelete->is_delete);
+    }
+
+    #[Test]
+    public function hard_delete_modelで_d_bから行が消える(): void
+    {
+        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $repo = new TrxEquipmentRepository;
+
+        $equipmentToDelete = $repo->queryOrMemory()->last();
+        $this->assertNotNull($equipmentToDelete);
+        $deletedId = $equipmentToDelete->id;
+
+        $repo->hardDeleteModel($equipmentToDelete);
+        $this->flushQueue();
+
+        $this->assertDatabaseMissing(
+            'trx_equipment',
+            ['id' => $deletedId],
+            'trx1'
+        );
     }
 
     private function insertTestData(): void

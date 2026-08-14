@@ -14,27 +14,19 @@ trait UseCaseTrait
      * トランザクション付きでコールバックを実行
      *
      * 処理フロー：
-     * 1. クリーンアップ処理（オプション、sign_in時のみ）
-     * 2. トランザクション開始（sys, trx, log を同時に）
-     * 3. コールバックを実行（クエリはQueryManagerにキューイング）
-     * 4. キューに溜まったクエリを実行（TrxDB + LogDB）
-     * 5. すべてを同時にコミット（1つでも失敗したら全てロールバック）
-     * 6. 通常ログをトランザクション外で実行（コミット後）
+     * 1. トランザクション開始（sys, trx, log を同時に）
+     * 2. コールバックを実行（クエリはQueryManagerにキューイング）
+     * 3. キューに溜まったクエリを実行（TrxDB + LogDB）
+     * 4. すべてを同時にコミット（1つでも失敗したら全てロールバック）
+     * 5. 通常ログをトランザクション外で実行（コミット後）
      *
      * @param  callable  $callback  実行するビジネスロジック
-     * @param  int|null  $sysPlayerId  sign_in時のクリーンアップ用プレイヤーID
      * @return mixed コールバックの戻り値
      *
      * @throws Exception|Throwable トランザクション実行中にエラーが発生した場合
      */
-    public function executeWithTransaction(callable $callback, ?int $sysPlayerId = null): mixed
+    public function executeWithTransaction(callable $callback): mixed
     {
-        // sign_in時のクリーンアップ処理（is_delete=trueのレコードを削除キューに追加）
-        if ($sysPlayerId !== null) {
-            $cleanupService = app()->make('App\Domain\Player\Services\PlayerCleanupService');
-            $cleanupService->cleanupDeletedRecords($sysPlayerId);
-        }
-
         // 使用する接続を収集（sys + trx + log）
         $connections = $this->resolveActiveConnections();
 
@@ -55,14 +47,14 @@ trait UseCaseTrait
              */
             $queryManager->flush();
 
+            // 通常ログも同一トランザクション内で実行する
+            // （ビジネスデータとログの整合性を保証し、片方だけ残る状態を防ぐ）
+            $queryManager->execAllLogs();
+
             // すべてを同時にコミット（完全な整合性保証）
             foreach ($connections as $conn) {
                 DB::connection($conn)->commit();
             }
-
-            // **通常ログをトランザクション外で実行**
-            // 通常ログ（log_access等）書き込み失敗はビジネストランザクションに影響しない
-            $queryManager->execAllLogs();
 
         } catch (Exception|Throwable $e) {
             \Log::error('Transaction failed in UseCase', [

@@ -83,7 +83,11 @@ class SysGuildApplyRepository extends _BaseSysRepository
         $apply->setSysGuildId($guildId);
         $apply->setSysPlayerId($playerId);
         $apply->setStatus(GuildApplyStatus::APPLIED);
-        $apply->save();
+        $apply->exists = false;
+        $this->setModel($apply);
+
+        // 呼び出し元が採番済みの申請IDを参照するため、ここでフラッシュする
+        $this->flushQueue();
 
         return $apply;
     }

@@ -6,6 +6,7 @@ use App\Models\Sys\SysSharding;
 use App\Models\Sys\SysShardingNode;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Nexus\Core\Models\_BaseModel;
 
 class SysShardingSeeder extends Seeder
 {
@@ -14,6 +15,9 @@ class SysShardingSeeder extends Seeder
      */
     public function run(): void
     {
+        // Seederは投入経路のためUnitOfWorkを介さない直接書き込みを許可する
+        _BaseModel::allowDirectWrites();
+
         // 既存データをクリア
         DB::connection('sys')->table('sys_sharding_node')->truncate();
         DB::connection('sys')->table('sys_sharding')->truncate();

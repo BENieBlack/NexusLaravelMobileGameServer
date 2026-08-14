@@ -3,10 +3,10 @@
 namespace App\Domain\Auth\UseCases;
 
 use App\Domain\_BaseUseCase;
+use App\Domain\Auth\Traits\BuildsSysPlayerToken;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Http\Responses\Auth\SignInResponse;
-use App\Models\Sys\SysPlayerToken;
 use Exception;
 use NexusAuth\Contracts\DeviceRepositoryInterface;
 use NexusAuth\Contracts\PlayerRepositoryInterface;
@@ -24,6 +24,8 @@ use Throwable;
  */
 class AuthSignInUseCase extends _BaseUseCase
 {
+    use BuildsSysPlayerToken;
+
     public function __construct(
         private readonly PlayerAuthService $playerAuthService,
         private readonly TokenService $tokenService,
@@ -74,16 +76,19 @@ class AuthSignInUseCase extends _BaseUseCase
             [$tokenDto, $sysPlayerToken] = $this->tokenService->generateToken(
                 $sysPlayer,
                 $sysPlayerDevice,
-                fn ($playerId, $deviceId, $tokenHash, $expiresAt) => SysPlayerToken::create([
-                    'sys_player_id' => $playerId,
-                    'sys_player_device_id' => $deviceId,
-                    'refresh_token_hash' => $tokenHash,
-                    'expires_at' => $expiresAt,
-                ])
+                fn ($playerId, $deviceId, $tokenHash, $expiresAt) => $this->newSysPlayerToken(
+                    $playerId,
+                    $deviceId,
+                    $tokenHash,
+                    $expiresAt
+                )
             );
 
             // 最終ログイン日時を更新（PlayerAuthService使用）
             $this->playerAuthService->updateLastLogin($deviceId);
+
+            // レスポンスにトークンIDを含めるため、採番を確定させる
+            $this->flushQueue();
 
             return new SignInResponse(
                 sysPlayer: $sysPlayer,

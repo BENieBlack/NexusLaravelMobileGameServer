@@ -81,11 +81,14 @@ class PlayerAuthService
     public function updateLastLogin(string $deviceUuid): bool
     {
         $device = $this->deviceRepository->selectByDeviceId($deviceUuid);
-        
+
         if ($device === null) {
             return false;
         }
-        
-        return $device->updateLastLogin();
+
+        $device->markLastLoginAt();
+        $this->deviceRepository->setModel($device);
+
+        return true;
     }
 }

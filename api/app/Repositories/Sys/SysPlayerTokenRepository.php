@@ -107,9 +107,8 @@ class SysPlayerTokenRepository extends _BaseSysRepository implements TokenReposi
         // 各トークンを個別に更新してメモリキャッシュを更新
         foreach ($sysPlayerTokenCollection as $sysPlayerToken) {
             $sysPlayerToken->setRevokedAt(now());
-            $sysPlayerToken->save();
 
-            // メモリキャッシュを更新
+            // UPDATEをキューに積む
             $this->setModel($sysPlayerToken);
 
             $count++;

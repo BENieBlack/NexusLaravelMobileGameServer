@@ -13,9 +13,14 @@ class TrxVipLoginBonusHistoryRepository extends _BaseTrxRepository implements Vi
      */
     public function insert(array $data, string $connectionName): array
     {
+        // キューはRepositoryの接続先でまとめて実行されるため、
+        // 対象シャードをRepository側にも反映する
+        $this->setConnection($connectionName);
+
         $model = new TrxVipLoginBonusHistory($data);
         $model->setConnection($connectionName);
-        $model->save();
+        $model->exists = false;
+        $this->setModel($model);
 
         return $model->toArray();
     }

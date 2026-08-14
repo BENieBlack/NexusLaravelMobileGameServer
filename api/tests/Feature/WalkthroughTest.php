@@ -137,13 +137,13 @@ class WalkthroughTest extends TestCase
         DB::connection('sys')->table('sys_deploy_master')->delete();
         DB::connection('sys')->table('sys_deploy_asset')->delete();
 
-        DB::connection('trx1')->table('trx_login_bonus_history')->truncate();
-        DB::connection('trx1')->table('trx_mailbox')->truncate();
-        DB::connection('trx1')->table('trx_unit')->truncate();
-        DB::connection('trx1')->table('trx_equipment')->truncate();
-        DB::connection('trx1')->table('trx_item')->truncate();
-        DB::connection('trx1')->table('trx_wallet')->truncate();
-        DB::connection('trx1')->table('trx_diamond')->truncate();
+        DB::connection('trx1')->table('trx_login_bonus_history')->delete();
+        DB::connection('trx1')->table('trx_mailbox')->delete();
+        DB::connection('trx1')->table('trx_unit')->delete();
+        DB::connection('trx1')->table('trx_equipment')->delete();
+        DB::connection('trx1')->table('trx_item')->delete();
+        DB::connection('trx1')->table('trx_wallet')->delete();
+        DB::connection('trx1')->table('trx_diamond')->delete();
 
         DB::connection('mst')->table('mst_gacha_prize')->delete();
         DB::connection('mst')->table('mst_gacha_step')->delete();

@@ -46,11 +46,12 @@ interface DeviceModelInterface
     public function getLastLoginAt(): ?string;
 
     /**
-     * 最終ログイン日時を更新
-     * 
-     * @return bool
+     * 最終ログイン日時をセット
+     *
+     * 属性を変更するだけでDBには反映しない。
+     * 永続化はRepositoryのsetModel()経由で行うこと。
      */
-    public function updateLastLogin(): bool;
+    public function markLastLoginAt(): void;
 
     /**
      * プレイヤーモデルを取得（リレーション）

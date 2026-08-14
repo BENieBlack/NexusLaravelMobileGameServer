@@ -50,8 +50,8 @@ class DiamondServiceTest extends TestCase
     protected function tearDown(): void
     {
         // Clear all test data
-        DB::connection('trx1')->table('trx_diamond')->truncate();
-        DB::connection('trx1')->table('trx_diamond_balance')->truncate();
+        DB::connection('trx1')->table('trx_diamond')->delete();
+        DB::connection('trx1')->table('trx_diamond_balance')->delete();
 
         ApiSession::clearForTest();
         $this->queryManager->clear();

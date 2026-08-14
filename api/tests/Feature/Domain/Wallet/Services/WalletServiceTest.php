@@ -50,8 +50,8 @@ class WalletServiceTest extends TestCase
     protected function tearDown(): void
     {
         // Clear all test data
-        DB::connection('trx1')->table('trx_wallet')->truncate();
-        DB::connection('trx1')->table('trx_wallet_balance')->truncate();
+        DB::connection('trx1')->table('trx_wallet')->delete();
+        DB::connection('trx1')->table('trx_wallet_balance')->delete();
 
         ApiSession::clearForTest();
         $this->queryManager->clear();

@@ -4,6 +4,7 @@ namespace Nexus\Core\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Nexus\Core\Exceptions\DirectWriteNotAllowedException;
 
 /**
  * _BaseModel
@@ -44,8 +45,90 @@ abstract class _BaseModel extends Model implements _BaseModelInterface
     ];
 
     /**
+     * Eloquentによる即時書き込みを許可するか
+     *
+     * 本番の実行時経路では常にfalse。
+     * テストのフィクスチャやSeederのみ明示的に許可する。
+     *
+     * @var bool
+     */
+    protected static bool $directWritesAllowed = false;
+
+    /**
+     * Eloquentによる即時書き込みを許可する
+     *
+     * コールバックを渡した場合はその中だけ許可し、実行後に元へ戻す。
+     * 渡さない場合は許可状態にする（テストのsetUp等で使う）。
+     *
+     * @template TReturn
+     *
+     * @param  (callable(): TReturn)|null  $callback
+     * @return TReturn|null
+     */
+    public static function allowDirectWrites(?callable $callback = null): mixed
+    {
+        $previous = self::$directWritesAllowed;
+        self::$directWritesAllowed = true;
+
+        if ($callback === null) {
+            return null;
+        }
+
+        try {
+            return $callback();
+        } finally {
+            self::$directWritesAllowed = $previous;
+        }
+    }
+
+    /**
+     * Eloquentによる即時書き込みを再び禁止する
+     */
+    public static function disallowDirectWrites(): void
+    {
+        self::$directWritesAllowed = false;
+    }
+
+    /**
+     * 即時書き込みが許可されているか
+     */
+    public static function directWritesAllowed(): bool
+    {
+        return self::$directWritesAllowed;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * UnitOfWorkを迂回した即時書き込みを禁止する。
+     * 永続化はRepositoryのsetModel()経由で行うこと。
+     *
+     * @throws DirectWriteNotAllowedException
+     */
+    public function save(array $options = [])
+    {
+        $this->assertDirectWriteAllowed('save');
+
+        return parent::save($options);
+    }
+
+    /**
+     * 即時書き込みが許可されているか検証する
+     *
+     * @throws DirectWriteNotAllowedException
+     */
+    protected function assertDirectWriteAllowed(string $operation): void
+    {
+        if (self::$directWritesAllowed) {
+            return;
+        }
+
+        throw DirectWriteNotAllowedException::forOperation(static::class, $operation);
+    }
+
+    /**
      * Eloquentのデフォルトタイムスタンプ自動キャストを無効化
-     * 
+     *
      * @return bool
      */
     public function usesTimestamps()

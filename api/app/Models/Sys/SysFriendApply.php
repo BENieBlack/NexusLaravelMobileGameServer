@@ -167,32 +167,35 @@ class SysFriendApply extends _BaseSys
 
     /**
      * フレンド申請を承認
+     *
+     * 状態を変更するだけでDBには反映しない。
+     * 永続化はRepositoryのsetModel()経由で行うこと。
      */
-    public function accept(): bool
+    public function accept(): void
     {
         $this->status = self::STATUS_ACCEPTED;
-
-        return $this->save();
     }
 
     /**
      * フレンド申請を却下
+     *
+     * 状態を変更するだけでDBには反映しない。
+     * 永続化はRepositoryのsetModel()経由で行うこと。
      */
-    public function reject(): bool
+    public function reject(): void
     {
         $this->status = self::STATUS_REJECTED;
-
-        return $this->save();
     }
 
     /**
      * フレンド申請を削除
+     *
+     * 状態を変更するだけでDBには反映しない。
+     * 永続化はRepositoryのsetModel()経由で行うこと。
      */
-    public function markAsDeleted(): bool
+    public function markAsDeleted(): void
     {
         $this->status = self::STATUS_DELETED;
-
-        return $this->save();
     }
 
     /**

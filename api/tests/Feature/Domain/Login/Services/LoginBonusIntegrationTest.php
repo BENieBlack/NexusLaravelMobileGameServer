@@ -113,16 +113,16 @@ class LoginBonusIntegrationTest extends TestCase
     protected function tearDown(): void
     {
         // テストデータをクリア
-        DB::connection('trx1')->table('trx_login_bonus_history')->truncate();
-        DB::connection('trx1')->table('trx_vip_login_bonus_history')->truncate();
+        DB::connection('trx1')->table('trx_login_bonus_history')->delete();
+        DB::connection('trx1')->table('trx_vip_login_bonus_history')->delete();
         DB::connection('mst')->table('mst_login_bonus_content')->delete();
         DB::connection('mst')->table('mst_login_bonus')->delete();
         DB::connection('mst')->table('mst_vip_login_bonus_content')->delete();
         DB::connection('mst')->table('mst_vip_login_bonus')->delete();
         DB::connection('sys')->table('sys_sharding_node_player')->where('sys_player_id', $this->sysPlayerId)->delete();
         DB::connection('sys')->table('sys_player')->where('id', $this->sysPlayerId)->delete();
-        DB::connection('sys')->table('sys_sharding_node')->truncate();
-        DB::connection('sys')->table('sys_sharding')->truncate();
+        DB::connection('sys')->table('sys_sharding_node')->delete();
+        DB::connection('sys')->table('sys_sharding')->delete();
 
         ApiSession::clearForTest();
         parent::tearDown();

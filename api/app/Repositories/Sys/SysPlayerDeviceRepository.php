@@ -69,4 +69,26 @@ class SysPlayerDeviceRepository extends _BaseSysRepository implements DeviceRepo
 
         return new CustomCollection($sysPlayerDeviceCollection->all());
     }
+
+    /**
+     * デバイスを新規登録キューに積む
+     *
+     * 呼び出し元が採番済みのデバイスIDを参照するため、ここでフラッシュする
+     *
+     * @param  array<string, mixed>  $deviceInfo  デバイス情報
+     */
+    public function insertDevice(int $sysPlayerId, string $uuid, array $deviceInfo): SysPlayerDevice
+    {
+        $sysPlayerDevice = new SysPlayerDevice([
+            'sys_player_id' => $sysPlayerId,
+            'uuid' => $uuid,
+            'device_info' => $deviceInfo,
+            'last_login_at' => now(),
+        ]);
+        $sysPlayerDevice->exists = false;
+        $this->setModel($sysPlayerDevice);
+        $this->flushQueue();
+
+        return $sysPlayerDevice;
+    }
 }

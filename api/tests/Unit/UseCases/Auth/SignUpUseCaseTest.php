@@ -63,7 +63,8 @@ class SignUpUseCaseTest extends TestCase
             $this->playerAuthService,
             $this->tokenService,
             $this->deviceRepository,
-            $this->tokenRepository
+            $this->tokenRepository,
+            $this->deviceRepository
         );
 
         // Suppress log output during tests

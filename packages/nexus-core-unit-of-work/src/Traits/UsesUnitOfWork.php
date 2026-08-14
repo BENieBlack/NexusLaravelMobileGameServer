@@ -31,19 +31,62 @@ trait UsesUnitOfWork
         // 親クラスのsetModelを呼び出し（キューに追加）
         parent::setModel($model);
 
-        // QueryManagerに自身を登録（初回のみ）
-        if (!$this->registeredToQueryManager) {
-            $queryManager = app()->make(QueryManagerInterface::class);
-            
-            // Logリポジトリの場合は$isPurchaseLogパラメータを渡す
-            if ($isPurchaseLog !== null) {
-                $queryManager->registerRepository($this, $isPurchaseLog);
-            } else {
-                $queryManager->registerRepository($this);
-            }
-            
-            $this->registeredToQueryManager = true;
+        $this->registerToQueryManager($isPurchaseLog);
+    }
+
+    /**
+     * 論理削除（is_delete=trueを立てる）し、QueryManagerに登録する
+     *
+     * 実体はUPDATEなのでmodelQueueに積まれる。
+     *
+     * @param mixed $model
+     * @return void
+     */
+    public function softDeleteModel($model): void
+    {
+        parent::softDeleteModel($model);
+
+        $this->registerToQueryManager();
+    }
+
+    /**
+     * 物理削除キューに積み、QueryManagerに登録する
+     *
+     * @param mixed $model
+     * @return void
+     */
+    public function hardDeleteModel($model): void
+    {
+        parent::hardDeleteModel($model);
+
+        $this->registerToQueryManager();
+    }
+
+    /**
+     * QueryManagerに自身を登録する（初回のみ）
+     *
+     * 登録していないRepositoryのキューはフラッシュ時に収集されないため、
+     * キューに積む操作からは必ず呼び出すこと。
+     *
+     * @param bool|null $isPurchaseLog 課金ログかどうか（Logリポジトリの場合のみ使用）
+     * @return void
+     */
+    protected function registerToQueryManager(?bool $isPurchaseLog = null): void
+    {
+        if ($this->registeredToQueryManager) {
+            return;
         }
+
+        $queryManager = app()->make(QueryManagerInterface::class);
+
+        // Logリポジトリの場合は$isPurchaseLogパラメータを渡す
+        if ($isPurchaseLog !== null) {
+            $queryManager->registerRepository($this, $isPurchaseLog);
+        } else {
+            $queryManager->registerRepository($this);
+        }
+
+        $this->registeredToQueryManager = true;
     }
 
     /**

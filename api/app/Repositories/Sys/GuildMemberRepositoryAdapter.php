@@ -106,7 +106,7 @@ class GuildMemberRepositoryAdapter implements GuildMemberRepositoryInterface
         $model = $this->sysGuildMemberRepository->selectById($memberDto->getId());
 
         if ($model !== null) {
-            $this->sysGuildMemberRepository->deleteModel($model);
+            $this->sysGuildMemberRepository->hardDeleteModel($model);
         }
     }
 
@@ -115,6 +115,10 @@ class GuildMemberRepositoryAdapter implements GuildMemberRepositoryInterface
      */
     public function deleteByPlayerId(int $playerId): void
     {
-        SysGuildMember::where('sys_player_id', $playerId)->delete();
+        $models = SysGuildMember::where('sys_player_id', $playerId)->get();
+
+        foreach ($models as $model) {
+            $this->sysGuildMemberRepository->hardDeleteModel($model);
+        }
     }
 }

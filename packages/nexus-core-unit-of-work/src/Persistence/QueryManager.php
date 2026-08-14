@@ -165,9 +165,13 @@ class QueryManager implements QueryManagerInterface
     }
 
     /**
-     * ログのみを実行する（トランザクション外で呼び出される）
+     * ログのみを実行する（トランザクション内で呼び出される）
+     *
+     * ビジネスデータと同一トランザクションで実行するため、
+     * ログの書き込みに失敗した場合は例外を再送出してロールバックさせる。
      *
      * @return void
+     * @throws \Throwable
      */
     public function execAllLogs(): void
     {
@@ -195,13 +199,15 @@ class QueryManager implements QueryManagerInterface
             $this->purchaseLogRepositories = [];
             
         } catch (\Exception | \Throwable $e) {
-            // ログ書き込み失敗はビジネストランザクションに影響させない
-            \Log::error('Failed to write logs (non-critical)', [
+            // 同一トランザクション内で実行しているため、失敗時は全体をロールバックさせる
+            \Log::error('Failed to write logs (critical)', [
                 'error' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
                 'trace' => $e->getTraceAsString(),
             ]);
+
+            throw $e;
         }
     }
 

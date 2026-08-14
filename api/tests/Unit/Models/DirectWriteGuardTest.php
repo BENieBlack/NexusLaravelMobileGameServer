@@ -55,6 +55,48 @@ class DirectWriteGuardTest extends TestCase
     }
 
     #[Test]
+    public function test_delete_is_rejected_when_direct_writes_are_disallowed(): void
+    {
+        $sysPlayer = _BaseModel::allowDirectWrites(function () {
+            $sysPlayer = new SysPlayer([
+                'uuid' => 'guard-test-uuid-delete',
+                'my_id' => 'grd00003',
+                'name' => 'Guard Test Delete',
+            ]);
+            $sysPlayer->save();
+
+            return $sysPlayer;
+        });
+
+        _BaseModel::disallowDirectWrites();
+
+        $this->expectException(DirectWriteNotAllowedException::class);
+
+        $sysPlayer->delete();
+    }
+
+    #[Test]
+    public function test_update_is_rejected_when_direct_writes_are_disallowed(): void
+    {
+        $sysPlayer = _BaseModel::allowDirectWrites(function () {
+            $sysPlayer = new SysPlayer([
+                'uuid' => 'guard-test-uuid-update',
+                'my_id' => 'grd00004',
+                'name' => 'Guard Test Update',
+            ]);
+            $sysPlayer->save();
+
+            return $sysPlayer;
+        });
+
+        _BaseModel::disallowDirectWrites();
+
+        $this->expectException(DirectWriteNotAllowedException::class);
+
+        $sysPlayer->update(['name' => 'Changed']);
+    }
+
+    #[Test]
     public function test_allow_direct_writes_callback_restores_previous_state(): void
     {
         _BaseModel::disallowDirectWrites();

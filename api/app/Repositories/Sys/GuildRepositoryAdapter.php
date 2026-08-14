@@ -99,7 +99,7 @@ class GuildRepositoryAdapter implements GuildRepositoryInterface
         $model = $this->sysGuildRepository->selectById($guildDto->getId());
 
         if ($model !== null) {
-            $this->sysGuildRepository->deleteModel($model);
+            $this->sysGuildRepository->hardDeleteModel($model);
         }
     }
 

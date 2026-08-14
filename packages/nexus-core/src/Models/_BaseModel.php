@@ -113,6 +113,49 @@ abstract class _BaseModel extends Model implements _BaseModelInterface
     }
 
     /**
+     * {@inheritDoc}
+     *
+     * UnitOfWorkを迂回した即時更新を禁止する。
+     *
+     * @throws DirectWriteNotAllowedException
+     */
+    public function update(array $attributes = [], array $options = [])
+    {
+        $this->assertDirectWriteAllowed('update');
+
+        return parent::update($attributes, $options);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * UnitOfWorkを迂回した即時削除を禁止する。
+     * 削除はRepositoryのsoftDeleteModel() / hardDeleteModel()経由で行うこと。
+     *
+     * @throws DirectWriteNotAllowedException
+     */
+    public function delete()
+    {
+        $this->assertDirectWriteAllowed('delete');
+
+        return parent::delete();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * UnitOfWorkを迂回した即時削除を禁止する。
+     *
+     * @throws DirectWriteNotAllowedException
+     */
+    public function forceDelete()
+    {
+        $this->assertDirectWriteAllowed('forceDelete');
+
+        return parent::forceDelete();
+    }
+
+    /**
      * 即時書き込みが許可されているか検証する
      *
      * @throws DirectWriteNotAllowedException

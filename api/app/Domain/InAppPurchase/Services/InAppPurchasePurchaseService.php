@@ -81,7 +81,7 @@ class InAppPurchasePurchaseService
         );
 
         // 5. 更新後の残高を取得して返す
-        $balance = $this->diamondBalanceService->getBalance($sysPlayerId, $platform);
+        $balance = $this->diamondBalanceService->findBalance($sysPlayerId, $platform);
 
         return [
             'paid_diamond_amount' => $mstInAppPurchase->getPaidDiamondAmount(),

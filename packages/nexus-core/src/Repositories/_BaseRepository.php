@@ -142,7 +142,7 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
      * @param string|int $key ユニークキー
      * @return mixed|null
      */
-    protected function getModel(string|int $key)
+    protected function findCachedModel(string|int $key)
     {
         if ($this->models === null) {
             return null;
@@ -158,7 +158,7 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
      * @param CustomCollection|null $keys 取得したいモデルのキーのコレクション（nullの場合は全て）
      * @return CustomCollection
      */
-    protected function getModels(?CustomCollection $keys = null): CustomCollection
+    protected function findCachedModels(?CustomCollection $keys = null): CustomCollection
     {
         if ($this->models === null) {
             $this->models = new CustomCollection();

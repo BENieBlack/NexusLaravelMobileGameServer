@@ -31,9 +31,9 @@ class ItemReadService
      * @param  string  $mstItemId  アイテムID
      * @return int 所持数（無償+有償の合計、存在しない場合は0）
      */
-    public function getItemAmount(int $sysPlayerId, string $mstItemId): int
+    public function findItemAmount(int $sysPlayerId, string $mstItemId): int
     {
         // パッケージ層に委譲
-        return $this->packageItemReadService->getItemAmount($sysPlayerId, $mstItemId);
+        return $this->packageItemReadService->findItemAmount($sysPlayerId, $mstItemId);
     }
 }

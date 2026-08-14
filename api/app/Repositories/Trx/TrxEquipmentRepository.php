@@ -31,7 +31,7 @@ class TrxEquipmentRepository extends _BaseTrxRepository
         $this->queryOrMemory();
 
         // キャッシュから取得
-        return $this->getModel($trxEquipmentId);
+        return $this->findCachedModel($trxEquipmentId);
     }
 
     /**

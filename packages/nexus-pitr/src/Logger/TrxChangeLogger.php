@@ -32,7 +32,7 @@ class TrxChangeLogger
             $trxConn = $dto->getShardConnection();
             
             try {
-                $logConn = ShardMapper::getLogConnection($trxConn);
+                $logConn = ShardMapper::resolveLogConnection($trxConn);
             } catch (\InvalidArgumentException $e) {
                 \Log::error('Invalid shard connection in PITR log', [
                     'trx_connection' => $trxConn,
@@ -87,7 +87,7 @@ class TrxChangeLogger
                 'after_data' => $this->encodeJsonData($dto->getAfterData()),
                 'primary_key' => json_encode($dto->getPrimaryKey(), JSON_UNESCAPED_UNICODE),
                 'system_at' => $dto->getSystemAt()->format('Y-m-d H:i:s'),
-                'api_endpoint' => $dto->getApiEndpoint(),
+                'api_endpoint' => $dto->resolveApiEndpoint(),
                 'stack_trace' => $this->encodeJsonData($dto->getStackTrace()),
             ];
         }

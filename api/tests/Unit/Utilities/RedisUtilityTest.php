@@ -179,7 +179,7 @@ class RedisUtilityTest extends TestCase
     }
 
     /**
-     * putCompressedとgetCompressedが動作する
+     * putCompressedとfetchCompressedが動作する
      */
     #[Test]
     public function test_put_compressedとget_compressedが動作する()
@@ -197,7 +197,7 @@ class RedisUtilityTest extends TestCase
         $this->assertTrue($result);
 
         // 解凍して取得
-        $retrieved = RedisUtility::getCompressed('large_data');
+        $retrieved = RedisUtility::fetchCompressed('large_data');
         $this->assertEquals($largeData, $retrieved);
     }
 
@@ -327,15 +327,15 @@ class RedisUtilityTest extends TestCase
     }
 
     /**
-     * 存在しないキーのgetCompressedはデフォルト値を返す
+     * 存在しないキーのfetchCompressedはデフォルト値を返す
      */
     #[Test]
     public function test_存在しないキーのget_compressedはデフォルト値を返す()
     {
-        $value = RedisUtility::getCompressed('non_existent', ['default' => 'data']);
+        $value = RedisUtility::fetchCompressed('non_existent', ['default' => 'data']);
         $this->assertEquals(['default' => 'data'], $value);
 
-        $value = RedisUtility::getCompressed('non_existent');
+        $value = RedisUtility::fetchCompressed('non_existent');
         $this->assertNull($value);
     }
 }

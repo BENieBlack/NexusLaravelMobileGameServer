@@ -149,7 +149,7 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
      *
      * @throws \RuntimeException プレイヤーIDが設定されていない場合、またはシャーディング情報が見つからない場合
      */
-    public function getConnectionNameValue(): string
+    public function resolveConnectionNameValue(): string
     {
         // 1. インスタンスキャッシュがあれば返す（リクエストスコープ）
         if ($this->connectionName !== null) {
@@ -302,8 +302,8 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
      *
      * @throws \RuntimeException プレイヤーIDが設定されていない場合、またはシャーディング情報が見つからない場合
      */
-    public static function getConnectionName(string $baseConnection = 'trx'): string
+    public static function resolveConnectionName(string $baseConnection = 'trx'): string
     {
-        return app(self::class)->getConnectionNameValue();
+        return app(self::class)->resolveConnectionNameValue();
     }
 }

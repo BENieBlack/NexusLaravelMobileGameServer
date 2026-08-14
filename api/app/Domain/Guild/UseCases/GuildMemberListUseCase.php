@@ -31,7 +31,7 @@ class GuildMemberListUseCase extends _BaseUseCase
     {
         try {
             // ギルドメンバー一覧を取得
-            $memberDtos = $this->guildService->getMemberList($guildId);
+            $memberDtos = $this->guildService->findMemberList($guildId);
 
             return GuildMemberListResponse::fromDtoArray($memberDtos);
         } catch (GuildException $e) {

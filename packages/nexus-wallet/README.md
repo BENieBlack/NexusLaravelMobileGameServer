@@ -54,7 +54,7 @@ class WalletService implements WalletManagerInterface
         // 実装
     }
 
-    public function getBalance(int $playerId, string $currencyId): CurrencyBalance {
+    public function findBalance(int $playerId, string $currencyId): CurrencyBalance {
         // 実装
     }
 
@@ -121,7 +121,7 @@ echo "残高: {$result->currentBalance}";
 ### 5. 残高確認
 
 ```php
-$balance = $walletManager->getBalance($playerId, 'gold');
+$balance = $walletManager->findBalance($playerId, 'gold');
 
 echo "無償: {$balance->freeAmount}";
 echo "有償: {$balance->paidAmount}";

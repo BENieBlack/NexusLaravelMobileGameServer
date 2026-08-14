@@ -78,7 +78,7 @@ class MaintenanceServiceTest extends TestCase
             ->method('get')
             ->willReturn($sysMaintenance);
 
-        $result = $this->service->getMaintenanceInfo();
+        $result = $this->service->findMaintenanceInfo();
 
         $this->assertSame($sysMaintenance, $result);
         $this->assertEquals('Test Maintenance', $result->getTitle());

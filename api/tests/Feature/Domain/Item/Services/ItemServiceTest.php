@@ -298,7 +298,7 @@ class ItemServiceTest extends TestCase
         ApiSession::setSysPlayerId($this->sysPlayerId);
 
         // Execute
-        $amount = $this->itemService->getItemAmount($this->sysPlayerId, 'item_potion_001');
+        $amount = $this->itemService->findItemAmount($this->sysPlayerId, 'item_potion_001');
 
         // Verify
         $this->assertSame(150, $amount); // 100 + 50
@@ -307,7 +307,7 @@ class ItemServiceTest extends TestCase
     #[Test]
     public function 存在しないアイテムのget_item_amountは0を返す(): void
     {
-        $amount = $this->itemService->getItemAmount($this->sysPlayerId, 'item_nonexistent');
+        $amount = $this->itemService->findItemAmount($this->sysPlayerId, 'item_nonexistent');
         $this->assertSame(0, $amount);
     }
 

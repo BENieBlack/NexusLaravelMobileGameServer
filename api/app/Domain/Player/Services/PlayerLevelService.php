@@ -41,7 +41,7 @@ class PlayerLevelService extends _BaseLevelService
      *
      * @throws \Exception プレイヤーが存在しない場合
      */
-    public function getPlayerLevel(int $sysPlayerId): array
+    public function findPlayerLevel(int $sysPlayerId): array
     {
         $player = $this->sysPlayerRepository->selectById($sysPlayerId);
 
@@ -52,7 +52,7 @@ class PlayerLevelService extends _BaseLevelService
         return [
             'level' => $player->getLevel(),
             'exp' => $player->getLevelExp(),
-            'exp_to_next' => $player->getExpToNextLevel(),
+            'exp_to_next' => $player->calcExpToNextLevel(),
             'max_stamina' => $player->getMaxStamina() ?? 50,
         ];
     }
@@ -92,7 +92,7 @@ class PlayerLevelService extends _BaseLevelService
 
         return [
             ...$result,
-            'exp_to_next' => $player?->getExpToNextLevel() ?? 0,
+            'exp_to_next' => $player?->calcExpToNextLevel() ?? 0,
             'before_max_stamina' => $beforeMaxStamina,
             'after_max_stamina' => $afterMaxStamina,
         ];
@@ -106,7 +106,7 @@ class PlayerLevelService extends _BaseLevelService
      *
      * @throws \Exception プレイヤーが存在しない場合
      */
-    public function getMaxStamina(int $sysPlayerId): int
+    public function findMaxStamina(int $sysPlayerId): int
     {
         $player = $this->sysPlayerRepository->selectById($sysPlayerId);
 
@@ -136,7 +136,7 @@ class PlayerLevelService extends _BaseLevelService
      * @param  int  $currentExp  現在の累積経験値
      * @return int 必要な経験値（最大レベルの場合は0）
      */
-    public function getExpToNextLevel(?string $rarity, int $currentLevel, int $currentExp): int
+    public function calcExpToNextLevel(?string $rarity, int $currentLevel, int $currentExp): int
     {
         $nextLevel = $currentLevel + 1;
         $nextLevelData = $this->mstPlayerLevelRepository->selectByLevel($nextLevel);
@@ -156,7 +156,7 @@ class PlayerLevelService extends _BaseLevelService
     /**
      * {@inheritDoc}
      */
-    protected function getEntity(mixed $id): object
+    protected function findEntity(mixed $id): object
     {
         $player = $this->sysPlayerRepository->selectById($id);
 
@@ -170,7 +170,7 @@ class PlayerLevelService extends _BaseLevelService
     /**
      * {@inheritDoc}
      */
-    protected function getRarity(object $entity): ?string
+    protected function resolveRarity(object $entity): ?string
     {
         // プレイヤーにはレアリティがない
         return null;
@@ -179,7 +179,7 @@ class PlayerLevelService extends _BaseLevelService
     /**
      * {@inheritDoc}
      */
-    protected function getCurrentLevel(object $entity): int
+    protected function resolveCurrentLevel(object $entity): int
     {
         /** @var SysPlayer $entity */
         return $entity->getLevel();
@@ -188,7 +188,7 @@ class PlayerLevelService extends _BaseLevelService
     /**
      * {@inheritDoc}
      */
-    protected function getCurrentExp(object $entity): int
+    protected function resolveCurrentExp(object $entity): int
     {
         /** @var SysPlayer $entity */
         return $entity->getLevelExp();
@@ -205,7 +205,7 @@ class PlayerLevelService extends _BaseLevelService
     /**
      * {@inheritDoc}
      */
-    protected function getMaxLevel(?string $rarity): int
+    protected function findMaxLevel(?string $rarity): int
     {
         return $this->mstPlayerLevelRepository->selectMaxLevel();
     }

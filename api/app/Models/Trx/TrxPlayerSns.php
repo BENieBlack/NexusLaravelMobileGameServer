@@ -57,7 +57,7 @@ class TrxPlayerSns extends _BaseTrx
     /**
      * 利用可能なSNSタイプ一覧を取得
      */
-    public static function getAvailableTypes(): array
+    public static function availableTypes(): array
     {
         return [
             self::TYPE_APPLE,

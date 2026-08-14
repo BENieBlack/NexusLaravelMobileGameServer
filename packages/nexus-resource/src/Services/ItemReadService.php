@@ -10,7 +10,7 @@ use NexusResource\Contracts\ItemRepositoryInterface;
  * アイテム残高の読み取り専用サービス（パッケージ層）
  * 
  * Responsibilities:
- * - アイテム残高の取得（getItemAmount）
+ * - アイテム残高の取得（findItemAmount）
  * - 複数アイテム残高の一括取得
  * 
  * Characteristics:
@@ -32,7 +32,7 @@ class ItemReadService
      * @param string $mstItemId アイテムID
      * @return int 所持数（無償+有償の合計、存在しない場合は0）
      */
-    public function getItemAmount(int $sysPlayerId, string $mstItemId): int
+    public function findItemAmount(int $sysPlayerId, string $mstItemId): int
     {
         $itemDto = $this->itemRepository->selectItem($sysPlayerId, $mstItemId);
 
@@ -46,7 +46,7 @@ class ItemReadService
      * @param array<string> $mstItemIds アイテムIDリスト
      * @return array<string, int> アイテムID => 所持数のマップ
      */
-    public function getItemAmounts(int $sysPlayerId, array $mstItemIds): array
+    public function findItemAmounts(int $sysPlayerId, array $mstItemIds): array
     {
         $itemDtos = $this->itemRepository->selectItemsByIds($sysPlayerId, $mstItemIds);
 

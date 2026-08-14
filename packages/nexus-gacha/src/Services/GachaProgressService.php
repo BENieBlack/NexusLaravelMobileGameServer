@@ -25,7 +25,7 @@ class GachaProgressService
      * @param string $mstGachaId
      * @return GachaProgressDto
      */
-    public function getOrCreateProgress(int $sysPlayerId, string $mstGachaId): GachaProgressDto
+    public function findOrInsertProgress(int $sysPlayerId, string $mstGachaId): GachaProgressDto
     {
         $progress = $this->progressRepository->selectByPlayerAndGacha($sysPlayerId, $mstGachaId);
 

@@ -53,7 +53,7 @@ class SysPlayerRepository extends _BaseSysRepository implements AuthPlayerReposi
     public function selectById(int $sysPlayerId): ?SysPlayer
     {
         // メモリキャッシュから取得
-        $sysPlayer = $this->getModel($sysPlayerId);
+        $sysPlayer = $this->findCachedModel($sysPlayerId);
 
         if ($sysPlayer !== null) {
             /** @var SysPlayer */
@@ -77,7 +77,7 @@ class SysPlayerRepository extends _BaseSysRepository implements AuthPlayerReposi
     public function selectByMyId(string $myId): ?SysPlayer
     {
         // メモリキャッシュから検索
-        $sysPlayer = $this->getModels()->firstWhere('my_id', $myId);
+        $sysPlayer = $this->findCachedModels()->firstWhere('my_id', $myId);
 
         if ($sysPlayer !== null) {
             /** @var SysPlayer */
@@ -101,7 +101,7 @@ class SysPlayerRepository extends _BaseSysRepository implements AuthPlayerReposi
     public function selectByUuid(string $uuid): ?SysPlayer
     {
         // メモリキャッシュから検索
-        $sysPlayer = $this->getModels()->firstWhere('uuid', $uuid);
+        $sysPlayer = $this->findCachedModels()->firstWhere('uuid', $uuid);
 
         if ($sysPlayer !== null) {
             /** @var SysPlayer */
@@ -124,7 +124,7 @@ class SysPlayerRepository extends _BaseSysRepository implements AuthPlayerReposi
     public function existsByMyId(string $myId): bool
     {
         // メモリキャッシュから検索
-        if ($this->getModels()->where('my_id', $myId)->isNotEmpty()) {
+        if ($this->findCachedModels()->where('my_id', $myId)->isNotEmpty()) {
             return true;
         }
 

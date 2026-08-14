@@ -33,7 +33,7 @@ interface _BaseTrxRepositoryInterface extends _BaseRepositoryInterface
      * @param int $sysPlayerId
      * @return CustomCollection<string, T>
      */
-    public function getMapBySysPlayerId(int $sysPlayerId): CustomCollection;
+    public function selectMapBySysPlayerId(int $sysPlayerId): CustomCollection;
 
     /**
      * データベースまたはメモリからデータを取得（配列形式）
@@ -42,5 +42,5 @@ interface _BaseTrxRepositoryInterface extends _BaseRepositoryInterface
      * @param int $sysPlayerId
      * @return array<T>
      */
-    public function getBySysPlayerId(int $sysPlayerId): array;
+    public function selectBySysPlayerId(int $sysPlayerId): array;
 }

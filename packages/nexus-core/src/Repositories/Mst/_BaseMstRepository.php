@@ -80,7 +80,7 @@ abstract class _BaseMstRepository extends _BaseRepository implements _BaseMstRep
         $this->queryOrMemory();
         
         // メモリキャッシュから取得
-        return $this->getModel($mstRecordId);
+        return $this->findCachedModel($mstRecordId);
     }
 
     /**
@@ -97,7 +97,7 @@ abstract class _BaseMstRepository extends _BaseRepository implements _BaseMstRep
         
         // メモリキャッシュから複数取得
         return (new CustomCollection($ids))
-            ->map(fn($id) => $this->getModel($id))
+            ->map(fn($id) => $this->findCachedModel($id))
             ->filter() // null を除外
             ->values(); // キーをリセット
     }

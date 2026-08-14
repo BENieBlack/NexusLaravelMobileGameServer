@@ -19,6 +19,6 @@ trait DynamicShardingTrait
      */
     protected function getTrxConnections(): array
     {
-        return ShardMapper::getAllTrxConnections();
+        return ShardMapper::allTrxConnections();
     }
 }

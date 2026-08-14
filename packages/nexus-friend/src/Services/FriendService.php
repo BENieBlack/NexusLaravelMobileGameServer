@@ -184,7 +184,7 @@ class FriendService
      * @param  int  $playerId  プレイヤーID
      * @return array<FriendApplyDto>
      */
-    public function getApplyList(int $playerId): array
+    public function findApplyList(int $playerId): array
     {
         return $this->repository->selectAppliesByPlayerId($playerId);
     }
@@ -195,7 +195,7 @@ class FriendService
      * @param  int  $playerId  プレイヤーID
      * @return array<FriendApplyDto>
      */
-    public function getFriendList(int $playerId): array
+    public function findFriendList(int $playerId): array
     {
         return $this->repository->selectAcceptedFriendsByPlayerId($playerId);
     }

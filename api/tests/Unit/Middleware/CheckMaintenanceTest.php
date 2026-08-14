@@ -77,7 +77,7 @@ class CheckMaintenanceTest extends TestCase
             ->andReturn(true);
 
         $this->maintenanceService
-            ->shouldReceive('getMaintenanceInfo')
+            ->shouldReceive('findMaintenanceInfo')
             ->once()
             ->andReturn($maintenanceDto);
 
@@ -212,7 +212,7 @@ class CheckMaintenanceTest extends TestCase
             ->andReturn(true);
 
         $this->maintenanceService
-            ->shouldReceive('getMaintenanceInfo')
+            ->shouldReceive('findMaintenanceInfo')
             ->once()
             ->andReturn($maintenanceDto);
 

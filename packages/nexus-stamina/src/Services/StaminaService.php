@@ -32,7 +32,7 @@ class StaminaService
      * @param  string  $type  スタミナタイプ
      * @return StaminaDto|null スタミナDTO
      */
-    public function getStamina(int $sysPlayerId, string $type = StaminaConst::TYPE_NORMAL): ?StaminaDto
+    public function findStamina(int $sysPlayerId, string $type = StaminaConst::TYPE_NORMAL): ?StaminaDto
     {
         $stamina = $this->staminaRepository->selectByPlayerAndType($sysPlayerId, $type);
 
@@ -41,7 +41,7 @@ class StaminaService
         }
 
         // プレイヤーのレベルから最大スタミナを取得
-        $maxStamina = $this->playerLevelService->getMaxStamina($sysPlayerId);
+        $maxStamina = $this->playerLevelService->findMaxStamina($sysPlayerId);
 
         // 自動回復を適用
         $this->applyAutoRecovery($stamina, $maxStamina);
@@ -82,7 +82,7 @@ class StaminaService
      */
     public function consumeStamina(int $sysPlayerId, int $amount, string $type = StaminaConst::TYPE_NORMAL): array
     {
-        $stamina = $this->getStamina($sysPlayerId, $type);
+        $stamina = $this->findStamina($sysPlayerId, $type);
 
         if ($stamina === null) {
             return [
@@ -123,7 +123,7 @@ class StaminaService
      */
     public function recoverStaminaByItem(int $sysPlayerId, int $amount, string $type = StaminaConst::TYPE_NORMAL): array
     {
-        $stamina = $this->getStamina($sysPlayerId, $type);
+        $stamina = $this->findStamina($sysPlayerId, $type);
 
         if ($stamina === null) {
             return [
@@ -194,7 +194,7 @@ class StaminaService
      * @param  string  $type  スタミナタイプ
      * @return int|null 残り秒数（最大値の場合はnull）
      */
-    public function getTimeUntilNextRecovery(int $sysPlayerId, string $type = StaminaConst::TYPE_NORMAL): ?int
+    public function calcTimeUntilNextRecovery(int $sysPlayerId, string $type = StaminaConst::TYPE_NORMAL): ?int
     {
         $stamina = $this->staminaRepository->selectByPlayerAndType($sysPlayerId, $type);
 
@@ -202,7 +202,7 @@ class StaminaService
             return null;
         }
 
-        $maxStamina = $this->playerLevelService->getMaxStamina($sysPlayerId);
+        $maxStamina = $this->playerLevelService->findMaxStamina($sysPlayerId);
 
         // すでに最大値の場合は回復不要
         if ($stamina->isCurrentStaminaFull($maxStamina)) {

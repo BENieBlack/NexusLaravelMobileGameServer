@@ -60,7 +60,7 @@ class AuthController extends _BaseController
      */
     public function version(VersionRequest $request, VersionCheckUseCase $useCase): JsonResponse
     {
-        $deployVersion = $request->getDeployVersion();
+        $deployVersion = $request->resolveDeployVersion();
 
         return $this->execute(fn () => $useCase->exec($deployVersion));
     }

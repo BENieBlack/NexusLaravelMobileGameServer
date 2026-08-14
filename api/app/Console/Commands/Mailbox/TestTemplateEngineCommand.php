@@ -81,7 +81,7 @@ class TestTemplateEngineCommand extends Command
 
         // サポートしているプレースホルダー一覧
         $this->info('[サポートプレースホルダー一覧]');
-        $supported = $engine->getSupportedPlaceholders();
+        $supported = $engine->supportedPlaceholders();
         foreach ($supported as $resolverName => $keys) {
             $this->line("{$resolverName}: ".implode(', ', $keys));
         }

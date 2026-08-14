@@ -28,7 +28,7 @@ class FriendController extends _BaseController
     public function applySend(ApplySendRequest $request, FriendApplySendUseCase $useCase): JsonResponse
     {
         // 認証情報を取得
-        $sysPlayerId = $request->getAuthenticatedPlayerId();
+        $sysPlayerId = $request->resolveAuthenticatedPlayerId();
 
         if (! $sysPlayerId) {
             throw new GameException(
@@ -51,7 +51,7 @@ class FriendController extends _BaseController
     public function applyAccept(ApplyAcceptRequest $request, FriendApplyAcceptUseCase $useCase): JsonResponse
     {
         // 認証情報を取得
-        $sysPlayerId = $request->getAuthenticatedPlayerId();
+        $sysPlayerId = $request->resolveAuthenticatedPlayerId();
 
         if (! $sysPlayerId) {
             throw new GameException(
@@ -74,7 +74,7 @@ class FriendController extends _BaseController
     public function applyReject(ApplyRejectRequest $request, FriendApplyRejectUseCase $useCase): JsonResponse
     {
         // 認証情報を取得
-        $sysPlayerId = $request->getAuthenticatedPlayerId();
+        $sysPlayerId = $request->resolveAuthenticatedPlayerId();
 
         if (! $sysPlayerId) {
             throw new GameException(
@@ -97,7 +97,7 @@ class FriendController extends _BaseController
     public function applyList(ApplyListRequest $request, FriendApplyListUseCase $useCase): JsonResponse
     {
         // 認証情報を取得
-        $sysPlayerId = $request->getAuthenticatedPlayerId();
+        $sysPlayerId = $request->resolveAuthenticatedPlayerId();
 
         if (! $sysPlayerId) {
             throw new GameException(
@@ -117,7 +117,7 @@ class FriendController extends _BaseController
     public function list(ListRequest $request, FriendListUseCase $useCase): JsonResponse
     {
         // 認証情報を取得
-        $sysPlayerId = $request->getAuthenticatedPlayerId();
+        $sysPlayerId = $request->resolveAuthenticatedPlayerId();
 
         if (! $sysPlayerId) {
             throw new GameException(
@@ -137,7 +137,7 @@ class FriendController extends _BaseController
     public function delete(DeleteRequest $request, FriendDeleteUseCase $useCase): JsonResponse
     {
         // 認証情報を取得
-        $sysPlayerId = $request->getAuthenticatedPlayerId();
+        $sysPlayerId = $request->resolveAuthenticatedPlayerId();
 
         if (! $sysPlayerId) {
             throw new GameException(

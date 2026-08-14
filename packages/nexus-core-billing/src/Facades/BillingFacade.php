@@ -116,7 +116,7 @@ class BillingFacade
     ): Subscription {
         $platform = $this->platformFactory->create($billingPlatform);
         
-        return $platform->getSubscriptionStatus($subscriptionId);
+        return $platform->fetchSubscriptionStatus($subscriptionId);
     }
 
     /**

@@ -60,7 +60,7 @@ class MigrateShards extends Command
             $this->info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
             try {
-                $command = $this->getMigrateCommand();
+                $command = $this->buildMigrateCommand();
                 $options = $this->buildMigrateOptions($connection);
 
                 $exitCode = Artisan::call($command, $options, $this->getOutput());
@@ -93,7 +93,7 @@ class MigrateShards extends Command
     /**
      * 実行するマイグレーションコマンドを決定
      */
-    protected function getMigrateCommand(): string
+    protected function buildMigrateCommand(): string
     {
         if ($this->option('fresh')) {
             return 'migrate:fresh';

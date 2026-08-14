@@ -34,7 +34,7 @@ class PurchaseLimitResetType
      * 
      * @return array
      */
-    public static function getAll(): array
+    public static function all(): array
     {
         return [
             self::NONE,
@@ -52,6 +52,6 @@ class PurchaseLimitResetType
      */
     public static function isValid(string $resetType): bool
     {
-        return in_array($resetType, self::getAll(), true);
+        return in_array($resetType, self::all(), true);
     }
 }

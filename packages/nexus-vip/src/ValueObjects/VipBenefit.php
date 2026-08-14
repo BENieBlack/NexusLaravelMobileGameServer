@@ -58,7 +58,7 @@ final class VipBenefit
     /**
      * デイリーダイヤモンドボーナス取得
      */
-    public function getDailyDiamondBonus(): int
+    public function calcDailyDiamondBonus(): int
     {
         return $this->dailyDiamondBonus;
     }

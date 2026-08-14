@@ -196,7 +196,7 @@ class SysDeploy extends _BaseSys
     /**
      * 最新のダウンロード可能なデプロイを取得
      */
-    public static function getLatestDownloadable(): ?self
+    public static function selectLatestDownloadable(): ?self
     {
         return static::downloadable()
             ->orderBy('deploy_key', 'desc')

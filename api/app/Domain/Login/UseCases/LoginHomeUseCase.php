@@ -63,7 +63,7 @@ class LoginHomeUseCase extends _BaseUseCase
             $loginBonusContents = $this->loginBonusService->process(
                 $sysPlayerId,
                 $sysPlayer->getLastLoginAt(),
-                ApiSession::getConnectionName('trx')
+                ApiSession::resolveConnectionName('trx')
             );
 
             // 最終ログイン日時を更新

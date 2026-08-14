@@ -67,7 +67,7 @@ class VipRewardServiceTest extends TestCase
             ->andReturn($collection);
 
         // Act
-        $result = $this->service->getRewardsByLevel($vipLevel);
+        $result = $this->service->findRewardsByLevel($vipLevel);
 
         // Assert
         $this->assertIsArray($result);
@@ -97,7 +97,7 @@ class VipRewardServiceTest extends TestCase
             ->andReturn($collection);
 
         // Act
-        $result = $this->service->getRewardsByLevel($vipLevel);
+        $result = $this->service->findRewardsByLevel($vipLevel);
 
         // Assert
         $this->assertIsArray($result);
@@ -178,7 +178,7 @@ class VipRewardServiceTest extends TestCase
             ->andReturn($collection);
 
         // Act
-        $result = $this->service->getRewardsArray($vipLevel);
+        $result = $this->service->buildRewardsArray($vipLevel);
 
         // Assert
         $this->assertIsArray($result);
@@ -220,7 +220,7 @@ class VipRewardServiceTest extends TestCase
             ->andReturn($collection);
 
         // Act
-        $result = $this->service->getRewardsArray($vipLevel);
+        $result = $this->service->buildRewardsArray($vipLevel);
 
         // Assert
         $this->assertSame(50, $result[0]['total_quantity']); // 10 * 5

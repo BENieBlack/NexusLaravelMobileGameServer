@@ -41,7 +41,7 @@ class EquipmentLevelService extends _BaseLevelService
      *
      * @throws \Exception 装備が存在しない場合
      */
-    public function getEquipmentLevel(int $trxEquipmentId): array
+    public function findEquipmentLevel(int $trxEquipmentId): array
     {
         $trxEquipment = $this->trxEquipmentRepository->selectById($trxEquipmentId);
 
@@ -57,7 +57,7 @@ class EquipmentLevelService extends _BaseLevelService
 
         $rarity = $mstEquipment->getRarity();
         $maxLevel = $this->mstEquipmentLevelRepository->selectMaxLevel($rarity) ?? 100;
-        $expToNext = $this->getExpToNextLevel($rarity, $trxEquipment->getLevel(), $trxEquipment->getLevelExp());
+        $expToNext = $this->calcExpToNextLevel($rarity, $trxEquipment->getLevel(), $trxEquipment->getLevelExp());
 
         return [
             'level' => $trxEquipment->getLevel(),
@@ -150,7 +150,7 @@ class EquipmentLevelService extends _BaseLevelService
      * @param  int  $currentExp  現在の累積経験値
      * @return int|null 必要な経験値（最大レベルの場合はnull）
      */
-    public function getExpToNextLevel(?string $rarity, int $currentLevel, int $currentExp): ?int
+    public function calcExpToNextLevel(?string $rarity, int $currentLevel, int $currentExp): ?int
     {
         $nextLevel = $currentLevel + 1;
         $nextLevelData = $this->mstEquipmentLevelRepository->selectByRarityAndLevel($rarity, $nextLevel);
@@ -170,7 +170,7 @@ class EquipmentLevelService extends _BaseLevelService
     /**
      * {@inheritDoc}
      */
-    protected function getEntity(mixed $id): object
+    protected function findEntity(mixed $id): object
     {
         $equipment = $this->trxEquipmentRepository->selectById($id);
 
@@ -184,7 +184,7 @@ class EquipmentLevelService extends _BaseLevelService
     /**
      * {@inheritDoc}
      */
-    protected function getRarity(object $entity): ?string
+    protected function resolveRarity(object $entity): ?string
     {
         /** @var TrxEquipment $entity */
         $mstEquipment = $this->mstEquipmentRepository->selectById($entity->getMstEquipmentId());
@@ -199,7 +199,7 @@ class EquipmentLevelService extends _BaseLevelService
     /**
      * {@inheritDoc}
      */
-    protected function getCurrentLevel(object $entity): int
+    protected function resolveCurrentLevel(object $entity): int
     {
         /** @var TrxEquipment $entity */
         return $entity->getLevel();
@@ -208,7 +208,7 @@ class EquipmentLevelService extends _BaseLevelService
     /**
      * {@inheritDoc}
      */
-    protected function getCurrentExp(object $entity): int
+    protected function resolveCurrentExp(object $entity): int
     {
         /** @var TrxEquipment $entity */
         return $entity->getLevelExp();
@@ -225,7 +225,7 @@ class EquipmentLevelService extends _BaseLevelService
     /**
      * {@inheritDoc}
      */
-    protected function getMaxLevel(?string $rarity): int
+    protected function findMaxLevel(?string $rarity): int
     {
         return $this->mstEquipmentLevelRepository->selectMaxLevel($rarity) ?? 100;
     }

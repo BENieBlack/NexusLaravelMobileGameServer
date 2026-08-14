@@ -123,7 +123,7 @@ class SysFriendApply extends _BaseSys
     /**
      * 利用可能なステータス一覧を取得
      */
-    public static function getAvailableStatuses(): array
+    public static function availableStatuses(): array
     {
         return [
             self::STATUS_APPLIED,

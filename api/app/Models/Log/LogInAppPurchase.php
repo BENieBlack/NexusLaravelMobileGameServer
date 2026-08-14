@@ -46,7 +46,7 @@ class LogInAppPurchase extends _BaseLog
     /**
      * 利用可能なプラットフォーム一覧を取得
      */
-    public static function getAvailablePlatforms(): array
+    public static function availablePlatforms(): array
     {
         return [
             self::PLATFORM_APPLE,

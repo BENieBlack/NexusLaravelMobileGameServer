@@ -25,5 +25,5 @@ interface VipPointLogRepositoryInterface
     /**
      * プレイヤーのVIPポイント履歴を取得
      */
-    public function getHistory(int $sysPlayerId, int $limit = 100): array;
+    public function selectHistory(int $sysPlayerId, int $limit = 100): array;
 }

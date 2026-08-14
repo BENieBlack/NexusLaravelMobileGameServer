@@ -168,7 +168,7 @@ class SysMaintenance extends _BaseSys
     /**
      * 現在進行中のメンテナンスを取得
      */
-    public static function getCurrentMaintenance(): ?self
+    public static function selectCurrentMaintenance(): ?self
     {
         return static::inProgress()
             ->orderBy('start_at', 'desc')

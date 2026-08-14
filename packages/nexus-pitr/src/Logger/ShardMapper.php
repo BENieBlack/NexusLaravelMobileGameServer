@@ -17,7 +17,7 @@ class ShardMapper
      * @return string
      * @throws \InvalidArgumentException
      */
-    public static function getLogConnection(string $trxConnection): string
+    public static function resolveLogConnection(string $trxConnection): string
     {
         // 動的シャーディング: trx1 -> log1, trx2 -> log2, ...
         if (preg_match('/^trx(\d+)$/', $trxConnection, $matches)) {
@@ -39,7 +39,7 @@ class ShardMapper
      * @return string
      * @throws \InvalidArgumentException
      */
-    public static function getTrxConnection(string $logConnection): string
+    public static function resolveTrxConnection(string $logConnection): string
     {
         // 動的シャーディング: log1 -> trx1, log2 -> trx2, ...
         if (preg_match('/^log(\d+)$/', $logConnection, $matches)) {
@@ -59,7 +59,7 @@ class ShardMapper
      * 
      * @return array<string>
      */
-    public static function getAllLogConnections(): array
+    public static function allLogConnections(): array
     {
         $maxShards = self::getMaxShardCount();
         $connections = [];
@@ -76,7 +76,7 @@ class ShardMapper
      * 
      * @return array<string>
      */
-    public static function getAllTrxConnections(): array
+    public static function allTrxConnections(): array
     {
         $maxShards = self::getMaxShardCount();
         $connections = [];

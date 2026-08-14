@@ -99,7 +99,7 @@ class TokenService
         ];
 
         // kid（Key ID）をヘッダーに追加して鍵ローテーション対応
-        return JWT::encode($payload, $this->appKey, self::ALGORITHM, $this->getCurrentKeyId());
+        return JWT::encode($payload, $this->appKey, self::ALGORITHM, $this->resolveCurrentKeyId());
     }
 
     /**
@@ -243,7 +243,7 @@ class TokenService
      *
      * @return string|null
      */
-    private function getCurrentKeyId(): ?string
+    private function resolveCurrentKeyId(): ?string
     {
         // 将来的に環境変数から取得できるようにする
         // 例: config('jwt.key_id') または環境変数 JWT_KEY_ID

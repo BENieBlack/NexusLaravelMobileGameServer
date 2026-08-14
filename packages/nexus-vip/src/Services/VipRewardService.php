@@ -21,7 +21,7 @@ class VipRewardService
      *
      * @return array<VipReward>
      */
-    public function getRewardsByLevel(int $vipLevel): array
+    public function findRewardsByLevel(int $vipLevel): array
     {
         $rewards = $this->vipLevelRewardRepository->selectActiveByVipLevel($vipLevel);
 
@@ -50,9 +50,9 @@ class VipRewardService
     /**
      * 報酬を配列形式で取得（API レスポンス用）
      */
-    public function getRewardsArray(int $vipLevel): array
+    public function buildRewardsArray(int $vipLevel): array
     {
-        $rewards = $this->getRewardsByLevel($vipLevel);
+        $rewards = $this->findRewardsByLevel($vipLevel);
 
         return array_map(function (VipReward $reward) {
             return $reward->toArray();

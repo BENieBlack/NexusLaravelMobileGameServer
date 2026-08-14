@@ -1985,14 +1985,14 @@ class UnitConst
     const RARITY_C = 'C';
 
     // ヘルパーメソッド
-    public static function getAllTypes(): array
+    public static function allTypes(): array
     {
         return [self::TYPE_ATTACK, self::TYPE_DEFENSE, self::TYPE_SUPPORT];
     }
 
     public static function isValidType(string $type): bool
     {
-        return in_array($type, self::getAllTypes(), true);
+        return in_array($type, self::allTypes(), true);
     }
 }
 ```
@@ -2140,7 +2140,7 @@ class ItemConst
     const EFFECT_EXP_BOOST = 'ExpBoost';
     const EFFECT_UNIT_EXP = 'UnitExp';
     
-    public static function getAllTypes(): array { /* ... */ }
+    public static function allTypes(): array { /* ... */ }
     public static function isValidType(string $type): bool { /* ... */ }
 }
 ```
@@ -2189,7 +2189,7 @@ class InAppPurchaseConst
     const CONTENT_TYPE_UNIT = 'Unit';
     const CONTENT_TYPE_FREE_DIAMOND = 'FreeDiamond';
     
-    public static function getAllTypes(): array { /* ... */ }
+    public static function allTypes(): array { /* ... */ }
     public static function isValidType(string $type): bool { /* ... */ }
 }
 ```

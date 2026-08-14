@@ -84,7 +84,7 @@ class AppStoreApiClient
      * @return array
      * @throws PlatformApiException
      */
-    public function getSubscriptionStatus(string $transactionId): array
+    public function fetchSubscriptionStatus(string $transactionId): array
     {
         // TODO: App Store Server API の実装
         // https://developer.apple.com/documentation/appstoreserverapi

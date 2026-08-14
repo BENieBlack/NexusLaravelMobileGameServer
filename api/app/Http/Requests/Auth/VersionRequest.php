@@ -29,7 +29,7 @@ class VersionRequest extends _BaseRequest
      * Deploy-Versionを取得（ヘッダーまたはボディ）
      * sys_deploy.idに該当
      */
-    public function getDeployVersion(): ?int
+    public function resolveDeployVersion(): ?int
     {
         // ボディから取得を優先、なければヘッダーから取得
         $version = $this->input('deploy_version') ?? $this->headers->get('Deploy-Version');

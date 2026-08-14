@@ -90,7 +90,7 @@ class VipPointService
             // 複数レベルアップした場合は、各レベルの報酬を全て取得
             $allRewards = [];
             for ($level = $beforeLevel + 1; $level <= $afterLevel; $level++) {
-                $levelRewards = $this->vipRewardService->getRewardsArray($level);
+                $levelRewards = $this->vipRewardService->buildRewardsArray($level);
                 $allRewards = array_merge($allRewards, $levelRewards);
             }
 
@@ -130,7 +130,7 @@ class VipPointService
     /**
      * プレイヤーのVIP情報を取得
      */
-    public function getPlayerVipInfo(int $sysPlayerId): ?PlayerVipDto
+    public function findPlayerVipInfo(int $sysPlayerId): ?PlayerVipDto
     {
         return $this->playerVipRepository->selectVipInfoById($sysPlayerId);
     }

@@ -24,7 +24,7 @@ class PlayerLevelService
      *
      * @throws \Exception
      */
-    public function getPlayerLevel(int $sysPlayerId): array
+    public function findPlayerLevel(int $sysPlayerId): array
     {
         $player = $this->playerRepository->selectById($sysPlayerId);
 
@@ -32,7 +32,7 @@ class PlayerLevelService
             throw new \Exception("Player not found: {$sysPlayerId}");
         }
 
-        $expToNext = $this->getExpToNextLevel($player->getLevel(), $player->getLevelExp());
+        $expToNext = $this->calcExpToNextLevel($player->getLevel(), $player->getLevelExp());
         $maxStamina = $this->levelRepository->findMaxStaminaForLevel($player->getLevel()) ?? 50;
 
         return [
@@ -94,7 +94,7 @@ class PlayerLevelService
         }
 
         // 次のレベルまでの経験値を計算
-        $expToNext = $this->getExpToNextLevel($afterLevel, $newTotalExp);
+        $expToNext = $this->calcExpToNextLevel($afterLevel, $newTotalExp);
 
         return [
             'is_leveled_up' => $isLeveledUp,
@@ -112,7 +112,7 @@ class PlayerLevelService
      *
      * @throws \Exception
      */
-    public function getMaxStamina(int $sysPlayerId): int
+    public function findMaxStamina(int $sysPlayerId): int
     {
         $player = $this->playerRepository->selectById($sysPlayerId);
 
@@ -134,7 +134,7 @@ class PlayerLevelService
     /**
      * 次のレベルまでに必要な経験値を取得
      */
-    private function getExpToNextLevel(int $currentLevel, int $currentExp): int
+    private function calcExpToNextLevel(int $currentLevel, int $currentExp): int
     {
         $nextLevel = $currentLevel + 1;
         $nextLevelData = $this->levelRepository->selectByLevel($nextLevel);

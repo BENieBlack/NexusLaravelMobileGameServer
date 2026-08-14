@@ -78,7 +78,11 @@ class SysGuildMemberRepository extends _BaseSysRepository
         $member->setSysPlayerId($playerId);
         $member->setRole($role);
         $member->setJoinedAt(now()->format('Y-m-d H:i:s'));
-        $member->save();
+        $member->exists = false;
+        $this->setModel($member);
+
+        // 呼び出し元が採番済みのメンバーIDを参照するため、ここでフラッシュする
+        $this->flushQueue();
 
         return $member;
     }

@@ -111,7 +111,9 @@ class VipLoginBonusServiceTest extends TestCase
     protected function tearDown(): void
     {
         // テストデータをクリア
-        DB::connection('trx1')->table('trx_vip_login_bonus_history')->truncate();
+        // TRUNCATEはMySQLで暗黙コミットを起こし、テストのトランザクションを
+        // 確定させてしまうためDELETEを使う
+        DB::connection('trx1')->table('trx_vip_login_bonus_history')->delete();
         DB::connection('mst')->table('mst_vip_login_bonus_content')->delete();
         DB::connection('mst')->table('mst_vip_login_bonus')->delete();
         DB::connection('sys')->table('sys_sharding_node_player')->where('sys_player_id', $this->sysPlayerId)->delete();
@@ -181,6 +183,8 @@ class VipLoginBonusServiceTest extends TestCase
         // Act
         $result = $this->vipLoginBonusService->process($this->sysPlayerId, $lastLoginAt, 'trx1');
 
+        $this->flushQueue();
+
         // Assert: process()は配布したResourceDtoの配列を返す
         $this->assertCount(1, $result, 'VIP5プレイヤーはボーナスを受け取れるべき');
 
@@ -238,6 +242,8 @@ class VipLoginBonusServiceTest extends TestCase
             ClockUtility::now()->subDay()->format('Y-m-d H:i:s'),
             'trx1'
         );
+
+        $this->flushQueue();
 
         // Assert
         $this->assertCount(1, $result, '8日目にボーナスを受け取れるべき');
@@ -298,6 +304,8 @@ class VipLoginBonusServiceTest extends TestCase
             ClockUtility::now()->subDay()->format('Y-m-d H:i:s'),
             'trx1'
         );
+
+        $this->flushQueue();
 
         // Assert
         $this->assertCount(1, $result, 'VIPレベルアップ後もボーナスを受け取れるべき');

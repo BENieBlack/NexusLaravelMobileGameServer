@@ -47,7 +47,7 @@ class ItemServiceTest extends TestCase
     protected function tearDown(): void
     {
         // Clear all test data
-        DB::connection('trx1')->table('trx_item')->truncate();
+        DB::connection('trx1')->table('trx_item')->delete();
 
         ApiSession::clearForTest();
         $this->queryManager->clear();

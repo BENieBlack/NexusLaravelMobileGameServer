@@ -199,6 +199,8 @@ class RefreshTokenUseCaseTest extends TestCase
 
         // トークンを無効化
         $oldSysPlayerToken->revoke();
+        SysPlayerToken::where('id', $oldSysPlayerToken->id)
+            ->update(['revoked_at' => $oldSysPlayerToken->revoked_at]);
 
         // Assert & Act
         $this->expectException(GameException::class);
@@ -217,7 +219,8 @@ class RefreshTokenUseCaseTest extends TestCase
 
         // トークンの有効期限を過去に設定
         $oldSysPlayerToken->expires_at = now()->subDay();
-        $oldSysPlayerToken->save();
+        SysPlayerToken::where('id', $oldSysPlayerToken->id)
+            ->update(['expires_at' => $oldSysPlayerToken->expires_at]);
 
         // Assert & Act
         $this->expectException(GameException::class);

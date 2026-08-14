@@ -3,7 +3,6 @@
 namespace App\Repositories\Sys;
 
 use App\Models\Sys\SysGuild;
-use App\Models\Sys\SysGuildMember;
 use Illuminate\Database\Eloquent\Collection;
 use NexusGuild\Constants\GuildRole;
 
@@ -17,6 +16,10 @@ use NexusGuild\Constants\GuildRole;
 class SysGuildRepository extends _BaseSysRepository
 {
     protected string $modelClass = SysGuild::class;
+
+    public function __construct(
+        private readonly SysGuildMemberRepository $sysGuildMemberRepository,
+    ) {}
 
     // ========================================
     // Application層専用メソッド（Model返却）
@@ -67,15 +70,19 @@ class SysGuildRepository extends _BaseSysRepository
         $guild->setLevel(1);
         $guild->setExp(0);
         $guild->setMaxMembers(30);
-        $guild->save();
+        $guild->exists = false;
+        $this->setModel($guild);
+
+        // マスターメンバーの登録と応答生成に採番済みのギルドIDが必要なため、
+        // ここでキューをフラッシュしてIDを確定させる
+        $this->flushQueue();
 
         // マスターメンバーを作成
-        $member = new SysGuildMember;
-        $member->setSysGuildId($guild->getId());
-        $member->setSysPlayerId($masterPlayerId);
-        $member->setRole(GuildRole::MASTER);
-        $member->setJoinedAt(now()->format('Y-m-d H:i:s'));
-        $member->save();
+        $this->sysGuildMemberRepository->insertMember(
+            $guild->getId(),
+            $masterPlayerId,
+            GuildRole::MASTER
+        );
 
         return $guild;
     }

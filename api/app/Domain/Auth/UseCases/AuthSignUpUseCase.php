@@ -3,10 +3,10 @@
 namespace App\Domain\Auth\UseCases;
 
 use App\Domain\_BaseUseCase;
+use App\Domain\Auth\Traits\BuildsSysPlayerToken;
 use App\Exceptions\BusinessLogicException;
 use App\Http\Responses\Auth\SignUpResponse;
-use App\Models\Sys\SysPlayerDevice;
-use App\Models\Sys\SysPlayerToken;
+use App\Repositories\Sys\SysPlayerDeviceRepository;
 use NexusAuth\Contracts\DeviceRepositoryInterface;
 use NexusAuth\Contracts\TokenRepositoryInterface;
 use NexusAuth\Services\PlayerAuthService;
@@ -22,11 +22,14 @@ use Throwable;
  */
 class AuthSignUpUseCase extends _BaseUseCase
 {
+    use BuildsSysPlayerToken;
+
     public function __construct(
         private readonly PlayerAuthService $playerAuthService,
         private readonly TokenService $tokenService,
         private readonly DeviceRepositoryInterface $deviceRepository,
         private readonly TokenRepositoryInterface $tokenRepository,
+        private readonly SysPlayerDeviceRepository $sysPlayerDeviceRepository,
     ) {}
 
     /**
@@ -56,24 +59,26 @@ class AuthSignUpUseCase extends _BaseUseCase
             $player = $this->playerAuthService->createPlayer($deviceId, $deviceInfo);
 
             // デバイスを作成（アプリケーション層で直接作成）
-            $sysPlayerDevice = SysPlayerDevice::create([
-                'sys_player_id' => $player->getId(),
-                'uuid' => $deviceId,
-                'device_info' => $deviceInfo,
-                'last_login_at' => now(),
-            ]);
+            $sysPlayerDevice = $this->sysPlayerDeviceRepository->insertDevice(
+                $player->getId(),
+                $deviceId,
+                $deviceInfo
+            );
 
             // Token DTO生成（NexusAuth\Services\TokenService使用）
             [$tokenDto, $sysPlayerToken] = $this->tokenService->generateToken(
                 $player,
                 $sysPlayerDevice,
-                fn ($playerId, $deviceId, $tokenHash, $expiresAt) => SysPlayerToken::create([
-                    'sys_player_id' => $playerId,
-                    'sys_player_device_id' => $deviceId,
-                    'refresh_token_hash' => $tokenHash,
-                    'expires_at' => $expiresAt,
-                ])
+                fn ($playerId, $deviceId, $tokenHash, $expiresAt) => $this->newSysPlayerToken(
+                    $playerId,
+                    $deviceId,
+                    $tokenHash,
+                    $expiresAt
+                )
             );
+
+            // レスポンスにトークンIDを含めるため、採番を確定させる
+            $this->flushQueue();
 
             // レスポンスを返却（新規作成なので201）
             return new SignUpResponse(

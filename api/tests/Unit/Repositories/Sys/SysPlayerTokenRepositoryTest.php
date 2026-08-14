@@ -167,6 +167,7 @@ class SysPlayerTokenRepositoryTest extends TestCase
 
         // Act
         $count = $this->repository->revokeDeviceTokens($sysPlayerDevice->id);
+        $this->flushQueue();
 
         // Assert
         $this->assertEquals(3, $count);

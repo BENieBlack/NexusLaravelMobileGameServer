@@ -91,6 +91,18 @@ trait UseCaseTrait
     }
 
     /**
+     * キューに積んだクエリを即座に実行する
+     *
+     * INSERTで採番された主キーをレスポンス生成などで直後に参照する必要がある
+     * 場合にのみ使用する。executeWithTransaction()のトランザクション内で
+     * 呼ばれる前提であり、失敗時はまとめてロールバックされる。
+     */
+    protected function flushQueue(): void
+    {
+        app()->make(QueryManagerInterface::class)->flush();
+    }
+
+    /**
      * アクティブな接続を取得
      *
      * sys + (trx1, trx2, ...) + (log1, log2, ...)

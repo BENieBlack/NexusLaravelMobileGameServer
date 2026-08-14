@@ -105,7 +105,9 @@ abstract class _BaseMst extends _BaseModel implements _BaseMstInterface
     {
         $this->assertWritable('save');
 
-        return parent::save($options);
+        // マスターデータはUnitOfWorkの管理外であり、allowWrites()で
+        // 明示的に許可された投入経路のみが到達する
+        return self::allowDirectWrites(fn () => parent::save($options));
     }
 
     /**

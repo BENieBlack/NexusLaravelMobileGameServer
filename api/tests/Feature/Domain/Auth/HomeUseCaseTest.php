@@ -51,10 +51,10 @@ class HomeUseCaseTest extends TestCase
     protected function tearDown(): void
     {
         // テストデータをクリア
-        DB::connection('trx1')->table('trx_login_bonus_history')->truncate();
-        DB::connection('trx1')->table('trx_unit')->truncate();
-        DB::connection('trx1')->table('trx_item')->truncate();
-        DB::connection('trx1')->table('trx_wallet')->truncate();
+        DB::connection('trx1')->table('trx_login_bonus_history')->delete();
+        DB::connection('trx1')->table('trx_unit')->delete();
+        DB::connection('trx1')->table('trx_item')->delete();
+        DB::connection('trx1')->table('trx_wallet')->delete();
         DB::connection('mst')->table('mst_login_bonus_content')->delete();
         DB::connection('mst')->table('mst_login_bonus')->delete();
 

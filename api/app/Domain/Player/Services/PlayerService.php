@@ -84,6 +84,9 @@ class PlayerService
      */
     public function updateLastLogin(SysPlayerDevice $sysPlayerDevice): bool
     {
-        return $sysPlayerDevice->updateLastLogin();
+        $sysPlayerDevice->markLastLoginAt();
+        $this->sysPlayerDeviceRepository->setModel($sysPlayerDevice);
+
+        return true;
     }
 }

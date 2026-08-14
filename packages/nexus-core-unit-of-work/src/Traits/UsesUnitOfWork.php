@@ -47,8 +47,24 @@ trait UsesUnitOfWork
     }
 
     /**
+     * キューに積んだクエリを即座に実行する
+     *
+     * INSERTで採番された主キーを直後に参照する必要がある場合にのみ使用する。
+     * 通常はUseCaseのトランザクション終了時に一括でフラッシュされるため、
+     * 呼び出す必要はない。
+     *
+     * トランザクション内で呼ばれる前提であり、実行後はキューがクリアされる。
+     *
+     * @return void
+     */
+    public function flushQueue(): void
+    {
+        app()->make(QueryManagerInterface::class)->flush();
+    }
+
+    /**
      * キューをクリアし、登録フラグをリセット
-     * 
+     *
      * @return void
      */
     public function clearQueue(): void

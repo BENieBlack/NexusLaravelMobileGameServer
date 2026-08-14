@@ -25,7 +25,7 @@ class TrxInAppPurchaseEffectRepository extends _BaseTrxRepository
     public function selectAllEffectsByMstInAppPurchaseId(int $mstInAppPurchaseId): CustomCollection
     {
         $sysPlayerId = $this->getSysPlayerId();
-        $effectCollection = $this->getMapBySysPlayerId($sysPlayerId);
+        $effectCollection = $this->selectMapBySysPlayerId($sysPlayerId);
 
         return $effectCollection->where('mst_in_app_purchase_id', $mstInAppPurchaseId);
     }

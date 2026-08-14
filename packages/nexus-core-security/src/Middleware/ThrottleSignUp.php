@@ -86,13 +86,13 @@ class ThrottleSignUp
         // IPカウント
         $newIpAttempts = $ipAttempts + 1;
         Cache::put($ipKey, $newIpAttempts, $rateLimitWindow);
-        Cache::put("{$ipKey}:ttl", $this->getRemainingSeconds($ipKey, $rateLimitWindow), $rateLimitWindow);
+        Cache::put("{$ipKey}:ttl", $this->calcRemainingSeconds($ipKey, $rateLimitWindow), $rateLimitWindow);
 
         // デバイスIDカウント
         if ($deviceId) {
             $newDeviceAttempts = ($deviceAttempts ?? 0) + 1;
             Cache::put($deviceKey, $newDeviceAttempts, $rateLimitWindow);
-            Cache::put("{$deviceKey}:ttl", $this->getRemainingSeconds($deviceKey, $rateLimitWindow), $rateLimitWindow);
+            Cache::put("{$deviceKey}:ttl", $this->calcRemainingSeconds($deviceKey, $rateLimitWindow), $rateLimitWindow);
         }
 
         // レート制限情報をヘッダーに追加
@@ -109,7 +109,7 @@ class ThrottleSignUp
      * @param int $rateLimitWindow レート制限ウィンドウ
      * @return int 残り秒数
      */
-    private function getRemainingSeconds(string $key, int $rateLimitWindow): int
+    private function calcRemainingSeconds(string $key, int $rateLimitWindow): int
     {
         // キャッシュの有効期限を取得（Laravelのキャッシュ実装に依存）
         // 正確な残り時間が取れない場合はウィンドウ全体の時間を返す

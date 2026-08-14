@@ -37,7 +37,7 @@ interface ResourceDeliveryManagerInterface
      * @param  string  $contentClass  コンテンツクラス名
      * @return CustomCollection<ResourceDeliveryContentDto>
      */
-    public function getSendCompleteContents(string $contentClass): CustomCollection;
+    public function findSendCompleteContents(string $contentClass): CustomCollection;
 
     /**
      * 配送が必要なコンテンツがあるかチェック

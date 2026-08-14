@@ -101,7 +101,7 @@ class GooglePlayApiClient
      * @return array
      * @throws PlatformApiException
      */
-    public function getSubscription(string $packageName, string $subscriptionId, string $token): array
+    public function fetchSubscription(string $packageName, string $subscriptionId, string $token): array
     {
         try {
             $url = sprintf(

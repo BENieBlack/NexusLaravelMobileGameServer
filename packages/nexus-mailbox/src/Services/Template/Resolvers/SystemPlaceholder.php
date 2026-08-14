@@ -76,7 +76,7 @@ class SystemPlaceholder implements PlaceholderResolverInterface
     /**
      * {@inheritDoc}
      */
-    public function getSupportedKeys(): array
+    public function supportedKeys(): array
     {
         return self::SUPPORTED_KEYS;
     }

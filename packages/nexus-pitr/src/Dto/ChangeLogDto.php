@@ -65,7 +65,7 @@ class ChangeLogDto
         return $this->systemAt;
     }
 
-    public function getApiEndpoint(): ?string
+    public function resolveApiEndpoint(): ?string
     {
         return $this->apiEndpoint;
     }

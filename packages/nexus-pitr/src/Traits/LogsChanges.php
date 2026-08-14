@@ -31,7 +31,7 @@ trait LogsChanges
     protected function queueInsertLog(int $sysPlayerId, array $afterData, array $primaryKey): void
     {
         $this->pitrLogQueue[] = new ChangeLogDto(
-            uniqueRequestId: $this->getRequestId(),
+            uniqueRequestId: $this->resolveRequestId(),
             sysPlayerId: $sysPlayerId,
             shardConnection: $this->connection,
             tableName: $this->getTableName(),
@@ -40,7 +40,7 @@ trait LogsChanges
             afterData: $afterData,
             primaryKey: $primaryKey,
             systemAt: new DateTime(),
-            apiEndpoint: $this->getApiEndpoint(),
+            apiEndpoint: $this->resolveApiEndpoint(),
             stackTrace: null
         );
     }
@@ -57,7 +57,7 @@ trait LogsChanges
     protected function queueUpdateLog(int $sysPlayerId, array $beforeData, array $afterData, array $primaryKey): void
     {
         $this->pitrLogQueue[] = new ChangeLogDto(
-            uniqueRequestId: $this->getRequestId(),
+            uniqueRequestId: $this->resolveRequestId(),
             sysPlayerId: $sysPlayerId,
             shardConnection: $this->connection,
             tableName: $this->getTableName(),
@@ -66,7 +66,7 @@ trait LogsChanges
             afterData: $afterData, // 差分のみ
             primaryKey: $primaryKey,
             systemAt: new DateTime(),
-            apiEndpoint: $this->getApiEndpoint(),
+            apiEndpoint: $this->resolveApiEndpoint(),
             stackTrace: null
         );
     }
@@ -82,7 +82,7 @@ trait LogsChanges
     protected function queueDeleteLog(int $sysPlayerId, array $beforeData, array $primaryKey): void
     {
         $this->pitrLogQueue[] = new ChangeLogDto(
-            uniqueRequestId: $this->getRequestId(),
+            uniqueRequestId: $this->resolveRequestId(),
             sysPlayerId: $sysPlayerId,
             shardConnection: $this->connection,
             tableName: $this->getTableName(),
@@ -91,7 +91,7 @@ trait LogsChanges
             afterData: null,
             primaryKey: $primaryKey,
             systemAt: new DateTime(),
-            apiEndpoint: $this->getApiEndpoint(),
+            apiEndpoint: $this->resolveApiEndpoint(),
             stackTrace: null
         );
     }
@@ -121,7 +121,7 @@ trait LogsChanges
      * 
      * @return string
      */
-    private function getRequestId(): string
+    private function resolveRequestId(): string
     {
         if (function_exists('request')) {
             return request()->header('X-Request-ID') 
@@ -137,7 +137,7 @@ trait LogsChanges
      * 
      * @return string|null
      */
-    private function getApiEndpoint(): ?string
+    private function resolveApiEndpoint(): ?string
     {
         if (function_exists('request')) {
             return request()->path() ?? 'console';

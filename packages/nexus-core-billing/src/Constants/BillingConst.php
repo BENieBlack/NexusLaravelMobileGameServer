@@ -45,7 +45,7 @@ class BillingConst
      * 
      * @return array
      */
-    public static function getAllPlatforms(): array
+    public static function allPlatforms(): array
     {
         return [
             self::PLATFORM_APP_STORE,
@@ -60,7 +60,7 @@ class BillingConst
      * 
      * @return array
      */
-    public static function getAllProductTypes(): array
+    public static function allProductTypes(): array
     {
         return [
             self::PRODUCT_TYPE_CONSUMABLE,
@@ -77,7 +77,7 @@ class BillingConst
      */
     public static function isValidPlatform(string $platform): bool
     {
-        return in_array($platform, self::getAllPlatforms(), true);
+        return in_array($platform, self::allPlatforms(), true);
     }
 
     /**
@@ -88,6 +88,6 @@ class BillingConst
      */
     public static function isValidProductType(string $productType): bool
     {
-        return in_array($productType, self::getAllProductTypes(), true);
+        return in_array($productType, self::allProductTypes(), true);
     }
 }

@@ -70,7 +70,7 @@ abstract class _BaseRequest extends FormRequest implements _BaseRequestInterface
      *
      * VerifyAccessTokenミドルウェアで設定される
      */
-    public function getAuthenticatedPlayerId(): ?int
+    public function resolveAuthenticatedPlayerId(): ?int
     {
         return $this->attributes->get('authenticated_player_id');
     }

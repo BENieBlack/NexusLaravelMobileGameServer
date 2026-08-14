@@ -46,7 +46,7 @@ class LoginBonusService extends _BaseLoginBonusService
     /**
      * {@inheritDoc}
      */
-    protected function getLoginBonusData(int $sysPlayerId, int $currentDay, ?string $lastLoginAt): ?array
+    protected function findLoginBonusData(int $sysPlayerId, int $currentDay, ?string $lastLoginAt): ?array
     {
         // mst_login_bonusは日数ごとに1レコード持つため、該当日の設定を取得する
         $loginBonus = $this->bonusRepository->selectActiveByDay($currentDay);
@@ -61,7 +61,7 @@ class LoginBonusService extends _BaseLoginBonusService
     /**
      * {@inheritDoc}
      */
-    protected function getBonusContents(array $bonusData, int $currentDay): CustomCollection
+    protected function findBonusContents(array $bonusData, int $currentDay): CustomCollection
     {
         // 指定日数の報酬内容を取得
         $contents = $this->bonusRepository->selectContentsByLoginBonusIdAndDay(
@@ -83,7 +83,7 @@ class LoginBonusService extends _BaseLoginBonusService
         CustomCollection $contents,
         string $connectionName
     ): void {
-        $receivedDate = $this->getGameDayStart()->format('Y-m-d H:i:s');
+        $receivedDate = $this->calcGameDayStart()->format('Y-m-d H:i:s');
 
         foreach ($contents as $content) {
             $this->historyRepository->insert([
@@ -104,7 +104,7 @@ class LoginBonusService extends _BaseLoginBonusService
     /**
      * {@inheritDoc}
      */
-    protected function getLastReceivedDay(int $sysPlayerId, string $connectionName): ?int
+    protected function findLastReceivedDay(int $sysPlayerId, string $connectionName): ?int
     {
         $lastHistory = $this->historyRepository->selectLatestByPlayerId($sysPlayerId, $connectionName);
         if ($lastHistory === null) {
@@ -123,7 +123,7 @@ class LoginBonusService extends _BaseLoginBonusService
     /**
      * {@inheritDoc}
      */
-    protected function getLoopDays(int $sysPlayerId): ?int
+    protected function findLoopDays(int $sysPlayerId): ?int
     {
         $loginBonus = $this->bonusRepository->selectActiveDailyBonus();
 

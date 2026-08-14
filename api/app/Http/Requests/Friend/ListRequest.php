@@ -32,7 +32,7 @@ class ListRequest extends _BaseRequest
      *
      * ミドルウェアで設定された値を取得
      */
-    public function getAuthenticatedPlayerId(): ?int
+    public function resolveAuthenticatedPlayerId(): ?int
     {
         $playerId = $this->attributes->get('authenticated_player_id');
 

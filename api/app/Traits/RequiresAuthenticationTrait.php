@@ -21,17 +21,17 @@ trait RequiresAuthenticationTrait
      *
      * @throws GameException 認証失敗時
      */
-    protected function getAuthenticatedPlayerIdOrFail($request): int
+    protected function resolveAuthenticatedPlayerIdOrFail($request): int
     {
-        // getAuthenticatedPlayerId() メソッドが存在するか確認
-        if (! method_exists($request, 'getAuthenticatedPlayerId')) {
+        // resolveAuthenticatedPlayerId() メソッドが存在するか確認
+        if (! method_exists($request, 'resolveAuthenticatedPlayerId')) {
             throw new GameException(
                 GameErrorCode::INTERNAL_ERROR,
                 'Request does not support authentication'
             );
         }
 
-        $playerId = $request->getAuthenticatedPlayerId();
+        $playerId = $request->resolveAuthenticatedPlayerId();
 
         if (! $playerId) {
             throw new GameException(
@@ -49,12 +49,12 @@ trait RequiresAuthenticationTrait
      * @param  mixed  $request  リクエストオブジェクト
      * @return int|null プレイヤーID（未認証の場合はnull）
      */
-    protected function getAuthenticatedPlayerId($request): ?int
+    protected function resolveAuthenticatedPlayerId($request): ?int
     {
-        if (! method_exists($request, 'getAuthenticatedPlayerId')) {
+        if (! method_exists($request, 'resolveAuthenticatedPlayerId')) {
             return null;
         }
 
-        return $request->getAuthenticatedPlayerId();
+        return $request->resolveAuthenticatedPlayerId();
     }
 }

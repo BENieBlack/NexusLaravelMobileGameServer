@@ -62,7 +62,7 @@ class IdempotencyService
      * @param string $uniqueRequestId 一意なリクエストID
      * @return array|null 検証結果（存在しない場合null）
      */
-    public function getResult(string $uniqueRequestId): ?array
+    public function findResult(string $uniqueRequestId): ?array
     {
         return Cache::get($this->buildCacheKey($uniqueRequestId));
     }

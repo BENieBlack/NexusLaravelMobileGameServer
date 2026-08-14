@@ -136,7 +136,7 @@ class TrxMailboxRepository extends _BaseTrxRepository
      */
     public function selectById(int $trxMailboxId): ?TrxMailbox
     {
-        $trxMailbox = $this->getModel($trxMailboxId);
+        $trxMailbox = $this->findCachedModel($trxMailboxId);
 
         if ($trxMailbox !== null) {
             /** @var TrxMailbox */

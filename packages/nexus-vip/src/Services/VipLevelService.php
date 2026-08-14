@@ -38,7 +38,7 @@ class VipLevelService
      * @param  int  $currentPoint  現在の累積VIPポイント
      * @return int|null 次レベルまでのポイント（最高レベルの場合null）
      */
-    public function getPointsToNextLevel(int $currentLevel, int $currentPoint): ?int
+    public function calcPointsToNextLevel(int $currentLevel, int $currentPoint): ?int
     {
         $nextLevel = $this->vipLevelRepository->selectByLevel($currentLevel + 1);
 
@@ -58,7 +58,7 @@ class VipLevelService
      *
      * @throws VipLevelNotFoundException
      */
-    public function getBenefits(int $level): VipBenefit
+    public function findBenefits(int $level): VipBenefit
     {
         $vipLevel = $this->vipLevelRepository->selectByLevel($level);
 
@@ -68,7 +68,7 @@ class VipLevelService
 
         return new VipBenefit(
             maxStaminaBonus: $vipLevel->getMaxStaminaBonus(),
-            dailyDiamondBonus: $vipLevel->getDailyDiamondBonus(),
+            dailyDiamondBonus: $vipLevel->calcDailyDiamondBonus(),
             shopDiscountRate: $vipLevel->getShopDiscountRate(),
             gachaDiscountRate: $vipLevel->getGachaDiscountRate(),
         );
@@ -81,7 +81,7 @@ class VipLevelService
      *
      * @throws VipLevelNotFoundException
      */
-    public function getVipLevelMaster(int $level): MstVipLevel
+    public function findVipLevelMaster(int $level): MstVipLevel
     {
         $vipLevel = $this->vipLevelRepository->selectByLevel($level);
 
@@ -97,7 +97,7 @@ class VipLevelService
      *
      * @return array<int, array>
      */
-    public function getAllLevels(): array
+    public function findAllLevels(): array
     {
         $levels = $this->vipLevelRepository->selectAllLevels();
 
@@ -107,7 +107,7 @@ class VipLevelService
                 'required_point' => $level->getRequiredPoint(),
                 'benefits' => [
                     'max_stamina_bonus' => $level->getMaxStaminaBonus(),
-                    'daily_diamond_bonus' => $level->getDailyDiamondBonus(),
+                    'daily_diamond_bonus' => $level->calcDailyDiamondBonus(),
                     'shop_discount_rate' => $level->getShopDiscountRate(),
                     'gacha_discount_rate' => $level->getGachaDiscountRate(),
                 ],

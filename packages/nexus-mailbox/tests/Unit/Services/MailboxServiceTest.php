@@ -69,7 +69,7 @@ class MailboxServiceTest extends TestCase
             ->with($sysPlayerId)
             ->willReturn($expectedCounts);
 
-        $result = $this->service->getUnreadCounts($sysPlayerId);
+        $result = $this->service->countUnread($sysPlayerId);
 
         $this->assertSame($expectedCounts, $result);
     }

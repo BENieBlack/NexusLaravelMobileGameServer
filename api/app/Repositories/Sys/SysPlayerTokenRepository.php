@@ -33,7 +33,7 @@ class SysPlayerTokenRepository extends _BaseSysRepository implements TokenReposi
     public function selectValidByHash(string $tokenHash): ?SysPlayerToken
     {
         // メモリキャッシュから検索
-        $sysPlayerToken = $this->getModels()
+        $sysPlayerToken = $this->findCachedModels()
             ->where('refresh_token_hash', $tokenHash)
             ->whereNull('revoked_at')
             ->where('expires_at', '>', now())
@@ -67,7 +67,7 @@ class SysPlayerTokenRepository extends _BaseSysRepository implements TokenReposi
     public function selectValidListByPlayerId(int $sysPlayerId): CustomCollection
     {
         // メモリキャッシュから検索
-        $sysPlayerTokenCollection = $this->getModels()
+        $sysPlayerTokenCollection = $this->findCachedModels()
             ->where('sys_player_id', $sysPlayerId)
             ->whereNull('revoked_at')
             ->filter(fn ($sysPlayerToken) => $sysPlayerToken->getExpiresAt() > now());

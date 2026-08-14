@@ -37,7 +37,7 @@ class ChangeLogDtoTest extends TestCase
         $this->assertEquals(['id' => 1, 'name' => 'Alice'], $dto->getAfterData());
         $this->assertEquals(['id' => 1], $dto->getPrimaryKey());
         $this->assertSame($systemAt, $dto->getSystemAt());
-        $this->assertEquals('/api/player/create', $dto->getApiEndpoint());
+        $this->assertEquals('/api/player/create', $dto->resolveApiEndpoint());
         $this->assertEquals(['trace1', 'trace2'], $dto->getStackTrace());
     }
 
@@ -60,7 +60,7 @@ class ChangeLogDtoTest extends TestCase
             systemAt: $systemAt
         );
 
-        $this->assertNull($dto->getApiEndpoint());
+        $this->assertNull($dto->resolveApiEndpoint());
         $this->assertNull($dto->getStackTrace());
     }
 
@@ -94,7 +94,7 @@ class ChangeLogDtoTest extends TestCase
         $this->assertNull($dto->getAfterData());
         $this->assertIsArray($dto->getPrimaryKey());
         $this->assertInstanceOf(\DateTime::class, $dto->getSystemAt());
-        $this->assertIsString($dto->getApiEndpoint());
+        $this->assertIsString($dto->resolveApiEndpoint());
         $this->assertNull($dto->getStackTrace());
     }
 

@@ -58,7 +58,7 @@ class GachaDrawUseCase extends _BaseUseCase
             $cost
         ) {
             // 2. 進行状況取得とリセットチェック
-            $progress = $this->progressService->getOrCreateProgress($sysPlayerId, $mstGachaId);
+            $progress = $this->progressService->findOrInsertProgress($sysPlayerId, $mstGachaId);
             $progress = $this->progressService->checkAndResetDaily($progress);
 
             // 3. 日次制限チェック

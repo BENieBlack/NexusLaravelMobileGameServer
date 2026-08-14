@@ -24,7 +24,7 @@ class SysMaintenanceRepository extends _BaseSysRepository implements Maintenance
      */
     public function selectCurrentMaintenance(): ?SysMaintenance
     {
-        $cacheKey = $this->getCacheKey('current_maintenance');
+        $cacheKey = $this->buildCacheKey('current_maintenance');
 
         return Cache::store($this->cacheDriver)->remember(
             $cacheKey,

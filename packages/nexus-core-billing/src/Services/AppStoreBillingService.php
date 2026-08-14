@@ -71,7 +71,7 @@ class AppStoreBillingService implements BillingPlatformInterface
     /**
      * {@inheritDoc}
      */
-    public function getSubscriptionStatus(string $subscriptionId): Subscription
+    public function fetchSubscriptionStatus(string $subscriptionId): Subscription
     {
         // TODO: App Store Server API を使用した実装
         // 現在は未実装

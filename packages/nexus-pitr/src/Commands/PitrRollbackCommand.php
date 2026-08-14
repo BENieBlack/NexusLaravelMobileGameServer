@@ -35,7 +35,7 @@ class PitrRollbackCommand extends Command
      */
     public function handle(): int
     {
-        $logConnections = ShardMapper::getAllLogConnections();
+        $logConnections = ShardMapper::allLogConnections();
         
         $this->info('Rolling back PITR migrations on all LogDB shards...');
         $this->newLine();

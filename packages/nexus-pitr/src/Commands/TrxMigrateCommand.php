@@ -36,7 +36,7 @@ class TrxMigrateCommand extends Command
      */
     public function handle(): int
     {
-        $trxConnections = ShardMapper::getAllTrxConnections();
+        $trxConnections = ShardMapper::allTrxConnections();
         
         // TrxDBマイグレーションパスを定義（base_path()からの相対パス）
         $trxMigrationPaths = [

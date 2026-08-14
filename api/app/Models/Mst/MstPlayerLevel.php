@@ -85,7 +85,7 @@ class MstPlayerLevel extends _BaseMst
     /**
      * 全レベルデータを取得（レベル昇順）
      */
-    public static function getAllLevels(): Collection
+    public static function selectAllLevels(): Collection
     {
         return self::orderBy('level')->get();
     }
@@ -127,7 +127,7 @@ class MstPlayerLevel extends _BaseMst
      *
      * @param  int  $level  レベル
      */
-    public static function getMaxStaminaForLevel(int $level): ?int
+    public static function findMaxStaminaForLevel(int $level): ?int
     {
         $data = self::findByLevel($level);
 
@@ -139,7 +139,7 @@ class MstPlayerLevel extends _BaseMst
      *
      * @param  int  $level  レベル
      */
-    public static function getRequiredExpForLevel(int $level): ?int
+    public static function findRequiredExpForLevel(int $level): ?int
     {
         $data = self::findByLevel($level);
 

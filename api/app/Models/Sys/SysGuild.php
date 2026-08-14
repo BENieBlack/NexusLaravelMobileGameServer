@@ -157,7 +157,7 @@ class SysGuild extends _BaseSys
     /**
      * 現在のメンバー数を取得
      */
-    public function getCurrentMemberCount(): int
+    public function countMembers(): int
     {
         return $this->members()->count();
     }

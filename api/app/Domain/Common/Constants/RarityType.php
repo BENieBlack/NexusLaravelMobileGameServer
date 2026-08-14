@@ -47,7 +47,7 @@ class RarityType
      *
      * @return array<int, string>
      */
-    public static function getAll(): array
+    public static function all(): array
     {
         return [
             self::UR,
@@ -64,7 +64,7 @@ class RarityType
      */
     public static function isValid(string $rarity): bool
     {
-        return in_array($rarity, self::getAll(), true);
+        return in_array($rarity, self::all(), true);
     }
 
     /**
@@ -75,7 +75,7 @@ class RarityType
      *
      * @return int|null ランク値（無効な場合はnull）
      */
-    public static function getRank(string $rarity): ?int
+    public static function findRank(string $rarity): ?int
     {
         return match ($rarity) {
             self::UR => 6,
@@ -95,8 +95,8 @@ class RarityType
      */
     public static function compare(string $rarity1, string $rarity2): ?int
     {
-        $rank1 = self::getRank($rarity1);
-        $rank2 = self::getRank($rarity2);
+        $rank1 = self::findRank($rarity1);
+        $rank2 = self::findRank($rarity2);
 
         if ($rank1 === null || $rank2 === null) {
             return null;

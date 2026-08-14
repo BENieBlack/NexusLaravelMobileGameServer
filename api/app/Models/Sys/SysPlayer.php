@@ -189,7 +189,7 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
      *
      * @return int 必要な経験値（レベルが最大の場合は0）
      */
-    public function getExpToNextLevel(): int
+    public function calcExpToNextLevel(): int
     {
         $nextLevel = $this->getLevel() + 1;
         $nextLevelData = MstPlayerLevel::findByLevel($nextLevel);

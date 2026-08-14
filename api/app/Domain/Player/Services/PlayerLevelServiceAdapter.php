@@ -18,8 +18,8 @@ class PlayerLevelServiceAdapter implements PlayerLevelServiceInterface
     /**
      * {@inheritDoc}
      */
-    public function getMaxStamina(int $sysPlayerId): int
+    public function findMaxStamina(int $sysPlayerId): int
     {
-        return $this->levelService->getMaxStamina($sysPlayerId);
+        return $this->levelService->findMaxStamina($sysPlayerId);
     }
 }

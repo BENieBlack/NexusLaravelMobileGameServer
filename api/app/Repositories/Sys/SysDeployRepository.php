@@ -23,7 +23,7 @@ class SysDeployRepository extends _BaseSysRepository
      */
     public function selectLatestDownloadable(): ?SysDeploy
     {
-        $cacheKey = $this->getCacheKey('latest_downloadable');
+        $cacheKey = $this->buildCacheKey('latest_downloadable');
 
         return Cache::store($this->cacheDriver)->remember(
             $cacheKey,
@@ -50,7 +50,7 @@ class SysDeployRepository extends _BaseSysRepository
      */
     public function selectByDeployKey(int $deployKey): ?SysDeploy
     {
-        $cacheKey = $this->getCacheKey("deploy_key:{$deployKey}");
+        $cacheKey = $this->buildCacheKey("deploy_key:{$deployKey}");
 
         return Cache::store($this->cacheDriver)->remember(
             $cacheKey,
@@ -87,7 +87,7 @@ class SysDeployRepository extends _BaseSysRepository
      */
     public function selectById(int $sysDeployId): ?SysDeploy
     {
-        $cacheKey = $this->getCacheKey("id:{$sysDeployId}");
+        $cacheKey = $this->buildCacheKey("id:{$sysDeployId}");
 
         return Cache::store($this->cacheDriver)->remember(
             $cacheKey,

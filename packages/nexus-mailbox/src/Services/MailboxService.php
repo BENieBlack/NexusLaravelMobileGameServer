@@ -45,7 +45,7 @@ class MailboxService
      *
      * @return array<string, int>
      */
-    public function getUnreadCounts(int $sysPlayerId): array
+    public function countUnread(int $sysPlayerId): array
     {
         return $this->mailboxRepository->countUnreadByCategory($sysPlayerId);
     }

@@ -290,7 +290,7 @@ class GuildService
      * @param  int  $guildId  ギルドID
      * @return array<GuildApplyDto>
      */
-    public function getApplyList(int $guildId): array
+    public function findApplyList(int $guildId): array
     {
         return $this->applyRepository->selectAppliesByGuildId($guildId);
     }
@@ -301,7 +301,7 @@ class GuildService
      * @param  int  $guildId  ギルドID
      * @return array<GuildMemberDto>
      */
-    public function getMemberList(int $guildId): array
+    public function findMemberList(int $guildId): array
     {
         return $this->memberRepository->selectByGuildId($guildId);
     }
@@ -311,7 +311,7 @@ class GuildService
      *
      * @param  int  $playerId  プレイヤーID
      */
-    public function getPlayerGuild(int $playerId): ?GuildDto
+    public function findPlayerGuild(int $playerId): ?GuildDto
     {
         $member = $this->memberRepository->selectByPlayerId($playerId);
         if ($member === null) {

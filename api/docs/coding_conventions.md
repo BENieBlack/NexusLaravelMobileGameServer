@@ -6,12 +6,43 @@
 
 ## 目次
 
-1. [Request・Responseクラスの命名規則](#requestresponseクラスの命名規則)
-2. [ディレクトリ構成](#ディレクトリ構成)
-3. [名前空間とクラスの配置](#名前空間とクラスの配置)
-4. [クラスの責務](#クラスの責務)
-5. [ファイル命名規則](#ファイル命名規則)
-6. [まとめ](#まとめ)
+1. [メソッド命名規則](#メソッド命名規則)
+2. [Request・Responseクラスの命名規則](#requestresponseクラスの命名規則)
+3. [ディレクトリ構成](#ディレクトリ構成)
+4. [名前空間とクラスの配置](#名前空間とクラスの配置)
+5. [クラスの責務](#クラスの責務)
+6. [ファイル命名規則](#ファイル命名規則)
+7. [まとめ](#まとめ)
+
+---
+
+## メソッド命名規則
+
+### 基本原則
+
+**`get` はゲッターにのみ使う。** 何をしているかを動詞で表し、DBに触れる箇所が名前から分かるようにする。
+
+### 動詞の使い分け
+
+| 動詞 | 用途 | 例 |
+|---|---|---|
+| `get` | 自身のプロパティを返すゲッター（引数なし） | `getSysPlayerId()` |
+| `select` | DBに直接アクセスして取得する | `selectById()` `selectMaxLevel()` |
+| `insert` / `update` / `delete` | DBへの登録・更新・削除 | `insertMember()` `updateLastLoginAt()` |
+| `persist` | UnitOfWorkのキューに積む（フラッシュ時に反映） | `persist()` `persistItem()` |
+| `count` | 件数を数える | `countMembers()` `countUnread()` |
+| `find` | 取得済みデータや別レイヤ経由で単一の対象を探す | `findPlayerById()` `findMaxLevel()` |
+| `search` | 条件に合う複数件を探す | `searchByName()` |
+| `calc` | 計算して求める | `calcExpToNextLevel()` |
+| `resolve` | 設定・文脈・引数から値を決定する | `resolveConnectionName()` `resolveRarity()` |
+| `build` | 値やオブジェクトを組み立てる | `buildCacheKey()` `buildVersionString()` |
+| `fetch` | 外部API・Redisなどから取得する | `fetchSubscriptionStatus()` |
+| `all` / `available` | 定数の一覧を返す（静的） | `allTypes()` `availableStatuses()` |
+
+### 注意点
+
+- `save` はEloquentの `Model::save()` を指すため、UnitOfWorkにキューイングする処理には使わない（`persist` を使う）。詳細は [Eloquentによる即時書き込みの禁止](#model) を参照。
+- Repositoryは常にModelを返す。DTOへの変換はAdapterやServiceの役務とする。
 
 ---
 
@@ -512,7 +543,7 @@ class MstUnitRepository extends _BaseMstRepository
       const RARITY_UR = 'UR';
       
       // ヘルパーメソッド
-      public static function getAllTypes(): array { ... }
+      public static function allTypes(): array { ... }
       public static function isValidType(string $type): bool { ... }
   }
   ```
@@ -572,7 +603,7 @@ if (ItemConst::isValidType($itemType)) {
 }
 
 // 全タイプを取得してUIに表示
-$types = ItemConst::getAllTypes();
+$types = ItemConst::allTypes();
 
 // 定数を使用
 if ($item->type === ItemConst::TYPE_CONSUMABLE) {

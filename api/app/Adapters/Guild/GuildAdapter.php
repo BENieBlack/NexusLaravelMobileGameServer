@@ -25,7 +25,7 @@ class GuildAdapter
             level: $model->getLevel(),
             exp: $model->getExp(),
             maxMembers: $model->getMaxMembers(),
-            currentMembers: $model->getCurrentMemberCount(),
+            currentMembers: $model->countMembers(),
             createdAt: ClockUtility::parse((string) $model->created_at)->format('Y-m-d H:i:s'),
             updatedAt: ClockUtility::parse((string) $model->updated_at)->format('Y-m-d H:i:s'),
         );

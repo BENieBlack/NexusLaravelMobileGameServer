@@ -61,7 +61,7 @@ class WalletConst
     /**
      * 通貨の表示名を取得
      */
-    public static function getCurrencyName(string $mstItemId): ?string
+    public static function findCurrencyName(string $mstItemId): ?string
     {
         return self::CURRENCY_NAMES[$mstItemId] ?? null;
     }

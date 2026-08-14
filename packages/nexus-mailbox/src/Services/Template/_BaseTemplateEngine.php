@@ -160,13 +160,13 @@ abstract class _BaseTemplateEngine
      *
      * @return array<string, array<string>>
      */
-    public function getSupportedPlaceholders(): array
+    public function supportedPlaceholders(): array
     {
         $supported = [];
 
         foreach ($this->resolvers as $resolver) {
             $className = (new \ReflectionClass($resolver))->getShortName();
-            $supported[$className] = $resolver->getSupportedKeys();
+            $supported[$className] = $resolver->supportedKeys();
         }
 
         return $supported;

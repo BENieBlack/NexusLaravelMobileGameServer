@@ -88,7 +88,7 @@ class TrxUnitRepository extends _BaseTrxRepository
         $this->queryOrMemory();
 
         // キャッシュから取得
-        return $this->getModel($trxUnitId);
+        return $this->findCachedModel($trxUnitId);
     }
 
     /**
@@ -101,7 +101,7 @@ class TrxUnitRepository extends _BaseTrxRepository
         // queryOrMemory()で全データをキャッシュにロード（ApiSessionから$sysPlayerIdを取得）
         $this->queryOrMemory();
 
-        $trxUnit = $this->getModel($trxUnitId);
+        $trxUnit = $this->findCachedModel($trxUnitId);
 
         if ($trxUnit) {
             $trxUnit->setLevelExp($trxUnit->getLevelExp() + $expToAdd);
@@ -127,7 +127,7 @@ class TrxUnitRepository extends _BaseTrxRepository
         // queryOrMemory()で全データをキャッシュにロード（ApiSessionから$sysPlayerIdを取得）
         $this->queryOrMemory();
 
-        $trxUnit = $this->getModel($trxUnitId);
+        $trxUnit = $this->findCachedModel($trxUnitId);
 
         if ($trxUnit) {
             $trxUnit->setGrade($trxUnit->getGrade() + 1);

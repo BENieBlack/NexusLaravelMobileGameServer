@@ -69,7 +69,7 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
      * @return int プレイヤーID
      * @throws \RuntimeException プレイヤーIDが取得できない場合
      */
-    protected function getCachedSysPlayerId(): int
+    protected function resolveCachedSysPlayerId(): int
     {
         // キャッシュがあればそれを返す（高速パス）
         if ($this->cachedSysPlayerId !== null) {
@@ -115,7 +115,7 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
         }
 
         // プレイヤーIDを取得（PlayerSessionResolver優先、なければ$sysPlayerIdフィールド）
-        $sysPlayerId = $this->getCachedSysPlayerId();
+        $sysPlayerId = $this->resolveCachedSysPlayerId();
 
         // キャッシュが空の場合、データベースから取得
         /** @var _BaseTrx $instance */
@@ -141,7 +141,7 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
      * @param int $sysPlayerId
      * @return CustomCollection<string, T>
      */
-    public function getMapBySysPlayerId(int $sysPlayerId): CustomCollection
+    public function selectMapBySysPlayerId(int $sysPlayerId): CustomCollection
     {
         // PlayerSessionResolverにプレイヤーIDを設定
         static::setSysPlayerId($sysPlayerId);
@@ -157,7 +157,7 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
      * @param int $sysPlayerId
      * @return array<T>
      */
-    public function getBySysPlayerId(int $sysPlayerId): array
+    public function selectBySysPlayerId(int $sysPlayerId): array
     {
         // PlayerSessionResolverにプレイヤーIDを設定
         static::setSysPlayerId($sysPlayerId);
@@ -217,7 +217,7 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
         $this->queueDeleteLog(
             sysPlayerId: $sysPlayerId,
             beforeData: $model->getOriginal(),
-            primaryKey: $this->getPrimaryKeyValues($model)
+            primaryKey: $this->resolvePrimaryKeyValues($model)
         );
         
         // 親クラスのdeleteModelを呼び出し
@@ -254,7 +254,7 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
             $this->queueInsertLog(
                 sysPlayerId: $sysPlayerId,
                 afterData: $model->getAttributes(),
-                primaryKey: $this->getPrimaryKeyValues($model)
+                primaryKey: $this->resolvePrimaryKeyValues($model)
             );
         } else {
             // UPDATE操作（差分がある場合のみ）
@@ -266,7 +266,7 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
                     sysPlayerId: $sysPlayerId,
                     beforeData: $originalState,
                     afterData: $diff, // 差分のみ記録
-                    primaryKey: $this->getPrimaryKeyValues($model)
+                    primaryKey: $this->resolvePrimaryKeyValues($model)
                 );
             }
         }
@@ -278,7 +278,7 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
      * @param _BaseTrx $model
      * @return array<string, mixed>
      */
-    protected function getPrimaryKeyValues($model): array
+    protected function resolvePrimaryKeyValues($model): array
     {
         $keyName = $model->getKeyName();
         

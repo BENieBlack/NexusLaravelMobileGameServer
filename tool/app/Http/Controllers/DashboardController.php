@@ -18,10 +18,10 @@ class DashboardController extends Controller
         $revenuePeriod = $request->input('revenuePeriod', '1month');
         
         // 表示期間のアクセス統計を取得
-        $accessStats = $this->getAccessStats($period);
+        $accessStats = $this->selectAccessStats($period);
         
         // 表示期間の売上統計を取得
-        $revenueStats = $this->getRevenueStats($revenuePeriod);
+        $revenueStats = $this->selectRevenueStats($revenuePeriod);
 
         return Inertia::render('Dashboard', [
             'accessStats' => $accessStats,
@@ -36,7 +36,7 @@ class DashboardController extends Controller
      * 
      * @param string $period '1day', '1week', '2weeks', '1month', '6months', '1year', 'all'
      */
-    private function getAccessStats($period = '1day')
+    private function selectAccessStats($period = '1day')
     {
         $now = now();
         
@@ -225,7 +225,7 @@ class DashboardController extends Controller
      * 
      * @param string $period '1day', '1week', '2weeks', '1month', '6months', '1year', 'all'
      */
-    private function getRevenueStats($period = '1month')
+    private function selectRevenueStats($period = '1month')
     {
         $now = now();
         

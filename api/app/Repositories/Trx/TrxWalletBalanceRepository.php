@@ -36,7 +36,7 @@ class TrxWalletBalanceRepository extends _BaseTrxRepository
         $this->queryOrMemory();
 
         // キャッシュから取得
-        return $this->getModel($trxWalletBalanceId);
+        return $this->findCachedModel($trxWalletBalanceId);
     }
 
     /**

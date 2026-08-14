@@ -21,7 +21,7 @@ class PlayerService
     /**
      * IDでプレイヤーを取得
      */
-    public function getPlayerById(int $id): ?PlayerDto
+    public function findPlayerById(int $id): ?PlayerDto
     {
         return $this->playerRepository->selectById($id);
     }
@@ -29,7 +29,7 @@ class PlayerService
     /**
      * My IDでプレイヤーを取得
      */
-    public function getPlayerByMyId(string $myId): ?PlayerDto
+    public function findPlayerByMyId(string $myId): ?PlayerDto
     {
         return $this->playerRepository->selectByMyId($myId);
     }
@@ -37,7 +37,7 @@ class PlayerService
     /**
      * デバイスUUIDでプレイヤーを取得
      */
-    public function getPlayerByDeviceUuid(string $deviceUuid): ?PlayerDto
+    public function findPlayerByDeviceUuid(string $deviceUuid): ?PlayerDto
     {
         $device = $this->deviceRepository->selectByDeviceUuid($deviceUuid);
 

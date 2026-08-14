@@ -60,7 +60,7 @@ class SysSharding extends _BaseSys
     /**
      * 利用可能なシャーディング戦略一覧を取得
      */
-    public static function getAvailableStrategies(): array
+    public static function availableStrategies(): array
     {
         return [
             self::STRATEGY_HASH,
@@ -72,7 +72,7 @@ class SysSharding extends _BaseSys
     /**
      * 利用可能なシャーディング対象一覧を取得
      */
-    public static function getAvailableTargets(): array
+    public static function availableTargets(): array
     {
         return [
             self::TARGET_TRANSACTION,

@@ -41,7 +41,7 @@ class UnitLevelService extends _BaseLevelService
      *
      * @throws \Exception ユニットが存在しない場合
      */
-    public function getUnitLevel(int $trxUnitId): array
+    public function findUnitLevel(int $trxUnitId): array
     {
         $trxUnit = $this->trxUnitRepository->selectById($trxUnitId);
 
@@ -57,7 +57,7 @@ class UnitLevelService extends _BaseLevelService
 
         $rarity = $mstUnit->getRarity();
         $maxLevel = $this->mstUnitLevelRepository->selectMaxLevel($rarity) ?? 100;
-        $expToNext = $this->getExpToNextLevel($rarity, $trxUnit->getLevel(), $trxUnit->getLevelExp());
+        $expToNext = $this->calcExpToNextLevel($rarity, $trxUnit->getLevel(), $trxUnit->getLevelExp());
 
         return [
             'level' => $trxUnit->getLevel(),
@@ -106,7 +106,7 @@ class UnitLevelService extends _BaseLevelService
 
         // ユニット固有の戻り値を追加
         $trxUnit = $this->trxUnitRepository->selectById($trxUnitId);
-        $expToNext = $this->getExpToNextLevel($rarity, $trxUnit->getLevel(), $trxUnit->getLevelExp());
+        $expToNext = $this->calcExpToNextLevel($rarity, $trxUnit->getLevel(), $trxUnit->getLevelExp());
 
         return [
             ...$result,
@@ -124,7 +124,7 @@ class UnitLevelService extends _BaseLevelService
      * @param  int  $currentExp  現在の累積経験値
      * @return int|null 必要な経験値（最大レベルの場合はnull）
      */
-    public function getExpToNextLevel(?string $rarity, int $currentLevel, int $currentExp): ?int
+    public function calcExpToNextLevel(?string $rarity, int $currentLevel, int $currentExp): ?int
     {
         $nextLevel = $currentLevel + 1;
         $nextLevelData = $this->mstUnitLevelRepository->selectByRarityAndLevel($rarity, $nextLevel);
@@ -144,7 +144,7 @@ class UnitLevelService extends _BaseLevelService
     /**
      * {@inheritDoc}
      */
-    protected function getEntity(mixed $id): object
+    protected function findEntity(mixed $id): object
     {
         $unit = $this->trxUnitRepository->selectById($id);
 
@@ -158,7 +158,7 @@ class UnitLevelService extends _BaseLevelService
     /**
      * {@inheritDoc}
      */
-    protected function getRarity(object $entity): ?string
+    protected function resolveRarity(object $entity): ?string
     {
         /** @var TrxUnit $entity */
         $mstUnit = $this->mstUnitRepository->selectById($entity->getMstUnitId());
@@ -173,7 +173,7 @@ class UnitLevelService extends _BaseLevelService
     /**
      * {@inheritDoc}
      */
-    protected function getCurrentLevel(object $entity): int
+    protected function resolveCurrentLevel(object $entity): int
     {
         /** @var TrxUnit $entity */
         return $entity->getLevel();
@@ -182,7 +182,7 @@ class UnitLevelService extends _BaseLevelService
     /**
      * {@inheritDoc}
      */
-    protected function getCurrentExp(object $entity): int
+    protected function resolveCurrentExp(object $entity): int
     {
         /** @var TrxUnit $entity */
         return $entity->getLevelExp();
@@ -199,7 +199,7 @@ class UnitLevelService extends _BaseLevelService
     /**
      * {@inheritDoc}
      */
-    protected function getMaxLevel(?string $rarity): int
+    protected function findMaxLevel(?string $rarity): int
     {
         return $this->mstUnitLevelRepository->selectMaxLevel($rarity) ?? 100;
     }

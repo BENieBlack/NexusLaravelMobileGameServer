@@ -34,10 +34,10 @@ interface PlayerSessionResolverInterface
     public static function setSysPlayerId(int $sysPlayerId): void;
 
     /**
-     * データベース接続名を取得（シャーディング対応）
-     * 
+     * データベース接続名を解決する（シャーディング対応）
+     *
      * @param string $baseConnection ベースとなる接続名（例: 'trx'）
      * @return string 実際の接続名（例: 'trx1', 'trx2'）
      */
-    public static function getConnectionName(string $baseConnection): string;
+    public static function resolveConnectionName(string $baseConnection): string;
 }

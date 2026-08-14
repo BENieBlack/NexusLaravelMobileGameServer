@@ -14,5 +14,5 @@ interface PlayerLevelServiceInterface
      *
      * @return int 最大スタミナ値
      */
-    public function getMaxStamina(int $sysPlayerId): int;
+    public function findMaxStamina(int $sysPlayerId): int;
 }

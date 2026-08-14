@@ -35,10 +35,10 @@ class DiamondBalanceService
      * @param  string  $platform  プラットフォーム（Apple, Google）
      * @return array{paid_amount: int, free_amount: int, total_amount: int}
      */
-    public function getBalance(int $sysPlayerId, string $platform): array
+    public function findBalance(int $sysPlayerId, string $platform): array
     {
         // パッケージ層に委譲
-        return $this->packageDiamondBalanceService->getBalance($sysPlayerId, $platform);
+        return $this->packageDiamondBalanceService->findBalance($sysPlayerId, $platform);
     }
 
     /**

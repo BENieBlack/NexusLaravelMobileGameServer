@@ -65,7 +65,7 @@ class VipLoginBonusService extends _BaseLoginBonusService
     /**
      * {@inheritDoc}
      */
-    protected function getLoginBonusData(int $sysPlayerId, int $currentDay, ?string $lastLoginAt): ?array
+    protected function findLoginBonusData(int $sysPlayerId, int $currentDay, ?string $lastLoginAt): ?array
     {
         // プレイヤーのVIPレベルを取得
         $vipLevel = $this->resolveVipLevel($sysPlayerId);
@@ -90,7 +90,7 @@ class VipLoginBonusService extends _BaseLoginBonusService
     /**
      * {@inheritDoc}
      */
-    protected function getBonusContents(array $bonusData, int $currentDay): CustomCollection
+    protected function findBonusContents(array $bonusData, int $currentDay): CustomCollection
     {
         // 指定日数の報酬内容を取得
         $contents = $this->vipBonusRepository->selectContentsByBonusIdAndDay(
@@ -112,7 +112,7 @@ class VipLoginBonusService extends _BaseLoginBonusService
         CustomCollection $contents,
         string $connectionName
     ): void {
-        $receivedAt = $this->getGameDayStart()->format('Y-m-d H:i:s');
+        $receivedAt = $this->calcGameDayStart()->format('Y-m-d H:i:s');
 
         // VIPログインボーナス履歴テーブルに記録
         $this->vipHistoryRepository->insert([
@@ -129,7 +129,7 @@ class VipLoginBonusService extends _BaseLoginBonusService
     /**
      * {@inheritDoc}
      */
-    protected function getLastReceivedDay(int $sysPlayerId, string $connectionName): ?int
+    protected function findLastReceivedDay(int $sysPlayerId, string $connectionName): ?int
     {
         $lastHistory = $this->vipHistoryRepository->selectLatestByPlayerId($sysPlayerId, $connectionName);
 
@@ -139,7 +139,7 @@ class VipLoginBonusService extends _BaseLoginBonusService
     /**
      * {@inheritDoc}
      */
-    protected function getLoopDays(int $sysPlayerId): ?int
+    protected function findLoopDays(int $sysPlayerId): ?int
     {
         $vipLevel = $this->resolveVipLevel($sysPlayerId);
 

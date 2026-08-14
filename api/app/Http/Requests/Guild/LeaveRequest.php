@@ -27,7 +27,7 @@ class LeaveRequest extends _BaseRequest
     /**
      * 認証済みプレイヤーIDを取得
      */
-    public function getAuthenticatedPlayerId(): ?int
+    public function resolveAuthenticatedPlayerId(): ?int
     {
         $playerId = $this->attributes->get('authenticated_player_id');
 

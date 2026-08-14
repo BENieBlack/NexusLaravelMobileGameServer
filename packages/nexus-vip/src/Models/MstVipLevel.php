@@ -90,7 +90,7 @@ class MstVipLevel extends _BaseMst
     /**
      * デイリーダイヤモンドボーナスを取得
      */
-    public function getDailyDiamondBonus(): int
+    public function calcDailyDiamondBonus(): int
     {
         return $this->getAttribute('daily_diamond_bonus');
     }
@@ -137,7 +137,7 @@ class MstVipLevel extends _BaseMst
             'required_point' => $this->getRequiredPoint(),
             'benefits' => [
                 'max_stamina_bonus' => $this->getMaxStaminaBonus(),
-                'daily_diamond_bonus' => $this->getDailyDiamondBonus(),
+                'daily_diamond_bonus' => $this->calcDailyDiamondBonus(),
                 'shop_discount_rate' => $this->getShopDiscountRate(),
                 'gacha_discount_rate' => $this->getGachaDiscountRate(),
             ],

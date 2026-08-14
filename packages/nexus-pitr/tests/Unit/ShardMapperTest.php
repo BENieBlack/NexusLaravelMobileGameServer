@@ -28,7 +28,7 @@ class ShardMapperTest extends TestCase
      */
     public function getLogConnection_returns_log1_for_trx1(): void
     {
-        $result = ShardMapper::getLogConnection('trx1');
+        $result = ShardMapper::resolveLogConnection('trx1');
         
         $this->assertEquals('log1', $result);
     }
@@ -38,7 +38,7 @@ class ShardMapperTest extends TestCase
      */
     public function getLogConnection_returns_log2_for_trx2(): void
     {
-        $result = ShardMapper::getLogConnection('trx2');
+        $result = ShardMapper::resolveLogConnection('trx2');
         
         $this->assertEquals('log2', $result);
     }
@@ -51,8 +51,8 @@ class ShardMapperTest extends TestCase
         // DB_TRX_SHARDS=4の場合
         putenv('DB_TRX_SHARDS=4');
         
-        $this->assertEquals('log3', ShardMapper::getLogConnection('trx3'));
-        $this->assertEquals('log4', ShardMapper::getLogConnection('trx4'));
+        $this->assertEquals('log3', ShardMapper::resolveLogConnection('trx3'));
+        $this->assertEquals('log4', ShardMapper::resolveLogConnection('trx4'));
         
         // 元に戻す
         putenv('DB_TRX_SHARDS=2');
@@ -66,7 +66,7 @@ class ShardMapperTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Unknown trx connection: invalid');
         
-        ShardMapper::getLogConnection('invalid');
+        ShardMapper::resolveLogConnection('invalid');
     }
     
     /**
@@ -77,7 +77,7 @@ class ShardMapperTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Unknown trx connection: trx99');
         
-        ShardMapper::getLogConnection('trx99');
+        ShardMapper::resolveLogConnection('trx99');
     }
 
     /**
@@ -85,7 +85,7 @@ class ShardMapperTest extends TestCase
      */
     public function getTrxConnection_returns_trx1_for_log1(): void
     {
-        $result = ShardMapper::getTrxConnection('log1');
+        $result = ShardMapper::resolveTrxConnection('log1');
         
         $this->assertEquals('trx1', $result);
     }
@@ -95,7 +95,7 @@ class ShardMapperTest extends TestCase
      */
     public function getTrxConnection_returns_trx2_for_log2(): void
     {
-        $result = ShardMapper::getTrxConnection('log2');
+        $result = ShardMapper::resolveTrxConnection('log2');
         
         $this->assertEquals('trx2', $result);
     }
@@ -108,8 +108,8 @@ class ShardMapperTest extends TestCase
         // DB_TRX_SHARDS=4の場合
         putenv('DB_TRX_SHARDS=4');
         
-        $this->assertEquals('trx3', ShardMapper::getTrxConnection('log3'));
-        $this->assertEquals('trx4', ShardMapper::getTrxConnection('log4'));
+        $this->assertEquals('trx3', ShardMapper::resolveTrxConnection('log3'));
+        $this->assertEquals('trx4', ShardMapper::resolveTrxConnection('log4'));
         
         // 元に戻す
         putenv('DB_TRX_SHARDS=2');
@@ -123,7 +123,7 @@ class ShardMapperTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Unknown log connection: invalid');
         
-        ShardMapper::getTrxConnection('invalid');
+        ShardMapper::resolveTrxConnection('invalid');
     }
 
     /**
@@ -131,7 +131,7 @@ class ShardMapperTest extends TestCase
      */
     public function getAllLogConnections_returns_all_log_connections(): void
     {
-        $result = ShardMapper::getAllLogConnections();
+        $result = ShardMapper::allLogConnections();
         
         $this->assertEquals(['log1', 'log2'], $result);
     }
@@ -144,7 +144,7 @@ class ShardMapperTest extends TestCase
         // DB_TRX_SHARDS=4の場合
         putenv('DB_TRX_SHARDS=4');
         
-        $result = ShardMapper::getAllLogConnections();
+        $result = ShardMapper::allLogConnections();
         
         $this->assertEquals(['log1', 'log2', 'log3', 'log4'], $result);
         
@@ -157,7 +157,7 @@ class ShardMapperTest extends TestCase
      */
     public function getAllTrxConnections_returns_all_trx_connections(): void
     {
-        $result = ShardMapper::getAllTrxConnections();
+        $result = ShardMapper::allTrxConnections();
         
         $this->assertEquals(['trx1', 'trx2'], $result);
     }
@@ -170,7 +170,7 @@ class ShardMapperTest extends TestCase
         // DB_TRX_SHARDS=4の場合
         putenv('DB_TRX_SHARDS=4');
         
-        $result = ShardMapper::getAllTrxConnections();
+        $result = ShardMapper::allTrxConnections();
         
         $this->assertEquals(['trx1', 'trx2', 'trx3', 'trx4'], $result);
         

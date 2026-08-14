@@ -214,7 +214,7 @@ class TrxChangeLogger
      */
     public function log(ChangeLogDto $changeLogDto): void
     {
-        $sequenceNumber = $this->sequenceManager->getNextSequence(
+        $sequenceNumber = $this->sequenceManager->issueNextSequence(
             $changeLogDto->getShardConnection()
         );
 
@@ -284,7 +284,7 @@ class SequenceManager
     /**
      * 次のシーケンス番号を取得（アトミック）
      */
-    public function getNextSequence(string $shardConnection): int
+    public function issueNextSequence(string $shardConnection): int
     {
         return DB::connection('log')->transaction(function () use ($shardConnection) {
             $row = DB::connection('log')
@@ -793,8 +793,8 @@ public function test_get_next_sequence_is_incremental()
 {
     $manager = new SequenceManager();
     
-    $seq1 = $manager->getNextSequence('trx1');
-    $seq2 = $manager->getNextSequence('trx1');
+    $seq1 = $manager->issueNextSequence('trx1');
+    $seq2 = $manager->issueNextSequence('trx1');
     
     $this->assertEquals($seq1 + 1, $seq2);
 }

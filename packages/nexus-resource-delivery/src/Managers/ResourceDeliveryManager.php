@@ -90,7 +90,7 @@ class ResourceDeliveryManager implements ResourceDeliveryManagerInterface
      * @param  string  $contentClass  コンテンツクラス名
      * @return CustomCollection<ResourceDeliveryContent>
      */
-    public function getSendCompleteContents(string $contentClass): CustomCollection
+    public function findSendCompleteContents(string $contentClass): CustomCollection
     {
         return new CustomCollection($this->sendCompleteContents[$contentClass] ?? []);
     }

@@ -29,7 +29,7 @@ class InAppPurchaseController extends _BaseController
         InAppPurchaseBuyPassUseCase $buyPassUseCase
     ): JsonResponse {
         // 認証情報を取得
-        $sysPlayerId = $request->getAuthenticatedPlayerId();
+        $sysPlayerId = $request->resolveAuthenticatedPlayerId();
 
         if (! $sysPlayerId) {
             throw new GameException(

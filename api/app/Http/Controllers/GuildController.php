@@ -47,7 +47,7 @@ class GuildController extends _BaseController
     public function create(CreateRequest $request, GuildCreateUseCase $useCase): JsonResponse
     {
         // 認証情報を取得
-        $sysPlayerId = $request->getAuthenticatedPlayerId();
+        $sysPlayerId = $request->resolveAuthenticatedPlayerId();
 
         if (! $sysPlayerId) {
             throw new GameException(
@@ -69,7 +69,7 @@ class GuildController extends _BaseController
     public function applySend(ApplySendRequest $request, GuildApplySendUseCase $useCase): JsonResponse
     {
         // 認証情報を取得
-        $sysPlayerId = $request->getAuthenticatedPlayerId();
+        $sysPlayerId = $request->resolveAuthenticatedPlayerId();
 
         if (! $sysPlayerId) {
             throw new GameException(
@@ -90,7 +90,7 @@ class GuildController extends _BaseController
     public function applyAccept(ApplyAcceptRequest $request, GuildApplyAcceptUseCase $useCase): JsonResponse
     {
         // 認証情報を取得
-        $sysPlayerId = $request->getAuthenticatedPlayerId();
+        $sysPlayerId = $request->resolveAuthenticatedPlayerId();
 
         if (! $sysPlayerId) {
             throw new GameException(
@@ -111,7 +111,7 @@ class GuildController extends _BaseController
     public function applyReject(ApplyRejectRequest $request, GuildApplyRejectUseCase $useCase): JsonResponse
     {
         // 認証情報を取得
-        $sysPlayerId = $request->getAuthenticatedPlayerId();
+        $sysPlayerId = $request->resolveAuthenticatedPlayerId();
 
         if (! $sysPlayerId) {
             throw new GameException(
@@ -152,7 +152,7 @@ class GuildController extends _BaseController
     public function leave(LeaveRequest $request, GuildLeaveUseCase $useCase): JsonResponse
     {
         // 認証情報を取得
-        $sysPlayerId = $request->getAuthenticatedPlayerId();
+        $sysPlayerId = $request->resolveAuthenticatedPlayerId();
 
         if (! $sysPlayerId) {
             throw new GameException(

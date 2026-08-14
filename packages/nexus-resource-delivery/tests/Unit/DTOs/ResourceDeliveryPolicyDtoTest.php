@@ -25,11 +25,11 @@ class ResourceDeliveryPolicyDtoTest extends TestCase
         $this->assertInstanceOf(ResourceDeliveryPolicyDto::class, $policy);
         $this->assertSame(
             ResourceDeliveryMethod::SEND_TO_MAILBOX,
-            $policy->getMethodByResourceType(ResourceType::DIAMOND)
+            $policy->resolveMethodByResourceType(ResourceType::DIAMOND)
         );
         $this->assertSame(
             ResourceDeliveryMethod::SEND_TO_MAILBOX,
-            $policy->getMethodByResourceType(ResourceType::PAID_DIAMOND)
+            $policy->resolveMethodByResourceType(ResourceType::PAID_DIAMOND)
         );
     }
 
@@ -48,11 +48,11 @@ class ResourceDeliveryPolicyDtoTest extends TestCase
         // Assert
         $this->assertSame(
             ResourceDeliveryMethod::THROW_ERROR_WHEN_RESOURCE_LIMIT_REACHED,
-            $policy->getMethodByResourceType(ResourceType::DIAMOND)
+            $policy->resolveMethodByResourceType(ResourceType::DIAMOND)
         );
         $this->assertSame(
             ResourceDeliveryMethod::THROW_ERROR_WHEN_RESOURCE_LIMIT_REACHED,
-            $policy->getMethodByResourceType(ResourceType::GOLD)
+            $policy->resolveMethodByResourceType(ResourceType::GOLD)
         );
     }
 
@@ -68,7 +68,7 @@ class ResourceDeliveryPolicyDtoTest extends TestCase
         ]);
 
         // Act
-        $method = $policy->getMethodByResourceType(ResourceType::DIAMOND);
+        $method = $policy->resolveMethodByResourceType(ResourceType::DIAMOND);
 
         // Assert
         $this->assertSame(ResourceDeliveryMethod::SEND_TO_MAILBOX, $method);
@@ -84,7 +84,7 @@ class ResourceDeliveryPolicyDtoTest extends TestCase
         $policy = ResourceDeliveryPolicyDto::createDefaultPolicy();
 
         // Act
-        $method = $policy->getMethodByResourceType(ResourceType::GOLD);
+        $method = $policy->resolveMethodByResourceType(ResourceType::GOLD);
 
         // Assert
         $this->assertSame(ResourceDeliveryMethod::NONE, $method);
@@ -105,7 +105,7 @@ class ResourceDeliveryPolicyDtoTest extends TestCase
         // Assert
         $this->assertSame(
             ResourceDeliveryMethod::SEND_TO_MAILBOX,
-            $policy->getMethodByResourceType(ResourceType::GOLD)
+            $policy->resolveMethodByResourceType(ResourceType::GOLD)
         );
     }
 
@@ -152,7 +152,7 @@ class ResourceDeliveryPolicyDtoTest extends TestCase
         $policy = ResourceDeliveryPolicyDto::createThrowErrorWhenResourceLimitReachedPolicy($exception);
 
         // Act
-        $types = $policy->getResourceTypesOfThrowErrorWhenResourceLimitReached([
+        $types = $policy->findResourceTypesOfThrowErrorWhenResourceLimitReached([
             ResourceType::DIAMOND,
             ResourceType::GOLD,
         ]);
@@ -175,7 +175,7 @@ class ResourceDeliveryPolicyDtoTest extends TestCase
         ]);
 
         // Act
-        $method = $policy->getMethodByResourceType('diamond');
+        $method = $policy->resolveMethodByResourceType('diamond');
 
         // Assert
         $this->assertSame(ResourceDeliveryMethod::SEND_TO_MAILBOX, $method);
@@ -196,7 +196,7 @@ class ResourceDeliveryPolicyDtoTest extends TestCase
         // Assert
         $this->assertSame(
             ResourceDeliveryMethod::SEND_TO_MAILBOX,
-            $policy->getMethodByResourceType('custom_resource')
+            $policy->resolveMethodByResourceType('custom_resource')
         );
     }
 }

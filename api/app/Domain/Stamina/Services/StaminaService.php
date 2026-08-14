@@ -34,7 +34,7 @@ class StaminaService
      * @param  int  $sysPlayerId  プレイヤーID
      * @param  string  $type  スタミナタイプ
      */
-    public function getStamina(int $sysPlayerId, string $type = StaminaConst::TYPE_NORMAL): ?TrxStamina
+    public function findStamina(int $sysPlayerId, string $type = StaminaConst::TYPE_NORMAL): ?TrxStamina
     {
         return $this->trxStaminaRepository->selectByType($type);
     }
@@ -115,9 +115,9 @@ class StaminaService
      * @param  string  $type  スタミナタイプ
      * @return int|null 残り秒数
      */
-    public function getTimeUntilNextRecovery(int $sysPlayerId, string $type = StaminaConst::TYPE_NORMAL): ?int
+    public function calcTimeUntilNextRecovery(int $sysPlayerId, string $type = StaminaConst::TYPE_NORMAL): ?int
     {
-        return $this->baseStaminaService->getTimeUntilNextRecovery($sysPlayerId, $type);
+        return $this->baseStaminaService->calcTimeUntilNextRecovery($sysPlayerId, $type);
     }
 
     /**
@@ -127,7 +127,7 @@ class StaminaService
      * @param  string  $type  スタミナタイプ
      * @return int 必要な秒数
      */
-    public function getTimeToFullRecovery(int $sysPlayerId, string $type = StaminaConst::TYPE_NORMAL): int
+    public function calcTimeToFullRecovery(int $sysPlayerId, string $type = StaminaConst::TYPE_NORMAL): int
     {
         $stamina = $this->trxStaminaRepository->selectByType($type);
 
@@ -135,7 +135,7 @@ class StaminaService
             return 0;
         }
 
-        $maxStamina = $this->playerLevelService->getMaxStamina($sysPlayerId);
+        $maxStamina = $this->playerLevelService->findMaxStamina($sysPlayerId);
 
         if ($stamina->isCurrentStaminaFull($maxStamina)) {
             return 0;

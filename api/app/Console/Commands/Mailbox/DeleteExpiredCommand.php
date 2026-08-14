@@ -67,7 +67,7 @@ class DeleteExpiredCommand extends Command
         $this->newLine();
 
         // 期限切れメールを取得
-        $expiredMailboxes = $this->getExpiredMailboxes($playerId, $limit);
+        $expiredMailboxes = $this->selectExpiredMailboxes($playerId, $limit);
         $totalCount = $expiredMailboxes->count();
 
         if ($totalCount === 0) {
@@ -144,7 +144,7 @@ class DeleteExpiredCommand extends Command
     /**
      * 期限切れメールを取得
      */
-    private function getExpiredMailboxes(?int $playerId, int $limit): Collection
+    private function selectExpiredMailboxes(?int $playerId, int $limit): Collection
     {
         $query = TrxMailbox::query()
             ->where('is_delete', false)

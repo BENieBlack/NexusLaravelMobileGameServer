@@ -27,7 +27,7 @@ class SysPlayerDeviceRepository extends _BaseSysRepository implements DeviceRepo
     public function selectByDeviceId(string $deviceId): ?SysPlayerDevice
     {
         // メモリキャッシュから検索
-        $sysPlayerDevice = $this->getModels()->firstWhere('uuid', $deviceId);
+        $sysPlayerDevice = $this->findCachedModels()->firstWhere('uuid', $deviceId);
 
         if ($sysPlayerDevice !== null) {
             /** @var SysPlayerDevice */
@@ -54,7 +54,7 @@ class SysPlayerDeviceRepository extends _BaseSysRepository implements DeviceRepo
     public function selectListByPlayerId(int $sysPlayerId): CustomCollection
     {
         // メモリキャッシュから検索
-        $sysPlayerDeviceCollection = $this->getModels()->where('sys_player_id', $sysPlayerId);
+        $sysPlayerDeviceCollection = $this->findCachedModels()->where('sys_player_id', $sysPlayerId);
 
         if ($sysPlayerDeviceCollection->isNotEmpty()) {
             return $sysPlayerDeviceCollection->values();

@@ -34,7 +34,7 @@ interface BillingPlatformInterface
      * @return Subscription サブスクリプション状態
      * @throws ReceiptVerificationException API通信エラー等
      */
-    public function getSubscriptionStatus(string $subscriptionId): Subscription;
+    public function fetchSubscriptionStatus(string $subscriptionId): Subscription;
 
     /**
      * 返金確認

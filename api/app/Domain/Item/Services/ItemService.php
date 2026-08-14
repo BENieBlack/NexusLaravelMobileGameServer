@@ -61,8 +61,8 @@ class ItemService
      * @param  string  $mstItemId  アイテムID
      * @return int 所持数（無償+有償の合計、存在しない場合は0）
      */
-    public function getItemAmount(int $sysPlayerId, string $mstItemId): int
+    public function findItemAmount(int $sysPlayerId, string $mstItemId): int
     {
-        return $this->itemReadService->getItemAmount($sysPlayerId, $mstItemId);
+        return $this->itemReadService->findItemAmount($sysPlayerId, $mstItemId);
     }
 }

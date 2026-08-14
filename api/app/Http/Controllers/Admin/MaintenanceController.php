@@ -23,7 +23,7 @@ class MaintenanceController
      */
     public function status(): JsonResponse
     {
-        $sysMaintenance = $this->maintenanceService->getMaintenanceInfo();
+        $sysMaintenance = $this->maintenanceService->findMaintenanceInfo();
 
         if ($sysMaintenance === null) {
             return response()->json([

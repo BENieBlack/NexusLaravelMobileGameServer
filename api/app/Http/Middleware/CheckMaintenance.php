@@ -50,7 +50,7 @@ class CheckMaintenance
         }
 
         // メンテナンス中は503エラーを返す
-        $sysMaintenance = $this->maintenanceService->getMaintenanceInfo();
+        $sysMaintenance = $this->maintenanceService->findMaintenanceInfo();
 
         return response()->json([
             'error' => 'Service Unavailable',

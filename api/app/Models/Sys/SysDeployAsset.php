@@ -62,7 +62,7 @@ class SysDeployAsset extends _BaseSys
     /**
      * 利用可能なステータス一覧を取得
      */
-    public static function getAvailableStatuses(): array
+    public static function availableStatuses(): array
     {
         return [
             self::STATUS_SCHEDULED,
@@ -301,7 +301,7 @@ class SysDeployAsset extends _BaseSys
     /**
      * S3の完全URLを取得
      */
-    public function getS3FullUrl(): ?string
+    public function buildS3FullUrl(): ?string
     {
         if (! $this->s3_bucket || ! $this->s3_path) {
             return null;
@@ -337,7 +337,7 @@ class SysDeployAsset extends _BaseSys
     /**
      * 人間が読みやすい形式でファイルサイズを取得
      */
-    public function getHumanReadableSize(): ?string
+    public function formatHumanReadableSize(): ?string
     {
         if ($this->total_size === null) {
             return null;
@@ -367,7 +367,7 @@ class SysDeployAsset extends _BaseSys
      * ハッシュからバージョン文字列を生成（短縮版）
      * セキュリティのため、ハッシュの最初の8文字のみを使用
      */
-    public function getVersionString(): ?string
+    public function buildVersionString(): ?string
     {
         if (! $this->hasValidHash()) {
             return null;

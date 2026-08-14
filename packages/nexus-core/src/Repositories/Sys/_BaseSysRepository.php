@@ -157,7 +157,7 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
     public function selectById(int $sysRecordId)
     {
         // メモリキャッシュから取得を試みる
-        $model = $this->getModel($sysRecordId);
+        $model = $this->findCachedModel($sysRecordId);
         
         if ($model !== null) {
             return $model;
@@ -179,7 +179,7 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
      * @param string $key
      * @return string
      */
-    protected function getCacheKey(string $key): string
+    protected function buildCacheKey(string $key): string
     {
         $modelInstance = $this->getModelInstance();
         $tableName = $modelInstance->getTable();
@@ -194,7 +194,7 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
      */
     protected function clearCache(string $key): bool
     {
-        $cacheKey = $this->getCacheKey($key);
+        $cacheKey = $this->buildCacheKey($key);
         return Cache::store($this->cacheDriver)->forget($cacheKey);
     }
 }

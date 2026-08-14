@@ -147,7 +147,7 @@ class DiamondBalanceServiceTest extends TestCase
             ->willReturn($existingDto);
 
         // Act
-        $result = $this->diamondBalanceService->getBalance($sysPlayerId, $platform);
+        $result = $this->diamondBalanceService->findBalance($sysPlayerId, $platform);
 
         // Assert
         $this->assertIsArray($result);
@@ -172,7 +172,7 @@ class DiamondBalanceServiceTest extends TestCase
             ->willReturn(null);
 
         // Act
-        $result = $this->diamondBalanceService->getBalance($sysPlayerId, $platform);
+        $result = $this->diamondBalanceService->findBalance($sysPlayerId, $platform);
 
         // Assert
         $this->assertSame(0, $result['paid_amount']);

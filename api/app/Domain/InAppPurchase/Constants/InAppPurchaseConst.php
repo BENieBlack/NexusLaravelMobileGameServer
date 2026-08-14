@@ -54,7 +54,7 @@ class InAppPurchaseConst
     /**
      * 全課金商品タイプの配列を取得
      */
-    public static function getAllTypes(): array
+    public static function allTypes(): array
     {
         return [
             self::TYPE_DIAMOND,
@@ -66,7 +66,7 @@ class InAppPurchaseConst
     /**
      * 全購入制限リセットの配列を取得
      */
-    public static function getAllPurchaseLimitResets(): array
+    public static function allPurchaseLimitResets(): array
     {
         return [
             self::PURCHASE_LIMIT_RESET_NONE,
@@ -79,7 +79,7 @@ class InAppPurchaseConst
     /**
      * 全コンテンツタイプの配列を取得
      */
-    public static function getAllContentTypes(): array
+    public static function allContentTypes(): array
     {
         return [
             self::CONTENT_TYPE_ITEM,
@@ -91,7 +91,7 @@ class InAppPurchaseConst
     /**
      * 全効果タイプの配列を取得
      */
-    public static function getAllEffectTypes(): array
+    public static function allEffectTypes(): array
     {
         return [
             self::EFFECT_TYPE_IDLE_REWARD_MULTIPLIER,
@@ -107,7 +107,7 @@ class InAppPurchaseConst
      */
     public static function isValidType(string $type): bool
     {
-        return in_array($type, self::getAllTypes(), true);
+        return in_array($type, self::allTypes(), true);
     }
 
     /**
@@ -115,7 +115,7 @@ class InAppPurchaseConst
      */
     public static function isValidPurchaseLimitReset(string $reset): bool
     {
-        return in_array($reset, self::getAllPurchaseLimitResets(), true);
+        return in_array($reset, self::allPurchaseLimitResets(), true);
     }
 
     /**
@@ -123,7 +123,7 @@ class InAppPurchaseConst
      */
     public static function isValidContentType(string $contentType): bool
     {
-        return in_array($contentType, self::getAllContentTypes(), true);
+        return in_array($contentType, self::allContentTypes(), true);
     }
 
     /**
@@ -131,6 +131,6 @@ class InAppPurchaseConst
      */
     public static function isValidEffectType(string $effectType): bool
     {
-        return in_array($effectType, self::getAllEffectTypes(), true);
+        return in_array($effectType, self::allEffectTypes(), true);
     }
 }

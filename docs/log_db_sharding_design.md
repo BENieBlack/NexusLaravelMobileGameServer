@@ -469,7 +469,7 @@ class TrxChangeLogger
         $trxConnection = $changeLogDto->getShardConnection();
         $logConnection = ShardMapper::getLogConnection($trxConnection);
         
-        $sequenceNumber = $this->sequenceManager->getNextSequence(
+        $sequenceNumber = $this->sequenceManager->issueNextSequence(
             $trxConnection,
             $logConnection
         );
@@ -506,7 +506,7 @@ class SequenceManager
     /**
      * 次のシーケンス番号を取得（シャーディング対応）
      */
-    public function getNextSequence(string $trxConnection, string $logConnection): int
+    public function issueNextSequence(string $trxConnection, string $logConnection): int
     {
         return DB::connection($logConnection)->transaction(function () use ($trxConnection, $logConnection) {
             $row = DB::connection($logConnection)

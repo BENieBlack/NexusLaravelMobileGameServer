@@ -226,7 +226,7 @@ class VipPointServiceTest extends TestCase
             ->andReturn($playerVipDto);
 
         // Act
-        $result = $this->service->getPlayerVipInfo($sysPlayerId);
+        $result = $this->service->findPlayerVipInfo($sysPlayerId);
 
         // Assert
         $this->assertSame(500, $result->getVipPoint());
@@ -249,7 +249,7 @@ class VipPointServiceTest extends TestCase
             ->andReturn(null);
 
         // Act
-        $result = $this->service->getPlayerVipInfo($sysPlayerId);
+        $result = $this->service->findPlayerVipInfo($sysPlayerId);
 
         // Assert
         $this->assertNull($result);

@@ -24,7 +24,7 @@ class GachaProgressService
     /**
      * ガチャ進行状況を取得または作成
      */
-    public function getOrCreateProgress(int $sysPlayerId, string $mstGachaId): TrxGacha
+    public function findOrInsertProgress(int $sysPlayerId, string $mstGachaId): TrxGacha
     {
         // Eloquent Modelに変換
         $progress = TrxGacha::query()

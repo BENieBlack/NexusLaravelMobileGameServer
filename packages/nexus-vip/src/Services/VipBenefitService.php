@@ -32,7 +32,7 @@ class VipBenefitService
             return $baseMaxStamina;
         }
 
-        return $this->vipLevelService->getBenefits($vipLevel)
+        return $this->vipLevelService->findBenefits($vipLevel)
             ->applyStaminaBonus($baseMaxStamina);
     }
 
@@ -49,7 +49,7 @@ class VipBenefitService
             return $basePrice;
         }
 
-        return $this->vipLevelService->getBenefits($vipLevel)
+        return $this->vipLevelService->findBenefits($vipLevel)
             ->applyShopDiscount($basePrice);
     }
 
@@ -66,7 +66,7 @@ class VipBenefitService
             return $basePrice;
         }
 
-        return $this->vipLevelService->getBenefits($vipLevel)
+        return $this->vipLevelService->findBenefits($vipLevel)
             ->applyGachaDiscount($basePrice);
     }
 
@@ -76,15 +76,15 @@ class VipBenefitService
      * @param  int  $vipLevel  VIPレベル（vip_pointから計算済み）
      * @return int デイリーダイヤモンドボーナス
      */
-    public function getDailyDiamondBonus(int $vipLevel): int
+    public function calcDailyDiamondBonus(int $vipLevel): int
     {
         if (! $this->config->isDailyDiamondEnabled()) {
             return 0;
         }
 
-        $benefits = $this->vipLevelService->getBenefits($vipLevel);
+        $benefits = $this->vipLevelService->findBenefits($vipLevel);
 
-        return $benefits->getDailyDiamondBonus();
+        return $benefits->calcDailyDiamondBonus();
     }
 
     /**

@@ -27,7 +27,7 @@ class SysFriendApplyRepository extends _BaseSysRepository
      */
     public function selectById(int $sysFriendApplyId): ?SysFriendApply
     {
-        $sysFriendApply = $this->getModel($sysFriendApplyId);
+        $sysFriendApply = $this->findCachedModel($sysFriendApplyId);
 
         if ($sysFriendApply !== null) {
             /** @var SysFriendApply */

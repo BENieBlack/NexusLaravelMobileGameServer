@@ -23,12 +23,12 @@ namespace NexusLevel\Services;
  * ```php
  * class PlayerLevelService extends _BaseLevelService
  * {
- *     protected function getEntity(mixed $id): object { ... }
- *     protected function getRarity(object $entity): ?string { return null; }
- *     protected function getCurrentLevel(object $entity): int { ... }
- *     protected function getCurrentExp(object $entity): int { ... }
+ *     protected function findEntity(mixed $id): object { ... }
+ *     protected function resolveRarity(object $entity): ?string { return null; }
+ *     protected function resolveCurrentLevel(object $entity): int { ... }
+ *     protected function resolveCurrentExp(object $entity): int { ... }
  *     protected function calculateNewLevel(string|null $rarity, int $totalExp): int { ... }
- *     protected function getMaxLevel(string|null $rarity): int { ... }
+ *     protected function findMaxLevel(string|null $rarity): int { ... }
  *     protected function updateEntity(object $entity, int $level, int $exp): void { ... }
  *     protected function onLevelUp(object $entity, int $beforeLevel, int $afterLevel): void { ... }
  * }
@@ -52,12 +52,12 @@ abstract class _BaseLevelService
     public function addExp(mixed $id, int $exp): array
     {
         // 1. エンティティを取得
-        $entity = $this->getEntity($id);
+        $entity = $this->findEntity($id);
         
         // 2. 現在の状態を取得
-        $rarity = $this->getRarity($entity);
-        $beforeLevel = $this->getCurrentLevel($entity);
-        $currentExp = $this->getCurrentExp($entity);
+        $rarity = $this->resolveRarity($entity);
+        $beforeLevel = $this->resolveCurrentLevel($entity);
+        $currentExp = $this->resolveCurrentExp($entity);
         
         // 3. 経験値を加算
         $newTotalExp = $currentExp + $exp;
@@ -66,7 +66,7 @@ abstract class _BaseLevelService
         $newLevel = $this->calculateNewLevel($rarity, $newTotalExp);
         
         // 5. 最大レベルを超えないように制限
-        $maxLevel = $this->getMaxLevel($rarity);
+        $maxLevel = $this->findMaxLevel($rarity);
         $afterLevel = min($newLevel, $maxLevel);
         
         // 6. レベルアップ判定
@@ -97,7 +97,7 @@ abstract class _BaseLevelService
      * @param int $currentExp 現在の累積経験値
      * @return int|null 必要な経験値（最大レベルの場合はnull or 0）
      */
-    abstract public function getExpToNextLevel(string|null $rarity, int $currentLevel, int $currentExp): int|null;
+    abstract public function calcExpToNextLevel(string|null $rarity, int $currentLevel, int $currentExp): int|null;
 
     // ========================================
     // Abstract Methods（サブクラスで実装必須）
@@ -110,7 +110,7 @@ abstract class _BaseLevelService
      * @return object エンティティオブジェクト
      * @throws \Exception エンティティが存在しない場合
      */
-    abstract protected function getEntity(mixed $id): object;
+    abstract protected function findEntity(mixed $id): object;
 
     /**
      * エンティティのレアリティを取得
@@ -118,7 +118,7 @@ abstract class _BaseLevelService
      * @param object $entity エンティティオブジェクト
      * @return string|null レアリティ（プレイヤーの場合はnull）
      */
-    abstract protected function getRarity(object $entity): ?string;
+    abstract protected function resolveRarity(object $entity): ?string;
 
     /**
      * エンティティの現在レベルを取得
@@ -126,7 +126,7 @@ abstract class _BaseLevelService
      * @param object $entity エンティティオブジェクト
      * @return int 現在レベル
      */
-    abstract protected function getCurrentLevel(object $entity): int;
+    abstract protected function resolveCurrentLevel(object $entity): int;
 
     /**
      * エンティティの現在経験値を取得
@@ -134,7 +134,7 @@ abstract class _BaseLevelService
      * @param object $entity エンティティオブジェクト
      * @return int 現在経験値
      */
-    abstract protected function getCurrentExp(object $entity): int;
+    abstract protected function resolveCurrentExp(object $entity): int;
 
     /**
      * 累積経験値から新しいレベルを計算
@@ -151,7 +151,7 @@ abstract class _BaseLevelService
      * @param string|null $rarity レアリティ（プレイヤーの場合はnull）
      * @return int 最大レベル
      */
-    abstract protected function getMaxLevel(?string $rarity): int;
+    abstract protected function findMaxLevel(?string $rarity): int;
 
     /**
      * エンティティのレベルと経験値を更新

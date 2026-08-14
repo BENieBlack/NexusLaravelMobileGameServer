@@ -33,7 +33,7 @@ use Illuminate\Contracts\Cache\Repository;
  * 
  * // 圧縮を使用したキャッシュ（大きなデータ用）
  * RedisUtility::putCompressed('large_data', $largeArray, 3600);
- * $data = RedisUtility::getCompressed('large_data');
+ * $data = RedisUtility::fetchCompressed('large_data');
  * ```
  */
 class RedisUtility
@@ -261,7 +261,7 @@ class RedisUtility
      * @param mixed $default デフォルト値
      * @return mixed
      */
-    public static function getCompressed(string $key, mixed $default = null): mixed
+    public static function fetchCompressed(string $key, mixed $default = null): mixed
     {
         $compressed = self::get($key);
         
@@ -289,7 +289,7 @@ class RedisUtility
     public static function rememberCompressed(string $key, int|\DateTimeInterface|\DateInterval|null $ttl, \Closure $callback): mixed
     {
         if (self::has($key)) {
-            return self::getCompressed($key);
+            return self::fetchCompressed($key);
         }
         
         $value = $callback();

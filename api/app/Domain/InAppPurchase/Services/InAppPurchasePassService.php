@@ -60,11 +60,11 @@ class InAppPurchasePassService
      * @param  int  $sysPlayerId  プレイヤーID
      * @return CustomCollection<int, TrxInAppPurchaseEffect>
      */
-    public function getActiveEffects(int $sysPlayerId): CustomCollection
+    public function findActiveEffects(int $sysPlayerId): CustomCollection
     {
 
         // 全ての効果を取得
-        $effects = $this->trxInAppPurchaseEffectRepository->getMapBySysPlayerId($sysPlayerId);
+        $effects = $this->trxInAppPurchaseEffectRepository->selectMapBySysPlayerId($sysPlayerId);
 
         $activeEffects = new CustomCollection;
 
@@ -89,9 +89,9 @@ class InAppPurchasePassService
      * @param  string  $effectType  効果タイプ
      * @return float 効果値の合計
      */
-    public function getTotalEffectValue(int $sysPlayerId, string $effectType): float
+    public function calcTotalEffectValue(int $sysPlayerId, string $effectType): float
     {
-        return $this->getActiveEffects($sysPlayerId)
+        return $this->findActiveEffects($sysPlayerId)
             ->where('effect_type', $effectType)
             ->sum('value');
     }

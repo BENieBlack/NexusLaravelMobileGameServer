@@ -34,7 +34,7 @@ class StaminaConst
      *
      * @return array<string>
      */
-    public static function getAllTypes(): array
+    public static function allTypes(): array
     {
         return [
             self::TYPE_NORMAL,
@@ -47,7 +47,7 @@ class StaminaConst
     /**
      * スタミナタイプの表示名を取得
      */
-    public static function getTypeName(string $type): string
+    public static function findTypeName(string $type): string
     {
         return match ($type) {
             self::TYPE_NORMAL => '通常スタミナ',
@@ -63,6 +63,6 @@ class StaminaConst
      */
     public static function isValidType(string $type): bool
     {
-        return in_array($type, self::getAllTypes(), true);
+        return in_array($type, self::allTypes(), true);
     }
 }

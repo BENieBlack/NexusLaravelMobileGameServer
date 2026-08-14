@@ -58,7 +58,7 @@ interface WalletManagerInterface
      * @return CurrencyBalance 残高情報
      * @throws InvalidCurrencyException 無効な通貨IDの場合
      */
-    public function getBalance(int $playerId, string $currencyId): CurrencyBalance;
+    public function findBalance(int $playerId, string $currencyId): CurrencyBalance;
 
     /**
      * 有効期限切れの通貨を削除
@@ -77,5 +77,5 @@ interface WalletManagerInterface
      * @param array<string> $currencyIds 通貨IDリスト
      * @return array<string, CurrencyBalance> 通貨ID => 残高情報のマップ
      */
-    public function getBulkBalances(int $playerId, array $currencyIds): array;
+    public function findBulkBalances(int $playerId, array $currencyIds): array;
 }

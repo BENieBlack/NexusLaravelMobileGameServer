@@ -31,7 +31,7 @@ class MaintenanceService
      */
     public function isUnderMaintenance(): bool
     {
-        $sysMaintenance = $this->getMaintenanceInfo();
+        $sysMaintenance = $this->findMaintenanceInfo();
         
         if ($sysMaintenance === null) {
             return false;
@@ -45,7 +45,7 @@ class MaintenanceService
      * 
      * @return Maintenance|null メンテナンス情報
      */
-    public function getMaintenanceInfo(): ?Maintenance
+    public function findMaintenanceInfo(): ?Maintenance
     {
         // キャッシュから取得を試みる
         if ($this->cacheEnabled) {

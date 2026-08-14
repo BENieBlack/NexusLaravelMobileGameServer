@@ -47,7 +47,7 @@ class ItemReadServiceTest extends TestCase
             ->willReturn($expectedDto);
 
         // Act
-        $result = $this->itemReadService->getItemAmount($sysPlayerId, $mstItemId);
+        $result = $this->itemReadService->findItemAmount($sysPlayerId, $mstItemId);
 
         // Assert
         $this->assertSame($expectedTotal, $result);
@@ -69,7 +69,7 @@ class ItemReadServiceTest extends TestCase
             ->willReturn(null);
 
         // Act
-        $result = $this->itemReadService->getItemAmount($sysPlayerId, $mstItemId);
+        $result = $this->itemReadService->findItemAmount($sysPlayerId, $mstItemId);
 
         // Assert
         $this->assertSame(0, $result);
@@ -97,7 +97,7 @@ class ItemReadServiceTest extends TestCase
             ->willReturn($items);
 
         // Act
-        $result = $this->itemReadService->getItemAmounts($sysPlayerId, $mstItemIds);
+        $result = $this->itemReadService->findItemAmounts($sysPlayerId, $mstItemIds);
 
         // Assert
         $this->assertIsArray($result);
@@ -127,7 +127,7 @@ class ItemReadServiceTest extends TestCase
             ->willReturn($items);
 
         // Act
-        $result = $this->itemReadService->getItemAmounts($sysPlayerId, $mstItemIds);
+        $result = $this->itemReadService->findItemAmounts($sysPlayerId, $mstItemIds);
 
         // Assert
         $this->assertIsArray($result);
@@ -152,7 +152,7 @@ class ItemReadServiceTest extends TestCase
             ->willReturn([]);
 
         // Act
-        $result = $this->itemReadService->getItemAmounts($sysPlayerId, $mstItemIds);
+        $result = $this->itemReadService->findItemAmounts($sysPlayerId, $mstItemIds);
 
         // Assert
         $this->assertIsArray($result);
@@ -175,7 +175,7 @@ class ItemReadServiceTest extends TestCase
             ->willReturn([]); // 全て存在しない
 
         // Act
-        $result = $this->itemReadService->getItemAmounts($sysPlayerId, $mstItemIds);
+        $result = $this->itemReadService->findItemAmounts($sysPlayerId, $mstItemIds);
 
         // Assert
         $this->assertCount(3, $result);

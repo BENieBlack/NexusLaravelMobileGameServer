@@ -44,7 +44,7 @@ class StaminaServiceTest extends TestCase
 
         $this->levelService
             ->expects($this->once())
-            ->method('getMaxStamina')
+            ->method("findMaxStamina")
             ->with($playerId)
             ->willReturn($maxStamina);
 
@@ -63,7 +63,7 @@ class StaminaServiceTest extends TestCase
             ->with($playerId, $type)
             ->willReturn($staminaDto);
 
-        $result = $this->service->getStamina($playerId, $type);
+        $result = $this->service->findStamina($playerId, $type);
 
         $this->assertInstanceOf(StaminaDto::class, $result);
         // 現在時刻なので回復は発生しない
@@ -84,7 +84,7 @@ class StaminaServiceTest extends TestCase
             ->with($playerId, $type)
             ->willReturn(null);
 
-        $result = $this->service->getStamina($playerId, $type);
+        $result = $this->service->findStamina($playerId, $type);
 
         $this->assertNull($result);
     }
@@ -101,7 +101,7 @@ class StaminaServiceTest extends TestCase
 
         $this->levelService
             ->expects($this->once())
-            ->method('getMaxStamina')
+            ->method("findMaxStamina")
             ->with($playerId)
             ->willReturn($maxStamina);
 
@@ -144,7 +144,7 @@ class StaminaServiceTest extends TestCase
 
         $this->levelService
             ->expects($this->once())
-            ->method('getMaxStamina')
+            ->method("findMaxStamina")
             ->with($playerId)
             ->willReturn($maxStamina);
 
@@ -184,7 +184,7 @@ class StaminaServiceTest extends TestCase
 
         $this->levelService
             ->expects($this->once())
-            ->method('getMaxStamina')
+            ->method("findMaxStamina")
             ->with($playerId)
             ->willReturn($maxStamina);
 
@@ -227,7 +227,7 @@ class StaminaServiceTest extends TestCase
 
         $this->levelService
             ->expects($this->once())
-            ->method('getMaxStamina')
+            ->method("findMaxStamina")
             ->with($playerId)
             ->willReturn($maxStamina);
 
@@ -270,7 +270,7 @@ class StaminaServiceTest extends TestCase
 
         $this->levelService
             ->expects($this->once())
-            ->method('getMaxStamina')
+            ->method("findMaxStamina")
             ->with($playerId)
             ->willReturn($maxStamina);
 
@@ -289,7 +289,7 @@ class StaminaServiceTest extends TestCase
             ->with($playerId, $type)
             ->willReturn($staminaDto);
 
-        $result = $this->service->getTimeUntilNextRecovery($playerId, $type);
+        $result = $this->service->calcTimeUntilNextRecovery($playerId, $type);
 
         // 経過0秒なので、次回まで300秒
         $this->assertEquals(300, $result);
@@ -306,7 +306,7 @@ class StaminaServiceTest extends TestCase
 
         $this->levelService
             ->expects($this->once())
-            ->method('getMaxStamina')
+            ->method("findMaxStamina")
             ->with($playerId)
             ->willReturn($maxStamina);
 
@@ -324,7 +324,7 @@ class StaminaServiceTest extends TestCase
             ->with($playerId, $type)
             ->willReturn($staminaDto);
 
-        $result = $this->service->getTimeUntilNextRecovery($playerId, $type);
+        $result = $this->service->calcTimeUntilNextRecovery($playerId, $type);
 
         $this->assertNull($result);
     }

@@ -78,7 +78,7 @@ class VipLevelServiceTest extends TestCase
             ->andReturn($mockNextLevel);
 
         // Act
-        $result = $this->service->getPointsToNextLevel($currentLevel, $currentPoint);
+        $result = $this->service->calcPointsToNextLevel($currentLevel, $currentPoint);
 
         // Assert
         $this->assertSame(500, $result); // 1000 - 500
@@ -101,7 +101,7 @@ class VipLevelServiceTest extends TestCase
             ->andReturn(null);
 
         // Act
-        $result = $this->service->getPointsToNextLevel($currentLevel, $currentPoint);
+        $result = $this->service->calcPointsToNextLevel($currentLevel, $currentPoint);
 
         // Assert
         $this->assertNull($result);
@@ -127,7 +127,7 @@ class VipLevelServiceTest extends TestCase
             ->andReturn($mockNextLevel);
 
         // Act
-        $result = $this->service->getPointsToNextLevel($currentLevel, $currentPoint);
+        $result = $this->service->calcPointsToNextLevel($currentLevel, $currentPoint);
 
         // Assert
         $this->assertSame(0, $result); // max(0, 1000 - 1500)
@@ -144,7 +144,7 @@ class VipLevelServiceTest extends TestCase
 
         $mockVipLevel = Mockery::mock(MstVipLevel::class);
         $mockVipLevel->shouldReceive('getMaxStaminaBonus')->andReturn(50);
-        $mockVipLevel->shouldReceive('getDailyDiamondBonus')->andReturn(10);
+        $mockVipLevel->shouldReceive('calcDailyDiamondBonus')->andReturn(10);
         $mockVipLevel->shouldReceive('getShopDiscountRate')->andReturn(0.1);
         $mockVipLevel->shouldReceive('getGachaDiscountRate')->andReturn(0.05);
 
@@ -155,12 +155,12 @@ class VipLevelServiceTest extends TestCase
             ->andReturn($mockVipLevel);
 
         // Act
-        $result = $this->service->getBenefits($level);
+        $result = $this->service->findBenefits($level);
 
         // Assert
         $this->assertInstanceOf(VipBenefit::class, $result);
         $this->assertSame(50, $result->getMaxStaminaBonus());
-        $this->assertSame(10, $result->getDailyDiamondBonus());
+        $this->assertSame(10, $result->calcDailyDiamondBonus());
         $this->assertSame(0.1, $result->getShopDiscountRate());
         $this->assertSame(0.05, $result->getGachaDiscountRate());
     }
@@ -185,7 +185,7 @@ class VipLevelServiceTest extends TestCase
         $this->expectExceptionMessage('VIP level 999 not found');
 
         // Act
-        $this->service->getBenefits($level);
+        $this->service->findBenefits($level);
     }
 
     /**
@@ -205,7 +205,7 @@ class VipLevelServiceTest extends TestCase
             ->andReturn($mockVipLevel);
 
         // Act
-        $result = $this->service->getVipLevelMaster($level);
+        $result = $this->service->findVipLevelMaster($level);
 
         // Assert
         $this->assertSame($mockVipLevel, $result);
@@ -231,7 +231,7 @@ class VipLevelServiceTest extends TestCase
         $this->expectExceptionMessage('VIP level 999 not found');
 
         // Act
-        $this->service->getVipLevelMaster($level);
+        $this->service->findVipLevelMaster($level);
     }
 
     /**
@@ -245,7 +245,7 @@ class VipLevelServiceTest extends TestCase
         $mockLevel1->shouldReceive('getLevel')->andReturn(1);
         $mockLevel1->shouldReceive('getRequiredPoint')->andReturn(100);
         $mockLevel1->shouldReceive('getMaxStaminaBonus')->andReturn(10);
-        $mockLevel1->shouldReceive('getDailyDiamondBonus')->andReturn(5);
+        $mockLevel1->shouldReceive('calcDailyDiamondBonus')->andReturn(5);
         $mockLevel1->shouldReceive('getShopDiscountRate')->andReturn(0.05);
         $mockLevel1->shouldReceive('getGachaDiscountRate')->andReturn(0.02);
         $mockLevel1->shouldReceive('getDisplayBadgeUrl')->andReturn('https://example.com/badge1.png');
@@ -254,7 +254,7 @@ class VipLevelServiceTest extends TestCase
         $mockLevel2->shouldReceive('getLevel')->andReturn(2);
         $mockLevel2->shouldReceive('getRequiredPoint')->andReturn(500);
         $mockLevel2->shouldReceive('getMaxStaminaBonus')->andReturn(20);
-        $mockLevel2->shouldReceive('getDailyDiamondBonus')->andReturn(10);
+        $mockLevel2->shouldReceive('calcDailyDiamondBonus')->andReturn(10);
         $mockLevel2->shouldReceive('getShopDiscountRate')->andReturn(0.1);
         $mockLevel2->shouldReceive('getGachaDiscountRate')->andReturn(0.05);
         $mockLevel2->shouldReceive('getDisplayBadgeUrl')->andReturn('https://example.com/badge2.png');
@@ -262,12 +262,12 @@ class VipLevelServiceTest extends TestCase
         $collection = new CustomCollection([$mockLevel1, $mockLevel2]);
 
         $this->vipLevelRepository
-            ->shouldReceive('getAllLevels')
+            ->shouldReceive('findAllLevels')
             ->once()
             ->andReturn($collection);
 
         // Act
-        $result = $this->service->getAllLevels();
+        $result = $this->service->findAllLevels();
 
         // Assert
         $this->assertIsArray($result);

@@ -60,7 +60,7 @@ class LogVipPointRepository extends _BaseLogRepository implements VipPointLogRep
     /**
      * プレイヤーのVIPポイント履歴を取得
      */
-    public function getHistory(int $sysPlayerId, int $limit = 100): array
+    public function selectHistory(int $sysPlayerId, int $limit = 100): array
     {
         return $this->queryOrMemory()
             ->where('sys_player_id', $sysPlayerId)

@@ -136,7 +136,7 @@ class MstEquipmentLevel extends _BaseMst
      *
      * @return Collection
      */
-    public static function getAllLevelsByRarity(string $rarity)
+    public static function selectAllLevelsByRarity(string $rarity)
     {
         return self::where('rarity', $rarity)
             ->orderBy('level')
@@ -146,7 +146,7 @@ class MstEquipmentLevel extends _BaseMst
     /**
      * 最大レベルを取得
      */
-    public static function getMaxLevel(string $rarity): ?int
+    public static function selectMaxLevel(string $rarity): ?int
     {
         return self::where('rarity', $rarity)
             ->max('level');

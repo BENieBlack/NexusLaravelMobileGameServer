@@ -115,7 +115,7 @@ class EquipmentLevelUpUseCase extends _BaseUseCase
         $requiredItemCount = (int) ceil($requiredExp / $expPerItem);
 
         // 5. アイテム所持数確認
-        $currentAmount = $this->itemService->getItemAmount($sysPlayerId, self::EQUIPMENT_EXP_ITEM_ID);
+        $currentAmount = $this->itemService->findItemAmount($sysPlayerId, self::EQUIPMENT_EXP_ITEM_ID);
         if ($currentAmount < $requiredItemCount) {
             throw BusinessLogicException::itemNotEnough(self::EQUIPMENT_EXP_ITEM_ID, $requiredItemCount, $currentAmount);
         }

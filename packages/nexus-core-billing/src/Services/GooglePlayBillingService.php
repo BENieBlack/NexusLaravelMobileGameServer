@@ -74,7 +74,7 @@ class GooglePlayBillingService implements BillingPlatformInterface
     /**
      * {@inheritDoc}
      */
-    public function getSubscriptionStatus(string $subscriptionId): Subscription
+    public function fetchSubscriptionStatus(string $subscriptionId): Subscription
     {
         // サブスクリプショントークンと商品IDが必要
         // 実際の実装では別途パラメータが必要
@@ -82,7 +82,7 @@ class GooglePlayBillingService implements BillingPlatformInterface
         $packageName = config('services.google_play.package_name');
         
         // TODO: 実際のトークンを渡す必要がある
-        $response = $this->apiClient->getSubscription(
+        $response = $this->apiClient->fetchSubscription(
             packageName: $packageName,
             subscriptionId: $subscriptionId,
             token: '' // トークンが必要

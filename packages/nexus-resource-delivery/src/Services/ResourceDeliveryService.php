@@ -143,8 +143,8 @@ class ResourceDeliveryService
         ResourceDeliverySummaryDto $summary,
         ResourceDeliveryPolicyDto $resourceDeliveryPolicyDto,
     ): void {
-        $throwErrorTypes = $resourceDeliveryPolicyDto->getResourceTypesOfThrowErrorWhenResourceLimitReached(
-            $this->getSupportedTypes(),
+        $throwErrorTypes = $resourceDeliveryPolicyDto->findResourceTypesOfThrowErrorWhenResourceLimitReached(
+            $this->supportedTypes(),
         );
 
         if ($summary->hasResourceOverflow($throwErrorTypes)) {
@@ -246,7 +246,7 @@ class ResourceDeliveryService
      *
      * @return array<string>
      */
-    public function getSupportedTypes(): array
+    public function supportedTypes(): array
     {
         $types = [];
 

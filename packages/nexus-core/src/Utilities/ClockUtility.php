@@ -37,7 +37,7 @@ class ClockUtility
      * 
      * @return string HH:MM:SS形式
      */
-    public static function getDayStartTime(): string
+    public static function calcDayStartTime(): string
     {
         if (self::$dayStartTime === null) {
             self::$dayStartTime = env('DAY_START_TIME', '00:00:00');
@@ -66,10 +66,10 @@ class ClockUtility
      * @param string|null $dateTimeString Y-m-d H:i:s形式の日時文字列（nullの場合は現在時刻）
      * @return CarbonImmutable ゲーム内日付の開始時刻
      */
-    public static function getGameDayStart(?string $dateTimeString = null): CarbonImmutable
+    public static function calcGameDayStart(?string $dateTimeString = null): CarbonImmutable
     {
         $dateTime = $dateTimeString === null ? self::now() : CarbonImmutable::parse($dateTimeString);
-        $dayStartTime = self::getDayStartTime();
+        $dayStartTime = self::calcDayStartTime();
         
         // 指定日時の日付で開始時刻を作成
         $startOfDay = $dateTime->setTimeFromTimeString($dayStartTime);
@@ -97,8 +97,8 @@ class ClockUtility
      */
     public static function isSameGameDay(string $dateTime1, string $dateTime2): bool
     {
-        $start1 = self::getGameDayStart($dateTime1);
-        $start2 = self::getGameDayStart($dateTime2);
+        $start1 = self::calcGameDayStart($dateTime1);
+        $start2 = self::calcGameDayStart($dateTime2);
         
         return $start1->equalTo($start2);
     }

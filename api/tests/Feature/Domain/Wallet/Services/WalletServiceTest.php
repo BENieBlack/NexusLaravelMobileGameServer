@@ -362,7 +362,7 @@ class WalletServiceTest extends TestCase
         ApiSession::setSysPlayerId($this->sysPlayerId);
 
         // Execute
-        $balance = $this->walletService->getBalance($this->sysPlayerId, 'gold');
+        $balance = $this->walletService->findBalance($this->sysPlayerId, 'gold');
 
         // Verify
         $this->assertSame(1000, $balance->getFreeAmount());
@@ -373,7 +373,7 @@ class WalletServiceTest extends TestCase
     #[Test]
     public function 存在しない通貨のget_balanceは0を返す(): void
     {
-        $balance = $this->walletService->getBalance($this->sysPlayerId, 'nonexistent');
+        $balance = $this->walletService->findBalance($this->sysPlayerId, 'nonexistent');
         $this->assertSame(0, $balance->getFreeAmount());
         $this->assertSame(0, $balance->getPaidAmount());
         $this->assertSame(0, $balance->getTotalAmount());

@@ -36,7 +36,7 @@ class PitrMigrateCommand extends Command
      */
     public function handle(): int
     {
-        $logConnections = ShardMapper::getAllLogConnections();
+        $logConnections = ShardMapper::allLogConnections();
         
         // LogDBマイグレーションパスを定義（base_path()からの相対パス）
         $logMigrationPaths = [

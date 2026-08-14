@@ -67,7 +67,7 @@ class ResourceDeliveryPolicyDto
     /**
      * リソースタイプごとの配送方法を取得
      */
-    public function getMethodByResourceType(ResourceType|string $resourceType): ResourceDeliveryMethod
+    public function resolveMethodByResourceType(ResourceType|string $resourceType): ResourceDeliveryMethod
     {
         $typeValue = $resourceType instanceof ResourceType ? $resourceType->value : $resourceType;
 
@@ -101,7 +101,7 @@ class ResourceDeliveryPolicyDto
      * @param  array<ResourceType|string>  $resourceTypes  チェック対象のリソースタイプ
      * @return array<string> 上限超過時に例外を投げるリソースタイプの配列
      */
-    public function getResourceTypesOfThrowErrorWhenResourceLimitReached(array $resourceTypes): array
+    public function findResourceTypesOfThrowErrorWhenResourceLimitReached(array $resourceTypes): array
     {
         $result = [];
 
@@ -112,7 +112,7 @@ class ResourceDeliveryPolicyDto
         }
 
         foreach (array_keys($uniqueTypes) as $typeValue) {
-            $method = $this->getMethodByResourceType($typeValue);
+            $method = $this->resolveMethodByResourceType($typeValue);
             if ($method === ResourceDeliveryMethod::THROW_ERROR_WHEN_RESOURCE_LIMIT_REACHED) {
                 $result[] = $typeValue;
             }

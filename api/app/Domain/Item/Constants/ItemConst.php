@@ -57,7 +57,7 @@ class ItemConst
     /**
      * 全タイプの配列を取得
      */
-    public static function getAllTypes(): array
+    public static function allTypes(): array
     {
         return [
             self::TYPE_CONSUMABLE,
@@ -72,7 +72,7 @@ class ItemConst
     /**
      * 全効果の配列を取得
      */
-    public static function getAllEffects(): array
+    public static function allEffects(): array
     {
         return [
             self::EFFECT_HP_RECOVERY,
@@ -91,7 +91,7 @@ class ItemConst
      */
     public static function isValidType(string $type): bool
     {
-        return in_array($type, self::getAllTypes(), true);
+        return in_array($type, self::allTypes(), true);
     }
 
     /**
@@ -99,6 +99,6 @@ class ItemConst
      */
     public static function isValidEffect(string $effect): bool
     {
-        return in_array($effect, self::getAllEffects(), true);
+        return in_array($effect, self::allEffects(), true);
     }
 }

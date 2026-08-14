@@ -61,7 +61,7 @@ class SysShardingNode extends _BaseSys
     /**
      * 利用可能なステータス一覧を取得
      */
-    public static function getAvailableStatuses(): array
+    public static function availableStatuses(): array
     {
         return [
             self::STATUS_ACTIVE,
@@ -259,7 +259,7 @@ class SysShardingNode extends _BaseSys
     /**
      * ノードの使用率を取得（0-100）
      */
-    public function getUsagePercentage(): float
+    public function calcUsagePercentage(): float
     {
         if ($this->max_connections <= 0) {
             return 0.0;

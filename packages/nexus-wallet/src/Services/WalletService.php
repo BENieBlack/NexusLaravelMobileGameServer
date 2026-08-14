@@ -28,7 +28,7 @@ class WalletService
      * @param string $currencyId 通貨アイテムID
      * @return CurrencyBalance 残高情報
      */
-    public function getBalance(int $playerId, string $currencyId): CurrencyBalance
+    public function findBalance(int $playerId, string $currencyId): CurrencyBalance
     {
         $wallet = $this->walletRepository->selectByCurrencyId($playerId, $currencyId);
 
@@ -163,11 +163,11 @@ class WalletService
      * @param array<string> $currencyIds 通貨IDリスト
      * @return array<string, CurrencyBalance> 通貨ID => 残高情報のマップ
      */
-    public function getBulkBalances(int $playerId, array $currencyIds): array
+    public function findBulkBalances(int $playerId, array $currencyIds): array
     {
         $result = [];
         foreach ($currencyIds as $currencyId) {
-            $result[$currencyId] = $this->getBalance($playerId, $currencyId);
+            $result[$currencyId] = $this->findBalance($playerId, $currencyId);
         }
 
         return $result;

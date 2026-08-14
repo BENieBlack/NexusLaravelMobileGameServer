@@ -36,7 +36,7 @@ trait UseCaseTrait
         }
 
         // 使用する接続を収集（sys + trx + log）
-        $connections = $this->getActiveConnections();
+        $connections = $this->resolveActiveConnections();
 
         // すべてのトランザクションを同時に開始（PITR整合性保証）
         foreach ($connections as $conn) {
@@ -109,7 +109,7 @@ trait UseCaseTrait
      *
      * @return array<string>
      */
-    private function getActiveConnections(): array
+    private function resolveActiveConnections(): array
     {
         $connections = ['sys'];
 
@@ -121,7 +121,7 @@ trait UseCaseTrait
 
             // 対応するLogDB接続を追加
             try {
-                $logConn = ShardMapper::getLogConnection($trxConn);
+                $logConn = ShardMapper::resolveLogConnection($trxConn);
                 $connections[] = $logConn;
             } catch (\InvalidArgumentException $e) {
                 // LogDBマッピングがない場合はスキップ

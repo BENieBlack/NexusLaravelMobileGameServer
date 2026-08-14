@@ -61,7 +61,7 @@ abstract class _BaseLogRepository extends _BaseRepository implements _BaseLogRep
      * @return int プレイヤーID
      * @throws \RuntimeException プレイヤーIDが取得できない場合
      */
-    protected function getCachedSysPlayerId(): int
+    protected function resolveCachedSysPlayerId(): int
     {
         // キャッシュがあればそれを返す（高速パス）
         if ($this->cachedSysPlayerId !== null) {
@@ -97,7 +97,7 @@ abstract class _BaseLogRepository extends _BaseRepository implements _BaseLogRep
         }
 
         // プレイヤーIDを取得（PlayerSessionResolver優先、なければ$sysPlayerIdフィールド）
-        $sysPlayerId = $this->getCachedSysPlayerId();
+        $sysPlayerId = $this->resolveCachedSysPlayerId();
 
         // キャッシュが空の場合、データベースから取得
         /** @var _BaseLog $instance */
@@ -121,7 +121,7 @@ abstract class _BaseLogRepository extends _BaseRepository implements _BaseLogRep
      * @param int $logRecordId ログID
      * @return T|null ログレコード（見つからない場合はnull）
      */
-    public function getById(int $logRecordId)
+    public function selectById(int $logRecordId)
     {
         // メモリキャッシュにあればそこから取得
         if ($this->models !== null) {

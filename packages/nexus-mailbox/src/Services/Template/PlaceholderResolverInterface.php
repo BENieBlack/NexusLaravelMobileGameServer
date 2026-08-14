@@ -54,5 +54,5 @@ interface PlaceholderResolverInterface
      *
      * @return array<string> サポートしているキーのリスト
      */
-    public function getSupportedKeys(): array;
+    public function supportedKeys(): array;
 }

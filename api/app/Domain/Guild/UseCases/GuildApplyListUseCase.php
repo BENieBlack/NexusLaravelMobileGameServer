@@ -31,7 +31,7 @@ class GuildApplyListUseCase extends _BaseUseCase
     {
         try {
             // ギルド加入申請一覧を取得
-            $applyDtos = $this->guildService->getApplyList($guildId);
+            $applyDtos = $this->guildService->findApplyList($guildId);
 
             return GuildApplyListResponse::fromDtoArray($applyDtos);
         } catch (GuildException $e) {

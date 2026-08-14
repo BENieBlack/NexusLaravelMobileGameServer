@@ -9,7 +9,7 @@ class SequenceManager
     /**
      * 次のシーケンス番号を取得（アトミック）
      */
-    public function getNextSequence(string $shardConnection): int
+    public function issueNextSequence(string $shardConnection): int
     {
         return DB::connection('log')->transaction(function () use ($shardConnection) {
             $row = DB::connection('log')

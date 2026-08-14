@@ -25,7 +25,7 @@ class TrxPlayerSnsRepository extends _BaseTrxRepository
      */
     public function selectAll(int $sysPlayerId): CustomCollection
     {
-        return $this->getMapBySysPlayerId($sysPlayerId);
+        return $this->selectMapBySysPlayerId($sysPlayerId);
     }
 
     /**
@@ -37,7 +37,7 @@ class TrxPlayerSnsRepository extends _BaseTrxRepository
     public function selectBySnsType(int $sysPlayerId, string $snsType): ?TrxPlayerSns
     {
 
-        return $this->getMapBySysPlayerId($sysPlayerId)
+        return $this->selectMapBySysPlayerId($sysPlayerId)
             ->where('sns_type', $snsType)
             ->where('is_delete', false)
             ->first();
@@ -77,7 +77,7 @@ class TrxPlayerSnsRepository extends _BaseTrxRepository
      */
     public function countActive(int $sysPlayerId): int
     {
-        return $this->getMapBySysPlayerId($sysPlayerId)
+        return $this->selectMapBySysPlayerId($sysPlayerId)
             ->where('is_delete', false)
             ->count();
     }

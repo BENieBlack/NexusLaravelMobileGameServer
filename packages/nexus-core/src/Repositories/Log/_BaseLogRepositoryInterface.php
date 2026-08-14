@@ -32,5 +32,5 @@ interface _BaseLogRepositoryInterface extends _BaseRepositoryInterface
      * @param int $logRecordId
      * @return T|null
      */
-    public function getById(int $logRecordId);
+    public function selectById(int $logRecordId);
 }

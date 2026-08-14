@@ -25,8 +25,8 @@ use Nexus\Core\Support\CustomCollection;
  * - shouldLoop(): ループするかどうか（デフォルト: true）
  * - shouldSkipOnAbsence(): 休眠時にスキップするかどうか（デフォルト: false）
  * - calculateCurrentDay(): 現在の受け取り日数を計算
- * - getLoginBonusData(): ボーナスデータ取得ロジック（必須）
- * - getBonusContents(): 報酬内容取得ロジック（必須）
+ * - findLoginBonusData(): ボーナスデータ取得ロジック（必須）
+ * - findBonusContents(): 報酬内容取得ロジック（必須）
  * - recordHistory(): 履歴記録ロジック（必須）
  * - beforeGrant(): 配布前の追加チェック
  * - afterGrant(): 配布後の追加処理
@@ -54,7 +54,7 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
      * @param string|null $lastLoginAt 最終ログイン日時
      * @return array|null ボーナスデータ、存在しない場合はnull
      */
-    abstract protected function getLoginBonusData(int $sysPlayerId, int $currentDay, ?string $lastLoginAt): ?array;
+    abstract protected function findLoginBonusData(int $sysPlayerId, int $currentDay, ?string $lastLoginAt): ?array;
 
     /**
      * ログインボーナスの報酬内容を取得（サブクラスで実装必須）
@@ -63,7 +63,7 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
      * @param int $currentDay 現在の受け取り日数
      * @return CustomCollection
      */
-    abstract protected function getBonusContents(array $bonusData, int $currentDay): CustomCollection;
+    abstract protected function findBonusContents(array $bonusData, int $currentDay): CustomCollection;
 
     /**
      * ログインボーナス履歴を記録（サブクラスで実装必須）
@@ -123,8 +123,8 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
      */
     protected function calculateCurrentDay(int $sysPlayerId, ?string $lastLoginAt, string $connectionName): int
     {
-        // サブクラスで getLastReceivedDay() を実装することを想定
-        $lastReceivedDay = $this->getLastReceivedDay($sysPlayerId, $connectionName);
+        // サブクラスで findLastReceivedDay() を実装することを想定
+        $lastReceivedDay = $this->findLastReceivedDay($sysPlayerId, $connectionName);
 
         if ($lastReceivedDay === null) {
             // 初回 = 1日目
@@ -136,7 +136,7 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
 
         // ループ処理
         if ($this->shouldLoop()) {
-            $loopDays = $this->getLoopDays($sysPlayerId);
+            $loopDays = $this->findLoopDays($sysPlayerId);
             if ($loopDays !== null && $nextDay > $loopDays) {
                 return 1; // 1日目に戻る
             }
@@ -154,7 +154,7 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
      * @param string $connectionName シャーディングされたDB接続名
      * @return int|null 前回受け取った日数、初回の場合はnull
      */
-    protected function getLastReceivedDay(int $sysPlayerId, string $connectionName): ?int
+    protected function findLastReceivedDay(int $sysPlayerId, string $connectionName): ?int
     {
         // デフォルト実装: サブクラスでオーバーライドすることを想定
         return null;
@@ -168,7 +168,7 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
      * @param int $sysPlayerId プレイヤーID
      * @return int|null ループ日数、ループしない場合はnull
      */
-    protected function getLoopDays(int $sysPlayerId): ?int
+    protected function findLoopDays(int $sysPlayerId): ?int
     {
         // デフォルト実装: サブクラスでオーバーライドすることを想定
         return null;
@@ -187,7 +187,7 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
         $currentDay = $this->calculateCurrentDay($sysPlayerId, $lastLoginAt, $connectionName);
 
         // ログインボーナスデータを取得
-        $bonusData = $this->getLoginBonusData($sysPlayerId, $currentDay, $lastLoginAt);
+        $bonusData = $this->findLoginBonusData($sysPlayerId, $currentDay, $lastLoginAt);
 
         if ($bonusData === null) {
             return [];
@@ -248,7 +248,7 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
     protected function grantBonus(int $sysPlayerId, array $bonusData, int $currentDay, string $connectionName): array
     {
         // 報酬内容を取得
-        $contents = $this->getBonusContents($bonusData, $currentDay);
+        $contents = $this->findBonusContents($bonusData, $currentDay);
 
         if ($contents->isEmpty()) {
             return [];
@@ -295,8 +295,8 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
      *
      * @return CarbonImmutable
      */
-    protected function getGameDayStart(): CarbonImmutable
+    protected function calcGameDayStart(): CarbonImmutable
     {
-        return ClockUtility::getGameDayStart(ClockUtility::nowToString());
+        return ClockUtility::calcGameDayStart(ClockUtility::nowToString());
     }
 }

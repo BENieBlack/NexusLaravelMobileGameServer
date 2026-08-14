@@ -59,7 +59,7 @@ class UnitConst
     /**
      * 全タイプの配列を取得
      */
-    public static function getAllTypes(): array
+    public static function allTypes(): array
     {
         return [
             self::TYPE_ATTACK,
@@ -71,21 +71,21 @@ class UnitConst
     /**
      * 全属性の配列を取得
      *
-     * @deprecated Use ElementType::getAll() instead
+     * @deprecated Use ElementType::all() instead
      */
     public static function getAllElements(): array
     {
-        return ElementType::getAll();
+        return ElementType::all();
     }
 
     /**
      * 全レアリティの配列を取得
      *
-     * @deprecated Use RarityType::getAll() instead
+     * @deprecated Use RarityType::all() instead
      */
     public static function getAllRarities(): array
     {
-        return RarityType::getAll();
+        return RarityType::all();
     }
 
     /**
@@ -93,7 +93,7 @@ class UnitConst
      */
     public static function isValidType(string $type): bool
     {
-        return in_array($type, self::getAllTypes(), true);
+        return in_array($type, self::allTypes(), true);
     }
 
     /**

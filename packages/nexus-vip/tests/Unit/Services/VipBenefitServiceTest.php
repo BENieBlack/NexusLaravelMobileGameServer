@@ -63,7 +63,7 @@ class VipBenefitServiceTest extends TestCase
         );
 
         $this->vipLevelService
-            ->shouldReceive('getBenefits')
+            ->shouldReceive('findBenefits')
             ->with($vipLevel)
             ->once()
             ->andReturn($benefitDto);
@@ -120,7 +120,7 @@ class VipBenefitServiceTest extends TestCase
         );
 
         $this->vipLevelService
-            ->shouldReceive('getBenefits')
+            ->shouldReceive('findBenefits')
             ->with($vipLevel)
             ->once()
             ->andReturn($benefitDto);
@@ -150,7 +150,7 @@ class VipBenefitServiceTest extends TestCase
         );
 
         $this->vipLevelService
-            ->shouldReceive('getBenefits')
+            ->shouldReceive('findBenefits')
             ->with($vipLevel)
             ->once()
             ->andReturn($benefitDto);
@@ -207,7 +207,7 @@ class VipBenefitServiceTest extends TestCase
         );
 
         $this->vipLevelService
-            ->shouldReceive('getBenefits')
+            ->shouldReceive('findBenefits')
             ->with($vipLevel)
             ->once()
             ->andReturn($benefitDto);
@@ -237,7 +237,7 @@ class VipBenefitServiceTest extends TestCase
         );
 
         $this->vipLevelService
-            ->shouldReceive('getBenefits')
+            ->shouldReceive('findBenefits')
             ->with($vipLevel)
             ->once()
             ->andReturn($benefitDto);
@@ -293,13 +293,13 @@ class VipBenefitServiceTest extends TestCase
         );
 
         $this->vipLevelService
-            ->shouldReceive('getBenefits')
+            ->shouldReceive('findBenefits')
             ->with($vipLevel)
             ->once()
             ->andReturn($benefitDto);
 
         // Act
-        $result = $this->service->getDailyDiamondBonus($vipLevel);
+        $result = $this->service->calcDailyDiamondBonus($vipLevel);
 
         // Assert
         $this->assertSame(20, $result);
@@ -325,7 +325,7 @@ class VipBenefitServiceTest extends TestCase
         $vipLevel = 5;
 
         // Act
-        $result = $serviceDisabled->getDailyDiamondBonus($vipLevel);
+        $result = $serviceDisabled->calcDailyDiamondBonus($vipLevel);
 
         // Assert
         $this->assertSame(0, $result);

@@ -84,7 +84,7 @@ class UnitLevelUpUseCase extends _BaseUseCase
         }
 
         // 3. アイテム所持数確認
-        $currentAmount = $this->itemService->getItemAmount($sysPlayerId, $mstItemId);
+        $currentAmount = $this->itemService->findItemAmount($sysPlayerId, $mstItemId);
         if ($currentAmount < $useCount) {
             throw BusinessLogicException::itemNotEnough($mstItemId, $useCount, $currentAmount);
         }

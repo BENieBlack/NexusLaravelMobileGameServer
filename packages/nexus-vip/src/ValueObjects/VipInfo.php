@@ -62,7 +62,7 @@ final class VipInfo
     /**
      * 次のレベルまでのポイントを取得
      */
-    public function getPointsToNextLevel(): ?int
+    public function calcPointsToNextLevel(): ?int
     {
         return $this->pointsToNextLevel;
     }
@@ -78,7 +78,7 @@ final class VipInfo
     /**
      * 特典を取得
      */
-    public function getBenefits(): VipBenefit
+    public function findBenefits(): VipBenefit
     {
         return $this->benefits;
     }

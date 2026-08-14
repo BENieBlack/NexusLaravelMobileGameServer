@@ -45,7 +45,7 @@ class ElementType
      *
      * @return array<int, string>
      */
-    public static function getAll(): array
+    public static function all(): array
     {
         return [
             self::FIRE,
@@ -62,6 +62,6 @@ class ElementType
      */
     public static function isValid(string $element): bool
     {
-        return in_array($element, self::getAll(), true);
+        return in_array($element, self::all(), true);
     }
 }

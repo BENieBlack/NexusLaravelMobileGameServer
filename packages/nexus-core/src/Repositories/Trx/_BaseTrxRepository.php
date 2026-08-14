@@ -204,13 +204,15 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
     }
 
     /**
-     * 削除対象モデルをセットし、削除キューに溜め込む
+     * 物理削除（DELETE文で行を消す）
+     *
+     * PITRにはDELETEとして記録する。
      *
      * @param _BaseTrx $model
      * @return void
      * @throws BindingResolutionException
      */
-    protected function deleteModel($model): void
+    public function hardDeleteModel($model): void
     {
         // PITRログをキューに追加
         $sysPlayerId = $model->getAttribute('sys_player_id');
@@ -219,9 +221,8 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
             beforeData: $model->getOriginal(),
             primaryKey: $this->resolvePrimaryKeyValues($model)
         );
-        
-        // 親クラスのdeleteModelを呼び出し
-        parent::deleteModel($model);
+
+        parent::hardDeleteModel($model);
     }
 
     /**
@@ -316,33 +317,6 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
         $this->originalStateArray = [];
         $this->newModelCounter = 0;
         $this->clearPitrLogQueue(); // PITRログキューもクリア
-    }
-
-    /**
-     * is_delete=trueのレコードを削除キューに追加
-     *
-     * @param int $sysPlayerId
-     * @return void
-     */
-    public function deleteMarkedRecords(int $sysPlayerId): void
-    {
-        // is_delete=trueのレコードを取得
-        $markedRecords = DB::connection($this->connection)
-            ->table($this->getTableName())
-            ->where('sys_player_id', $sysPlayerId)
-            ->where('is_delete', true)
-            ->get();
-
-        // 各レコードを削除キューに追加
-        foreach ($markedRecords as $record) {
-            // Eloquentモデルのインスタンスに変換
-            $model = new $this->modelClass();
-            $model->forceFill((array) $record);
-            $model->exists = true;
-            
-            // 削除キューに追加
-            $this->deleteModel($model);
-        }
     }
 
     /**

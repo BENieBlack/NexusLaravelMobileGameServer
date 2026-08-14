@@ -204,13 +204,18 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
     }
 
     /**
-     * 削除対象モデルをセットし、論理削除フラグをON（is_delete=true）にする
-     * 論理削除はUPDATE処理なので、modelQueueに溜め込む
+     * 論理削除（is_delete=trueを立てる）
+     *
+     * 実体はUPDATEなのでmodelQueueに溜め込む。行はDBに残り続けるため、
+     * 実際に消すには後段でhardDeleteModel()を呼ぶ必要がある。
+     *
+     * is_deleteカラムを持つのはtrx系テーブルのみ。sys系は論理削除できないため
+     * hardDeleteModel()を使うこと。
      *
      * @param mixed $model
      * @return void
      */
-    protected function deleteModel($model): void
+    public function softDeleteModel($model): void
     {
         // 削除フラグをONにする（is_deleteカラムが存在する場合）
         try {
@@ -224,31 +229,18 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
     }
 
     /**
-     * is_delete=trueでマークされたレコードを物理削除
+     * 物理削除（DELETE文で行を消す）
      *
-     * queryOrMemory()で取得したキャッシュから is_delete=true のレコードを
-     * フィルタリングし、deleteQueueに追加して物理削除を実行
+     * deleteQueueに溜め込み、フラッシュ時にDELETEが実行される。
      *
-     * 物理削除は危険な操作なので、_BaseRepositoryで統一的に実装し、
-     * サブクラスでの挙動変更を防ぐ
-     *
+     * @param mixed $model
      * @return void
      */
-    public function terminate(): void
+    public function hardDeleteModel($model): void
     {
-        // queryOrMemory()でキャッシュからデータを取得
-        $allRecordCollection = $this->queryOrMemory();
+        $uniqueKey = implode(':', array_map(fn($key) => $model->getAttribute($key), $this->getUniqueKeys()));
 
-        // is_delete=trueのレコードをフィルタして物理削除キューに追加
-        foreach ($allRecordCollection as $record) {
-            if ($record->getAttribute('is_delete') === true) {
-                // ユニークキーを生成
-                $uniqueKey = implode(':', array_map(fn($key) => $record->getAttribute($key), $this->getUniqueKeys()));
-                
-                // 削除キューに溜め込む（物理削除用）
-                $this->deleteQueue[$uniqueKey] = $record;
-            }
-        }
+        $this->deleteQueue[$uniqueKey] = $model;
     }
 
     /**

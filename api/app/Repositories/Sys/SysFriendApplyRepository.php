@@ -187,8 +187,8 @@ class SysFriendApplyRepository extends _BaseSysRepository
             return null;
         }
 
-        // 論理削除
-        $friendRelation->delete();
+        // sys_friend_applyにis_deleteカラムはないため物理削除する
+        $this->hardDeleteModel($friendRelation);
 
         return $friendRelation;
     }

@@ -19,17 +19,23 @@ use PHPUnit\Framework\TestCase;
 class NoDirectEloquentWriteTest extends TestCase
 {
     #[Test]
-    public function test_production_code_does_not_call_eloquent_save(): void
+    public function test_production_code_does_not_call_eloquent_write_methods(): void
     {
+        // $this->save() / $model->delete() など、引数なしで呼ばれる書き込みメソッド
+        $forbidden = ['save', 'delete', 'forceDelete'];
+
         $violations = [];
 
         foreach ($this->productionFiles() as $file) {
             // コメント内の記述を誤検出しないよう、コードのみを対象にする
             $content = $this->stripComments(file_get_contents($file));
 
-            // Eloquent Modelの即時書き込み。$this->save() / $model->save() の両方を検出する
-            if (preg_match('/->save\(\s*\)/', $content)) {
-                $violations[] = $this->relativePath($file).' contains ->save()';
+            foreach ($forbidden as $method) {
+                // $model->save() のようにModelインスタンスへ直接呼ぶ形のみを対象にする。
+                // ->where(...)->delete() のようなクエリビルダのチェーンは別物なので除外する。
+                if (preg_match('/\$\w+->'.$method.'\(\s*\)/', $content)) {
+                    $violations[] = $this->relativePath($file)." contains \$model->{$method}()";
+                }
             }
         }
 
@@ -38,7 +44,7 @@ class NoDirectEloquentWriteTest extends TestCase
             $violations,
             "Eloquentによる即時書き込みは禁止されています:\n".
             implode("\n", $violations)."\n".
-            'RepositoryのsetModel()でUnitOfWorkにキューイングしてください。'
+            'RepositoryのsetModel() / softDeleteModel() / hardDeleteModel() でUnitOfWorkにキューイングしてください。'
         );
     }
 

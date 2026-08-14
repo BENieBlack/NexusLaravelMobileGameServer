@@ -30,6 +30,7 @@
 | `select` | DBに直接アクセスして取得する | `selectById()` `selectMaxLevel()` |
 | `insert` / `update` / `delete` | DBへの登録・更新・削除 | `insertMember()` `updateLastLoginAt()` |
 | `persist` | UnitOfWorkのキューに積む（フラッシュ時に反映） | `persist()` `persistItem()` |
+| `softDelete` / `hardDelete` | 論理削除 / 物理削除 | `softDeleteModel()` `hardDeleteModel()` |
 | `count` | 件数を数える | `countMembers()` `countUnread()` |
 | `find` | 取得済みデータや別レイヤ経由で単一の対象を探す | `findPlayerById()` `findMaxLevel()` |
 | `search` | 条件に合う複数件を探す | `searchByName()` |
@@ -41,8 +42,36 @@
 
 ### 注意点
 
-- `save` はEloquentの `Model::save()` を指すため、UnitOfWorkにキューイングする処理には使わない（`persist` を使う）。詳細は [Eloquentによる即時書き込みの禁止](#model) を参照。
+- `save` はEloquentの `Model::save()` を指すため、UnitOfWorkにキューイングする処理には使わない（`persist` を使う）。
 - Repositoryは常にModelを返す。DTOへの変換はAdapterやServiceの役務とする。
+
+---
+
+## 削除の規約
+
+### 論理削除と物理削除
+
+削除はどちらもUnitOfWork経由で行う。Eloquentの `$model->delete()` は実行時に拒否される。
+
+| メソッド | 動作 | 積まれるキュー |
+|---|---|---|
+| `softDeleteModel($model)` | `is_delete = true` を立てる（行は残る） | `modelQueue`（UPDATE） |
+| `hardDeleteModel($model)` | 行をDELETEで消す | `deleteQueue`（DELETE） |
+
+いずれも `flush()` のタイミングで実際のクエリが実行される。
+
+### どちらを使うか
+
+- **trx系** … `is_delete` カラムを持つため両方使える。参照を残したい場合は `softDeleteModel()`
+- **sys系** … `is_delete` カラムがないため `hardDeleteModel()` のみ
+
+論理削除した行を後からまとめて物理削除する仕組みは持たない。消したい場合は最初から `hardDeleteModel()` を使う。
+
+### Eloquentによる即時書き込みの禁止
+
+`_BaseModel` が `save()` / `update()` / `delete()` / `forceDelete()` を拒否する。トランザクション境界とPITRログの整合性を壊すため。
+
+テストのフィクスチャやSeederなど、UnitOfWorkを介さない投入経路は `_BaseModel::allowDirectWrites()` で明示的に許可する。
 
 ---
 

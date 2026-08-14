@@ -130,9 +130,9 @@ class SysPlayerTokenRepository extends _BaseSysRepository implements TokenReposi
 
         $count = 0;
 
-        // 各トークンを個別に削除
+        // 各トークンを個別に物理削除キューへ積む
         foreach ($sysPlayerTokenCollection as $sysPlayerToken) {
-            $sysPlayerToken->delete();
+            $this->hardDeleteModel($sysPlayerToken);
             $count++;
         }
 
@@ -153,7 +153,7 @@ class SysPlayerTokenRepository extends _BaseSysRepository implements TokenReposi
             return 0;
         }
 
-        $sysPlayerToken->delete();
+        $this->hardDeleteModel($sysPlayerToken);
 
         return 1;
     }

@@ -5,6 +5,7 @@ namespace Nexus\Core\Repositories\Sys;
 use Nexus\Core\Models\Sys\_BaseSysInterface;
 use Nexus\Core\Repositories\_BaseRepository;
 use Nexus\Core\Support\CustomCollection;
+use Nexus\Core\Utilities\ClockUtility;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 
@@ -59,6 +60,14 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
      */
     public function setModel($model): void
     {
+        // タイムスタンプを自動設定
+        // （UnitOfWork経由のINSERT/UPDATEはEloquentのタイムスタンプ処理を通らないため）
+        $now = ClockUtility::now();
+        $model->setAttribute('updated_at', $now);
+        if ($model->getAttribute('created_at') === null) {
+            $model->setAttribute('created_at', $now);
+        }
+
         // ユニークキーを生成
         $uniqueKey = implode(':', array_map(fn($key) => $model->getAttribute($key), $this->getUniqueKeys()));
         

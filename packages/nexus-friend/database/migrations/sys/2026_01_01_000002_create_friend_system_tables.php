@@ -18,7 +18,7 @@ return new class extends Migration
             $table->id()->comment('フレンド申請ID');
             $table->unsignedBigInteger('sender_sys_player_id')->comment('申請送信者のプレイヤーID');
             $table->unsignedBigInteger('receiver_sys_player_id')->comment('申請受信者のプレイヤーID');
-            $table->enum('status', ['Applied', 'Accepted', 'Deleted'])
+            $table->enum('status', ['Applied', 'Accepted', 'Rejected', 'Deleted'])
                 ->default('Applied')
                 ->comment('ステータス');
             $table->dateTime('created_at')->nullable()->comment('作成日時');

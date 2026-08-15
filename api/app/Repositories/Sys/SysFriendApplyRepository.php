@@ -153,8 +153,12 @@ class SysFriendApplyRepository extends _BaseSysRepository
             'receiver_sys_player_id' => $receivePlayerId,
             'status' => SysFriendApply::STATUS_APPLIED,
         ]);
+        $sysFriendApply->exists = false;
 
         $this->setModel($sysFriendApply);
+
+        // 呼び出し元が採番済みのIDとタイムスタンプを参照するため、ここでフラッシュする
+        $this->flushQueue();
 
         return $sysFriendApply;
     }

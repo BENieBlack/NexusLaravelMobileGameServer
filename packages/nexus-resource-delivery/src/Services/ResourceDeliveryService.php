@@ -102,8 +102,8 @@ class ResourceDeliveryService
      * addResources()で登録されたリソースをまとめて配送する（遅延配送パターン）
      *
      * @param  int  $sysPlayerId  プレイヤーID
-     * @param  ResourceDeliveryPolicy|null  $resourceDeliveryPolicyDto  配送ポリシー（nullの場合はデフォルト）
-     * @return ResourceDeliverySummary 配送結果のサマリー
+     * @param  ResourceDeliveryPolicyDto|null  $resourceDeliveryPolicyDto  配送ポリシー（nullの場合はデフォルト）
+     * @return ResourceDeliverySummaryDto 配送結果のサマリー
      *
      * @throws \Exception
      */
@@ -266,7 +266,7 @@ class ResourceDeliveryService
      * 配送前のコンテンツをプレビュー（変換後の状態で取得）
      * チュートリアルガチャの引き直し機能などで使用
      *
-     * @return Collection<ResourceDeliveryContentDto>
+     * @return CustomCollection<ResourceDeliveryContentDto>
      */
     public function getConvertedContentsWithoutSend(): CustomCollection
     {

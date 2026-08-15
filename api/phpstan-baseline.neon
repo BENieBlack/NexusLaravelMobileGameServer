@@ -25,12 +25,6 @@ parameters:
 			path: ../packages/nexus-core-billing/src/ApiClients/AppStoreApiClient.php
 
 		-
-			message: '#^Instantiated class Google\\Client not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: ../packages/nexus-core-billing/src/ApiClients/GooglePlayApiClient.php
-
-		-
 			message: '#^Method NexusBilling\\ApiClients\\GooglePlayApiClient\:\:fetchSubscription\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -39,12 +33,6 @@ parameters:
 		-
 			message: '#^Method NexusBilling\\ApiClients\\GooglePlayApiClient\:\:verifyPurchase\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-core-billing/src/ApiClients/GooglePlayApiClient.php
-
-		-
-			message: '#^Property NexusBilling\\ApiClients\\GooglePlayApiClient\:\:\$client has unknown class Google\\Client as its type\.$#'
-			identifier: class.notFound
 			count: 1
 			path: ../packages/nexus-core-billing/src/ApiClients/GooglePlayApiClient.php
 
@@ -583,7 +571,25 @@ parameters:
 			path: ../packages/nexus-login/src/Repositories/LoginBonusHistoryRepositoryInterface.php
 
 		-
+			message: '#^Method NexusLogin\\Repositories\\LoginBonusHistoryRepositoryInterface\:\:selectByPlayerAndBonusAndDate\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: ../packages/nexus-login/src/Repositories/LoginBonusHistoryRepositoryInterface.php
+
+		-
+			message: '#^Method NexusLogin\\Repositories\\LoginBonusHistoryRepositoryInterface\:\:selectFirstComebackByPlayerId\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: ../packages/nexus-login/src/Repositories/LoginBonusHistoryRepositoryInterface.php
+
+		-
 			message: '#^Method NexusLogin\\Repositories\\LoginBonusHistoryRepositoryInterface\:\:selectLatestByPlayer\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: ../packages/nexus-login/src/Repositories/LoginBonusHistoryRepositoryInterface.php
+
+		-
+			message: '#^Method NexusLogin\\Repositories\\LoginBonusHistoryRepositoryInterface\:\:selectLatestByPlayerId\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: ../packages/nexus-login/src/Repositories/LoginBonusHistoryRepositoryInterface.php
@@ -595,7 +601,19 @@ parameters:
 			path: ../packages/nexus-login/src/Repositories/LoginBonusRepositoryInterface.php
 
 		-
+			message: '#^Method NexusLogin\\Repositories\\LoginBonusRepositoryInterface\:\:selectActiveDailyBonus\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: ../packages/nexus-login/src/Repositories/LoginBonusRepositoryInterface.php
+
+		-
 			message: '#^Method NexusLogin\\Repositories\\LoginBonusRepositoryInterface\:\:selectContentsByLoginBonusId\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: ../packages/nexus-login/src/Repositories/LoginBonusRepositoryInterface.php
+
+		-
+			message: '#^Method NexusLogin\\Repositories\\LoginBonusRepositoryInterface\:\:selectContentsByLoginBonusIdAndDay\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: ../packages/nexus-login/src/Repositories/LoginBonusRepositoryInterface.php
@@ -709,48 +727,6 @@ parameters:
 			path: ../packages/nexus-mailbox/src/Services/Template/_BaseTemplateEngine.php
 
 		-
-			message: '#^Call to method deleteItem\(\) on an unknown class Aws\\DynamoDb\\DynamoDbClient\.$#'
-			identifier: class.notFound
-			count: 1
-			path: ../packages/nexus-maintenance/src/Infrastructure/DynamoDB/DynamoDBMaintenanceStorage.php
-
-		-
-			message: '#^Call to method describeTable\(\) on an unknown class Aws\\DynamoDb\\DynamoDbClient\.$#'
-			identifier: class.notFound
-			count: 1
-			path: ../packages/nexus-maintenance/src/Infrastructure/DynamoDB/DynamoDBMaintenanceStorage.php
-
-		-
-			message: '#^Call to method getItem\(\) on an unknown class Aws\\DynamoDb\\DynamoDbClient\.$#'
-			identifier: class.notFound
-			count: 1
-			path: ../packages/nexus-maintenance/src/Infrastructure/DynamoDB/DynamoDBMaintenanceStorage.php
-
-		-
-			message: '#^Call to method getMessage\(\) on an unknown class Aws\\DynamoDb\\Exception\\DynamoDbException\.$#'
-			identifier: class.notFound
-			count: 4
-			path: ../packages/nexus-maintenance/src/Infrastructure/DynamoDB/DynamoDBMaintenanceStorage.php
-
-		-
-			message: '#^Call to method putItem\(\) on an unknown class Aws\\DynamoDb\\DynamoDbClient\.$#'
-			identifier: class.notFound
-			count: 1
-			path: ../packages/nexus-maintenance/src/Infrastructure/DynamoDB/DynamoDBMaintenanceStorage.php
-
-		-
-			message: '#^Caught class Aws\\DynamoDb\\Exception\\DynamoDbException not found\.$#'
-			identifier: class.notFound
-			count: 4
-			path: ../packages/nexus-maintenance/src/Infrastructure/DynamoDB/DynamoDBMaintenanceStorage.php
-
-		-
-			message: '#^Instantiated class Aws\\DynamoDb\\DynamoDbClient not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: ../packages/nexus-maintenance/src/Infrastructure/DynamoDB/DynamoDBMaintenanceStorage.php
-
-		-
 			message: '#^Method NexusMaintenance\\Infrastructure\\DynamoDB\\DynamoDBMaintenanceStorage\:\:__construct\(\) has parameter \$config with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -761,18 +737,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: ../packages/nexus-maintenance/src/Infrastructure/DynamoDB/DynamoDBMaintenanceStorage.php
-
-		-
-			message: '#^Property NexusMaintenance\\Infrastructure\\DynamoDB\\DynamoDBMaintenanceStorage\:\:\$client has unknown class Aws\\DynamoDb\\DynamoDbClient as its type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: ../packages/nexus-maintenance/src/Infrastructure/DynamoDB/DynamoDBMaintenanceStorage.php
-
-		-
-			message: '#^Access to constant CONST_IGNORE on an unknown class Aliyun\\OTS\\Consts\\RowExistenceExpectationConst\.$#'
-			identifier: class.notFound
-			count: 2
-			path: ../packages/nexus-maintenance/src/Infrastructure/TableStore/TableStoreMaintenanceStorage.php
 
 		-
 			message: '#^Access to private property NexusMaintenance\\ValueObjects\\Maintenance\:\:\$endAt\.$#'
@@ -805,36 +769,6 @@ parameters:
 			path: ../packages/nexus-maintenance/src/Infrastructure/TableStore/TableStoreMaintenanceStorage.php
 
 		-
-			message: '#^Call to method deleteRow\(\) on an unknown class Aliyun\\OTS\\OTSClient\.$#'
-			identifier: class.notFound
-			count: 1
-			path: ../packages/nexus-maintenance/src/Infrastructure/TableStore/TableStoreMaintenanceStorage.php
-
-		-
-			message: '#^Call to method describeTable\(\) on an unknown class Aliyun\\OTS\\OTSClient\.$#'
-			identifier: class.notFound
-			count: 1
-			path: ../packages/nexus-maintenance/src/Infrastructure/TableStore/TableStoreMaintenanceStorage.php
-
-		-
-			message: '#^Call to method getRow\(\) on an unknown class Aliyun\\OTS\\OTSClient\.$#'
-			identifier: class.notFound
-			count: 1
-			path: ../packages/nexus-maintenance/src/Infrastructure/TableStore/TableStoreMaintenanceStorage.php
-
-		-
-			message: '#^Call to method putRow\(\) on an unknown class Aliyun\\OTS\\OTSClient\.$#'
-			identifier: class.notFound
-			count: 1
-			path: ../packages/nexus-maintenance/src/Infrastructure/TableStore/TableStoreMaintenanceStorage.php
-
-		-
-			message: '#^Instantiated class Aliyun\\OTS\\OTSClient not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: ../packages/nexus-maintenance/src/Infrastructure/TableStore/TableStoreMaintenanceStorage.php
-
-		-
 			message: '#^Method NexusMaintenance\\Infrastructure\\TableStore\\TableStoreMaintenanceStorage\:\:__construct\(\) has parameter \$config with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -843,12 +777,6 @@ parameters:
 		-
 			message: '#^Method NexusMaintenance\\Infrastructure\\TableStore\\TableStoreMaintenanceStorage\:\:parseRow\(\) has parameter \$columns with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-maintenance/src/Infrastructure/TableStore/TableStoreMaintenanceStorage.php
-
-		-
-			message: '#^Property NexusMaintenance\\Infrastructure\\TableStore\\TableStoreMaintenanceStorage\:\:\$client has unknown class Aliyun\\OTS\\OTSClient as its type\.$#'
-			identifier: class.notFound
 			count: 1
 			path: ../packages/nexus-maintenance/src/Infrastructure/TableStore/TableStoreMaintenanceStorage.php
 
@@ -943,34 +871,10 @@ parameters:
 			path: ../packages/nexus-resource-delivery/src/DTOs/ResourceDeliveryCompleteDto.php
 
 		-
-			message: '#^Method NexusResourceDelivery\\DTOs\\ResourceDeliveryCompleteDto\:\:getContents\(\) has invalid return type NexusResourceDelivery\\DTOs\\ResourceDeliveryContent\.$#'
-			identifier: class.notFound
-			count: 1
-			path: ../packages/nexus-resource-delivery/src/DTOs/ResourceDeliveryCompleteDto.php
-
-		-
 			message: '#^Method NexusResourceDelivery\\DTOs\\ResourceDeliveryCompleteDto\:\:getContents\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
 			path: ../packages/nexus-resource-delivery/src/DTOs/ResourceDeliveryCompleteDto.php
-
-		-
-			message: '#^Parameter \$contents of method NexusResourceDelivery\\DTOs\\ResourceDeliveryCompleteDto\:\:__construct\(\) has invalid type NexusResourceDelivery\\DTOs\\ResourceDeliveryContent\.$#'
-			identifier: class.notFound
-			count: 1
-			path: ../packages/nexus-resource-delivery/src/DTOs/ResourceDeliveryCompleteDto.php
-
-		-
-			message: '#^Property NexusResourceDelivery\\DTOs\\ResourceDeliveryCompleteDto\:\:\$contents has unknown class NexusResourceDelivery\\DTOs\\ResourceDeliveryContent as its type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: ../packages/nexus-resource-delivery/src/DTOs/ResourceDeliveryCompleteDto.php
-
-		-
-			message: '#^Call to static method fromArray\(\) on an unknown class NexusResourceDelivery\\DTOs\\Resource\.$#'
-			identifier: class.notFound
-			count: 1
-			path: ../packages/nexus-resource-delivery/src/DTOs/ResourceDeliveryContentDto.php
 
 		-
 			message: '#^Method NexusResourceDelivery\\DTOs\\ResourceDeliveryContentDto\:\:fromArray\(\) has parameter \$data with no value type specified in iterable type array\.$#'
@@ -981,18 +885,6 @@ parameters:
 		-
 			message: '#^Method NexusResourceDelivery\\DTOs\\ResourceDeliveryContentDto\:\:getMetadata\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-resource-delivery/src/DTOs/ResourceDeliveryContentDto.php
-
-		-
-			message: '#^Method NexusResourceDelivery\\DTOs\\ResourceDeliveryContentDto\:\:getOriginalResource\(\) has invalid return type NexusResourceDelivery\\DTOs\\Resource\.$#'
-			identifier: class.notFound
-			count: 1
-			path: ../packages/nexus-resource-delivery/src/DTOs/ResourceDeliveryContentDto.php
-
-		-
-			message: '#^Method NexusResourceDelivery\\DTOs\\ResourceDeliveryContentDto\:\:getOriginalResource\(\) should return NexusResourceDelivery\\DTOs\\Resource\|null but returns NexusResource\\DTOs\\ResourceDto\|null\.$#'
-			identifier: return.type
 			count: 1
 			path: ../packages/nexus-resource-delivery/src/DTOs/ResourceDeliveryContentDto.php
 
@@ -1009,38 +901,14 @@ parameters:
 			path: ../packages/nexus-resource-delivery/src/DTOs/ResourceDeliveryContentDto.php
 
 		-
-			message: '#^Call to method getFailureReason\(\) on an unknown class NexusResourceDelivery\\DTOs\\ResourceDeliveryContent\.$#'
-			identifier: class.notFound
-			count: 2
-			path: ../packages/nexus-resource-delivery/src/DTOs/ResourceDeliverySummaryDto.php
-
-		-
-			message: '#^Call to method getTypeValue\(\) on an unknown class NexusResourceDelivery\\DTOs\\ResourceDeliveryContent\.$#'
-			identifier: class.notFound
-			count: 1
-			path: ../packages/nexus-resource-delivery/src/DTOs/ResourceDeliverySummaryDto.php
-
-		-
 			message: '#^Method NexusResourceDelivery\\DTOs\\ResourceDeliverySummaryDto\:\:addContents\(\) has parameter \$contents with generic class Nexus\\Core\\Support\\CustomCollection but does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
 			path: ../packages/nexus-resource-delivery/src/DTOs/ResourceDeliverySummaryDto.php
 
 		-
-			message: '#^Method NexusResourceDelivery\\DTOs\\ResourceDeliverySummaryDto\:\:getContents\(\) has invalid return type NexusResourceDelivery\\DTOs\\ResourceDeliveryContent\.$#'
-			identifier: class.notFound
-			count: 1
-			path: ../packages/nexus-resource-delivery/src/DTOs/ResourceDeliverySummaryDto.php
-
-		-
 			message: '#^Method NexusResourceDelivery\\DTOs\\ResourceDeliverySummaryDto\:\:getContents\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
-			count: 1
-			path: ../packages/nexus-resource-delivery/src/DTOs/ResourceDeliverySummaryDto.php
-
-		-
-			message: '#^Property NexusResourceDelivery\\DTOs\\ResourceDeliverySummaryDto\:\:\$contents has unknown class NexusResourceDelivery\\DTOs\\ResourceDeliveryContent as its type\.$#'
-			identifier: class.notFound
 			count: 1
 			path: ../packages/nexus-resource-delivery/src/DTOs/ResourceDeliverySummaryDto.php
 
@@ -1057,44 +925,8 @@ parameters:
 			path: ../packages/nexus-resource-delivery/src/Managers/ResourceDeliveryManager.php
 
 		-
-			message: '#^Method NexusResourceDelivery\\Managers\\ResourceDeliveryManager\:\:findSendCompleteContents\(\) has invalid return type NexusResourceDelivery\\Managers\\ResourceDeliveryContent\.$#'
-			identifier: class.notFound
-			count: 1
-			path: ../packages/nexus-resource-delivery/src/Managers/ResourceDeliveryManager.php
-
-		-
 			message: '#^Method NexusResourceDelivery\\Managers\\ResourceDeliveryManager\:\:findSendCompleteContents\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
-			count: 1
-			path: ../packages/nexus-resource-delivery/src/Managers/ResourceDeliveryManager.php
-
-		-
-			message: '#^Method NexusResourceDelivery\\Managers\\ResourceDeliveryManager\:\:findSendCompleteContents\(\) should return iterable\<NexusResourceDelivery\\Managers\\ResourceDeliveryContent\>&Nexus\\Core\\Support\\CustomCollection but returns Nexus\\Core\\Support\\CustomCollection\<\(int\|string\), NexusResourceDelivery\\DTOs\\ResourceDeliveryContentDto\>\.$#'
-			identifier: return.type
-			count: 1
-			path: ../packages/nexus-resource-delivery/src/Managers/ResourceDeliveryManager.php
-
-		-
-			message: '#^Method NexusResourceDelivery\\Managers\\ResourceDeliveryManager\:\:getPendingContents\(\) has invalid return type NexusResourceDelivery\\Managers\\ResourceDeliveryContent\.$#'
-			identifier: class.notFound
-			count: 1
-			path: ../packages/nexus-resource-delivery/src/Managers/ResourceDeliveryManager.php
-
-		-
-			message: '#^Method NexusResourceDelivery\\Managers\\ResourceDeliveryManager\:\:getPendingContents\(\) should return Nexus\\Core\\Support\\CustomCollection\<string, NexusResourceDelivery\\Managers\\ResourceDeliveryContent\> but returns Nexus\\Core\\Support\\CustomCollection\<string, NexusResourceDelivery\\DTOs\\ResourceDeliveryContentDto\>\.$#'
-			identifier: return.type
-			count: 1
-			path: ../packages/nexus-resource-delivery/src/Managers/ResourceDeliveryManager.php
-
-		-
-			message: '#^Parameter \#1 \$resourceDeliveryContentDto of method NexusResourceDelivery\\Managers\\ResourceDeliveryManager\:\:addSendCompleteContent\(\) expects NexusResourceDelivery\\DTOs\\ResourceDeliveryContentDto, NexusResourceDelivery\\DTOs\\ResourceDeliveryContent given\.$#'
-			identifier: argument.type
-			count: 1
-			path: ../packages/nexus-resource-delivery/src/Managers/ResourceDeliveryManager.php
-
-		-
-			message: '#^Return type \(Nexus\\Core\\Support\\CustomCollection\<string, NexusResourceDelivery\\Managers\\ResourceDeliveryContent\>\) of method NexusResourceDelivery\\Managers\\ResourceDeliveryManager\:\:getPendingContents\(\) should be compatible with return type \(Nexus\\Core\\Support\\CustomCollection\<string, NexusResourceDelivery\\DTOs\\ResourceDeliveryContentDto\>\) of method NexusResourceDelivery\\Managers\\ResourceDeliveryManagerInterface\:\:getPendingContents\(\)$#'
-			identifier: method.childReturnType
 			count: 1
 			path: ../packages/nexus-resource-delivery/src/Managers/ResourceDeliveryManager.php
 
@@ -1147,50 +979,8 @@ parameters:
 			path: ../packages/nexus-resource-delivery/src/Services/ResourceDeliveryService.php
 
 		-
-			message: '#^Method NexusResourceDelivery\\Services\\ResourceDeliveryService\:\:deliver\(\) has invalid return type NexusResourceDelivery\\Services\\ResourceDeliverySummary\.$#'
-			identifier: class.notFound
-			count: 1
-			path: ../packages/nexus-resource-delivery/src/Services/ResourceDeliveryService.php
-
-		-
-			message: '#^Method NexusResourceDelivery\\Services\\ResourceDeliveryService\:\:getConvertedContentsWithoutSend\(\) has invalid return type NexusResourceDelivery\\Services\\Collection\.$#'
-			identifier: class.notFound
-			count: 1
-			path: ../packages/nexus-resource-delivery/src/Services/ResourceDeliveryService.php
-
-		-
 			message: '#^Method NexusResourceDelivery\\Services\\ResourceDeliveryService\:\:getConvertedContentsWithoutSend\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
-			count: 1
-			path: ../packages/nexus-resource-delivery/src/Services/ResourceDeliveryService.php
-
-		-
-			message: '#^PHPDoc tag @param for parameter \$resourceDeliveryPolicyDto with type NexusResourceDelivery\\Services\\ResourceDeliveryPolicy\|null is not subtype of native type NexusResourceDelivery\\DTOs\\ResourceDeliveryPolicyDto\|null\.$#'
-			identifier: parameter.phpDocType
-			count: 1
-			path: ../packages/nexus-resource-delivery/src/Services/ResourceDeliveryService.php
-
-		-
-			message: '#^PHPDoc tag @return with type NexusResourceDelivery\\Services\\Collection\<NexusResourceDelivery\\DTOs\\ResourceDeliveryContentDto\> is not subtype of native type Nexus\\Core\\Support\\CustomCollection\.$#'
-			identifier: return.phpDocType
-			count: 1
-			path: ../packages/nexus-resource-delivery/src/Services/ResourceDeliveryService.php
-
-		-
-			message: '#^PHPDoc tag @return with type NexusResourceDelivery\\Services\\ResourceDeliverySummary is not subtype of native type NexusResourceDelivery\\DTOs\\ResourceDeliverySummaryDto\.$#'
-			identifier: return.phpDocType
-			count: 1
-			path: ../packages/nexus-resource-delivery/src/Services/ResourceDeliveryService.php
-
-		-
-			message: '#^Parameter \#1 \$contents of class NexusResourceDelivery\\DTOs\\ResourceDeliveryCompleteDto constructor expects iterable\<NexusResourceDelivery\\DTOs\\ResourceDeliveryContent\>&Nexus\\Core\\Support\\CustomCollection, Nexus\\Core\\Support\\CustomCollection\<int, NexusResourceDelivery\\DTOs\\ResourceDeliveryContentDto\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: ../packages/nexus-resource-delivery/src/Services/ResourceDeliveryService.php
-
-		-
-			message: '#^Parameter \$resourceDeliveryPolicyDto of method NexusResourceDelivery\\Services\\ResourceDeliveryService\:\:deliver\(\) has invalid type NexusResourceDelivery\\Services\\ResourceDeliveryPolicy\.$#'
-			identifier: class.notFound
 			count: 1
 			path: ../packages/nexus-resource-delivery/src/Services/ResourceDeliveryService.php
 
@@ -1291,50 +1081,8 @@ parameters:
 			path: ../packages/nexus-vip/src/Events/VipLevelUpEvent.php
 
 		-
-			message: '#^Access to an undefined property NexusVip\\Models\\MstVipLevelReward\:\:\$amount\.$#'
-			identifier: property.notFound
-			count: 1
-			path: ../packages/nexus-vip/src/Models/MstVipLevelReward.php
-
-		-
-			message: '#^Access to an undefined property NexusVip\\Models\\MstVipLevelReward\:\:\$content_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: ../packages/nexus-vip/src/Models/MstVipLevelReward.php
-
-		-
-			message: '#^Access to an undefined property NexusVip\\Models\\MstVipLevelReward\:\:\$content_option\.$#'
-			identifier: property.notFound
-			count: 1
-			path: ../packages/nexus-vip/src/Models/MstVipLevelReward.php
-
-		-
-			message: '#^Access to an undefined property NexusVip\\Models\\MstVipLevelReward\:\:\$content_quantity\.$#'
-			identifier: property.notFound
-			count: 1
-			path: ../packages/nexus-vip/src/Models/MstVipLevelReward.php
-
-		-
-			message: '#^Access to an undefined property NexusVip\\Models\\MstVipLevelReward\:\:\$content_type\.$#'
-			identifier: property.notFound
-			count: 1
-			path: ../packages/nexus-vip/src/Models/MstVipLevelReward.php
-
-		-
-			message: '#^Access to an undefined property NexusVip\\Models\\MstVipLevelReward\:\:\$is_active\.$#'
-			identifier: property.notFound
-			count: 1
-			path: ../packages/nexus-vip/src/Models/MstVipLevelReward.php
-
-		-
-			message: '#^Access to an undefined property NexusVip\\Models\\MstVipLevelReward\:\:\$is_paid\.$#'
-			identifier: property.notFound
-			count: 1
-			path: ../packages/nexus-vip/src/Models/MstVipLevelReward.php
-
-		-
-			message: '#^Access to an undefined property NexusVip\\Models\\MstVipLevelReward\:\:\$vip_level\.$#'
-			identifier: property.notFound
+			message: '#^Class NexusVip\\Models\\MstVipLevelReward has PHPDoc tag @property for property \$content_option with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: ../packages/nexus-vip/src/Models/MstVipLevelReward.php
 
@@ -1429,18 +1177,6 @@ parameters:
 			path: ../packages/nexus-vip/src/ValueObjects/VipReward.php
 
 		-
-			message: '#^Class NexusVip\\Contracts\\CurrencyConverterInterface not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: ../packages/nexus-vip/src/VipServiceProvider.php
-
-		-
-			message: '#^Class NexusVip\\Services\\CurrencyConverter not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: ../packages/nexus-vip/src/VipServiceProvider.php
-
-		-
 			message: '#^Using nullsafe property access "\?\-\>total_amount" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
@@ -1457,18 +1193,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: ../packages/nexus-wallet/src/ValueObjects/CurrencyOperationResult.php
-
-		-
-			message: '#^Call to an undefined method App\\Models\\Sys\\SysFriendApply\:\:getCreatedAt\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Adapters/Friend/FriendApplyAdapter.php
-
-		-
-			message: '#^Call to an undefined method App\\Models\\Sys\\SysFriendApply\:\:getUpdatedAt\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Adapters/Friend/FriendApplyAdapter.php
 
 		-
 			message: '#^Method App\\Domain\\Auth\\Services\\TokenValidator\:\:validateAccessToken\(\) return type has no value type specified in iterable type array\.$#'
@@ -1639,12 +1363,6 @@ parameters:
 			path: app/Domain/InAppPurchase/Constants/InAppPurchaseConst.php
 
 		-
-			message: '#^Call to an undefined method App\\Models\\Trx\\TrxInAppPurchase\:\:getPurchaseCount\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Domain/InAppPurchase/Services/InAppPurchaseHistoryService.php
-
-		-
 			message: '#^Call to an undefined method App\\Models\\Trx\\TrxInAppPurchase\:\:getTotalPurchaseCount\(\)\.$#'
 			identifier: method.notFound
 			count: 1
@@ -1717,24 +1435,6 @@ parameters:
 			path: app/Domain/InAppPurchase/Services/InAppPurchasePassService.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Mst\\MstBillingPlatformProduct\:\:\$price_amount_micros\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Domain/InAppPurchase/Services/InAppPurchaseValidationService.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Mst\\MstBillingPlatformProduct\:\:\$price_currency_code\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Domain/InAppPurchase/Services/InAppPurchaseValidationService.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Trx\\TrxInAppPurchase\:\:\$purchase_count\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Domain/InAppPurchase/Services/InAppPurchaseValidationService.php
-
-		-
 			message: '#^Method App\\Domain\\InAppPurchase\\Services\\InAppPurchaseValidationService\:\:getPlatformProduct\(\) should return App\\Models\\Mst\\MstBillingPlatformProduct\|null but returns Illuminate\\Database\\Eloquent\\Model\|null\.$#'
 			identifier: return.type
 			count: 1
@@ -1757,24 +1457,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Domain/Item/Constants/ItemConst.php
-
-		-
-			message: '#^Call to an undefined method NexusLogin\\Repositories\\LoginBonusHistoryRepositoryInterface\:\:selectByPlayerAndBonusAndDate\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Domain/Login/Services/ComeBackLoginBonusService.php
-
-		-
-			message: '#^Call to an undefined method NexusLogin\\Repositories\\LoginBonusHistoryRepositoryInterface\:\:selectFirstComebackByPlayerId\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Domain/Login/Services/ComeBackLoginBonusService.php
-
-		-
-			message: '#^Call to an undefined method NexusLogin\\Repositories\\LoginBonusRepositoryInterface\:\:selectContentsByLoginBonusIdAndDay\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Domain/Login/Services/ComeBackLoginBonusService.php
 
 		-
 			message: '#^Method App\\Domain\\Login\\Services\\ComeBackLoginBonusService\:\:findBonusContents\(\) has parameter \$bonusData with no value type specified in iterable type array\.$#'
@@ -1805,24 +1487,6 @@ parameters:
 			identifier: missingType.generics
 			count: 1
 			path: app/Domain/Login/Services/ComeBackLoginBonusService.php
-
-		-
-			message: '#^Call to an undefined method NexusLogin\\Repositories\\LoginBonusHistoryRepositoryInterface\:\:selectLatestByPlayerId\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Domain/Login/Services/LoginBonusService.php
-
-		-
-			message: '#^Call to an undefined method NexusLogin\\Repositories\\LoginBonusRepositoryInterface\:\:selectActiveDailyBonus\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Domain/Login/Services/LoginBonusService.php
-
-		-
-			message: '#^Call to an undefined method NexusLogin\\Repositories\\LoginBonusRepositoryInterface\:\:selectContentsByLoginBonusIdAndDay\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Domain/Login/Services/LoginBonusService.php
 
 		-
 			message: '#^Method App\\Domain\\Login\\Services\\LoginBonusService\:\:findBonusContents\(\) has parameter \$bonusData with no value type specified in iterable type array\.$#'
@@ -1915,12 +1579,6 @@ parameters:
 			path: app/Domain/Mailbox/UseCases/MailboxLockUseCase.php
 
 		-
-			message: '#^Parameter \$deliverySummary of class App\\Http\\Responses\\Mailbox\\ReceiveAllResponse constructor expects App\\Http\\Responses\\Mailbox\\ResourceDeliverySummary\|null, NexusResourceDelivery\\DTOs\\ResourceDeliverySummaryDto\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Domain/Mailbox/UseCases/MailboxReceiveAllUseCase.php
-
-		-
 			message: '#^Using nullsafe property access "\?\-\>contentCollection" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
@@ -1955,12 +1613,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Domain/Unit/Constants/UnitConst.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Mst\\MstUnitLevel\:\:\$required_exp\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Domain/Unit/Services/UnitLevelService.php
 
 		-
 			message: '#^Call to an undefined method Nexus\\Core\\Models\\Mst\\_BaseMstInterface\:\:getRarity\(\)\.$#'
@@ -2023,94 +1675,10 @@ parameters:
 			path: app/Http/Controllers/Admin/MaintenanceController.php
 
 		-
-			message: '#^Instantiated class App\\Http\\Controllers\\Admin\\DtoMaintenance not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Admin/MaintenanceController.php
-
-		-
-			message: '#^Parameter \#1 \$maintenanceDto of method NexusMaintenance\\Services\\MaintenanceService\:\:startMaintenance\(\) expects NexusMaintenance\\ValueObjects\\Maintenance, App\\Http\\Controllers\\Admin\\DtoMaintenance given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Admin/MaintenanceController.php
-
-		-
 			message: '#^Call to an undefined method App\\Http\\Controllers\\GuildController\:\:successResponse\(\)\.$#'
 			identifier: method.notFound
 			count: 1
 			path: app/Http/Controllers/GuildController.php
-
-		-
-			message: '#^PHPDoc tag @param for parameter \$useCase with type App\\Http\\Controllers\\ListUseCase is not subtype of native type App\\Domain\\Mailbox\\UseCases\\MailboxListUseCase\.$#'
-			identifier: parameter.phpDocType
-			count: 1
-			path: app/Http/Controllers/MailboxController.php
-
-		-
-			message: '#^PHPDoc tag @param for parameter \$useCase with type App\\Http\\Controllers\\LockUseCase is not subtype of native type App\\Domain\\Mailbox\\UseCases\\MailboxLockUseCase\.$#'
-			identifier: parameter.phpDocType
-			count: 1
-			path: app/Http/Controllers/MailboxController.php
-
-		-
-			message: '#^PHPDoc tag @param for parameter \$useCase with type App\\Http\\Controllers\\OpenUseCase is not subtype of native type App\\Domain\\Mailbox\\UseCases\\MailboxOpenUseCase\.$#'
-			identifier: parameter.phpDocType
-			count: 1
-			path: app/Http/Controllers/MailboxController.php
-
-		-
-			message: '#^PHPDoc tag @param for parameter \$useCase with type App\\Http\\Controllers\\ReceiveAllUseCase is not subtype of native type App\\Domain\\Mailbox\\UseCases\\MailboxReceiveAllUseCase\.$#'
-			identifier: parameter.phpDocType
-			count: 1
-			path: app/Http/Controllers/MailboxController.php
-
-		-
-			message: '#^PHPDoc tag @param for parameter \$useCase with type App\\Http\\Controllers\\ReceiveUseCase is not subtype of native type App\\Domain\\Mailbox\\UseCases\\MailboxReceiveUseCase\.$#'
-			identifier: parameter.phpDocType
-			count: 1
-			path: app/Http/Controllers/MailboxController.php
-
-		-
-			message: '#^Parameter \$useCase of method App\\Http\\Controllers\\MailboxController\:\:list\(\) has invalid type App\\Http\\Controllers\\ListUseCase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/MailboxController.php
-
-		-
-			message: '#^Parameter \$useCase of method App\\Http\\Controllers\\MailboxController\:\:lock\(\) has invalid type App\\Http\\Controllers\\LockUseCase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/MailboxController.php
-
-		-
-			message: '#^Parameter \$useCase of method App\\Http\\Controllers\\MailboxController\:\:open\(\) has invalid type App\\Http\\Controllers\\OpenUseCase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/MailboxController.php
-
-		-
-			message: '#^Parameter \$useCase of method App\\Http\\Controllers\\MailboxController\:\:receive\(\) has invalid type App\\Http\\Controllers\\ReceiveUseCase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/MailboxController.php
-
-		-
-			message: '#^Parameter \$useCase of method App\\Http\\Controllers\\MailboxController\:\:receiveAll\(\) has invalid type App\\Http\\Controllers\\ReceiveAllUseCase\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/MailboxController.php
-
-		-
-			message: '#^Call to method toJsonResponse\(\) on an unknown class App\\Responses\\_BaseResponseInterface\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/_BaseController.php
-
-		-
-			message: '#^Class App\\Responses\\_BaseResponseInterface not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/_BaseController.php
 
 		-
 			message: '#^Method App\\Http\\Controllers\\_BaseController\:\:execute\(\) should return Illuminate\\Http\\JsonResponse but returns Symfony\\Component\\HttpFoundation\\Response\.$#'
@@ -2155,81 +1723,27 @@ parameters:
 			path: app/Http/Responses/Auth/LoginResponse.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysDeploy\:\:\$deploy_key\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Responses/Auth/VersionResponse.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysDeploy\:\:\$sys_deploy_asset_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Responses/Auth/VersionResponse.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysDeploy\:\:\$sys_deploy_master_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Responses/Auth/VersionResponse.php
-
-		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$hash\.$#'
 			identifier: property.notFound
 			count: 2
 			path: app/Http/Responses/Auth/VersionResponse.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysFriendApply\:\:\$created_at\.$#'
-			identifier: property.notFound
-			count: 1
+			message: '#^Cannot call method toDateTimeString\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 2
 			path: app/Http/Responses/Friend/ApplyAcceptResponse.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysFriendApply\:\:\$receiver_sys_player_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Responses/Friend/ApplyAcceptResponse.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysFriendApply\:\:\$sender_sys_player_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Responses/Friend/ApplyAcceptResponse.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysFriendApply\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Responses/Friend/ApplyAcceptResponse.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysFriendApply\:\:\$updated_at\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Responses/Friend/ApplyAcceptResponse.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysFriendApply\:\:\$created_at\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Responses/Friend/ApplyListResponse.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysFriendApply\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Responses/Friend/ApplyListResponse.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysFriendApply\:\:\$updated_at\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Responses/Friend/ApplyListResponse.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$my_id\.$#'
 			identifier: property.notFound
 			count: 4
+			path: app/Http/Responses/Friend/ApplyListResponse.php
+
+		-
+			message: '#^Cannot call method toDateTimeString\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 2
 			path: app/Http/Responses/Friend/ApplyListResponse.php
 
 		-
@@ -2245,70 +1759,16 @@ parameters:
 			path: app/Http/Responses/Friend/ApplyListResponse.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysFriendApply\:\:\$created_at\.$#'
-			identifier: property.notFound
-			count: 1
+			message: '#^Cannot call method toDateTimeString\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 2
 			path: app/Http/Responses/Friend/ApplyRejectResponse.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysFriendApply\:\:\$receiver_sys_player_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Responses/Friend/ApplyRejectResponse.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysFriendApply\:\:\$sender_sys_player_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Responses/Friend/ApplyRejectResponse.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysFriendApply\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Responses/Friend/ApplyRejectResponse.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysFriendApply\:\:\$updated_at\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Responses/Friend/ApplyRejectResponse.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysFriendApply\:\:\$created_at\.$#'
-			identifier: property.notFound
+			message: '#^Cannot call method toDateTimeString\(\) on string\.$#'
+			identifier: method.nonObject
 			count: 1
 			path: app/Http/Responses/Friend/ApplySendResponse.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysFriendApply\:\:\$receiver_sys_player_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Responses/Friend/ApplySendResponse.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysFriendApply\:\:\$sender_sys_player_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Responses/Friend/ApplySendResponse.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysFriendApply\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Responses/Friend/ApplySendResponse.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysFriendApply\:\:\$created_at\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Responses/Friend/ListResponse.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysFriendApply\:\:\$sender_sys_player_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Responses/Friend/ListResponse.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$level\.$#'
@@ -2325,6 +1785,12 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
 			identifier: property.notFound
+			count: 1
+			path: app/Http/Responses/Friend/ListResponse.php
+
+		-
+			message: '#^Cannot call method toDateTimeString\(\) on string\.$#'
+			identifier: method.nonObject
 			count: 1
 			path: app/Http/Responses/Friend/ListResponse.php
 
@@ -2401,33 +1867,9 @@ parameters:
 			path: app/Http/Responses/Mailbox/ListResponse.php
 
 		-
-			message: '#^Call to method getResults\(\) on an unknown class App\\Http\\Responses\\Mailbox\\ResourceDeliverySummary\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Responses/Mailbox/ReceiveAllResponse.php
-
-		-
-			message: '#^Call to method getTotalCount\(\) on an unknown class App\\Http\\Responses\\Mailbox\\ResourceDeliverySummary\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Responses/Mailbox/ReceiveAllResponse.php
-
-		-
 			message: '#^Method App\\Http\\Responses\\Mailbox\\ReceiveAllResponse\:\:__construct\(\) has parameter \$deliveryContents with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: app/Http/Responses/Mailbox/ReceiveAllResponse.php
-
-		-
-			message: '#^Parameter \$deliverySummary of method App\\Http\\Responses\\Mailbox\\ReceiveAllResponse\:\:__construct\(\) has invalid type App\\Http\\Responses\\Mailbox\\ResourceDeliverySummary\.$#'
-			identifier: class.notFound
-			count: 2
-			path: app/Http/Responses/Mailbox/ReceiveAllResponse.php
-
-		-
-			message: '#^Property App\\Http\\Responses\\Mailbox\\ReceiveAllResponse\:\:\$deliverySummary has unknown class App\\Http\\Responses\\Mailbox\\ResourceDeliverySummary as its type\.$#'
-			identifier: class.notFound
-			count: 2
 			path: app/Http/Responses/Mailbox/ReceiveAllResponse.php
 
 		-
@@ -2755,12 +2197,6 @@ parameters:
 			path: app/Models/Mst/MstPlayerLevel.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Mst\\MstUnit\:\:\$rarity\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/Mst/MstUnit.php
-
-		-
 			message: '#^Property App\\Models\\Mst\\MstUnit\:\:\$fillable type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -2851,24 +2287,6 @@ parameters:
 			path: app/Models/Mst/MstVipLoginBonusContent.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysDeploy\:\:\$deploy_key\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/Sys/SysDeploy.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysDeploy\:\:\$is_active\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/Sys/SysDeploy.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysDeploy\:\:\$start_at\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/Sys/SysDeploy.php
-
-		-
 			message: '#^Method App\\Models\\Sys\\SysDeploy\:\:deployAsset\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
 			identifier: missingType.generics
 			count: 1
@@ -2929,42 +2347,6 @@ parameters:
 			path: app/Models/Sys/SysDeploy.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysDeployAsset\:\:\$deploy_key\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/Sys/SysDeployAsset.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysDeployAsset\:\:\$hash\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/Sys/SysDeployAsset.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysDeployAsset\:\:\$s3_bucket\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/Sys/SysDeployAsset.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysDeployAsset\:\:\$s3_path\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/Sys/SysDeployAsset.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysDeployAsset\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 3
-			path: app/Models/Sys/SysDeployAsset.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysDeployAsset\:\:\$total_size\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/Sys/SysDeployAsset.php
-
-		-
 			message: '#^Method App\\Models\\Sys\\SysDeployAsset\:\:availableStatuses\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -2995,22 +2377,10 @@ parameters:
 			path: app/Models/Sys/SysDeployAsset.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysDeployMaster\:\:\$deploy_key\.$#'
-			identifier: property.notFound
+			message: '#^Strict comparison using \=\=\= between int and null will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
 			count: 1
-			path: app/Models/Sys/SysDeployMaster.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysDeployMaster\:\:\$hash\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/Sys/SysDeployMaster.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysDeployMaster\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 3
-			path: app/Models/Sys/SysDeployMaster.php
+			path: app/Models/Sys/SysDeployAsset.php
 
 		-
 			message: '#^Method App\\Models\\Sys\\SysDeployMaster\:\:availableStatuses\(\) return type has no value type specified in iterable type array\.$#'
@@ -3041,12 +2411,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Models/Sys/SysDeployMaster.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysFriendApply\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 3
-			path: app/Models/Sys/SysFriendApply.php
 
 		-
 			message: '#^Method App\\Models\\Sys\\SysFriendApply\:\:availableStatuses\(\) return type has no value type specified in iterable type array\.$#'
@@ -3145,39 +2509,9 @@ parameters:
 			path: app/Models/Sys/SysGuildMember.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysMaintenance\:\:\$end_at\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Models/Sys/SysMaintenance.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysMaintenance\:\:\$is_active\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Models/Sys/SysMaintenance.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysMaintenance\:\:\$message\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/Sys/SysMaintenance.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysMaintenance\:\:\$start_at\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Models/Sys/SysMaintenance.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysMaintenance\:\:\$title\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/Sys/SysMaintenance.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysMaintenance\:\:\$updated_at\.$#'
-			identifier: property.notFound
-			count: 1
+			message: '#^Cannot call method format\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 3
 			path: app/Models/Sys/SysMaintenance.php
 
 		-
@@ -3229,12 +2563,6 @@ parameters:
 			path: app/Models/Sys/SysMaintenance.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysPlayer\:\:\$created_at\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/Sys/SysPlayer.php
-
-		-
 			message: '#^Method App\\Models\\Sys\\SysPlayer\:\:devices\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
 			identifier: missingType.generics
 			count: 1
@@ -3253,13 +2581,13 @@ parameters:
 			path: app/Models/Sys/SysPlayer.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysPlayerDevice\:\:\$last_login_at\.$#'
+			message: '#^Access to an undefined property App\\Models\\Sys\\SysPlayerDevice\:\:\$created_at\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/Models/Sys/SysPlayerDevice.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysPlayerDevice\:\:\$sys_player_id\.$#'
+			message: '#^Access to an undefined property App\\Models\\Sys\\SysPlayerDevice\:\:\$updated_at\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/Models/Sys/SysPlayerDevice.php
@@ -3331,18 +2659,6 @@ parameters:
 			path: app/Models/Sys/SysPlayerToken.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysSharding\:\:\$is_active\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/Sys/SysSharding.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysSharding\:\:\$strategy\.$#'
-			identifier: property.notFound
-			count: 3
-			path: app/Models/Sys/SysSharding.php
-
-		-
 			message: '#^Method App\\Models\\Sys\\SysSharding\:\:activeNodes\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
 			identifier: missingType.generics
 			count: 1
@@ -3389,42 +2705,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Models/Sys/SysSharding.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysShardingNode\:\:\$current_player_count\.$#'
-			identifier: property.notFound
-			count: 3
-			path: app/Models/Sys/SysShardingNode.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysShardingNode\:\:\$is_readable\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/Sys/SysShardingNode.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysShardingNode\:\:\$is_writable\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/Sys/SysShardingNode.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysShardingNode\:\:\$max_connections\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Models/Sys/SysShardingNode.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysShardingNode\:\:\$node_no\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/Sys/SysShardingNode.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysShardingNode\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Models/Sys/SysShardingNode.php
 
 		-
 			message: '#^Method App\\Models\\Sys\\SysShardingNode\:\:availableStatuses\(\) return type has no value type specified in iterable type array\.$#'
@@ -3823,18 +3103,6 @@ parameters:
 			path: app/Models/Trx/TrxUnit.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Trx\\TrxWallet\:\:\$free_amount\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/Trx/TrxWallet.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Trx\\TrxWallet\:\:\$paid_amount\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/Trx/TrxWallet.php
-
-		-
 			message: '#^Call to function is_array\(\) with string will always evaluate to false\.$#'
 			identifier: function.impossibleType
 			count: 1
@@ -3875,24 +3143,6 @@ parameters:
 			identifier: deadCode.unreachable
 			count: 1
 			path: app/Models/Trx/TrxWallet.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Trx\\TrxWalletBalance\:\:\$current_amount\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/Trx/TrxWalletBalance.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Trx\\TrxWalletBalance\:\:\$initial_amount\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/Trx/TrxWalletBalance.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Trx\\TrxWalletBalance\:\:\$is_paid\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/Trx/TrxWalletBalance.php
 
 		-
 			message: '#^Method App\\Models\\Trx\\TrxWalletBalance\:\:trxPlayer\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
@@ -4063,20 +3313,8 @@ parameters:
 			path: app/Repositories/Mst/MstEquipmentLevelRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Mst\\MstEquipmentLevelRepository\:\:selectAll\(\) has invalid return type App\\Repositories\\Mst\\Collection\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Repositories/Mst/MstEquipmentLevelRepository.php
-
-		-
 			message: '#^Method App\\Repositories\\Mst\\MstEquipmentLevelRepository\:\:selectAll\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Repositories/Mst/MstEquipmentLevelRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Mst\\MstEquipmentLevelRepository\:\:selectAllByRarity\(\) has invalid return type App\\Repositories\\Mst\\Collection\.$#'
-			identifier: class.notFound
 			count: 1
 			path: app/Repositories/Mst/MstEquipmentLevelRepository.php
 
@@ -4084,12 +3322,6 @@ parameters:
 			message: '#^Method App\\Repositories\\Mst\\MstEquipmentLevelRepository\:\:selectAllByRarity\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
-			path: app/Repositories/Mst/MstEquipmentLevelRepository.php
-
-		-
-			message: '#^PHPDoc tag @return with type App\\Repositories\\Mst\\Collection is not subtype of native type Nexus\\Core\\Support\\CustomCollection\.$#'
-			identifier: return.phpDocType
-			count: 2
 			path: app/Repositories/Mst/MstEquipmentLevelRepository.php
 
 		-
@@ -4159,18 +3391,6 @@ parameters:
 			path: app/Repositories/Mst/MstInAppPurchaseRepository.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Mst\\MstPlayerLevel\:\:\$max_stamina\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Repositories/Mst/MstPlayerLevelRepository.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Mst\\MstPlayerLevel\:\:\$required_exp\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Repositories/Mst/MstPlayerLevelRepository.php
-
-		-
 			message: '#^Access to an undefined property Nexus\\Core\\Models\\Mst\\_BaseMstInterface\:\:\$level\.$#'
 			identifier: property.notFound
 			count: 1
@@ -4179,12 +3399,6 @@ parameters:
 		-
 			message: '#^Access to an undefined property Nexus\\Core\\Models\\Mst\\_BaseMstInterface\:\:\$required_exp\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/Repositories/Mst/MstPlayerLevelRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Mst\\MstPlayerLevelRepository\:\:selectAll\(\) has invalid return type App\\Repositories\\Mst\\Collection\.$#'
-			identifier: class.notFound
 			count: 1
 			path: app/Repositories/Mst/MstPlayerLevelRepository.php
 
@@ -4201,18 +3415,6 @@ parameters:
 			path: app/Repositories/Mst/MstPlayerLevelRepository.php
 
 		-
-			message: '#^PHPDoc tag @return with type App\\Repositories\\Mst\\Collection is not subtype of native type Nexus\\Core\\Support\\CustomCollection\.$#'
-			identifier: return.phpDocType
-			count: 1
-			path: app/Repositories/Mst/MstPlayerLevelRepository.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Mst\\MstUnitLevel\:\:\$required_exp\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Repositories/Mst/MstUnitLevelRepository.php
-
-		-
 			message: '#^Access to an undefined property Nexus\\Core\\Models\\Mst\\_BaseMstInterface\:\:\$level\.$#'
 			identifier: property.notFound
 			count: 1
@@ -4225,20 +3427,8 @@ parameters:
 			path: app/Repositories/Mst/MstUnitLevelRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Mst\\MstUnitLevelRepository\:\:selectAll\(\) has invalid return type App\\Repositories\\Mst\\Collection\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Repositories/Mst/MstUnitLevelRepository.php
-
-		-
 			message: '#^Method App\\Repositories\\Mst\\MstUnitLevelRepository\:\:selectAll\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Repositories/Mst/MstUnitLevelRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Mst\\MstUnitLevelRepository\:\:selectAllByRarity\(\) has invalid return type App\\Repositories\\Mst\\Collection\.$#'
-			identifier: class.notFound
 			count: 1
 			path: app/Repositories/Mst/MstUnitLevelRepository.php
 
@@ -4246,12 +3436,6 @@ parameters:
 			message: '#^Method App\\Repositories\\Mst\\MstUnitLevelRepository\:\:selectAllByRarity\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
-			path: app/Repositories/Mst/MstUnitLevelRepository.php
-
-		-
-			message: '#^PHPDoc tag @return with type App\\Repositories\\Mst\\Collection is not subtype of native type Nexus\\Core\\Support\\CustomCollection\.$#'
-			identifier: return.phpDocType
-			count: 2
 			path: app/Repositories/Mst/MstUnitLevelRepository.php
 
 		-
@@ -4387,32 +3571,8 @@ parameters:
 			path: app/Repositories/Mst/_BaseMstRepositoryInterface.php
 
 		-
-			message: '#^Call to an undefined method App\\Models\\Sys\\SysPlayerDevice\:\:getCreatedAt\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Repositories/Sys/PlayerDeviceRepositoryAdapter.php
-
-		-
-			message: '#^Call to an undefined method App\\Models\\Sys\\SysPlayerDevice\:\:getUpdatedAt\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Repositories/Sys/PlayerDeviceRepositoryAdapter.php
-
-		-
-			message: '#^Method App\\Repositories\\Sys\\SysDeployRepository\:\:selectActiveList\(\) has invalid return type App\\Repositories\\Sys\\Collection\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Repositories/Sys/SysDeployRepository.php
-
-		-
 			message: '#^Method App\\Repositories\\Sys\\SysDeployRepository\:\:selectActiveList\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Repositories/Sys/SysDeployRepository.php
-
-		-
-			message: '#^PHPDoc tag @return with type App\\Repositories\\Sys\\Collection is not subtype of native type Nexus\\Core\\Support\\CustomCollection\.$#'
-			identifier: return.phpDocType
 			count: 1
 			path: app/Repositories/Sys/SysDeployRepository.php
 
@@ -4441,12 +3601,6 @@ parameters:
 			path: app/Repositories/Sys/SysGuildRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Sys\\SysMaintenanceRepository\:\:selectActiveList\(\) has invalid return type App\\Repositories\\Sys\\Collection\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Repositories/Sys/SysMaintenanceRepository.php
-
-		-
 			message: '#^Method App\\Repositories\\Sys\\SysMaintenanceRepository\:\:selectActiveList\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
@@ -4459,28 +3613,10 @@ parameters:
 			path: app/Repositories/Sys/SysMaintenanceRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Sys\\SysMaintenanceRepository\:\:selectUpcomingList\(\) has invalid return type App\\Repositories\\Sys\\Collection\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Repositories/Sys/SysMaintenanceRepository.php
-
-		-
 			message: '#^Method App\\Repositories\\Sys\\SysMaintenanceRepository\:\:selectUpcomingList\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Repositories/Sys/SysMaintenanceRepository.php
-
-		-
-			message: '#^PHPDoc tag @return with type App\\Repositories\\Sys\\Collection is not subtype of native type Nexus\\Core\\Support\\CustomCollection\.$#'
-			identifier: return.phpDocType
-			count: 2
-			path: app/Repositories/Sys/SysMaintenanceRepository.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysPlayer\:\:\$last_login_at\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Repositories/Sys/SysPlayerRepository.php
 
 		-
 			message: '#^Class App\\Repositories\\Sys\\_BaseSysRepository extends generic class Nexus\\Core\\Repositories\\Sys\\_BaseSysRepository but does not specify its types\: T$#'
@@ -4585,20 +3721,8 @@ parameters:
 			path: app/Repositories/Trx/TrxPlayerSnsRepository.php
 
 		-
-			message: '#^Method App\\Repositories\\Trx\\TrxStaminaRepository\:\:selectAllByPlayer\(\) has invalid return type Illuminate\\Support\\CustomCollection\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Repositories/Trx/TrxStaminaRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Trx\\TrxStaminaRepository\:\:selectAllByPlayer\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Repositories/Trx/TrxStaminaRepository.php
-
-		-
-			message: '#^PHPDoc tag @return with type Illuminate\\Support\\CustomCollection\<int, App\\Models\\Trx\\TrxStamina\> is not subtype of native type Illuminate\\Support\\Collection\.$#'
-			identifier: return.phpDocType
+			message: '#^Method App\\Repositories\\Trx\\TrxStaminaRepository\:\:selectAllByPlayer\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Trx\\TrxStamina\> but returns Nexus\\Core\\Support\\CustomCollection\<string, Nexus\\Core\\Models\\Trx\\_BaseTrxInterface\>\.$#'
+			identifier: return.type
 			count: 1
 			path: app/Repositories/Trx/TrxStaminaRepository.php
 

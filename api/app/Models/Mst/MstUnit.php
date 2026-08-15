@@ -2,6 +2,9 @@
 
 namespace App\Models\Mst;
 
+/**
+ * @property string $rarity
+ */
 class MstUnit extends _BaseMst
 {
     public $table = 'mst_unit';

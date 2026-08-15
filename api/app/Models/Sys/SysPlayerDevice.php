@@ -4,6 +4,7 @@ namespace App\Models\Sys;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Nexus\Core\Utilities\ClockUtility;
 use NexusAuth\Contracts\DeviceModelInterface;
 use NexusAuth\Contracts\PlayerModelInterface;
 
@@ -12,6 +13,9 @@ use NexusAuth\Contracts\PlayerModelInterface;
  *
  * プレイヤーデバイス情報テーブル
  * デバイス固有IDとデバイス情報を管理
+ *
+ * @property ?string $last_login_at
+ * @property int $sys_player_id
  */
 class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
 {
@@ -201,5 +205,25 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
     public function getPlayer(): ?PlayerModelInterface
     {
         return $this->player;
+    }
+
+    /**
+     * 作成日時を取得
+     *
+     * @return string Y-m-d H:i:s形式
+     */
+    public function getCreatedAt(): string
+    {
+        return ClockUtility::parse((string) $this->created_at)->format('Y-m-d H:i:s');
+    }
+
+    /**
+     * 更新日時を取得
+     *
+     * @return string Y-m-d H:i:s形式
+     */
+    public function getUpdatedAt(): string
+    {
+        return ClockUtility::parse((string) $this->updated_at)->format('Y-m-d H:i:s');
     }
 }

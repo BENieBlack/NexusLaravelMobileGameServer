@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * purchase_count: 期間内購入回数（リセット可能）
  * total_purchase_count: 累計購入回数（リセットされない）
  * purchase_count_reset_at: 購入回数リセット日時
+ *
+ * @property int $purchase_count
  */
 class TrxInAppPurchase extends _BaseTrx
 {
@@ -166,6 +168,14 @@ class TrxInAppPurchase extends _BaseTrx
     public function setPurchaseCount(int $purchaseCount): void
     {
         $this->setAttribute('purchase_count', $purchaseCount);
+    }
+
+    /**
+     * 期間内購入回数を取得
+     */
+    public function getPurchaseCount(): int
+    {
+        return (int) $this->getAttribute('purchase_count');
     }
 
     /**

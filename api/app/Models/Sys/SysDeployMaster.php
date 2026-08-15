@@ -6,6 +6,10 @@ namespace App\Models\Sys;
  * SysDeployMaster Model
  *
  * マスターデータのデプロイ履歴を管理するモデル
+ *
+ * @property int $deploy_key
+ * @property string $hash
+ * @property string $status
  */
 class SysDeployMaster extends _BaseSys
 {

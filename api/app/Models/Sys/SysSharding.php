@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * SysSharding Model
  *
  * シャーディング設定を管理するモデル
+ *
+ * @property bool $is_active
+ * @property string $strategy
  */
 class SysSharding extends _BaseSys
 {

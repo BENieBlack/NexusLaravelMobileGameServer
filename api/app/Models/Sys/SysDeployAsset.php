@@ -6,6 +6,13 @@ namespace App\Models\Sys;
  * SysDeployAsset Model
  *
  * アセットデータ（画像、音声、動画など）のデプロイ履歴を管理するモデル
+ *
+ * @property int $deploy_key
+ * @property string $hash
+ * @property string $s3_bucket
+ * @property string $s3_path
+ * @property string $status
+ * @property int $total_size
  */
 class SysDeployAsset extends _BaseSys
 {

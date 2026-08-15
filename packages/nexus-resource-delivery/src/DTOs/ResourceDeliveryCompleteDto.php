@@ -12,7 +12,7 @@ use Nexus\Core\Support\CustomCollection;
 class ResourceDeliveryCompleteDto
 {
     /**
-     * @param  CustomCollection<ResourceDeliveryContent>  $contents  送信完了コンテンツのリスト
+     * @param  CustomCollection<ResourceDeliveryContentDto>  $contents  送信完了コンテンツのリスト
      */
     public function __construct(
 
@@ -22,7 +22,7 @@ class ResourceDeliveryCompleteDto
     /**
      * 送信完了コンテンツのリストを取得
      *
-     * @return CustomCollection<ResourceDeliveryContent>
+     * @return CustomCollection<ResourceDeliveryContentDto>
      */
     public function getContents(): CustomCollection
     {

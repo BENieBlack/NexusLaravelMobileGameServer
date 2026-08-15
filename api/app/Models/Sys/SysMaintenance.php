@@ -10,6 +10,13 @@ use NexusMaintenance\ValueObjects\Maintenance;
  * SysMaintenance Model
  *
  * メンテナンス情報管理テーブル
+ *
+ * @property ?string $end_at
+ * @property bool $is_active
+ * @property ?string $message
+ * @property ?string $start_at
+ * @property ?string $title
+ * @property ?string $updated_at
  */
 class SysMaintenance extends _BaseSys
 {

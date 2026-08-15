@@ -19,6 +19,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * FIFO管理・有効期限管理が必要な通貨を管理
  * trx_wallet_balanceテーブルで取得単位の詳細管理を行う
+ *
+ * @property int $free_amount
+ * @property int $paid_amount
  */
 class TrxWallet extends _BaseTrx
 {

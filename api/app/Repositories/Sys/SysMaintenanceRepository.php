@@ -63,8 +63,6 @@ class SysMaintenanceRepository extends _BaseSysRepository implements Maintenance
 
     /**
      * 有効なメンテナンス一覧を取得
-     *
-     * @return Collection
      */
     public function selectActiveList(): CustomCollection
     {
@@ -75,8 +73,6 @@ class SysMaintenanceRepository extends _BaseSysRepository implements Maintenance
 
     /**
      * 今後予定されているメンテナンス一覧を取得
-     *
-     * @return Collection
      */
     public function selectUpcomingList(): CustomCollection
     {

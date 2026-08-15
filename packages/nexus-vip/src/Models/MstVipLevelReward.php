@@ -6,6 +6,15 @@ use Nexus\Core\Models\Mst\_BaseMst;
 
 /**
  * VIPレベルアップ報酬マスターモデル
+ *
+ * @property int $amount
+ * @property string $content_id
+ * @property ?array $content_option
+ * @property int $content_quantity
+ * @property string $content_type
+ * @property bool $is_active
+ * @property bool $is_paid
+ * @property int $vip_level
  */
 class MstVipLevelReward extends _BaseMst
 {

@@ -57,7 +57,6 @@ class LogAccessRepository extends _BaseLogRepository
             'response_body' => $responseBody,
             'status_code' => $statusCode,
             'system_at' => ClockUtility::now(),
-            'created_at' => ClockUtility::now(),
         ]);
 
         // 通常ログとして登録

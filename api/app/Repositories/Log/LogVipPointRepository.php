@@ -50,7 +50,6 @@ class LogVipPointRepository extends _BaseLogRepository implements VipPointLogRep
             'currency_code' => $metadata['currency_code'] ?? null,
             'mst_in_app_purchase_id' => $metadata['mst_in_app_purchase_id'] ?? null,
             'system_at' => ClockUtility::now(),
-            'created_at' => ClockUtility::now(),
         ]);
 
         // 通常ログとして登録

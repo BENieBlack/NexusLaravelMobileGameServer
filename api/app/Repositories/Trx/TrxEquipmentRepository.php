@@ -4,7 +4,6 @@ namespace App\Repositories\Trx;
 
 use App\Models\Trx\TrxEquipment;
 use App\Persistence\ApiSession;
-use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * TrxEquipmentRepository
@@ -54,8 +53,6 @@ class TrxEquipmentRepository extends _BaseTrxRepository
             'mst_equipment_id' => $mstEquipmentId,
             'grade' => $grade ?? 1,
             'level' => $level ?? 1,
-            'created_at' => ClockUtility::now(),
-            'updated_at' => ClockUtility::now(),
         ]);
 
         // setModelでTrxデータをキューイング

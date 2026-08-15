@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -25,8 +26,8 @@ return new class extends Migration
             $table->unsignedInteger('node_count')->comment('ノード数');
             $table->boolean('is_active')->default(true)->comment('アクティブ状態');
             $table->text('description')->nullable()->comment('説明');
-            $table->dateTime('created_at')->nullable()->comment('作成日時');
-            $table->dateTime('updated_at')->nullable()->comment('更新日時');
+            $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
+            $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
 
             // インデックス
             $table->index('target');
@@ -49,8 +50,8 @@ return new class extends Migration
             $table->boolean('is_readable')->default(true)->comment('読み込み可能かどうか');
             $table->integer('max_connections')->default(100)->comment('最大同時接続数');
             $table->integer('current_player_count')->default(0)->comment('現在割り当てられているプレイヤー数');
-            $table->dateTime('created_at')->nullable()->comment('作成日時');
-            $table->dateTime('updated_at')->nullable()->comment('更新日時');
+            $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
+            $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
 
             // インデックス
             $table->index('sys_sharding_id');

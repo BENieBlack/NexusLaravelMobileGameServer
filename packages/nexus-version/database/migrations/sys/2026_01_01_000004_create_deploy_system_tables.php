@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -26,8 +27,8 @@ return new class extends Migration
             $table->string('deployed_by')->nullable()->comment('デプロイ実行者');
             $table->dateTime('deployed_at')->nullable()->comment('実際のデプロイ実行日時');
             $table->text('description')->nullable()->comment('デプロイ内容の説明');
-            $table->dateTime('created_at')->nullable()->comment('作成日時');
-            $table->dateTime('updated_at')->nullable()->comment('更新日時');
+            $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
+            $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
 
             // インデックス
             $table->index('deploy_date');
@@ -56,8 +57,8 @@ return new class extends Migration
             $table->string('deployed_by')->nullable()->comment('デプロイ実行者');
             $table->dateTime('deployed_at')->nullable()->comment('実際のデプロイ実行日時');
             $table->text('description')->nullable()->comment('デプロイ内容の説明');
-            $table->dateTime('created_at')->nullable()->comment('作成日時');
-            $table->dateTime('updated_at')->nullable()->comment('更新日時');
+            $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
+            $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
 
             // インデックス
             $table->index('deploy_date');
@@ -77,8 +78,8 @@ return new class extends Migration
             $table->unsignedBigInteger('sys_deploy_master_id')->comment('DLできるsys_deploy_masterのID');
             $table->unsignedBigInteger('sys_deploy_asset_id')->comment('DLできるsys_deploy_assetのID');
             $table->boolean('is_active')->default(true)->comment('有効フラグ');
-            $table->dateTime('created_at')->nullable()->comment('作成日時');
-            $table->dateTime('updated_at')->nullable()->comment('更新日時');
+            $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
+            $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
 
             // インデックス
             $table->index('deploy_key');

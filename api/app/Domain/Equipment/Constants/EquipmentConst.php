@@ -2,9 +2,6 @@
 
 namespace App\Domain\Equipment\Constants;
 
-use App\Domain\Common\Constants\ElementType;
-use App\Domain\Common\Constants\RarityType;
-
 /**
  * 装備関連の定数定義
  *
@@ -23,40 +20,6 @@ class EquipmentConst
     const TYPE_SUPPORT = 'Support';
 
     /**
-     * 装備属性（共通定数を使用）
-     *
-     * @deprecated Use App\Domain\Common\Constants\ElementType instead
-     */
-    const ELEMENT_FIRE = ElementType::FIRE;
-
-    const ELEMENT_WATER = ElementType::WATER;
-
-    const ELEMENT_WIND = ElementType::WIND;
-
-    const ELEMENT_EARTH = ElementType::EARTH;
-
-    const ELEMENT_LIGHT = ElementType::LIGHT;
-
-    const ELEMENT_DARK = ElementType::DARK;
-
-    /**
-     * 装備レアリティ（共通定数を使用）
-     *
-     * @deprecated Use App\Domain\Common\Constants\RarityType instead
-     */
-    const RARITY_UR = RarityType::UR;
-
-    const RARITY_SSR = RarityType::SSR;
-
-    const RARITY_SR = RarityType::SR;
-
-    const RARITY_R = RarityType::R;
-
-    const RARITY_UC = RarityType::UC;
-
-    const RARITY_C = RarityType::C;
-
-    /**
      * 全タイプの配列を取得
      *
      * @return array<int, string>
@@ -71,50 +34,10 @@ class EquipmentConst
     }
 
     /**
-     * 全属性の配列を取得
-     *
-     * @deprecated Use ElementType::all() instead
-     */
-    public static function getAllElements(): array
-    {
-        return ElementType::all();
-    }
-
-    /**
-     * 全レアリティの配列を取得
-     *
-     * @deprecated Use RarityType::all() instead
-     */
-    public static function getAllRarities(): array
-    {
-        return RarityType::all();
-    }
-
-    /**
      * タイプが有効かチェック
      */
     public static function isValidType(string $type): bool
     {
         return in_array($type, self::allTypes(), true);
-    }
-
-    /**
-     * 属性が有効かチェック
-     *
-     * @deprecated Use ElementType::isValid() instead
-     */
-    public static function isValidElement(string $element): bool
-    {
-        return ElementType::isValid($element);
-    }
-
-    /**
-     * レアリティが有効かチェック
-     *
-     * @deprecated Use RarityType::isValid() instead
-     */
-    public static function isValidRarity(string $rarity): bool
-    {
-        return RarityType::isValid($rarity);
     }
 }

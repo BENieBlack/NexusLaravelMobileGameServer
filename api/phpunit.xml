@@ -11,6 +11,10 @@
         <testsuite name="Feature">
             <directory>tests/Feature</directory>
         </testsuite>
+        <!-- 規約違反を静的に検出するテスト群 -->
+        <testsuite name="Architecture">
+            <directory>tests/Architecture</directory>
+        </testsuite>
         <!--
             パッケージのテストもここから実行する。
             各パッケージは path リポジトリとして api の vendor にオートロードされるため、

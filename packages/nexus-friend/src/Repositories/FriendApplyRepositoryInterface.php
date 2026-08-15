@@ -2,7 +2,7 @@
 
 namespace NexusFriend\Repositories;
 
-use NexusFriend\Dto\FriendApplyDto;
+use NexusFriend\DataTransferObjects\FriendApply;
 
 /**
  * FriendApplyRepositoryInterface
@@ -16,7 +16,7 @@ interface FriendApplyRepositoryInterface
      *
      * @param  int  $friendApplyId  フレンド申請ID
      */
-    public function selectById(int $friendApplyId): ?FriendApplyDto;
+    public function selectById(int $friendApplyId): ?FriendApply;
 
     /**
      * 申請者と受信者のペアで既存の申請を検索（双方向チェック）
@@ -26,7 +26,7 @@ interface FriendApplyRepositoryInterface
      * @param  int  $senderPlayerId  申請者のプレイヤーID
      * @param  int  $receiverPlayerId  受信者のプレイヤーID
      */
-    public function selectByPlayerPair(int $senderPlayerId, int $receiverPlayerId): ?FriendApplyDto;
+    public function selectByPlayerPair(int $senderPlayerId, int $receiverPlayerId): ?FriendApply;
 
     /**
      * プレイヤーIDに関連するフレンド申請一覧を取得
@@ -35,7 +35,7 @@ interface FriendApplyRepositoryInterface
      * statusがAppliedのものを取得
      *
      * @param  int  $playerId  プレイヤーID
-     * @return array<FriendApplyDto>
+     * @return array<FriendApply>
      */
     public function selectAppliesByPlayerId(int $playerId): array;
 
@@ -46,7 +46,7 @@ interface FriendApplyRepositoryInterface
      * statusがAcceptedのものを取得
      *
      * @param  int  $playerId  プレイヤーID
-     * @return array<FriendApplyDto>
+     * @return array<FriendApply>
      */
     public function selectAcceptedFriendsByPlayerId(int $playerId): array;
 
@@ -56,23 +56,23 @@ interface FriendApplyRepositoryInterface
      * @param  int  $senderPlayerId  申請者のプレイヤーID
      * @param  int  $receiverPlayerId  受信者のプレイヤーID
      */
-    public function insert(int $senderPlayerId, int $receiverPlayerId): FriendApplyDto;
+    public function insert(int $senderPlayerId, int $receiverPlayerId): FriendApply;
 
     /**
      * フレンド申請を承認
      *
-     * @param  FriendApplyDto  $friendApplyDto  承認するフレンド申請
-     * @return FriendApplyDto 承認後のDTO
+     * @param  FriendApply  $friendApplyDto  承認するフレンド申請
+     * @return FriendApply 承認後のDTO
      */
-    public function accept(FriendApplyDto $friendApplyDto): FriendApplyDto;
+    public function accept(FriendApply $friendApplyDto): FriendApply;
 
     /**
      * フレンド申請を却下
      *
-     * @param  FriendApplyDto  $friendApplyDto  却下するフレンド申請
-     * @return FriendApplyDto 却下後のDTO
+     * @param  FriendApply  $friendApplyDto  却下するフレンド申請
+     * @return FriendApply 却下後のDTO
      */
-    public function reject(FriendApplyDto $friendApplyDto): FriendApplyDto;
+    public function reject(FriendApply $friendApplyDto): FriendApply;
 
     /**
      * フレンド関係を削除（論理削除）
@@ -81,7 +81,7 @@ interface FriendApplyRepositoryInterface
      *
      * @param  int  $playerId  削除実行者のプレイヤーID
      * @param  int  $targetPlayerId  削除対象のプレイヤーID
-     * @return FriendApplyDto|null 削除されたフレンド関係、見つからない場合null
+     * @return FriendApply|null 削除されたフレンド関係、見つからない場合null
      */
-    public function deleteFriendRelation(int $playerId, int $targetPlayerId): ?FriendApplyDto;
+    public function deleteFriendRelation(int $playerId, int $targetPlayerId): ?FriendApply;
 }

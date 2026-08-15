@@ -93,7 +93,7 @@ private function getBonusTier(int $absentDays): string
 報酬内容をVIPレベルや休眠日数に応じて調整
 
 ```php
-protected function convertToResource(object $content): ResourceDto
+protected function convertToResource(object $content): Resource
 {
     // VIPレベルによる報酬ボーナス
     $player = $this->getPlayer();
@@ -135,7 +135,7 @@ protected function grantBonus(int $sysPlayerId, array $bonusData, string $connec
 
     // 30日以上休眠している場合、特別アイテムを追加
     if (($bonusData['absent_days'] ?? 0) >= 30) {
-        $specialItem = ResourceDto::fromTypeString(
+        $specialItem = Resource::fromTypeString(
             typeString: 'item',
             id: 'special_comeback_ticket',
             amount: 1,
@@ -201,7 +201,7 @@ class StagedComeBackLoginBonusService extends _BaseLoginBonusService
 
     private function grantStreakBonus(int $sysPlayerId, int $streakDays): void
     {
-        $bonus = ResourceDto::fromTypeString(
+        $bonus = Resource::fromTypeString(
             typeString: 'diamond',
             id: 'free',
             amount: $streakDays * 100,

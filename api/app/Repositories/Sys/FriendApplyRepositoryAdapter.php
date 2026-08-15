@@ -4,7 +4,7 @@ namespace App\Repositories\Sys;
 
 use App\Adapters\Friend\FriendApplyAdapter;
 use App\Models\Sys\SysFriendApply;
-use NexusFriend\Dto\FriendApplyDto;
+use NexusFriend\DataTransferObjects\FriendApply;
 use NexusFriend\Repositories\FriendApplyRepositoryInterface;
 
 /**
@@ -24,7 +24,7 @@ class FriendApplyRepositoryAdapter implements FriendApplyRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function selectById(int $friendApplyId): ?FriendApplyDto
+    public function selectById(int $friendApplyId): ?FriendApply
     {
         $model = $this->sysFriendApplyRepository->selectById($friendApplyId);
 
@@ -34,7 +34,7 @@ class FriendApplyRepositoryAdapter implements FriendApplyRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function selectByPlayerPair(int $senderPlayerId, int $receiverPlayerId): ?FriendApplyDto
+    public function selectByPlayerPair(int $senderPlayerId, int $receiverPlayerId): ?FriendApply
     {
         $model = $this->sysFriendApplyRepository->selectByPlayerPair($senderPlayerId, $receiverPlayerId);
 
@@ -44,7 +44,7 @@ class FriendApplyRepositoryAdapter implements FriendApplyRepositoryInterface
     /**
      * {@inheritDoc}
      *
-     * @return array<FriendApplyDto>
+     * @return array<FriendApply>
      */
     public function selectAppliesByPlayerId(int $playerId): array
     {
@@ -56,7 +56,7 @@ class FriendApplyRepositoryAdapter implements FriendApplyRepositoryInterface
     /**
      * {@inheritDoc}
      *
-     * @return array<FriendApplyDto>
+     * @return array<FriendApply>
      */
     public function selectAcceptedFriendsByPlayerId(int $playerId): array
     {
@@ -68,7 +68,7 @@ class FriendApplyRepositoryAdapter implements FriendApplyRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function insert(int $senderPlayerId, int $receiverPlayerId): FriendApplyDto
+    public function insert(int $senderPlayerId, int $receiverPlayerId): FriendApply
     {
         $model = $this->sysFriendApplyRepository->insertApply($senderPlayerId, $receiverPlayerId);
 
@@ -78,7 +78,7 @@ class FriendApplyRepositoryAdapter implements FriendApplyRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function accept(FriendApplyDto $friendApplyDto): FriendApplyDto
+    public function accept(FriendApply $friendApplyDto): FriendApply
     {
         $model = $this->requireModel($friendApplyDto->getId());
 
@@ -91,7 +91,7 @@ class FriendApplyRepositoryAdapter implements FriendApplyRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function reject(FriendApplyDto $friendApplyDto): FriendApplyDto
+    public function reject(FriendApply $friendApplyDto): FriendApply
     {
         $model = $this->requireModel($friendApplyDto->getId());
 
@@ -104,7 +104,7 @@ class FriendApplyRepositoryAdapter implements FriendApplyRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function deleteFriendRelation(int $playerId, int $targetPlayerId): ?FriendApplyDto
+    public function deleteFriendRelation(int $playerId, int $targetPlayerId): ?FriendApply
     {
         $model = $this->sysFriendApplyRepository->deleteFriendRelationModel($playerId, $targetPlayerId);
 

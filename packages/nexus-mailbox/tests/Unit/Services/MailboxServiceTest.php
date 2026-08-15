@@ -4,7 +4,7 @@ namespace NexusMailbox\Tests\Unit\Services;
 
 use Illuminate\Support\Collection;
 use NexusMailbox\Constants\Category;
-use NexusMailbox\Dto\MailboxDto;
+use NexusMailbox\DataTransferObjects\Mailbox;
 use NexusMailbox\Repositories\MailboxRepositoryInterface;
 use NexusMailbox\Services\MailboxService;
 use PHPUnit\Framework\TestCase;
@@ -27,7 +27,7 @@ class MailboxServiceTest extends TestCase
     {
         $sysPlayerId = 100;
         $expectedCollection = new Collection([
-            new MailboxDto(1, $sysPlayerId, 'mail_001', false, false, false, null, '2026-01-01 00:00:00'),
+            new Mailbox(1, $sysPlayerId, 'mail_001', false, false, false, null, '2026-01-01 00:00:00'),
         ]);
 
         $this->mockRepository
@@ -96,7 +96,7 @@ class MailboxServiceTest extends TestCase
         $sysPlayerId = 100;
         $differentPlayerId = 999;
 
-        $mailbox = new MailboxDto(
+        $mailbox = new Mailbox(
             $mailboxId,
             $differentPlayerId,
             'mail_001',
@@ -123,7 +123,7 @@ class MailboxServiceTest extends TestCase
         $mailboxId = 1;
         $sysPlayerId = 100;
 
-        $mailbox = new MailboxDto(
+        $mailbox = new Mailbox(
             $mailboxId,
             $sysPlayerId,
             'mail_001',
@@ -150,7 +150,7 @@ class MailboxServiceTest extends TestCase
         $mailboxId = 1;
         $sysPlayerId = 100;
 
-        $mailbox = new MailboxDto(
+        $mailbox = new Mailbox(
             $mailboxId,
             $sysPlayerId,
             'mail_001',
@@ -200,7 +200,7 @@ class MailboxServiceTest extends TestCase
         $mailboxId = 1;
         $sysPlayerId = 100;
 
-        $mailbox = new MailboxDto(
+        $mailbox = new Mailbox(
             $mailboxId,
             $sysPlayerId,
             'mail_001',
@@ -253,7 +253,7 @@ class MailboxServiceTest extends TestCase
         $mailboxId = 1;
         $sysPlayerId = 100;
 
-        $mailbox = new MailboxDto(
+        $mailbox = new Mailbox(
             $mailboxId,
             $sysPlayerId,
             'mail_001',
@@ -280,7 +280,7 @@ class MailboxServiceTest extends TestCase
         $mailboxId = 1;
         $sysPlayerId = 100;
 
-        $mailbox = new MailboxDto(
+        $mailbox = new Mailbox(
             $mailboxId,
             $sysPlayerId,
             'mail_001',
@@ -306,7 +306,7 @@ class MailboxServiceTest extends TestCase
 
         $result = $this->service->markAsReceived($mailboxId, $sysPlayerId);
 
-        $this->assertInstanceOf(MailboxDto::class, $result);
+        $this->assertInstanceOf(Mailbox::class, $result);
         $this->assertTrue($result->isReceived());
     }
 }

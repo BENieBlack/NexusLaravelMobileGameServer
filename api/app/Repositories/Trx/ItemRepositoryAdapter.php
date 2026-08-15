@@ -4,13 +4,13 @@ namespace App\Repositories\Trx;
 
 use App\Models\Trx\TrxItem;
 use NexusResource\Contracts\ItemRepositoryInterface;
-use NexusResource\DTOs\ItemDto;
+use NexusResource\DataTransferObjects\Item;
 
 /**
  * ItemRepositoryAdapter
  *
  * ItemRepositoryInterfaceの実装クラス
- * TrxItemモデル ↔ ItemDto の変換を担当
+ * TrxItemモデル ↔ Item の変換を担当
  */
 class ItemRepositoryAdapter implements ItemRepositoryInterface
 {
@@ -24,7 +24,7 @@ class ItemRepositoryAdapter implements ItemRepositoryInterface
      * @param  int  $sysPlayerId  プレイヤーID
      * @param  string  $mstItemId  アイテムID
      */
-    public function selectItem(int $sysPlayerId, string $mstItemId): ?ItemDto
+    public function selectItem(int $sysPlayerId, string $mstItemId): ?Item
     {
         $trxItem = TrxItem::query()
             ->where('sys_player_id', $sysPlayerId)
@@ -37,7 +37,7 @@ class ItemRepositoryAdapter implements ItemRepositoryInterface
     /**
      * アイテムを保存（新規作成 or 更新）
      */
-    public function persistItem(ItemDto $itemDto): void
+    public function persistItem(Item $itemDto): void
     {
         $trxItem = TrxItem::query()
             ->where('sys_player_id', $itemDto->getSysPlayerId())
@@ -68,7 +68,7 @@ class ItemRepositoryAdapter implements ItemRepositoryInterface
      *
      * @param  int  $sysPlayerId  プレイヤーID
      * @param  array<string>  $mstItemIds  アイテムIDリスト
-     * @return array<ItemDto>
+     * @return array<Item>
      */
     public function selectItemsByIds(int $sysPlayerId, array $mstItemIds): array
     {
@@ -81,11 +81,11 @@ class ItemRepositoryAdapter implements ItemRepositoryInterface
     }
 
     /**
-     * TrxItemモデルをItemDtoに変換
+     * TrxItemモデルをItemに変換
      */
-    private function modelToDto(TrxItem $trxItem): ItemDto
+    private function modelToDto(TrxItem $trxItem): Item
     {
-        return new ItemDto(
+        return new Item(
             sysPlayerId: $trxItem->getSysPlayerId(),
             mstItemId: $trxItem->getMstItemId(),
             freeAmount: $trxItem->getFreeAmount(),

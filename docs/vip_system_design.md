@@ -278,9 +278,9 @@ packages/nexus-vip/
 │   │   ├── MstVipLevel.php              # VIPレベルマスター
 │   │   └── MstVipLevelReward.php        # VIPレベルアップ報酬マスター
 │   ├── DTOs/
-│   │   ├── VipInfoDto.php               # VIP情報レスポンス
-│   │   ├── VipBenefitDto.php            # VIP特典情報
-│   │   └── VipRewardDto.php             # VIPレベルアップ報酬情報
+│   │   ├── VipInfo.php               # VIP情報レスポンス
+│   │   ├── VipBenefit.php            # VIP特典情報
+│   │   └── VipReward.php             # VIPレベルアップ報酬情報
 │   ├── Events/
 │   │   └── VipLevelUpEvent.php          # VIPレベルアップイベント
 │   ├── Exceptions/
@@ -434,9 +434,9 @@ class VipLevelService
      * VIPレベルの特典情報を取得
      *
      * @param int $level
-     * @return VipBenefitDto
+     * @return VipBenefit
      */
-    public function getBenefits(int $level): VipBenefitDto
+    public function getBenefits(int $level): VipBenefit
     {
         $vipLevel = $this->vipLevelRepository->findByLevel($level);
         
@@ -444,7 +444,7 @@ class VipLevelService
             throw new VipLevelNotFoundException("VIP level {$level} not found");
         }
         
-        return new VipBenefitDto(
+        return new VipBenefit(
             maxStaminaBonus: $vipLevel->getMaxStaminaBonus(),
             dailyDiamondBonus: $vipLevel->getDailyDiamondBonus(),
             shopDiscountRate: $vipLevel->getShopDiscountRate(),
@@ -523,14 +523,14 @@ class VipRewardService
      * VIPレベルに対応する報酬一覧を取得
      *
      * @param int $vipLevel
-     * @return array<VipRewardDto>
+     * @return array<VipReward>
      */
     public function getRewardsByLevel(int $vipLevel): array
     {
         $rewards = $this->vipLevelRewardRepository->findActiveByVipLevel($vipLevel);
 
         return $rewards->map(function ($reward) {
-            return new VipRewardDto(
+            return new VipReward(
                 rewardType: $reward->getRewardType(),
                 rewardId: $reward->getRewardId(),
                 rewardAmount: $reward->getRewardAmount(),

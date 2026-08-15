@@ -6,7 +6,7 @@ use App\Domain\InAppPurchase\Services\DiamondService;
 use App\Domain\InAppPurchase\Services\InAppPurchaseValidationService;
 use App\Http\Responses\InAppPurchase\BuyResponse;
 use App\Models\Mst\MstInAppPurchase;
-use NexusBilling\DTOs\VerificationDto;
+use NexusBilling\DataTransferObjects\Verification;
 use NexusBilling\Facades\BillingFacade;
 
 /**
@@ -35,7 +35,7 @@ class InAppPurchaseBuyDiamondUseCase extends _BaseBuyUseCase
         MstInAppPurchase $mstInAppPurchase,
         string $platform,
         string $billingPlatform,
-        VerificationDto $verificationDto
+        Verification $verificationDto
     ): BuyResponse {
         // TODO: 実際のプロダクションでは、決済プラットフォームから価格を取得する
         // ここでは仮の単価を使用（ダイヤ1個あたりの価格）

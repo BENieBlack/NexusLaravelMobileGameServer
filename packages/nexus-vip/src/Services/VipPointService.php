@@ -2,7 +2,7 @@
 
 namespace NexusVip\Services;
 
-use NexusVip\DTOs\PlayerVipDto;
+use NexusVip\DataTransferObjects\PlayerVip;
 use NexusVip\Events\VipLevelUpEvent;
 use NexusVip\Exceptions\InvalidVipPointException;
 use NexusVip\Repositories\PlayerVipRepositoryInterface;
@@ -39,7 +39,7 @@ class VipPointService
         int $points,
         string $reason,
         array $metadata = []
-    ): PlayerVipDto {
+    ): PlayerVip {
         if ($points <= 0) {
             throw new InvalidVipPointException("Points must be positive, got: {$points}");
         }
@@ -130,7 +130,7 @@ class VipPointService
     /**
      * プレイヤーのVIP情報を取得
      */
-    public function findPlayerVipInfo(int $sysPlayerId): ?PlayerVipDto
+    public function findPlayerVipInfo(int $sysPlayerId): ?PlayerVip
     {
         return $this->playerVipRepository->selectVipInfoById($sysPlayerId);
     }

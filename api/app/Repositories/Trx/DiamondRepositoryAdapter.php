@@ -4,13 +4,13 @@ namespace App\Repositories\Trx;
 
 use App\Models\Trx\TrxDiamond;
 use NexusBilling\Contracts\DiamondRepositoryInterface;
-use NexusBilling\DTOs\DiamondBalanceDto;
+use NexusBilling\DataTransferObjects\DiamondBalance;
 
 /**
  * DiamondRepositoryAdapter
  *
  * DiamondRepositoryInterfaceの実装クラス
- * TrxDiamondモデル ↔ DiamondBalanceDto の変換を担当
+ * TrxDiamondモデル ↔ DiamondBalance の変換を担当
  */
 class DiamondRepositoryAdapter implements DiamondRepositoryInterface
 {
@@ -24,7 +24,7 @@ class DiamondRepositoryAdapter implements DiamondRepositoryInterface
      * @param  int  $sysPlayerId  プレイヤーID
      * @param  string  $platform  プラットフォーム（Apple, Google）
      */
-    public function selectByPlatform(int $sysPlayerId, string $platform): ?DiamondBalanceDto
+    public function selectByPlatform(int $sysPlayerId, string $platform): ?DiamondBalance
     {
         $trxDiamond = $this->trxDiamondRepository->selectByPlatform($sysPlayerId, $platform);
 
@@ -35,7 +35,7 @@ class DiamondRepositoryAdapter implements DiamondRepositoryInterface
      * プレイヤーIDで全プラットフォームのダイヤモンドを取得
      *
      * @param  int  $sysPlayerId  プレイヤーID
-     * @return array<DiamondBalanceDto>
+     * @return array<DiamondBalance>
      */
     public function selectAllByPlayerId(int $sysPlayerId): array
     {
@@ -47,7 +47,7 @@ class DiamondRepositoryAdapter implements DiamondRepositoryInterface
     /**
      * ダイヤモンド残高を保存（新規作成 or 更新）
      */
-    public function persistDiamond(DiamondBalanceDto $diamondDto): void
+    public function persistDiamond(DiamondBalance $diamondDto): void
     {
         $trxDiamond = $this->trxDiamondRepository->selectByPlatform(
             $diamondDto->getSysPlayerId(),
@@ -74,11 +74,11 @@ class DiamondRepositoryAdapter implements DiamondRepositoryInterface
     }
 
     /**
-     * TrxDiamondモデルをDiamondBalanceDtoに変換
+     * TrxDiamondモデルをDiamondBalanceに変換
      */
-    private function modelToDto(TrxDiamond $trxDiamond): DiamondBalanceDto
+    private function modelToDto(TrxDiamond $trxDiamond): DiamondBalance
     {
-        return new DiamondBalanceDto(
+        return new DiamondBalance(
             sysPlayerId: $trxDiamond->getAttribute('sys_player_id'),
             platform: $trxDiamond->getAttribute('platform'),
             paidAmount: $trxDiamond->getPaidAmount(),

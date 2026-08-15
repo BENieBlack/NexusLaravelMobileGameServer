@@ -85,7 +85,7 @@ packages/nexus-resource/src/
   │   ├── ItemReadService.php          # 読み取り専用
   │   └── ItemWriteService.php         # 書き込み専用
   ├── DTOs/
-  │   └── ItemDto.php                  # すでに存在
+  │   └── Item.php                  # すでに存在
   ├── Repositories/
   │   └── ItemRepositoryInterface.php  # インターフェース
   └── Enums/
@@ -103,7 +103,7 @@ api/app/Domain/Item/Services/
 // packages/nexus-resource/src/Services/ItemWriteService.php
 namespace NexusResource\Services;
 
-use NexusResource\DTOs\ItemDto;
+use NexusResource\DataTransferObjects\Item;
 use NexusResource\Repositories\ItemRepositoryInterface;
 
 class ItemWriteService
@@ -118,10 +118,10 @@ class ItemWriteService
      * @param int $playerId
      * @param string $itemId
      * @param int $amount
-     * @return ItemDto
+     * @return Item
      * @throws InsufficientItemException
      */
-    public function consumeItem(int $playerId, string $itemId, int $amount): ItemDto
+    public function consumeItem(int $playerId, string $itemId, int $amount): Item
     {
         $item = $this->itemRepository->findByPlayerAndItem($playerId, $itemId);
         
@@ -340,7 +340,7 @@ Domain層（Model） → DTO ↔ Model変換 + アプリ固有機能
 ```php
 // Package Layer (DTO使用)
 class StaminaService {
-    public function consumeStamina(int $playerId, int $amount): StaminaDto;
+    public function consumeStamina(int $playerId, int $amount): Stamina;
 }
 
 // Domain Layer (Model返却)

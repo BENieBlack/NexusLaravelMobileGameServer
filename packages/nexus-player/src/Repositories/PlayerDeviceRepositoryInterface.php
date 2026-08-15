@@ -3,7 +3,7 @@
 namespace NexusPlayer\Repositories;
 
 use Illuminate\Support\Collection;
-use NexusPlayer\Dto\PlayerDeviceDto;
+use NexusPlayer\DataTransferObjects\PlayerDevice;
 
 /**
  * PlayerDeviceRepositoryInterface
@@ -15,17 +15,17 @@ interface PlayerDeviceRepositoryInterface
     /**
      * デバイスUUIDでデバイス情報を取得
      */
-    public function selectByDeviceUuid(string $uuid): ?PlayerDeviceDto;
+    public function selectByDeviceUuid(string $uuid): ?PlayerDevice;
 
     /**
      * プレイヤーIDでデバイス一覧を取得
      *
-     * @return Collection<PlayerDeviceDto>
+     * @return Collection<PlayerDevice>
      */
     public function selectByPlayerId(int $sysPlayerId): Collection;
 
     /**
      * デバイスを保存
      */
-    public function persist(PlayerDeviceDto $playerDeviceDto): void;
+    public function persist(PlayerDevice $playerDeviceDto): void;
 }

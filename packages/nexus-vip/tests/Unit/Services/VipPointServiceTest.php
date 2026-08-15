@@ -3,7 +3,7 @@
 namespace NexusVip\Tests\Unit\Services;
 
 use Mockery;
-use NexusVip\DTOs\PlayerVipDto;
+use NexusVip\DataTransferObjects\PlayerVip;
 use NexusVip\Exceptions\InvalidVipPointException;
 use NexusVip\Repositories\PlayerVipRepositoryInterface;
 use NexusVip\Repositories\VipPointLogRepositoryInterface;
@@ -76,7 +76,7 @@ class VipPointServiceTest extends TestCase
         $points = 100;
         $reason = 'purchase';
 
-        $playerVipDto = new PlayerVipDto(
+        $playerVipDto = new PlayerVip(
             sysPlayerId: $sysPlayerId,
             vipPoint: 0,
             totalPaidAmount: 0.0
@@ -104,7 +104,7 @@ class VipPointServiceTest extends TestCase
             ->shouldReceive('persistVipInfo')
             ->once()
             ->with(Mockery::on(function ($dto) {
-                return $dto instanceof PlayerVipDto
+                return $dto instanceof PlayerVip
                     && $dto->getVipPoint() === 100
                     && $dto->getSysPlayerId() === 1;
             }));
@@ -129,7 +129,7 @@ class VipPointServiceTest extends TestCase
         $reason = 'purchase';
         $metadata = ['purchase_amount_jpy' => 1000.0];
 
-        $playerVipDto = new PlayerVipDto(
+        $playerVipDto = new PlayerVip(
             sysPlayerId: $sysPlayerId,
             vipPoint: 0,
             totalPaidAmount: 0.0
@@ -149,7 +149,7 @@ class VipPointServiceTest extends TestCase
             ->shouldReceive('persistVipInfo')
             ->once()
             ->with(Mockery::on(function ($dto) {
-                return $dto instanceof PlayerVipDto
+                return $dto instanceof PlayerVip
                     && $dto->getVipPoint() === 100
                     && $dto->getTotalPaidAmount() === 1000.0;
             }));
@@ -214,7 +214,7 @@ class VipPointServiceTest extends TestCase
     {
         // Arrange
         $sysPlayerId = 1;
-        $playerVipDto = new PlayerVipDto(
+        $playerVipDto = new PlayerVip(
             sysPlayerId: $sysPlayerId,
             vipPoint: 500,
             totalPaidAmount: 5000.0

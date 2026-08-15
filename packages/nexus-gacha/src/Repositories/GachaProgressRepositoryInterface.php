@@ -2,7 +2,7 @@
 
 namespace NexusGacha\Repositories;
 
-use NexusGacha\Dto\GachaProgressDto;
+use NexusGacha\DataTransferObjects\GachaProgress;
 
 /**
  * GachaProgressRepositoryInterface
@@ -16,23 +16,23 @@ interface GachaProgressRepositoryInterface
      * 
      * @param int $sysPlayerId
      * @param string $mstGachaId
-     * @return GachaProgressDto|null
+     * @return GachaProgress|null
      */
-    public function selectByPlayerAndGacha(int $sysPlayerId, string $mstGachaId): ?GachaProgressDto;
+    public function selectByPlayerAndGacha(int $sysPlayerId, string $mstGachaId): ?GachaProgress;
 
     /**
      * 進行状況を保存
      * 
-     * @param GachaProgressDto $gachaProgressDto
+     * @param GachaProgress $gachaProgressDto
      * @return void
      */
-    public function persist(GachaProgressDto $gachaProgressDto): void;
+    public function persist(GachaProgress $gachaProgressDto): void;
 
     /**
      * 新規進行状況を作成
      * 
-     * @param GachaProgressDto $gachaProgressDto
-     * @return GachaProgressDto
+     * @param GachaProgress $gachaProgressDto
+     * @return GachaProgress
      */
-    public function insert(GachaProgressDto $gachaProgressDto): GachaProgressDto;
+    public function insert(GachaProgress $gachaProgressDto): GachaProgress;
 }

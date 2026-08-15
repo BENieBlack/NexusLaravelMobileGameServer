@@ -2,7 +2,7 @@
 
 namespace NexusResourceDelivery\ValueObjects;
 
-use NexusResourceDelivery\DTOs\ResourceDeliveryContentDto;
+use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
 
 /**
  * リソース配送結果 Value Object
@@ -15,8 +15,8 @@ use NexusResourceDelivery\DTOs\ResourceDeliveryContentDto;
 final class ResourceDeliveryResult
 {
     /**
-     * @param  array<ResourceDeliveryContentDto>  $deliveredItemArray  配送成功したコンテンツ
-     * @param  array<array{item: ResourceDeliveryContentDto, error: string}>  $failedItemArray  配送失敗したコンテンツとエラー情報
+     * @param  array<ResourceDeliveryContent>  $deliveredItemArray  配送成功したコンテンツ
+     * @param  array<array{item: ResourceDeliveryContent, error: string}>  $failedItemArray  配送失敗したコンテンツとエラー情報
      */
     public function __construct(
         private readonly array $deliveredItemArray,
@@ -26,7 +26,7 @@ final class ResourceDeliveryResult
     /**
      * 成功結果を作成
      *
-     * @param  array<ResourceDeliveryContentDto>  $itemArray
+     * @param  array<ResourceDeliveryContent>  $itemArray
      */
     public static function success(array $itemArray): self
     {
@@ -36,8 +36,8 @@ final class ResourceDeliveryResult
     /**
      * 部分的成功の結果を作成
      *
-     * @param  array<ResourceDeliveryContentDto>  $deliveredArray
-     * @param  array<array{item: ResourceDeliveryContentDto, error: string}>  $failedArray
+     * @param  array<ResourceDeliveryContent>  $deliveredArray
+     * @param  array<array{item: ResourceDeliveryContent, error: string}>  $failedArray
      */
     public static function partial(array $deliveredArray, array $failedArray): self
     {
@@ -47,7 +47,7 @@ final class ResourceDeliveryResult
     /**
      * 配送成功したコンテンツを取得
      *
-     * @return array<ResourceDeliveryContentDto>
+     * @return array<ResourceDeliveryContent>
      */
     public function getDeliveredItemArray(): array
     {
@@ -57,7 +57,7 @@ final class ResourceDeliveryResult
     /**
      * 配送失敗したコンテンツを取得
      *
-     * @return array<array{item: ResourceDeliveryContentDto, error: string}>
+     * @return array<array{item: ResourceDeliveryContent, error: string}>
      */
     public function getFailedItemArray(): array
     {

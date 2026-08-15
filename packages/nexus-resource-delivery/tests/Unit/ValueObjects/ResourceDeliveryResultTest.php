@@ -2,19 +2,19 @@
 
 namespace NexusResourceDelivery\Tests\Unit\ValueObjects;
 
-use NexusResource\DTOs\ResourceDto;
+use NexusResource\DataTransferObjects\Resource;
 use NexusResource\Enums\ResourceType;
-use NexusResourceDelivery\DTOs\ResourceDeliveryContentDto;
+use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
 use NexusResourceDelivery\ValueObjects\ResourceDeliveryResult;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class ResourceDeliveryResultTest extends TestCase
 {
-    private function makeContent(string $id = 'item_001', int $amount = 1): ResourceDeliveryContentDto
+    private function makeContent(string $id = 'item_001', int $amount = 1): ResourceDeliveryContent
     {
-        return new ResourceDeliveryContentDto(
-            new ResourceDto(ResourceType::ITEM, $id, $amount)
+        return new ResourceDeliveryContent(
+            new Resource(ResourceType::ITEM, $id, $amount)
         );
     }
 

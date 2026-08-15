@@ -3,7 +3,7 @@
 namespace App\Http\Responses\Guild;
 
 use App\Http\Responses\_BaseResponse;
-use NexusGuild\Dto\GuildMemberDto;
+use NexusGuild\DataTransferObjects\GuildMember;
 
 /**
  * GuildMemberListResponse
@@ -20,9 +20,9 @@ class GuildMemberListResponse extends _BaseResponse
     ) {}
 
     /**
-     * GuildMemberDto配列からレスポンスを生成
+     * GuildMember配列からレスポンスを生成
      *
-     * @param  array<GuildMemberDto>  $memberDtos
+     * @param  array<GuildMember>  $memberDtos
      */
     public static function fromDtoArray(array $memberDtos): self
     {

@@ -49,7 +49,7 @@ GOOGLE_PLAY_SERVICE_ACCOUNT_JSON=/path/to/service-account.json
 
 ```php
 use LaravelMobileBilling\Facades\BillingFacade;
-use LaravelMobileBilling\DTOs\ReceiptData;
+use LaravelMobileBilling\DataTransferObjects\ReceiptData;
 use LaravelMobileBilling\Constants\BillingConst;
 
 // レシートデータの作成
@@ -80,7 +80,7 @@ echo "Quantity: " . $result->quantity;
 
 ```php
 use LaravelMobileBilling\Facades\BillingFacade;
-use LaravelMobileBilling\DTOs\ReceiptData;
+use LaravelMobileBilling\DataTransferObjects\ReceiptData;
 use LaravelMobileBilling\Constants\BillingConst;
 
 // レシートデータの作成

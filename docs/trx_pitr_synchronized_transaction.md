@@ -257,7 +257,7 @@ abstract class _BaseTrxRepository extends _BaseRepository
             
             if (empty($originalState)) {
                 // INSERT
-                $changeLogs[] = new \NexusPitr\Dto\ChangeLogDto(
+                $changeLogs[] = new \NexusPitr\DataTransferObjects\ChangeLog(
                     uniqueRequestId: $this->getRequestId(),
                     sysPlayerId: $model->sys_player_id,
                     shardConnection: $this->connection,
@@ -276,7 +276,7 @@ abstract class _BaseTrxRepository extends _BaseRepository
                 $diff = array_diff_assoc($afterData, $originalState);
                 
                 if (!empty($diff)) {
-                    $changeLogs[] = new \NexusPitr\Dto\ChangeLogDto(
+                    $changeLogs[] = new \NexusPitr\DataTransferObjects\ChangeLog(
                         uniqueRequestId: $this->getRequestId(),
                         sysPlayerId: $model->sys_player_id,
                         shardConnection: $this->connection,
@@ -295,7 +295,7 @@ abstract class _BaseTrxRepository extends _BaseRepository
         
         // 削除キュー
         foreach ($this->deleteQueue as $model) {
-            $changeLogs[] = new \NexusPitr\Dto\ChangeLogDto(
+            $changeLogs[] = new \NexusPitr\DataTransferObjects\ChangeLog(
                 uniqueRequestId: $this->getRequestId(),
                 sysPlayerId: $model->sys_player_id,
                 shardConnection: $this->connection,
@@ -350,7 +350,7 @@ abstract class _BaseTrxRepository extends _BaseRepository
 namespace NexusPitr\Logger;
 
 use Illuminate\Support\Facades\DB;
-use NexusPitr\Dto\ChangeLogDto;
+use NexusPitr\DataTransferObjects\ChangeLog;
 
 class TrxChangeLogger
 {

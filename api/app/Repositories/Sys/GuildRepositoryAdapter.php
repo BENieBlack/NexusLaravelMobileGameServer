@@ -4,7 +4,7 @@ namespace App\Repositories\Sys;
 
 use App\Adapters\Guild\GuildAdapter;
 use App\Models\Sys\SysGuild;
-use NexusGuild\Dto\GuildDto;
+use NexusGuild\DataTransferObjects\Guild;
 use NexusGuild\Repositories\GuildRepositoryInterface;
 
 /**
@@ -24,7 +24,7 @@ class GuildRepositoryAdapter implements GuildRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function selectById(int $guildId): ?GuildDto
+    public function selectById(int $guildId): ?Guild
     {
         $model = $this->sysGuildRepository->selectById($guildId);
 
@@ -34,7 +34,7 @@ class GuildRepositoryAdapter implements GuildRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function selectByName(string $name): ?GuildDto
+    public function selectByName(string $name): ?Guild
     {
         $model = $this->sysGuildRepository->selectByName($name);
 
@@ -44,7 +44,7 @@ class GuildRepositoryAdapter implements GuildRepositoryInterface
     /**
      * {@inheritDoc}
      *
-     * @return array<GuildDto>
+     * @return array<Guild>
      */
     public function selectAll(): array
     {
@@ -54,7 +54,7 @@ class GuildRepositoryAdapter implements GuildRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function insert(string $name, string $description, int $masterPlayerId): GuildDto
+    public function insert(string $name, string $description, int $masterPlayerId): Guild
     {
         $model = $this->sysGuildRepository->insertGuild($name, $description, $masterPlayerId);
 
@@ -66,7 +66,7 @@ class GuildRepositoryAdapter implements GuildRepositoryInterface
      *
      * @param  array<string, mixed>  $data
      */
-    public function update(GuildDto $guildDto, array $data): GuildDto
+    public function update(Guild $guildDto, array $data): Guild
     {
         $model = $this->requireModel($guildDto->getId());
 
@@ -94,7 +94,7 @@ class GuildRepositoryAdapter implements GuildRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function delete(GuildDto $guildDto): void
+    public function delete(Guild $guildDto): void
     {
         $model = $this->sysGuildRepository->selectById($guildDto->getId());
 
@@ -106,7 +106,7 @@ class GuildRepositoryAdapter implements GuildRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function addExp(GuildDto $guildDto, int $exp): GuildDto
+    public function addExp(Guild $guildDto, int $exp): Guild
     {
         $model = $this->requireModel($guildDto->getId());
 
@@ -119,7 +119,7 @@ class GuildRepositoryAdapter implements GuildRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function updateLevel(GuildDto $guildDto, int $level, int $exp): GuildDto
+    public function updateLevel(Guild $guildDto, int $level, int $exp): Guild
     {
         $model = $this->requireModel($guildDto->getId());
 

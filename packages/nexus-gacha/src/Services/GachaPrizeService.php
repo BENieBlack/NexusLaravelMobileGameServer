@@ -3,7 +3,7 @@
 namespace NexusGacha\Services;
 
 use NexusGacha\ValueObjects\GachaPrize;
-use NexusResource\DTOs\ResourceDto;
+use NexusResource\DataTransferObjects\Resource;
 use NexusResourceDelivery\Services\ResourceDeliveryService;
 
 /**
@@ -48,14 +48,14 @@ class GachaPrizeService
      * @param string $contentType
      * @param string $contentId
      * @param int $amount
-     * @return ResourceDto
+     * @return Resource
      */
-    private function createResource(string $contentType, string $contentId, int $amount): ResourceDto
+    private function createResource(string $contentType, string $contentId, int $amount): Resource
     {
         return match ($contentType) {
-            'item' => ResourceDto::item($contentId, $amount),
-            'unit' => ResourceDto::unit($contentId, $amount),
-            'equipment' => ResourceDto::equipment($contentId, $amount),
+            'item' => Resource::item($contentId, $amount),
+            'unit' => Resource::unit($contentId, $amount),
+            'equipment' => Resource::equipment($contentId, $amount),
             default => throw new \Exception("Unsupported content type: {$contentType}"),
         };
     }

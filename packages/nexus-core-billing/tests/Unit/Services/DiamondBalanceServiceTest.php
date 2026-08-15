@@ -4,7 +4,7 @@ namespace NexusBilling\Tests\Unit\Services;
 
 use NexusBilling\Services\DiamondBalanceService;
 use NexusBilling\Contracts\DiamondRepositoryInterface;
-use NexusBilling\DTOs\DiamondBalanceDto;
+use NexusBilling\DataTransferObjects\DiamondBalance;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -37,7 +37,7 @@ class DiamondBalanceServiceTest extends TestCase
         $paidAmount = 500;
         $addAmount = 200;
 
-        $existingDto = new DiamondBalanceDto($sysPlayerId, $platform, $paidAmount, $freeAmount);
+        $existingDto = new DiamondBalance($sysPlayerId, $platform, $paidAmount, $freeAmount);
 
         $this->mockRepository
             ->expects($this->once())
@@ -48,7 +48,7 @@ class DiamondBalanceServiceTest extends TestCase
         $this->mockRepository
             ->expects($this->once())
             ->method('persistDiamond')
-            ->with($this->callback(function (DiamondBalanceDto $dto) use ($freeAmount, $addAmount, $paidAmount) {
+            ->with($this->callback(function (DiamondBalance $dto) use ($freeAmount, $addAmount, $paidAmount) {
                 return $dto->getFreeAmount() === ($freeAmount + $addAmount)
                     && $dto->getPaidAmount() === $paidAmount;
             }));
@@ -57,7 +57,7 @@ class DiamondBalanceServiceTest extends TestCase
         $result = $this->diamondBalanceService->addDiamond($sysPlayerId, $platform, $addAmount, false);
 
         // Assert
-        $this->assertInstanceOf(DiamondBalanceDto::class, $result);
+        $this->assertInstanceOf(DiamondBalance::class, $result);
         $this->assertSame($freeAmount + $addAmount, $result->getFreeAmount());
         $this->assertSame($paidAmount, $result->getPaidAmount());
     }
@@ -72,7 +72,7 @@ class DiamondBalanceServiceTest extends TestCase
         $paidAmount = 500;
         $addAmount = 300;
 
-        $existingDto = new DiamondBalanceDto($sysPlayerId, $platform, $paidAmount, $freeAmount);
+        $existingDto = new DiamondBalance($sysPlayerId, $platform, $paidAmount, $freeAmount);
 
         $this->mockRepository
             ->expects($this->once())
@@ -109,7 +109,7 @@ class DiamondBalanceServiceTest extends TestCase
         $this->mockRepository
             ->expects($this->once())
             ->method('persistDiamond')
-            ->with($this->callback(function (DiamondBalanceDto $dto) use ($addAmount) {
+            ->with($this->callback(function (DiamondBalance $dto) use ($addAmount) {
                 return $dto->getFreeAmount() === $addAmount
                     && $dto->getPaidAmount() === 0;
             }));
@@ -131,7 +131,7 @@ class DiamondBalanceServiceTest extends TestCase
         $freeAmount = 1000;
         $paidAmount = 500;
 
-        $existingDto = new DiamondBalanceDto($sysPlayerId, $platform, $paidAmount, $freeAmount);
+        $existingDto = new DiamondBalance($sysPlayerId, $platform, $paidAmount, $freeAmount);
 
         $this->mockRepository
             ->expects($this->once())
@@ -181,7 +181,7 @@ class DiamondBalanceServiceTest extends TestCase
         $paidAmount = 500;
         $consumeAmount = 200;
 
-        $existingDto = new DiamondBalanceDto($sysPlayerId, $platform, $paidAmount, $freeAmount);
+        $existingDto = new DiamondBalance($sysPlayerId, $platform, $paidAmount, $freeAmount);
 
         $this->mockRepository
             ->expects($this->once())
@@ -211,7 +211,7 @@ class DiamondBalanceServiceTest extends TestCase
         $paidAmount = 1000;
         $consumeAmount = 800; // 無償500 + 有償300を消費
 
-        $existingDto = new DiamondBalanceDto($sysPlayerId, $platform, $paidAmount, $freeAmount);
+        $existingDto = new DiamondBalance($sysPlayerId, $platform, $paidAmount, $freeAmount);
 
         $this->mockRepository
             ->expects($this->once())
@@ -240,7 +240,7 @@ class DiamondBalanceServiceTest extends TestCase
         $paidAmount = 500;
         $consumeAmount = 200;
 
-        $existingDto = new DiamondBalanceDto($sysPlayerId, $platform, $paidAmount, $freeAmount);
+        $existingDto = new DiamondBalance($sysPlayerId, $platform, $paidAmount, $freeAmount);
 
         $this->mockRepository
             ->expects($this->once())
@@ -270,7 +270,7 @@ class DiamondBalanceServiceTest extends TestCase
         $paidAmount = 300;
         $consumeAmount = 1000; // 合計800より多い
 
-        $existingDto = new DiamondBalanceDto($sysPlayerId, $platform, $paidAmount, $freeAmount);
+        $existingDto = new DiamondBalance($sysPlayerId, $platform, $paidAmount, $freeAmount);
 
         $this->mockRepository
             ->expects($this->once())
@@ -295,7 +295,7 @@ class DiamondBalanceServiceTest extends TestCase
         $paidAmount = 200;
         $consumeAmount = 300; // 有償残高より多い
 
-        $existingDto = new DiamondBalanceDto($sysPlayerId, $platform, $paidAmount, $freeAmount);
+        $existingDto = new DiamondBalance($sysPlayerId, $platform, $paidAmount, $freeAmount);
 
         $this->mockRepository
             ->expects($this->once())
@@ -327,7 +327,7 @@ class DiamondBalanceServiceTest extends TestCase
         $this->mockRepository
             ->expects($this->once())
             ->method('persistDiamond')
-            ->with($this->callback(function (DiamondBalanceDto $dto) use ($addAmount) {
+            ->with($this->callback(function (DiamondBalance $dto) use ($addAmount) {
                 return $dto->getPaidAmount() === $addAmount
                     && $dto->getFreeAmount() === 0;
             }));
@@ -349,8 +349,8 @@ class DiamondBalanceServiceTest extends TestCase
         $platformGoogle = 'Google';
         $consumeAmount = 1200; // Apple 800 + Google 400
 
-        $dtoApple = new DiamondBalanceDto($sysPlayerId, $platformApple, 500, 300); // 合計800
-        $dtoGoogle = new DiamondBalanceDto($sysPlayerId, $platformGoogle, 300, 200); // 合計500
+        $dtoApple = new DiamondBalance($sysPlayerId, $platformApple, 500, 300); // 合計800
+        $dtoGoogle = new DiamondBalance($sysPlayerId, $platformGoogle, 300, 200); // 合計500
 
         $this->mockRepository
             ->expects($this->once())
@@ -402,7 +402,7 @@ class DiamondBalanceServiceTest extends TestCase
         $paidAmount = 300;
         $consumeAmount = 800; // ちょうど使い切る
 
-        $existingDto = new DiamondBalanceDto($sysPlayerId, $platform, $paidAmount, $freeAmount);
+        $existingDto = new DiamondBalance($sysPlayerId, $platform, $paidAmount, $freeAmount);
 
         $this->mockRepository
             ->expects($this->once())
@@ -431,7 +431,7 @@ class DiamondBalanceServiceTest extends TestCase
         $paidAmount = 300;
         $consumeAmount = 300; // 有償をちょうど使い切る
 
-        $existingDto = new DiamondBalanceDto($sysPlayerId, $platform, $paidAmount, $freeAmount);
+        $existingDto = new DiamondBalance($sysPlayerId, $platform, $paidAmount, $freeAmount);
 
         $this->mockRepository
             ->expects($this->once())
@@ -459,7 +459,7 @@ class DiamondBalanceServiceTest extends TestCase
         $freeAmount = 1000;
         $paidAmount = 500;
 
-        $existingDto = new DiamondBalanceDto($sysPlayerId, $platform, $paidAmount, $freeAmount);
+        $existingDto = new DiamondBalance($sysPlayerId, $platform, $paidAmount, $freeAmount);
 
         $this->mockRepository
             ->expects($this->once())
@@ -469,7 +469,7 @@ class DiamondBalanceServiceTest extends TestCase
         $this->mockRepository
             ->expects($this->once())
             ->method('persistDiamond')
-            ->with($this->callback(function (DiamondBalanceDto $dto) use ($freeAmount, $paidAmount) {
+            ->with($this->callback(function (DiamondBalance $dto) use ($freeAmount, $paidAmount) {
                 return $dto->getFreeAmount() === $freeAmount
                     && $dto->getPaidAmount() === $paidAmount;
             }));
@@ -491,8 +491,8 @@ class DiamondBalanceServiceTest extends TestCase
         $platformGoogle = 'Google';
         $consumeAmount = 600; // Apple 500 + Google 100
 
-        $dtoApple = new DiamondBalanceDto($sysPlayerId, $platformApple, 500, 300);
-        $dtoGoogle = new DiamondBalanceDto($sysPlayerId, $platformGoogle, 300, 200);
+        $dtoApple = new DiamondBalance($sysPlayerId, $platformApple, 500, 300);
+        $dtoGoogle = new DiamondBalance($sysPlayerId, $platformGoogle, 300, 200);
 
         $this->mockRepository
             ->expects($this->once())

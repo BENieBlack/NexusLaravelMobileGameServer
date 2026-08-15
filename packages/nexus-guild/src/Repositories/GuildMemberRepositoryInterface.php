@@ -2,7 +2,7 @@
 
 namespace NexusGuild\Repositories;
 
-use NexusGuild\Dto\GuildMemberDto;
+use NexusGuild\DataTransferObjects\GuildMember;
 
 /**
  * GuildMemberRepositoryInterface
@@ -16,7 +16,7 @@ interface GuildMemberRepositoryInterface
      *
      * @param  int  $memberId  メンバーID
      */
-    public function selectById(int $memberId): ?GuildMemberDto;
+    public function selectById(int $memberId): ?GuildMember;
 
     /**
      * ギルドIDとプレイヤーIDでメンバーを検索
@@ -24,20 +24,20 @@ interface GuildMemberRepositoryInterface
      * @param  int  $guildId  ギルドID
      * @param  int  $playerId  プレイヤーID
      */
-    public function selectByGuildAndPlayer(int $guildId, int $playerId): ?GuildMemberDto;
+    public function selectByGuildAndPlayer(int $guildId, int $playerId): ?GuildMember;
 
     /**
      * プレイヤーIDで所属ギルドメンバー情報を検索
      *
      * @param  int  $playerId  プレイヤーID
      */
-    public function selectByPlayerId(int $playerId): ?GuildMemberDto;
+    public function selectByPlayerId(int $playerId): ?GuildMember;
 
     /**
      * ギルドIDでメンバー一覧を取得
      *
      * @param  int  $guildId  ギルドID
-     * @return array<GuildMemberDto>
+     * @return array<GuildMember>
      */
     public function selectByGuildId(int $guildId): array;
 
@@ -55,23 +55,23 @@ interface GuildMemberRepositoryInterface
      * @param  int  $playerId  プレイヤーID
      * @param  string  $role  役職
      */
-    public function insert(int $guildId, int $playerId, string $role): GuildMemberDto;
+    public function insert(int $guildId, int $playerId, string $role): GuildMember;
 
     /**
      * メンバーの役職を更新
      *
-     * @param  GuildMemberDto  $guildMemberDto  対象メンバー
+     * @param  GuildMember  $guildMemberDto  対象メンバー
      * @param  string  $role  新しい役職
-     * @return GuildMemberDto 更新後のDTO
+     * @return GuildMember 更新後のDTO
      */
-    public function updateRole(GuildMemberDto $guildMemberDto, string $role): GuildMemberDto;
+    public function updateRole(GuildMember $guildMemberDto, string $role): GuildMember;
 
     /**
      * ギルドメンバーを削除
      *
-     * @param  GuildMemberDto  $guildMemberDto  削除するメンバー
+     * @param  GuildMember  $guildMemberDto  削除するメンバー
      */
-    public function delete(GuildMemberDto $guildMemberDto): void;
+    public function delete(GuildMember $guildMemberDto): void;
 
     /**
      * プレイヤーIDでメンバー情報を削除

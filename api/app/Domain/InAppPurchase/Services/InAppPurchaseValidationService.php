@@ -8,7 +8,7 @@ use App\Models\Mst\MstBillingPlatformProduct;
 use App\Models\Mst\MstInAppPurchase;
 use App\Models\Trx\TrxInAppPurchase;
 use Illuminate\Support\Facades\Log;
-use NexusBilling\DTOs\VerificationDto;
+use NexusBilling\DataTransferObjects\Verification;
 use NexusBilling\Validators\_BasePurchaseLimitValidator;
 
 /**
@@ -100,14 +100,14 @@ class InAppPurchaseValidationService
      *
      * レシート検証結果の価格とマスターデータの期待価格を照合する
      *
-     * @param  VerificationDto  $verificationDto  レシート検証結果
+     * @param  Verification  $verificationDto  レシート検証結果
      * @param  MstInAppPurchase  $mstInAppPurchase  商品マスター
      * @param  string  $billingPlatform  決済プラットフォーム（AppStore, GooglePlay等）
      *
      * @throws GameException 価格が不一致の場合
      */
     public function validatePurchasePrice(
-        VerificationDto $verificationDto,
+        Verification $verificationDto,
         MstInAppPurchase $mstInAppPurchase,
         string $billingPlatform
     ): void {

@@ -2,7 +2,7 @@
 
 namespace NexusStamina\Repositories;
 
-use NexusStamina\Dto\StaminaDto;
+use NexusStamina\DataTransferObjects\Stamina;
 
 /**
  * StaminaRepositoryInterface
@@ -14,19 +14,19 @@ interface StaminaRepositoryInterface
     /**
      * プレイヤーのスタミナをタイプで取得
      *
-     * @return StaminaDto|null スタミナDTO、存在しない場合はnull
+     * @return Stamina|null スタミナDTO、存在しない場合はnull
      */
-    public function selectByPlayerAndType(int $sysPlayerId, string $type): ?StaminaDto;
+    public function selectByPlayerAndType(int $sysPlayerId, string $type): ?Stamina;
 
     /**
      * スタミナデータを保存
      */
-    public function persist(StaminaDto $staminaDto): void;
+    public function persist(Stamina $staminaDto): void;
 
     /**
      * 新規スタミナデータを作成
      *
-     * @return StaminaDto 作成されたスタミナDTO
+     * @return Stamina 作成されたスタミナDTO
      */
-    public function insert(StaminaDto $staminaDto): StaminaDto;
+    public function insert(Stamina $staminaDto): Stamina;
 }

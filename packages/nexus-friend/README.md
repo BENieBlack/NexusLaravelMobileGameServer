@@ -34,11 +34,11 @@ This package is part of the Nexus monorepo. Add to your `composer.json`:
 ### DTOs
 
 ```php
-use NexusFriend\Dto\FriendApplyDto;
-use NexusFriend\Dto\FriendDto;
+use NexusFriend\DataTransferObjects\FriendApply;
+use NexusFriend\DataTransferObjects\Friend;
 
 // Friend apply DTO
-$applyDto = new FriendApplyDto(
+$applyDto = new FriendApply(
     id: 1,
     senderPlayerId: 100,
     receiverPlayerId: 200,
@@ -48,7 +48,7 @@ $applyDto = new FriendApplyDto(
 );
 
 // Friend DTO
-$friendDto = new FriendDto(
+$friendDto = new Friend(
     playerId: 200,
     myId: 'player_200',
     name: 'Player Name',

@@ -3,7 +3,7 @@
 namespace App\Domain\Item\Services;
 
 use App\Models\Trx\TrxItem;
-use NexusResource\DTOs\ItemDto;
+use NexusResource\DataTransferObjects\Item;
 use NexusResource\Services\ItemWriteService as PackageItemWriteService;
 
 /**
@@ -16,7 +16,7 @@ use NexusResource\Services\ItemWriteService as PackageItemWriteService;
  * - Domain層: DTO ↔ Model変換のみ
  *
  * Responsibilities:
- * - ItemDto → TrxItem への変換
+ * - Item → TrxItem への変換
  * - パッケージ層Serviceへの委譲
  *
  * Note: ビジネスロジックはパッケージ層（NexusResource\Services\ItemWriteService）に存在

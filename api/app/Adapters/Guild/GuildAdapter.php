@@ -4,21 +4,21 @@ namespace App\Adapters\Guild;
 
 use App\Models\Sys\SysGuild;
 use Nexus\Core\Utilities\ClockUtility;
-use NexusGuild\Dto\GuildDto;
+use NexusGuild\DataTransferObjects\Guild;
 
 /**
  * GuildAdapter
  *
- * SysGuild Model と GuildDto の変換を行うアダプター
+ * SysGuild Model と Guild の変換を行うアダプター
  */
 class GuildAdapter
 {
     /**
      * Model から DTO に変換
      */
-    public static function toDto(SysGuild $model): GuildDto
+    public static function toDto(SysGuild $model): Guild
     {
-        return new GuildDto(
+        return new Guild(
             id: $model->getId(),
             name: $model->getName(),
             description: $model->getDescription() ?? '',
@@ -35,7 +35,7 @@ class GuildAdapter
      * Model配列 から DTO配列 に変換
      *
      * @param  iterable<SysGuild>  $models
-     * @return array<GuildDto>
+     * @return array<Guild>
      */
     public static function toDtoArray(iterable $models): array
     {

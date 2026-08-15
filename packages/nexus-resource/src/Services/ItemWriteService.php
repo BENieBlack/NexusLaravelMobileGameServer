@@ -3,7 +3,7 @@
 namespace NexusResource\Services;
 
 use NexusResource\Contracts\ItemRepositoryInterface;
-use NexusResource\DTOs\ItemDto;
+use NexusResource\DataTransferObjects\Item;
 
 /**
  * ItemWriteService
@@ -34,9 +34,9 @@ class ItemWriteService
      * @param string $mstItemId アイテムID
      * @param int $freeAmount 無償アイテム数（デフォルト: 0）
      * @param int $paidAmount 有償アイテム数（デフォルト: 0）
-     * @return ItemDto 加算後のアイテムDTO
+     * @return Item 加算後のアイテムDTO
      */
-    public function addItem(int $sysPlayerId, string $mstItemId, int $freeAmount = 0, int $paidAmount = 0): ItemDto
+    public function addItem(int $sysPlayerId, string $mstItemId, int $freeAmount = 0, int $paidAmount = 0): Item
     {
         // 既存のアイテムを取得
         $itemDto = $this->itemRepository->selectItem($sysPlayerId, $mstItemId);
@@ -47,7 +47,7 @@ class ItemWriteService
             $itemDto->setPaidAmount($itemDto->getPaidAmount() + $paidAmount);
         } else {
             // 新規アイテムを作成
-            $itemDto = new ItemDto(
+            $itemDto = new Item(
                 sysPlayerId: $sysPlayerId,
                 mstItemId: $mstItemId,
                 freeAmount: $freeAmount,
@@ -68,10 +68,10 @@ class ItemWriteService
      * @param int $sysPlayerId プレイヤーID
      * @param string $mstItemId mst_item.id
      * @param int $amount 消費する数量
-     * @return ItemDto 消費後のアイテムDTO
+     * @return Item 消費後のアイテムDTO
      * @throws \Exception 所持数が不足している場合、またはアイテムが存在しない場合
      */
-    public function consumeItem(int $sysPlayerId, string $mstItemId, int $amount): ItemDto
+    public function consumeItem(int $sysPlayerId, string $mstItemId, int $amount): Item
     {
         // 既存のアイテムを取得
         $itemDto = $this->itemRepository->selectItem($sysPlayerId, $mstItemId);
@@ -95,13 +95,13 @@ class ItemWriteService
     /**
      * 残高が十分かチェック
      *
-     * @param ItemDto $itemDto
+     * @param Item $itemDto
      * @param int $amount
      * @param string $mstItemId
      * @return void
      * @throws \Exception
      */
-    private function validateSufficientAmount(ItemDto $itemDto, int $amount, string $mstItemId): void
+    private function validateSufficientAmount(Item $itemDto, int $amount, string $mstItemId): void
     {
         $totalAmount = $itemDto->getTotalAmount();
         if ($totalAmount < $amount) {
@@ -112,11 +112,11 @@ class ItemWriteService
     /**
      * 有償優先で消費
      *
-     * @param ItemDto $itemDto
+     * @param Item $itemDto
      * @param int $amount
      * @return void
      */
-    private function consumeWithPaidFirst(ItemDto $itemDto, int $amount): void
+    private function consumeWithPaidFirst(Item $itemDto, int $amount): void
     {
         $freeAmount = $itemDto->getFreeAmount();
         $paidAmount = $itemDto->getPaidAmount();

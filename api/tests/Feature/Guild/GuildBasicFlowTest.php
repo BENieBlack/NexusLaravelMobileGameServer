@@ -35,7 +35,7 @@ class GuildBasicFlowTest extends TestCase
         ]);
         $signUp->assertOk();
 
-        $accessToken = $signUp->json('dto_token.access_token');
+        $accessToken = $signUp->json('token.access_token');
         $player = SysPlayer::where('my_id', $signUp->json('sys_player.my_id'))->firstOrFail();
 
         // ギルド作成

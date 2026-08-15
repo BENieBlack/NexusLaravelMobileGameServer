@@ -30,7 +30,7 @@ class VersionResponse extends _BaseResponse
 
         // メンテナンス情報は常に含める
         if ($this->sysMaintenance !== null) {
-            $data['dto_maintenance'] = $this->sysMaintenance->toArray();
+            $data['maintenance'] = $this->sysMaintenance->toArray();
         }
 
         if ($this->needsUpdate && $this->sysDeploy !== null) {
@@ -39,7 +39,7 @@ class VersionResponse extends _BaseResponse
 
             // マスターデータ情報
             if ($this->sysDeploy->deployMaster !== null) {
-                $data['dto_master'] = [
+                $data['master'] = [
                     'deploy_master_id' => $this->sysDeploy->sys_deploy_master_id,
                     'hash' => $this->sysDeploy->deployMaster->hash,
                 ];
@@ -47,7 +47,7 @@ class VersionResponse extends _BaseResponse
 
             // アセットデータ情報
             if ($this->sysDeploy->deployAsset !== null) {
-                $data['dto_asset'] = [
+                $data['asset'] = [
                     'deploy_asset_id' => $this->sysDeploy->sys_deploy_asset_id,
                     'hash' => $this->sysDeploy->deployAsset->hash,
                 ];

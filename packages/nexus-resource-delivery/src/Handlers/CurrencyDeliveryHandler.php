@@ -26,27 +26,27 @@ class CurrencyDeliveryHandler implements ResourceDeliveryHandlerInterface
      * 通貨配送処理を実行
      *
      * @param  int  $sysPlayerId  プレイヤーID
-     * @param  ResourceDeliveryContent  $resourceDeliveryContentDto  配送コンテンツ
+     * @param  ResourceDeliveryContent  $resourceDeliveryContent  配送コンテンツ
      *
      * @throws \Exception 配送失敗時
      */
-    public function handle(int $sysPlayerId, ResourceDeliveryContent $resourceDeliveryContentDto): void
+    public function handle(int $sysPlayerId, ResourceDeliveryContent $resourceDeliveryContent): void
     {
         // metadata['is_paid']が true の場合は有償、false または未設定の場合は無償
-        $metadata = $resourceDeliveryContentDto->getMetadata();
+        $metadata = $resourceDeliveryContent->getMetadata();
         $isPaid = $metadata['is_paid'] ?? false;
 
-        $freeAmount = $isPaid ? 0 : $resourceDeliveryContentDto->getAmount();
-        $paidAmount = $isPaid ? $resourceDeliveryContentDto->getAmount() : 0;
+        $freeAmount = $isPaid ? 0 : $resourceDeliveryContent->getAmount();
+        $paidAmount = $isPaid ? $resourceDeliveryContent->getAmount() : 0;
 
         // WalletServiceのaddCurrencyメソッドを使用
         // expireAtはResourceから取得（NULLの場合は無期限）
         $this->walletService->addCurrency(
             $sysPlayerId,
-            $resourceDeliveryContentDto->getId(),
+            $resourceDeliveryContent->getId(),
             $freeAmount,
             $paidAmount,
-            $resourceDeliveryContentDto->getExpireAt()
+            $resourceDeliveryContent->getExpireAt()
         );
     }
 

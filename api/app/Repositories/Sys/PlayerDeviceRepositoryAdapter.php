@@ -48,7 +48,7 @@ class PlayerDeviceRepositoryAdapter implements PlayerDeviceRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function persist(PlayerDevice $playerDeviceDto): void
+    public function persist(PlayerDevice $playerDevice): void
     {
         // デバイスの更新はNexusPlayerパッケージでは現在未使用
         // 必要に応じて実装

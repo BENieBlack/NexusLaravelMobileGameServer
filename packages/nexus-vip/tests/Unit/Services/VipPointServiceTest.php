@@ -76,7 +76,7 @@ class VipPointServiceTest extends TestCase
         $points = 100;
         $reason = 'purchase';
 
-        $playerVipDto = new PlayerVip(
+        $playerVip = new PlayerVip(
             sysPlayerId: $sysPlayerId,
             vipPoint: 0,
             totalPaidAmount: 0.0
@@ -86,7 +86,7 @@ class VipPointServiceTest extends TestCase
             ->shouldReceive('selectVipInfoById')
             ->with($sysPlayerId)
             ->once()
-            ->andReturn($playerVipDto);
+            ->andReturn($playerVip);
 
         $this->vipLevelService
             ->shouldReceive('calculateLevel')
@@ -129,7 +129,7 @@ class VipPointServiceTest extends TestCase
         $reason = 'purchase';
         $metadata = ['purchase_amount_jpy' => 1000.0];
 
-        $playerVipDto = new PlayerVip(
+        $playerVip = new PlayerVip(
             sysPlayerId: $sysPlayerId,
             vipPoint: 0,
             totalPaidAmount: 0.0
@@ -139,7 +139,7 @@ class VipPointServiceTest extends TestCase
             ->shouldReceive('selectVipInfoById')
             ->with($sysPlayerId)
             ->once()
-            ->andReturn($playerVipDto);
+            ->andReturn($playerVip);
 
         $this->vipLevelService
             ->shouldReceive('calculateLevel')
@@ -214,7 +214,7 @@ class VipPointServiceTest extends TestCase
     {
         // Arrange
         $sysPlayerId = 1;
-        $playerVipDto = new PlayerVip(
+        $playerVip = new PlayerVip(
             sysPlayerId: $sysPlayerId,
             vipPoint: 500,
             totalPaidAmount: 5000.0
@@ -224,7 +224,7 @@ class VipPointServiceTest extends TestCase
             ->shouldReceive('selectVipInfoById')
             ->with($sysPlayerId)
             ->once()
-            ->andReturn($playerVipDto);
+            ->andReturn($playerVip);
 
         // Act
         $result = $this->service->findPlayerVipInfo($sysPlayerId);

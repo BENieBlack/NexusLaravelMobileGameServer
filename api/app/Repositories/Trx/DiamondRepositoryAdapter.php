@@ -47,24 +47,24 @@ class DiamondRepositoryAdapter implements DiamondRepositoryInterface
     /**
      * ダイヤモンド残高を保存（新規作成 or 更新）
      */
-    public function persistDiamond(DiamondBalance $diamondDto): void
+    public function persistDiamond(DiamondBalance $diamond): void
     {
         $trxDiamond = $this->trxDiamondRepository->selectByPlatform(
-            $diamondDto->getSysPlayerId(),
-            $diamondDto->getPlatform()
+            $diamond->getSysPlayerId(),
+            $diamond->getPlatform()
         );
 
         if ($trxDiamond) {
             // 既存レコードを更新
-            $trxDiamond->setPaidAmount($diamondDto->getPaidAmount());
-            $trxDiamond->setFreeAmount($diamondDto->getFreeAmount());
+            $trxDiamond->setPaidAmount($diamond->getPaidAmount());
+            $trxDiamond->setFreeAmount($diamond->getFreeAmount());
         } else {
             // 新規レコードを作成
             $trxDiamond = new TrxDiamond([
-                'sys_player_id' => $diamondDto->getSysPlayerId(),
-                'platform' => $diamondDto->getPlatform(),
-                'paid_amount' => $diamondDto->getPaidAmount(),
-                'free_amount' => $diamondDto->getFreeAmount(),
+                'sys_player_id' => $diamond->getSysPlayerId(),
+                'platform' => $diamond->getPlatform(),
+                'paid_amount' => $diamond->getPaidAmount(),
+                'free_amount' => $diamond->getFreeAmount(),
             ]);
             $trxDiamond->exists = false; // INSERT として認識
         }

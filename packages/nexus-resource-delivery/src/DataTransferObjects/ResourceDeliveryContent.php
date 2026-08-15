@@ -43,10 +43,10 @@ class ResourceDeliveryContent
     private int $afterAmount = 0;
 
     /**
-     * @param  Resource  $resourceDto  リソース
+     * @param  Resource  $resource  リソース
      */
     public function __construct(
-        private Resource $resourceDto,
+        private Resource $resource,
     ) {
         $this->uniqueId = $this->generateUniqueId();
         $this->status = ResourceDeliveryStatus::PENDING;
@@ -75,7 +75,7 @@ class ResourceDeliveryContent
      */
     public function getResource(): Resource
     {
-        return $this->resourceDto;
+        return $this->resource;
     }
 
     /**
@@ -83,7 +83,7 @@ class ResourceDeliveryContent
      */
     public function getType(): ResourceType
     {
-        return $this->resourceDto->getType();
+        return $this->resource->getType();
     }
 
     /**
@@ -91,7 +91,7 @@ class ResourceDeliveryContent
      */
     public function getTypeValue(): string
     {
-        return $this->resourceDto->getTypeValue();
+        return $this->resource->getTypeValue();
     }
 
     /**
@@ -99,7 +99,7 @@ class ResourceDeliveryContent
      */
     public function getId(): string
     {
-        return $this->resourceDto->getId();
+        return $this->resource->getId();
     }
 
     /**
@@ -107,7 +107,7 @@ class ResourceDeliveryContent
      */
     public function getAmount(): int
     {
-        return $this->resourceDto->getAmount();
+        return $this->resource->getAmount();
     }
 
     /**
@@ -115,7 +115,7 @@ class ResourceDeliveryContent
      */
     public function getExpireAt(): ?string
     {
-        return $this->resourceDto->getExpireAt();
+        return $this->resource->getExpireAt();
     }
 
     /**
@@ -123,7 +123,7 @@ class ResourceDeliveryContent
      */
     public function getMetadata(): ?array
     {
-        return $this->resourceDto->getMetadata();
+        return $this->resource->getMetadata();
     }
 
     /**
@@ -195,7 +195,7 @@ class ResourceDeliveryContent
      */
     public function isValid(): bool
     {
-        return $this->resourceDto->isValid();
+        return $this->resource->isValid();
     }
 
     /**
@@ -232,11 +232,11 @@ class ResourceDeliveryContent
     {
         // 元のリソースを保存
         if ($this->originalResource === null) {
-            $this->originalResource = $this->resourceDto;
+            $this->originalResource = $this->resource;
         }
 
         // 新しいリソースに置き換え
-        $this->resourceDto = $newResource;
+        $this->resource = $newResource;
         $this->conversionReason = $reason;
     }
 
@@ -293,9 +293,9 @@ class ResourceDeliveryContent
     /**
      * Resourceから生成
      */
-    public static function fromResource(Resource $resourceDto): self
+    public static function fromResource(Resource $resource): self
     {
-        return new self($resourceDto);
+        return new self($resource);
     }
 
     /**
@@ -305,7 +305,7 @@ class ResourceDeliveryContent
     {
         return [
             'unique_id' => $this->uniqueId,
-            'resource' => $this->resourceDto->toArray(),
+            'resource' => $this->resource->toArray(),
             'status' => $this->status->value,
             'conversion_reason' => $this->conversionReason->value,
             'failure_reason' => $this->failureReason->value,

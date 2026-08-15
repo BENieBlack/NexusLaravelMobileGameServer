@@ -46,7 +46,7 @@ class StaminaServiceTest extends TestCase
         $sysPlayerId = 1;
         $initialStamina = 100;
 
-        $createdDto = new Stamina(
+        $createdStamina = new Stamina(
             sysPlayerId: $sysPlayerId,
             type: StaminaConst::TYPE_NORMAL,
             currentStamina: $initialStamina,
@@ -63,7 +63,7 @@ class StaminaServiceTest extends TestCase
                     && $dto->getType() === StaminaConst::TYPE_NORMAL
                     && $dto->getRecoveryRateMultiplier() === 1.00;
             }))
-            ->andReturn($createdDto);
+            ->andReturn($createdStamina);
 
         // Act
         $result = $this->service->initializeStamina($sysPlayerId, $initialStamina);

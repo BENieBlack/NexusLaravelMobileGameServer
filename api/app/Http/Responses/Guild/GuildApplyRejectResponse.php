@@ -23,14 +23,14 @@ class GuildApplyRejectResponse extends _BaseResponse
     /**
      * GuildApplyからレスポンスを生成
      */
-    public static function fromDto(GuildApply $guildApplyDto): self
+    public static function fromDto(GuildApply $guildApply): self
     {
         return new self(
-            applyId: $guildApplyDto->getId(),
-            guildId: $guildApplyDto->getSysGuildId(),
-            playerId: $guildApplyDto->getSysPlayerId(),
-            status: $guildApplyDto->getStatus(),
-            updatedAt: $guildApplyDto->getUpdatedAt(),
+            applyId: $guildApply->getId(),
+            guildId: $guildApply->getSysGuildId(),
+            playerId: $guildApply->getSysPlayerId(),
+            status: $guildApply->getStatus(),
+            updatedAt: $guildApply->getUpdatedAt(),
         );
     }
 

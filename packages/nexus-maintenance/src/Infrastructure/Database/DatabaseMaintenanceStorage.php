@@ -73,22 +73,22 @@ class DatabaseMaintenanceStorage implements MaintenanceStorageInterface
      *
      * 既存の有効なレコードは無効化してから新しいレコードを登録する
      */
-    public function put(Maintenance $maintenanceDto): bool
+    public function put(Maintenance $maintenance): bool
     {
         try {
             $now = ClockUtility::nowToString();
 
-            DB::connection($this->connection)->transaction(function () use ($maintenanceDto, $now) {
+            DB::connection($this->connection)->transaction(function () use ($maintenance, $now) {
                 $this->query()
                     ->where('is_active', true)
                     ->update(['is_active' => false, 'updated_at' => $now]);
 
                 $this->query()->insert([
-                    'title' => $maintenanceDto->getTitle() ?? '',
-                    'message' => $maintenanceDto->getMessage() ?? '',
-                    'start_at' => $maintenanceDto->getStartAt() ?? $now,
-                    'end_at' => $maintenanceDto->getEndAt(),
-                    'is_active' => $maintenanceDto->getIsMaintenance(),
+                    'title' => $maintenance->getTitle() ?? '',
+                    'message' => $maintenance->getMessage() ?? '',
+                    'start_at' => $maintenance->getStartAt() ?? $now,
+                    'end_at' => $maintenance->getEndAt(),
+                    'is_active' => $maintenance->getIsMaintenance(),
                     'created_at' => $now,
                     'updated_at' => $now,
                 ]);

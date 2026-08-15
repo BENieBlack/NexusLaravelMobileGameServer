@@ -56,7 +56,7 @@ class VipBenefitServiceTest extends TestCase
         $baseMaxStamina = 100;
         $vipLevel = 5;
 
-        $benefitDto = new VipBenefit(
+        $benefit = new VipBenefit(
             maxStaminaBonus: 50,
             dailyDiamondBonus: 10,
             shopDiscountRate: 0.1,
@@ -67,7 +67,7 @@ class VipBenefitServiceTest extends TestCase
             ->shouldReceive('findBenefits')
             ->with($vipLevel)
             ->once()
-            ->andReturn($benefitDto);
+            ->andReturn($benefit);
 
         // Act
         $result = $this->service->applyStaminaBonus($baseMaxStamina, $vipLevel);
@@ -113,7 +113,7 @@ class VipBenefitServiceTest extends TestCase
         $basePrice = 1000;
         $vipLevel = 5;
 
-        $benefitDto = new VipBenefit(
+        $benefit = new VipBenefit(
             maxStaminaBonus: 50,
             dailyDiamondBonus: 10,
             shopDiscountRate: 0.1,
@@ -124,7 +124,7 @@ class VipBenefitServiceTest extends TestCase
             ->shouldReceive('findBenefits')
             ->with($vipLevel)
             ->once()
-            ->andReturn($benefitDto);
+            ->andReturn($benefit);
 
         // Act
         $result = $this->service->applyShopDiscount($basePrice, $vipLevel);
@@ -143,7 +143,7 @@ class VipBenefitServiceTest extends TestCase
         $basePrice = 5;
         $vipLevel = 10;
 
-        $benefitDto = new VipBenefit(
+        $benefit = new VipBenefit(
             maxStaminaBonus: 100,
             dailyDiamondBonus: 50,
             shopDiscountRate: 0.9, // 90%割引
@@ -154,7 +154,7 @@ class VipBenefitServiceTest extends TestCase
             ->shouldReceive('findBenefits')
             ->with($vipLevel)
             ->once()
-            ->andReturn($benefitDto);
+            ->andReturn($benefit);
 
         // Act
         $result = $this->service->applyShopDiscount($basePrice, $vipLevel);
@@ -200,7 +200,7 @@ class VipBenefitServiceTest extends TestCase
         $basePrice = 300;
         $vipLevel = 5;
 
-        $benefitDto = new VipBenefit(
+        $benefit = new VipBenefit(
             maxStaminaBonus: 50,
             dailyDiamondBonus: 10,
             shopDiscountRate: 0.1,
@@ -211,7 +211,7 @@ class VipBenefitServiceTest extends TestCase
             ->shouldReceive('findBenefits')
             ->with($vipLevel)
             ->once()
-            ->andReturn($benefitDto);
+            ->andReturn($benefit);
 
         // Act
         $result = $this->service->applyGachaDiscount($basePrice, $vipLevel);
@@ -230,7 +230,7 @@ class VipBenefitServiceTest extends TestCase
         $basePrice = 10;
         $vipLevel = 10;
 
-        $benefitDto = new VipBenefit(
+        $benefit = new VipBenefit(
             maxStaminaBonus: 100,
             dailyDiamondBonus: 50,
             shopDiscountRate: 0.5,
@@ -241,7 +241,7 @@ class VipBenefitServiceTest extends TestCase
             ->shouldReceive('findBenefits')
             ->with($vipLevel)
             ->once()
-            ->andReturn($benefitDto);
+            ->andReturn($benefit);
 
         // Act
         $result = $this->service->applyGachaDiscount($basePrice, $vipLevel);
@@ -286,7 +286,7 @@ class VipBenefitServiceTest extends TestCase
         // Arrange
         $vipLevel = 5;
 
-        $benefitDto = new VipBenefit(
+        $benefit = new VipBenefit(
             maxStaminaBonus: 50,
             dailyDiamondBonus: 20,
             shopDiscountRate: 0.1,
@@ -297,7 +297,7 @@ class VipBenefitServiceTest extends TestCase
             ->shouldReceive('findBenefits')
             ->with($vipLevel)
             ->once()
-            ->andReturn($benefitDto);
+            ->andReturn($benefit);
 
         // Act
         $result = $this->service->calcDailyDiamondBonus($vipLevel);

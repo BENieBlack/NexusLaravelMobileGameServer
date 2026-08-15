@@ -37,10 +37,10 @@ class GuildCreateUseCase extends _BaseUseCase
         return $this->executeWithTransaction(function () use ($sysPlayerId, $name, $description) {
             try {
                 // ギルド作成（Service経由でバリデーション含む）
-                $guildDto = $this->guildService->createGuild($name, $description, $sysPlayerId);
+                $guild = $this->guildService->createGuild($name, $description, $sysPlayerId);
 
                 // レスポンスを返す
-                return GuildCreateResponse::fromDto($guildDto);
+                return GuildCreateResponse::fromDto($guild);
             } catch (GuildException $e) {
                 // パッケージの例外をGameExceptionに変換
                 $errorCode = match (true) {

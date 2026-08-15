@@ -51,9 +51,9 @@ class PlayerService
     /**
      * プレイヤー情報を更新
      */
-    public function updatePlayer(Player $playerDto): void
+    public function updatePlayer(Player $player): void
     {
-        $this->playerRepository->persist($playerDto);
+        $this->playerRepository->persist($player);
     }
 
     /**

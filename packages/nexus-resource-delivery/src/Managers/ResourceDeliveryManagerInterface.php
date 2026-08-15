@@ -17,7 +17,7 @@ interface ResourceDeliveryManagerInterface
     /**
      * 配送コンテンツを配送前リストに追加する
      */
-    public function addContent(ResourceDeliveryContent $resourceDeliveryContentDto): void;
+    public function addContent(ResourceDeliveryContent $resourceDeliveryContent): void;
 
     /**
      * 複数の配送コンテンツを配送前リストにまとめて追加する
@@ -47,7 +47,7 @@ interface ResourceDeliveryManagerInterface
     /**
      * 配送処理を実行した後に実行する処理
      *
-     * @param  ResourceDeliveryComplete  $resourceDeliveryCompleteDto  送信完了データ
+     * @param  ResourceDeliveryComplete  $resourceDeliveryComplete  送信完了データ
      */
-    public function afterSend(ResourceDeliveryComplete $resourceDeliveryCompleteDto): void;
+    public function afterSend(ResourceDeliveryComplete $resourceDeliveryComplete): void;
 }

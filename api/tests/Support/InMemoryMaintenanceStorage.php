@@ -21,9 +21,9 @@ class InMemoryMaintenanceStorage implements MaintenanceStorageInterface
         return $this->maintenance;
     }
 
-    public function put(Maintenance $maintenanceDto): bool
+    public function put(Maintenance $maintenance): bool
     {
-        $this->maintenance = $maintenanceDto;
+        $this->maintenance = $maintenance;
 
         return true;
     }

@@ -35,7 +35,7 @@ class InAppPurchaseBuyDiamondUseCase extends _BaseBuyUseCase
         MstInAppPurchase $mstInAppPurchase,
         string $platform,
         string $billingPlatform,
-        Verification $verificationDto
+        Verification $verification
     ): BuyResponse {
         // TODO: 実際のプロダクションでは、決済プラットフォームから価格を取得する
         // ここでは仮の単価を使用（ダイヤ1個あたりの価格）
@@ -48,7 +48,7 @@ class InAppPurchaseBuyDiamondUseCase extends _BaseBuyUseCase
             $platform,
             $billingPlatform,
             $unitPrice,
-            $verificationDto
+            $verification
         ) {
             // ダイヤモンド購入処理
             $result = $this->diamondService->purchaseDiamond(
@@ -57,7 +57,7 @@ class InAppPurchaseBuyDiamondUseCase extends _BaseBuyUseCase
                 $platform,
                 $billingPlatform,
                 $unitPrice,
-                $verificationDto->getTransactionId()
+                $verification->getTransactionId()
             );
 
             return new BuyResponse(

@@ -27,18 +27,18 @@ class GuildDetailResponse extends _BaseResponse
     /**
      * Guildからレスポンスを生成
      */
-    public static function fromDto(Guild $guildDto): self
+    public static function fromDto(Guild $guild): self
     {
         return new self(
-            guildId: $guildDto->getId(),
-            name: $guildDto->getName(),
-            description: $guildDto->getDescription(),
-            level: $guildDto->getLevel(),
-            exp: $guildDto->getExp(),
-            maxMembers: $guildDto->getMaxMembers(),
-            currentMembers: $guildDto->getCurrentMembers(),
-            createdAt: $guildDto->getCreatedAt(),
-            updatedAt: $guildDto->getUpdatedAt(),
+            guildId: $guild->getId(),
+            name: $guild->getName(),
+            description: $guild->getDescription(),
+            level: $guild->getLevel(),
+            exp: $guild->getExp(),
+            maxMembers: $guild->getMaxMembers(),
+            currentMembers: $guild->getCurrentMembers(),
+            createdAt: $guild->getCreatedAt(),
+            updatedAt: $guild->getUpdatedAt(),
         );
     }
 

@@ -64,14 +64,14 @@ class FriendService
      *
      * 申請の受信者のみが承認/却下できる
      *
-     * @param  FriendApply  $friendApplyDto  フレンド申請DTO
+     * @param  FriendApply  $friendApply  フレンド申請DTO
      * @param  int  $currentPlayerId  現在のプレイヤーID
      *
      * @throws \RuntimeException 承認権限がない場合
      */
-    public function validateReceiverAuthorization(FriendApply $friendApplyDto, int $currentPlayerId): void
+    public function validateReceiverAuthorization(FriendApply $friendApply, int $currentPlayerId): void
     {
-        if ($friendApplyDto->getReceiverPlayerId() !== $currentPlayerId) {
+        if ($friendApply->getReceiverPlayerId() !== $currentPlayerId) {
             throw new \RuntimeException('Not authorized to accept/reject this request');
         }
     }
@@ -79,21 +79,21 @@ class FriendService
     /**
      * 申請が承認可能な状態かバリデーション
      *
-     * @param  FriendApply  $friendApplyDto  フレンド申請DTO
+     * @param  FriendApply  $friendApply  フレンド申請DTO
      *
      * @throws \RuntimeException 承認できない状態の場合
      */
-    public function validateCanAccept(FriendApply $friendApplyDto): void
+    public function validateCanAccept(FriendApply $friendApply): void
     {
-        if ($friendApplyDto->getStatus() === FriendStatus::ACCEPTED) {
+        if ($friendApply->getStatus() === FriendStatus::ACCEPTED) {
             throw new \RuntimeException('Friend request already accepted');
         }
 
-        if ($friendApplyDto->getStatus() === FriendStatus::DELETED) {
+        if ($friendApply->getStatus() === FriendStatus::DELETED) {
             throw new \RuntimeException('Friend request already deleted');
         }
 
-        if ($friendApplyDto->getStatus() === FriendStatus::REJECTED) {
+        if ($friendApply->getStatus() === FriendStatus::REJECTED) {
             throw new \RuntimeException('Friend request already rejected');
         }
     }
@@ -101,21 +101,21 @@ class FriendService
     /**
      * 申請が却下可能な状態かバリデーション
      *
-     * @param  FriendApply  $friendApplyDto  フレンド申請DTO
+     * @param  FriendApply  $friendApply  フレンド申請DTO
      *
      * @throws \RuntimeException 却下できない状態の場合
      */
-    public function validateCanReject(FriendApply $friendApplyDto): void
+    public function validateCanReject(FriendApply $friendApply): void
     {
-        if ($friendApplyDto->getStatus() === FriendStatus::ACCEPTED) {
+        if ($friendApply->getStatus() === FriendStatus::ACCEPTED) {
             throw new \RuntimeException('Friend request already accepted');
         }
 
-        if ($friendApplyDto->getStatus() === FriendStatus::DELETED) {
+        if ($friendApply->getStatus() === FriendStatus::DELETED) {
             throw new \RuntimeException('Friend request already deleted');
         }
 
-        if ($friendApplyDto->getStatus() === FriendStatus::REJECTED) {
+        if ($friendApply->getStatus() === FriendStatus::REJECTED) {
             throw new \RuntimeException('Friend request already rejected');
         }
     }
@@ -144,16 +144,16 @@ class FriendService
      */
     public function acceptApply(int $friendApplyId, int $currentPlayerId): FriendApply
     {
-        $applyDto = $this->repository->selectById($friendApplyId);
+        $apply = $this->repository->selectById($friendApplyId);
 
-        if ($applyDto === null) {
+        if ($apply === null) {
             throw new \RuntimeException('Friend apply not found');
         }
 
-        $this->validateReceiverAuthorization($applyDto, $currentPlayerId);
-        $this->validateCanAccept($applyDto);
+        $this->validateReceiverAuthorization($apply, $currentPlayerId);
+        $this->validateCanAccept($apply);
 
-        return $this->repository->accept($applyDto);
+        return $this->repository->accept($apply);
     }
 
     /**
@@ -166,16 +166,16 @@ class FriendService
      */
     public function rejectApply(int $friendApplyId, int $currentPlayerId): FriendApply
     {
-        $applyDto = $this->repository->selectById($friendApplyId);
+        $apply = $this->repository->selectById($friendApplyId);
 
-        if ($applyDto === null) {
+        if ($apply === null) {
             throw new \RuntimeException('Friend apply not found');
         }
 
-        $this->validateReceiverAuthorization($applyDto, $currentPlayerId);
-        $this->validateCanReject($applyDto);
+        $this->validateReceiverAuthorization($apply, $currentPlayerId);
+        $this->validateCanReject($apply);
 
-        return $this->repository->reject($applyDto);
+        return $this->repository->reject($apply);
     }
 
     /**

@@ -16,10 +16,10 @@ use NexusAuth\ValueObjects\Token;
 class RefreshTokenResponse implements Responsable
 {
     /**
-     * @param  Token  $tokenDto  トークン情報DTO
+     * @param  Token  $token  トークン情報DTO
      */
     public function __construct(
-        public readonly Token $tokenDto,
+        public readonly Token $token,
     ) {}
 
     /**
@@ -30,7 +30,7 @@ class RefreshTokenResponse implements Responsable
     public function toResponse($request): JsonResponse
     {
         return response()->json([
-            'dto_token' => $this->tokenDto->toArray(),
+            'dto_token' => $this->token->toArray(),
         ]);
     }
 }

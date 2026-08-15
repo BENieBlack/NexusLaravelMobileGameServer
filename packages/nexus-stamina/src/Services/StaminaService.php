@@ -61,7 +61,7 @@ class StaminaService
     {
         $now = ClockUtility::nowToString();
 
-        $staminaDto = new Stamina(
+        $stamina = new Stamina(
             sysPlayerId: $sysPlayerId,
             type: $type,
             currentStamina: $initialStamina,
@@ -69,7 +69,7 @@ class StaminaService
             lastRecoveryAt: $now
         );
 
-        return $this->staminaRepository->insert($staminaDto);
+        return $this->staminaRepository->insert($stamina);
     }
 
     /**
@@ -148,38 +148,38 @@ class StaminaService
     /**
      * 時間経過による自動回復を適用
      *
-     * @param  Stamina  $staminaDto  スタミナDTO
+     * @param  Stamina  $stamina  スタミナDTO
      * @param  int  $maxStamina  プレイヤーの最大スタミナ
      * @return bool 自動回復が発生したかどうか
      */
-    private function applyAutoRecovery(Stamina $staminaDto, int $maxStamina): bool
+    private function applyAutoRecovery(Stamina $stamina, int $maxStamina): bool
     {
         // すでに最大値の場合は回復不要
-        if ($staminaDto->isCurrentStaminaFull($maxStamina)) {
+        if ($stamina->isCurrentStaminaFull($maxStamina)) {
             return false;
         }
 
         // 経過秒数を計算
-        $elapsedSeconds = ClockUtility::diffInSeconds($staminaDto->getLastRecoveryAt());
+        $elapsedSeconds = ClockUtility::diffInSeconds($stamina->getLastRecoveryAt());
 
         // 回復速度倍率を適用
-        $effectiveElapsedSeconds = $elapsedSeconds * $staminaDto->getRecoveryRateMultiplier();
+        $effectiveElapsedSeconds = $elapsedSeconds * $stamina->getRecoveryRateMultiplier();
 
         // 回復ポイント数を計算
         $recoveredPoints = (int) floor($effectiveElapsedSeconds / self::RECOVERY_INTERVAL_SECONDS);
 
         if ($recoveredPoints > 0) {
             // 新しいスタミナ値を計算
-            $newStamina = min($staminaDto->getCurrentStamina() + $recoveredPoints, $maxStamina);
+            $newStamina = min($stamina->getCurrentStamina() + $recoveredPoints, $maxStamina);
 
             // 次回回復基準時刻を計算
             $recoveredSeconds = $recoveredPoints * self::RECOVERY_INTERVAL_SECONDS;
-            $lastRecoveryAt = ClockUtility::parse($staminaDto->getLastRecoveryAt());
-            $newLastRecoveryAt = $lastRecoveryAt->addSeconds((int) floor($recoveredSeconds / $staminaDto->getRecoveryRateMultiplier()));
+            $lastRecoveryAt = ClockUtility::parse($stamina->getLastRecoveryAt());
+            $newLastRecoveryAt = $lastRecoveryAt->addSeconds((int) floor($recoveredSeconds / $stamina->getRecoveryRateMultiplier()));
 
             // 値を更新
-            $staminaDto->setCurrentStamina($newStamina);
-            $staminaDto->setLastRecoveryAt($newLastRecoveryAt->format('Y-m-d H:i:s'));
+            $stamina->setCurrentStamina($newStamina);
+            $stamina->setLastRecoveryAt($newLastRecoveryAt->format('Y-m-d H:i:s'));
 
             return true;
         }

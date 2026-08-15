@@ -37,13 +37,13 @@ class ItemReadServiceTest extends TestCase
         $paidAmount = 50;
         $expectedTotal = 150;
 
-        $expectedDto = new Item($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
+        $expectedItem = new Item($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
 
         $this->mockRepository
             ->expects($this->once())
             ->method('selectItem')
             ->with($sysPlayerId, $mstItemId)
-            ->willReturn($expectedDto);
+            ->willReturn($expectedItem);
 
         // Act
         $result = $this->itemReadService->findItemAmount($sysPlayerId, $mstItemId);

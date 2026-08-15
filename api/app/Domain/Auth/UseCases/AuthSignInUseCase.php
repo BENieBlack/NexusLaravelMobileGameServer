@@ -73,7 +73,7 @@ class AuthSignInUseCase extends _BaseUseCase
             $this->tokenRepository->deleteByPlayerId($sysPlayer->getId());
 
             // Token DTO生成（NexusAuth\Services\TokenService使用）
-            [$tokenDto, $sysPlayerToken] = $this->tokenService->generateToken(
+            [$token, $sysPlayerToken] = $this->tokenService->generateToken(
                 $sysPlayer,
                 $sysPlayerDevice,
                 fn ($playerId, $deviceId, $tokenHash, $expiresAt) => $this->newSysPlayerToken(
@@ -94,7 +94,7 @@ class AuthSignInUseCase extends _BaseUseCase
                 sysPlayer: $sysPlayer,
                 sysPlayerDevice: $sysPlayerDevice,
                 sysPlayerToken: $sysPlayerToken,
-                tokenDto: $tokenDto,
+                token: $token,
             );
         });
     }

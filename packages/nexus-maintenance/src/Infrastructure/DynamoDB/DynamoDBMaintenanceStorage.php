@@ -72,18 +72,18 @@ class DynamoDBMaintenanceStorage implements MaintenanceStorageInterface
     /**
      * {@inheritDoc}
      */
-    public function put(Maintenance $maintenanceDto): bool
+    public function put(Maintenance $maintenance): bool
     {
         try {
             $this->client->putItem([
                 'TableName' => $this->tableName,
                 'Item' => [
                     'id' => ['S' => $this->primaryKey],
-                    'is_maintenance' => ['BOOL' => $maintenanceDto->getIsMaintenance()],
-                    'start_at' => ['S' => $maintenanceDto->getStartAt() ?? ''],
-                    'end_at' => ['S' => $maintenanceDto->getEndAt() ?? ''],
-                    'title' => ['S' => $maintenanceDto->getTitle() ?? ''],
-                    'message' => ['S' => $maintenanceDto->getMessage() ?? ''],
+                    'is_maintenance' => ['BOOL' => $maintenance->getIsMaintenance()],
+                    'start_at' => ['S' => $maintenance->getStartAt() ?? ''],
+                    'end_at' => ['S' => $maintenance->getEndAt() ?? ''],
+                    'title' => ['S' => $maintenance->getTitle() ?? ''],
+                    'message' => ['S' => $maintenance->getMessage() ?? ''],
                     'updated_at' => ['S' => ClockUtility::nowToString()],
                 ],
             ]);

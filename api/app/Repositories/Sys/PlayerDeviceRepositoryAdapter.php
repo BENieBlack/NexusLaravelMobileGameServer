@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Sys;
 
+use App\Adapters\Player\PlayerDeviceAdapter;
 use App\Models\Sys\SysPlayerDevice;
 use Illuminate\Support\Collection;
 use NexusPlayer\DataTransferObjects\PlayerDevice;
@@ -30,7 +31,7 @@ class PlayerDeviceRepositoryAdapter implements PlayerDeviceRepositoryInterface
     {
         $model = $this->sysPlayerDeviceRepository->selectByDeviceId($uuid);
 
-        return $model ? $this->convertToDto($model) : null;
+        return $model ? PlayerDeviceAdapter::toDto($model) : null;
     }
 
     /**
@@ -42,7 +43,7 @@ class PlayerDeviceRepositoryAdapter implements PlayerDeviceRepositoryInterface
     {
         $models = $this->sysPlayerDeviceRepository->selectListByPlayerId($sysPlayerId);
 
-        return $models->map(fn (SysPlayerDevice $model) => $this->convertToDto($model));
+        return $models->map(fn (SysPlayerDevice $model) => PlayerDeviceAdapter::toDto($model));
     }
 
     /**
@@ -52,21 +53,5 @@ class PlayerDeviceRepositoryAdapter implements PlayerDeviceRepositoryInterface
     {
         // デバイスの更新はNexusPlayerパッケージでは現在未使用
         // 必要に応じて実装
-    }
-
-    /**
-     * Eloquent ModelをDTOに変換
-     */
-    private function convertToDto(SysPlayerDevice $model): PlayerDevice
-    {
-        return new PlayerDevice(
-            id: $model->getId(),
-            sysPlayerId: $model->getSysPlayerId(),
-            uuid: $model->getUuid(),
-            deviceInfo: $model->getDeviceInfo(),
-            lastLoginAt: $model->getLastLoginAt(),
-            createdAt: $model->getCreatedAt(),
-            updatedAt: $model->getUpdatedAt()
-        );
     }
 }

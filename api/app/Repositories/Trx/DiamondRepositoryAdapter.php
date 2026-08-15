@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Trx;
 
+use App\Adapters\Billing\DiamondBalanceAdapter;
 use App\Models\Trx\TrxDiamond;
 use NexusBilling\Contracts\DiamondRepositoryInterface;
 use NexusBilling\DataTransferObjects\DiamondBalance;
@@ -28,7 +29,7 @@ class DiamondRepositoryAdapter implements DiamondRepositoryInterface
     {
         $trxDiamond = $this->trxDiamondRepository->selectByPlatform($sysPlayerId, $platform);
 
-        return $trxDiamond ? $this->modelToDto($trxDiamond) : null;
+        return $trxDiamond ? DiamondBalanceAdapter::toDto($trxDiamond) : null;
     }
 
     /**
@@ -41,7 +42,7 @@ class DiamondRepositoryAdapter implements DiamondRepositoryInterface
     {
         $trxDiamonds = $this->trxDiamondRepository->selectByPlayerId($sysPlayerId);
 
-        return $trxDiamonds->map(fn (TrxDiamond $trxDiamond) => $this->modelToDto($trxDiamond))->all();
+        return $trxDiamonds->map(fn (TrxDiamond $trxDiamond) => DiamondBalanceAdapter::toDto($trxDiamond))->all();
     }
 
     /**
@@ -71,18 +72,5 @@ class DiamondRepositoryAdapter implements DiamondRepositoryInterface
 
         // setModelで内部キューに溜め込む（トランザクションコミット時にDB反映）
         $this->trxDiamondRepository->setModel($trxDiamond);
-    }
-
-    /**
-     * TrxDiamondモデルをDiamondBalanceに変換
-     */
-    private function modelToDto(TrxDiamond $trxDiamond): DiamondBalance
-    {
-        return new DiamondBalance(
-            sysPlayerId: $trxDiamond->getAttribute('sys_player_id'),
-            platform: $trxDiamond->getAttribute('platform'),
-            paidAmount: $trxDiamond->getPaidAmount(),
-            freeAmount: $trxDiamond->getFreeAmount(),
-        );
     }
 }

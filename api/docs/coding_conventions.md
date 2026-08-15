@@ -9,13 +9,14 @@
 1. [メソッド命名規則](#メソッド命名規則)
 2. [DTO・ValueObjectの命名](#dtovalueobjectの命名)
 3. [削除の規約](#削除の規約)
-4. [レスポンスの契約](#レスポンスの契約)
-5. [Request・Responseクラスの命名規則](#requestresponseクラスの命名規則)
-6. [ディレクトリ構成](#ディレクトリ構成)
-7. [名前空間とクラスの配置](#名前空間とクラスの配置)
-8. [クラスの責務](#クラスの責務)
-9. [ファイル命名規則](#ファイル命名規則)
-10. [まとめ](#まとめ)
+4. [Adapterの役割](#adapterの役割)
+5. [レスポンスの契約](#レスポンスの契約)
+6. [Request・Responseクラスの命名規則](#requestresponseクラスの命名規則)
+7. [ディレクトリ構成](#ディレクトリ構成)
+8. [名前空間とクラスの配置](#名前空間とクラスの配置)
+9. [クラスの責務](#クラスの責務)
+10. [ファイル命名規則](#ファイル命名規則)
+11. [まとめ](#まとめ)
 
 ---
 
@@ -162,6 +163,45 @@ Carbonに変換する。変換はその場に閉じ込め、境界を越えて�
 `_BaseModel` が `save()` / `update()` / `delete()` / `forceDelete()` を拒否する。トランザクション境界とPITRログの整合性を壊すため。
 
 テストのフィクスチャやSeederなど、UnitOfWorkを介さない投入経路は `_BaseModel::allowDirectWrites()` で明示的に許可する。
+
+---
+
+## Adapterの役割
+
+パッケージ（`packages/nexus-*`）はアプリ層のEloquent Modelに依存できない。
+一方Repositoryは常にModelを返す。この境界を翻訳するのがAdapterである。
+
+```
+パッケージのService → XxxRepositoryInterface（DTOを要求）
+                             ↑ implements
+アプリ層              XxxRepositoryAdapter    … 実装と委譲
+                             ↓ uses
+                      XxxAdapter              … Model↔DTO変換
+                             ↓ wraps
+                      SysXxxRepository        … Modelを返す
+```
+
+### 2種類のAdapterを混同しない
+
+| クラス | 配置 | 役割 |
+|---|---|---|
+| `*RepositoryAdapter` | `App\Repositories\**` | パッケージInterfaceの実装・委譲。DI対象 |
+| `*Adapter` | `App\Adapters\{Domain}\` | Model↔DTOの変換。staticユーティリティ |
+
+### 変換は App\Adapters に集約する
+
+`RepositoryAdapter` の中に private 変換メソッドを書かない。
+変換はUseCaseなど他の層からも使うため、切り出しておく。
+
+```php
+// ✅ 委譲する
+return $model ? GuildAdapter::toDto($model) : null;
+
+// ❌ 内部に閉じ込めると他の層から使えない
+private function convertToDto(SysGuild $model): Guild
+```
+
+変換クラスは `toDto()` と `toDtoArray()` を持つ。
 
 ---
 

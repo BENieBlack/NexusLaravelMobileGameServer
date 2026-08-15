@@ -21,7 +21,8 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
      *
      * @var array<string>
      */
-    protected array $uniqueKeys = ['id'];
+        /** @var list<string> */
+        protected array $uniqueKeys = ['id'];
 
     /**
      * メモリキャッシュされたモデルのコレクション

@@ -9,6 +9,7 @@ class MstInAppPurchase extends _BaseMst
 {
     public $table = 'mst_in_app_purchase';
 
+    /** @var list<string> */
     protected $fillable = [
         'deploy_key',
         'type',
@@ -26,6 +27,7 @@ class MstInAppPurchase extends _BaseMst
     /**
      * @var array<string, string>
      */
+    /** @var array<string, string> */
     protected $casts = [
         'deploy_key' => 'integer',
         'paid_diamond_amount' => 'integer',
@@ -41,6 +43,9 @@ class MstInAppPurchase extends _BaseMst
     /**
      * AppStore側のプラットフォーム商品
      */
+    /**
+     * @return BelongsTo<MstBillingPlatformProduct, $this>
+     */
     public function appStoreProduct(): BelongsTo
     {
         return $this->belongsTo(MstBillingPlatformProduct::class, 'app_store_product_id');
@@ -48,6 +53,9 @@ class MstInAppPurchase extends _BaseMst
 
     /**
      * GooglePlay側のプラットフォーム商品
+     */
+    /**
+     * @return BelongsTo<MstBillingPlatformProduct, $this>
      */
     public function googlePlayProduct(): BelongsTo
     {
@@ -57,6 +65,9 @@ class MstInAppPurchase extends _BaseMst
     /**
      * 商品コンテンツ（Pack/Pass用）
      */
+    /**
+     * @return HasMany<MstInAppPurchaseContent, $this>
+     */
     public function contents(): HasMany
     {
         return $this->hasMany(MstInAppPurchaseContent::class, 'mst_in_app_purchase_id');
@@ -64,6 +75,9 @@ class MstInAppPurchase extends _BaseMst
 
     /**
      * Pass商品の効果
+     */
+    /**
+     * @return HasMany<MstInAppPurchaseEffect, $this>
      */
     public function effects(): HasMany
     {

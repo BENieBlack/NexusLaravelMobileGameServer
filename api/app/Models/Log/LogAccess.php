@@ -6,6 +6,7 @@ class LogAccess extends _BaseLog
 {
     protected $table = 'log_access';
 
+    /** @var array<string, string> */
     protected $casts = [
         'id' => 'integer',
         'unique_request_id' => 'string',
@@ -19,6 +20,7 @@ class LogAccess extends _BaseLog
         'status_code' => 'integer',
     ];
 
+    /** @var list<string> */
     protected $fillable = [
         'id',
         'unique_request_id',

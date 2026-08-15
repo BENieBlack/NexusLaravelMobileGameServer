@@ -66,7 +66,7 @@ class MstEquipmentLevel extends _BaseMst
      */
     protected $keyType = 'string';
 
-    /** @var array<int, string> */
+    /** @var list<string> */
     protected $fillable = [
         'deploy_key',
         'rarity',

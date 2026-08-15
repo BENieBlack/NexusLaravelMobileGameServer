@@ -21,5 +21,6 @@ class TrxItemRepository extends _BaseTrxRepository
      *
      * @var array<string>
      */
+    /** @var list<string> */
     protected array $uniqueKeys = ['sys_player_id', 'mst_item_id'];
 }

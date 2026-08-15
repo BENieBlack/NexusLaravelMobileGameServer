@@ -38,8 +38,10 @@ class TrxPlayer extends _BaseTrx
     /**
      * ユニークキー（プレイヤーはsys_player_idで一意）
      */
+    /** @var list<string> */
     protected array $uniqueKeys = ['sys_player_id'];
 
+    /** @var list<string> */
     protected $fillable = [
         'sys_player_id',
         'is_delete',
@@ -47,12 +49,16 @@ class TrxPlayer extends _BaseTrx
         'updated_at',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'sys_player_id' => 'integer',
     ];
 
     /**
      * sys_playerとのリレーション
+     */
+    /**
+     * @return BelongsTo<SysPlayer, $this>
      */
     public function sysPlayer(): BelongsTo
     {

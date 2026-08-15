@@ -6,6 +6,7 @@ class LogGacha extends _BaseLog
 {
     protected $table = 'log_gacha';
 
+    /** @var array<string, string> */
     protected $casts = [
         'id' => 'integer',
         'unique_request_id' => 'string',
@@ -14,6 +15,7 @@ class LogGacha extends _BaseLog
         'result' => 'array',
     ];
 
+    /** @var list<string> */
     protected $fillable = [
         'unique_request_id',
         'sys_player_id',

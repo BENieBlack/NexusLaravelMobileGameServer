@@ -33,11 +33,13 @@ class TrxEquipment extends _BaseTrx
      *
      * @var array<int, string>
      */
+    /** @var list<string> */
     protected array $uniqueKeys = ['id'];
 
     /**
      * @var array<int, string>
      */
+    /** @var list<string> */
     protected $fillable = [
         'sys_player_id',
         'mst_equipment_id',
@@ -61,6 +63,9 @@ class TrxEquipment extends _BaseTrx
      * trx_playerとのリレーション
      *
      * @return BelongsTo<TrxPlayer, TrxEquipment>
+     */
+    /**
+     * @return BelongsTo<TrxPlayer, $this>
      */
     public function trxPlayer(): BelongsTo
     {

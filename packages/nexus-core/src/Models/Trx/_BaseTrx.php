@@ -40,7 +40,8 @@ abstract class _BaseTrx extends _BaseModel implements _BaseTrxInterface
      * @example trx_unitであれば ['id']
      * @example trx_itemであれば ['trx_item_id']
      */
-    protected array $uniqueKeys = [];
+        /** @var list<string> */
+        protected array $uniqueKeys = [];
 
     /**
      * 相対的な変更を記録する配列

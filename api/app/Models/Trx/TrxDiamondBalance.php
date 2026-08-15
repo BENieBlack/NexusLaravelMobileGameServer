@@ -30,8 +30,10 @@ class TrxDiamondBalance extends _BaseTrx
     /**
      * ユニークキー（IDで一意）
      */
+    /** @var list<string> */
     protected array $uniqueKeys = ['id'];
 
+    /** @var list<string> */
     protected $fillable = [
         'sys_player_id',
         'platform',
@@ -44,6 +46,7 @@ class TrxDiamondBalance extends _BaseTrx
         'updated_at',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'id' => 'integer',
         'sys_player_id' => 'integer',
@@ -54,6 +57,9 @@ class TrxDiamondBalance extends _BaseTrx
 
     /**
      * trx_playerとのリレーション
+     */
+    /**
+     * @return BelongsTo<TrxPlayer, $this>
      */
     public function trxPlayer(): BelongsTo
     {

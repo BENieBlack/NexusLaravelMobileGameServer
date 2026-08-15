@@ -21,8 +21,10 @@ class TrxUnit extends _BaseTrx
     /**
      * ユニークキー（ユニットはIDで一意）
      */
+    /** @var list<string> */
     protected array $uniqueKeys = ['id'];
 
+    /** @var list<string> */
     protected $fillable = [
         'sys_player_id',
         'mst_unit_id',
@@ -34,6 +36,7 @@ class TrxUnit extends _BaseTrx
         'updated_at',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'sys_player_id' => 'integer',
         'grade' => 'integer',
@@ -43,6 +46,9 @@ class TrxUnit extends _BaseTrx
 
     /**
      * trx_playerとのリレーション
+     */
+    /**
+     * @return BelongsTo<TrxPlayer, $this>
      */
     public function trxPlayer(): BelongsTo
     {

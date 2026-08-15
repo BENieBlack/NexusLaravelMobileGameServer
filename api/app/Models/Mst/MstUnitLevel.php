@@ -60,6 +60,7 @@ class MstUnitLevel extends _BaseMst
      */
     protected $keyType = 'string';
 
+    /** @var list<string> */
     protected $fillable = [
         'deploy_key',
         'rarity',
@@ -67,6 +68,7 @@ class MstUnitLevel extends _BaseMst
         'required_exp',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'deploy_key' => 'integer',
         'rarity' => 'string',

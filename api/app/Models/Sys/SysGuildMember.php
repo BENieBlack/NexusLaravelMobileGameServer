@@ -32,6 +32,7 @@ class SysGuildMember extends _BaseSys
      *
      * @var array<string>
      */
+    /** @var list<string> */
     protected $fillable = [
         'sys_guild_id',
         'sys_player_id',
@@ -44,6 +45,7 @@ class SysGuildMember extends _BaseSys
      *
      * @var array<string, string>
      */
+    /** @var array<string, string> */
     protected $casts = [
         'sys_guild_id' => 'integer',
         'sys_player_id' => 'integer',
@@ -52,6 +54,9 @@ class SysGuildMember extends _BaseSys
     /**
      * ギルドとのリレーション
      */
+    /**
+     * @return BelongsTo<SysGuild, $this>
+     */
     public function guild(): BelongsTo
     {
         return $this->belongsTo(SysGuild::class, 'sys_guild_id');
@@ -59,6 +64,9 @@ class SysGuildMember extends _BaseSys
 
     /**
      * プレイヤーとのリレーション
+     */
+    /**
+     * @return BelongsTo<SysPlayer, $this>
      */
     public function player(): BelongsTo
     {

@@ -12,6 +12,7 @@ class MstInAppPurchaseEffect extends _BaseMst
 
     public $incrementing = false;
 
+    /** @var list<string> */
     protected $fillable = [
         'deploy_key',
         'mst_in_app_purchase_id',
@@ -19,6 +20,7 @@ class MstInAppPurchaseEffect extends _BaseMst
         'value',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'deploy_key' => 'integer',
         'mst_in_app_purchase_id' => 'integer',
@@ -43,6 +45,9 @@ class MstInAppPurchaseEffect extends _BaseMst
 
     /**
      * 親のアプリ内課金商品
+     */
+    /**
+     * @return BelongsTo<MstInAppPurchase, $this>
      */
     public function inAppPurchase(): BelongsTo
     {

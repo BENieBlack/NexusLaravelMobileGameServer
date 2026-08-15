@@ -29,6 +29,7 @@ class SysShardingNode extends _BaseSys
      *
      * @var array
      */
+    /** @var list<string> */
     protected $fillable = [
         'sys_sharding_id',
         'node_name',
@@ -46,6 +47,7 @@ class SysShardingNode extends _BaseSys
      *
      * @var array
      */
+    /** @var array<string, string> */
     protected $casts = [
         'sys_sharding_id' => 'integer',
         'node_no' => 'integer',
@@ -208,6 +210,9 @@ class SysShardingNode extends _BaseSys
     /**
      * シャーディング設定とのリレーション
      */
+    /**
+     * @return BelongsTo<SysSharding, $this>
+     */
     public function sharding(): BelongsTo
     {
         return $this->belongsTo(SysSharding::class, 'sys_sharding_id');
@@ -215,6 +220,9 @@ class SysShardingNode extends _BaseSys
 
     /**
      * プレイヤー割り当てとのリレーション
+     */
+    /**
+     * @return HasMany<SysShardingNodePlayer, $this>
      */
     public function playerAssignments(): HasMany
     {

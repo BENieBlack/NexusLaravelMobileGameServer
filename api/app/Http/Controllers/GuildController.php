@@ -161,8 +161,6 @@ class GuildController extends _BaseController
             );
         }
 
-        $useCase->exec($sysPlayerId);
-
-        return $this->success([]);
+        return $this->execute(fn () => $useCase->exec($sysPlayerId));
     }
 }

@@ -48,7 +48,7 @@ class GuildApplyFlowTest extends TestCase
             ->getJson('/api/guild/apply/list?guild_id='.$guildId);
 
         $response->assertOk();
-        $this->assertNotEmpty($response->json('data'));
+        $this->assertNotEmpty($response->json());
     }
 
     #[Test]
@@ -133,7 +133,7 @@ class GuildApplyFlowTest extends TestCase
             ]);
         $response->assertOk();
 
-        return (int) $response->json('data.guild_id');
+        return (int) $response->json('guild_id');
     }
 
     private function sendApply(string $token, int $guildId): void

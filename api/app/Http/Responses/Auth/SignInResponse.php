@@ -2,12 +2,10 @@
 
 namespace App\Http\Responses\Auth;
 
+use App\Http\Responses\_BaseResponse;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;
-use Illuminate\Contracts\Support\Responsable;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use NexusAuth\ValueObjects\Token;
 
 /**
@@ -16,7 +14,7 @@ use NexusAuth\ValueObjects\Token;
  * サインインAPIのレスポンス
  * sys_player, sys_player_device, sys_player_token の構造体と token を返す
  */
-class SignInResponse implements Responsable
+class SignInResponse extends _BaseResponse
 {
     /**
      * @param  SysPlayer  $sysPlayer  プレイヤー情報
@@ -33,16 +31,14 @@ class SignInResponse implements Responsable
 
     /**
      * レスポンスを生成
-     *
-     * @param  Request  $request
      */
-    public function toResponse($request): JsonResponse
+    public function toArray(): array
     {
-        return response()->json([
+        return [
             'sys_player' => $this->sysPlayer->toArray(),
             'sys_player_device' => $this->sysPlayerDevice->toArray(),
             'sys_player_token' => $this->sysPlayerToken->toArray(),
             'token' => $this->token->toArray(),
-        ]);
+        ];
     }
 }

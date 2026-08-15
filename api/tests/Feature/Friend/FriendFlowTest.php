@@ -49,21 +49,19 @@ class FriendFlowTest extends TestCase
 
         $response->assertOk();
         $response->assertJsonStructure([
-            'data' => [
-                'applies' => [
-                    '*' => [
-                        'sys_friend_apply_id',
-                        'sender_my_id',
-                        'receiver_my_id',
-                        'status',
-                        'created_at',
-                        'updated_at',
-                    ],
+            'applies' => [
+                '*' => [
+                    'sys_friend_apply_id',
+                    'sender_my_id',
+                    'receiver_my_id',
+                    'status',
+                    'created_at',
+                    'updated_at',
                 ],
             ],
         ]);
 
-        $applies = $response->json('data.applies');
+        $applies = $response->json('applies');
         $this->assertCount(1, $applies);
         $this->assertSame($sender->my_id, $applies[0]['sender_my_id']);
         $this->assertSame($receiver->my_id, $applies[0]['receiver_my_id']);

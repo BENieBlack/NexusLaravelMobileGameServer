@@ -2,6 +2,8 @@
 
 namespace App\Repositories\Sys;
 
+use App\Adapters\Player\PlayerAdapter;
+use App\Adapters\Player\PlayerVipAdapter;
 use App\Models\Sys\SysPlayer;
 use NexusPlayer\DataTransferObjects\Player;
 use NexusPlayer\Repositories\PlayerRepositoryInterface as PlayerRepoInterface;
@@ -31,7 +33,7 @@ class PlayerRepositoryAdapter implements PlayerRepoInterface, PlayerVipRepositor
     {
         $model = $this->sysPlayerRepository->selectById($id);
 
-        return $model ? $this->convertToDto($model) : null;
+        return $model ? PlayerAdapter::toDto($model) : null;
     }
 
     /**
@@ -41,7 +43,7 @@ class PlayerRepositoryAdapter implements PlayerRepoInterface, PlayerVipRepositor
     {
         $model = $this->sysPlayerRepository->selectByMyId($myId);
 
-        return $model ? $this->convertToDto($model) : null;
+        return $model ? PlayerAdapter::toDto($model) : null;
     }
 
     /**
@@ -51,7 +53,7 @@ class PlayerRepositoryAdapter implements PlayerRepoInterface, PlayerVipRepositor
     {
         $model = $this->sysPlayerRepository->selectByUuid($uuid);
 
-        return $model ? $this->convertToDto($model) : null;
+        return $model ? PlayerAdapter::toDto($model) : null;
     }
 
     /**
@@ -79,7 +81,7 @@ class PlayerRepositoryAdapter implements PlayerRepoInterface, PlayerVipRepositor
     {
         $model = $this->sysPlayerRepository->selectById($sysPlayerId);
 
-        return $model ? $this->convertToPlayerVipDto($model) : null;
+        return $model ? PlayerVipAdapter::toDto($model) : null;
     }
 
     /**
@@ -106,7 +108,7 @@ class PlayerRepositoryAdapter implements PlayerRepoInterface, PlayerVipRepositor
     {
         $models = $this->sysPlayerRepository->selectByVipPointRange($minPoint, $maxPoint, $limit);
 
-        return $models->map(fn (SysPlayer $model) => $this->convertToPlayerVipDto($model))->all();
+        return $models->map(fn (SysPlayer $model) => PlayerVipAdapter::toDto($model))->all();
     }
 
     /**
@@ -115,34 +117,5 @@ class PlayerRepositoryAdapter implements PlayerRepoInterface, PlayerVipRepositor
     public function existsByMyId(string $myId): bool
     {
         return $this->sysPlayerRepository->existsByMyId($myId);
-    }
-
-    /**
-     * Eloquent ModelをPlayerに変換
-     */
-    private function convertToDto(SysPlayer $model): Player
-    {
-        return new Player(
-            id: $model->getId(),
-            uuid: $model->getUuid(),
-            myId: $model->getMyId(),
-            name: $model->getName(),
-            level: $model->getLevel(),
-            levelExp: $model->getLevelExp(),
-            createdAt: $model->getCreatedAt(),
-            updatedAt: (string) $model->getAttribute('updated_at')
-        );
-    }
-
-    /**
-     * Eloquent ModelをPlayerVipに変換
-     */
-    private function convertToPlayerVipDto(SysPlayer $model): PlayerVip
-    {
-        return new PlayerVip(
-            sysPlayerId: $model->getId(),
-            vipPoint: $model->getVipPoint(),
-            totalPaidAmount: $model->getTotalPaidAmount()
-        );
     }
 }

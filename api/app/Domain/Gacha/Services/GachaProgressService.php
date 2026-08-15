@@ -5,7 +5,7 @@ namespace App\Domain\Gacha\Services;
 use App\Models\Trx\TrxGacha;
 use App\Repositories\Trx\TrxGachaRepository;
 use Nexus\Core\Utilities\ClockUtility;
-use NexusGacha\Dto\GachaProgressDto;
+use NexusGacha\DataTransferObjects\GachaProgress;
 use NexusGacha\Services\GachaProgressService as PackageGachaProgressService;
 
 /**
@@ -83,9 +83,9 @@ class GachaProgressService
     /**
      * TrxGachaモデルをDTOに変換
      */
-    private function convertToDto(TrxGacha $progress): GachaProgressDto
+    private function convertToDto(TrxGacha $progress): GachaProgress
     {
-        return new GachaProgressDto(
+        return new GachaProgress(
             sysPlayerId: $progress->sys_player_id,
             mstGachaId: $progress->mst_gacha_id,
             currentStep: $progress->current_step,

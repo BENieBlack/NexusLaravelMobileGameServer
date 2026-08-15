@@ -6,7 +6,7 @@ use App\Domain\InAppPurchase\Services\InAppPurchasePackService;
 use App\Domain\InAppPurchase\Services\InAppPurchaseValidationService;
 use App\Http\Responses\InAppPurchase\BuyResponse;
 use App\Models\Mst\MstInAppPurchase;
-use NexusBilling\DTOs\VerificationDto;
+use NexusBilling\DataTransferObjects\Verification;
 use NexusBilling\Facades\BillingFacade;
 
 /**
@@ -35,7 +35,7 @@ class InAppPurchaseBuyPackUseCase extends _BaseBuyUseCase
         MstInAppPurchase $mstInAppPurchase,
         string $platform,
         string $billingPlatform,
-        VerificationDto $verificationDto
+        Verification $verificationDto
     ): BuyResponse {
         // トランザクション内でパック購入処理を実行
         return $this->executeWithTransaction(function () use (

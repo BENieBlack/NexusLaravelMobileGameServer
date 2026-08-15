@@ -103,7 +103,7 @@ if ($maintenanceService->isUnderMaintenance()) {
 ### Starting Maintenance
 
 ```php
-use LaravelMaintenance\DTOs\MaintenanceInfo;
+use LaravelMaintenance\DataTransferObjects\MaintenanceInfo;
 use LaravelMaintenance\Services\MaintenanceService;
 use Carbon\CarbonImmutable;
 

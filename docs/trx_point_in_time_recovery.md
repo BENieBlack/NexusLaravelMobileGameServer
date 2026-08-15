@@ -184,8 +184,8 @@ packages/nexus-pitr/
 │   ├── Traits/
 │   │   └── LogsChanges.php              # Repository用Trait
 │   └── Dto/
-│       ├── ChangeLogDto.php             # 変更ログDTO
-│       └── RecoveryOptionsDto.php       # 復旧オプションDTO
+│       ├── ChangeLog.php             # 変更ログDTO
+│       └── RecoveryOptions.php       # 復旧オプションDTO
 └── database/
     └── migrations/
         ├── 2026_08_08_000001_create_log_trx_change.php
@@ -201,7 +201,7 @@ packages/nexus-pitr/
 namespace NexusPitr\Logger;
 
 use Illuminate\Support\Facades\DB;
-use NexusPitr\Dto\ChangeLogDto;
+use NexusPitr\DataTransferObjects\ChangeLog;
 
 class TrxChangeLogger
 {
@@ -212,7 +212,7 @@ class TrxChangeLogger
     /**
      * TrxDB変更をLogDBに記録
      */
-    public function log(ChangeLogDto $changeLogDto): void
+    public function log(ChangeLog $changeLogDto): void
     {
         $sequenceNumber = $this->sequenceManager->issueNextSequence(
             $changeLogDto->getShardConnection()
@@ -340,7 +340,7 @@ class SequenceManager
 namespace NexusPitr\Traits;
 
 use NexusPitr\Logger\TrxChangeLogger;
-use NexusPitr\Dto\ChangeLogDto;
+use NexusPitr\DataTransferObjects\ChangeLog;
 use Illuminate\Support\Facades\App;
 
 trait LogsChanges
@@ -368,7 +368,7 @@ trait LogsChanges
         array $primaryKey,
         int $sysPlayerId
     ): void {
-        $this->getTrxChangeLogger()->log(new ChangeLogDto(
+        $this->getTrxChangeLogger()->log(new ChangeLog(
             uniqueRequestId: request()->header('X-Request-ID') ?? \Illuminate\Support\Str::uuid()->toString(),
             sysPlayerId: $sysPlayerId,
             shardConnection: $shardConnection,
@@ -394,7 +394,7 @@ trait LogsChanges
         array $primaryKey,
         int $sysPlayerId
     ): void {
-        $this->getTrxChangeLogger()->log(new ChangeLogDto(
+        $this->getTrxChangeLogger()->log(new ChangeLog(
             uniqueRequestId: request()->header('X-Request-ID') ?? \Illuminate\Support\Str::uuid()->toString(),
             sysPlayerId: $sysPlayerId,
             shardConnection: $shardConnection,
@@ -419,7 +419,7 @@ trait LogsChanges
         array $primaryKey,
         int $sysPlayerId
     ): void {
-        $this->getTrxChangeLogger()->log(new ChangeLogDto(
+        $this->getTrxChangeLogger()->log(new ChangeLog(
             uniqueRequestId: request()->header('X-Request-ID') ?? \Illuminate\Support\Str::uuid()->toString(),
             sysPlayerId: $sysPlayerId,
             shardConnection: $shardConnection,
@@ -515,7 +515,7 @@ namespace NexusPitr\Commands;
 
 use Illuminate\Console\Command;
 use NexusPitr\Recovery\TrxRecoveryService;
-use NexusPitr\Dto\RecoveryOptionsDto;
+use NexusPitr\DataTransferObjects\RecoveryOptions;
 
 class TrxRecoveryCommand extends Command
 {
@@ -539,7 +539,7 @@ class TrxRecoveryCommand extends Command
 
     public function handle(): int
     {
-        $options = new RecoveryOptionsDto(
+        $options = new RecoveryOptions(
             shard: $this->argument('shard'),
             snapshotTime: $this->option('snapshot-time'),
             targetTime: $this->option('target-time') ?? now()->format('Y-m-d H:i:s'),
@@ -564,7 +564,7 @@ class TrxRecoveryCommand extends Command
         return $result['success'] ? 0 : 1;
     }
 
-    private function displayHeader(RecoveryOptionsDto $options): void
+    private function displayHeader(RecoveryOptions $options): void
     {
         $this->info('=== TrxDB Point-In-Time Recovery ===');
         $this->table(
@@ -714,7 +714,7 @@ for ($i = 0; $i < 10; $i++) {
 // After: 1回のバッチINSERT
 $changeLogs = [];
 for ($i = 0; $i < 10; $i++) {
-    $changeLogs[] = new ChangeLogDto(...);
+    $changeLogs[] = new ChangeLog(...);
 }
 $this->getTrxChangeLogger()->logBatch($changeLogs);
 ```
@@ -821,7 +821,7 @@ public function test_recovery_restores_data_correctly()
     $this->restoreSnapshot($snapshotTime);
     
     // 復旧実行
-    $result = $this->recoveryService->recover(new RecoveryOptionsDto(
+    $result = $this->recoveryService->recover(new RecoveryOptions(
         shard: 'trx1',
         snapshotTime: $snapshotTime->format('Y-m-d H:i:s'),
         targetTime: $targetTime->format('Y-m-d H:i:s'),

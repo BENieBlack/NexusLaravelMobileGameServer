@@ -1715,7 +1715,7 @@ Responseクラスは`Http/Responses/`に配置し、DTOとは区別します：
 // ファイルパス: app/Http/Responses/Auth/VersionResponse.php
 namespace App\Http\Responses\Auth;
 
-use App\Domain\Auth\DTOs\AssetUpdate;  // ← DTOを使用
+use App\Domain\Auth\DataTransferObjects\AssetUpdate;  // ← DTOを使用
 
 class VersionResponse extends _BaseResponse
 {
@@ -1764,8 +1764,8 @@ app/Domain/Delivery/
 ### 使用例
 
 ```php
-use App\Domain\Delivery\DTOs\DeliveryContent;
-use App\Domain\Delivery\DTOs\DeliveryResult;
+use App\Domain\Delivery\DataTransferObjects\DeliveryContent;
+use App\Domain\Delivery\DataTransferObjects\DeliveryResult;
 use App\Domain\Delivery\Services\DeliveryService;
 
 // DTOの作成（サフィックスなしで読みやす���）
@@ -1800,8 +1800,8 @@ app/Http/Responses/Auth/
 ### 使用例
 
 ```php
-use App\Domain\Auth\DTOs\AssetUpdate;
-use App\Domain\Auth\DTOs\MasterUpdate;
+use App\Domain\Auth\DataTransferObjects\AssetUpdate;
+use App\Domain\Auth\DataTransferObjects\MasterUpdate;
 use App\Http\Responses\Auth\VersionResponse;
 
 // DTOの作成

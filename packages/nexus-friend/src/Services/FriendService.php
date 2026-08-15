@@ -3,7 +3,7 @@
 namespace NexusFriend\Services;
 
 use NexusFriend\Constants\FriendStatus;
-use NexusFriend\Dto\FriendApplyDto;
+use NexusFriend\DataTransferObjects\FriendApply;
 use NexusFriend\Repositories\FriendApplyRepositoryInterface;
 
 /**
@@ -64,12 +64,12 @@ class FriendService
      *
      * 申請の受信者のみが承認/却下できる
      *
-     * @param  FriendApplyDto  $friendApplyDto  フレンド申請DTO
+     * @param  FriendApply  $friendApplyDto  フレンド申請DTO
      * @param  int  $currentPlayerId  現在のプレイヤーID
      *
      * @throws \RuntimeException 承認権限がない場合
      */
-    public function validateReceiverAuthorization(FriendApplyDto $friendApplyDto, int $currentPlayerId): void
+    public function validateReceiverAuthorization(FriendApply $friendApplyDto, int $currentPlayerId): void
     {
         if ($friendApplyDto->getReceiverPlayerId() !== $currentPlayerId) {
             throw new \RuntimeException('Not authorized to accept/reject this request');
@@ -79,11 +79,11 @@ class FriendService
     /**
      * 申請が承認可能な状態かバリデーション
      *
-     * @param  FriendApplyDto  $friendApplyDto  フレンド申請DTO
+     * @param  FriendApply  $friendApplyDto  フレンド申請DTO
      *
      * @throws \RuntimeException 承認できない状態の場合
      */
-    public function validateCanAccept(FriendApplyDto $friendApplyDto): void
+    public function validateCanAccept(FriendApply $friendApplyDto): void
     {
         if ($friendApplyDto->getStatus() === FriendStatus::ACCEPTED) {
             throw new \RuntimeException('Friend request already accepted');
@@ -101,11 +101,11 @@ class FriendService
     /**
      * 申請が却下可能な状態かバリデーション
      *
-     * @param  FriendApplyDto  $friendApplyDto  フレンド申請DTO
+     * @param  FriendApply  $friendApplyDto  フレンド申請DTO
      *
      * @throws \RuntimeException 却下できない状態の場合
      */
-    public function validateCanReject(FriendApplyDto $friendApplyDto): void
+    public function validateCanReject(FriendApply $friendApplyDto): void
     {
         if ($friendApplyDto->getStatus() === FriendStatus::ACCEPTED) {
             throw new \RuntimeException('Friend request already accepted');
@@ -126,7 +126,7 @@ class FriendService
      * @param  int  $senderPlayerId  申請者プレイヤーID
      * @param  int  $receiverPlayerId  受信者プレイヤーID
      */
-    public function sendApply(int $senderPlayerId, int $receiverPlayerId): FriendApplyDto
+    public function sendApply(int $senderPlayerId, int $receiverPlayerId): FriendApply
     {
         $this->validateNotSelfApply($senderPlayerId, $receiverPlayerId);
         $this->validateNoDuplicateApply($senderPlayerId, $receiverPlayerId);
@@ -142,7 +142,7 @@ class FriendService
      *
      * @throws \RuntimeException 申請が見つからない、または承認できない場合
      */
-    public function acceptApply(int $friendApplyId, int $currentPlayerId): FriendApplyDto
+    public function acceptApply(int $friendApplyId, int $currentPlayerId): FriendApply
     {
         $applyDto = $this->repository->selectById($friendApplyId);
 
@@ -164,7 +164,7 @@ class FriendService
      *
      * @throws \RuntimeException 申請が見つからない、または却下できない場合
      */
-    public function rejectApply(int $friendApplyId, int $currentPlayerId): FriendApplyDto
+    public function rejectApply(int $friendApplyId, int $currentPlayerId): FriendApply
     {
         $applyDto = $this->repository->selectById($friendApplyId);
 
@@ -182,7 +182,7 @@ class FriendService
      * フレンド申請一覧を取得
      *
      * @param  int  $playerId  プレイヤーID
-     * @return array<FriendApplyDto>
+     * @return array<FriendApply>
      */
     public function findApplyList(int $playerId): array
     {
@@ -193,7 +193,7 @@ class FriendService
      * フレンド一覧を取得
      *
      * @param  int  $playerId  プレイヤーID
-     * @return array<FriendApplyDto>
+     * @return array<FriendApply>
      */
     public function findFriendList(int $playerId): array
     {
@@ -208,7 +208,7 @@ class FriendService
      *
      * @throws \RuntimeException フレンド関係が見つからない場合
      */
-    public function deleteFriend(int $playerId, int $targetPlayerId): FriendApplyDto
+    public function deleteFriend(int $playerId, int $targetPlayerId): FriendApply
     {
         $this->validateNotSelfApply($playerId, $targetPlayerId);
 

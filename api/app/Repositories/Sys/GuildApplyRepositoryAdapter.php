@@ -5,7 +5,7 @@ namespace App\Repositories\Sys;
 use App\Adapters\Guild\GuildApplyAdapter;
 use App\Models\Sys\SysGuildApply;
 use NexusGuild\Constants\GuildApplyStatus;
-use NexusGuild\Dto\GuildApplyDto;
+use NexusGuild\DataTransferObjects\GuildApply;
 use NexusGuild\Repositories\GuildApplyRepositoryInterface;
 
 /**
@@ -25,7 +25,7 @@ class GuildApplyRepositoryAdapter implements GuildApplyRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function selectById(int $applyId): ?GuildApplyDto
+    public function selectById(int $applyId): ?GuildApply
     {
         $model = $this->sysGuildApplyRepository->selectById($applyId);
 
@@ -35,7 +35,7 @@ class GuildApplyRepositoryAdapter implements GuildApplyRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function selectByGuildAndPlayer(int $guildId, int $playerId): ?GuildApplyDto
+    public function selectByGuildAndPlayer(int $guildId, int $playerId): ?GuildApply
     {
         $model = $this->sysGuildApplyRepository->selectByGuildAndPlayer($guildId, $playerId);
 
@@ -45,7 +45,7 @@ class GuildApplyRepositoryAdapter implements GuildApplyRepositoryInterface
     /**
      * {@inheritDoc}
      *
-     * @return array<GuildApplyDto>
+     * @return array<GuildApply>
      */
     public function selectAppliesByGuildId(int $guildId): array
     {
@@ -57,7 +57,7 @@ class GuildApplyRepositoryAdapter implements GuildApplyRepositoryInterface
     /**
      * {@inheritDoc}
      *
-     * @return array<GuildApplyDto>
+     * @return array<GuildApply>
      */
     public function selectAppliesByPlayerId(int $playerId): array
     {
@@ -69,7 +69,7 @@ class GuildApplyRepositoryAdapter implements GuildApplyRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function insert(int $guildId, int $playerId): GuildApplyDto
+    public function insert(int $guildId, int $playerId): GuildApply
     {
         $model = $this->sysGuildApplyRepository->insertApply($guildId, $playerId);
 
@@ -79,7 +79,7 @@ class GuildApplyRepositoryAdapter implements GuildApplyRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function accept(GuildApplyDto $guildApplyDto): GuildApplyDto
+    public function accept(GuildApply $guildApplyDto): GuildApply
     {
         $model = $this->requireModel($guildApplyDto->getId());
 
@@ -92,7 +92,7 @@ class GuildApplyRepositoryAdapter implements GuildApplyRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function reject(GuildApplyDto $guildApplyDto): GuildApplyDto
+    public function reject(GuildApply $guildApplyDto): GuildApply
     {
         $model = $this->requireModel($guildApplyDto->getId());
 

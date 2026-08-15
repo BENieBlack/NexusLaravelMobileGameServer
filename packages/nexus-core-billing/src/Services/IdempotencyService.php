@@ -2,7 +2,7 @@
 
 namespace NexusBilling\Services;
 
-use NexusBilling\DTOs\VerificationDto;
+use NexusBilling\DataTransferObjects\Verification;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -42,10 +42,10 @@ class IdempotencyService
      * リクエストIDと検証結果をキャッシュに保存する
      * 
      * @param string $uniqueRequestId 一意なリクエストID
-     * @param VerificationDto $result 検証結果
+     * @param Verification $result 検証結果
      * @return void
      */
-    public function register(string $uniqueRequestId, VerificationDto $result): void
+    public function register(string $uniqueRequestId, Verification $result): void
     {
         Cache::put(
             $this->buildCacheKey($uniqueRequestId),

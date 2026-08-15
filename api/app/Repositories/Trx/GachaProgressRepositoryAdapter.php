@@ -3,7 +3,7 @@
 namespace App\Repositories\Trx;
 
 use App\Models\Trx\TrxGacha;
-use NexusGacha\Dto\GachaProgressDto;
+use NexusGacha\DataTransferObjects\GachaProgress;
 use NexusGacha\Repositories\GachaProgressRepositoryInterface;
 
 /**
@@ -25,7 +25,7 @@ class GachaProgressRepositoryAdapter implements GachaProgressRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function selectByPlayerAndGacha(int $sysPlayerId, string $mstGachaId): ?GachaProgressDto
+    public function selectByPlayerAndGacha(int $sysPlayerId, string $mstGachaId): ?GachaProgress
     {
         $model = $this->trxGachaRepository->selectByPlayerAndGacha($sysPlayerId, $mstGachaId);
 
@@ -35,7 +35,7 @@ class GachaProgressRepositoryAdapter implements GachaProgressRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function persist(GachaProgressDto $gachaProgressDto): void
+    public function persist(GachaProgress $gachaProgressDto): void
     {
         $model = $this->trxGachaRepository->selectByPlayerAndGacha(
             $gachaProgressDto->getSysPlayerId(),
@@ -58,7 +58,7 @@ class GachaProgressRepositoryAdapter implements GachaProgressRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function insert(GachaProgressDto $gachaProgressDto): GachaProgressDto
+    public function insert(GachaProgress $gachaProgressDto): GachaProgress
     {
         $this->trxGachaRepository->insertProgress(
             $gachaProgressDto->getSysPlayerId(),
@@ -76,9 +76,9 @@ class GachaProgressRepositoryAdapter implements GachaProgressRepositoryInterface
     /**
      * Eloquent ModelをDTOに変換
      */
-    private function convertToDto(TrxGacha $model): GachaProgressDto
+    private function convertToDto(TrxGacha $model): GachaProgress
     {
-        return new GachaProgressDto(
+        return new GachaProgress(
             sysPlayerId: $model->sys_player_id,
             mstGachaId: $model->mst_gacha_id,
             currentStep: $model->current_step,

@@ -21,8 +21,8 @@
 ```php
 namespace App\Domain\Delivery\Handlers;
 
-use App\Domain\Delivery\DTOs\DeliveryContent;
-use App\Domain\Delivery\DTOs\DeliveryResult;
+use App\Domain\Delivery\DataTransferObjects\DeliveryContent;
+use App\Domain\Delivery\DataTransferObjects\DeliveryResult;
 
 interface DeliveryHandlerInterface
 {

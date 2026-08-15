@@ -135,11 +135,11 @@ DTOは**ドメイン名 + 目的 + Dto**の形式とします。
 
 **Examples:**
 ```php
-GachaPrizeDto
-GachaProgressDto
-PlayerDto
-FriendApplyDto
-FriendDto
+GachaPrize
+GachaProgress
+Player
+FriendApply
+Friend
 ```
 
 ## Controller命名規則

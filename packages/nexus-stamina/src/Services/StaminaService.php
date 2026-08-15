@@ -3,7 +3,7 @@
 namespace NexusStamina\Services;
 
 use NexusStamina\Constants\StaminaConst;
-use NexusStamina\Dto\StaminaDto;
+use NexusStamina\DataTransferObjects\Stamina;
 use NexusStamina\Repositories\StaminaRepositoryInterface;
 use Nexus\Core\Utilities\ClockUtility;
 
@@ -30,9 +30,9 @@ class StaminaService
      *
      * @param  int  $sysPlayerId  プレイヤーID
      * @param  string  $type  スタミナタイプ
-     * @return StaminaDto|null スタミナDTO
+     * @return Stamina|null スタミナDTO
      */
-    public function findStamina(int $sysPlayerId, string $type = StaminaConst::TYPE_NORMAL): ?StaminaDto
+    public function findStamina(int $sysPlayerId, string $type = StaminaConst::TYPE_NORMAL): ?Stamina
     {
         $stamina = $this->staminaRepository->selectByPlayerAndType($sysPlayerId, $type);
 
@@ -55,13 +55,13 @@ class StaminaService
      * @param  int  $sysPlayerId  プレイヤーID
      * @param  int  $initialStamina  初期スタミナ量
      * @param  string  $type  スタミナタイプ
-     * @return StaminaDto 作成されたスタミナDTO
+     * @return Stamina 作成されたスタミナDTO
      */
-    public function initializeStamina(int $sysPlayerId, int $initialStamina, string $type = StaminaConst::TYPE_NORMAL): StaminaDto
+    public function initializeStamina(int $sysPlayerId, int $initialStamina, string $type = StaminaConst::TYPE_NORMAL): Stamina
     {
         $now = ClockUtility::nowToString();
 
-        $staminaDto = new StaminaDto(
+        $staminaDto = new Stamina(
             sysPlayerId: $sysPlayerId,
             type: $type,
             currentStamina: $initialStamina,
@@ -148,11 +148,11 @@ class StaminaService
     /**
      * 時間経過による自動回復を適用
      *
-     * @param  StaminaDto  $staminaDto  スタミナDTO
+     * @param  Stamina  $staminaDto  スタミナDTO
      * @param  int  $maxStamina  プレイヤーの最大スタミナ
      * @return bool 自動回復が発生したかどうか
      */
-    private function applyAutoRecovery(StaminaDto $staminaDto, int $maxStamina): bool
+    private function applyAutoRecovery(Stamina $staminaDto, int $maxStamina): bool
     {
         // すでに最大値の場合は回復不要
         if ($staminaDto->isCurrentStaminaFull($maxStamina)) {

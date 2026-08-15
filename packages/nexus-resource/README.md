@@ -26,7 +26,7 @@ composer require nexus/resource
 ### Creating Resources
 
 ```php
-use NexusResource\DTOs\Resource;
+use NexusResource\DataTransferObjects\Resource;
 
 // Currency resources
 $diamond = Resource::diamond(1000);

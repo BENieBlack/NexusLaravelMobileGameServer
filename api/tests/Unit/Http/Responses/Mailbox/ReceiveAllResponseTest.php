@@ -4,17 +4,17 @@ namespace Tests\Unit\Http\Responses\Mailbox;
 
 use App\Http\Responses\Mailbox\ReceiveAllResponse;
 use Nexus\Core\Support\CustomCollection;
-use NexusResource\DTOs\ResourceDto;
+use NexusResource\DataTransferObjects\Resource;
 use NexusResource\Enums\ResourceType;
-use NexusResourceDelivery\DTOs\ResourceDeliveryContentDto;
-use NexusResourceDelivery\DTOs\ResourceDeliverySummaryDto;
+use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
+use NexusResourceDelivery\DataTransferObjects\ResourceDeliverySummary;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
  * ReceiveAllResponse のレスポンス生成テスト
  *
- * ResourceDeliveryService::deliver() が返す ResourceDeliverySummaryDto を
+ * ResourceDeliveryService::deliver() が返す ResourceDeliverySummary を
  * そのまま受け取れること、および配列へ変換できることを検証する。
  */
 class ReceiveAllResponseTest extends TestCase
@@ -75,17 +75,17 @@ class ReceiveAllResponseTest extends TestCase
         $this->assertFalse($array['success']);
     }
 
-    private function makeSummary(): ResourceDeliverySummaryDto
+    private function makeSummary(): ResourceDeliverySummary
     {
-        $content = new ResourceDeliveryContentDto(
-            new ResourceDto(
+        $content = new ResourceDeliveryContent(
+            new Resource(
                 type: ResourceType::GOLD,
                 id: 'gold',
                 amount: 100,
             )
         );
 
-        $summary = new ResourceDeliverySummaryDto;
+        $summary = new ResourceDeliverySummary;
         $summary->addContents(new CustomCollection([$content]));
 
         return $summary;

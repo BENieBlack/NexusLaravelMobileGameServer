@@ -2,7 +2,7 @@
 
 namespace NexusGacha\Services;
 
-use NexusGacha\Dto\GachaProgressDto;
+use NexusGacha\DataTransferObjects\GachaProgress;
 use NexusGacha\Repositories\GachaProgressRepositoryInterface;
 use Nexus\Core\Utilities\ClockUtility;
 
@@ -23,15 +23,15 @@ class GachaProgressService
      *
      * @param int $sysPlayerId
      * @param string $mstGachaId
-     * @return GachaProgressDto
+     * @return GachaProgress
      */
-    public function findOrInsertProgress(int $sysPlayerId, string $mstGachaId): GachaProgressDto
+    public function findOrInsertProgress(int $sysPlayerId, string $mstGachaId): GachaProgress
     {
         $progress = $this->progressRepository->selectByPlayerAndGacha($sysPlayerId, $mstGachaId);
 
         if (!$progress) {
             $now = ClockUtility::nowToString();
-            $progress = new GachaProgressDto(
+            $progress = new GachaProgress(
                 sysPlayerId: $sysPlayerId,
                 mstGachaId: $mstGachaId,
                 currentStep: 1,
@@ -49,10 +49,10 @@ class GachaProgressService
     /**
      * 日次リセットが必要かチェックし、必要ならリセット
      *
-     * @param GachaProgressDto $gachaProgressDto
-     * @return GachaProgressDto
+     * @param GachaProgress $gachaProgressDto
+     * @return GachaProgress
      */
-    public function checkAndResetDaily(GachaProgressDto $gachaProgressDto): GachaProgressDto
+    public function checkAndResetDaily(GachaProgress $gachaProgressDto): GachaProgress
     {
         $now = ClockUtility::now();
         $dailyResetAt = $gachaProgressDto->getDailyResetAt();
@@ -71,12 +71,12 @@ class GachaProgressService
     /**
      * ガチャ実行後に進行状況を更新
      *
-     * @param GachaProgressDto $gachaProgressDto
+     * @param GachaProgress $gachaProgressDto
      * @param int $drawCount
      * @param int|null $nextStep
      * @return void
      */
-    public function updateProgress(GachaProgressDto $gachaProgressDto, int $drawCount, ?int $nextStep = null): void
+    public function updateProgress(GachaProgress $gachaProgressDto, int $drawCount, ?int $nextStep = null): void
     {
         $gachaProgressDto->setDailyDrawCount($gachaProgressDto->getDailyDrawCount() + 1);
         $gachaProgressDto->setTotalDrawCount($gachaProgressDto->getTotalDrawCount() + $drawCount);

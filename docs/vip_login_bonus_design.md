@@ -144,7 +144,7 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
     // オーバーライド可能なフック
     protected function beforeGrant(...): bool { return true; }
     protected function afterGrant(...): void {}
-    protected function convertToResource(object $content): ResourceDto { /* 標準実装 */ }
+    protected function convertToResource(object $content): Resource { /* 標準実装 */ }
 }
 ```
 

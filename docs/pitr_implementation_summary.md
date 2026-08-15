@@ -70,8 +70,8 @@ packages/nexus-pitr/
 ├── src/
 │   ├── NexusPitrServiceProvider.php
 │   ├── Dto/
-│   │   ├── ChangeLogDto.php
-│   │   └── RecoveryOptionsDto.php
+│   │   ├── ChangeLog.php
+│   │   └── RecoveryOptions.php
 │   ├── Logger/
 │   │   ├── ShardMapper.php         # シャードマッピング
 │   │   └── TrxChangeLogger.php     # ログ記録エンジン

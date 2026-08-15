@@ -97,7 +97,7 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
     // オーバーライド可能なフック
     protected function beforeGrant(...): bool;
     protected function afterGrant(...): void;
-    protected function convertToResource(object $content): ResourceDto;
+    protected function convertToResource(object $content): Resource;
     
     // 共通処理（final）
     final public function process(...): array;
@@ -343,7 +343,7 @@ class VipLoginBonusService extends _BaseLoginBonusService
         // VIP専用ボーナスを取得
     }
     
-    protected function convertToResource(object $content): ResourceDto
+    protected function convertToResource(object $content): Resource
     {
         // VIPレベルによって報酬量を1.5倍
         $content->amount = (int) ($content->amount * 1.5);

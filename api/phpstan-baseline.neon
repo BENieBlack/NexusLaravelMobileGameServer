@@ -73,46 +73,46 @@ parameters:
 			path: ../packages/nexus-core-billing/src/Contracts/IdempotencyCheckerInterface.php
 
 		-
-			message: '#^Method NexusBilling\\DTOs\\DiamondBalanceDto\:\:fromArray\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			message: '#^Method NexusBilling\\DataTransferObjects\\DiamondBalance\:\:fromArray\(\) has parameter \$data with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: ../packages/nexus-core-billing/src/DTOs/DiamondBalanceDto.php
+			path: ../packages/nexus-core-billing/src/DataTransferObjects/DiamondBalance.php
 
 		-
-			message: '#^Method NexusBilling\\DTOs\\DiamondBalanceDto\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method NexusBilling\\DataTransferObjects\\DiamondBalance\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: ../packages/nexus-core-billing/src/DTOs/DiamondBalanceDto.php
+			path: ../packages/nexus-core-billing/src/DataTransferObjects/DiamondBalance.php
 
 		-
-			message: '#^Method NexusBilling\\DTOs\\PurchaseDto\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method NexusBilling\\DataTransferObjects\\Purchase\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: ../packages/nexus-core-billing/src/DTOs/PurchaseDto.php
+			path: ../packages/nexus-core-billing/src/DataTransferObjects/Purchase.php
 
 		-
-			message: '#^Method NexusBilling\\DTOs\\ReceiptDto\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method NexusBilling\\DataTransferObjects\\Receipt\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: ../packages/nexus-core-billing/src/DTOs/ReceiptDto.php
+			path: ../packages/nexus-core-billing/src/DataTransferObjects/Receipt.php
 
 		-
-			message: '#^Method NexusBilling\\DTOs\\VerificationDto\:\:__construct\(\) has parameter \$rawResponse with no value type specified in iterable type array\.$#'
+			message: '#^Method NexusBilling\\DataTransferObjects\\Verification\:\:__construct\(\) has parameter \$rawResponse with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: ../packages/nexus-core-billing/src/DTOs/VerificationDto.php
+			path: ../packages/nexus-core-billing/src/DataTransferObjects/Verification.php
 
 		-
-			message: '#^Method NexusBilling\\DTOs\\VerificationDto\:\:getRawResponse\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method NexusBilling\\DataTransferObjects\\Verification\:\:getRawResponse\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: ../packages/nexus-core-billing/src/DTOs/VerificationDto.php
+			path: ../packages/nexus-core-billing/src/DataTransferObjects/Verification.php
 
 		-
-			message: '#^Method NexusBilling\\DTOs\\VerificationDto\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method NexusBilling\\DataTransferObjects\\Verification\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: ../packages/nexus-core-billing/src/DTOs/VerificationDto.php
+			path: ../packages/nexus-core-billing/src/DataTransferObjects/Verification.php
 
 		-
 			message: '#^Method NexusBilling\\Services\\IdempotencyService\:\:findResult\(\) return type has no value type specified in iterable type array\.$#'
@@ -781,52 +781,52 @@ parameters:
 			path: ../packages/nexus-maintenance/src/Infrastructure/TableStore/TableStoreMaintenanceStorage.php
 
 		-
-			message: '#^Method NexusPitr\\Dto\\ChangeLogDto\:\:__construct\(\) has parameter \$afterData with no value type specified in iterable type array\.$#'
+			message: '#^Method NexusPitr\\DataTransferObjects\\ChangeLog\:\:__construct\(\) has parameter \$afterData with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: ../packages/nexus-pitr/src/Dto/ChangeLogDto.php
+			path: ../packages/nexus-pitr/src/DataTransferObjects/ChangeLog.php
 
 		-
-			message: '#^Method NexusPitr\\Dto\\ChangeLogDto\:\:__construct\(\) has parameter \$beforeData with no value type specified in iterable type array\.$#'
+			message: '#^Method NexusPitr\\DataTransferObjects\\ChangeLog\:\:__construct\(\) has parameter \$beforeData with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: ../packages/nexus-pitr/src/Dto/ChangeLogDto.php
+			path: ../packages/nexus-pitr/src/DataTransferObjects/ChangeLog.php
 
 		-
-			message: '#^Method NexusPitr\\Dto\\ChangeLogDto\:\:__construct\(\) has parameter \$primaryKey with no value type specified in iterable type array\.$#'
+			message: '#^Method NexusPitr\\DataTransferObjects\\ChangeLog\:\:__construct\(\) has parameter \$primaryKey with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: ../packages/nexus-pitr/src/Dto/ChangeLogDto.php
+			path: ../packages/nexus-pitr/src/DataTransferObjects/ChangeLog.php
 
 		-
-			message: '#^Method NexusPitr\\Dto\\ChangeLogDto\:\:__construct\(\) has parameter \$stackTrace with no value type specified in iterable type array\.$#'
+			message: '#^Method NexusPitr\\DataTransferObjects\\ChangeLog\:\:__construct\(\) has parameter \$stackTrace with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: ../packages/nexus-pitr/src/Dto/ChangeLogDto.php
+			path: ../packages/nexus-pitr/src/DataTransferObjects/ChangeLog.php
 
 		-
-			message: '#^Method NexusPitr\\Dto\\ChangeLogDto\:\:getAfterData\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method NexusPitr\\DataTransferObjects\\ChangeLog\:\:getAfterData\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: ../packages/nexus-pitr/src/Dto/ChangeLogDto.php
+			path: ../packages/nexus-pitr/src/DataTransferObjects/ChangeLog.php
 
 		-
-			message: '#^Method NexusPitr\\Dto\\ChangeLogDto\:\:getBeforeData\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method NexusPitr\\DataTransferObjects\\ChangeLog\:\:getBeforeData\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: ../packages/nexus-pitr/src/Dto/ChangeLogDto.php
+			path: ../packages/nexus-pitr/src/DataTransferObjects/ChangeLog.php
 
 		-
-			message: '#^Method NexusPitr\\Dto\\ChangeLogDto\:\:getPrimaryKey\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method NexusPitr\\DataTransferObjects\\ChangeLog\:\:getPrimaryKey\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: ../packages/nexus-pitr/src/Dto/ChangeLogDto.php
+			path: ../packages/nexus-pitr/src/DataTransferObjects/ChangeLog.php
 
 		-
-			message: '#^Method NexusPitr\\Dto\\ChangeLogDto\:\:getStackTrace\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method NexusPitr\\DataTransferObjects\\ChangeLog\:\:getStackTrace\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: ../packages/nexus-pitr/src/Dto/ChangeLogDto.php
+			path: ../packages/nexus-pitr/src/DataTransferObjects/ChangeLog.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>current_sequence" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
@@ -847,16 +847,16 @@ parameters:
 			path: ../packages/nexus-pitr/src/Migrations/DynamicShardingTrait.php
 
 		-
-			message: '#^Method NexusPlayer\\Dto\\PlayerDeviceDto\:\:__construct\(\) has parameter \$deviceInfo with no value type specified in iterable type array\.$#'
+			message: '#^Method NexusPlayer\\DataTransferObjects\\PlayerDevice\:\:__construct\(\) has parameter \$deviceInfo with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: ../packages/nexus-player/src/Dto/PlayerDeviceDto.php
+			path: ../packages/nexus-player/src/DataTransferObjects/PlayerDevice.php
 
 		-
-			message: '#^Method NexusPlayer\\Dto\\PlayerDeviceDto\:\:getDeviceInfo\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method NexusPlayer\\DataTransferObjects\\PlayerDevice\:\:getDeviceInfo\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: ../packages/nexus-player/src/Dto/PlayerDeviceDto.php
+			path: ../packages/nexus-player/src/DataTransferObjects/PlayerDevice.php
 
 		-
 			message: '#^Method NexusPlayer\\Repositories\\PlayerDeviceRepositoryInterface\:\:selectByPlayerId\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
@@ -865,58 +865,52 @@ parameters:
 			path: ../packages/nexus-player/src/Repositories/PlayerDeviceRepositoryInterface.php
 
 		-
-			message: '#^Method NexusResourceDelivery\\DTOs\\ResourceDeliveryCompleteDto\:\:__construct\(\) has parameter \$contents with generic class Nexus\\Core\\Support\\CustomCollection but does not specify its types\: TKey, TValue$#'
+			message: '#^Method NexusResourceDelivery\\DataTransferObjects\\ResourceDeliveryComplete\:\:__construct\(\) has parameter \$contents with generic class Nexus\\Core\\Support\\CustomCollection but does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
-			path: ../packages/nexus-resource-delivery/src/DTOs/ResourceDeliveryCompleteDto.php
+			path: ../packages/nexus-resource-delivery/src/DataTransferObjects/ResourceDeliveryComplete.php
 
 		-
-			message: '#^Method NexusResourceDelivery\\DTOs\\ResourceDeliveryCompleteDto\:\:getContents\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
+			message: '#^Method NexusResourceDelivery\\DataTransferObjects\\ResourceDeliveryComplete\:\:getContents\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
-			path: ../packages/nexus-resource-delivery/src/DTOs/ResourceDeliveryCompleteDto.php
+			path: ../packages/nexus-resource-delivery/src/DataTransferObjects/ResourceDeliveryComplete.php
 
 		-
-			message: '#^Method NexusResourceDelivery\\DTOs\\ResourceDeliveryContentDto\:\:fromArray\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			message: '#^Method NexusResourceDelivery\\DataTransferObjects\\ResourceDeliveryContent\:\:fromArray\(\) has parameter \$data with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: ../packages/nexus-resource-delivery/src/DTOs/ResourceDeliveryContentDto.php
+			path: ../packages/nexus-resource-delivery/src/DataTransferObjects/ResourceDeliveryContent.php
 
 		-
-			message: '#^Method NexusResourceDelivery\\DTOs\\ResourceDeliveryContentDto\:\:getMetadata\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method NexusResourceDelivery\\DataTransferObjects\\ResourceDeliveryContent\:\:getMetadata\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: ../packages/nexus-resource-delivery/src/DTOs/ResourceDeliveryContentDto.php
+			path: ../packages/nexus-resource-delivery/src/DataTransferObjects/ResourceDeliveryContent.php
 
 		-
-			message: '#^Method NexusResourceDelivery\\DTOs\\ResourceDeliveryContentDto\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method NexusResourceDelivery\\DataTransferObjects\\ResourceDeliveryContent\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: ../packages/nexus-resource-delivery/src/DTOs/ResourceDeliveryContentDto.php
+			path: ../packages/nexus-resource-delivery/src/DataTransferObjects/ResourceDeliveryContent.php
 
 		-
-			message: '#^PHPDoc tag @var for property NexusResourceDelivery\\DTOs\\ResourceDeliveryContentDto\:\:\$originalResource with type resource\|null is not subtype of native type NexusResource\\DTOs\\ResourceDto\|null\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: ../packages/nexus-resource-delivery/src/DTOs/ResourceDeliveryContentDto.php
-
-		-
-			message: '#^Method NexusResourceDelivery\\DTOs\\ResourceDeliverySummaryDto\:\:addContents\(\) has parameter \$contents with generic class Nexus\\Core\\Support\\CustomCollection but does not specify its types\: TKey, TValue$#'
+			message: '#^Method NexusResourceDelivery\\DataTransferObjects\\ResourceDeliverySummary\:\:addContents\(\) has parameter \$contents with generic class Nexus\\Core\\Support\\CustomCollection but does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
-			path: ../packages/nexus-resource-delivery/src/DTOs/ResourceDeliverySummaryDto.php
+			path: ../packages/nexus-resource-delivery/src/DataTransferObjects/ResourceDeliverySummary.php
 
 		-
-			message: '#^Method NexusResourceDelivery\\DTOs\\ResourceDeliverySummaryDto\:\:getContents\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
+			message: '#^Method NexusResourceDelivery\\DataTransferObjects\\ResourceDeliverySummary\:\:getContents\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
-			path: ../packages/nexus-resource-delivery/src/DTOs/ResourceDeliverySummaryDto.php
+			path: ../packages/nexus-resource-delivery/src/DataTransferObjects/ResourceDeliverySummary.php
 
 		-
-			message: '#^Property NexusResourceDelivery\\DTOs\\ResourceDeliverySummaryDto\:\:\$contents with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
+			message: '#^Property NexusResourceDelivery\\DataTransferObjects\\ResourceDeliverySummary\:\:\$contents with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
-			path: ../packages/nexus-resource-delivery/src/DTOs/ResourceDeliverySummaryDto.php
+			path: ../packages/nexus-resource-delivery/src/DataTransferObjects/ResourceDeliverySummary.php
 
 		-
 			message: '#^Method NexusResourceDelivery\\Managers\\ResourceDeliveryManager\:\:addContents\(\) has parameter \$contents with generic class Nexus\\Core\\Support\\CustomCollection but does not specify its types\: TKey, TValue$#'
@@ -991,58 +985,58 @@ parameters:
 			path: ../packages/nexus-resource-delivery/src/ValueObjects/ResourceDeliveryResult.php
 
 		-
-			message: '#^Method NexusResource\\DTOs\\ItemDto\:\:fromArray\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			message: '#^Method NexusResource\\DataTransferObjects\\Item\:\:fromArray\(\) has parameter \$data with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: ../packages/nexus-resource/src/DTOs/ItemDto.php
+			path: ../packages/nexus-resource/src/DataTransferObjects/Item.php
 
 		-
-			message: '#^Method NexusResource\\DTOs\\ItemDto\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method NexusResource\\DataTransferObjects\\Item\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: ../packages/nexus-resource/src/DTOs/ItemDto.php
+			path: ../packages/nexus-resource/src/DataTransferObjects/Item.php
 
 		-
-			message: '#^Method NexusResource\\DTOs\\ResourceDto\:\:__construct\(\) has parameter \$metadata with no value type specified in iterable type array\.$#'
+			message: '#^Method NexusResource\\DataTransferObjects\\Resource\:\:__construct\(\) has parameter \$metadata with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: ../packages/nexus-resource/src/DTOs/ResourceDto.php
+			path: ../packages/nexus-resource/src/DataTransferObjects/Resource.php
 
 		-
-			message: '#^Method NexusResource\\DTOs\\ResourceDto\:\:custom\(\) has parameter \$metadata with no value type specified in iterable type array\.$#'
+			message: '#^Method NexusResource\\DataTransferObjects\\Resource\:\:custom\(\) has parameter \$metadata with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: ../packages/nexus-resource/src/DTOs/ResourceDto.php
+			path: ../packages/nexus-resource/src/DataTransferObjects/Resource.php
 
 		-
-			message: '#^Method NexusResource\\DTOs\\ResourceDto\:\:fromArray\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			message: '#^Method NexusResource\\DataTransferObjects\\Resource\:\:fromArray\(\) has parameter \$data with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: ../packages/nexus-resource/src/DTOs/ResourceDto.php
+			path: ../packages/nexus-resource/src/DataTransferObjects/Resource.php
 
 		-
-			message: '#^Method NexusResource\\DTOs\\ResourceDto\:\:fromTypeString\(\) has parameter \$metadata with no value type specified in iterable type array\.$#'
+			message: '#^Method NexusResource\\DataTransferObjects\\Resource\:\:fromTypeString\(\) has parameter \$metadata with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: ../packages/nexus-resource/src/DTOs/ResourceDto.php
+			path: ../packages/nexus-resource/src/DataTransferObjects/Resource.php
 
 		-
-			message: '#^Method NexusResource\\DTOs\\ResourceDto\:\:getMetadata\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method NexusResource\\DataTransferObjects\\Resource\:\:getMetadata\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: ../packages/nexus-resource/src/DTOs/ResourceDto.php
+			path: ../packages/nexus-resource/src/DataTransferObjects/Resource.php
 
 		-
-			message: '#^Method NexusResource\\DTOs\\ResourceDto\:\:setMetadata\(\) has parameter \$metadata with no value type specified in iterable type array\.$#'
+			message: '#^Method NexusResource\\DataTransferObjects\\Resource\:\:setMetadata\(\) has parameter \$metadata with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: ../packages/nexus-resource/src/DTOs/ResourceDto.php
+			path: ../packages/nexus-resource/src/DataTransferObjects/Resource.php
 
 		-
-			message: '#^Method NexusResource\\DTOs\\ResourceDto\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method NexusResource\\DataTransferObjects\\Resource\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: ../packages/nexus-resource/src/DTOs/ResourceDto.php
+			path: ../packages/nexus-resource/src/DataTransferObjects/Resource.php
 
 		-
 			message: '#^Method NexusVersion\\Repositories\\DeployRepositoryInterface\:\:selectById\(\) return type has no value type specified in iterable type array\.$#'
@@ -1069,10 +1063,10 @@ parameters:
 			path: ../packages/nexus-version/src/Services/VersionService.php
 
 		-
-			message: '#^Method NexusVip\\DTOs\\PlayerVipDto\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Method NexusVip\\DataTransferObjects\\PlayerVip\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: ../packages/nexus-vip/src/DTOs/PlayerVipDto.php
+			path: ../packages/nexus-vip/src/DataTransferObjects/PlayerVip.php
 
 		-
 			message: '#^Method NexusVip\\Events\\VipLevelUpEvent\:\:__construct\(\) has parameter \$rewards with no value type specified in iterable type array\.$#'

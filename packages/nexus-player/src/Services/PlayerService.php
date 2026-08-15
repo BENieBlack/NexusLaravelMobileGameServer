@@ -2,7 +2,7 @@
 
 namespace NexusPlayer\Services;
 
-use NexusPlayer\Dto\PlayerDto;
+use NexusPlayer\DataTransferObjects\Player;
 use NexusPlayer\Repositories\PlayerDeviceRepositoryInterface;
 use NexusPlayer\Repositories\PlayerRepositoryInterface;
 
@@ -21,7 +21,7 @@ class PlayerService
     /**
      * IDでプレイヤーを取得
      */
-    public function findPlayerById(int $id): ?PlayerDto
+    public function findPlayerById(int $id): ?Player
     {
         return $this->playerRepository->selectById($id);
     }
@@ -29,7 +29,7 @@ class PlayerService
     /**
      * My IDでプレイヤーを取得
      */
-    public function findPlayerByMyId(string $myId): ?PlayerDto
+    public function findPlayerByMyId(string $myId): ?Player
     {
         return $this->playerRepository->selectByMyId($myId);
     }
@@ -37,7 +37,7 @@ class PlayerService
     /**
      * デバイスUUIDでプレイヤーを取得
      */
-    public function findPlayerByDeviceUuid(string $deviceUuid): ?PlayerDto
+    public function findPlayerByDeviceUuid(string $deviceUuid): ?Player
     {
         $device = $this->deviceRepository->selectByDeviceUuid($deviceUuid);
 
@@ -51,7 +51,7 @@ class PlayerService
     /**
      * プレイヤー情報を更新
      */
-    public function updatePlayer(PlayerDto $playerDto): void
+    public function updatePlayer(Player $playerDto): void
     {
         $this->playerRepository->persist($playerDto);
     }

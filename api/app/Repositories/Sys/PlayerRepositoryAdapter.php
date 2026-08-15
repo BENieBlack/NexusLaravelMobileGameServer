@@ -3,9 +3,9 @@
 namespace App\Repositories\Sys;
 
 use App\Models\Sys\SysPlayer;
-use NexusPlayer\Dto\PlayerDto;
+use NexusPlayer\DataTransferObjects\Player;
 use NexusPlayer\Repositories\PlayerRepositoryInterface as PlayerRepoInterface;
-use NexusVip\DTOs\PlayerVipDto;
+use NexusVip\DataTransferObjects\PlayerVip;
 use NexusVip\Repositories\PlayerVipRepositoryInterface;
 
 /**
@@ -27,7 +27,7 @@ class PlayerRepositoryAdapter implements PlayerRepoInterface, PlayerVipRepositor
     /**
      * {@inheritDoc}
      */
-    public function selectById(int $id): ?PlayerDto
+    public function selectById(int $id): ?Player
     {
         $model = $this->sysPlayerRepository->selectById($id);
 
@@ -37,7 +37,7 @@ class PlayerRepositoryAdapter implements PlayerRepoInterface, PlayerVipRepositor
     /**
      * {@inheritDoc}
      */
-    public function selectByMyId(string $myId): ?PlayerDto
+    public function selectByMyId(string $myId): ?Player
     {
         $model = $this->sysPlayerRepository->selectByMyId($myId);
 
@@ -47,7 +47,7 @@ class PlayerRepositoryAdapter implements PlayerRepoInterface, PlayerVipRepositor
     /**
      * {@inheritDoc}
      */
-    public function selectByUuid(string $uuid): ?PlayerDto
+    public function selectByUuid(string $uuid): ?Player
     {
         $model = $this->sysPlayerRepository->selectByUuid($uuid);
 
@@ -57,7 +57,7 @@ class PlayerRepositoryAdapter implements PlayerRepoInterface, PlayerVipRepositor
     /**
      * {@inheritDoc}
      */
-    public function persist(PlayerDto $playerDto): void
+    public function persist(Player $playerDto): void
     {
         $model = $this->sysPlayerRepository->selectById($playerDto->getId());
 
@@ -75,7 +75,7 @@ class PlayerRepositoryAdapter implements PlayerRepoInterface, PlayerVipRepositor
     /**
      * {@inheritDoc}
      */
-    public function selectVipInfoById(int $sysPlayerId): ?PlayerVipDto
+    public function selectVipInfoById(int $sysPlayerId): ?PlayerVip
     {
         $model = $this->sysPlayerRepository->selectById($sysPlayerId);
 
@@ -85,7 +85,7 @@ class PlayerRepositoryAdapter implements PlayerRepoInterface, PlayerVipRepositor
     /**
      * {@inheritDoc}
      */
-    public function persistVipInfo(PlayerVipDto $playerVipDto): void
+    public function persistVipInfo(PlayerVip $playerVipDto): void
     {
         $model = $this->sysPlayerRepository->selectById($playerVipDto->getSysPlayerId());
 
@@ -118,11 +118,11 @@ class PlayerRepositoryAdapter implements PlayerRepoInterface, PlayerVipRepositor
     }
 
     /**
-     * Eloquent ModelをPlayerDtoに変換
+     * Eloquent ModelをPlayerに変換
      */
-    private function convertToDto(SysPlayer $model): PlayerDto
+    private function convertToDto(SysPlayer $model): Player
     {
-        return new PlayerDto(
+        return new Player(
             id: $model->getId(),
             uuid: $model->getUuid(),
             myId: $model->getMyId(),
@@ -135,11 +135,11 @@ class PlayerRepositoryAdapter implements PlayerRepoInterface, PlayerVipRepositor
     }
 
     /**
-     * Eloquent ModelをPlayerVipDtoに変換
+     * Eloquent ModelをPlayerVipに変換
      */
-    private function convertToPlayerVipDto(SysPlayer $model): PlayerVipDto
+    private function convertToPlayerVipDto(SysPlayer $model): PlayerVip
     {
-        return new PlayerVipDto(
+        return new PlayerVip(
             sysPlayerId: $model->getId(),
             vipPoint: $model->getVipPoint(),
             totalPaidAmount: $model->getTotalPaidAmount()

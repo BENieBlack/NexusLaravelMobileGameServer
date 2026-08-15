@@ -4,7 +4,7 @@ namespace NexusResource\Tests\Unit\Services;
 
 use NexusResource\Services\ItemWriteService;
 use NexusResource\Contracts\ItemRepositoryInterface;
-use NexusResource\DTOs\ItemDto;
+use NexusResource\DataTransferObjects\Item;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -53,7 +53,7 @@ class ItemWriteServiceTest extends TestCase
         $this->mockRepository
             ->expects($this->once())
             ->method('persistItem')
-            ->with($this->callback(function (ItemDto $dto) use ($sysPlayerId, $mstItemId, $freeAmount, $paidAmount) {
+            ->with($this->callback(function (Item $dto) use ($sysPlayerId, $mstItemId, $freeAmount, $paidAmount) {
                 return $dto->getSysPlayerId() === $sysPlayerId
                     && $dto->getMstItemId() === $mstItemId
                     && $dto->getFreeAmount() === $freeAmount
@@ -64,7 +64,7 @@ class ItemWriteServiceTest extends TestCase
         $result = $this->itemWriteService->addItem($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
 
         // Assert
-        $this->assertInstanceOf(ItemDto::class, $result);
+        $this->assertInstanceOf(Item::class, $result);
         $this->assertSame($sysPlayerId, $result->getSysPlayerId());
         $this->assertSame($mstItemId, $result->getMstItemId());
         $this->assertSame($freeAmount, $result->getFreeAmount());
@@ -82,7 +82,7 @@ class ItemWriteServiceTest extends TestCase
         $addFree = 30;
         $addPaid = 10;
 
-        $existingDto = new ItemDto($sysPlayerId, $mstItemId, $existingFree, $existingPaid);
+        $existingDto = new Item($sysPlayerId, $mstItemId, $existingFree, $existingPaid);
 
         // findItemは既存のDTOを返す
         $this->mockRepository
@@ -95,7 +95,7 @@ class ItemWriteServiceTest extends TestCase
         $this->mockRepository
             ->expects($this->once())
             ->method('persistItem')
-            ->with($this->callback(function (ItemDto $dto) use ($existingFree, $existingPaid, $addFree, $addPaid) {
+            ->with($this->callback(function (Item $dto) use ($existingFree, $existingPaid, $addFree, $addPaid) {
                 return $dto->getFreeAmount() === ($existingFree + $addFree)
                     && $dto->getPaidAmount() === ($existingPaid + $addPaid);
             }));
@@ -118,7 +118,7 @@ class ItemWriteServiceTest extends TestCase
         $paidAmount = 50;
         $consumeAmount = 30;
 
-        $existingDto = new ItemDto($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
+        $existingDto = new Item($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
 
         $this->mockRepository
             ->expects($this->once())
@@ -129,7 +129,7 @@ class ItemWriteServiceTest extends TestCase
         $this->mockRepository
             ->expects($this->once())
             ->method('persistItem')
-            ->with($this->callback(function (ItemDto $dto) use ($freeAmount, $paidAmount, $consumeAmount) {
+            ->with($this->callback(function (Item $dto) use ($freeAmount, $paidAmount, $consumeAmount) {
                 // 有償から優先的に消費されるので、無償は変わらず、有償が減る
                 return $dto->getFreeAmount() === $freeAmount
                     && $dto->getPaidAmount() === ($paidAmount - $consumeAmount);
@@ -153,7 +153,7 @@ class ItemWriteServiceTest extends TestCase
         $paidAmount = 50;
         $consumeAmount = 80; // 有償50 + 無償30を消費
 
-        $existingDto = new ItemDto($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
+        $existingDto = new Item($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
 
         $this->mockRepository
             ->expects($this->once())
@@ -163,7 +163,7 @@ class ItemWriteServiceTest extends TestCase
         $this->mockRepository
             ->expects($this->once())
             ->method('persistItem')
-            ->with($this->callback(function (ItemDto $dto) use ($freeAmount, $consumeAmount, $paidAmount) {
+            ->with($this->callback(function (Item $dto) use ($freeAmount, $consumeAmount, $paidAmount) {
                 // 有償50を全て消費、残り30を無償から消費
                 return $dto->getFreeAmount() === ($freeAmount - ($consumeAmount - $paidAmount))
                     && $dto->getPaidAmount() === 0;
@@ -203,7 +203,7 @@ class ItemWriteServiceTest extends TestCase
         // Arrange
         $sysPlayerId = 1;
         $mstItemId = 'item_potion_001';
-        $existingDto = new ItemDto($sysPlayerId, $mstItemId, 10, 5); // 合計15
+        $existingDto = new Item($sysPlayerId, $mstItemId, 10, 5); // 合計15
 
         $this->mockRepository
             ->expects($this->once())
@@ -229,7 +229,7 @@ class ItemWriteServiceTest extends TestCase
         $addFree = 30;
         $addPaid = 10;
 
-        $existingDto = new ItemDto($sysPlayerId, $mstItemId, $existingFree, $existingPaid);
+        $existingDto = new Item($sysPlayerId, $mstItemId, $existingFree, $existingPaid);
 
         $this->mockRepository
             ->expects($this->once())
@@ -240,7 +240,7 @@ class ItemWriteServiceTest extends TestCase
         $this->mockRepository
             ->expects($this->once())
             ->method('persistItem')
-            ->with($this->callback(function (ItemDto $dto) use ($existingFree, $existingPaid, $addFree, $addPaid) {
+            ->with($this->callback(function (Item $dto) use ($existingFree, $existingPaid, $addFree, $addPaid) {
                 return $dto->getFreeAmount() === ($existingFree + $addFree)
                     && $dto->getPaidAmount() === ($existingPaid + $addPaid);
             }));
@@ -263,7 +263,7 @@ class ItemWriteServiceTest extends TestCase
         $paidAmount = 50;
         $consumeAmount = 50; // 有償をちょうど使い切る
 
-        $existingDto = new ItemDto($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
+        $existingDto = new Item($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
 
         $this->mockRepository
             ->expects($this->once())
@@ -273,7 +273,7 @@ class ItemWriteServiceTest extends TestCase
         $this->mockRepository
             ->expects($this->once())
             ->method('persistItem')
-            ->with($this->callback(function (ItemDto $dto) use ($freeAmount) {
+            ->with($this->callback(function (Item $dto) use ($freeAmount) {
                 return $dto->getFreeAmount() === $freeAmount
                     && $dto->getPaidAmount() === 0;
             }));
@@ -296,7 +296,7 @@ class ItemWriteServiceTest extends TestCase
         $paidAmount = 0;
         $consumeAmount = 30;
 
-        $existingDto = new ItemDto($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
+        $existingDto = new Item($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
 
         $this->mockRepository
             ->expects($this->once())
@@ -306,7 +306,7 @@ class ItemWriteServiceTest extends TestCase
         $this->mockRepository
             ->expects($this->once())
             ->method('persistItem')
-            ->with($this->callback(function (ItemDto $dto) use ($freeAmount, $consumeAmount) {
+            ->with($this->callback(function (Item $dto) use ($freeAmount, $consumeAmount) {
                 return $dto->getFreeAmount() === ($freeAmount - $consumeAmount)
                     && $dto->getPaidAmount() === 0;
             }));
@@ -329,7 +329,7 @@ class ItemWriteServiceTest extends TestCase
         $paidAmount = 30;
         $consumeAmount = 80; // 合計80をちょうど使い切る
 
-        $existingDto = new ItemDto($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
+        $existingDto = new Item($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
 
         $this->mockRepository
             ->expects($this->once())
@@ -339,7 +339,7 @@ class ItemWriteServiceTest extends TestCase
         $this->mockRepository
             ->expects($this->once())
             ->method('persistItem')
-            ->with($this->callback(function (ItemDto $dto) {
+            ->with($this->callback(function (Item $dto) {
                 return $dto->getFreeAmount() === 0
                     && $dto->getPaidAmount() === 0;
             }));
@@ -361,7 +361,7 @@ class ItemWriteServiceTest extends TestCase
         $freeAmount = 100;
         $paidAmount = 50;
 
-        $existingDto = new ItemDto($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
+        $existingDto = new Item($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
 
         $this->mockRepository
             ->expects($this->once())
@@ -371,7 +371,7 @@ class ItemWriteServiceTest extends TestCase
         $this->mockRepository
             ->expects($this->once())
             ->method('persistItem')
-            ->with($this->callback(function (ItemDto $dto) use ($freeAmount, $paidAmount) {
+            ->with($this->callback(function (Item $dto) use ($freeAmount, $paidAmount) {
                 return $dto->getFreeAmount() === $freeAmount
                     && $dto->getPaidAmount() === $paidAmount;
             }));
@@ -399,7 +399,7 @@ class ItemWriteServiceTest extends TestCase
         $this->mockRepository
             ->expects($this->once())
             ->method('persistItem')
-            ->with($this->callback(function (ItemDto $dto) {
+            ->with($this->callback(function (Item $dto) {
                 return $dto->getFreeAmount() === 0
                     && $dto->getPaidAmount() === 0;
             }));

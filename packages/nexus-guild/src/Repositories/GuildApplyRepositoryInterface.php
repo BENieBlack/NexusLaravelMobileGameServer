@@ -2,7 +2,7 @@
 
 namespace NexusGuild\Repositories;
 
-use NexusGuild\Dto\GuildApplyDto;
+use NexusGuild\DataTransferObjects\GuildApply;
 
 /**
  * GuildApplyRepositoryInterface
@@ -16,7 +16,7 @@ interface GuildApplyRepositoryInterface
      *
      * @param  int  $applyId  申請ID
      */
-    public function selectById(int $applyId): ?GuildApplyDto;
+    public function selectById(int $applyId): ?GuildApply;
 
     /**
      * ギルドIDとプレイヤーIDで既存の申請を検索
@@ -26,7 +26,7 @@ interface GuildApplyRepositoryInterface
      * @param  int  $guildId  ギルドID
      * @param  int  $playerId  プレイヤーID
      */
-    public function selectByGuildAndPlayer(int $guildId, int $playerId): ?GuildApplyDto;
+    public function selectByGuildAndPlayer(int $guildId, int $playerId): ?GuildApply;
 
     /**
      * ギルドIDに関連する申請一覧を取得
@@ -34,7 +34,7 @@ interface GuildApplyRepositoryInterface
      * statusがAppliedのものを取得
      *
      * @param  int  $guildId  ギルドID
-     * @return array<GuildApplyDto>
+     * @return array<GuildApply>
      */
     public function selectAppliesByGuildId(int $guildId): array;
 
@@ -44,7 +44,7 @@ interface GuildApplyRepositoryInterface
      * statusがAppliedのものを取得
      *
      * @param  int  $playerId  プレイヤーID
-     * @return array<GuildApplyDto>
+     * @return array<GuildApply>
      */
     public function selectAppliesByPlayerId(int $playerId): array;
 
@@ -54,23 +54,23 @@ interface GuildApplyRepositoryInterface
      * @param  int  $guildId  ギルドID
      * @param  int  $playerId  プレイヤーID
      */
-    public function insert(int $guildId, int $playerId): GuildApplyDto;
+    public function insert(int $guildId, int $playerId): GuildApply;
 
     /**
      * ギルド加入申請を承認
      *
-     * @param  GuildApplyDto  $guildApplyDto  承認する申請
-     * @return GuildApplyDto 承認後のDTO
+     * @param  GuildApply  $guildApplyDto  承認する申請
+     * @return GuildApply 承認後のDTO
      */
-    public function accept(GuildApplyDto $guildApplyDto): GuildApplyDto;
+    public function accept(GuildApply $guildApplyDto): GuildApply;
 
     /**
      * ギルド加入申請を却下
      *
-     * @param  GuildApplyDto  $guildApplyDto  却下する申請
-     * @return GuildApplyDto 却下後のDTO
+     * @param  GuildApply  $guildApplyDto  却下する申請
+     * @return GuildApply 却下後のDTO
      */
-    public function reject(GuildApplyDto $guildApplyDto): GuildApplyDto;
+    public function reject(GuildApply $guildApplyDto): GuildApply;
 
     /**
      * プレイヤーの全申請を削除（論理削除）

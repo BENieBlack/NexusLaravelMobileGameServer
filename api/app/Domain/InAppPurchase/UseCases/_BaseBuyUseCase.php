@@ -8,8 +8,8 @@ use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Http\Responses\InAppPurchase\BuyResponse;
 use App\Models\Mst\MstInAppPurchase;
-use NexusBilling\DTOs\ReceiptDto;
-use NexusBilling\DTOs\VerificationDto;
+use NexusBilling\DataTransferObjects\Receipt;
+use NexusBilling\DataTransferObjects\Verification;
 use NexusBilling\Facades\BillingFacade;
 
 /**
@@ -30,7 +30,7 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
      * 購入処理を実行（Template Method）
      *
      * 共通フロー:
-     * 1. ReceiptDto作成
+     * 1. Receipt作成
      * 2. レシート検証（外部API、トランザクション外）
      * 3. プロダクトID一致確認
      * 4. 価格検証
@@ -99,7 +99,7 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
     }
 
     /**
-     * ReceiptDtoを作成
+     * Receiptを作成
      *
      * @param  int  $sysPlayerId  プレイヤーID
      * @param  string  $billingPlatform  決済プラットフォーム
@@ -113,8 +113,8 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
         string $receipt,
         ?string $transactionId,
         string $productId
-    ): ReceiptDto {
-        return new ReceiptDto(
+    ): Receipt {
+        return new Receipt(
             playerId: $sysPlayerId,
             billingPlatform: $billingPlatform,
             receipt: $billingPlatform === 'AppStore' ? $receipt : null,
@@ -129,12 +129,12 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
      *
      * @param  int  $sysPlayerId  プレイヤーID
      * @param  MstInAppPurchase  $mstInAppPurchase  商品マスター
-     * @param  ReceiptDto  $receiptDto  レシートデータ
+     * @param  Receipt  $receiptDto  レシートデータ
      */
     protected function generateUniqueRequestId(
         int $sysPlayerId,
         MstInAppPurchase $mstInAppPurchase,
-        ReceiptDto $receiptDto
+        Receipt $receiptDto
     ): string {
         return $sysPlayerId.'_'.$mstInAppPurchase->getId().'_'.($receiptDto->getTransactionId() ?? time());
     }
@@ -143,14 +143,14 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
      * レシートを検証
      *
      * @param  string  $billingPlatform  決済プラットフォーム
-     * @param  ReceiptDto  $receiptDto  レシートデータ
+     * @param  Receipt  $receiptDto  レシートデータ
      * @param  string  $uniqueRequestId  一意なリクエストID
      */
     protected function verifyReceipt(
         string $billingPlatform,
-        ReceiptDto $receiptDto,
+        Receipt $receiptDto,
         string $uniqueRequestId
-    ): VerificationDto {
+    ): Verification {
         return $this->billingFacade->processPurchase(
             billingPlatform: $billingPlatform,
             receiptDto: $receiptDto,
@@ -161,13 +161,13 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
     /**
      * プロダクトIDを検証
      *
-     * @param  VerificationDto  $verificationDto  検証結果
+     * @param  Verification  $verificationDto  検証結果
      * @param  string  $productId  プロダクトID
      *
      * @throws GameException
      */
     protected function validateProductId(
-        VerificationDto $verificationDto,
+        Verification $verificationDto,
         string $productId
     ): void {
         if ($verificationDto->getProductId() !== $productId) {
@@ -181,14 +181,14 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
     /**
      * 価格を検証
      *
-     * @param  VerificationDto  $verificationDto  検証結果
+     * @param  Verification  $verificationDto  検証結果
      * @param  MstInAppPurchase  $mstInAppPurchase  商品マスター
      * @param  string  $billingPlatform  決済プラットフォーム
      *
      * @throws GameException
      */
     protected function validatePrice(
-        VerificationDto $verificationDto,
+        Verification $verificationDto,
         MstInAppPurchase $mstInAppPurchase,
         string $billingPlatform
     ): void {
@@ -208,13 +208,13 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
      * @param  MstInAppPurchase  $mstInAppPurchase  商品マスター
      * @param  string  $platform  プラットフォーム
      * @param  string  $billingPlatform  決済プラットフォーム
-     * @param  VerificationDto  $verificationDto  レシート検証結果
+     * @param  Verification  $verificationDto  レシート検証結果
      */
     abstract protected function executePurchase(
         int $sysPlayerId,
         MstInAppPurchase $mstInAppPurchase,
         string $platform,
         string $billingPlatform,
-        VerificationDto $verificationDto
+        Verification $verificationDto
     ): BuyResponse;
 }

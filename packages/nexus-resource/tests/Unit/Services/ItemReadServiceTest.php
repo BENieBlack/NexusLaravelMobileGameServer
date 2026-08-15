@@ -4,7 +4,7 @@ namespace NexusResource\Tests\Unit\Services;
 
 use NexusResource\Services\ItemReadService;
 use NexusResource\Contracts\ItemRepositoryInterface;
-use NexusResource\DTOs\ItemDto;
+use NexusResource\DataTransferObjects\Item;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -37,7 +37,7 @@ class ItemReadServiceTest extends TestCase
         $paidAmount = 50;
         $expectedTotal = 150;
 
-        $expectedDto = new ItemDto($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
+        $expectedDto = new Item($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
 
         $this->mockRepository
             ->expects($this->once())
@@ -80,9 +80,9 @@ class ItemReadServiceTest extends TestCase
         $mstItemIds = ['item_potion_001', 'item_sword_001', 'item_shield_001'];
         
         $items = [
-            new ItemDto($sysPlayerId, 'item_potion_001', 100, 50), // 合計150
-            new ItemDto($sysPlayerId, 'item_sword_001', 5, 2),     // 合計7
-            new ItemDto($sysPlayerId, 'item_shield_001', 3, 1),    // 合計4
+            new Item($sysPlayerId, 'item_potion_001', 100, 50), // 合計150
+            new Item($sysPlayerId, 'item_sword_001', 5, 2),     // 合計7
+            new Item($sysPlayerId, 'item_shield_001', 3, 1),    // 合計4
         ];
 
         $this->mockRepository
@@ -110,7 +110,7 @@ class ItemReadServiceTest extends TestCase
         $mstItemIds = ['item_potion_001', 'item_nonexistent'];
         
         $items = [
-            new ItemDto($sysPlayerId, 'item_potion_001', 100, 50), // 合計150
+            new Item($sysPlayerId, 'item_potion_001', 100, 50), // 合計150
         ];
 
         $this->mockRepository

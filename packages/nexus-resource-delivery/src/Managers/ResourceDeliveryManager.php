@@ -3,8 +3,8 @@
 namespace NexusResourceDelivery\Managers;
 
 use Nexus\Core\Support\CustomCollection;
-use NexusResourceDelivery\DTOs\ResourceDeliveryCompleteDto;
-use NexusResourceDelivery\DTOs\ResourceDeliveryContentDto;
+use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryComplete;
+use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
 
 /**
  * ResourceDeliveryManager
@@ -22,25 +22,25 @@ use NexusResourceDelivery\DTOs\ResourceDeliveryContentDto;
 class ResourceDeliveryManager implements ResourceDeliveryManagerInterface
 {
     /**
-     * key: ResourceDeliveryContentDto.uniqueId
-     * value: ResourceDeliveryContentDto
+     * key: ResourceDeliveryContent.uniqueId
+     * value: ResourceDeliveryContent
      *
      * 配送前のコンテンツを格納する
      *
-     * @var array<string, ResourceDeliveryContentDto>
+     * @var array<string, ResourceDeliveryContent>
      */
     private array $needToSendContents;
 
     /**
-     * key: ResourceDeliveryContentDtoクラス名
-     * value: array<ResourceDeliveryContentDto>
+     * key: ResourceDeliveryContentクラス名
+     * value: array<ResourceDeliveryContent>
      *
      * 送信完了のコンテンツを格納する
      * APIレスポンスなどで取得しやすいように、クラスごとに分けた連想配列で保持する
      *
      * 即時配布はしていないが、メールボックスへ送信したコンテンツなどもここに含める
      *
-     * @var array<string, array<ResourceDeliveryContentDto>>
+     * @var array<string, array<ResourceDeliveryContent>>
      */
     private array $sendCompleteContents;
 
@@ -53,7 +53,7 @@ class ResourceDeliveryManager implements ResourceDeliveryManagerInterface
     /**
      * 配送コンテンツを配送前リストに追加する
      */
-    public function addContent(ResourceDeliveryContentDto $resourceDeliveryContentDto): void
+    public function addContent(ResourceDeliveryContent $resourceDeliveryContentDto): void
     {
         // 無効なコンテンツ（数量が0以下）は追加しない
         if ($resourceDeliveryContentDto->isValid() === false) {
@@ -76,8 +76,8 @@ class ResourceDeliveryManager implements ResourceDeliveryManagerInterface
     /**
      * 配送前リストからコンテンツを取得する
      *
-     * @return CustomCollection<string, ResourceDeliveryContentDto>
-     *                                                           key: ResourceDeliveryContentDto.uniqueId, value: ResourceDeliveryContentDto
+     * @return CustomCollection<string, ResourceDeliveryContent>
+     *                                                           key: ResourceDeliveryContent.uniqueId, value: ResourceDeliveryContent
      */
     public function getPendingContents(): CustomCollection
     {
@@ -88,7 +88,7 @@ class ResourceDeliveryManager implements ResourceDeliveryManagerInterface
      * 送信完了リストからコンテンツを取得する
      *
      * @param  string  $contentClass  コンテンツクラス名
-     * @return CustomCollection<ResourceDeliveryContentDto>
+     * @return CustomCollection<ResourceDeliveryContent>
      */
     public function findSendCompleteContents(string $contentClass): CustomCollection
     {
@@ -98,9 +98,9 @@ class ResourceDeliveryManager implements ResourceDeliveryManagerInterface
     /**
      * 配送処理を実行した後に実行する処理をまとめたメソッド
      *
-     * @param  ResourceDeliveryCompleteDto  $resourceDeliveryCompleteDto  送信完了データ
+     * @param  ResourceDeliveryComplete  $resourceDeliveryCompleteDto  送信完了データ
      */
-    public function afterSend(ResourceDeliveryCompleteDto $resourceDeliveryCompleteDto): void
+    public function afterSend(ResourceDeliveryComplete $resourceDeliveryCompleteDto): void
     {
         foreach ($resourceDeliveryCompleteDto->getContents() as $content) {
             $this->addSendCompleteContent($content);
@@ -111,7 +111,7 @@ class ResourceDeliveryManager implements ResourceDeliveryManagerInterface
      * 配送実行済みのコンテンツを、送信完了ステータスへ変更する
      * 配送前リストから削除し、送信完了リストへ整形して追加する
      */
-    private function addSendCompleteContent(ResourceDeliveryContentDto $resourceDeliveryContentDto): void
+    private function addSendCompleteContent(ResourceDeliveryContent $resourceDeliveryContentDto): void
     {
         // 配送前リストから削除
         unset($this->needToSendContents[$resourceDeliveryContentDto->getUniqueId()]);

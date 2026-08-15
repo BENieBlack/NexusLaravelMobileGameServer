@@ -4,7 +4,7 @@ namespace NexusStamina\Tests\Unit\Services;
 
 use Mockery;
 use NexusStamina\Constants\StaminaConst;
-use NexusStamina\Dto\StaminaDto;
+use NexusStamina\DataTransferObjects\Stamina;
 use NexusStamina\Repositories\StaminaRepositoryInterface;
 use NexusStamina\Services\PlayerLevelServiceInterface;
 use NexusStamina\Services\StaminaService;
@@ -46,7 +46,7 @@ class StaminaServiceTest extends TestCase
         $sysPlayerId = 1;
         $initialStamina = 100;
 
-        $createdDto = new StaminaDto(
+        $createdDto = new Stamina(
             sysPlayerId: $sysPlayerId,
             type: StaminaConst::TYPE_NORMAL,
             currentStamina: $initialStamina,
@@ -57,7 +57,7 @@ class StaminaServiceTest extends TestCase
         $this->staminaRepository->shouldReceive('insert')
             ->once()
             ->with(Mockery::on(function ($dto) use ($sysPlayerId, $initialStamina) {
-                return $dto instanceof StaminaDto
+                return $dto instanceof Stamina
                     && $dto->getSysPlayerId() === $sysPlayerId
                     && $dto->getCurrentStamina() === $initialStamina
                     && $dto->getType() === StaminaConst::TYPE_NORMAL
@@ -69,7 +69,7 @@ class StaminaServiceTest extends TestCase
         $result = $this->service->initializeStamina($sysPlayerId, $initialStamina);
 
         // Assert
-        $this->assertInstanceOf(StaminaDto::class, $result);
+        $this->assertInstanceOf(Stamina::class, $result);
         $this->assertEquals($sysPlayerId, $result->getSysPlayerId());
         $this->assertEquals($initialStamina, $result->getCurrentStamina());
     }
@@ -103,7 +103,7 @@ class StaminaServiceTest extends TestCase
         $sysPlayerId = 1;
         $amount = 30;
 
-        $stamina = new StaminaDto(
+        $stamina = new Stamina(
             sysPlayerId: $sysPlayerId,
             type: StaminaConst::TYPE_NORMAL,
             currentStamina: 100,
@@ -145,7 +145,7 @@ class StaminaServiceTest extends TestCase
         $sysPlayerId = 1;
         $amount = 150; // 現在スタミナ100より多い
 
-        $stamina = new StaminaDto(
+        $stamina = new Stamina(
             sysPlayerId: $sysPlayerId,
             type: StaminaConst::TYPE_NORMAL,
             currentStamina: 100,
@@ -181,7 +181,7 @@ class StaminaServiceTest extends TestCase
         $sysPlayerId = 1;
         $amount = 50;
 
-        $stamina = new StaminaDto(
+        $stamina = new Stamina(
             sysPlayerId: $sysPlayerId,
             type: StaminaConst::TYPE_NORMAL,
             currentStamina: 50,
@@ -223,7 +223,7 @@ class StaminaServiceTest extends TestCase
         $sysPlayerId = 1;
         $amount = 100; // 現在50 + 100 = 150（最大値100を超過）
 
-        $stamina = new StaminaDto(
+        $stamina = new Stamina(
             sysPlayerId: $sysPlayerId,
             type: StaminaConst::TYPE_NORMAL,
             currentStamina: 50,

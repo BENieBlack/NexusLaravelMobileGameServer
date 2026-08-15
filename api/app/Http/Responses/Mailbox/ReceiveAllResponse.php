@@ -3,8 +3,8 @@
 namespace App\Http\Responses\Mailbox;
 
 use App\Http\Responses\_BaseResponse;
-use NexusResourceDelivery\DTOs\ResourceDeliveryContentDto;
-use NexusResourceDelivery\DTOs\ResourceDeliverySummaryDto;
+use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
+use NexusResourceDelivery\DataTransferObjects\ResourceDeliverySummary;
 
 /**
  * ReceiveAllResponse
@@ -18,14 +18,14 @@ class ReceiveAllResponse extends _BaseResponse
      * @param  int  $totalCount  受取完了したメール数
      * @param  int  $skippedCount  スキップされたメール数
      * @param  array  $deliveryContents  配送されたアイテム情報
-     * @param  ResourceDeliverySummaryDto|null  $deliverySummary  配送サマリー
+     * @param  ResourceDeliverySummary|null  $deliverySummary  配送サマリー
      */
     public function __construct(
         private array $receivedMailboxIds,
         private int $totalCount,
         private int $skippedCount,
         private array $deliveryContents,
-        private ?ResourceDeliverySummaryDto $deliverySummary = null,
+        private ?ResourceDeliverySummary $deliverySummary = null,
     ) {}
 
     /**
@@ -56,7 +56,7 @@ class ReceiveAllResponse extends _BaseResponse
             $response['delivery_summary'] = [
                 'total_count' => $this->deliverySummary->getTotalCount(),
                 'results' => $this->deliverySummary->getContents()
-                    ->map(fn (ResourceDeliveryContentDto $content) => $content->toArray())
+                    ->map(fn (ResourceDeliveryContent $content) => $content->toArray())
                     ->values()
                     ->all(),
             ];

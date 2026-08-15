@@ -3,7 +3,7 @@
 namespace NexusLogin\Services;
 
 use NexusLogin\Contracts\LoginBonusStrategyInterface;
-use NexusResource\DTOs\ResourceDto;
+use NexusResource\DataTransferObjects\Resource;
 
 /**
  * LoginBonusOrchestrator
@@ -40,7 +40,7 @@ class LoginBonusOrchestrator
      * @param int $sysPlayerId プレイヤーID
      * @param string|null $lastLoginAt 最終ログイン日時（UTC、文字列形式）
      * @param string $connectionName シャーディングされたDB接続名
-     * @return array{daily: array<ResourceDto>, comeback: array<ResourceDto>} 配布した報酬
+     * @return array{daily: array<Resource>, comeback: array<Resource>} 配布した報酬
      */
     public function executeAll(int $sysPlayerId, ?string $lastLoginAt, string $connectionName): array
     {
@@ -75,7 +75,7 @@ class LoginBonusOrchestrator
      * @param int $sysPlayerId プレイヤーID
      * @param string|null $lastLoginAt 最終ログイン日時（UTC、文字列形式）
      * @param string $connectionName シャーディングされたDB接続名
-     * @return array<ResourceDto> 配布した全報酬
+     * @return array<Resource> 配布した全報酬
      */
     public function executeAllMerged(int $sysPlayerId, ?string $lastLoginAt, string $connectionName): array
     {

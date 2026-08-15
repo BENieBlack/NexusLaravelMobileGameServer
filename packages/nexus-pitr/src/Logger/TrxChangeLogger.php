@@ -4,7 +4,7 @@ namespace NexusPitr\Logger;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use NexusPitr\Dto\ChangeLogDto;
+use NexusPitr\DataTransferObjects\ChangeLog;
 
 /**
  * TrxChangeLogger
@@ -17,7 +17,7 @@ class TrxChangeLogger
     /**
      * バッチログ記録（トランザクション内で実行）
      * 
-     * @param array<ChangeLogDto> $changeLogDtos
+     * @param array<ChangeLog> $changeLogDtos
      * @return void
      */
     public function logBatch(array $changeLogDtos): void
@@ -56,10 +56,10 @@ class TrxChangeLogger
     /**
      * 単一ログ記録（テスト用）
      * 
-     * @param ChangeLogDto $changeLogDto
+     * @param ChangeLog $changeLogDto
      * @return void
      */
-    public function log(ChangeLogDto $changeLogDto): void
+    public function log(ChangeLog $changeLogDto): void
     {
         $this->logBatch([$changeLogDto]);
     }
@@ -68,7 +68,7 @@ class TrxChangeLogger
      * LogDBにINSERT実行
      * 
      * @param string $logConnection
-     * @param array<ChangeLogDto> $dtos
+     * @param array<ChangeLog> $dtos
      * @return void
      */
     private function insertToLogDb(string $logConnection, array $dtos): void

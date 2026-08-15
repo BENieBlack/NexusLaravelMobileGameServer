@@ -4,7 +4,7 @@ namespace NexusResourceDelivery\Handlers;
 
 use LaravelWallet\Services\WalletService;
 use NexusResource\Enums\ResourceType;
-use NexusResourceDelivery\DTOs\ResourceDeliveryContentDto;
+use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
 
 /**
  * PointsDeliveryHandler
@@ -29,11 +29,11 @@ class PointsDeliveryHandler implements ResourceDeliveryHandlerInterface
      * ポイント配送処理を実行
      *
      * @param  int  $sysPlayerId  プレイヤーID
-     * @param  ResourceDeliveryContentDto  $resourceDeliveryContentDto  配送コンテンツ
+     * @param  ResourceDeliveryContent  $resourceDeliveryContentDto  配送コンテンツ
      *
      * @throws \Exception 配送失敗時
      */
-    public function handle(int $sysPlayerId, ResourceDeliveryContentDto $resourceDeliveryContentDto): void
+    public function handle(int $sysPlayerId, ResourceDeliveryContent $resourceDeliveryContentDto): void
     {
         // ポイント系は全て無償扱い
         $freeAmount = $resourceDeliveryContentDto->getAmount();

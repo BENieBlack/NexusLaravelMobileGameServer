@@ -9,9 +9,9 @@
 - **GuildRole**: ギルドメンバーの役職定数 (master, sub_master, member)
 
 #### DTO
-- **GuildDto**: ギルド情報のデータ転送オブジェクト
-- **GuildApplyDto**: ギルド加入申請のデータ転送オブジェクト
-- **GuildMemberDto**: ギルドメンバー情報のデータ転送オブジェクト
+- **Guild**: ギルド情報のデータ転送オブジェクト
+- **GuildApply**: ギルド加入申請のデータ転送オブジェクト
+- **GuildMember**: ギルドメンバー情報のデータ転送オブジェクト
 
 #### Repository Interface
 - **GuildRepositoryInterface**: ギルド情報Repository (10メソッド)
@@ -33,9 +33,9 @@
 - **Model**: SysGuild, SysGuildMember, SysGuildApply
 
 #### Adapter
-- **GuildAdapter**: SysGuild ⇔ GuildDto 変換
-- **GuildApplyAdapter**: SysGuildApply ⇔ GuildApplyDto 変換
-- **GuildMemberAdapter**: SysGuildMember ⇔ GuildMemberDto 変換
+- **GuildAdapter**: SysGuild ⇔ Guild 変換
+- **GuildApplyAdapter**: SysGuildApply ⇔ GuildApply 変換
+- **GuildMemberAdapter**: SysGuildMember ⇔ GuildMember 変換
 
 #### Repository
 - **SysGuildRepository**: GuildRepositoryInterface実装
@@ -129,7 +129,7 @@
 - **Application UseCase**: GuildCreateUseCase, GuildApplySendUseCase, etc.
 - **Repository**: SysGuildRepository, SysGuildApplyRepository, SysGuildMemberRepository
 - **Model**: SysGuild, SysGuildMember, SysGuildApply
-- **DTO**: GuildDto, GuildApplyDto, GuildMemberDto
+- **DTO**: Guild, GuildApply, GuildMember
 - **Adapter**: GuildAdapter, GuildApplyAdapter, GuildMemberAdapter
 - **Controller**: GuildController
 - **Response**: GuildCreateResponse, GuildApplySendResponse, etc.
@@ -163,9 +163,9 @@ packages/nexus-guild/
 │   │   ├── GuildApplyStatus.php
 │   │   └── GuildRole.php
 │   ├── Dto/
-│   │   ├── GuildDto.php
-│   │   ├── GuildApplyDto.php
-│   │   └── GuildMemberDto.php
+│   │   ├── Guild.php
+│   │   ├── GuildApply.php
+│   │   └── GuildMember.php
 │   ├── Repositories/
 │   │   ├── GuildRepositoryInterface.php
 │   │   ├── GuildApplyRepositoryInterface.php

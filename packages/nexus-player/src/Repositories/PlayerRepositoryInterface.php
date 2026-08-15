@@ -2,7 +2,7 @@
 
 namespace NexusPlayer\Repositories;
 
-use NexusPlayer\Dto\PlayerDto;
+use NexusPlayer\DataTransferObjects\Player;
 
 /**
  * PlayerRepositoryInterface
@@ -14,22 +14,22 @@ interface PlayerRepositoryInterface
     /**
      * IDでプレイヤーを取得
      */
-    public function selectById(int $id): ?PlayerDto;
+    public function selectById(int $id): ?Player;
 
     /**
      * My IDでプレイヤーを取得
      */
-    public function selectByMyId(string $myId): ?PlayerDto;
+    public function selectByMyId(string $myId): ?Player;
 
     /**
      * UUIDでプレイヤーを取得
      */
-    public function selectByUuid(string $uuid): ?PlayerDto;
+    public function selectByUuid(string $uuid): ?Player;
 
     /**
      * プレイヤーを保存
      */
-    public function persist(PlayerDto $playerDto): void;
+    public function persist(Player $playerDto): void;
 
     /**
      * My IDの存在確認

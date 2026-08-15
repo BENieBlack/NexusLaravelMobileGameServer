@@ -14,7 +14,7 @@ use NexusAuth\ValueObjects\Token;
  * SignInResponse
  *
  * サインインAPIのレスポンス
- * sys_player, sys_player_device, sys_player_token の構造体と dto_token を返す
+ * sys_player, sys_player_device, sys_player_token の構造体と token を返す
  */
 class SignInResponse implements Responsable
 {
@@ -42,7 +42,7 @@ class SignInResponse implements Responsable
             'sys_player' => $this->sysPlayer->toArray(),
             'sys_player_device' => $this->sysPlayerDevice->toArray(),
             'sys_player_token' => $this->sysPlayerToken->toArray(),
-            'dto_token' => $this->token->toArray(),
+            'token' => $this->token->toArray(),
         ]);
     }
 }

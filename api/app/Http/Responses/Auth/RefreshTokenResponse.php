@@ -11,7 +11,7 @@ use NexusAuth\ValueObjects\Token;
  * RefreshTokenResponse
  *
  * トークンリフレッシュAPIのレスポンス
- * dto_token のみを返す（プレイヤー情報は含まない）
+ * token のみを返す（プレイヤー情報は含まない）
  */
 class RefreshTokenResponse implements Responsable
 {
@@ -30,7 +30,7 @@ class RefreshTokenResponse implements Responsable
     public function toResponse($request): JsonResponse
     {
         return response()->json([
-            'dto_token' => $this->token->toArray(),
+            'token' => $this->token->toArray(),
         ]);
     }
 }

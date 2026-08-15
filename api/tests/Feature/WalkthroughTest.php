@@ -241,10 +241,10 @@ class WalkthroughTest extends TestCase
         $data = $response->json();
 
         $this->assertArrayHasKey('sys_player', $data);
-        $this->assertArrayHasKey('dto_token', $data);
+        $this->assertArrayHasKey('token', $data);
 
-        $this->accessToken = $data['dto_token']['access_token'];
-        $this->refreshToken = $data['dto_token']['refresh_token'];
+        $this->accessToken = $data['token']['access_token'];
+        $this->refreshToken = $data['token']['refresh_token'];
         $this->myId = $data['sys_player']['my_id'];
 
         $player = SysPlayer::where('my_id', $this->myId)->first();
@@ -282,11 +282,11 @@ class WalkthroughTest extends TestCase
         $response->assertOk();
         $data = $response->json();
 
-        $this->assertArrayHasKey('dto_token', $data);
+        $this->assertArrayHasKey('token', $data);
 
         // 新しいトークンを保存
-        $this->accessToken = $data['dto_token']['access_token'];
-        $this->refreshToken = $data['dto_token']['refresh_token'];
+        $this->accessToken = $data['token']['access_token'];
+        $this->refreshToken = $data['token']['refresh_token'];
     }
 
     /**
@@ -315,8 +315,8 @@ class WalkthroughTest extends TestCase
 
         $this->assertArrayHasKey('needs_update', $data);
         $this->assertArrayHasKey('latest_deploy_key', $data);
-        $this->assertArrayHasKey('dto_master', $data);
-        $this->assertArrayHasKey('dto_asset', $data);
+        $this->assertArrayHasKey('master', $data);
+        $this->assertArrayHasKey('asset', $data);
 
         // 同じバージョンを渡したが、deploy_versionがnullだったためupdate判定される
         // この仕様は正常（nullの場合は最新版を取得させる）

@@ -70,17 +70,17 @@ class AuthFlowTest extends TestCase
         // レスポンス構造を確認
         $signUpResponse->assertJsonStructure([
             'sys_player' => ['uuid', 'my_id'],
-            'dto_token' => ['access_token', 'refresh_token', 'expires_in'],
+            'token' => ['access_token', 'refresh_token', 'expires_in'],
         ]);
 
         // データを取得
-        $this->assertNotEmpty($signUpData['dto_token']['access_token']);
-        $this->assertNotEmpty($signUpData['dto_token']['refresh_token']);
+        $this->assertNotEmpty($signUpData['token']['access_token']);
+        $this->assertNotEmpty($signUpData['token']['refresh_token']);
         $this->assertNotEmpty($signUpData['sys_player']['my_id']);
 
         // トークンを保存
-        $accessToken = $signUpData['dto_token']['access_token'];
-        $refreshToken = $signUpData['dto_token']['refresh_token'];
+        $accessToken = $signUpData['token']['access_token'];
+        $refreshToken = $signUpData['token']['refresh_token'];
         $myId = $signUpData['sys_player']['my_id'];
 
         // ========================================
@@ -112,10 +112,10 @@ class AuthFlowTest extends TestCase
         $signInData = $signInResponse->json();
 
         // レスポンス構造を確認
-        $this->assertNotEmpty($signInData['dto_token']['access_token']);
-        $this->assertNotEmpty($signInData['dto_token']['refresh_token']);
-        $this->assertNotEmpty($signInData['dto_token']['expires_in']);
-        $newAccessToken = $signInData['dto_token']['access_token'];
+        $this->assertNotEmpty($signInData['token']['access_token']);
+        $this->assertNotEmpty($signInData['token']['refresh_token']);
+        $this->assertNotEmpty($signInData['token']['expires_in']);
+        $newAccessToken = $signInData['token']['access_token'];
 
         // 新しいアクセストークンで再度 /player/me にアクセス
         $meResponse2 = $this->withHeaders([
@@ -158,18 +158,18 @@ class AuthFlowTest extends TestCase
 
         // メンテナンス情報が返ることを確認（dataキーの中にネストされている）
         $this->assertArrayHasKey('data', $versionData);
-        $this->assertArrayHasKey('dto_maintenance', $versionData['data']);
+        $this->assertArrayHasKey('maintenance', $versionData['data']);
 
         // メンテナンス情報が正しく返されていることを確認（具体的な値ではなく、構造を確認）
-        $this->assertIsArray($versionData['data']['dto_maintenance']);
-        $this->assertArrayHasKey('title', $versionData['data']['dto_maintenance']);
-        $this->assertArrayHasKey('message', $versionData['data']['dto_maintenance']);
-        $this->assertArrayHasKey('start_at', $versionData['data']['dto_maintenance']);
-        $this->assertArrayHasKey('end_at', $versionData['data']['dto_maintenance']);
-        $this->assertArrayHasKey('is_active', $versionData['data']['dto_maintenance']);
+        $this->assertIsArray($versionData['data']['maintenance']);
+        $this->assertArrayHasKey('title', $versionData['data']['maintenance']);
+        $this->assertArrayHasKey('message', $versionData['data']['maintenance']);
+        $this->assertArrayHasKey('start_at', $versionData['data']['maintenance']);
+        $this->assertArrayHasKey('end_at', $versionData['data']['maintenance']);
+        $this->assertArrayHasKey('is_active', $versionData['data']['maintenance']);
 
         // is_activeがtrueであることを確認（メンテナンス中）
-        $this->assertTrue($versionData['data']['dto_maintenance']['is_active']);
+        $this->assertTrue($versionData['data']['maintenance']['is_active']);
 
         // テストデータをクリーンアップ
         $maintenance->delete();

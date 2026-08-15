@@ -46,8 +46,10 @@ class TrxInAppPurchase extends _BaseTrx
     /**
      * ユニークキー（課金商品は複合キーで一意）
      */
+    /** @var list<string> */
     protected array $uniqueKeys = ['sys_player_id', 'billing_platform', 'mst_in_app_purchase_id'];
 
+    /** @var list<string> */
     protected $fillable = [
         'sys_player_id',
         'billing_platform',
@@ -61,6 +63,7 @@ class TrxInAppPurchase extends _BaseTrx
         'updated_at',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'sys_player_id' => 'integer',
         'total_purchase_count' => 'integer',
@@ -108,6 +111,9 @@ class TrxInAppPurchase extends _BaseTrx
 
     /**
      * trx_playerとのリレーション
+     */
+    /**
+     * @return BelongsTo<TrxPlayer, $this>
      */
     public function trxPlayer(): BelongsTo
     {

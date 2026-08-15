@@ -41,9 +41,10 @@ class TrxMailbox extends _BaseTrx
      *
      * @var array<int, string>
      */
+    /** @var list<string> */
     protected array $uniqueKeys = ['id'];
 
-    /** @var array<int, string> */
+    /** @var list<string> */
     protected $fillable = [
         'sys_player_id',
         'mst_mailbox_id',
@@ -63,6 +64,7 @@ class TrxMailbox extends _BaseTrx
     /**
      * @var array<string, string>
      */
+    /** @var array<string, string> */
     protected $casts = [
         'sys_player_id' => 'integer',
         'is_opened' => 'boolean',
@@ -75,6 +77,9 @@ class TrxMailbox extends _BaseTrx
     /**
      * trx_playerとのリレーション
      */
+    /**
+     * @return BelongsTo<TrxPlayer, $this>
+     */
     public function trxPlayer(): BelongsTo
     {
         return $this->belongsTo(TrxPlayer::class, 'sys_player_id', 'sys_player_id');
@@ -82,6 +87,9 @@ class TrxMailbox extends _BaseTrx
 
     /**
      * mst_mailboxとのリレーション
+     */
+    /**
+     * @return BelongsTo<MstMailbox, $this>
      */
     public function mstMailbox(): BelongsTo
     {

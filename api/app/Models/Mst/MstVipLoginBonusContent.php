@@ -27,6 +27,7 @@ class MstVipLoginBonusContent extends _BaseMst
 
     protected $table = 'mst_vip_login_bonus_content';
 
+    /** @var list<string> */
     protected $fillable = [
         'mst_vip_login_bonus_id',
         'day',
@@ -37,6 +38,7 @@ class MstVipLoginBonusContent extends _BaseMst
         'amount',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'day' => 'integer',
         'content_option' => 'array',

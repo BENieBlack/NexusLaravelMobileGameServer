@@ -36,6 +36,7 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
      *
      * @var array<string>
      */
+    /** @var list<string> */
     protected $fillable = [
         'sys_player_id',
         'sys_player_device_id',
@@ -49,11 +50,15 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
      *
      * @var array<string, string>
      */
+    /** @var array<string, string> */
     protected $casts = [
     ];
 
     /**
      * プレイヤーとのリレーション
+     */
+    /**
+     * @return BelongsTo<SysPlayer, $this>
      */
     public function player(): BelongsTo
     {
@@ -62,6 +67,9 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
 
     /**
      * デバイスとのリレーション
+     */
+    /**
+     * @return BelongsTo<SysPlayerDevice, $this>
      */
     public function device(): BelongsTo
     {

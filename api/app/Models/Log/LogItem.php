@@ -6,6 +6,7 @@ class LogItem extends _BaseLog
 {
     protected $table = 'log_item';
 
+    /** @var array<string, string> */
     protected $casts = [
         'id' => 'integer',
         'unique_request_id' => 'string',
@@ -15,6 +16,7 @@ class LogItem extends _BaseLog
         'after_amount' => 'integer',
     ];
 
+    /** @var list<string> */
     protected $fillable = [
         'unique_request_id',
         'sys_player_id',

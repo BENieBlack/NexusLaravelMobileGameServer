@@ -22,7 +22,7 @@ class MstMessageI18n extends _BaseMst
 
     public $incrementing = false;
 
-    /** @var array<int, string> */
+    /** @var list<string> */
     protected $fillable = [
         'deploy_key',
         'mst_message_id',
@@ -34,6 +34,7 @@ class MstMessageI18n extends _BaseMst
     /**
      * @var array<string, string>
      */
+    /** @var array<string, string> */
     protected $casts = [
         'deploy_key' => 'integer',
     ];
@@ -52,6 +53,9 @@ class MstMessageI18n extends _BaseMst
 
     /**
      * メッセージマスターとのリレーション
+     */
+    /**
+     * @return BelongsTo<MstMessage, $this>
      */
     public function message(): BelongsTo
     {

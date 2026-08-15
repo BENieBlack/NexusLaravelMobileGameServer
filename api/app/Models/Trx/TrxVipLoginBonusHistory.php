@@ -23,6 +23,7 @@ class TrxVipLoginBonusHistory extends _BaseTrx
 {
     protected $table = 'trx_vip_login_bonus_history';
 
+    /** @var list<string> */
     protected $fillable = [
         'sys_player_id',
         'mst_vip_login_bonus_id',
@@ -31,6 +32,7 @@ class TrxVipLoginBonusHistory extends _BaseTrx
         'received_at',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'sys_player_id' => 'integer',
         'day' => 'integer',

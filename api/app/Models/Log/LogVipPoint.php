@@ -32,6 +32,7 @@ class LogVipPoint extends Model
 
     public $timestamps = false;
 
+    /** @var list<string> */
     protected $fillable = [
         'unique_request_id',
         'sys_player_id',
@@ -48,6 +49,7 @@ class LogVipPoint extends Model
         'created_at',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'id' => 'integer',
         'sys_player_id' => 'integer',

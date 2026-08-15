@@ -24,6 +24,7 @@ class TrxGachaRepository extends _BaseTrxRepository
      *
      * @var array<string>
      */
+    /** @var list<string> */
     protected array $uniqueKeys = ['sys_player_id', 'mst_gacha_id'];
 
     public function __construct(

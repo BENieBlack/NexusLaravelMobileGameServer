@@ -39,6 +39,7 @@ abstract class _BaseModel extends Model implements _BaseModelInterface
      * 
      * @var array<string, string>
      */
+    /** @var array<string, string> */
     protected $casts = [
         // デフォルトのcreated_at, updated_atのdatetime自動キャストを無効化
         // サブクラスで必要に応じて個別にキャスト定義可能

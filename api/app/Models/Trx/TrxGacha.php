@@ -27,8 +27,10 @@ class TrxGacha extends _BaseTrx
 
     protected string $selectKey = 'sys_player_id';
 
+    /** @var list<string> */
     protected array $uniqueKeys = ['sys_player_id', 'mst_gacha_id'];
 
+    /** @var list<string> */
     protected $fillable = [
         'sys_player_id',
         'mst_gacha_id',
@@ -40,6 +42,7 @@ class TrxGacha extends _BaseTrx
         'is_delete',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'id' => 'integer',
         'sys_player_id' => 'integer',

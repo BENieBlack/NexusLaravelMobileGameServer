@@ -30,6 +30,7 @@ class SysMaintenance extends _BaseSys
      *
      * @var array
      */
+    /** @var list<string> */
     protected $fillable = [
         'title',
         'message',
@@ -43,6 +44,7 @@ class SysMaintenance extends _BaseSys
      *
      * @var array
      */
+    /** @var array<string, string> */
     protected $casts = [
         'is_active' => 'boolean',
     ];

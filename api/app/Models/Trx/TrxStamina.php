@@ -50,8 +50,10 @@ class TrxStamina extends _BaseTrx
      *
      * @var array<array<string>>
      */
+    /** @var list<string> */
     protected array $uniqueKeys = [['sys_player_id', 'type']];
 
+    /** @var list<string> */
     protected $fillable = [
         'sys_player_id',
         'type',
@@ -61,6 +63,7 @@ class TrxStamina extends _BaseTrx
         'is_delete',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'sys_player_id' => 'integer',
         'type' => 'string',
@@ -73,6 +76,9 @@ class TrxStamina extends _BaseTrx
 
     /**
      * sys_playerとのリレーション
+     */
+    /**
+     * @return BelongsTo<SysPlayer, $this>
      */
     public function sysPlayer(): BelongsTo
     {

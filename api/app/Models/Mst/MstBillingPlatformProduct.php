@@ -12,6 +12,7 @@ class MstBillingPlatformProduct extends _BaseMst
 {
     public $table = 'mst_billing_platform_product';
 
+    /** @var list<string> */
     protected $fillable = [
         'deploy_key',
         'platform_product_id',
@@ -25,6 +26,7 @@ class MstBillingPlatformProduct extends _BaseMst
     /**
      * @var array<string, string>
      */
+    /** @var array<string, string> */
     protected $casts = [
         'deploy_key' => 'integer',
         'price_amount_micros' => 'integer',
@@ -36,6 +38,9 @@ class MstBillingPlatformProduct extends _BaseMst
     /**
      * このプラットフォーム商品を使用しているアプリ内課金商品（AppStore側）
      */
+    /**
+     * @return HasMany<MstInAppPurchase, $this>
+     */
     public function inAppPurchasesAsAppStore(): HasMany
     {
         return $this->hasMany(MstInAppPurchase::class, 'app_store_product_id');
@@ -43,6 +48,9 @@ class MstBillingPlatformProduct extends _BaseMst
 
     /**
      * このプラットフォーム商品を使用しているアプリ内課金商品（GooglePlay側）
+     */
+    /**
+     * @return HasMany<MstInAppPurchase, $this>
      */
     public function inAppPurchasesAsGooglePlay(): HasMany
     {

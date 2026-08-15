@@ -36,6 +36,7 @@ class SysShardingNodePlayer extends _BaseSys
      *
      * @var array
      */
+    /** @var list<string> */
     protected $fillable = [
         'sys_player_id',
         'sys_sharding_node_id',
@@ -47,6 +48,7 @@ class SysShardingNodePlayer extends _BaseSys
      *
      * @var array
      */
+    /** @var array<string, string> */
     protected $casts = [
         'sys_player_id' => 'integer',
         'sys_sharding_node_id' => 'integer',
@@ -103,6 +105,9 @@ class SysShardingNodePlayer extends _BaseSys
     /**
      * シャーディングノードとのリレーション
      */
+    /**
+     * @return BelongsTo<SysShardingNode, $this>
+     */
     public function node(): BelongsTo
     {
         return $this->belongsTo(SysShardingNode::class, 'sys_sharding_node_id');
@@ -110,6 +115,9 @@ class SysShardingNodePlayer extends _BaseSys
 
     /**
      * sys_playerとのリレーション
+     */
+    /**
+     * @return BelongsTo<SysPlayer, $this>
      */
     public function sysPlayer(): BelongsTo
     {

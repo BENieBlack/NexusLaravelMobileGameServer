@@ -6,6 +6,7 @@ class LogInAppPurchase extends _BaseLog
 {
     protected $table = 'log_in_app_purchase';
 
+    /** @var array<string, string> */
     protected $casts = [
         'id' => 'integer',
         'unique_request_id' => 'string',
@@ -21,6 +22,7 @@ class LogInAppPurchase extends _BaseLog
         'pay_string' => 'string',
     ];
 
+    /** @var list<string> */
     protected $fillable = [
         'unique_request_id',
         'sys_player_id',

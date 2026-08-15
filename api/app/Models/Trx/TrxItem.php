@@ -37,8 +37,10 @@ class TrxItem extends _BaseTrx
     /**
      * ユニークキー（アイテムは複合キーで一意）
      */
+    /** @var list<string> */
     protected array $uniqueKeys = ['sys_player_id', 'mst_item_id'];
 
+    /** @var list<string> */
     protected $fillable = [
         'sys_player_id',
         'mst_item_id',
@@ -49,6 +51,7 @@ class TrxItem extends _BaseTrx
         'updated_at',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'sys_player_id' => 'integer',
         'free_amount' => 'integer',
@@ -96,6 +99,9 @@ class TrxItem extends _BaseTrx
 
     /**
      * trx_playerとのリレーション
+     */
+    /**
+     * @return BelongsTo<TrxPlayer, $this>
      */
     public function trxPlayer(): BelongsTo
     {

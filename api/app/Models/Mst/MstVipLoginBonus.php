@@ -30,6 +30,7 @@ class MstVipLoginBonus extends _BaseMst
 
     public $incrementing = false;
 
+    /** @var list<string> */
     protected $fillable = [
         'id',
         'vip_level',
@@ -39,6 +40,7 @@ class MstVipLoginBonus extends _BaseMst
         'end_at',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'vip_level' => 'integer',
         'loop_days' => 'integer',
@@ -48,6 +50,9 @@ class MstVipLoginBonus extends _BaseMst
     /**
      * VIPログインボーナスコンテンツとのリレーション
      *
+     * @return HasMany<MstVipLoginBonusContent, $this>
+     */
+    /**
      * @return HasMany<MstVipLoginBonusContent, $this>
      */
     public function contents(): HasMany

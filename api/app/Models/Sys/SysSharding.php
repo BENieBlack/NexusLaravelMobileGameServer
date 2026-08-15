@@ -24,6 +24,7 @@ class SysSharding extends _BaseSys
      *
      * @var array
      */
+    /** @var list<string> */
     protected $fillable = [
         'name',
         'target',
@@ -39,6 +40,7 @@ class SysSharding extends _BaseSys
      *
      * @var array
      */
+    /** @var array<string, string> */
     protected $casts = [
         'node_count' => 'integer',
         'is_active' => 'boolean',
@@ -189,6 +191,9 @@ class SysSharding extends _BaseSys
 
     /**
      * シャーディングノードとのリレーション
+     */
+    /**
+     * @return HasMany<SysShardingNode, $this>
      */
     public function nodes(): HasMany
     {

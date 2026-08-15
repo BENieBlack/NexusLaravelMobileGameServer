@@ -28,6 +28,7 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
      *
      * @var array<string>
      */
+    /** @var list<string> */
     protected $fillable = [
         'uuid',
         'my_id',
@@ -44,6 +45,7 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
      *
      * @var array<string, string>
      */
+    /** @var array<string, string> */
     protected $casts = [
         'level' => 'integer',
         'level_exp' => 'integer',
@@ -54,6 +56,9 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
     /**
      * デバイス情報とのリレーション
      */
+    /**
+     * @return HasMany<SysPlayerDevice, $this>
+     */
     public function devices(): HasMany
     {
         return $this->hasMany(SysPlayerDevice::class, 'player_id');
@@ -61,6 +66,9 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
 
     /**
      * トークン情報とのリレーション
+     */
+    /**
+     * @return HasMany<SysPlayerToken, $this>
      */
     public function tokens(): HasMany
     {

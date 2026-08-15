@@ -103,6 +103,30 @@ Eloquent Modelは `Sys` / `Trx` / `Mst` / `Log` の接頭辞を持つため、
 
 論理削除した行を後からまとめて物理削除する仕組みは持たない。消したい場合は最初から `hardDeleteModel()` を使う。
 
+### タイムスタンプはDBに任せる
+
+`created_at` / `updated_at` はテーブル定義の既定値で採番する。
+アプリケーション側では設定しない。
+
+```php
+// マイグレーション
+$table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
+$table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
+```
+
+```php
+// ❌ アプリ側で設定しない
+$model->setAttribute('updated_at', ClockUtility::now());
+new TrxStamina(['created_at' => $now, 'updated_at' => $now]);
+```
+
+キューに積んだ時点では値が入っておらず、フラッシュ後に `BatchExecutor` が
+DB から読み戻してモデルへ反映する。タイムスタンプを参照する処理は
+フラッシュ後に行うこと。
+
+なお `system_at` のような**業務上の意味を持つ時刻**はこの限りではなく、
+`ClockUtility` 経由でアプリケーション側が設定する。
+
 ### Eloquentによる即時書き込みの禁止
 
 `_BaseModel` が `save()` / `update()` / `delete()` / `forceDelete()` を拒否する。トランザクション境界とPITRログの整合性を壊すため。

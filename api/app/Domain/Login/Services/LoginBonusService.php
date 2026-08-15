@@ -95,8 +95,6 @@ class LoginBonusService extends _BaseLoginBonusService
                 'reward_id' => $content->content_id,
                 'reward_amount' => $content->content_quantity * $content->amount,
                 'is_paid' => $content->is_paid ?? false,
-                'created_at' => now(),
-                'updated_at' => now(),
             ], $connectionName);
         }
     }

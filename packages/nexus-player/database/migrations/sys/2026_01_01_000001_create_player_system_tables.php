@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -22,8 +23,8 @@ return new class extends Migration
             $table->unsignedInteger('level')->default(1)->comment('プレイヤーレベル');
             $table->unsignedBigInteger('level_exp')->default(0)->comment('レベル経験値（累積）');
             $table->dateTime('last_login_at')->nullable()->comment('最終ログイン日時（UTC）');
-            $table->dateTime('created_at')->nullable()->comment('作成日時');
-            $table->dateTime('updated_at')->nullable()->comment('更新日時');
+            $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
+            $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
 
             // インデックス
             $table->index('uuid');
@@ -41,8 +42,8 @@ return new class extends Migration
             $table->string('uuid', 255)->unique()->comment('デバイス固有UUID（OSから取得）');
             $table->json('device_info')->nullable()->comment('デバイス情報 (os, os_version, model, app_version)');
             $table->dateTime('last_login_at')->nullable()->comment('最終ログイン日時');
-            $table->dateTime('created_at')->nullable()->comment('作成日時');
-            $table->dateTime('updated_at')->nullable()->comment('更新日時');
+            $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
+            $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
 
             // インデックス
             $table->index('sys_player_id');
@@ -59,8 +60,8 @@ return new class extends Migration
             $table->string('refresh_token_hash', 64)->unique()->comment('リフレッシュトークンのSHA-256ハッシュ');
             $table->dateTime('expires_at')->comment('有効期限（30日）');
             $table->dateTime('revoked_at')->nullable()->comment('無効化日時');
-            $table->dateTime('created_at')->nullable()->comment('作成日時');
-            $table->dateTime('updated_at')->nullable()->comment('更新日時');
+            $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
+            $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
 
             // インデックス
             $table->index('sys_player_id');
@@ -76,8 +77,8 @@ return new class extends Migration
             $table->unsignedBigInteger('sys_player_id')->primary()->comment('sys_playerテーブルのID');
             $table->unsignedBigInteger('sys_sharding_node_id')->comment('割り当てられたシャーディングノードID');
             $table->dateTime('assigned_at')->useCurrent()->comment('割り当て日時');
-            $table->dateTime('created_at')->nullable()->comment('作成日時');
-            $table->dateTime('updated_at')->nullable()->comment('更新日時');
+            $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
+            $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
 
             // インデックス（外部キー制約は使用しない）
             $table->index('sys_sharding_node_id');

@@ -49,7 +49,6 @@ class LogUnitRepository extends _BaseLogRepository
             'before_level_exp' => $beforeLevelExp,
             'after_level_exp' => $afterLevelExp,
             'system_at' => ClockUtility::now(),
-            'created_at' => ClockUtility::now(),
         ]);
 
         $this->setModel($model);

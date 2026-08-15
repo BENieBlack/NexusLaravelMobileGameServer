@@ -263,8 +263,6 @@ class PlayerLevelService extends _BaseLevelService
                 'current_stamina' => $newMaxStamina,
                 'recovery_rate_multiplier' => 1.00,
                 'last_recovery_at' => $now,
-                'created_at' => $now,
-                'updated_at' => $now,
             ]);
 
             $trxStamina->exists = false;

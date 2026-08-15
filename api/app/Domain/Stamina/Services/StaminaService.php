@@ -56,8 +56,6 @@ class StaminaService
             'current_stamina' => $initialStamina,
             'recovery_rate_multiplier' => 1.00,
             'last_recovery_at' => $now,
-            'created_at' => $now,
-            'updated_at' => $now,
         ]);
 
         $trxStamina->exists = false;

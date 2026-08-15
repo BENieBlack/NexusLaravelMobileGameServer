@@ -52,7 +52,6 @@ class LogInAppPurchaseRepository extends _BaseLogRepository
             'pay_amount' => $payAmount,
             'pay_string' => $payString,
             'system_at' => ClockUtility::now(),
-            'created_at' => ClockUtility::now(),
         ]);
 
         // 課金ログとして登録（isPurchaseLogプロパティが使用される）

@@ -213,8 +213,12 @@ class LogPlayerRepositoryTest extends TestCase
 
         // Assert
         $this->assertCount(1, $queuedModels);
+
+        // system_at は業務上の記録時刻なのでアプリ側で設定する
         $this->assertNotNull($queuedModels[0]->system_at);
-        $this->assertNotNull($queuedModels[0]->created_at);
+
+        // created_at はDB側のDEFAULT CURRENT_TIMESTAMPに任せるため未設定
+        $this->assertNull($queuedModels[0]->getAttribute('created_at'));
     }
 
     /**

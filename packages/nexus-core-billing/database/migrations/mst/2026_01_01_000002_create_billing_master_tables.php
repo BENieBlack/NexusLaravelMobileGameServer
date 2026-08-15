@@ -112,8 +112,8 @@ return new class extends Migration
             $table->unsignedBigInteger('mst_in_app_purchase_id')->comment('アプリ内課金商品ID');
             $table->enum('effect_type', ['IdleRewardMultiplier', 'AdSkip', 'ExpBoost', 'GoldBoost', 'DailyMissionBonus'])->comment('効果タイプ');
             $table->decimal('value', 10, 2)->comment('効果値');
-            $table->dateTime('created_at')->nullable()->comment('作成日時');
-            $table->dateTime('updated_at')->nullable()->comment('更新日時');
+            $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
+            $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
 
             $table->primary(['mst_in_app_purchase_id', 'effect_type'], 'pk_purchase_effect');
             $table->index('deploy_key');

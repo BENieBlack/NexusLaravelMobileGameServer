@@ -2,7 +2,6 @@
 
 namespace NexusFriend\Tests\Unit\DataTransferObjects;
 
-use Carbon\CarbonImmutable;
 use NexusFriend\DataTransferObjects\FriendApply;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -19,8 +18,8 @@ class FriendApplyDtoTest extends TestCase
     public function dt_oを正常に作成できる(): void
     {
         // Arrange
-        $createdAt = new CarbonImmutable('2024-01-01 00:00:00');
-        $updatedAt = new CarbonImmutable('2024-01-01 12:00:00');
+        $createdAt = '2024-01-01 00:00:00';
+        $updatedAt = '2024-01-01 12:00:00';
 
         // Act
         $dto = new FriendApply(
@@ -48,8 +47,8 @@ class FriendApplyDtoTest extends TestCase
     public function 公開プロパティから直接アクセスできる(): void
     {
         // Arrange
-        $createdAt = new CarbonImmutable('2024-01-01 00:00:00');
-        $updatedAt = new CarbonImmutable('2024-01-01 12:00:00');
+        $createdAt = '2024-01-01 00:00:00';
+        $updatedAt = '2024-01-01 12:00:00';
 
         // Act
         $dto = new FriendApply(
@@ -82,8 +81,8 @@ class FriendApplyDtoTest extends TestCase
             senderPlayerId: 100,
             receiverPlayerId: 200,
             status: 'pending',
-            createdAt: new CarbonImmutable,
-            updatedAt: new CarbonImmutable
+            createdAt: '2024-01-01 00:00:00',
+            updatedAt: '2024-01-01 00:00:00'
         );
 
         // Assert
@@ -102,8 +101,8 @@ class FriendApplyDtoTest extends TestCase
             senderPlayerId: 100,
             receiverPlayerId: 200,
             status: 'accepted',
-            createdAt: new CarbonImmutable,
-            updatedAt: new CarbonImmutable
+            createdAt: '2024-01-01 00:00:00',
+            updatedAt: '2024-01-01 00:00:00'
         );
 
         // Assert
@@ -122,8 +121,8 @@ class FriendApplyDtoTest extends TestCase
             senderPlayerId: 100,
             receiverPlayerId: 200,
             status: 'rejected',
-            createdAt: new CarbonImmutable,
-            updatedAt: new CarbonImmutable
+            createdAt: '2024-01-01 00:00:00',
+            updatedAt: '2024-01-01 00:00:00'
         );
 
         // Assert
@@ -137,7 +136,7 @@ class FriendApplyDtoTest extends TestCase
     public function 作成日時と更新日時が同じでも作成できる(): void
     {
         // Arrange
-        $timestamp = new CarbonImmutable('2024-01-01 00:00:00');
+        $timestamp = '2024-01-01 00:00:00';
 
         // Act
         $dto = new FriendApply(
@@ -162,8 +161,8 @@ class FriendApplyDtoTest extends TestCase
     public function 更新日時が作成日時より後でも作成できる(): void
     {
         // Arrange
-        $createdAt = new CarbonImmutable('2024-01-01 00:00:00');
-        $updatedAt = new CarbonImmutable('2024-01-15 00:00:00');
+        $createdAt = '2024-01-01 00:00:00';
+        $updatedAt = '2024-01-15 00:00:00';
 
         // Act
         $dto = new FriendApply(
@@ -191,8 +190,8 @@ class FriendApplyDtoTest extends TestCase
             senderPlayerId: 100,
             receiverPlayerId: 100,
             status: 'pending',
-            createdAt: new CarbonImmutable,
-            updatedAt: new CarbonImmutable
+            createdAt: '2024-01-01 00:00:00',
+            updatedAt: '2024-01-01 00:00:00'
         );
 
         // Assert
@@ -212,8 +211,8 @@ class FriendApplyDtoTest extends TestCase
             senderPlayerId: 888888888,
             receiverPlayerId: 777777777,
             status: 'pending',
-            createdAt: new CarbonImmutable,
-            updatedAt: new CarbonImmutable
+            createdAt: '2024-01-01 00:00:00',
+            updatedAt: '2024-01-01 00:00:00'
         );
 
         // Assert
@@ -234,8 +233,8 @@ class FriendApplyDtoTest extends TestCase
             senderPlayerId: 100,
             receiverPlayerId: 200,
             status: 'pending',
-            createdAt: new CarbonImmutable,
-            updatedAt: new CarbonImmutable
+            createdAt: '2024-01-01 00:00:00',
+            updatedAt: '2024-01-01 00:00:00'
         );
 
         // Assert - readonly property cannot be modified

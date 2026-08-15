@@ -3,33 +3,46 @@
 namespace Tests\Unit\Models;
 
 use App\Models\Sys\SysMaintenance;
-use Carbon\CarbonImmutable;
 use Tests\TestCase;
 
 /**
- * _BaseModelの日付型キャスト最適化テスト
+ * _BaseModelの日付属性テスト
  *
- * DB取得時はstring型で保持し、必要に応じてCarbonImmutable型に変換する
- * パフォーマンス最適化のための実装が正しく動作することを確認
+ * 日時はDB取得時からレスポンスまで一貫してstringで扱う。
+ * Carbonへのキャストを強制されないことを確認する。
  */
 class BaseModelDateCastTest extends TestCase
 {
     /**
-     * getDateAttribute()がstring→CarbonImmutable変換を正しく行うことを確認
+     * 日時ゲッターがstringを返すことを確認
      */
-    public function test_get_date_attribute_converts_string_to_carbon(): void
+    public function test_date_getter_returns_string(): void
     {
         $model = new SysMaintenance;
         $model->setAttribute('start_at', '2026-01-01 12:00:00');
 
         $result = $model->getStartAt();
 
-        $this->assertInstanceOf(CarbonImmutable::class, $result);
-        $this->assertEquals('2026-01-01 12:00:00', $result->format('Y-m-d H:i:s'));
+        $this->assertIsString($result);
+        $this->assertSame('2026-01-01 12:00:00', $result);
     }
 
     /**
-     * getDateAttribute()がnullを正しく扱うことを確認
+     * 日時の比較が文字列のまま行えることを確認
+     *
+     * Y-m-d H:i:s は固定長なので辞書順比較が時系列順比較と一致する
+     */
+    public function test_string_comparison_matches_chronological_order(): void
+    {
+        $earlier = '2026-01-01 12:00:00';
+        $later = '2026-01-02 09:00:00';
+
+        $this->assertTrue($earlier < $later);
+        $this->assertTrue(max([$earlier, $later]) === $later);
+    }
+
+    /**
+     * 日時ゲッターがnullを正しく扱うことを確認
      */
     public function test_get_date_attribute_handles_null(): void
     {

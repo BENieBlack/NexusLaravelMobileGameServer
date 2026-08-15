@@ -138,7 +138,7 @@ class MailboxRepositoryAdapter implements MailboxRepositoryInterface
             isRead: $model->getIsOpened(),
             isReceived: $model->getIsReceived(),
             isLocked: $model->getIsProtected(),
-            expiresAt: $model->getExpiresAt()?->format('Y-m-d H:i:s'),
+            expiresAt: $model->getExpiresAt(),
             createdAt: (string) $model->created_at,
         );
     }

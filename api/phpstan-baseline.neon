@@ -1327,12 +1327,6 @@ parameters:
 			path: app/Domain/InAppPurchase/Services/InAppPurchaseHistoryService.php
 
 		-
-			message: '#^Parameter \#1 \$purchaseCountResetAt of method App\\Models\\Trx\\TrxInAppPurchase\:\:setPurchaseCountResetAt\(\) expects Carbon\\CarbonImmutable\|null, DateTimeInterface given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Domain/InAppPurchase/Services/InAppPurchaseHistoryService.php
-
-		-
 			message: '#^Method App\\Domain\\InAppPurchase\\Services\\InAppPurchasePackService\:\:purchasePack\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -1585,21 +1579,9 @@ parameters:
 			path: app/Http/Responses/Auth/LoginResponse.php
 
 		-
-			message: '#^Cannot call method toDateTimeString\(\) on string\.$#'
-			identifier: method.nonObject
-			count: 2
-			path: app/Http/Responses/Friend/ApplyAcceptResponse.php
-
-		-
 			message: '#^Access to an undefined property App\\Models\\Sys\\SysPlayer\:\:\$my_id\.$#'
 			identifier: property.notFound
 			count: 4
-			path: app/Http/Responses/Friend/ApplyListResponse.php
-
-		-
-			message: '#^Cannot call method toDateTimeString\(\) on string\.$#'
-			identifier: method.nonObject
-			count: 2
 			path: app/Http/Responses/Friend/ApplyListResponse.php
 
 		-
@@ -1613,18 +1595,6 @@ parameters:
 			identifier: method.unresolvableReturnType
 			count: 1
 			path: app/Http/Responses/Friend/ApplyListResponse.php
-
-		-
-			message: '#^Cannot call method toDateTimeString\(\) on string\.$#'
-			identifier: method.nonObject
-			count: 2
-			path: app/Http/Responses/Friend/ApplyRejectResponse.php
-
-		-
-			message: '#^Cannot call method toDateTimeString\(\) on string\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: app/Http/Responses/Friend/ApplySendResponse.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Sys\\SysPlayer\:\:\$level\.$#'
@@ -1641,12 +1611,6 @@ parameters:
 		-
 			message: '#^Access to an undefined property App\\Models\\Sys\\SysPlayer\:\:\$name\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/Http/Responses/Friend/ListResponse.php
-
-		-
-			message: '#^Cannot call method toDateTimeString\(\) on string\.$#'
-			identifier: method.nonObject
 			count: 1
 			path: app/Http/Responses/Friend/ListResponse.php
 

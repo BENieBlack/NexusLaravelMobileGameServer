@@ -306,4 +306,59 @@ class TrxEquipmentRepositoryTest extends TestCase
             $trxEquipment->updated_at->format('Y-m-d H:i:s')
         );
     }
+
+    /**
+     * キューに積むだけでなく、フラッシュ後にDBへ反映されることを検証する
+     */
+    public function test_queued_insert_is_written_to_database_after_flush(): void
+    {
+        // Arrange
+        $trxEquipment = new TrxEquipment([
+            'sys_player_id' => 1,
+            'mst_equipment_id' => 'equipment_flush_001',
+            'grade' => 2,
+            'level' => 3,
+        ]);
+        $trxEquipment->exists = false;
+
+        // Act
+        $this->repository->setModel($trxEquipment);
+        $this->flushQueue();
+
+        // Assert
+        $this->assertDatabaseHas('trx_equipment', [
+            'sys_player_id' => 1,
+            'mst_equipment_id' => 'equipment_flush_001',
+            'grade' => 2,
+            'level' => 3,
+        ], 'trx1');
+    }
+
+    /**
+     * 更新もフラッシュ後にDBへ反映されることを検証する
+     */
+    public function test_queued_update_is_written_to_database_after_flush(): void
+    {
+        // Arrange
+        $trxEquipment = new TrxEquipment([
+            'sys_player_id' => 1,
+            'mst_equipment_id' => 'equipment_flush_002',
+            'grade' => 1,
+            'level' => 1,
+        ]);
+        $trxEquipment->exists = false;
+        $this->repository->setModel($trxEquipment);
+        $this->flushQueue();
+
+        // Act
+        $trxEquipment->level = 10;
+        $this->repository->setModel($trxEquipment);
+        $this->flushQueue();
+
+        // Assert
+        $this->assertDatabaseHas('trx_equipment', [
+            'id' => $trxEquipment->id,
+            'level' => 10,
+        ], 'trx1');
+    }
 }

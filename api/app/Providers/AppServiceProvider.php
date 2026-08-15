@@ -21,6 +21,7 @@ use App\Repositories\Mst\MstVipLoginBonusRepository;
 use App\Repositories\Mst\PlayerLevelRepositoryAdapter;
 use App\Repositories\Mst\VipLoginBonusRepositoryInterface;
 use App\Repositories\Sys\DeployRepositoryAdapter;
+use App\Repositories\Sys\FriendApplyRepositoryAdapter;
 use App\Repositories\Sys\GuildApplyRepositoryAdapter;
 use App\Repositories\Sys\GuildMemberRepositoryAdapter;
 use App\Repositories\Sys\GuildRepositoryAdapter;
@@ -50,6 +51,7 @@ use NexusAuth\Contracts\TokenRepositoryInterface;
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Services\TokenService;
 use NexusBilling\Contracts\DiamondRepositoryInterface;
+use NexusFriend\Repositories\FriendApplyRepositoryInterface;
 use NexusGacha\Repositories\GachaPrizeRepositoryInterface;
 use NexusGacha\Repositories\GachaProgressRepositoryInterface;
 use NexusGacha\Repositories\GachaRarityRateRepositoryInterface;
@@ -193,6 +195,13 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(GuildRepositoryInterface::class, GuildRepositoryAdapter::class);
         $this->app->bind(GuildMemberRepositoryInterface::class, GuildMemberRepositoryAdapter::class);
         $this->app->bind(GuildApplyRepositoryInterface::class, GuildApplyRepositoryAdapter::class);
+
+        // ==========================================
+        // NexusFriend Package Bindings
+        // ==========================================
+
+        // Repository interfaces
+        $this->app->bind(FriendApplyRepositoryInterface::class, FriendApplyRepositoryAdapter::class);
 
         // ==========================================
         // NexusResource Package Bindings

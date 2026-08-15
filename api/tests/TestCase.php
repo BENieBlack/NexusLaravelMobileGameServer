@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use App\Models\Sys\SysPlayer;
 use App\Repositories\Mst\_BaseMstRepository;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Nexus\Core\Models\_BaseModel;
@@ -60,5 +61,42 @@ abstract class TestCase extends BaseTestCase
     protected function flushQueue(): void
     {
         app()->make(QueryManagerInterface::class)->flush();
+    }
+
+    /**
+     * サインアップして認証済みプレイヤーを用意する
+     *
+     * 認証情報はリクエスト入力ではなくアクセストークンから解決されるため、
+     * エンドポイントを通しで叩くテストでは実際にサインアップする必要がある。
+     *
+     * @return array{player: SysPlayer, token: string}
+     */
+    protected function signUpPlayer(?string $deviceId = null): array
+    {
+        $response = $this->postJson('/api/auth/sign_up', [
+            'device_id' => $deviceId ?? 'test-device-'.uniqid(),
+            'device_info' => [
+                'os' => 'iOS',
+                'os_version' => '17.0',
+                'model' => 'iPhone 15 Pro',
+                'app_version' => '1.0.0',
+            ],
+        ]);
+        $response->assertOk();
+
+        return [
+            'player' => SysPlayer::where('my_id', $response->json('sys_player.my_id'))->firstOrFail(),
+            'token' => $response->json('token.access_token'),
+        ];
+    }
+
+    /**
+     * アクセストークン付きのリクエストヘッダを組み立てる
+     *
+     * @return array<string, string>
+     */
+    protected function authHeaders(string $accessToken): array
+    {
+        return ['Authorization' => 'Bearer '.$accessToken];
     }
 }

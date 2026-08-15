@@ -48,19 +48,17 @@ class GuildBasicFlowTest extends TestCase
 
         $response->assertOk();
         $response->assertJsonStructure([
-            'data' => [
-                'guild_id',
-                'name',
-                'description',
-                'level',
-                'exp',
-                'max_members',
-                'current_members',
-                'created_at',
-            ],
+            'guild_id',
+            'name',
+            'description',
+            'level',
+            'exp',
+            'max_members',
+            'current_members',
+            'created_at',
         ]);
 
-        $data = $response->json('data');
+        $data = $response->json();
         $this->assertEquals('Test Guild', $data['name']);
         $this->assertEquals('This is a test guild', $data['description']);
         $this->assertEquals(1, $data['level']);
@@ -184,23 +182,21 @@ class GuildBasicFlowTest extends TestCase
 
         $response->assertOk();
         $response->assertJsonStructure([
-            'data' => [
-                'guilds' => [
-                    '*' => [
-                        'guild_id',
-                        'name',
-                        'description',
-                        'level',
-                        'exp',
-                        'max_members',
-                        'current_members',
-                        'created_at',
-                    ],
+            'guilds' => [
+                '*' => [
+                    'guild_id',
+                    'name',
+                    'description',
+                    'level',
+                    'exp',
+                    'max_members',
+                    'current_members',
+                    'created_at',
                 ],
             ],
         ]);
 
-        $guilds = $response->json('data.guilds');
+        $guilds = $response->json('guilds');
         $this->assertCount(3, $guilds);
     }
 
@@ -236,20 +232,18 @@ class GuildBasicFlowTest extends TestCase
 
         $response->assertOk();
         $response->assertJsonStructure([
-            'data' => [
-                'guild_id',
-                'name',
-                'description',
-                'level',
-                'exp',
-                'max_members',
-                'current_members',
-                'created_at',
-                'updated_at',
-            ],
+            'guild_id',
+            'name',
+            'description',
+            'level',
+            'exp',
+            'max_members',
+            'current_members',
+            'created_at',
+            'updated_at',
         ]);
 
-        $data = $response->json('data');
+        $data = $response->json();
         $this->assertEquals('Detail Test Guild', $data['name']);
         $this->assertEquals(3, $data['level']);
         $this->assertEquals(500, $data['exp']);
@@ -318,20 +312,18 @@ class GuildBasicFlowTest extends TestCase
 
         $response->assertOk();
         $response->assertJsonStructure([
-            'data' => [
-                'members' => [
-                    '*' => [
-                        'member_id',
-                        'guild_id',
-                        'player_id',
-                        'role',
-                        'joined_at',
-                    ],
+            'members' => [
+                '*' => [
+                    'member_id',
+                    'guild_id',
+                    'player_id',
+                    'role',
+                    'joined_at',
                 ],
             ],
         ]);
 
-        $members = $response->json('data.members');
+        $members = $response->json('members');
         $this->assertCount(3, $members);
 
         // 役職を確認

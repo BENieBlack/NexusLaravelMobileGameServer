@@ -157,7 +157,7 @@ class HomeUseCaseTest extends TestCase
         ])->postJson('/api/auth/login');
 
         $response->assertOk();
-        $data = $response->json('data');
+        $data = $response->json();
 
         // レスポンス構造を確認
         $this->assertArrayHasKey('sys_player', $data);
@@ -193,7 +193,7 @@ class HomeUseCaseTest extends TestCase
         ])->postJson('/api/auth/login');
 
         $response1->assertOk();
-        $data1 = $response1->json('data');
+        $data1 = $response1->json();
         $this->assertNotEmpty($data1['login_bonus_list']);
 
         // 2回目のログイン（同日）
@@ -202,7 +202,7 @@ class HomeUseCaseTest extends TestCase
         ])->postJson('/api/auth/login');
 
         $response2->assertOk();
-        $data2 = $response2->json('data');
+        $data2 = $response2->json();
 
         // ログインボーナスが空であることを確認
         $this->assertEmpty($data2['login_bonus_list']);
@@ -222,7 +222,7 @@ class HomeUseCaseTest extends TestCase
         ])->postJson('/api/auth/login');
 
         $response1->assertOk();
-        $data1 = $response1->json('data');
+        $data1 = $response1->json();
         $this->assertCount(1, $data1['login_bonus_list']);
         $this->assertSame(10, $data1['login_bonus_list'][0]['amount']); // 1日目: 10個
 
@@ -235,7 +235,7 @@ class HomeUseCaseTest extends TestCase
         ])->postJson('/api/auth/login');
 
         $response2->assertOk();
-        $data2 = $response2->json('data');
+        $data2 = $response2->json();
 
         $this->assertCount(1, $data2['login_bonus_list']);
         $this->assertSame('item', $data2['login_bonus_list'][0]['type']);
@@ -258,7 +258,7 @@ class HomeUseCaseTest extends TestCase
             ])->postJson('/api/auth/login');
 
             $response->assertOk();
-            $data = $response->json('data');
+            $data = $response->json();
 
             if ($i === 7) {
                 // 7日目は2つの報酬（アイテム + ダイヤ）
@@ -295,7 +295,7 @@ class HomeUseCaseTest extends TestCase
             ])->postJson('/api/auth/login');
 
             $response->assertOk();
-            $data = $response->json('data');
+            $data = $response->json();
 
             if ($i === 8) {
                 // 8日目は1日目の報酬にループ
@@ -337,7 +337,7 @@ class HomeUseCaseTest extends TestCase
         ])->postJson('/api/auth/login');
 
         $response->assertOk();
-        $data = $response->json('data');
+        $data = $response->json();
 
         // 休眠してもリセットされず、前回受け取り分（3日目）の次＝4日目が配布される
         // 休眠プレイヤー向けの救済はカムバックボーナス側が担当する
@@ -363,7 +363,7 @@ class HomeUseCaseTest extends TestCase
         ])->postJson('/api/auth/login');
 
         $response->assertOk();
-        $data = $response->json('data');
+        $data = $response->json();
 
         // ログインボーナスが空
         $this->assertEmpty($data['login_bonus_list']);

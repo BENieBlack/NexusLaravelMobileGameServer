@@ -5,6 +5,7 @@ namespace App\Domain\Guild\UseCases;
 use App\Domain\_BaseUseCase;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
+use App\Http\Responses\Guild\GuildLeaveResponse;
 use NexusGuild\Exceptions\GuildException;
 use NexusGuild\Services\GuildService;
 
@@ -26,10 +27,10 @@ class GuildLeaveUseCase extends _BaseUseCase
      *
      * @throws GameException
      */
-    public function exec(int $sysPlayerId): void
+    public function exec(int $sysPlayerId): GuildLeaveResponse
     {
         // トランザクション開始
-        $this->executeWithTransaction(function () use ($sysPlayerId) {
+        return $this->executeWithTransaction(function () use ($sysPlayerId) {
             try {
                 // ギルド脱退（Service経由でバリデーション含む）
                 $this->guildService->leaveGuild($sysPlayerId);
@@ -42,6 +43,8 @@ class GuildLeaveUseCase extends _BaseUseCase
                 };
                 throw new GameException($errorCode, $e->getMessage());
             }
+
+            return new GuildLeaveResponse($sysPlayerId);
         });
     }
 }

@@ -87,7 +87,6 @@ class MstUnitLevelRepository extends _BaseMstRepository
      * 指定レアリティの全レベルデータを取得
      *
      * @param  string  $rarity  レアリティ
-     * @return Collection
      */
     public function selectAllByRarity(string $rarity): CustomCollection
     {
@@ -100,8 +99,6 @@ class MstUnitLevelRepository extends _BaseMstRepository
 
     /**
      * 全レベルデータを取得
-     *
-     * @return Collection
      */
     public function selectAll(): CustomCollection
     {

@@ -21,6 +21,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * current_amount: 現在の残数
  * initial_amount: 取得時の数
  * expire_at: 有効期限 (NULLの場合は無期限)
+ *
+ * @property int $current_amount
+ * @property int $initial_amount
+ * @property bool $is_paid
  */
 class TrxWalletBalance extends _BaseTrx
 {

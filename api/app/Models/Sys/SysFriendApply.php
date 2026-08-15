@@ -2,12 +2,20 @@
 
 namespace App\Models\Sys;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * SysFriendApply Model
  *
  * フレンド申請情報を管理するモデル
+ *
+ * @property ?string $created_at
+ * @property int $receiver_sys_player_id
+ * @property int $sender_sys_player_id
+ * @property string $status
+ * @property ?string $updated_at
  */
 class SysFriendApply extends _BaseSys
 {
@@ -94,6 +102,22 @@ class SysFriendApply extends _BaseSys
     public function getStatus(): string
     {
         return $this->getAttribute('status');
+    }
+
+    /**
+     * 作成日時を取得
+     */
+    public function getCreatedAt(): CarbonImmutable
+    {
+        return ClockUtility::parse((string) $this->created_at);
+    }
+
+    /**
+     * 更新日時を取得
+     */
+    public function getUpdatedAt(): CarbonImmutable
+    {
+        return ClockUtility::parse((string) $this->updated_at);
     }
 
     /**

@@ -2,7 +2,7 @@
 
 namespace NexusFriend\Dto;
 
-use DateTime;
+use Carbon\CarbonImmutable;
 
 /**
  * FriendApplyDto
@@ -16,8 +16,8 @@ readonly class FriendApplyDto
         public int $senderPlayerId,
         public int $receiverPlayerId,
         public string $status,
-        public DateTime $createdAt,
-        public DateTime $updatedAt,
+        public CarbonImmutable $createdAt,
+        public CarbonImmutable $updatedAt,
     ) {}
 
     /**
@@ -55,7 +55,7 @@ readonly class FriendApplyDto
     /**
      * 作成日時を取得
      */
-    public function getCreatedAt(): DateTime
+    public function getCreatedAt(): CarbonImmutable
     {
         return $this->createdAt;
     }
@@ -63,7 +63,7 @@ readonly class FriendApplyDto
     /**
      * 更新日時を取得
      */
-    public function getUpdatedAt(): DateTime
+    public function getUpdatedAt(): CarbonImmutable
     {
         return $this->updatedAt;
     }

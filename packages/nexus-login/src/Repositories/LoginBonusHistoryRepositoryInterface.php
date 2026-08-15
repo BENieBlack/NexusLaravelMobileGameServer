@@ -36,4 +36,38 @@ interface LoginBonusHistoryRepositoryInterface
      * @return void
      */
     public function insert(array $data, string $connectionName): void;
+
+    /**
+     * プレイヤーの最新履歴を取得
+     *
+     * @param int $sysPlayerId プレイヤーID
+     * @param string $connectionName シャーディングされたDB接続名
+     * @return array|null 履歴データ
+     */
+    public function selectLatestByPlayerId(int $sysPlayerId, string $connectionName): ?array;
+
+    /**
+     * プレイヤーの最初のカムバックボーナス履歴を取得
+     *
+     * @param int $sysPlayerId プレイヤーID
+     * @param string $connectionName シャーディングされたDB接続名
+     * @return array|null 履歴データ
+     */
+    public function selectFirstComebackByPlayerId(int $sysPlayerId, string $connectionName): ?array;
+
+    /**
+     * プレイヤー・ボーナス・受取日で履歴を取得
+     *
+     * @param int $sysPlayerId プレイヤーID
+     * @param string $bonusId ログインボーナスID
+     * @param string $receivedDate 受取日
+     * @param string $connectionName シャーディングされたDB接続名
+     * @return array|null 履歴データ
+     */
+    public function selectByPlayerAndBonusAndDate(
+        int $sysPlayerId,
+        string $bonusId,
+        string $receivedDate,
+        string $connectionName
+    ): ?array;
 }

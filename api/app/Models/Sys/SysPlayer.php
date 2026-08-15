@@ -12,6 +12,9 @@ use NexusAuth\Contracts\PlayerModelInterface;
  *
  * プレイヤーマスターテーブル
  * プレイヤーの基本情報を管理
+ *
+ * @property ?string $created_at
+ * @property ?string $last_login_at
  */
 class SysPlayer extends _BaseSys implements PlayerModelInterface
 {

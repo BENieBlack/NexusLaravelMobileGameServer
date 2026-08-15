@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Nexus\Core\Utilities\ClockUtility;
 use NexusMaintenance\Services\MaintenanceService;
+use NexusMaintenance\ValueObjects\Maintenance;
 
 /**
  * メンテナンス管理用の管理者APIコントローラー
@@ -61,7 +62,7 @@ class MaintenanceController
         $startAt = $validated['start_at'] ?? null;
         $endAt = $validated['end_at'] ?? null;
 
-        $sysMaintenance = new DtoMaintenance(
+        $sysMaintenance = new Maintenance(
             isMaintenance: true,
             startAt: $startAt,
             endAt: $endAt,

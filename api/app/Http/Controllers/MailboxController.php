@@ -32,8 +32,6 @@ class MailboxController extends _BaseController
 
     /**
      * メールボックス一覧取得
-     *
-     * @param  ListUseCase  $useCase
      */
     public function list(ListRequest $request, MailboxListUseCase $useCase): ListResponse
     {
@@ -50,8 +48,6 @@ class MailboxController extends _BaseController
 
     /**
      * メール既読
-     *
-     * @param  OpenUseCase  $useCase
      */
     public function open(OpenRequest $request, MailboxOpenUseCase $useCase): OpenResponse
     {
@@ -62,8 +58,6 @@ class MailboxController extends _BaseController
 
     /**
      * 添付配布物受取
-     *
-     * @param  ReceiveUseCase  $useCase
      */
     public function receive(ReceiveRequest $request, MailboxReceiveUseCase $useCase): ReceiveResponse
     {
@@ -74,8 +68,6 @@ class MailboxController extends _BaseController
 
     /**
      * 添付配布物一括受取
-     *
-     * @param  ReceiveAllUseCase  $useCase
      */
     public function receiveAll(ReceiveAllRequest $request, MailboxReceiveAllUseCase $useCase): ReceiveAllResponse
     {
@@ -90,8 +82,6 @@ class MailboxController extends _BaseController
 
     /**
      * メールロック
-     *
-     * @param  LockUseCase  $useCase
      */
     public function lock(LockRequest $request, MailboxLockUseCase $useCase): LockResponse
     {

@@ -22,7 +22,7 @@ use NexusResourceDelivery\DTOs\ResourceDeliveryContentDto;
 class ResourceDeliveryManager implements ResourceDeliveryManagerInterface
 {
     /**
-     * key: ResourceDeliveryContent.uniqueId
+     * key: ResourceDeliveryContentDto.uniqueId
      * value: ResourceDeliveryContentDto
      *
      * 配送前のコンテンツを格納する
@@ -32,8 +32,8 @@ class ResourceDeliveryManager implements ResourceDeliveryManagerInterface
     private array $needToSendContents;
 
     /**
-     * key: ResourceDeliveryContentクラス名
-     * value: array<ResourceDeliveryContent>
+     * key: ResourceDeliveryContentDtoクラス名
+     * value: array<ResourceDeliveryContentDto>
      *
      * 送信完了のコンテンツを格納する
      * APIレスポンスなどで取得しやすいように、クラスごとに分けた連想配列で保持する
@@ -76,8 +76,8 @@ class ResourceDeliveryManager implements ResourceDeliveryManagerInterface
     /**
      * 配送前リストからコンテンツを取得する
      *
-     * @return CustomCollection<string, ResourceDeliveryContent>
-     *                                                           key: ResourceDeliveryContent.uniqueId, value: ResourceDeliveryContentDto
+     * @return CustomCollection<string, ResourceDeliveryContentDto>
+     *                                                           key: ResourceDeliveryContentDto.uniqueId, value: ResourceDeliveryContentDto
      */
     public function getPendingContents(): CustomCollection
     {
@@ -88,7 +88,7 @@ class ResourceDeliveryManager implements ResourceDeliveryManagerInterface
      * 送信完了リストからコンテンツを取得する
      *
      * @param  string  $contentClass  コンテンツクラス名
-     * @return CustomCollection<ResourceDeliveryContent>
+     * @return CustomCollection<ResourceDeliveryContentDto>
      */
     public function findSendCompleteContents(string $contentClass): CustomCollection
     {

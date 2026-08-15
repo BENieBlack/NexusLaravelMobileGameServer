@@ -38,5 +38,16 @@ parameters:
     bootstrapFiles:
         - phpstan/bootstrap.php
 
+    ignoreErrors:
+        # 外部ストレージ/課金SDKはオプション依存であり、
+        # 該当ドライバを使う環境でのみ composer で追加する。
+        # クラスが見つからないのは想定どおりなので個別に無視する。
+        -
+            identifier: class.notFound
+            paths:
+                - ../packages/nexus-maintenance/src/Infrastructure/DynamoDB/*
+                - ../packages/nexus-maintenance/src/Infrastructure/TableStore/*
+                - ../packages/nexus-core-billing/src/ApiClients/GooglePlayApiClient.php
+
 rules:
     - App\PHPStan\Rules\NoDirectEloquentSaveInServiceRule

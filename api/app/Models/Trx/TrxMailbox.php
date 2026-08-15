@@ -4,6 +4,7 @@ namespace App\Models\Trx;
 
 use App\Models\Mst\MstMailbox;
 use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
@@ -145,26 +146,28 @@ class TrxMailbox extends _BaseTrx
 
     /**
      * 有効期限を取得
+     *
+     * DB取得時はstringで保持しているためCarbonImmutableに変換して返す
      */
-    public function getExpiresAt(): ?Carbon
+    public function getExpiresAt(): ?CarbonImmutable
     {
-        return $this->getAttribute('expires_at');
+        return $this->getDateAttribute('expires_at');
     }
 
     /**
      * 既読日時を取得
      */
-    public function getReadAt(): ?Carbon
+    public function getReadAt(): ?CarbonImmutable
     {
-        return $this->getAttribute('read_at');
+        return $this->getDateAttribute('read_at');
     }
 
     /**
      * 受取日時を取得
      */
-    public function getReceivedAt(): ?Carbon
+    public function getReceivedAt(): ?CarbonImmutable
     {
-        return $this->getAttribute('received_at');
+        return $this->getDateAttribute('received_at');
     }
 
     /**

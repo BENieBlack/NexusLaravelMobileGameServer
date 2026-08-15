@@ -9,6 +9,9 @@ services:
       - ./api:/var/www/html
       - ./packages:/var/www/packages
       - ./.env:/var/www/.env:ro  # Mount root .env as read-only
+      # エージェント向けドキュメントの同期チェック用（読み取り専用）
+      - ./.claude:/var/www/.claude:ro
+      - ./.opencode:/var/www/.opencode:ro
     environment:
       # 既定値は設けない。未設定なら署名検証が起動時に失敗する（既知の鍵で通してしまうのを防ぐ）
       - CLIENT_SECRET=${CLIENT_SECRET}

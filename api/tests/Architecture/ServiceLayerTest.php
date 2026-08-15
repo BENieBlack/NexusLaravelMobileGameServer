@@ -156,14 +156,25 @@ class ServiceLayerTest extends TestCase
                 continue;
             }
 
-            if (! str_ends_with($className, 'Repository') && ! str_ends_with($className, 'RepositoryInterface')) {
+            // パッケージのInterfaceを実装しDTOへ詰め替えるアダプタは 'RepositoryAdapter' を許容する
+            $allowed = ['Repository', 'RepositoryInterface', 'RepositoryAdapter'];
+
+            $matched = false;
+            foreach ($allowed as $suffix) {
+                if (str_ends_with($className, $suffix)) {
+                    $matched = true;
+                    break;
+                }
+            }
+
+            if (! $matched) {
                 $violations[] = $className;
             }
         }
 
         $this->assertEmpty(
             $violations,
-            "Repository層のクラスは 'Repository' または 'RepositoryInterface' で終わる必要があります: ".implode(', ', $violations)
+            "Repository層のクラスは 'Repository' / 'RepositoryInterface' / 'RepositoryAdapter' で終わる必要があります: ".implode(', ', $violations)
         );
     }
 }

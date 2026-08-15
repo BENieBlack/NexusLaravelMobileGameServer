@@ -29,9 +29,9 @@ class GuildApplyListResponse extends _BaseResponse
         $applies = [];
         foreach ($applyDtos as $dto) {
             $applies[] = [
-                'apply_id' => $dto->getId(),
-                'guild_id' => $dto->getSysGuildId(),
-                'player_id' => $dto->getSysPlayerId(),
+                'sys_guild_apply_id' => $dto->getId(),
+                'sys_guild_id' => $dto->getSysGuildId(),
+                'sys_player_id' => $dto->getSysPlayerId(),
                 'status' => $dto->getStatus(),
                 'created_at' => $dto->getCreatedAt(),
             ];

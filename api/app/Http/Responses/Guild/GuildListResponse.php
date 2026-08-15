@@ -29,7 +29,7 @@ class GuildListResponse extends _BaseResponse
         $guilds = [];
         foreach ($guildDtos as $dto) {
             $guilds[] = [
-                'guild_id' => $dto->getId(),
+                'sys_guild_id' => $dto->getId(),
                 'name' => $dto->getName(),
                 'description' => $dto->getDescription(),
                 'level' => $dto->getLevel(),

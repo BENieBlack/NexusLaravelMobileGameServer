@@ -160,6 +160,23 @@ public function exec(int $sysPlayerId): void
 Responseクラスは `_BaseResponse` を継承し、`toArray()` だけを実装する。
 `Responsable` は使わない（JSONの組み立て方が二系統になるため）。
 
+### IDキーはテーブルまで特定できる名前にする
+
+`*_id` は、どのテーブルのどのカラムを指すかが名前から分かるようにする。
+`apply_id` のような曖昧な名前は使わない。
+
+| ❌ 曖昧 | ✅ 特定できる | 実体 |
+|---|---|---|
+| `guild_id` | `sys_guild_id` | `sys_guild.id` |
+| `apply_id` | `sys_guild_apply_id` | `sys_guild_apply.id` |
+| `member_id` | `sys_guild_member_id` | `sys_guild_member.id` |
+| `player_id` | `sys_player_id` | `sys_player.id` |
+
+リクエストのパラメータ名も同じ規則に従う。
+
+カラム名自体に接頭辞が無いもの（`my_id` `content_id` `sender_id` `device_id` など）は、
+DBのカラム名がそのまま対応するため据え置く。
+
 ### エンベロープは付けない
 
 `toArray()` の内容がそのままトップレベルになる。`data` などでラップしない。

@@ -25,7 +25,7 @@ class GuildApplyFlowTest extends TestCase
         $guildId = $this->createGuild($masterToken);
 
         $response = $this->withHeaders($this->authHeaders($applicantToken))
-            ->postJson('/api/guild/apply/send', ['guild_id' => $guildId]);
+            ->postJson('/api/guild/apply/send', ['sys_guild_id' => $guildId]);
 
         $response->assertOk();
 
@@ -45,7 +45,7 @@ class GuildApplyFlowTest extends TestCase
         $this->sendApply($applicantToken, $guildId);
 
         $response = $this->withHeaders($this->authHeaders($masterToken))
-            ->getJson('/api/guild/apply/list?guild_id='.$guildId);
+            ->getJson('/api/guild/apply/list?sys_guild_id='.$guildId);
 
         $response->assertOk();
         $this->assertNotEmpty($response->json());
@@ -63,7 +63,7 @@ class GuildApplyFlowTest extends TestCase
         $apply = SysGuildApply::where('sys_player_id', $applicant->id)->firstOrFail();
 
         $this->withHeaders($this->authHeaders($masterToken))
-            ->postJson('/api/guild/apply/accept', ['apply_id' => $apply->id])
+            ->postJson('/api/guild/apply/accept', ['sys_guild_apply_id' => $apply->id])
             ->assertOk();
 
         $this->assertDatabaseHas('sys_guild_member', [
@@ -84,7 +84,7 @@ class GuildApplyFlowTest extends TestCase
         $apply = SysGuildApply::where('sys_player_id', $applicant->id)->firstOrFail();
 
         $this->withHeaders($this->authHeaders($masterToken))
-            ->postJson('/api/guild/apply/reject', ['apply_id' => $apply->id])
+            ->postJson('/api/guild/apply/reject', ['sys_guild_apply_id' => $apply->id])
             ->assertOk();
 
         $this->assertDatabaseMissing('sys_guild_member', [
@@ -104,7 +104,7 @@ class GuildApplyFlowTest extends TestCase
 
         $apply = SysGuildApply::where('sys_player_id', $applicant->id)->firstOrFail();
         $this->withHeaders($this->authHeaders($masterToken))
-            ->postJson('/api/guild/apply/accept', ['apply_id' => $apply->id])
+            ->postJson('/api/guild/apply/accept', ['sys_guild_apply_id' => $apply->id])
             ->assertOk();
 
         $this->withHeaders($this->authHeaders($applicantToken))
@@ -120,7 +120,7 @@ class GuildApplyFlowTest extends TestCase
     #[Test]
     public function test_endpoints_require_authentication(): void
     {
-        $this->postJson('/api/guild/apply/send', ['guild_id' => 1])->assertStatus(401);
+        $this->postJson('/api/guild/apply/send', ['sys_guild_id' => 1])->assertStatus(401);
         $this->postJson('/api/guild/leave', [])->assertStatus(401);
     }
 
@@ -133,13 +133,13 @@ class GuildApplyFlowTest extends TestCase
             ]);
         $response->assertOk();
 
-        return (int) $response->json('guild_id');
+        return (int) $response->json('sys_guild_id');
     }
 
     private function sendApply(string $token, int $guildId): void
     {
         $this->withHeaders($this->authHeaders($token))
-            ->postJson('/api/guild/apply/send', ['guild_id' => $guildId])
+            ->postJson('/api/guild/apply/send', ['sys_guild_id' => $guildId])
             ->assertOk();
     }
 }

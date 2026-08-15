@@ -48,7 +48,7 @@ class GuildCreateResponse extends _BaseResponse
     public function toArray(): array
     {
         return [
-            'guild_id' => $this->guildId,
+            'sys_guild_id' => $this->guildId,
             'name' => $this->name,
             'description' => $this->description,
             'level' => $this->level,

@@ -129,9 +129,9 @@ class TrxWalletBalance extends _BaseTrx
     /**
      * 有効期限を取得（無期限の場合はnull）
      */
-    public function getExpireAt(): ?CarbonImmutable
+    public function getExpireAt(): ?string
     {
-        return $this->getDateAttribute('expire_at');
+        return $this->getDateAttributeString('expire_at');
     }
 
     // ===== Setter Methods =====

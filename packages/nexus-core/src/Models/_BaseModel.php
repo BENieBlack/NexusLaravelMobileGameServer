@@ -182,6 +182,36 @@ abstract class _BaseModel extends Model implements _BaseModelInterface
     }
 
     /**
+     * 日付属性を Y-m-d H:i:s 形式の文字列として取得
+     *
+     * DBから取得した時点で文字列なので、そのまま返すのが基本。
+     * Carbon等が入っている場合のみ整形する。
+     *
+     * 日時は文字列のまま扱う方針のため、比較は ClockUtility::isPast() /
+     * isFuture() / isWithin() を使う（固定長なので辞書順=時系列順）。
+     *
+     * @param string $attribute 属性名（例: 'created_at', 'start_at'）
+     */
+    protected function getDateAttributeString(string $attribute): ?string
+    {
+        $value = $this->getAttribute($attribute);
+
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        if (is_string($value)) {
+            return $value;
+        }
+
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format('Y-m-d H:i:s');
+        }
+
+        return (string) $value;
+    }
+
+    /**
      * 日付属性をCarbonImmutable型として取得
      * 
      * パフォーマンス最適化のため、DB取得時はstring型で保持し、

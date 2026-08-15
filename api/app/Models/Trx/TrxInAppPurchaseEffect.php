@@ -4,6 +4,7 @@ namespace App\Models\Trx;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * TrxInAppPurchaseEffect Model
@@ -92,7 +93,7 @@ class TrxInAppPurchaseEffect extends _BaseTrx
      */
     public function isEffective(): bool
     {
-        return $this->getIsActive() && $this->getExpiresAt()->isFuture();
+        return $this->getIsActive() && ClockUtility::isFuture($this->getExpiresAt());
     }
 
     /**
@@ -114,9 +115,9 @@ class TrxInAppPurchaseEffect extends _BaseTrx
     /**
      * 有効期限を取得
      */
-    public function getExpiresAt(): CarbonImmutable
+    public function getExpiresAt(): ?string
     {
-        return $this->getAttribute('expires_at');
+        return $this->getDateAttributeString('expires_at');
     }
 
     /**

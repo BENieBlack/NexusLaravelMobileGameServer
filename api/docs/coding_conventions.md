@@ -127,6 +127,36 @@ DB から読み戻してモデルへ反映する。タイムスタンプを参�
 なお `system_at` のような**業務上の意味を持つ時刻**はこの限りではなく、
 `ClockUtility` 経由でアプリケーション側が設定する。
 
+### 日時は文字列で扱う
+
+`last_login_at` `start_at` などの日時は、DB取得からレスポンスまで
+一貫して `Y-m-d H:i:s` の文字列で扱う。Carbonへのキャストを強制しない。
+
+```php
+// ✅ 文字列を返す
+public function getStartAt(): ?string
+{
+    return $this->getDateAttributeString('start_at');
+}
+
+// ❌ Carbonを返すと呼び出し元がキャストに縛られる
+public function getStartAt(): ?CarbonImmutable
+```
+
+**比較は文字列のまま行える。** `Y-m-d H:i:s` は固定長なので、
+辞書順比較が時系列順比較と一致する。
+
+```php
+ClockUtility::isPast($expiresAt);            // 過去かどうか
+ClockUtility::isFuture($expiresAt);          // 未来かどうか
+ClockUtility::isWithin($startAt, $endAt);    // 期間内かどうか
+
+$latest = max($createdAtList);               // 素の比較も使える
+```
+
+日付の加算・差分など**演算が必要な箇所でだけ** `ClockUtility::parse()` で
+Carbonに変換する。変換はその場に閉じ込め、境界を越えて持ち回らない。
+
 ### Eloquentによる即時書き込みの禁止
 
 `_BaseModel` が `save()` / `update()` / `delete()` / `forceDelete()` を拒否する。トランザクション境界とPITRログの整合性を壊すため。

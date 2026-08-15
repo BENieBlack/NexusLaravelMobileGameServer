@@ -48,7 +48,7 @@ class GuildBasicFlowTest extends TestCase
 
         $response->assertOk();
         $response->assertJsonStructure([
-            'guild_id',
+            'sys_guild_id',
             'name',
             'description',
             'level',
@@ -184,7 +184,7 @@ class GuildBasicFlowTest extends TestCase
         $response->assertJsonStructure([
             'guilds' => [
                 '*' => [
-                    'guild_id',
+                    'sys_guild_id',
                     'name',
                     'description',
                     'level',
@@ -228,11 +228,11 @@ class GuildBasicFlowTest extends TestCase
         ]);
 
         // ギルド詳細を取得
-        $response = $this->getJson('/api/guild/detail?guild_id='.$guild->id);
+        $response = $this->getJson('/api/guild/detail?sys_guild_id='.$guild->id);
 
         $response->assertOk();
         $response->assertJsonStructure([
-            'guild_id',
+            'sys_guild_id',
             'name',
             'description',
             'level',
@@ -308,15 +308,15 @@ class GuildBasicFlowTest extends TestCase
         ]);
 
         // メンバー一覧を取得
-        $response = $this->getJson('/api/guild/member/list?guild_id='.$guild->id);
+        $response = $this->getJson('/api/guild/member/list?sys_guild_id='.$guild->id);
 
         $response->assertOk();
         $response->assertJsonStructure([
             'members' => [
                 '*' => [
-                    'member_id',
-                    'guild_id',
-                    'player_id',
+                    'sys_guild_member_id',
+                    'sys_guild_id',
+                    'sys_player_id',
                     'role',
                     'joined_at',
                 ],

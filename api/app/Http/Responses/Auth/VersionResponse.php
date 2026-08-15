@@ -34,13 +34,13 @@ class VersionResponse extends _BaseResponse
         }
 
         if ($this->needsUpdate && $this->sysDeploy !== null) {
-            $data['latest_deploy_id'] = $this->sysDeploy->id;
+            $data['sys_deploy_id'] = $this->sysDeploy->id;
             $data['latest_deploy_key'] = $this->sysDeploy->deploy_key;
 
             // マスターデータ情報
             if ($this->sysDeploy->deployMaster !== null) {
                 $data['master'] = [
-                    'deploy_master_id' => $this->sysDeploy->sys_deploy_master_id,
+                    'sys_deploy_master_id' => $this->sysDeploy->sys_deploy_master_id,
                     'hash' => $this->sysDeploy->deployMaster->hash,
                 ];
             }
@@ -48,7 +48,7 @@ class VersionResponse extends _BaseResponse
             // アセットデータ情報
             if ($this->sysDeploy->deployAsset !== null) {
                 $data['asset'] = [
-                    'deploy_asset_id' => $this->sysDeploy->sys_deploy_asset_id,
+                    'sys_deploy_asset_id' => $this->sysDeploy->sys_deploy_asset_id,
                     'hash' => $this->sysDeploy->deployAsset->hash,
                 ];
             }

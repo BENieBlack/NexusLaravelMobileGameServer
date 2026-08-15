@@ -66,9 +66,9 @@ class GuildRepositoryAdapter implements GuildRepositoryInterface
      *
      * @param  array<string, mixed>  $data
      */
-    public function update(Guild $guildDto, array $data): Guild
+    public function update(Guild $guild, array $data): Guild
     {
-        $model = $this->requireModel($guildDto->getId());
+        $model = $this->requireModel($guild->getId());
 
         if (isset($data['name'])) {
             $model->setName($data['name']);
@@ -94,9 +94,9 @@ class GuildRepositoryAdapter implements GuildRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function delete(Guild $guildDto): void
+    public function delete(Guild $guild): void
     {
-        $model = $this->sysGuildRepository->selectById($guildDto->getId());
+        $model = $this->sysGuildRepository->selectById($guild->getId());
 
         if ($model !== null) {
             $this->sysGuildRepository->hardDeleteModel($model);
@@ -106,9 +106,9 @@ class GuildRepositoryAdapter implements GuildRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function addExp(Guild $guildDto, int $exp): Guild
+    public function addExp(Guild $guild, int $exp): Guild
     {
-        $model = $this->requireModel($guildDto->getId());
+        $model = $this->requireModel($guild->getId());
 
         $model->setExp($model->getExp() + $exp);
         $this->sysGuildRepository->setModel($model);
@@ -119,9 +119,9 @@ class GuildRepositoryAdapter implements GuildRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function updateLevel(Guild $guildDto, int $level, int $exp): Guild
+    public function updateLevel(Guild $guild, int $level, int $exp): Guild
     {
-        $model = $this->requireModel($guildDto->getId());
+        $model = $this->requireModel($guild->getId());
 
         $model->setLevel($level);
         $model->setExp($exp);

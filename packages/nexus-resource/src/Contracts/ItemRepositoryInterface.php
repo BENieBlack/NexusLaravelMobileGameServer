@@ -24,10 +24,10 @@ interface ItemRepositoryInterface
     /**
      * アイテムを保存（新規作成 or 更新）
      *
-     * @param Item $itemDto
+     * @param Item $item
      * @return void
      */
-    public function persistItem(Item $itemDto): void;
+    public function persistItem(Item $item): void;
 
     /**
      * 複数アイテムを一括取得

@@ -28,21 +28,21 @@ class EquipmentDeliveryHandler implements ResourceDeliveryHandlerInterface
      * 装備配送処理を実行
      *
      * @param  int  $sysPlayerId  プレイヤーID
-     * @param  ResourceDeliveryContent  $resourceDeliveryContentDto  配送コンテンツ
+     * @param  ResourceDeliveryContent  $resourceDeliveryContent  配送コンテンツ
      *
      * @throws \Exception 配送失敗時
      */
-    public function handle(int $sysPlayerId, ResourceDeliveryContent $resourceDeliveryContentDto): void
+    public function handle(int $sysPlayerId, ResourceDeliveryContent $resourceDeliveryContent): void
     {
         // metadataからlevel/gradeを取得（指定がない場合はnull = デフォルト値を使用）
-        $metadata = $resourceDeliveryContentDto->getMetadata();
+        $metadata = $resourceDeliveryContent->getMetadata();
         $level = $metadata['level'] ?? null;
         $grade = $metadata['grade'] ?? null;
 
         // 指定された数量分の装備を作成
-        for ($i = 0; $i < $resourceDeliveryContentDto->getAmount(); $i++) {
+        for ($i = 0; $i < $resourceDeliveryContent->getAmount(); $i++) {
             $this->trxEquipmentRepository->insertEquipment(
-                $resourceDeliveryContentDto->getId(),
+                $resourceDeliveryContent->getId(),
                 $level,
                 $grade
             );

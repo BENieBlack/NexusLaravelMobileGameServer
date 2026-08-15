@@ -78,9 +78,9 @@ class FriendApplyRepositoryAdapter implements FriendApplyRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function accept(FriendApply $friendApplyDto): FriendApply
+    public function accept(FriendApply $friendApply): FriendApply
     {
-        $model = $this->requireModel($friendApplyDto->getId());
+        $model = $this->requireModel($friendApply->getId());
 
         $model->accept();
         $this->sysFriendApplyRepository->setModel($model);
@@ -91,9 +91,9 @@ class FriendApplyRepositoryAdapter implements FriendApplyRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function reject(FriendApply $friendApplyDto): FriendApply
+    public function reject(FriendApply $friendApply): FriendApply
     {
-        $model = $this->requireModel($friendApplyDto->getId());
+        $model = $this->requireModel($friendApply->getId());
 
         $model->reject();
         $this->sysFriendApplyRepository->setModel($model);

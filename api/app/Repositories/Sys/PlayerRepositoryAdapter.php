@@ -57,17 +57,17 @@ class PlayerRepositoryAdapter implements PlayerRepoInterface, PlayerVipRepositor
     /**
      * {@inheritDoc}
      */
-    public function persist(Player $playerDto): void
+    public function persist(Player $player): void
     {
-        $model = $this->sysPlayerRepository->selectById($playerDto->getId());
+        $model = $this->sysPlayerRepository->selectById($player->getId());
 
         if ($model === null) {
             return;
         }
 
-        $model->setName($playerDto->getName());
-        $model->setLevel($playerDto->getLevel());
-        $model->setLevelExp($playerDto->getLevelExp());
+        $model->setName($player->getName());
+        $model->setLevel($player->getLevel());
+        $model->setLevelExp($player->getLevelExp());
 
         $this->sysPlayerRepository->setModel($model);
     }
@@ -85,16 +85,16 @@ class PlayerRepositoryAdapter implements PlayerRepoInterface, PlayerVipRepositor
     /**
      * {@inheritDoc}
      */
-    public function persistVipInfo(PlayerVip $playerVipDto): void
+    public function persistVipInfo(PlayerVip $playerVip): void
     {
-        $model = $this->sysPlayerRepository->selectById($playerVipDto->getSysPlayerId());
+        $model = $this->sysPlayerRepository->selectById($playerVip->getSysPlayerId());
 
         if ($model === null) {
             return;
         }
 
-        $model->setVipPoint($playerVipDto->getVipPoint());
-        $model->setTotalPaidAmount($playerVipDto->getTotalPaidAmount());
+        $model->setVipPoint($playerVip->getVipPoint());
+        $model->setTotalPaidAmount($playerVip->getTotalPaidAmount());
 
         $this->sysPlayerRepository->setModel($model);
     }

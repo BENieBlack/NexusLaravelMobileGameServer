@@ -56,12 +56,12 @@ class TrxChangeLogger
     /**
      * 単一ログ記録（テスト用）
      * 
-     * @param ChangeLog $changeLogDto
+     * @param ChangeLog $changeLog
      * @return void
      */
-    public function log(ChangeLog $changeLogDto): void
+    public function log(ChangeLog $changeLog): void
     {
-        $this->logBatch([$changeLogDto]);
+        $this->logBatch([$changeLog]);
     }
     
     /**

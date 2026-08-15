@@ -49,7 +49,7 @@ class StaminaServiceTest extends TestCase
             ->willReturn($maxStamina);
 
         // 経過時間は現在時刻基準なので、テストは現在のスタミナのみチェック
-        $staminaDto = new Stamina(
+        $stamina = new Stamina(
             sysPlayerId: $playerId,
             type: $type,
             currentStamina: 50,
@@ -61,7 +61,7 @@ class StaminaServiceTest extends TestCase
             ->expects($this->once())
             ->method('selectByPlayerAndType')
             ->with($playerId, $type)
-            ->willReturn($staminaDto);
+            ->willReturn($stamina);
 
         $result = $this->service->findStamina($playerId, $type);
 
@@ -105,7 +105,7 @@ class StaminaServiceTest extends TestCase
             ->with($playerId)
             ->willReturn($maxStamina);
 
-        $staminaDto = new Stamina(
+        $stamina = new Stamina(
             sysPlayerId: $playerId,
             type: $type,
             currentStamina: 50,
@@ -117,7 +117,7 @@ class StaminaServiceTest extends TestCase
             ->expects($this->once())
             ->method('selectByPlayerAndType')
             ->with($playerId, $type)
-            ->willReturn($staminaDto);
+            ->willReturn($stamina);
 
         $this->staminaRepository
             ->expects($this->once())
@@ -148,7 +148,7 @@ class StaminaServiceTest extends TestCase
             ->with($playerId)
             ->willReturn($maxStamina);
 
-        $staminaDto = new Stamina(
+        $stamina = new Stamina(
             sysPlayerId: $playerId,
             type: $type,
             currentStamina: 50,
@@ -160,7 +160,7 @@ class StaminaServiceTest extends TestCase
             ->expects($this->once())
             ->method('selectByPlayerAndType')
             ->with($playerId, $type)
-            ->willReturn($staminaDto);
+            ->willReturn($stamina);
 
         $this->staminaRepository
             ->expects($this->never())
@@ -188,7 +188,7 @@ class StaminaServiceTest extends TestCase
             ->with($playerId)
             ->willReturn($maxStamina);
 
-        $staminaDto = new Stamina(
+        $stamina = new Stamina(
             sysPlayerId: $playerId,
             type: $type,
             currentStamina: 50,
@@ -200,7 +200,7 @@ class StaminaServiceTest extends TestCase
             ->expects($this->once())
             ->method('selectByPlayerAndType')
             ->with($playerId, $type)
-            ->willReturn($staminaDto);
+            ->willReturn($stamina);
 
         $this->staminaRepository
             ->expects($this->once())
@@ -231,7 +231,7 @@ class StaminaServiceTest extends TestCase
             ->with($playerId)
             ->willReturn($maxStamina);
 
-        $staminaDto = new Stamina(
+        $stamina = new Stamina(
             sysPlayerId: $playerId,
             type: $type,
             currentStamina: 90,
@@ -243,7 +243,7 @@ class StaminaServiceTest extends TestCase
             ->expects($this->once())
             ->method('selectByPlayerAndType')
             ->with($playerId, $type)
-            ->willReturn($staminaDto);
+            ->willReturn($stamina);
 
         $this->staminaRepository
             ->expects($this->once())
@@ -275,7 +275,7 @@ class StaminaServiceTest extends TestCase
             ->willReturn($maxStamina);
 
         // 現在時刻のスタミナ
-        $staminaDto = new Stamina(
+        $stamina = new Stamina(
             sysPlayerId: $playerId,
             type: $type,
             currentStamina: 50,
@@ -287,7 +287,7 @@ class StaminaServiceTest extends TestCase
             ->expects($this->once())
             ->method('selectByPlayerAndType')
             ->with($playerId, $type)
-            ->willReturn($staminaDto);
+            ->willReturn($stamina);
 
         $result = $this->service->calcTimeUntilNextRecovery($playerId, $type);
 
@@ -310,7 +310,7 @@ class StaminaServiceTest extends TestCase
             ->with($playerId)
             ->willReturn($maxStamina);
 
-        $staminaDto = new Stamina(
+        $stamina = new Stamina(
             sysPlayerId: $playerId,
             type: $type,
             currentStamina: 100,
@@ -322,7 +322,7 @@ class StaminaServiceTest extends TestCase
             ->expects($this->once())
             ->method('selectByPlayerAndType')
             ->with($playerId, $type)
-            ->willReturn($staminaDto);
+            ->willReturn($stamina);
 
         $result = $this->service->calcTimeUntilNextRecovery($playerId, $type);
 

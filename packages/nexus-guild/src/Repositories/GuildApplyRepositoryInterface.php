@@ -59,18 +59,18 @@ interface GuildApplyRepositoryInterface
     /**
      * ギルド加入申請を承認
      *
-     * @param  GuildApply  $guildApplyDto  承認する申請
+     * @param  GuildApply  $guildApply  承認する申請
      * @return GuildApply 承認後のDTO
      */
-    public function accept(GuildApply $guildApplyDto): GuildApply;
+    public function accept(GuildApply $guildApply): GuildApply;
 
     /**
      * ギルド加入申請を却下
      *
-     * @param  GuildApply  $guildApplyDto  却下する申請
+     * @param  GuildApply  $guildApply  却下する申請
      * @return GuildApply 却下後のDTO
      */
-    public function reject(GuildApply $guildApplyDto): GuildApply;
+    public function reject(GuildApply $guildApply): GuildApply;
 
     /**
      * プレイヤーの全申請を削除（論理削除）

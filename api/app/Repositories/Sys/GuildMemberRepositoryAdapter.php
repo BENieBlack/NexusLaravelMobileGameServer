@@ -84,9 +84,9 @@ class GuildMemberRepositoryAdapter implements GuildMemberRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function updateRole(GuildMember $memberDto, string $role): GuildMember
+    public function updateRole(GuildMember $member, string $role): GuildMember
     {
-        $model = $this->sysGuildMemberRepository->selectById($memberDto->getId());
+        $model = $this->sysGuildMemberRepository->selectById($member->getId());
 
         if ($model === null) {
             throw new \RuntimeException('Guild member not found');
@@ -101,9 +101,9 @@ class GuildMemberRepositoryAdapter implements GuildMemberRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function delete(GuildMember $memberDto): void
+    public function delete(GuildMember $member): void
     {
-        $model = $this->sysGuildMemberRepository->selectById($memberDto->getId());
+        $model = $this->sysGuildMemberRepository->selectById($member->getId());
 
         if ($model !== null) {
             $this->sysGuildMemberRepository->hardDeleteModel($model);

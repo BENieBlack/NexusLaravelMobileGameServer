@@ -32,8 +32,8 @@ interface DiamondRepositoryInterface
     /**
      * ダイヤモンド残高を保存（新規作成 or 更新）
      *
-     * @param DiamondBalance $diamondDto
+     * @param DiamondBalance $diamond
      * @return void
      */
-    public function persistDiamond(DiamondBalance $diamondDto): void;
+    public function persistDiamond(DiamondBalance $diamond): void;
 }

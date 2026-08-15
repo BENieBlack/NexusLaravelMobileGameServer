@@ -39,17 +39,17 @@ class GuildApplyAcceptUseCase extends _BaseUseCase
         return $this->executeWithTransaction(function () use ($sysPlayerId, $applyId) {
             try {
                 // 申請承認（Service経由でバリデーション含む）
-                $applyDto = $this->guildService->acceptApply($applyId, $sysPlayerId);
+                $apply = $this->guildService->acceptApply($applyId, $sysPlayerId);
 
                 // メンバーとして追加
                 $this->sysGuildMemberRepository->insertMember(
-                    $applyDto->getSysGuildId(),
-                    $applyDto->getSysPlayerId(),
+                    $apply->getSysGuildId(),
+                    $apply->getSysPlayerId(),
                     GuildRole::MEMBER
                 );
 
                 // レスポンスを返す
-                return GuildApplyAcceptResponse::fromDto($applyDto);
+                return GuildApplyAcceptResponse::fromDto($apply);
             } catch (GuildException $e) {
                 // パッケージの例外をGameExceptionに変換
                 $errorCode = match (true) {

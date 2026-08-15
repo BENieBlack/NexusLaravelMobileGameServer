@@ -65,17 +65,17 @@ class MailboxRepositoryAdapter implements MailboxRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function persist(Mailbox $mailboxDto): void
+    public function persist(Mailbox $mailbox): void
     {
-        $model = $this->trxMailboxRepository->selectById($mailboxDto->getId());
+        $model = $this->trxMailboxRepository->selectById($mailbox->getId());
 
         if ($model === null) {
             return;
         }
 
-        $model->setIsOpened($mailboxDto->isRead());
-        $model->setIsReceived($mailboxDto->isReceived());
-        $model->setIsProtected($mailboxDto->isLocked());
+        $model->setIsOpened($mailbox->isRead());
+        $model->setIsReceived($mailbox->isReceived());
+        $model->setIsProtected($mailbox->isLocked());
 
         $this->trxMailboxRepository->setModel($model);
     }
@@ -83,9 +83,9 @@ class MailboxRepositoryAdapter implements MailboxRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function markAsRead(Mailbox $mailboxDto): void
+    public function markAsRead(Mailbox $mailbox): void
     {
-        $model = $this->trxMailboxRepository->selectById($mailboxDto->getId());
+        $model = $this->trxMailboxRepository->selectById($mailbox->getId());
 
         if ($model !== null) {
             $this->trxMailboxRepository->markAsOpened($model);
@@ -95,9 +95,9 @@ class MailboxRepositoryAdapter implements MailboxRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function markDtoAsReceived(Mailbox $mailboxDto): void
+    public function markDtoAsReceived(Mailbox $mailbox): void
     {
-        $model = $this->trxMailboxRepository->selectById($mailboxDto->getId());
+        $model = $this->trxMailboxRepository->selectById($mailbox->getId());
 
         if ($model !== null) {
             $this->trxMailboxRepository->markAsReceived($model);
@@ -107,9 +107,9 @@ class MailboxRepositoryAdapter implements MailboxRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function updateLockStatus(Mailbox $mailboxDto, bool $isLocked): void
+    public function updateLockStatus(Mailbox $mailbox, bool $isLocked): void
     {
-        $model = $this->trxMailboxRepository->selectById($mailboxDto->getId());
+        $model = $this->trxMailboxRepository->selectById($mailbox->getId());
 
         if ($model !== null) {
             $this->trxMailboxRepository->toggleProtection($model, $isLocked);

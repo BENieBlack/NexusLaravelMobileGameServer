@@ -39,15 +39,15 @@ class ItemWriteService
     public function addItem(int $sysPlayerId, string $mstItemId, int $freeAmount = 0, int $paidAmount = 0): Item
     {
         // 既存のアイテムを取得
-        $itemDto = $this->itemRepository->selectItem($sysPlayerId, $mstItemId);
+        $item = $this->itemRepository->selectItem($sysPlayerId, $mstItemId);
 
-        if ($itemDto) {
+        if ($item) {
             // 既存アイテムがある場合は加算
-            $itemDto->setFreeAmount($itemDto->getFreeAmount() + $freeAmount);
-            $itemDto->setPaidAmount($itemDto->getPaidAmount() + $paidAmount);
+            $item->setFreeAmount($item->getFreeAmount() + $freeAmount);
+            $item->setPaidAmount($item->getPaidAmount() + $paidAmount);
         } else {
             // 新規アイテムを作成
-            $itemDto = new Item(
+            $item = new Item(
                 sysPlayerId: $sysPlayerId,
                 mstItemId: $mstItemId,
                 freeAmount: $freeAmount,
@@ -56,9 +56,9 @@ class ItemWriteService
         }
 
         // 保存
-        $this->itemRepository->persistItem($itemDto);
+        $this->itemRepository->persistItem($item);
 
-        return $itemDto;
+        return $item;
     }
 
     /**
@@ -74,36 +74,36 @@ class ItemWriteService
     public function consumeItem(int $sysPlayerId, string $mstItemId, int $amount): Item
     {
         // 既存のアイテムを取得
-        $itemDto = $this->itemRepository->selectItem($sysPlayerId, $mstItemId);
+        $item = $this->itemRepository->selectItem($sysPlayerId, $mstItemId);
 
-        if (!$itemDto) {
+        if (!$item) {
             throw new \Exception("Item not found: {$mstItemId}");
         }
 
         // 残高チェック
-        $this->validateSufficientAmount($itemDto, $amount, $mstItemId);
+        $this->validateSufficientAmount($item, $amount, $mstItemId);
 
         // 有償優先で消費
-        $this->consumeWithPaidFirst($itemDto, $amount);
+        $this->consumeWithPaidFirst($item, $amount);
 
         // 保存
-        $this->itemRepository->persistItem($itemDto);
+        $this->itemRepository->persistItem($item);
 
-        return $itemDto;
+        return $item;
     }
 
     /**
      * 残高が十分かチェック
      *
-     * @param Item $itemDto
+     * @param Item $item
      * @param int $amount
      * @param string $mstItemId
      * @return void
      * @throws \Exception
      */
-    private function validateSufficientAmount(Item $itemDto, int $amount, string $mstItemId): void
+    private function validateSufficientAmount(Item $item, int $amount, string $mstItemId): void
     {
-        $totalAmount = $itemDto->getTotalAmount();
+        $totalAmount = $item->getTotalAmount();
         if ($totalAmount < $amount) {
             throw new \Exception("Insufficient item amount. Required: {$amount}, Available: {$totalAmount}");
         }
@@ -112,23 +112,23 @@ class ItemWriteService
     /**
      * 有償優先で消費
      *
-     * @param Item $itemDto
+     * @param Item $item
      * @param int $amount
      * @return void
      */
-    private function consumeWithPaidFirst(Item $itemDto, int $amount): void
+    private function consumeWithPaidFirst(Item $item, int $amount): void
     {
-        $freeAmount = $itemDto->getFreeAmount();
-        $paidAmount = $itemDto->getPaidAmount();
+        $freeAmount = $item->getFreeAmount();
+        $paidAmount = $item->getPaidAmount();
 
         if ($amount <= $paidAmount) {
             // 有償アイテムのみで足りる場合
-            $itemDto->setPaidAmount($paidAmount - $amount);
+            $item->setPaidAmount($paidAmount - $amount);
         } else {
             // 有償アイテムを全て消費し、残りを無償アイテムから消費
-            $itemDto->setPaidAmount(0);
+            $item->setPaidAmount(0);
             $remainingAmount = $amount - $paidAmount;
-            $itemDto->setFreeAmount($freeAmount - $remainingAmount);
+            $item->setFreeAmount($freeAmount - $remainingAmount);
         }
     }
 }

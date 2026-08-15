@@ -63,7 +63,7 @@ class CheckMaintenanceTest extends TestCase
     public function メンテナンス中は503エラーを返す(): void
     {
         // Arrange
-        $maintenanceDto = new Maintenance(
+        $maintenance = new Maintenance(
             isMaintenance: true,
             startAt: '2026-08-10 00:00:00',
             endAt: '2026-08-10 03:00:00',
@@ -79,7 +79,7 @@ class CheckMaintenanceTest extends TestCase
         $this->maintenanceService
             ->shouldReceive('findMaintenanceInfo')
             ->once()
-            ->andReturn($maintenanceDto);
+            ->andReturn($maintenance);
 
         $request = Request::create('/test', 'GET');
         $nextCalled = false;
@@ -198,7 +198,7 @@ class CheckMaintenanceTest extends TestCase
             'maintenance/status',
         ]]);
 
-        $maintenanceDto = new Maintenance(
+        $maintenance = new Maintenance(
             isMaintenance: true,
             startAt: '2026-08-10 00:00:00',
             endAt: '2026-08-10 03:00:00',
@@ -214,7 +214,7 @@ class CheckMaintenanceTest extends TestCase
         $this->maintenanceService
             ->shouldReceive('findMaintenanceInfo')
             ->once()
-            ->andReturn($maintenanceDto);
+            ->andReturn($maintenance);
 
         $request = Request::create('/player/me', 'GET');
         $nextCalled = false;

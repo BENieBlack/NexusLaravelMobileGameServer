@@ -34,10 +34,10 @@ class GuildApplyRejectUseCase extends _BaseUseCase
         return $this->executeWithTransaction(function () use ($sysPlayerId, $applyId) {
             try {
                 // 申請却下（Service経由でバリデーション含む）
-                $applyDto = $this->guildService->rejectApply($applyId, $sysPlayerId);
+                $apply = $this->guildService->rejectApply($applyId, $sysPlayerId);
 
                 // レスポンスを返す
-                return GuildApplyRejectResponse::fromDto($applyDto);
+                return GuildApplyRejectResponse::fromDto($apply);
             } catch (GuildException $e) {
                 // パッケージの例外をGameExceptionに変換
                 $errorCode = match (true) {

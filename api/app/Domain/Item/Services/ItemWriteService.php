@@ -55,13 +55,13 @@ class ItemWriteService
     public function consumeItem(int $sysPlayerId, string $mstItemId, int $amount): TrxItem
     {
         // パッケージ層に委譲
-        $itemDto = $this->packageItemWriteService->consumeItem($sysPlayerId, $mstItemId, $amount);
+        $item = $this->packageItemWriteService->consumeItem($sysPlayerId, $mstItemId, $amount);
 
         // DTOからTrxItemを再取得（既存の利用箇所との互換性のため）
         // Note: 将来的にはDTOを直接返すようにリファクタリング推奨
         $trxItem = TrxItem::query()
-            ->where('sys_player_id', $itemDto->getSysPlayerId())
-            ->where('mst_item_id', $itemDto->getMstItemId())
+            ->where('sys_player_id', $item->getSysPlayerId())
+            ->where('mst_item_id', $item->getMstItemId())
             ->first();
 
         if (! $trxItem) {
@@ -70,8 +70,8 @@ class ItemWriteService
 
         // 消費結果はUnitOfWorkのキューに積まれただけでDBには未反映のため、
         // 再取得したモデルにはDTOの最新値を反映して返す
-        $trxItem->setFreeAmount($itemDto->getFreeAmount());
-        $trxItem->setPaidAmount($itemDto->getPaidAmount());
+        $trxItem->setFreeAmount($item->getFreeAmount());
+        $trxItem->setPaidAmount($item->getPaidAmount());
 
         return $trxItem;
     }

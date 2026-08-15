@@ -79,9 +79,9 @@ class GuildApplyRepositoryAdapter implements GuildApplyRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function accept(GuildApply $guildApplyDto): GuildApply
+    public function accept(GuildApply $guildApply): GuildApply
     {
-        $model = $this->requireModel($guildApplyDto->getId());
+        $model = $this->requireModel($guildApply->getId());
 
         $model->setStatus(GuildApplyStatus::ACCEPTED);
         $this->sysGuildApplyRepository->setModel($model);
@@ -92,9 +92,9 @@ class GuildApplyRepositoryAdapter implements GuildApplyRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function reject(GuildApply $guildApplyDto): GuildApply
+    public function reject(GuildApply $guildApply): GuildApply
     {
-        $model = $this->requireModel($guildApplyDto->getId());
+        $model = $this->requireModel($guildApply->getId());
 
         $model->setStatus(GuildApplyStatus::REJECTED);
         $this->sysGuildApplyRepository->setModel($model);

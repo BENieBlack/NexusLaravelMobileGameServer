@@ -129,9 +129,9 @@ class SignInUseCaseTest extends TestCase
         $response = $this->useCase->exec($deviceId, $deviceInfo);
 
         // Assert - 新しいトークンが生成されている
-        $this->assertNotEmpty($response->tokenDto->getAccessToken());
-        $this->assertNotEmpty($response->tokenDto->getRefreshToken());
-        $this->assertEquals(3600, $response->tokenDto->getExpiresIn());
+        $this->assertNotEmpty($response->token->getAccessToken());
+        $this->assertNotEmpty($response->token->getRefreshToken());
+        $this->assertEquals(3600, $response->token->getExpiresIn());
 
         // Assert - SysPlayerTokenが正しく生成されている
         $this->assertInstanceOf(SysPlayerToken::class, $response->sysPlayerToken);
@@ -236,8 +236,8 @@ class SignInUseCaseTest extends TestCase
         $this->assertEquals($response2->sysPlayerDevice->getId(), $response3->sysPlayerDevice->getId());
 
         // Assert - トークンは異なる
-        $this->assertNotEquals($response1->tokenDto->getRefreshToken(), $response2->tokenDto->getRefreshToken());
-        $this->assertNotEquals($response2->tokenDto->getRefreshToken(), $response3->tokenDto->getRefreshToken());
+        $this->assertNotEquals($response1->token->getRefreshToken(), $response2->token->getRefreshToken());
+        $this->assertNotEquals($response2->token->getRefreshToken(), $response3->token->getRefreshToken());
 
         // Assert - 最新のトークンのみDBに存在する
         $allTokens = SysPlayerToken::where('sys_player_id', $response1->sysPlayer->getId())->get();

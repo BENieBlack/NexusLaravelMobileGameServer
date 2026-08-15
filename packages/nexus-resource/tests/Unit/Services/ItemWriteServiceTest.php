@@ -82,14 +82,14 @@ class ItemWriteServiceTest extends TestCase
         $addFree = 30;
         $addPaid = 10;
 
-        $existingDto = new Item($sysPlayerId, $mstItemId, $existingFree, $existingPaid);
+        $existingItem = new Item($sysPlayerId, $mstItemId, $existingFree, $existingPaid);
 
         // findItemは既存のDTOを返す
         $this->mockRepository
             ->expects($this->once())
             ->method('selectItem')
             ->with($sysPlayerId, $mstItemId)
-            ->willReturn($existingDto);
+            ->willReturn($existingItem);
 
         // persistItemが1回呼ばれることを確認
         $this->mockRepository
@@ -118,13 +118,13 @@ class ItemWriteServiceTest extends TestCase
         $paidAmount = 50;
         $consumeAmount = 30;
 
-        $existingDto = new Item($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
+        $existingItem = new Item($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
 
         $this->mockRepository
             ->expects($this->once())
             ->method('selectItem')
             ->with($sysPlayerId, $mstItemId)
-            ->willReturn($existingDto);
+            ->willReturn($existingItem);
 
         $this->mockRepository
             ->expects($this->once())
@@ -153,12 +153,12 @@ class ItemWriteServiceTest extends TestCase
         $paidAmount = 50;
         $consumeAmount = 80; // 有償50 + 無償30を消費
 
-        $existingDto = new Item($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
+        $existingItem = new Item($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
 
         $this->mockRepository
             ->expects($this->once())
             ->method('selectItem')
-            ->willReturn($existingDto);
+            ->willReturn($existingItem);
 
         $this->mockRepository
             ->expects($this->once())
@@ -203,12 +203,12 @@ class ItemWriteServiceTest extends TestCase
         // Arrange
         $sysPlayerId = 1;
         $mstItemId = 'item_potion_001';
-        $existingDto = new Item($sysPlayerId, $mstItemId, 10, 5); // 合計15
+        $existingItem = new Item($sysPlayerId, $mstItemId, 10, 5); // 合計15
 
         $this->mockRepository
             ->expects($this->once())
             ->method('selectItem')
-            ->willReturn($existingDto);
+            ->willReturn($existingItem);
 
         // Assert
         $this->expectException(\Exception::class);
@@ -229,13 +229,13 @@ class ItemWriteServiceTest extends TestCase
         $addFree = 30;
         $addPaid = 10;
 
-        $existingDto = new Item($sysPlayerId, $mstItemId, $existingFree, $existingPaid);
+        $existingItem = new Item($sysPlayerId, $mstItemId, $existingFree, $existingPaid);
 
         $this->mockRepository
             ->expects($this->once())
             ->method('selectItem')
             ->with($sysPlayerId, $mstItemId)
-            ->willReturn($existingDto);
+            ->willReturn($existingItem);
 
         $this->mockRepository
             ->expects($this->once())
@@ -263,12 +263,12 @@ class ItemWriteServiceTest extends TestCase
         $paidAmount = 50;
         $consumeAmount = 50; // 有償をちょうど使い切る
 
-        $existingDto = new Item($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
+        $existingItem = new Item($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
 
         $this->mockRepository
             ->expects($this->once())
             ->method('selectItem')
-            ->willReturn($existingDto);
+            ->willReturn($existingItem);
 
         $this->mockRepository
             ->expects($this->once())
@@ -296,12 +296,12 @@ class ItemWriteServiceTest extends TestCase
         $paidAmount = 0;
         $consumeAmount = 30;
 
-        $existingDto = new Item($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
+        $existingItem = new Item($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
 
         $this->mockRepository
             ->expects($this->once())
             ->method('selectItem')
-            ->willReturn($existingDto);
+            ->willReturn($existingItem);
 
         $this->mockRepository
             ->expects($this->once())
@@ -329,12 +329,12 @@ class ItemWriteServiceTest extends TestCase
         $paidAmount = 30;
         $consumeAmount = 80; // 合計80をちょうど使い切る
 
-        $existingDto = new Item($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
+        $existingItem = new Item($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
 
         $this->mockRepository
             ->expects($this->once())
             ->method('selectItem')
-            ->willReturn($existingDto);
+            ->willReturn($existingItem);
 
         $this->mockRepository
             ->expects($this->once())
@@ -361,12 +361,12 @@ class ItemWriteServiceTest extends TestCase
         $freeAmount = 100;
         $paidAmount = 50;
 
-        $existingDto = new Item($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
+        $existingItem = new Item($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
 
         $this->mockRepository
             ->expects($this->once())
             ->method('selectItem')
-            ->willReturn($existingDto);
+            ->willReturn($existingItem);
 
         $this->mockRepository
             ->expects($this->once())

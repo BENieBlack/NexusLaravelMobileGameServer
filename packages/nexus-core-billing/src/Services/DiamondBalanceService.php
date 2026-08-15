@@ -40,9 +40,9 @@ class DiamondBalanceService
      */
     public function findBalance(int $sysPlayerId, string $platform): array
     {
-        $diamondDto = $this->diamondRepository->selectByPlatform($sysPlayerId, $platform);
+        $diamond = $this->diamondRepository->selectByPlatform($sysPlayerId, $platform);
         
-        if ($diamondDto === null) {
+        if ($diamond === null) {
             return [
                 'paid_amount' => 0,
                 'free_amount' => 0,
@@ -51,9 +51,9 @@ class DiamondBalanceService
         }
         
         return [
-            'paid_amount' => $diamondDto->getPaidAmount(),
-            'free_amount' => $diamondDto->getFreeAmount(),
-            'total_amount' => $diamondDto->getTotalAmount(),
+            'paid_amount' => $diamond->getPaidAmount(),
+            'free_amount' => $diamond->getFreeAmount(),
+            'total_amount' => $diamond->getTotalAmount(),
         ];
     }
 
@@ -68,18 +68,18 @@ class DiamondBalanceService
      */
     public function addDiamond(int $sysPlayerId, string $platform, int $amount, bool $isPaid = false): DiamondBalance
     {
-        $diamondDto = $this->diamondRepository->selectByPlatform($sysPlayerId, $platform);
+        $diamond = $this->diamondRepository->selectByPlatform($sysPlayerId, $platform);
 
-        if ($diamondDto) {
+        if ($diamond) {
             // 既存レコードがある場合は加算
             if ($isPaid) {
-                $diamondDto->setPaidAmount($diamondDto->getPaidAmount() + $amount);
+                $diamond->setPaidAmount($diamond->getPaidAmount() + $amount);
             } else {
-                $diamondDto->setFreeAmount($diamondDto->getFreeAmount() + $amount);
+                $diamond->setFreeAmount($diamond->getFreeAmount() + $amount);
             }
         } else {
             // 新規レコードを作成
-            $diamondDto = new DiamondBalance(
+            $diamond = new DiamondBalance(
                 sysPlayerId: $sysPlayerId,
                 platform: $platform,
                 paidAmount: $isPaid ? $amount : 0,
@@ -88,9 +88,9 @@ class DiamondBalanceService
         }
 
         // 保存
-        $this->diamondRepository->persistDiamond($diamondDto);
+        $this->diamondRepository->persistDiamond($diamond);
 
-        return $diamondDto;
+        return $diamond;
     }
 
     /**
@@ -170,15 +170,15 @@ class DiamondBalanceService
     {
         $remaining = $amount;
         
-        foreach ($diamondDtos as $diamondDto) {
+        foreach ($diamondDtos as $diamond) {
             if ($remaining <= 0) break;
 
-            $paidAmount = $diamondDto->getPaidAmount();
+            $paidAmount = $diamond->getPaidAmount();
             if ($paidAmount <= 0) continue;
 
             $consume = min($paidAmount, $remaining);
-            $diamondDto->setPaidAmount($paidAmount - $consume);
-            $this->diamondRepository->persistDiamond($diamondDto);
+            $diamond->setPaidAmount($paidAmount - $consume);
+            $this->diamondRepository->persistDiamond($diamond);
             $remaining -= $consume;
         }
     }
@@ -195,15 +195,15 @@ class DiamondBalanceService
         $remaining = $amount;
 
         // まず無償ダイヤから消費
-        foreach ($diamondDtos as $diamondDto) {
+        foreach ($diamondDtos as $diamond) {
             if ($remaining <= 0) break;
 
-            $freeAmount = $diamondDto->getFreeAmount();
+            $freeAmount = $diamond->getFreeAmount();
             if ($freeAmount <= 0) continue;
 
             $consume = min($freeAmount, $remaining);
-            $diamondDto->setFreeAmount($freeAmount - $consume);
-            $this->diamondRepository->persistDiamond($diamondDto);
+            $diamond->setFreeAmount($freeAmount - $consume);
+            $this->diamondRepository->persistDiamond($diamond);
             $remaining -= $consume;
         }
 

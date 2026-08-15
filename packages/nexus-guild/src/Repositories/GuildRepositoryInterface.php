@@ -44,35 +44,35 @@ interface GuildRepositoryInterface
     /**
      * ギルド情報を更新
      *
-     * @param  Guild  $guildDto  更新するギルド
+     * @param  Guild  $guild  更新するギルド
      * @param  array<string, mixed>  $data  更新データ
      * @return Guild 更新後のDTO
      */
-    public function update(Guild $guildDto, array $data): Guild;
+    public function update(Guild $guild, array $data): Guild;
 
     /**
      * ギルドを削除
      *
-     * @param  Guild  $guildDto  削除するギルド
+     * @param  Guild  $guild  削除するギルド
      */
-    public function delete(Guild $guildDto): void;
+    public function delete(Guild $guild): void;
 
     /**
      * ギルド経験値を追加
      *
-     * @param  Guild  $guildDto  対象ギルド
+     * @param  Guild  $guild  対象ギルド
      * @param  int  $exp  追加経験値
      * @return Guild 更新後のDTO
      */
-    public function addExp(Guild $guildDto, int $exp): Guild;
+    public function addExp(Guild $guild, int $exp): Guild;
 
     /**
      * ギルドレベルを更新
      *
-     * @param  Guild  $guildDto  対象ギルド
+     * @param  Guild  $guild  対象ギルド
      * @param  int  $level  新しいレベル
      * @param  int  $exp  新しい経験値
      * @return Guild 更新後のDTO
      */
-    public function updateLevel(Guild $guildDto, int $level, int $exp): Guild;
+    public function updateLevel(Guild $guild, int $level, int $exp): Guild;
 }

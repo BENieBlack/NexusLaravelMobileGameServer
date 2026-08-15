@@ -34,9 +34,9 @@ class ItemReadService
      */
     public function findItemAmount(int $sysPlayerId, string $mstItemId): int
     {
-        $itemDto = $this->itemRepository->selectItem($sysPlayerId, $mstItemId);
+        $item = $this->itemRepository->selectItem($sysPlayerId, $mstItemId);
 
-        return $itemDto ? $itemDto->getTotalAmount() : 0;
+        return $item ? $item->getTotalAmount() : 0;
     }
 
     /**
@@ -51,8 +51,8 @@ class ItemReadService
         $itemDtos = $this->itemRepository->selectItemsByIds($sysPlayerId, $mstItemIds);
 
         $amounts = [];
-        foreach ($itemDtos as $itemDto) {
-            $amounts[$itemDto->getMstItemId()] = $itemDto->getTotalAmount();
+        foreach ($itemDtos as $item) {
+            $amounts[$item->getMstItemId()] = $item->getTotalAmount();
         }
 
         // 存在しないアイテムは0を設定

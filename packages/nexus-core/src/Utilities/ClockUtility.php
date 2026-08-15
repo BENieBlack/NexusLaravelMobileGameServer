@@ -252,6 +252,60 @@ class ClockUtility
     }
 
     /**
+     * 指定日時が現在時刻より過去かどうか
+     *
+     * Y-m-d H:i:s は固定長のため、辞書順比較が時系列順比較と一致する。
+     * Carbonへのパースを挟まずに済むので、日時は文字列のまま扱う。
+     *
+     * @param string|null $dateTimeString Y-m-d H:i:s形式の日時文字列
+     * @return bool nullの場合はfalse
+     */
+    public static function isPast(?string $dateTimeString): bool
+    {
+        if ($dateTimeString === null) {
+            return false;
+        }
+
+        return $dateTimeString < self::nowToString();
+    }
+
+    /**
+     * 指定日時が現在時刻より未来かどうか
+     *
+     * @param string|null $dateTimeString Y-m-d H:i:s形式の日時文字列
+     * @return bool nullの場合はfalse
+     */
+    public static function isFuture(?string $dateTimeString): bool
+    {
+        if ($dateTimeString === null) {
+            return false;
+        }
+
+        return $dateTimeString > self::nowToString();
+    }
+
+    /**
+     * 現在時刻が指定期間内かどうか
+     *
+     * @param string|null $startAt 開始日時（nullなら下限なし）
+     * @param string|null $endAt 終了日時（nullなら上限なし）
+     */
+    public static function isWithin(?string $startAt, ?string $endAt): bool
+    {
+        $now = self::nowToString();
+
+        if ($startAt !== null && $now < $startAt) {
+            return false;
+        }
+
+        if ($endAt !== null && $now > $endAt) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * テスト用：時刻をリセットする
      */
     public static function reset(): void

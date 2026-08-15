@@ -41,7 +41,7 @@ class ListResponse extends _BaseResponse
                 'my_id' => $friendPlayer->my_id,
                 'name' => $friendPlayer->name,
                 'level' => $friendPlayer->level,
-                'created_at' => $sysFriendApply->created_at->toDateTimeString(),
+                'created_at' => $sysFriendApply->getCreatedAt(),
             ];
         })->toArray();
 

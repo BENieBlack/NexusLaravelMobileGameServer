@@ -2,7 +2,6 @@
 
 namespace App\Models\Trx;
 
-use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -123,15 +122,15 @@ class TrxInAppPurchase extends _BaseTrx
     /**
      * 購入回数リセット日時を取得
      */
-    public function getPurchaseCountResetAt(): ?CarbonImmutable
+    public function getPurchaseCountResetAt(): ?string
     {
-        return $this->getAttribute('purchase_count_reset_at');
+        return $this->getDateAttributeString('purchase_count_reset_at');
     }
 
     /**
      * 購入回数リセット日時を設定
      */
-    public function setPurchaseCountResetAt(?CarbonImmutable $purchaseCountResetAt): void
+    public function setPurchaseCountResetAt(?string $purchaseCountResetAt): void
     {
         $this->setAttribute('purchase_count_reset_at', $purchaseCountResetAt);
     }

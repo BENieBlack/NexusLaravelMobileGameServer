@@ -37,7 +37,7 @@ class WalletBalanceRepositoryAdapter implements WalletBalanceRepositoryInterface
                 'is_paid' => $balance->getIsPaid(),
                 'current_amount' => $balance->getCurrentAmount(),
                 'initial_amount' => $balance->getInitialAmount(),
-                'expire_at' => $balance->getExpireAt()?->format('Y-m-d H:i:s'),
+                'expire_at' => $balance->getExpireAt(),
             ];
         }
     }

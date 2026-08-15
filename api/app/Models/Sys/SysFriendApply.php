@@ -2,9 +2,7 @@
 
 namespace App\Models\Sys;
 
-use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * SysFriendApply Model
@@ -115,17 +113,17 @@ class SysFriendApply extends _BaseSys
     /**
      * 作成日時を取得
      */
-    public function getCreatedAt(): CarbonImmutable
+    public function getCreatedAt(): ?string
     {
-        return ClockUtility::parse((string) $this->created_at);
+        return $this->getDateAttributeString('created_at');
     }
 
     /**
      * 更新日時を取得
      */
-    public function getUpdatedAt(): CarbonImmutable
+    public function getUpdatedAt(): ?string
     {
-        return ClockUtility::parse((string) $this->updated_at);
+        return $this->getDateAttributeString('updated_at');
     }
 
     /**

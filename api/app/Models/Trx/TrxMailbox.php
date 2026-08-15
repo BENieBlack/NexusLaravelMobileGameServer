@@ -4,8 +4,8 @@ namespace App\Models\Trx;
 
 use App\Models\Mst\MstMailbox;
 use Carbon\Carbon;
-use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * TrxMailbox Model
@@ -157,25 +157,25 @@ class TrxMailbox extends _BaseTrx
      *
      * DB取得時はstringで保持しているためCarbonImmutableに変換して返す
      */
-    public function getExpiresAt(): ?CarbonImmutable
+    public function getExpiresAt(): ?string
     {
-        return $this->getDateAttribute('expires_at');
+        return $this->getDateAttributeString('expires_at');
     }
 
     /**
      * 既読日時を取得
      */
-    public function getReadAt(): ?CarbonImmutable
+    public function getReadAt(): ?string
     {
-        return $this->getDateAttribute('read_at');
+        return $this->getDateAttributeString('read_at');
     }
 
     /**
      * 受取日時を取得
      */
-    public function getReceivedAt(): ?CarbonImmutable
+    public function getReceivedAt(): ?string
     {
-        return $this->getDateAttribute('received_at');
+        return $this->getDateAttributeString('received_at');
     }
 
     /**
@@ -199,9 +199,7 @@ class TrxMailbox extends _BaseTrx
      */
     public function isExpired(): bool
     {
-        $expiresAt = $this->getExpiresAt();
-
-        return $expiresAt !== null && $expiresAt->isPast();
+        return ClockUtility::isPast($this->getExpiresAt());
     }
 
     /**

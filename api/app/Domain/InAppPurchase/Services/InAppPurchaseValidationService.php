@@ -85,13 +85,13 @@ class InAppPurchaseValidationService
      * リセットが必要な場合の新しいリセット日時を取得
      *
      * @param  string  $resetType  リセット種別（None, Daily, Weekly, Monthly）
-     * @param  \DateTimeInterface|null  $lastResetAt  最終リセット日時
-     * @return \DateTimeInterface|null 新しいリセット日時（リセット不要ならnull）
+     * @param  string|null  $lastResetAt  最終リセット日時（Y-m-d H:i:s）
+     * @return string|null 新しいリセット日時（リセット不要ならnull）
      */
     public function getNewResetDateIfNeeded(
         string $resetType,
-        ?\DateTimeInterface $lastResetAt
-    ): ?\DateTimeInterface {
+        ?string $lastResetAt
+    ): ?string {
         return $this->limitValidator->getNewResetDateIfNeeded($resetType, $lastResetAt);
     }
 

@@ -5,7 +5,7 @@ namespace App\Repositories\Trx;
 use App\Models\Trx\TrxStamina;
 use App\Persistence\ApiSession;
 use Illuminate\Support\Collection;
-use Illuminate\Support\CustomCollection;
+use Nexus\Core\Support\CustomCollection;
 
 /**
  * TrxStaminaRepository

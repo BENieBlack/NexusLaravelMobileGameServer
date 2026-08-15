@@ -9,6 +9,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * SysShardingNode Model
  *
  * シャーディングノード（各データベースインスタンス）を管理するモデル
+ *
+ * @property int $current_player_count
+ * @property bool $is_readable
+ * @property bool $is_writable
+ * @property int $max_connections
+ * @property bool $node_no
+ * @property string $status
  */
 class SysShardingNode extends _BaseSys
 {

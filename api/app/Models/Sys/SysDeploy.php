@@ -10,6 +10,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * デプロイ管理テーブル
  * マスターデータとアセットデータの配信バージョンを管理
+ *
+ * @property int $deploy_key
+ * @property bool $is_active
+ * @property ?string $start_at
+ * @property int $sys_deploy_asset_id
+ * @property int $sys_deploy_master_id
  */
 class SysDeploy extends _BaseSys
 {

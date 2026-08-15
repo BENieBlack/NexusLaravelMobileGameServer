@@ -55,4 +55,20 @@ interface LoginBonusRepositoryInterface
         int $validDays,
         string $connectionName
     ): bool;
+
+    /**
+     * 有効な通常ログインボーナスを取得
+     *
+     * @return array|null ログインボーナス設定
+     */
+    public function selectActiveDailyBonus(): ?array;
+
+    /**
+     * ログインボーナスIDと日数でコンテンツを取得
+     *
+     * @param string $loginBonusId ログインボーナスID
+     * @param int $day 日数
+     * @return array コンテンツの配列
+     */
+    public function selectContentsByLoginBonusIdAndDay(string $loginBonusId, int $day): array;
 }

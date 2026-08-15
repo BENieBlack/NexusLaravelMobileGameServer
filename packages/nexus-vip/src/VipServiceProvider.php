@@ -3,12 +3,10 @@
 namespace NexusVip;
 
 use Illuminate\Support\ServiceProvider;
-use NexusVip\Contracts\CurrencyConverterInterface;
 use NexusVip\Repositories\PlayerVipRepositoryInterface;
 use NexusVip\Repositories\VipLevelRepositoryInterface;
 use NexusVip\Repositories\VipLevelRewardRepositoryInterface;
 use NexusVip\Repositories\VipPointLogRepositoryInterface;
-use NexusVip\Services\CurrencyConverter;
 use NexusVip\Services\VipBenefitService;
 use NexusVip\Services\VipLevelService;
 use NexusVip\Services\VipPointService;
@@ -48,8 +46,6 @@ class VipServiceProvider extends ServiceProvider
         // Note: Repository実装クラスは api/app/Repositories に配置されるため、
         // ここではインターフェースのみ定義し、実装は AppServiceProvider でバインドする
 
-        // 通貨換算サービス
-        $this->app->singleton(CurrencyConverterInterface::class, CurrencyConverter::class);
 
         // VIPレベルサービス
         $this->app->singleton(VipLevelService::class, function ($app) {

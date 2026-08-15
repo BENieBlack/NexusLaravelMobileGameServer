@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\GameException;
 use App\Exceptions\InfraErrorCode;
-use App\Responses\_BaseResponseInterface;
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Http\JsonResponse;
 use Nexus\Core\ValueObjects\ErrorResponse;
@@ -29,11 +28,6 @@ abstract class _BaseController
                 return $response->toResponse(request());
             }
 
-            // レスポンスが_BaseResponseInterfaceを実装している場合
-            if ($response instanceof _BaseResponseInterface) {
-                return $response->toJsonResponse();
-            }
-
             // JsonResponseが直接返された場合
             if ($response instanceof JsonResponse) {
                 return $response;
@@ -44,7 +38,8 @@ abstract class _BaseController
                 return response()->json($response);
             }
 
-            // それ以外の場合はそのまま返す
+            // _BaseResponse を含むそれ以外はdataでラップして返す
+            // （JsonSerializableとしてtoArray()相当の内容がシリアライズされる）
             return response()->json(['data' => $response]);
 
         } catch (Throwable $e) {

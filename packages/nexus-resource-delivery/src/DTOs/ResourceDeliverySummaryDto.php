@@ -6,14 +6,14 @@ use Nexus\Core\Support\CustomCollection;
 use NexusResourceDelivery\Enums\ResourceDeliveryResultReason;
 
 /**
- * ResourceDeliverySummary
+ * ResourceDeliverySummaryDto
  *
  * リソース配送結果についてまとめるDTO
  */
 class ResourceDeliverySummaryDto
 {
     /**
-     * @var CustomCollection<ResourceDeliveryContent>
+     * @var CustomCollection<ResourceDeliveryContentDto>
      */
     private CustomCollection $contents;
 
@@ -25,7 +25,7 @@ class ResourceDeliverySummaryDto
     /**
      * 配送済みコンテンツのリストを取得
      *
-     * @return CustomCollection<ResourceDeliveryContent>
+     * @return CustomCollection<ResourceDeliveryContentDto>
      */
     public function getContents(): CustomCollection
     {

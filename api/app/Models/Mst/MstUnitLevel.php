@@ -38,6 +38,8 @@ use Illuminate\Database\Eloquent\Builder;
  *     // レベルアップ可能 (250 < 300 なので、この例ではまだ不可)
  * }
  * ```
+ *
+ * @property int $required_exp
  */
 class MstUnitLevel extends _BaseMst
 {

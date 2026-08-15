@@ -38,6 +38,9 @@ use Illuminate\Database\Eloquent\Collection;
  *     // レベルアップ可能 (100 < 141 なので、この例ではまだ不可)
  * }
  * ```
+ *
+ * @property int $max_stamina
+ * @property int $required_exp
  */
 class MstPlayerLevel extends _BaseMst
 {

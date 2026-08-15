@@ -4,6 +4,10 @@ namespace App\Models\Mst;
 
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property ?int $price_amount_micros
+ * @property ?string $price_currency_code
+ */
 class MstBillingPlatformProduct extends _BaseMst
 {
     public $table = 'mst_billing_platform_product';

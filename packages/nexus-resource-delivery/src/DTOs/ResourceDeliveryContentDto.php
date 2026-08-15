@@ -9,7 +9,7 @@ use NexusResourceDelivery\Enums\ResourceDeliveryStatus;
 use Ramsey\Uuid\Uuid;
 
 /**
- * ResourceDeliveryContent
+ * ResourceDeliveryContentDto
  *
  * 配布リソースのデータ構造
  * ResourceをラップしてDelivery処理に必要な情報を付加
@@ -243,7 +243,7 @@ class ResourceDeliveryContentDto
     /**
      * 元のリソースを取得（変換前のリソース）
      */
-    public function getOriginalResource(): ?Resource
+    public function getOriginalResource(): ?ResourceDto
     {
         return $this->originalResource;
     }
@@ -281,11 +281,11 @@ class ResourceDeliveryContentDto
     }
 
     /**
-     * 配列からResourceDeliveryContentを生成
+     * 配列からResourceDeliveryContentDtoを生成
      */
     public static function fromArray(array $data): self
     {
-        $resource = Resource::fromArray($data);
+        $resource = ResourceDto::fromArray($data);
 
         return new self($resource);
     }

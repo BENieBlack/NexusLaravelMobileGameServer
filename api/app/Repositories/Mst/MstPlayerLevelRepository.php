@@ -86,8 +86,6 @@ class MstPlayerLevelRepository extends _BaseMstRepository
 
     /**
      * 全レベルデータを取得（レベル昇順）
-     *
-     * @return Collection
      */
     public function selectAll(): CustomCollection
     {

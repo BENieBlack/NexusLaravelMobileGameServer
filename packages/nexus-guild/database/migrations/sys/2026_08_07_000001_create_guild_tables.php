@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -21,8 +22,8 @@ return new class extends Migration
             $table->unsignedInteger('level')->default(1)->comment('ギルドレベル');
             $table->unsignedBigInteger('exp')->default(0)->comment('ギルド経験値');
             $table->unsignedInteger('max_members')->default(30)->comment('最大メンバー数');
-            $table->dateTime('created_at')->nullable()->comment('作成日時');
-            $table->dateTime('updated_at')->nullable()->comment('更新日時');
+            $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
+            $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
 
             // インデックス
             $table->index('name');
@@ -38,8 +39,8 @@ return new class extends Migration
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
             $table->enum('role', ['master', 'sub_master', 'member'])->default('member')->comment('役職');
             $table->dateTime('joined_at')->comment('加入日時');
-            $table->dateTime('created_at')->nullable()->comment('作成日時');
-            $table->dateTime('updated_at')->nullable()->comment('更新日時');
+            $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
+            $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
 
             // インデックス
             $table->unique(['sys_guild_id', 'sys_player_id']);
@@ -56,8 +57,8 @@ return new class extends Migration
             $table->unsignedBigInteger('sys_guild_id')->comment('sys_guildテーブルのID');
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
             $table->enum('status', ['applied', 'accepted', 'rejected'])->default('applied')->comment('ステータス');
-            $table->dateTime('created_at')->nullable()->comment('作成日時');
-            $table->dateTime('updated_at')->nullable()->comment('更新日時');
+            $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
+            $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
 
             // インデックス
             $table->index('sys_guild_id');

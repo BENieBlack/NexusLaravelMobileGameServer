@@ -70,12 +70,16 @@ class BatchExecutor
                 // モデルにexists = trueとIDを設定し、afterSaveフックを呼び出す
                 foreach ($models as $index => $model) {
                     $model->exists = true;
-                    
+
                     // auto-incrementのIDを設定（複数レコードの場合は連番）
                     if ($firstId && $model->getIncrementing()) {
                         $model->setAttribute($model->getKeyName(), $firstId + $index);
                     }
-                    
+
+                    // created_at / updated_at はDB側のDEFAULT CURRENT_TIMESTAMPで
+                    // 採番されるため、INSERT後にモデルへ読み戻す
+                    $this->refreshTimestamps($model, $item['connection'], $table);
+
                     $originalState = $originalStates[$index] ?? [];
                     $repository->afterSave($model, $originalState);
                 }
@@ -83,6 +87,47 @@ class BatchExecutor
         }
     }
     
+    /**
+     * DB側で採番された created_at / updated_at をモデルへ読み戻す
+     *
+     * @param mixed $model
+     * @param string $connection
+     * @param string $table
+     * @return void
+     */
+    private function refreshTimestamps($model, string $connection, string $table): void
+    {
+        $key = $model->getKeyName();
+
+        // 複合主キーなど、単一キーで特定できないモデルは対象外
+        if (! is_string($key) || $key === '') {
+            return;
+        }
+
+        $id = $model->getAttribute($key);
+
+        if ($id === null) {
+            return;
+        }
+
+        $row = DB::connection($connection)
+            ->table($table)
+            ->where($key, $id)
+            ->first(['created_at', 'updated_at']);
+
+        if ($row === null) {
+            return;
+        }
+
+        foreach (['created_at', 'updated_at'] as $column) {
+            if (property_exists($row, $column)) {
+                $model->setAttribute($column, $row->{$column});
+            }
+        }
+
+        $model->syncOriginal();
+    }
+
     /**
      * UPDATE操作を実行
      *

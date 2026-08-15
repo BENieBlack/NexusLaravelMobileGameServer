@@ -9,7 +9,6 @@ use App\Models\Trx\TrxInAppPurchase;
 use App\Models\Trx\TrxUnit;
 use App\Repositories\Trx\TrxInAppPurchaseRepository;
 use App\Repositories\Trx\TrxUnitRepository;
-use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * InAppPurchasePackService
@@ -130,8 +129,6 @@ class InAppPurchasePackService
                 'mst_unit_id' => $mstUnitId,
                 'level' => 1,
                 'exp' => 0,
-                'created_at' => ClockUtility::now(),
-                'updated_at' => ClockUtility::now(),
             ]);
 
             $this->trxUnitRepository->setModel($unit);

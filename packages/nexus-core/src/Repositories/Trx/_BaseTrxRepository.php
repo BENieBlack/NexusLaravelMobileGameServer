@@ -176,9 +176,8 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
      */
     public function setModel($model): void
     {
-        // updated_atを自動設定
-        $now = ClockUtility::now();
-        $model->setAttribute('updated_at', $now);
+        // created_at / updated_at はテーブル定義の
+        // DEFAULT CURRENT_TIMESTAMP / ON UPDATE CURRENT_TIMESTAMP に任せる
 
         // ユニークキーを生成
         $uniqueKey = implode(':', array_map(fn($key) => $model->getAttribute($key), $this->getUniqueKeys()));

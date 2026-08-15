@@ -371,4 +371,32 @@ class TrxUnitRepositoryTest extends TestCase
         $this->assertNotNull($unitFromMemory);
         $this->assertEquals($trxUnit->id, $unitFromMemory->id);
     }
+
+    /**
+     * キューに積むだけでなく、フラッシュ後にDBへ反映されることを検証する
+     */
+    public function test_queued_insert_is_written_to_database_after_flush(): void
+    {
+        // Arrange
+        $trxUnit = new TrxUnit([
+            'sys_player_id' => 1,
+            'mst_unit_id' => 'unit_flush_001',
+            'grade' => 3,
+            'level' => 7,
+            'level_exp' => 42,
+        ]);
+        $trxUnit->exists = false;
+
+        // Act
+        $this->repository->setModel($trxUnit);
+        $this->flushQueue();
+
+        // Assert
+        $this->assertDatabaseHas('trx_unit', [
+            'sys_player_id' => 1,
+            'mst_unit_id' => 'unit_flush_001',
+            'grade' => 3,
+            'level' => 7,
+        ], 'trx1');
+    }
 }

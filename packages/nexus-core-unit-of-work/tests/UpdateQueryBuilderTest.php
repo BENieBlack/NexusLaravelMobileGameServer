@@ -1,8 +1,8 @@
 <?php
 
-namespace LaravelUnitOfWork\Tests;
+namespace NexusUnitOfWork\Tests;
 
-use LaravelUnitOfWork\Persistence\QueryManager\UpdateQueryBuilder;
+use NexusUnitOfWork\Persistence\QueryManager\UpdateQueryBuilder;
 use PHPUnit\Framework\TestCase;
 
 class UpdateQueryBuilderTest extends TestCase

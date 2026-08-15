@@ -3,13 +3,12 @@
 namespace NexusPitr\Tests\Unit;
 
 use NexusPitr\Dto\ChangeLogDto;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class ChangeLogDtoTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function constructor_sets_all_properties(): void
     {
         $systemAt = new \DateTime('2026-08-09 12:00:00');
@@ -41,9 +40,7 @@ class ChangeLogDtoTest extends TestCase
         $this->assertEquals(['trace1', 'trace2'], $dto->getStackTrace());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function constructor_accepts_null_optional_parameters(): void
     {
         $systemAt = new \DateTime('2026-08-09 12:00:00');
@@ -64,9 +61,7 @@ class ChangeLogDtoTest extends TestCase
         $this->assertNull($dto->getStackTrace());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function getters_return_correct_types(): void
     {
         $systemAt = new \DateTime('2026-08-09 12:00:00');
@@ -98,9 +93,7 @@ class ChangeLogDtoTest extends TestCase
         $this->assertNull($dto->getStackTrace());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function dto_is_readonly_and_immutable(): void
     {
         $systemAt = new \DateTime('2026-08-09 12:00:00');
@@ -124,9 +117,7 @@ class ChangeLogDtoTest extends TestCase
         $this->assertEquals(123, $dto->getSysPlayerId());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function handles_complex_primary_key(): void
     {
         $systemAt = new \DateTime('2026-08-09 12:00:00');
@@ -149,9 +140,7 @@ class ChangeLogDtoTest extends TestCase
         $this->assertEquals(2, $pk['sub_id']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function handles_large_data_arrays(): void
     {
         $systemAt = new \DateTime('2026-08-09 12:00:00');

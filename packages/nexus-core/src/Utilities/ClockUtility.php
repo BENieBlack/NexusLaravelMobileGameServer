@@ -112,7 +112,7 @@ class ClockUtility
     public static function diffInSeconds(string $dateTimeString): int
     {
         $targetTime = CarbonImmutable::parse($dateTimeString);
-        return self::now()->diffInSeconds($targetTime, false);
+        return (int) self::now()->diffInSeconds($targetTime, false);
     }
 
     /**
@@ -124,7 +124,7 @@ class ClockUtility
     public static function diffInMinutes(string $dateTimeString): int
     {
         $targetTime = CarbonImmutable::parse($dateTimeString);
-        return self::now()->diffInMinutes($targetTime, false);
+        return (int) self::now()->diffInMinutes($targetTime, false);
     }
 
     /**
@@ -136,7 +136,7 @@ class ClockUtility
     public static function diffInHours(string $dateTimeString): int
     {
         $targetTime = CarbonImmutable::parse($dateTimeString);
-        return self::now()->diffInHours($targetTime, false);
+        return (int) self::now()->diffInHours($targetTime, false);
     }
 
     /**
@@ -148,7 +148,7 @@ class ClockUtility
     public static function diffInDays(string $dateTimeString): int
     {
         $targetTime = CarbonImmutable::parse($dateTimeString);
-        return self::now()->diffInDays($targetTime, false);
+        return (int) self::now()->diffInDays($targetTime, false);
     }
 
     /**

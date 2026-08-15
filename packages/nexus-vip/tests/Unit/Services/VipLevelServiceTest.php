@@ -9,6 +9,7 @@ use NexusVip\Exceptions\VipLevelNotFoundException;
 use NexusVip\Models\MstVipLevel;
 use NexusVip\Repositories\VipLevelRepositoryInterface;
 use NexusVip\Services\VipLevelService;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -35,9 +36,9 @@ class VipLevelServiceTest extends TestCase
     }
 
     /**
-     * @test
      * 累積ポイントからVIPレベルを計算できる
      */
+    #[Test]
     public function 累積ポイントから_vi_pレベルを計算できる(): void
     {
         // Arrange
@@ -46,7 +47,7 @@ class VipLevelServiceTest extends TestCase
         $mockVipLevel->shouldReceive('getLevel')->andReturn(5);
 
         $this->vipLevelRepository
-            ->shouldReceive('findMaxLevelByPoints')
+            ->shouldReceive('selectMaxLevelByPoints')
             ->with($totalPoints)
             ->once()
             ->andReturn($mockVipLevel);
@@ -59,9 +60,9 @@ class VipLevelServiceTest extends TestCase
     }
 
     /**
-     * @test
      * 次のレベルまでの必要ポイントを取得できる
      */
+    #[Test]
     public function 次のレベルまでの必要ポイントを取得できる(): void
     {
         // Arrange
@@ -72,7 +73,7 @@ class VipLevelServiceTest extends TestCase
         $mockNextLevel->shouldReceive('getRequiredPoint')->andReturn(1000);
 
         $this->vipLevelRepository
-            ->shouldReceive('findByLevel')
+            ->shouldReceive('selectByLevel')
             ->with(4)
             ->once()
             ->andReturn($mockNextLevel);
@@ -85,9 +86,9 @@ class VipLevelServiceTest extends TestCase
     }
 
     /**
-     * @test
      * 最高レベルの場合はnullを返す
      */
+    #[Test]
     public function 最高レベルの場合はnullを返す(): void
     {
         // Arrange
@@ -95,7 +96,7 @@ class VipLevelServiceTest extends TestCase
         $currentPoint = 10000;
 
         $this->vipLevelRepository
-            ->shouldReceive('findByLevel')
+            ->shouldReceive('selectByLevel')
             ->with(11)
             ->once()
             ->andReturn(null);
@@ -108,9 +109,9 @@ class VipLevelServiceTest extends TestCase
     }
 
     /**
-     * @test
      * すでに次レベルのポイントに達している場合は0を返す
      */
+    #[Test]
     public function すでに次レベルのポイントに達している場合は0を返す(): void
     {
         // Arrange
@@ -121,7 +122,7 @@ class VipLevelServiceTest extends TestCase
         $mockNextLevel->shouldReceive('getRequiredPoint')->andReturn(1000);
 
         $this->vipLevelRepository
-            ->shouldReceive('findByLevel')
+            ->shouldReceive('selectByLevel')
             ->with(4)
             ->once()
             ->andReturn($mockNextLevel);
@@ -134,9 +135,9 @@ class VipLevelServiceTest extends TestCase
     }
 
     /**
-     * @test
      * VIPレベルの特典情報を取得できる
      */
+    #[Test]
     public function vi_pレベルの特典情報を取得できる(): void
     {
         // Arrange
@@ -149,7 +150,7 @@ class VipLevelServiceTest extends TestCase
         $mockVipLevel->shouldReceive('getGachaDiscountRate')->andReturn(0.05);
 
         $this->vipLevelRepository
-            ->shouldReceive('findByLevel')
+            ->shouldReceive('selectByLevel')
             ->with($level)
             ->once()
             ->andReturn($mockVipLevel);
@@ -166,16 +167,16 @@ class VipLevelServiceTest extends TestCase
     }
 
     /**
-     * @test
      * 存在しないVIPレベルの特典取得は例外が発生する
      */
+    #[Test]
     public function 存在しない_vi_pレベルの特典取得は例外が発生する(): void
     {
         // Arrange
         $level = 999;
 
         $this->vipLevelRepository
-            ->shouldReceive('findByLevel')
+            ->shouldReceive('selectByLevel')
             ->with($level)
             ->once()
             ->andReturn(null);
@@ -189,9 +190,9 @@ class VipLevelServiceTest extends TestCase
     }
 
     /**
-     * @test
      * VIPレベルマスターデータを取得できる
      */
+    #[Test]
     public function vi_pレベルマスターデータを取得できる(): void
     {
         // Arrange
@@ -199,7 +200,7 @@ class VipLevelServiceTest extends TestCase
         $mockVipLevel = Mockery::mock(MstVipLevel::class);
 
         $this->vipLevelRepository
-            ->shouldReceive('findByLevel')
+            ->shouldReceive('selectByLevel')
             ->with($level)
             ->once()
             ->andReturn($mockVipLevel);
@@ -212,16 +213,16 @@ class VipLevelServiceTest extends TestCase
     }
 
     /**
-     * @test
      * 存在しないVIPレベルマスターデータ取得は例外が発生する
      */
+    #[Test]
     public function 存在しない_vi_pレベルマスターデータ取得は例外が発生する(): void
     {
         // Arrange
         $level = 999;
 
         $this->vipLevelRepository
-            ->shouldReceive('findByLevel')
+            ->shouldReceive('selectByLevel')
             ->with($level)
             ->once()
             ->andReturn(null);
@@ -235,9 +236,9 @@ class VipLevelServiceTest extends TestCase
     }
 
     /**
-     * @test
      * 全VIPレベルのリストを取得できる
      */
+    #[Test]
     public function 全_vi_pレベルのリストを取得できる(): void
     {
         // Arrange
@@ -262,7 +263,7 @@ class VipLevelServiceTest extends TestCase
         $collection = new CustomCollection([$mockLevel1, $mockLevel2]);
 
         $this->vipLevelRepository
-            ->shouldReceive('findAllLevels')
+            ->shouldReceive('selectAllLevels')
             ->once()
             ->andReturn($collection);
 

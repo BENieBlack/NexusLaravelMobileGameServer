@@ -3,6 +3,7 @@
 namespace NexusStamina\Tests\Unit\Dto;
 
 use NexusStamina\Dto\StaminaDto;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -11,9 +12,9 @@ use PHPUnit\Framework\TestCase;
 class StaminaDtoTest extends TestCase
 {
     /**
-     * @test
      * DTOを正常に作成できる
      */
+    #[Test]
     public function dt_oを正常に作成できる(): void
     {
         // Act
@@ -34,9 +35,9 @@ class StaminaDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 現在スタミナを設定できる
      */
+    #[Test]
     public function 現在スタミナを設定できる(): void
     {
         // Arrange
@@ -56,9 +57,9 @@ class StaminaDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 回復速度倍率を設定できる
      */
+    #[Test]
     public function 回復速度倍率を設定できる(): void
     {
         // Arrange
@@ -78,9 +79,9 @@ class StaminaDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 最終回復時刻を設定できる
      */
+    #[Test]
     public function 最終回復時刻を設定できる(): void
     {
         // Arrange
@@ -100,9 +101,9 @@ class StaminaDtoTest extends TestCase
     }
 
     /**
-     * @test
      * スタミナが最大値に達しているかチェックできる（達している）
      */
+    #[Test]
     public function スタミナが最大値に達しているかチェックできる_達している(): void
     {
         // Arrange
@@ -120,9 +121,9 @@ class StaminaDtoTest extends TestCase
     }
 
     /**
-     * @test
      * スタミナが最大値に達しているかチェックできる（達していない）
      */
+    #[Test]
     public function スタミナが最大値に達しているかチェックできる_達していない(): void
     {
         // Arrange
@@ -139,9 +140,9 @@ class StaminaDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 十分なスタミナがあるかチェックできる（十分にある）
      */
+    #[Test]
     public function 十分なスタミナがあるかチェックできる_十分にある(): void
     {
         // Arrange
@@ -159,9 +160,9 @@ class StaminaDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 十分なスタミナがあるかチェックできる（不足）
      */
+    #[Test]
     public function 十分なスタミナがあるかチェックできる_不足(): void
     {
         // Arrange
@@ -179,9 +180,9 @@ class StaminaDtoTest extends TestCase
     }
 
     /**
-     * @test
      * ゼロスタミナで作成できる
      */
+    #[Test]
     public function ゼロスタミナで作成できる(): void
     {
         // Act
@@ -200,9 +201,9 @@ class StaminaDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 回復速度倍率が2倍の場合
      */
+    #[Test]
     public function 回復速度倍率が2倍の場合(): void
     {
         // Act

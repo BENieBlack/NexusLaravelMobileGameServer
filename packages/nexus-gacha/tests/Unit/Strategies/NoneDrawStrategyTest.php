@@ -68,14 +68,14 @@ class NoneDrawStrategyTest extends TestCase
         
         $this->prizeRepository
             ->expects($this->once())
-            ->method('findByGachaIdAndRarity')
+            ->method('selectByGachaIdAndRarity')
             ->with('gacha_001', 5, false)
             ->willReturn($prizes);
         
         // rarityRateRepositoryは呼ばれないはず
         $this->rarityRateRepository
             ->expects($this->never())
-            ->method('findByGachaId');
+            ->method('selectByGachaId');
         
         $result = $this->strategy->draw($bonus, null, 'gacha_001', $this->context);
         
@@ -99,7 +99,7 @@ class NoneDrawStrategyTest extends TestCase
         
         $this->rarityRateRepository
             ->expects($this->once())
-            ->method('findByGachaId')
+            ->method('selectByGachaId')
             ->with('gacha_001')
             ->willReturn($rarityRates);
         
@@ -110,7 +110,7 @@ class NoneDrawStrategyTest extends TestCase
         
         $this->prizeRepository
             ->expects($this->once())
-            ->method('findByGachaIdAndRarity')
+            ->method('selectByGachaIdAndRarity')
             ->with('gacha_001', $this->anything(), false)
             ->willReturn($prizes);
         
@@ -132,7 +132,7 @@ class NoneDrawStrategyTest extends TestCase
         
         $this->prizeRepository
             ->expects($this->once())
-            ->method('findByGachaIdAndRarity')
+            ->method('selectByGachaIdAndRarity')
             ->with('gacha_001', 5, true)
             ->willReturn($prizes);
         
@@ -150,7 +150,7 @@ class NoneDrawStrategyTest extends TestCase
         // 2回目: 通常景品
         $this->prizeRepository
             ->expects($this->exactly(2))
-            ->method('findByGachaIdAndRarity')
+            ->method('selectByGachaIdAndRarity')
             ->willReturnCallback(function ($gachaId, $rarity, $pickupOnly) {
                 if ($pickupOnly) {
                     return new CustomCollection([]); // ピックアップなし
@@ -176,7 +176,7 @@ class NoneDrawStrategyTest extends TestCase
         // 景品が存在しない
         $this->prizeRepository
             ->expects($this->once())
-            ->method('findByGachaIdAndRarity')
+            ->method('selectByGachaIdAndRarity')
             ->with('gacha_001', 5, false)
             ->willReturn(new CustomCollection([]));
         
@@ -196,7 +196,7 @@ class NoneDrawStrategyTest extends TestCase
         
         $this->rarityRateRepository
             ->expects($this->once())
-            ->method('findByGachaId')
+            ->method('selectByGachaId')
             ->with('gacha_001')
             ->willReturn($rarityRates);
         
@@ -207,7 +207,7 @@ class NoneDrawStrategyTest extends TestCase
         // レアリティ1で抽選されるはず
         $this->prizeRepository
             ->expects($this->once())
-            ->method('findByGachaIdAndRarity')
+            ->method('selectByGachaIdAndRarity')
             ->with('gacha_001', 1, false)
             ->willReturn($prizes);
         

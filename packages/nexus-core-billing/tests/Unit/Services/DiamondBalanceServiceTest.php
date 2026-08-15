@@ -5,6 +5,7 @@ namespace NexusBilling\Tests\Unit\Services;
 use NexusBilling\Services\DiamondBalanceService;
 use NexusBilling\Contracts\DiamondRepositoryInterface;
 use NexusBilling\DTOs\DiamondBalanceDto;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 
@@ -26,9 +27,7 @@ class DiamondBalanceServiceTest extends TestCase
         $this->diamondBalanceService = new DiamondBalanceService($this->mockRepository);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function 無償ダイヤを加算できる(): void
     {
         // Arrange
@@ -42,7 +41,7 @@ class DiamondBalanceServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findByPlatform')
+            ->method('selectByPlatform')
             ->with($sysPlayerId, $platform)
             ->willReturn($existingDto);
 
@@ -63,9 +62,7 @@ class DiamondBalanceServiceTest extends TestCase
         $this->assertSame($paidAmount, $result->getPaidAmount());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function 有償ダイヤを加算できる(): void
     {
         // Arrange
@@ -79,7 +76,7 @@ class DiamondBalanceServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findByPlatform')
+            ->method('selectByPlatform')
             ->with($sysPlayerId, $platform)
             ->willReturn($existingDto);
 
@@ -95,9 +92,7 @@ class DiamondBalanceServiceTest extends TestCase
         $this->assertSame($paidAmount + $addAmount, $result->getPaidAmount());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function 新規プレイヤーに無償ダイヤを加算できる(): void
     {
         // Arrange
@@ -107,7 +102,7 @@ class DiamondBalanceServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findByPlatform')
+            ->method('selectByPlatform')
             ->with($sysPlayerId, $platform)
             ->willReturn(null);
 
@@ -127,9 +122,7 @@ class DiamondBalanceServiceTest extends TestCase
         $this->assertSame(0, $result->getPaidAmount());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function 残高を取得できる(): void
     {
         // Arrange
@@ -142,7 +135,7 @@ class DiamondBalanceServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findByPlatform')
+            ->method('selectByPlatform')
             ->with($sysPlayerId, $platform)
             ->willReturn($existingDto);
 
@@ -156,9 +149,7 @@ class DiamondBalanceServiceTest extends TestCase
         $this->assertSame($paidAmount + $freeAmount, $result['total_amount']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function 存在しないプレイヤーの残高は0を返す(): void
     {
         // Arrange
@@ -167,7 +158,7 @@ class DiamondBalanceServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findByPlatform')
+            ->method('selectByPlatform')
             ->with($sysPlayerId, $platform)
             ->willReturn(null);
 
@@ -180,9 +171,7 @@ class DiamondBalanceServiceTest extends TestCase
         $this->assertSame(0, $result['total_amount']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function 無償ダイヤのみを消費できる(): void
     {
         // Arrange
@@ -196,7 +185,7 @@ class DiamondBalanceServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findAllByPlayerId')
+            ->method('selectAllByPlayerId')
             ->with($sysPlayerId)
             ->willReturn([$existingDto]);
 
@@ -212,9 +201,7 @@ class DiamondBalanceServiceTest extends TestCase
         $this->assertSame($paidAmount, $existingDto->getPaidAmount());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function 無償を使い切った後に有償を消費する(): void
     {
         // Arrange
@@ -228,7 +215,7 @@ class DiamondBalanceServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findAllByPlayerId')
+            ->method('selectAllByPlayerId')
             ->willReturn([$existingDto]);
 
         $this->mockRepository
@@ -243,9 +230,7 @@ class DiamondBalanceServiceTest extends TestCase
         $this->assertSame(700, $existingDto->getPaidAmount()); // 1000 - 300
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function 有償ダイヤのみを消費できる(): void
     {
         // Arrange
@@ -259,7 +244,7 @@ class DiamondBalanceServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findAllByPlayerId')
+            ->method('selectAllByPlayerId')
             ->with($sysPlayerId)
             ->willReturn([$existingDto]);
 
@@ -275,9 +260,7 @@ class DiamondBalanceServiceTest extends TestCase
         $this->assertSame($paidAmount - $consumeAmount, $existingDto->getPaidAmount());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function 無償優先消費で残高不足の場合は例外が発生する(): void
     {
         // Arrange
@@ -291,7 +274,7 @@ class DiamondBalanceServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findAllByPlayerId')
+            ->method('selectAllByPlayerId')
             ->with($sysPlayerId)
             ->willReturn([$existingDto]);
 
@@ -302,9 +285,7 @@ class DiamondBalanceServiceTest extends TestCase
         $this->diamondBalanceService->consumeDiamond($sysPlayerId, $consumeAmount, false);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function 有償ダイヤ消費で残高不足の場合は例外が発生する(): void
     {
         // Arrange
@@ -318,7 +299,7 @@ class DiamondBalanceServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findAllByPlayerId')
+            ->method('selectAllByPlayerId')
             ->with($sysPlayerId)
             ->willReturn([$existingDto]);
 
@@ -329,9 +310,7 @@ class DiamondBalanceServiceTest extends TestCase
         $this->diamondBalanceService->consumeDiamond($sysPlayerId, $consumeAmount, true);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function 新規プレイヤーに有償ダイヤを加算できる(): void
     {
         // Arrange
@@ -341,7 +320,7 @@ class DiamondBalanceServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findByPlatform')
+            ->method('selectByPlatform')
             ->with($sysPlayerId, $platform)
             ->willReturn(null);
 
@@ -361,9 +340,7 @@ class DiamondBalanceServiceTest extends TestCase
         $this->assertSame(0, $result->getFreeAmount());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function 複数プラットフォームにまたがる消費ができる(): void
     {
         // Arrange
@@ -377,7 +354,7 @@ class DiamondBalanceServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findAllByPlayerId')
+            ->method('selectAllByPlayerId')
             ->with($sysPlayerId)
             ->willReturn([$dtoApple, $dtoGoogle]);
 
@@ -395,9 +372,7 @@ class DiamondBalanceServiceTest extends TestCase
         $this->assertSame(100, $dtoGoogle->getPaidAmount()); // 300 - 200
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function プラットフォームが存在しない場合の消費で例外が発生する(): void
     {
         // Arrange
@@ -406,7 +381,7 @@ class DiamondBalanceServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findAllByPlayerId')
+            ->method('selectAllByPlayerId')
             ->with($sysPlayerId)
             ->willReturn([]); // プラットフォームが存在しない
 
@@ -417,9 +392,7 @@ class DiamondBalanceServiceTest extends TestCase
         $this->diamondBalanceService->consumeDiamond($sysPlayerId, $consumeAmount, false);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function 全て消費して残高がゼロになる(): void
     {
         // Arrange
@@ -433,7 +406,7 @@ class DiamondBalanceServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findAllByPlayerId')
+            ->method('selectAllByPlayerId')
             ->willReturn([$existingDto]);
 
         $this->mockRepository
@@ -448,9 +421,7 @@ class DiamondBalanceServiceTest extends TestCase
         $this->assertSame(0, $existingDto->getPaidAmount());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function 有償のみ消費して残高がゼロになる(): void
     {
         // Arrange
@@ -464,7 +435,7 @@ class DiamondBalanceServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findAllByPlayerId')
+            ->method('selectAllByPlayerId')
             ->willReturn([$existingDto]);
 
         $this->mockRepository
@@ -479,9 +450,7 @@ class DiamondBalanceServiceTest extends TestCase
         $this->assertSame(0, $existingDto->getPaidAmount());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function ゼロ加算しても既存残高は変わらない(): void
     {
         // Arrange
@@ -494,7 +463,7 @@ class DiamondBalanceServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findByPlatform')
+            ->method('selectByPlatform')
             ->willReturn($existingDto);
 
         $this->mockRepository
@@ -513,9 +482,7 @@ class DiamondBalanceServiceTest extends TestCase
         $this->assertSame($paidAmount, $result->getPaidAmount());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function 複数プラットフォームの有償ダイヤのみ消費(): void
     {
         // Arrange
@@ -529,7 +496,7 @@ class DiamondBalanceServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findAllByPlayerId')
+            ->method('selectAllByPlayerId')
             ->with($sysPlayerId)
             ->willReturn([$dtoApple, $dtoGoogle]);
 

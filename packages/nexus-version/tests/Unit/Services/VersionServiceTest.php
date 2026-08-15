@@ -48,11 +48,11 @@ class VersionServiceTest extends TestCase
             'is_active' => true,
         ];
 
-        $this->maintenanceRepository->shouldReceive('findCurrent')
+        $this->maintenanceRepository->shouldReceive('selectCurrent')
             ->once()
             ->andReturn(null);
 
-        $this->deployRepository->shouldReceive('findLatestDownloadable')
+        $this->deployRepository->shouldReceive('selectLatestDownloadable')
             ->once()
             ->andReturn($latestDeploy);
 
@@ -81,11 +81,11 @@ class VersionServiceTest extends TestCase
             'asset_hash' => 'asset_hash_002',
         ];
 
-        $this->maintenanceRepository->shouldReceive('findCurrent')
+        $this->maintenanceRepository->shouldReceive('selectCurrent')
             ->once()
             ->andReturn(null);
 
-        $this->deployRepository->shouldReceive('findLatestDownloadable')
+        $this->deployRepository->shouldReceive('selectLatestDownloadable')
             ->once()
             ->andReturn($latestDeploy);
 
@@ -112,11 +112,11 @@ class VersionServiceTest extends TestCase
             'is_active' => true,
         ];
 
-        $this->maintenanceRepository->shouldReceive('findCurrent')
+        $this->maintenanceRepository->shouldReceive('selectCurrent')
             ->once()
             ->andReturn(null);
 
-        $this->deployRepository->shouldReceive('findLatestDownloadable')
+        $this->deployRepository->shouldReceive('selectLatestDownloadable')
             ->once()
             ->andReturn($latestDeploy);
 
@@ -151,11 +151,11 @@ class VersionServiceTest extends TestCase
             'end_at' => '2026-01-15 14:00:00',
         ];
 
-        $this->maintenanceRepository->shouldReceive('findCurrent')
+        $this->maintenanceRepository->shouldReceive('selectCurrent')
             ->once()
             ->andReturn($maintenance);
 
-        $this->deployRepository->shouldReceive('findLatestDownloadable')
+        $this->deployRepository->shouldReceive('selectLatestDownloadable')
             ->once()
             ->andReturn($latestDeploy);
 
@@ -175,11 +175,11 @@ class VersionServiceTest extends TestCase
     public function test_check_version_throws_exception_when_no_deploy_exists(): void
     {
         // Arrange
-        $this->maintenanceRepository->shouldReceive('findCurrent')
+        $this->maintenanceRepository->shouldReceive('selectCurrent')
             ->once()
             ->andReturn(null);
 
-        $this->deployRepository->shouldReceive('findLatestDownloadable')
+        $this->deployRepository->shouldReceive('selectLatestDownloadable')
             ->once()
             ->andReturn(null);
 
@@ -213,11 +213,11 @@ class VersionServiceTest extends TestCase
             'end_at' => '2026-01-15 14:00:00',
         ];
 
-        $this->maintenanceRepository->shouldReceive('findCurrent')
+        $this->maintenanceRepository->shouldReceive('selectCurrent')
             ->once()
             ->andReturn($maintenance);
 
-        $this->deployRepository->shouldReceive('findLatestDownloadable')
+        $this->deployRepository->shouldReceive('selectLatestDownloadable')
             ->once()
             ->andReturn($latestDeploy);
 

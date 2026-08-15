@@ -126,4 +126,44 @@ class MaintenanceServiceTest extends TestCase
 
         $this->assertTrue($result);
     }
+
+    public function test_is_under_maintenance_returns_false_before_start_time(): void
+    {
+        ClockUtility::setNow('2024-01-15 12:00:00');
+
+        $sysMaintenance = new Maintenance(
+            isMaintenance: true,
+            startAt: '2024-01-15 13:00:00', // 1時間後
+            endAt: '2024-01-15 14:00:00',
+        );
+
+        $this->storage
+            ->expects($this->once())
+            ->method('get')
+            ->willReturn($sysMaintenance);
+
+        $this->assertFalse($this->service->isUnderMaintenance());
+
+        ClockUtility::reset();
+    }
+
+    public function test_is_under_maintenance_returns_false_after_end_time(): void
+    {
+        ClockUtility::setNow('2024-01-15 12:00:00');
+
+        $sysMaintenance = new Maintenance(
+            isMaintenance: true,
+            startAt: '2024-01-15 10:00:00', // 2時間前
+            endAt: '2024-01-15 11:00:00',   // 1時間前
+        );
+
+        $this->storage
+            ->expects($this->once())
+            ->method('get')
+            ->willReturn($sysMaintenance);
+
+        $this->assertFalse($this->service->isUnderMaintenance());
+
+        ClockUtility::reset();
+    }
 }

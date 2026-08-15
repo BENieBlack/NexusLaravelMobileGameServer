@@ -4,6 +4,7 @@ namespace NexusFriend\Tests\Unit\Dto;
 
 use DateTime;
 use NexusFriend\Dto\FriendApplyDto;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -12,9 +13,9 @@ use PHPUnit\Framework\TestCase;
 class FriendApplyDtoTest extends TestCase
 {
     /**
-     * @test
      * DTOを正常に作成できる
      */
+    #[Test]
     public function dt_oを正常に作成できる(): void
     {
         // Arrange
@@ -41,9 +42,9 @@ class FriendApplyDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 公開プロパティから直接アクセスできる
      */
+    #[Test]
     public function 公開プロパティから直接アクセスできる(): void
     {
         // Arrange
@@ -70,9 +71,9 @@ class FriendApplyDtoTest extends TestCase
     }
 
     /**
-     * @test
      * pendingステータスで作成できる
      */
+    #[Test]
     public function pendingステータスで作成できる(): void
     {
         // Act
@@ -90,9 +91,9 @@ class FriendApplyDtoTest extends TestCase
     }
 
     /**
-     * @test
      * acceptedステータスで作成できる
      */
+    #[Test]
     public function acceptedステータスで作成できる(): void
     {
         // Act
@@ -110,9 +111,9 @@ class FriendApplyDtoTest extends TestCase
     }
 
     /**
-     * @test
      * rejectedステータスで作成できる
      */
+    #[Test]
     public function rejectedステータスで作成できる(): void
     {
         // Act
@@ -130,9 +131,9 @@ class FriendApplyDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 作成日時と更新日時が同じでも作成できる
      */
+    #[Test]
     public function 作成日時と更新日時が同じでも作成できる(): void
     {
         // Arrange
@@ -155,9 +156,9 @@ class FriendApplyDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 更新日時が作成日時より後でも作成できる
      */
+    #[Test]
     public function 更新日時が作成日時より後でも作成できる(): void
     {
         // Arrange
@@ -179,9 +180,9 @@ class FriendApplyDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 同じプレイヤーID間の申請も作成できる
      */
+    #[Test]
     public function 同じプレイヤー_i_d間の申請も作成できる(): void
     {
         // Act
@@ -200,9 +201,9 @@ class FriendApplyDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 大きなIDでも作成できる
      */
+    #[Test]
     public function 大きな_i_dでも作成できる(): void
     {
         // Act
@@ -222,9 +223,9 @@ class FriendApplyDtoTest extends TestCase
     }
 
     /**
-     * @test
      * readonlyクラスのため変更不可
      */
+    #[Test]
     public function readonlyクラスのため変更不可(): void
     {
         // Arrange

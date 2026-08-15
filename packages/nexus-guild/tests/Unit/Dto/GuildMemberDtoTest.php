@@ -3,6 +3,7 @@
 namespace NexusGuild\Tests\Unit\Dto;
 
 use NexusGuild\Dto\GuildMemberDto;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -11,9 +12,9 @@ use PHPUnit\Framework\TestCase;
 class GuildMemberDtoTest extends TestCase
 {
     /**
-     * @test
      * DTOを正常に作成できる
      */
+    #[Test]
     public function dt_oを正常に作成できる(): void
     {
         // Act
@@ -38,9 +39,9 @@ class GuildMemberDtoTest extends TestCase
     }
 
     /**
-     * @test
      * toArray()で配列に変換できる
      */
+    #[Test]
     public function to_arrayで配列に変換できる(): void
     {
         // Arrange
@@ -69,9 +70,9 @@ class GuildMemberDtoTest extends TestCase
     }
 
     /**
-     * @test
      * memberロールで作成できる
      */
+    #[Test]
     public function memberロールで作成できる(): void
     {
         // Act
@@ -90,9 +91,9 @@ class GuildMemberDtoTest extends TestCase
     }
 
     /**
-     * @test
      * leaderロールで作成できる
      */
+    #[Test]
     public function leaderロールで作成できる(): void
     {
         // Act
@@ -111,9 +112,9 @@ class GuildMemberDtoTest extends TestCase
     }
 
     /**
-     * @test
      * officerロールで作成できる
      */
+    #[Test]
     public function officerロールで作成できる(): void
     {
         // Act
@@ -132,9 +133,9 @@ class GuildMemberDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 参加日時と作成日時が同じでも作成できる
      */
+    #[Test]
     public function 参加日時と作成日時が同じでも作成できる(): void
     {
         // Arrange
@@ -158,9 +159,9 @@ class GuildMemberDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 大きなIDでも作成できる
      */
+    #[Test]
     public function 大きな_i_dでも作成できる(): void
     {
         // Act
@@ -181,9 +182,9 @@ class GuildMemberDtoTest extends TestCase
     }
 
     /**
-     * @test
      * toArray()のキーがスネークケースである
      */
+    #[Test]
     public function to_arrayのキーがスネークケースである(): void
     {
         // Arrange

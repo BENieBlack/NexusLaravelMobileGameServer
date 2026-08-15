@@ -67,7 +67,7 @@ class RandomDrawStrategyTest extends TestCase
         // 空のCollectionを返す
         $this->bonusContentRepository
             ->expects($this->once())
-            ->method('findByBonusId')
+            ->method('selectByBonusId')
             ->with('bonus_001')
             ->willReturn(new CustomCollection([]));
         
@@ -87,7 +87,7 @@ class RandomDrawStrategyTest extends TestCase
         
         $this->bonusContentRepository
             ->expects($this->once())
-            ->method('findByBonusId')
+            ->method('selectByBonusId')
             ->with('bonus_001')
             ->willReturn($candidates);
         
@@ -112,7 +112,7 @@ class RandomDrawStrategyTest extends TestCase
         
         $this->bonusContentRepository
             ->expects($this->once())
-            ->method('findByBonusId')
+            ->method('selectByBonusId')
             ->with('bonus_001')
             ->willReturn($candidates);
         

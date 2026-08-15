@@ -5,6 +5,7 @@ namespace NexusResourceDelivery\Tests\Unit\DTOs;
 use NexusResource\Enums\ResourceType;
 use NexusResourceDelivery\DTOs\ResourceDeliveryPolicyDto;
 use NexusResourceDelivery\Enums\ResourceDeliveryMethod;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -13,9 +14,9 @@ use PHPUnit\Framework\TestCase;
 class ResourceDeliveryPolicyDtoTest extends TestCase
 {
     /**
-     * @test
      * デフォルトポリシーを作成できる
      */
+    #[Test]
     public function デフォルトポリシーを作成できる(): void
     {
         // Act
@@ -34,9 +35,9 @@ class ResourceDeliveryPolicyDtoTest extends TestCase
     }
 
     /**
-     * @test
      * エラー時例外を投げるポリシーを作成できる
      */
+    #[Test]
     public function エラー時例外を投げるポリシーを作成できる(): void
     {
         // Arrange
@@ -57,9 +58,9 @@ class ResourceDeliveryPolicyDtoTest extends TestCase
     }
 
     /**
-     * @test
      * リソースタイプで配送方法を取得できる
      */
+    #[Test]
     public function リソースタイプで配送方法を取得できる(): void
     {
         // Arrange
@@ -75,9 +76,9 @@ class ResourceDeliveryPolicyDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 未設定のリソースタイプはNONEを返す
      */
+    #[Test]
     public function 未設定のリソースタイプは_non_eを返す(): void
     {
         // Arrange
@@ -91,9 +92,9 @@ class ResourceDeliveryPolicyDtoTest extends TestCase
     }
 
     /**
-     * @test
      * setMethodで配送方法を設定できる
      */
+    #[Test]
     public function set_methodで配送方法を設定できる(): void
     {
         // Arrange
@@ -110,9 +111,9 @@ class ResourceDeliveryPolicyDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 例外が設定されていれば投げる
      */
+    #[Test]
     public function 例外が設定されていれば投げる(): void
     {
         // Arrange
@@ -128,9 +129,9 @@ class ResourceDeliveryPolicyDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 例外が設定されていなければ何もしない
      */
+    #[Test]
     public function 例外が設定されていなければ何もしない(): void
     {
         // Arrange
@@ -142,9 +143,9 @@ class ResourceDeliveryPolicyDtoTest extends TestCase
     }
 
     /**
-     * @test
      * エラー投げるリソースタイプを取得できる
      */
+    #[Test]
     public function エラー投げるリソースタイプを取得できる(): void
     {
         // Arrange
@@ -164,9 +165,9 @@ class ResourceDeliveryPolicyDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 文字列でリソースタイプを指定できる
      */
+    #[Test]
     public function 文字列でリソースタイプを指定できる(): void
     {
         // Arrange
@@ -182,9 +183,9 @@ class ResourceDeliveryPolicyDtoTest extends TestCase
     }
 
     /**
-     * @test
      * setMethodで文字列を使って設定できる
      */
+    #[Test]
     public function set_methodで文字列を使って設定できる(): void
     {
         // Arrange

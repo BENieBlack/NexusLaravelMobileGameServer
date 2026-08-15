@@ -4,6 +4,7 @@ namespace NexusResourceDelivery\Tests\Unit\DTOs;
 
 use Nexus\Core\Support\CustomCollection;
 use NexusResourceDelivery\DTOs\ResourceDeliveryCompleteDto;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -12,9 +13,9 @@ use PHPUnit\Framework\TestCase;
 class ResourceDeliveryCompleteDtoTest extends TestCase
 {
     /**
-     * @test
      * DTOを正常に作成できる
      */
+    #[Test]
     public function dt_oを正常に作成できる(): void
     {
         // Arrange
@@ -29,9 +30,9 @@ class ResourceDeliveryCompleteDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 空のコレクションで作成できる
      */
+    #[Test]
     public function 空のコレクションで作成できる(): void
     {
         // Arrange
@@ -46,9 +47,9 @@ class ResourceDeliveryCompleteDtoTest extends TestCase
     }
 
     /**
-     * @test
      * コンテンツを含むコレクションで作成できる
      */
+    #[Test]
     public function コンテンツを含むコレクションで作成できる(): void
     {
         // Arrange
@@ -64,9 +65,9 @@ class ResourceDeliveryCompleteDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 複数のコンテンツを含むコレクションで作成できる
      */
+    #[Test]
     public function 複数のコンテンツを含むコレクションで作成できる(): void
     {
         // Arrange
@@ -83,9 +84,9 @@ class ResourceDeliveryCompleteDtoTest extends TestCase
     }
 
     /**
-     * @test
      * getContentsで同じインスタンスを返す
      */
+    #[Test]
     public function get_contentsで同じインスタンスを返す(): void
     {
         // Arrange

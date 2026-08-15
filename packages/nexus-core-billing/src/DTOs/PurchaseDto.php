@@ -26,6 +26,39 @@ class PurchaseDto
         public ?string $currency = null,         // 通貨コード（USD, JPY等）
     ) {}
 
+    public function getPlayerId(): int
+    {
+        return $this->playerId;
+    }
+
+    public function getBillingPlatform(): string
+    {
+        return $this->billingPlatform;
+    }
+
+    public function getProductId(): string
+    {
+        return $this->productId;
+    }
+
+    public function getTransactionId(): string
+    {
+        return $this->transactionId;
+    }
+
+    public function getQuantity(): int
+    {
+        return $this->quantity;
+    }
+
+    /**
+     * 購入日時（Y-m-d H:i:s）
+     */
+    public function getPurchaseDate(): string
+    {
+        return $this->purchaseDate;
+    }
+
     /**
      * 配列に変換
      */

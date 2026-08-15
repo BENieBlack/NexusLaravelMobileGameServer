@@ -3,6 +3,7 @@
 namespace NexusFriend\Tests\Unit\Dto;
 
 use NexusFriend\Dto\FriendDto;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -11,9 +12,9 @@ use PHPUnit\Framework\TestCase;
 class FriendDtoTest extends TestCase
 {
     /**
-     * @test
      * DTOを正常に作成できる
      */
+    #[Test]
     public function dt_oを正常に作成できる(): void
     {
         // Act
@@ -32,9 +33,9 @@ class FriendDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 公開プロパティから直接アクセスできる
      */
+    #[Test]
     public function 公開プロパティから直接アクセスできる(): void
     {
         // Act
@@ -53,9 +54,9 @@ class FriendDtoTest extends TestCase
     }
 
     /**
-     * @test
      * レベル1で作成できる
      */
+    #[Test]
     public function レベル1で作成できる(): void
     {
         // Act
@@ -71,9 +72,9 @@ class FriendDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 高レベルプレイヤーで作成できる
      */
+    #[Test]
     public function 高レベルプレイヤーで作成できる(): void
     {
         // Act
@@ -89,9 +90,9 @@ class FriendDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 長い名前を保持できる
      */
+    #[Test]
     public function 長い名前を保持できる(): void
     {
         // Arrange
@@ -111,9 +112,9 @@ class FriendDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 特殊文字を含む名前を保持できる
      */
+    #[Test]
     public function 特殊文字を含む名前を保持できる(): void
     {
         // Arrange
@@ -132,9 +133,9 @@ class FriendDtoTest extends TestCase
     }
 
     /**
-     * @test
      * マイIDが長い文字列でも保持できる
      */
+    #[Test]
     public function マイ_i_dが長い文字列でも保持できる(): void
     {
         // Arrange
@@ -153,9 +154,9 @@ class FriendDtoTest extends TestCase
     }
 
     /**
-     * @test
      * readonlyクラスのため変更不可
      */
+    #[Test]
     public function readonlyクラスのため変更不可(): void
     {
         // Arrange

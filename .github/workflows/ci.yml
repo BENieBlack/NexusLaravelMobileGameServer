@@ -160,6 +160,8 @@ jobs:
         working-directory: api
         run: php artisan key:generate
 
-      - name: テスト
+      # phpunit.xml の Unit / Feature / Packages を全て実行する
+      # （Packages は ../packages/*/tests を対象にしている）
+      - name: テスト（api + packages）
         working-directory: api
         run: php artisan test

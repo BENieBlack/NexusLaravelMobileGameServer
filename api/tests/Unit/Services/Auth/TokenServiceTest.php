@@ -207,6 +207,29 @@ class TokenServiceTest extends TestCase
     }
 
     /**
+     * Test validateAccessToken returns null for expired token
+     */
+    public function test_validate_access_token_returns_null_for_expired_token(): void
+    {
+        // Arrange: 有効期限が過ぎたトークンを発行するサービス
+        $expiredService = new TokenService(
+            $this->tokenRepository,
+            config('app.key'),
+            -1, // 発行時点で期限切れ
+            30
+        );
+
+        [$sysPlayer, $sysPlayerDevice] = $this->createPlayerAndDevice();
+        $accessToken = $expiredService->generateAccessToken($sysPlayer, $sysPlayerDevice);
+
+        // Act
+        $payload = $expiredService->validateAccessToken($accessToken);
+
+        // Assert
+        $this->assertNull($payload);
+    }
+
+    /**
      * Test validateRefreshToken returns token for valid refresh token
      */
     public function test_validate_refresh_token_succeeds_for_valid_token(): void

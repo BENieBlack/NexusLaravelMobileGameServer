@@ -7,6 +7,7 @@ use NexusVip\ValueObjects\VipBenefit;
 use NexusVip\Services\VipBenefitService;
 use NexusVip\Services\VipLevelService;
 use NexusVip\ValueObjects\VipConfig;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -46,9 +47,9 @@ class VipBenefitServiceTest extends TestCase
     }
 
     /**
-     * @test
      * スタミナ上限にVIPボーナスを適用できる
      */
+    #[Test]
     public function スタミナ上限に_vi_pボーナスを適用できる(): void
     {
         // Arrange
@@ -76,9 +77,9 @@ class VipBenefitServiceTest extends TestCase
     }
 
     /**
-     * @test
      * スタミナボーナスが無効の場合は基本値を返す
      */
+    #[Test]
     public function スタミナボーナスが無効の場合は基本値を返す(): void
     {
         // Arrange
@@ -103,9 +104,9 @@ class VipBenefitServiceTest extends TestCase
     }
 
     /**
-     * @test
      * ショップ価格にVIP割引を適用できる
      */
+    #[Test]
     public function ショップ価格に_vi_p割引を適用できる(): void
     {
         // Arrange
@@ -133,9 +134,9 @@ class VipBenefitServiceTest extends TestCase
     }
 
     /**
-     * @test
      * ショップ割引後の価格は最低1
      */
+    #[Test]
     public function ショップ割引後の価格は最低1(): void
     {
         // Arrange
@@ -163,9 +164,9 @@ class VipBenefitServiceTest extends TestCase
     }
 
     /**
-     * @test
      * ショップ割引が無効の場合は基本価格を返す
      */
+    #[Test]
     public function ショップ割引が無効の場合は基本価格を返す(): void
     {
         // Arrange
@@ -190,9 +191,9 @@ class VipBenefitServiceTest extends TestCase
     }
 
     /**
-     * @test
      * ガチャ価格にVIP割引を適用できる
      */
+    #[Test]
     public function ガチャ価格に_vi_p割引を適用できる(): void
     {
         // Arrange
@@ -220,9 +221,9 @@ class VipBenefitServiceTest extends TestCase
     }
 
     /**
-     * @test
      * ガチャ割引後の価格は最低1
      */
+    #[Test]
     public function ガチャ割引後の価格は最低1(): void
     {
         // Arrange
@@ -250,9 +251,9 @@ class VipBenefitServiceTest extends TestCase
     }
 
     /**
-     * @test
      * ガチャ割引が無効の場合は基本価格を返す
      */
+    #[Test]
     public function ガチャ割引が無効の場合は基本価格を返す(): void
     {
         // Arrange
@@ -277,9 +278,9 @@ class VipBenefitServiceTest extends TestCase
     }
 
     /**
-     * @test
      * デイリーダイヤモンドボーナスを取得できる
      */
+    #[Test]
     public function デイリーダイヤモンドボーナスを取得できる(): void
     {
         // Arrange
@@ -306,9 +307,9 @@ class VipBenefitServiceTest extends TestCase
     }
 
     /**
-     * @test
      * デイリーダイヤモンドが無効の場合は0を返す
      */
+    #[Test]
     public function デイリーダイヤモンドが無効の場合は0を返す(): void
     {
         // Arrange
@@ -332,9 +333,9 @@ class VipBenefitServiceTest extends TestCase
     }
 
     /**
-     * @test
      * 汎用割引を適用できる
      */
+    #[Test]
     public function 汎用割引を適用できる(): void
     {
         // Arrange
@@ -349,9 +350,9 @@ class VipBenefitServiceTest extends TestCase
     }
 
     /**
-     * @test
      * 汎用割引後の価格は最低1
      */
+    #[Test]
     public function 汎用割引後の価格は最低1(): void
     {
         // Arrange

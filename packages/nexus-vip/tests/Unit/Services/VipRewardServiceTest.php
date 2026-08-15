@@ -8,6 +8,7 @@ use NexusVip\ValueObjects\VipReward;
 use NexusVip\Models\MstVipLevelReward;
 use NexusVip\Repositories\VipLevelRewardRepositoryInterface;
 use NexusVip\Services\VipRewardService;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -34,9 +35,9 @@ class VipRewardServiceTest extends TestCase
     }
 
     /**
-     * @test
      * VIPレベルに対応する報酬一覧を取得できる
      */
+    #[Test]
     public function vi_pレベルに対応する報酬一覧を取得できる(): void
     {
         // Arrange
@@ -61,7 +62,7 @@ class VipRewardServiceTest extends TestCase
         $collection = new CustomCollection([$mockReward1, $mockReward2]);
 
         $this->vipLevelRewardRepository
-            ->shouldReceive('findActiveByVipLevel')
+            ->shouldReceive('selectActiveByVipLevel')
             ->with($vipLevel)
             ->once()
             ->andReturn($collection);
@@ -81,9 +82,9 @@ class VipRewardServiceTest extends TestCase
     }
 
     /**
-     * @test
      * 報酬がない場合は空配列を返す
      */
+    #[Test]
     public function 報酬がない場合は空配列を返す(): void
     {
         // Arrange
@@ -91,7 +92,7 @@ class VipRewardServiceTest extends TestCase
         $collection = new CustomCollection([]);
 
         $this->vipLevelRewardRepository
-            ->shouldReceive('findActiveByVipLevel')
+            ->shouldReceive('selectActiveByVipLevel')
             ->with($vipLevel)
             ->once()
             ->andReturn($collection);
@@ -105,9 +106,9 @@ class VipRewardServiceTest extends TestCase
     }
 
     /**
-     * @test
      * 報酬があるかチェックできる（報酬あり）
      */
+    #[Test]
     public function 報酬があるかチェックできる_報酬あり(): void
     {
         // Arrange
@@ -117,7 +118,7 @@ class VipRewardServiceTest extends TestCase
         $collection = new CustomCollection([$mockReward]);
 
         $this->vipLevelRewardRepository
-            ->shouldReceive('findActiveByVipLevel')
+            ->shouldReceive('selectActiveByVipLevel')
             ->with($vipLevel)
             ->once()
             ->andReturn($collection);
@@ -130,9 +131,9 @@ class VipRewardServiceTest extends TestCase
     }
 
     /**
-     * @test
      * 報酬があるかチェックできる（報酬なし）
      */
+    #[Test]
     public function 報酬があるかチェックできる_報酬なし(): void
     {
         // Arrange
@@ -140,7 +141,7 @@ class VipRewardServiceTest extends TestCase
         $collection = new CustomCollection([]);
 
         $this->vipLevelRewardRepository
-            ->shouldReceive('findActiveByVipLevel')
+            ->shouldReceive('selectActiveByVipLevel')
             ->with($vipLevel)
             ->once()
             ->andReturn($collection);
@@ -153,9 +154,9 @@ class VipRewardServiceTest extends TestCase
     }
 
     /**
-     * @test
      * 報酬を配列形式で取得できる
      */
+    #[Test]
     public function 報酬を配列形式で取得できる(): void
     {
         // Arrange
@@ -172,7 +173,7 @@ class VipRewardServiceTest extends TestCase
         $collection = new CustomCollection([$mockReward]);
 
         $this->vipLevelRewardRepository
-            ->shouldReceive('findActiveByVipLevel')
+            ->shouldReceive('selectActiveByVipLevel')
             ->with($vipLevel)
             ->once()
             ->andReturn($collection);
@@ -195,9 +196,9 @@ class VipRewardServiceTest extends TestCase
     }
 
     /**
-     * @test
      * 報酬の総量が正しく計算される
      */
+    #[Test]
     public function 報酬の総量が正しく計算される(): void
     {
         // Arrange
@@ -214,7 +215,7 @@ class VipRewardServiceTest extends TestCase
         $collection = new CustomCollection([$mockReward]);
 
         $this->vipLevelRewardRepository
-            ->shouldReceive('findActiveByVipLevel')
+            ->shouldReceive('selectActiveByVipLevel')
             ->with($vipLevel)
             ->once()
             ->andReturn($collection);

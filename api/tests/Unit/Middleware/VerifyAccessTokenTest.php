@@ -1,13 +1,13 @@
 <?php
 
-namespace LaravelSecurityMiddleware\Tests;
+namespace Tests\Unit\Middleware;
 
-use LaravelSecurityMiddleware\Contracts\TokenValidatorInterface;
-use LaravelSecurityMiddleware\Contracts\PlayerSessionInterface;
-use LaravelSecurityMiddleware\Middleware\VerifyAccessToken;
 use Illuminate\Http\Request;
-use PHPUnit\Framework\TestCase;
 use Mockery;
+use NexusSecurity\Contracts\PlayerSessionInterface;
+use NexusSecurity\Contracts\TokenValidatorInterface;
+use NexusSecurity\Middleware\VerifyAccessToken;
+use Tests\TestCase;
 
 class VerifyAccessTokenTest extends TestCase
 {
@@ -17,13 +17,13 @@ class VerifyAccessTokenTest extends TestCase
         parent::tearDown();
     }
 
-    public function testMissingAuthorizationHeader()
+    public function test_missing_authorization_header()
     {
         $tokenValidator = Mockery::mock(TokenValidatorInterface::class);
         $middleware = new VerifyAccessToken($tokenValidator);
 
         $request = Request::create('/test', 'GET');
-        
+
         $response = $middleware->handle($request, function () {
             $this->fail('Next middleware should not be called');
         });
@@ -33,14 +33,14 @@ class VerifyAccessTokenTest extends TestCase
         $this->assertStringContainsString('Authorization header', $data['error']);
     }
 
-    public function testInvalidAuthorizationHeaderFormat()
+    public function test_invalid_authorization_header_format()
     {
         $tokenValidator = Mockery::mock(TokenValidatorInterface::class);
         $middleware = new VerifyAccessToken($tokenValidator);
 
         $request = Request::create('/test', 'GET');
         $request->headers->set('Authorization', 'InvalidFormat abc123');
-        
+
         $response = $middleware->handle($request, function () {
             $this->fail('Next middleware should not be called');
         });
@@ -50,7 +50,7 @@ class VerifyAccessTokenTest extends TestCase
         $this->assertStringContainsString('Authorization header', $data['error']);
     }
 
-    public function testInvalidToken()
+    public function test_invalid_token()
     {
         $tokenValidator = Mockery::mock(TokenValidatorInterface::class);
         $tokenValidator->shouldReceive('validateAccessToken')
@@ -62,7 +62,7 @@ class VerifyAccessTokenTest extends TestCase
 
         $request = Request::create('/test', 'GET');
         $request->headers->set('Authorization', 'Bearer invalid_token');
-        
+
         $response = $middleware->handle($request, function () {
             $this->fail('Next middleware should not be called');
         });
@@ -72,7 +72,7 @@ class VerifyAccessTokenTest extends TestCase
         $this->assertStringContainsString('Invalid or expired', $data['error']);
     }
 
-    public function testValidTokenWithoutPlayerSession()
+    public function test_valid_token_without_player_session()
     {
         $tokenValidator = Mockery::mock(TokenValidatorInterface::class);
         $tokenValidator->shouldReceive('validateAccessToken')
@@ -87,15 +87,15 @@ class VerifyAccessTokenTest extends TestCase
 
         $request = Request::create('/test', 'GET');
         $request->headers->set('Authorization', 'Bearer valid_token');
-        
+
         $nextCalled = false;
         $response = $middleware->handle($request, function ($req) use (&$nextCalled) {
             $nextCalled = true;
-            
+
             // リクエストにプレイヤー情報が追加されていることを確認
-            $this->assertEquals(12345, $req->input('authenticated_player_id'));
-            $this->assertEquals('test-uuid-123', $req->input('authenticated_uuid'));
-            
+            $this->assertEquals(12345, $req->attributes->get('authenticated_player_id'));
+            $this->assertEquals('test-uuid-123', $req->attributes->get('authenticated_uuid'));
+
             return response()->json(['success' => true]);
         });
 
@@ -103,7 +103,7 @@ class VerifyAccessTokenTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    public function testValidTokenWithPlayerSession()
+    public function test_valid_token_with_player_session()
     {
         $tokenValidator = Mockery::mock(TokenValidatorInterface::class);
         $tokenValidator->shouldReceive('validateAccessToken')
@@ -123,15 +123,15 @@ class VerifyAccessTokenTest extends TestCase
 
         $request = Request::create('/test', 'GET');
         $request->headers->set('Authorization', 'Bearer valid_token');
-        
+
         $nextCalled = false;
         $response = $middleware->handle($request, function ($req) use (&$nextCalled) {
             $nextCalled = true;
-            
+
             // リクエストにプレイヤー情報が追加されていることを確認
-            $this->assertEquals(67890, $req->input('authenticated_player_id'));
-            $this->assertEquals('test-uuid-456', $req->input('authenticated_uuid'));
-            
+            $this->assertEquals(67890, $req->attributes->get('authenticated_player_id'));
+            $this->assertEquals('test-uuid-456', $req->attributes->get('authenticated_uuid'));
+
             return response()->json(['success' => true]);
         });
 
@@ -139,7 +139,7 @@ class VerifyAccessTokenTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    public function testValidTokenWithoutUuid()
+    public function test_valid_token_without_uuid()
     {
         $tokenValidator = Mockery::mock(TokenValidatorInterface::class);
         $tokenValidator->shouldReceive('validateAccessToken')
@@ -153,15 +153,15 @@ class VerifyAccessTokenTest extends TestCase
 
         $request = Request::create('/test', 'GET');
         $request->headers->set('Authorization', 'Bearer valid_token_no_uuid');
-        
+
         $nextCalled = false;
         $response = $middleware->handle($request, function ($req) use (&$nextCalled) {
             $nextCalled = true;
-            
+
             // UUIDがnullでもエラーにならないことを確認
-            $this->assertEquals(99999, $req->input('authenticated_player_id'));
-            $this->assertNull($req->input('authenticated_uuid'));
-            
+            $this->assertEquals(99999, $req->attributes->get('authenticated_player_id'));
+            $this->assertNull($req->attributes->get('authenticated_uuid'));
+
             return response()->json(['success' => true]);
         });
 

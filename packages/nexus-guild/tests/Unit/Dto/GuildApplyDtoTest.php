@@ -3,6 +3,7 @@
 namespace NexusGuild\Tests\Unit\Dto;
 
 use NexusGuild\Dto\GuildApplyDto;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -11,9 +12,9 @@ use PHPUnit\Framework\TestCase;
 class GuildApplyDtoTest extends TestCase
 {
     /**
-     * @test
      * DTOを正常に作成できる
      */
+    #[Test]
     public function dt_oを正常に作成できる(): void
     {
         // Act
@@ -36,9 +37,9 @@ class GuildApplyDtoTest extends TestCase
     }
 
     /**
-     * @test
      * toArray()で配列に変換できる
      */
+    #[Test]
     public function to_arrayで配列に変換できる(): void
     {
         // Arrange
@@ -65,9 +66,9 @@ class GuildApplyDtoTest extends TestCase
     }
 
     /**
-     * @test
      * pendingステータスで作成できる
      */
+    #[Test]
     public function pendingステータスで作成できる(): void
     {
         // Act
@@ -85,9 +86,9 @@ class GuildApplyDtoTest extends TestCase
     }
 
     /**
-     * @test
      * approvedステータスで作成できる
      */
+    #[Test]
     public function approvedステータスで作成できる(): void
     {
         // Act
@@ -105,9 +106,9 @@ class GuildApplyDtoTest extends TestCase
     }
 
     /**
-     * @test
      * rejectedステータスで作成できる
      */
+    #[Test]
     public function rejectedステータスで作成できる(): void
     {
         // Act
@@ -125,9 +126,9 @@ class GuildApplyDtoTest extends TestCase
     }
 
     /**
-     * @test
      * cancelledステータスで作成できる
      */
+    #[Test]
     public function cancelledステータスで作成できる(): void
     {
         // Act
@@ -145,9 +146,9 @@ class GuildApplyDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 作成日時と更新日時が同じでも作成できる
      */
+    #[Test]
     public function 作成日時と更新日時が同じでも作成できる(): void
     {
         // Arrange
@@ -170,9 +171,9 @@ class GuildApplyDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 大きなIDでも作成できる
      */
+    #[Test]
     public function 大きな_i_dでも作成できる(): void
     {
         // Act
@@ -192,9 +193,9 @@ class GuildApplyDtoTest extends TestCase
     }
 
     /**
-     * @test
      * toArray()のキーがスネークケースである
      */
+    #[Test]
     public function to_arrayのキーがスネークケースである(): void
     {
         // Arrange

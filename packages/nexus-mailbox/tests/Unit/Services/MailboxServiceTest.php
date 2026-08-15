@@ -32,7 +32,7 @@ class MailboxServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findByPlayerId')
+            ->method('selectByPlayerId')
             ->with($sysPlayerId, null, null, false, false)
             ->willReturn($expectedCollection);
 
@@ -49,7 +49,7 @@ class MailboxServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findByPlayerId')
+            ->method('selectByPlayerId')
             ->with($sysPlayerId, $category, null, false, false)
             ->willReturn($expectedCollection);
 
@@ -81,7 +81,7 @@ class MailboxServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findById')
+            ->method('selectById')
             ->with($mailboxId)
             ->willReturn(null);
 
@@ -109,7 +109,7 @@ class MailboxServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findById')
+            ->method('selectById')
             ->with($mailboxId)
             ->willReturn($mailbox);
 
@@ -136,7 +136,7 @@ class MailboxServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findById')
+            ->method('selectById')
             ->with($mailboxId)
             ->willReturn($mailbox);
 
@@ -163,7 +163,7 @@ class MailboxServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findById')
+            ->method('selectById')
             ->with($mailboxId)
             ->willReturn($mailbox);
 
@@ -186,7 +186,7 @@ class MailboxServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findById')
+            ->method('selectById')
             ->with($mailboxId)
             ->willReturn(null);
 
@@ -213,7 +213,7 @@ class MailboxServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findById')
+            ->method('selectById')
             ->with($mailboxId)
             ->willReturn($mailbox);
 
@@ -239,7 +239,7 @@ class MailboxServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findById')
+            ->method('selectById')
             ->with($mailboxId)
             ->willReturn(null);
 
@@ -266,7 +266,7 @@ class MailboxServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findById')
+            ->method('selectById')
             ->with($mailboxId)
             ->willReturn($mailbox);
 
@@ -293,7 +293,7 @@ class MailboxServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findById')
+            ->method('selectById')
             ->with($mailboxId)
             ->willReturn($mailbox);
 

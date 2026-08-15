@@ -11,6 +11,7 @@ use NexusVip\Services\VipLevelService;
 use NexusVip\Services\VipPointService;
 use NexusVip\Services\VipRewardService;
 use NexusVip\ValueObjects\VipConfig;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -65,9 +66,9 @@ class VipPointServiceTest extends TestCase
     }
 
     /**
-     * @test
      * VIPポイントを正常に付与できる
      */
+    #[Test]
     public function vi_pポイントを付与できる(): void
     {
         // Arrange
@@ -82,7 +83,7 @@ class VipPointServiceTest extends TestCase
         );
 
         $this->playerVipRepository
-            ->shouldReceive('findVipInfoById')
+            ->shouldReceive('selectVipInfoById')
             ->with($sysPlayerId)
             ->once()
             ->andReturn($playerVipDto);
@@ -117,9 +118,9 @@ class VipPointServiceTest extends TestCase
     }
 
     /**
-     * @test
      * 課金額も同時に累積できる
      */
+    #[Test]
     public function 課金額も同時に累積できる(): void
     {
         // Arrange
@@ -135,7 +136,7 @@ class VipPointServiceTest extends TestCase
         );
 
         $this->playerVipRepository
-            ->shouldReceive('findVipInfoById')
+            ->shouldReceive('selectVipInfoById')
             ->with($sysPlayerId)
             ->once()
             ->andReturn($playerVipDto);
@@ -162,9 +163,9 @@ class VipPointServiceTest extends TestCase
     }
 
     /**
-     * @test
      * ゼロ以下のポイントは例外が発生する
      */
+    #[Test]
     public function ゼロ以下のポイントは例外が発生する(): void
     {
         // Arrange
@@ -181,9 +182,9 @@ class VipPointServiceTest extends TestCase
     }
 
     /**
-     * @test
      * 存在しないプレイヤーの場合は例外が発生する
      */
+    #[Test]
     public function 存在しないプレイヤーの場合は例外が発生する(): void
     {
         // Arrange
@@ -192,7 +193,7 @@ class VipPointServiceTest extends TestCase
         $reason = 'purchase';
 
         $this->playerVipRepository
-            ->shouldReceive('findVipInfoById')
+            ->shouldReceive('selectVipInfoById')
             ->with($sysPlayerId)
             ->once()
             ->andReturn(null);
@@ -206,9 +207,9 @@ class VipPointServiceTest extends TestCase
     }
 
     /**
-     * @test
      * プレイヤーのVIP情報を取得できる
      */
+    #[Test]
     public function プレイヤーの_vi_p情報を取得できる(): void
     {
         // Arrange
@@ -220,7 +221,7 @@ class VipPointServiceTest extends TestCase
         );
 
         $this->playerVipRepository
-            ->shouldReceive('findVipInfoById')
+            ->shouldReceive('selectVipInfoById')
             ->with($sysPlayerId)
             ->once()
             ->andReturn($playerVipDto);
@@ -234,16 +235,16 @@ class VipPointServiceTest extends TestCase
     }
 
     /**
-     * @test
      * 存在しないプレイヤーのVIP情報はnullを返す
      */
+    #[Test]
     public function 存在しないプレイヤーの_vi_p情報はnullを返す(): void
     {
         // Arrange
         $sysPlayerId = 999;
 
         $this->playerVipRepository
-            ->shouldReceive('findVipInfoById')
+            ->shouldReceive('selectVipInfoById')
             ->with($sysPlayerId)
             ->once()
             ->andReturn(null);

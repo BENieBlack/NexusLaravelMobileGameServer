@@ -3,6 +3,7 @@
 namespace NexusVip\Tests\Unit\DTOs;
 
 use NexusVip\DTOs\PlayerVipDto;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -11,9 +12,9 @@ use PHPUnit\Framework\TestCase;
 class PlayerVipDtoTest extends TestCase
 {
     /**
-     * @test
      * DTOを正常に作成できる
      */
+    #[Test]
     public function dt_oを正常に作成できる(): void
     {
         // Act
@@ -30,9 +31,9 @@ class PlayerVipDtoTest extends TestCase
     }
 
     /**
-     * @test
      * VIPポイントを設定できる
      */
+    #[Test]
     public function vi_pポイントを設定できる(): void
     {
         // Arrange
@@ -50,9 +51,9 @@ class PlayerVipDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 累積課金額を設定できる
      */
+    #[Test]
     public function 累積課金額を設定できる(): void
     {
         // Arrange
@@ -70,9 +71,9 @@ class PlayerVipDtoTest extends TestCase
     }
 
     /**
-     * @test
      * VIPポイントを加算できる
      */
+    #[Test]
     public function vi_pポイントを加算できる(): void
     {
         // Arrange
@@ -90,9 +91,9 @@ class PlayerVipDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 累積課金額を加算できる
      */
+    #[Test]
     public function 累積課金額を加算できる(): void
     {
         // Arrange
@@ -110,9 +111,9 @@ class PlayerVipDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 配列に変換できる
      */
+    #[Test]
     public function 配列に変換できる(): void
     {
         // Arrange
@@ -136,9 +137,9 @@ class PlayerVipDtoTest extends TestCase
     }
 
     /**
-     * @test
      * ゼロ値で作成できる
      */
+    #[Test]
     public function ゼロ値で作成できる(): void
     {
         // Act

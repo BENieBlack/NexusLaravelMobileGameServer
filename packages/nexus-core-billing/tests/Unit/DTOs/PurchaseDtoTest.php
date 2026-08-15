@@ -21,12 +21,12 @@ class PurchaseDtoTest extends TestCase
             currency: 'USD'
         );
 
-        $this->assertSame(123, $purchaseInfo->playerId);
-        $this->assertSame('google_play', $purchaseInfo->billingPlatform);
-        $this->assertSame('com.example.product1', $purchaseInfo->productId);
-        $this->assertSame('txn_123456', $purchaseInfo->transactionId);
-        $this->assertSame(1, $purchaseInfo->quantity);
-        $this->assertSame($purchaseDate, $purchaseInfo->purchaseDate);
+        $this->assertSame(123, $purchaseInfo->getPlayerId());
+        $this->assertSame('google_play', $purchaseInfo->getBillingPlatform());
+        $this->assertSame('com.example.product1', $purchaseInfo->getProductId());
+        $this->assertSame('txn_123456', $purchaseInfo->getTransactionId());
+        $this->assertSame(1, $purchaseInfo->getQuantity());
+        $this->assertSame($purchaseDate, $purchaseInfo->getPurchaseDate());
         $this->assertSame(9.99, $purchaseInfo->price);
         $this->assertSame('USD', $purchaseInfo->currency);
     }
@@ -43,7 +43,7 @@ class PurchaseDtoTest extends TestCase
             purchaseDate: $purchaseDate
         );
 
-        $this->assertSame(456, $purchaseInfo->playerId);
+        $this->assertSame(456, $purchaseInfo->getPlayerId());
         $this->assertNull($purchaseInfo->price);
         $this->assertNull($purchaseInfo->currency);
     }

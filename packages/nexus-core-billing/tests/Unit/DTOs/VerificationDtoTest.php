@@ -22,13 +22,13 @@ class VerificationDtoTest extends TestCase
             rawResponse: $rawResponse
         );
 
-        $this->assertTrue($result->isValid);
-        $this->assertSame('txn_123456', $result->transactionId);
-        $this->assertSame('com.example.product1', $result->productId);
-        $this->assertSame($purchaseDate, $result->purchaseDate);
-        $this->assertSame(1, $result->quantity);
-        $this->assertSame('original_txn_123456', $result->originalTransactionId);
-        $this->assertSame($rawResponse, $result->rawResponse);
+        $this->assertTrue($result->getIsValid());
+        $this->assertSame('txn_123456', $result->getTransactionId());
+        $this->assertSame('com.example.product1', $result->getProductId());
+        $this->assertSame($purchaseDate, $result->getPurchaseDate());
+        $this->assertSame(1, $result->getQuantity());
+        $this->assertSame('original_txn_123456', $result->getOriginalTransactionId());
+        $this->assertSame($rawResponse, $result->getRawResponse());
     }
 
     public function test_construct_with_invalid_result()
@@ -45,7 +45,7 @@ class VerificationDtoTest extends TestCase
             rawResponse: ['status' => 'failed']
         );
 
-        $this->assertFalse($result->isValid);
+        $this->assertFalse($result->getIsValid());
     }
 
     public function test_to_array()

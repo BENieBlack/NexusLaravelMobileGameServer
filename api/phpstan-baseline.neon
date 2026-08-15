@@ -511,30 +511,6 @@ parameters:
 			path: ../packages/nexus-core/src/Utilities/ClockUtility.php
 
 		-
-			message: '#^Method Nexus\\Core\\Utilities\\ClockUtility\:\:diffInDays\(\) should return int but returns float\.$#'
-			identifier: return.type
-			count: 1
-			path: ../packages/nexus-core/src/Utilities/ClockUtility.php
-
-		-
-			message: '#^Method Nexus\\Core\\Utilities\\ClockUtility\:\:diffInHours\(\) should return int but returns float\.$#'
-			identifier: return.type
-			count: 1
-			path: ../packages/nexus-core/src/Utilities/ClockUtility.php
-
-		-
-			message: '#^Method Nexus\\Core\\Utilities\\ClockUtility\:\:diffInMinutes\(\) should return int but returns float\.$#'
-			identifier: return.type
-			count: 1
-			path: ../packages/nexus-core/src/Utilities/ClockUtility.php
-
-		-
-			message: '#^Method Nexus\\Core\\Utilities\\ClockUtility\:\:diffInSeconds\(\) should return int but returns float\.$#'
-			identifier: return.type
-			count: 1
-			path: ../packages/nexus-core/src/Utilities/ClockUtility.php
-
-		-
 			message: '#^Unable to resolve the template type TCacheValue in call to method Illuminate\\Contracts\\Cache\\Repository\:\:remember\(\)$#'
 			identifier: argument.templateType
 			count: 1

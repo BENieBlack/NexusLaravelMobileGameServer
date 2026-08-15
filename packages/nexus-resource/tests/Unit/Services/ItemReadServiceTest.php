@@ -5,6 +5,7 @@ namespace NexusResource\Tests\Unit\Services;
 use NexusResource\Services\ItemReadService;
 use NexusResource\Contracts\ItemRepositoryInterface;
 use NexusResource\DTOs\ItemDto;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 
@@ -26,9 +27,7 @@ class ItemReadServiceTest extends TestCase
         $this->itemReadService = new ItemReadService($this->mockRepository);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function アイテムの所持数を取得できる(): void
     {
         // Arrange
@@ -42,7 +41,7 @@ class ItemReadServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findItem')
+            ->method('selectItem')
             ->with($sysPlayerId, $mstItemId)
             ->willReturn($expectedDto);
 
@@ -53,9 +52,7 @@ class ItemReadServiceTest extends TestCase
         $this->assertSame($expectedTotal, $result);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function 存在しないアイテムは0を返す(): void
     {
         // Arrange
@@ -64,7 +61,7 @@ class ItemReadServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findItem')
+            ->method('selectItem')
             ->with($sysPlayerId, $mstItemId)
             ->willReturn(null);
 
@@ -75,9 +72,7 @@ class ItemReadServiceTest extends TestCase
         $this->assertSame(0, $result);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function 複数アイテムの所持数を一括取得できる(): void
     {
         // Arrange
@@ -92,7 +87,7 @@ class ItemReadServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findItemsByIds')
+            ->method('selectItemsByIds')
             ->with($sysPlayerId, $mstItemIds)
             ->willReturn($items);
 
@@ -107,9 +102,7 @@ class ItemReadServiceTest extends TestCase
         $this->assertSame(4, $result['item_shield_001']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function 存在しないアイテムを含む場合は0で補完される(): void
     {
         // Arrange
@@ -122,7 +115,7 @@ class ItemReadServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findItemsByIds')
+            ->method('selectItemsByIds')
             ->with($sysPlayerId, $mstItemIds)
             ->willReturn($items);
 
@@ -136,9 +129,7 @@ class ItemReadServiceTest extends TestCase
         $this->assertSame(0, $result['item_nonexistent']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function 空配列を渡すと空配列が返る(): void
     {
         // Arrange
@@ -147,7 +138,7 @@ class ItemReadServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findItemsByIds')
+            ->method('selectItemsByIds')
             ->with($sysPlayerId, $mstItemIds)
             ->willReturn([]);
 
@@ -159,9 +150,7 @@ class ItemReadServiceTest extends TestCase
         $this->assertEmpty($result);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function 全て存在しないアイテムの場合は全て0で返る(): void
     {
         // Arrange
@@ -170,7 +159,7 @@ class ItemReadServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findItemsByIds')
+            ->method('selectItemsByIds')
             ->with($sysPlayerId, $mstItemIds)
             ->willReturn([]); // 全て存在しない
 

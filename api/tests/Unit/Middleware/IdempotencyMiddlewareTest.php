@@ -1,13 +1,13 @@
 <?php
 
-namespace LaravelSecurityMiddleware\Tests;
+namespace Tests\Unit\Middleware;
 
-use LaravelSecurityMiddleware\Middleware\IdempotencyMiddleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
-use PHPUnit\Framework\TestCase;
 use Mockery;
+use NexusSecurity\Middleware\IdempotencyMiddleware;
+use Tests\TestCase;
 
 class IdempotencyMiddlewareTest extends TestCase
 {
@@ -17,16 +17,17 @@ class IdempotencyMiddlewareTest extends TestCase
         parent::tearDown();
     }
 
-    public function testSkipsWhenDisabled()
+    public function test_skips_when_disabled()
     {
-        Config::shouldReceive('get')->with('security.idempotency.enabled', true)->andReturn(false);
-        
-        $middleware = new IdempotencyMiddleware();
+        Config::set('security.idempotency.enabled', false);
+
+        $middleware = new IdempotencyMiddleware;
         $request = Request::create('/test', 'POST', [], [], [], [], '{"test":"data"}');
-        
+
         $nextCalled = false;
         $response = $middleware->handle($request, function ($req) use (&$nextCalled) {
             $nextCalled = true;
+
             return response()->json(['success' => true]);
         });
 
@@ -34,16 +35,17 @@ class IdempotencyMiddlewareTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    public function testSkipsWhenHeaderMissing()
+    public function test_skips_when_header_missing()
     {
-        Config::shouldReceive('get')->with('security.idempotency.enabled', true)->andReturn(true);
-        
-        $middleware = new IdempotencyMiddleware();
+        Config::set('security.idempotency.enabled', true);
+
+        $middleware = new IdempotencyMiddleware;
         $request = Request::create('/test', 'POST', [], [], [], [], '{"test":"data"}');
-        
+
         $nextCalled = false;
         $response = $middleware->handle($request, function ($req) use (&$nextCalled) {
             $nextCalled = true;
+
             return response()->json(['success' => true]);
         });
 
@@ -51,17 +53,18 @@ class IdempotencyMiddlewareTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    public function testSkipsForGetRequests()
+    public function test_skips_for_get_requests()
     {
-        Config::shouldReceive('get')->with('security.idempotency.enabled', true)->andReturn(true);
-        
-        $middleware = new IdempotencyMiddleware();
+        Config::set('security.idempotency.enabled', true);
+
+        $middleware = new IdempotencyMiddleware;
         $request = Request::create('/test', 'GET');
         $request->headers->set('X-Unique-Request-Identifier', 'unique-id-123');
-        
+
         $nextCalled = false;
         $response = $middleware->handle($request, function ($req) use (&$nextCalled) {
             $nextCalled = true;
+
             return response()->json(['success' => true]);
         });
 
@@ -69,18 +72,19 @@ class IdempotencyMiddlewareTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    public function testSkipsWhenNotAuthenticated()
+    public function test_skips_when_not_authenticated()
     {
-        Config::shouldReceive('get')->with('security.idempotency.enabled', true)->andReturn(true);
-        
-        $middleware = new IdempotencyMiddleware();
+        Config::set('security.idempotency.enabled', true);
+
+        $middleware = new IdempotencyMiddleware;
         $request = Request::create('/test', 'POST', [], [], [], [], '{"test":"data"}');
         $request->headers->set('X-Unique-Request-Identifier', 'unique-id-123');
         // authenticated_player_id が設定されていない
-        
+
         $nextCalled = false;
         $response = $middleware->handle($request, function ($req) use (&$nextCalled) {
             $nextCalled = true;
+
             return response()->json(['success' => true]);
         });
 
@@ -88,16 +92,16 @@ class IdempotencyMiddlewareTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    public function testReturnsCachedResponse()
+    public function test_returns_cached_response()
     {
-        Config::shouldReceive('get')->with('security.idempotency.enabled', true)->andReturn(true);
-        Config::shouldReceive('get')->with('security.idempotency.cache_prefix', 'idempotency')->andReturn('idempotency');
-        
+        Config::set('security.idempotency.enabled', true);
+        Config::set('security.idempotency.cache_prefix', 'idempotency');
+
         $playerId = 12345;
         $uniqueId = 'cached-request-id';
         $path = 'api/test';
         $cacheKey = "idempotency:{$playerId}:{$uniqueId}:api:test";
-        
+
         // キャッシュされたレスポンスデータ
         $cachedData = [
             'data' => ['result' => 'cached'],
@@ -105,14 +109,15 @@ class IdempotencyMiddlewareTest extends TestCase
             'headers' => ['Content-Type' => 'application/json'],
         ];
         $compressed = gzencode(json_encode($cachedData), 6);
-        
+
         Cache::shouldReceive('has')->with($cacheKey)->andReturn(true);
         Cache::shouldReceive('get')->with($cacheKey)->andReturn($compressed);
-        
-        $middleware = new IdempotencyMiddleware();
-        $request = Request::create('/' . $path, 'POST', ['authenticated_player_id' => $playerId], [], [], [], '{"test":"data"}');
+
+        $middleware = new IdempotencyMiddleware;
+        $request = Request::create('/'.$path, 'POST', [], [], [], [], '{"test":"data"}');
+        $request->attributes->set('authenticated_player_id', $playerId);
         $request->headers->set('X-Unique-Request-Identifier', $uniqueId);
-        
+
         $response = $middleware->handle($request, function () {
             $this->fail('Next middleware should not be called when cache exists');
         });
@@ -123,61 +128,67 @@ class IdempotencyMiddlewareTest extends TestCase
         $this->assertEquals(['result' => 'cached'], $data);
     }
 
-    public function testCachesSuccessfulResponse()
+    public function test_caches_successful_response()
     {
-        Config::shouldReceive('get')->with('security.idempotency.enabled', true)->andReturn(true);
-        Config::shouldReceive('get')->with('security.idempotency.cache_prefix', 'idempotency')->andReturn('idempotency');
-        Config::shouldReceive('get')->with('security.idempotency.cache_ttl', 86400)->andReturn(86400);
-        Config::shouldReceive('get')->with('security.idempotency.compression_level', 6)->andReturn(6);
-        
+        Config::set('security.idempotency.enabled', true);
+        Config::set('security.idempotency.cache_prefix', 'idempotency');
+        Config::set('security.idempotency.cache_ttl', 86400);
+        Config::set('security.idempotency.compression_level', 6);
+
         $playerId = 67890;
         $uniqueId = 'new-request-id';
         $path = 'api/action';
         $cacheKey = "idempotency:{$playerId}:{$uniqueId}:api:action";
-        
-        Cache::shouldReceive('has')->with($cacheKey)->andReturn(false);
-        Cache::shouldReceive('put')->withArgs(function ($key, $data, $ttl) use ($cacheKey) {
-            return $key === $cacheKey && $ttl === 86400;
-        })->once();
-        
-        $middleware = new IdempotencyMiddleware();
-        $request = Request::create('/' . $path, 'POST', ['authenticated_player_id' => $playerId], [], [], [], '{"test":"data"}');
+
+        // 実際のキャッシュドライバ（array）で検証する
+        Cache::flush();
+
+        $middleware = new IdempotencyMiddleware;
+        $request = Request::create('/'.$path, 'POST', [], [], [], [], '{"test":"data"}');
+        $request->attributes->set('authenticated_player_id', $playerId);
         $request->headers->set('X-Unique-Request-Identifier', $uniqueId);
-        
+
         $nextCalled = false;
         $response = $middleware->handle($request, function ($req) use (&$nextCalled) {
             $nextCalled = true;
+
             return response()->json(['result' => 'success'], 200);
         });
 
         $this->assertTrue($nextCalled);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('MISS', $response->headers->get('X-Idempotency-Cache'));
+
+        // 成功レスポンスはキャッシュに保存される
+        $this->assertTrue(Cache::has($cacheKey));
     }
 
-    public function testDoesNotCacheErrorResponse()
+    public function test_does_not_cache_error_response()
     {
-        Config::shouldReceive('get')->with('security.idempotency.enabled', true)->andReturn(true);
-        Config::shouldReceive('get')->with('security.idempotency.cache_prefix', 'idempotency')->andReturn('idempotency');
-        
+        Config::set('security.idempotency.enabled', true);
+        Config::set('security.idempotency.cache_prefix', 'idempotency');
+
         $playerId = 11111;
         $uniqueId = 'error-request-id';
         $path = 'api/error';
         $cacheKey = "idempotency:{$playerId}:{$uniqueId}:api:error";
-        
-        Cache::shouldReceive('has')->with($cacheKey)->andReturn(false);
-        // エラーレスポンスはキャッシュされないのでputは呼ばれない
-        Cache::shouldReceive('put')->never();
-        
-        $middleware = new IdempotencyMiddleware();
-        $request = Request::create('/' . $path, 'POST', ['authenticated_player_id' => $playerId], [], [], [], '{"test":"data"}');
+
+        // 実際のキャッシュドライバ（array）で検証する
+        Cache::flush();
+
+        $middleware = new IdempotencyMiddleware;
+        $request = Request::create('/'.$path, 'POST', [], [], [], [], '{"test":"data"}');
+        $request->attributes->set('authenticated_player_id', $playerId);
         $request->headers->set('X-Unique-Request-Identifier', $uniqueId);
-        
+
         $response = $middleware->handle($request, function ($req) {
             return response()->json(['error' => 'Something went wrong'], 400);
         });
 
         $this->assertEquals(400, $response->getStatusCode());
         $this->assertEquals('MISS', $response->headers->get('X-Idempotency-Cache'));
+
+        // エラーレスポンスはキャッシュされない（処理中フラグも消える）
+        $this->assertFalse(Cache::has($cacheKey));
     }
 }

@@ -3,6 +3,7 @@
 namespace NexusPitr\Tests\Unit;
 
 use NexusPitr\Logger\ShardMapper;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -23,9 +24,7 @@ class ShardMapperTest extends TestCase
         }
     }
     
-    /**
-     * @test
-     */
+    #[Test]
     public function getLogConnection_returns_log1_for_trx1(): void
     {
         $result = ShardMapper::resolveLogConnection('trx1');
@@ -33,9 +32,7 @@ class ShardMapperTest extends TestCase
         $this->assertEquals('log1', $result);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function getLogConnection_returns_log2_for_trx2(): void
     {
         $result = ShardMapper::resolveLogConnection('trx2');
@@ -43,9 +40,7 @@ class ShardMapperTest extends TestCase
         $this->assertEquals('log2', $result);
     }
     
-    /**
-     * @test
-     */
+    #[Test]
     public function getLogConnection_supports_dynamic_shards(): void
     {
         // DB_TRX_SHARDS=4の場合
@@ -58,9 +53,7 @@ class ShardMapperTest extends TestCase
         putenv('DB_TRX_SHARDS=2');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function getLogConnection_throws_exception_for_invalid_connection(): void
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -69,9 +62,7 @@ class ShardMapperTest extends TestCase
         ShardMapper::resolveLogConnection('invalid');
     }
     
-    /**
-     * @test
-     */
+    #[Test]
     public function getLogConnection_throws_exception_for_out_of_range_shard(): void
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -80,9 +71,7 @@ class ShardMapperTest extends TestCase
         ShardMapper::resolveLogConnection('trx99');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function getTrxConnection_returns_trx1_for_log1(): void
     {
         $result = ShardMapper::resolveTrxConnection('log1');
@@ -90,9 +79,7 @@ class ShardMapperTest extends TestCase
         $this->assertEquals('trx1', $result);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function getTrxConnection_returns_trx2_for_log2(): void
     {
         $result = ShardMapper::resolveTrxConnection('log2');
@@ -100,9 +87,7 @@ class ShardMapperTest extends TestCase
         $this->assertEquals('trx2', $result);
     }
     
-    /**
-     * @test
-     */
+    #[Test]
     public function getTrxConnection_supports_dynamic_shards(): void
     {
         // DB_TRX_SHARDS=4の場合
@@ -115,9 +100,7 @@ class ShardMapperTest extends TestCase
         putenv('DB_TRX_SHARDS=2');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function getTrxConnection_throws_exception_for_invalid_connection(): void
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -126,9 +109,7 @@ class ShardMapperTest extends TestCase
         ShardMapper::resolveTrxConnection('invalid');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function getAllLogConnections_returns_all_log_connections(): void
     {
         $result = ShardMapper::allLogConnections();
@@ -136,9 +117,7 @@ class ShardMapperTest extends TestCase
         $this->assertEquals(['log1', 'log2'], $result);
     }
     
-    /**
-     * @test
-     */
+    #[Test]
     public function getAllLogConnections_returns_dynamic_shards(): void
     {
         // DB_TRX_SHARDS=4の場合
@@ -152,9 +131,7 @@ class ShardMapperTest extends TestCase
         putenv('DB_TRX_SHARDS=2');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function getAllTrxConnections_returns_all_trx_connections(): void
     {
         $result = ShardMapper::allTrxConnections();
@@ -162,9 +139,7 @@ class ShardMapperTest extends TestCase
         $this->assertEquals(['trx1', 'trx2'], $result);
     }
     
-    /**
-     * @test
-     */
+    #[Test]
     public function getAllTrxConnections_returns_dynamic_shards(): void
     {
         // DB_TRX_SHARDS=4の場合
@@ -178,18 +153,14 @@ class ShardMapperTest extends TestCase
         putenv('DB_TRX_SHARDS=2');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function isValidTrxConnection_returns_true_for_valid_connections(): void
     {
         $this->assertTrue(ShardMapper::isValidTrxConnection('trx1'));
         $this->assertTrue(ShardMapper::isValidTrxConnection('trx2'));
     }
     
-    /**
-     * @test
-     */
+    #[Test]
     public function isValidTrxConnection_validates_dynamic_shards(): void
     {
         // DB_TRX_SHARDS=4の場合
@@ -203,9 +174,7 @@ class ShardMapperTest extends TestCase
         putenv('DB_TRX_SHARDS=2');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function isValidTrxConnection_returns_false_for_invalid_connection(): void
     {
         $this->assertFalse(ShardMapper::isValidTrxConnection('invalid'));
@@ -213,18 +182,14 @@ class ShardMapperTest extends TestCase
         $this->assertFalse(ShardMapper::isValidTrxConnection('trx99'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function isValidLogConnection_returns_true_for_valid_connections(): void
     {
         $this->assertTrue(ShardMapper::isValidLogConnection('log1'));
         $this->assertTrue(ShardMapper::isValidLogConnection('log2'));
     }
     
-    /**
-     * @test
-     */
+    #[Test]
     public function isValidLogConnection_validates_dynamic_shards(): void
     {
         // DB_TRX_SHARDS=4の場合
@@ -238,9 +203,7 @@ class ShardMapperTest extends TestCase
         putenv('DB_TRX_SHARDS=2');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function isValidLogConnection_returns_false_for_invalid_connection(): void
     {
         $this->assertFalse(ShardMapper::isValidLogConnection('invalid'));

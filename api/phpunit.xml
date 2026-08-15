@@ -11,6 +11,14 @@
         <testsuite name="Feature">
             <directory>tests/Feature</directory>
         </testsuite>
+        <!--
+            パッケージのテストもここから実行する。
+            各パッケージは path リポジトリとして api の vendor にオートロードされるため、
+            パッケージ側の vendor / phpunit を用意しなくても実行できる。
+        -->
+        <testsuite name="Packages">
+            <directory>../packages/*/tests</directory>
+        </testsuite>
     </testsuites>
     <source>
         <include>

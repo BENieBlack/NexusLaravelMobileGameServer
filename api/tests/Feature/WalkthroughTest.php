@@ -311,7 +311,7 @@ class WalkthroughTest extends TestCase
         }
 
         $response->assertOk();
-        $data = $response->json('data');
+        $data = $response->json();
 
         $this->assertArrayHasKey('needs_update', $data);
         $this->assertArrayHasKey('latest_deploy_key', $data);
@@ -334,7 +334,7 @@ class WalkthroughTest extends TestCase
         ])->postJson('/api/auth/login');
 
         $response->assertOk();
-        $data = $response->json('data');
+        $data = $response->json();
 
         $this->assertArrayHasKey('sys_player', $data);
         $this->assertArrayHasKey('login_bonus_list', $data);
@@ -357,7 +357,7 @@ class WalkthroughTest extends TestCase
 
         $response->assertOk();
 
-        $mailboxArray = $response->json('data.mailbox_array');
+        $mailboxArray = $response->json('mailbox_array');
 
         $this->assertIsArray($mailboxArray);
         $this->assertNotEmpty($mailboxArray);
@@ -383,7 +383,7 @@ class WalkthroughTest extends TestCase
 
         $response->assertOk();
 
-        $result = $response->json('data');
+        $result = $response->json();
 
         $this->assertSame($this->mailId, $result['trx_mailbox_id']);
         $this->assertTrue($result['is_opened']);
@@ -402,7 +402,7 @@ class WalkthroughTest extends TestCase
 
         $response->assertOk();
 
-        $result = $response->json('data');
+        $result = $response->json();
 
         $this->assertSame($this->mailId, $result['trx_mailbox_id']);
         $this->assertTrue($result['is_received']);

@@ -9,12 +9,13 @@
 1. [メソッド命名規則](#メソッド命名規則)
 2. [DTO・ValueObjectの命名](#dtovalueobjectの命名)
 3. [削除の規約](#削除の規約)
-4. [Request・Responseクラスの命名規則](#requestresponseクラスの命名規則)
-5. [ディレクトリ構成](#ディレクトリ構成)
-6. [名前空間とクラスの配置](#名前空間とクラスの配置)
-7. [クラスの責務](#クラスの責務)
-8. [ファイル命名規則](#ファイル命名規則)
-9. [まとめ](#まとめ)
+4. [レスポンスの契約](#レスポンスの契約)
+5. [Request・Responseクラスの命名規則](#requestresponseクラスの命名規則)
+6. [ディレクトリ構成](#ディレクトリ構成)
+7. [名前空間とクラスの配置](#名前空間とクラスの配置)
+8. [クラスの責務](#クラスの責務)
+9. [ファイル命名規則](#ファイル命名規則)
+10. [まとめ](#まとめ)
 
 ---
 
@@ -107,6 +108,41 @@ Eloquent Modelは `Sys` / `Trx` / `Mst` / `Log` の接頭辞を持つため、
 `_BaseModel` が `save()` / `update()` / `delete()` / `forceDelete()` を拒否する。トランザクション境界とPITRログの整合性を壊すため。
 
 テストのフィクスチャやSeederなど、UnitOfWorkを介さない投入経路は `_BaseModel::allowDirectWrites()` で明示的に許可する。
+
+---
+
+## レスポンスの契約
+
+### UseCase は必ず Response クラスを返す
+
+`_BaseController::execute()` は `_BaseResponseInterface` の実装のみを受け取る。
+戻り値の型を固定することで、レスポンスの形が呼び出し方によって変わったり、
+意図しないキーが混入したりするのを防ぐ。
+
+```php
+// ✅ Responseクラスを返す
+public function exec(int $sysPlayerId): GuildLeaveResponse
+{
+    return $this->executeWithTransaction(function () use ($sysPlayerId) {
+        // ...
+        return new GuildLeaveResponse($sysPlayerId);
+    });
+}
+
+// ❌ 配列や void を返す（LogicExceptionになる）
+public function exec(int $sysPlayerId): void
+```
+
+Responseクラスは `_BaseResponse` を継承し、`toArray()` だけを実装する。
+`Responsable` は使わない（JSONの組み立て方が二系統になるため）。
+
+### エンベロープは付けない
+
+`toArray()` の内容がそのままトップレベルになる。`data` などでラップしない。
+
+```json
+{ "guilds": [ ... ] }
+```
 
 ---
 

@@ -357,4 +357,60 @@ class SysPlayerRepositoryTest extends TestCase
         $this->assertNotNull($player2->id);
         $this->assertNotNull($player3->id);
     }
+
+    /**
+     * キューに積むだけでなく、フラッシュ後にDBへ反映されることを検証する
+     */
+    public function test_queued_insert_is_written_to_database_after_flush(): void
+    {
+        // Arrange
+        $sysPlayer = new SysPlayer([
+            'uuid' => 'test-uuid-flush',
+            'my_id' => 'PLYFLS01',
+            'name' => 'Flush Player',
+            'level' => 1,
+            'level_exp' => 0,
+        ]);
+        $sysPlayer->exists = false;
+
+        // Act
+        $this->repository->setModel($sysPlayer);
+        $this->flushQueue();
+
+        // Assert
+        $this->assertDatabaseHas('sys_player', [
+            'uuid' => 'test-uuid-flush',
+            'my_id' => 'PLYFLS01',
+            'name' => 'Flush Player',
+        ], 'sys');
+    }
+
+    /**
+     * 更新もフラッシュ後にDBへ反映されることを検証する
+     */
+    public function test_queued_update_is_written_to_database_after_flush(): void
+    {
+        // Arrange
+        $sysPlayer = new SysPlayer([
+            'uuid' => 'test-uuid-flush-2',
+            'my_id' => 'PLYFLS02',
+            'name' => 'Before',
+            'level' => 1,
+            'level_exp' => 0,
+        ]);
+        $sysPlayer->exists = false;
+        $this->repository->setModel($sysPlayer);
+        $this->flushQueue();
+
+        // Act
+        $sysPlayer->name = 'After';
+        $this->repository->setModel($sysPlayer);
+        $this->flushQueue();
+
+        // Assert
+        $this->assertDatabaseHas('sys_player', [
+            'id' => $sysPlayer->id,
+            'name' => 'After',
+        ], 'sys');
+    }
 }

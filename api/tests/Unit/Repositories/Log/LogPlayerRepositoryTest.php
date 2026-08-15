@@ -4,6 +4,7 @@ namespace Tests\Unit\Repositories\Log;
 
 use App\Models\Log\LogPlayer;
 use App\Repositories\Log\LogPlayerRepository;
+use NexusUnitOfWork\Contracts\QueryManagerInterface;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
 
@@ -283,5 +284,36 @@ class LogPlayerRepositoryTest extends TestCase
         $this->assertEquals(3, $queuedModels[1]->after_level);
         $this->assertEquals(3, $queuedModels[2]->before_level);
         $this->assertEquals(4, $queuedModels[2]->after_level);
+    }
+
+    /**
+     * キューに積むだけでなく、フラッシュ後にDBへ反映されることを検証する
+     *
+     * ログはexecAllLogs()で実行されるため、そちらを呼び出して確認する。
+     */
+    public function test_queued_log_is_written_to_database_after_flush(): void
+    {
+        // Arrange
+        $logPlayer = new LogPlayer([
+            'unique_request_id' => 'test-request-flush',
+            'system_at' => now(),
+            'sys_player_id' => 99,
+            'before_level' => 1,
+            'before_level_exp' => 0,
+            'after_level' => 2,
+            'after_level_exp' => 10,
+        ]);
+        $logPlayer->exists = false;
+
+        // Act
+        $this->repository->setModel($logPlayer);
+        app()->make(QueryManagerInterface::class)->execAllLogs();
+
+        // Assert
+        $this->assertDatabaseHas('log_player', [
+            'unique_request_id' => 'test-request-flush',
+            'sys_player_id' => 99,
+            'after_level' => 2,
+        ], 'log1');
     }
 }

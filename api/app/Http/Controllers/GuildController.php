@@ -163,6 +163,6 @@ class GuildController extends _BaseController
 
         $useCase->exec($sysPlayerId);
 
-        return $this->successResponse([]);
+        return $this->success([]);
     }
 }

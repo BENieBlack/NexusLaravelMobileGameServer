@@ -1615,42 +1615,6 @@ parameters:
 			path: app/Domain/_BaseUseCase.php
 
 		-
-			message: '#^Access to private property NexusMaintenance\\ValueObjects\\Maintenance\:\:\$endAt\.$#'
-			identifier: property.private
-			count: 1
-			path: app/Http/Controllers/Admin/MaintenanceController.php
-
-		-
-			message: '#^Access to private property NexusMaintenance\\ValueObjects\\Maintenance\:\:\$isMaintenance\.$#'
-			identifier: property.private
-			count: 1
-			path: app/Http/Controllers/Admin/MaintenanceController.php
-
-		-
-			message: '#^Access to private property NexusMaintenance\\ValueObjects\\Maintenance\:\:\$message\.$#'
-			identifier: property.private
-			count: 1
-			path: app/Http/Controllers/Admin/MaintenanceController.php
-
-		-
-			message: '#^Access to private property NexusMaintenance\\ValueObjects\\Maintenance\:\:\$startAt\.$#'
-			identifier: property.private
-			count: 1
-			path: app/Http/Controllers/Admin/MaintenanceController.php
-
-		-
-			message: '#^Access to private property NexusMaintenance\\ValueObjects\\Maintenance\:\:\$title\.$#'
-			identifier: property.private
-			count: 1
-			path: app/Http/Controllers/Admin/MaintenanceController.php
-
-		-
-			message: '#^Call to an undefined method App\\Http\\Controllers\\GuildController\:\:successResponse\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Http/Controllers/GuildController.php
-
-		-
 			message: '#^Method App\\Http\\Controllers\\_BaseController\:\:execute\(\) should return Illuminate\\Http\\JsonResponse but returns Symfony\\Component\\HttpFoundation\\Response\.$#'
 			identifier: return.type
 			count: 1

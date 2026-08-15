@@ -357,7 +357,7 @@ class WalkthroughTest extends TestCase
 
         $response->assertOk();
 
-        $mailboxArray = $response->json('mailbox_array');
+        $mailboxArray = $response->json('data.mailbox_array');
 
         $this->assertIsArray($mailboxArray);
         $this->assertNotEmpty($mailboxArray);
@@ -383,7 +383,7 @@ class WalkthroughTest extends TestCase
 
         $response->assertOk();
 
-        $result = $response->json();
+        $result = $response->json('data');
 
         $this->assertSame($this->mailId, $result['trx_mailbox_id']);
         $this->assertTrue($result['is_opened']);
@@ -402,7 +402,7 @@ class WalkthroughTest extends TestCase
 
         $response->assertOk();
 
-        $result = $response->json();
+        $result = $response->json('data');
 
         $this->assertSame($this->mailId, $result['trx_mailbox_id']);
         $this->assertTrue($result['is_received']);

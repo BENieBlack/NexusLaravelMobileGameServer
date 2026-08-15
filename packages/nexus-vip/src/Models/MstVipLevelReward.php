@@ -24,7 +24,8 @@ class MstVipLevelReward extends _BaseMst
 
     protected $primaryKey = ['vip_level', 'content_type', 'content_id'];
 
-    protected $fillable = [
+        /** @var list<string> */
+        protected $fillable = [
         'deploy_key',
         'vip_level',
         'content_type',
@@ -37,6 +38,7 @@ class MstVipLevelReward extends _BaseMst
         'is_active',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'deploy_key' => 'integer',
         'vip_level' => 'integer',

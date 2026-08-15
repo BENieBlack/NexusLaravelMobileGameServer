@@ -19,7 +19,7 @@ class MstItem extends _BaseMst
 
     protected $keyType = 'string';
 
-    /** @var array<int, string> */
+    /** @var list<string> */
     protected $fillable = [
         'deploy_key',
         'id',
@@ -31,6 +31,7 @@ class MstItem extends _BaseMst
     /**
      * @var array<string, string>
      */
+    /** @var array<string, string> */
     protected $casts = [
         'deploy_key' => 'integer',
         'value' => 'integer',

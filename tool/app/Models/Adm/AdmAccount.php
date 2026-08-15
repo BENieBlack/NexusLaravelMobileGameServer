@@ -30,7 +30,8 @@ class AdmAccount extends Authenticatable
      *
      * @var array<int, string>
      */
-    protected $fillable = [
+        /** @var list<string> */
+        protected $fillable = [
         'name',
         'email',
         'password',
@@ -41,7 +42,8 @@ class AdmAccount extends Authenticatable
      *
      * @var array<int, string>
      */
-    protected $hidden = [
+        /** @var list<string> */
+        protected $hidden = [
         'password',
         'remember_token',
     ];

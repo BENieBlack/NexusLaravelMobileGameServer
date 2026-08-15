@@ -23,6 +23,7 @@ class SysDeployMaster extends _BaseSys
      *
      * @var array
      */
+    /** @var list<string> */
     protected $fillable = [
         'deploy_key',
         'hash',
@@ -39,6 +40,7 @@ class SysDeployMaster extends _BaseSys
      *
      * @var array
      */
+    /** @var array<string, string> */
     protected $casts = [
         'deploy_date' => 'date',
     ];

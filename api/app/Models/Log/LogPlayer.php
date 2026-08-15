@@ -6,6 +6,7 @@ class LogPlayer extends _BaseLog
 {
     protected $table = 'log_player';
 
+    /** @var array<string, string> */
     protected $casts = [
         'id' => 'integer',
         'unique_request_id' => 'string',
@@ -16,6 +17,7 @@ class LogPlayer extends _BaseLog
         'after_level_exp' => 'integer',
     ];
 
+    /** @var list<string> */
     protected $fillable = [
         'unique_request_id',
         'sys_player_id',

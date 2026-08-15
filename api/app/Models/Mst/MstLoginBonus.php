@@ -34,7 +34,7 @@ class MstLoginBonus extends _BaseMst
 
     protected $keyType = 'string';
 
-    /** @var array<int, string> */
+    /** @var list<string> */
     protected $fillable = [
         'deploy_key',
         'id',
@@ -52,6 +52,7 @@ class MstLoginBonus extends _BaseMst
     /**
      * @var array<string, string>
      */
+    /** @var array<string, string> */
     protected $casts = [
         'deploy_key' => 'integer',
         'day' => 'integer',
@@ -66,6 +67,9 @@ class MstLoginBonus extends _BaseMst
 
     /**
      * ログインボーナス報酬内容とのリレーション
+     */
+    /**
+     * @return HasMany<MstLoginBonusContent, $this>
      */
     public function contents(): HasMany
     {

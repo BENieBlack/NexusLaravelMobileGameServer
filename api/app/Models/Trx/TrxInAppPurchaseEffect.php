@@ -43,6 +43,7 @@ class TrxInAppPurchaseEffect extends _BaseTrx
      */
     protected string $selectKey = 'sys_player_id';
 
+    /** @var list<string> */
     protected $fillable = [
         'sys_player_id',
         'mst_in_app_purchase_id',
@@ -55,6 +56,7 @@ class TrxInAppPurchaseEffect extends _BaseTrx
         'updated_at',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'id' => 'integer',
         'sys_player_id' => 'integer',
@@ -66,6 +68,9 @@ class TrxInAppPurchaseEffect extends _BaseTrx
     /**
      * trx_playerとのリレーション
      */
+    /**
+     * @return BelongsTo<TrxPlayer, $this>
+     */
     public function trxPlayer(): BelongsTo
     {
         return $this->belongsTo(TrxPlayer::class, 'sys_player_id', 'sys_player_id');
@@ -73,6 +78,9 @@ class TrxInAppPurchaseEffect extends _BaseTrx
 
     /**
      * trx_in_app_purchaseとのリレーション
+     */
+    /**
+     * @return BelongsTo<TrxInAppPurchase, $this>
      */
     public function trxInAppPurchase(): BelongsTo
     {

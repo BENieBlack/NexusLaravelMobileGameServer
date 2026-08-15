@@ -29,6 +29,7 @@ class TrxPlayerSns extends _BaseTrx
      */
     protected $keyType = 'string';
 
+    /** @var list<string> */
     protected $fillable = [
         'sys_player_id',
         'sns_type',
@@ -39,6 +40,7 @@ class TrxPlayerSns extends _BaseTrx
         'updated_at',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'sys_player_id' => 'integer',
     ];
@@ -108,6 +110,9 @@ class TrxPlayerSns extends _BaseTrx
 
     /**
      * trx_playerとのリレーション
+     */
+    /**
+     * @return BelongsTo<TrxPlayer, $this>
      */
     public function trxPlayer(): BelongsTo
     {

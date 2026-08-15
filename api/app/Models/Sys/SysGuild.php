@@ -31,6 +31,7 @@ class SysGuild extends _BaseSys
      *
      * @var array<string>
      */
+    /** @var list<string> */
     protected $fillable = [
         'name',
         'description',
@@ -44,6 +45,7 @@ class SysGuild extends _BaseSys
      *
      * @var array<string, string>
      */
+    /** @var array<string, string> */
     protected $casts = [
         'level' => 'integer',
         'exp' => 'integer',
@@ -53,6 +55,9 @@ class SysGuild extends _BaseSys
     /**
      * メンバーとのリレーション
      */
+    /**
+     * @return HasMany<SysGuildMember, $this>
+     */
     public function members(): HasMany
     {
         return $this->hasMany(SysGuildMember::class, 'sys_guild_id');
@@ -60,6 +65,9 @@ class SysGuild extends _BaseSys
 
     /**
      * 申請とのリレーション
+     */
+    /**
+     * @return HasMany<SysGuildApply, $this>
      */
     public function applies(): HasMany
     {

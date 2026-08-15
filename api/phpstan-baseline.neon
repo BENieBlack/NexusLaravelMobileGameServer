@@ -301,25 +301,7 @@ parameters:
 			path: ../packages/nexus-core-unit-of-work/src/Persistence/QueryManager/UpdateQueryBuilder.php
 
 		-
-			message: '#^PHPDoc type array of property Nexus\\Core\\Models\\Mst\\_BaseMst\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: ../packages/nexus-core/src/Models/Mst/_BaseMst.php
-
-		-
-			message: '#^Property Nexus\\Core\\Models\\Mst\\_BaseMst\:\:\$fillable type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-core/src/Models/Mst/_BaseMst.php
-
-		-
 			message: '#^Method Nexus\\Core\\Models\\Trx\\_BaseTrx\:\:getUniqueKeys\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-core/src/Models/Trx/_BaseTrx.php
-
-		-
-			message: '#^Property Nexus\\Core\\Models\\Trx\\_BaseTrx\:\:\$uniqueKeys type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: ../packages/nexus-core/src/Models/Trx/_BaseTrx.php
@@ -1087,12 +1069,6 @@ parameters:
 			path: ../packages/nexus-vip/src/Models/MstVipLevelReward.php
 
 		-
-			message: '#^Property NexusVip\\Models\\MstVipLevelReward\:\:\$fillable type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-vip/src/Models/MstVipLevelReward.php
-
-		-
 			message: '#^Property NexusVip\\Models\\MstVipLevelReward\:\:\$primaryKey \(string\) does not accept default value of type array\<int, string\>\.$#'
 			identifier: property.defaultValue
 			count: 1
@@ -1357,24 +1333,6 @@ parameters:
 			path: app/Domain/InAppPurchase/Services/InAppPurchaseHistoryService.php
 
 		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:getAmount\(\)\.$#'
-			identifier: method.notFound
-			count: 7
-			path: app/Domain/InAppPurchase/Services/InAppPurchasePackService.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:getContentId\(\)\.$#'
-			identifier: method.notFound
-			count: 4
-			path: app/Domain/InAppPurchase/Services/InAppPurchasePackService.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:getContentType\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Domain/InAppPurchase/Services/InAppPurchasePackService.php
-
-		-
 			message: '#^Method App\\Domain\\InAppPurchase\\Services\\InAppPurchasePackService\:\:purchasePack\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -1385,18 +1343,6 @@ parameters:
 			identifier: property.onlyWritten
 			count: 1
 			path: app/Domain/InAppPurchase/Services/InAppPurchasePackService.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:getEffectType\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Domain/InAppPurchase/Services/InAppPurchasePassService.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:getValue\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Domain/InAppPurchase/Services/InAppPurchasePassService.php
 
 		-
 			message: '#^Call to an undefined method Nexus\\Core\\Models\\Trx\\_BaseTrxInterface\:\:isEffective\(\)\.$#'
@@ -1415,12 +1361,6 @@ parameters:
 			identifier: return.type
 			count: 1
 			path: app/Domain/InAppPurchase/Services/InAppPurchasePassService.php
-
-		-
-			message: '#^Method App\\Domain\\InAppPurchase\\Services\\InAppPurchaseValidationService\:\:getPlatformProduct\(\) should return App\\Models\\Mst\\MstBillingPlatformProduct\|null but returns Illuminate\\Database\\Eloquent\\Model\|null\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Domain/InAppPurchase/Services/InAppPurchaseValidationService.php
 
 		-
 			message: '#^Undefined variable\: \$verificationResult$#'
@@ -1567,12 +1507,6 @@ parameters:
 			path: app/Domain/Mailbox/UseCases/MailboxReceiveAllUseCase.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$contentCollection\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Domain/Mailbox/UseCases/MailboxReceiveUseCase.php
-
-		-
 			message: '#^Using nullsafe property access "\?\-\>contentCollection" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
@@ -1657,19 +1591,13 @@ parameters:
 			path: app/Http/Responses/Auth/LoginResponse.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$hash\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Responses/Auth/VersionResponse.php
-
-		-
 			message: '#^Cannot call method toDateTimeString\(\) on string\.$#'
 			identifier: method.nonObject
 			count: 2
 			path: app/Http/Responses/Friend/ApplyAcceptResponse.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$my_id\.$#'
+			message: '#^Access to an undefined property App\\Models\\Sys\\SysPlayer\:\:\$my_id\.$#'
 			identifier: property.notFound
 			count: 4
 			path: app/Http/Responses/Friend/ApplyListResponse.php
@@ -1705,19 +1633,19 @@ parameters:
 			path: app/Http/Responses/Friend/ApplySendResponse.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$level\.$#'
+			message: '#^Access to an undefined property App\\Models\\Sys\\SysPlayer\:\:\$level\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/Http/Responses/Friend/ListResponse.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$my_id\.$#'
+			message: '#^Access to an undefined property App\\Models\\Sys\\SysPlayer\:\:\$my_id\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/Http/Responses/Friend/ListResponse.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			message: '#^Access to an undefined property App\\Models\\Sys\\SysPlayer\:\:\$name\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/Http/Responses/Friend/ListResponse.php
@@ -1825,24 +1753,6 @@ parameters:
 			path: app/Models/Log/LogInAppPurchase.php
 
 		-
-			message: '#^Method App\\Models\\Mst\\MstBillingPlatformProduct\:\:inAppPurchasesAsAppStore\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Mst/MstBillingPlatformProduct.php
-
-		-
-			message: '#^Method App\\Models\\Mst\\MstBillingPlatformProduct\:\:inAppPurchasesAsGooglePlay\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Mst/MstBillingPlatformProduct.php
-
-		-
-			message: '#^Property App\\Models\\Mst\\MstBillingPlatformProduct\:\:\$fillable type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Mst/MstBillingPlatformProduct.php
-
-		-
 			message: '#^Call to function is_array\(\) with string will always evaluate to false\.$#'
 			identifier: function.impossibleType
 			count: 1
@@ -1879,40 +1789,10 @@ parameters:
 			path: app/Models/Mst/MstEquipmentLevel.php
 
 		-
-			message: '#^Property App\\Models\\Mst\\MstGachaCost\:\:\$fillable type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Mst/MstGachaCost.php
-
-		-
 			message: '#^Method App\\Models\\Mst\\MstGachaPrize\:\:getContentOption\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Models/Mst/MstGachaPrize.php
-
-		-
-			message: '#^Property App\\Models\\Mst\\MstGachaPrize\:\:\$fillable type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Mst/MstGachaPrize.php
-
-		-
-			message: '#^Property App\\Models\\Mst\\MstGachaRarityRate\:\:\$fillable type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Mst/MstGachaRarityRate.php
-
-		-
-			message: '#^Property App\\Models\\Mst\\MstGachaStep\:\:\$fillable type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Mst/MstGachaStep.php
-
-		-
-			message: '#^Property App\\Models\\Mst\\MstGachaStepBonus\:\:\$fillable type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Mst/MstGachaStepBonus.php
 
 		-
 			message: '#^Class App\\Models\\Mst\\MstGachaStepBonusContent has PHPDoc tag @property for property \$content_option with no value type specified in iterable type array\.$#'
@@ -1927,88 +1807,10 @@ parameters:
 			path: app/Models/Mst/MstGachaStepBonusContent.php
 
 		-
-			message: '#^Property App\\Models\\Mst\\MstGachaStepBonusContent\:\:\$fillable type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Mst/MstGachaStepBonusContent.php
-
-		-
-			message: '#^Method App\\Models\\Mst\\MstInAppPurchase\:\:appStoreProduct\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Mst/MstInAppPurchase.php
-
-		-
-			message: '#^Method App\\Models\\Mst\\MstInAppPurchase\:\:contents\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Mst/MstInAppPurchase.php
-
-		-
-			message: '#^Method App\\Models\\Mst\\MstInAppPurchase\:\:effects\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Mst/MstInAppPurchase.php
-
-		-
-			message: '#^Method App\\Models\\Mst\\MstInAppPurchase\:\:googlePlayProduct\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Mst/MstInAppPurchase.php
-
-		-
-			message: '#^Property App\\Models\\Mst\\MstInAppPurchase\:\:\$fillable type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Mst/MstInAppPurchase.php
-
-		-
 			message: '#^Method App\\Models\\Mst\\MstInAppPurchaseContent\:\:getContentOption\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Models/Mst/MstInAppPurchaseContent.php
-
-		-
-			message: '#^Method App\\Models\\Mst\\MstInAppPurchaseContent\:\:inAppPurchase\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Mst/MstInAppPurchaseContent.php
-
-		-
-			message: '#^Method App\\Models\\Mst\\MstInAppPurchaseContent\:\:item\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Mst/MstInAppPurchaseContent.php
-
-		-
-			message: '#^Method App\\Models\\Mst\\MstInAppPurchaseContent\:\:unit\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Mst/MstInAppPurchaseContent.php
-
-		-
-			message: '#^Property App\\Models\\Mst\\MstInAppPurchaseContent\:\:\$fillable type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Mst/MstInAppPurchaseContent.php
-
-		-
-			message: '#^Method App\\Models\\Mst\\MstInAppPurchaseEffect\:\:inAppPurchase\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Mst/MstInAppPurchaseEffect.php
-
-		-
-			message: '#^Property App\\Models\\Mst\\MstInAppPurchaseEffect\:\:\$fillable type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Mst/MstInAppPurchaseEffect.php
-
-		-
-			message: '#^Method App\\Models\\Mst\\MstLoginBonus\:\:contents\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Mst/MstLoginBonus.php
 
 		-
 			message: '#^Call to function is_array\(\) with string will always evaluate to false\.$#'
@@ -2019,12 +1821,6 @@ parameters:
 		-
 			message: '#^Method App\\Models\\Mst\\MstLoginBonusContent\:\:getContentOption\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Mst/MstLoginBonusContent.php
-
-		-
-			message: '#^Method App\\Models\\Mst\\MstLoginBonusContent\:\:loginBonus\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
 			count: 1
 			path: app/Models/Mst/MstLoginBonusContent.php
 
@@ -2071,26 +1867,8 @@ parameters:
 			path: app/Models/Mst/MstMailbox.php
 
 		-
-			message: '#^Method App\\Models\\Mst\\MstMailbox\:\:contentCollection\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Mst/MstMailbox.php
-
-		-
-			message: '#^Method App\\Models\\Mst\\MstMailbox\:\:message\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Mst/MstMailbox.php
-
-		-
 			message: '#^Method App\\Models\\Mst\\MstMailboxContent\:\:getContentOption\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Mst/MstMailboxContent.php
-
-		-
-			message: '#^Method App\\Models\\Mst\\MstMailboxContent\:\:mailbox\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
 			count: 1
 			path: app/Models/Mst/MstMailboxContent.php
 
@@ -2099,18 +1877,6 @@ parameters:
 			identifier: method.childReturnType
 			count: 1
 			path: app/Models/Mst/MstMailboxContent.php
-
-		-
-			message: '#^Method App\\Models\\Mst\\MstMessage\:\:i18n\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Mst/MstMessage.php
-
-		-
-			message: '#^Method App\\Models\\Mst\\MstMessageI18n\:\:message\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Mst/MstMessageI18n.php
 
 		-
 			message: '#^Return type \(array\<int, string\>\) of method App\\Models\\Mst\\MstMessageI18n\:\:getKeyName\(\) should be compatible with return type \(string\) of method Illuminate\\Database\\Eloquent\\Model\:\:getKeyName\(\)$#'
@@ -2123,18 +1889,6 @@ parameters:
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/Mst/MstPlayerLevel.php
-
-		-
-			message: '#^Property App\\Models\\Mst\\MstPlayerLevel\:\:\$fillable type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Mst/MstPlayerLevel.php
-
-		-
-			message: '#^Property App\\Models\\Mst\\MstUnit\:\:\$fillable type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Mst/MstUnit.php
 
 		-
 			message: '#^Call to function is_array\(\) with string will always evaluate to false\.$#'
@@ -2151,12 +1905,6 @@ parameters:
 		-
 			message: '#^Method App\\Models\\Mst\\MstUnitLevel\:\:setKeysForSaveQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/Mst/MstUnitLevel.php
-
-		-
-			message: '#^Property App\\Models\\Mst\\MstUnitLevel\:\:\$fillable type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
 			count: 1
 			path: app/Models/Mst/MstUnitLevel.php
 
@@ -2197,12 +1945,6 @@ parameters:
 			path: app/Models/Mst/MstVipLoginBonus.php
 
 		-
-			message: '#^Property App\\Models\\Mst\\MstVipLoginBonus\:\:\$fillable type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Mst/MstVipLoginBonus.php
-
-		-
 			message: '#^Class App\\Models\\Mst\\MstVipLoginBonusContent has PHPDoc tag @property for property \$content_option with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -2213,24 +1955,6 @@ parameters:
 			identifier: missingType.return
 			count: 1
 			path: app/Models/Mst/MstVipLoginBonusContent.php
-
-		-
-			message: '#^Property App\\Models\\Mst\\MstVipLoginBonusContent\:\:\$fillable type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Mst/MstVipLoginBonusContent.php
-
-		-
-			message: '#^Method App\\Models\\Sys\\SysDeploy\:\:deployAsset\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Sys/SysDeploy.php
-
-		-
-			message: '#^Method App\\Models\\Sys\\SysDeploy\:\:deployMaster\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Sys/SysDeploy.php
 
 		-
 			message: '#^Method App\\Models\\Sys\\SysDeploy\:\:scopeActive\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
@@ -2257,55 +1981,7 @@ parameters:
 			path: app/Models/Sys/SysDeploy.php
 
 		-
-			message: '#^PHPDoc type array of property App\\Models\\Sys\\SysDeploy\:\:\$casts is not covariant with PHPDoc type array\<string, string\> of overridden property Nexus\\Core\\Models\\_BaseModel\:\:\$casts\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: app/Models/Sys/SysDeploy.php
-
-		-
-			message: '#^PHPDoc type array of property App\\Models\\Sys\\SysDeploy\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: app/Models/Sys/SysDeploy.php
-
-		-
-			message: '#^Property App\\Models\\Sys\\SysDeploy\:\:\$casts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Sys/SysDeploy.php
-
-		-
-			message: '#^Property App\\Models\\Sys\\SysDeploy\:\:\$fillable type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Sys/SysDeploy.php
-
-		-
 			message: '#^Method App\\Models\\Sys\\SysDeployAsset\:\:availableStatuses\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Sys/SysDeployAsset.php
-
-		-
-			message: '#^PHPDoc type array of property App\\Models\\Sys\\SysDeployAsset\:\:\$casts is not covariant with PHPDoc type array\<string, string\> of overridden property Nexus\\Core\\Models\\_BaseModel\:\:\$casts\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: app/Models/Sys/SysDeployAsset.php
-
-		-
-			message: '#^PHPDoc type array of property App\\Models\\Sys\\SysDeployAsset\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: app/Models/Sys/SysDeployAsset.php
-
-		-
-			message: '#^Property App\\Models\\Sys\\SysDeployAsset\:\:\$casts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Sys/SysDeployAsset.php
-
-		-
-			message: '#^Property App\\Models\\Sys\\SysDeployAsset\:\:\$fillable type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Models/Sys/SysDeployAsset.php
@@ -2323,124 +1999,10 @@ parameters:
 			path: app/Models/Sys/SysDeployMaster.php
 
 		-
-			message: '#^PHPDoc type array of property App\\Models\\Sys\\SysDeployMaster\:\:\$casts is not covariant with PHPDoc type array\<string, string\> of overridden property Nexus\\Core\\Models\\_BaseModel\:\:\$casts\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: app/Models/Sys/SysDeployMaster.php
-
-		-
-			message: '#^PHPDoc type array of property App\\Models\\Sys\\SysDeployMaster\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: app/Models/Sys/SysDeployMaster.php
-
-		-
-			message: '#^Property App\\Models\\Sys\\SysDeployMaster\:\:\$casts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Sys/SysDeployMaster.php
-
-		-
-			message: '#^Property App\\Models\\Sys\\SysDeployMaster\:\:\$fillable type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Sys/SysDeployMaster.php
-
-		-
 			message: '#^Method App\\Models\\Sys\\SysFriendApply\:\:availableStatuses\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Models/Sys/SysFriendApply.php
-
-		-
-			message: '#^Method App\\Models\\Sys\\SysFriendApply\:\:receivePlayer\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Sys/SysFriendApply.php
-
-		-
-			message: '#^Method App\\Models\\Sys\\SysFriendApply\:\:sendPlayer\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Sys/SysFriendApply.php
-
-		-
-			message: '#^PHPDoc type array of property App\\Models\\Sys\\SysFriendApply\:\:\$casts is not covariant with PHPDoc type array\<string, string\> of overridden property Nexus\\Core\\Models\\_BaseModel\:\:\$casts\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: app/Models/Sys/SysFriendApply.php
-
-		-
-			message: '#^PHPDoc type array of property App\\Models\\Sys\\SysFriendApply\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: app/Models/Sys/SysFriendApply.php
-
-		-
-			message: '#^Property App\\Models\\Sys\\SysFriendApply\:\:\$casts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Sys/SysFriendApply.php
-
-		-
-			message: '#^Property App\\Models\\Sys\\SysFriendApply\:\:\$fillable type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Sys/SysFriendApply.php
-
-		-
-			message: '#^Method App\\Models\\Sys\\SysGuild\:\:applies\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Sys/SysGuild.php
-
-		-
-			message: '#^Method App\\Models\\Sys\\SysGuild\:\:members\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Sys/SysGuild.php
-
-		-
-			message: '#^PHPDoc type array\<string\> of property App\\Models\\Sys\\SysGuild\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: app/Models/Sys/SysGuild.php
-
-		-
-			message: '#^Method App\\Models\\Sys\\SysGuildApply\:\:guild\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Sys/SysGuildApply.php
-
-		-
-			message: '#^Method App\\Models\\Sys\\SysGuildApply\:\:player\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Sys/SysGuildApply.php
-
-		-
-			message: '#^PHPDoc type array\<string\> of property App\\Models\\Sys\\SysGuildApply\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: app/Models/Sys/SysGuildApply.php
-
-		-
-			message: '#^Method App\\Models\\Sys\\SysGuildMember\:\:guild\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Sys/SysGuildMember.php
-
-		-
-			message: '#^Method App\\Models\\Sys\\SysGuildMember\:\:player\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Sys/SysGuildMember.php
-
-		-
-			message: '#^PHPDoc type array\<string\> of property App\\Models\\Sys\\SysGuildMember\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: app/Models/Sys/SysGuildMember.php
 
 		-
 			message: '#^Cannot call method format\(\) on string\.$#'
@@ -2473,48 +2035,6 @@ parameters:
 			path: app/Models/Sys/SysMaintenance.php
 
 		-
-			message: '#^PHPDoc type array of property App\\Models\\Sys\\SysMaintenance\:\:\$casts is not covariant with PHPDoc type array\<string, string\> of overridden property Nexus\\Core\\Models\\_BaseModel\:\:\$casts\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: app/Models/Sys/SysMaintenance.php
-
-		-
-			message: '#^PHPDoc type array of property App\\Models\\Sys\\SysMaintenance\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: app/Models/Sys/SysMaintenance.php
-
-		-
-			message: '#^Property App\\Models\\Sys\\SysMaintenance\:\:\$casts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Sys/SysMaintenance.php
-
-		-
-			message: '#^Property App\\Models\\Sys\\SysMaintenance\:\:\$fillable type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Sys/SysMaintenance.php
-
-		-
-			message: '#^Method App\\Models\\Sys\\SysPlayer\:\:devices\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Sys/SysPlayer.php
-
-		-
-			message: '#^Method App\\Models\\Sys\\SysPlayer\:\:tokens\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Sys/SysPlayer.php
-
-		-
-			message: '#^PHPDoc type array\<string\> of property App\\Models\\Sys\\SysPlayer\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: app/Models/Sys/SysPlayer.php
-
-		-
 			message: '#^Access to an undefined property App\\Models\\Sys\\SysPlayerDevice\:\:\$created_at\.$#'
 			identifier: property.notFound
 			count: 1
@@ -2527,46 +2047,10 @@ parameters:
 			path: app/Models/Sys/SysPlayerDevice.php
 
 		-
-			message: '#^Method App\\Models\\Sys\\SysPlayerDevice\:\:getPlayer\(\) should return NexusAuth\\Contracts\\PlayerModelInterface\|null but returns Illuminate\\Database\\Eloquent\\Model\|null\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/Sys/SysPlayerDevice.php
-
-		-
-			message: '#^Method App\\Models\\Sys\\SysPlayerDevice\:\:player\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Sys/SysPlayerDevice.php
-
-		-
 			message: '#^Method App\\Models\\Sys\\SysPlayerDevice\:\:setDeviceInfo\(\) has parameter \$deviceInfo with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Models/Sys/SysPlayerDevice.php
-
-		-
-			message: '#^Method App\\Models\\Sys\\SysPlayerDevice\:\:tokens\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Sys/SysPlayerDevice.php
-
-		-
-			message: '#^PHPDoc type array\<string\> of property App\\Models\\Sys\\SysPlayerDevice\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: app/Models/Sys/SysPlayerDevice.php
-
-		-
-			message: '#^Method App\\Models\\Sys\\SysPlayerToken\:\:device\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Sys/SysPlayerToken.php
-
-		-
-			message: '#^Method App\\Models\\Sys\\SysPlayerToken\:\:player\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Sys/SysPlayerToken.php
 
 		-
 			message: '#^Method App\\Models\\Sys\\SysPlayerToken\:\:scopeValid\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
@@ -2577,12 +2061,6 @@ parameters:
 		-
 			message: '#^Method App\\Models\\Sys\\SysPlayerToken\:\:scopeValid\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/Sys/SysPlayerToken.php
-
-		-
-			message: '#^PHPDoc type array\<string\> of property App\\Models\\Sys\\SysPlayerToken\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
-			identifier: property.phpDocType
 			count: 1
 			path: app/Models/Sys/SysPlayerToken.php
 
@@ -2611,36 +2089,6 @@ parameters:
 			path: app/Models/Sys/SysSharding.php
 
 		-
-			message: '#^Method App\\Models\\Sys\\SysSharding\:\:nodes\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Sys/SysSharding.php
-
-		-
-			message: '#^PHPDoc type array of property App\\Models\\Sys\\SysSharding\:\:\$casts is not covariant with PHPDoc type array\<string, string\> of overridden property Nexus\\Core\\Models\\_BaseModel\:\:\$casts\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: app/Models/Sys/SysSharding.php
-
-		-
-			message: '#^PHPDoc type array of property App\\Models\\Sys\\SysSharding\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: app/Models/Sys/SysSharding.php
-
-		-
-			message: '#^Property App\\Models\\Sys\\SysSharding\:\:\$casts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Sys/SysSharding.php
-
-		-
-			message: '#^Property App\\Models\\Sys\\SysSharding\:\:\$fillable type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Sys/SysSharding.php
-
-		-
 			message: '#^Method App\\Models\\Sys\\SysShardingNode\:\:availableStatuses\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -2651,78 +2099,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Models/Sys/SysShardingNode.php
-
-		-
-			message: '#^Method App\\Models\\Sys\\SysShardingNode\:\:playerAssignments\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Sys/SysShardingNode.php
-
-		-
-			message: '#^Method App\\Models\\Sys\\SysShardingNode\:\:sharding\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Sys/SysShardingNode.php
-
-		-
-			message: '#^PHPDoc type array of property App\\Models\\Sys\\SysShardingNode\:\:\$casts is not covariant with PHPDoc type array\<string, string\> of overridden property Nexus\\Core\\Models\\_BaseModel\:\:\$casts\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: app/Models/Sys/SysShardingNode.php
-
-		-
-			message: '#^PHPDoc type array of property App\\Models\\Sys\\SysShardingNode\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: app/Models/Sys/SysShardingNode.php
-
-		-
-			message: '#^Property App\\Models\\Sys\\SysShardingNode\:\:\$casts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Sys/SysShardingNode.php
-
-		-
-			message: '#^Property App\\Models\\Sys\\SysShardingNode\:\:\$fillable type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Sys/SysShardingNode.php
-
-		-
-			message: '#^Method App\\Models\\Sys\\SysShardingNodePlayer\:\:node\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Sys/SysShardingNodePlayer.php
-
-		-
-			message: '#^Method App\\Models\\Sys\\SysShardingNodePlayer\:\:sysPlayer\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Sys/SysShardingNodePlayer.php
-
-		-
-			message: '#^PHPDoc type array of property App\\Models\\Sys\\SysShardingNodePlayer\:\:\$casts is not covariant with PHPDoc type array\<string, string\> of overridden property Nexus\\Core\\Models\\_BaseModel\:\:\$casts\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: app/Models/Sys/SysShardingNodePlayer.php
-
-		-
-			message: '#^PHPDoc type array of property App\\Models\\Sys\\SysShardingNodePlayer\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: app/Models/Sys/SysShardingNodePlayer.php
-
-		-
-			message: '#^Property App\\Models\\Sys\\SysShardingNodePlayer\:\:\$casts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Sys/SysShardingNodePlayer.php
-
-		-
-			message: '#^Property App\\Models\\Sys\\SysShardingNodePlayer\:\:\$fillable type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Sys/SysShardingNodePlayer.php
 
 		-
 			message: '#^Call to function is_array\(\) with string will always evaluate to false\.$#'
@@ -2743,20 +2119,8 @@ parameters:
 			path: app/Models/Trx/TrxDiamond.php
 
 		-
-			message: '#^Method App\\Models\\Trx\\TrxDiamond\:\:trxPlayer\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Trx/TrxDiamond.php
-
-		-
 			message: '#^Property App\\Models\\Trx\\TrxDiamond\:\:\$primaryKey \(string\) does not accept default value of type array\<int, string\>\.$#'
 			identifier: property.defaultValue
-			count: 1
-			path: app/Models/Trx/TrxDiamond.php
-
-		-
-			message: '#^Property App\\Models\\Trx\\TrxDiamond\:\:\$uniqueKeys type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
 			count: 1
 			path: app/Models/Trx/TrxDiamond.php
 
@@ -2765,36 +2129,6 @@ parameters:
 			identifier: deadCode.unreachable
 			count: 1
 			path: app/Models/Trx/TrxDiamond.php
-
-		-
-			message: '#^Method App\\Models\\Trx\\TrxDiamondBalance\:\:trxPlayer\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Trx/TrxDiamondBalance.php
-
-		-
-			message: '#^Property App\\Models\\Trx\\TrxDiamondBalance\:\:\$uniqueKeys type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Trx/TrxDiamondBalance.php
-
-		-
-			message: '#^Method App\\Models\\Trx\\TrxEquipment\:\:trxPlayer\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Trx\\TrxPlayer, App\\Models\\Trx\\TrxEquipment\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Trx\\TrxPlayer, \$this\(App\\Models\\Trx\\TrxEquipment\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/Trx/TrxEquipment.php
-
-		-
-			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\Trx\\TrxEquipment\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: app/Models/Trx/TrxEquipment.php
-
-		-
-			message: '#^Property App\\Models\\Trx\\TrxGacha\:\:\$uniqueKeys type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Trx/TrxGacha.php
 
 		-
 			message: '#^Class App\\Models\\Trx\\TrxGachaHistory has PHPDoc tag @property for property \$prizes with no value type specified in iterable type array\.$#'
@@ -2821,20 +2155,8 @@ parameters:
 			path: app/Models/Trx/TrxInAppPurchase.php
 
 		-
-			message: '#^Method App\\Models\\Trx\\TrxInAppPurchase\:\:trxPlayer\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Trx/TrxInAppPurchase.php
-
-		-
 			message: '#^Property App\\Models\\Trx\\TrxInAppPurchase\:\:\$primaryKey \(string\) does not accept default value of type array\<int, string\>\.$#'
 			identifier: property.defaultValue
-			count: 1
-			path: app/Models/Trx/TrxInAppPurchase.php
-
-		-
-			message: '#^Property App\\Models\\Trx\\TrxInAppPurchase\:\:\$uniqueKeys type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
 			count: 1
 			path: app/Models/Trx/TrxInAppPurchase.php
 
@@ -2843,18 +2165,6 @@ parameters:
 			identifier: deadCode.unreachable
 			count: 1
 			path: app/Models/Trx/TrxInAppPurchase.php
-
-		-
-			message: '#^Method App\\Models\\Trx\\TrxInAppPurchaseEffect\:\:trxInAppPurchase\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Trx/TrxInAppPurchaseEffect.php
-
-		-
-			message: '#^Method App\\Models\\Trx\\TrxInAppPurchaseEffect\:\:trxPlayer\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Trx/TrxInAppPurchaseEffect.php
 
 		-
 			message: '#^Parameter \#2 \$foreignKey of method Illuminate\\Database\\Eloquent\\Model\:\:belongsTo\(\) expects string\|null, array\<int, string\> given\.$#'
@@ -2881,12 +2191,6 @@ parameters:
 			path: app/Models/Trx/TrxItem.php
 
 		-
-			message: '#^Method App\\Models\\Trx\\TrxItem\:\:trxPlayer\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Trx/TrxItem.php
-
-		-
 			message: '#^PHPDoc tag @param references unknown parameter\: \$ids$#'
 			identifier: parameter.notFound
 			count: 1
@@ -2895,12 +2199,6 @@ parameters:
 		-
 			message: '#^Property App\\Models\\Trx\\TrxItem\:\:\$primaryKey \(string\) does not accept default value of type array\<int, string\>\.$#'
 			identifier: property.defaultValue
-			count: 1
-			path: app/Models/Trx/TrxItem.php
-
-		-
-			message: '#^Property App\\Models\\Trx\\TrxItem\:\:\$uniqueKeys type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
 			count: 1
 			path: app/Models/Trx/TrxItem.php
 
@@ -2929,40 +2227,10 @@ parameters:
 			path: app/Models/Trx/TrxMailbox.php
 
 		-
-			message: '#^Method App\\Models\\Trx\\TrxMailbox\:\:mstMailbox\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Trx/TrxMailbox.php
-
-		-
 			message: '#^Method App\\Models\\Trx\\TrxMailbox\:\:setCustomParams\(\) has parameter \$customParams with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Models/Trx/TrxMailbox.php
-
-		-
-			message: '#^Method App\\Models\\Trx\\TrxMailbox\:\:trxPlayer\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Trx/TrxMailbox.php
-
-		-
-			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\Trx\\TrxMailbox\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: app/Models/Trx/TrxMailbox.php
-
-		-
-			message: '#^Method App\\Models\\Trx\\TrxPlayer\:\:sysPlayer\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Trx/TrxPlayer.php
-
-		-
-			message: '#^Property App\\Models\\Trx\\TrxPlayer\:\:\$uniqueKeys type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Trx/TrxPlayer.php
 
 		-
 			message: '#^Call to function is_array\(\) with string will always evaluate to false\.$#'
@@ -2979,12 +2247,6 @@ parameters:
 		-
 			message: '#^Method App\\Models\\Trx\\TrxPlayerSns\:\:setKeysForSaveQuery\(\) should return \$this\(App\\Models\\Trx\\TrxPlayerSns\) but returns Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Trx\\_BaseTrx\>\.$#'
 			identifier: return.type
-			count: 1
-			path: app/Models/Trx/TrxPlayerSns.php
-
-		-
-			message: '#^Method App\\Models\\Trx\\TrxPlayerSns\:\:trxPlayer\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
 			count: 1
 			path: app/Models/Trx/TrxPlayerSns.php
 
@@ -3013,28 +2275,16 @@ parameters:
 			path: app/Models/Trx/TrxPlayerSns.php
 
 		-
-			message: '#^Method App\\Models\\Trx\\TrxStamina\:\:sysPlayer\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Trx/TrxStamina.php
-
-		-
 			message: '#^PHPDoc type array\<string\> of property App\\Models\\Trx\\TrxStamina\:\:\$primaryKey is not covariant with PHPDoc type string of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$primaryKey\.$#'
 			identifier: property.phpDocType
 			count: 1
 			path: app/Models/Trx/TrxStamina.php
 
 		-
-			message: '#^Method App\\Models\\Trx\\TrxUnit\:\:trxPlayer\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
+			message: '#^Property App\\Models\\Trx\\TrxStamina\:\:\$uniqueKeys \(list\<string\>\) does not accept default value of type array\{array\{''sys_player_id'', ''type''\}\}\.$#'
+			identifier: property.defaultValue
 			count: 1
-			path: app/Models/Trx/TrxUnit.php
-
-		-
-			message: '#^Property App\\Models\\Trx\\TrxUnit\:\:\$uniqueKeys type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Trx/TrxUnit.php
+			path: app/Models/Trx/TrxStamina.php
 
 		-
 			message: '#^Call to function is_array\(\) with string will always evaluate to false\.$#'
@@ -3055,20 +2305,8 @@ parameters:
 			path: app/Models/Trx/TrxWallet.php
 
 		-
-			message: '#^Method App\\Models\\Trx\\TrxWallet\:\:trxPlayer\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Trx/TrxWallet.php
-
-		-
 			message: '#^Property App\\Models\\Trx\\TrxWallet\:\:\$primaryKey \(string\) does not accept default value of type array\<int, string\>\.$#'
 			identifier: property.defaultValue
-			count: 1
-			path: app/Models/Trx/TrxWallet.php
-
-		-
-			message: '#^Property App\\Models\\Trx\\TrxWallet\:\:\$uniqueKeys type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
 			count: 1
 			path: app/Models/Trx/TrxWallet.php
 
@@ -3077,18 +2315,6 @@ parameters:
 			identifier: deadCode.unreachable
 			count: 1
 			path: app/Models/Trx/TrxWallet.php
-
-		-
-			message: '#^Method App\\Models\\Trx\\TrxWalletBalance\:\:trxPlayer\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Trx/TrxWalletBalance.php
-
-		-
-			message: '#^Property App\\Models\\Trx\\TrxWalletBalance\:\:\$uniqueKeys type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Trx/TrxWalletBalance.php
 
 		-
 			message: '#^Method App\\Repositories\\Log\\LogAccessRepository\:\:insertAccessLog\(\) has parameter \$requestBody with no value type specified in iterable type array\.$#'

@@ -29,6 +29,7 @@ class SysDeploy extends _BaseSys
      *
      * @var array
      */
+    /** @var list<string> */
     protected $fillable = [
         'deploy_key',
         'start_at',
@@ -42,12 +43,16 @@ class SysDeploy extends _BaseSys
      *
      * @var array
      */
+    /** @var array<string, string> */
     protected $casts = [
         'is_active' => 'boolean',
     ];
 
     /**
      * マスターデプロイとのリレーション
+     */
+    /**
+     * @return BelongsTo<SysDeployMaster, $this>
      */
     public function deployMaster(): BelongsTo
     {
@@ -56,6 +61,9 @@ class SysDeploy extends _BaseSys
 
     /**
      * アセットデプロイとのリレーション
+     */
+    /**
+     * @return BelongsTo<SysDeployAsset, $this>
      */
     public function deployAsset(): BelongsTo
     {

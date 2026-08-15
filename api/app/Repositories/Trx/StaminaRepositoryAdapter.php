@@ -35,20 +35,20 @@ class StaminaRepositoryAdapter implements StaminaRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function persist(Stamina $staminaDto): void
+    public function persist(Stamina $stamina): void
     {
         $model = $this->trxStaminaRepository->selectByPlayerAndType(
-            $staminaDto->getSysPlayerId(),
-            $staminaDto->getType()
+            $stamina->getSysPlayerId(),
+            $stamina->getType()
         );
 
         if ($model === null) {
             return;
         }
 
-        $model->current_stamina = $staminaDto->getCurrentStamina();
-        $model->recovery_rate_multiplier = $staminaDto->getRecoveryRateMultiplier();
-        $model->last_recovery_at = $staminaDto->getLastRecoveryAt();
+        $model->current_stamina = $stamina->getCurrentStamina();
+        $model->recovery_rate_multiplier = $stamina->getRecoveryRateMultiplier();
+        $model->last_recovery_at = $stamina->getLastRecoveryAt();
 
         $this->trxStaminaRepository->setModel($model);
     }
@@ -56,17 +56,17 @@ class StaminaRepositoryAdapter implements StaminaRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function insert(Stamina $staminaDto): Stamina
+    public function insert(Stamina $stamina): Stamina
     {
         $this->trxStaminaRepository->insertStamina(
-            $staminaDto->getSysPlayerId(),
-            $staminaDto->getType(),
-            $staminaDto->getCurrentStamina(),
-            $staminaDto->getRecoveryRateMultiplier(),
-            $staminaDto->getLastRecoveryAt()
+            $stamina->getSysPlayerId(),
+            $stamina->getType(),
+            $stamina->getCurrentStamina(),
+            $stamina->getRecoveryRateMultiplier(),
+            $stamina->getLastRecoveryAt()
         );
 
-        return $staminaDto;
+        return $stamina;
     }
 
     /**

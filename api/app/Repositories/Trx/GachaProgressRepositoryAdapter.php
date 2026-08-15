@@ -35,22 +35,22 @@ class GachaProgressRepositoryAdapter implements GachaProgressRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function persist(GachaProgress $gachaProgressDto): void
+    public function persist(GachaProgress $gachaProgress): void
     {
         $model = $this->trxGachaRepository->selectByPlayerAndGacha(
-            $gachaProgressDto->getSysPlayerId(),
-            $gachaProgressDto->getMstGachaId()
+            $gachaProgress->getSysPlayerId(),
+            $gachaProgress->getMstGachaId()
         );
 
         if ($model === null) {
             return;
         }
 
-        $model->current_step = $gachaProgressDto->getCurrentStep();
-        $model->daily_draw_count = $gachaProgressDto->getDailyDrawCount();
-        $model->daily_reset_at = $gachaProgressDto->getDailyResetAt();
-        $model->total_draw_count = $gachaProgressDto->getTotalDrawCount();
-        $model->total_reset_at = $gachaProgressDto->getTotalResetAt();
+        $model->current_step = $gachaProgress->getCurrentStep();
+        $model->daily_draw_count = $gachaProgress->getDailyDrawCount();
+        $model->daily_reset_at = $gachaProgress->getDailyResetAt();
+        $model->total_draw_count = $gachaProgress->getTotalDrawCount();
+        $model->total_reset_at = $gachaProgress->getTotalResetAt();
 
         $this->trxGachaRepository->setModel($model);
     }
@@ -58,19 +58,19 @@ class GachaProgressRepositoryAdapter implements GachaProgressRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function insert(GachaProgress $gachaProgressDto): GachaProgress
+    public function insert(GachaProgress $gachaProgress): GachaProgress
     {
         $this->trxGachaRepository->insertProgress(
-            $gachaProgressDto->getSysPlayerId(),
-            $gachaProgressDto->getMstGachaId(),
-            $gachaProgressDto->getCurrentStep(),
-            $gachaProgressDto->getDailyDrawCount(),
-            $gachaProgressDto->getDailyResetAt(),
-            $gachaProgressDto->getTotalDrawCount(),
-            $gachaProgressDto->getTotalResetAt()
+            $gachaProgress->getSysPlayerId(),
+            $gachaProgress->getMstGachaId(),
+            $gachaProgress->getCurrentStep(),
+            $gachaProgress->getDailyDrawCount(),
+            $gachaProgress->getDailyResetAt(),
+            $gachaProgress->getTotalDrawCount(),
+            $gachaProgress->getTotalResetAt()
         );
 
-        return $gachaProgressDto;
+        return $gachaProgress;
     }
 
     /**

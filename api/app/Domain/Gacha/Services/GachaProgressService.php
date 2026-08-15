@@ -27,15 +27,15 @@ class GachaProgressService
     public function findOrInsertProgress(int $sysPlayerId, string $mstGachaId): TrxGacha
     {
         // Eloquent Modelに変換
-        $progress = TrxGacha::query()
+        $trxGacha = TrxGacha::query()
             ->where('sys_player_id', $sysPlayerId)
             ->where('mst_gacha_id', $mstGachaId)
             ->where('is_delete', false)
             ->first();
 
-        if (! $progress) {
+        if (! $trxGacha) {
             $now = ClockUtility::now();
-            $progress = new TrxGacha([
+            $trxGacha = new TrxGacha([
                 'sys_player_id' => $sysPlayerId,
                 'mst_gacha_id' => $mstGachaId,
                 'current_step' => 1,
@@ -44,55 +44,55 @@ class GachaProgressService
                 'total_draw_count' => 0,
                 'total_reset_at' => $now,
             ]);
-            $progress->exists = false;
+            $trxGacha->exists = false;
         }
 
-        return $progress;
+        return $trxGacha;
     }
 
     /**
      * 日次リセットが必要かチェックし、必要ならリセット
      */
-    public function checkAndResetDaily(TrxGacha $progress): TrxGacha
+    public function checkAndResetDaily(TrxGacha $trxGacha): TrxGacha
     {
-        $progressDto = $this->convertToDto($progress);
-        $updatedDto = $this->baseProgressService->checkAndResetDaily($progressDto);
+        $progress = $this->convertToDto($trxGacha);
+        $updatedProgress = $this->baseProgressService->checkAndResetDaily($progress);
 
         // 更新された値をModelに反映
-        $progress->setAttribute('daily_draw_count', $updatedDto->getDailyDrawCount());
-        $progress->setAttribute('daily_reset_at', $updatedDto->getDailyResetAt());
+        $trxGacha->setAttribute('daily_draw_count', $updatedProgress->getDailyDrawCount());
+        $trxGacha->setAttribute('daily_reset_at', $updatedProgress->getDailyResetAt());
 
-        return $progress;
+        return $trxGacha;
     }
 
     /**
      * ガチャ実行後に進行状況を更新
      */
-    public function updateProgress(TrxGacha $progress, int $drawCount, ?int $nextStep = null): void
+    public function updateProgress(TrxGacha $trxGacha, int $drawCount, ?int $nextStep = null): void
     {
-        $progress->setAttribute('daily_draw_count', $progress->getDailyDrawCount() + 1);
-        $progress->setAttribute('total_draw_count', $progress->getTotalDrawCount() + $drawCount);
+        $trxGacha->setAttribute('daily_draw_count', $trxGacha->getDailyDrawCount() + 1);
+        $trxGacha->setAttribute('total_draw_count', $trxGacha->getTotalDrawCount() + $drawCount);
 
         if ($nextStep !== null) {
-            $progress->setAttribute('current_step', $nextStep);
+            $trxGacha->setAttribute('current_step', $nextStep);
         }
 
-        $this->trxGachaRepository->setModel($progress);
+        $this->trxGachaRepository->setModel($trxGacha);
     }
 
     /**
      * TrxGachaモデルをDTOに変換
      */
-    private function convertToDto(TrxGacha $progress): GachaProgress
+    private function convertToDto(TrxGacha $trxGacha): GachaProgress
     {
         return new GachaProgress(
-            sysPlayerId: $progress->sys_player_id,
-            mstGachaId: $progress->mst_gacha_id,
-            currentStep: $progress->current_step,
-            dailyDrawCount: $progress->daily_draw_count,
-            dailyResetAt: $progress->daily_reset_at,
-            totalDrawCount: $progress->total_draw_count,
-            totalResetAt: $progress->total_reset_at
+            sysPlayerId: $trxGacha->sys_player_id,
+            mstGachaId: $trxGacha->mst_gacha_id,
+            currentStep: $trxGacha->current_step,
+            dailyDrawCount: $trxGacha->daily_draw_count,
+            dailyResetAt: $trxGacha->daily_reset_at,
+            totalDrawCount: $trxGacha->total_draw_count,
+            totalResetAt: $trxGacha->total_reset_at
         );
     }
 }

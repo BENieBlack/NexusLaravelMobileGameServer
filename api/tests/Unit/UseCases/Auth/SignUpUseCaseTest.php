@@ -125,9 +125,9 @@ class SignUpUseCaseTest extends TestCase
         $response = $this->useCase->exec($deviceId, $deviceInfo);
 
         // Assert - Tokenが正しく生成されている
-        $this->assertNotEmpty($response->tokenDto->getAccessToken());
-        $this->assertNotEmpty($response->tokenDto->getRefreshToken());
-        $this->assertEquals(3600, $response->tokenDto->getExpiresIn());
+        $this->assertNotEmpty($response->token->getAccessToken());
+        $this->assertNotEmpty($response->token->getRefreshToken());
+        $this->assertEquals(3600, $response->token->getExpiresIn());
 
         // Assert - SysPlayerTokenが正しく生成されている
         $this->assertInstanceOf(SysPlayerToken::class, $response->sysPlayerToken);

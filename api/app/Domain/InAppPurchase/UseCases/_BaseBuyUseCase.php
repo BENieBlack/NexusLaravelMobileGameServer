@@ -129,31 +129,31 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
      *
      * @param  int  $sysPlayerId  プレイヤーID
      * @param  MstInAppPurchase  $mstInAppPurchase  商品マスター
-     * @param  Receipt  $receiptDto  レシートデータ
+     * @param  Receipt  $receipt  レシートデータ
      */
     protected function generateUniqueRequestId(
         int $sysPlayerId,
         MstInAppPurchase $mstInAppPurchase,
-        Receipt $receiptDto
+        Receipt $receipt
     ): string {
-        return $sysPlayerId.'_'.$mstInAppPurchase->getId().'_'.($receiptDto->getTransactionId() ?? time());
+        return $sysPlayerId.'_'.$mstInAppPurchase->getId().'_'.($receipt->getTransactionId() ?? time());
     }
 
     /**
      * レシートを検証
      *
      * @param  string  $billingPlatform  決済プラットフォーム
-     * @param  Receipt  $receiptDto  レシートデータ
+     * @param  Receipt  $receipt  レシートデータ
      * @param  string  $uniqueRequestId  一意なリクエストID
      */
     protected function verifyReceipt(
         string $billingPlatform,
-        Receipt $receiptDto,
+        Receipt $receipt,
         string $uniqueRequestId
     ): Verification {
         return $this->billingFacade->processPurchase(
             billingPlatform: $billingPlatform,
-            receiptDto: $receiptDto,
+            receipt: $receipt,
             uniqueRequestId: $uniqueRequestId
         );
     }
@@ -161,16 +161,16 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
     /**
      * プロダクトIDを検証
      *
-     * @param  Verification  $verificationDto  検証結果
+     * @param  Verification  $verification  検証結果
      * @param  string  $productId  プロダクトID
      *
      * @throws GameException
      */
     protected function validateProductId(
-        Verification $verificationDto,
+        Verification $verification,
         string $productId
     ): void {
-        if ($verificationDto->getProductId() !== $productId) {
+        if ($verification->getProductId() !== $productId) {
             throw new GameException(
                 GameErrorCode::PRODUCT_ID_MISMATCH,
                 'Product ID mismatch between request and receipt'
@@ -181,19 +181,19 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
     /**
      * 価格を検証
      *
-     * @param  Verification  $verificationDto  検証結果
+     * @param  Verification  $verification  検証結果
      * @param  MstInAppPurchase  $mstInAppPurchase  商品マスター
      * @param  string  $billingPlatform  決済プラットフォーム
      *
      * @throws GameException
      */
     protected function validatePrice(
-        Verification $verificationDto,
+        Verification $verification,
         MstInAppPurchase $mstInAppPurchase,
         string $billingPlatform
     ): void {
         $this->validationService->validatePurchasePrice(
-            $verificationDto,
+            $verification,
             $mstInAppPurchase,
             $billingPlatform
         );
@@ -208,13 +208,13 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
      * @param  MstInAppPurchase  $mstInAppPurchase  商品マスター
      * @param  string  $platform  プラットフォーム
      * @param  string  $billingPlatform  決済プラットフォーム
-     * @param  Verification  $verificationDto  レシート検証結果
+     * @param  Verification  $verification  レシート検証結果
      */
     abstract protected function executePurchase(
         int $sysPlayerId,
         MstInAppPurchase $mstInAppPurchase,
         string $platform,
         string $billingPlatform,
-        Verification $verificationDto
+        Verification $verification
     ): BuyResponse;
 }

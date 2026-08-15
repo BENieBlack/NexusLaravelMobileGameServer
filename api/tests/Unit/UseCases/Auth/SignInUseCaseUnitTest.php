@@ -87,7 +87,7 @@ class SignInUseCaseUnitTest extends TestCase
         $mockToken->expires_at = now()->addDays(30);
         $mockToken->exists = true;
 
-        $tokenDto = new Token(
+        $token = new Token(
             accessToken: 'access-token-123',
             refreshToken: 'refresh-token-456',
             expiresIn: 3600
@@ -112,7 +112,7 @@ class SignInUseCaseUnitTest extends TestCase
         $this->tokenService
             ->shouldReceive('generateToken')
             ->with($mockPlayer, $mockDevice, Mockery::type('callable'))
-            ->andReturn([$tokenDto, $mockToken]);
+            ->andReturn([$token, $mockToken]);
 
         $this->playerAuthService
             ->shouldReceive('updateLastLogin')
@@ -132,7 +132,7 @@ class SignInUseCaseUnitTest extends TestCase
         $this->assertEquals($mockPlayer, $response->sysPlayer);
         $this->assertEquals($mockDevice, $response->sysPlayerDevice);
         $this->assertEquals($mockToken, $response->sysPlayerToken);
-        $this->assertEquals($tokenDto, $response->tokenDto);
+        $this->assertEquals($token, $response->token);
     }
 
     /**
@@ -211,7 +211,7 @@ class SignInUseCaseUnitTest extends TestCase
         $mockToken->sys_player_id = 1;
         $mockToken->exists = true;
 
-        $tokenDto = new Token(
+        $token = new Token(
             accessToken: 'new-access-token',
             refreshToken: 'new-refresh-token',
             expiresIn: 3600
@@ -235,7 +235,7 @@ class SignInUseCaseUnitTest extends TestCase
         $this->tokenService
             ->shouldReceive('generateToken')
             ->with($mockPlayer, $mockDevice, Mockery::type('callable'))
-            ->andReturn([$tokenDto, $mockToken]);
+            ->andReturn([$token, $mockToken]);
 
         $this->playerAuthService
             ->shouldReceive('updateLastLogin')
@@ -275,7 +275,7 @@ class SignInUseCaseUnitTest extends TestCase
         $mockToken->id = 100;
         $mockToken->exists = true;
 
-        $tokenDto = new Token(
+        $token = new Token(
             accessToken: 'access-token',
             refreshToken: 'refresh-token',
             expiresIn: 3600
@@ -284,7 +284,7 @@ class SignInUseCaseUnitTest extends TestCase
         $this->deviceRepository->shouldReceive('selectByDeviceId')->andReturn($mockDevice);
         $this->playerRepository->shouldReceive('selectById')->andReturn($mockPlayer);
         $this->tokenRepository->shouldReceive('deleteByPlayerId')->andReturn(0);
-        $this->tokenService->shouldReceive('generateToken')->with($mockPlayer, $mockDevice, Mockery::type('callable'))->andReturn([$tokenDto, $mockToken]);
+        $this->tokenService->shouldReceive('generateToken')->with($mockPlayer, $mockDevice, Mockery::type('callable'))->andReturn([$token, $mockToken]);
         $this->tokenRepository->shouldReceive('selectByRefreshToken')->andReturn($mockToken);
 
         // Expect updateLastLogin to be called with deviceId

@@ -21,10 +21,10 @@ interface MaintenanceStorageInterface
     /**
      * メンテナンス情報を保存
      * 
-     * @param Maintenance $maintenanceDto メンテナンス情報
+     * @param Maintenance $maintenance メンテナンス情報
      * @return bool 保存成功時true
      */
-    public function put(Maintenance $maintenanceDto): bool;
+    public function put(Maintenance $maintenance): bool;
 
     /**
      * メンテナンス情報を削除（メンテ終了）

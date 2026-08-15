@@ -35,7 +35,7 @@ interface MailboxRepositoryInterface
     /**
      * メールボックスを保存
      */
-    public function persist(Mailbox $mailboxDto): void;
+    public function persist(Mailbox $mailbox): void;
 
     /**
      * カテゴリ別未読数を取得
@@ -47,15 +47,15 @@ interface MailboxRepositoryInterface
     /**
      * 既読にマーク
      */
-    public function markAsRead(Mailbox $mailboxDto): void;
+    public function markAsRead(Mailbox $mailbox): void;
 
     /**
      * 受取済みにマーク（DTO版）
      */
-    public function markDtoAsReceived(Mailbox $mailboxDto): void;
+    public function markDtoAsReceived(Mailbox $mailbox): void;
 
     /**
      * ロック状態を変更
      */
-    public function updateLockStatus(Mailbox $mailboxDto, bool $isLocked): void;
+    public function updateLockStatus(Mailbox $mailbox, bool $isLocked): void;
 }

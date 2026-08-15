@@ -37,24 +37,24 @@ class ItemRepositoryAdapter implements ItemRepositoryInterface
     /**
      * アイテムを保存（新規作成 or 更新）
      */
-    public function persistItem(Item $itemDto): void
+    public function persistItem(Item $item): void
     {
         $trxItem = TrxItem::query()
-            ->where('sys_player_id', $itemDto->getSysPlayerId())
-            ->where('mst_item_id', $itemDto->getMstItemId())
+            ->where('sys_player_id', $item->getSysPlayerId())
+            ->where('mst_item_id', $item->getMstItemId())
             ->first();
 
         if ($trxItem) {
             // 既存レコードを更新
-            $trxItem->setFreeAmount($itemDto->getFreeAmount());
-            $trxItem->setPaidAmount($itemDto->getPaidAmount());
+            $trxItem->setFreeAmount($item->getFreeAmount());
+            $trxItem->setPaidAmount($item->getPaidAmount());
         } else {
             // 新規レコードを作成
             $trxItem = new TrxItem([
-                'sys_player_id' => $itemDto->getSysPlayerId(),
-                'mst_item_id' => $itemDto->getMstItemId(),
-                'free_amount' => $itemDto->getFreeAmount(),
-                'paid_amount' => $itemDto->getPaidAmount(),
+                'sys_player_id' => $item->getSysPlayerId(),
+                'mst_item_id' => $item->getMstItemId(),
+                'free_amount' => $item->getFreeAmount(),
+                'paid_amount' => $item->getPaidAmount(),
             ]);
             $trxItem->exists = false; // INSERT として認識
         }

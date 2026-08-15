@@ -36,10 +36,10 @@ class GuildApplySendUseCase extends _BaseUseCase
         return $this->executeWithTransaction(function () use ($sysPlayerId, $guildId) {
             try {
                 // 申請送信（Service経由でバリデーション含む）
-                $applyDto = $this->guildService->sendApply($guildId, $sysPlayerId);
+                $apply = $this->guildService->sendApply($guildId, $sysPlayerId);
 
                 // レスポンスを返す
-                return GuildApplySendResponse::fromDto($applyDto);
+                return GuildApplySendResponse::fromDto($apply);
             } catch (GuildException $e) {
                 // パッケージの例外をGameExceptionに変換
                 $errorCode = match (true) {

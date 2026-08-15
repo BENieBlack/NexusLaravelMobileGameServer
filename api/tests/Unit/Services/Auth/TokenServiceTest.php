@@ -96,16 +96,16 @@ class TokenServiceTest extends TestCase
         [$sysPlayer, $sysPlayerDevice] = $this->createPlayerAndDevice();
 
         // Act
-        [$tokenDto, $sysPlayerToken] = $this->service->generateToken($sysPlayer, $sysPlayerDevice, $this->tokenModelFactory(...));
+        [$token, $sysPlayerToken] = $this->service->generateToken($sysPlayer, $sysPlayerDevice, $this->tokenModelFactory(...));
 
         // トークンをDBに保存（バッチINSERT）
         app(QueryManager::class)->execAllQuery();
 
         // Assert - DtoToken
-        $this->assertInstanceOf(Token::class, $tokenDto);
-        $this->assertNotEmpty($tokenDto->getAccessToken());
-        $this->assertNotEmpty($tokenDto->getRefreshToken());
-        $this->assertEquals(3600, $tokenDto->getExpiresIn()); // 1時間
+        $this->assertInstanceOf(Token::class, $token);
+        $this->assertNotEmpty($token->getAccessToken());
+        $this->assertNotEmpty($token->getRefreshToken());
+        $this->assertEquals(3600, $token->getExpiresIn()); // 1時間
 
         // Assert - SysPlayerToken
         $this->assertInstanceOf(SysPlayerToken::class, $sysPlayerToken);
@@ -116,7 +116,7 @@ class TokenServiceTest extends TestCase
         $this->assertNull($sysPlayerToken->getRevokedAt());
 
         // Assert - refresh_token_hashが正しくハッシュ化されている
-        $expectedHash = hash('sha256', $tokenDto->getRefreshToken());
+        $expectedHash = hash('sha256', $token->getRefreshToken());
         $this->assertEquals($expectedHash, $sysPlayerToken->getRefreshTokenHash());
 
         // Assert - データベースに保存されている
@@ -236,10 +236,10 @@ class TokenServiceTest extends TestCase
     {
         // Arrange
         [$sysPlayer, $sysPlayerDevice] = $this->createPlayerAndDevice();
-        [$tokenDto, $sysPlayerToken] = $this->service->generateToken($sysPlayer, $sysPlayerDevice, $this->tokenModelFactory(...));
+        [$token, $sysPlayerToken] = $this->service->generateToken($sysPlayer, $sysPlayerDevice, $this->tokenModelFactory(...));
 
         // Act
-        $validatedToken = $this->service->validateRefreshToken($tokenDto->getRefreshToken());
+        $validatedToken = $this->service->validateRefreshToken($token->getRefreshToken());
 
         // Assert
         $this->assertInstanceOf(SysPlayerToken::class, $validatedToken);
@@ -269,13 +269,13 @@ class TokenServiceTest extends TestCase
     {
         // Arrange
         [$sysPlayer, $sysPlayerDevice] = $this->createPlayerAndDevice();
-        [$tokenDto, $sysPlayerToken] = $this->service->generateToken($sysPlayer, $sysPlayerDevice, $this->tokenModelFactory(...));
+        [$token, $sysPlayerToken] = $this->service->generateToken($sysPlayer, $sysPlayerDevice, $this->tokenModelFactory(...));
 
         // トークンを無効化
         $sysPlayerToken->revoke();
 
         // Act
-        $validatedToken = $this->service->validateRefreshToken($tokenDto->getRefreshToken());
+        $validatedToken = $this->service->validateRefreshToken($token->getRefreshToken());
 
         // Assert
         $this->assertNull($validatedToken);
@@ -374,7 +374,7 @@ class TokenServiceTest extends TestCase
         [$sysPlayer, $sysPlayerDevice] = $this->createPlayerAndDevice();
 
         // Act
-        [$tokenDto, $sysPlayerToken] = $this->service->generateToken($sysPlayer, $sysPlayerDevice, $this->tokenModelFactory(...));
+        [$token, $sysPlayerToken] = $this->service->generateToken($sysPlayer, $sysPlayerDevice, $this->tokenModelFactory(...));
 
         // Assert - リフレッシュトークンの有効期限が30日後であることを確認
         $expectedExpiresAt = CarbonImmutable::now()->addDays(30);
@@ -387,7 +387,7 @@ class TokenServiceTest extends TestCase
         );
 
         // Assert - アクセストークンの有効期限が1時間（3600秒）であることを確認
-        $this->assertEquals(3600, $tokenDto->getExpiresIn());
+        $this->assertEquals(3600, $token->getExpiresIn());
     }
 
     /**

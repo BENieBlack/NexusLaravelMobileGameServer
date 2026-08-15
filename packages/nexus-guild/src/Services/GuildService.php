@@ -95,72 +95,72 @@ class GuildService
     /**
      * ギルドが満員でないかバリデーション
      *
-     * @param  Guild  $guildDto  ギルド
+     * @param  Guild  $guild  ギルド
      *
      * @throws GuildException ギルドが満員の場合
      */
-    public function validateGuildNotFull(Guild $guildDto): void
+    public function validateGuildNotFull(Guild $guild): void
     {
-        if ($guildDto->getCurrentMembers() >= $guildDto->getMaxMembers()) {
-            throw GuildException::guildFull($guildDto->getId());
+        if ($guild->getCurrentMembers() >= $guild->getMaxMembers()) {
+            throw GuildException::guildFull($guild->getId());
         }
     }
 
     /**
      * ギルドマスター/サブマスターの権限をバリデーション
      *
-     * @param  GuildMember  $guildMemberDto  メンバー情報
+     * @param  GuildMember  $guildMember  メンバー情報
      * @param  string  $action  アクション名（エラーメッセージ用）
      *
      * @throws GuildException 権限がない場合
      */
-    public function validateMasterOrSubMasterPermission(GuildMember $guildMemberDto, string $action): void
+    public function validateMasterOrSubMasterPermission(GuildMember $guildMember, string $action): void
     {
-        if ($guildMemberDto->getRole() !== GuildRole::MASTER && $guildMemberDto->getRole() !== GuildRole::SUB_MASTER) {
-            throw GuildException::permissionDenied($guildMemberDto->getSysPlayerId(), $action);
+        if ($guildMember->getRole() !== GuildRole::MASTER && $guildMember->getRole() !== GuildRole::SUB_MASTER) {
+            throw GuildException::permissionDenied($guildMember->getSysPlayerId(), $action);
         }
     }
 
     /**
      * ギルドマスターの権限をバリデーション
      *
-     * @param  GuildMember  $guildMemberDto  メンバー情報
+     * @param  GuildMember  $guildMember  メンバー情報
      * @param  string  $action  アクション名（エラーメッセージ用）
      *
      * @throws GuildException 権限がない場合
      */
-    public function validateMasterPermission(GuildMember $guildMemberDto, string $action): void
+    public function validateMasterPermission(GuildMember $guildMember, string $action): void
     {
-        if ($guildMemberDto->getRole() !== GuildRole::MASTER) {
-            throw GuildException::permissionDenied($guildMemberDto->getSysPlayerId(), $action);
+        if ($guildMember->getRole() !== GuildRole::MASTER) {
+            throw GuildException::permissionDenied($guildMember->getSysPlayerId(), $action);
         }
     }
 
     /**
      * 申請が承認可能な状態かバリデーション
      *
-     * @param  GuildApply  $guildApplyDto  申請DTO
+     * @param  GuildApply  $guildApply  申請DTO
      *
      * @throws GuildException 承認できない状態の場合
      */
-    public function validateCanAccept(GuildApply $guildApplyDto): void
+    public function validateCanAccept(GuildApply $guildApply): void
     {
-        if ($guildApplyDto->getStatus() !== GuildApplyStatus::APPLIED) {
-            throw GuildException::invalidStatus($guildApplyDto->getStatus());
+        if ($guildApply->getStatus() !== GuildApplyStatus::APPLIED) {
+            throw GuildException::invalidStatus($guildApply->getStatus());
         }
     }
 
     /**
      * 申請が却下可能な状態かバリデーション
      *
-     * @param  GuildApply  $guildApplyDto  申請DTO
+     * @param  GuildApply  $guildApply  申請DTO
      *
      * @throws GuildException 却下できない状態の場合
      */
-    public function validateCanReject(GuildApply $guildApplyDto): void
+    public function validateCanReject(GuildApply $guildApply): void
     {
-        if ($guildApplyDto->getStatus() !== GuildApplyStatus::APPLIED) {
-            throw GuildException::invalidStatus($guildApplyDto->getStatus());
+        if ($guildApply->getStatus() !== GuildApplyStatus::APPLIED) {
+            throw GuildException::invalidStatus($guildApply->getStatus());
         }
     }
 
@@ -207,14 +207,14 @@ class GuildService
      */
     public function acceptApply(int $applyId, int $currentPlayerId): GuildApply
     {
-        $applyDto = $this->applyRepository->selectById($applyId);
-        if ($applyDto === null) {
+        $apply = $this->applyRepository->selectById($applyId);
+        if ($apply === null) {
             throw GuildException::applyNotFound($applyId);
         }
 
         // 承認者がギルドメンバーであることを確認
         $approverMember = $this->memberRepository->selectByGuildAndPlayer(
-            $applyDto->getSysGuildId(),
+            $apply->getSysGuildId(),
             $currentPlayerId
         );
         if ($approverMember === null) {
@@ -223,16 +223,16 @@ class GuildService
 
         // マスターまたはサブマスターのみ承認可能
         $this->validateMasterOrSubMasterPermission($approverMember, 'accept guild apply');
-        $this->validateCanAccept($applyDto);
+        $this->validateCanAccept($apply);
 
         // ギルドが満員でないか再確認
-        $guild = $this->guildRepository->selectById($applyDto->getSysGuildId());
+        $guild = $this->guildRepository->selectById($apply->getSysGuildId());
         if ($guild === null) {
-            throw GuildException::guildNotFound($applyDto->getSysGuildId());
+            throw GuildException::guildNotFound($apply->getSysGuildId());
         }
         $this->validateGuildNotFull($guild);
 
-        return $this->applyRepository->accept($applyDto);
+        return $this->applyRepository->accept($apply);
     }
 
     /**
@@ -243,14 +243,14 @@ class GuildService
      */
     public function rejectApply(int $applyId, int $currentPlayerId): GuildApply
     {
-        $applyDto = $this->applyRepository->selectById($applyId);
-        if ($applyDto === null) {
+        $apply = $this->applyRepository->selectById($applyId);
+        if ($apply === null) {
             throw GuildException::applyNotFound($applyId);
         }
 
         // 却下者がギルドメンバーであることを確認
         $rejecterMember = $this->memberRepository->selectByGuildAndPlayer(
-            $applyDto->getSysGuildId(),
+            $apply->getSysGuildId(),
             $currentPlayerId
         );
         if ($rejecterMember === null) {
@@ -259,9 +259,9 @@ class GuildService
 
         // マスターまたはサブマスターのみ却下可能
         $this->validateMasterOrSubMasterPermission($rejecterMember, 'reject guild apply');
-        $this->validateCanReject($applyDto);
+        $this->validateCanReject($apply);
 
-        return $this->applyRepository->reject($applyDto);
+        return $this->applyRepository->reject($apply);
     }
 
     /**

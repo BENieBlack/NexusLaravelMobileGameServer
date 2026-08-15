@@ -23,16 +23,16 @@ interface GachaProgressRepositoryInterface
     /**
      * 進行状況を保存
      * 
-     * @param GachaProgress $gachaProgressDto
+     * @param GachaProgress $gachaProgress
      * @return void
      */
-    public function persist(GachaProgress $gachaProgressDto): void;
+    public function persist(GachaProgress $gachaProgress): void;
 
     /**
      * 新規進行状況を作成
      * 
-     * @param GachaProgress $gachaProgressDto
+     * @param GachaProgress $gachaProgress
      * @return GachaProgress
      */
-    public function insert(GachaProgress $gachaProgressDto): GachaProgress;
+    public function insert(GachaProgress $gachaProgress): GachaProgress;
 }

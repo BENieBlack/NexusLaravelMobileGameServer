@@ -39,7 +39,7 @@ class InAppPurchaseBuyPassUseCase extends _BaseBuyUseCase
         MstInAppPurchase $mstInAppPurchase,
         string $platform,
         string $billingPlatform,
-        Verification $verificationDto
+        Verification $verification
     ): BuyResponse {
         // TODO: 実際のプロダクションでは、決済プラットフォームから価格を取得する
         // ここでは仮の単価を使用
@@ -52,7 +52,7 @@ class InAppPurchaseBuyPassUseCase extends _BaseBuyUseCase
             $platform,
             $billingPlatform,
             $unitPrice,
-            $verificationDto
+            $verification
         ) {
             $paidDiamondAmount = 0;
             $totalPaidDiamondAmount = 0;
@@ -66,7 +66,7 @@ class InAppPurchaseBuyPassUseCase extends _BaseBuyUseCase
                     $platform,
                     $billingPlatform,
                     $unitPrice,
-                    $verificationDto->getTransactionId()
+                    $verification->getTransactionId()
                 );
                 $paidDiamondAmount = $result['paid_diamond_amount'];
                 $totalPaidDiamondAmount = $result['total_paid_diamond_amount'];

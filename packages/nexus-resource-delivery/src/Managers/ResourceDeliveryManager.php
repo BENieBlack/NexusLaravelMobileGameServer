@@ -53,14 +53,14 @@ class ResourceDeliveryManager implements ResourceDeliveryManagerInterface
     /**
      * 配送コンテンツを配送前リストに追加する
      */
-    public function addContent(ResourceDeliveryContent $resourceDeliveryContentDto): void
+    public function addContent(ResourceDeliveryContent $resourceDeliveryContent): void
     {
         // 無効なコンテンツ（数量が0以下）は追加しない
-        if ($resourceDeliveryContentDto->isValid() === false) {
+        if ($resourceDeliveryContent->isValid() === false) {
             return;
         }
 
-        $this->needToSendContents[$resourceDeliveryContentDto->getUniqueId()] = $resourceDeliveryContentDto;
+        $this->needToSendContents[$resourceDeliveryContent->getUniqueId()] = $resourceDeliveryContent;
     }
 
     /**
@@ -98,11 +98,11 @@ class ResourceDeliveryManager implements ResourceDeliveryManagerInterface
     /**
      * 配送処理を実行した後に実行する処理をまとめたメソッド
      *
-     * @param  ResourceDeliveryComplete  $resourceDeliveryCompleteDto  送信完了データ
+     * @param  ResourceDeliveryComplete  $resourceDeliveryComplete  送信完了データ
      */
-    public function afterSend(ResourceDeliveryComplete $resourceDeliveryCompleteDto): void
+    public function afterSend(ResourceDeliveryComplete $resourceDeliveryComplete): void
     {
-        foreach ($resourceDeliveryCompleteDto->getContents() as $content) {
+        foreach ($resourceDeliveryComplete->getContents() as $content) {
             $this->addSendCompleteContent($content);
         }
     }
@@ -111,14 +111,14 @@ class ResourceDeliveryManager implements ResourceDeliveryManagerInterface
      * 配送実行済みのコンテンツを、送信完了ステータスへ変更する
      * 配送前リストから削除し、送信完了リストへ整形して追加する
      */
-    private function addSendCompleteContent(ResourceDeliveryContent $resourceDeliveryContentDto): void
+    private function addSendCompleteContent(ResourceDeliveryContent $resourceDeliveryContent): void
     {
         // 配送前リストから削除
-        unset($this->needToSendContents[$resourceDeliveryContentDto->getUniqueId()]);
+        unset($this->needToSendContents[$resourceDeliveryContent->getUniqueId()]);
 
         // 送信完了リストへ追加
         // コンテンツクラスごとに分けた連想配列で保持する
-        $this->sendCompleteContents[$resourceDeliveryContentDto::class][] = $resourceDeliveryContentDto;
+        $this->sendCompleteContents[$resourceDeliveryContent::class][] = $resourceDeliveryContent;
     }
 
     /**

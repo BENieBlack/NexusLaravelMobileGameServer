@@ -29,24 +29,24 @@ class DiamondDeliveryHandler implements ResourceDeliveryHandlerInterface
      * ダイヤモンド配送処理を実行
      *
      * @param  int  $sysPlayerId  プレイヤーID
-     * @param  ResourceDeliveryContent  $resourceDeliveryContentDto  配送コンテンツ
+     * @param  ResourceDeliveryContent  $resourceDeliveryContent  配送コンテンツ
      *
      * @throws \Exception 配送失敗時
      */
-    public function handle(int $sysPlayerId, ResourceDeliveryContent $resourceDeliveryContentDto): void
+    public function handle(int $sysPlayerId, ResourceDeliveryContent $resourceDeliveryContent): void
     {
         // metadataからplatformを取得
-        $metadata = $resourceDeliveryContentDto->getMetadata();
+        $metadata = $resourceDeliveryContent->getMetadata();
         $platform = $metadata['platform'] ?? 'Apple'; // デフォルトはApple
 
         // 有償/無償を判定
-        $isPaid = $resourceDeliveryContentDto->getType() === ResourceType::PAID_DIAMOND;
+        $isPaid = $resourceDeliveryContent->getType() === ResourceType::PAID_DIAMOND;
 
         // ダイヤモンドを加算
         $this->diamondService->addDiamond(
             $sysPlayerId,
             $platform,
-            $resourceDeliveryContentDto->getAmount(),
+            $resourceDeliveryContent->getAmount(),
             $isPaid
         );
     }

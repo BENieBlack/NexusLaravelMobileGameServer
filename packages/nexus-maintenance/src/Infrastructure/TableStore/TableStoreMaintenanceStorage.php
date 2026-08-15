@@ -64,7 +64,7 @@ class TableStoreMaintenanceStorage implements MaintenanceStorageInterface
     /**
      * {@inheritDoc}
      */
-    public function put(Maintenance $maintenanceDto): bool
+    public function put(Maintenance $maintenance): bool
     {
         try {
             $this->client->putRow([
@@ -74,11 +74,11 @@ class TableStoreMaintenanceStorage implements MaintenanceStorageInterface
                     ['id', $this->primaryKey],
                 ],
                 'attribute_columns' => [
-                    ['is_maintenance', $maintenanceDto->isMaintenance],
-                    ['start_at', $maintenanceDto->startAt ?? ''],
-                    ['end_at', $maintenanceDto->endAt ?? ''],
-                    ['title', $maintenanceDto->title ?? ''],
-                    ['message', $maintenanceDto->message ?? ''],
+                    ['is_maintenance', $maintenance->isMaintenance],
+                    ['start_at', $maintenance->startAt ?? ''],
+                    ['end_at', $maintenance->endAt ?? ''],
+                    ['title', $maintenance->title ?? ''],
+                    ['message', $maintenance->message ?? ''],
                     ['updated_at', ClockUtility::nowToString()],
                 ],
             ]);

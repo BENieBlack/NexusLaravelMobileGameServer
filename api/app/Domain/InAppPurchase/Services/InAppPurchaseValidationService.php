@@ -100,22 +100,22 @@ class InAppPurchaseValidationService
      *
      * レシート検証結果の価格とマスターデータの期待価格を照合する
      *
-     * @param  Verification  $verificationDto  レシート検証結果
+     * @param  Verification  $verification  レシート検証結果
      * @param  MstInAppPurchase  $mstInAppPurchase  商品マスター
      * @param  string  $billingPlatform  決済プラットフォーム（AppStore, GooglePlay等）
      *
      * @throws GameException 価格が不一致の場合
      */
     public function validatePurchasePrice(
-        Verification $verificationDto,
+        Verification $verification,
         MstInAppPurchase $mstInAppPurchase,
         string $billingPlatform
     ): void {
         // 価格情報がない場合（App Storeなど）はスキップ
-        if ($verificationDto->getPriceAmountMicros() === null) {
+        if ($verification->getPriceAmountMicros() === null) {
             Log::warning('Price validation skipped: No price information in verification result', [
                 'billing_platform' => $billingPlatform,
-                'product_id' => $verificationDto->getProductId(),
+                'product_id' => $verification->getProductId(),
             ]);
 
             return;
@@ -128,23 +128,23 @@ class InAppPurchaseValidationService
         if ($platformProduct === null || $platformProduct->price_amount_micros === null) {
             Log::warning('Price validation skipped: No expected price in master data', [
                 'billing_platform' => $billingPlatform,
-                'product_id' => $verificationDto->getProductId(),
-                'actual_price_micros' => $verificationDto->getPriceAmountMicros(),
-                'actual_currency' => $verificationDto->getPriceCurrencyCode(),
+                'product_id' => $verification->getProductId(),
+                'actual_price_micros' => $verification->getPriceAmountMicros(),
+                'actual_currency' => $verification->getPriceCurrencyCode(),
             ]);
 
             return;
         }
 
         // 価格照合
-        if ($verificationDto->getPriceAmountMicros() !== $platformProduct->price_amount_micros) {
+        if ($verification->getPriceAmountMicros() !== $platformProduct->price_amount_micros) {
             Log::error('Price mismatch detected', [
                 'billing_platform' => $billingPlatform,
-                'product_id' => $verificationDto->getProductId(),
+                'product_id' => $verification->getProductId(),
                 'expected_price_micros' => $platformProduct->price_amount_micros,
-                'actual_price_micros' => $verificationDto->getPriceAmountMicros(),
+                'actual_price_micros' => $verification->getPriceAmountMicros(),
                 'expected_currency' => $platformProduct->price_currency_code,
-                'actual_currency' => $verificationDto->getPriceCurrencyCode(),
+                'actual_currency' => $verification->getPriceCurrencyCode(),
             ]);
 
             throw new GameException(

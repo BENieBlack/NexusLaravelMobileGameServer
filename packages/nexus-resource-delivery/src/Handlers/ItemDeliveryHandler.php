@@ -29,17 +29,17 @@ class ItemDeliveryHandler implements ResourceDeliveryHandlerInterface
      * アイテム配送処理を実行
      *
      * @param  int  $sysPlayerId  プレイヤーID
-     * @param  ResourceDeliveryContent  $resourceDeliveryContentDto  配送コンテンツ
+     * @param  ResourceDeliveryContent  $resourceDeliveryContent  配送コンテンツ
      *
      * @throws \Exception 配送失敗時
      */
-    public function handle(int $sysPlayerId, ResourceDeliveryContent $resourceDeliveryContentDto): void
+    public function handle(int $sysPlayerId, ResourceDeliveryContent $resourceDeliveryContent): void
     {
         // ItemServiceのaddItemメソッドを使用（既存の場合は加算、新規の場合は作成）
         $this->itemService->addItem(
             $sysPlayerId,
-            $resourceDeliveryContentDto->getId(),
-            $resourceDeliveryContentDto->getAmount()
+            $resourceDeliveryContent->getId(),
+            $resourceDeliveryContent->getAmount()
         );
     }
 

@@ -29,24 +29,24 @@ class PointsDeliveryHandler implements ResourceDeliveryHandlerInterface
      * ポイント配送処理を実行
      *
      * @param  int  $sysPlayerId  プレイヤーID
-     * @param  ResourceDeliveryContent  $resourceDeliveryContentDto  配送コンテンツ
+     * @param  ResourceDeliveryContent  $resourceDeliveryContent  配送コンテンツ
      *
      * @throws \Exception 配送失敗時
      */
-    public function handle(int $sysPlayerId, ResourceDeliveryContent $resourceDeliveryContentDto): void
+    public function handle(int $sysPlayerId, ResourceDeliveryContent $resourceDeliveryContent): void
     {
         // ポイント系は全て無償扱い
-        $freeAmount = $resourceDeliveryContentDto->getAmount();
+        $freeAmount = $resourceDeliveryContent->getAmount();
         $paidAmount = 0;
 
         // WalletServiceのaddCurrencyメソッドを使用
         // ポイント系は基本的に有効期限なし
         $this->walletService->addCurrency(
             $sysPlayerId,
-            $resourceDeliveryContentDto->getId(),
+            $resourceDeliveryContent->getId(),
             $freeAmount,
             $paidAmount,
-            $resourceDeliveryContentDto->getExpireAt() // イベントポイント等で有効期限がある場合に対応
+            $resourceDeliveryContent->getExpireAt() // イベントポイント等で有効期限がある場合に対応
         );
     }
 

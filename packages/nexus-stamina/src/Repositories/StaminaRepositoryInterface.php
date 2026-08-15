@@ -21,12 +21,12 @@ interface StaminaRepositoryInterface
     /**
      * スタミナデータを保存
      */
-    public function persist(Stamina $staminaDto): void;
+    public function persist(Stamina $stamina): void;
 
     /**
      * 新規スタミナデータを作成
      *
      * @return Stamina 作成されたスタミナDTO
      */
-    public function insert(Stamina $staminaDto): Stamina;
+    public function insert(Stamina $stamina): Stamina;
 }

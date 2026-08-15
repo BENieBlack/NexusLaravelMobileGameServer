@@ -9,24 +9,24 @@ class ReceiptDtoTest extends TestCase
 {
     public function test_construct_with_app_store_receipt()
     {
-        $receiptDto = new Receipt(
+        $receipt = new Receipt(
             playerId: 123,
             billingPlatform: 'app_store',
             receipt: 'base64_encoded_receipt_data',
             transactionId: 'txn_123456'
         );
 
-        $this->assertSame(123, $receiptDto->getPlayerId());
-        $this->assertSame('app_store', $receiptDto->getBillingPlatform());
-        $this->assertSame('base64_encoded_receipt_data', $receiptDto->getReceipt());
-        $this->assertNull($receiptDto->getPurchaseToken());
-        $this->assertNull($receiptDto->getProductId());
-        $this->assertSame('txn_123456', $receiptDto->getTransactionId());
+        $this->assertSame(123, $receipt->getPlayerId());
+        $this->assertSame('app_store', $receipt->getBillingPlatform());
+        $this->assertSame('base64_encoded_receipt_data', $receipt->getReceipt());
+        $this->assertNull($receipt->getPurchaseToken());
+        $this->assertNull($receipt->getProductId());
+        $this->assertSame('txn_123456', $receipt->getTransactionId());
     }
 
     public function test_construct_with_google_play_token()
     {
-        $receiptDto = new Receipt(
+        $receipt = new Receipt(
             playerId: 456,
             billingPlatform: 'google_play',
             purchaseToken: 'google_purchase_token_xyz',
@@ -34,24 +34,24 @@ class ReceiptDtoTest extends TestCase
             transactionId: 'txn_789012'
         );
 
-        $this->assertSame(456, $receiptDto->getPlayerId());
-        $this->assertSame('google_play', $receiptDto->getBillingPlatform());
-        $this->assertNull($receiptDto->getReceipt());
-        $this->assertSame('google_purchase_token_xyz', $receiptDto->getPurchaseToken());
-        $this->assertSame('com.example.product1', $receiptDto->getProductId());
-        $this->assertSame('txn_789012', $receiptDto->getTransactionId());
+        $this->assertSame(456, $receipt->getPlayerId());
+        $this->assertSame('google_play', $receipt->getBillingPlatform());
+        $this->assertNull($receipt->getReceipt());
+        $this->assertSame('google_purchase_token_xyz', $receipt->getPurchaseToken());
+        $this->assertSame('com.example.product1', $receipt->getProductId());
+        $this->assertSame('txn_789012', $receipt->getTransactionId());
     }
 
     public function test_to_array()
     {
-        $receiptDto = new Receipt(
+        $receipt = new Receipt(
             playerId: 123,
             billingPlatform: 'app_store',
             receipt: 'base64_encoded_receipt_data',
             transactionId: 'txn_123456'
         );
 
-        $array = $receiptDto->toArray();
+        $array = $receipt->toArray();
 
         $this->assertIsArray($array);
         $this->assertSame(123, $array['player_id']);
@@ -64,14 +64,14 @@ class ReceiptDtoTest extends TestCase
 
     public function test_to_json()
     {
-        $receiptDto = new Receipt(
+        $receipt = new Receipt(
             playerId: 456,
             billingPlatform: 'google_play',
             purchaseToken: 'google_purchase_token_xyz',
             productId: 'com.example.product1'
         );
 
-        $json = $receiptDto->toJson();
+        $json = $receipt->toJson();
 
         $this->assertIsString($json);
         $decoded = json_decode($json, true);

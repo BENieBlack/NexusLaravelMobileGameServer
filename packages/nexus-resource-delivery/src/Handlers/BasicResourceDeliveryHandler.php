@@ -30,21 +30,21 @@ class BasicResourceDeliveryHandler implements ResourceDeliveryHandlerInterface
      * 基本リソース配送処理を実行
      *
      * @param  int  $sysPlayerId  プレイヤーID
-     * @param  ResourceDeliveryContent  $resourceDeliveryContentDto  配送コンテンツ
+     * @param  ResourceDeliveryContent  $resourceDeliveryContent  配送コンテンツ
      *
      * @throws \Exception 配送失敗時
      */
-    public function handle(int $sysPlayerId, ResourceDeliveryContent $resourceDeliveryContentDto): void
+    public function handle(int $sysPlayerId, ResourceDeliveryContent $resourceDeliveryContent): void
     {
         // 基本リソースは全て無償扱い
-        $freeAmount = $resourceDeliveryContentDto->getAmount();
+        $freeAmount = $resourceDeliveryContent->getAmount();
         $paidAmount = 0;
 
         // WalletServiceのaddCurrencyメソッドを使用
         // 基本リソースは有効期限なし
         $this->walletService->addCurrency(
             $sysPlayerId,
-            $resourceDeliveryContentDto->getId(),
+            $resourceDeliveryContent->getId(),
             $freeAmount,
             $paidAmount,
             null // 有効期限なし

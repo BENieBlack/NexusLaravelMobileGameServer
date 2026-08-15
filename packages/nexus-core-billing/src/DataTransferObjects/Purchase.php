@@ -1,0 +1,78 @@
+<?php
+
+namespace NexusBilling\DataTransferObjects;
+
+use Nexus\Core\Traits\JsonSerializableTrait;
+
+/**
+ * 購入情報DTO
+ * 
+ * 購入処理で使用する情報をまとめて保持
+ * 
+ * @property string $purchaseDate Y-m-d H:i:s 形式の文字列
+ */
+class Purchase
+{
+    use JsonSerializableTrait;
+    public function __construct(
+        
+        private readonly int $playerId,
+        private readonly string $billingPlatform,
+        private readonly string $productId,
+        private readonly string $transactionId,
+        private readonly int $quantity,
+        private readonly string $purchaseDate,             // 購入日時 (Y-m-d H:i:s)
+        public ?float $price = null,             // 価格（通貨単位）
+        public ?string $currency = null,         // 通貨コード（USD, JPY等）
+    ) {}
+
+    public function getPlayerId(): int
+    {
+        return $this->playerId;
+    }
+
+    public function getBillingPlatform(): string
+    {
+        return $this->billingPlatform;
+    }
+
+    public function getProductId(): string
+    {
+        return $this->productId;
+    }
+
+    public function getTransactionId(): string
+    {
+        return $this->transactionId;
+    }
+
+    public function getQuantity(): int
+    {
+        return $this->quantity;
+    }
+
+    /**
+     * 購入日時（Y-m-d H:i:s）
+     */
+    public function getPurchaseDate(): string
+    {
+        return $this->purchaseDate;
+    }
+
+    /**
+     * 配列に変換
+     */
+    public function toArray(): array
+    {
+        return [
+            'player_id' => $this->playerId,
+            'billing_platform' => $this->billingPlatform,
+            'product_id' => $this->productId,
+            'transaction_id' => $this->transactionId,
+            'quantity' => $this->quantity,
+            'purchase_date' => $this->purchaseDate,
+            'price' => $this->price,
+            'currency' => $this->currency,
+        ];
+    }
+}

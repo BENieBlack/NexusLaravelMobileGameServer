@@ -3,7 +3,7 @@
 namespace App\Repositories\Trx;
 
 use App\Models\Trx\TrxStamina;
-use NexusStamina\Dto\StaminaDto;
+use NexusStamina\DataTransferObjects\Stamina;
 use NexusStamina\Repositories\StaminaRepositoryInterface;
 
 /**
@@ -25,7 +25,7 @@ class StaminaRepositoryAdapter implements StaminaRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function selectByPlayerAndType(int $sysPlayerId, string $type): ?StaminaDto
+    public function selectByPlayerAndType(int $sysPlayerId, string $type): ?Stamina
     {
         $model = $this->trxStaminaRepository->selectByPlayerAndType($sysPlayerId, $type);
 
@@ -35,7 +35,7 @@ class StaminaRepositoryAdapter implements StaminaRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function persist(StaminaDto $staminaDto): void
+    public function persist(Stamina $staminaDto): void
     {
         $model = $this->trxStaminaRepository->selectByPlayerAndType(
             $staminaDto->getSysPlayerId(),
@@ -56,7 +56,7 @@ class StaminaRepositoryAdapter implements StaminaRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function insert(StaminaDto $staminaDto): StaminaDto
+    public function insert(Stamina $staminaDto): Stamina
     {
         $this->trxStaminaRepository->insertStamina(
             $staminaDto->getSysPlayerId(),
@@ -72,9 +72,9 @@ class StaminaRepositoryAdapter implements StaminaRepositoryInterface
     /**
      * Eloquent ModelをDTOに変換
      */
-    private function convertToDto(TrxStamina $model): StaminaDto
+    private function convertToDto(TrxStamina $model): Stamina
     {
-        return new StaminaDto(
+        return new Stamina(
             sysPlayerId: $model->sys_player_id,
             type: $model->type,
             currentStamina: $model->current_stamina,

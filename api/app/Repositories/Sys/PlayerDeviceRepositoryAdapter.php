@@ -4,7 +4,7 @@ namespace App\Repositories\Sys;
 
 use App\Models\Sys\SysPlayerDevice;
 use Illuminate\Support\Collection;
-use NexusPlayer\Dto\PlayerDeviceDto;
+use NexusPlayer\DataTransferObjects\PlayerDevice;
 use NexusPlayer\Repositories\PlayerDeviceRepositoryInterface;
 
 /**
@@ -26,7 +26,7 @@ class PlayerDeviceRepositoryAdapter implements PlayerDeviceRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function selectByDeviceUuid(string $uuid): ?PlayerDeviceDto
+    public function selectByDeviceUuid(string $uuid): ?PlayerDevice
     {
         $model = $this->sysPlayerDeviceRepository->selectByDeviceId($uuid);
 
@@ -36,7 +36,7 @@ class PlayerDeviceRepositoryAdapter implements PlayerDeviceRepositoryInterface
     /**
      * {@inheritDoc}
      *
-     * @return Collection<int, PlayerDeviceDto>
+     * @return Collection<int, PlayerDevice>
      */
     public function selectByPlayerId(int $sysPlayerId): Collection
     {
@@ -48,7 +48,7 @@ class PlayerDeviceRepositoryAdapter implements PlayerDeviceRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function persist(PlayerDeviceDto $playerDeviceDto): void
+    public function persist(PlayerDevice $playerDeviceDto): void
     {
         // デバイスの更新はNexusPlayerパッケージでは現在未使用
         // 必要に応じて実装
@@ -57,9 +57,9 @@ class PlayerDeviceRepositoryAdapter implements PlayerDeviceRepositoryInterface
     /**
      * Eloquent ModelをDTOに変換
      */
-    private function convertToDto(SysPlayerDevice $model): PlayerDeviceDto
+    private function convertToDto(SysPlayerDevice $model): PlayerDevice
     {
-        return new PlayerDeviceDto(
+        return new PlayerDevice(
             id: $model->getId(),
             sysPlayerId: $model->getSysPlayerId(),
             uuid: $model->getUuid(),

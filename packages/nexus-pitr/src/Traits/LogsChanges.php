@@ -3,7 +3,7 @@
 namespace NexusPitr\Traits;
 
 use DateTime;
-use NexusPitr\Dto\ChangeLogDto;
+use NexusPitr\DataTransferObjects\ChangeLog;
 
 /**
  * LogsChanges Trait
@@ -16,7 +16,7 @@ trait LogsChanges
     /**
      * PITRログのキュー
      * 
-     * @var array<ChangeLogDto>
+     * @var array<ChangeLog>
      */
     private array $pitrLogQueue = [];
     
@@ -30,7 +30,7 @@ trait LogsChanges
      */
     protected function queueInsertLog(int $sysPlayerId, array $afterData, array $primaryKey): void
     {
-        $this->pitrLogQueue[] = new ChangeLogDto(
+        $this->pitrLogQueue[] = new ChangeLog(
             uniqueRequestId: $this->resolveRequestId(),
             sysPlayerId: $sysPlayerId,
             shardConnection: $this->connection,
@@ -56,7 +56,7 @@ trait LogsChanges
      */
     protected function queueUpdateLog(int $sysPlayerId, array $beforeData, array $afterData, array $primaryKey): void
     {
-        $this->pitrLogQueue[] = new ChangeLogDto(
+        $this->pitrLogQueue[] = new ChangeLog(
             uniqueRequestId: $this->resolveRequestId(),
             sysPlayerId: $sysPlayerId,
             shardConnection: $this->connection,
@@ -81,7 +81,7 @@ trait LogsChanges
      */
     protected function queueDeleteLog(int $sysPlayerId, array $beforeData, array $primaryKey): void
     {
-        $this->pitrLogQueue[] = new ChangeLogDto(
+        $this->pitrLogQueue[] = new ChangeLog(
             uniqueRequestId: $this->resolveRequestId(),
             sysPlayerId: $sysPlayerId,
             shardConnection: $this->connection,
@@ -99,7 +99,7 @@ trait LogsChanges
     /**
      * PITRログキューを取得
      * 
-     * @return array<ChangeLogDto>
+     * @return array<ChangeLog>
      */
     public function getPitrLogQueue(): array
     {

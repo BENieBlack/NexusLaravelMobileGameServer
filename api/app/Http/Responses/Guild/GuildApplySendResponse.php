@@ -3,7 +3,7 @@
 namespace App\Http\Responses\Guild;
 
 use App\Http\Responses\_BaseResponse;
-use NexusGuild\Dto\GuildApplyDto;
+use NexusGuild\DataTransferObjects\GuildApply;
 
 /**
  * GuildApplySendResponse
@@ -21,9 +21,9 @@ class GuildApplySendResponse extends _BaseResponse
     ) {}
 
     /**
-     * GuildApplyDtoからレスポンスを生成
+     * GuildApplyからレスポンスを生成
      */
-    public static function fromDto(GuildApplyDto $guildApplyDto): self
+    public static function fromDto(GuildApply $guildApplyDto): self
     {
         return new self(
             applyId: $guildApplyDto->getId(),

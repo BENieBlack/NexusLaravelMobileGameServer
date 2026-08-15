@@ -3,8 +3,8 @@
 namespace NexusResourceDelivery\Managers;
 
 use Nexus\Core\Support\CustomCollection;
-use NexusResourceDelivery\DTOs\ResourceDeliveryCompleteDto;
-use NexusResourceDelivery\DTOs\ResourceDeliveryContentDto;
+use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryComplete;
+use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
 
 /**
  * ResourceDeliveryManagerInterface
@@ -17,7 +17,7 @@ interface ResourceDeliveryManagerInterface
     /**
      * 配送コンテンツを配送前リストに追加する
      */
-    public function addContent(ResourceDeliveryContentDto $resourceDeliveryContentDto): void;
+    public function addContent(ResourceDeliveryContent $resourceDeliveryContentDto): void;
 
     /**
      * 複数の配送コンテンツを配送前リストにまとめて追加する
@@ -27,7 +27,7 @@ interface ResourceDeliveryManagerInterface
     /**
      * 配送前リストからコンテンツを取得する
      *
-     * @return CustomCollection<string, ResourceDeliveryContentDto>
+     * @return CustomCollection<string, ResourceDeliveryContent>
      */
     public function getPendingContents(): CustomCollection;
 
@@ -35,7 +35,7 @@ interface ResourceDeliveryManagerInterface
      * 送信完了リストからコンテンツを取得する
      *
      * @param  string  $contentClass  コンテンツクラス名
-     * @return CustomCollection<ResourceDeliveryContentDto>
+     * @return CustomCollection<ResourceDeliveryContent>
      */
     public function findSendCompleteContents(string $contentClass): CustomCollection;
 
@@ -47,7 +47,7 @@ interface ResourceDeliveryManagerInterface
     /**
      * 配送処理を実行した後に実行する処理
      *
-     * @param  ResourceDeliveryCompleteDto  $resourceDeliveryCompleteDto  送信完了データ
+     * @param  ResourceDeliveryComplete  $resourceDeliveryCompleteDto  送信完了データ
      */
-    public function afterSend(ResourceDeliveryCompleteDto $resourceDeliveryCompleteDto): void;
+    public function afterSend(ResourceDeliveryComplete $resourceDeliveryCompleteDto): void;
 }

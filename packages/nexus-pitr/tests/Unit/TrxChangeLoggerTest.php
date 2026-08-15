@@ -3,7 +3,7 @@
 namespace NexusPitr\Tests\Unit;
 
 use NexusPitr\Logger\TrxChangeLogger;
-use NexusPitr\Dto\ChangeLogDto;
+use NexusPitr\DataTransferObjects\ChangeLog;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -33,7 +33,7 @@ class TrxChangeLoggerTest extends TestCase
     public function logBatch_groups_by_log_connection_and_inserts(): void
     {
         // Arrange
-        $dto1 = new ChangeLogDto(
+        $dto1 = new ChangeLog(
             uniqueRequestId: 'req-001',
             sysPlayerId: 1,
             shardConnection: 'trx1',
@@ -46,7 +46,7 @@ class TrxChangeLoggerTest extends TestCase
             apiEndpoint: '/api/player/create'
         );
 
-        $dto2 = new ChangeLogDto(
+        $dto2 = new ChangeLog(
             uniqueRequestId: 'req-002',
             sysPlayerId: 2,
             shardConnection: 'trx1',
@@ -104,7 +104,7 @@ class TrxChangeLoggerTest extends TestCase
     public function logBatch_handles_multiple_shards(): void
     {
         // Arrange
-        $dto1 = new ChangeLogDto(
+        $dto1 = new ChangeLog(
             uniqueRequestId: 'req-001',
             sysPlayerId: 1,
             shardConnection: 'trx1',
@@ -117,7 +117,7 @@ class TrxChangeLoggerTest extends TestCase
             apiEndpoint: '/api/test'
         );
 
-        $dto2 = new ChangeLogDto(
+        $dto2 = new ChangeLog(
             uniqueRequestId: 'req-002',
             sysPlayerId: 2,
             shardConnection: 'trx2', // Different shard
@@ -183,7 +183,7 @@ class TrxChangeLoggerTest extends TestCase
     public function log_single_record_calls_logBatch(): void
     {
         // Arrange
-        $dto = new ChangeLogDto(
+        $dto = new ChangeLog(
             uniqueRequestId: 'req-001',
             sysPlayerId: 1,
             shardConnection: 'trx1',
@@ -229,7 +229,7 @@ class TrxChangeLoggerTest extends TestCase
     public function logBatch_handles_null_data_properly(): void
     {
         // Arrange
-        $dto = new ChangeLogDto(
+        $dto = new ChangeLog(
             uniqueRequestId: 'req-001',
             sysPlayerId: 1,
             shardConnection: 'trx1',

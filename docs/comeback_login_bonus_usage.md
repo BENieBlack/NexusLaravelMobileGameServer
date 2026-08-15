@@ -160,8 +160,8 @@ class LoginController extends Controller
 
         // 結果は以下の形式で返る:
         // [
-        //     'daily' => [ResourceDto, ...],    // 通常ログインボーナス
-        //     'comeback' => [ResourceDto, ...], // カムバックボーナス
+        //     'daily' => [Resource, ...],    // 通常ログインボーナス
+        //     'comeback' => [Resource, ...], // カムバックボーナス
         // ]
 
         return response()->json([
@@ -185,7 +185,7 @@ $allRewards = $this->loginBonusOrchestrator->executeAllMerged(
     connectionName: 'trx1'
 );
 
-// [ResourceDto, ResourceDto, ...] 形式で返る
+// [Resource, Resource, ...] 形式で返る
 ```
 
 ### 方法3: 個別サービスを使用
@@ -282,7 +282,7 @@ class ComeBackLoginBonusTest extends TestCase
         $rewards = $service->process($player->id, $lastLoginAt, 'trx1');
 
         $this->assertNotEmpty($rewards);
-        $this->assertInstanceOf(ResourceDto::class, $rewards[0]);
+        $this->assertInstanceOf(Resource::class, $rewards[0]);
     }
 
     public function test_comeback_bonus_not_eligible_if_less_than_7days()

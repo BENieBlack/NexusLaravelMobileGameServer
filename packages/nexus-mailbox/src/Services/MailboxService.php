@@ -5,7 +5,7 @@ namespace NexusMailbox\Services;
 use Illuminate\Support\Collection;
 use NexusMailbox\Constants\Category;
 use NexusMailbox\Constants\Priority;
-use NexusMailbox\Dto\MailboxDto;
+use NexusMailbox\DataTransferObjects\Mailbox;
 use NexusMailbox\Repositories\MailboxRepositoryInterface;
 
 /**
@@ -22,7 +22,7 @@ class MailboxService
     /**
      * メールボックス一覧を取得
      *
-     * @return Collection<MailboxDto>
+     * @return Collection<Mailbox>
      */
     public function getMailboxList(
         int $sysPlayerId,
@@ -91,7 +91,7 @@ class MailboxService
     /**
      * メールを受取済みにする
      */
-    public function markAsReceived(int $mailboxId, int $sysPlayerId): ?MailboxDto
+    public function markAsReceived(int $mailboxId, int $sysPlayerId): ?Mailbox
     {
         $mailbox = $this->mailboxRepository->selectById($mailboxId);
 

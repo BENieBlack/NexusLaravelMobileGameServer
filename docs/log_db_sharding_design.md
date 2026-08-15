@@ -453,7 +453,7 @@ class ShardMapper
 namespace NexusPitr\Logger;
 
 use Illuminate\Support\Facades\DB;
-use NexusPitr\Dto\ChangeLogDto;
+use NexusPitr\DataTransferObjects\ChangeLog;
 
 class TrxChangeLogger
 {
@@ -464,7 +464,7 @@ class TrxChangeLogger
     /**
      * TrxDB変更をLogDBに記録（シャーディング対応）
      */
-    public function log(ChangeLogDto $changeLogDto): void
+    public function log(ChangeLog $changeLogDto): void
     {
         $trxConnection = $changeLogDto->getShardConnection();
         $logConnection = ShardMapper::getLogConnection($trxConnection);

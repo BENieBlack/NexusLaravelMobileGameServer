@@ -7,12 +7,14 @@
 ## 目次
 
 1. [メソッド命名規則](#メソッド命名規則)
-2. [Request・Responseクラスの命名規則](#requestresponseクラスの命名規則)
-3. [ディレクトリ構成](#ディレクトリ構成)
-4. [名前空間とクラスの配置](#名前空間とクラスの配置)
-5. [クラスの責務](#クラスの責務)
-6. [ファイル命名規則](#ファイル命名規則)
-7. [まとめ](#まとめ)
+2. [DTO・ValueObjectの命名](#dtovalueobjectの命名)
+3. [削除の規約](#削除の規約)
+4. [Request・Responseクラスの命名規則](#requestresponseクラスの命名規則)
+5. [ディレクトリ構成](#ディレクトリ構成)
+6. [名前空間とクラスの配置](#名前空間とクラスの配置)
+7. [クラスの責務](#クラスの責務)
+8. [ファイル命名規則](#ファイル命名規則)
+9. [まとめ](#まとめ)
 
 ---
 
@@ -44,6 +46,39 @@
 
 - `save` はEloquentの `Model::save()` を指すため、UnitOfWorkにキューイングする処理には使わない（`persist` を使う）。
 - Repositoryは常にModelを返す。DTOへの変換はAdapterやServiceの役務とする。
+
+---
+
+## DTO・ValueObjectの命名
+
+### サフィックスは付けない
+
+役割はディレクトリと名前空間で示す。クラス名にパターン名を繰り返さない。
+
+| ディレクトリ | 用途 | 例 |
+|---|---|---|
+| `DataTransferObjects/` | データ転送（可変も許容、`toArray()` あり） | `Player` `Guild` `ResourceDeliverySummary` |
+| `ValueObjects/` | ドメイン概念（不変、`toArray()` なし） | `VipConfig` `Token` `CurrencyBalance` |
+
+```php
+// ✅ 名前空間で役割が分かる
+use NexusPlayer\DataTransferObjects\Player;
+use NexusVip\ValueObjects\VipConfig;
+
+// ❌ サフィックスの重複
+use NexusPlayer\DataTransferObjects\PlayerDto;
+```
+
+Eloquent Modelは `Sys` / `Trx` / `Mst` / `Log` の接頭辞を持つため、
+`Player`（DTO）と `SysPlayer`（Model）は同一ファイル内でも共存できる。
+
+### ディレクトリ名は略さない
+
+`DTOs` ではなく `DataTransferObjects` とする。`ValueObjects` をはじめ、
+このリポジトリのディレクトリ名は全て綴った複数形で統一している。
+
+なお `toDto()` / `toDtoArray()` のような**変換メソッド名**は、
+特定のクラスではなくパターンを指すため `Dto` のままでよい。
 
 ---
 

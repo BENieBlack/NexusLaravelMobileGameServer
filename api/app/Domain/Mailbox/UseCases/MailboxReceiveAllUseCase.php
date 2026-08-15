@@ -9,7 +9,7 @@ use App\Exceptions\GameException;
 use App\Http\Responses\Mailbox\ReceiveAllResponse;
 use App\Repositories\Trx\TrxMailboxRepository;
 use Nexus\Core\Support\CustomCollection;
-use NexusResource\DTOs\ResourceDto;
+use NexusResource\DataTransferObjects\Resource;
 use NexusResourceDelivery\Services\ResourceDeliveryService;
 
 /**
@@ -98,7 +98,7 @@ class MailboxReceiveAllUseCase extends _BaseUseCase
 
                 // Resource配列に変換して集約
                 foreach ($contentCollection as $content) {
-                    $resource = ResourceDto::fromTypeString(
+                    $resource = Resource::fromTypeString(
                         strtolower($content->getContentType()),
                         $content->getContentId(),
                         $content->getAmount(),

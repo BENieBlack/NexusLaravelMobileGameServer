@@ -66,7 +66,7 @@ The package provides reusable, game-agnostic Guild functionality:
 
 All DTOs use `private readonly` properties with Getter methods:
 
-**GuildDto** (`src/DTOs/GuildDto.php`)
+**Guild** (`src/DTOs/Guild.php`)
 ```php
 public function __construct(
     private readonly int $id,
@@ -81,7 +81,7 @@ public function __construct(
 ```
 Methods: `getId()`, `getName()`, `getDescription()`, `getLevel()`, `getExp()`, `getMaxMembers()`, `getCreatedAt()`, `getUpdatedAt()`
 
-**GuildMemberDto** (`src/DTOs/GuildMemberDto.php`)
+**GuildMember** (`src/DTOs/GuildMember.php`)
 ```php
 public function __construct(
     private readonly int $id,
@@ -93,7 +93,7 @@ public function __construct(
 ```
 Methods: `getId()`, `getSysGuildId()`, `getSysPlayerId()`, `getRole()`, `getJoinedAt()`
 
-**GuildApplyDto** (`src/DTOs/GuildApplyDto.php`)
+**GuildApply** (`src/DTOs/GuildApply.php`)
 ```php
 public function __construct(
     private readonly int $id,
@@ -108,9 +108,9 @@ Methods: `getId()`, `getSysGuildId()`, `getSysPlayerId()`, `getStatus()`, `getCr
 #### Repository Interfaces
 
 **GuildRepositoryInterface** (`src/Contracts/GuildRepositoryInterface.php`)
-- `create(string $name, ?string $description): GuildDto` - Create new guild
-- `findById(int $guildId): ?GuildDto` - Find guild by ID
-- `findByName(string $name): ?GuildDto` - Find guild by name
+- `create(string $name, ?string $description): Guild` - Create new guild
+- `findById(int $guildId): ?Guild` - Find guild by ID
+- `findByName(string $name): ?Guild` - Find guild by name
 - `exists(int $guildId): bool` - Check guild existence
 - `list(int $limit, int $offset): array` - Get guild list
 - `countMembers(int $guildId): int` - Count current members
@@ -120,9 +120,9 @@ Methods: `getId()`, `getSysGuildId()`, `getSysPlayerId()`, `getStatus()`, `getCr
 - `delete(int $guildId): void` - Delete guild
 
 **GuildMemberRepositoryInterface** (`src/Contracts/GuildMemberRepositoryInterface.php`)
-- `create(int $guildId, int $playerId, string $role): GuildMemberDto` - Add member
-- `findByGuildAndPlayer(int $guildId, int $playerId): ?GuildMemberDto` - Find specific member
-- `findByPlayer(int $playerId): ?GuildMemberDto` - Find player's guild membership
+- `create(int $guildId, int $playerId, string $role): GuildMember` - Add member
+- `findByGuildAndPlayer(int $guildId, int $playerId): ?GuildMember` - Find specific member
+- `findByPlayer(int $playerId): ?GuildMember` - Find player's guild membership
 - `listByGuild(int $guildId): array` - List all members in guild
 - `countByGuild(int $guildId): int` - Count members in guild
 - `updateRole(int $guildId, int $playerId, string $role): void` - Update member role
@@ -132,9 +132,9 @@ Methods: `getId()`, `getSysGuildId()`, `getSysPlayerId()`, `getStatus()`, `getCr
 - `isMaster(int $guildId, int $playerId): bool` - Check if player is master
 
 **GuildApplyRepositoryInterface** (`src/Contracts/GuildApplyRepositoryInterface.php`)
-- `create(int $guildId, int $playerId): GuildApplyDto` - Create application
-- `findById(int $applyId): ?GuildApplyDto` - Find application by ID
-- `findByGuildAndPlayer(int $guildId, int $playerId): ?GuildApplyDto` - Find specific application
+- `create(int $guildId, int $playerId): GuildApply` - Create application
+- `findById(int $applyId): ?GuildApply` - Find application by ID
+- `findByGuildAndPlayer(int $guildId, int $playerId): ?GuildApply` - Find specific application
 - `listByGuild(int $guildId, string $status): array` - List applications for guild
 - `listByPlayer(int $playerId, string $status): array` - List applications by player
 - `updateStatus(int $applyId, string $status): void` - Update application status
@@ -210,13 +210,13 @@ Game-specific implementation:
 #### Adapters (Model-DTO Conversion)
 
 **GuildAdapter** (`Adapters/GuildAdapter.php`)
-- `toDto(SysGuild $model): GuildDto` - Convert model to DTO
+- `toDto(SysGuild $model): Guild` - Convert model to DTO
 
 **GuildMemberAdapter** (`Adapters/GuildMemberAdapter.php`)
-- `toDto(SysGuildMember $model): GuildMemberDto` - Convert model to DTO
+- `toDto(SysGuildMember $model): GuildMember` - Convert model to DTO
 
 **GuildApplyAdapter** (`Adapters/GuildApplyAdapter.php`)
-- `toDto(SysGuildApply $model): GuildApplyDto` - Convert model to DTO
+- `toDto(SysGuildApply $model): GuildApply` - Convert model to DTO
 
 #### Repository Implementations
 
@@ -631,9 +631,9 @@ packages/nexus-guild/
 │   │   ├── GuildMemberRepositoryInterface.php
 │   │   └── GuildApplyRepositoryInterface.php
 │   ├── DTOs/
-│   │   ├── GuildDto.php
-│   │   ├── GuildMemberDto.php
-│   │   └── GuildApplyDto.php
+│   │   ├── Guild.php
+│   │   ├── GuildMember.php
+│   │   └── GuildApply.php
 │   ├── Exceptions/
 │   │   └── GuildException.php
 │   └── Services/

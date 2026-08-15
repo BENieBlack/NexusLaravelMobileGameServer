@@ -39,7 +39,7 @@ ResourceDeliveryManager
 ### 推奨される使用方法
 
 ```php
-use NexusResource\DTOs\Resource;
+use NexusResource\DataTransferObjects\Resource;
 
 // Step 1: リソースを登録（複数箇所から登録可能）
 $deliveryService->addResources([
@@ -207,7 +207,7 @@ GACHA_TICKET, CUSTOM
 ### MailBoxでの使用例
 
 ```php
-use NexusResource\DTOs\Resource;
+use NexusResource\DataTransferObjects\Resource;
 use NexusResourceDelivery\Services\ResourceDeliveryService;
 
 public function handle(int $sysPlayerId, int $trxMailboxId): ReceiveResponse
@@ -237,7 +237,7 @@ public function handle(int $sysPlayerId, int $trxMailboxId): ReceiveResponse
 ### Gachaでの使用例
 
 ```php
-use NexusResource\DTOs\Resource;
+use NexusResource\DataTransferObjects\Resource;
 
 public function grantPrizes(int $sysPlayerId, array $prizes): void
 {

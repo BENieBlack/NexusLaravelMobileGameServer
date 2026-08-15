@@ -1437,7 +1437,7 @@ DTOは複数のサービス間でデータを受け渡す際に、型安全性�
 
 ```php
 // ✅ Good: private readonlyで不変性と型安全性を確保
-class GuildDto
+class Guild
 {
     public function __construct(
         private readonly int $id,
@@ -1458,7 +1458,7 @@ class GuildDto
 }
 
 // ❌ Bad: public readonlyは使わない（直接アクセスを防ぐため）
-class GuildDto
+class Guild
 {
     public function __construct(
         public readonly int $id,           // NG: publicは禁止
@@ -1483,7 +1483,7 @@ $guildName = $guildDto->name;  // NG: 直接アクセス禁止
 
 ```php
 // ❌ Bad: 後方互換性のためのaliasは使わない
-class_alias(ReceiptDto::class, 'NexusBilling\DTOs\ReceiptData'); // NG
+class_alias(Receipt::class, 'NexusBilling\DataTransferObjects\ReceiptData'); // NG
 
 // ✅ Good: クラス名を統一し、すべての箇所を一括変更
 // aliasなしで一貫した命名を使用

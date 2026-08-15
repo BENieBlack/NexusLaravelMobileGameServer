@@ -17,9 +17,9 @@ nexus-guild/
 │   ├── Constants/
 │   │   └── GuildRequestStatus.php    # Guild request status constants
 │   ├── Dto/
-│   │   ├── GuildDto.php               # Guild data transfer object
-│   │   ├── GuildRequestDto.php        # Guild request DTO
-│   │   └── GuildMemberDto.php         # Guild member DTO
+│   │   ├── Guild.php               # Guild data transfer object
+│   │   ├── GuildApply.php              # Guild apply DTO
+│   │   └── GuildMember.php         # Guild member DTO
 │   ├── Repositories/
 │   │   ├── GuildRepositoryInterface.php
 │   │   └── GuildRequestRepositoryInterface.php
@@ -51,7 +51,7 @@ class SysGuildRequestRepository implements GuildRequestRepositoryInterface { ...
 
 // Adapter
 class GuildAdapter { 
-    public static function toDto(SysGuild $guild): GuildDto { ... }
+    public static function toDto(SysGuild $guild): Guild { ... }
 }
 
 // UseCase

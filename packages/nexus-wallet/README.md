@@ -30,8 +30,8 @@ composer require laravel-mobile-rpg/wallet
 
 ```php
 use LaravelWallet\Contracts\WalletManagerInterface;
-use LaravelWallet\DTOs\CurrencyBalance;
-use LaravelWallet\DTOs\CurrencyOperationResult;
+use LaravelWallet\DataTransferObjects\CurrencyBalance;
+use LaravelWallet\DataTransferObjects\CurrencyOperationResult;
 use Carbon\CarbonImmutable;
 
 class WalletService implements WalletManagerInterface

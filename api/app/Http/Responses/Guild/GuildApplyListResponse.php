@@ -3,7 +3,7 @@
 namespace App\Http\Responses\Guild;
 
 use App\Http\Responses\_BaseResponse;
-use NexusGuild\Dto\GuildApplyDto;
+use NexusGuild\DataTransferObjects\GuildApply;
 
 /**
  * GuildApplyListResponse
@@ -20,9 +20,9 @@ class GuildApplyListResponse extends _BaseResponse
     ) {}
 
     /**
-     * GuildApplyDto配列からレスポンスを生成
+     * GuildApply配列からレスポンスを生成
      *
-     * @param  array<GuildApplyDto>  $applyDtos
+     * @param  array<GuildApply>  $applyDtos
      */
     public static function fromDtoArray(array $applyDtos): self
     {

@@ -2,7 +2,7 @@
 
 namespace NexusStamina\Tests\Unit;
 
-use NexusStamina\Dto\StaminaDto;
+use NexusStamina\DataTransferObjects\Stamina;
 use NexusStamina\Repositories\StaminaRepositoryInterface;
 use NexusStamina\Services\PlayerLevelServiceInterface;
 use NexusStamina\Services\StaminaService;
@@ -49,7 +49,7 @@ class StaminaServiceTest extends TestCase
             ->willReturn($maxStamina);
 
         // 経過時間は現在時刻基準なので、テストは現在のスタミナのみチェック
-        $staminaDto = new StaminaDto(
+        $staminaDto = new Stamina(
             sysPlayerId: $playerId,
             type: $type,
             currentStamina: 50,
@@ -65,7 +65,7 @@ class StaminaServiceTest extends TestCase
 
         $result = $this->service->findStamina($playerId, $type);
 
-        $this->assertInstanceOf(StaminaDto::class, $result);
+        $this->assertInstanceOf(Stamina::class, $result);
         // 現在時刻なので回復は発生しない
         $this->assertEquals(50, $result->getCurrentStamina());
     }
@@ -105,7 +105,7 @@ class StaminaServiceTest extends TestCase
             ->with($playerId)
             ->willReturn($maxStamina);
 
-        $staminaDto = new StaminaDto(
+        $staminaDto = new Stamina(
             sysPlayerId: $playerId,
             type: $type,
             currentStamina: 50,
@@ -148,7 +148,7 @@ class StaminaServiceTest extends TestCase
             ->with($playerId)
             ->willReturn($maxStamina);
 
-        $staminaDto = new StaminaDto(
+        $staminaDto = new Stamina(
             sysPlayerId: $playerId,
             type: $type,
             currentStamina: 50,
@@ -188,7 +188,7 @@ class StaminaServiceTest extends TestCase
             ->with($playerId)
             ->willReturn($maxStamina);
 
-        $staminaDto = new StaminaDto(
+        $staminaDto = new Stamina(
             sysPlayerId: $playerId,
             type: $type,
             currentStamina: 50,
@@ -231,7 +231,7 @@ class StaminaServiceTest extends TestCase
             ->with($playerId)
             ->willReturn($maxStamina);
 
-        $staminaDto = new StaminaDto(
+        $staminaDto = new Stamina(
             sysPlayerId: $playerId,
             type: $type,
             currentStamina: 90,
@@ -275,7 +275,7 @@ class StaminaServiceTest extends TestCase
             ->willReturn($maxStamina);
 
         // 現在時刻のスタミナ
-        $staminaDto = new StaminaDto(
+        $staminaDto = new Stamina(
             sysPlayerId: $playerId,
             type: $type,
             currentStamina: 50,
@@ -310,7 +310,7 @@ class StaminaServiceTest extends TestCase
             ->with($playerId)
             ->willReturn($maxStamina);
 
-        $staminaDto = new StaminaDto(
+        $staminaDto = new Stamina(
             sysPlayerId: $playerId,
             type: $type,
             currentStamina: 100,

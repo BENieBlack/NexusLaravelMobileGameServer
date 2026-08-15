@@ -2,7 +2,7 @@
 
 namespace NexusResource\Contracts;
 
-use NexusResource\DTOs\ItemDto;
+use NexusResource\DataTransferObjects\Item;
 
 /**
  * ItemRepositoryInterface
@@ -17,24 +17,24 @@ interface ItemRepositoryInterface
      *
      * @param int $sysPlayerId プレイヤーID
      * @param string $mstItemId アイテムID
-     * @return ItemDto|null
+     * @return Item|null
      */
-    public function selectItem(int $sysPlayerId, string $mstItemId): ?ItemDto;
+    public function selectItem(int $sysPlayerId, string $mstItemId): ?Item;
 
     /**
      * アイテムを保存（新規作成 or 更新）
      *
-     * @param ItemDto $itemDto
+     * @param Item $itemDto
      * @return void
      */
-    public function persistItem(ItemDto $itemDto): void;
+    public function persistItem(Item $itemDto): void;
 
     /**
      * 複数アイテムを一括取得
      *
      * @param int $sysPlayerId プレイヤーID
      * @param array<string> $mstItemIds アイテムIDリスト
-     * @return array<ItemDto>
+     * @return array<Item>
      */
     public function selectItemsByIds(int $sysPlayerId, array $mstItemIds): array;
 }

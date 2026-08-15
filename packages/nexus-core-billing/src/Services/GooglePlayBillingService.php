@@ -5,9 +5,9 @@ namespace NexusBilling\Services;
 use NexusBilling\ApiClients\GooglePlayApiClient;
 use NexusBilling\Constants\BillingConst;
 use NexusBilling\Contracts\BillingPlatformInterface;
-use NexusBilling\DTOs\ReceiptDto;
+use NexusBilling\DataTransferObjects\Receipt;
 use NexusBilling\ValueObjects\Subscription;
-use NexusBilling\DTOs\VerificationDto;
+use NexusBilling\DataTransferObjects\Verification;
 use NexusBilling\Exceptions\DuplicatePurchaseException;
 use NexusBilling\Exceptions\InvalidReceiptException;
 use Carbon\CarbonImmutable;
@@ -26,7 +26,7 @@ class GooglePlayBillingService implements BillingPlatformInterface
     /**
      * {@inheritDoc}
      */
-    public function verifyReceipt(ReceiptDto $receiptDto): VerificationDto
+    public function verifyReceipt(Receipt $receiptDto): Verification
     {
         if (empty($receiptDto->getPurchaseToken()) || empty($receiptDto->getProductId())) {
             throw new InvalidReceiptException(
@@ -58,7 +58,7 @@ class GooglePlayBillingService implements BillingPlatformInterface
         }
 
         // 5. 検証結果を返す
-        return new VerificationDto(
+        return new Verification(
             isValid: true,
             transactionId: $response['orderId'],
             productId: $receiptDto->getProductId(),

@@ -2,7 +2,7 @@
 
 namespace NexusLogin\Services;
 
-use NexusResource\DTOs\ResourceDto;
+use NexusResource\DataTransferObjects\Resource;
 use NexusResourceDelivery\Services\ResourceDeliveryService;
 use NexusLogin\Contracts\LoginBonusStrategyInterface;
 use Carbon\CarbonImmutable;
@@ -243,7 +243,7 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
      * @param array $bonusData ログインボーナスデータ
      * @param int $currentDay 現在の受け取り日数
      * @param string $connectionName シャーディングされたDB接続名
-     * @return array<ResourceDto> 配布した報酬
+     * @return array<Resource> 配布した報酬
      */
     protected function grantBonus(int $sysPlayerId, array $bonusData, int $currentDay, string $connectionName): array
     {
@@ -273,16 +273,16 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
      * ContentをResourceに変換（サブクラスでオーバーライド可能）
      * 
      * @param object $content
-     * @return ResourceDto
+     * @return Resource
      */
-    protected function convertToResource(object $content): ResourceDto
+    protected function convertToResource(object $content): Resource
     {
         $metadata = [];
         if (isset($content->is_paid) && $content->is_paid) {
             $metadata['is_paid'] = true;
         }
 
-        return ResourceDto::fromTypeString(
+        return Resource::fromTypeString(
             typeString: $content->content_type,
             id: $content->content_id,
             amount: $content->content_quantity * $content->amount,

@@ -4,7 +4,7 @@ namespace NexusResourceDelivery\Handlers;
 
 use App\Repositories\Trx\TrxEquipmentRepository;
 use NexusResource\Enums\ResourceType;
-use NexusResourceDelivery\DTOs\ResourceDeliveryContentDto;
+use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
 
 /**
  * EquipmentDeliveryHandler
@@ -28,11 +28,11 @@ class EquipmentDeliveryHandler implements ResourceDeliveryHandlerInterface
      * 装備配送処理を実行
      *
      * @param  int  $sysPlayerId  プレイヤーID
-     * @param  ResourceDeliveryContentDto  $resourceDeliveryContentDto  配送コンテンツ
+     * @param  ResourceDeliveryContent  $resourceDeliveryContentDto  配送コンテンツ
      *
      * @throws \Exception 配送失敗時
      */
-    public function handle(int $sysPlayerId, ResourceDeliveryContentDto $resourceDeliveryContentDto): void
+    public function handle(int $sysPlayerId, ResourceDeliveryContent $resourceDeliveryContentDto): void
     {
         // metadataからlevel/gradeを取得（指定がない場合はnull = デフォルト値を使用）
         $metadata = $resourceDeliveryContentDto->getMetadata();

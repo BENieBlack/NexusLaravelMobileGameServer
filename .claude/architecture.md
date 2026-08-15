@@ -228,9 +228,9 @@ app/Domain/Delivery/
 ```
 packages/{package-name}/
 ├── src/
-│   ├── DTOs/                          # データ転送オブジェクト
-│   │   ├── {Name}Dto.php              # Dtoサフィックス（例: PlayerVipDto）
-│   │   └── {Name}ResultDto.php
+│   ├── DataTransferObjects/           # データ転送オブジェクト
+│   │   ├── {Name}.php                 # サフィックスなし（例: PlayerVip）
+│   │   └── {Name}Result.php
 │   │
 │   ├── ValueObjects/                  # Value Object（不変オブジェクト）
 │   │   └── {Name}.php                 # サフィックスなし（例: VipConfig）
@@ -269,10 +269,8 @@ packages/{package-name}/
 ```
 packages/nexus-vip/
 ├── src/
-│   ├── DTOs/
-│   │   ├── PlayerVipDto.php           # データ転送（Repository ↔ Service）
-│   │   ├── VipBenefitDto.php
-│   │   └── VipLevelDto.php
+│   ├── DataTransferObjects/
+│   │   └── PlayerVip.php              # データ転送（Repository ↔ Service）
 │   │
 │   ├── ValueObjects/
 │   │   └── VipConfig.php              # 設定のValue Object（完全不変）
@@ -310,10 +308,12 @@ packages/nexus-vip/
 └── composer.json
 ```
 
-**DTOs/ と ValueObjects/ の使い分け:**
+**DataTransferObjects/ と ValueObjects/ の使い分け:**
 
-- **DTOs/**: データ転送用（可変も許容、toArray()あり）
-  - 例: `PlayerVipDto`, `GuildDto`, `DeliveryResultDto`
+どちらもクラス名にサフィックスは付けず、ディレクトリと名前空間で役割を示す。
+
+- **DataTransferObjects/**: データ転送用（可変も許容、toArray()あり）
+  - 例: `PlayerVip`, `Guild`, `ResourceDeliverySummary`
 
 - **ValueObjects/**: ドメイン概念を表現（完全不変、toArray()なし）
   - 例: `VipConfig`, `Money`, `DateRange`, `GameSettings`
@@ -600,7 +600,7 @@ namespace NexusVip\DTOs;
  * プレイヤーVIP情報DTO
  * Repository ↔ Service 間でデータを転送
  */
-class PlayerVipDto
+class PlayerVip
 {
     public function __construct(
         private readonly int $sysPlayerId,
@@ -635,7 +635,7 @@ class PlayerVipDto
 **使用例:**
 ```php
 // Repository → Service
-$playerVip = $this->playerVipRepository->findVipInfoById($playerId);  // PlayerVipDto
+$playerVip = $this->playerVipRepository->findVipInfoById($playerId);  // PlayerVip
 $playerVip->addVipPoint(100);  // DTO内で値を変更
 $this->playerVipRepository->save($playerVip);
 ```
@@ -701,7 +701,7 @@ class VipPointService
         protected VipConfig $config,  // DI
     ) {}
     
-    public function addPoints(int $points): PlayerVipDto
+    public function addPoints(int $points): PlayerVip
     {
         // 設定値を参照（変更不可）
         if ($this->config->enablePointLog) {
@@ -732,7 +732,7 @@ $service = new VipPointService($config);
 | **等価性判断** | IDベース | 値ベース |
 | **配置** | `DTOs/` | `ValueObjects/` |
 | **使用箇所** | Repository ↔ Service | Service内のロジック |
-| **例** | PlayerVipDto, GuildDto | VipConfig, Money, Period |
+| **例** | PlayerVip, Guild | VipConfig, Money, Period |
 
 ---
 

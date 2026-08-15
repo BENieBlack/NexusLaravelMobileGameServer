@@ -4,9 +4,9 @@ namespace NexusGuild\Services;
 
 use NexusGuild\Constants\GuildApplyStatus;
 use NexusGuild\Constants\GuildRole;
-use NexusGuild\Dto\GuildApplyDto;
-use NexusGuild\Dto\GuildDto;
-use NexusGuild\Dto\GuildMemberDto;
+use NexusGuild\DataTransferObjects\GuildApply;
+use NexusGuild\DataTransferObjects\Guild;
+use NexusGuild\DataTransferObjects\GuildMember;
 use NexusGuild\Exceptions\GuildException;
 use NexusGuild\Repositories\GuildApplyRepositoryInterface;
 use NexusGuild\Repositories\GuildMemberRepositoryInterface;
@@ -64,7 +64,7 @@ class GuildService
      *
      * @throws GuildException ギルドに所属していない場合
      */
-    public function validatePlayerInGuild(int $playerId): GuildMemberDto
+    public function validatePlayerInGuild(int $playerId): GuildMember
     {
         $member = $this->memberRepository->selectByPlayerId($playerId);
 
@@ -95,11 +95,11 @@ class GuildService
     /**
      * ギルドが満員でないかバリデーション
      *
-     * @param  GuildDto  $guildDto  ギルド
+     * @param  Guild  $guildDto  ギルド
      *
      * @throws GuildException ギルドが満員の場合
      */
-    public function validateGuildNotFull(GuildDto $guildDto): void
+    public function validateGuildNotFull(Guild $guildDto): void
     {
         if ($guildDto->getCurrentMembers() >= $guildDto->getMaxMembers()) {
             throw GuildException::guildFull($guildDto->getId());
@@ -109,12 +109,12 @@ class GuildService
     /**
      * ギルドマスター/サブマスターの権限をバリデーション
      *
-     * @param  GuildMemberDto  $guildMemberDto  メンバー情報
+     * @param  GuildMember  $guildMemberDto  メンバー情報
      * @param  string  $action  アクション名（エラーメッセージ用）
      *
      * @throws GuildException 権限がない場合
      */
-    public function validateMasterOrSubMasterPermission(GuildMemberDto $guildMemberDto, string $action): void
+    public function validateMasterOrSubMasterPermission(GuildMember $guildMemberDto, string $action): void
     {
         if ($guildMemberDto->getRole() !== GuildRole::MASTER && $guildMemberDto->getRole() !== GuildRole::SUB_MASTER) {
             throw GuildException::permissionDenied($guildMemberDto->getSysPlayerId(), $action);
@@ -124,12 +124,12 @@ class GuildService
     /**
      * ギルドマスターの権限をバリデーション
      *
-     * @param  GuildMemberDto  $guildMemberDto  メンバー情報
+     * @param  GuildMember  $guildMemberDto  メンバー情報
      * @param  string  $action  アクション名（エラーメッセージ用）
      *
      * @throws GuildException 権限がない場合
      */
-    public function validateMasterPermission(GuildMemberDto $guildMemberDto, string $action): void
+    public function validateMasterPermission(GuildMember $guildMemberDto, string $action): void
     {
         if ($guildMemberDto->getRole() !== GuildRole::MASTER) {
             throw GuildException::permissionDenied($guildMemberDto->getSysPlayerId(), $action);
@@ -139,11 +139,11 @@ class GuildService
     /**
      * 申請が承認可能な状態かバリデーション
      *
-     * @param  GuildApplyDto  $guildApplyDto  申請DTO
+     * @param  GuildApply  $guildApplyDto  申請DTO
      *
      * @throws GuildException 承認できない状態の場合
      */
-    public function validateCanAccept(GuildApplyDto $guildApplyDto): void
+    public function validateCanAccept(GuildApply $guildApplyDto): void
     {
         if ($guildApplyDto->getStatus() !== GuildApplyStatus::APPLIED) {
             throw GuildException::invalidStatus($guildApplyDto->getStatus());
@@ -153,11 +153,11 @@ class GuildService
     /**
      * 申請が却下可能な状態かバリデーション
      *
-     * @param  GuildApplyDto  $guildApplyDto  申請DTO
+     * @param  GuildApply  $guildApplyDto  申請DTO
      *
      * @throws GuildException 却下できない状態の場合
      */
-    public function validateCanReject(GuildApplyDto $guildApplyDto): void
+    public function validateCanReject(GuildApply $guildApplyDto): void
     {
         if ($guildApplyDto->getStatus() !== GuildApplyStatus::APPLIED) {
             throw GuildException::invalidStatus($guildApplyDto->getStatus());
@@ -171,7 +171,7 @@ class GuildService
      * @param  string  $description  ギルド説明
      * @param  int  $masterPlayerId  マスタープレイヤーID
      */
-    public function createGuild(string $name, string $description, int $masterPlayerId): GuildDto
+    public function createGuild(string $name, string $description, int $masterPlayerId): Guild
     {
         $this->validateGuildNameUnique($name);
         $this->validatePlayerNotInGuild($masterPlayerId);
@@ -185,7 +185,7 @@ class GuildService
      * @param  int  $guildId  ギルドID
      * @param  int  $playerId  プレイヤーID
      */
-    public function sendApply(int $guildId, int $playerId): GuildApplyDto
+    public function sendApply(int $guildId, int $playerId): GuildApply
     {
         $guild = $this->guildRepository->selectById($guildId);
         if ($guild === null) {
@@ -205,7 +205,7 @@ class GuildService
      * @param  int  $applyId  申請ID
      * @param  int  $currentPlayerId  現在のプレイヤーID（承認者）
      */
-    public function acceptApply(int $applyId, int $currentPlayerId): GuildApplyDto
+    public function acceptApply(int $applyId, int $currentPlayerId): GuildApply
     {
         $applyDto = $this->applyRepository->selectById($applyId);
         if ($applyDto === null) {
@@ -241,7 +241,7 @@ class GuildService
      * @param  int  $applyId  申請ID
      * @param  int  $currentPlayerId  現在のプレイヤーID（却下者）
      */
-    public function rejectApply(int $applyId, int $currentPlayerId): GuildApplyDto
+    public function rejectApply(int $applyId, int $currentPlayerId): GuildApply
     {
         $applyDto = $this->applyRepository->selectById($applyId);
         if ($applyDto === null) {
@@ -288,7 +288,7 @@ class GuildService
      * ギルド申請一覧を取得
      *
      * @param  int  $guildId  ギルドID
-     * @return array<GuildApplyDto>
+     * @return array<GuildApply>
      */
     public function findApplyList(int $guildId): array
     {
@@ -299,7 +299,7 @@ class GuildService
      * ギルドメンバー一覧を取得
      *
      * @param  int  $guildId  ギルドID
-     * @return array<GuildMemberDto>
+     * @return array<GuildMember>
      */
     public function findMemberList(int $guildId): array
     {
@@ -311,7 +311,7 @@ class GuildService
      *
      * @param  int  $playerId  プレイヤーID
      */
-    public function findPlayerGuild(int $playerId): ?GuildDto
+    public function findPlayerGuild(int $playerId): ?Guild
     {
         $member = $this->memberRepository->selectByPlayerId($playerId);
         if ($member === null) {
@@ -324,7 +324,7 @@ class GuildService
     /**
      * 全ギルド一覧を取得
      *
-     * @return array<GuildDto>
+     * @return array<Guild>
      */
     public function getAllGuilds(): array
     {

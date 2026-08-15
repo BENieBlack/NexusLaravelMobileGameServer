@@ -6,7 +6,7 @@ use App\Domain\Mailbox\Constants\Category;
 use App\Domain\Mailbox\Constants\Priority;
 use App\Models\Trx\TrxMailbox;
 use Illuminate\Support\Collection;
-use NexusMailbox\Dto\MailboxDto;
+use NexusMailbox\DataTransferObjects\Mailbox;
 use NexusMailbox\Repositories\MailboxRepositoryInterface;
 
 /**
@@ -28,7 +28,7 @@ class MailboxRepositoryAdapter implements MailboxRepositoryInterface
     /**
      * {@inheritDoc}
      *
-     * @return Collection<int, MailboxDto>
+     * @return Collection<int, Mailbox>
      */
     public function selectByPlayerId(
         int $sysPlayerId,
@@ -55,7 +55,7 @@ class MailboxRepositoryAdapter implements MailboxRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function selectById(int $id): ?MailboxDto
+    public function selectById(int $id): ?Mailbox
     {
         $model = $this->trxMailboxRepository->selectById($id);
 
@@ -65,7 +65,7 @@ class MailboxRepositoryAdapter implements MailboxRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function persist(MailboxDto $mailboxDto): void
+    public function persist(Mailbox $mailboxDto): void
     {
         $model = $this->trxMailboxRepository->selectById($mailboxDto->getId());
 
@@ -83,7 +83,7 @@ class MailboxRepositoryAdapter implements MailboxRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function markAsRead(MailboxDto $mailboxDto): void
+    public function markAsRead(Mailbox $mailboxDto): void
     {
         $model = $this->trxMailboxRepository->selectById($mailboxDto->getId());
 
@@ -95,7 +95,7 @@ class MailboxRepositoryAdapter implements MailboxRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function markDtoAsReceived(MailboxDto $mailboxDto): void
+    public function markDtoAsReceived(Mailbox $mailboxDto): void
     {
         $model = $this->trxMailboxRepository->selectById($mailboxDto->getId());
 
@@ -107,7 +107,7 @@ class MailboxRepositoryAdapter implements MailboxRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function updateLockStatus(MailboxDto $mailboxDto, bool $isLocked): void
+    public function updateLockStatus(Mailbox $mailboxDto, bool $isLocked): void
     {
         $model = $this->trxMailboxRepository->selectById($mailboxDto->getId());
 
@@ -129,9 +129,9 @@ class MailboxRepositoryAdapter implements MailboxRepositoryInterface
     /**
      * Eloquent ModelをDTOに変換
      */
-    private function convertToDto(TrxMailbox $model): MailboxDto
+    private function convertToDto(TrxMailbox $model): Mailbox
     {
-        return new MailboxDto(
+        return new Mailbox(
             id: $model->getId(),
             sysPlayerId: $model->getSysPlayerId(),
             mstMailboxId: $model->getMstMailboxId(),

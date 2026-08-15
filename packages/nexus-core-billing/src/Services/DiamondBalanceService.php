@@ -3,7 +3,7 @@
 namespace NexusBilling\Services;
 
 use NexusBilling\Contracts\DiamondRepositoryInterface;
-use NexusBilling\DTOs\DiamondBalanceDto;
+use NexusBilling\DataTransferObjects\DiamondBalance;
 
 /**
  * DiamondBalanceService（パッケージ層）
@@ -64,9 +64,9 @@ class DiamondBalanceService
      * @param string $platform プラットフォーム（Apple, Google）
      * @param int $amount 加算する数量
      * @param bool $isPaid 有償ダイヤモンドか（falseの場合は無償）
-     * @return DiamondBalanceDto 加算後のダイヤモンドDTO
+     * @return DiamondBalance 加算後のダイヤモンドDTO
      */
-    public function addDiamond(int $sysPlayerId, string $platform, int $amount, bool $isPaid = false): DiamondBalanceDto
+    public function addDiamond(int $sysPlayerId, string $platform, int $amount, bool $isPaid = false): DiamondBalance
     {
         $diamondDto = $this->diamondRepository->selectByPlatform($sysPlayerId, $platform);
 
@@ -79,7 +79,7 @@ class DiamondBalanceService
             }
         } else {
             // 新規レコードを作成
-            $diamondDto = new DiamondBalanceDto(
+            $diamondDto = new DiamondBalance(
                 sysPlayerId: $sysPlayerId,
                 platform: $platform,
                 paidAmount: $isPaid ? $amount : 0,
@@ -162,7 +162,7 @@ class DiamondBalanceService
     /**
      * 有償ダイヤのみを消費
      * 
-     * @param array<DiamondBalanceDto> $diamondDtos ダイヤモンドDTOの配列
+     * @param array<DiamondBalance> $diamondDtos ダイヤモンドDTOの配列
      * @param int $amount 消費する数量
      * @return void
      */
@@ -186,7 +186,7 @@ class DiamondBalanceService
     /**
      * 無償ダイヤ → 有償ダイヤの順で消費
      * 
-     * @param array<DiamondBalanceDto> $diamondDtos ダイヤモンドDTOの配列
+     * @param array<DiamondBalance> $diamondDtos ダイヤモンドDTOの配列
      * @param int $amount 消費する数量
      * @return void
      */

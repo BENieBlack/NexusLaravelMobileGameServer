@@ -2,9 +2,9 @@
 
 namespace NexusBilling\Facades;
 
-use NexusBilling\DTOs\ReceiptDto;
+use NexusBilling\DataTransferObjects\Receipt;
 use NexusBilling\ValueObjects\Subscription;
-use NexusBilling\DTOs\VerificationDto;
+use NexusBilling\DataTransferObjects\Verification;
 use NexusBilling\Exceptions\DuplicatePurchaseException;
 use NexusBilling\Services\BillingPlatformFactory;
 use NexusBilling\Services\IdempotencyService;
@@ -31,17 +31,17 @@ class BillingFacade
      * どのプラットフォームでも同じように使える統一インターフェース
      * 
      * @param string $billingPlatform 決済プラットフォーム（AppStore, GooglePlay等）
-     * @param ReceiptDto $receiptDto レシート情報
+     * @param Receipt $receiptDto レシート情報
      * @param string $uniqueRequestId 一意なリクエストID（重複防止用）
-     * @return VerificationDto 検証結果
+     * @return Verification 検証結果
      * @throws DuplicatePurchaseException 重複購入の場合
      * @throws Exception その他のエラー
      */
     public function processPurchase(
         string $billingPlatform,
-        ReceiptDto $receiptDto,
+        Receipt $receiptDto,
         string $uniqueRequestId
-    ): VerificationDto {
+    ): Verification {
         // 1. 冪等性チェック（重複購入防止）
         if ($this->idempotencyService->isDuplicate($uniqueRequestId)) {
             Log::warning('Duplicate purchase request detected', [
@@ -92,13 +92,13 @@ class BillingFacade
      * 冪等性管理が不要な場合や、別の方法で重複チェックを行う場合に使用
      * 
      * @param string $billingPlatform 決済プラットフォーム
-     * @param ReceiptDto $receiptDto レシート情報
-     * @return VerificationDto 検証結果
+     * @param Receipt $receiptDto レシート情報
+     * @return Verification 検証結果
      */
     public function verifyReceipt(
         string $billingPlatform,
-        ReceiptDto $receiptDto
-    ): VerificationDto {
+        Receipt $receiptDto
+    ): Verification {
         $platform = $this->platformFactory->create($billingPlatform);
         return $platform->verifyReceipt($receiptDto);
     }

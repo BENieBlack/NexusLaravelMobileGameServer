@@ -185,7 +185,7 @@ class VipLoginBonusServiceTest extends TestCase
 
         $this->flushQueue();
 
-        // Assert: process()は配布したResourceDtoの配列を返す
+        // Assert: process()は配布したResourceの配列を返す
         $this->assertCount(1, $result, 'VIP5プレイヤーはボーナスを受け取れるべき');
 
         // VIP5の1日目のゴールド量を確認（1000 * 1 * 2.5 = 2500）

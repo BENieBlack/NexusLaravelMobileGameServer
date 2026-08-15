@@ -2,7 +2,7 @@
 
 namespace NexusBilling\Contracts;
 
-use NexusBilling\DTOs\DiamondBalanceDto;
+use NexusBilling\DataTransferObjects\DiamondBalance;
 
 /**
  * DiamondRepositoryInterface
@@ -17,23 +17,23 @@ interface DiamondRepositoryInterface
      *
      * @param int $sysPlayerId プレイヤーID
      * @param string $platform プラットフォーム（Apple, Google）
-     * @return DiamondBalanceDto|null
+     * @return DiamondBalance|null
      */
-    public function selectByPlatform(int $sysPlayerId, string $platform): ?DiamondBalanceDto;
+    public function selectByPlatform(int $sysPlayerId, string $platform): ?DiamondBalance;
 
     /**
      * プレイヤーIDで全プラットフォームのダイヤモンドを取得
      *
      * @param int $sysPlayerId プレイヤーID
-     * @return array<DiamondBalanceDto>
+     * @return array<DiamondBalance>
      */
     public function selectAllByPlayerId(int $sysPlayerId): array;
 
     /**
      * ダイヤモンド残高を保存（新規作成 or 更新）
      *
-     * @param DiamondBalanceDto $diamondDto
+     * @param DiamondBalance $diamondDto
      * @return void
      */
-    public function persistDiamond(DiamondBalanceDto $diamondDto): void;
+    public function persistDiamond(DiamondBalance $diamondDto): void;
 }

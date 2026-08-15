@@ -5,7 +5,7 @@ namespace App\Http\Responses\Friend;
 use App\Http\Responses\_BaseResponse;
 use App\Models\Sys\SysFriendApply;
 use Illuminate\Database\Eloquent\Collection;
-use NexusFriend\Dto\FriendApplyDto;
+use NexusFriend\DataTransferObjects\FriendApply;
 
 /**
  * ApplyListResponse
@@ -43,12 +43,12 @@ class ApplyListResponse extends _BaseResponse
     }
 
     /**
-     * FriendApplyDto配列からレスポンスを生成
+     * FriendApply配列からレスポンスを生成
      *
      * 注意: この実装は暫定的なもので、現在はModelのリレーション情報に依存しています
      * 将来的にはDTOに必要な情報を含めるべきです
      *
-     * @param  array<FriendApplyDto>  $dtos
+     * @param  array<FriendApply>  $dtos
      */
     public static function fromDtoArray(array $dtos): self
     {

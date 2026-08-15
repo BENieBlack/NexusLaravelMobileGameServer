@@ -4,7 +4,7 @@ namespace App\Repositories\Sys;
 
 use App\Adapters\Guild\GuildMemberAdapter;
 use App\Models\Sys\SysGuildMember;
-use NexusGuild\Dto\GuildMemberDto;
+use NexusGuild\DataTransferObjects\GuildMember;
 use NexusGuild\Repositories\GuildMemberRepositoryInterface;
 
 /**
@@ -24,7 +24,7 @@ class GuildMemberRepositoryAdapter implements GuildMemberRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function selectById(int $memberId): ?GuildMemberDto
+    public function selectById(int $memberId): ?GuildMember
     {
         $model = $this->sysGuildMemberRepository->selectById($memberId);
 
@@ -34,7 +34,7 @@ class GuildMemberRepositoryAdapter implements GuildMemberRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function selectByGuildAndPlayer(int $guildId, int $playerId): ?GuildMemberDto
+    public function selectByGuildAndPlayer(int $guildId, int $playerId): ?GuildMember
     {
         $model = $this->sysGuildMemberRepository->selectByGuildAndPlayer($guildId, $playerId);
 
@@ -44,7 +44,7 @@ class GuildMemberRepositoryAdapter implements GuildMemberRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function selectByPlayerId(int $playerId): ?GuildMemberDto
+    public function selectByPlayerId(int $playerId): ?GuildMember
     {
         $model = $this->sysGuildMemberRepository->selectByPlayerId($playerId);
 
@@ -54,7 +54,7 @@ class GuildMemberRepositoryAdapter implements GuildMemberRepositoryInterface
     /**
      * {@inheritDoc}
      *
-     * @return array<GuildMemberDto>
+     * @return array<GuildMember>
      */
     public function selectByGuildId(int $guildId): array
     {
@@ -74,7 +74,7 @@ class GuildMemberRepositoryAdapter implements GuildMemberRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function insert(int $guildId, int $playerId, string $role): GuildMemberDto
+    public function insert(int $guildId, int $playerId, string $role): GuildMember
     {
         $model = $this->sysGuildMemberRepository->insertMember($guildId, $playerId, $role);
 
@@ -84,7 +84,7 @@ class GuildMemberRepositoryAdapter implements GuildMemberRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function updateRole(GuildMemberDto $memberDto, string $role): GuildMemberDto
+    public function updateRole(GuildMember $memberDto, string $role): GuildMember
     {
         $model = $this->sysGuildMemberRepository->selectById($memberDto->getId());
 
@@ -101,7 +101,7 @@ class GuildMemberRepositoryAdapter implements GuildMemberRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function delete(GuildMemberDto $memberDto): void
+    public function delete(GuildMember $memberDto): void
     {
         $model = $this->sysGuildMemberRepository->selectById($memberDto->getId());
 

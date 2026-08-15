@@ -5,6 +5,7 @@ namespace NexusResource\Tests\Unit\Services;
 use NexusResource\Services\ItemWriteService;
 use NexusResource\Contracts\ItemRepositoryInterface;
 use NexusResource\DTOs\ItemDto;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 
@@ -32,9 +33,7 @@ class ItemWriteServiceTest extends TestCase
         $this->itemWriteService = new ItemWriteService($this->mockRepository);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function 新規アイテムを加算できる(): void
     {
         // Arrange
@@ -46,7 +45,7 @@ class ItemWriteServiceTest extends TestCase
         // findItemはnullを返す（新規）
         $this->mockRepository
             ->expects($this->once())
-            ->method('findItem')
+            ->method('selectItem')
             ->with($sysPlayerId, $mstItemId)
             ->willReturn(null);
 
@@ -72,9 +71,7 @@ class ItemWriteServiceTest extends TestCase
         $this->assertSame($paidAmount, $result->getPaidAmount());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function 既存アイテムに加算できる(): void
     {
         // Arrange
@@ -90,7 +87,7 @@ class ItemWriteServiceTest extends TestCase
         // findItemは既存のDTOを返す
         $this->mockRepository
             ->expects($this->once())
-            ->method('findItem')
+            ->method('selectItem')
             ->with($sysPlayerId, $mstItemId)
             ->willReturn($existingDto);
 
@@ -111,9 +108,7 @@ class ItemWriteServiceTest extends TestCase
         $this->assertSame($existingPaid + $addPaid, $result->getPaidAmount());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function 有償アイテムのみを消費できる(): void
     {
         // Arrange
@@ -127,7 +122,7 @@ class ItemWriteServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findItem')
+            ->method('selectItem')
             ->with($sysPlayerId, $mstItemId)
             ->willReturn($existingDto);
 
@@ -148,9 +143,7 @@ class ItemWriteServiceTest extends TestCase
         $this->assertSame($paidAmount - $consumeAmount, $result->getPaidAmount());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function 有償を使い切った後に無償を消費する(): void
     {
         // Arrange
@@ -164,7 +157,7 @@ class ItemWriteServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findItem')
+            ->method('selectItem')
             ->willReturn($existingDto);
 
         $this->mockRepository
@@ -184,9 +177,7 @@ class ItemWriteServiceTest extends TestCase
         $this->assertSame(0, $result->getPaidAmount());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function 存在しないアイテムを消費すると例外が発生する(): void
     {
         // Arrange
@@ -195,7 +186,7 @@ class ItemWriteServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findItem')
+            ->method('selectItem')
             ->willReturn(null);
 
         // Assert
@@ -206,9 +197,7 @@ class ItemWriteServiceTest extends TestCase
         $this->itemWriteService->consumeItem($sysPlayerId, $mstItemId, 10);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function 残高不足の場合は例外が発生する(): void
     {
         // Arrange
@@ -218,7 +207,7 @@ class ItemWriteServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findItem')
+            ->method('selectItem')
             ->willReturn($existingDto);
 
         // Assert
@@ -229,9 +218,7 @@ class ItemWriteServiceTest extends TestCase
         $this->itemWriteService->consumeItem($sysPlayerId, $mstItemId, 20); // 15より多い
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function 無償と有償を同時に加算できる(): void
     {
         // Arrange
@@ -246,7 +233,7 @@ class ItemWriteServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findItem')
+            ->method('selectItem')
             ->with($sysPlayerId, $mstItemId)
             ->willReturn($existingDto);
 
@@ -266,9 +253,7 @@ class ItemWriteServiceTest extends TestCase
         $this->assertSame($existingPaid + $addPaid, $result->getPaidAmount());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function 有償のみ消費して残高がゼロになる(): void
     {
         // Arrange
@@ -282,7 +267,7 @@ class ItemWriteServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findItem')
+            ->method('selectItem')
             ->willReturn($existingDto);
 
         $this->mockRepository
@@ -301,9 +286,7 @@ class ItemWriteServiceTest extends TestCase
         $this->assertSame(0, $result->getPaidAmount());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function 無償のみ消費できる_有償がゼロの場合(): void
     {
         // Arrange
@@ -317,7 +300,7 @@ class ItemWriteServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findItem')
+            ->method('selectItem')
             ->willReturn($existingDto);
 
         $this->mockRepository
@@ -336,9 +319,7 @@ class ItemWriteServiceTest extends TestCase
         $this->assertSame(0, $result->getPaidAmount());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function 全て消費して残高がゼロになる(): void
     {
         // Arrange
@@ -352,7 +333,7 @@ class ItemWriteServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findItem')
+            ->method('selectItem')
             ->willReturn($existingDto);
 
         $this->mockRepository
@@ -371,9 +352,7 @@ class ItemWriteServiceTest extends TestCase
         $this->assertSame(0, $result->getPaidAmount());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function ゼロ加算しても既存残高は変わらない(): void
     {
         // Arrange
@@ -386,7 +365,7 @@ class ItemWriteServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findItem')
+            ->method('selectItem')
             ->willReturn($existingDto);
 
         $this->mockRepository
@@ -405,9 +384,7 @@ class ItemWriteServiceTest extends TestCase
         $this->assertSame($paidAmount, $result->getPaidAmount());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function 新規アイテムをゼロで作成できる(): void
     {
         // Arrange
@@ -416,7 +393,7 @@ class ItemWriteServiceTest extends TestCase
 
         $this->mockRepository
             ->expects($this->once())
-            ->method('findItem')
+            ->method('selectItem')
             ->willReturn(null);
 
         $this->mockRepository

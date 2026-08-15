@@ -77,7 +77,7 @@ class ChoiceDrawStrategyTest extends TestCase
         // findByIdでnullを返す
         $this->bonusContentRepository
             ->expects($this->once())
-            ->method('findById')
+            ->method('selectById')
             ->with('candidate_001')
             ->willReturn(null);
         
@@ -97,7 +97,7 @@ class ChoiceDrawStrategyTest extends TestCase
         
         $this->bonusContentRepository
             ->expects($this->once())
-            ->method('findById')
+            ->method('selectById')
             ->with('candidate_001')
             ->willReturn($candidate);
         
@@ -111,7 +111,7 @@ class ChoiceDrawStrategyTest extends TestCase
         
         $this->bonusContentRepository
             ->expects($this->once())
-            ->method('findById')
+            ->method('selectById')
             ->with('candidate_001')
             ->willReturn($candidate);
         

@@ -1,10 +1,10 @@
 <?php
 
-namespace LaravelUnitOfWork\Tests;
+namespace NexusUnitOfWork\Tests;
 
-use LaravelUnitOfWork\Persistence\QueryManager\OperationCollector;
-use LaravelPersistence\Repositories\_BaseRepository;
-use LaravelPersistence\Models\_BaseModel;
+use NexusUnitOfWork\Persistence\QueryManager\OperationCollector;
+use Nexus\Core\Repositories\_BaseRepository;
+use Nexus\Core\Models\_BaseModel;
 use PHPUnit\Framework\TestCase;
 use Mockery;
 
@@ -114,6 +114,7 @@ class OperationCollectorTest extends TestCase
         $repository->shouldReceive('getConnection')->andReturn($connection);
         $repository->shouldReceive('getTableName')->andReturn($table);
         $repository->shouldReceive('getQueuedModels')->andReturn($models);
+        $repository->shouldReceive('getQueuedDeleteModels')->andReturn([]);
         $repository->shouldReceive('getOriginalStates')->andReturn([]);
         
         return $repository;

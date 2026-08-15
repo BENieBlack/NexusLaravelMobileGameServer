@@ -4,6 +4,7 @@ namespace NexusGuild\Tests;
 
 use NexusGuild\Constants\GuildApplyStatus;
 use NexusGuild\Constants\GuildRole;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -13,9 +14,7 @@ use PHPUnit\Framework\TestCase;
  */
 class ConstantsTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function guild_apply_status_all_returns_expected_statuses(): void
     {
         $statuses = GuildApplyStatus::all();
@@ -26,9 +25,7 @@ class ConstantsTest extends TestCase
         $this->assertContains('rejected', $statuses);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function guild_apply_status_is_valid_returns_true_for_valid_status(): void
     {
         $this->assertTrue(GuildApplyStatus::isValid('applied'));
@@ -36,18 +33,14 @@ class ConstantsTest extends TestCase
         $this->assertTrue(GuildApplyStatus::isValid('rejected'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function guild_apply_status_is_valid_returns_false_for_invalid_status(): void
     {
         $this->assertFalse(GuildApplyStatus::isValid('invalid'));
         $this->assertFalse(GuildApplyStatus::isValid('pending'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function guild_role_all_returns_expected_roles(): void
     {
         $roles = GuildRole::all();
@@ -58,9 +51,7 @@ class ConstantsTest extends TestCase
         $this->assertContains('member', $roles);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function guild_role_is_valid_returns_true_for_valid_role(): void
     {
         $this->assertTrue(GuildRole::isValid('master'));
@@ -68,9 +59,7 @@ class ConstantsTest extends TestCase
         $this->assertTrue(GuildRole::isValid('member'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function guild_role_is_valid_returns_false_for_invalid_role(): void
     {
         $this->assertFalse(GuildRole::isValid('invalid'));

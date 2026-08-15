@@ -11,13 +11,13 @@ class ResourceDtoTest extends TestCase
     public function test_constructor_creates_resource_with_basic_properties(): void
     {
         $resource = new ResourceDto(
-            type: ResourceType::CURRENCY,
+            type: ResourceType::GOLD,
             id: 'gold',
             amount: 100
         );
 
-        $this->assertEquals(ResourceType::CURRENCY, $resource->getType());
-        $this->assertEquals('currency', $resource->getTypeValue());
+        $this->assertEquals(ResourceType::GOLD, $resource->getType());
+        $this->assertEquals('gold', $resource->getTypeValue());
         $this->assertEquals('gold', $resource->getId());
         $this->assertEquals(100, $resource->getAmount());
         $this->assertNull($resource->getExpireAt());
@@ -29,7 +29,7 @@ class ResourceDtoTest extends TestCase
         $expireAt = '2026-12-31 23:59:59';
         
         $resource = new ResourceDto(
-            type: ResourceType::CURRENCY,
+            type: ResourceType::GOLD,
             id: 'gold',
             amount: 100,
             expireAt: $expireAt
@@ -43,14 +43,13 @@ class ResourceDtoTest extends TestCase
         $metadata = ['is_paid' => true, 'campaign_id' => 'summer2024'];
         
         $resource = new ResourceDto(
-            type: ResourceType::CURRENCY,
+            type: ResourceType::GOLD,
             id: 'gold',
             amount: 100,
             metadata: $metadata
         );
 
         $this->assertEquals($metadata, $resource->getMetadata());
-        $this->assertTrue($resource->isPaid());
     }
 
     public function test_set_amount_updates_amount(): void
@@ -69,13 +68,13 @@ class ResourceDtoTest extends TestCase
     public function test_unique_id_is_generated(): void
     {
         $resource1 = new ResourceDto(
-            type: ResourceType::CURRENCY,
+            type: ResourceType::GOLD,
             id: 'gold',
             amount: 100
         );
 
         $resource2 = new ResourceDto(
-            type: ResourceType::CURRENCY,
+            type: ResourceType::GOLD,
             id: 'gold',
             amount: 100
         );
@@ -85,11 +84,11 @@ class ResourceDtoTest extends TestCase
         $this->assertNotEquals($resource1->getUniqueId(), $resource2->getUniqueId());
     }
 
-    public function test_from_type_string_creates_resource_from_currency_type(): void
+    public function test_from_type_string_creates_resource_from_gold_type(): void
     {
-        $resource = ResourceDto::fromTypeString('currency', 'gold', 500);
+        $resource = ResourceDto::fromTypeString('gold', 'gold', 500);
 
-        $this->assertEquals(ResourceType::CURRENCY, $resource->getType());
+        $this->assertEquals(ResourceType::GOLD, $resource->getType());
         $this->assertEquals('gold', $resource->getId());
         $this->assertEquals(500, $resource->getAmount());
     }
@@ -132,61 +131,13 @@ class ResourceDtoTest extends TestCase
         $this->assertEquals(ResourceType::DIAMOND, $resource->getType());
         $this->assertEquals('paid', $resource->getId());
         $this->assertEquals(1000, $resource->getAmount());
-        $this->assertTrue($resource->isPaid());
     }
 
     public function test_from_type_string_throws_exception_for_invalid_type(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(\ValueError::class);
         
         ResourceDto::fromTypeString('invalid_type', 'some_id', 100);
-    }
-
-    public function test_is_paid_returns_true_when_metadata_has_is_paid_true(): void
-    {
-        $resource = new ResourceDto(
-            type: ResourceType::CURRENCY,
-            id: 'gold',
-            amount: 100,
-            metadata: ['is_paid' => true]
-        );
-
-        $this->assertTrue($resource->isPaid());
-    }
-
-    public function test_is_paid_returns_false_when_metadata_has_is_paid_false(): void
-    {
-        $resource = new ResourceDto(
-            type: ResourceType::CURRENCY,
-            id: 'gold',
-            amount: 100,
-            metadata: ['is_paid' => false]
-        );
-
-        $this->assertFalse($resource->isPaid());
-    }
-
-    public function test_is_paid_returns_false_when_no_metadata(): void
-    {
-        $resource = new ResourceDto(
-            type: ResourceType::CURRENCY,
-            id: 'gold',
-            amount: 100
-        );
-
-        $this->assertFalse($resource->isPaid());
-    }
-
-    public function test_is_paid_returns_false_when_metadata_does_not_have_is_paid(): void
-    {
-        $resource = new ResourceDto(
-            type: ResourceType::CURRENCY,
-            id: 'gold',
-            amount: 100,
-            metadata: ['some_key' => 'some_value']
-        );
-
-        $this->assertFalse($resource->isPaid());
     }
 
     public function test_to_array_returns_correct_structure(): void
@@ -195,7 +146,7 @@ class ResourceDtoTest extends TestCase
         $expireAt = '2026-12-31 23:59:59';
         
         $resource = new ResourceDto(
-            type: ResourceType::CURRENCY,
+            type: ResourceType::GOLD,
             id: 'gold',
             amount: 100,
             expireAt: $expireAt,
@@ -205,7 +156,7 @@ class ResourceDtoTest extends TestCase
         $array = $resource->toArray();
 
         $this->assertIsArray($array);
-        $this->assertEquals('currency', $array['type']);
+        $this->assertEquals('gold', $array['type']);
         $this->assertEquals('gold', $array['id']);
         $this->assertEquals(100, $array['amount']);
         $this->assertEquals($expireAt, $array['expire_at']);

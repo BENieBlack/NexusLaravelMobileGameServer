@@ -3,6 +3,7 @@
 namespace NexusPlayer\Tests\Unit\Dto;
 
 use NexusPlayer\Dto\PlayerDeviceDto;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -11,9 +12,9 @@ use PHPUnit\Framework\TestCase;
 class PlayerDeviceDtoTest extends TestCase
 {
     /**
-     * @test
      * DTOを正常に作成できる
      */
+    #[Test]
     public function dt_oを正常に作成できる(): void
     {
         // Act
@@ -38,9 +39,9 @@ class PlayerDeviceDtoTest extends TestCase
     }
 
     /**
-     * @test
      * デバイス情報がnullでも作成できる
      */
+    #[Test]
     public function デバイス情報がnullでも作成できる(): void
     {
         // Act
@@ -59,9 +60,9 @@ class PlayerDeviceDtoTest extends TestCase
     }
 
     /**
-     * @test
      * デバイス情報に複雑なデータを持てる
      */
+    #[Test]
     public function デバイス情報に複雑なデータを持てる(): void
     {
         // Arrange
@@ -94,9 +95,9 @@ class PlayerDeviceDtoTest extends TestCase
     }
 
     /**
-     * @test
      * UUIDが長い文字列でも保持できる
      */
+    #[Test]
     public function uui_dが長い文字列でも保持できる(): void
     {
         // Arrange
@@ -119,9 +120,9 @@ class PlayerDeviceDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 異なるタイムスタンプで作成できる
      */
+    #[Test]
     public function 異なるタイムスタンプで作成できる(): void
     {
         // Act

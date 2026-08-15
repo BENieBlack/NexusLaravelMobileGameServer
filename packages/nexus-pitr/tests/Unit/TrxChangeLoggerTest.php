@@ -5,6 +5,7 @@ namespace NexusPitr\Tests\Unit;
 use NexusPitr\Logger\TrxChangeLogger;
 use NexusPitr\Dto\ChangeLogDto;
 use Illuminate\Support\Facades\DB;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 use Mockery;
 
@@ -16,9 +17,7 @@ class TrxChangeLoggerTest extends TestCase
         parent::tearDown();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function logBatch_does_nothing_when_empty_array(): void
     {
         DB::shouldReceive('connection')->never();
@@ -30,9 +29,7 @@ class TrxChangeLoggerTest extends TestCase
         $this->assertTrue(true);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function logBatch_groups_by_log_connection_and_inserts(): void
     {
         // Arrange
@@ -103,9 +100,7 @@ class TrxChangeLoggerTest extends TestCase
         $logger->logBatch([$dto1, $dto2]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function logBatch_handles_multiple_shards(): void
     {
         // Arrange
@@ -184,9 +179,7 @@ class TrxChangeLoggerTest extends TestCase
         $logger->logBatch([$dto1, $dto2]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function log_single_record_calls_logBatch(): void
     {
         // Arrange
@@ -232,9 +225,7 @@ class TrxChangeLoggerTest extends TestCase
         $logger->log($dto);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function logBatch_handles_null_data_properly(): void
     {
         // Arrange

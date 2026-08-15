@@ -3,6 +3,7 @@
 namespace NexusGuild\Tests\Unit\Dto;
 
 use NexusGuild\Dto\GuildDto;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -11,9 +12,9 @@ use PHPUnit\Framework\TestCase;
 class GuildDtoTest extends TestCase
 {
     /**
-     * @test
      * DTOを正常に作成できる
      */
+    #[Test]
     public function dt_oを正常に作成できる(): void
     {
         // Act
@@ -42,9 +43,9 @@ class GuildDtoTest extends TestCase
     }
 
     /**
-     * @test
      * toArray()で配列に変換できる
      */
+    #[Test]
     public function to_arrayで配列に変換できる(): void
     {
         // Arrange
@@ -77,9 +78,9 @@ class GuildDtoTest extends TestCase
     }
 
     /**
-     * @test
      * レベル1・経験値0で作成できる
      */
+    #[Test]
     public function レベル1経験値0で作成できる(): void
     {
         // Act
@@ -102,9 +103,9 @@ class GuildDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 満員のギルドを作成できる
      */
+    #[Test]
     public function 満員のギルドを作成できる(): void
     {
         // Act
@@ -127,9 +128,9 @@ class GuildDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 空のギルドを作成できる
      */
+    #[Test]
     public function 空のギルドを作成できる(): void
     {
         // Act
@@ -150,9 +151,9 @@ class GuildDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 長い名前と説明を保持できる
      */
+    #[Test]
     public function 長い名前と説明を保持できる(): void
     {
         // Arrange
@@ -180,9 +181,9 @@ class GuildDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 高レベル・高経験値のギルドを作成できる
      */
+    #[Test]
     public function 高レベル高経験値のギルドを作成できる(): void
     {
         // Act
@@ -205,9 +206,9 @@ class GuildDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 特殊文字を含む名前を保持できる
      */
+    #[Test]
     public function 特殊文字を含む名前を保持できる(): void
     {
         // Arrange
@@ -233,9 +234,9 @@ class GuildDtoTest extends TestCase
     }
 
     /**
-     * @test
      * toArray()のキーがスネークケースである
      */
+    #[Test]
     public function to_arrayのキーがスネークケースである(): void
     {
         // Arrange

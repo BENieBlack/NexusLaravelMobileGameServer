@@ -3,6 +3,7 @@
 namespace NexusMailbox\Tests\Unit\Dto;
 
 use NexusMailbox\Dto\MailboxDto;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -11,9 +12,9 @@ use PHPUnit\Framework\TestCase;
 class MailboxDtoTest extends TestCase
 {
     /**
-     * @test
      * DTOを正常に作成できる
      */
+    #[Test]
     public function dt_oを正常に作成できる(): void
     {
         // Act
@@ -40,9 +41,9 @@ class MailboxDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 既読フラグを設定できる
      */
+    #[Test]
     public function 既読フラグを設定できる(): void
     {
         // Arrange
@@ -65,9 +66,9 @@ class MailboxDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 受取済みフラグを設定できる
      */
+    #[Test]
     public function 受取済みフラグを設定できる(): void
     {
         // Arrange
@@ -90,9 +91,9 @@ class MailboxDtoTest extends TestCase
     }
 
     /**
-     * @test
      * ロックフラグを設定できる
      */
+    #[Test]
     public function ロックフラグを設定できる(): void
     {
         // Arrange
@@ -115,9 +116,9 @@ class MailboxDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 有効期限がnullでも作成できる
      */
+    #[Test]
     public function 有効期限がnullでも作成できる(): void
     {
         // Act
@@ -137,9 +138,9 @@ class MailboxDtoTest extends TestCase
     }
 
     /**
-     * @test
      * 全フラグがtrueで作成できる
      */
+    #[Test]
     public function 全フラグがtrueで作成できる(): void
     {
         // Act
@@ -161,9 +162,9 @@ class MailboxDtoTest extends TestCase
     }
 
     /**
-     * @test
      * フラグを複数回切り替えできる
      */
+    #[Test]
     public function フラグを複数回切り替えできる(): void
     {
         // Arrange
@@ -192,9 +193,9 @@ class MailboxDtoTest extends TestCase
     }
 
     /**
-     * @test
      * マスターメールボックスIDが長い文字列でも保持できる
      */
+    #[Test]
     public function マスターメールボックス_i_dが長い文字列でも保持できる(): void
     {
         // Arrange

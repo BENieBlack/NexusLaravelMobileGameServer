@@ -36,7 +36,7 @@ class GuildController extends _BaseController
      */
     public function detail(Request $request, GuildDetailUseCase $useCase): JsonResponse
     {
-        $guildId = (int) $request->input('guild_id');
+        $guildId = (int) $request->input('sys_guild_id');
 
         return $this->execute(fn () => $useCase->exec($guildId));
     }
@@ -131,7 +131,7 @@ class GuildController extends _BaseController
      */
     public function applyList(Request $request, GuildApplyListUseCase $useCase): JsonResponse
     {
-        $guildId = (int) $request->input('guild_id');
+        $guildId = (int) $request->input('sys_guild_id');
 
         return $this->execute(fn () => $useCase->exec($guildId));
     }
@@ -141,7 +141,7 @@ class GuildController extends _BaseController
      */
     public function memberList(Request $request, GuildMemberListUseCase $useCase): JsonResponse
     {
-        $guildId = (int) $request->input('guild_id');
+        $guildId = (int) $request->input('sys_guild_id');
 
         return $this->execute(fn () => $useCase->exec($guildId));
     }

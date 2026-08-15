@@ -42,9 +42,9 @@ class GuildApplySendResponse extends _BaseResponse
     public function toArray(): array
     {
         return [
-            'apply_id' => $this->applyId,
-            'guild_id' => $this->guildId,
-            'player_id' => $this->playerId,
+            'sys_guild_apply_id' => $this->applyId,
+            'sys_guild_id' => $this->guildId,
+            'sys_player_id' => $this->playerId,
             'status' => $this->status,
             'created_at' => $this->createdAt,
         ];

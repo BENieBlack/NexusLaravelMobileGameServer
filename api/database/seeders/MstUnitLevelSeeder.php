@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Domain\Unit\Constants\UnitConst;
+use App\Domain\Common\Constants\RarityType;
 use App\Models\Mst\MstUnitLevel;
 use Illuminate\Database\Seeder;
 use Nexus\Core\Models\Mst\_BaseMst;
@@ -20,12 +20,12 @@ class MstUnitLevelSeeder extends Seeder
      * 高レアリティほど成長に多くの経験値が必要
      */
     private const RARITY_MULTIPLIERS = [
-        UnitConst::RARITY_C => 1.0,     // 基準
-        UnitConst::RARITY_UC => 1.2,    // 1.2倍
-        UnitConst::RARITY_R => 1.5,     // 1.5倍
-        UnitConst::RARITY_SR => 2.0,    // 2倍
-        UnitConst::RARITY_SSR => 3.0,   // 3倍
-        UnitConst::RARITY_UR => 5.0,    // 5倍
+        RarityType::C => 1.0,     // 基準
+        RarityType::UC => 1.2,    // 1.2倍
+        RarityType::R => 1.5,     // 1.5倍
+        RarityType::SR => 2.0,    // 2倍
+        RarityType::SSR => 3.0,   // 3倍
+        RarityType::UR => 5.0,    // 5倍
     ];
 
     /**
@@ -44,7 +44,7 @@ class MstUnitLevelSeeder extends Seeder
         $data = [];
         $deployKey = 202601010;
 
-        foreach (UnitConst::getAllRarities() as $rarity) {
+        foreach (RarityType::all() as $rarity) {
             $multiplier = self::RARITY_MULTIPLIERS[$rarity];
 
             for ($level = 1; $level <= self::MAX_LEVEL; $level++) {
@@ -70,7 +70,7 @@ class MstUnitLevelSeeder extends Seeder
 
         $this->command->info('MstUnitLevel seeded successfully!');
         $this->command->info('Total records: '.count($data));
-        $this->command->info('Rarities: '.implode(', ', UnitConst::getAllRarities()));
+        $this->command->info('Rarities: '.implode(', ', RarityType::all()));
         $this->command->info('Max Level: '.self::MAX_LEVEL);
     }
 }

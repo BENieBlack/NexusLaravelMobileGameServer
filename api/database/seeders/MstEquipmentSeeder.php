@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Domain\Common\Constants\ElementType;
+use App\Domain\Common\Constants\RarityType;
 use App\Domain\Equipment\Constants\EquipmentConst;
 use App\Models\Mst\MstEquipment;
 use Illuminate\Database\Seeder;
@@ -26,8 +28,8 @@ class MstEquipmentSeeder extends Seeder
             [
                 'id' => 'equip_fire_sword_001',
                 'type' => EquipmentConst::TYPE_ATTACK,
-                'element' => EquipmentConst::ELEMENT_FIRE,
-                'rarity' => EquipmentConst::RARITY_SSR,
+                'element' => ElementType::FIRE,
+                'rarity' => RarityType::SSR,
                 'attack' => 350,
                 'defense' => 50,
                 'hp' => 200,
@@ -37,8 +39,8 @@ class MstEquipmentSeeder extends Seeder
             [
                 'id' => 'equip_fire_staff_001',
                 'type' => EquipmentConst::TYPE_SUPPORT,
-                'element' => EquipmentConst::ELEMENT_FIRE,
-                'rarity' => EquipmentConst::RARITY_UR,
+                'element' => ElementType::FIRE,
+                'rarity' => RarityType::UR,
                 'attack' => 280,
                 'defense' => 80,
                 'hp' => 300,
@@ -50,8 +52,8 @@ class MstEquipmentSeeder extends Seeder
             [
                 'id' => 'equip_water_lance_001',
                 'type' => EquipmentConst::TYPE_ATTACK,
-                'element' => EquipmentConst::ELEMENT_WATER,
-                'rarity' => EquipmentConst::RARITY_SSR,
+                'element' => ElementType::WATER,
+                'rarity' => RarityType::SSR,
                 'attack' => 320,
                 'defense' => 70,
                 'hp' => 250,
@@ -61,8 +63,8 @@ class MstEquipmentSeeder extends Seeder
             [
                 'id' => 'equip_water_shield_001',
                 'type' => EquipmentConst::TYPE_DEFENSE,
-                'element' => EquipmentConst::ELEMENT_WATER,
-                'rarity' => EquipmentConst::RARITY_UR,
+                'element' => ElementType::WATER,
+                'rarity' => RarityType::UR,
                 'attack' => 50,
                 'defense' => 400,
                 'hp' => 500,
@@ -74,8 +76,8 @@ class MstEquipmentSeeder extends Seeder
             [
                 'id' => 'equip_wind_bow_001',
                 'type' => EquipmentConst::TYPE_ATTACK,
-                'element' => EquipmentConst::ELEMENT_WIND,
-                'rarity' => EquipmentConst::RARITY_SR,
+                'element' => ElementType::WIND,
+                'rarity' => RarityType::SR,
                 'attack' => 290,
                 'defense' => 40,
                 'hp' => 150,
@@ -85,8 +87,8 @@ class MstEquipmentSeeder extends Seeder
             [
                 'id' => 'equip_wind_dagger_001',
                 'type' => EquipmentConst::TYPE_ATTACK,
-                'element' => EquipmentConst::ELEMENT_WIND,
-                'rarity' => EquipmentConst::RARITY_SSR,
+                'element' => ElementType::WIND,
+                'rarity' => RarityType::SSR,
                 'attack' => 310,
                 'defense' => 60,
                 'hp' => 180,
@@ -98,8 +100,8 @@ class MstEquipmentSeeder extends Seeder
             [
                 'id' => 'equip_earth_hammer_001',
                 'type' => EquipmentConst::TYPE_ATTACK,
-                'element' => EquipmentConst::ELEMENT_EARTH,
-                'rarity' => EquipmentConst::RARITY_SR,
+                'element' => ElementType::EARTH,
+                'rarity' => RarityType::SR,
                 'attack' => 330,
                 'defense' => 100,
                 'hp' => 350,
@@ -109,8 +111,8 @@ class MstEquipmentSeeder extends Seeder
             [
                 'id' => 'equip_earth_armor_001',
                 'type' => EquipmentConst::TYPE_DEFENSE,
-                'element' => EquipmentConst::ELEMENT_EARTH,
-                'rarity' => EquipmentConst::RARITY_SSR,
+                'element' => ElementType::EARTH,
+                'rarity' => RarityType::SSR,
                 'attack' => 70,
                 'defense' => 380,
                 'hp' => 450,
@@ -122,8 +124,8 @@ class MstEquipmentSeeder extends Seeder
             [
                 'id' => 'equip_light_sword_001',
                 'type' => EquipmentConst::TYPE_ATTACK,
-                'element' => EquipmentConst::ELEMENT_LIGHT,
-                'rarity' => EquipmentConst::RARITY_UR,
+                'element' => ElementType::LIGHT,
+                'rarity' => RarityType::UR,
                 'attack' => 380,
                 'defense' => 90,
                 'hp' => 280,
@@ -133,8 +135,8 @@ class MstEquipmentSeeder extends Seeder
             [
                 'id' => 'equip_light_staff_001',
                 'type' => EquipmentConst::TYPE_SUPPORT,
-                'element' => EquipmentConst::ELEMENT_LIGHT,
-                'rarity' => EquipmentConst::RARITY_SSR,
+                'element' => ElementType::LIGHT,
+                'rarity' => RarityType::SSR,
                 'attack' => 250,
                 'defense' => 100,
                 'hp' => 320,
@@ -146,8 +148,8 @@ class MstEquipmentSeeder extends Seeder
             [
                 'id' => 'equip_dark_scythe_001',
                 'type' => EquipmentConst::TYPE_ATTACK,
-                'element' => EquipmentConst::ELEMENT_DARK,
-                'rarity' => EquipmentConst::RARITY_UR,
+                'element' => ElementType::DARK,
+                'rarity' => RarityType::UR,
                 'attack' => 400,
                 'defense' => 60,
                 'hp' => 220,
@@ -157,8 +159,8 @@ class MstEquipmentSeeder extends Seeder
             [
                 'id' => 'equip_dark_cloak_001',
                 'type' => EquipmentConst::TYPE_DEFENSE,
-                'element' => EquipmentConst::ELEMENT_DARK,
-                'rarity' => EquipmentConst::RARITY_SSR,
+                'element' => ElementType::DARK,
+                'rarity' => RarityType::SSR,
                 'attack' => 80,
                 'defense' => 320,
                 'hp' => 380,

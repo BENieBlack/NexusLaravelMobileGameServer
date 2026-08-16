@@ -10,7 +10,7 @@
 # 実行内容:
 #   1. Dockerコンテナの再作成と起動
 #   2. MySQLの起動完了を待つ
-#   3. 全データベースの作成（sys, mst, adm, tol, trx1..N, log1..N）
+#   3. 全データベースの存在確認（作成自体はMySQLコンテナの初期化スクリプトが行う）
 #   4. 依存パッケージのインストール（Composerはコンテナ内、npmはホスト）
 #   5. APP_KEYの生成
 #   6. マイグレーションとシードの実行
@@ -147,16 +147,36 @@ success_message "All MySQL containers are ready."
 # ============================================================================
 # Step 4: データベースの作成
 # ============================================================================
-echo "Creating databases..."
+# データベース自体は各MySQLコンテナの初期化スクリプトが作る。
+# （docker/mysql/init/create-databases.sh。DB_NAMES は docker-compose.yml で指定）
+# ここでは想定どおり作られたかだけを確認する。
+function assert_database_exists() {
+  local container=$1
+  local database=$2
+  if ! docker exec "$container" mysql -uroot -p"${MYSQL_ROOT_PASSWORD}" \
+    -e "USE \`${database}\`;" > /dev/null 2>&1; then
+    error_message "データベース ${database} が ${container} に存在しません。"
+    error_message "ボリュームが古い可能性があります。次を実行してから再試行してください:"
+    error_message "  ${COMPOSE[*]} down --volumes"
+    exit 1
+  fi
+  echo "  ${database}"
+}
+
+echo "Verifying databases..."
 for target in "${DB_TARGETS[@]}"; do
   container="${target%%:*}"
   suffix="${target##*:}"
-  database="${APP_NAME}-${APP_ENV}-${suffix}"
-  docker exec "$container" mysql -uroot -p"${MYSQL_ROOT_PASSWORD}" \
-    -e "CREATE DATABASE IF NOT EXISTS \`${database}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" 2> /dev/null
-  echo "  ${database}"
+  assert_database_exists "$container" "${APP_NAME}-${APP_ENV}-${suffix}"
+
+  # テスト用データベース。api/phpunit.xml が APP_ENV=testing で参照する。
+  # 管理者DB・運営ツールDBはTool側がsqliteのインメモリを使うため対象外。
+  case "$suffix" in
+    adm | tol) ;;
+    *) assert_database_exists "$container" "${APP_NAME}-testing-${suffix}" ;;
+  esac
 done
-success_message "Databases created."
+success_message "Databases verified."
 
 # ============================================================================
 # Step 5: APP_KEY の生成

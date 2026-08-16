@@ -6,9 +6,10 @@ DOCKER_COMPOSE := $(shell docker compose version > /dev/null 2>&1 && echo "docke
 # マイグレーションは api/database/migrations/{group} と
 # packages/*/database/migrations/{group} に分かれて置かれている。
 # パスを列挙するとパッケージ追加のたびに腐るため、コンテナ内でglobする。
+# --path は base_path() からの相対パスとして解決されるため ../packages/... で渡す。
 # $(1)=artisanコマンド $(2)=接続名 $(3)=マイグレーショングループ
 define migrate_group
-	$(DOCKER_COMPOSE) exec -T api-php sh -c 'args=""; for p in database/migrations/$(3) /var/www/packages/*/database/migrations/$(3); do [ -d "$$p" ] && args="$$args --path=$$p"; done; php artisan $(1) --database=$(2) --force $$args'
+	$(DOCKER_COMPOSE) exec -T api-php sh -c 'args=""; for p in database/migrations/$(3) ../packages/*/database/migrations/$(3); do [ -d "$$p" ] && args="$$args --path=$$p"; done; php artisan $(1) --database=$(2) --force $$args'
 endef
 
 help: ## ヘルプを表示

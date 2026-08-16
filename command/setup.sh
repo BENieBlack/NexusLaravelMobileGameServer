@@ -205,13 +205,17 @@ fi
 #
 # マイグレーションは api/database/migrations/{group} と
 # packages/*/database/migrations/{group} に分かれて置かれている。
+#
+# --path は base_path() からの相対パスとして解決される（--realpath を付けない限り
+# 絶対パスは base_path() を前置されて存在しないパスになり、黙って無視される）。
+# そのため ../packages/... の形で渡すこと。
 function migrate_group() {
   local connection=$1
   local group=$2
   "${COMPOSE[@]}" exec -T api-php sh -c "
     set -e
     args=''
-    for p in database/migrations/${group} /var/www/packages/*/database/migrations/${group}; do
+    for p in database/migrations/${group} ../packages/*/database/migrations/${group}; do
       [ -d \"\$p\" ] && args=\"\$args --path=\$p\"
     done
     php artisan migrate --database=${connection} --force \$args

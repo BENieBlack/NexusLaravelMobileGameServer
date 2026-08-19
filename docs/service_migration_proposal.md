@@ -59,143 +59,62 @@
 
 ### 🔄 パッケージに移動すべきService
 
-#### ✅ 完了：ItemService / ItemReadService / ItemWriteService
+#### ✅ 完了：ItemService（パッケージ移行）
 
-**移行完了日:** 2026-08-10  
-**コミット:** f4fd003
+**移行完了日:** 2026-08-10（コミット `f4fd003`）
+**Domain層の再統合:** 2026-08-19
 
-**移行後の構造:**
-- パッケージ層: `nexus-resource/src/Services/Item{Read,Write}Service.php` - DTOベースのビジネスロジック
-- Domain層: `api/app/Domain/Item/Services/Item{Read,Write}Service.php` - Wrapperパターン
-- Repository実装: `api/app/Repositories/Trx/ItemRepositoryImpl.php`
-
-**移行したビジネスロジック:**
-- ✅ 有償優先消費ロジック（consumeWithPaidFirst）
-- ✅ 残高チェック（validateSufficientAmount）
-- ✅ 加算/減算のビジネスルール（addItem, consumeItem）
-
-**後方互換性:** ✅ 既存コードは変更不要（Domain層Wrapperで維持）
-
-**推奨構造:**
+**現在の構造:**
 
 ```
-packages/nexus-resource/src/
-  ├── Services/
-  │   ├── ItemService.php              # Facade (DTO使用)
-  │   ├── ItemReadService.php          # 読み取り専用
-  │   └── ItemWriteService.php         # 書き込み専用
-  ├── DTOs/
-  │   └── Item.php                  # すでに存在
-  ├── Repositories/
-  │   └── ItemRepositoryInterface.php  # インターフェース
-  └── Enums/
-      └── ResourceType.php             # すでに存在
+packages/nexus-resource/src/Services/
+  ├── ItemReadService.php    # DTOベースの読み取りロジック
+  └── ItemWriteService.php   # DTOベースの書き込みロジック（有償優先消費・残高チェック）
 
 api/app/Domain/Item/Services/
-  ├── ItemService.php                  # ラッパー：DTO → Model変換
-  ├── ItemReadService.php              # ラッパー
-  └── ItemWriteService.php             # ラッパー
+  └── ItemService.php        # ラッパー：パッケージへの委譲 + DTO → TrxItem 変換
 ```
 
-**実装例:**
+**移行したビジネスロジック:**
 
-```php
-// packages/nexus-resource/src/Services/ItemWriteService.php
-namespace NexusResource\Services;
+- ✅ 有償優先消費ロジック（`consumeWithPaidFirst`）
+- ✅ 残高チェック（`validateSufficientAmount`）
+- ✅ 加算/減算のビジネスルール（`addItem` / `consumeItem`）
 
-use NexusResource\DataTransferObjects\Item;
-use NexusResource\Repositories\ItemRepositoryInterface;
+**後方互換性:** ✅ 既存コードは変更不要（Domain層ラッパーで維持）
 
-class ItemWriteService
-{
-    public function __construct(
-        private readonly ItemRepositoryInterface $itemRepository,
-    ) {}
-    
-    /**
-     * アイテムを消費（有償優先）
-     * 
-     * @param int $playerId
-     * @param string $itemId
-     * @param int $amount
-     * @return Item
-     * @throws InsufficientItemException
-     */
-    public function consumeItem(int $playerId, string $itemId, int $amount): Item
-    {
-        $item = $this->itemRepository->findByPlayerAndItem($playerId, $itemId);
-        
-        if (!$item) {
-            throw new ItemNotFoundException($itemId);
-        }
-        
-        // 残高チェック
-        if ($item->getTotalAmount() < $amount) {
-            throw new InsufficientItemException($itemId, $amount, $item->getTotalAmount());
-        }
-        
-        // 有償優先消費
-        [$paidConsumed, $freeConsumed] = $this->consumeWithPaidFirst(
-            $item->getPaidAmount(),
-            $item->getFreeAmount(),
-            $amount
-        );
-        
-        $item = $item->withConsumedAmounts($paidConsumed, $freeConsumed);
-        
-        return $this->itemRepository->save($item);
-    }
-    
-    /**
-     * 有償優先消費ロジック
-     */
-    private function consumeWithPaidFirst(int $paidAmount, int $freeAmount, int $consumeAmount): array
-    {
-        $paidConsumed = min($paidAmount, $consumeAmount);
-        $freeConsumed = $consumeAmount - $paidConsumed;
-        
-        return [$paidConsumed, $freeConsumed];
-    }
-}
+##### Domain層のRead/Write分割は取りやめた
 
-// api/app/Domain/Item/Services/ItemWriteService.php (ラッパー)
-namespace App\Domain\Item\Services;
+当初はDomain層にも `ItemReadService` / `ItemWriteService` を置き、`ItemService` を
+後方互換用のFacadeとして `@deprecated` にしていたが、2026-08-19に `ItemService` へ再統合した。
 
-use NexusResource\Services\ItemWriteService as PackageItemWriteService;
-use App\Models\Trx\TrxItem;
-use App\Repositories\Trx\TrxItemRepository;
+取りやめた理由:
 
-class ItemWriteService
-{
-    public function __construct(
-        private readonly PackageItemWriteService $packageItemWriteService,
-        private readonly TrxItemRepository $trxItemRepository,
-    ) {}
-    
-    /**
-     * アイテムを消費（Eloquent Model返却）
-     */
-    public function consumeItem(int $sysPlayerId, string $mstItemId, int $amount): TrxItem
-    {
-        // パッケージServiceを呼び出し（DTOで処理）
-        $itemDto = $this->packageItemWriteService->consumeItem($sysPlayerId, $mstItemId, $amount);
-        
-        // DTOをEloquent Modelに変換
-        $trxItem = $this->trxItemRepository->findByDto($itemDto);
-        
-        // Repositoryにキューイング
-        $this->trxItemRepository->setModel($trxItem);
-        
-        return $trxItem;
-    }
-}
-```
+1. **誰も使わなかった** — `@deprecated` にしたにもかかわらず、呼び出し元5箇所すべてが
+   `ItemService` を使い続け、`ItemReadService` / `ItemWriteService` の外部参照は0件だった
+2. **分割の前提が無い** — 読み書き分離が効くのは読みと書きでモデルや保存先が異なる場合
+   （リードレプリカ、参照用の非正規化モデル）。Itemは両方とも同じ `ItemRepositoryInterface`・
+   同じ `trx_item`・同じシャードを見るため、分けても得るものがない
+3. **他のドメインに広がらなかった** — Domain層の他22Serviceは分割しておらず、Itemだけが例外だった
+4. **委譲が4段になっていた** — UseCase → ItemService → Item{Read,Write}Service →
+   パッケージService → Repository
 
-**メリット:**
-- ✅ ビジネスロジックがパッケージに集約
-- ✅ CLI/Job/管理画面から同じロジックを再利用可能
-- ✅ DTOベースの純粋なPHPテストが可能
-- ✅ Eloquent Modelへの依存がアプリケーション層のみに限定
+**パッケージ層の分割は維持する。** パッケージ側は他アプリ（CLI/Job/管理画面）から
+読み取りだけを使う場合があり、依存を絞れる意味がある。
+
+##### Domain層にクラスを作る基準
+
+パッケージ層に処理があるとき、Domain層にクラスを作るのは次のいずれかに当てはまる場合に限る。
+
+| 基準 | 例 |
+|---|---|
+| Eloquent Modelを返す必要がある呼び出し元との変換 | `ItemService::consumeItem`（DTO → TrxItem） |
+| 複数パッケージにまたがるオーケストレーション | `GachaCostService` |
+| アプリ固有の例外への翻訳 | `VersionService`（`SystemDataException`） |
+
+**どれにも当てはまらないなら、Domain層のクラスを作らずUseCaseからパッケージを直接呼ぶ。**
+委譲するだけのクラスは、呼び出し段数を増やすだけで何も足していない。
+
 
 #### 優先度：中
 
@@ -318,6 +237,9 @@ Domain層（Model） → DTO ↔ Model変換 + アプリ固有機能
 1. パッケージServiceをDI
 2. DTOをEloquent Modelに変換するロジックのみ残す
 3. ビジネスロジックはすべてパッケージに委譲
+
+変換もオーケストレーションも例外翻訳も無いなら、**このStepを飛ばして
+UseCaseからパッケージを直接呼ぶ**。判断基準は「Domain層にクラスを作る基準」を参照。
 
 ### Step 3: テスト更新
 

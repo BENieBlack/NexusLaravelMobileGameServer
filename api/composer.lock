@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4684fb1d3a8e545815dda6308535555a",
+    "content-hash": "e455edda9624c7e2ee9195abe534cb23",
     "packages": [
         {
             "name": "brick/math",
@@ -2614,14 +2614,14 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-core",
-                "reference": "1e24f550f88367ca0a216a070ac03e65776f50f4"
+                "reference": "05f891c67b7e5e49c6918664b6e7d617bf8f0b56"
             },
             "require": {
                 "illuminate/cache": "^10.0|^11.0|^12.0",
                 "illuminate/database": "^10.0|^11.0|^12.0",
                 "illuminate/support": "^10.0|^11.0|^12.0",
                 "nesbot/carbon": "^2.0|^3.0",
-                "php": "^8.3"
+                "php": "^8.4"
             },
             "require-dev": {
                 "mockery/mockery": "^1.6",
@@ -2665,7 +2665,7 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-core-auth",
-                "reference": "73991ad2a4e019889b26eaf1291661dd2e417aa6"
+                "reference": "d3356defb2667729ba29ade45750a73bebd68728"
             },
             "require": {
                 "firebase/php-jwt": "^6.10",
@@ -2673,7 +2673,7 @@
                 "nexus/core": "@dev",
                 "nexus/core-security": "@dev",
                 "nexus/core-unit-of-work": "@dev",
-                "php": "^8.3"
+                "php": "^8.4"
             },
             "require-dev": {
                 "phpunit/phpunit": "^10.0"
@@ -2703,7 +2703,7 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-core-billing",
-                "reference": "51a37bf12e5e0f48b758883e3b49541595db3b65"
+                "reference": "ba862e32353bd2ab87112f9cb1b7a6a5f7781f47"
             },
             "require": {
                 "guzzlehttp/guzzle": "^7.0",
@@ -2711,7 +2711,7 @@
                 "illuminate/http": "^10.0|^11.0|^12.0",
                 "illuminate/support": "^10.0|^11.0|^12.0",
                 "nesbot/carbon": "^2.0|^3.0",
-                "php": "^8.3"
+                "php": "^8.4"
             },
             "require-dev": {
                 "mockery/mockery": "^1.6",
@@ -2756,13 +2756,13 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-core-security",
-                "reference": "4ab772d89f0be51fcb2d7a38ba6702b1d1b60d4a"
+                "reference": "129ddcea05fd50160672de599ad60176caa59a07"
             },
             "require": {
                 "illuminate/cache": "^11.0|^12.0",
                 "illuminate/http": "^11.0|^12.0",
                 "illuminate/support": "^11.0|^12.0",
-                "php": "^8.3"
+                "php": "^8.4"
             },
             "require-dev": {
                 "mockery/mockery": "^1.6",
@@ -2805,12 +2805,12 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-core-unit-of-work",
-                "reference": "5e1de620f69272a336e7624353bd97d293882ef7"
+                "reference": "62117d7f18152b5c6c224bea80c033a856c222fd"
             },
             "require": {
                 "illuminate/database": "^10.0|^11.0|^12.0",
                 "illuminate/support": "^10.0|^11.0|^12.0",
-                "php": "^8.3"
+                "php": "^8.4"
             },
             "require-dev": {
                 "mockery/mockery": "^1.6",
@@ -2855,11 +2855,11 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-friend",
-                "reference": "3c2822336030c4bd6f489050932ca881e147a827"
+                "reference": "7291e326d0edc7341ec46dffc7f0c261d27808d7"
             },
             "require": {
                 "nexus/core": "@dev",
-                "php": "^8.3"
+                "php": "^8.4"
             },
             "require-dev": {
                 "mockery/mockery": "^1.6",
@@ -2876,6 +2876,9 @@
                     "NexusFriend\\Tests\\": "tests/"
                 }
             },
+            "license": [
+                "MIT"
+            ],
             "description": "Friend management package for Nexus mobile game",
             "transport-options": {
                 "relative": true
@@ -2887,12 +2890,12 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-gacha",
-                "reference": "6cca876a519d6a3fa50c5879e2f482483a9dc839"
+                "reference": "f4f258a8f40827cd1210f8cace840da4d0290b09"
             },
             "require": {
                 "nexus/core": "@dev",
                 "nexus/resource-delivery": "@dev",
-                "php": "^8.3"
+                "php": "^8.4"
             },
             "require-dev": {
                 "phpunit/phpunit": "^10.0"
@@ -2915,6 +2918,9 @@
                     "NexusGacha\\Tests\\": "tests/"
                 }
             },
+            "license": [
+                "MIT"
+            ],
             "description": "Gacha management package for Nexus mobile game",
             "transport-options": {
                 "relative": true
@@ -2926,11 +2932,11 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-guild",
-                "reference": "d52709c7c5c5f2251aa6e73008c4cdc44a902ef0"
+                "reference": "e8ec366a7a3cb5bd8a28ee7034c35055880a06c3"
             },
             "require": {
                 "nexus/player": "@dev",
-                "php": "^8.2"
+                "php": "^8.4"
             },
             "require-dev": {
                 "mockery/mockery": "^1.6",
@@ -2961,10 +2967,10 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-level",
-                "reference": "92a38c19d2dfc71d1201ad7ce40b18c93cd9d388"
+                "reference": "bd3e42a2a74ed7ad2b72d877d677b03107d8c70f"
             },
             "require": {
-                "php": "^8.3"
+                "php": "^8.4"
             },
             "require-dev": {
                 "phpunit/phpunit": "^10.0"
@@ -2980,6 +2986,9 @@
                     "NexusLevel\\Tests\\": "tests/"
                 }
             },
+            "license": [
+                "MIT"
+            ],
             "description": "Level management package for Nexus mobile game",
             "transport-options": {
                 "relative": true
@@ -2991,7 +3000,7 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-login",
-                "reference": "172334b570dd31294ce926884f681b65140a5988"
+                "reference": "a28c00548788c06140ba904b1b03f69cd3edfc0c"
             },
             "require": {
                 "illuminate/database": "^12.0",
@@ -3000,7 +3009,7 @@
                 "nexus/core": "*",
                 "nexus/resource": "*",
                 "nexus/resource-delivery": "*",
-                "php": "^8.3"
+                "php": "^8.4"
             },
             "require-dev": {
                 "mockery/mockery": "^1.6",
@@ -3044,12 +3053,12 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-mailbox",
-                "reference": "33c90955e7055be84b9b3250745d7359654ae7fc"
+                "reference": "38fe71754477e941ada57785e0e30dfa49e0c039"
             },
             "require": {
                 "nexus/core": "@dev",
                 "nexus/resource-delivery": "@dev",
-                "php": "^8.3"
+                "php": "^8.4"
             },
             "require-dev": {
                 "illuminate/support": "^11.0|^12.0",
@@ -3074,6 +3083,9 @@
                     "NexusMailbox\\Tests\\": "tests/"
                 }
             },
+            "license": [
+                "MIT"
+            ],
             "description": "Mailbox management package for Nexus mobile game",
             "transport-options": {
                 "relative": true
@@ -3085,14 +3097,14 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-maintenance",
-                "reference": "35da182bfab8422f488528be2bebf72989ef4a4d"
+                "reference": "bd8d9a1244caf83e0f5f2521d3f718990c2bb3ac"
             },
             "require": {
                 "illuminate/cache": "^10.0|^11.0|^12.0",
                 "illuminate/http": "^10.0|^11.0|^12.0",
                 "illuminate/support": "^10.0|^11.0|^12.0",
                 "nesbot/carbon": "^2.0|^3.0",
-                "php": "^8.3"
+                "php": "^8.4"
             },
             "require-dev": {
                 "mockery/mockery": "^1.6",
@@ -3141,13 +3153,13 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-pitr",
-                "reference": "7dafb3818de680ef0dcf11062f9af8e068c90417"
+                "reference": "ae8ba18cfc4432b371177371f05e2db5cc63d0c1"
             },
             "require": {
                 "illuminate/console": "^12.0",
                 "illuminate/database": "^12.0",
                 "illuminate/support": "^12.0",
-                "php": "^8.3"
+                "php": "^8.4"
             },
             "require-dev": {
                 "mockery/mockery": "^1.6",
@@ -3180,7 +3192,7 @@
                 ]
             },
             "license": [
-                "proprietary"
+                "MIT"
             ],
             "authors": [
                 {
@@ -3198,11 +3210,11 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-player",
-                "reference": "5ee5d0f60606fe33d9f9d7dcef22af7328f2ff06"
+                "reference": "863fffd2fa4502b67bdaf62825ce14fbb17d5f2b"
             },
             "require": {
                 "nexus/core": "@dev",
-                "php": "^8.3"
+                "php": "^8.4"
             },
             "require-dev": {
                 "mockery/mockery": "^1.6",
@@ -3226,6 +3238,9 @@
                     "NexusPlayer\\Tests\\": "tests/"
                 }
             },
+            "license": [
+                "MIT"
+            ],
             "description": "Player management package for Nexus mobile game",
             "transport-options": {
                 "relative": true
@@ -3237,10 +3252,10 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-resource",
-                "reference": "fa4322fadffacc21adfee681452de7b3fbd1b951"
+                "reference": "b9a4d1c3582e59b815c514eadedc83649982df9b"
             },
             "require": {
-                "php": "^8.3",
+                "php": "^8.4",
                 "ramsey/uuid": "^4.0"
             },
             "require-dev": {
@@ -3285,14 +3300,14 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-resource-delivery",
-                "reference": "f71b09b838119c2f7643c150c7fb1dcc30f85183"
+                "reference": "90594c9c2d2ecd2cfe2033b2889c0e9d1146e633"
             },
             "require": {
                 "illuminate/database": "^10.0|^11.0|^12.0",
                 "illuminate/support": "^10.0|^11.0|^12.0",
                 "nexus/core": "@dev",
                 "nexus/resource": "*",
-                "php": "^8.3"
+                "php": "^8.4"
             },
             "require-dev": {
                 "mockery/mockery": "^1.6",
@@ -3330,12 +3345,12 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-stamina",
-                "reference": "eede70a78b5206751e2c1d1b2de6272bfa7f6cc5"
+                "reference": "b4ef404596ffe7b0ae52977f06807117f498af99"
             },
             "require": {
                 "illuminate/support": "^11.0|^12.0",
                 "nexus/core": "@dev",
-                "php": "^8.3"
+                "php": "^8.4"
             },
             "require-dev": {
                 "mockery/mockery": "^1.6",
@@ -3360,7 +3375,7 @@
                 }
             },
             "license": [
-                "proprietary"
+                "MIT"
             ],
             "description": "Nexus Stamina Package - スタミナ管理パッケージ",
             "transport-options": {
@@ -3373,12 +3388,12 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-version",
-                "reference": "d15e47f90cce3863c49cffe7da94073f396f5a4f"
+                "reference": "ed2ec7ef98b738dd1b7d2e198da6071cfe20f154"
             },
             "require": {
                 "illuminate/cache": "^11.0|^12.0",
                 "illuminate/support": "^11.0|^12.0",
-                "php": "^8.3"
+                "php": "^8.4"
             },
             "require-dev": {
                 "phpunit/phpunit": "^10.0"
@@ -3402,7 +3417,7 @@
                 }
             },
             "license": [
-                "proprietary"
+                "MIT"
             ],
             "description": "Nexus Version Check Package - バージョンチェック・デプロイ管理パッケージ",
             "transport-options": {
@@ -3415,14 +3430,14 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-vip",
-                "reference": "c0f47873b10b1d9ea418f2687351f7011290dacc"
+                "reference": "d9ac6f476ec3b6019ffa7753e31978b74938eca0"
             },
             "require": {
                 "illuminate/database": "^10.0|^11.0|^12.0",
                 "illuminate/support": "^10.0|^11.0|^12.0",
                 "nesbot/carbon": "^2.0|^3.0",
                 "nexus/core": "@dev",
-                "php": "^8.3"
+                "php": "^8.4"
             },
             "require-dev": {
                 "mockery/mockery": "^1.6",
@@ -3467,13 +3482,13 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-wallet",
-                "reference": "7e698255d8185c0ed4dd189710fba8e2b47b7d3f"
+                "reference": "3f051f644539d5173eee6574944df0d4ab72d61f"
             },
             "require": {
                 "illuminate/database": "^10.0|^11.0|^12.0",
                 "illuminate/support": "^10.0|^11.0|^12.0",
                 "nesbot/carbon": "^2.0|^3.0",
-                "php": "^8.3"
+                "php": "^8.4"
             },
             "require-dev": {
                 "mockery/mockery": "^1.6",
@@ -10662,11 +10677,11 @@
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "php": "^8.3"
+        "php": "^8.4"
     },
     "platform-dev": [],
     "platform-overrides": {
-        "php": "8.3"
+        "php": "8.4"
     },
     "plugin-api-version": "2.6.0"
 }

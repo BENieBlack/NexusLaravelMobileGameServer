@@ -6,6 +6,9 @@ includes:
 
 parameters:
     level: 6
+    # 解析対象のPHPバージョンを固定する。
+    # 実行環境のPHPに追従させると、CIとローカルで結果が変わる。
+    phpVersion: 80400
     paths:
         - app
         - ../packages/nexus-core/src

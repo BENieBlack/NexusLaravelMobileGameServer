@@ -8,11 +8,11 @@
 #          初回構築、または完全にリセットしたいときだけ使ってください。
 #
 # 実行内容:
-#   1. Dockerコンテナの再作成と起動
-#   2. MySQLの起動完了を待つ
-#   3. 全データベースの存在確認（作成自体はMySQLコンテナの初期化スクリプトが行う）
-#   4. 依存パッケージのインストール（Composerはコンテナ内、npmはホスト）
-#   5. APP_KEYの生成
+#   1. APP_KEYの生成（コンテナ起動前に済ませる）
+#   2. Dockerコンテナの再作成と起動
+#   3. MySQLの起動完了を待つ
+#   4. 全データベースの存在確認（作成自体はMySQLコンテナの初期化スクリプトが行う）
+#   5. 依存パッケージのインストール（Composerはコンテナ内、npmはホスト）
 #   6. マイグレーションとシードの実行
 #
 # Usage:
@@ -95,7 +95,29 @@ echo "APP_ENV:  ${APP_ENV}"
 echo "Shards:   ${SHARD_COUNT}"
 
 # ============================================================================
-# Step 1: コンテナの再作成
+# Step 1: APP_KEY の生成
+# ============================================================================
+# .env はコンテナに読み取り専用でマウントされているため、
+# artisan key:generate ではなくホスト側で書き込む。
+#
+# コンテナを起動する前に済ませること。docker-compose.yml は .env を
+# 単一ファイルとしてbindマウントしており、マウントは起動時のinodeに固定される。
+# 起動後に mv で置き換えるとコンテナ側は古いinodeを見続けるため、
+# 末尾の CACHE_STORE などが欠けた状態で読まれてしまう。
+if [ -z "$(get_env_value "$ROOT_ENV_FILE" "APP_KEY")" ]; then
+  echo "Generating APP_KEY..."
+  generated_key="base64:$(openssl rand -base64 32)"
+  tmp_env="$(mktemp)"
+  awk -v key="$generated_key" '/^APP_KEY=/ { print "APP_KEY=" key; next } { print }' \
+    "$ROOT_ENV_FILE" > "$tmp_env"
+  mv "$tmp_env" "$ROOT_ENV_FILE"
+  success_message "APP_KEY generated."
+else
+  echo "APP_KEY already set. Skipped."
+fi
+
+# ============================================================================
+# Step 2: コンテナの再作成
 # ============================================================================
 echo "Setting up Docker containers..."
 warn_message "WARNING: 既存のコンテナとボリュームをすべて削除します。"
@@ -104,7 +126,7 @@ warn_message "WARNING: 既存のコンテナとボリュームをすべて削除
 success_message "Docker containers are up and running."
 
 # ============================================================================
-# Step 2: 対象データベースの決定
+# Step 3: 対象データベースの決定
 # ============================================================================
 # "コンテナ名:DB接尾辞" の組。DB名は {APP_NAME}-{APP_ENV}-{接尾辞}
 DB_TARGETS=("db-sys:sys" "db-mst:mst" "db-adm:adm" "db-tol:tol")
@@ -123,7 +145,7 @@ for target in "${DB_TARGETS[@]}"; do
 done
 
 # ============================================================================
-# Step 3: MySQLの起動完了を待つ
+# Step 4: MySQLの起動完了を待つ
 # ============================================================================
 # 初回起動はデータディレクトリの初期化が走るため、固定のsleepでは足りない。
 echo "Waiting for MySQL containers to be ready..."
@@ -145,7 +167,7 @@ done
 success_message "All MySQL containers are ready."
 
 # ============================================================================
-# Step 4: データベースの作成
+# Step 5: データベースの作成
 # ============================================================================
 # データベース自体は各MySQLコンテナの初期化スクリプトが作る。
 # （docker/mysql/init/create-databases.sh。DB_NAMES は docker-compose.yml で指定）
@@ -177,23 +199,6 @@ for target in "${DB_TARGETS[@]}"; do
   esac
 done
 success_message "Databases verified."
-
-# ============================================================================
-# Step 5: APP_KEY の生成
-# ============================================================================
-# .env はコンテナに読み取り専用でマウントされているため、
-# artisan key:generate ではなくホスト側で書き込む。
-if [ -z "$(get_env_value "$ROOT_ENV_FILE" "APP_KEY")" ]; then
-  echo "Generating APP_KEY..."
-  generated_key="base64:$(openssl rand -base64 32)"
-  tmp_env="$(mktemp)"
-  awk -v key="$generated_key" '/^APP_KEY=/ { print "APP_KEY=" key; next } { print }' \
-    "$ROOT_ENV_FILE" > "$tmp_env"
-  mv "$tmp_env" "$ROOT_ENV_FILE"
-  success_message "APP_KEY generated."
-else
-  echo "APP_KEY already set. Skipped."
-fi
 
 # ============================================================================
 # Step 6: 依存パッケージのインストール

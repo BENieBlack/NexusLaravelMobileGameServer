@@ -21,7 +21,7 @@ jobs:
       - name: PHPのセットアップ
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: '8.4'
           extensions: pdo_mysql, redis, bcmath, zip
           coverage: none
 
@@ -138,7 +138,7 @@ jobs:
       - name: PHPのセットアップ
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: '8.4'
           extensions: pdo_mysql, redis, bcmath, zip
           coverage: none
 

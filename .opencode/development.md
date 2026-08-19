@@ -285,11 +285,23 @@ docker exec tool-php php artisan migrate --database=tol --path=database/migratio
    - これは誤ったPUSHを防ぐための安全措置です
 
 3. **ブランチ戦略**
-   - 基本的に`main`ブランチで作業
-   - 大きな機能追加の場合はfeatureブランチを作成することを検討
-   - ブランチ名は日本語でも可（例: `feature/メールボックス機能`）
+   - **`main`ブランチには直接コミットしない**
+   - 作業を始める前に`main`から作業ブランチを切る（`git switch -c feature/xxx main`）
+   - ブランチ名には目的の接頭辞をつける: `feature/`, `fix/`, `refactor/`, `docs/`, `chore/`
+   - **ブランチ名は英語で書く**（日本語は使わない）。接頭辞のあとはケバブケース
+     （例: `feature/mailbox`, `fix/login-bonus-timezone`, `refactor/item-service`）
+   - コミットメッセージとPR本文は日本語のままでよい（英語にするのはブランチ名のみ）
+   - 作業ブランチにいるかどうかは、コミット前に`git branch --show-current`で確認する
 
-4. **リモートリポジトリ**
+4. **PR（プルリクエスト）**
+   - `main`への反映は必ずPR経由で行う（`main`へのdirect pushは禁止）
+   - PRの作成: `gh pr create --base main`。タイトル・本文は日本語で記述する
+   - PR本文には「変更内容」「変更理由」「確認方法」を書く
+   - CI（`.github/workflows/ci.yml`）がグリーンになってからマージする
+   - マージ後は不要になった作業ブランチを削除する
+   - **PUSH・PR作成・マージはユーザーの明示的な指示があった場合のみ実行する**（上記2と同じ理由）
+
+5. **リモートリポジトリ**
    - `git remote -v` で確認する
    - SSHエイリアスを使う場合は各自の `~/.ssh/config` で設定する
 

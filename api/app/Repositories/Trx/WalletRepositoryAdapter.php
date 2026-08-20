@@ -3,7 +3,7 @@
 namespace App\Repositories\Trx;
 
 use App\Models\Trx\TrxWallet;
-use LaravelWallet\Repositories\WalletRepositoryInterface;
+use NexusWallet\Repositories\WalletRepositoryInterface;
 
 /**
  * WalletRepositoryAdapter

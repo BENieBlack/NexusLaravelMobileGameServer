@@ -2,7 +2,7 @@
 
 namespace App\Domain\InAppPurchase\UseCases;
 
-use App\Domain\InAppPurchase\Services\DiamondService;
+use App\Domain\InAppPurchase\Services\InAppPurchaseDiamondService;
 use App\Domain\InAppPurchase\Services\InAppPurchasePassService;
 use App\Domain\InAppPurchase\Services\InAppPurchaseValidationService;
 use App\Http\Responses\InAppPurchase\BuyResponse;
@@ -21,7 +21,7 @@ class InAppPurchaseBuyPassUseCase extends _BaseBuyUseCase
     public function __construct(
         InAppPurchaseValidationService $validationService,
         BillingFacade $billingFacade,
-        private readonly DiamondService $diamondService,
+        private readonly InAppPurchaseDiamondService $diamondService,
         private readonly InAppPurchasePassService $passService,
     ) {
         parent::__construct($validationService, $billingFacade);
@@ -41,9 +41,9 @@ class InAppPurchaseBuyPassUseCase extends _BaseBuyUseCase
         string $billingPlatform,
         Verification $verification
     ): BuyResponse {
-        // TODO: 実際のプロダクションでは、決済プラットフォームから価格を取得する
-        // ここでは仮の単価を使用
-        $unitPrice = 1.0;
+        // 返金計算に使う購入価格。Google Playはレシート検証結果、
+        // App Storeはマスターの設定値から取る
+        $unitPrice = $this->resolvePurchasePrice($verification, $mstInAppPurchase, $billingPlatform);
 
         // トランザクション内でパス購入処理を実行
         return $this->executeWithTransaction(function () use (

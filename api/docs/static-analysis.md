@@ -269,5 +269,5 @@ docker exec api-php ./vendor/bin/phpunit tests/Architecture/ServiceLayerTest.php
 
 - [PHPStan公式ドキュメント](https://phpstan.org/)
 - [PHPUnit公式ドキュメント](https://phpunit.de/)
-- [Clean Architectureガイド](.opencode/architecture.md)
-- [命名規約ガイド](.opencode/naming-conventions.md)
+- [Clean Architectureガイド](../../.claude/architecture.md)
+- [命名規約ガイド](../../.claude/naming-conventions.md)

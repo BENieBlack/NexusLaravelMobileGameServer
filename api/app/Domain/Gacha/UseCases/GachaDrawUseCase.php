@@ -4,8 +4,6 @@ namespace App\Domain\Gacha\UseCases;
 
 use App\Domain\_BaseUseCase;
 use App\Domain\Gacha\Services\GachaCostService;
-use App\Domain\Gacha\Services\GachaDrawService;
-use App\Domain\Gacha\Services\GachaPrizeService;
 use App\Domain\Gacha\Services\GachaProgressService;
 use App\Domain\Gacha\Services\GachaValidationService;
 use App\Http\Responses\Gacha\DrawResponse;
@@ -13,6 +11,9 @@ use App\Models\Trx\TrxGachaHistory;
 use App\Repositories\Mst\MstGachaStepRepository;
 use App\Repositories\Trx\TrxGachaHistoryRepository;
 use App\Traits\RequiresAuthenticationTrait;
+use NexusGacha\Services\GachaDrawService;
+use NexusGacha\Services\GachaPrizeService;
+use NexusGacha\ValueObjects\GachaPrize;
 
 /**
  * GachaDrawUseCase
@@ -69,7 +70,7 @@ class GachaDrawUseCase extends _BaseUseCase
 
             // 5. ガチャ抽選
             $currentStep = $progress->getCurrentStep();
-            $prizes = $this->drawService->draw(
+            $prizeDtos = $this->drawService->draw(
                 $mstGachaId,
                 $drawCount,
                 $mstGacha->getHasStepUp(),
@@ -78,7 +79,10 @@ class GachaDrawUseCase extends _BaseUseCase
             );
 
             // 6. 景品付与
-            $this->prizeService->grantPrizes($sysPlayerId, $prizes);
+            $this->prizeService->grantPrizes($sysPlayerId, $prizeDtos);
+
+            // 履歴とレスポンスは配列で扱うため、ここで変換する
+            $prizes = array_map(fn (GachaPrize $prize) => $prize->toArray(), $prizeDtos);
 
             // 7. 次のステップを計算
             $nextStep = $this->calculateNextStep($mstGachaId, $currentStep, $mstGacha->getHasStepUp());

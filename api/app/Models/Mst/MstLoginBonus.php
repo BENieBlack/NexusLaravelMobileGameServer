@@ -17,10 +17,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int|null $valid_days
  * @property int $priority
  * @property bool $is_active
- * @property \DateTimeImmutable|null $start_at
- * @property \DateTimeImmutable|null $end_at
- * @property \DateTimeImmutable $created_at
- * @property \DateTimeImmutable $updated_at
+ * @property ?string $start_at
+ * @property ?string $end_at
+ * @property string $created_at
+ * @property string $updated_at
  */
 class MstLoginBonus extends _BaseMst
 {

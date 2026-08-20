@@ -3,6 +3,7 @@
 namespace App\Domain\Equipment\UseCases;
 
 use App\Domain\_BaseUseCase;
+use App\Domain\Equipment\Constants\EquipmentConst;
 use App\Domain\Equipment\Services\EquipmentLevelService;
 use App\Domain\Item\Services\ItemService;
 use App\Exceptions\BusinessLogicException;
@@ -35,12 +36,6 @@ use Illuminate\Support\Str;
 class EquipmentLevelUpUseCase extends _BaseUseCase
 {
     use RequiresAuthenticationTrait;
-
-    /**
-     * 装備経験値アイテムのID
-     * TODO: 環境変数や設定ファイルに移動することを検討
-     */
-    private const EQUIPMENT_EXP_ITEM_ID = 'equipment_exp_potion';
 
     public function __construct(
         private readonly EquipmentLevelService $equipmentLevelService,
@@ -87,15 +82,15 @@ class EquipmentLevelUpUseCase extends _BaseUseCase
         }
 
         // 2. 経験値アイテムマスターデータを取得
-        $mstItem = $this->mstItemRepository->selectById(self::EQUIPMENT_EXP_ITEM_ID);
+        $mstItem = $this->mstItemRepository->selectById(EquipmentConst::EXP_ITEM_ID);
         if (! $mstItem) {
-            throw MasterDataException::item(self::EQUIPMENT_EXP_ITEM_ID);
+            throw MasterDataException::item(EquipmentConst::EXP_ITEM_ID);
         }
 
         // アイテムタイプが経験値アイテムかチェック
         if ($mstItem->getType() !== 'EquipmentEnhancement' || $mstItem->getEffect() !== 'EquipmentExp') {
             throw BusinessLogicException::invalidItemType(
-                self::EQUIPMENT_EXP_ITEM_ID,
+                EquipmentConst::EXP_ITEM_ID,
                 'EquipmentEnhancement/EquipmentExp',
                 "{$mstItem->getType()}/{$mstItem->getEffect()}"
             );
@@ -115,9 +110,9 @@ class EquipmentLevelUpUseCase extends _BaseUseCase
         $requiredItemCount = (int) ceil($requiredExp / $expPerItem);
 
         // 5. アイテム所持数確認
-        $currentAmount = $this->itemService->findItemAmount($sysPlayerId, self::EQUIPMENT_EXP_ITEM_ID);
+        $currentAmount = $this->itemService->findItemAmount($sysPlayerId, EquipmentConst::EXP_ITEM_ID);
         if ($currentAmount < $requiredItemCount) {
-            throw BusinessLogicException::itemNotEnough(self::EQUIPMENT_EXP_ITEM_ID, $requiredItemCount, $currentAmount);
+            throw BusinessLogicException::itemNotEnough(EquipmentConst::EXP_ITEM_ID, $requiredItemCount, $currentAmount);
         }
     }
 
@@ -143,7 +138,7 @@ class EquipmentLevelUpUseCase extends _BaseUseCase
             $trxEquipmentBefore = $this->trxEquipmentRepository->selectById($trxEquipmentId);
 
             // アイテムマスターデータを再取得（バリデーション済み）
-            $mstItem = $this->mstItemRepository->selectById(self::EQUIPMENT_EXP_ITEM_ID);
+            $mstItem = $this->mstItemRepository->selectById(EquipmentConst::EXP_ITEM_ID);
 
             // 必要な経験値を計算
             $requiredExp = $this->equipmentLevelService->calculateRequiredExp($trxEquipmentId, $afterLevel);
@@ -153,7 +148,7 @@ class EquipmentLevelUpUseCase extends _BaseUseCase
             $requiredItemCount = (int) ceil($requiredExp / $expPerItem);
 
             // アイテムを消費（消費後のデータを取得）
-            $trxItem = $this->itemService->consumeItem($sysPlayerId, self::EQUIPMENT_EXP_ITEM_ID, $requiredItemCount);
+            $trxItem = $this->itemService->consumeItem($sysPlayerId, EquipmentConst::EXP_ITEM_ID, $requiredItemCount);
 
             // 経験値を加算（更新後の装備データを取得）
             $totalExp = $expPerItem * $requiredItemCount;

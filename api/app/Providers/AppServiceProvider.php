@@ -43,14 +43,11 @@ use App\Repositories\Trx\WalletBalanceRepositoryAdapter;
 use App\Repositories\Trx\WalletRepositoryAdapter;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
-use LaravelWallet\Repositories\WalletBalanceRepositoryInterface;
-use LaravelWallet\Repositories\WalletRepositoryInterface;
 use NexusAuth\Contracts\DeviceRepositoryInterface;
 use NexusAuth\Contracts\PlayerRepositoryInterface;
 use NexusAuth\Contracts\TokenRepositoryInterface;
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Services\TokenService;
-use NexusBilling\Contracts\DiamondRepositoryInterface;
 use NexusFriend\Repositories\FriendApplyRepositoryInterface;
 use NexusGacha\Repositories\GachaPrizeRepositoryInterface;
 use NexusGacha\Repositories\GachaProgressRepositoryInterface;
@@ -68,6 +65,7 @@ use NexusMailbox\Repositories\MailboxRepositoryInterface;
 use NexusPlayer\Repositories\PlayerDeviceRepositoryInterface;
 use NexusPlayer\Repositories\PlayerLevelRepositoryInterface;
 use NexusPlayer\Repositories\PlayerRepositoryInterface as PlayerRepoInterface;
+use NexusResource\Contracts\DiamondRepositoryInterface;
 use NexusResource\Contracts\ItemRepositoryInterface;
 use NexusResourceDelivery\Handlers\CurrencyDeliveryHandler;
 use NexusResourceDelivery\Handlers\DiamondDeliveryHandler;
@@ -88,6 +86,8 @@ use NexusVip\Repositories\PlayerVipRepositoryInterface;
 use NexusVip\Repositories\VipLevelRepositoryInterface;
 use NexusVip\Repositories\VipLevelRewardRepositoryInterface;
 use NexusVip\Repositories\VipPointLogRepositoryInterface;
+use NexusWallet\Repositories\WalletBalanceRepositoryInterface;
+use NexusWallet\Repositories\WalletRepositoryInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -218,7 +218,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(DiamondRepositoryInterface::class, DiamondRepositoryAdapter::class);
 
         // ==========================================
-        // NexusWallet (LaravelWallet) Package Bindings
+        // NexusWallet (NexusWallet) Package Bindings
         // ==========================================
 
         // Repository interfaces

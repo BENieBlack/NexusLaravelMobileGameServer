@@ -1,12 +1,12 @@
 <?php
 
-namespace LaravelWallet\Services;
+namespace NexusWallet\Services;
 
-use LaravelWallet\ValueObjects\CurrencyBalance;
-use LaravelWallet\ValueObjects\CurrencyOperationResult;
-use LaravelWallet\Exceptions\InsufficientBalanceException;
-use LaravelWallet\Repositories\WalletBalanceRepositoryInterface;
-use LaravelWallet\Repositories\WalletRepositoryInterface;
+use NexusWallet\ValueObjects\CurrencyBalance;
+use NexusWallet\ValueObjects\CurrencyOperationResult;
+use NexusWallet\Exceptions\InsufficientBalanceException;
+use NexusWallet\Repositories\WalletBalanceRepositoryInterface;
+use NexusWallet\Repositories\WalletRepositoryInterface;
 
 /**
  * WalletService

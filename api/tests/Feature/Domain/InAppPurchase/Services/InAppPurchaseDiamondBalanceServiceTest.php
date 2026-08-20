@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Domain\InAppPurchase\Services;
 
-use App\Domain\InAppPurchase\Services\DiamondService;
+use App\Domain\InAppPurchase\Services\InAppPurchaseDiamondBalanceService;
 use App\Persistence\ApiSession;
 use Illuminate\Support\Facades\DB;
 use NexusUnitOfWork\Persistence\QueryManager;
@@ -11,12 +11,12 @@ use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
 
 /**
- * DiamondServiceのテスト
+ * InAppPurchaseDiamondBalanceServiceのテスト
  *
  * 無償/有償ダイヤモンドの管理、消費順序をテスト
- * DiamondServiceは無償→有償の順で消費する仕様
+ * InAppPurchaseDiamondBalanceServiceは無償→有償の順で消費する仕様
  */
-class DiamondServiceTest extends TestCase
+class InAppPurchaseDiamondBalanceServiceTest extends TestCase
 {
     use RefreshMultipleDatabases;
 
@@ -24,7 +24,7 @@ class DiamondServiceTest extends TestCase
 
     private string $platform = 'Apple';
 
-    private DiamondService $diamondService;
+    private InAppPurchaseDiamondBalanceService $diamondBalanceService;
 
     private QueryManager $queryManager;
 
@@ -43,7 +43,7 @@ class DiamondServiceTest extends TestCase
         ApiSession::clearForTest();
         ApiSession::setSysPlayerId($this->sysPlayerId);
 
-        $this->diamondService = app(DiamondService::class);
+        $this->diamondBalanceService = app(InAppPurchaseDiamondBalanceService::class);
         $this->queryManager = app(QueryManager::class);
     }
 
@@ -62,7 +62,7 @@ class DiamondServiceTest extends TestCase
     public function 無償ダイヤモンドを加算できる(): void
     {
         // Execute
-        $this->diamondService->addDiamond(
+        $this->diamondBalanceService->addDiamond(
             $this->sysPlayerId,
             $this->platform,
             amount: 1000,
@@ -88,7 +88,7 @@ class DiamondServiceTest extends TestCase
     public function 有償ダイヤモンドを加算できる(): void
     {
         // Execute
-        $this->diamondService->addDiamond(
+        $this->diamondBalanceService->addDiamond(
             $this->sysPlayerId,
             $this->platform,
             amount: 500,
@@ -126,7 +126,7 @@ class DiamondServiceTest extends TestCase
         ApiSession::setSysPlayerId($this->sysPlayerId);
 
         // Execute: Consume 300 (should consume from free first)
-        $this->diamondService->consumeDiamond($this->sysPlayerId, 300, isPaidOnly: false);
+        $this->diamondBalanceService->consumeDiamond($this->sysPlayerId, 300, isPaidOnly: false);
         $this->queryManager->execAllQuery();
 
         // Verify DB - free should be 700, paid should be 500 (unchanged)
@@ -156,7 +156,7 @@ class DiamondServiceTest extends TestCase
         ApiSession::setSysPlayerId($this->sysPlayerId);
 
         // Execute: Consume 1200 (1000 from free + 200 from paid)
-        $this->diamondService->consumeDiamond($this->sysPlayerId, 1200, isPaidOnly: false);
+        $this->diamondBalanceService->consumeDiamond($this->sysPlayerId, 1200, isPaidOnly: false);
         $this->queryManager->execAllQuery();
 
         // Verify DB - free should be 0, paid should be 300
@@ -186,7 +186,7 @@ class DiamondServiceTest extends TestCase
         ApiSession::setSysPlayerId($this->sysPlayerId);
 
         // Execute: Consume 200 paid only
-        $this->diamondService->consumeDiamond($this->sysPlayerId, 200, isPaidOnly: true);
+        $this->diamondBalanceService->consumeDiamond($this->sysPlayerId, 200, isPaidOnly: true);
         $this->queryManager->execAllQuery();
 
         // Verify DB - free unchanged, paid reduced
@@ -204,28 +204,28 @@ class DiamondServiceTest extends TestCase
     public function 複数回加算すると合計される(): void
     {
         // First add
-        $this->diamondService->addDiamond($this->sysPlayerId, $this->platform, 500, isPaid: false);
+        $this->diamondBalanceService->addDiamond($this->sysPlayerId, $this->platform, 500, isPaid: false);
         $this->queryManager->execAllQuery();
 
         ApiSession::clearForTest();
         ApiSession::setSysPlayerId($this->sysPlayerId);
 
         // Second add (free)
-        $this->diamondService->addDiamond($this->sysPlayerId, $this->platform, 300, isPaid: false);
+        $this->diamondBalanceService->addDiamond($this->sysPlayerId, $this->platform, 300, isPaid: false);
         $this->queryManager->execAllQuery();
 
         ApiSession::clearForTest();
         ApiSession::setSysPlayerId($this->sysPlayerId);
 
         // Third add (paid)
-        $this->diamondService->addDiamond($this->sysPlayerId, $this->platform, 200, isPaid: true);
+        $this->diamondBalanceService->addDiamond($this->sysPlayerId, $this->platform, 200, isPaid: true);
         $this->queryManager->execAllQuery();
 
         ApiSession::clearForTest();
         ApiSession::setSysPlayerId($this->sysPlayerId);
 
         // Fourth add (paid)
-        $this->diamondService->addDiamond($this->sysPlayerId, $this->platform, 100, isPaid: true);
+        $this->diamondBalanceService->addDiamond($this->sysPlayerId, $this->platform, 100, isPaid: true);
         $this->queryManager->execAllQuery();
 
         // Verify DB
@@ -243,7 +243,7 @@ class DiamondServiceTest extends TestCase
     public function 残高不足の場合は例外が発生する(): void
     {
         // Prepare: Add 100 diamonds
-        $this->diamondService->addDiamond($this->sysPlayerId, $this->platform, 100, isPaid: false);
+        $this->diamondBalanceService->addDiamond($this->sysPlayerId, $this->platform, 100, isPaid: false);
         $this->queryManager->execAllQuery();
 
         ApiSession::clearForTest();
@@ -253,7 +253,7 @@ class DiamondServiceTest extends TestCase
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('ダイヤモンド残高が不足しています');
 
-        $this->diamondService->consumeDiamond($this->sysPlayerId, 200, isPaidOnly: false);
+        $this->diamondBalanceService->consumeDiamond($this->sysPlayerId, 200, isPaidOnly: false);
     }
 
     #[Test]
@@ -275,7 +275,7 @@ class DiamondServiceTest extends TestCase
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('有償ダイヤモンド残高が不足しています');
 
-        $this->diamondService->consumeDiamond($this->sysPlayerId, 200, isPaidOnly: true);
+        $this->diamondBalanceService->consumeDiamond($this->sysPlayerId, 200, isPaidOnly: true);
     }
 
     #[Test]
@@ -284,33 +284,33 @@ class DiamondServiceTest extends TestCase
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('ダイヤモンド残高が不足しています');
 
-        $this->diamondService->consumeDiamond($this->sysPlayerId, 100, isPaidOnly: false);
+        $this->diamondBalanceService->consumeDiamond($this->sysPlayerId, 100, isPaidOnly: false);
     }
 
     #[Test]
     public function 異なるプラットフォームで独立して管理される(): void
     {
         // Add to Apple platform
-        $this->diamondService->addDiamond($this->sysPlayerId, 'Apple', 1000, isPaid: false);
+        $this->diamondBalanceService->addDiamond($this->sysPlayerId, 'Apple', 1000, isPaid: false);
         $this->queryManager->execAllQuery();
 
         ApiSession::clearForTest();
         ApiSession::setSysPlayerId($this->sysPlayerId);
 
-        $this->diamondService->addDiamond($this->sysPlayerId, 'Apple', 500, isPaid: true);
+        $this->diamondBalanceService->addDiamond($this->sysPlayerId, 'Apple', 500, isPaid: true);
         $this->queryManager->execAllQuery();
 
         ApiSession::clearForTest();
         ApiSession::setSysPlayerId($this->sysPlayerId);
 
         // Add to Google platform
-        $this->diamondService->addDiamond($this->sysPlayerId, 'Google', 2000, isPaid: false);
+        $this->diamondBalanceService->addDiamond($this->sysPlayerId, 'Google', 2000, isPaid: false);
         $this->queryManager->execAllQuery();
 
         ApiSession::clearForTest();
         ApiSession::setSysPlayerId($this->sysPlayerId);
 
-        $this->diamondService->addDiamond($this->sysPlayerId, 'Google', 800, isPaid: true);
+        $this->diamondBalanceService->addDiamond($this->sysPlayerId, 'Google', 800, isPaid: true);
         $this->queryManager->execAllQuery();
 
         // Verify Apple
@@ -350,7 +350,7 @@ class DiamondServiceTest extends TestCase
         ApiSession::setSysPlayerId($this->sysPlayerId);
 
         // Execute: Consume 120000 (100000 from free + 20000 from paid)
-        $this->diamondService->consumeDiamond($this->sysPlayerId, 120000, isPaidOnly: false);
+        $this->diamondBalanceService->consumeDiamond($this->sysPlayerId, 120000, isPaidOnly: false);
         $this->queryManager->execAllQuery();
 
         // Verify

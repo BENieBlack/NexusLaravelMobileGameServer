@@ -37,9 +37,9 @@ class InAppPurchaseBuyDiamondUseCase extends _BaseBuyUseCase
         string $billingPlatform,
         Verification $verification
     ): BuyResponse {
-        // TODO: 実際のプロダクションでは、決済プラットフォームから価格を取得する
-        // ここでは仮の単価を使用（ダイヤ1個あたりの価格）
-        $unitPrice = 1.0;
+        // 返金計算に使う購入価格。Google Playはレシート検証結果、
+        // App Storeはマスターの設定値から取る
+        $unitPrice = $this->resolvePurchasePrice($verification, $mstInAppPurchase, $billingPlatform);
 
         // トランザクション内でダイヤモンド購入処理を実行
         return $this->executeWithTransaction(function () use (

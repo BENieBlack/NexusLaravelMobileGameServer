@@ -1315,12 +1315,6 @@ parameters:
 			path: app/Domain/InAppPurchase/Services/InAppPurchasePassService.php
 
 		-
-			message: '#^Undefined variable\: \$verificationResult$#'
-			identifier: variable.undefined
-			count: 6
-			path: app/Domain/InAppPurchase/Services/InAppPurchaseValidationService.php
-
-		-
 			message: '#^Method App\\Domain\\Item\\Constants\\ItemConst\:\:allEffects\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1

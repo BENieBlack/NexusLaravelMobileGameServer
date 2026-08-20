@@ -124,11 +124,14 @@ return [
             for ($i = 1; $i <= $shardCount; $i++) {
                 $connections["trx{$i}"] = [
                     'driver' => 'mysql',
-                    'host' => env("DB_TRX{$i}_HOST", "db-trx{$i}"),
-                    'port' => env("DB_TRX{$i}_PORT", '3306'),
-                    'database' => env("DB_TRX{$i}_DATABASE") ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local')."-trx{$i}",
-                    'username' => env("DB_TRX{$i}_USERNAME", 'root'),
-                    'password' => env("DB_TRX{$i}_PASSWORD", 'root'),
+                    // DB_TRANSACTION_* はシャード共通のベース。ホストとDB名にはシャード番号を付ける
+                    // （DB_TRANSACTION_HOST=db-trx → db-trx1, db-trx2, ...）
+                    // シャードごとに変える場合のみ DB_TRX{N}_* で上書きする
+                    'host' => env("DB_TRX{$i}_HOST") ?? env('DB_TRANSACTION_HOST', 'db-trx').$i,
+                    'port' => env("DB_TRX{$i}_PORT") ?? env('DB_TRANSACTION_PORT', '3306'),
+                    'database' => env("DB_TRX{$i}_DATABASE") ?: (env('DB_TRANSACTION_DATABASE') ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local').'-trx').$i,
+                    'username' => env("DB_TRX{$i}_USERNAME") ?? env('DB_TRANSACTION_USERNAME', 'root'),
+                    'password' => env("DB_TRX{$i}_PASSWORD") ?? env('DB_TRANSACTION_PASSWORD', 'root'),
                     'charset' => 'utf8mb4',
                     'collation' => 'utf8mb4_unicode_ci',
                     'prefix' => '',
@@ -152,11 +155,13 @@ return [
             for ($i = 1; $i <= $shardCount; $i++) {
                 $connections["log{$i}"] = [
                     'driver' => 'mysql',
-                    'host' => env("DB_LOG{$i}_HOST", "db-log{$i}"),
-                    'port' => env("DB_LOG{$i}_PORT", '3306'),
-                    'database' => env("DB_LOG{$i}_DATABASE") ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local')."-log{$i}",
-                    'username' => env("DB_LOG{$i}_USERNAME", 'root'),
-                    'password' => env("DB_LOG{$i}_PASSWORD", 'root'),
+                    // DB_LOG_* はシャード共通のベース。ホストとDB名にはシャード番号を付ける
+                    // シャードごとに変える場合のみ DB_LOG{N}_* で上書きする
+                    'host' => env("DB_LOG{$i}_HOST") ?? env('DB_LOG_HOST', 'db-log').$i,
+                    'port' => env("DB_LOG{$i}_PORT") ?? env('DB_LOG_PORT', '3306'),
+                    'database' => env("DB_LOG{$i}_DATABASE") ?: (env('DB_LOG_DATABASE') ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local').'-log').$i,
+                    'username' => env("DB_LOG{$i}_USERNAME") ?? env('DB_LOG_USERNAME', 'root'),
+                    'password' => env("DB_LOG{$i}_PASSWORD") ?? env('DB_LOG_PASSWORD', 'root'),
                     'charset' => 'utf8mb4',
                     'collation' => 'utf8mb4_unicode_ci',
                     'prefix' => '',
@@ -204,11 +209,11 @@ return [
         // テストコードの互換性のため、trx/logという名前でtrx1/log1を参照
         'trx' => [
             'driver' => 'mysql',
-            'host' => env('DB_TRX1_HOST', 'db-trx1'),
-            'port' => env('DB_TRX1_PORT', '3306'),
-            'database' => env('DB_TRX1_DATABASE') ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local').'-trx1',
-            'username' => env('DB_TRX1_USERNAME', 'root'),
-            'password' => env('DB_TRX1_PASSWORD', 'root'),
+            'host' => env('DB_TRX1_HOST') ?? env('DB_TRANSACTION_HOST', 'db-trx').'1',
+            'port' => env('DB_TRX1_PORT') ?? env('DB_TRANSACTION_PORT', '3306'),
+            'database' => env('DB_TRX1_DATABASE') ?: (env('DB_TRANSACTION_DATABASE') ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local').'-trx').'1',
+            'username' => env('DB_TRX1_USERNAME') ?? env('DB_TRANSACTION_USERNAME', 'root'),
+            'password' => env('DB_TRX1_PASSWORD') ?? env('DB_TRANSACTION_PASSWORD', 'root'),
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix' => '',
@@ -218,11 +223,11 @@ return [
 
         'log' => [
             'driver' => 'mysql',
-            'host' => env('DB_LOG1_HOST', 'db-log1'),
-            'port' => env('DB_LOG1_PORT', '3306'),
-            'database' => env('DB_LOG1_DATABASE') ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local').'-log1',
-            'username' => env('DB_LOG1_USERNAME', 'root'),
-            'password' => env('DB_LOG1_PASSWORD', 'root'),
+            'host' => env('DB_LOG1_HOST') ?? env('DB_LOG_HOST', 'db-log').'1',
+            'port' => env('DB_LOG1_PORT') ?? env('DB_LOG_PORT', '3306'),
+            'database' => env('DB_LOG1_DATABASE') ?: (env('DB_LOG_DATABASE') ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local').'-log').'1',
+            'username' => env('DB_LOG1_USERNAME') ?? env('DB_LOG_USERNAME', 'root'),
+            'password' => env('DB_LOG1_PASSWORD') ?? env('DB_LOG_PASSWORD', 'root'),
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix' => '',

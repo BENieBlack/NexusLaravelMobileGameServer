@@ -42,6 +42,26 @@ return [
     'app_store' => [
         // App Store Connect の共有シークレット（/verifyReceipt 用）
         'shared_secret' => env('APP_STORE_SHARED_SECRET'),
+
+        // App Store Server API の接続先（production / sandbox）
+        'environment' => env('APP_STORE_ENVIRONMENT', 'sandbox'),
+
+        /*
+        | App Store Server API の認証（ES256のJWT）
+        |
+        | App Store Connect の「Keys > In-App Purchase」で発行した鍵を使う。
+        | private_key は .p8 ファイルのパス、またはPEM文字列そのもの。
+        */
+        'jwt' => [
+            'key_id' => env('APP_STORE_JWT_KEY_ID'),
+            'issuer_id' => env('APP_STORE_JWT_ISSUER_ID'),
+            'bundle_id' => env('APP_STORE_JWT_BUNDLE_ID'),
+            'private_key' => env('APP_STORE_JWT_PRIVATE_KEY'),
+            // 有効期間（秒）。Appleの上限は3600秒
+            'ttl' => (int) env('APP_STORE_JWT_TTL', 1800),
+            // 署名検証に使うApple Root CA - G3。未設定なら証明書チェーンの検証を行わない
+            'root_certificate' => env('APP_STORE_JWT_ROOT_CERTIFICATE'),
+        ],
     ],
 
     'slack' => [

@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\UseCases\Auth;
 
-use App\Domain\Auth\UseCases\AuthRefreshTokenUseCase;
+use App\Domain\Auth\UseCases\RefreshTokenUseCase;
 use App\Domain\Player\Services\PlayerService;
 use App\Exceptions\GameException;
 use App\Http\Responses\Auth\RefreshTokenResponse;
@@ -26,7 +26,7 @@ class RefreshTokenUseCaseTest extends TestCase
 {
     use RefreshMultipleDatabases;
 
-    private AuthRefreshTokenUseCase $useCase;
+    private RefreshTokenUseCase $useCase;
 
     private PlayerService $playerService;
 
@@ -67,7 +67,7 @@ class RefreshTokenUseCaseTest extends TestCase
         $this->tokenService = app(TokenService::class);
 
         // UseCaseを作成
-        $this->useCase = new AuthRefreshTokenUseCase(
+        $this->useCase = new RefreshTokenUseCase(
             $this->tokenService,
             $this->playerAuthService,
             $this->playerRepository,

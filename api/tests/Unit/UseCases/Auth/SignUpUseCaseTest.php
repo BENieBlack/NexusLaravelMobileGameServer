@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\UseCases\Auth;
 
-use App\Domain\Auth\UseCases\AuthSignUpUseCase;
+use App\Domain\Auth\UseCases\SignUpUseCase;
 use App\Exceptions\BusinessLogicException;
 use App\Http\Responses\Auth\SignUpResponse;
 use App\Models\Sys\SysPlayer;
@@ -21,7 +21,7 @@ class SignUpUseCaseTest extends TestCase
 {
     use RefreshMultipleDatabases;
 
-    private AuthSignUpUseCase $useCase;
+    private SignUpUseCase $useCase;
 
     private PlayerAuthService $playerAuthService;
 
@@ -59,7 +59,7 @@ class SignUpUseCaseTest extends TestCase
         $this->tokenService = app(TokenService::class);
 
         // UseCaseを作成
-        $this->useCase = new AuthSignUpUseCase(
+        $this->useCase = new SignUpUseCase(
             $this->playerAuthService,
             $this->tokenService,
             $this->deviceRepository,

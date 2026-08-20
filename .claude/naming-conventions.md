@@ -419,9 +419,28 @@ App\Domain\InAppPurchase\Services\InAppPurchasePurchaseService // ❌ 役割語�
 - 役割語がドメイン名と重複する場合は、役割語のほうを実態に合わせて言い換える
   （購入ワークフロー → `InAppPurchaseDiamondService`）
 - ドメイン名だけで役割が自明なら役割語は省略してよい（`ItemService`, `StaminaService`, `VersionService`）
-- **接頭辞を付けないのは Model / DTO / ValueObject / Enum など、データ構造を表すクラス**。
-  Service / UseCase / Handler などの振る舞いを表すクラスには付ける
+- **接頭辞を付けないのは Model / DTO / ValueObject / Enum などのデータ構造を表すクラスと、UseCase**
 - コードレビュー時に誤った使い方を即座に発見できる
+
+#### UseCaseにはドメイン名を付けない
+
+**フォーマット: `App\Domain\{ドメイン}\UseCases\{動作}UseCase`**
+
+```php
+App\Domain\Gacha\UseCases\DrawUseCase                  // ✅
+App\Domain\InAppPurchase\UseCases\BuyDiamondUseCase    // ✅
+App\Domain\Gacha\UseCases\GachaDrawUseCase             // ❌ ドメイン名が重複
+```
+
+Serviceと扱いが逆になる理由:
+
+- **UseCaseは1ドメインに閉じた入口**で、Controllerからしか呼ばれない。
+  namespaceでドメインが分かるため、クラス名に重ねる意味がない
+- **Serviceは他ドメインから注入される**（`GachaCostService` が `ItemService` を使うなど）。
+  呼び出し側でどのドメインのものか分かる必要がある
+
+`ListUseCase` のように別ドメインと同名になるものがあるが、namespaceが違うため問題ない。
+1つのクラスで両方を使う場合だけ `use ... as` で別名を付ける。
 
 ---
 
@@ -955,7 +974,7 @@ function findItem(int $sysPlayerId, string $mstItemId): ?TrxItem
 #### UseCase での使用
 
 ```php
-class UnitLevelUpUseCase
+class LevelUpUseCase
 {
     public function handle(
         int $sysPlayerId,      // ✅ sys_player.id
@@ -1595,8 +1614,8 @@ app/Domain/Auth/DTO/       // ❌ 単数形
 | 種類 | ディレクトリ | 命名規則 | 例 | 備考 |
 |-----|------------|---------|-----|------|
 | **DTO** | `DTOs/` | サフィックスなし | `DeliveryContent`, `AssetUpdate`, `Maintenance` | |
-| **Service** | `Services/` | `XXXService` | `DeliveryService`, `WalletService` | |
-| **UseCase** | `UseCases/` | `XXXUseCase` | `VersionCheckUseCase` | |
+| **Service** | `Services/` | `{ドメイン}{役割}Service` | `GachaCostService`, `PlayerLevelService` | ドメイン名を付ける |
+| **UseCase** | `UseCases/` | `{動作}UseCase` | `CheckUseCase`, `BuyDiamondUseCase` | ドメイン名は付けない |
 | **Handler** | `Handlers/` | `XXXHandler` | `ItemDeliveryHandler` | |
 | **Interface** | `Handlers/` | `XXXInterface` | `DeliveryHandlerInterface` | |
 | **Constants** | `Constants/` | `XXXConst` | `UnitConst`, `EquipmentConst`, `ItemConst`, `BillingConst`, `InAppPurchaseConst` | Modelに定数を定義しない |
@@ -1808,7 +1827,7 @@ app/Domain/Auth/
 ├── Services/
 │   └── VersionCheckService.php  # ← Serviceサフィックス
 └── UseCases/
-    └── VersionCheckUseCase.php  # ← UseCaseサフィックス
+    └── CheckUseCase.php  # ← UseCaseサフィックス
 
 app/Http/Responses/Auth/
 └── VersionResponse.php          # ← Responseサフィックス

@@ -261,16 +261,4 @@ class ResourceDeliveryService
 
         return array_unique($types);
     }
-
-    /**
-     * 配送前のコンテンツをプレビュー（変換後の状態で取得）
-     * チュートリアルガチャの引き直し機能などで使用
-     *
-     * @return CustomCollection<ResourceDeliveryContent>
-     */
-    public function getConvertedContentsWithoutSend(): CustomCollection
-    {
-        // TODO: 変換機能の実装が必要
-        return $this->deliveryManager->getPendingContents();
-    }
 }

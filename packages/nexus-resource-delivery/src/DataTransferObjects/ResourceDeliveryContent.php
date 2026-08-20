@@ -225,6 +225,12 @@ class ResourceDeliveryContent
     /**
      * コンテンツを変換（元のリソースを保存してから新しいリソースに置き換える）
      *
+     * このメソッドは変換の「器」だけを提供する。
+     * **何を何に、どのレートで変換するかはアプリ固有のゲーム仕様のため、
+     * Domain層（api/app/Domain/...）で判定してから呼ぶこと。**
+     * 例: 重複ユニットを欠片に変える、上限超過分をメールボックスに回す。
+     * パッケージ側に変換ルールを埋め込むと、他タイトルで再利用できなくなる。
+     *
      * @param  Resource  $newResource  新しいリソース
      * @param  ResourceDeliveryResultReason  $reason  変換理由
      */

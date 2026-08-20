@@ -2,7 +2,7 @@
 
 namespace App\Domain\InAppPurchase\UseCases;
 
-use App\Domain\InAppPurchase\Services\DiamondService;
+use App\Domain\InAppPurchase\Services\InAppPurchaseDiamondService;
 use App\Domain\InAppPurchase\Services\InAppPurchasePassService;
 use App\Domain\InAppPurchase\Services\InAppPurchaseValidationService;
 use App\Http\Responses\InAppPurchase\BuyResponse;
@@ -21,7 +21,7 @@ class InAppPurchaseBuyPassUseCase extends _BaseBuyUseCase
     public function __construct(
         InAppPurchaseValidationService $validationService,
         BillingFacade $billingFacade,
-        private readonly DiamondService $diamondService,
+        private readonly InAppPurchaseDiamondService $diamondService,
         private readonly InAppPurchasePassService $passService,
     ) {
         parent::__construct($validationService, $billingFacade);

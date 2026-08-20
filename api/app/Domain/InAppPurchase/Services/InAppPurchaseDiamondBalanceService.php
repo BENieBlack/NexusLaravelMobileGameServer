@@ -7,9 +7,9 @@ use App\Repositories\Trx\TrxDiamondBalanceRepository;
 use NexusBilling\Services\DiamondBalanceService as PackageDiamondBalanceService;
 
 /**
- * DiamondBalanceService (Domain層ラッパー)
+ * InAppPurchaseDiamondBalanceService (Domain層ラッパー)
  *
- * パッケージ層のDiamondBalanceServiceをラップ
+ * パッケージ層のInAppPurchaseDiamondBalanceServiceをラップ
  *
  * Design Pattern: Wrapper Pattern
  * - Package層: DTOベースのビジネスロジック
@@ -21,7 +21,7 @@ use NexusBilling\Services\DiamondBalanceService as PackageDiamondBalanceService;
  *
  * Note: コアのビジネスロジックはパッケージ層（NexusBilling\Services\DiamondBalanceService）に存在
  */
-class DiamondBalanceService
+class InAppPurchaseDiamondBalanceService
 {
     public function __construct(
         private readonly PackageDiamondBalanceService $packageDiamondBalanceService,

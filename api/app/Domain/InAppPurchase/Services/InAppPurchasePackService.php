@@ -19,7 +19,7 @@ use App\Repositories\Trx\TrxUnitRepository;
 class InAppPurchasePackService
 {
     public function __construct(
-        private readonly DiamondBalanceService $diamondBalanceService,
+        private readonly InAppPurchaseDiamondBalanceService $diamondBalanceService,
         private readonly ItemService $itemService,
         private readonly TrxUnitRepository $trxUnitRepository,
         private readonly TrxInAppPurchaseRepository $trxInAppPurchaseRepository,
@@ -63,7 +63,7 @@ class InAppPurchasePackService
         foreach ($contentCollection as $content) {
             switch ($content->getContentType()) {
                 case InAppPurchaseConst::CONTENT_TYPE_FREE_DIAMOND:
-                    // 無償ダイヤモンドを付与（DiamondBalanceServiceに委譲）
+                    // 無償ダイヤモンドを付与（InAppPurchaseDiamondBalanceServiceに委譲）
                     $this->diamondBalanceService->addDiamond($sysPlayerId, $platform, $content->getAmount(), isPaid: false);
                     $totalFreeDiamond += $content->getAmount();
                     $grantedContentArray[] = [

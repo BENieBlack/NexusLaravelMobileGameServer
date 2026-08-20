@@ -1,6 +1,6 @@
 <?php
 
-namespace LaravelWallet\Repositories;
+namespace NexusWallet\Repositories;
 
 /**
  * Wallet Repository Interface

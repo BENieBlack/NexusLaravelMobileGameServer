@@ -1,6 +1,6 @@
 <?php
 
-namespace LaravelWallet\Exceptions;
+namespace NexusWallet\Exceptions;
 
 /**
  * 無効な通貨例外

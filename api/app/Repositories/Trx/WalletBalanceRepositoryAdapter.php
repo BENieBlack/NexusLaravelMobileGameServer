@@ -3,8 +3,8 @@
 namespace App\Repositories\Trx;
 
 use App\Models\Trx\TrxWalletBalance;
-use LaravelWallet\Repositories\WalletBalanceRepositoryInterface;
 use Nexus\Core\Utilities\ClockUtility;
+use NexusWallet\Repositories\WalletBalanceRepositoryInterface;
 
 /**
  * WalletBalanceRepositoryAdapter

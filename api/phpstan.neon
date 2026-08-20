@@ -58,7 +58,6 @@ parameters:
             paths:
                 - ../packages/nexus-maintenance/src/Infrastructure/DynamoDB/*
                 - ../packages/nexus-maintenance/src/Infrastructure/TableStore/*
-                - ../packages/nexus-core-billing/src/ApiClients/GooglePlayApiClient.php
 
 rules:
     - App\PHPStan\Rules\NoDirectEloquentSaveInServiceRule

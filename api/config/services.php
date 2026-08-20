@@ -28,6 +28,22 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    /*
+    | アプリ内課金。認証情報が無いと購入検証が失敗する（既定値は設けない）
+    */
+
+    'google_play' => [
+        // アプリのパッケージ名（例: com.example.nexus）
+        'package_name' => env('GOOGLE_PLAY_PACKAGE_NAME'),
+        // サービスアカウントJSONのパス、またはJSON文字列そのもの
+        'service_account' => env('GOOGLE_PLAY_SERVICE_ACCOUNT'),
+    ],
+
+    'app_store' => [
+        // App Store Connect の共有シークレット（/verifyReceipt 用）
+        'shared_secret' => env('APP_STORE_SHARED_SECRET'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

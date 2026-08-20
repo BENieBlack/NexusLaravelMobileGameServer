@@ -9,6 +9,7 @@ use NexusBilling\DataTransferObjects\Receipt;
 use NexusBilling\ValueObjects\Subscription;
 use NexusBilling\DataTransferObjects\Verification;
 use NexusBilling\Exceptions\InvalidReceiptException;
+use NexusBilling\Exceptions\PlatformApiException;
 use Carbon\CarbonImmutable;
 
 /**
@@ -70,28 +71,30 @@ class AppStoreBillingService implements BillingPlatformInterface
 
     /**
      * {@inheritDoc}
+     *
+     * 未実装。レシート検証に使っている /verifyReceipt はレシート本体が必要で、
+     * transactionIdだけでは引けない。App Store Server API
+     * （ES256のJWT認証 + JWS署名付きレスポンスの検証）の実装が必要。
+     *
+     * 「期限切れ」を返すと未購読として扱われてしまうため、値を返さず失敗させる。
      */
-    public function fetchSubscriptionStatus(string $subscriptionId): Subscription
+    public function fetchSubscriptionStatus(string $subscriptionId, ?string $purchaseToken = null): Subscription
     {
-        // TODO: App Store Server API を使用した実装
-        // 現在は未実装
-        
-        return new Subscription(
-            isActive: false,
-            expiresAt: CarbonImmutable::now()->format('Y-m-d H:i:s'),
-            autoRenew: false,
-            state: BillingConst::SUBSCRIPTION_STATE_EXPIRED,
+        throw new PlatformApiException(
+            'Checking an App Store subscription requires the App Store Server API, which is not implemented yet'
         );
     }
 
     /**
      * {@inheritDoc}
+     *
+     * 未実装。falseを返すと「返金されていない」と誤って扱われ、
+     * 返金済みの購入に対して付与を続けてしまうため、値を返さず失敗させる。
      */
     public function isRefunded(string $transactionId): bool
     {
-        // TODO: レシート再検証またはApp Store Server APIで返金フラグをチェック
-        // 現在は常にfalseを返す
-        
-        return false;
+        throw new PlatformApiException(
+            'Refund lookup requires the App Store Server API, which is not implemented yet'
+        );
     }
 }

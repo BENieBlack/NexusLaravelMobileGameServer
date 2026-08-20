@@ -2,7 +2,7 @@
 
 namespace NexusResource\Tests\Unit\Services;
 
-use NexusResource\Services\ItemWriteService;
+use NexusResource\Services\ItemService;
 use NexusResource\Contracts\ItemRepositoryInterface;
 use NexusResource\DataTransferObjects\Item;
 use PHPUnit\Framework\Attributes\Test;
@@ -10,16 +10,16 @@ use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 
 /**
- * ItemWriteServiceのユニットテスト
+ * ItemServiceのユニットテスト
  * 
  * パッケージ層の純粋なビジネスロジックをテスト
  * - Modelに依存しない
  * - DTOのみを使用
  * - Repository InterfaceをMock化
  */
-class ItemWriteServiceTest extends TestCase
+class ItemServiceTest extends TestCase
 {
-    private ItemWriteService $itemWriteService;
+    private ItemService $itemService;
     private ItemRepositoryInterface|MockObject $mockRepository;
 
     protected function setUp(): void
@@ -29,8 +29,8 @@ class ItemWriteServiceTest extends TestCase
         // Repository InterfaceをMock化
         $this->mockRepository = $this->createMock(ItemRepositoryInterface::class);
         
-        // ItemWriteServiceをインスタンス化
-        $this->itemWriteService = new ItemWriteService($this->mockRepository);
+        // ItemServiceをインスタンス化
+        $this->itemService = new ItemService($this->mockRepository);
     }
 
     #[Test]
@@ -61,7 +61,7 @@ class ItemWriteServiceTest extends TestCase
             }));
 
         // Act
-        $result = $this->itemWriteService->addItem($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
+        $result = $this->itemService->addItem($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
 
         // Assert
         $this->assertInstanceOf(Item::class, $result);
@@ -101,7 +101,7 @@ class ItemWriteServiceTest extends TestCase
             }));
 
         // Act
-        $result = $this->itemWriteService->addItem($sysPlayerId, $mstItemId, $addFree, $addPaid);
+        $result = $this->itemService->addItem($sysPlayerId, $mstItemId, $addFree, $addPaid);
 
         // Assert
         $this->assertSame($existingFree + $addFree, $result->getFreeAmount());
@@ -136,7 +136,7 @@ class ItemWriteServiceTest extends TestCase
             }));
 
         // Act
-        $result = $this->itemWriteService->consumeItem($sysPlayerId, $mstItemId, $consumeAmount);
+        $result = $this->itemService->consumeItem($sysPlayerId, $mstItemId, $consumeAmount);
 
         // Assert
         $this->assertSame($freeAmount, $result->getFreeAmount());
@@ -170,7 +170,7 @@ class ItemWriteServiceTest extends TestCase
             }));
 
         // Act
-        $result = $this->itemWriteService->consumeItem($sysPlayerId, $mstItemId, $consumeAmount);
+        $result = $this->itemService->consumeItem($sysPlayerId, $mstItemId, $consumeAmount);
 
         // Assert
         $this->assertSame(70, $result->getFreeAmount()); // 100 - 30
@@ -194,7 +194,7 @@ class ItemWriteServiceTest extends TestCase
         $this->expectExceptionMessage('Item not found');
 
         // Act
-        $this->itemWriteService->consumeItem($sysPlayerId, $mstItemId, 10);
+        $this->itemService->consumeItem($sysPlayerId, $mstItemId, 10);
     }
 
     #[Test]
@@ -215,7 +215,7 @@ class ItemWriteServiceTest extends TestCase
         $this->expectExceptionMessage('Insufficient item amount');
 
         // Act
-        $this->itemWriteService->consumeItem($sysPlayerId, $mstItemId, 20); // 15より多い
+        $this->itemService->consumeItem($sysPlayerId, $mstItemId, 20); // 15より多い
     }
 
     #[Test]
@@ -246,7 +246,7 @@ class ItemWriteServiceTest extends TestCase
             }));
 
         // Act
-        $result = $this->itemWriteService->addItem($sysPlayerId, $mstItemId, $addFree, $addPaid);
+        $result = $this->itemService->addItem($sysPlayerId, $mstItemId, $addFree, $addPaid);
 
         // Assert
         $this->assertSame($existingFree + $addFree, $result->getFreeAmount());
@@ -279,7 +279,7 @@ class ItemWriteServiceTest extends TestCase
             }));
 
         // Act
-        $result = $this->itemWriteService->consumeItem($sysPlayerId, $mstItemId, $consumeAmount);
+        $result = $this->itemService->consumeItem($sysPlayerId, $mstItemId, $consumeAmount);
 
         // Assert
         $this->assertSame($freeAmount, $result->getFreeAmount());
@@ -312,7 +312,7 @@ class ItemWriteServiceTest extends TestCase
             }));
 
         // Act
-        $result = $this->itemWriteService->consumeItem($sysPlayerId, $mstItemId, $consumeAmount);
+        $result = $this->itemService->consumeItem($sysPlayerId, $mstItemId, $consumeAmount);
 
         // Assert
         $this->assertSame($freeAmount - $consumeAmount, $result->getFreeAmount());
@@ -345,7 +345,7 @@ class ItemWriteServiceTest extends TestCase
             }));
 
         // Act
-        $result = $this->itemWriteService->consumeItem($sysPlayerId, $mstItemId, $consumeAmount);
+        $result = $this->itemService->consumeItem($sysPlayerId, $mstItemId, $consumeAmount);
 
         // Assert
         $this->assertSame(0, $result->getFreeAmount());
@@ -377,7 +377,7 @@ class ItemWriteServiceTest extends TestCase
             }));
 
         // Act
-        $result = $this->itemWriteService->addItem($sysPlayerId, $mstItemId, 0, 0);
+        $result = $this->itemService->addItem($sysPlayerId, $mstItemId, 0, 0);
 
         // Assert
         $this->assertSame($freeAmount, $result->getFreeAmount());
@@ -405,10 +405,156 @@ class ItemWriteServiceTest extends TestCase
             }));
 
         // Act
-        $result = $this->itemWriteService->addItem($sysPlayerId, $mstItemId, 0, 0);
+        $result = $this->itemService->addItem($sysPlayerId, $mstItemId, 0, 0);
 
         // Assert
         $this->assertSame(0, $result->getFreeAmount());
         $this->assertSame(0, $result->getPaidAmount());
+    }
+
+    #[Test]
+    public function アイテムの所持数を取得できる(): void
+    {
+        // Arrange
+        $sysPlayerId = 1;
+        $mstItemId = 'item_potion_001';
+        $freeAmount = 100;
+        $paidAmount = 50;
+        $expectedTotal = 150;
+
+        $expectedItem = new Item($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
+
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('selectItem')
+            ->with($sysPlayerId, $mstItemId)
+            ->willReturn($expectedItem);
+
+        // Act
+        $result = $this->itemService->findItemAmount($sysPlayerId, $mstItemId);
+
+        // Assert
+        $this->assertSame($expectedTotal, $result);
+    }
+
+    #[Test]
+    public function 存在しないアイテムは0を返す(): void
+    {
+        // Arrange
+        $sysPlayerId = 1;
+        $mstItemId = 'item_nonexistent';
+
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('selectItem')
+            ->with($sysPlayerId, $mstItemId)
+            ->willReturn(null);
+
+        // Act
+        $result = $this->itemService->findItemAmount($sysPlayerId, $mstItemId);
+
+        // Assert
+        $this->assertSame(0, $result);
+    }
+
+    #[Test]
+    public function 複数アイテムの所持数を一括取得できる(): void
+    {
+        // Arrange
+        $sysPlayerId = 1;
+        $mstItemIds = ['item_potion_001', 'item_sword_001', 'item_shield_001'];
+        
+        $items = [
+            new Item($sysPlayerId, 'item_potion_001', 100, 50), // 合計150
+            new Item($sysPlayerId, 'item_sword_001', 5, 2),     // 合計7
+            new Item($sysPlayerId, 'item_shield_001', 3, 1),    // 合計4
+        ];
+
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('selectItemsByIds')
+            ->with($sysPlayerId, $mstItemIds)
+            ->willReturn($items);
+
+        // Act
+        $result = $this->itemService->findItemAmounts($sysPlayerId, $mstItemIds);
+
+        // Assert
+        $this->assertIsArray($result);
+        $this->assertCount(3, $result);
+        $this->assertSame(150, $result['item_potion_001']);
+        $this->assertSame(7, $result['item_sword_001']);
+        $this->assertSame(4, $result['item_shield_001']);
+    }
+
+    #[Test]
+    public function 存在しないアイテムを含む場合は0で補完される(): void
+    {
+        // Arrange
+        $sysPlayerId = 999;
+        $mstItemIds = ['item_potion_001', 'item_nonexistent'];
+        
+        $items = [
+            new Item($sysPlayerId, 'item_potion_001', 100, 50), // 合計150
+        ];
+
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('selectItemsByIds')
+            ->with($sysPlayerId, $mstItemIds)
+            ->willReturn($items);
+
+        // Act
+        $result = $this->itemService->findItemAmounts($sysPlayerId, $mstItemIds);
+
+        // Assert
+        $this->assertIsArray($result);
+        $this->assertCount(2, $result);
+        $this->assertSame(150, $result['item_potion_001']);
+        $this->assertSame(0, $result['item_nonexistent']);
+    }
+
+    #[Test]
+    public function 空配列を渡すと空配列が返る(): void
+    {
+        // Arrange
+        $sysPlayerId = 1;
+        $mstItemIds = [];
+
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('selectItemsByIds')
+            ->with($sysPlayerId, $mstItemIds)
+            ->willReturn([]);
+
+        // Act
+        $result = $this->itemService->findItemAmounts($sysPlayerId, $mstItemIds);
+
+        // Assert
+        $this->assertIsArray($result);
+        $this->assertEmpty($result);
+    }
+
+    #[Test]
+    public function 全て存在しないアイテムの場合は全て0で返る(): void
+    {
+        // Arrange
+        $sysPlayerId = 1;
+        $mstItemIds = ['item_a', 'item_b', 'item_c'];
+
+        $this->mockRepository
+            ->expects($this->once())
+            ->method('selectItemsByIds')
+            ->with($sysPlayerId, $mstItemIds)
+            ->willReturn([]); // 全て存在しない
+
+        // Act
+        $result = $this->itemService->findItemAmounts($sysPlayerId, $mstItemIds);
+
+        // Assert
+        $this->assertCount(3, $result);
+        $this->assertSame(0, $result['item_a']);
+        $this->assertSame(0, $result['item_b']);
+        $this->assertSame(0, $result['item_c']);
     }
 }

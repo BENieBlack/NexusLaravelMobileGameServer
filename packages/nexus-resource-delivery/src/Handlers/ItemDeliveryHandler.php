@@ -2,7 +2,7 @@
 
 namespace NexusResourceDelivery\Handlers;
 
-use App\Domain\Item\Services\ItemService;
+use NexusResource\Services\ItemService;
 use NexusResource\Enums\ResourceType;
 use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
 
@@ -10,7 +10,7 @@ use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
  * ItemDeliveryHandler
  *
  * アイテム配送処理を担当するHandler
- * ItemServiceを使用して、複合主キー (sys_player_id, mst_item_id) でアイテムを管理
+ * NexusResource\Services\ItemServiceを使用して、複合主キー (sys_player_id, mst_item_id) でアイテムを管理
  *
  * 対応リソース:
  * - ResourceType::ITEM

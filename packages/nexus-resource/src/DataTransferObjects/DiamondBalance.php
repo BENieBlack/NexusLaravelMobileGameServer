@@ -1,6 +1,6 @@
 <?php
 
-namespace NexusBilling\DataTransferObjects;
+namespace NexusResource\DataTransferObjects;
 
 /**
  * DiamondBalance
@@ -82,7 +82,7 @@ class DiamondBalance
     /**
      * 配列からDTOを生成
      *
-     * @param array $data
+     * @param array{sys_player_id: int, platform: string, paid_amount?: int, free_amount?: int} $data
      * @return self
      */
     public static function fromArray(array $data): self
@@ -98,7 +98,7 @@ class DiamondBalance
     /**
      * 配列に変換
      *
-     * @return array
+     * @return array{sys_player_id: int, platform: string, paid_amount: int, free_amount: int, total_amount: int}
      */
     public function toArray(): array
     {

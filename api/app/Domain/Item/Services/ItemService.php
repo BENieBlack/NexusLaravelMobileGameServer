@@ -3,8 +3,7 @@
 namespace App\Domain\Item\Services;
 
 use App\Models\Trx\TrxItem;
-use NexusResource\Services\ItemReadService as PackageItemReadService;
-use NexusResource\Services\ItemWriteService as PackageItemWriteService;
+use NexusResource\Services\ItemService as PackageItemService;
 
 /**
  * ItemService (Domain層ラッパー)
@@ -15,13 +14,12 @@ use NexusResource\Services\ItemWriteService as PackageItemWriteService;
  * - パッケージ層Serviceへの委譲
  * - Item(DTO) → TrxItem(Model) への変換
  *
- * Note: ビジネスロジックはパッケージ層（NexusResource\Services\Item*Service）に存在する。
+ * Note: ビジネスロジックはパッケージ層（NexusResource\Services\ItemService）に存在する。
  */
 class ItemService
 {
     public function __construct(
-        private readonly PackageItemReadService $packageItemReadService,
-        private readonly PackageItemWriteService $packageItemWriteService,
+        private readonly PackageItemService $packageItemService,
     ) {}
 
     /**
@@ -34,7 +32,7 @@ class ItemService
      */
     public function addItem(int $sysPlayerId, string $mstItemId, int $freeAmount = 0, int $paidAmount = 0): void
     {
-        $this->packageItemWriteService->addItem($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
+        $this->packageItemService->addItem($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
     }
 
     /**
@@ -50,7 +48,7 @@ class ItemService
      */
     public function consumeItem(int $sysPlayerId, string $mstItemId, int $amount): TrxItem
     {
-        $item = $this->packageItemWriteService->consumeItem($sysPlayerId, $mstItemId, $amount);
+        $item = $this->packageItemService->consumeItem($sysPlayerId, $mstItemId, $amount);
 
         // DTOからTrxItemを再取得（既存の利用箇所との互換性のため）
         // Note: 将来的にはDTOを直接返すようにリファクタリング推奨
@@ -80,6 +78,6 @@ class ItemService
      */
     public function findItemAmount(int $sysPlayerId, string $mstItemId): int
     {
-        return $this->packageItemReadService->findItemAmount($sysPlayerId, $mstItemId);
+        return $this->packageItemService->findItemAmount($sysPlayerId, $mstItemId);
     }
 }

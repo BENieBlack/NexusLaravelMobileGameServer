@@ -4,12 +4,12 @@ namespace App\Domain\InAppPurchase\Services;
 
 use App\Models\Trx\TrxDiamondBalance;
 use App\Repositories\Trx\TrxDiamondBalanceRepository;
-use NexusBilling\Services\DiamondBalanceService as PackageDiamondBalanceService;
+use NexusResource\Services\DiamondService as PackageDiamondService;
 
 /**
  * InAppPurchaseDiamondBalanceService (Domain層ラッパー)
  *
- * パッケージ層のInAppPurchaseDiamondBalanceServiceをラップ
+ * パッケージ層のDiamondServiceをラップ
  *
  * Design Pattern: Wrapper Pattern
  * - Package層: DTOベースのビジネスロジック
@@ -19,12 +19,12 @@ use NexusBilling\Services\DiamondBalanceService as PackageDiamondBalanceService;
  * - パッケージ層Serviceへの委譲
  * - 追加機能（FIFOバランスレコード作成）
  *
- * Note: コアのビジネスロジックはパッケージ層（NexusBilling\Services\DiamondBalanceService）に存在
+ * Note: コアのビジネスロジックはパッケージ層（NexusResource\Services\DiamondService）に存在
  */
 class InAppPurchaseDiamondBalanceService
 {
     public function __construct(
-        private readonly PackageDiamondBalanceService $packageDiamondBalanceService,
+        private readonly PackageDiamondService $packageDiamondService,
         private readonly TrxDiamondBalanceRepository $trxDiamondBalanceRepository,
     ) {}
 
@@ -38,7 +38,7 @@ class InAppPurchaseDiamondBalanceService
     public function findBalance(int $sysPlayerId, string $platform): array
     {
         // パッケージ層に委譲
-        return $this->packageDiamondBalanceService->findBalance($sysPlayerId, $platform);
+        return $this->packageDiamondService->findBalance($sysPlayerId, $platform);
     }
 
     /**
@@ -52,7 +52,7 @@ class InAppPurchaseDiamondBalanceService
     public function addDiamond(int $sysPlayerId, string $platform, int $amount, bool $isPaid = false): void
     {
         // パッケージ層に委譲
-        $this->packageDiamondBalanceService->addDiamond($sysPlayerId, $platform, $amount, $isPaid);
+        $this->packageDiamondService->addDiamond($sysPlayerId, $platform, $amount, $isPaid);
     }
 
     /**
@@ -74,7 +74,7 @@ class InAppPurchaseDiamondBalanceService
         float $unitPrice
     ): void {
         // ダイヤモンド残高を加算（パッケージ層に委譲）
-        $this->packageDiamondBalanceService->addDiamond($sysPlayerId, $platform, $amount, isPaid: true);
+        $this->packageDiamondService->addDiamond($sysPlayerId, $platform, $amount, isPaid: true);
 
         // FIFO用のバランスレコードを作成（Domain層の追加機能）
         $balance = new TrxDiamondBalance([
@@ -100,6 +100,6 @@ class InAppPurchaseDiamondBalanceService
     public function consumeDiamond(int $sysPlayerId, int $amount, bool $isPaidOnly = false): void
     {
         // パッケージ層に委譲
-        $this->packageDiamondBalanceService->consumeDiamond($sysPlayerId, $amount, $isPaidOnly);
+        $this->packageDiamondService->consumeDiamond($sysPlayerId, $amount, $isPaidOnly);
     }
 }

@@ -1,12 +1,12 @@
 <?php
 
-namespace NexusBilling\Services;
+namespace NexusResource\Services;
 
-use NexusBilling\Contracts\DiamondRepositoryInterface;
-use NexusBilling\DataTransferObjects\DiamondBalance;
+use NexusResource\Contracts\DiamondRepositoryInterface;
+use NexusResource\DataTransferObjects\DiamondBalance;
 
 /**
- * DiamondBalanceService（パッケージ層）
+ * DiamondService（パッケージ層）
  * 
  * ダイヤモンド残高の管理を担当するサービス
  * 
@@ -24,7 +24,7 @@ use NexusBilling\DataTransferObjects\DiamondBalance;
  * - デフォルト: 無償ダイヤ → 有償ダイヤ
  * - isPaidOnly=true: 有償ダイヤのみ
  */
-class DiamondBalanceService
+class DiamondService
 {
     public function __construct(
         private readonly DiamondRepositoryInterface $diamondRepository,

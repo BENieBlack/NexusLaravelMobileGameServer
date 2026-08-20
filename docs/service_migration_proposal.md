@@ -71,8 +71,8 @@
 
 ```
 packages/nexus-resource/src/Services/
-  ├── ItemReadService.php    # DTOベースの読み取りロジック
-  └── ItemWriteService.php   # DTOベースの書き込みロジック（有償優先消費・残高チェック）
+  ├── ItemService.php        # アイテム残高（取得・加算・有償優先消費）
+  └── DiamondService.php     # ダイヤ残高（取得・加算・無償→有償消費）
 
 api/app/Domain/Item/Services/
   └── ItemService.php        # ラッパー：パッケージへの委譲 + DTO → TrxItem 変換
@@ -102,8 +102,11 @@ api/app/Domain/Item/Services/
 4. **委譲が4段になっていた** — UseCase → ItemService → Item{Read,Write}Service →
    パッケージService → Repository
 
-**パッケージ層の分割は維持する。** パッケージ側は他アプリ（CLI/Job/管理画面）から
-読み取りだけを使う場合があり、依存を絞れる意味がある。
+##### パッケージ層のRead/Write分割も取りやめた（2026-08-20）
+
+当初は「他アプリから読み取りだけを使うなら依存を絞れる」としてパッケージ側の分割を残したが、
+`ItemReadService` / `ItemWriteService` はどちらも同じ `ItemRepositoryInterface` を要求するため、
+分けても絞れる依存が無かった。`NexusResource\Services\ItemService` に統合した。
 
 ##### Domain層にクラスを作る基準
 
@@ -127,9 +130,27 @@ api/app/Domain/Item/Services/
 **コミット:** f7c9c83
 
 **移行後の構造:**
-- パッケージ層: `nexus-core-billing/src/Services/DiamondBalanceService.php` - DTOベースのビジネスロジック
+- パッケージ層: `nexus-resource/src/Services/DiamondService.php` - DTOベースのビジネスロジック
 - Domain層: `api/app/Domain/InAppPurchase/Services/InAppPurchaseDiamondBalanceService.php` - Wrapperパターン + FIFO管理追加機能
-- Repository実装: `api/app/Repositories/Trx/DiamondRepositoryImpl.php`
+- Repository実装: `api/app/Repositories/Trx/DiamondRepositoryAdapter.php`
+
+##### ダイヤの残高ロジックはnexus-resourceへ移した（2026-08-20）
+
+当初は `nexus-core-billing` に置いていたが、`nexus-resource` へ移設した。
+
+1. **ダイヤは課金専用ではない** — ガチャ消費（`GachaCostService`）・報酬配布（`DiamondDeliveryHandler`）
+   からも増減する。`nexus-resource` の `ResourceType` には元から `DIAMOND` / `PAID_DIAMOND` があった
+2. **月次集計の大元をライブラリ側に置く** — 残高の加減算が1箇所に集まるため、集計・突合の起点が明確になる
+3. **パッケージ→アプリの逆依存が消えた** — `nexus-resource-delivery` の
+   `DiamondDeliveryHandler` / `ItemDeliveryHandler` が `App\Domain\...` をimportしていたが、
+   パッケージ層のServiceを直接使う形になった
+
+移設したもの: `Services/DiamondService`（旧 `DiamondBalanceService`）、
+`Contracts/DiamondRepositoryInterface`、`DataTransferObjects/DiamondBalance`。
+
+**課金固有の処理は `nexus-core-billing` に残す** — レシート検証（`AppStore` / `GooglePlay`）、
+購入制限、冪等性チェック。FIFO用の `trx_diamond_balance` レコード作成（単価・返金計算に使う）は
+Eloquentに依存するためDomain層の `addPaidDiamondWithBalance()` に残している。
 
 **移行したビジネスロジック:**
 - ✅ 無償→有償消費ロジック（consumeFreeThenPaidDiamond）

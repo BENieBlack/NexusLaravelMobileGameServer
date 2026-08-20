@@ -1,8 +1,8 @@
 <?php
 
-namespace NexusBilling\Contracts;
+namespace NexusResource\Contracts;
 
-use NexusBilling\DataTransferObjects\DiamondBalance;
+use NexusResource\DataTransferObjects\DiamondBalance;
 
 /**
  * DiamondRepositoryInterface

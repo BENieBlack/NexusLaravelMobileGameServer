@@ -28,11 +28,8 @@ Domain/Gacha/Services/GachaValidationService.php
 Domain/InAppPurchase/Services/InAppPurchaseDiamondService.php
 Domain/InAppPurchase/Services/InAppPurchaseHistoryService.php
 
-Domain/Item/Services/ItemReadService.php
-Domain/Item/Services/ItemWriteService.php
-
-Domain/Wallet/Services/WalletReadService.php
-Domain/Wallet/Services/WalletWriteService.php
+Domain/Item/Services/ItemService.php
+Domain/Stamina/Services/StaminaService.php
 ```
 
 **Bad Examples:**

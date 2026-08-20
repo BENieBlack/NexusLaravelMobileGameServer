@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Domain\Gacha\UseCases\GachaDrawUseCase;
+use App\Domain\Gacha\UseCases\DrawUseCase;
 use App\Http\Requests\Gacha\DrawRequest;
 use App\Persistence\ApiSession;
 use Illuminate\Http\JsonResponse;
@@ -15,7 +15,7 @@ use Illuminate\Http\JsonResponse;
 class GachaController extends _BaseController
 {
     public function __construct(
-        private readonly GachaDrawUseCase $drawUseCase,
+        private readonly DrawUseCase $drawUseCase,
         private readonly ApiSession $apiSession,
     ) {}
 

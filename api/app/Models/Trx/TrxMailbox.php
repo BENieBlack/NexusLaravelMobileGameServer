@@ -19,13 +19,13 @@ use Nexus\Core\Utilities\ClockUtility;
  * @property bool $is_received
  * @property bool $is_delete
  * @property bool $is_protected
- * @property Carbon|null $expires_at
- * @property Carbon|null $read_at
- * @property Carbon|null $received_at
+ * @property ?string $expires_at
+ * @property ?string $read_at
+ * @property ?string $received_at
  * @property string|null $sender_name
  * @property array|null $custom_params
- * @property Carbon $created_at
- * @property Carbon $updated_at
+ * @property string $created_at
+ * @property string $updated_at
  */
 class TrxMailbox extends _BaseTrx
 {

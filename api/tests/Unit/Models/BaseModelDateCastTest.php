@@ -86,6 +86,34 @@ class BaseModelDateCastTest extends TestCase
     }
 
     /**
+     * created_at / updated_at がCarbonに自動キャストされないことを確認
+     *
+     * Eloquentは $timestamps = true のとき、$castsの指定に関係なく
+     * この2つをCarbonへ変換する。_BaseModel::getDates() を空にして無効化している。
+     */
+    public function test_timestamps_are_not_cast_to_carbon(): void
+    {
+        $model = new SysMaintenance;
+        $model->setRawAttributes([
+            'created_at' => '2026-01-01 00:00:00',
+            'updated_at' => '2026-01-02 00:00:00',
+        ]);
+
+        $this->assertIsString($model->created_at);
+        $this->assertIsString($model->updated_at);
+        $this->assertSame('2026-01-01 00:00:00', $model->created_at);
+        $this->assertSame('2026-01-02 00:00:00', $model->updated_at);
+    }
+
+    /**
+     * タイムスタンプの自動設定自体は有効なままであることを確認
+     */
+    public function test_timestamps_are_still_enabled(): void
+    {
+        $this->assertTrue((new SysMaintenance)->usesTimestamps());
+    }
+
+    /**
      * DB取得時の属性がstring型のままであることを確認（パフォーマンス最適化）
      */
     public function test_attributes_stored_as_string(): void

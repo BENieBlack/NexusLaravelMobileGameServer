@@ -173,12 +173,17 @@ abstract class _BaseModel extends Model implements _BaseModelInterface
     /**
      * Eloquentのデフォルトタイムスタンプ自動キャストを無効化
      *
-     * @return bool
+     * Eloquentは $timestamps = true のとき created_at / updated_at を
+     * $casts の指定に関係なくCarbonへ変換する（HasAttributes::isDateAttribute()）。
+     * 日時は文字列のまま扱う方針のため、変換対象を空にして無効化する。
+     *
+     * タイムスタンプの自動設定（$timestamps）自体は有効なまま。
+     *
+     * @return array<int, string|null>
      */
-    public function usesTimestamps()
+    public function getDates()
     {
-        // タイムスタンプ機能自体は有効だが、Carbonへの自動キャストは行わない
-        return parent::usesTimestamps();
+        return [];
     }
 
     /**

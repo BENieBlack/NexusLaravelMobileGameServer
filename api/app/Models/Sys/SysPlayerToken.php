@@ -2,7 +2,6 @@
 
 namespace App\Models\Sys;
 
-use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Nexus\Core\Utilities\ClockUtility;
@@ -18,10 +17,10 @@ use NexusAuth\Contracts\TokenModelInterface;
  * @property int $sys_player_id
  * @property int $sys_player_device_id
  * @property string $refresh_token_hash
- * @property CarbonImmutable $expires_at
- * @property CarbonImmutable|null $revoked_at
- * @property CarbonImmutable $created_at
- * @property CarbonImmutable $updated_at
+ * @property string $expires_at
+ * @property ?string $revoked_at
+ * @property string $created_at
+ * @property string $updated_at
  * @property-read SysPlayer $player
  * @property-read SysPlayerDevice $device
  */

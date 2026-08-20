@@ -107,7 +107,7 @@ class SysDeployMaster extends _BaseSys
     /**
      * deploy_dateを取得
      */
-    public function getDeployDate(): ?\DateTime
+    public function getDeployDate(): ?string
     {
         return $this->getAttribute('deploy_date');
     }
@@ -171,7 +171,7 @@ class SysDeployMaster extends _BaseSys
     /**
      * deployed_atを取得
      */
-    public function getDeployedAt(): ?\DateTime
+    public function getDeployedAt(): ?string
     {
         return $this->getAttribute('deployed_at');
     }

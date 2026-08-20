@@ -1687,38 +1687,8 @@ parameters:
 			path: app/Models/Log/LogInAppPurchase.php
 
 		-
-			message: '#^Call to function is_array\(\) with string will always evaluate to false\.$#'
-			identifier: function.impossibleType
-			count: 1
-			path: app/Models/Mst/MstEquipmentLevel.php
-
-		-
 			message: '#^Method App\\Models\\Mst\\MstEquipmentLevel\:\:selectAllLevelsByRarity\(\) return type with generic class Illuminate\\Database\\Eloquent\\Collection does not specify its types\: TKey, TModel$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/Mst/MstEquipmentLevel.php
-
-		-
-			message: '#^Method App\\Models\\Mst\\MstEquipmentLevel\:\:setKeysForSaveQuery\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Mst/MstEquipmentLevel.php
-
-		-
-			message: '#^Method App\\Models\\Mst\\MstEquipmentLevel\:\:setKeysForSaveQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Mst/MstEquipmentLevel.php
-
-		-
-			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\Mst\\MstEquipmentLevel\:\:\$primaryKey is not covariant with PHPDoc type string of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$primaryKey\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: app/Models/Mst/MstEquipmentLevel.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
 			count: 1
 			path: app/Models/Mst/MstEquipmentLevel.php
 
@@ -1747,38 +1717,8 @@ parameters:
 			path: app/Models/Mst/MstInAppPurchaseContent.php
 
 		-
-			message: '#^Call to function is_array\(\) with string will always evaluate to false\.$#'
-			identifier: function.impossibleType
-			count: 1
-			path: app/Models/Mst/MstLoginBonusContent.php
-
-		-
 			message: '#^Method App\\Models\\Mst\\MstLoginBonusContent\:\:getContentOption\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Mst/MstLoginBonusContent.php
-
-		-
-			message: '#^Method App\\Models\\Mst\\MstLoginBonusContent\:\:setKeysForSaveQuery\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Mst/MstLoginBonusContent.php
-
-		-
-			message: '#^Method App\\Models\\Mst\\MstLoginBonusContent\:\:setKeysForSaveQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Mst/MstLoginBonusContent.php
-
-		-
-			message: '#^Property App\\Models\\Mst\\MstLoginBonusContent\:\:\$primaryKey \(string\) does not accept default value of type array\<int, string\>\.$#'
-			identifier: property.defaultValue
-			count: 1
-			path: app/Models/Mst/MstLoginBonusContent.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
 			count: 1
 			path: app/Models/Mst/MstLoginBonusContent.php
 
@@ -1823,36 +1763,6 @@ parameters:
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/Mst/MstPlayerLevel.php
-
-		-
-			message: '#^Call to function is_array\(\) with string will always evaluate to false\.$#'
-			identifier: function.impossibleType
-			count: 1
-			path: app/Models/Mst/MstUnitLevel.php
-
-		-
-			message: '#^Method App\\Models\\Mst\\MstUnitLevel\:\:setKeysForSaveQuery\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Mst/MstUnitLevel.php
-
-		-
-			message: '#^Method App\\Models\\Mst\\MstUnitLevel\:\:setKeysForSaveQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Mst/MstUnitLevel.php
-
-		-
-			message: '#^Property App\\Models\\Mst\\MstUnitLevel\:\:\$primaryKey \(string\) does not accept default value of type array\<int, string\>\.$#'
-			identifier: property.defaultValue
-			count: 1
-			path: app/Models/Mst/MstUnitLevel.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 1
-			path: app/Models/Mst/MstUnitLevel.php
 
 		-
 			message: '#^Method App\\Models\\Mst\\MstVipLoginBonus\:\:scopeActive\(\) has no return type specified\.$#'
@@ -1999,12 +1909,6 @@ parameters:
 			path: app/Models/Sys/SysPlayerToken.php
 
 		-
-			message: '#^Property App\\Models\\Sys\\SysPlayerToken\:\:\$revoked_at \(Carbon\\CarbonImmutable\|null\) does not accept Illuminate\\Support\\Carbon\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: app/Models/Sys/SysPlayerToken.php
-
-		-
 			message: '#^Method App\\Models\\Sys\\SysSharding\:\:activeNodes\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
 			identifier: missingType.generics
 			count: 1
@@ -2035,70 +1939,10 @@ parameters:
 			path: app/Models/Sys/SysShardingNode.php
 
 		-
-			message: '#^Call to function is_array\(\) with string will always evaluate to false\.$#'
-			identifier: function.impossibleType
-			count: 1
-			path: app/Models/Trx/TrxDiamond.php
-
-		-
-			message: '#^Method App\\Models\\Trx\\TrxDiamond\:\:setKeysForSaveQuery\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Trx/TrxDiamond.php
-
-		-
-			message: '#^Method App\\Models\\Trx\\TrxDiamond\:\:setKeysForSaveQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Trx/TrxDiamond.php
-
-		-
-			message: '#^Property App\\Models\\Trx\\TrxDiamond\:\:\$primaryKey \(string\) does not accept default value of type array\<int, string\>\.$#'
-			identifier: property.defaultValue
-			count: 1
-			path: app/Models/Trx/TrxDiamond.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 1
-			path: app/Models/Trx/TrxDiamond.php
-
-		-
 			message: '#^Class App\\Models\\Trx\\TrxGachaHistory has PHPDoc tag @property for property \$prizes with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Models/Trx/TrxGachaHistory.php
-
-		-
-			message: '#^Call to function is_array\(\) with string will always evaluate to false\.$#'
-			identifier: function.impossibleType
-			count: 1
-			path: app/Models/Trx/TrxInAppPurchase.php
-
-		-
-			message: '#^Method App\\Models\\Trx\\TrxInAppPurchase\:\:setKeysForSaveQuery\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Trx/TrxInAppPurchase.php
-
-		-
-			message: '#^Method App\\Models\\Trx\\TrxInAppPurchase\:\:setKeysForSaveQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Trx/TrxInAppPurchase.php
-
-		-
-			message: '#^Property App\\Models\\Trx\\TrxInAppPurchase\:\:\$primaryKey \(string\) does not accept default value of type array\<int, string\>\.$#'
-			identifier: property.defaultValue
-			count: 1
-			path: app/Models/Trx/TrxInAppPurchase.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 1
-			path: app/Models/Trx/TrxInAppPurchase.php
 
 		-
 			message: '#^Parameter \#2 \$foreignKey of method Illuminate\\Database\\Eloquent\\Model\:\:belongsTo\(\) expects string\|null, array\<int, string\> given\.$#'
@@ -2111,42 +1955,6 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: app/Models/Trx/TrxInAppPurchaseEffect.php
-
-		-
-			message: '#^Call to function is_array\(\) with string will always evaluate to false\.$#'
-			identifier: function.impossibleType
-			count: 1
-			path: app/Models/Trx/TrxItem.php
-
-		-
-			message: '#^Method App\\Models\\Trx\\TrxItem\:\:setKeysForSaveQuery\(\) should return \$this\(App\\Models\\Trx\\TrxItem\) but returns Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Trx\\_BaseTrx\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/Trx/TrxItem.php
-
-		-
-			message: '#^PHPDoc tag @param references unknown parameter\: \$ids$#'
-			identifier: parameter.notFound
-			count: 1
-			path: app/Models/Trx/TrxItem.php
-
-		-
-			message: '#^Property App\\Models\\Trx\\TrxItem\:\:\$primaryKey \(string\) does not accept default value of type array\<int, string\>\.$#'
-			identifier: property.defaultValue
-			count: 1
-			path: app/Models/Trx/TrxItem.php
-
-		-
-			message: '#^Return type \(\$this\(App\\Models\\Trx\\TrxItem\)\) of method App\\Models\\Trx\\TrxItem\:\:setKeysForSaveQuery\(\) should be compatible with return type \(Illuminate\\Database\\Eloquent\\Builder\<static\(Illuminate\\Database\\Eloquent\\Model\)\>\) of method Illuminate\\Database\\Eloquent\\Model\:\:setKeysForSaveQuery\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: app/Models/Trx/TrxItem.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 1
-			path: app/Models/Trx/TrxItem.php
 
 		-
 			message: '#^Class App\\Models\\Trx\\TrxMailbox has PHPDoc tag @property for property \$custom_params with no value type specified in iterable type array\.$#'
@@ -2167,44 +1975,8 @@ parameters:
 			path: app/Models/Trx/TrxMailbox.php
 
 		-
-			message: '#^Call to function is_array\(\) with string will always evaluate to false\.$#'
-			identifier: function.impossibleType
-			count: 1
-			path: app/Models/Trx/TrxPlayerSns.php
-
-		-
 			message: '#^Method App\\Models\\Trx\\TrxPlayerSns\:\:availableTypes\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Trx/TrxPlayerSns.php
-
-		-
-			message: '#^Method App\\Models\\Trx\\TrxPlayerSns\:\:setKeysForSaveQuery\(\) should return \$this\(App\\Models\\Trx\\TrxPlayerSns\) but returns Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Trx\\_BaseTrx\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/Trx/TrxPlayerSns.php
-
-		-
-			message: '#^PHPDoc tag @param references unknown parameter\: \$ids$#'
-			identifier: parameter.notFound
-			count: 1
-			path: app/Models/Trx/TrxPlayerSns.php
-
-		-
-			message: '#^Property App\\Models\\Trx\\TrxPlayerSns\:\:\$primaryKey \(string\) does not accept default value of type array\<int, string\>\.$#'
-			identifier: property.defaultValue
-			count: 1
-			path: app/Models/Trx/TrxPlayerSns.php
-
-		-
-			message: '#^Return type \(\$this\(App\\Models\\Trx\\TrxPlayerSns\)\) of method App\\Models\\Trx\\TrxPlayerSns\:\:setKeysForSaveQuery\(\) should be compatible with return type \(Illuminate\\Database\\Eloquent\\Builder\<static\(Illuminate\\Database\\Eloquent\\Model\)\>\) of method Illuminate\\Database\\Eloquent\\Model\:\:setKeysForSaveQuery\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: app/Models/Trx/TrxPlayerSns.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
 			count: 1
 			path: app/Models/Trx/TrxPlayerSns.php
 
@@ -2219,36 +1991,6 @@ parameters:
 			identifier: property.defaultValue
 			count: 1
 			path: app/Models/Trx/TrxStamina.php
-
-		-
-			message: '#^Call to function is_array\(\) with string will always evaluate to false\.$#'
-			identifier: function.impossibleType
-			count: 1
-			path: app/Models/Trx/TrxWallet.php
-
-		-
-			message: '#^Method App\\Models\\Trx\\TrxWallet\:\:setKeysForSaveQuery\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Trx/TrxWallet.php
-
-		-
-			message: '#^Method App\\Models\\Trx\\TrxWallet\:\:setKeysForSaveQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Trx/TrxWallet.php
-
-		-
-			message: '#^Property App\\Models\\Trx\\TrxWallet\:\:\$primaryKey \(string\) does not accept default value of type array\<int, string\>\.$#'
-			identifier: property.defaultValue
-			count: 1
-			path: app/Models/Trx/TrxWallet.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 1
-			path: app/Models/Trx/TrxWallet.php
 
 		-
 			message: '#^Method App\\Repositories\\Log\\LogAccessRepository\:\:insertAccessLog\(\) has parameter \$requestBody with no value type specified in iterable type array\.$#'
@@ -2323,7 +2065,7 @@ parameters:
 			path: app/Repositories/Log/LogVipPointRepository.php
 
 		-
-			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,Nexus\\Core\\Models\\Log\\_BaseLogInterface\>\:\:map\(\) expects callable\(Nexus\\Core\\Models\\Log\\_BaseLogInterface, int\)\: array\{id\: int, before_vip_level\: int, after_vip_level\: int, before_vip_point\: int, after_vip_point\: int, point_diff\: int, reason\: string, purchase_amount\: float\|null, currency_code\: string\|null, mst_in_app_purchase_id\: string\|null, system_at\: non\-falsy\-string\}, Closure\(App\\Models\\Log\\LogVipPoint\)\: array\{id\: int, before_vip_level\: int, after_vip_level\: int, before_vip_point\: int, after_vip_point\: int, point_diff\: int, reason\: string, purchase_amount\: float\|null, currency_code\: string\|null, mst_in_app_purchase_id\: string\|null, system_at\: non\-falsy\-string\} given\.$#'
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,Nexus\\Core\\Models\\Log\\_BaseLogInterface\>\:\:map\(\) expects callable\(Nexus\\Core\\Models\\Log\\_BaseLogInterface, int\)\: array\{id\: int, before_vip_level\: int, after_vip_level\: int, before_vip_point\: int, after_vip_point\: int, point_diff\: int, reason\: string, purchase_amount\: float\|null, currency_code\: string\|null, mst_in_app_purchase_id\: string\|null, system_at\: string\}, Closure\(App\\Models\\Log\\LogVipPoint\)\: array\{id\: int, before_vip_level\: int, after_vip_level\: int, before_vip_point\: int, after_vip_point\: int, point_diff\: int, reason\: string, purchase_amount\: float\|null, currency_code\: string\|null, mst_in_app_purchase_id\: string\|null, system_at\: string\} given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Repositories/Log/LogVipPointRepository.php
@@ -2753,12 +2495,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Repositories/Trx/LoginBonusHistoryRepositoryAdapter.php
-
-		-
-			message: '#^Property App\\Models\\Trx\\TrxStamina\:\:\$last_recovery_at \(Carbon\\CarbonImmutable\) does not accept string\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: app/Repositories/Trx/StaminaRepositoryAdapter.php
 
 		-
 			message: '#^Method App\\Repositories\\Trx\\TrxDiamondRepository\:\:selectByPlayerId\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'

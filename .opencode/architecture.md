@@ -1711,8 +1711,7 @@ class SysDeploy extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
-        'start_at' => 'immutable_datetime',
-        'end_at' => 'immutable_datetime',
+        // 日時はキャストしない（stringのまま扱う）
     ];
 
     // リレーション定義

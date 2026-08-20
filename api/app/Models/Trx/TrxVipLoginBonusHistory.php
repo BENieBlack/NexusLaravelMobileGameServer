@@ -2,7 +2,6 @@
 
 namespace App\Models\Trx;
 
-use Carbon\CarbonImmutable;
 use Nexus\Core\Models\Trx\_BaseTrx;
 
 /**
@@ -16,8 +15,8 @@ use Nexus\Core\Models\Trx\_BaseTrx;
  * @property int $day 受け取った日数
  * @property int $vip_level 受け取り時のVIPレベル
  * @property string $received_at 受け取り日時（UTC）
- * @property CarbonImmutable $created_at
- * @property CarbonImmutable $updated_at
+ * @property string $created_at
+ * @property string $updated_at
  */
 class TrxVipLoginBonusHistory extends _BaseTrx
 {

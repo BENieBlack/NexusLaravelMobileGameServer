@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\UseCases\Player;
 
-use App\Domain\Player\UseCases\PlayerMeUseCase;
+use App\Domain\Player\UseCases\MeUseCase;
 use App\Exceptions\SystemDataException;
 use App\Http\Responses\Player\MeResponse;
 use App\Models\Sys\SysPlayer;
@@ -15,7 +15,7 @@ class MeUseCaseTest extends TestCase
 {
     use RefreshMultipleDatabases;
 
-    private PlayerMeUseCase $useCase;
+    private MeUseCase $useCase;
 
     private SysPlayerRepository $playerRepository;
 
@@ -37,7 +37,7 @@ class MeUseCaseTest extends TestCase
         $this->playerRepository = new SysPlayerRepository(new SysPlayer);
 
         // UseCaseを作成
-        $this->useCase = new PlayerMeUseCase($this->playerRepository);
+        $this->useCase = new MeUseCase($this->playerRepository);
 
         // Suppress log output during tests
         Log::spy();

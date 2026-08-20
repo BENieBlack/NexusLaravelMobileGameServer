@@ -172,7 +172,7 @@ class DeliveryContentData { }  // 冗長
 
 ```php
 // ✅ Good: 10行以内
-public function version(VersionCheckRequest $request, VersionCheckUseCase $useCase): JsonResponse
+public function version(VersionCheckRequest $request, CheckUseCase $useCase): JsonResponse
 {
     $response = $useCase->handle($request);
     return $response->toJsonResponse();

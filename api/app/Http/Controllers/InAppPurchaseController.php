@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Domain\InAppPurchase\UseCases\InAppPurchaseBuyDiamondUseCase;
-use App\Domain\InAppPurchase\UseCases\InAppPurchaseBuyPackUseCase;
-use App\Domain\InAppPurchase\UseCases\InAppPurchaseBuyPassUseCase;
+use App\Domain\InAppPurchase\UseCases\BuyDiamondUseCase;
+use App\Domain\InAppPurchase\UseCases\BuyPackUseCase;
+use App\Domain\InAppPurchase\UseCases\BuyPassUseCase;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Http\Requests\InAppPurchase\BuyRequest;
@@ -24,9 +24,9 @@ class InAppPurchaseController extends _BaseController
      */
     public function buy(
         BuyRequest $request,
-        InAppPurchaseBuyDiamondUseCase $buyDiamondUseCase,
-        InAppPurchaseBuyPackUseCase $buyPackUseCase,
-        InAppPurchaseBuyPassUseCase $buyPassUseCase
+        BuyDiamondUseCase $buyDiamondUseCase,
+        BuyPackUseCase $buyPackUseCase,
+        BuyPassUseCase $buyPassUseCase
     ): JsonResponse {
         // 認証情報を取得
         $sysPlayerId = $request->resolveAuthenticatedPlayerId();

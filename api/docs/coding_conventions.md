@@ -597,7 +597,7 @@ Route::middleware('auth.token')->group(function () {
 
 ```php
 // 標準Requestを使用する例
-public function getPlayerMe(Request $request, GetPlayerMeUseCase $useCase): JsonResponse
+public function getPlayerMe(Request $request, GetMeUseCase $useCase): JsonResponse
 {
     $response = $useCase->handle($request);
     return $response->toJsonResponse();

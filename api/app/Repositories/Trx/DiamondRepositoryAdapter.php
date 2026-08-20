@@ -4,8 +4,8 @@ namespace App\Repositories\Trx;
 
 use App\Adapters\Billing\DiamondBalanceAdapter;
 use App\Models\Trx\TrxDiamond;
-use NexusBilling\Contracts\DiamondRepositoryInterface;
-use NexusBilling\DataTransferObjects\DiamondBalance;
+use NexusResource\Contracts\DiamondRepositoryInterface;
+use NexusResource\DataTransferObjects\DiamondBalance;
 
 /**
  * DiamondRepositoryAdapter

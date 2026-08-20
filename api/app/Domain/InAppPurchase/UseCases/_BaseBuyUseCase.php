@@ -200,6 +200,27 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
     }
 
     /**
+     * 購入価格を解決する（通貨単位）
+     *
+     * trx_diamond_balance.unit_price に入れる返金計算用の金額。
+     *
+     * @param  Verification  $verification  レシート検証結果
+     * @param  MstInAppPurchase  $mstInAppPurchase  商品マスター
+     * @param  string  $billingPlatform  決済プラットフォーム
+     */
+    protected function resolvePurchasePrice(
+        Verification $verification,
+        MstInAppPurchase $mstInAppPurchase,
+        string $billingPlatform
+    ): float {
+        return $this->validationService->resolvePurchasePrice(
+            $verification,
+            $mstInAppPurchase,
+            $billingPlatform
+        );
+    }
+
+    /**
      * 購入処理を実行（サブクラスで実装）
      *
      * トランザクション内で実行される商品タイプ固有の処理

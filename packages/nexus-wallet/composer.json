@@ -22,18 +22,18 @@
     },
     "autoload": {
         "psr-4": {
-            "LaravelWallet\\": "src/"
+            "NexusWallet\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "LaravelWallet\\Tests\\": "tests/"
+            "NexusWallet\\Tests\\": "tests/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "LaravelWallet\\WalletServiceProvider"
+                "NexusWallet\\WalletServiceProvider"
             ]
         }
     },

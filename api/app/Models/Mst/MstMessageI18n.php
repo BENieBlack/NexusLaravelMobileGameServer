@@ -2,7 +2,6 @@
 
 namespace App\Models\Mst;
 
-use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
@@ -13,8 +12,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $language
  * @property string $title
  * @property string $body
- * @property CarbonImmutable $created_at
- * @property CarbonImmutable $updated_at
+ * @property string $created_at
+ * @property string $updated_at
  */
 class MstMessageI18n extends _BaseMst
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace LaravelWallet\ValueObjects;
+namespace NexusWallet\ValueObjects;
 
 use Nexus\Core\Traits\JsonSerializableTrait;
 

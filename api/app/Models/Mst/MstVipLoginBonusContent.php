@@ -2,7 +2,6 @@
 
 namespace App\Models\Mst;
 
-use Carbon\CarbonImmutable;
 use Nexus\Core\Models\Mst\_BaseMst;
 
 /**
@@ -18,8 +17,8 @@ use Nexus\Core\Models\Mst\_BaseMst;
  * @property array|null $content_option 報酬オプション
  * @property int $content_quantity 報酬の基本個数
  * @property int $amount 報酬の倍率
- * @property CarbonImmutable $created_at
- * @property CarbonImmutable $updated_at
+ * @property string $created_at
+ * @property string $updated_at
  */
 class MstVipLoginBonusContent extends _BaseMst
 {

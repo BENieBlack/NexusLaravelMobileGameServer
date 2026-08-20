@@ -36,12 +36,20 @@ parameters:
         - app/Console/*
     scanDirectories:
         - phpstan
+
     
     # カスタムルールの有効化
     bootstrapFiles:
         - phpstan/bootstrap.php
 
     ignoreErrors:
+        # 複合主キーのモデルは $primaryKey に配列を入れる（App\Traits\CompositePrimaryKeyTrait）。
+        # Laravel本体が string 前提のため必ず出るが、意図した実装なので無視する。
+        # larastanが Model をスタブ済みでスタブの上書きができないため、ここで指定する。
+        -
+            identifier: property.defaultValue
+            message: '#^Property App\\Models\\.+\:\:\$primaryKey \(string\) does not accept default value of type array\<int, string\>\.$#'
+
         # 外部ストレージ/課金SDKはオプション依存であり、
         # 該当ドライバを使う環境でのみ composer で追加する。
         # クラスが見つからないのは想定どおりなので個別に無視する。
@@ -50,7 +58,6 @@ parameters:
             paths:
                 - ../packages/nexus-maintenance/src/Infrastructure/DynamoDB/*
                 - ../packages/nexus-maintenance/src/Infrastructure/TableStore/*
-                - ../packages/nexus-core-billing/src/ApiClients/GooglePlayApiClient.php
 
 rules:
     - App\PHPStan\Rules\NoDirectEloquentSaveInServiceRule

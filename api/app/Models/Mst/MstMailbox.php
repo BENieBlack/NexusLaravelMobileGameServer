@@ -5,7 +5,6 @@ namespace App\Models\Mst;
 use App\Domain\Mailbox\Constants\Category;
 use App\Domain\Mailbox\Constants\Priority;
 use App\Domain\Mailbox\Constants\SenderType;
-use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -22,8 +21,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $expires_in_days
  * @property string|null $icon_url
  * @property bool $is_bulk_distributable
- * @property CarbonImmutable $created_at
- * @property CarbonImmutable $updated_at
+ * @property string $created_at
+ * @property string $updated_at
  */
 class MstMailbox extends _BaseMst
 {

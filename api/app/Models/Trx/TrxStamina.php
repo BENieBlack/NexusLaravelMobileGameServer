@@ -3,7 +3,6 @@
 namespace App\Models\Trx;
 
 use App\Models\Sys\SysPlayer;
-use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
@@ -17,9 +16,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $type スタミナタイプ（normal, raid, pvp, event等）
  * @property int $current_stamina 現在のスタミナ
  * @property float $recovery_rate_multiplier 回復速度倍率（VIP特典等）
- * @property CarbonImmutable $last_recovery_at 最後の回復計算時刻
- * @property CarbonImmutable $created_at
- * @property CarbonImmutable $updated_at
+ * @property string $last_recovery_at 最後の回復計算時刻
+ * @property string $created_at
+ * @property string $updated_at
  */
 class TrxStamina extends _BaseTrx
 {
@@ -69,9 +68,6 @@ class TrxStamina extends _BaseTrx
         'type' => 'string',
         'current_stamina' => 'integer',
         'recovery_rate_multiplier' => 'decimal:2',
-        'last_recovery_at' => 'datetime:Y-m-d H:i:s',
-        'created_at' => 'datetime:Y-m-d H:i:s',
-        'updated_at' => 'datetime:Y-m-d H:i:s',
     ];
 
     /**

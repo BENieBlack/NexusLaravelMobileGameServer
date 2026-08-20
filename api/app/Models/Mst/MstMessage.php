@@ -2,7 +2,6 @@
 
 namespace App\Models\Mst;
 
-use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -10,8 +9,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *
  * @property int $deploy_key
  * @property string $id
- * @property CarbonImmutable $created_at
- * @property CarbonImmutable $updated_at
+ * @property string $created_at
+ * @property string $updated_at
  */
 class MstMessage extends _BaseMst
 {

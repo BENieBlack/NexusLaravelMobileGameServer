@@ -2,7 +2,6 @@
 
 namespace App\Models\Trx;
 
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
@@ -16,8 +15,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $grade
  * @property int $level
  * @property int $level_exp
- * @property Carbon $created_at
- * @property Carbon $updated_at
+ * @property string $created_at
+ * @property string $updated_at
  */
 class TrxEquipment extends _BaseTrx
 {

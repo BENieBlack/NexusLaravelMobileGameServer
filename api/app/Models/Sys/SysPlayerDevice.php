@@ -147,7 +147,7 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
     /**
      * last_login_atをDateTimeオブジェクトで取得 (内部用)
      */
-    public function getLastLoginAtDateTime(): ?\DateTime
+    public function getLastLoginAtDateTime(): ?string
     {
         return $this->getAttribute('last_login_at');
     }

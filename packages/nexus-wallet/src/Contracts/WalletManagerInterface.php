@@ -1,11 +1,11 @@
 <?php
 
-namespace LaravelWallet\Contracts;
+namespace NexusWallet\Contracts;
 
-use LaravelWallet\ValueObjects\CurrencyBalance;
-use LaravelWallet\ValueObjects\CurrencyOperationResult;
-use LaravelWallet\Exceptions\InsufficientBalanceException;
-use LaravelWallet\Exceptions\InvalidCurrencyException;
+use NexusWallet\ValueObjects\CurrencyBalance;
+use NexusWallet\ValueObjects\CurrencyOperationResult;
+use NexusWallet\Exceptions\InsufficientBalanceException;
+use NexusWallet\Exceptions\InvalidCurrencyException;
 
 /**
  * Wallet管理インターフェース

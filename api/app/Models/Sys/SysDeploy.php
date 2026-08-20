@@ -89,7 +89,7 @@ class SysDeploy extends _BaseSys
     /**
      * start_atを取得
      */
-    public function getStartAt(): ?\DateTime
+    public function getStartAt(): ?string
     {
         return $this->getAttribute('start_at');
     }

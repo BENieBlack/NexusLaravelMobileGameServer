@@ -31,6 +31,12 @@ class UnitDeliveryHandler implements ResourceDeliveryHandlerInterface
      */
     public function handle(int $sysPlayerId, ResourceDeliveryContent $resourceDeliveryContent): void
     {
+        // 重複所持の変換（DUPLICATED_UNIT）はここでは行わない。
+        // すでに持っているユニットをどう扱うか（欠片に変換する・素材にする・そのまま重複させる）は
+        // タイトルごとのゲーム仕様のため、Domain層で判定して
+        // ResourceDeliveryContent::convertTo() を呼んでから、このHandlerに渡すこと。
+        // 実装するときは api/app/Domain 配下に変換ルールを置く（パッケージには入れない）。
+
         // metadataからgradeとlevelを取得（指定がない場合はnull = デフォルト値を使用）
         $metadata = $resourceDeliveryContent->getMetadata();
         $grade = $metadata['grade'] ?? null;

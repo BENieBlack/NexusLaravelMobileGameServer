@@ -33,7 +33,7 @@ use Illuminate\Http\JsonResponse;
  * )->toJsonResponse();
  * 
  * // パッケージ層: パッケージエラー（HTTP 299）
- * use LaravelWallet\Exceptions\WalletErrorCode;
+ * use NexusWallet\Exceptions\WalletErrorCode;
  * return ErrorResponse::businessError(
  *     errorCode: WalletErrorCode::INSUFFICIENT_BALANCE,
  *     message: '残高が不足しています'

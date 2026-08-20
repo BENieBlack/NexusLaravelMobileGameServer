@@ -89,7 +89,7 @@ class SysShardingNodePlayer extends _BaseSys
     /**
      * assigned_atを取得
      */
-    public function getAssignedAt(): ?\DateTime
+    public function getAssignedAt(): ?string
     {
         return $this->getAttribute('assigned_at');
     }

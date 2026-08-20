@@ -160,7 +160,7 @@ api/vendor/nexus/game-common -> ../../../packages/nexus-game-common   (リンク
 
 ### 7. namespace 規約の逸脱
 
-`nexus-wallet` のみ namespace が `LaravelWallet\`。他は全て `Nexus*` 系（`NexusVip\`、`NexusGuild\` 等）。サードパーティスケルトンからの流用時の残骸と見られる。
+`nexus-wallet` のみ namespace が `NexusWallet\`。他は全て `Nexus*` 系（`NexusVip\`、`NexusGuild\` 等）。サードパーティスケルトンからの流用時の残骸と見られる。
 
 ---
 

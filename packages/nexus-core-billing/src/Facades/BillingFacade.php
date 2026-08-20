@@ -108,15 +108,17 @@ class BillingFacade
      * 
      * @param string $billingPlatform 決済プラットフォーム
      * @param string $subscriptionId サブスクリプションID
+     * @param string|null $purchaseToken 購入トークン（Google Playで必須）
      * @return Subscription サブスクリプション状態
      */
     public function checkSubscription(
         string $billingPlatform,
-        string $subscriptionId
+        string $subscriptionId,
+        ?string $purchaseToken = null
     ): Subscription {
         $platform = $this->platformFactory->create($billingPlatform);
-        
-        return $platform->fetchSubscriptionStatus($subscriptionId);
+
+        return $platform->fetchSubscriptionStatus($subscriptionId, $purchaseToken);
     }
 
     /**

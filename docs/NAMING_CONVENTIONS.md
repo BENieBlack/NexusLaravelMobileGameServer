@@ -25,14 +25,11 @@ Domain/Gacha/Services/GachaPrizeService.php
 Domain/Gacha/Services/GachaProgressService.php
 Domain/Gacha/Services/GachaValidationService.php
 
-Domain/InAppPurchase/Services/InAppPurchasePurchaseService.php
+Domain/InAppPurchase/Services/InAppPurchaseDiamondService.php
 Domain/InAppPurchase/Services/InAppPurchaseHistoryService.php
 
-Domain/Item/Services/ItemReadService.php
-Domain/Item/Services/ItemWriteService.php
-
-Domain/Wallet/Services/WalletReadService.php
-Domain/Wallet/Services/WalletWriteService.php
+Domain/Item/Services/ItemService.php
+Domain/Stamina/Services/StaminaService.php
 ```
 
 **Bad Examples:**
@@ -40,7 +37,7 @@ Domain/Wallet/Services/WalletWriteService.php
 // ❌ ドメイン名なし（検索性・一意性に問題）
 Domain/Gacha/Services/DrawService.php       // GachaDrawService にすべき
 Domain/Gacha/Services/CostService.php       // GachaCostService にすべき
-Domain/InAppPurchase/Services/PurchaseService.php  // InAppPurchasePurchaseService にすべき
+Domain/InAppPurchase/Services/PurchaseService.php  // InAppPurchaseDiamondService にすべき
 ```
 
 ### Package層も同様

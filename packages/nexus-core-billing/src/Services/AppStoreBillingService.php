@@ -19,6 +19,21 @@ use Carbon\CarbonImmutable;
  */
 class AppStoreBillingService implements BillingPlatformInterface
 {
+    /**
+     * App Storeのサブスクリプション状態（Get All Subscription Statuses）
+     *
+     * @see https://developer.apple.com/documentation/appstoreserverapi
+     */
+    private const STATUS_ACTIVE = 1;
+
+    private const STATUS_EXPIRED = 2;
+
+    private const STATUS_BILLING_RETRY = 3;
+
+    private const STATUS_GRACE_PERIOD = 4;
+
+    private const STATUS_REVOKED = 5;
+
     public function __construct(
         private readonly AppStoreApiClient $apiClient,
     ) {}
@@ -39,9 +54,8 @@ class AppStoreBillingService implements BillingPlatformInterface
             'exclude-old-transactions' => true,
         ];
 
-        // 2. Apple API 呼び出し
-        $isSandbox = config('app.env') !== 'production';
-        $response = $this->apiClient->verifyReceipt($payload, $isSandbox);
+        // 2. Apple API 呼び出し（接続先はAPP_STORE_ENVIRONMENTに従う）
+        $response = $this->apiClient->verifyReceipt($payload);
 
         // 3. レスポンス検証
         if (!isset($response['status']) || $response['status'] !== 0) {
@@ -72,29 +86,95 @@ class AppStoreBillingService implements BillingPlatformInterface
     /**
      * {@inheritDoc}
      *
-     * 未実装。レシート検証に使っている /verifyReceipt はレシート本体が必要で、
-     * transactionIdだけでは引けない。App Store Server API
-     * （ES256のJWT認証 + JWS署名付きレスポンスの検証）の実装が必要。
-     *
-     * 「期限切れ」を返すと未購読として扱われてしまうため、値を返さず失敗させる。
+     * App Store Server API の Get All Subscription Statuses を使う。
+     * $subscriptionId には購読の transactionId（originalTransactionId）を渡す。
      */
     public function fetchSubscriptionStatus(string $subscriptionId, ?string $purchaseToken = null): Subscription
     {
-        throw new PlatformApiException(
-            'Checking an App Store subscription requires the App Store Server API, which is not implemented yet'
+        $response = $this->apiClient->fetchSubscriptionStatuses($subscriptionId);
+
+        $lastTransaction = $this->findLastTransaction($response);
+
+        if ($lastTransaction === null) {
+            throw new PlatformApiException(
+                "No subscription status found for transaction: {$subscriptionId}"
+            );
+        }
+
+        $status = (int) ($lastTransaction['status'] ?? self::STATUS_EXPIRED);
+
+        $transactionInfo = isset($lastTransaction['signedTransactionInfo'])
+            ? $this->apiClient->decodeSignedPayload((string) $lastTransaction['signedTransactionInfo'])
+            : [];
+
+        $renewalInfo = isset($lastTransaction['signedRenewalInfo'])
+            ? $this->apiClient->decodeSignedPayload((string) $lastTransaction['signedRenewalInfo'])
+            : [];
+
+        $expiresDateMs = $transactionInfo['expiresDate'] ?? null;
+
+        return new Subscription(
+            isActive: in_array($status, [self::STATUS_ACTIVE, self::STATUS_GRACE_PERIOD], true),
+            expiresAt: $expiresDateMs !== null
+                ? CarbonImmutable::createFromTimestampMs((int) $expiresDateMs)->format('Y-m-d H:i:s')
+                : CarbonImmutable::now()->format('Y-m-d H:i:s'),
+            autoRenew: (int) ($renewalInfo['autoRenewStatus'] ?? 0) === 1,
+            state: $this->mapSubscriptionState($status),
         );
     }
 
     /**
      * {@inheritDoc}
      *
-     * 未実装。falseを返すと「返金されていない」と誤って扱われ、
-     * 返金済みの購入に対して付与を続けてしまうため、値を返さず失敗させる。
+     * App Store Server API の Get Refund History を使う。
+     * 返金された取引だけが返るため、対象のtransactionIdが含まれていれば返金済み。
+     *
+     * Note: 1ページ目のみを見る。返金が大量にあるプレイヤーでは
+     * hasMore/revision を辿る必要がある。
      */
     public function isRefunded(string $transactionId): bool
     {
-        throw new PlatformApiException(
-            'Refund lookup requires the App Store Server API, which is not implemented yet'
-        );
+        $response = $this->apiClient->fetchRefundHistory($transactionId);
+
+        foreach ($response['signedTransactions'] ?? [] as $signedTransaction) {
+            $transaction = $this->apiClient->decodeSignedPayload((string) $signedTransaction);
+
+            if (($transaction['transactionId'] ?? null) === $transactionId
+                || ($transaction['originalTransactionId'] ?? null) === $transactionId) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * サブスクリプション状態のレスポンスから直近の取引を取り出す
+     *
+     * @param  array<string, mixed>  $response
+     * @return array<string, mixed>|null
+     */
+    private function findLastTransaction(array $response): ?array
+    {
+        foreach ($response['data'] ?? [] as $group) {
+            foreach ($group['lastTransactions'] ?? [] as $transaction) {
+                return $transaction;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Appleの状態コードをアプリ内の状態に変換する
+     */
+    private function mapSubscriptionState(int $status): string
+    {
+        return match ($status) {
+            self::STATUS_ACTIVE => BillingConst::SUBSCRIPTION_STATE_ACTIVE,
+            self::STATUS_GRACE_PERIOD, self::STATUS_BILLING_RETRY => BillingConst::SUBSCRIPTION_STATE_GRACE_PERIOD,
+            self::STATUS_REVOKED => BillingConst::SUBSCRIPTION_STATE_CANCELLED,
+            default => BillingConst::SUBSCRIPTION_STATE_EXPIRED,
+        };
     }
 }

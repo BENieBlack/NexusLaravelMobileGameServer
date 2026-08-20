@@ -7,24 +7,6 @@ parameters:
 			path: ../packages/nexus-core-auth/src/ValueObjects/Token.php
 
 		-
-			message: '#^Method NexusBilling\\ApiClients\\AppStoreApiClient\:\:fetchSubscriptionStatus\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-core-billing/src/ApiClients/AppStoreApiClient.php
-
-		-
-			message: '#^Method NexusBilling\\ApiClients\\AppStoreApiClient\:\:verifyReceipt\(\) has parameter \$payload with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-core-billing/src/ApiClients/AppStoreApiClient.php
-
-		-
-			message: '#^Method NexusBilling\\ApiClients\\AppStoreApiClient\:\:verifyReceipt\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-core-billing/src/ApiClients/AppStoreApiClient.php
-
-		-
 			message: '#^Method NexusBilling\\Constants\\BillingConst\:\:allPlatforms\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1

@@ -32,6 +32,9 @@ class BuyDiamondUseCaseTest extends TestCase
     /** 商品価格 490円（マイクロ単位） */
     private const PRICE_MICROS = 490_000_000;
 
+    /** 購入で付与されるVIPポイント */
+    private const VIP_POINT = 49;
+
     private int $sysPlayerId = 1;
 
     private QueryManager $queryManager;
@@ -64,6 +67,7 @@ class BuyDiamondUseCaseTest extends TestCase
 
         cache()->flush();
         $this->cleanUp();
+        $this->createPlayer();
     }
 
     protected function tearDown(): void
@@ -128,6 +132,31 @@ class BuyDiamondUseCaseTest extends TestCase
             ->where('sys_player_id', $this->sysPlayerId)
             ->first();
         $this->assertNotNull($history);
+
+        // VIPポイントが加算され、累計課金額も積まれている
+        $player = DB::connection('sys')->table('sys_player')->where('id', $this->sysPlayerId)->first();
+        $this->assertSame(self::VIP_POINT, $player->vip_point);
+        $this->assertSame('490.00', (string) $player->total_paid_amount);
+
+        // VIPポイントの変動ログが残っている
+        $vipLog = DB::connection('log1')->table('log_vip_point')
+            ->where('sys_player_id', $this->sysPlayerId)
+            ->first();
+        $this->assertNotNull($vipLog);
+        $this->assertSame(self::VIP_POINT, $vipLog->point_diff);
+        $this->assertSame('purchase', $vipLog->reason);
+
+        // 課金ログが残っている（CS調査で使う）
+        $purchaseLog = DB::connection('log1')->table('log_in_app_purchase')
+            ->where('sys_player_id', $this->sysPlayerId)
+            ->first();
+        $this->assertNotNull($purchaseLog);
+        $this->assertSame('google', $purchaseLog->platform);
+        $this->assertSame('GooglePlay', $purchaseLog->billing_platform);
+        $this->assertSame('Purchased', $purchaseLog->status);
+        $this->assertSame('JPY', $purchaseLog->currency_code);
+        $this->assertSame('490.00', (string) $purchaseLog->pay_amount);
+        $this->assertSame('¥490', $purchaseLog->pay_string);
 
         // Google Playの購入検証APIを叩いている
         Http::assertSent(fn ($request) => str_contains(
@@ -216,6 +245,32 @@ class BuyDiamondUseCaseTest extends TestCase
         $this->assertNull(
             DB::connection('trx1')->table('trx_diamond')->where('sys_player_id', $this->sysPlayerId)->first()
         );
+
+        // VIPポイントも課金ログも残らない
+        $player = DB::connection('sys')->table('sys_player')->where('id', $this->sysPlayerId)->first();
+        $this->assertSame(0, $player->vip_point);
+        $this->assertNull(
+            DB::connection('log1')->table('log_in_app_purchase')->where('sys_player_id', $this->sysPlayerId)->first()
+        );
+    }
+
+    /**
+     * VIPポイント付与の対象となるプレイヤーを作る
+     */
+    private function createPlayer(): void
+    {
+        DB::connection('sys')->table('sys_player')->insert([
+            'id' => $this->sysPlayerId,
+            'uuid' => 'test-uuid-buy-diamond',
+            'my_id' => 'TEST0001',
+            'name' => 'tester',
+            'level' => 1,
+            'level_exp' => 0,
+            'vip_point' => 0,
+            'total_paid_amount' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 
     /**
@@ -239,7 +294,7 @@ class BuyDiamondUseCaseTest extends TestCase
             'deploy_key' => self::DEPLOY_KEY,
             'type' => 'Diamond',
             'paid_diamond_amount' => self::PAID_DIAMOND_AMOUNT,
-            'vip_point' => 0,
+            'vip_point' => self::VIP_POINT,
             'purchase_limit_reset' => 'None',
             'app_store_product_id' => $billingPlatform === 'AppStore' ? $platformProductId : null,
             'google_play_product_id' => $billingPlatform === 'GooglePlay' ? $platformProductId : null,
@@ -259,6 +314,9 @@ class BuyDiamondUseCaseTest extends TestCase
         DB::connection('trx1')->table('trx_in_app_purchase')->delete();
         DB::connection('mst')->table('mst_in_app_purchase')->delete();
         DB::connection('mst')->table('mst_billing_platform_product')->delete();
+        DB::connection('sys')->table('sys_player')->where('id', $this->sysPlayerId)->delete();
+        DB::connection('log1')->table('log_in_app_purchase')->delete();
+        DB::connection('log1')->table('log_vip_point')->delete();
     }
 
     private function generatePrivateKey(): string

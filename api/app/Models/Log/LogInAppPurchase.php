@@ -39,6 +39,22 @@ class LogInAppPurchase extends _BaseLog
     ];
 
     /**
+     * ステータス定数
+     *
+     * CheckAvailability: 購入可能かの確認のみ
+     * Purchased: 購入完了
+     * Failed: 検証や付与に失敗
+     * Refunded: 返金済み
+     */
+    public const STATUS_CHECK_AVAILABILITY = 'CheckAvailability';
+
+    public const STATUS_PURCHASED = 'Purchased';
+
+    public const STATUS_FAILED = 'Failed';
+
+    public const STATUS_REFUNDED = 'Refunded';
+
+    /**
      * プラットフォーム定数
      */
     public const PLATFORM_APPLE = 'apple';

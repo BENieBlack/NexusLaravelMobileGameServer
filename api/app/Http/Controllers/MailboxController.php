@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Domain\Mailbox\UseCases\MailboxListUseCase;
-use App\Domain\Mailbox\UseCases\MailboxLockUseCase;
-use App\Domain\Mailbox\UseCases\MailboxOpenUseCase;
-use App\Domain\Mailbox\UseCases\MailboxReceiveAllUseCase;
-use App\Domain\Mailbox\UseCases\MailboxReceiveUseCase;
+use App\Domain\Mailbox\UseCases\ListUseCase;
+use App\Domain\Mailbox\UseCases\LockUseCase;
+use App\Domain\Mailbox\UseCases\OpenUseCase;
+use App\Domain\Mailbox\UseCases\ReceiveAllUseCase;
+use App\Domain\Mailbox\UseCases\ReceiveUseCase;
 use App\Http\Requests\Mailbox\ListRequest;
 use App\Http\Requests\Mailbox\LockRequest;
 use App\Http\Requests\Mailbox\OpenRequest;
@@ -29,7 +29,7 @@ class MailboxController extends _BaseController
     /**
      * メールボックス一覧取得
      */
-    public function list(ListRequest $request, MailboxListUseCase $useCase): JsonResponse
+    public function list(ListRequest $request, ListUseCase $useCase): JsonResponse
     {
         return $this->execute(fn () => $useCase->exec(
             $this->apiSession->getSysPlayerId(),
@@ -43,7 +43,7 @@ class MailboxController extends _BaseController
     /**
      * メール既読
      */
-    public function open(OpenRequest $request, MailboxOpenUseCase $useCase): JsonResponse
+    public function open(OpenRequest $request, OpenUseCase $useCase): JsonResponse
     {
         return $this->execute(fn () => $useCase->exec(
             $this->apiSession->getSysPlayerId(),
@@ -54,7 +54,7 @@ class MailboxController extends _BaseController
     /**
      * 添付配布物受取
      */
-    public function receive(ReceiveRequest $request, MailboxReceiveUseCase $useCase): JsonResponse
+    public function receive(ReceiveRequest $request, ReceiveUseCase $useCase): JsonResponse
     {
         return $this->execute(fn () => $useCase->exec(
             $this->apiSession->getSysPlayerId(),
@@ -65,7 +65,7 @@ class MailboxController extends _BaseController
     /**
      * 添付配布物一括受取
      */
-    public function receiveAll(ReceiveAllRequest $request, MailboxReceiveAllUseCase $useCase): JsonResponse
+    public function receiveAll(ReceiveAllRequest $request, ReceiveAllUseCase $useCase): JsonResponse
     {
         return $this->execute(fn () => $useCase->exec(
             $this->apiSession->getSysPlayerId(),
@@ -77,7 +77,7 @@ class MailboxController extends _BaseController
     /**
      * メールロック
      */
-    public function lock(LockRequest $request, MailboxLockUseCase $useCase): JsonResponse
+    public function lock(LockRequest $request, LockUseCase $useCase): JsonResponse
     {
         return $this->execute(fn () => $useCase->exec(
             $this->apiSession->getSysPlayerId(),

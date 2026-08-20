@@ -1,10 +1,10 @@
 <?php
 
-namespace LaravelWallet;
+namespace NexusWallet;
 
 use Illuminate\Support\ServiceProvider;
-use LaravelWallet\Contracts\WalletManagerInterface;
-use LaravelWallet\Services\WalletService;
+use NexusWallet\Contracts\WalletManagerInterface;
+use NexusWallet\Services\WalletService;
 
 /**
  * Wallet Service Provider

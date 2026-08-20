@@ -1,10 +1,10 @@
 <?php
 
-namespace LaravelWallet\Tests\Unit\Exceptions;
+namespace NexusWallet\Tests\Unit\Exceptions;
 
-use LaravelWallet\Exceptions\InsufficientBalanceException;
-use LaravelWallet\Exceptions\WalletErrorCode;
-use LaravelWallet\Exceptions\WalletException;
+use NexusWallet\Exceptions\InsufficientBalanceException;
+use NexusWallet\Exceptions\WalletErrorCode;
+use NexusWallet\Exceptions\WalletException;
 use PHPUnit\Framework\TestCase;
 
 class InsufficientBalanceExceptionTest extends TestCase

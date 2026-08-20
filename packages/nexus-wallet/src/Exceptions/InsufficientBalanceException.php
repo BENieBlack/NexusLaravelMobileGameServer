@@ -1,6 +1,6 @@
 <?php
 
-namespace LaravelWallet\Exceptions;
+namespace NexusWallet\Exceptions;
 
 /**
  * 残高不足例外

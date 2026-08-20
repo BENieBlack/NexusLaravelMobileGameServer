@@ -44,7 +44,7 @@
 | Domain Service | Package Service | 評価 |
 |---|---|---|
 | `StaminaService` | `nexus-stamina/Services/StaminaService` | ✅ 完璧。DTO ↔ Model変換のラッパー |
-| `WalletService` | LaravelWallet package | ✅ 完璧。Facadeパターン |
+| `WalletService` | NexusWallet package | ✅ 完璧。Facadeパターン |
 | `UnitLevelService` | `nexus-level/Services/_BaseLevelService` | ✅ 継承パターン、適切 |
 | `VersionService` | `nexus-version/Services/VersionService` | ✅ 完璧。Wrapperパターン適用済み |
 

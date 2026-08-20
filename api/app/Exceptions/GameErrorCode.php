@@ -2,9 +2,9 @@
 
 namespace App\Exceptions;
 
-use LaravelWallet\Exceptions\WalletErrorCode;
 use NexusResource\Exceptions\ResourceErrorCode;
 use NexusStamina\Exceptions\StaminaErrorCode;
+use NexusWallet\Exceptions\WalletErrorCode;
 
 /**
  * GameErrorCode

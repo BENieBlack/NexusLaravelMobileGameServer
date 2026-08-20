@@ -211,6 +211,25 @@ class InAppPurchaseValidationService
     }
 
     /**
+     * 購入通貨を解決する
+     *
+     * 価格と同じく、レシート検証結果 → マスターの順に見る。
+     *
+     * @param  Verification  $verification  レシート検証結果
+     * @param  MstInAppPurchase  $mstInAppPurchase  商品マスター
+     * @param  string  $billingPlatform  決済プラットフォーム
+     * @return string|null 通貨コード（ISO 4217）。どちらにも無ければnull
+     */
+    public function resolvePurchaseCurrency(
+        Verification $verification,
+        MstInAppPurchase $mstInAppPurchase,
+        string $billingPlatform
+    ): ?string {
+        return $verification->getPriceCurrencyCode()
+            ?? $this->getPlatformProduct($mstInAppPurchase, $billingPlatform)?->price_currency_code;
+    }
+
+    /**
      * プラットフォーム商品を取得
      *
      * @param  MstInAppPurchase  $mstInAppPurchase  商品マスター

@@ -7,8 +7,10 @@ use App\Domain\InAppPurchase\Services\InAppPurchasePassService;
 use App\Domain\InAppPurchase\Services\InAppPurchaseValidationService;
 use App\Http\Responses\InAppPurchase\BuyResponse;
 use App\Models\Mst\MstInAppPurchase;
+use App\Repositories\Log\LogInAppPurchaseRepository;
 use NexusBilling\DataTransferObjects\Verification;
 use NexusBilling\Facades\BillingFacade;
+use NexusVip\Services\VipPointService;
 
 /**
  * BuyPassUseCase
@@ -21,10 +23,12 @@ class BuyPassUseCase extends _BaseBuyUseCase
     public function __construct(
         InAppPurchaseValidationService $validationService,
         BillingFacade $billingFacade,
+        VipPointService $vipPointService,
+        LogInAppPurchaseRepository $logInAppPurchaseRepository,
         private readonly InAppPurchaseDiamondService $diamondService,
         private readonly InAppPurchasePassService $passService,
     ) {
-        parent::__construct($validationService, $billingFacade);
+        parent::__construct($validationService, $billingFacade, $vipPointService, $logInAppPurchaseRepository);
     }
 
     /**
@@ -45,43 +49,34 @@ class BuyPassUseCase extends _BaseBuyUseCase
         // App Storeはマスターの設定値から取る
         $unitPrice = $this->resolvePurchasePrice($verification, $mstInAppPurchase, $billingPlatform);
 
-        // トランザクション内でパス購入処理を実行
-        return $this->executeWithTransaction(function () use (
-            $sysPlayerId,
-            $mstInAppPurchase,
-            $platform,
-            $billingPlatform,
-            $unitPrice,
-            $verification
-        ) {
-            $paidDiamondAmount = 0;
-            $totalPaidDiamondAmount = 0;
-            $totalFreeDiamondAmount = 0;
+        // トランザクションは _BaseBuyUseCase が張っている（VIP付与・課金ログと同一）
+        $paidDiamondAmount = 0;
+        $totalPaidDiamondAmount = 0;
+        $totalFreeDiamondAmount = 0;
 
-            // 1. ダイヤモンド付与（あれば）
-            if ($mstInAppPurchase->getPaidDiamondAmount() > 0) {
-                $result = $this->diamondService->purchaseDiamond(
-                    $sysPlayerId,
-                    $mstInAppPurchase,
-                    $platform,
-                    $billingPlatform,
-                    $unitPrice,
-                    $verification->getTransactionId()
-                );
-                $paidDiamondAmount = $result['paid_diamond_amount'];
-                $totalPaidDiamondAmount = $result['total_paid_diamond_amount'];
-                $totalFreeDiamondAmount = $result['total_free_diamond_amount'];
-            }
-
-            // 2. パス効果を適用
-            $this->passService->applyPassEffects($sysPlayerId, $mstInAppPurchase);
-
-            return new BuyResponse(
-                paidDiamondAmount: $paidDiamondAmount,
-                totalPaidDiamondAmount: $totalPaidDiamondAmount,
-                totalFreeDiamondAmount: $totalFreeDiamondAmount,
-                rewards: [],
+        // 1. ダイヤモンド付与（あれば）
+        if ($mstInAppPurchase->getPaidDiamondAmount() > 0) {
+            $result = $this->diamondService->purchaseDiamond(
+                $sysPlayerId,
+                $mstInAppPurchase,
+                $platform,
+                $billingPlatform,
+                $unitPrice,
+                $verification->getTransactionId()
             );
-        });
+            $paidDiamondAmount = $result['paid_diamond_amount'];
+            $totalPaidDiamondAmount = $result['total_paid_diamond_amount'];
+            $totalFreeDiamondAmount = $result['total_free_diamond_amount'];
+        }
+
+        // 2. パス効果を適用
+        $this->passService->applyPassEffects($sysPlayerId, $mstInAppPurchase);
+
+        return new BuyResponse(
+            paidDiamondAmount: $paidDiamondAmount,
+            totalPaidDiamondAmount: $totalPaidDiamondAmount,
+            totalFreeDiamondAmount: $totalFreeDiamondAmount,
+            rewards: [],
+        );
     }
 }

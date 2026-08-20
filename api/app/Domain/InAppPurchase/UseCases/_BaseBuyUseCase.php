@@ -7,10 +7,13 @@ use App\Domain\InAppPurchase\Services\InAppPurchaseValidationService;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Http\Responses\InAppPurchase\BuyResponse;
+use App\Models\Log\LogInAppPurchase;
 use App\Models\Mst\MstInAppPurchase;
+use App\Repositories\Log\LogInAppPurchaseRepository;
 use NexusBilling\DataTransferObjects\Receipt;
 use NexusBilling\DataTransferObjects\Verification;
 use NexusBilling\Facades\BillingFacade;
+use NexusVip\Services\VipPointService;
 
 /**
  * _BaseBuyUseCase
@@ -24,6 +27,8 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
     public function __construct(
         protected readonly InAppPurchaseValidationService $validationService,
         protected readonly BillingFacade $billingFacade,
+        protected readonly VipPointService $vipPointService,
+        protected readonly LogInAppPurchaseRepository $logInAppPurchaseRepository,
     ) {}
 
     /**
@@ -88,14 +93,45 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
             $billingPlatform
         );
 
-        // 6. トランザクション内で購入処理実行（サブクラス実装）
-        return $this->executePurchase(
+        // 6. 購入処理・VIPポイント付与・課金ログを1つのトランザクションで実行
+        return $this->executeWithTransaction(function () use (
             $sysPlayerId,
             $mstInAppPurchase,
             $platform,
             $billingPlatform,
-            $verificationResult
-        );
+            $verificationResult,
+            $uniqueRequestId
+        ) {
+            // 6-1. 商品タイプ固有の購入処理（サブクラス実装）
+            $response = $this->executePurchase(
+                $sysPlayerId,
+                $mstInAppPurchase,
+                $platform,
+                $billingPlatform,
+                $verificationResult
+            );
+
+            // 6-2. VIPポイントを付与
+            $this->grantVipPoint(
+                $sysPlayerId,
+                $mstInAppPurchase,
+                $billingPlatform,
+                $verificationResult,
+                $uniqueRequestId
+            );
+
+            // 6-3. 課金ログを記録
+            $this->writePurchaseLog(
+                $sysPlayerId,
+                $mstInAppPurchase,
+                $platform,
+                $billingPlatform,
+                $verificationResult,
+                $uniqueRequestId
+            );
+
+            return $response;
+        });
     }
 
     /**
@@ -218,6 +254,123 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
             $mstInAppPurchase,
             $billingPlatform
         );
+    }
+
+    /**
+     * VIPポイントを付与する
+     *
+     * 商品マスターに vip_point が設定されている場合のみ加算する。
+     * 累計課金額（sys_player.total_paid_amount）は円で保持しているため、
+     * 換算レートを持っていないJPY以外の通貨では加算しない。
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  MstInAppPurchase  $mstInAppPurchase  商品マスター
+     * @param  string  $billingPlatform  決済プラットフォーム
+     * @param  Verification  $verification  レシート検証結果
+     * @param  string  $uniqueRequestId  一意なリクエストID
+     */
+    protected function grantVipPoint(
+        int $sysPlayerId,
+        MstInAppPurchase $mstInAppPurchase,
+        string $billingPlatform,
+        Verification $verification,
+        string $uniqueRequestId
+    ): void {
+        $vipPoint = $mstInAppPurchase->getVipPoint();
+
+        if ($vipPoint <= 0) {
+            return;
+        }
+
+        $metadata = [
+            'unique_request_id' => $uniqueRequestId,
+            'mst_in_app_purchase_id' => (string) $mstInAppPurchase->getId(),
+            'billing_platform' => $billingPlatform,
+            'transaction_id' => $verification->getTransactionId(),
+        ];
+
+        if ($this->resolveCurrency($verification, $mstInAppPurchase, $billingPlatform) === 'JPY') {
+            $metadata['purchase_amount_jpy'] = $this->resolvePurchasePrice(
+                $verification,
+                $mstInAppPurchase,
+                $billingPlatform
+            );
+        }
+
+        $this->vipPointService->addPoints(
+            sysPlayerId: $sysPlayerId,
+            points: $vipPoint,
+            reason: 'purchase',
+            metadata: $metadata
+        );
+    }
+
+    /**
+     * 課金ログを記録する
+     *
+     * CS調査で購入の有無と金額を追えるようにするためのログ。
+     * ビジネスデータと同じトランザクションで書き込む。
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  MstInAppPurchase  $mstInAppPurchase  商品マスター
+     * @param  string  $platform  プラットフォーム（Apple, Google）
+     * @param  string  $billingPlatform  決済プラットフォーム
+     * @param  Verification  $verification  レシート検証結果
+     * @param  string  $uniqueRequestId  一意なリクエストID
+     */
+    protected function writePurchaseLog(
+        int $sysPlayerId,
+        MstInAppPurchase $mstInAppPurchase,
+        string $platform,
+        string $billingPlatform,
+        Verification $verification,
+        string $uniqueRequestId
+    ): void {
+        $price = $this->resolvePurchasePrice($verification, $mstInAppPurchase, $billingPlatform);
+        $currency = $this->resolveCurrency($verification, $mstInAppPurchase, $billingPlatform);
+
+        $this->logInAppPurchaseRepository->insertPurchaseLog(
+            uniqueRequestId: $uniqueRequestId,
+            sysPlayerId: $sysPlayerId,
+            // log_in_app_purchase.platform は enum('apple','google')
+            platform: strtolower($platform),
+            billingPlatform: $billingPlatform,
+            receiptId: (string) $verification->getTransactionId(),
+            receipt: $verification->getRawResponse(),
+            status: LogInAppPurchase::STATUS_PURCHASED,
+            mstInAppPurchaseId: (string) $mstInAppPurchase->getId(),
+            currencyCode: $currency ?? '',
+            payAmount: $price,
+            payString: $this->formatPayString($price, $currency),
+        );
+    }
+
+    /**
+     * 購入通貨を解決する
+     */
+    protected function resolveCurrency(
+        Verification $verification,
+        MstInAppPurchase $mstInAppPurchase,
+        string $billingPlatform
+    ): ?string {
+        return $this->validationService->resolvePurchaseCurrency(
+            $verification,
+            $mstInAppPurchase,
+            $billingPlatform
+        );
+    }
+
+    /**
+     * 支払い金額の表示文字列を作る（¥1980, $9.20 など）
+     */
+    protected function formatPayString(float $price, ?string $currency): string
+    {
+        return match ($currency) {
+            'JPY' => '¥'.number_format($price),
+            'USD' => '$'.number_format($price, 2),
+            null, '' => number_format($price, 2),
+            default => $currency.' '.number_format($price, 2),
+        };
     }
 
     /**

@@ -6,8 +6,10 @@ use App\Domain\InAppPurchase\Services\InAppPurchasePackService;
 use App\Domain\InAppPurchase\Services\InAppPurchaseValidationService;
 use App\Http\Responses\InAppPurchase\BuyResponse;
 use App\Models\Mst\MstInAppPurchase;
+use App\Repositories\Log\LogInAppPurchaseRepository;
 use NexusBilling\DataTransferObjects\Verification;
 use NexusBilling\Facades\BillingFacade;
+use NexusVip\Services\VipPointService;
 
 /**
  * BuyPackUseCase
@@ -20,9 +22,11 @@ class BuyPackUseCase extends _BaseBuyUseCase
     public function __construct(
         InAppPurchaseValidationService $validationService,
         BillingFacade $billingFacade,
+        VipPointService $vipPointService,
+        LogInAppPurchaseRepository $logInAppPurchaseRepository,
         private readonly InAppPurchasePackService $packService,
     ) {
-        parent::__construct($validationService, $billingFacade);
+        parent::__construct($validationService, $billingFacade, $vipPointService, $logInAppPurchaseRepository);
     }
 
     /**
@@ -37,29 +41,20 @@ class BuyPackUseCase extends _BaseBuyUseCase
         string $billingPlatform,
         Verification $verification
     ): BuyResponse {
-        // トランザクション内でパック購入処理を実行
-        return $this->executeWithTransaction(function () use (
+        // トランザクションは _BaseBuyUseCase が張っている（VIP付与・課金ログと同一）
+        $result = $this->packService->purchasePack(
             $sysPlayerId,
             $mstInAppPurchase,
             $platform,
             $billingPlatform,
-            $verification
-        ) {
-            // パック購入処理
-            $result = $this->packService->purchasePack(
-                $sysPlayerId,
-                $mstInAppPurchase,
-                $platform,
-                $billingPlatform,
-                $verification->getTransactionId()
-            );
+            $verification->getTransactionId()
+        );
 
-            return new BuyResponse(
-                paidDiamondAmount: 0,
-                totalPaidDiamondAmount: 0,
-                totalFreeDiamondAmount: $result['total_free_diamond_amount'],
-                rewards: $result['contents'],
-            );
-        });
+        return new BuyResponse(
+            paidDiamondAmount: 0,
+            totalPaidDiamondAmount: 0,
+            totalFreeDiamondAmount: $result['total_free_diamond_amount'],
+            rewards: $result['contents'],
+        );
     }
 }

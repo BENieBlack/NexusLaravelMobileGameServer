@@ -25,9 +25,11 @@
 DB_TRX_SHARDS=3  # 2 → 3に変更
 ```
 
-#### 1.2 api/.envファイルの更新
+#### 1.2 シャード接続情報の追加
 
-`/api/.env`を編集し、新しいシャードの接続情報を追加します。
+同じルートの `.env` に、新しいシャードの接続情報を追加します。
+（`api/.env` は読み込まれないため置かないこと。`api/bootstrap/app.php` が
+リポジトリルートの `.env` を参照する）
 
 ```bash
 # トランザクションDB接続 - ノード3（新規追加）
@@ -378,7 +380,7 @@ done
 **原因:** 環境変数が正しく読み込まれていない、または`DB_TRXN_*`の設定が不足している。
 
 **解決策:**
-1. `.env`ファイルと`api/.env`ファイルの設定を確認
+1. ルートの `.env` の設定を確認（`api/.env` は読み込まれない）
 2. api-phpコンテナを再起動: `docker compose restart api-php`
 3. 環境変数を確認: `docker exec api-php env | grep DB_TRX`
 
@@ -471,7 +473,7 @@ docker exec db-log2 mysqldump -uroot -proot nexus-local-log2 > backup_log2_$(dat
 
 シャード増設は以下の手順で完了します：
 
-1. ✅ **環境変数設定** (.env, api/.env, docker-compose.yml)
+1. ✅ **環境変数設定** (ルートの .env, docker-compose.yml)
 2. ✅ **Dockerコンテナ起動** (docker compose up -d)
 3. ✅ **データベース作成** (CREATE DATABASE)
 4. ✅ **テスト用データベース作成** (CREATE DATABASE for testing)

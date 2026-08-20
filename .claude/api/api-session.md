@@ -388,7 +388,7 @@ class UnitLevelService
 
 ```php
 // ✅ Good: すべてのレイヤーでApiSessionが自動的に機能
-class UnitLevelUpUseCase
+class LevelUpUseCase
 {
     public function __construct(
         private readonly UnitLevelService $unitLevelService,

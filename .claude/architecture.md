@@ -2421,7 +2421,7 @@ class UnitLevelService
 
 ```php
 // packages/nexus-wallet/src/Exceptions/InsufficientBalanceException.php
-namespace LaravelWallet\Exceptions;
+namespace NexusWallet\Exceptions;
 
 class InsufficientBalanceException extends WalletException
 {

@@ -179,8 +179,8 @@ Exception (PHP標準)
 | コード | 定数名 | 定義元 |
 |---|---|---|
 | 401 | `MASTER_DATA_NOT_FOUND` | `App\Exceptions\InfraErrorCode` |
-| 1001 | `INSUFFICIENT_CURRENCY` | `LaravelWallet\Exceptions\WalletErrorCode::INSUFFICIENT_BALANCE` |
-| 1003 | `WALLET_NOT_FOUND` | `LaravelWallet\Exceptions\WalletErrorCode` |
+| 1001 | `INSUFFICIENT_CURRENCY` | `NexusWallet\Exceptions\WalletErrorCode::INSUFFICIENT_BALANCE` |
+| 1003 | `WALLET_NOT_FOUND` | `NexusWallet\Exceptions\WalletErrorCode` |
 | 1101 | `STAMINA_NOT_ENOUGH` | `NexusStamina\Exceptions\StaminaErrorCode::INSUFFICIENT_STAMINA` |
 | 1901 | `ITEM_NOT_ENOUGH` | `NexusResource\Exceptions\ResourceErrorCode::INSUFFICIENT_ITEM` |
 | 1902 | `DIAMOND_NOT_ENOUGH` | `NexusResource\Exceptions\ResourceErrorCode::INSUFFICIENT_DIAMOND` |

@@ -10,10 +10,12 @@ use App\Http\Responses\InAppPurchase\BuyResponse;
 use App\Models\Log\LogInAppPurchase;
 use App\Models\Mst\MstInAppPurchase;
 use App\Repositories\Log\LogInAppPurchaseRepository;
+use Illuminate\Support\Facades\Log;
 use NexusBilling\DataTransferObjects\Receipt;
 use NexusBilling\DataTransferObjects\Verification;
 use NexusBilling\Facades\BillingFacade;
 use NexusVip\Services\VipPointService;
+use Throwable;
 
 /**
  * _BaseBuyUseCase
@@ -76,62 +78,81 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
             $receiptData
         );
 
-        // 3. レシート検証を実行（トランザクション開始前に外部API呼び出し）
-        $verificationResult = $this->verifyReceipt(
-            $billingPlatform,
-            $receiptData,
-            $uniqueRequestId
-        );
+        $verificationResult = null;
 
-        // 4. プロダクトIDが一致するか確認
-        $this->validateProductId($verificationResult, $productId);
-
-        // 5. 価格検証
-        $this->validatePrice(
-            $verificationResult,
-            $mstInAppPurchase,
-            $billingPlatform
-        );
-
-        // 6. 購入処理・VIPポイント付与・課金ログを1つのトランザクションで実行
-        return $this->executeWithTransaction(function () use (
-            $sysPlayerId,
-            $mstInAppPurchase,
-            $platform,
-            $billingPlatform,
-            $verificationResult,
-            $uniqueRequestId
-        ) {
-            // 6-1. 商品タイプ固有の購入処理（サブクラス実装）
-            $response = $this->executePurchase(
-                $sysPlayerId,
-                $mstInAppPurchase,
-                $platform,
+        try {
+            // 3. レシート検証を実行（トランザクション開始前に外部API呼び出し）
+            $verificationResult = $this->verifyReceipt(
                 $billingPlatform,
-                $verificationResult
-            );
-
-            // 6-2. VIPポイントを付与
-            $this->grantVipPoint(
-                $sysPlayerId,
-                $mstInAppPurchase,
-                $billingPlatform,
-                $verificationResult,
+                $receiptData,
                 $uniqueRequestId
             );
 
-            // 6-3. 課金ログを記録
-            $this->writePurchaseLog(
+            // 4. プロダクトIDが一致するか確認
+            $this->validateProductId($verificationResult, $productId);
+
+            // 5. 価格検証
+            $this->validatePrice(
+                $verificationResult,
+                $mstInAppPurchase,
+                $billingPlatform
+            );
+
+            // 6. 購入処理・VIPポイント付与・課金ログを1つのトランザクションで実行
+            return $this->executeWithTransaction(function () use (
                 $sysPlayerId,
                 $mstInAppPurchase,
                 $platform,
                 $billingPlatform,
                 $verificationResult,
                 $uniqueRequestId
+            ) {
+                // 6-1. 商品タイプ固有の購入処理（サブクラス実装）
+                $response = $this->executePurchase(
+                    $sysPlayerId,
+                    $mstInAppPurchase,
+                    $platform,
+                    $billingPlatform,
+                    $verificationResult
+                );
+
+                // 6-2. VIPポイントを付与
+                $this->grantVipPoint(
+                    $sysPlayerId,
+                    $mstInAppPurchase,
+                    $billingPlatform,
+                    $verificationResult,
+                    $uniqueRequestId
+                );
+
+                // 6-3. 課金ログを記録
+                $this->writePurchaseLog(
+                    $sysPlayerId,
+                    $mstInAppPurchase,
+                    $platform,
+                    $billingPlatform,
+                    $verificationResult,
+                    $uniqueRequestId
+                );
+
+                return $response;
+            });
+        } catch (Throwable $e) {
+            // 失敗もCS調査で追えるように記録する。
+            // トランザクションはロールバック済みのため、ログだけ別途書き込む。
+            $this->writeFailedPurchaseLog(
+                $sysPlayerId,
+                $mstInAppPurchase,
+                $platform,
+                $billingPlatform,
+                $receiptData,
+                $verificationResult,
+                $uniqueRequestId,
+                $e
             );
 
-            return $response;
-        });
+            throw $e;
+        }
     }
 
     /**
@@ -343,6 +364,72 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
             payAmount: $price,
             payString: $this->formatPayString($price, $currency),
         );
+    }
+
+    /**
+     * 失敗した購入をログに記録する
+     *
+     * 検証失敗・付与失敗のどちらでも呼ばれる。トランザクションの外へ直接書く。
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  MstInAppPurchase  $mstInAppPurchase  商品マスター
+     * @param  string  $platform  プラットフォーム（Apple, Google）
+     * @param  string  $billingPlatform  決済プラットフォーム
+     * @param  Receipt  $receiptData  リクエストのレシート情報
+     * @param  Verification|null  $verification  レシート検証結果（検証前に失敗した場合はnull）
+     * @param  string  $uniqueRequestId  一意なリクエストID
+     * @param  Throwable  $error  失敗の原因
+     */
+    protected function writeFailedPurchaseLog(
+        int $sysPlayerId,
+        MstInAppPurchase $mstInAppPurchase,
+        string $platform,
+        string $billingPlatform,
+        Receipt $receiptData,
+        ?Verification $verification,
+        string $uniqueRequestId,
+        Throwable $error
+    ): void {
+        if ($verification !== null) {
+            $price = $this->resolvePurchasePrice($verification, $mstInAppPurchase, $billingPlatform);
+            $currency = $this->resolveCurrency($verification, $mstInAppPurchase, $billingPlatform);
+        } else {
+            // 検証まで到達していないため、マスターの設定値で埋める
+            $masterPrice = $this->validationService->findMasterPrice($mstInAppPurchase, $billingPlatform);
+            $price = $masterPrice['amount'];
+            $currency = $masterPrice['currency'];
+        }
+
+        try {
+            $this->logInAppPurchaseRepository->insertFailedPurchaseLog(
+                uniqueRequestId: $uniqueRequestId,
+                sysPlayerId: $sysPlayerId,
+                platform: strtolower($platform),
+                billingPlatform: $billingPlatform,
+                receiptId: (string) ($verification?->getTransactionId() ?? $receiptData->getTransactionId() ?? ''),
+                receipt: [
+                    'product_id' => $receiptData->getProductId(),
+                    'transaction_id' => $receiptData->getTransactionId(),
+                    'verification' => $verification?->getRawResponse(),
+                    'error' => [
+                        'type' => $error::class,
+                        'message' => $error->getMessage(),
+                    ],
+                ],
+                mstInAppPurchaseId: (string) $mstInAppPurchase->getId(),
+                currencyCode: $currency ?? '',
+                payAmount: $price,
+                payString: $this->formatPayString($price, $currency),
+            );
+        } catch (Throwable $loggingError) {
+            // ログの書き込み失敗で本来の例外を握りつぶさない
+            Log::error('Failed to write the purchase failure log', [
+                'unique_request_id' => $uniqueRequestId,
+                'sys_player_id' => $sysPlayerId,
+                'original_error' => $error->getMessage(),
+                'logging_error' => $loggingError->getMessage(),
+            ]);
+        }
     }
 
     /**

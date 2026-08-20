@@ -539,7 +539,7 @@ class AuthController extends Controller
 {
     public function version(
         VersionCheckRequest $request,
-        VersionCheckUseCase $useCase
+        CheckUseCase $useCase
     ): JsonResponse {
         $response = $useCase->handle($request);
         return $response->toJsonResponse();
@@ -588,7 +588,7 @@ class AuthController extends Controller
 
 ```php
 // ✅ Good: UseCaseはビジネスフローを制御
-class VersionCheckUseCase extends _BaseUseCase
+class CheckUseCase extends _BaseUseCase
 {
     public function __construct(
         private readonly VersionCheckService $versionCheckService

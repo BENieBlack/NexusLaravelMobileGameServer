@@ -3,6 +3,7 @@
 namespace App\Repositories\Log;
 
 use App\Models\Log\LogInAppPurchase;
+use Illuminate\Support\Facades\DB;
 use Nexus\Core\Utilities\ClockUtility;
 
 /**
@@ -56,5 +57,51 @@ class LogInAppPurchaseRepository extends _BaseLogRepository
 
         // 課金ログとして登録（isPurchaseLogプロパティが使用される）
         $this->setModel($model);
+    }
+
+    /**
+     * 失敗した課金を即時にログへ記録する
+     *
+     * 検証失敗や付与失敗はトランザクションがロールバックされるため、
+     * Unit of Work のキューに積むと消えてしまう。
+     * CS調査で「購入を試みたが失敗した」を追えるように、
+     * トランザクションの外へ直接INSERTする。
+     *
+     * unique_request_id が既にある場合（成功後の再送など）は何もしない。
+     *
+     * @param  array<string, mixed>  $receipt  レシートまたは検証レスポンス
+     */
+    public function insertFailedPurchaseLog(
+        string $uniqueRequestId,
+        int $sysPlayerId,
+        string $platform,
+        string $billingPlatform,
+        string $receiptId,
+        array $receipt,
+        string $mstInAppPurchaseId,
+        string $currencyCode,
+        float $payAmount,
+        string $payString
+    ): void {
+        $model = new LogInAppPurchase;
+
+        DB::connection($model->getConnectionName())
+            ->table($model->getTable())
+            ->insertOrIgnore([
+                'unique_request_id' => $uniqueRequestId,
+                'sys_player_id' => $sysPlayerId,
+                'platform' => $platform,
+                'billing_platform' => $billingPlatform,
+                'receipt_id' => $receiptId,
+                'receipt' => json_encode($receipt, JSON_UNESCAPED_UNICODE),
+                'status' => LogInAppPurchase::STATUS_FAILED,
+                'mst_in_app_purchase_id' => $mstInAppPurchaseId,
+                'currency_code' => $currencyCode,
+                'pay_amount' => $payAmount,
+                'pay_string' => $payString,
+                'system_at' => ClockUtility::nowToString(),
+                'created_at' => ClockUtility::nowToString(),
+                'updated_at' => ClockUtility::nowToString(),
+            ]);
     }
 }

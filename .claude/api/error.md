@@ -327,7 +327,7 @@ use App\Exceptions\MasterDataException;
 use App\Exceptions\TransactionDataException;
 use App\Exceptions\BusinessLogicException;
 
-class UnitLevelUpUseCase
+class LevelUpUseCase
 {
     public function handle(int $playerId, int $unitId, string $itemId, int $useCount): array
     {

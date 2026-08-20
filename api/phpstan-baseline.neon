@@ -7,24 +7,6 @@ parameters:
 			path: ../packages/nexus-core-auth/src/ValueObjects/Token.php
 
 		-
-			message: '#^Method NexusBilling\\ApiClients\\AppStoreApiClient\:\:fetchSubscriptionStatus\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-core-billing/src/ApiClients/AppStoreApiClient.php
-
-		-
-			message: '#^Method NexusBilling\\ApiClients\\AppStoreApiClient\:\:verifyReceipt\(\) has parameter \$payload with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-core-billing/src/ApiClients/AppStoreApiClient.php
-
-		-
-			message: '#^Method NexusBilling\\ApiClients\\AppStoreApiClient\:\:verifyReceipt\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-core-billing/src/ApiClients/AppStoreApiClient.php
-
-		-
 			message: '#^Method NexusBilling\\Constants\\BillingConst\:\:allPlatforms\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -1135,58 +1117,58 @@ parameters:
 			path: app/Domain/Auth/Services/TokenValidator.php
 
 		-
-			message: '#^Property App\\Domain\\Auth\\UseCases\\AuthRefreshTokenUseCase\:\:\$deviceRepository is never read, only written\.$#'
+			message: '#^Property App\\Domain\\Auth\\UseCases\\RefreshTokenUseCase\:\:\$deviceRepository is never read, only written\.$#'
 			identifier: property.onlyWritten
 			count: 1
-			path: app/Domain/Auth/UseCases/AuthRefreshTokenUseCase.php
+			path: app/Domain/Auth/UseCases/RefreshTokenUseCase.php
 
 		-
-			message: '#^Method App\\Domain\\Auth\\UseCases\\AuthSignInUseCase\:\:exec\(\) has parameter \$deviceInfo with no value type specified in iterable type array\.$#'
+			message: '#^Method App\\Domain\\Auth\\UseCases\\SignInUseCase\:\:exec\(\) has parameter \$deviceInfo with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: app/Domain/Auth/UseCases/AuthSignInUseCase.php
+			path: app/Domain/Auth/UseCases/SignInUseCase.php
 
 		-
 			message: '#^Parameter \$sysPlayer of class App\\Http\\Responses\\Auth\\SignInResponse constructor expects App\\Models\\Sys\\SysPlayer, NexusAuth\\Contracts\\PlayerModelInterface given\.$#'
 			identifier: argument.type
 			count: 1
-			path: app/Domain/Auth/UseCases/AuthSignInUseCase.php
+			path: app/Domain/Auth/UseCases/SignInUseCase.php
 
 		-
 			message: '#^Parameter \$sysPlayerDevice of class App\\Http\\Responses\\Auth\\SignInResponse constructor expects App\\Models\\Sys\\SysPlayerDevice, NexusAuth\\Contracts\\DeviceModelInterface given\.$#'
 			identifier: argument.type
 			count: 1
-			path: app/Domain/Auth/UseCases/AuthSignInUseCase.php
+			path: app/Domain/Auth/UseCases/SignInUseCase.php
 
 		-
 			message: '#^Parameter \$sysPlayerToken of class App\\Http\\Responses\\Auth\\SignInResponse constructor expects App\\Models\\Sys\\SysPlayerToken, NexusAuth\\Contracts\\TokenModelInterface given\.$#'
 			identifier: argument.type
 			count: 1
-			path: app/Domain/Auth/UseCases/AuthSignInUseCase.php
+			path: app/Domain/Auth/UseCases/SignInUseCase.php
 
 		-
-			message: '#^Method App\\Domain\\Auth\\UseCases\\AuthSignUpUseCase\:\:exec\(\) has parameter \$deviceInfo with no value type specified in iterable type array\.$#'
+			message: '#^Method App\\Domain\\Auth\\UseCases\\SignUpUseCase\:\:exec\(\) has parameter \$deviceInfo with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: app/Domain/Auth/UseCases/AuthSignUpUseCase.php
+			path: app/Domain/Auth/UseCases/SignUpUseCase.php
 
 		-
 			message: '#^Parameter \$sysPlayer of class App\\Http\\Responses\\Auth\\SignUpResponse constructor expects App\\Models\\Sys\\SysPlayer, NexusAuth\\Contracts\\PlayerModelInterface given\.$#'
 			identifier: argument.type
 			count: 1
-			path: app/Domain/Auth/UseCases/AuthSignUpUseCase.php
+			path: app/Domain/Auth/UseCases/SignUpUseCase.php
 
 		-
 			message: '#^Parameter \$sysPlayerToken of class App\\Http\\Responses\\Auth\\SignUpResponse constructor expects App\\Models\\Sys\\SysPlayerToken, NexusAuth\\Contracts\\TokenModelInterface given\.$#'
 			identifier: argument.type
 			count: 1
-			path: app/Domain/Auth/UseCases/AuthSignUpUseCase.php
+			path: app/Domain/Auth/UseCases/SignUpUseCase.php
 
 		-
-			message: '#^Property App\\Domain\\Auth\\UseCases\\AuthSignUpUseCase\:\:\$tokenRepository is never read, only written\.$#'
+			message: '#^Property App\\Domain\\Auth\\UseCases\\SignUpUseCase\:\:\$tokenRepository is never read, only written\.$#'
 			identifier: property.onlyWritten
 			count: 1
-			path: app/Domain/Auth/UseCases/AuthSignUpUseCase.php
+			path: app/Domain/Auth/UseCases/SignUpUseCase.php
 
 		-
 			message: '#^Call to an undefined method Nexus\\Core\\Models\\Mst\\_BaseMstInterface\:\:getRarity\(\)\.$#'
@@ -1198,19 +1180,19 @@ parameters:
 			message: '#^Call to an undefined method Nexus\\Core\\Models\\Mst\\_BaseMstInterface\:\:getEffect\(\)\.$#'
 			identifier: method.notFound
 			count: 2
-			path: app/Domain/Equipment/UseCases/EquipmentLevelUpUseCase.php
+			path: app/Domain/Equipment/UseCases/LevelUpUseCase.php
 
 		-
 			message: '#^Call to an undefined method Nexus\\Core\\Models\\Mst\\_BaseMstInterface\:\:getType\(\)\.$#'
 			identifier: method.notFound
 			count: 2
-			path: app/Domain/Equipment/UseCases/EquipmentLevelUpUseCase.php
+			path: app/Domain/Equipment/UseCases/LevelUpUseCase.php
 
 		-
 			message: '#^Call to an undefined method Nexus\\Core\\Models\\Mst\\_BaseMstInterface\:\:getValue\(\)\.$#'
 			identifier: method.notFound
 			count: 2
-			path: app/Domain/Equipment/UseCases/EquipmentLevelUpUseCase.php
+			path: app/Domain/Equipment/UseCases/LevelUpUseCase.php
 
 		-
 			message: '#^Call to an undefined method Nexus\\Core\\Models\\Mst\\_BaseMstInterface\:\:getIsActive\(\)\.$#'
@@ -1225,28 +1207,28 @@ parameters:
 			path: app/Domain/Gacha/Services/GachaValidationService.php
 
 		-
-			message: '#^Method App\\Domain\\Gacha\\UseCases\\GachaDrawUseCase\:\:persistHistory\(\) has parameter \$prizes with no value type specified in iterable type array\.$#'
+			message: '#^Method App\\Domain\\Gacha\\UseCases\\DrawUseCase\:\:persistHistory\(\) has parameter \$prizes with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: app/Domain/Gacha/UseCases/GachaDrawUseCase.php
+			path: app/Domain/Gacha/UseCases/DrawUseCase.php
 
 		-
-			message: '#^Property App\\Domain\\Guild\\UseCases\\GuildApplyAcceptUseCase\:\:\$sysGuildApplyRepository is never read, only written\.$#'
+			message: '#^Property App\\Domain\\Guild\\UseCases\\ApplyAcceptUseCase\:\:\$sysGuildApplyRepository is never read, only written\.$#'
 			identifier: property.onlyWritten
 			count: 1
-			path: app/Domain/Guild/UseCases/GuildApplyAcceptUseCase.php
+			path: app/Domain/Guild/UseCases/ApplyAcceptUseCase.php
 
 		-
-			message: '#^Property App\\Domain\\Guild\\UseCases\\GuildApplySendUseCase\:\:\$sysGuildRepository is never read, only written\.$#'
+			message: '#^Property App\\Domain\\Guild\\UseCases\\ApplySendUseCase\:\:\$sysGuildRepository is never read, only written\.$#'
 			identifier: property.onlyWritten
 			count: 1
-			path: app/Domain/Guild/UseCases/GuildApplySendUseCase.php
+			path: app/Domain/Guild/UseCases/ApplySendUseCase.php
 
 		-
-			message: '#^Property App\\Domain\\Guild\\UseCases\\GuildCreateUseCase\:\:\$sysGuildRepository is never read, only written\.$#'
+			message: '#^Property App\\Domain\\Guild\\UseCases\\CreateUseCase\:\:\$sysGuildRepository is never read, only written\.$#'
 			identifier: property.onlyWritten
 			count: 1
-			path: app/Domain/Guild/UseCases/GuildCreateUseCase.php
+			path: app/Domain/Guild/UseCases/CreateUseCase.php
 
 		-
 			message: '#^Method App\\Domain\\InAppPurchase\\Constants\\InAppPurchaseConst\:\:allContentTypes\(\) return type has no value type specified in iterable type array\.$#'
@@ -1438,19 +1420,19 @@ parameters:
 			message: '#^Access to undefined constant App\\Exceptions\\GameErrorCode\:\:MAILBOX_ALREADY_DELETED\.$#'
 			identifier: classConstant.notFound
 			count: 1
-			path: app/Domain/Mailbox/UseCases/MailboxLockUseCase.php
+			path: app/Domain/Mailbox/UseCases/LockUseCase.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>contentCollection" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: app/Domain/Mailbox/UseCases/MailboxReceiveAllUseCase.php
+			path: app/Domain/Mailbox/UseCases/ReceiveAllUseCase.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>contentCollection" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: app/Domain/Mailbox/UseCases/MailboxReceiveUseCase.php
+			path: app/Domain/Mailbox/UseCases/ReceiveUseCase.php
 
 		-
 			message: '#^Method App\\Domain\\Unit\\Constants\\UnitConst\:\:allTypes\(\) return type has no value type specified in iterable type array\.$#'
@@ -1468,19 +1450,19 @@ parameters:
 			message: '#^Call to an undefined method Nexus\\Core\\Models\\Mst\\_BaseMstInterface\:\:getEffect\(\)\.$#'
 			identifier: method.notFound
 			count: 2
-			path: app/Domain/Unit/UseCases/UnitLevelUpUseCase.php
+			path: app/Domain/Unit/UseCases/LevelUpUseCase.php
 
 		-
 			message: '#^Call to an undefined method Nexus\\Core\\Models\\Mst\\_BaseMstInterface\:\:getType\(\)\.$#'
 			identifier: method.notFound
 			count: 2
-			path: app/Domain/Unit/UseCases/UnitLevelUpUseCase.php
+			path: app/Domain/Unit/UseCases/LevelUpUseCase.php
 
 		-
 			message: '#^Call to an undefined method Nexus\\Core\\Models\\Mst\\_BaseMstInterface\:\:getValue\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: app/Domain/Unit/UseCases/UnitLevelUpUseCase.php
+			path: app/Domain/Unit/UseCases/LevelUpUseCase.php
 
 		-
 			message: '#^Dead catch \- Exception is never thrown in the try block\.$#'

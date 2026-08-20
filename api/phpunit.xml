@@ -65,9 +65,9 @@
         <env name="DB_MASTER_PASSWORD" value="root"/>
 
         <!-- Log DB Testing (generic) -->
-        <env name="DB_LOG_HOST" value="db-log1"/>
+        <env name="DB_LOG_HOST" value="db-log"/>
         <env name="DB_LOG_PORT" value="3306"/>
-        <env name="DB_LOG_DATABASE" value="nexus-testing-log1"/>
+        <env name="DB_LOG_DATABASE" value="nexus-testing-log"/>
         <env name="DB_LOG_USERNAME" value="root"/>
         <env name="DB_LOG_PASSWORD" value="root"/>
 

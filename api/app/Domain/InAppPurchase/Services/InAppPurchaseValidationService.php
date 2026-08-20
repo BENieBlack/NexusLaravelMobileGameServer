@@ -211,6 +211,46 @@ class InAppPurchaseValidationService
     }
 
     /**
+     * マスターに設定された価格と通貨を取得する
+     *
+     * レシート検証まで進めなかった場合（検証失敗時のログ記録など）に使う。
+     *
+     * @param  MstInAppPurchase  $mstInAppPurchase  商品マスター
+     * @param  string  $billingPlatform  決済プラットフォーム
+     * @return array{amount: float, currency: string|null}
+     */
+    public function findMasterPrice(MstInAppPurchase $mstInAppPurchase, string $billingPlatform): array
+    {
+        $platformProduct = $this->getPlatformProduct($mstInAppPurchase, $billingPlatform);
+
+        return [
+            'amount' => $platformProduct?->price_amount_micros !== null
+                ? (int) $platformProduct->price_amount_micros / 1_000_000
+                : 0.0,
+            'currency' => $platformProduct?->price_currency_code,
+        ];
+    }
+
+    /**
+     * 購入通貨を解決する
+     *
+     * 価格と同じく、レシート検証結果 → マスターの順に見る。
+     *
+     * @param  Verification  $verification  レシート検証結果
+     * @param  MstInAppPurchase  $mstInAppPurchase  商品マスター
+     * @param  string  $billingPlatform  決済プラットフォーム
+     * @return string|null 通貨コード（ISO 4217）。どちらにも無ければnull
+     */
+    public function resolvePurchaseCurrency(
+        Verification $verification,
+        MstInAppPurchase $mstInAppPurchase,
+        string $billingPlatform
+    ): ?string {
+        return $verification->getPriceCurrencyCode()
+            ?? $this->getPlatformProduct($mstInAppPurchase, $billingPlatform)?->price_currency_code;
+    }
+
+    /**
      * プラットフォーム商品を取得
      *
      * @param  MstInAppPurchase  $mstInAppPurchase  商品マスター

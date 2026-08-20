@@ -19,6 +19,13 @@ use Carbon\CarbonImmutable;
  */
 class GooglePlayBillingService implements BillingPlatformInterface
 {
+    /**
+     * 返金済みとみなす注文状態（Orders API の state）
+     *
+     * @var list<string>
+     */
+    private const REFUNDED_ORDER_STATES = ['refunded', 'partially_refunded', 'canceled'];
+
     public function __construct(
         private readonly GooglePlayApiClient $apiClient,
     ) {}
@@ -73,19 +80,23 @@ class GooglePlayBillingService implements BillingPlatformInterface
 
     /**
      * {@inheritDoc}
+     *
+     * Google Playのサブスクリプション照会は購入トークンが必須。
      */
-    public function fetchSubscriptionStatus(string $subscriptionId): Subscription
+    public function fetchSubscriptionStatus(string $subscriptionId, ?string $purchaseToken = null): Subscription
     {
-        // サブスクリプショントークンと商品IDが必要
-        // 実際の実装では別途パラメータが必要
-        
+        if (empty($purchaseToken)) {
+            throw new InvalidReceiptException(
+                'Purchase token is required to check a Google Play subscription'
+            );
+        }
+
         $packageName = config('services.google_play.package_name');
-        
-        // TODO: 実際のトークンを渡す必要がある
+
         $response = $this->apiClient->fetchSubscription(
             packageName: $packageName,
             subscriptionId: $subscriptionId,
-            token: '' // トークンが必要
+            token: $purchaseToken
         );
 
         $isActive = isset($response['paymentState']) && $response['paymentState'] === 1;
@@ -101,12 +112,18 @@ class GooglePlayBillingService implements BillingPlatformInterface
 
     /**
      * {@inheritDoc}
+     *
+     * Orders APIで注文状態を引き、返金・チャージバック済みかを判定する。
+     * $transactionId は verifyReceipt が返す orderId。
      */
     public function isRefunded(string $transactionId): bool
     {
-        // TODO: Google Play では購入情報を再取得して返金状態をチェック
-        // 現在は常にfalseを返す
-        
-        return false;
+        $packageName = config('services.google_play.package_name');
+
+        $order = $this->apiClient->fetchOrder($packageName, $transactionId);
+
+        $state = $order['state'] ?? null;
+
+        return in_array($state, self::REFUNDED_ORDER_STATES, true);
     }
 }

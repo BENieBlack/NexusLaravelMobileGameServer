@@ -246,12 +246,56 @@ class BuyDiamondUseCaseTest extends TestCase
             DB::connection('trx1')->table('trx_diamond')->where('sys_player_id', $this->sysPlayerId)->first()
         );
 
-        // VIPポイントも課金ログも残らない
+        // ダイヤもVIPポイントも付与されない
         $player = DB::connection('sys')->table('sys_player')->where('id', $this->sysPlayerId)->first();
         $this->assertSame(0, $player->vip_point);
-        $this->assertNull(
-            DB::connection('log1')->table('log_in_app_purchase')->where('sys_player_id', $this->sysPlayerId)->first()
-        );
+
+        // 失敗した事実はログに残る（トランザクション外に書くためロールバックされない）
+        $log = DB::connection('log1')->table('log_in_app_purchase')
+            ->where('sys_player_id', $this->sysPlayerId)
+            ->first();
+        $this->assertNotNull($log);
+        $this->assertSame('Failed', $log->status);
+        $this->assertSame('google', $log->platform);
+
+        $receipt = json_decode($log->receipt, true);
+        $this->assertSame('diamond_500', $receipt['product_id']);
+        $this->assertStringContainsString('not in purchased state', $receipt['error']['message']);
+    }
+
+    #[Test]
+    public function 外部_ap_iに繋がらない場合も失敗ログが残る(): void
+    {
+        $mstInAppPurchase = $this->createProduct('GooglePlay');
+
+        Http::fake([
+            'oauth2.googleapis.com/token' => Http::response(['error' => 'invalid_grant'], 400),
+        ]);
+
+        try {
+            app(BuyDiamondUseCase::class)->exec(
+                $this->sysPlayerId,
+                $mstInAppPurchase,
+                'Google',
+                'GooglePlay',
+                'purchase-token-abc',
+                'GPA.0000-1111-2222-33333',
+                'diamond_500'
+            );
+            $this->fail('例外が投げられるべき');
+        } catch (\Throwable $e) {
+            // 検証まで到達しない
+        }
+
+        $log = DB::connection('log1')->table('log_in_app_purchase')
+            ->where('sys_player_id', $this->sysPlayerId)
+            ->first();
+        $this->assertNotNull($log);
+        $this->assertSame('Failed', $log->status);
+
+        // 検証結果が無いため、マスターの価格で埋める
+        $this->assertSame('JPY', $log->currency_code);
+        $this->assertSame('490.00', (string) $log->pay_amount);
     }
 
     /**

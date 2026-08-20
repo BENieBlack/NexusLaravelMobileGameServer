@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\CheckMaintenance;
+use App\Http\Middleware\ResolveLanguage;
 use App\Http\Middleware\VerifyAdminToken;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -19,6 +20,11 @@ $app = Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // 全APIリクエストでAccept-Languageから言語を解決する
+        $middleware->api(prepend: [
+            ResolveLanguage::class,
+        ]);
+
         // ミドルウェアエイリアスを登録
         $middleware->alias([
             'auth.token' => VerifyAccessToken::class,

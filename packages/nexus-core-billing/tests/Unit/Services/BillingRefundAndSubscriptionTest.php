@@ -3,6 +3,7 @@
 namespace NexusBilling\Tests\Unit\Services;
 
 use NexusBilling\ApiClients\AppStoreApiClient;
+use NexusBilling\Constants\BillingConst;
 use NexusBilling\ApiClients\GooglePlayApiClient;
 use NexusBilling\Exceptions\InvalidReceiptException;
 use NexusBilling\Exceptions\PlatformApiException;
@@ -53,25 +54,94 @@ class BillingRefundAndSubscriptionTest extends TestCase
     }
 
     #[Test]
-    public function AppStoreの返金確認は未実装として失敗する(): void
+    public function AppStoreの返金履歴に含まれていれば返金済み(): void
     {
-        $service = new AppStoreBillingService($this->createMock(AppStoreApiClient::class));
+        $serverApiClient = $this->createMock(AppStoreApiClient::class);
+        $serverApiClient->method('fetchRefundHistory')
+            ->willReturn(['signedTransactions' => ['signed-jws']]);
+        $serverApiClient->method('decodeSignedPayload')
+            ->willReturn(['transactionId' => '1000000000000001']);
 
-        // falseを返すと「返金されていない」と誤って扱われるため、例外にしている
-        $this->expectException(PlatformApiException::class);
-        $this->expectExceptionMessage('App Store Server API');
+        $service = new AppStoreBillingService($serverApiClient);
 
-        $service->isRefunded('1000000000000000');
+        $this->assertTrue($service->isRefunded('1000000000000001'));
     }
 
     #[Test]
-    public function AppStoreのサブスクリプション照会は未実装として失敗する(): void
+    public function AppStoreの返金履歴が空なら返金されていない(): void
     {
-        $service = new AppStoreBillingService($this->createMock(AppStoreApiClient::class));
+        $serverApiClient = $this->createMock(AppStoreApiClient::class);
+        $serverApiClient->method('fetchRefundHistory')->willReturn(['signedTransactions' => []]);
 
+        $service = new AppStoreBillingService($serverApiClient);
+
+        $this->assertFalse($service->isRefunded('1000000000000001'));
+    }
+
+    #[Test]
+    public function AppStoreの有効なサブスクリプションを取得できる(): void
+    {
+        $serverApiClient = $this->createMock(AppStoreApiClient::class);
+        $serverApiClient->method('fetchSubscriptionStatuses')->willReturn([
+            'data' => [[
+                'lastTransactions' => [[
+                    'status' => 1, // Active
+                    'signedTransactionInfo' => 'signed-transaction',
+                    'signedRenewalInfo' => 'signed-renewal',
+                ]],
+            ]],
+        ]);
+        $serverApiClient->method('decodeSignedPayload')->willReturnCallback(
+            fn (string $signed) => $signed === 'signed-transaction'
+                ? ['expiresDate' => 1758326400000]
+                : ['autoRenewStatus' => 1]
+        );
+
+        $service = new AppStoreBillingService($serverApiClient);
+
+        $subscription = $service->fetchSubscriptionStatus('1000000000000001');
+
+        $this->assertTrue($subscription->isActive());
+        $this->assertTrue($subscription->isAutoRenew());
+        $this->assertSame(BillingConst::SUBSCRIPTION_STATE_ACTIVE, $subscription->getState());
+    }
+
+    #[Test]
+    public function AppStoreの失効したサブスクリプションは無効として返す(): void
+    {
+        $serverApiClient = $this->createMock(AppStoreApiClient::class);
+        $serverApiClient->method('fetchSubscriptionStatuses')->willReturn([
+            'data' => [[
+                'lastTransactions' => [[
+                    'status' => 2, // Expired
+                    'signedTransactionInfo' => 'signed-transaction',
+                ]],
+            ]],
+        ]);
+        $serverApiClient->method('decodeSignedPayload')->willReturn(['expiresDate' => 1755648000000]);
+
+        $service = new AppStoreBillingService($serverApiClient);
+
+        $subscription = $service->fetchSubscriptionStatus('1000000000000001');
+
+        $this->assertFalse($subscription->isActive());
+        $this->assertFalse($subscription->isAutoRenew());
+        $this->assertSame(BillingConst::SUBSCRIPTION_STATE_EXPIRED, $subscription->getState());
+    }
+
+    #[Test]
+    public function AppStoreで購読が見つからなければ例外になる(): void
+    {
+        $serverApiClient = $this->createMock(AppStoreApiClient::class);
+        $serverApiClient->method('fetchSubscriptionStatuses')->willReturn(['data' => []]);
+
+        $service = new AppStoreBillingService($serverApiClient);
+
+        // 「期限切れ」を返すと未購読として扱われてしまうため、失敗させる
         $this->expectException(PlatformApiException::class);
+        $this->expectExceptionMessage('No subscription status found');
 
-        $service->fetchSubscriptionStatus('1000000000000000');
+        $service->fetchSubscriptionStatus('1000000000000001');
     }
 
     /**

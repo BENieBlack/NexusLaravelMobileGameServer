@@ -53,9 +53,12 @@
 
 | Domain Service | 評価 | 理由 |
 |---|---|---|
-| `InAppPurchasePurchaseService` | ✅ 適切 | 複数Serviceを組み合わせたワークフロー（UseCaseに近い責務） |
-| `GachaCostService` | ✅ 適切 | DiamondService/ItemServiceへの委譲のみ（オーケストレーション） |
-| `DiamondService` (Facade) | ✅ 適切 | 後方互換性のためのFacade（内部で新Serviceに委譲） |
+| `InAppPurchaseDiamondService` | ✅ 適切 | 複数Serviceを組み合わせたワークフロー（UseCaseに近い責務） |
+| `GachaCostService` | ✅ 適切 | InAppPurchaseDiamondBalanceService/ItemServiceへの委譲のみ（オーケストレーション） |
+
+> `DiamondService`（後方互換用のFacade）は2026-08-20に削除した。委譲するだけで
+> 呼び出し段数を増やしていただけであり、「Domain層にクラスを作る基準」を満たさない。
+> 呼び出し元は `InAppPurchaseDiamondBalanceService` / `InAppPurchaseDiamondService` を直接使う。
 
 ### 🔄 パッケージに移動すべきService
 
@@ -125,7 +128,7 @@ api/app/Domain/Item/Services/
 
 **移行後の構造:**
 - パッケージ層: `nexus-core-billing/src/Services/DiamondBalanceService.php` - DTOベースのビジネスロジック
-- Domain層: `api/app/Domain/InAppPurchase/Services/DiamondBalanceService.php` - Wrapperパターン + FIFO管理追加機能
+- Domain層: `api/app/Domain/InAppPurchase/Services/InAppPurchaseDiamondBalanceService.php` - Wrapperパターン + FIFO管理追加機能
 - Repository実装: `api/app/Repositories/Trx/DiamondRepositoryImpl.php`
 
 **移行したビジネスロジック:**
@@ -196,19 +199,19 @@ Domain層（Model） → DTO ↔ Model変換 + アプリ固有機能
 
 **判定:**
 - ✅ **移行不要** - オーケストレーション層として適切
-- DiamondService/ItemServiceへの委譲のみ（ビジネスロジックなし）
+- InAppPurchaseDiamondBalanceService/ItemServiceへの委譲のみ（ビジネスロジックなし）
 - UseCaseに近い責務
 
 ### InAppPurchase関連Service
 
 **現状:**
-- `DiamondBalanceService` は移行完了 ✅
-- `InAppPurchasePurchaseService` はDomain層に残存
+- `InAppPurchaseDiamondBalanceService`（Domain層ラッパー）は移行完了 ✅
+- `InAppPurchaseDiamondService` はDomain層に残存
 
 **判定:**
 - ✅ **移行不要** - オーケストレーション層として適切
 - 複数Serviceを組み合わせたワークフロー管理（UseCaseに近い責務）
-- ValidationService、DiamondBalanceService、HistoryServiceへの委譲
+- InAppPurchaseValidationService、InAppPurchaseDiamondBalanceService、InAppPurchaseHistoryServiceへの委譲
 
 ### VersionService
 
@@ -286,28 +289,29 @@ class StaminaService {
 - ✅ パッケージが完全に独立
 - ✅ テストしやすい
 
-### パターン2: Facadeパターン
+### パターン2: オーケストレーション
 
-**用途:** 複数のパッケージServiceを組み合わせる場合
+**用途:** 複数のServiceを順番に呼んで1つの業務フローを完成させる場合
 
 ```php
-// Package Layer
-class DiamondBalanceService { ... }
-class PurchaseService { ... }
-
-// Domain Layer (Facade)
-class DiamondService {
+// Domain Layer
+class InAppPurchaseDiamondService {
     public function __construct(
-        private readonly DiamondBalanceService $balanceService,
-        private readonly PurchaseService $purchaseService,
+        private readonly TrxInAppPurchaseRepository $trxInAppPurchaseRepository,
+        private readonly InAppPurchaseValidationService $validationService,
+        private readonly InAppPurchaseDiamondBalanceService $diamondBalanceService,
+        private readonly InAppPurchaseHistoryService $historyService,
     ) {}
-    
-    public function purchaseDiamond(...) {
-        // 複数Serviceのオーケストレーション
-        return $this->purchaseService->purchaseDiamond(...);
+
+    public function purchaseDiamond(...): array {
+        // 1. 購入制限チェック → 2. ダイヤ加算 → 3. 履歴更新 → 4. 残高返却
     }
 }
 ```
+
+**⚠️ Facadeにしないこと。** 「後方互換のために既存クラス名を残し、中身は新Serviceへ丸投げ」は
+オーケストレーションではない。呼び出し元を新Serviceに向け直して、古いクラスは削除する。
+`ItemService`のRead/Write分割（2026-08-19）と`DiamondService`（2026-08-20）はこれで削除した。
 
 ### パターン3: 継承パターン（限定的に使用）
 

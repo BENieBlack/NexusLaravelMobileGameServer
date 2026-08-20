@@ -2,7 +2,7 @@
 
 namespace NexusResourceDelivery\Handlers;
 
-use App\Domain\InAppPurchase\Services\DiamondService;
+use App\Domain\InAppPurchase\Services\InAppPurchaseDiamondBalanceService;
 use NexusResource\Enums\ResourceType;
 use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
 
@@ -10,7 +10,7 @@ use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
  * DiamondDeliveryHandler
  *
  * ダイヤモンド配送処理を担当するHandler
- * DiamondServiceを使用して、有償/無償ダイヤモンドを加算
+ * InAppPurchaseDiamondBalanceServiceを使用して、有償/無償ダイヤモンドを加算
  *
  * 対応リソース:
  * - ResourceType::DIAMOND (無償ダイヤモンド)
@@ -22,7 +22,7 @@ use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
 class DiamondDeliveryHandler implements ResourceDeliveryHandlerInterface
 {
     public function __construct(
-        private readonly DiamondService $diamondService,
+        private readonly InAppPurchaseDiamondBalanceService $diamondBalanceService,
     ) {}
 
     /**
@@ -43,7 +43,7 @@ class DiamondDeliveryHandler implements ResourceDeliveryHandlerInterface
         $isPaid = $resourceDeliveryContent->getType() === ResourceType::PAID_DIAMOND;
 
         // ダイヤモンドを加算
-        $this->diamondService->addDiamond(
+        $this->diamondBalanceService->addDiamond(
             $sysPlayerId,
             $platform,
             $resourceDeliveryContent->getAmount(),

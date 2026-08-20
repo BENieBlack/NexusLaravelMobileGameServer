@@ -6,27 +6,27 @@ use App\Models\Mst\MstInAppPurchase;
 use App\Repositories\Trx\TrxInAppPurchaseRepository;
 
 /**
- * InAppPurchasePurchaseService
+ * InAppPurchaseDiamondService
  *
  * ダイヤモンド購入のワークフロー全体を担当するサービス
  *
  * 責任:
  * - 購入制限チェック
- * - ダイヤモンド加算（DiamondBalanceServiceに委譲）
+ * - ダイヤモンド加算（InAppPurchaseDiamondBalanceServiceに委譲）
  * - 購入履歴更新（HistoryServiceに委譲）
  *
  * 処理フロー:
  * 1. 購入履歴を取得
  * 2. 購入制限チェック（ValidationService）
- * 3. ダイヤモンド加算（DiamondBalanceService）
+ * 3. ダイヤモンド加算（InAppPurchaseDiamondBalanceService）
  * 4. 購入履歴を更新（HistoryService）
  */
-class InAppPurchasePurchaseService
+class InAppPurchaseDiamondService
 {
     public function __construct(
         private readonly TrxInAppPurchaseRepository $trxInAppPurchaseRepository,
         private readonly InAppPurchaseValidationService $validationService,
-        private readonly DiamondBalanceService $diamondBalanceService,
+        private readonly InAppPurchaseDiamondBalanceService $diamondBalanceService,
         private readonly InAppPurchaseHistoryService $historyService,
     ) {}
 
@@ -62,7 +62,7 @@ class InAppPurchasePurchaseService
         // 2. 購入制限チェック
         $this->validationService->validatePurchaseLimit($mstInAppPurchase, $purchaseHistory, $billingPlatform);
 
-        // 3. ダイヤモンド加算（DiamondBalanceServiceに委譲）
+        // 3. ダイヤモンド加算（InAppPurchaseDiamondBalanceServiceに委譲）
         $this->diamondBalanceService->addPaidDiamondWithBalance(
             $sysPlayerId,
             $platform,

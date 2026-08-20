@@ -1,22 +1,22 @@
 <?php
 
-namespace NexusBilling\Tests\Unit\Services;
+namespace NexusResource\Tests\Unit\Services;
 
-use NexusBilling\Services\DiamondBalanceService;
-use NexusBilling\Contracts\DiamondRepositoryInterface;
-use NexusBilling\DataTransferObjects\DiamondBalance;
+use NexusResource\Services\DiamondService;
+use NexusResource\Contracts\DiamondRepositoryInterface;
+use NexusResource\DataTransferObjects\DiamondBalance;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 
 /**
- * DiamondBalanceServiceのユニットテスト
+ * DiamondServiceのユニットテスト
  * 
  * パッケージ層の純粋なビジネスロジックをテスト
  */
-class DiamondBalanceServiceTest extends TestCase
+class DiamondServiceTest extends TestCase
 {
-    private DiamondBalanceService $diamondBalanceService;
+    private DiamondService $diamondService;
     private DiamondRepositoryInterface|MockObject $mockRepository;
 
     protected function setUp(): void
@@ -24,7 +24,7 @@ class DiamondBalanceServiceTest extends TestCase
         parent::setUp();
 
         $this->mockRepository = $this->createMock(DiamondRepositoryInterface::class);
-        $this->diamondBalanceService = new DiamondBalanceService($this->mockRepository);
+        $this->diamondService = new DiamondService($this->mockRepository);
     }
 
     #[Test]
@@ -54,7 +54,7 @@ class DiamondBalanceServiceTest extends TestCase
             }));
 
         // Act
-        $result = $this->diamondBalanceService->addDiamond($sysPlayerId, $platform, $addAmount, false);
+        $result = $this->diamondService->addDiamond($sysPlayerId, $platform, $addAmount, false);
 
         // Assert
         $this->assertInstanceOf(DiamondBalance::class, $result);
@@ -85,7 +85,7 @@ class DiamondBalanceServiceTest extends TestCase
             ->method('persistDiamond');
 
         // Act
-        $result = $this->diamondBalanceService->addDiamond($sysPlayerId, $platform, $addAmount, true);
+        $result = $this->diamondService->addDiamond($sysPlayerId, $platform, $addAmount, true);
 
         // Assert
         $this->assertSame($freeAmount, $result->getFreeAmount());
@@ -115,7 +115,7 @@ class DiamondBalanceServiceTest extends TestCase
             }));
 
         // Act
-        $result = $this->diamondBalanceService->addDiamond($sysPlayerId, $platform, $addAmount, false);
+        $result = $this->diamondService->addDiamond($sysPlayerId, $platform, $addAmount, false);
 
         // Assert
         $this->assertSame($addAmount, $result->getFreeAmount());
@@ -140,7 +140,7 @@ class DiamondBalanceServiceTest extends TestCase
             ->willReturn($existing);
 
         // Act
-        $result = $this->diamondBalanceService->findBalance($sysPlayerId, $platform);
+        $result = $this->diamondService->findBalance($sysPlayerId, $platform);
 
         // Assert
         $this->assertIsArray($result);
@@ -163,7 +163,7 @@ class DiamondBalanceServiceTest extends TestCase
             ->willReturn(null);
 
         // Act
-        $result = $this->diamondBalanceService->findBalance($sysPlayerId, $platform);
+        $result = $this->diamondService->findBalance($sysPlayerId, $platform);
 
         // Assert
         $this->assertSame(0, $result['paid_amount']);
@@ -194,7 +194,7 @@ class DiamondBalanceServiceTest extends TestCase
             ->method('persistDiamond');
 
         // Act
-        $this->diamondBalanceService->consumeDiamond($sysPlayerId, $consumeAmount, false);
+        $this->diamondService->consumeDiamond($sysPlayerId, $consumeAmount, false);
 
         // Assert
         $this->assertSame($freeAmount - $consumeAmount, $existing->getFreeAmount());
@@ -223,7 +223,7 @@ class DiamondBalanceServiceTest extends TestCase
             ->method('persistDiamond');
 
         // Act
-        $this->diamondBalanceService->consumeDiamond($sysPlayerId, $consumeAmount, false);
+        $this->diamondService->consumeDiamond($sysPlayerId, $consumeAmount, false);
 
         // Assert
         $this->assertSame(0, $existing->getFreeAmount());
@@ -253,7 +253,7 @@ class DiamondBalanceServiceTest extends TestCase
             ->method('persistDiamond');
 
         // Act
-        $this->diamondBalanceService->consumeDiamond($sysPlayerId, $consumeAmount, true);
+        $this->diamondService->consumeDiamond($sysPlayerId, $consumeAmount, true);
 
         // Assert
         $this->assertSame($freeAmount, $existing->getFreeAmount());
@@ -282,7 +282,7 @@ class DiamondBalanceServiceTest extends TestCase
         $this->expectException(\Exception::class);
 
         // Act
-        $this->diamondBalanceService->consumeDiamond($sysPlayerId, $consumeAmount, false);
+        $this->diamondService->consumeDiamond($sysPlayerId, $consumeAmount, false);
     }
 
     #[Test]
@@ -307,7 +307,7 @@ class DiamondBalanceServiceTest extends TestCase
         $this->expectException(\Exception::class);
 
         // Act
-        $this->diamondBalanceService->consumeDiamond($sysPlayerId, $consumeAmount, true);
+        $this->diamondService->consumeDiamond($sysPlayerId, $consumeAmount, true);
     }
 
     #[Test]
@@ -333,7 +333,7 @@ class DiamondBalanceServiceTest extends TestCase
             }));
 
         // Act
-        $result = $this->diamondBalanceService->addDiamond($sysPlayerId, $platform, $addAmount, true);
+        $result = $this->diamondService->addDiamond($sysPlayerId, $platform, $addAmount, true);
 
         // Assert
         $this->assertSame($addAmount, $result->getPaidAmount());
@@ -363,7 +363,7 @@ class DiamondBalanceServiceTest extends TestCase
             ->method('persistDiamond');
 
         // Act
-        $this->diamondBalanceService->consumeDiamond($sysPlayerId, $consumeAmount, false);
+        $this->diamondService->consumeDiamond($sysPlayerId, $consumeAmount, false);
 
         // Assert
         $this->assertSame(0, $dtoApple->getFreeAmount());
@@ -389,7 +389,7 @@ class DiamondBalanceServiceTest extends TestCase
         $this->expectException(\Exception::class);
 
         // Act
-        $this->diamondBalanceService->consumeDiamond($sysPlayerId, $consumeAmount, false);
+        $this->diamondService->consumeDiamond($sysPlayerId, $consumeAmount, false);
     }
 
     #[Test]
@@ -414,7 +414,7 @@ class DiamondBalanceServiceTest extends TestCase
             ->method('persistDiamond');
 
         // Act
-        $this->diamondBalanceService->consumeDiamond($sysPlayerId, $consumeAmount, false);
+        $this->diamondService->consumeDiamond($sysPlayerId, $consumeAmount, false);
 
         // Assert
         $this->assertSame(0, $existing->getFreeAmount());
@@ -443,7 +443,7 @@ class DiamondBalanceServiceTest extends TestCase
             ->method('persistDiamond');
 
         // Act
-        $this->diamondBalanceService->consumeDiamond($sysPlayerId, $consumeAmount, true);
+        $this->diamondService->consumeDiamond($sysPlayerId, $consumeAmount, true);
 
         // Assert
         $this->assertSame($freeAmount, $existing->getFreeAmount());
@@ -475,7 +475,7 @@ class DiamondBalanceServiceTest extends TestCase
             }));
 
         // Act
-        $result = $this->diamondBalanceService->addDiamond($sysPlayerId, $platform, 0, false);
+        $result = $this->diamondService->addDiamond($sysPlayerId, $platform, 0, false);
 
         // Assert
         $this->assertSame($freeAmount, $result->getFreeAmount());
@@ -505,7 +505,7 @@ class DiamondBalanceServiceTest extends TestCase
             ->method('persistDiamond');
 
         // Act
-        $this->diamondBalanceService->consumeDiamond($sysPlayerId, $consumeAmount, true);
+        $this->diamondService->consumeDiamond($sysPlayerId, $consumeAmount, true);
 
         // Assert
         $this->assertSame(300, $dtoApple->getFreeAmount()); // 無償は変わらない

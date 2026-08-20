@@ -45,7 +45,6 @@
 |---|---|---|
 | `StaminaService` | `nexus-stamina/Services/StaminaService` | ✅ 完璧。DTO ↔ Model変換のラッパー |
 | `WalletService` | LaravelWallet package | ✅ 完璧。Facadeパターン |
-| `GachaDrawService` | `nexus-gacha/Services/GachaDrawService` | ✅ 完璧。配列変換ラッパー |
 | `UnitLevelService` | `nexus-level/Services/_BaseLevelService` | ✅ 継承パターン、適切 |
 | `VersionService` | `nexus-version/Services/VersionService` | ✅ 完璧。Wrapperパターン適用済み |
 
@@ -120,6 +119,29 @@ api/app/Domain/Item/Services/
 
 **どれにも当てはまらないなら、Domain層のクラスを作らずUseCaseからパッケージを直接呼ぶ。**
 委譲するだけのクラスは、呼び出し段数を増やすだけで何も足していない。
+
+##### Domain層Serviceの棚卸し結果（2026-08-20）
+
+上記の基準でDomain層の全Serviceを判定した。残す19件と削除した3件の内訳は次のとおり。
+
+| Service | 判定 | 根拠 |
+|---|---|---|
+| `ItemService` | 残す | DTO → `TrxItem` 変換 |
+| `GachaProgressService` | 残す | DTO ↔ `TrxGacha` 変換 |
+| `InAppPurchaseDiamondBalanceService` | 残す | FIFO用 `trx_diamond_balance` 作成（アプリ固有） |
+| `StaminaService` / `VersionService` | 残す | 変換＋アプリ固有例外への翻訳 |
+| `UnitLevelService` / `EquipmentLevelService` / `PlayerLevelService` | 残す | `_BaseLevelService` の継承＋Model変換 |
+| `LoginBonusService` / `ComeBackLoginBonusService` / `VipLoginBonusService` | 残す | `_BaseLoginBonusService` の継承（アプリ固有の判定を実装） |
+| `GachaCostService` / `InAppPurchaseDiamondService` / `InAppPurchasePackService` / `InAppPurchasePassService` / `InAppPurchaseHistoryService` | 残す | 複数Serviceのオーケストレーション |
+| `GachaValidationService` / `InAppPurchaseValidationService` | 残す | マスタ検証とアプリ固有例外への翻訳 |
+| `PlayerService` | 残す | 対応するパッケージ層が無く、Repositoryを直接扱う実装 |
+| ~~`DiamondService`~~ | 削除 | 委譲のみのFacade |
+| ~~`GachaDrawService`~~ | 削除 | パッケージのDTOを配列に変換するだけ |
+| ~~`GachaPrizeService`~~ | 削除 | 配列をパッケージのDTOに戻すだけ |
+
+`GachaDrawService` と `GachaPrizeService` は対になっていて、UseCaseが配列を持つために
+**DTO → 配列 → DTO** と往復変換していた。UseCaseがDTOのまま受け渡し、履歴とレスポンスに
+必要な時点だけ `toArray()` する形に変えて、両方を削除した（変換が1往復ぶん減る）。
 
 
 #### 優先度：中
@@ -215,7 +237,7 @@ Domain層（Model） → DTO ↔ Model変換 + アプリ固有機能
 ### GachaCostService / GachaValidationService
 
 **現状:**
-- `GachaDrawService` / `GachaPrizeService` / `GachaProgressService` はすでに移行済み ✅
+- `GachaProgressService` はDomain層に残存（Model変換あり）、`GachaDrawService` / `GachaPrizeService` は削除済み
 - `GachaCostService` はDomain層に残存
 
 **判定:**

@@ -1,4 +1,4 @@
-.PHONY: help up down ps logs test test-fresh test-unit test-feature phpstan check migrate migrate-fresh seed shell tinker clean install pint pint-dirty
+.PHONY: help up down ps logs test test-fresh test-unit test-feature coverage coverage-html phpstan check migrate migrate-fresh seed shell tinker clean install pint pint-dirty
 
 # Compose v2 (docker compose) を優先し、無ければ v1 (docker-compose) にフォールバック
 DOCKER_COMPOSE := $(shell docker compose version > /dev/null 2>&1 && echo "docker compose" || echo "docker-compose")
@@ -15,8 +15,10 @@ endef
 help: ## ヘルプを表示
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
-up: ## Docker環境を起動
-	$(DOCKER_COMPOSE) up -d
+up: ## Docker環境を起動（Dockerfileの変更があればイメージも作り直す）
+	# --build を付けないと、Dockerfileに拡張を足してもイメージが古いままになる。
+	# 変更が無ければキャッシュが効くので、毎回付けても待ち時間はほぼ増えない。
+	$(DOCKER_COMPOSE) up -d --build
 
 down: ## Docker環境を停止
 	$(DOCKER_COMPOSE) down
@@ -42,6 +44,14 @@ test-unit: up ## ユニットテストのみ実行（Docker環境）
 test-feature: up ## 統合テストのみ実行（Docker環境）
 	$(DOCKER_COMPOSE) exec -T api-php php artisan config:clear
 	$(DOCKER_COMPOSE) exec -T api-php php artisan test --testsuite=Feature
+
+coverage: up ## カバレッジを計測してテキストで表示（Docker環境）
+	$(DOCKER_COMPOSE) exec -T api-php php artisan config:clear
+	$(DOCKER_COMPOSE) exec -T api-php ./vendor/bin/phpunit --coverage-text
+
+coverage-html: up ## カバレッジをHTMLで出力（api/storage/coverage/index.html）
+	$(DOCKER_COMPOSE) exec -T api-php php artisan config:clear
+	$(DOCKER_COMPOSE) exec -T api-php ./vendor/bin/phpunit --coverage-html storage/coverage
 
 phpstan: up ## PHPStan静的解析を実行（Docker環境）
 	$(DOCKER_COMPOSE) exec -T api-php ./vendor/bin/phpstan analyse --memory-limit=2G

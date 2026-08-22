@@ -151,7 +151,9 @@ class LevelUpUseCase extends _BaseUseCase
             $trxItem = $this->itemService->consumeItem($sysPlayerId, EquipmentConst::EXP_ITEM_ID, $requiredItemCount);
 
             // 経験値を加算（更新後の装備データを取得）
-            $totalExp = $expPerItem * $requiredItemCount;
+            // mst_item.value は double なので、経験値として使う前に整数へ切り捨てる
+            // （暗黙のfloat→int変換に任せると、精度が落ちてもPHPのdeprecationにしか出ない）
+            $totalExp = (int) ($expPerItem * $requiredItemCount);
             // addExp()は集計結果の配列を返すため、更新後のモデルを返すメソッドを使う
             $trxEquipment = $this->equipmentLevelService->addExpAndReturn($trxEquipmentId, $totalExp);
 

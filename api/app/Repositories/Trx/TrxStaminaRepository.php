@@ -49,7 +49,7 @@ class TrxStaminaRepository extends _BaseTrxRepository
     /**
      * プレイヤーの全てのスタミナ情報を取得
      *
-     * @return CustomCollection<int, TrxStamina>
+     * @return CustomCollection<string, TrxStamina> キーはユニークキー（sys_player_id:type）
      */
     public function selectAllByPlayer(): Collection
     {

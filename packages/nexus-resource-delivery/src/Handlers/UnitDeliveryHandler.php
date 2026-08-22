@@ -2,15 +2,15 @@
 
 namespace NexusResourceDelivery\Handlers;
 
-use App\Repositories\Trx\TrxUnitRepository;
 use NexusResource\Enums\ResourceType;
+use NexusResourceDelivery\Contracts\UnitRepositoryInterface;
 use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
 
 /**
  * UnitDeliveryHandler
  *
  * ユニット配送処理を担当するHandler
- * TrxUnitRepositoryを使用して、新規ユニットを作成
+ * UnitRepositoryInterfaceの実装を使用して、新規ユニットを作成
  *
  * 対応リソース:
  * - ResourceType::UNIT
@@ -18,7 +18,7 @@ use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
 class UnitDeliveryHandler implements ResourceDeliveryHandlerInterface
 {
     public function __construct(
-        private readonly TrxUnitRepository $trxUnitRepository,
+        private readonly UnitRepositoryInterface $unitRepository,
     ) {}
 
     /**
@@ -44,7 +44,8 @@ class UnitDeliveryHandler implements ResourceDeliveryHandlerInterface
 
         // 指定された数量分のユニットを作成
         for ($i = 0; $i < $resourceDeliveryContent->getAmount(); $i++) {
-            $this->trxUnitRepository->insertUnit(
+            $this->unitRepository->insertUnit(
+                $sysPlayerId,
                 $resourceDeliveryContent->getId(),
                 $grade,
                 $level

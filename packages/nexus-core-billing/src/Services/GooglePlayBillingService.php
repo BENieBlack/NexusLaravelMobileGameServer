@@ -65,6 +65,12 @@ class GooglePlayBillingService implements BillingPlatformInterface
         }
 
         // 5. 検証結果を返す
+        //
+        // Note: productId はリクエスト由来。Google Playの購入検証レスポンスには
+        // 商品IDが含まれないため、_BaseBuyUseCase::validateProductId() は
+        // GooglePlayでは常に一致する。実際の防御は、購入トークンを
+        // 商品IDつきのURL（purchases/products/{productId}/tokens/{token}）で
+        // 問い合わせている点にある。商品が違えばGoogle側がエラーを返す。
         return new Verification(
             isValid: true,
             transactionId: $response['orderId'],

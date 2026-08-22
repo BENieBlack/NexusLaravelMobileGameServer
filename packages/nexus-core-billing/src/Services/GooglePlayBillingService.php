@@ -82,6 +82,9 @@ class GooglePlayBillingService implements BillingPlatformInterface
      * {@inheritDoc}
      *
      * Google Playのサブスクリプション照会は購入トークンが必須。
+     *
+     * Note: サブスク商品の購入フローがまだ無いため、現時点で呼び出し元は無い。
+     * 販売開始時に必要な作業はREADMEの「サブスクリプション対応の残作業」を参照。
      */
     public function fetchSubscriptionStatus(string $subscriptionId, ?string $purchaseToken = null): Subscription
     {

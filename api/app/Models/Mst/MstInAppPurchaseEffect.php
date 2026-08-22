@@ -24,8 +24,10 @@ class MstInAppPurchaseEffect extends _BaseMst
     protected $casts = [
         'deploy_key' => 'integer',
         'mst_in_app_purchase_id' => 'integer',
-        'effect_type' => 'integer',
-        'value' => 'integer',
+        // effect_type は enum の文字列、value は decimal(10,2)。
+        // integerにすると 'ExpBoost' → '0'、1.50 → 1 に潰れる
+        'effect_type' => 'string',
+        'value' => 'decimal:2',
     ];
 
     public $timestamps = true;
@@ -65,9 +67,9 @@ class MstInAppPurchaseEffect extends _BaseMst
     /**
      * 効果値を取得
      */
-    public function getValue(): int|float
+    public function getValue(): float
     {
-        return $this->getAttribute('value');
+        return (float) $this->getAttribute('value');
     }
 
     /**

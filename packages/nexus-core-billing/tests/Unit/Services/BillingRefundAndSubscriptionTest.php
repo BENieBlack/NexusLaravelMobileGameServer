@@ -68,6 +68,26 @@ class BillingRefundAndSubscriptionTest extends TestCase
     }
 
     #[Test]
+    public function AppStoreの返金履歴を最後のページまで辿る(): void
+    {
+        $serverApiClient = $this->createMock(AppStoreApiClient::class);
+        $serverApiClient->method('fetchRefundHistory')->willReturnCallback(
+            fn (string $transactionId, ?string $revision = null) => $revision === null
+                ? ['signedTransactions' => ['page-1'], 'hasMore' => true, 'revision' => 'rev-2']
+                : ['signedTransactions' => ['page-2'], 'hasMore' => false]
+        );
+        $serverApiClient->method('decodeSignedPayload')->willReturnCallback(
+            fn (string $signed) => $signed === 'page-2'
+                ? ['transactionId' => '1000000000000001']   // 2ページ目に該当の返金がある
+                : ['transactionId' => '9999999999999999']
+        );
+
+        $service = new AppStoreBillingService($serverApiClient);
+
+        $this->assertTrue($service->isRefunded('1000000000000001'));
+    }
+
+    #[Test]
     public function AppStoreの返金履歴が空なら返金されていない(): void
     {
         $serverApiClient = $this->createMock(AppStoreApiClient::class);

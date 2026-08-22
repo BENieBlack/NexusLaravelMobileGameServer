@@ -337,4 +337,51 @@ docker exec tool-php php artisan migrate --database=tol --path=database/migratio
    docker exec api-php php artisan migrate:fresh --database=sys --path=database/migrations/sys
    ```
 
+## テストカバレッジ
 
+### 計測方法
+
+カバレッジドライバは **pcov** を使う。api-phpイメージに同梱済みで、
+`docker/api-php/Dockerfile` で `pcov.directory=/var/www` を設定して常時有効に
+してあるため、`-d pcov.enabled=1` のようなオプションを渡す必要はない。
+Xdebugは入れていない（pcovの方がカバレッジ計測だけなら十分速い）。
+
+`No code coverage driver available` と言われたら、イメージがDockerfileより
+古い。`make up` は `docker compose up -d --build` を実行するので通常は追いつくが、
+手動で `docker compose up -d` していた場合は拡張が入らないままになる。
+コンテナの中で `pecl install` して直すとイメージには残らず、
+次にコンテナが作り直された時点で消えるので、必ずイメージを作り直すこと。
+
+```bash
+# テキストで表示（クラスごとのMethods/Lines）
+make coverage
+
+# HTMLで出力（api/storage/coverage/index.html、gitignore済み）
+make coverage-html
+
+# 一部だけ計測したいとき
+docker compose exec -T api-php ./vendor/bin/phpunit --testsuite=Packages --coverage-text
+```
+
+### 計測対象
+
+`api/phpunit.xml` の `<source><include>` で指定している。
+`app` と各パッケージの `src` を列挙しているので、**パッケージを追加したら
+ここにも追記する**。追記を忘れると、そのパッケージは計測されないまま
+「カバレッジ100%」に見えてしまう。
+
+### 読むときの注意
+
+`--coverage-text` の一覧に **まったく実行されなかったファイルは出てこない**。
+pcovはロードされたファイルしか記録しないためで、「一覧に無い＝0%」と読む。
+「一覧に載っているクラスだけを見て埋まっている」と判断すると、
+手つかずのファイルを丸ごと見落とす。
+
+対象ディレクトリの取りこぼしを確認したいときは、ソースのファイル一覧と
+レポートに出てきたクラス一覧を突き合わせる。
+
+```bash
+# 例: Adapters配下でレポートに出てこないファイル（＝0%）を探す
+docker compose exec -T api-php ./vendor/bin/phpunit --coverage-text=/tmp/cov.txt > /dev/null
+docker compose exec -T api-php grep 'App.Adapters' /tmp/cov.txt
+```

@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Domain\Common\Constants\ElementType;
+use App\Domain\Common\Constants\RarityType;
 use App\Domain\Unit\Constants\UnitConst;
 use App\Models\Mst\MstUnit;
 use Illuminate\Database\Seeder;
@@ -26,84 +28,84 @@ class MstUnitSeeder extends Seeder
             [
                 'id' => 'unit_fire_001',
                 'type' => UnitConst::TYPE_ATTACK,
-                'element' => UnitConst::ELEMENT_FIRE,
-                'rarity' => UnitConst::RARITY_SSR,
+                'element' => ElementType::FIRE,
+                'rarity' => RarityType::SSR,
             ],
             [
                 'id' => 'unit_fire_002',
                 'type' => UnitConst::TYPE_SUPPORT,
-                'element' => UnitConst::ELEMENT_FIRE,
-                'rarity' => UnitConst::RARITY_SR,
+                'element' => ElementType::FIRE,
+                'rarity' => RarityType::SR,
             ],
 
             // 水属性
             [
                 'id' => 'unit_water_001',
                 'type' => UnitConst::TYPE_DEFENSE,
-                'element' => UnitConst::ELEMENT_WATER,
-                'rarity' => UnitConst::RARITY_SSR,
+                'element' => ElementType::WATER,
+                'rarity' => RarityType::SSR,
             ],
             [
                 'id' => 'unit_water_002',
                 'type' => UnitConst::TYPE_ATTACK,
-                'element' => UnitConst::ELEMENT_WATER,
-                'rarity' => UnitConst::RARITY_UR,
+                'element' => ElementType::WATER,
+                'rarity' => RarityType::UR,
             ],
 
             // 風属性
             [
                 'id' => 'unit_wind_001',
                 'type' => UnitConst::TYPE_ATTACK,
-                'element' => UnitConst::ELEMENT_WIND,
-                'rarity' => UnitConst::RARITY_SR,
+                'element' => ElementType::WIND,
+                'rarity' => RarityType::SR,
             ],
             [
                 'id' => 'unit_wind_002',
                 'type' => UnitConst::TYPE_SUPPORT,
-                'element' => UnitConst::ELEMENT_WIND,
-                'rarity' => UnitConst::RARITY_R,
+                'element' => ElementType::WIND,
+                'rarity' => RarityType::R,
             ],
 
             // 地属性
             [
                 'id' => 'unit_earth_001',
                 'type' => UnitConst::TYPE_DEFENSE,
-                'element' => UnitConst::ELEMENT_EARTH,
-                'rarity' => UnitConst::RARITY_SSR,
+                'element' => ElementType::EARTH,
+                'rarity' => RarityType::SSR,
             ],
             [
                 'id' => 'unit_earth_002',
                 'type' => UnitConst::TYPE_ATTACK,
-                'element' => UnitConst::ELEMENT_EARTH,
-                'rarity' => UnitConst::RARITY_SR,
+                'element' => ElementType::EARTH,
+                'rarity' => RarityType::SR,
             ],
 
             // 光属性
             [
                 'id' => 'unit_light_001',
                 'type' => UnitConst::TYPE_SUPPORT,
-                'element' => UnitConst::ELEMENT_LIGHT,
-                'rarity' => UnitConst::RARITY_UR,
+                'element' => ElementType::LIGHT,
+                'rarity' => RarityType::UR,
             ],
             [
                 'id' => 'unit_light_002',
                 'type' => UnitConst::TYPE_ATTACK,
-                'element' => UnitConst::ELEMENT_LIGHT,
-                'rarity' => UnitConst::RARITY_SSR,
+                'element' => ElementType::LIGHT,
+                'rarity' => RarityType::SSR,
             ],
 
             // 闇属性
             [
                 'id' => 'unit_dark_001',
                 'type' => UnitConst::TYPE_ATTACK,
-                'element' => UnitConst::ELEMENT_DARK,
-                'rarity' => UnitConst::RARITY_UR,
+                'element' => ElementType::DARK,
+                'rarity' => RarityType::UR,
             ],
             [
                 'id' => 'unit_dark_002',
                 'type' => UnitConst::TYPE_DEFENSE,
-                'element' => UnitConst::ELEMENT_DARK,
-                'rarity' => UnitConst::RARITY_SR,
+                'element' => ElementType::DARK,
+                'rarity' => RarityType::SR,
             ],
         ];
 

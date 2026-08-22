@@ -6,6 +6,7 @@ use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Exceptions\InfraErrorCode;
 use App\Http\Controllers\_BaseController;
+use App\Http\Responses\_BaseResponse;
 use Illuminate\Http\JsonResponse;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -95,16 +96,26 @@ class BaseControllerTest extends TestCase
     }
 
     #[Test]
-    public function executeメソッドで配列が返された場合は_htt_p200を返す(): void
+    public function executeメソッドはレスポンスクラスをそのままjsonにする(): void
     {
         // Act
-        $response = $this->controller->testExecuteWithArray();
+        $response = $this->controller->testExecuteWithResponse();
 
         // Assert
         $this->assertEquals(200, $response->getStatusCode());
 
         $content = json_decode($response->getContent(), true);
-        $this->assertEquals(['success' => true, 'data' => 'test'], $content);
+        $this->assertEquals(['success' => true, 'value' => 'test'], $content);
+    }
+
+    #[Test]
+    public function executeメソッドはレスポンスクラス以外を拒否する(): void
+    {
+        // Act: 配列を返すとLogicExceptionになり、500として扱われる
+        $response = $this->controller->testExecuteWithArray();
+
+        // Assert
+        $this->assertEquals(500, $response->getStatusCode());
     }
 }
 
@@ -137,12 +148,29 @@ class TestController extends _BaseController
     }
 
     /**
-     * executeメソッドで配列を返すテスト
+     * executeメソッドでレスポンスクラスを返すテスト
+     */
+    public function testExecuteWithResponse(): JsonResponse
+    {
+        return $this->execute(fn () => new TestResponse);
+    }
+
+    /**
+     * executeメソッドでレスポンスクラス以外を返すテスト
      */
     public function testExecuteWithArray(): JsonResponse
     {
-        return $this->execute(function () {
-            return ['success' => true, 'data' => 'test'];
-        });
+        return $this->execute(fn () => ['success' => true]);
+    }
+}
+
+/**
+ * テスト用レスポンス
+ */
+class TestResponse extends _BaseResponse
+{
+    public function toArray(): array
+    {
+        return ['success' => true, 'value' => 'test'];
     }
 }

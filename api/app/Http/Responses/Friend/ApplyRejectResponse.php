@@ -31,8 +31,8 @@ class ApplyRejectResponse extends _BaseResponse
             senderSysPlayerId: $sysFriendApply->sender_sys_player_id,
             receiverSysPlayerId: $sysFriendApply->receiver_sys_player_id,
             status: $sysFriendApply->status,
-            createdAt: $sysFriendApply->created_at->toDateTimeString(),
-            updatedAt: $sysFriendApply->updated_at->toDateTimeString(),
+            createdAt: $sysFriendApply->getCreatedAt(),
+            updatedAt: $sysFriendApply->getUpdatedAt(),
         );
     }
 

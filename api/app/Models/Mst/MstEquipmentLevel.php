@@ -2,7 +2,7 @@
 
 namespace App\Models\Mst;
 
-use Illuminate\Database\Eloquent\Builder;
+use App\Traits\CompositePrimaryKeyTrait;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
@@ -47,6 +47,8 @@ use Illuminate\Database\Eloquent\Collection;
  */
 class MstEquipmentLevel extends _BaseMst
 {
+    use CompositePrimaryKeyTrait;
+
     protected $table = 'mst_equipment_level';
 
     /**
@@ -56,8 +58,6 @@ class MstEquipmentLevel extends _BaseMst
 
     /**
      * 複合主キーの指定
-     *
-     * @var array<int, string>
      */
     protected $primaryKey = ['rarity', 'level'];
 
@@ -66,7 +66,7 @@ class MstEquipmentLevel extends _BaseMst
      */
     protected $keyType = 'string';
 
-    /** @var array<int, string> */
+    /** @var list<string> */
     protected $fillable = [
         'deploy_key',
         'rarity',
@@ -81,45 +81,6 @@ class MstEquipmentLevel extends _BaseMst
         'level' => 'integer',
         'required_exp' => 'integer',
     ];
-
-    /**
-     * 複合主キーを設定
-     *
-     * @param  Builder  $query
-     * @return Builder
-     */
-    public function setKeysForSaveQuery($query)
-    {
-        $keys = $this->getKeyName();
-        if (! is_array($keys)) {
-            return parent::setKeysForSaveQuery($query);
-        }
-
-        foreach ($keys as $keyName) {
-            $query->where($keyName, '=', $this->getKeyForSaveQuery($keyName));
-        }
-
-        return $query;
-    }
-
-    /**
-     * 複合主キーの値を取得
-     *
-     * @param  string|null  $keyName
-     * @return mixed
-     */
-    protected function getKeyForSaveQuery($keyName = null)
-    {
-        if (is_null($keyName)) {
-            $keyName = $this->getKeyName();
-        }
-
-        if (isset($this->original[$keyName])) {
-            return $this->original[$keyName];
-        }
-
-        return $this->getAttribute($keyName);
-    }
 
     /**
      * 指定したレアリティとレベルの経験値データを取得

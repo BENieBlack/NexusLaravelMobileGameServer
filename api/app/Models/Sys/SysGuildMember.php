@@ -3,7 +3,6 @@
 namespace App\Models\Sys;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 use Nexus\Core\Utilities\ClockUtility;
 
 /**
@@ -16,9 +15,9 @@ use Nexus\Core\Utilities\ClockUtility;
  * @property int $sys_player_id
  * @property string $role
  * @property int $contribution
- * @property Carbon $joined_at
- * @property Carbon $created_at
- * @property Carbon $updated_at
+ * @property string $joined_at
+ * @property string $created_at
+ * @property string $updated_at
  */
 class SysGuildMember extends _BaseSys
 {
@@ -32,6 +31,7 @@ class SysGuildMember extends _BaseSys
      *
      * @var array<string>
      */
+    /** @var list<string> */
     protected $fillable = [
         'sys_guild_id',
         'sys_player_id',
@@ -44,6 +44,7 @@ class SysGuildMember extends _BaseSys
      *
      * @var array<string, string>
      */
+    /** @var array<string, string> */
     protected $casts = [
         'sys_guild_id' => 'integer',
         'sys_player_id' => 'integer',
@@ -52,6 +53,9 @@ class SysGuildMember extends _BaseSys
     /**
      * ギルドとのリレーション
      */
+    /**
+     * @return BelongsTo<SysGuild, $this>
+     */
     public function guild(): BelongsTo
     {
         return $this->belongsTo(SysGuild::class, 'sys_guild_id');
@@ -59,6 +63,9 @@ class SysGuildMember extends _BaseSys
 
     /**
      * プレイヤーとのリレーション
+     */
+    /**
+     * @return BelongsTo<SysPlayer, $this>
      */
     public function player(): BelongsTo
     {

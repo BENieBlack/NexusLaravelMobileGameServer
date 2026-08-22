@@ -29,6 +29,7 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
      *
      * @var array<string>
      */
+    /** @var list<string> */
     protected $fillable = [
         'sys_player_id',
         'uuid',
@@ -41,12 +42,16 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
      *
      * @var array<string, string>
      */
+    /** @var array<string, string> */
     protected $casts = [
         'device_info' => 'array',
     ];
 
     /**
      * プレイヤーとのリレーション
+     */
+    /**
+     * @return BelongsTo<SysPlayer, $this>
      */
     public function player(): BelongsTo
     {
@@ -55,6 +60,9 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
 
     /**
      * トークン情報とのリレーション
+     */
+    /**
+     * @return HasMany<SysPlayerToken, $this>
      */
     public function tokens(): HasMany
     {
@@ -139,7 +147,7 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
     /**
      * last_login_atをDateTimeオブジェクトで取得 (内部用)
      */
-    public function getLastLoginAtDateTime(): ?\DateTime
+    public function getLastLoginAtDateTime(): ?string
     {
         return $this->getAttribute('last_login_at');
     }

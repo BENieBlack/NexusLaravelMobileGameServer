@@ -30,7 +30,7 @@ class ApplySendResponse extends _BaseResponse
             senderSysPlayerId: $sysFriendApply->sender_sys_player_id,
             receiverSysPlayerId: $sysFriendApply->receiver_sys_player_id,
             status: $sysFriendApply->status,
-            createdAt: $sysFriendApply->created_at->toDateTimeString(),
+            createdAt: $sysFriendApply->getCreatedAt(),
         );
     }
 

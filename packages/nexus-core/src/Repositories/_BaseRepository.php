@@ -9,9 +9,16 @@ use Nexus\Core\Support\CustomCollection;
  *
  * 全てのRepositoryの基底クラス
  * モデルのメモリキャッシュとQueryManager登録の共通処理を提供
+ * 
+ * キャッシュのキーはサブクラスごとに体系が違う（Mstはid、Trxはユニークキーの
+ * 連結文字列、Logは連番）ため、キーの型もテンプレートで受け取る。
+ * 
+ * @template TKey of array-key
+ * @template TModel of object
  */
 abstract class _BaseRepository implements _BaseRepositoryInterface
 {
+    /** @var class-string<TModel> */
     protected string $modelClass;
 
     /**
@@ -21,14 +28,15 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
      *
      * @var array<string>
      */
-    protected array $uniqueKeys = ['id'];
+        /** @var list<string> */
+        protected array $uniqueKeys = ['id'];
 
     /**
      * メモリキャッシュされたモデルのコレクション
      * データベースから取得したモデルをメモリにキャッシュし、
      * 同一リクエスト内での重複クエリを防ぐ
      *
-     * @var CustomCollection|null
+     * @var CustomCollection<TKey, TModel>|null
      */
     protected ?CustomCollection $models = null;
 
@@ -63,21 +71,21 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
     /**
      * INSERT/UPDATE対象のモデルキュー
      *
-     * @var array
+     * @var array<array-key, TModel>
      */
     protected array $modelQueue = [];
 
     /**
      * DELETE対象のモデルキュー
      *
-     * @var array
+     * @var array<array-key, TModel>
      */
     protected array $deleteQueue = [];
 
     /**
      * 溜め込んだモデルを取得（QueryManagerから呼ばれる）
      *
-     * @return array
+     * @return array<array-key, TModel>
      */
     public function getQueuedModels(): array
     {
@@ -87,7 +95,7 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
     /**
      * 削除対象のモデルを取得（QueryManagerから呼ばれる）
      *
-     * @return array
+     * @return array<array-key, TModel>
      */
     public function getQueuedDeleteModels(): array
     {
@@ -140,7 +148,7 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
      * キーを指定してモデルを取得
      *
      * @param string|int $key ユニークキー
-     * @return mixed|null
+     * @return TModel|null
      */
     protected function findCachedModel(string|int $key)
     {
@@ -155,8 +163,8 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
      * キャッシュされたモデルを取得
      * キーが指定された場合は、そのキーに一致するモデルのみを返す
      *
-     * @param CustomCollection|null $keys 取得したいモデルのキーのコレクション（nullの場合は全て）
-     * @return CustomCollection
+     * @param CustomCollection<int, TKey>|null $keys 取得したいモデルのキーのコレクション（nullの場合は全て）
+     * @return CustomCollection<TKey, TModel>
      */
     protected function findCachedModels(?CustomCollection $keys = null): CustomCollection
     {
@@ -178,7 +186,7 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
      * ユニークキーで管理し、同じキーのモデルは上書きされる
      * サブクラスでオーバーライド可能
      *
-     * @param mixed $model
+     * @param TModel $model
      * @return void
      */
     public function setModel($model): void
@@ -193,7 +201,7 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
     /**
      * 複数のモデルをキャッシュに保存
      *
-     * @param CustomCollection $models
+     * @param CustomCollection<TKey, TModel> $models
      * @return void
      */
     protected function setModels(CustomCollection $models): void
@@ -212,7 +220,7 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
      * is_deleteカラムを持つのはtrx系テーブルのみ。sys系は論理削除できないため
      * hardDeleteModel()を使うこと。
      *
-     * @param mixed $model
+     * @param TModel $model
      * @return void
      */
     public function softDeleteModel($model): void
@@ -233,7 +241,7 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
      *
      * deleteQueueに溜め込み、フラッシュ時にDELETEが実行される。
      *
-     * @param mixed $model
+     * @param TModel $model
      * @return void
      */
     public function hardDeleteModel($model): void
@@ -247,7 +255,7 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
      * データベースまたはメモリからデータを取得
      * サブクラスで実装必須
      *
-     * @return CustomCollection
+     * @return CustomCollection<TKey, TModel>
      */
     abstract public function queryOrMemory(): CustomCollection;
 
@@ -255,7 +263,7 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
      * データベースまたはメモリからデータを取得（CustomCollection版）
      * パフォーマンス最適化されたCustomCollectionを返す
      *
-     * @return CustomCollection
+     * @return CustomCollection<TKey, TModel>
      * @deprecated Use queryOrMemory() directly as it now returns CustomCollection
      */
     protected function queryOrMemoryCustom(): CustomCollection

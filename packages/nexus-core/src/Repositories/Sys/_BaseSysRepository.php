@@ -2,9 +2,10 @@
 
 namespace Nexus\Core\Repositories\Sys;
 
-use Nexus\Core\Models\Sys\_BaseSysInterface;
+use Nexus\Core\Models\Sys\_BaseSys;
 use Nexus\Core\Repositories\_BaseRepository;
 use Nexus\Core\Support\CustomCollection;
+use Nexus\Core\Utilities\ClockUtility;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 
@@ -14,7 +15,8 @@ use Illuminate\Support\Facades\Cache;
  * Sysデータベースのリポジトリ基底クラス
  * キャッシュ機能を含む共通のCRUD操作を実装
  * 
- * @template T of _BaseSysInterface
+ * @template T of _BaseSys
+ * @extends _BaseRepository<int|string, T>
  * @implements _BaseSysRepositoryInterface<T>
  */
 abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRepositoryInterface
@@ -59,6 +61,9 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
      */
     public function setModel($model): void
     {
+        // created_at / updated_at はテーブル定義の
+        // DEFAULT CURRENT_TIMESTAMP / ON UPDATE CURRENT_TIMESTAMP に任せる
+
         // ユニークキーを生成
         $uniqueKey = implode(':', array_map(fn($key) => $model->getAttribute($key), $this->getUniqueKeys()));
         
@@ -142,7 +147,9 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
 
         // DBから全レコードを取得してメモリキャッシュに保存
         $records = $this->modelClass::all()->keyBy('id');
-        $this->models = new CustomCollection($records->all());
+        /** @var CustomCollection<int|string, T> $models */
+        $models = new CustomCollection($records->all());
+        $this->models = $models;
 
         return $this->models;
     }

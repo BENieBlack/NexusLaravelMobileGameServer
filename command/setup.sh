@@ -1,240 +1,283 @@
 #!/bin/bash
 #
-# Environment Setup Script for NexusLaravelMobileGameFramework
+# Environment Setup Script for NexusLaravelMobileGameServer
 #
-# This script performs a complete clean installation of the development environment.
-# 
-# WARNING: This script will DELETE all existing Docker volumes and data!
-#          Only use this for initial setup or when you need a complete reset.
+# 開発環境をゼロから構築する。
 #
-# What this script does:
-#   1. Remove all existing Docker containers and volumes
-#   2. Start all Docker containers (web servers, PHP, databases, Redis)
-#   3. Create all 7 databases (sys, mst, log, trx1, trx2, admin, tool)
-#   4. Install dependencies (Composer, NPM) for both API and Tool projects
-#   5. Run database migrations for all databases
+# WARNING: 既存のDockerボリューム（＝DBの中身）をすべて削除します。
+#          初回構築、または完全にリセットしたいときだけ使ってください。
+#
+# 実行内容:
+#   1. APP_KEYの生成（コンテナ起動前に済ませる）
+#   2. Dockerコンテナの再作成と起動
+#   3. MySQLの起動完了を待つ
+#   4. 全データベースの存在確認（作成自体はMySQLコンテナの初期化スクリプトが行う）
+#   5. 依存パッケージのインストール（Composerはコンテナ内、npmはホスト）
+#   6. マイグレーションとシードの実行
 #
 # Usage:
 #   ./command/setup.sh
 #
 # Requirements:
-#   - Docker and Docker Compose must be installed
-#   - .env file must exist in the project root
-#   - APP_NAME and APP_ENV must be set in .env file
+#   - Docker / Docker Compose
+#   - プロジェクトルートに .env（無ければ .env.example から自動生成する）
+#   - Node.js（任意。無い場合はアセットビルドをスキップする）
+#
+# ホストにPHP・Composerは不要です。コンテナ内のPHP 8.4を使います。
 #
 
-# Exit immediately if a command exits with a non-zero status
-set -e
+set -euo pipefail
 
-# Get the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# Project root is one level up from the script directory
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
-# Define colors for output
 GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
 RED='\033[0;31m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
-# Function to print success message
-function success_message() {
-  echo -e "${GREEN}$1${NC}"
-}
+function success_message() { echo -e "${GREEN}$1${NC}"; }
+function warn_message() { echo -e "${YELLOW}$1${NC}"; }
+function error_message() { echo -e "${RED}$1${NC}"; }
 
-# Function to print error message
-function error_message() {
-  echo -e "${RED}$1${NC}"
-}
-
-# Function to read .env file and extract specific variable
+# .env から値を取り出す
 function get_env_value() {
   local env_file=$1
   local key=$2
   if [ -f "$env_file" ]; then
-    grep "^${key}=" "$env_file" | cut -d '=' -f2- | tr -d '"' | tr -d "'"
+    grep "^${key}=" "$env_file" | head -1 | cut -d '=' -f2- | tr -d '"' | tr -d "'"
   else
     echo ""
   fi
 }
 
-# Get APP_NAME and APP_ENV from root .env file
+cd "$PROJECT_ROOT"
+
+# ============================================================================
+# Step 0: 前提の確認
+# ============================================================================
+if ! command -v docker > /dev/null 2>&1; then
+  error_message "docker が見つかりません。Docker をインストールしてください。"
+  exit 1
+fi
+
+# Compose v2 (docker compose) を優先し、無ければ v1 (docker-compose) にフォールバック
+if docker compose version > /dev/null 2>&1; then
+  COMPOSE=(docker compose)
+elif command -v docker-compose > /dev/null 2>&1; then
+  COMPOSE=(docker-compose)
+else
+  error_message "Docker Compose が見つかりません。"
+  exit 1
+fi
+echo "Using Compose command: ${COMPOSE[*]}"
+
 ROOT_ENV_FILE="${PROJECT_ROOT}/.env"
 if [ ! -f "$ROOT_ENV_FILE" ]; then
-  error_message "Root .env file not found at $ROOT_ENV_FILE"
-  exit 1
+  warn_message ".env が無いため .env.example からコピーします。"
+  cp "${PROJECT_ROOT}/.env.example" "$ROOT_ENV_FILE"
 fi
 
 APP_NAME=$(get_env_value "$ROOT_ENV_FILE" "APP_NAME")
 APP_ENV=$(get_env_value "$ROOT_ENV_FILE" "APP_ENV")
+MYSQL_ROOT_PASSWORD=$(get_env_value "$ROOT_ENV_FILE" "MYSQL_ROOT_PASSWORD")
+SHARD_COUNT=$(get_env_value "$ROOT_ENV_FILE" "DB_TRX_SHARDS")
 
 if [ -z "$APP_NAME" ] || [ -z "$APP_ENV" ]; then
-  error_message "APP_NAME or APP_ENV not found in $ROOT_ENV_FILE"
+  error_message "APP_NAME または APP_ENV が $ROOT_ENV_FILE にありません。"
   exit 1
 fi
+MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD:-root}"
+SHARD_COUNT="${SHARD_COUNT:-2}"
 
-echo "Using APP_NAME: ${APP_NAME}"
-echo "Using APP_ENV: ${APP_ENV}"
-
-# Change to project root directory for docker-compose
-cd "$PROJECT_ROOT"
+echo "APP_NAME: ${APP_NAME}"
+echo "APP_ENV:  ${APP_ENV}"
+echo "Shards:   ${SHARD_COUNT}"
 
 # ============================================================================
-# Step 1: Set up Docker containers
+# Step 1: APP_KEY の生成
+# ============================================================================
+# .env はコンテナに読み取り専用でマウントされているため、
+# artisan key:generate ではなくホスト側で書き込む。
+#
+# コンテナを起動する前に済ませること。docker-compose.yml は .env を
+# 単一ファイルとしてbindマウントしており、マウントは起動時のinodeに固定される。
+# 起動後に mv で置き換えるとコンテナ側は古いinodeを見続けるため、
+# 末尾の CACHE_STORE などが欠けた状態で読まれてしまう。
+if [ -z "$(get_env_value "$ROOT_ENV_FILE" "APP_KEY")" ]; then
+  echo "Generating APP_KEY..."
+  generated_key="base64:$(openssl rand -base64 32)"
+  tmp_env="$(mktemp)"
+  awk -v key="$generated_key" '/^APP_KEY=/ { print "APP_KEY=" key; next } { print }' \
+    "$ROOT_ENV_FILE" > "$tmp_env"
+  mv "$tmp_env" "$ROOT_ENV_FILE"
+  success_message "APP_KEY generated."
+else
+  echo "APP_KEY already set. Skipped."
+fi
+
+# ============================================================================
+# Step 2: コンテナの再作成
 # ============================================================================
 echo "Setting up Docker containers..."
-echo "WARNING: This will remove all existing containers and volumes!"
-docker-compose down --volumes --remove-orphans
-success_message "Removed existing Docker containers."
-docker-compose up -d
+warn_message "WARNING: 既存のコンテナとボリュームをすべて削除します。"
+"${COMPOSE[@]}" down --volumes --remove-orphans
+"${COMPOSE[@]}" up -d
 success_message "Docker containers are up and running."
 
-# Wait for MySQL containers to be ready
+# ============================================================================
+# Step 3: 対象データベースの決定
+# ============================================================================
+# "コンテナ名:DB接尾辞" の組。DB名は {APP_NAME}-{APP_ENV}-{接尾辞}
+DB_TARGETS=("db-sys:sys" "db-mst:mst" "db-adm:adm" "db-tol:tol")
+for i in $(seq 1 "$SHARD_COUNT"); do
+  DB_TARGETS+=("db-trx${i}:trx${i}" "db-log${i}:log${i}")
+done
+
+# docker-compose.yml が定義していないシャードを指定していないか確認する
+for target in "${DB_TARGETS[@]}"; do
+  container="${target%%:*}"
+  if ! "${COMPOSE[@]}" ps --services | grep -qx "$container"; then
+    error_message "コンテナ ${container} が docker-compose.yml に定義されていません。"
+    error_message "DB_TRX_SHARDS=${SHARD_COUNT} に対してコンテナ定義が不足しています。"
+    exit 1
+  fi
+done
+
+# ============================================================================
+# Step 4: MySQLの起動完了を待つ
+# ============================================================================
+# 初回起動はデータディレクトリの初期化が走るため、固定のsleepでは足りない。
 echo "Waiting for MySQL containers to be ready..."
-sleep 10
+READY_TIMEOUT=180
+for target in "${DB_TARGETS[@]}"; do
+  container="${target%%:*}"
+  waited=0
+  until docker exec "$container" mysqladmin ping -uroot -p"${MYSQL_ROOT_PASSWORD}" --silent > /dev/null 2>&1; do
+    if [ "$waited" -ge "$READY_TIMEOUT" ]; then
+      error_message "${container} が ${READY_TIMEOUT} 秒以内に起動しませんでした。"
+      error_message "docker logs ${container} で原因を確認してください。"
+      exit 1
+    fi
+    sleep 2
+    waited=$((waited + 2))
+  done
+  echo "  ${container} ready (${waited}s)"
+done
+success_message "All MySQL containers are ready."
 
 # ============================================================================
-# Step 2: Define database names
+# Step 5: データベースの作成
 # ============================================================================
-# Define environment variables explicitly
-MYSQL_ROOT_PASSWORD="root"
-# Database naming format: {APP_NAME}-{APP_ENV}-{prefix}
-# Example: arche-local-sys, arche-local-mst, etc.
-DB_SYS_DATABASE="${APP_NAME}-${APP_ENV}-sys"
-DB_MASTER_DATABASE="${APP_NAME}-${APP_ENV}-mst"
-DB_LOG1_DATABASE="${APP_NAME}-${APP_ENV}-log1"
-DB_LOG2_DATABASE="${APP_NAME}-${APP_ENV}-log2"
-DB_TRX1_DATABASE="${APP_NAME}-${APP_ENV}-trx1"
-DB_TRX2_DATABASE="${APP_NAME}-${APP_ENV}-trx2"
-DB_ADMIN_DATABASE="${APP_NAME}-${APP_ENV}-adm"
-DB_TOOL_DATABASE="${APP_NAME}-${APP_ENV}-tol"
+# データベース自体は各MySQLコンテナの初期化スクリプトが作る。
+# （docker/mysql/init/create-databases.sh。DB_NAMES は docker-compose.yml で指定）
+# ここでは想定どおり作られたかだけを確認する。
+function assert_database_exists() {
+  local container=$1
+  local database=$2
+  if ! docker exec "$container" mysql -uroot -p"${MYSQL_ROOT_PASSWORD}" \
+    -e "USE \`${database}\`;" > /dev/null 2>&1; then
+    error_message "データベース ${database} が ${container} に存在しません。"
+    error_message "ボリュームが古い可能性があります。次を実行してから再試行してください:"
+    error_message "  ${COMPOSE[*]} down --volumes"
+    exit 1
+  fi
+  echo "  ${database}"
+}
 
-echo "Database names:"
-echo "  System: ${DB_SYS_DATABASE}"
-echo "  Master: ${DB_MASTER_DATABASE}"
-echo "  Log 1: ${DB_LOG1_DATABASE}"
-echo "  Log 2: ${DB_LOG2_DATABASE}"
-echo "  Transaction 1: ${DB_TRX1_DATABASE}"
-echo "  Transaction 2: ${DB_TRX2_DATABASE}"
-echo "  Admin: ${DB_ADMIN_DATABASE}"
-echo "  Tool: ${DB_TOOL_DATABASE}"
+echo "Verifying databases..."
+for target in "${DB_TARGETS[@]}"; do
+  container="${target%%:*}"
+  suffix="${target##*:}"
+  assert_database_exists "$container" "${APP_NAME}-${APP_ENV}-${suffix}"
+
+  # テスト用データベース。api/phpunit.xml が APP_ENV=testing で参照する。
+  # 管理者DB・運営ツールDBはTool側がsqliteのインメモリを使うため対象外。
+  case "$suffix" in
+    adm | tol) ;;
+    *) assert_database_exists "$container" "${APP_NAME}-testing-${suffix}" ;;
+  esac
+done
+success_message "Databases verified."
 
 # ============================================================================
-# Step 3: Create databases and migrations tables
+# Step 6: 依存パッケージのインストール
 # ============================================================================
-echo "Setting up databases..."
+# Composerはコンテナ内で実行する（ホストのPHPバージョンに依存させない）。
+echo "Installing PHP dependencies (in containers)..."
+"${COMPOSE[@]}" exec -T api-php composer install --no-interaction
+"${COMPOSE[@]}" exec -T tool-php composer install --no-interaction
+success_message "PHP dependencies installed."
 
-# Create databases if they do not exist
-echo "Creating databases..."
-docker exec db-sys mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS \`${DB_SYS_DATABASE}\`;"
-docker exec db-mst mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS \`${DB_MASTER_DATABASE}\`;"
-docker exec db-log1 mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS \`${DB_LOG1_DATABASE}\`;"
-docker exec db-log2 mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS \`${DB_LOG2_DATABASE}\`;"
-docker exec db-trx1 mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS \`${DB_TRX1_DATABASE}\`;"
-docker exec db-trx2 mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS \`${DB_TRX2_DATABASE}\`;"
-docker exec db-adm mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS \`${DB_ADMIN_DATABASE}\`;"
-docker exec db-tol mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS \`${DB_TOOL_DATABASE}\`;"
-
-# Create migrations table for each database if it doesn't exist
-# This ensures Laravel's migration tracking works correctly
-echo "Creating migrations tables..."
-docker exec db-sys mysql -u root -p${MYSQL_ROOT_PASSWORD} ${DB_SYS_DATABASE} -e "CREATE TABLE IF NOT EXISTS migrations (
-  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  migration VARCHAR(255) NOT NULL,
-  batch INT NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
-
-docker exec db-mst mysql -u root -p${MYSQL_ROOT_PASSWORD} ${DB_MASTER_DATABASE} -e "CREATE TABLE IF NOT EXISTS migrations (
-  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  migration VARCHAR(255) NOT NULL,
-  batch INT NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
-
-docker exec db-log1 mysql -u root -p${MYSQL_ROOT_PASSWORD} ${DB_LOG1_DATABASE} -e "CREATE TABLE IF NOT EXISTS migrations (
-  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  migration VARCHAR(255) NOT NULL,
-  batch INT NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
-
-docker exec db-log2 mysql -u root -p${MYSQL_ROOT_PASSWORD} ${DB_LOG2_DATABASE} -e "CREATE TABLE IF NOT EXISTS migrations (
-  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  migration VARCHAR(255) NOT NULL,
-  batch INT NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
-
-docker exec db-trx1 mysql -u root -p${MYSQL_ROOT_PASSWORD} ${DB_TRX1_DATABASE} -e "CREATE TABLE IF NOT EXISTS migrations (
-  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  migration VARCHAR(255) NOT NULL,
-  batch INT NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
-
-docker exec db-trx2 mysql -u root -p${MYSQL_ROOT_PASSWORD} ${DB_TRX2_DATABASE} -e "CREATE TABLE IF NOT EXISTS migrations (
-  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  migration VARCHAR(255) NOT NULL,
-  batch INT NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
-
-docker exec db-adm mysql -u root -p${MYSQL_ROOT_PASSWORD} ${DB_ADMIN_DATABASE} -e "CREATE TABLE IF NOT EXISTS migrations (
-  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  migration VARCHAR(255) NOT NULL,
-  batch INT NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
-
-docker exec db-tol mysql -u root -p${MYSQL_ROOT_PASSWORD} ${DB_TOOL_DATABASE} -e "CREATE TABLE IF NOT EXISTS migrations (
-  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  migration VARCHAR(255) NOT NULL,
-  batch INT NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
-
-success_message "Databases and migrations tables created."
-
-# Install dependencies for API
-if [ -d "${PROJECT_ROOT}/api" ]; then
-  echo "Setting up API..."
-  cd "${PROJECT_ROOT}/api"
-  composer install
-  npm install
-  npm run build
-  
-  # Run migrations for each database
-  echo "Running API migrations..."
-  # Standard migrations (MstDB, SysDB)
-  docker exec api-php php artisan migrate --force
-  
-  # TrxDB migrations (all shards: trx1, trx2, ...)
-  echo "Running TrxDB migrations for all shards..."
-  docker exec api-php php artisan trx:migrate --force
-  
-  # LogDB migrations (all shards: log1, log2, ...)
-  echo "Running LogDB migrations for all shards..."
-  docker exec api-php php artisan pitr:migrate --force
-
-  success_message "API setup completed."
+# npmはコンテナに含まれていないためホストで実行する。
+# ビルド成果物はTool管理画面の表示にのみ使うので、無ければスキップする。
+if command -v npm > /dev/null 2>&1; then
+  echo "Building assets..."
+  (cd "${PROJECT_ROOT}/api" && npm install --no-audit --no-fund && npm run build)
+  (cd "${PROJECT_ROOT}/tool" && rm -f package-lock.json && npm install --no-audit --no-fund && npm run build)
+  success_message "Assets built."
 else
-  error_message "API directory not found."
+  warn_message "npm が見つからないためアセットビルドをスキップしました。"
+  warn_message "APIの開発には影響しません。Tool画面を使う場合は Node.js を入れて再実行してください。"
 fi
 
-# Install dependencies for Tool
-if [ -d "${PROJECT_ROOT}/tool" ]; then
-  echo "Setting up Tool..."
-  cd "${PROJECT_ROOT}/tool"
-  composer install
-  # Remove package-lock.json to avoid dependency conflicts
-  rm -f package-lock.json
-  npm install
-  npm run build
-  
-  # Run migrations for admin and tool databases
-  echo "Running Tool migrations..."
-  docker exec tool-php php artisan migrate --path=database/migrations/adm --database=admin --force
-  docker exec tool-php php artisan migrate --path=database/migrations/tol --database=tool --force
-  
-  # Run seeders to create default admin account
-  echo "Running Tool seeders..."
-  docker exec tool-php php artisan db:seed --class=AdminAccountSeeder --force
-  
-  success_message "Tool setup completed."
-else
-  error_message "Tool directory not found."
-fi
+# ============================================================================
+# Step 7: マイグレーション
+# ============================================================================
+# sys/mst のマイグレーションは Schema::connection() で対象を固定しているが、
+# trx/log は既定接続を使う。そのため接続とパスを必ず明示して実行する。
+# 引数なしの `php artisan migrate` は既定接続（sqlite）に流れてしまうので使わない。
+#
+# マイグレーションは api/database/migrations/{group} と
+# packages/*/database/migrations/{group} に分かれて置かれている。
+#
+# --path は base_path() からの相対パスとして解決される（--realpath を付けない限り
+# 絶対パスは base_path() を前置されて存在しないパスになり、黙って無視される）。
+# そのため ../packages/... の形で渡すこと。
+function migrate_group() {
+  local connection=$1
+  local group=$2
+  "${COMPOSE[@]}" exec -T api-php sh -c "
+    set -e
+    args=''
+    for p in database/migrations/${group} ../packages/*/database/migrations/${group}; do
+      [ -d \"\$p\" ] && args=\"\$args --path=\$p\"
+    done
+    php artisan migrate --database=${connection} --force \$args
+  "
+}
 
+echo "Running API migrations (sys)..."
+migrate_group sys sys
+echo "Running API migrations (mst)..."
+migrate_group mst mst
+
+echo "Running TrxDB migrations for all shards..."
+"${COMPOSE[@]}" exec -T api-php php artisan trx:migrate --force
+
+echo "Running LogDB migrations for all shards..."
+"${COMPOSE[@]}" exec -T api-php php artisan pitr:migrate --force
+
+echo "Running Tool migrations..."
+"${COMPOSE[@]}" exec -T tool-php php artisan migrate --path=database/migrations/adm --database=admin --force
+"${COMPOSE[@]}" exec -T tool-php php artisan migrate --path=database/migrations/tol --database=tool --force
+success_message "Migrations completed."
+
+# ============================================================================
+# Step 8: シード
+# ============================================================================
+# シャーディング設定とマスターデータが無いとAPIは1本も通らないため、
+# 開発環境では初期データまで入れて完了とする。
+echo "Seeding API data..."
+"${COMPOSE[@]}" exec -T api-php php artisan db:seed --force
+
+echo "Seeding Tool data..."
+"${COMPOSE[@]}" exec -T tool-php php artisan db:seed --class=AdminAccountSeeder --force
+success_message "Seeding completed."
+
+echo ""
 success_message "Environment setup completed successfully."
+echo "  API:  http://localhost:8090"
+echo "  Tool: http://localhost:8091"
+echo ""
+echo "テストを実行する場合: ./command/sail api test"

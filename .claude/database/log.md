@@ -85,7 +85,7 @@ class LogEquipment extends _BaseLog
     ];
     
     protected $casts = [
-        'system_at' => 'immutable_datetime',
+        // 日時はキャストしない（stringのまま扱う）
         // created_at, updated_atは$castsに含めない
     ];
 }

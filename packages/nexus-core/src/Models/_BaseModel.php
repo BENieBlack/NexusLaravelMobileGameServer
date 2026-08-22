@@ -39,6 +39,7 @@ abstract class _BaseModel extends Model implements _BaseModelInterface
      * 
      * @var array<string, string>
      */
+    /** @var array<string, string> */
     protected $casts = [
         // デフォルトのcreated_at, updated_atのdatetime自動キャストを無効化
         // サブクラスで必要に応じて個別にキャスト定義可能
@@ -172,12 +173,47 @@ abstract class _BaseModel extends Model implements _BaseModelInterface
     /**
      * Eloquentのデフォルトタイムスタンプ自動キャストを無効化
      *
-     * @return bool
+     * Eloquentは $timestamps = true のとき created_at / updated_at を
+     * $casts の指定に関係なくCarbonへ変換する（HasAttributes::isDateAttribute()）。
+     * 日時は文字列のまま扱う方針のため、変換対象を空にして無効化する。
+     *
+     * タイムスタンプの自動設定（$timestamps）自体は有効なまま。
+     *
+     * @return array<int, string|null>
      */
-    public function usesTimestamps()
+    public function getDates()
     {
-        // タイムスタンプ機能自体は有効だが、Carbonへの自動キャストは行わない
-        return parent::usesTimestamps();
+        return [];
+    }
+
+    /**
+     * 日付属性を Y-m-d H:i:s 形式の文字列として取得
+     *
+     * DBから取得した時点で文字列なので、そのまま返すのが基本。
+     * Carbon等が入っている場合のみ整形する。
+     *
+     * 日時は文字列のまま扱う方針のため、比較は ClockUtility::isPast() /
+     * isFuture() / isWithin() を使う（固定長なので辞書順=時系列順）。
+     *
+     * @param string $attribute 属性名（例: 'created_at', 'start_at'）
+     */
+    protected function getDateAttributeString(string $attribute): ?string
+    {
+        $value = $this->getAttribute($attribute);
+
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        if (is_string($value)) {
+            return $value;
+        }
+
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format('Y-m-d H:i:s');
+        }
+
+        return (string) $value;
     }
 
     /**

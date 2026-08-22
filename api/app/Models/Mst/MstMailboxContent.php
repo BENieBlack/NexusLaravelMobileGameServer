@@ -2,7 +2,6 @@
 
 namespace App\Models\Mst;
 
-use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
@@ -14,8 +13,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $content_id
  * @property int $amount
  * @property int $sort_desc
- * @property CarbonImmutable $created_at
- * @property CarbonImmutable $updated_at
+ * @property string $created_at
+ * @property string $updated_at
  */
 class MstMailboxContent extends _BaseMst
 {
@@ -23,7 +22,7 @@ class MstMailboxContent extends _BaseMst
 
     public $incrementing = false;
 
-    /** @var array<int, string> */
+    /** @var list<string> */
     protected $fillable = [
         'deploy_key',
         'mst_mailbox_id',
@@ -38,6 +37,7 @@ class MstMailboxContent extends _BaseMst
     /**
      * @var array<string, string>
      */
+    /** @var array<string, string> */
     protected $casts = [
         'deploy_key' => 'integer',
         'content_option' => 'array',
@@ -60,6 +60,9 @@ class MstMailboxContent extends _BaseMst
 
     /**
      * メールボックスとのリレーション
+     */
+    /**
+     * @return BelongsTo<MstMailbox, $this>
      */
     public function mailbox(): BelongsTo
     {

@@ -29,8 +29,8 @@ class MstVipLevel extends _BaseMst
 
     protected $keyType = 'string';
 
-    /** @var array<int, string> */
-    protected $fillable = [
+        /** @var list<string> */
+        protected $fillable = [
         'deploy_key',
         'id',
         'level',
@@ -47,6 +47,7 @@ class MstVipLevel extends _BaseMst
     /**
      * @var array<string, string>
      */
+    /** @var array<string, string> */
     protected $casts = [
         'deploy_key' => 'integer',
         'level' => 'integer',

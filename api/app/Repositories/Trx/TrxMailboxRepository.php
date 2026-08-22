@@ -6,7 +6,6 @@ use App\Domain\Mailbox\Constants\Category;
 use App\Domain\Mailbox\Constants\Priority;
 use App\Models\Trx\TrxMailbox;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Collection;
 use Nexus\Core\Support\CustomCollection;
 
 /**
@@ -27,7 +26,7 @@ class TrxMailboxRepository extends _BaseTrxRepository
      * @param  Priority|null  $priority  優先度フィルタ
      * @param  bool  $onlyUnread  未読のみ
      * @param  bool  $onlyProtected  保護のみ
-     * @return Collection
+     * @return CustomCollection<int, TrxMailbox>
      */
     public function selectByPlayerId(
         int $sysPlayerId,
@@ -77,17 +76,20 @@ class TrxMailboxRepository extends _BaseTrxRepository
         $results = $query->get();
 
         // 優先度順にソート（PHP側で実施）
-        $sorted = $results->sort(function ($a, $b) {
-            $priorityA = $a->mstMailbox?->priority;
-            $priorityB = $b->mstMailbox?->priority;
+        // priorityはMstMailbox側でPriorityにキャスト済みなので、Enumのまま扱う
+        $priorityOrder = [
+            Priority::URGENT->value => 1,
+            Priority::IMPORTANT->value => 2,
+            Priority::NORMAL->value => 3,
+        ];
 
-            // オブジェクトの場合はvalue取得、文字列の場合はそのまま
-            $priorityAValue = is_object($priorityA) ? $priorityA->value : (string) ($priorityA ?? 'Normal');
-            $priorityBValue = is_object($priorityB) ? $priorityB->value : (string) ($priorityB ?? 'Normal');
+        $sorted = $results->sort(function ($a, $b) use ($priorityOrder) {
+            // マスターが引けないメールは通常扱いにする
+            $priorityAValue = ($a->mstMailbox?->priority ?? Priority::NORMAL)->value;
+            $priorityBValue = ($b->mstMailbox?->priority ?? Priority::NORMAL)->value;
 
-            $priorityOrder = ['Urgent' => 1, 'Important' => 2, 'Normal' => 3];
-            $orderA = $priorityOrder[$priorityAValue] ?? 3;
-            $orderB = $priorityOrder[$priorityBValue] ?? 3;
+            $orderA = $priorityOrder[$priorityAValue];
+            $orderB = $priorityOrder[$priorityBValue];
 
             if ($orderA !== $orderB) {
                 return $orderA <=> $orderB;
@@ -120,11 +122,10 @@ class TrxMailboxRepository extends _BaseTrxRepository
 
         $counts = [];
         foreach ($mailboxes as $mailbox) {
+            // categoryはMstMailbox側でCategoryにキャスト済み
             $category = $mailbox->mstMailbox?->category;
             if ($category !== null) {
-                // Categoryオブジェクトの場合はvalue取得、文字列の場合はそのまま
-                $categoryKey = is_object($category) ? $category->value : (string) $category;
-                $counts[$categoryKey] = ($counts[$categoryKey] ?? 0) + 1;
+                $counts[$category->value] = ($counts[$category->value] ?? 0) + 1;
             }
         }
 
@@ -186,16 +187,18 @@ class TrxMailboxRepository extends _BaseTrxRepository
     /**
      * 期限切れメールを取得
      *
-     * @return Collection
+     * @return CustomCollection<int, TrxMailbox>
      */
     public function selectExpired(int $sysPlayerId): CustomCollection
     {
-        return $this->modelClass::query()
+        $records = $this->modelClass::query()
             ->where('sys_player_id', $sysPlayerId)
             ->where('is_delete', false)
             ->where('is_protected', false)
             ->whereNotNull('expires_at')
             ->where('expires_at', '<=', Carbon::now())
             ->get();
+
+        return new CustomCollection($records->all());
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Responses\Mailbox;
 use App\Domain\Mailbox\Constants\ContentType;
 use App\Domain\Mailbox\Services\TemplateEngine;
 use App\Http\Responses\_BaseResponse;
+use App\Persistence\ApiSession;
 use Nexus\Core\Support\CustomCollection;
 
 /**
@@ -34,14 +35,19 @@ class ListResponse extends _BaseResponse
         // TemplateEngineをインスタンス化
         $templateEngine = app(TemplateEngine::class);
 
-        $mailboxArray = $trxMailboxCollection->map(function ($trxMailbox) use ($templateEngine) {
+        // 言語はAccept-LanguageからResolveLanguageミドルウェアが決めている
+        $language = ApiSession::getLanguage();
+        $defaultLanguage = (string) config('language.default');
+
+        $mailboxArray = $trxMailboxCollection->map(function ($trxMailbox) use ($templateEngine, $language, $defaultLanguage) {
             $mstMailbox = $trxMailbox->mstMailbox;
             $mstMessage = $mstMailbox?->message;
 
-            // TODO: 言語設定はリクエストヘッダーから取得する必要がある
-            // 現時点では固定で'ja'を使用
-            $language = 'ja';
-            $i18n = $mstMessage?->i18n()->where('language', $language)->first();
+            // 該当言語の文言が無い場合は既定言語にフォールバックする（空文字を返さない）
+            $i18n = $mstMessage?->i18n()->where('language', $language)->first()
+                ?? ($language === $defaultLanguage
+                    ? null
+                    : $mstMessage?->i18n()->where('language', $defaultLanguage)->first());
 
             // テンプレートレンダリング用のコンテキスト
             $context = [
@@ -122,7 +128,7 @@ class ListResponse extends _BaseResponse
                 'expires_at' => $trxMailbox->expires_at?->toIso8601String() ?? null,
                 'read_at' => $trxMailbox->read_at?->toIso8601String() ?? null,
                 'received_at' => $trxMailbox->received_at?->toIso8601String() ?? null,
-                'created_at' => $trxMailbox->created_at->toIso8601String(),
+                'created_at' => (string) $trxMailbox->getAttribute('created_at'),
 
                 // 添付物
                 'content_array' => $contentArray,

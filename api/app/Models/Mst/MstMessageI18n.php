@@ -2,7 +2,6 @@
 
 namespace App\Models\Mst;
 
-use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
@@ -13,8 +12,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $language
  * @property string $title
  * @property string $body
- * @property CarbonImmutable $created_at
- * @property CarbonImmutable $updated_at
+ * @property string $created_at
+ * @property string $updated_at
  */
 class MstMessageI18n extends _BaseMst
 {
@@ -22,7 +21,7 @@ class MstMessageI18n extends _BaseMst
 
     public $incrementing = false;
 
-    /** @var array<int, string> */
+    /** @var list<string> */
     protected $fillable = [
         'deploy_key',
         'mst_message_id',
@@ -34,6 +33,7 @@ class MstMessageI18n extends _BaseMst
     /**
      * @var array<string, string>
      */
+    /** @var array<string, string> */
     protected $casts = [
         'deploy_key' => 'integer',
     ];
@@ -52,6 +52,9 @@ class MstMessageI18n extends _BaseMst
 
     /**
      * メッセージマスターとのリレーション
+     */
+    /**
+     * @return BelongsTo<MstMessage, $this>
      */
     public function message(): BelongsTo
     {

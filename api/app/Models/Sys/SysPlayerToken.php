@@ -2,9 +2,9 @@
 
 namespace App\Models\Sys;
 
-use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Nexus\Core\Utilities\ClockUtility;
 use NexusAuth\Contracts\TokenModelInterface;
 
 /**
@@ -17,10 +17,10 @@ use NexusAuth\Contracts\TokenModelInterface;
  * @property int $sys_player_id
  * @property int $sys_player_device_id
  * @property string $refresh_token_hash
- * @property CarbonImmutable $expires_at
- * @property CarbonImmutable|null $revoked_at
- * @property CarbonImmutable $created_at
- * @property CarbonImmutable $updated_at
+ * @property string $expires_at
+ * @property ?string $revoked_at
+ * @property string $created_at
+ * @property string $updated_at
  * @property-read SysPlayer $player
  * @property-read SysPlayerDevice $device
  */
@@ -36,6 +36,7 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
      *
      * @var array<string>
      */
+    /** @var list<string> */
     protected $fillable = [
         'sys_player_id',
         'sys_player_device_id',
@@ -49,11 +50,15 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
      *
      * @var array<string, string>
      */
+    /** @var array<string, string> */
     protected $casts = [
     ];
 
     /**
      * プレイヤーとのリレーション
+     */
+    /**
+     * @return BelongsTo<SysPlayer, $this>
      */
     public function player(): BelongsTo
     {
@@ -62,6 +67,9 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
 
     /**
      * デバイスとのリレーション
+     */
+    /**
+     * @return BelongsTo<SysPlayerDevice, $this>
      */
     public function device(): BelongsTo
     {
@@ -101,19 +109,11 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
     }
 
     /**
-     * 有効期限をCarbonImmutableオブジェクトで取得
-     */
-    public function getExpiresAtCarbon(): ?CarbonImmutable
-    {
-        return $this->getDateAttribute('expires_at');
-    }
-
-    /**
      * 無効化日時を取得
      */
-    public function getRevokedAt(): ?CarbonImmutable
+    public function getRevokedAt(): ?string
     {
-        return $this->getDateAttribute('revoked_at');
+        return $this->getDateAttributeString('revoked_at');
     }
 
     /**
@@ -162,7 +162,7 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
     public function isValid(): bool
     {
         return $this->getRevokedAt() === null
-            && $this->getExpiresAtCarbon() > now();
+            && ClockUtility::isFuture($this->getExpiresAt());
     }
 
     /**
@@ -170,7 +170,7 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
      */
     public function isExpired(): bool
     {
-        return $this->getExpiresAtCarbon() <= now();
+        return ! ClockUtility::isFuture($this->getExpiresAt());
     }
 
     /**
@@ -249,6 +249,6 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
      */
     public function getExpiresAt(): string
     {
-        return $this->getExpiresAtCarbon()->format('Y-m-d H:i:s');
+        return (string) $this->getDateAttributeString('expires_at');
     }
 }

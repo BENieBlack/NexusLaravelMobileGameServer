@@ -9,9 +9,8 @@ services:
       - ./api:/var/www/html
       - ./packages:/var/www/packages
       - ./.env:/var/www/.env:ro  # Mount root .env as read-only
-      # エージェント向けドキュメントの同期チェック用（読み取り専用）
+      # エージェント向けドキュメント（読み取り専用）。.opencodeは.claudeへのシンボリックリンク
       - ./.claude:/var/www/.claude:ro
-      - ./.opencode:/var/www/.opencode:ro
     environment:
       # 既定値は設けない。未設定なら署名検証が起動時に失敗する（既知の鍵で通してしまうのを防ぐ）
       - CLIENT_SECRET=${CLIENT_SECRET}
@@ -62,11 +61,13 @@ services:
     image: mysql:latest
     container_name: db-adm
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      DB_NAMES: "${APP_NAME:-nexus}-${APP_ENV:-local}-adm"
     ports:
       - "63060:3306"
     volumes:
       - db_admin_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
     networks:
       - local-network
 
@@ -74,11 +75,13 @@ services:
     image: mysql:latest
     container_name: db-tol
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      DB_NAMES: "${APP_NAME:-nexus}-${APP_ENV:-local}-tol"
     ports:
       - "63061:3306"
     volumes:
       - db_tool_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
     networks:
       - local-network
 
@@ -86,11 +89,13 @@ services:
     image: mysql:latest
     container_name: db-sys
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      DB_NAMES: "${APP_NAME:-nexus}-${APP_ENV:-local}-sys ${APP_NAME:-nexus}-testing-sys"
     ports:
       - "63062:3306"
     volumes:
       - db_sys_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
     networks:
       - local-network
 
@@ -98,11 +103,13 @@ services:
     image: mysql:latest
     container_name: db-mst
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      DB_NAMES: "${APP_NAME:-nexus}-${APP_ENV:-local}-mst ${APP_NAME:-nexus}-testing-mst"
     ports:
       - "63063:3306"
     volumes:
       - db_mst_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
     networks:
       - local-network
 
@@ -110,11 +117,13 @@ services:
     image: mysql:latest
     container_name: db-log1
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      DB_NAMES: "${APP_NAME:-nexus}-${APP_ENV:-local}-log1 ${APP_NAME:-nexus}-testing-log1"
     ports:
       - "63261:3306"
     volumes:
       - db_log1_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
     networks:
       - local-network
 
@@ -122,11 +131,13 @@ services:
     image: mysql:latest
     container_name: db-log2
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      DB_NAMES: "${APP_NAME:-nexus}-${APP_ENV:-local}-log2 ${APP_NAME:-nexus}-testing-log2"
     ports:
       - "63262:3306"
     volumes:
       - db_log2_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
     networks:
       - local-network
 
@@ -134,11 +145,13 @@ services:
     image: mysql:latest
     container_name: db-log3
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      DB_NAMES: "${APP_NAME:-nexus}-${APP_ENV:-local}-log3 ${APP_NAME:-nexus}-testing-log3"
     ports:
       - "63263:3306"
     volumes:
       - db_log3_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
     networks:
       - local-network
 
@@ -146,11 +159,13 @@ services:
     image: mysql:latest
     container_name: db-trx1
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      DB_NAMES: "${APP_NAME:-nexus}-${APP_ENV:-local}-trx1 ${APP_NAME:-nexus}-testing-trx1"
     ports:
       - "63161:3306"
     volumes:
       - db_trx1_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
     networks:
       - local-network
 
@@ -158,11 +173,13 @@ services:
     image: mysql:latest
     container_name: db-trx2
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      DB_NAMES: "${APP_NAME:-nexus}-${APP_ENV:-local}-trx2 ${APP_NAME:-nexus}-testing-trx2"
     ports:
       - "63162:3306"
     volumes:
       - db_trx2_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
     networks:
       - local-network
 
@@ -170,11 +187,13 @@ services:
     image: mysql:latest
     container_name: db-trx3
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      DB_NAMES: "${APP_NAME:-nexus}-${APP_ENV:-local}-trx3 ${APP_NAME:-nexus}-testing-trx3"
     ports:
       - "63163:3306"
     volumes:
       - db_trx3_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
     networks:
       - local-network
 

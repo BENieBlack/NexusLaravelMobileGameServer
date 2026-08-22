@@ -6,6 +6,7 @@ class LogInAppPurchase extends _BaseLog
 {
     protected $table = 'log_in_app_purchase';
 
+    /** @var array<string, string> */
     protected $casts = [
         'id' => 'integer',
         'unique_request_id' => 'string',
@@ -21,6 +22,7 @@ class LogInAppPurchase extends _BaseLog
         'pay_string' => 'string',
     ];
 
+    /** @var list<string> */
     protected $fillable = [
         'unique_request_id',
         'sys_player_id',
@@ -35,6 +37,22 @@ class LogInAppPurchase extends _BaseLog
         'pay_string',
         'system_at',
     ];
+
+    /**
+     * ステータス定数
+     *
+     * CheckAvailability: 購入可能かの確認のみ
+     * Purchased: 購入完了
+     * Failed: 検証や付与に失敗
+     * Refunded: 返金済み
+     */
+    public const STATUS_CHECK_AVAILABILITY = 'CheckAvailability';
+
+    public const STATUS_PURCHASED = 'Purchased';
+
+    public const STATUS_FAILED = 'Failed';
+
+    public const STATUS_REFUNDED = 'Refunded';
 
     /**
      * プラットフォーム定数

@@ -22,7 +22,7 @@ class ApplySendRequest extends _BaseRequest
     public function rules(): array
     {
         return [
-            'guild_id' => ['required', 'integer', 'min:1'],
+            'sys_guild_id' => ['required', 'integer', 'min:1'],
         ];
     }
 
@@ -31,7 +31,7 @@ class ApplySendRequest extends _BaseRequest
      */
     public function getGuildId(): int
     {
-        return (int) $this->input('guild_id');
+        return (int) $this->input('sys_guild_id');
     }
 
     /**
@@ -66,7 +66,7 @@ class ApplySendRequest extends _BaseRequest
     public function attributes(): array
     {
         return [
-            'guild_id' => 'Guild ID',
+            'sys_guild_id' => 'Guild ID',
         ];
     }
 }

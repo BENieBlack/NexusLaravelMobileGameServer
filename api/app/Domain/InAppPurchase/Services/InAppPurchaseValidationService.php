@@ -85,13 +85,13 @@ class InAppPurchaseValidationService
      * リセットが必要な場合の新しいリセット日時を取得
      *
      * @param  string  $resetType  リセット種別（None, Daily, Weekly, Monthly）
-     * @param  \DateTimeInterface|null  $lastResetAt  最終リセット日時
-     * @return \DateTimeInterface|null 新しいリセット日時（リセット不要ならnull）
+     * @param  string|null  $lastResetAt  最終リセット日時（Y-m-d H:i:s）
+     * @return string|null 新しいリセット日時（リセット不要ならnull）
      */
     public function getNewResetDateIfNeeded(
         string $resetType,
-        ?\DateTimeInterface $lastResetAt
-    ): ?\DateTimeInterface {
+        ?string $lastResetAt
+    ): ?string {
         return $this->limitValidator->getNewResetDateIfNeeded($resetType, $lastResetAt);
     }
 
@@ -155,12 +155,12 @@ class InAppPurchaseValidationService
 
         // 通貨コード照合
         if ($platformProduct->price_currency_code !== null
-            && $verificationResult->getPriceCurrencyCode() !== $platformProduct->price_currency_code) {
+            && $verification->getPriceCurrencyCode() !== $platformProduct->price_currency_code) {
             Log::error('Currency mismatch detected', [
                 'billing_platform' => $billingPlatform,
-                'product_id' => $verificationResult->getProductId(),
+                'product_id' => $verification->getProductId(),
                 'expected_currency' => $platformProduct->price_currency_code,
-                'actual_currency' => $verificationResult->getPriceCurrencyCode(),
+                'actual_currency' => $verification->getPriceCurrencyCode(),
             ]);
 
             throw new GameException(
@@ -171,10 +171,83 @@ class InAppPurchaseValidationService
 
         Log::info('Price validation passed', [
             'billing_platform' => $billingPlatform,
-            'product_id' => $verificationResult->getProductId(),
-            'price_micros' => $verificationResult->getPriceAmountMicros(),
-            'currency' => $verificationResult->getPriceCurrencyCode(),
+            'product_id' => $verification->getProductId(),
+            'price_micros' => $verification->getPriceAmountMicros(),
+            'currency' => $verification->getPriceCurrencyCode(),
         ]);
+    }
+
+    /**
+     * 購入価格を解決する（通貨単位）
+     *
+     * 返金計算のため、実際に支払われた金額を返す。
+     * Google Playはレシート検証結果に価格が含まれる。
+     * App Storeは /verifyReceipt が価格を返さないため、マスターの設定値を使う。
+     *
+     * どちらも得られない場合は0.0を返す（金額不明のまま固定値を入れない）。
+     *
+     * @param  Verification  $verification  レシート検証結果
+     * @param  MstInAppPurchase  $mstInAppPurchase  商品マスター
+     * @param  string  $billingPlatform  決済プラットフォーム（AppStore, GooglePlay等）
+     */
+    public function resolvePurchasePrice(
+        Verification $verification,
+        MstInAppPurchase $mstInAppPurchase,
+        string $billingPlatform
+    ): float {
+        $priceMicros = $verification->getPriceAmountMicros()
+            ?? $this->getPlatformProduct($mstInAppPurchase, $billingPlatform)?->price_amount_micros;
+
+        if ($priceMicros === null) {
+            Log::warning('Purchase price is unknown', [
+                'billing_platform' => $billingPlatform,
+                'product_id' => $verification->getProductId(),
+            ]);
+
+            return 0.0;
+        }
+
+        return (int) $priceMicros / 1_000_000;
+    }
+
+    /**
+     * マスターに設定された価格と通貨を取得する
+     *
+     * レシート検証まで進めなかった場合（検証失敗時のログ記録など）に使う。
+     *
+     * @param  MstInAppPurchase  $mstInAppPurchase  商品マスター
+     * @param  string  $billingPlatform  決済プラットフォーム
+     * @return array{amount: float, currency: string|null}
+     */
+    public function findMasterPrice(MstInAppPurchase $mstInAppPurchase, string $billingPlatform): array
+    {
+        $platformProduct = $this->getPlatformProduct($mstInAppPurchase, $billingPlatform);
+
+        return [
+            'amount' => $platformProduct?->price_amount_micros !== null
+                ? (int) $platformProduct->price_amount_micros / 1_000_000
+                : 0.0,
+            'currency' => $platformProduct?->price_currency_code,
+        ];
+    }
+
+    /**
+     * 購入通貨を解決する
+     *
+     * 価格と同じく、レシート検証結果 → マスターの順に見る。
+     *
+     * @param  Verification  $verification  レシート検証結果
+     * @param  MstInAppPurchase  $mstInAppPurchase  商品マスター
+     * @param  string  $billingPlatform  決済プラットフォーム
+     * @return string|null 通貨コード（ISO 4217）。どちらにも無ければnull
+     */
+    public function resolvePurchaseCurrency(
+        Verification $verification,
+        MstInAppPurchase $mstInAppPurchase,
+        string $billingPlatform
+    ): ?string {
+        return $verification->getPriceCurrencyCode()
+            ?? $this->getPlatformProduct($mstInAppPurchase, $billingPlatform)?->price_currency_code;
     }
 
     /**

@@ -66,7 +66,7 @@ class AuthController extends Controller
 {
     public function version(
         VersionCheckRequest $request,    // ← Presentation Layer
-        VersionCheckUseCase $useCase      // ← Application Layer
+        CheckUseCase $useCase      // ← Application Layer
     ): JsonResponse {
         // Requestから値を取り出してUseCaseに渡す
         $deployVersion = $request->getDeployVersion();
@@ -76,7 +76,7 @@ class AuthController extends Controller
 }
 
 // ✅ Good: UseCaseからServiceへの依存
-class VersionCheckUseCase
+class CheckUseCase
 {
     public function __construct(
         private readonly VersionCheckService $versionCheckService
@@ -345,7 +345,7 @@ class AuthController extends Controller
 {
     public function version(
         VersionCheckRequest $request,
-        VersionCheckUseCase $useCase
+        CheckUseCase $useCase
     ): JsonResponse {
         // Requestから個々の値を取り出してUseCaseに渡す
         $deployVersion = $request->getDeployVersion();
@@ -753,7 +753,7 @@ $service = new VipPointService($config);
 **実装例:**
 
 ```php
-class VersionCheckUseCase extends _BaseUseCase
+class CheckUseCase extends _BaseUseCase
 {
     public function __construct(
         private readonly VersionCheckService $versionCheckService
@@ -800,7 +800,7 @@ class VersionCheckUseCase extends _BaseUseCase
 **実装例:**
 
 ```php
-class UnitLevelUpUseCase implements _BaseUseCaseInterface
+class LevelUpUseCase implements _BaseUseCaseInterface
 {
     /**
      * バリデーション
@@ -873,7 +873,7 @@ class UnitLevelUpUseCase implements _BaseUseCaseInterface
 シンプルな読み取り専用のUseCaseでは、validation()を省略しても構いません。
 
 ```php
-class VersionCheckUseCase implements _BaseUseCaseInterface
+class CheckUseCase implements _BaseUseCaseInterface
 {
     // バリデーション不要（deployVersionはRequestで検証済み）
     public function handle(?int $deployVersion): VersionCheckResponse
@@ -1711,8 +1711,7 @@ class SysDeploy extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
-        'start_at' => 'immutable_datetime',
-        'end_at' => 'immutable_datetime',
+        // 日時はキャストしない（stringのまま扱う）
     ];
 
     // リレーション定義
@@ -1768,9 +1767,9 @@ POST /auth/version
 1. AuthController::version()
    ├── VersionCheckRequest（バリデーション）
    ├── $deployVersion = $request->getDeployVersion()
-   └── VersionCheckUseCase::handle($deployVersion)
+   └── CheckUseCase::handle($deployVersion)
    
-2. VersionCheckUseCase::handle(?int $deployVersion)
+2. CheckUseCase::handle(?int $deployVersion)
    └── VersionCheckService::checkVersion($deployVersion)
    
 3. VersionCheckService::checkVersion(?int $deployVersion)
@@ -2422,7 +2421,7 @@ class UnitLevelService
 
 ```php
 // packages/nexus-wallet/src/Exceptions/InsufficientBalanceException.php
-namespace LaravelWallet\Exceptions;
+namespace NexusWallet\Exceptions;
 
 class InsufficientBalanceException extends WalletException
 {

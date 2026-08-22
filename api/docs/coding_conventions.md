@@ -9,12 +9,14 @@
 1. [メソッド命名規則](#メソッド命名規則)
 2. [DTO・ValueObjectの命名](#dtovalueobjectの命名)
 3. [削除の規約](#削除の規約)
-4. [Request・Responseクラスの命名規則](#requestresponseクラスの命名規則)
-5. [ディレクトリ構成](#ディレクトリ構成)
-6. [名前空間とクラスの配置](#名前空間とクラスの配置)
-7. [クラスの責務](#クラスの責務)
-8. [ファイル命名規則](#ファイル命名規則)
-9. [まとめ](#まとめ)
+4. [Adapterの役割](#adapterの役割)
+5. [レスポンスの契約](#レスポンスの契約)
+6. [Request・Responseクラスの命名規則](#requestresponseクラスの命名規則)
+7. [ディレクトリ構成](#ディレクトリ構成)
+8. [名前空間とクラスの配置](#名前空間とクラスの配置)
+9. [クラスの責務](#クラスの責務)
+10. [ファイル命名規則](#ファイル命名規則)
+11. [まとめ](#まとめ)
 
 ---
 
@@ -102,11 +104,156 @@ Eloquent Modelは `Sys` / `Trx` / `Mst` / `Log` の接頭辞を持つため、
 
 論理削除した行を後からまとめて物理削除する仕組みは持たない。消したい場合は最初から `hardDeleteModel()` を使う。
 
+### タイムスタンプはDBに任せる
+
+`created_at` / `updated_at` はテーブル定義の既定値で採番する。
+アプリケーション側では設定しない。
+
+```php
+// マイグレーション
+$table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
+$table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
+```
+
+```php
+// ❌ アプリ側で設定しない
+$model->setAttribute('updated_at', ClockUtility::now());
+new TrxStamina(['created_at' => $now, 'updated_at' => $now]);
+```
+
+キューに積んだ時点では値が入っておらず、フラッシュ後に `BatchExecutor` が
+DB から読み戻してモデルへ反映する。タイムスタンプを参照する処理は
+フラッシュ後に行うこと。
+
+なお `system_at` のような**業務上の意味を持つ時刻**はこの限りではなく、
+`ClockUtility` 経由でアプリケーション側が設定する。
+
+### 日時は文字列で扱う
+
+`last_login_at` `start_at` などの日時は、DB取得からレスポンスまで
+一貫して `Y-m-d H:i:s` の文字列で扱う。Carbonへのキャストを強制しない。
+
+```php
+// ✅ 文字列を返す
+public function getStartAt(): ?string
+{
+    return $this->getDateAttributeString('start_at');
+}
+
+// ❌ Carbonを返すと呼び出し元がキャストに縛られる
+public function getStartAt(): ?CarbonImmutable
+```
+
+**比較は文字列のまま行える。** `Y-m-d H:i:s` は固定長なので、
+辞書順比較が時系列順比較と一致する。
+
+```php
+ClockUtility::isPast($expiresAt);            // 過去かどうか
+ClockUtility::isFuture($expiresAt);          // 未来かどうか
+ClockUtility::isWithin($startAt, $endAt);    // 期間内かどうか
+
+$latest = max($createdAtList);               // 素の比較も使える
+```
+
+日付の加算・差分など**演算が必要な箇所でだけ** `ClockUtility::parse()` で
+Carbonに変換する。変換はその場に閉じ込め、境界を越えて持ち回らない。
+
 ### Eloquentによる即時書き込みの禁止
 
 `_BaseModel` が `save()` / `update()` / `delete()` / `forceDelete()` を拒否する。トランザクション境界とPITRログの整合性を壊すため。
 
 テストのフィクスチャやSeederなど、UnitOfWorkを介さない投入経路は `_BaseModel::allowDirectWrites()` で明示的に許可する。
+
+---
+
+## Adapterの役割
+
+パッケージ（`packages/nexus-*`）はアプリ層のEloquent Modelに依存できない。
+一方Repositoryは常にModelを返す。この境界を翻訳するのがAdapterである。
+
+```
+パッケージのService → XxxRepositoryInterface（DTOを要求）
+                             ↑ implements
+アプリ層              XxxRepositoryAdapter    … 実装と委譲
+                             ↓ uses
+                      XxxAdapter              … Model↔DTO変換
+                             ↓ wraps
+                      SysXxxRepository        … Modelを返す
+```
+
+### 2種類のAdapterを混同しない
+
+| クラス | 配置 | 役割 |
+|---|---|---|
+| `*RepositoryAdapter` | `App\Repositories\**` | パッケージInterfaceの実装・委譲。DI対象 |
+| `*Adapter` | `App\Adapters\{Domain}\` | Model↔DTOの変換。staticユーティリティ |
+
+### 変換は App\Adapters に集約する
+
+`RepositoryAdapter` の中に private 変換メソッドを書かない。
+変換はUseCaseなど他の層からも使うため、切り出しておく。
+
+```php
+// ✅ 委譲する
+return $model ? GuildAdapter::toDto($model) : null;
+
+// ❌ 内部に閉じ込めると他の層から使えない
+private function convertToDto(SysGuild $model): Guild
+```
+
+変換クラスは `toDto()` と `toDtoArray()` を持つ。
+
+---
+
+## レスポンスの契約
+
+### UseCase は必ず Response クラスを返す
+
+`_BaseController::execute()` は `_BaseResponseInterface` の実装のみを受け取る。
+戻り値の型を固定することで、レスポンスの形が呼び出し方によって変わったり、
+意図しないキーが混入したりするのを防ぐ。
+
+```php
+// ✅ Responseクラスを返す
+public function exec(int $sysPlayerId): GuildLeaveResponse
+{
+    return $this->executeWithTransaction(function () use ($sysPlayerId) {
+        // ...
+        return new GuildLeaveResponse($sysPlayerId);
+    });
+}
+
+// ❌ 配列や void を返す（LogicExceptionになる）
+public function exec(int $sysPlayerId): void
+```
+
+Responseクラスは `_BaseResponse` を継承し、`toArray()` だけを実装する。
+`Responsable` は使わない（JSONの組み立て方が二系統になるため）。
+
+### IDキーはテーブルまで特定できる名前にする
+
+`*_id` は、どのテーブルのどのカラムを指すかが名前から分かるようにする。
+`apply_id` のような曖昧な名前は使わない。
+
+| ❌ 曖昧 | ✅ 特定できる | 実体 |
+|---|---|---|
+| `guild_id` | `sys_guild_id` | `sys_guild.id` |
+| `apply_id` | `sys_guild_apply_id` | `sys_guild_apply.id` |
+| `member_id` | `sys_guild_member_id` | `sys_guild_member.id` |
+| `player_id` | `sys_player_id` | `sys_player.id` |
+
+リクエストのパラメータ名も同じ規則に従う。
+
+カラム名自体に接頭辞が無いもの（`my_id` `content_id` `sender_id` `device_id` など）は、
+DBのカラム名がそのまま対応するため据え置く。
+
+### エンベロープは付けない
+
+`toArray()` の内容がそのままトップレベルになる。`data` などでラップしない。
+
+```json
+{ "guilds": [ ... ] }
+```
 
 ---
 
@@ -450,7 +597,7 @@ Route::middleware('auth.token')->group(function () {
 
 ```php
 // 標準Requestを使用する例
-public function getPlayerMe(Request $request, GetPlayerMeUseCase $useCase): JsonResponse
+public function getPlayerMe(Request $request, GetMeUseCase $useCase): JsonResponse
 {
     $response = $useCase->handle($request);
     return $response->toJsonResponse();

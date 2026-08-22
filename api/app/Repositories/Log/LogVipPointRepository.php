@@ -50,7 +50,6 @@ class LogVipPointRepository extends _BaseLogRepository implements VipPointLogRep
             'currency_code' => $metadata['currency_code'] ?? null,
             'mst_in_app_purchase_id' => $metadata['mst_in_app_purchase_id'] ?? null,
             'system_at' => ClockUtility::now(),
-            'created_at' => ClockUtility::now(),
         ]);
 
         // 通常ログとして登録
@@ -78,7 +77,7 @@ class LogVipPointRepository extends _BaseLogRepository implements VipPointLogRep
                     'purchase_amount' => $log->getPurchaseAmount(),
                     'currency_code' => $log->getCurrencyCode(),
                     'mst_in_app_purchase_id' => $log->getMstInAppPurchaseId(),
-                    'system_at' => $log->getSystemAt()->format('Y-m-d H:i:s'),
+                    'system_at' => $log->getSystemAt(),
                 ];
             })
             ->values()
@@ -98,12 +97,17 @@ class LogVipPointRepository extends _BaseLogRepository implements VipPointLogRep
     /**
      * 特定期間のVIPポイント変動ログを取得
      *
+     * 日時は 'Y-m-d H:i:s' 形式の文字列で受け取る。
+     * 固定長のため辞書順比較が時系列順比較と一致する。
+     *
+     * @param  string  $startDate  'Y-m-d H:i:s'
+     * @param  string  $endDate  'Y-m-d H:i:s'
      * @return CustomCollection<int, LogVipPoint>
      */
     public function selectByPeriod(
         int $sysPlayerId,
-        \DateTimeImmutable $startDate,
-        \DateTimeImmutable $endDate
+        string $startDate,
+        string $endDate
     ): CustomCollection {
         return $this->queryOrMemory()
             ->where('sys_player_id', $sysPlayerId)

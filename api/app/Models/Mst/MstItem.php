@@ -9,7 +9,7 @@ namespace App\Models\Mst;
  * @property string $id
  * @property string $type
  * @property string $effect
- * @property int $value
+ * @property float $value
  */
 class MstItem extends _BaseMst
 {
@@ -19,7 +19,7 @@ class MstItem extends _BaseMst
 
     protected $keyType = 'string';
 
-    /** @var array<int, string> */
+    /** @var list<string> */
     protected $fillable = [
         'deploy_key',
         'id',
@@ -31,9 +31,11 @@ class MstItem extends _BaseMst
     /**
      * @var array<string, string>
      */
+    /** @var array<string, string> */
     protected $casts = [
         'deploy_key' => 'integer',
-        'value' => 'integer',
+        // DBは double。integerにすると小数が落ちる
+        'value' => 'float',
     ];
 
     public $timestamps = true;
@@ -57,9 +59,9 @@ class MstItem extends _BaseMst
     /**
      * アイテム値を取得
      */
-    public function getValue(): int
+    public function getValue(): float
     {
-        return $this->getAttribute('value');
+        return (float) $this->getAttribute('value');
     }
 
     /**

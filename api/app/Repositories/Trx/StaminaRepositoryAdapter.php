@@ -2,7 +2,7 @@
 
 namespace App\Repositories\Trx;
 
-use App\Models\Trx\TrxStamina;
+use App\Adapters\Stamina\StaminaAdapter;
 use NexusStamina\DataTransferObjects\Stamina;
 use NexusStamina\Repositories\StaminaRepositoryInterface;
 
@@ -29,7 +29,7 @@ class StaminaRepositoryAdapter implements StaminaRepositoryInterface
     {
         $model = $this->trxStaminaRepository->selectByPlayerAndType($sysPlayerId, $type);
 
-        return $model ? $this->convertToDto($model) : null;
+        return $model ? StaminaAdapter::toDto($model) : null;
     }
 
     /**
@@ -67,19 +67,5 @@ class StaminaRepositoryAdapter implements StaminaRepositoryInterface
         );
 
         return $stamina;
-    }
-
-    /**
-     * Eloquent ModelをDTOに変換
-     */
-    private function convertToDto(TrxStamina $model): Stamina
-    {
-        return new Stamina(
-            sysPlayerId: $model->sys_player_id,
-            type: $model->type,
-            currentStamina: $model->current_stamina,
-            recoveryRateMultiplier: $model->recovery_rate_multiplier,
-            lastRecoveryAt: $model->last_recovery_at
-        );
     }
 }

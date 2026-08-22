@@ -42,7 +42,6 @@ class LogGachaRepository extends _BaseLogRepository
             'mst_gacha_id' => $mstGachaId,
             'result' => $result,
             'system_at' => ClockUtility::now(),
-            'created_at' => ClockUtility::now(),
         ]);
 
         // 通常ログとして登録

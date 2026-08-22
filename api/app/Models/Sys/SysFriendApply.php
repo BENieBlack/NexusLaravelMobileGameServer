@@ -2,9 +2,7 @@
 
 namespace App\Models\Sys;
 
-use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * SysFriendApply Model
@@ -29,6 +27,7 @@ class SysFriendApply extends _BaseSys
      *
      * @var array
      */
+    /** @var list<string> */
     protected $fillable = [
         'sender_sys_player_id',
         'receiver_sys_player_id',
@@ -40,6 +39,7 @@ class SysFriendApply extends _BaseSys
      *
      * @var array
      */
+    /** @var array<string, string> */
     protected $casts = [
         'sender_sys_player_id' => 'integer',
         'receiver_sys_player_id' => 'integer',
@@ -59,6 +59,9 @@ class SysFriendApply extends _BaseSys
     /**
      * 申請送信者
      */
+    /**
+     * @return BelongsTo<SysPlayer, $this>
+     */
     public function sendPlayer(): BelongsTo
     {
         return $this->belongsTo(SysPlayer::class, 'sender_sys_player_id');
@@ -66,6 +69,9 @@ class SysFriendApply extends _BaseSys
 
     /**
      * 申請受信者
+     */
+    /**
+     * @return BelongsTo<SysPlayer, $this>
      */
     public function receivePlayer(): BelongsTo
     {
@@ -107,17 +113,17 @@ class SysFriendApply extends _BaseSys
     /**
      * 作成日時を取得
      */
-    public function getCreatedAt(): CarbonImmutable
+    public function getCreatedAt(): ?string
     {
-        return ClockUtility::parse((string) $this->created_at);
+        return $this->getDateAttributeString('created_at');
     }
 
     /**
      * 更新日時を取得
      */
-    public function getUpdatedAt(): CarbonImmutable
+    public function getUpdatedAt(): ?string
     {
-        return ClockUtility::parse((string) $this->updated_at);
+        return $this->getDateAttributeString('updated_at');
     }
 
     /**

@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 /**
@@ -39,7 +40,7 @@ return new class extends Migration
             $table->string('api_endpoint', 255)->nullable()->comment('APIエンドポイント');
             $table->unsignedBigInteger('admin_id')->nullable()->comment('管理者ID (CS操作の場合)');
             
-            $table->dateTime('created_at')->useCurrent()->comment('作成日時');
+            $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             
             // Indexes
             $table->index('sys_player_id');
@@ -72,7 +73,7 @@ return new class extends Migration
             $table->string('api_endpoint', 255)->nullable()->comment('APIエンドポイント');
             $table->unsignedBigInteger('admin_id')->nullable()->comment('管理者ID (CS操作の場合)');
             
-            $table->dateTime('created_at')->useCurrent()->comment('作成日時');
+            $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             
             // Indexes
             $table->index('sys_player_id');

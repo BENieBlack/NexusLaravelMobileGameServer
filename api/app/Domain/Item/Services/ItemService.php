@@ -3,26 +3,23 @@
 namespace App\Domain\Item\Services;
 
 use App\Models\Trx\TrxItem;
+use NexusResource\Services\ItemService as PackageItemService;
 
 /**
- * ItemService (Facade)
+ * ItemService (Domain層ラッパー)
  *
- * アイテム管理サービスのFacade
+ * パッケージ層のItemサービスをラップし、DTO ↔ Model変換を担当する。
  *
- * このクラスは後方互換性のために維持されています。
- * 新しいコードでは、ReadServiceまたはWriteServiceを直接使用してください。
+ * Responsibilities:
+ * - パッケージ層Serviceへの委譲
+ * - Item(DTO) → TrxItem(Model) への変換
  *
- * Design Pattern: Facade Pattern
- * - Delegates read operations to ReadService
- * - Delegates write operations to WriteService
- *
- * @deprecated 新規コードではReadService/WriteServiceを直接使用してください
+ * Note: ビジネスロジックはパッケージ層（NexusResource\Services\ItemService）に存在する。
  */
 class ItemService
 {
     public function __construct(
-        private readonly ItemReadService $itemReadService,
-        private readonly ItemWriteService $itemWriteService,
+        private readonly PackageItemService $packageItemService,
     ) {}
 
     /**
@@ -35,7 +32,7 @@ class ItemService
      */
     public function addItem(int $sysPlayerId, string $mstItemId, int $freeAmount = 0, int $paidAmount = 0): void
     {
-        $this->itemWriteService->addItem($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
+        $this->packageItemService->addItem($sysPlayerId, $mstItemId, $freeAmount, $paidAmount);
     }
 
     /**
@@ -51,7 +48,25 @@ class ItemService
      */
     public function consumeItem(int $sysPlayerId, string $mstItemId, int $amount): TrxItem
     {
-        return $this->itemWriteService->consumeItem($sysPlayerId, $mstItemId, $amount);
+        $item = $this->packageItemService->consumeItem($sysPlayerId, $mstItemId, $amount);
+
+        // DTOからTrxItemを再取得（既存の利用箇所との互換性のため）
+        // Note: 将来的にはDTOを直接返すようにリファクタリング推奨
+        $trxItem = TrxItem::query()
+            ->where('sys_player_id', $item->getSysPlayerId())
+            ->where('mst_item_id', $item->getMstItemId())
+            ->first();
+
+        if (! $trxItem) {
+            throw new \Exception("Item not found after consumption: {$mstItemId}");
+        }
+
+        // 消費結果はUnitOfWorkのキューに積まれただけでDBには未反映のため、
+        // 再取得したモデルにはDTOの最新値を反映して返す
+        $trxItem->setFreeAmount($item->getFreeAmount());
+        $trxItem->setPaidAmount($item->getPaidAmount());
+
+        return $trxItem;
     }
 
     /**
@@ -63,6 +78,6 @@ class ItemService
      */
     public function findItemAmount(int $sysPlayerId, string $mstItemId): int
     {
-        return $this->itemReadService->findItemAmount($sysPlayerId, $mstItemId);
+        return $this->packageItemService->findItemAmount($sysPlayerId, $mstItemId);
     }
 }

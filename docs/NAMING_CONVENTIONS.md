@@ -2,7 +2,8 @@
 
 ## 全レイヤー共通ルール: ドメイン名を含める
 
-すべてのクラス（Repository, Model, DTO, Controller, Service, UseCase）は**ドメイン名を含める**ことを原則とします。
+Repository / Model / DTO / Controller / Service は**ドメイン名を含める**ことを原則とします。
+UseCaseだけは例外で、namespaceがドメインを示すためクラス名には含めません（後述）。
 
 **理由:**
 - 全レイヤーで一貫した命名規則
@@ -25,14 +26,11 @@ Domain/Gacha/Services/GachaPrizeService.php
 Domain/Gacha/Services/GachaProgressService.php
 Domain/Gacha/Services/GachaValidationService.php
 
-Domain/InAppPurchase/Services/InAppPurchasePurchaseService.php
+Domain/InAppPurchase/Services/InAppPurchaseDiamondService.php
 Domain/InAppPurchase/Services/InAppPurchaseHistoryService.php
 
-Domain/Item/Services/ItemReadService.php
-Domain/Item/Services/ItemWriteService.php
-
-Domain/Wallet/Services/WalletReadService.php
-Domain/Wallet/Services/WalletWriteService.php
+Domain/Item/Services/ItemService.php
+Domain/Stamina/Services/StaminaService.php
 ```
 
 **Bad Examples:**
@@ -40,7 +38,7 @@ Domain/Wallet/Services/WalletWriteService.php
 // ❌ ドメイン名なし（検索性・一意性に問題）
 Domain/Gacha/Services/DrawService.php       // GachaDrawService にすべき
 Domain/Gacha/Services/CostService.php       // GachaCostService にすべき
-Domain/InAppPurchase/Services/PurchaseService.php  // InAppPurchasePurchaseService にすべき
+Domain/InAppPurchase/Services/PurchaseService.php  // InAppPurchaseDiamondService にすべき
 ```
 
 ### Package層も同様
@@ -59,28 +57,34 @@ packages/nexus-friend/Services/FriendService.php
 
 ## UseCase命名規則
 
-### 原則: ドメイン名を含める
+### 原則: ドメイン名を付けない
 
-UseCaseは**`{Domain}{Action}UseCase`**の形式とします。
+UseCaseは**`{Action}UseCase`**の形式とします。namespaceがドメインを示すため、
+クラス名にドメイン名を重ねません（2026-08-20にこのルールへ変更）。
 
 **Examples:**
 ```php
-// ✅ ドメイン名を含める
-Domain/Gacha/UseCases/GachaDrawUseCase.php
-Domain/InAppPurchase/UseCases/InAppPurchaseBuyDiamondUseCase.php
-Domain/Auth/UseCases/AuthSignInUseCase.php
-Domain/Friend/UseCases/FriendListUseCase.php
-Domain/Friend/UseCases/FriendApplySendUseCase.php
-Domain/Mailbox/UseCases/MailboxListUseCase.php
-Domain/Mailbox/UseCases/MailboxReceiveAllUseCase.php
+// ✅ ドメイン名を付けない
+Domain/Gacha/UseCases/DrawUseCase.php
+Domain/InAppPurchase/UseCases/BuyDiamondUseCase.php
+Domain/Auth/UseCases/SignInUseCase.php
+Domain/Friend/UseCases/ApplySendUseCase.php
+Domain/Mailbox/UseCases/ReceiveAllUseCase.php
 ```
 
 **Bad Examples:**
 ```php
-// ❌ ドメイン名なし
-Domain/Gacha/UseCases/DrawUseCase.php           // GachaDrawUseCase にすべき
-Domain/Friend/UseCases/ListUseCase.php          // FriendListUseCase にすべき
+// ❌ ドメイン名が重複している
+Domain/Gacha/UseCases/GachaDrawUseCase.php               // DrawUseCase にすべき
+Domain/InAppPurchase/UseCases/InAppPurchaseBuyDiamondUseCase.php  // BuyDiamondUseCase にすべき
 ```
+
+`ListUseCase` のように他ドメインと同名になるものがありますが、namespaceが異なるため問題ありません。
+1つのクラスで複数ドメインのUseCaseを使う場合のみ、`use ... as` で別名を付けます。
+
+Service / Handler は逆に**ドメイン名を接頭辞として付けます**（`GachaCostService` など）。
+UseCaseは1ドメインに閉じた入口であるのに対し、Serviceは他ドメインから注入されることが多く、
+呼び出し側でどのドメインのものか分かる必要があるためです。
 
 ## Repository命名規則（既存ルール）
 

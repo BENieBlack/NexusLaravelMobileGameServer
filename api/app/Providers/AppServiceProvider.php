@@ -21,6 +21,7 @@ use App\Repositories\Mst\MstVipLoginBonusRepository;
 use App\Repositories\Mst\PlayerLevelRepositoryAdapter;
 use App\Repositories\Mst\VipLoginBonusRepositoryInterface;
 use App\Repositories\Sys\DeployRepositoryAdapter;
+use App\Repositories\Sys\FriendApplyRepositoryAdapter;
 use App\Repositories\Sys\GuildApplyRepositoryAdapter;
 use App\Repositories\Sys\GuildMemberRepositoryAdapter;
 use App\Repositories\Sys\GuildRepositoryAdapter;
@@ -31,25 +32,25 @@ use App\Repositories\Sys\SysPlayerDeviceRepository;
 use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;
 use App\Repositories\Trx\DiamondRepositoryAdapter;
+use App\Repositories\Trx\EquipmentRepositoryAdapter;
 use App\Repositories\Trx\GachaProgressRepositoryAdapter;
 use App\Repositories\Trx\ItemRepositoryAdapter;
 use App\Repositories\Trx\LoginBonusHistoryRepositoryAdapter;
 use App\Repositories\Trx\MailboxRepositoryAdapter;
 use App\Repositories\Trx\StaminaRepositoryAdapter;
 use App\Repositories\Trx\TrxVipLoginBonusHistoryRepository;
+use App\Repositories\Trx\UnitRepositoryAdapter;
 use App\Repositories\Trx\VipLoginBonusHistoryRepositoryInterface;
 use App\Repositories\Trx\WalletBalanceRepositoryAdapter;
 use App\Repositories\Trx\WalletRepositoryAdapter;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
-use LaravelWallet\Repositories\WalletBalanceRepositoryInterface;
-use LaravelWallet\Repositories\WalletRepositoryInterface;
 use NexusAuth\Contracts\DeviceRepositoryInterface;
 use NexusAuth\Contracts\PlayerRepositoryInterface;
 use NexusAuth\Contracts\TokenRepositoryInterface;
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Services\TokenService;
-use NexusBilling\Contracts\DiamondRepositoryInterface;
+use NexusFriend\Repositories\FriendApplyRepositoryInterface;
 use NexusGacha\Repositories\GachaPrizeRepositoryInterface;
 use NexusGacha\Repositories\GachaProgressRepositoryInterface;
 use NexusGacha\Repositories\GachaRarityRateRepositoryInterface;
@@ -66,7 +67,10 @@ use NexusMailbox\Repositories\MailboxRepositoryInterface;
 use NexusPlayer\Repositories\PlayerDeviceRepositoryInterface;
 use NexusPlayer\Repositories\PlayerLevelRepositoryInterface;
 use NexusPlayer\Repositories\PlayerRepositoryInterface as PlayerRepoInterface;
+use NexusResource\Contracts\DiamondRepositoryInterface;
 use NexusResource\Contracts\ItemRepositoryInterface;
+use NexusResourceDelivery\Contracts\EquipmentRepositoryInterface;
+use NexusResourceDelivery\Contracts\UnitRepositoryInterface;
 use NexusResourceDelivery\Handlers\CurrencyDeliveryHandler;
 use NexusResourceDelivery\Handlers\DiamondDeliveryHandler;
 use NexusResourceDelivery\Handlers\EquipmentDeliveryHandler;
@@ -86,6 +90,8 @@ use NexusVip\Repositories\PlayerVipRepositoryInterface;
 use NexusVip\Repositories\VipLevelRepositoryInterface;
 use NexusVip\Repositories\VipLevelRewardRepositoryInterface;
 use NexusVip\Repositories\VipPointLogRepositoryInterface;
+use NexusWallet\Repositories\WalletBalanceRepositoryInterface;
+use NexusWallet\Repositories\WalletRepositoryInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -195,6 +201,13 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(GuildApplyRepositoryInterface::class, GuildApplyRepositoryAdapter::class);
 
         // ==========================================
+        // NexusFriend Package Bindings
+        // ==========================================
+
+        // Repository interfaces
+        $this->app->bind(FriendApplyRepositoryInterface::class, FriendApplyRepositoryAdapter::class);
+
+        // ==========================================
         // NexusResource Package Bindings
         // ==========================================
 
@@ -209,7 +222,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(DiamondRepositoryInterface::class, DiamondRepositoryAdapter::class);
 
         // ==========================================
-        // NexusWallet (LaravelWallet) Package Bindings
+        // NexusWallet (NexusWallet) Package Bindings
         // ==========================================
 
         // Repository interfaces
@@ -219,6 +232,11 @@ class AppServiceProvider extends ServiceProvider
         // ==========================================
         // ResourceDelivery Package Bindings
         // ==========================================
+
+        // Repository interfaces
+        // ユニット/装備はパッケージ側にDTOを持たないため、Adapterが直接Modelを組み立てる
+        $this->app->bind(UnitRepositoryInterface::class, UnitRepositoryAdapter::class);
+        $this->app->bind(EquipmentRepositoryInterface::class, EquipmentRepositoryAdapter::class);
 
         // ResourceDeliveryManager のバインディング
         // リクエストスコープ: 各リクエストごとに新しいインスタンスを生成

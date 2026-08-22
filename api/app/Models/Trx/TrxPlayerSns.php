@@ -2,6 +2,7 @@
 
 namespace App\Models\Trx;
 
+use App\Traits\CompositePrimaryKeyTrait;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
@@ -12,6 +13,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class TrxPlayerSns extends _BaseTrx
 {
+    use CompositePrimaryKeyTrait;
+
     protected $table = 'trx_player_sns';
 
     /**
@@ -29,6 +32,7 @@ class TrxPlayerSns extends _BaseTrx
      */
     protected $keyType = 'string';
 
+    /** @var list<string> */
     protected $fillable = [
         'sys_player_id',
         'sns_type',
@@ -39,6 +43,7 @@ class TrxPlayerSns extends _BaseTrx
         'updated_at',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'sys_player_id' => 'integer',
     ];
@@ -68,46 +73,10 @@ class TrxPlayerSns extends _BaseTrx
     }
 
     /**
-     * 複合主キーを設定
-     *
-     * @param  array  $ids
-     * @return $this
-     */
-    public function setKeysForSaveQuery($query)
-    {
-        $keys = $this->getKeyName();
-        if (! is_array($keys)) {
-            return parent::setKeysForSaveQuery($query);
-        }
-
-        foreach ($keys as $keyName) {
-            $query->where($keyName, '=', $this->getKeyForSaveQuery($keyName));
-        }
-
-        return $query;
-    }
-
-    /**
-     * 複合主キーの値を取得
-     *
-     * @param  string  $keyName
-     * @return mixed
-     */
-    protected function getKeyForSaveQuery($keyName = null)
-    {
-        if (is_null($keyName)) {
-            $keyName = $this->getKeyName();
-        }
-
-        if (isset($this->original[$keyName])) {
-            return $this->original[$keyName];
-        }
-
-        return $this->getAttribute($keyName);
-    }
-
-    /**
      * trx_playerとのリレーション
+     */
+    /**
+     * @return BelongsTo<TrxPlayer, $this>
      */
     public function trxPlayer(): BelongsTo
     {

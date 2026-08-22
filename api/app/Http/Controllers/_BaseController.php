@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\GameException;
 use App\Exceptions\InfraErrorCode;
-use Illuminate\Contracts\Support\Responsable;
+use App\Http\Responses\_BaseResponseInterface;
 use Illuminate\Http\JsonResponse;
+use LogicException;
 use Nexus\Core\ValueObjects\ErrorResponse;
 use Throwable;
 
@@ -14,33 +15,27 @@ abstract class _BaseController
     /**
      * UseCaseを実行し、レスポンスを返す
      *
-     * エラーハンドリングを含む共通処理
+     * UseCaseは必ず _BaseResponseInterface の実装を返すこと。
+     * 戻り値の型を固定することで、レスポンスの形が呼び出し方によって
+     * 変わったり、意図しないキーが混入したりするのを防ぐ。
      *
-     * @param  callable  $useCase  UseCaseの実行関数（例: fn() => $useCase->exec($request)）
+     * @param  callable(): _BaseResponseInterface  $useCase  UseCaseの実行関数（例: fn() => $useCase->exec($request)）
      */
     protected function execute(callable $useCase): JsonResponse
     {
         try {
+            /** @var mixed $response */
             $response = $useCase();
 
-            // レスポンスがResponsableを実装している場合（Laravelの標準インターフェイス）
-            if ($response instanceof Responsable) {
-                return $response->toResponse(request());
+            if (! $response instanceof _BaseResponseInterface) {
+                throw new LogicException(sprintf(
+                    'UseCaseは %s を実装したレスポンスを返す必要があります。返り値: %s',
+                    _BaseResponseInterface::class,
+                    get_debug_type($response)
+                ));
             }
 
-            // JsonResponseが直接返された場合
-            if ($response instanceof JsonResponse) {
-                return $response;
-            }
-
-            // 配列が返された場合
-            if (is_array($response)) {
-                return response()->json($response);
-            }
-
-            // _BaseResponse を含むそれ以外はdataでラップして返す
-            // （JsonSerializableとしてtoArray()相当の内容がシリアライズされる）
-            return response()->json(['data' => $response]);
+            return $response->toJsonResponse();
 
         } catch (Throwable $e) {
             return $this->handleException($e);
@@ -111,39 +106,5 @@ abstract class _BaseController
 
         // デフォルトは500（Internal Server Error）
         return 500;
-    }
-
-    /**
-     * 成功レスポンスを返す
-     *
-     * @param  mixed  $data
-     */
-    protected function success($data = null, int $status = 200): JsonResponse
-    {
-        if ($data === null) {
-            return response()->json([], $status);
-        }
-
-        if (is_array($data)) {
-            return response()->json($data, $status);
-        }
-
-        return response()->json(['data' => $data], $status);
-    }
-
-    /**
-     * エラーレスポンスを返す
-     *
-     * @param  mixed  $code
-     */
-    protected function error(string $message, int $status = 400, $code = null): JsonResponse
-    {
-        $response = ['error' => $message];
-
-        if ($code !== null) {
-            $response['code'] = $code;
-        }
-
-        return response()->json($response, $status);
     }
 }

@@ -21,7 +21,7 @@ jobs:
       - name: PHPのセットアップ
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: '8.4'
           extensions: pdo_mysql, redis, bcmath, zip
           coverage: none
 
@@ -127,8 +127,6 @@ jobs:
       DB_LOG1_PORT: 33261
       DB_LOG2_HOST: 127.0.0.1
       DB_LOG2_PORT: 33262
-      DB_LOG_HOST: 127.0.0.1
-      DB_LOG_PORT: 33261
       REDIS_HOST: 127.0.0.1
       REDIS_PORT: 6379
 
@@ -138,9 +136,11 @@ jobs:
       - name: PHPのセットアップ
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: '8.4'
           extensions: pdo_mysql, redis, bcmath, zip
-          coverage: none
+          # カバレッジ計測。pcov.directoryを絞らないとpackagesが計測対象から外れる
+          coverage: pcov
+          ini-values: pcov.directory=${{ github.workspace }}, memory_limit=512M
 
       - name: Composerキャッシュの復元
         uses: actions/cache@v4
@@ -162,6 +162,8 @@ jobs:
 
       # phpunit.xml の Unit / Feature / Packages を全て実行する
       # （Packages は ../packages/*/tests を対象にしている）
+      # カバレッジは app と packages/*/src が対象。--min は現状値より少し低い値を置き、
+      # 下がったらCIで気づけるようにしている
       - name: テスト（api + packages）
         working-directory: api
-        run: php artisan test
+        run: php artisan test --coverage --min=55

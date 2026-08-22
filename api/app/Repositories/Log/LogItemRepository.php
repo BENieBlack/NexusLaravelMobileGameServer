@@ -45,7 +45,6 @@ class LogItemRepository extends _BaseLogRepository
             'before_amount' => $beforeAmount,
             'after_amount' => $afterAmount,
             'system_at' => ClockUtility::now(),
-            'created_at' => ClockUtility::now(),
         ]);
 
         // 通常ログとして登録

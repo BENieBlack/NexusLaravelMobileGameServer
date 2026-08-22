@@ -12,6 +12,7 @@ class MstInAppPurchaseContent extends _BaseMst
 
     public $incrementing = false;
 
+    /** @var list<string> */
     protected $fillable = [
         'deploy_key',
         'mst_in_app_purchase_id',
@@ -23,6 +24,7 @@ class MstInAppPurchaseContent extends _BaseMst
         'sort_desc',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'deploy_key' => 'integer',
         'mst_in_app_purchase_id' => 'integer',
@@ -51,6 +53,9 @@ class MstInAppPurchaseContent extends _BaseMst
     /**
      * 親のアプリ内課金商品
      */
+    /**
+     * @return BelongsTo<MstInAppPurchase, $this>
+     */
     public function inAppPurchase(): BelongsTo
     {
         return $this->belongsTo(MstInAppPurchase::class, 'mst_in_app_purchase_id');
@@ -59,6 +64,9 @@ class MstInAppPurchaseContent extends _BaseMst
     /**
      * コンテンツがItemの場合のリレーション
      */
+    /**
+     * @return BelongsTo<MstItem, $this>
+     */
     public function item(): BelongsTo
     {
         return $this->belongsTo(MstItem::class, 'content_id');
@@ -66,6 +74,9 @@ class MstInAppPurchaseContent extends _BaseMst
 
     /**
      * コンテンツがUnitの場合のリレーション
+     */
+    /**
+     * @return BelongsTo<MstUnit, $this>
      */
     public function unit(): BelongsTo
     {

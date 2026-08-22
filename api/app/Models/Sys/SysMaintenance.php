@@ -2,7 +2,6 @@
 
 namespace App\Models\Sys;
 
-use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use NexusMaintenance\ValueObjects\Maintenance;
 
@@ -30,6 +29,7 @@ class SysMaintenance extends _BaseSys
      *
      * @var array
      */
+    /** @var list<string> */
     protected $fillable = [
         'title',
         'message',
@@ -43,6 +43,7 @@ class SysMaintenance extends _BaseSys
      *
      * @var array
      */
+    /** @var array<string, string> */
     protected $casts = [
         'is_active' => 'boolean',
     ];
@@ -84,9 +85,9 @@ class SysMaintenance extends _BaseSys
      *
      * DB取得時はstring型で保持されているため、CarbonImmutable型に変換して返す
      */
-    public function getStartAt(): ?CarbonImmutable
+    public function getStartAt(): ?string
     {
-        return $this->getDateAttribute('start_at');
+        return $this->getDateAttributeString('start_at');
     }
 
     /**
@@ -102,9 +103,9 @@ class SysMaintenance extends _BaseSys
      *
      * DB取得時はstring型で保持されているため、CarbonImmutable型に変換して返す
      */
-    public function getEndAt(): ?CarbonImmutable
+    public function getEndAt(): ?string
     {
-        return $this->getDateAttribute('end_at');
+        return $this->getDateAttributeString('end_at');
     }
 
     /**

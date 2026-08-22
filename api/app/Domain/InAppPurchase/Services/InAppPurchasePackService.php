@@ -9,7 +9,6 @@ use App\Models\Trx\TrxInAppPurchase;
 use App\Models\Trx\TrxUnit;
 use App\Repositories\Trx\TrxInAppPurchaseRepository;
 use App\Repositories\Trx\TrxUnitRepository;
-use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * InAppPurchasePackService
@@ -20,7 +19,7 @@ use Nexus\Core\Utilities\ClockUtility;
 class InAppPurchasePackService
 {
     public function __construct(
-        private readonly DiamondBalanceService $diamondBalanceService,
+        private readonly InAppPurchaseDiamondBalanceService $diamondBalanceService,
         private readonly ItemService $itemService,
         private readonly TrxUnitRepository $trxUnitRepository,
         private readonly TrxInAppPurchaseRepository $trxInAppPurchaseRepository,
@@ -64,7 +63,7 @@ class InAppPurchasePackService
         foreach ($contentCollection as $content) {
             switch ($content->getContentType()) {
                 case InAppPurchaseConst::CONTENT_TYPE_FREE_DIAMOND:
-                    // 無償ダイヤモンドを付与（DiamondBalanceServiceに委譲）
+                    // 無償ダイヤモンドを付与（InAppPurchaseDiamondBalanceServiceに委譲）
                     $this->diamondBalanceService->addDiamond($sysPlayerId, $platform, $content->getAmount(), isPaid: false);
                     $totalFreeDiamond += $content->getAmount();
                     $grantedContentArray[] = [
@@ -130,8 +129,6 @@ class InAppPurchasePackService
                 'mst_unit_id' => $mstUnitId,
                 'level' => 1,
                 'exp' => 0,
-                'created_at' => ClockUtility::now(),
-                'updated_at' => ClockUtility::now(),
             ]);
 
             $this->trxUnitRepository->setModel($unit);

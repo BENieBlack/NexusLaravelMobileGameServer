@@ -2,7 +2,6 @@
 
 namespace App\Models\Trx;
 
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
@@ -16,8 +15,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $grade
  * @property int $level
  * @property int $level_exp
- * @property Carbon $created_at
- * @property Carbon $updated_at
+ * @property string $created_at
+ * @property string $updated_at
  */
 class TrxEquipment extends _BaseTrx
 {
@@ -33,11 +32,13 @@ class TrxEquipment extends _BaseTrx
      *
      * @var array<int, string>
      */
+    /** @var list<string> */
     protected array $uniqueKeys = ['id'];
 
     /**
      * @var array<int, string>
      */
+    /** @var list<string> */
     protected $fillable = [
         'sys_player_id',
         'mst_equipment_id',
@@ -61,6 +62,9 @@ class TrxEquipment extends _BaseTrx
      * trx_playerとのリレーション
      *
      * @return BelongsTo<TrxPlayer, TrxEquipment>
+     */
+    /**
+     * @return BelongsTo<TrxPlayer, $this>
      */
     public function trxPlayer(): BelongsTo
     {

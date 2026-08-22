@@ -17,10 +17,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int|null $valid_days
  * @property int $priority
  * @property bool $is_active
- * @property \DateTimeImmutable|null $start_at
- * @property \DateTimeImmutable|null $end_at
- * @property \DateTimeImmutable $created_at
- * @property \DateTimeImmutable $updated_at
+ * @property ?string $start_at
+ * @property ?string $end_at
+ * @property string $created_at
+ * @property string $updated_at
  */
 class MstLoginBonus extends _BaseMst
 {
@@ -34,7 +34,7 @@ class MstLoginBonus extends _BaseMst
 
     protected $keyType = 'string';
 
-    /** @var array<int, string> */
+    /** @var list<string> */
     protected $fillable = [
         'deploy_key',
         'id',
@@ -52,6 +52,7 @@ class MstLoginBonus extends _BaseMst
     /**
      * @var array<string, string>
      */
+    /** @var array<string, string> */
     protected $casts = [
         'deploy_key' => 'integer',
         'day' => 'integer',
@@ -66,6 +67,9 @@ class MstLoginBonus extends _BaseMst
 
     /**
      * ログインボーナス報酬内容とのリレーション
+     */
+    /**
+     * @return HasMany<MstLoginBonusContent, $this>
      */
     public function contents(): HasMany
     {

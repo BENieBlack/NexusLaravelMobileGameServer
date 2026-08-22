@@ -311,7 +311,7 @@ class WalkthroughTest extends TestCase
         }
 
         $response->assertOk();
-        $data = $response->json('data');
+        $data = $response->json();
 
         $this->assertArrayHasKey('needs_update', $data);
         $this->assertArrayHasKey('latest_deploy_key', $data);
@@ -334,7 +334,7 @@ class WalkthroughTest extends TestCase
         ])->postJson('/api/auth/login');
 
         $response->assertOk();
-        $data = $response->json('data');
+        $data = $response->json();
 
         $this->assertArrayHasKey('sys_player', $data);
         $this->assertArrayHasKey('login_bonus_list', $data);
@@ -531,14 +531,45 @@ class WalkthroughTest extends TestCase
 
     /**
      * Step 10: 装備レベルアップ
-     *
-     * Note: Equipment level up requires mst_equipment_level_setting table to be populated
-     * with level/exp data for each rarity. Skipping for now in walkthrough test.
      */
     private function step10_equipmentLevelUp(): void
     {
-        // Skip equipment level up test due to missing master data requirements
-        $this->markTestSkipped('Equipment level up requires mst_equipment_level_setting master data');
+        // レベルアップ用の強化アイテムを付与する
+        DB::connection('trx1')->table('trx_item')->updateOrInsert(
+            [
+                'sys_player_id' => $this->playerId,
+                'mst_item_id' => 'equipment_exp_potion',
+            ],
+            [
+                'free_amount' => 100,
+                'paid_amount' => 0,
+                'is_delete' => false,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]
+        );
+
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer '.$this->accessToken,
+        ])->postJson('/api/equipment/level_up', [
+            'trx_equipment_id' => $this->equipmentId,
+            'after_level' => 2,
+        ]);
+
+        $response->assertOk();
+
+        // LevelUpResponse は Responsable なので data でラップされない
+        $data = $response->json();
+
+        $this->assertSame(2, $data['trx_equipment']['level']);
+
+        // DBにも反映されていること
+        $level = DB::connection('trx1')
+            ->table('trx_equipment')
+            ->where('id', $this->equipmentId)
+            ->value('level');
+
+        $this->assertSame(2, (int) $level);
     }
 
     /**
@@ -620,6 +651,21 @@ class WalkthroughTest extends TestCase
             'created_at' => now(),
             'updated_at' => now(),
         ]);
+
+        // 装備レベルマスター（equipment_sword_001 のレアリティ R 用）
+        DB::connection('mst')->table('mst_equipment_level')->where('rarity', 'R')->delete();
+        $equipmentLevels = [];
+        foreach ([1 => 0, 2 => 100, 3 => 250, 4 => 450, 5 => 700] as $level => $requiredExp) {
+            $equipmentLevels[] = [
+                'deploy_key' => 202601010,
+                'rarity' => 'R',
+                'level' => $level,
+                'required_exp' => $requiredExp,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+        DB::connection('mst')->table('mst_equipment_level')->insert($equipmentLevels);
 
         // メッセージマスター
         DB::connection('mst')->table('mst_message')->insert([

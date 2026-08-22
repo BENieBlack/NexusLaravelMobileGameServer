@@ -4,6 +4,7 @@ namespace App\Models\Trx;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * TrxInAppPurchaseEffect Model
@@ -43,6 +44,7 @@ class TrxInAppPurchaseEffect extends _BaseTrx
      */
     protected string $selectKey = 'sys_player_id';
 
+    /** @var list<string> */
     protected $fillable = [
         'sys_player_id',
         'mst_in_app_purchase_id',
@@ -55,6 +57,7 @@ class TrxInAppPurchaseEffect extends _BaseTrx
         'updated_at',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'id' => 'integer',
         'sys_player_id' => 'integer',
@@ -66,6 +69,9 @@ class TrxInAppPurchaseEffect extends _BaseTrx
     /**
      * trx_playerとのリレーション
      */
+    /**
+     * @return BelongsTo<TrxPlayer, $this>
+     */
     public function trxPlayer(): BelongsTo
     {
         return $this->belongsTo(TrxPlayer::class, 'sys_player_id', 'sys_player_id');
@@ -73,6 +79,9 @@ class TrxInAppPurchaseEffect extends _BaseTrx
 
     /**
      * trx_in_app_purchaseとのリレーション
+     */
+    /**
+     * @return BelongsTo<TrxInAppPurchase, $this>
      */
     public function trxInAppPurchase(): BelongsTo
     {
@@ -84,7 +93,7 @@ class TrxInAppPurchaseEffect extends _BaseTrx
      */
     public function isEffective(): bool
     {
-        return $this->getIsActive() && $this->getExpiresAt()->isFuture();
+        return $this->getIsActive() && ClockUtility::isFuture($this->getExpiresAt());
     }
 
     /**
@@ -106,9 +115,9 @@ class TrxInAppPurchaseEffect extends _BaseTrx
     /**
      * 有効期限を取得
      */
-    public function getExpiresAt(): CarbonImmutable
+    public function getExpiresAt(): ?string
     {
-        return $this->getAttribute('expires_at');
+        return $this->getDateAttributeString('expires_at');
     }
 
     /**

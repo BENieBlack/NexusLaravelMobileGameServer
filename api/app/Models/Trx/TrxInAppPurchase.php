@@ -2,8 +2,7 @@
 
 namespace App\Models\Trx;
 
-use Carbon\CarbonImmutable;
-use Illuminate\Database\Eloquent\Builder;
+use App\Traits\CompositePrimaryKeyTrait;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
@@ -21,6 +20,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class TrxInAppPurchase extends _BaseTrx
 {
+    use CompositePrimaryKeyTrait;
+
     protected $table = 'trx_in_app_purchase';
 
     /**
@@ -46,8 +47,10 @@ class TrxInAppPurchase extends _BaseTrx
     /**
      * ユニークキー（課金商品は複合キーで一意）
      */
+    /** @var list<string> */
     protected array $uniqueKeys = ['sys_player_id', 'billing_platform', 'mst_in_app_purchase_id'];
 
+    /** @var list<string> */
     protected $fillable = [
         'sys_player_id',
         'billing_platform',
@@ -61,6 +64,7 @@ class TrxInAppPurchase extends _BaseTrx
         'updated_at',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'sys_player_id' => 'integer',
         'total_purchase_count' => 'integer',
@@ -68,46 +72,10 @@ class TrxInAppPurchase extends _BaseTrx
     ];
 
     /**
-     * 複合主キーを設定
-     *
-     * @param  Builder  $query
-     * @return Builder
-     */
-    public function setKeysForSaveQuery($query)
-    {
-        $keys = $this->getKeyName();
-        if (! is_array($keys)) {
-            return parent::setKeysForSaveQuery($query);
-        }
-
-        foreach ($keys as $keyName) {
-            $query->where($keyName, '=', $this->getKeyForSaveQuery($keyName));
-        }
-
-        return $query;
-    }
-
-    /**
-     * 複合主キーの値を取得
-     *
-     * @param  string|null  $keyName
-     * @return mixed
-     */
-    protected function getKeyForSaveQuery($keyName = null)
-    {
-        if (is_null($keyName)) {
-            $keyName = $this->getKeyName();
-        }
-
-        if (isset($this->original[$keyName])) {
-            return $this->original[$keyName];
-        }
-
-        return $this->getAttribute($keyName);
-    }
-
-    /**
      * trx_playerとのリレーション
+     */
+    /**
+     * @return BelongsTo<TrxPlayer, $this>
      */
     public function trxPlayer(): BelongsTo
     {
@@ -117,15 +85,15 @@ class TrxInAppPurchase extends _BaseTrx
     /**
      * 購入回数リセット日時を取得
      */
-    public function getPurchaseCountResetAt(): ?CarbonImmutable
+    public function getPurchaseCountResetAt(): ?string
     {
-        return $this->getAttribute('purchase_count_reset_at');
+        return $this->getDateAttributeString('purchase_count_reset_at');
     }
 
     /**
      * 購入回数リセット日時を設定
      */
-    public function setPurchaseCountResetAt(?CarbonImmutable $purchaseCountResetAt): void
+    public function setPurchaseCountResetAt(?string $purchaseCountResetAt): void
     {
         $this->setAttribute('purchase_count_reset_at', $purchaseCountResetAt);
     }

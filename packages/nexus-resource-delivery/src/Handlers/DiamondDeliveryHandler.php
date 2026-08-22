@@ -2,7 +2,7 @@
 
 namespace NexusResourceDelivery\Handlers;
 
-use App\Domain\InAppPurchase\Services\DiamondService;
+use NexusResource\Services\DiamondService;
 use NexusResource\Enums\ResourceType;
 use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
 

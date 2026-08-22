@@ -18,7 +18,8 @@ use NexusPitr\Traits\LogsChanges;
  * ユニークキーで管理し、同じキーのモデルは上書き（最終状態を保持）
  * プレイヤーIDはApiSessionから自動的に取得される
  * 
- * @template T of _BaseTrxInterface
+ * @template T of _BaseTrx
+ * @extends _BaseRepository<string, T>
  * @implements _BaseTrxRepositoryInterface<T>
  */
 abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRepositoryInterface
@@ -118,7 +119,7 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
         $sysPlayerId = $this->resolveCachedSysPlayerId();
 
         // キャッシュが空の場合、データベースから取得
-        /** @var _BaseTrx $instance */
+        /** @var T $instance */
         $instance = new $this->modelClass();
         
         // sys_player_idで検索してユニークキーでkeyByしてキャッシュに保存
@@ -129,7 +130,9 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
                 return implode(':', array_map(fn($key) => $record->{$key}, $this->getUniqueKeys()));
             });
 
-        $this->models = new CustomCollection($records->all());
+        /** @var CustomCollection<string, T> $cached キーはユニークキーの連結 */
+        $cached = new CustomCollection($records->all());
+        $this->models = $cached;
 
         return $this->models;
     }
@@ -176,9 +179,8 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
      */
     public function setModel($model): void
     {
-        // updated_atを自動設定
-        $now = ClockUtility::now();
-        $model->setAttribute('updated_at', $now);
+        // created_at / updated_at はテーブル定義の
+        // DEFAULT CURRENT_TIMESTAMP / ON UPDATE CURRENT_TIMESTAMP に任せる
 
         // ユニークキーを生成
         $uniqueKey = implode(':', array_map(fn($key) => $model->getAttribute($key), $this->getUniqueKeys()));

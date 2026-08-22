@@ -11,6 +11,7 @@ use NexusBilling\DataTransferObjects\Verification;
 use NexusBilling\Exceptions\InvalidReceiptException;
 use NexusBilling\Exceptions\PlatformApiException;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\Log;
 
 /**
  * App Store 決済サービス
@@ -33,6 +34,11 @@ class AppStoreBillingService implements BillingPlatformInterface
     private const STATUS_GRACE_PERIOD = 4;
 
     private const STATUS_REVOKED = 5;
+
+    /**
+     * 返金履歴を辿るページ数の上限（無限ループ防止）
+     */
+    private const MAX_REFUND_PAGES = 20;
 
     public function __construct(
         private readonly AppStoreApiClient $apiClient,
@@ -129,23 +135,53 @@ class AppStoreBillingService implements BillingPlatformInterface
      * App Store Server API の Get Refund History を使う。
      * 返金された取引だけが返るため、対象のtransactionIdが含まれていれば返金済み。
      *
-     * Note: 1ページ目のみを見る。返金が大量にあるプレイヤーでは
-     * hasMore/revision を辿る必要がある。
+     * hasMore が続く限り revision を渡して辿る（上限20ページ）。
      */
     public function isRefunded(string $transactionId): bool
     {
-        $response = $this->apiClient->fetchRefundHistory($transactionId);
+        $revision = null;
 
-        foreach ($response['signedTransactions'] ?? [] as $signedTransaction) {
-            $transaction = $this->apiClient->decodeSignedPayload((string) $signedTransaction);
+        // 返金が多いプレイヤーではページ分割されるため、hasMoreを辿る
+        for ($page = 1; $page <= self::MAX_REFUND_PAGES; $page++) {
+            $response = $this->apiClient->fetchRefundHistory($transactionId, $revision);
 
-            if (($transaction['transactionId'] ?? null) === $transactionId
-                || ($transaction['originalTransactionId'] ?? null) === $transactionId) {
-                return true;
+            foreach ($response['signedTransactions'] ?? [] as $signedTransaction) {
+                $transaction = $this->apiClient->decodeSignedPayload((string) $signedTransaction);
+
+                if (($transaction['transactionId'] ?? null) === $transactionId
+                    || ($transaction['originalTransactionId'] ?? null) === $transactionId) {
+                    return true;
+                }
+            }
+
+            if (($response['hasMore'] ?? false) !== true) {
+                return false;
+            }
+
+            $revision = isset($response['revision']) ? (string) $response['revision'] : null;
+
+            if ($revision === null || $revision === '') {
+                // hasMoreがtrueなのにrevisionが無い場合は辿れない
+                Log::warning('App Store refund history has more pages but no revision', [
+                    'transaction_id' => $transactionId,
+                ]);
+
+                return false;
             }
         }
 
-        return false;
+        // 上限まで辿っても見つからない場合は「返金なし」とはみなさず、判断を呼び出し側に委ねる
+        throw new PlatformApiException(
+            "App Store refund history exceeded {$this->maxRefundPages()} pages for transaction: {$transactionId}"
+        );
+    }
+
+    /**
+     * 返金履歴を辿るページ数の上限
+     */
+    private function maxRefundPages(): int
+    {
+        return self::MAX_REFUND_PAGES;
     }
 
     /**

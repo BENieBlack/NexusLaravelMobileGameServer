@@ -177,6 +177,22 @@ class ClockUtility
     }
 
     /**
+     * 指定日時が属する週の年（ISO 8601の週年）を取得
+     *
+     * 週番号はISO 8601基準（月曜始まり）なので、年末年始の週は暦年と
+     * 一致しない。例: 2025-12-29(月)は暦年2025だが週年は2026。
+     * 「同じ週か」を判定するときは year() ではなくこちらと組にする。
+     *
+     * @param string $dateTimeString Y-m-d H:i:s形式の日時文字列
+     * @return int 週の年
+     */
+    public static function isoWeekYear(string $dateTimeString): int
+    {
+        $targetTime = CarbonImmutable::parse($dateTimeString);
+        return $targetTime->isoWeekYear;
+    }
+
+    /**
      * 指定日時の月を取得
      * 
      * @param string $dateTimeString Y-m-d H:i:s形式の日時文字列

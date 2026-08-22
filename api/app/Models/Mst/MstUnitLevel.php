@@ -39,7 +39,10 @@ use App\Traits\CompositePrimaryKeyTrait;
  * }
  * ```
  *
+ * @property string $rarity
+ * @property int $level
  * @property int $required_exp
+ * @property int $deploy_key
  */
 class MstUnitLevel extends _BaseMst
 {

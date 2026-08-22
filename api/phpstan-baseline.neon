@@ -79,12 +79,6 @@ parameters:
 			path: ../packages/nexus-core-billing/src/ValueObjects/Subscription.php
 
 		-
-			message: '#^Called ''env'' outside of the config directory which returns null when the config is cached, use ''config''\.$#'
-			identifier: larastan.noEnvCallsOutsideOfConfig
-			count: 12
-			path: ../packages/nexus-core-security/src/Config/security.php
-
-		-
 			message: '#^Method NexusSecurity\\Contracts\\TokenValidatorInterface\:\:validateAccessToken\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -108,11 +102,6 @@ parameters:
 			count: 1
 			path: ../packages/nexus-core-unit-of-work/src/Persistence/QueryManager.php
 
-		-
-			message: '#^Parameter \#1 \$repositories of method NexusUnitOfWork\\Persistence\\QueryManager\\OperationCollector\:\:collect\(\) expects array\<Nexus\\Core\\Repositories\\_BaseRepository\>, array\<Nexus\\Core\\Repositories\\_BaseRepositoryInterface\> given\.$#'
-			identifier: argument.type
-			count: 2
-			path: ../packages/nexus-core-unit-of-work/src/Persistence/QueryManager.php
 
 		-
 			message: '#^Property NexusUnitOfWork\\Persistence\\QueryManager\:\:\$purchaseLogRepositories with generic class Nexus\\Core\\Repositories\\Log\\_BaseLogRepository does not specify its types\: T$#'
@@ -282,11 +271,6 @@ parameters:
 			count: 1
 			path: ../packages/nexus-core/src/Repositories/Log/_BaseLogRepository.php
 
-		-
-			message: '#^Method Nexus\\Core\\Repositories\\Log\\_BaseLogRepository\:\:queryOrMemory\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, T of Nexus\\Core\\Models\\Log\\_BaseLogInterface\> but returns Nexus\\Core\\Support\\CustomCollection\<\(int\|string\), Nexus\\Core\\Models\\Log\\_BaseLog\>\.$#'
-			identifier: return.type
-			count: 1
-			path: ../packages/nexus-core/src/Repositories/Log/_BaseLogRepository.php
 
 		-
 			message: '#^Call to function is_array\(\) with string will always evaluate to false\.$#'
@@ -300,11 +284,6 @@ parameters:
 			count: 1
 			path: ../packages/nexus-core/src/Repositories/Trx/_BaseTrxRepository.php
 
-		-
-			message: '#^Method Nexus\\Core\\Repositories\\Trx\\_BaseTrxRepository\:\:queryOrMemory\(\) should return Nexus\\Core\\Support\\CustomCollection\<string, T of Nexus\\Core\\Models\\Trx\\_BaseTrxInterface\> but returns Nexus\\Core\\Support\\CustomCollection\<string, Nexus\\Core\\Models\\Trx\\_BaseTrx\>\.$#'
-			identifier: return.type
-			count: 1
-			path: ../packages/nexus-core/src/Repositories/Trx/_BaseTrxRepository.php
 
 		-
 			message: '#^Method Nexus\\Core\\Repositories\\Trx\\_BaseTrxRepository\:\:queueDeleteLog\(\) has parameter \$beforeData with no value type specified in iterable type array\.$#'
@@ -348,65 +327,15 @@ parameters:
 			count: 1
 			path: ../packages/nexus-core/src/Repositories/Trx/_BaseTrxRepository.php
 
-		-
-			message: '#^Method Nexus\\Core\\Repositories\\_BaseRepository\:\:findCachedModels\(\) has parameter \$keys with generic class Nexus\\Core\\Support\\CustomCollection but does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: ../packages/nexus-core/src/Repositories/_BaseRepository.php
 
-		-
-			message: '#^Method Nexus\\Core\\Repositories\\_BaseRepository\:\:findCachedModels\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: ../packages/nexus-core/src/Repositories/_BaseRepository.php
 
-		-
-			message: '#^Method Nexus\\Core\\Repositories\\_BaseRepository\:\:getQueuedDeleteModels\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-core/src/Repositories/_BaseRepository.php
 
-		-
-			message: '#^Method Nexus\\Core\\Repositories\\_BaseRepository\:\:getQueuedModels\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-core/src/Repositories/_BaseRepository.php
 
-		-
-			message: '#^Method Nexus\\Core\\Repositories\\_BaseRepository\:\:queryOrMemory\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: ../packages/nexus-core/src/Repositories/_BaseRepository.php
 
-		-
-			message: '#^Method Nexus\\Core\\Repositories\\_BaseRepository\:\:queryOrMemoryCustom\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: ../packages/nexus-core/src/Repositories/_BaseRepository.php
 
-		-
-			message: '#^Method Nexus\\Core\\Repositories\\_BaseRepository\:\:setModels\(\) has parameter \$models with generic class Nexus\\Core\\Support\\CustomCollection but does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: ../packages/nexus-core/src/Repositories/_BaseRepository.php
 
-		-
-			message: '#^Property Nexus\\Core\\Repositories\\_BaseRepository\:\:\$deleteQueue type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-core/src/Repositories/_BaseRepository.php
 
-		-
-			message: '#^Property Nexus\\Core\\Repositories\\_BaseRepository\:\:\$modelQueue type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-core/src/Repositories/_BaseRepository.php
 
-		-
-			message: '#^Property Nexus\\Core\\Repositories\\_BaseRepository\:\:\$models with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: ../packages/nexus-core/src/Repositories/_BaseRepository.php
 
 		-
 			message: '#^Method Nexus\\Core\\Repositories\\_BaseRepositoryInterface\:\:getQueuedDeleteModels\(\) return type has no value type specified in iterable type array\.$#'
@@ -420,11 +349,6 @@ parameters:
 			count: 1
 			path: ../packages/nexus-core/src/Repositories/_BaseRepositoryInterface.php
 
-		-
-			message: '#^Unsafe usage of new static\(\)\.$#'
-			identifier: new.static
-			count: 13
-			path: ../packages/nexus-core/src/Support/CustomCollection.php
 
 		-
 			message: '#^Called ''env'' outside of the config directory which returns null when the config is cached, use ''config''\.$#'
@@ -2213,23 +2137,14 @@ parameters:
 			path: app/Repositories/Trx/TrxGachaRepository.php
 
 
-		-
-			message: '#^Method App\\Repositories\\Trx\\TrxMailboxRepository\:\:selectByPlayerId\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Repositories/Trx/TrxMailboxRepository.php
+
 
 		-
-			message: '#^Method App\\Repositories\\Trx\\TrxMailboxRepository\:\:selectExpired\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Repositories/Trx/TrxMailboxRepository.php
-
-		-
-			message: '#^PHPDoc tag @return with type Illuminate\\Database\\Eloquent\\Collection is incompatible with native type Nexus\\Core\\Support\\CustomCollection\.$#'
-			identifier: return.phpDocType
+			message: '#^Using nullsafe property access "\?\-\>priority" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
 			count: 2
 			path: app/Repositories/Trx/TrxMailboxRepository.php
+
 
 
 

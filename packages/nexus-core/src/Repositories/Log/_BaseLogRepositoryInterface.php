@@ -2,7 +2,7 @@
 
 namespace Nexus\Core\Repositories\Log;
 
-use Nexus\Core\Models\Log\_BaseLogInterface;
+use Nexus\Core\Models\Log\_BaseLog;
 use Nexus\Core\Repositories\_BaseRepositoryInterface;
 use Nexus\Core\Support\CustomCollection;
 
@@ -12,7 +12,7 @@ use Nexus\Core\Support\CustomCollection;
  * LogデータRepository用のインターフェース
  * ログはINSERT ONLYでキャッシュなし
  * 
- * @template T of _BaseLogInterface
+ * @template T of _BaseLog
  */
 interface _BaseLogRepositoryInterface extends _BaseRepositoryInterface
 {

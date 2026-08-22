@@ -48,7 +48,9 @@ class MstEquipmentLevelRepository extends _BaseMstRepository
         );
 
         // CustomCollectionとして保持する
-        $this->models = new CustomCollection($cached);
+        /** @var CustomCollection<int|string, MstEquipmentLevel> $models */
+        $models = new CustomCollection($cached);
+        $this->models = $models;
 
         return $this->models;
     }

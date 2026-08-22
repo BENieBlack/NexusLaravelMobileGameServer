@@ -13,9 +13,10 @@ use Nexus\Core\Repositories\Mst\_BaseMstRepository as PersistenceBaseMstReposito
  * パッケージ側のMstモデル（NexusVip\Models\MstVipLevel など）も扱うため、
  * テンプレートの上限はNexus\Coreのインターフェースに合わせる。
  *
- * @template T of \Nexus\Core\Models\Mst\_BaseMstInterface
+ * @template T of \Nexus\Core\Models\Mst\_BaseMst
  *
  * @extends PersistenceBaseMstRepository<T>
+ *
  * @implements _BaseMstRepositoryInterface<T>
  */
 abstract class _BaseMstRepository extends PersistenceBaseMstRepository implements _BaseMstRepositoryInterface {}

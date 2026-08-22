@@ -66,9 +66,11 @@ class SysMaintenanceRepository extends _BaseSysRepository implements Maintenance
      */
     public function selectActiveList(): CustomCollection
     {
-        return $this->modelClass::where('is_active', true)
+        $records = $this->modelClass::where('is_active', true)
             ->orderBy('start_at', 'desc')
             ->get();
+
+        return new CustomCollection($records->all());
     }
 
     /**
@@ -76,9 +78,11 @@ class SysMaintenanceRepository extends _BaseSysRepository implements Maintenance
      */
     public function selectUpcomingList(): CustomCollection
     {
-        return $this->modelClass::where('is_active', true)
+        $records = $this->modelClass::where('is_active', true)
             ->where('start_at', '>', now())
             ->orderBy('start_at', 'asc')
             ->get();
+
+        return new CustomCollection($records->all());
     }
 }

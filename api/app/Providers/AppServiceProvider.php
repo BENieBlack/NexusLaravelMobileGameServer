@@ -32,12 +32,14 @@ use App\Repositories\Sys\SysPlayerDeviceRepository;
 use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;
 use App\Repositories\Trx\DiamondRepositoryAdapter;
+use App\Repositories\Trx\EquipmentRepositoryAdapter;
 use App\Repositories\Trx\GachaProgressRepositoryAdapter;
 use App\Repositories\Trx\ItemRepositoryAdapter;
 use App\Repositories\Trx\LoginBonusHistoryRepositoryAdapter;
 use App\Repositories\Trx\MailboxRepositoryAdapter;
 use App\Repositories\Trx\StaminaRepositoryAdapter;
 use App\Repositories\Trx\TrxVipLoginBonusHistoryRepository;
+use App\Repositories\Trx\UnitRepositoryAdapter;
 use App\Repositories\Trx\VipLoginBonusHistoryRepositoryInterface;
 use App\Repositories\Trx\WalletBalanceRepositoryAdapter;
 use App\Repositories\Trx\WalletRepositoryAdapter;
@@ -67,6 +69,8 @@ use NexusPlayer\Repositories\PlayerLevelRepositoryInterface;
 use NexusPlayer\Repositories\PlayerRepositoryInterface as PlayerRepoInterface;
 use NexusResource\Contracts\DiamondRepositoryInterface;
 use NexusResource\Contracts\ItemRepositoryInterface;
+use NexusResourceDelivery\Contracts\EquipmentRepositoryInterface;
+use NexusResourceDelivery\Contracts\UnitRepositoryInterface;
 use NexusResourceDelivery\Handlers\CurrencyDeliveryHandler;
 use NexusResourceDelivery\Handlers\DiamondDeliveryHandler;
 use NexusResourceDelivery\Handlers\EquipmentDeliveryHandler;
@@ -228,6 +232,11 @@ class AppServiceProvider extends ServiceProvider
         // ==========================================
         // ResourceDelivery Package Bindings
         // ==========================================
+
+        // Repository interfaces
+        // ユニット/装備はパッケージ側にDTOを持たないため、Adapterが直接Modelを組み立てる
+        $this->app->bind(UnitRepositoryInterface::class, UnitRepositoryAdapter::class);
+        $this->app->bind(EquipmentRepositoryInterface::class, EquipmentRepositoryAdapter::class);
 
         // ResourceDeliveryManager のバインディング
         // リクエストスコープ: 各リクエストごとに新しいインスタンスを生成

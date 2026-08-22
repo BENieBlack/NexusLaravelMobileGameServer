@@ -34,7 +34,7 @@ class TrxEquipmentRepository extends _BaseTrxRepository
     }
 
     /**
-     * 新規装備を作成
+     * ログイン中のプレイヤーに新規装備を作成
      *
      * @param  string  $mstEquipmentId  装備マスターID
      * @param  int|null  $level  初期レベル（nullの場合は1）
@@ -46,8 +46,27 @@ class TrxEquipmentRepository extends _BaseTrxRepository
         ?int $level = null,
         ?int $grade = null
     ): TrxEquipment {
-        $sysPlayerId = ApiSession::getSysPlayerId();
+        return $this->insertEquipmentForPlayer(ApiSession::getSysPlayerId(), $mstEquipmentId, $level, $grade);
+    }
 
+    /**
+     * 指定したプレイヤーに新規装備を作成
+     *
+     * 配送はログインセッションの本人以外（運営からの一斉配布など）にも走るため、
+     * 付与先を明示できる入口を用意している。
+     *
+     * @param  int  $sysPlayerId  付与先プレイヤーID
+     * @param  string  $mstEquipmentId  装備マスターID
+     * @param  int|null  $level  初期レベル（nullの場合は1）
+     * @param  int|null  $grade  初期グレード（nullの場合は1）
+     * @return TrxEquipment 作成された装備
+     */
+    public function insertEquipmentForPlayer(
+        int $sysPlayerId,
+        string $mstEquipmentId,
+        ?int $level = null,
+        ?int $grade = null
+    ): TrxEquipment {
         $trxEquipment = new TrxEquipment([
             'sys_player_id' => $sysPlayerId,
             'mst_equipment_id' => $mstEquipmentId,

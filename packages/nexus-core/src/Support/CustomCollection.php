@@ -215,7 +215,9 @@ class CustomCollection extends Collection
     /**
      * コレクションの値のみを含む新しいコレクションを返す
      * 
-     * @return static
+     * array_values()を通すのでキーは必ず0始まりのintになる。
+     * 
+     * @return static<int, TValue>
      */
     public function values()
     {

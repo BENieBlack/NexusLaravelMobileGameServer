@@ -88,7 +88,7 @@ abstract class _BaseMstRepository extends _BaseRepository implements _BaseMstRep
      * メモリキャッシュから取得
      * 
      * @param array<int|string> $ids
-     * @return CustomCollection<int|string, T>
+     * @return CustomCollection<int, T> values()でキーを詰め直すため0始まりのint
      */
     public function selectListByIds(array $ids): CustomCollection
     {

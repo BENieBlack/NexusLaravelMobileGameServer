@@ -113,8 +113,10 @@ class LevelUpUseCase extends _BaseUseCase
             $this->itemService->consumeItem($sysPlayerId, $mstItemId, $useCount);
 
             // 経験値を計算して加算
+            // mst_item.value は double なので、経験値として使う前に整数へ切り捨てる
+            // （暗黙のfloat→int変換に任せると、精度が落ちてもPHPのdeprecationにしか出ない）
             $expPerItem = $mstItem->getValue();
-            $totalExp = $expPerItem * $useCount;
+            $totalExp = (int) ($expPerItem * $useCount);
 
             // addExp()は基底の4キーのみ返すため、レアリティ等を含む詳細版を使う
             $result = $this->unitLevelService->addExpWithDetails($trxUnitId, $totalExp);

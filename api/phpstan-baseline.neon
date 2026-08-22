@@ -2515,12 +2515,6 @@ parameters:
 			path: app/Repositories/Trx/TrxStaminaRepository.php
 
 		-
-			message: '#^PHPDoc tag @param references unknown parameter\: \$sysPlayerId$#'
-			identifier: parameter.notFound
-			count: 1
-			path: app/Repositories/Trx/TrxUnitRepository.php
-
-		-
 			message: '#^Parameter \#4 \$mstUnitId of method App\\Repositories\\Log\\LogUnitRepository\:\:insertUnitLog\(\) expects int, string given\.$#'
 			identifier: argument.type
 			count: 1

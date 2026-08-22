@@ -10,6 +10,8 @@ use Nexus\Core\Repositories\Mst\_BaseMstRepositoryInterface as PersistenceBaseMs
  * マスターデータRepository用のインターフェース
  * マスターデータは読み取り専用でRedisキャッシュを使用
  *
- * @template T of \App\Models\Mst\_BaseMstInterface
+ * @template T of \Nexus\Core\Models\Mst\_BaseMstInterface
+ *
+ * @extends PersistenceBaseMstRepositoryInterface<T>
  */
 interface _BaseMstRepositoryInterface extends PersistenceBaseMstRepositoryInterface {}

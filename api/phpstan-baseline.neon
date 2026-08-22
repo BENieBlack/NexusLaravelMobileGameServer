@@ -1170,41 +1170,11 @@ parameters:
 			count: 1
 			path: app/Domain/Auth/UseCases/SignUpUseCase.php
 
-		-
-			message: '#^Call to an undefined method Nexus\\Core\\Models\\Mst\\_BaseMstInterface\:\:getRarity\(\)\.$#'
-			identifier: method.notFound
-			count: 3
-			path: app/Domain/Equipment/Services/EquipmentLevelService.php
 
-		-
-			message: '#^Call to an undefined method Nexus\\Core\\Models\\Mst\\_BaseMstInterface\:\:getEffect\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/Domain/Equipment/UseCases/LevelUpUseCase.php
 
-		-
-			message: '#^Call to an undefined method Nexus\\Core\\Models\\Mst\\_BaseMstInterface\:\:getType\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/Domain/Equipment/UseCases/LevelUpUseCase.php
 
-		-
-			message: '#^Call to an undefined method Nexus\\Core\\Models\\Mst\\_BaseMstInterface\:\:getValue\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/Domain/Equipment/UseCases/LevelUpUseCase.php
 
-		-
-			message: '#^Call to an undefined method Nexus\\Core\\Models\\Mst\\_BaseMstInterface\:\:getIsActive\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Domain/Gacha/Services/GachaValidationService.php
 
-		-
-			message: '#^Method App\\Domain\\Gacha\\Services\\GachaValidationService\:\:validateGachaMaster\(\) should return App\\Models\\Mst\\MstGacha but returns Nexus\\Core\\Models\\Mst\\_BaseMstInterface\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Domain/Gacha/Services/GachaValidationService.php
 
 		-
 			message: '#^Method App\\Domain\\Gacha\\UseCases\\DrawUseCase\:\:persistHistory\(\) has parameter \$prizes with no value type specified in iterable type array\.$#'
@@ -1440,29 +1410,9 @@ parameters:
 			count: 1
 			path: app/Domain/Unit/Constants/UnitConst.php
 
-		-
-			message: '#^Call to an undefined method Nexus\\Core\\Models\\Mst\\_BaseMstInterface\:\:getRarity\(\)\.$#'
-			identifier: method.notFound
-			count: 3
-			path: app/Domain/Unit/Services/UnitLevelService.php
 
-		-
-			message: '#^Call to an undefined method Nexus\\Core\\Models\\Mst\\_BaseMstInterface\:\:getEffect\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/Domain/Unit/UseCases/LevelUpUseCase.php
 
-		-
-			message: '#^Call to an undefined method Nexus\\Core\\Models\\Mst\\_BaseMstInterface\:\:getType\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/Domain/Unit/UseCases/LevelUpUseCase.php
 
-		-
-			message: '#^Call to an undefined method Nexus\\Core\\Models\\Mst\\_BaseMstInterface\:\:getValue\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Domain/Unit/UseCases/LevelUpUseCase.php
 
 		-
 			message: '#^Dead catch \- Exception is never thrown in the try block\.$#'
@@ -2076,29 +2026,9 @@ parameters:
 			count: 1
 			path: app/Repositories/Mst/LoginBonusRepositoryAdapter.php
 
-		-
-			message: '#^Method App\\Repositories\\Mst\\MstBillingPlatformProductRepository\:\:selectAllActive\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Mst\\MstBillingPlatformProduct\> but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Repositories/Mst/MstBillingPlatformProductRepository.php
 
-		-
-			message: '#^Method App\\Repositories\\Mst\\MstBillingPlatformProductRepository\:\:selectAllActiveByBillingPlatform\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Mst\\MstBillingPlatformProduct\> but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Repositories/Mst/MstBillingPlatformProductRepository.php
 
-		-
-			message: '#^Access to an undefined property Nexus\\Core\\Models\\Mst\\_BaseMstInterface\:\:\$level\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Repositories/Mst/MstEquipmentLevelRepository.php
 
-		-
-			message: '#^Access to an undefined property Nexus\\Core\\Models\\Mst\\_BaseMstInterface\:\:\$required_exp\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Repositories/Mst/MstEquipmentLevelRepository.php
 
 		-
 			message: '#^Method App\\Repositories\\Mst\\MstEquipmentLevelRepository\:\:selectAll\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
@@ -2136,59 +2066,14 @@ parameters:
 			count: 1
 			path: app/Repositories/Mst/MstGachaStepBonusRepository.php
 
-		-
-			message: '#^Method App\\Repositories\\Mst\\MstInAppPurchaseContentRepository\:\:selectAllByMstInAppPurchaseId\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Mst\\MstInAppPurchaseContent\> but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Repositories/Mst/MstInAppPurchaseContentRepository.php
 
-		-
-			message: '#^Method App\\Repositories\\Mst\\MstInAppPurchaseContentRepository\:\:selectAllByMstInAppPurchaseIdAndContentType\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Mst\\MstInAppPurchaseContent\> but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Repositories/Mst/MstInAppPurchaseContentRepository.php
 
-		-
-			message: '#^Method App\\Repositories\\Mst\\MstInAppPurchaseEffectRepository\:\:selectAllByMstInAppPurchaseId\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Mst\\MstInAppPurchaseEffect\> but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Repositories/Mst/MstInAppPurchaseEffectRepository.php
 
-		-
-			message: '#^Call to an undefined method Nexus\\Core\\Models\\Mst\\_BaseMstInterface\:\:load\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Repositories/Mst/MstInAppPurchaseRepository.php
 
-		-
-			message: '#^Method App\\Repositories\\Mst\\MstInAppPurchaseRepository\:\:selectAllActive\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Mst\\MstInAppPurchase\> but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Repositories/Mst/MstInAppPurchaseRepository.php
 
-		-
-			message: '#^Method App\\Repositories\\Mst\\MstInAppPurchaseRepository\:\:selectAllActiveByType\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Mst\\MstInAppPurchase\> but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Repositories/Mst/MstInAppPurchaseRepository.php
 
-		-
-			message: '#^Method App\\Repositories\\Mst\\MstInAppPurchaseRepository\:\:selectByIdWithRelations\(\) should return App\\Models\\Mst\\MstInAppPurchase\|null but returns Nexus\\Core\\Models\\Mst\\_BaseMstInterface\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Repositories/Mst/MstInAppPurchaseRepository.php
 
-		-
-			message: '#^Access to an undefined property Nexus\\Core\\Models\\Mst\\_BaseMstInterface\:\:\$level\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Repositories/Mst/MstPlayerLevelRepository.php
 
-		-
-			message: '#^Access to an undefined property Nexus\\Core\\Models\\Mst\\_BaseMstInterface\:\:\$required_exp\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Repositories/Mst/MstPlayerLevelRepository.php
 
 		-
 			message: '#^Method App\\Repositories\\Mst\\MstPlayerLevelRepository\:\:selectAll\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
@@ -2196,23 +2081,8 @@ parameters:
 			count: 1
 			path: app/Repositories/Mst/MstPlayerLevelRepository.php
 
-		-
-			message: '#^Method App\\Repositories\\Mst\\MstPlayerLevelRepository\:\:selectByLevel\(\) should return App\\Models\\Mst\\MstPlayerLevel\|null but returns Nexus\\Core\\Models\\Mst\\_BaseMstInterface\|null\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Repositories/Mst/MstPlayerLevelRepository.php
 
-		-
-			message: '#^Access to an undefined property Nexus\\Core\\Models\\Mst\\_BaseMstInterface\:\:\$level\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Repositories/Mst/MstUnitLevelRepository.php
 
-		-
-			message: '#^Access to an undefined property Nexus\\Core\\Models\\Mst\\_BaseMstInterface\:\:\$required_exp\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Repositories/Mst/MstUnitLevelRepository.php
 
 		-
 			message: '#^Method App\\Repositories\\Mst\\MstUnitLevelRepository\:\:selectAll\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
@@ -2232,11 +2102,6 @@ parameters:
 			count: 1
 			path: app/Repositories/Mst/MstVipLevelRepository.php
 
-		-
-			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRepository\:\:selectAllActiveOrderByLevel\(\) should return iterable\<NexusVip\\Models\\MstVipLevel\>&Nexus\\Core\\Support\\CustomCollection but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Repositories/Mst/MstVipLevelRepository.php
 
 		-
 			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRepository\:\:selectAllLevels\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
@@ -2244,23 +2109,8 @@ parameters:
 			count: 1
 			path: app/Repositories/Mst/MstVipLevelRepository.php
 
-		-
-			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRepository\:\:selectAllLevels\(\) should return iterable\<NexusVip\\Models\\MstVipLevel\>&Nexus\\Core\\Support\\CustomCollection but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Repositories/Mst/MstVipLevelRepository.php
 
-		-
-			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRepository\:\:selectById\(\) should return NexusVip\\Models\\MstVipLevel\|null but returns Nexus\\Core\\Models\\Mst\\_BaseMstInterface\|null\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Repositories/Mst/MstVipLevelRepository.php
 
-		-
-			message: '#^Type NexusVip\\Models\\MstVipLevel in generic type App\\Repositories\\Mst\\_BaseMstRepository\<NexusVip\\Models\\MstVipLevel\> in PHPDoc tag @extends is not subtype of template type T of App\\Models\\Mst\\_BaseMstInterface of class App\\Repositories\\Mst\\_BaseMstRepository\.$#'
-			identifier: generics.notSubtype
-			count: 1
-			path: app/Repositories/Mst/MstVipLevelRepository.php
 
 		-
 			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRewardRepository\:\:selectActiveByLevelRange\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
@@ -2268,11 +2118,6 @@ parameters:
 			count: 1
 			path: app/Repositories/Mst/MstVipLevelRewardRepository.php
 
-		-
-			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRewardRepository\:\:selectActiveByLevelRange\(\) should return iterable\<NexusVip\\Models\\MstVipLevelReward\>&Nexus\\Core\\Support\\CustomCollection but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Repositories/Mst/MstVipLevelRewardRepository.php
 
 		-
 			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRewardRepository\:\:selectActiveByVipLevel\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
@@ -2280,11 +2125,6 @@ parameters:
 			count: 1
 			path: app/Repositories/Mst/MstVipLevelRewardRepository.php
 
-		-
-			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRewardRepository\:\:selectActiveByVipLevel\(\) should return iterable\<NexusVip\\Models\\MstVipLevelReward\>&Nexus\\Core\\Support\\CustomCollection but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Repositories/Mst/MstVipLevelRewardRepository.php
 
 		-
 			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRewardRepository\:\:selectAllActive\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
@@ -2292,11 +2132,6 @@ parameters:
 			count: 1
 			path: app/Repositories/Mst/MstVipLevelRewardRepository.php
 
-		-
-			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRewardRepository\:\:selectAllActive\(\) should return iterable\<NexusVip\\Models\\MstVipLevelReward\>&Nexus\\Core\\Support\\CustomCollection but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Repositories/Mst/MstVipLevelRewardRepository.php
 
 		-
 			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRewardRepository\:\:selectByVipLevel\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
@@ -2304,17 +2139,7 @@ parameters:
 			count: 1
 			path: app/Repositories/Mst/MstVipLevelRewardRepository.php
 
-		-
-			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRewardRepository\:\:selectByVipLevel\(\) should return iterable\<NexusVip\\Models\\MstVipLevelReward\>&Nexus\\Core\\Support\\CustomCollection but returns Nexus\\Core\\Support\\CustomCollection\<int\|string, Nexus\\Core\\Models\\Mst\\_BaseMstInterface\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Repositories/Mst/MstVipLevelRewardRepository.php
 
-		-
-			message: '#^Type NexusVip\\Models\\MstVipLevelReward in generic type App\\Repositories\\Mst\\_BaseMstRepository\<NexusVip\\Models\\MstVipLevelReward\> in PHPDoc tag @extends is not subtype of template type T of App\\Models\\Mst\\_BaseMstInterface of class App\\Repositories\\Mst\\_BaseMstRepository\.$#'
-			identifier: generics.notSubtype
-			count: 1
-			path: app/Repositories/Mst/MstVipLevelRewardRepository.php
 
 		-
 			message: '#^Class App\\Repositories\\Mst\\MstVipLoginBonusRepository extends generic class App\\Repositories\\Mst\\_BaseMstRepository but does not specify its types\: T$#'
@@ -2346,17 +2171,7 @@ parameters:
 			count: 1
 			path: app/Repositories/Mst/VipLoginBonusRepositoryInterface.php
 
-		-
-			message: '#^Class App\\Repositories\\Mst\\_BaseMstRepository extends generic class Nexus\\Core\\Repositories\\Mst\\_BaseMstRepository but does not specify its types\: T$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Repositories/Mst/_BaseMstRepository.php
 
-		-
-			message: '#^Interface App\\Repositories\\Mst\\_BaseMstRepositoryInterface extends generic interface Nexus\\Core\\Repositories\\Mst\\_BaseMstRepositoryInterface but does not specify its types\: T$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Repositories/Mst/_BaseMstRepositoryInterface.php
 
 		-
 			message: '#^Method App\\Repositories\\Sys\\SysDeployRepository\:\:selectActiveList\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'

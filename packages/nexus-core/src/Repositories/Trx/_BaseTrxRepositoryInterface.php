@@ -2,7 +2,7 @@
 
 namespace Nexus\Core\Repositories\Trx;
 
-use Nexus\Core\Models\Trx\_BaseTrxInterface;
+use Nexus\Core\Models\Trx\_BaseTrx;
 use Nexus\Core\Repositories\_BaseRepositoryInterface;
 use Nexus\Core\Support\CustomCollection;
 
@@ -12,7 +12,7 @@ use Nexus\Core\Support\CustomCollection;
  * TrxデータRepository用のインターフェース
  * メモリキャッシュのみを使用し、ユニークキーで管理
  * 
- * @template T of _BaseTrxInterface
+ * @template T of _BaseTrx
  */
 interface _BaseTrxRepositoryInterface extends _BaseRepositoryInterface
 {

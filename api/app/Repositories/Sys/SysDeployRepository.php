@@ -75,9 +75,11 @@ class SysDeployRepository extends _BaseSysRepository
      */
     public function selectActiveList(): CustomCollection
     {
-        return $this->modelClass::where('is_active', true)
+        $records = $this->modelClass::where('is_active', true)
             ->orderBy('deploy_key', 'desc')
             ->get();
+
+        return new CustomCollection($records->all());
     }
 
     /**

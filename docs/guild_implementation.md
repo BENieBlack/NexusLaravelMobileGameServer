@@ -416,8 +416,8 @@ docker exec api-php vendor/bin/phpunit tests/Feature/Guild
 # Run specific test
 docker exec api-php vendor/bin/phpunit tests/Feature/Guild/GuildBasicFlowTest.php
 
-# Run with coverage
-docker exec api-php vendor/bin/phpunit --coverage-html coverage tests/Feature/Guild
+# Run with coverage（全体は make coverage / make coverage-html）
+docker exec api-php vendor/bin/phpunit --coverage-html storage/coverage tests/Feature/Guild
 ```
 
 ## API Usage Examples

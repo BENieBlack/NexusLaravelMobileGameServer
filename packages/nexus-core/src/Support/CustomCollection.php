@@ -23,9 +23,13 @@ use Illuminate\Support\Collection;
  * - first(): foreach早期リターンを使用
  * - firstWhere(): foreach早期リターンを使用
  * 
+ * new static() でインスタンスを作り直すため、コンストラクタのシグネチャが
+ * サブクラスでも変わらないことを前提にする。
+ * 
  * @template TKey of array-key
  * @template TValue
  * @extends Collection<TKey, TValue>
+ * @phpstan-consistent-constructor
  */
 class CustomCollection extends Collection
 {
@@ -215,7 +219,9 @@ class CustomCollection extends Collection
     /**
      * コレクションの値のみを含む新しいコレクションを返す
      * 
-     * @return static
+     * array_values()を通すのでキーは必ず0始まりのintになる。
+     * 
+     * @return static<int, TValue>
      */
     public function values()
     {

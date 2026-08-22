@@ -193,6 +193,22 @@ docker exec tool-php php artisan migrate --database=tool --path=database/migrati
 
 **注意**: テストコマンドは自動的にDockerコンテナの状態を確認し、起動していない場合は`docker compose up -d` を実行します。
 
+### カバレッジ
+
+カバレッジドライバ（pcov）はapi-phpイメージに同梱済みで、常時有効です。
+追加のオプションを渡さなくても計測できます。
+
+```bash
+# テキストで表示
+make coverage
+
+# HTMLで出力（api/storage/coverage/index.html）
+make coverage-html
+```
+
+計測対象は `api/phpunit.xml` の `<source>` で指定しています。
+パッケージを追加したら、ここにも `../packages/<name>/src` を足してください。
+
 詳細は [.claude/development.md](./.claude/development.md) を参照してください。
 
 ## アーキテクチャ

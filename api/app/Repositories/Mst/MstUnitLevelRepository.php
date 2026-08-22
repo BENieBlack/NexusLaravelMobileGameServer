@@ -63,7 +63,9 @@ class MstUnitLevelRepository extends _BaseMstRepository
         );
 
         // CustomCollectionとして保持する
-        $this->models = new CustomCollection($cached);
+        /** @var CustomCollection<int|string, MstUnitLevel> $models */
+        $models = new CustomCollection($cached);
+        $this->models = $models;
 
         return $this->models;
     }

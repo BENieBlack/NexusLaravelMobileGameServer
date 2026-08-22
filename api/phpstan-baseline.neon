@@ -1242,17 +1242,7 @@ parameters:
 			count: 1
 			path: app/Domain/InAppPurchase/Services/InAppPurchasePackService.php
 
-		-
-			message: '#^Call to an undefined method Nexus\\Core\\Models\\Trx\\_BaseTrxInterface\:\:isEffective\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Domain/InAppPurchase/Services/InAppPurchasePassService.php
 
-		-
-			message: '#^Call to an undefined method Nexus\\Core\\Models\\Trx\\_BaseTrxInterface\:\:setIsDelete\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Domain/InAppPurchase/Services/InAppPurchasePassService.php
 
 		-
 			message: '#^Method App\\Domain\\InAppPurchase\\Services\\InAppPurchasePassService\:\:calcTotalEffectValue\(\) should return float but returns App\\Models\\Trx\\TrxInAppPurchaseEffect\.$#'
@@ -1924,11 +1914,6 @@ parameters:
 			count: 1
 			path: app/Repositories/Log/LogGachaRepository.php
 
-		-
-			message: '#^Method App\\Repositories\\Log\\LogGachaRepository\:\:selectAllByMstGachaId\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Log\\LogGacha\> but returns Nexus\\Core\\Support\\CustomCollection\<int, Nexus\\Core\\Models\\Log\\_BaseLogInterface\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Repositories/Log/LogGachaRepository.php
 
 		-
 			message: '#^Method App\\Repositories\\Log\\LogInAppPurchaseRepository\:\:insertPurchaseLog\(\) has parameter \$receipt with no value type specified in iterable type array\.$#'
@@ -1936,11 +1921,6 @@ parameters:
 			count: 1
 			path: app/Repositories/Log/LogInAppPurchaseRepository.php
 
-		-
-			message: '#^Method App\\Repositories\\Log\\LogItemRepository\:\:selectAllByMstItemId\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Log\\LogItem\> but returns Nexus\\Core\\Support\\CustomCollection\<int, Nexus\\Core\\Models\\Log\\_BaseLogInterface\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Repositories/Log/LogItemRepository.php
 
 		-
 			message: '#^Method App\\Repositories\\Log\\LogVipPointRepository\:\:log\(\) has parameter \$metadata with no value type specified in iterable type array\.$#'
@@ -1948,17 +1928,7 @@ parameters:
 			count: 1
 			path: app/Repositories/Log/LogVipPointRepository.php
 
-		-
-			message: '#^Method App\\Repositories\\Log\\LogVipPointRepository\:\:selectByPeriod\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Log\\LogVipPoint\> but returns Nexus\\Core\\Support\\CustomCollection\<int, Nexus\\Core\\Models\\Log\\_BaseLogInterface\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Repositories/Log/LogVipPointRepository.php
 
-		-
-			message: '#^Method App\\Repositories\\Log\\LogVipPointRepository\:\:selectByReason\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Log\\LogVipPoint\> but returns Nexus\\Core\\Support\\CustomCollection\<int, Nexus\\Core\\Models\\Log\\_BaseLogInterface\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Repositories/Log/LogVipPointRepository.php
 
 		-
 			message: '#^Method App\\Repositories\\Log\\LogVipPointRepository\:\:selectHistory\(\) return type has no value type specified in iterable type array\.$#'
@@ -1966,29 +1936,9 @@ parameters:
 			count: 1
 			path: app/Repositories/Log/LogVipPointRepository.php
 
-		-
-			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,Nexus\\Core\\Models\\Log\\_BaseLogInterface\>\:\:map\(\) expects callable\(Nexus\\Core\\Models\\Log\\_BaseLogInterface, int\)\: array\{id\: int, before_vip_level\: int, after_vip_level\: int, before_vip_point\: int, after_vip_point\: int, point_diff\: int, reason\: string, purchase_amount\: float\|null, currency_code\: string\|null, mst_in_app_purchase_id\: string\|null, system_at\: string\}, Closure\(App\\Models\\Log\\LogVipPoint\)\: array\{id\: int, before_vip_level\: int, after_vip_level\: int, before_vip_point\: int, after_vip_point\: int, point_diff\: int, reason\: string, purchase_amount\: float\|null, currency_code\: string\|null, mst_in_app_purchase_id\: string\|null, system_at\: string\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Repositories/Log/LogVipPointRepository.php
 
-		-
-			message: '#^Type App\\Models\\Log\\LogVipPoint in generic type App\\Repositories\\Log\\_BaseLogRepository\<App\\Models\\Log\\LogVipPoint\> in PHPDoc tag @extends is not subtype of template type T of App\\Models\\Log\\_BaseLogInterface of class App\\Repositories\\Log\\_BaseLogRepository\.$#'
-			identifier: generics.notSubtype
-			count: 1
-			path: app/Repositories/Log/LogVipPointRepository.php
 
-		-
-			message: '#^Class App\\Repositories\\Log\\_BaseLogRepository extends generic class Nexus\\Core\\Repositories\\Log\\_BaseLogRepository but does not specify its types\: T$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Repositories/Log/_BaseLogRepository.php
 
-		-
-			message: '#^Interface App\\Repositories\\Log\\_BaseLogRepositoryInterface extends generic interface Nexus\\Core\\Repositories\\Log\\_BaseLogRepositoryInterface but does not specify its types\: T$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Repositories/Log/_BaseLogRepositoryInterface.php
 
 		-
 			message: '#^Method App\\Repositories\\Mst\\LoginBonusRepositoryAdapter\:\:selectActiveByDay\(\) return type has no value type specified in iterable type array\.$#'
@@ -2221,17 +2171,7 @@ parameters:
 			count: 1
 			path: app/Repositories/Sys/SysMaintenanceRepository.php
 
-		-
-			message: '#^Class App\\Repositories\\Sys\\_BaseSysRepository extends generic class Nexus\\Core\\Repositories\\Sys\\_BaseSysRepository but does not specify its types\: T$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Repositories/Sys/_BaseSysRepository.php
 
-		-
-			message: '#^Interface App\\Repositories\\Sys\\_BaseSysRepositoryInterface extends generic interface Nexus\\Core\\Repositories\\Sys\\_BaseSysRepositoryInterface but does not specify its types\: T$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Repositories/Sys/_BaseSysRepositoryInterface.php
 
 		-
 			message: '#^Method App\\Repositories\\Trx\\LoginBonusHistoryRepositoryAdapter\:\:insert\(\) has parameter \$data with no value type specified in iterable type array\.$#'
@@ -2263,23 +2203,8 @@ parameters:
 			count: 1
 			path: app/Repositories/Trx/LoginBonusHistoryRepositoryAdapter.php
 
-		-
-			message: '#^Method App\\Repositories\\Trx\\TrxDiamondRepository\:\:selectByPlayerId\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Repositories/Trx/TrxDiamondRepository.php
 
-		-
-			message: '#^Method App\\Repositories\\Trx\\TrxDiamondRepository\:\:selectByPlayerId\(\) should return iterable\<App\\Models\\Trx\\TrxDiamond\>&Nexus\\Core\\Support\\CustomCollection but returns Nexus\\Core\\Support\\CustomCollection\<string, Nexus\\Core\\Models\\Trx\\_BaseTrxInterface\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Repositories/Trx/TrxDiamondRepository.php
 
-		-
-			message: '#^Parameter \#1 \$items of method Illuminate\\Support\\Collection\<string,Nexus\\Core\\Models\\Trx\\_BaseTrxInterface\>\:\:merge\(\) expects Illuminate\\Contracts\\Support\\Arrayable\<string, App\\Models\\Trx\\TrxDiamond\>\|iterable\<string, App\\Models\\Trx\\TrxDiamond\>, Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Trx\\TrxDiamond\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Repositories/Trx/TrxDiamondRepository.php
 
 		-
 			message: '#^Property App\\Repositories\\Trx\\TrxGachaRepository\:\:\$apiSession is never read, only written\.$#'
@@ -2287,11 +2212,6 @@ parameters:
 			count: 1
 			path: app/Repositories/Trx/TrxGachaRepository.php
 
-		-
-			message: '#^Method App\\Repositories\\Trx\\TrxInAppPurchaseEffectRepository\:\:selectAllEffectsByMstInAppPurchaseId\(\) should return Nexus\\Core\\Support\\CustomCollection\<string, App\\Models\\Trx\\TrxInAppPurchaseEffect\> but returns Nexus\\Core\\Support\\CustomCollection\<string, Nexus\\Core\\Models\\Trx\\_BaseTrxInterface\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Repositories/Trx/TrxInAppPurchaseEffectRepository.php
 
 		-
 			message: '#^Method App\\Repositories\\Trx\\TrxMailboxRepository\:\:selectByPlayerId\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
@@ -2311,17 +2231,7 @@ parameters:
 			count: 2
 			path: app/Repositories/Trx/TrxMailboxRepository.php
 
-		-
-			message: '#^Method App\\Repositories\\Trx\\TrxPlayerSnsRepository\:\:selectAll\(\) should return Nexus\\Core\\Support\\CustomCollection\<string, App\\Models\\Trx\\TrxPlayerSns\> but returns Nexus\\Core\\Support\\CustomCollection\<string, Nexus\\Core\\Models\\Trx\\_BaseTrxInterface\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Repositories/Trx/TrxPlayerSnsRepository.php
 
-		-
-			message: '#^Method App\\Repositories\\Trx\\TrxStaminaRepository\:\:selectAllByPlayer\(\) should return Nexus\\Core\\Support\\CustomCollection\<int, App\\Models\\Trx\\TrxStamina\> but returns Nexus\\Core\\Support\\CustomCollection\<string, Nexus\\Core\\Models\\Trx\\_BaseTrxInterface\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Repositories/Trx/TrxStaminaRepository.php
 
 		-
 			message: '#^Strict comparison using \!\=\= between int and null will always evaluate to true\.$#'
@@ -2389,17 +2299,7 @@ parameters:
 			count: 1
 			path: app/Repositories/Trx/VipLoginBonusHistoryRepositoryInterface.php
 
-		-
-			message: '#^Class App\\Repositories\\Trx\\_BaseTrxRepository extends generic class Nexus\\Core\\Repositories\\Trx\\_BaseTrxRepository but does not specify its types\: T$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Repositories/Trx/_BaseTrxRepository.php
 
-		-
-			message: '#^Interface App\\Repositories\\Trx\\_BaseTrxRepositoryInterface extends generic interface Nexus\\Core\\Repositories\\Trx\\_BaseTrxRepositoryInterface but does not specify its types\: T$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Repositories/Trx/_BaseTrxRepositoryInterface.php
 
 		-
 			message: '#^Trait App\\Traits\\RequiresRefreshTokenTrait is used zero times and is not analysed\.$#'

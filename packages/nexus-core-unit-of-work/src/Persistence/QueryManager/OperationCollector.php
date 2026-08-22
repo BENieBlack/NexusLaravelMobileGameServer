@@ -17,7 +17,7 @@ class OperationCollector
     /**
      * Repositoryのリストから操作を収集
      *
-     * @param array<_BaseRepository> $repositories
+     * @param array<_BaseRepository<array-key, \Illuminate\Database\Eloquent\Model>> $repositories
      * @return array ['inserts' => array, 'updates' => array, 'deletes' => array, 'logs' => array]
      */
     public function collect(array $repositories): array

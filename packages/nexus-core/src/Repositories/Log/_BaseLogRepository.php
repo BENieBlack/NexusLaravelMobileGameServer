@@ -16,7 +16,8 @@ use Illuminate\Database\Eloquent\Model;
  * ログテーブルはINSERT ONLYのため、setModelメソッドでINSERTのみ実行
  * プレイヤーIDはApiSessionから自動的に取得される
  * 
- * @template T of _BaseLogInterface
+ * @template T of _BaseLog
+ * @extends _BaseRepository<int, T>
  * @implements _BaseLogRepositoryInterface<T>
  */
 abstract class _BaseLogRepository extends _BaseRepository implements _BaseLogRepositoryInterface
@@ -100,7 +101,7 @@ abstract class _BaseLogRepository extends _BaseRepository implements _BaseLogRep
         $sysPlayerId = $this->resolveCachedSysPlayerId();
 
         // キャッシュが空の場合、データベースから取得
-        /** @var _BaseLog $instance */
+        /** @var T $instance */
         $instance = new $this->modelClass();
 
         // sys_player_idで検索してIDでkeyByしてキャッシュに保存
@@ -109,7 +110,9 @@ abstract class _BaseLogRepository extends _BaseRepository implements _BaseLogRep
             ->get()
             ->keyBy('id');
 
-        $this->models = new CustomCollection($records->all());
+        /** @var CustomCollection<int, T> $cached ログIDはintのAUTO_INCREMENT */
+        $cached = new CustomCollection($records->all());
+        $this->models = $cached;
 
         return $this->models;
     }
@@ -137,7 +140,7 @@ abstract class _BaseLogRepository extends _BaseRepository implements _BaseLogRep
      * ログモデルをセットし、内部キューに溜め込む
      * ログは常にINSERTのみ（配列に追加、上書きしない）
      *
-     * @param Model $model
+     * @param T $model
      * @param bool|null $isPurchase 課金関連のログかどうか（nullの場合はプロパティの値を使用）
      * @return void
      * @throws BindingResolutionException

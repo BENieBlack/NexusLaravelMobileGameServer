@@ -13,7 +13,9 @@ use NexusUnitOfWork\Traits\UsesUnitOfWork;
  * ログテーブルはINSERT ONLYのため、setModelメソッドでINSERTのみ実行
  * プレイヤーIDはApiSessionから自動的に取得される
  *
- * @template T of \App\Models\Log\_BaseLogInterface
+ * @template T of \Nexus\Core\Models\Log\_BaseLog
+ *
+ * @extends PersistenceBaseLogRepository<T>
  *
  * @implements _BaseLogRepositoryInterface<T>
  */

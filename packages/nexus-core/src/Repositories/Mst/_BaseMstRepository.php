@@ -14,7 +14,8 @@ use Illuminate\Support\Facades\Cache;
  * マスターデータのRepository基底クラス
  * キャッシュ機能を含む読み取り専用操作を提供
  * 
- * @template T of _BaseMstInterface
+ * @template T of _BaseMst
+ * @extends _BaseRepository<int|string, T>
  * @implements _BaseMstRepositoryInterface<T>
  */
 abstract class _BaseMstRepository extends _BaseRepository implements _BaseMstRepositoryInterface
@@ -62,7 +63,9 @@ abstract class _BaseMstRepository extends _BaseRepository implements _BaseMstRep
         );
 
         // CustomCollectionとして保存
-        $this->models = new CustomCollection($cached);
+        /** @var CustomCollection<int|string, T> $models */
+        $models = new CustomCollection($cached);
+        $this->models = $models;
 
         return $this->models;
     }

@@ -12,7 +12,8 @@ class LogUnit extends _BaseLog
         'unique_request_id' => 'string',
         'sys_player_id' => 'integer',
         'trx_unit_id' => 'integer',
-        'mst_unit_id' => 'integer',
+        // DBは varchar（'unit_knight_001' のような文字列ID）
+        'mst_unit_id' => 'string',
         'before_grade' => 'integer',
         'after_grade' => 'integer',
         'before_level' => 'integer',

@@ -122,14 +122,24 @@ class AppStoreApiClient
      *
      * GET /inApps/v2/refund/lookup/{transactionId}
      *
+     * 返金が多いプレイヤーではページ分割される。2ページ目以降は
+     * 前のレスポンスの revision を渡す（hasMore が false になるまで）。
+     *
      * @param  string  $transactionId  トランザクションID（originalTransactionId）
+     * @param  string|null  $revision  続きを取得する位置
      * @return array<string, mixed>
      *
      * @throws PlatformApiException
      */
-    public function fetchRefundHistory(string $transactionId): array
+    public function fetchRefundHistory(string $transactionId, ?string $revision = null): array
     {
-        return $this->serverApiGet("/inApps/v2/refund/lookup/{$transactionId}", ['transaction_id' => $transactionId]);
+        $path = "/inApps/v2/refund/lookup/{$transactionId}";
+
+        if ($revision !== null && $revision !== '') {
+            $path .= '?revision='.rawurlencode($revision);
+        }
+
+        return $this->serverApiGet($path, ['transaction_id' => $transactionId]);
     }
 
     /**

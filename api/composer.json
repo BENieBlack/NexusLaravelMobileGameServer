@@ -3,7 +3,10 @@
     "name": "laravel/laravel",
     "type": "project",
     "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "keywords": [
+        "laravel",
+        "framework"
+    ],
     "license": "MIT",
     "repositories": [
         {
@@ -131,7 +134,27 @@
         "psr-4": {
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
-            "Database\\Seeders\\": "database/seeders/"
+            "Database\\Seeders\\": "database/seeders/",
+            "NexusAuth\\": "../packages/nexus-core-auth/src/",
+            "NexusBilling\\": "../packages/nexus-core-billing/src/",
+            "NexusFriend\\": "../packages/nexus-friend/src/",
+            "NexusGacha\\": "../packages/nexus-gacha/src/",
+            "NexusGuild\\": "../packages/nexus-guild/src/",
+            "NexusLevel\\": "../packages/nexus-level/src/",
+            "NexusLogin\\": "../packages/nexus-login/src/",
+            "NexusMailbox\\": "../packages/nexus-mailbox/src/",
+            "NexusMaintenance\\": "../packages/nexus-maintenance/src/",
+            "NexusPitr\\": "../packages/nexus-pitr/src/",
+            "NexusPlayer\\": "../packages/nexus-player/src/",
+            "NexusResourceDelivery\\": "../packages/nexus-resource-delivery/src/",
+            "NexusResource\\": "../packages/nexus-resource/src/",
+            "NexusSecurity\\": "../packages/nexus-core-security/src/",
+            "NexusStamina\\": "../packages/nexus-stamina/src/",
+            "NexusUnitOfWork\\": "../packages/nexus-core-unit-of-work/src/",
+            "NexusVersion\\": "../packages/nexus-version/src/",
+            "NexusVip\\": "../packages/nexus-vip/src/",
+            "NexusWallet\\": "../packages/nexus-wallet/src/",
+            "Nexus\\Core\\": "../packages/nexus-core/src/"
         }
     },
     "autoload-dev": {

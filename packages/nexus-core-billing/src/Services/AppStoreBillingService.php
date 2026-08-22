@@ -94,6 +94,9 @@ class AppStoreBillingService implements BillingPlatformInterface
      *
      * App Store Server API の Get All Subscription Statuses を使う。
      * $subscriptionId には購読の transactionId（originalTransactionId）を渡す。
+     *
+     * Note: サブスク商品の購入フローがまだ無いため、現時点で呼び出し元は無い。
+     * 販売開始時に必要な作業はREADMEの「サブスクリプション対応の残作業」を参照。
      */
     public function fetchSubscriptionStatus(string $subscriptionId, ?string $purchaseToken = null): Subscription
     {

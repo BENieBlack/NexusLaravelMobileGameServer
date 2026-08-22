@@ -13,8 +13,9 @@ use NexusUnitOfWork\Traits\UsesUnitOfWork;
  * ユニークキーで管理し、同じキーのモデルは上書き（最終状態を保持）
  * プレイヤーIDはApiSessionから自動的に取得される
  *
- * @template T of \App\Models\Trx\_BaseTrxInterface
+ * @template T of \Nexus\Core\Models\Trx\_BaseTrxInterface
  *
+ * @extends PersistenceBaseTrxRepository<T>
  * @implements _BaseTrxRepositoryInterface<T>
  */
 abstract class _BaseTrxRepository extends PersistenceBaseTrxRepository implements _BaseTrxRepositoryInterface

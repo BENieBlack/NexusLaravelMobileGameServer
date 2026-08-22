@@ -10,6 +10,8 @@ use Nexus\Core\Repositories\Log\_BaseLogRepositoryInterface as PersistenceBaseLo
  * LogデータRepository用のインターフェース
  * ログはINSERT ONLYでキャッシュなし
  *
- * @template T of \App\Models\Log\_BaseLogInterface
+ * @template T of \Nexus\Core\Models\Log\_BaseLogInterface
+ *
+ * @extends PersistenceBaseLogRepositoryInterface<T>
  */
 interface _BaseLogRepositoryInterface extends PersistenceBaseLogRepositoryInterface {}

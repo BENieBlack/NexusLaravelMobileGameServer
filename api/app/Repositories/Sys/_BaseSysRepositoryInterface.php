@@ -10,6 +10,8 @@ use Nexus\Core\Repositories\Sys\_BaseSysRepositoryInterface as PersistenceBaseSy
  * SysデータRepository用のインターフェース
  * メモリキャッシュを基本とし、一部のRepositoryでRedisキャッシュも使用
  *
- * @template T of \App\Models\Sys\_BaseSysInterface
+ * @template T of \Nexus\Core\Models\Sys\_BaseSysInterface
+ *
+ * @extends PersistenceBaseSysRepositoryInterface<T>
  */
 interface _BaseSysRepositoryInterface extends PersistenceBaseSysRepositoryInterface {}

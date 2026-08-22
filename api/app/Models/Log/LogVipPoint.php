@@ -2,8 +2,6 @@
 
 namespace App\Models\Log;
 
-use Illuminate\Database\Eloquent\Model;
-
 /**
  * LogVipPoint Model
  *
@@ -24,10 +22,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $system_at
  * @property string $created_at
  */
-class LogVipPoint extends Model
+class LogVipPoint extends _BaseLog
 {
-    protected $connection = 'log1';
-
     protected $table = 'log_vip_point';
 
     public $timestamps = false;

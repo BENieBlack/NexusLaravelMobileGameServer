@@ -2,10 +2,11 @@
 
 namespace Tests\Feature\Domain\Player\Services;
 
-use App\Domain\Player\Services\PlayerLevelService;
 use App\Domain\Stamina\Constants\StaminaConst;
 use App\Persistence\ApiSession;
 use Illuminate\Support\Facades\DB;
+use Nexus\Core\Utilities\ClockUtility;
+use NexusPlayer\Services\PlayerLevelService;
 use NexusUnitOfWork\Persistence\QueryManager;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;
@@ -14,8 +15,9 @@ use Tests\TestCase;
 /**
  * PlayerLevelServiceのテスト
  *
- * 経験値の加算・レベルアップ判定と、
- * レベルアップ時のスタミナ全回復を確認する。
+ * パッケージ側のPlayerLevelServiceを、Application層のアダプタ
+ * （Repository実装とレベルアップ時のスタミナ全回復）と繋いだ状態で確認する。
+ * 経験値の加算・レベルアップ判定と、レベルアップ時のスタミナ全回復が対象。
  */
 class PlayerLevelServiceTest extends TestCase
 {
@@ -93,7 +95,7 @@ class PlayerLevelServiceTest extends TestCase
         $this->createPlayer(level: 1, levelExp: 0);
         $this->createStamina(currentStamina: 10);
 
-        $result = $this->service->addExpWithStamina($this->sysPlayerId, 50);
+        $result = $this->service->addExp($this->sysPlayerId, 50);
         $this->queryManager->execAllQuery();
 
         $this->assertFalse($result['is_leveled_up']);
@@ -111,7 +113,7 @@ class PlayerLevelServiceTest extends TestCase
         $this->createPlayer(level: 1, levelExp: 0);
         $this->createStamina(currentStamina: 10);
 
-        $result = $this->service->addExpWithStamina($this->sysPlayerId, 100);
+        $result = $this->service->addExp($this->sysPlayerId, 100);
         $this->queryManager->execAllQuery();
 
         $this->assertTrue($result['is_leveled_up']);
@@ -135,7 +137,7 @@ class PlayerLevelServiceTest extends TestCase
         $this->createPlayer(level: 1, levelExp: 0);
         $this->createStamina(currentStamina: 0);
 
-        $result = $this->service->addExpWithStamina($this->sysPlayerId, 600);
+        $result = $this->service->addExp($this->sysPlayerId, 600);
         $this->queryManager->execAllQuery();
 
         $this->assertTrue($result['is_leveled_up']);
@@ -150,12 +152,46 @@ class PlayerLevelServiceTest extends TestCase
     {
         $this->createPlayer(level: 1, levelExp: 0);
 
-        $this->service->addExpWithStamina($this->sysPlayerId, 100);
+        $this->service->addExp($this->sysPlayerId, 100);
         $this->queryManager->execAllQuery();
 
         $stamina = $this->findStamina();
         $this->assertNotNull($stamina);
         $this->assertSame(55, $stamina->current_stamina);
+    }
+
+    #[Test]
+    public function レベルアップ時は自然回復を挟んでから加算する(): void
+    {
+        ClockUtility::setNow('2026-03-15 12:00:00');
+        $this->createPlayer(level: 1, levelExp: 0);
+        // 20分前が最終回復。300秒で1ポイント回復するので4ポイント回復する
+        $this->createStamina(currentStamina: 10, lastRecoveryAt: '2026-03-15 11:40:00');
+
+        $this->service->addExp($this->sysPlayerId, 100);
+        $this->queryManager->execAllQuery();
+
+        // 10 + 自然回復4 + 新しい最大スタミナ55
+        $stamina = $this->findStamina();
+        $this->assertSame(69, $stamina->current_stamina);
+        // 回復に使った分だけ基準時刻が進む
+        $this->assertSame('2026-03-15 12:00:00', $stamina->last_recovery_at);
+    }
+
+    #[Test]
+    public function スタミナが新しい最大値に達していれば自然回復は挟まない(): void
+    {
+        ClockUtility::setNow('2026-03-15 12:00:00');
+        $this->createPlayer(level: 1, levelExp: 0);
+        // レベルアップ後の最大値55に既に達している
+        $this->createStamina(currentStamina: 55, lastRecoveryAt: '2026-03-15 11:00:00');
+
+        $this->service->addExp($this->sysPlayerId, 100);
+        $this->queryManager->execAllQuery();
+
+        $stamina = $this->findStamina();
+        $this->assertSame(110, $stamina->current_stamina);
+        $this->assertSame('2026-03-15 11:00:00', $stamina->last_recovery_at);
     }
 
     #[Test]
@@ -227,14 +263,14 @@ class PlayerLevelServiceTest extends TestCase
         ]);
     }
 
-    private function createStamina(int $currentStamina): void
+    private function createStamina(int $currentStamina, ?string $lastRecoveryAt = null): void
     {
         DB::connection('trx1')->table('trx_stamina')->insert([
             'sys_player_id' => $this->sysPlayerId,
             'type' => StaminaConst::TYPE_NORMAL,
             'current_stamina' => $currentStamina,
             'recovery_rate_multiplier' => 1.00,
-            'last_recovery_at' => now()->format('Y-m-d H:i:s'),
+            'last_recovery_at' => $lastRecoveryAt ?? ClockUtility::nowToString(),
             'created_at' => now(),
             'updated_at' => now(),
         ]);

@@ -26,7 +26,6 @@ use App\Repositories\Sys\FriendApplyRepositoryAdapter;
 use App\Repositories\Sys\GuildApplyRepositoryAdapter;
 use App\Repositories\Sys\GuildMemberRepositoryAdapter;
 use App\Repositories\Sys\GuildRepositoryAdapter;
-use App\Repositories\Sys\PlayerDeviceRepositoryAdapter;
 use App\Repositories\Sys\PlayerRepositoryAdapter;
 use App\Repositories\Sys\SysMaintenanceRepository;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
@@ -45,7 +44,6 @@ use App\Repositories\Trx\WalletBalanceRepositoryAdapter;
 use App\Repositories\Trx\WalletRepositoryAdapter;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
-use NexusAuth\Contracts\DeviceRepositoryInterface;
 use NexusAuth\Contracts\TokenRepositoryInterface;
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Services\TokenService;
@@ -105,7 +103,7 @@ class AppServiceProvider extends ServiceProvider
         // ==========================================
 
         // Repository interfaces
-        $this->app->bind(DeviceRepositoryInterface::class, SysPlayerDeviceRepository::class);
+        $this->app->bind(PlayerDeviceRepositoryInterface::class, SysPlayerDeviceRepository::class);
         $this->app->bind(TokenRepositoryInterface::class, SysPlayerTokenRepository::class);
 
         // TokenService (singleton)
@@ -177,7 +175,6 @@ class AppServiceProvider extends ServiceProvider
 
         // Repository interfaces
         $this->app->bind(PlayerRepoInterface::class, PlayerRepositoryAdapter::class);
-        $this->app->bind(PlayerDeviceRepositoryInterface::class, PlayerDeviceRepositoryAdapter::class);
         $this->app->bind(PlayerLevelRepositoryInterface::class, PlayerLevelRepositoryAdapter::class);
 
         // レベルアップ時のゲーム固有処理（スタミナ全回復）

@@ -32,15 +32,15 @@ composer require nexus/auth
 
 アプリケーション側でEloquentモデルとRepositoryに実装:
 
-- `DeviceModelInterface` - デバイスモデル
 - `TokenModelInterface` - トークンモデル
-- `DeviceRepositoryInterface` - デバイスリポジトリ
 - `TokenRepositoryInterface` - トークンリポジトリ
 
-プレイヤーの契約は nexus-core-player が持つ（このパッケージはそれに依存する）:
+プレイヤーとデバイスの契約は nexus-core-player が持つ（このパッケージはそれに依存する）:
 
 - `NexusPlayer\Contracts\PlayerModelInterface` - プレイヤーモデル
+- `NexusPlayer\Contracts\DeviceModelInterface` - デバイスモデル
 - `NexusPlayer\Repositories\PlayerRepositoryInterface` - プレイヤーリポジトリ
+- `NexusPlayer\Repositories\PlayerDeviceRepositoryInterface` - デバイスリポジトリ
 
 ### Services
 
@@ -90,7 +90,7 @@ use NexusPlayer\Repositories\PlayerRepositoryInterface;
 use App\Repositories\Sys\PlayerRepositoryAdapter;
 
 $this->app->bind(PlayerRepositoryInterface::class, PlayerRepositoryAdapter::class);
-$this->app->bind(DeviceRepositoryInterface::class, SysPlayerDeviceRepository::class);
+$this->app->bind(PlayerDeviceRepositoryInterface::class, SysPlayerDeviceRepository::class);
 $this->app->bind(TokenRepositoryInterface::class, SysPlayerTokenRepository::class);
 
 // TokenService登録

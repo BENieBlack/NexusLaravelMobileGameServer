@@ -2,8 +2,8 @@
 
 namespace NexusAuth\Services;
 
-use NexusAuth\Contracts\DeviceModelInterface;
-use NexusAuth\Contracts\DeviceRepositoryInterface;
+use NexusPlayer\Contracts\DeviceModelInterface;
+use NexusPlayer\Repositories\PlayerDeviceRepositoryInterface;
 use NexusPlayer\Contracts\PlayerModelInterface;
 use NexusPlayer\DataTransferObjects\Player;
 use NexusPlayer\Repositories\PlayerRepositoryInterface;
@@ -20,11 +20,11 @@ class PlayerAuthService
      * コンストラクタ
      *
      * @param PlayerRepositoryInterface $playerRepository
-     * @param DeviceRepositoryInterface $deviceRepository
+     * @param PlayerDeviceRepositoryInterface $deviceRepository
      */
     public function __construct(
         private readonly PlayerRepositoryInterface $playerRepository,
-        private readonly DeviceRepositoryInterface $deviceRepository,
+        private readonly PlayerDeviceRepositoryInterface $deviceRepository,
     ) {
     }
 

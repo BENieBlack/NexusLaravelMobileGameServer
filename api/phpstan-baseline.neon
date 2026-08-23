@@ -705,24 +705,6 @@ parameters:
 			path: ../packages/nexus-pitr/src/Migrations/DynamicShardingTrait.php
 
 		-
-			message: '#^Method NexusPlayer\\DataTransferObjects\\PlayerDevice\:\:__construct\(\) has parameter \$deviceInfo with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-core-player/src/DataTransferObjects/PlayerDevice.php
-
-		-
-			message: '#^Method NexusPlayer\\DataTransferObjects\\PlayerDevice\:\:getDeviceInfo\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-core-player/src/DataTransferObjects/PlayerDevice.php
-
-		-
-			message: '#^Method NexusPlayer\\Repositories\\PlayerDeviceRepositoryInterface\:\:selectByPlayerId\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: ../packages/nexus-core-player/src/Repositories/PlayerDeviceRepositoryInterface.php
-
-		-
 			message: '#^Method NexusResourceDelivery\\DataTransferObjects\\ResourceDeliveryComplete\:\:__construct\(\) has parameter \$contents with generic class Nexus\\Core\\Support\\CustomCollection but does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
@@ -1049,12 +1031,6 @@ parameters:
 		-
 			message: '#^Method App\\Domain\\Auth\\UseCases\\SignInUseCase\:\:exec\(\) has parameter \$deviceInfo with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
-			count: 1
-			path: app/Domain/Auth/UseCases/SignInUseCase.php
-
-		-
-			message: '#^Parameter \$sysPlayerDevice of class App\\Http\\Responses\\Auth\\SignInResponse constructor expects App\\Models\\Sys\\SysPlayerDevice, NexusAuth\\Contracts\\DeviceModelInterface given\.$#'
-			identifier: argument.type
 			count: 1
 			path: app/Domain/Auth/UseCases/SignInUseCase.php
 

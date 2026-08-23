@@ -7,9 +7,9 @@ use App\Domain\Auth\Traits\BuildsSysPlayerToken;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Http\Responses\Auth\SignInResponse;
+use App\Repositories\Sys\SysPlayerRepository;
 use Exception;
 use NexusAuth\Contracts\DeviceRepositoryInterface;
-use NexusAuth\Contracts\PlayerRepositoryInterface;
 use NexusAuth\Contracts\TokenRepositoryInterface;
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Services\TokenService;
@@ -30,7 +30,7 @@ class SignInUseCase extends _BaseUseCase
         private readonly PlayerAuthService $playerAuthService,
         private readonly TokenService $tokenService,
         private readonly DeviceRepositoryInterface $deviceRepository,
-        private readonly PlayerRepositoryInterface $playerRepository,
+        private readonly SysPlayerRepository $playerRepository,
         private readonly TokenRepositoryInterface $tokenRepository,
     ) {}
 

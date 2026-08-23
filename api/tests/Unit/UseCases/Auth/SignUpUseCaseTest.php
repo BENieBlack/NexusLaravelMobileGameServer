@@ -8,6 +8,7 @@ use App\Http\Responses\Auth\SignUpResponse;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;
+use App\Repositories\Sys\PlayerRepositoryAdapter;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
 use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;
@@ -46,7 +47,9 @@ class SignUpUseCaseTest extends TestCase
         parent::setUp();
 
         // Repositories
-        $playerRepository = new SysPlayerRepository(new SysPlayer);
+        // PlayerAuthServiceはDTO境界のインターフェースを受け取るためアダプタで包む
+        $sysPlayerRepository = new SysPlayerRepository(new SysPlayer);
+        $playerRepository = new PlayerRepositoryAdapter($sysPlayerRepository);
         $this->deviceRepository = new SysPlayerDeviceRepository(new SysPlayerDevice);
         $this->tokenRepository = app(SysPlayerTokenRepository::class);
 
@@ -64,7 +67,8 @@ class SignUpUseCaseTest extends TestCase
             $this->tokenService,
             $this->deviceRepository,
             $this->tokenRepository,
-            $this->deviceRepository
+            $this->deviceRepository,
+            $sysPlayerRepository
         );
 
         // Suppress log output during tests

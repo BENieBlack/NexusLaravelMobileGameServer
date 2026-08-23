@@ -7,6 +7,7 @@ use App\Domain\Auth\Traits\BuildsSysPlayerToken;
 use App\Exceptions\BusinessLogicException;
 use App\Http\Responses\Auth\SignUpResponse;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
+use App\Repositories\Sys\SysPlayerRepository;
 use NexusAuth\Contracts\DeviceRepositoryInterface;
 use NexusAuth\Contracts\TokenRepositoryInterface;
 use NexusAuth\Services\PlayerAuthService;
@@ -30,6 +31,7 @@ class SignUpUseCase extends _BaseUseCase
         private readonly DeviceRepositoryInterface $deviceRepository,
         private readonly TokenRepositoryInterface $tokenRepository,
         private readonly SysPlayerDeviceRepository $sysPlayerDeviceRepository,
+        private readonly SysPlayerRepository $sysPlayerRepository,
     ) {}
 
     /**
@@ -58,6 +60,10 @@ class SignUpUseCase extends _BaseUseCase
             // 新規プレイヤー作成（PlayerAuthService使用）
             $player = $this->playerAuthService->createPlayer($deviceId, $deviceInfo);
 
+            // レスポンスとトークン生成にはModelが要る。
+            // 直前に採番済みでリポジトリのメモリキャッシュに載っているため追加クエリは発生しない
+            $sysPlayer = $this->sysPlayerRepository->selectById($player->getId());
+
             // デバイスを作成（アプリケーション層で直接作成）
             $sysPlayerDevice = $this->sysPlayerDeviceRepository->insertDevice(
                 $player->getId(),
@@ -67,7 +73,7 @@ class SignUpUseCase extends _BaseUseCase
 
             // Token DTO生成（NexusAuth\Services\TokenService使用）
             [$token, $sysPlayerToken] = $this->tokenService->generateToken(
-                $player,
+                $sysPlayer,
                 $sysPlayerDevice,
                 fn ($playerId, $deviceId, $tokenHash, $expiresAt) => $this->newSysPlayerToken(
                     $playerId,
@@ -82,7 +88,7 @@ class SignUpUseCase extends _BaseUseCase
 
             // レスポンスを返却（新規作成なので201）
             return new SignUpResponse(
-                sysPlayer: $player,
+                sysPlayer: $sysPlayer,
                 sysPlayerDevice: $sysPlayerDevice,
                 sysPlayerToken: $sysPlayerToken,
                 token: $token,

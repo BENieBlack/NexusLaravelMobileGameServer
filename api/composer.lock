@@ -2665,12 +2665,13 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-core-auth",
-                "reference": "d3356defb2667729ba29ade45750a73bebd68728"
+                "reference": "4526feef688c18506efe77a57ede7ed1e0769c18"
             },
             "require": {
                 "firebase/php-jwt": "^6.10",
                 "illuminate/support": "^10.0|^11.0|^12.0",
                 "nexus/core": "@dev",
+                "nexus/core-player": "@dev",
                 "nexus/core-security": "@dev",
                 "nexus/core-unit-of-work": "@dev",
                 "php": "^8.4"

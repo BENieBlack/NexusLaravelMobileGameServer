@@ -708,19 +708,19 @@ parameters:
 			message: '#^Method NexusPlayer\\DataTransferObjects\\PlayerDevice\:\:__construct\(\) has parameter \$deviceInfo with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: ../packages/nexus-player/src/DataTransferObjects/PlayerDevice.php
+			path: ../packages/nexus-core-player/src/DataTransferObjects/PlayerDevice.php
 
 		-
 			message: '#^Method NexusPlayer\\DataTransferObjects\\PlayerDevice\:\:getDeviceInfo\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: ../packages/nexus-player/src/DataTransferObjects/PlayerDevice.php
+			path: ../packages/nexus-core-player/src/DataTransferObjects/PlayerDevice.php
 
 		-
 			message: '#^Method NexusPlayer\\Repositories\\PlayerDeviceRepositoryInterface\:\:selectByPlayerId\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
-			path: ../packages/nexus-player/src/Repositories/PlayerDeviceRepositoryInterface.php
+			path: ../packages/nexus-core-player/src/Repositories/PlayerDeviceRepositoryInterface.php
 
 		-
 			message: '#^Method NexusResourceDelivery\\DataTransferObjects\\ResourceDeliveryComplete\:\:__construct\(\) has parameter \$contents with generic class Nexus\\Core\\Support\\CustomCollection but does not specify its types\: TKey, TValue$#'

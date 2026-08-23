@@ -1,12 +1,11 @@
 {
-    "name": "nexus/player",
-    "description": "Player management package for Nexus mobile game",
+    "name": "nexus/core-player",
+    "description": "Player entity package for Nexus mobile game (identity, devices, shard routing)",
     "type": "library",
     "license": "MIT",
     "require": {
         "php": "^8.4",
-        "nexus/core": "@dev",
-        "nexus/level": "@dev"
+        "nexus/core": "@dev"
     },
     "require-dev": {
         "phpunit/phpunit": "^10.0",

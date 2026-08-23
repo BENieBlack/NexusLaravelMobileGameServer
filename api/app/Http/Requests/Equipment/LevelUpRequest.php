@@ -21,6 +21,7 @@ class LevelUpRequest extends _BaseRequest
     {
         return [
             'trx_equipment_id' => ['required', 'integer', 'min:1'],
+            'mst_item_id' => ['required', 'string', 'max:255'],
             'after_level' => ['required', 'integer', 'min:1', 'max:999'],
         ];
     }
@@ -36,6 +37,8 @@ class LevelUpRequest extends _BaseRequest
             'trx_equipment_id.required' => '装備IDは必須です',
             'trx_equipment_id.integer' => '装備IDは整数である必要があります',
             'trx_equipment_id.min' => '装備IDは1以上である必要があります',
+            'mst_item_id.required' => 'アイテムIDは必須です',
+            'mst_item_id.string' => 'アイテムIDは文字列である必要があります',
             'after_level.required' => '目標レベルは必須です',
             'after_level.integer' => '目標レベルは整数である必要があります',
             'after_level.min' => '目標レベルは1以上である必要があります',
@@ -69,5 +72,15 @@ class LevelUpRequest extends _BaseRequest
     public function resolveAuthenticatedPlayerId(): ?int
     {
         return $this->attributes->get('sys_player_id');
+    }
+
+    /**
+     * マスターアイテムIDを取得
+     *
+     * @return string mst_item.id（装備経験値アイテム）
+     */
+    public function getMstItemId(): string
+    {
+        return (string) $this->input('mst_item_id');
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace NexusPlayer\Contracts;
+namespace NexusLevel\Contracts;
 
 /**
  * PlayerLevelUpHandlerInterface

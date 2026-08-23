@@ -6,7 +6,7 @@ use App\Domain\Stamina\Constants\StaminaConst;
 use App\Persistence\ApiSession;
 use Illuminate\Support\Facades\DB;
 use Nexus\Core\Utilities\ClockUtility;
-use NexusPlayer\Services\PlayerLevelService;
+use NexusLevel\Services\PlayerLevelService;
 use NexusUnitOfWork\Persistence\QueryManager;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;

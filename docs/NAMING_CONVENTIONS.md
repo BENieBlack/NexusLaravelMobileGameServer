@@ -51,7 +51,7 @@ Package層のServiceも同じルールを適用します。
 packages/nexus-gacha/Services/GachaDrawService.php
 packages/nexus-gacha/Services/GachaPrizeService.php
 packages/nexus-vip/Services/VipLevelService.php
-packages/nexus-player/Services/PlayerLevelService.php
+packages/nexus-level/Services/PlayerLevelService.php
 packages/nexus-friend/Services/FriendService.php
 ```
 

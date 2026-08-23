@@ -11,7 +11,7 @@ use NexusPlayer\Repositories\PlayerDeviceRepositoryInterface;
 /**
  * PlayerDeviceRepositoryAdapter
  *
- * nexus-playerパッケージのPlayerDeviceRepositoryInterfaceを実装し、
+ * nexus-core-playerパッケージのPlayerDeviceRepositoryInterfaceを実装し、
  * Application層のSysPlayerDeviceRepositoryをラップする。
  *
  * Repositoryは常にModelを返し、DTOへの変換はこのアダプタが担う。

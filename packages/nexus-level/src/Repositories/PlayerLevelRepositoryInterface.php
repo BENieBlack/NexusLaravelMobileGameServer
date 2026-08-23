@@ -1,6 +1,6 @@
 <?php
 
-namespace NexusPlayer\Repositories;
+namespace NexusLevel\Repositories;
 
 /**
  * PlayerLevelRepositoryInterface

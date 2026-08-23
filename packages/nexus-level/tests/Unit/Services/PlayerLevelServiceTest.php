@@ -1,12 +1,12 @@
 <?php
 
-namespace NexusPlayer\Tests\Unit\Services;
+namespace NexusLevel\Tests\Unit\Services;
 
-use NexusPlayer\Contracts\PlayerLevelUpHandlerInterface;
+use NexusLevel\Contracts\PlayerLevelUpHandlerInterface;
+use NexusLevel\Repositories\PlayerLevelRepositoryInterface;
+use NexusLevel\Services\PlayerLevelService;
 use NexusPlayer\DataTransferObjects\Player;
-use NexusPlayer\Repositories\PlayerLevelRepositoryInterface;
 use NexusPlayer\Repositories\PlayerRepositoryInterface;
-use NexusPlayer\Services\PlayerLevelService;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

@@ -6,8 +6,10 @@ use App\Domain\Auth\Services\TokenValidator;
 use App\Domain\Login\Services\ComeBackLoginBonusService;
 use App\Domain\Login\Services\LoginBonusService;
 use App\Domain\Login\Services\VipLoginBonusService;
+use App\Domain\Player\Services\ExperienceGranterAdapter;
 use App\Domain\Player\Services\PlayerLevelServiceAdapter;
 use App\Domain\Player\Services\PlayerLevelUpStaminaHandler;
+use App\Domain\Stamina\Services\StaminaGranterAdapter;
 use App\Persistence\ApiSession;
 use App\Repositories\Log\LogVipPointRepository;
 use App\Repositories\Mst\LoginBonusRepositoryAdapter;
@@ -68,11 +70,17 @@ use NexusPlayer\Repositories\PlayerRepositoryInterface as PlayerRepoInterface;
 use NexusResource\Contracts\DiamondRepositoryInterface;
 use NexusResource\Contracts\ItemRepositoryInterface;
 use NexusResourceDelivery\Contracts\EquipmentRepositoryInterface;
+use NexusResourceDelivery\Contracts\ExperienceGranterInterface;
+use NexusResourceDelivery\Contracts\StaminaGranterInterface;
 use NexusResourceDelivery\Contracts\UnitRepositoryInterface;
 use NexusResourceDelivery\Handlers\CurrencyDeliveryHandler;
 use NexusResourceDelivery\Handlers\DiamondDeliveryHandler;
 use NexusResourceDelivery\Handlers\EquipmentDeliveryHandler;
+use NexusResourceDelivery\Handlers\ExperienceDeliveryHandler;
 use NexusResourceDelivery\Handlers\ItemDeliveryHandler;
+use NexusResourceDelivery\Handlers\NaturalResourceDeliveryHandler;
+use NexusResourceDelivery\Handlers\PointsDeliveryHandler;
+use NexusResourceDelivery\Handlers\StaminaDeliveryHandler;
 use NexusResourceDelivery\Handlers\UnitDeliveryHandler;
 use NexusResourceDelivery\Managers\ResourceDeliveryManager;
 use NexusResourceDelivery\Managers\ResourceDeliveryManagerInterface;
@@ -236,6 +244,8 @@ class AppServiceProvider extends ServiceProvider
         // ユニット/装備はパッケージ側にDTOを持たないため、Adapterが直接Modelを組み立てる
         $this->app->bind(UnitRepositoryInterface::class, UnitRepositoryAdapter::class);
         $this->app->bind(EquipmentRepositoryInterface::class, EquipmentRepositoryAdapter::class);
+        $this->app->bind(StaminaGranterInterface::class, StaminaGranterAdapter::class);
+        $this->app->bind(ExperienceGranterInterface::class, ExperienceGranterAdapter::class);
 
         // ResourceDeliveryManager のバインディング
         // リクエストスコープ: 各リクエストごとに新しいインスタンスを生成
@@ -289,6 +299,10 @@ class AppServiceProvider extends ServiceProvider
             $service->registerHandler($app->make(EquipmentDeliveryHandler::class));
             $service->registerHandler($app->make(DiamondDeliveryHandler::class));
             $service->registerHandler($app->make(CurrencyDeliveryHandler::class));
+            $service->registerHandler($app->make(NaturalResourceDeliveryHandler::class));
+            $service->registerHandler($app->make(PointsDeliveryHandler::class));
+            $service->registerHandler($app->make(StaminaDeliveryHandler::class));
+            $service->registerHandler($app->make(ExperienceDeliveryHandler::class));
         });
 
         // ==========================================

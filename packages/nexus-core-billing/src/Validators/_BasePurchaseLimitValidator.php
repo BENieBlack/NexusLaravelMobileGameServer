@@ -120,9 +120,12 @@ class _BasePurchaseLimitValidator
      */
     private function isDifferentWeek(string $lastResetAtString): bool
     {
-        $nowYear = ClockUtility::year(ClockUtility::nowToString());
+        // 週番号はISO 8601基準なので、年も週年で比較する。
+        // 暦年で比較すると 2025-12-29 と 2026-01-01（どちらも2026-W01）が
+        // 別の週と判定され、年末年始だけ上限が余分にリセットされる
+        $nowYear = ClockUtility::isoWeekYear(ClockUtility::nowToString());
         $nowWeek = ClockUtility::weekOfYear(ClockUtility::nowToString());
-        $lastYear = ClockUtility::year($lastResetAtString);
+        $lastYear = ClockUtility::isoWeekYear($lastResetAtString);
         $lastWeek = ClockUtility::weekOfYear($lastResetAtString);
 
         return $nowWeek !== $lastWeek || $nowYear !== $lastYear;

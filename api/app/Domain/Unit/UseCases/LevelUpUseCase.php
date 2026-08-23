@@ -14,6 +14,7 @@ use App\Http\Responses\Unit\LevelUpResponse;
 use App\Repositories\Mst\MstItemRepository;
 use App\Repositories\Trx\TrxUnitRepository;
 use App\Traits\RequiresAuthenticationTrait;
+use NexusResource\Enums\ItemEffectType;
 
 /**
  * LevelUpUseCase
@@ -74,12 +75,13 @@ class LevelUpUseCase extends _BaseUseCase
             throw MasterDataException::item($mstItemId);
         }
 
-        // アイテムタイプが経験値アイテムかチェック
-        if ($mstItem->getType() !== 'UnitEnhancement' || $mstItem->getEffect() !== 'UnitExp') {
+        // ユニット経験値アイテムかチェック
+        // 判定は effect（効果種別）で行う。type はアイテムの分類で、効果を決める値ではない
+        if (ItemEffectType::tryFromEffect($mstItem->getEffect()) !== ItemEffectType::UNIT_EXP) {
             throw BusinessLogicException::invalidItemType(
                 $mstItemId,
-                'UnitEnhancement/UnitExp',
-                "{$mstItem->getType()}/{$mstItem->getEffect()}"
+                ItemEffectType::UNIT_EXP->value,
+                $mstItem->getEffect()
             );
         }
 

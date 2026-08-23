@@ -2,32 +2,33 @@
 
 namespace NexusResourceDelivery\Handlers;
 
-use NexusWallet\Services\WalletService;
 use NexusResource\Enums\ResourceType;
 use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
+use NexusWallet\Services\WalletService;
 
 /**
- * BasicResourceDeliveryHandler
+ * NaturalResourceDeliveryHandler
  *
- * 基本リソース配送処理を担当するHandler
- * WalletServiceを使用して、Food, Wood, Stone, Iron, Stamina, Experience等を加算
+ * 自然資源の配送処理を担当するHandler
+ * WalletServiceを使用して、Food, Wood, Stone, Ironを加算
  *
  * 対応リソース:
  * - ResourceType::FOOD
  * - ResourceType::WOOD
  * - ResourceType::STONE
  * - ResourceType::IRON
- * - ResourceType::STAMINA
- * - ResourceType::EXPERIENCE
+ *
+ * スタミナと経験値は同じ「リソース系」だが管理方法が違うため、
+ * StaminaDeliveryHandler / ExperienceDeliveryHandler が担当する。
  */
-class BasicResourceDeliveryHandler implements ResourceDeliveryHandlerInterface
+class NaturalResourceDeliveryHandler implements ResourceDeliveryHandlerInterface
 {
     public function __construct(
         private readonly WalletService $walletService,
     ) {}
 
     /**
-     * 基本リソース配送処理を実行
+     * 自然資源の配送処理を実行
      *
      * @param  int  $sysPlayerId  プレイヤーID
      * @param  ResourceDeliveryContent  $resourceDeliveryContent  配送コンテンツ
@@ -36,12 +37,12 @@ class BasicResourceDeliveryHandler implements ResourceDeliveryHandlerInterface
      */
     public function handle(int $sysPlayerId, ResourceDeliveryContent $resourceDeliveryContent): void
     {
-        // 基本リソースは全て無償扱い
+        // 自然資源は全て無償扱い
         $freeAmount = $resourceDeliveryContent->getAmount();
         $paidAmount = 0;
 
         // WalletServiceのaddCurrencyメソッドを使用
-        // 基本リソースは有効期限なし
+        // 自然資源は有効期限なし
         $this->walletService->addCurrency(
             $sysPlayerId,
             $resourceDeliveryContent->getId(),
@@ -58,15 +59,8 @@ class BasicResourceDeliveryHandler implements ResourceDeliveryHandlerInterface
      */
     public function supports(ResourceType|string $type): bool
     {
-        $typeValue = $type instanceof ResourceType ? $type->value : $type;
+        $resourceType = $type instanceof ResourceType ? $type : ResourceType::tryFrom($type);
 
-        return in_array($typeValue, [
-            ResourceType::FOOD->value,
-            ResourceType::WOOD->value,
-            ResourceType::STONE->value,
-            ResourceType::IRON->value,
-            ResourceType::STAMINA->value,
-            ResourceType::EXPERIENCE->value,
-        ]);
+        return $resourceType?->isNaturalResource() ?? false;
     }
 }

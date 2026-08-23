@@ -112,7 +112,9 @@ class ClockUtility
     public static function diffInSeconds(string $dateTimeString): int
     {
         $targetTime = CarbonImmutable::parse($dateTimeString);
-        return (int) self::now()->diffInSeconds($targetTime, false);
+        // Carbonの $a->diffIn*($b, false) は $b - $a を返すため、
+        // 「現在時刻 - 指定日時」にするには指定日時を起点に呼ぶ
+        return (int) $targetTime->diffInSeconds(self::now(), false);
     }
 
     /**
@@ -124,7 +126,9 @@ class ClockUtility
     public static function diffInMinutes(string $dateTimeString): int
     {
         $targetTime = CarbonImmutable::parse($dateTimeString);
-        return (int) self::now()->diffInMinutes($targetTime, false);
+        // Carbonの $a->diffIn*($b, false) は $b - $a を返すため、
+        // 「現在時刻 - 指定日時」にするには指定日時を起点に呼ぶ
+        return (int) $targetTime->diffInMinutes(self::now(), false);
     }
 
     /**
@@ -136,7 +140,9 @@ class ClockUtility
     public static function diffInHours(string $dateTimeString): int
     {
         $targetTime = CarbonImmutable::parse($dateTimeString);
-        return (int) self::now()->diffInHours($targetTime, false);
+        // Carbonの $a->diffIn*($b, false) は $b - $a を返すため、
+        // 「現在時刻 - 指定日時」にするには指定日時を起点に呼ぶ
+        return (int) $targetTime->diffInHours(self::now(), false);
     }
 
     /**
@@ -148,7 +154,9 @@ class ClockUtility
     public static function diffInDays(string $dateTimeString): int
     {
         $targetTime = CarbonImmutable::parse($dateTimeString);
-        return (int) self::now()->diffInDays($targetTime, false);
+        // Carbonの $a->diffIn*($b, false) は $b - $a を返すため、
+        // 「現在時刻 - 指定日時」にするには指定日時を起点に呼ぶ
+        return (int) $targetTime->diffInDays(self::now(), false);
     }
 
     /**

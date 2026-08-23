@@ -14,9 +14,9 @@ use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
-use NexusAuth\Contracts\DeviceRepositoryInterface;
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Services\TokenService;
+use NexusPlayer\Repositories\PlayerDeviceRepositoryInterface;
 use NexusUnitOfWork\Persistence\QueryManager;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
@@ -35,7 +35,7 @@ class RefreshTokenUseCaseTest extends TestCase
 
     private SysPlayerRepository $playerRepository;
 
-    private DeviceRepositoryInterface $deviceRepository;
+    private PlayerDeviceRepositoryInterface $deviceRepository;
 
     /**
      * Define database connections to migrate for this test
@@ -53,7 +53,7 @@ class RefreshTokenUseCaseTest extends TestCase
 
         // Repositoriesを取得
         $this->playerRepository = app(SysPlayerRepository::class);
-        $this->deviceRepository = app(DeviceRepositoryInterface::class);
+        $this->deviceRepository = app(PlayerDeviceRepositoryInterface::class);
         $tokenRepository = app(SysPlayerTokenRepository::class);
 
         $this->playerService = new PlayerService(

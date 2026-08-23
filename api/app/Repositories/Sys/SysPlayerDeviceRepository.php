@@ -4,19 +4,19 @@ namespace App\Repositories\Sys;
 
 use App\Models\Sys\SysPlayerDevice;
 use Nexus\Core\Support\CustomCollection;
-use NexusAuth\Contracts\DeviceRepositoryInterface;
+use NexusPlayer\Repositories\PlayerDeviceRepositoryInterface;
 
 /**
  * SysPlayerDeviceRepository
  *
  * プレイヤーデバイス情報のRepository実装
  *
- * 常にEloquent Modelを返す。DTOが必要な箇所は
- * PlayerDeviceRepositoryAdapterを経由すること。
+ * デバイスはトークン発行やレスポンス組み立てまでModelのまま持ち回るため、
+ * DTOには詰め替えずPlayerDeviceRepositoryInterfaceをそのまま実装する。
  *
  * @extends _BaseSysRepository<SysPlayerDevice>
  */
-class SysPlayerDeviceRepository extends _BaseSysRepository implements DeviceRepositoryInterface
+class SysPlayerDeviceRepository extends _BaseSysRepository implements PlayerDeviceRepositoryInterface
 {
     protected string $modelClass = SysPlayerDevice::class;
 

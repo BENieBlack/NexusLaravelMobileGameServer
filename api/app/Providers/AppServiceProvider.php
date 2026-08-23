@@ -30,7 +30,6 @@ use App\Repositories\Sys\PlayerDeviceRepositoryAdapter;
 use App\Repositories\Sys\PlayerRepositoryAdapter;
 use App\Repositories\Sys\SysMaintenanceRepository;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
-use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;
 use App\Repositories\Trx\DiamondRepositoryAdapter;
 use App\Repositories\Trx\EquipmentRepositoryAdapter;
@@ -47,7 +46,6 @@ use App\Repositories\Trx\WalletRepositoryAdapter;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use NexusAuth\Contracts\DeviceRepositoryInterface;
-use NexusAuth\Contracts\PlayerRepositoryInterface;
 use NexusAuth\Contracts\TokenRepositoryInterface;
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Services\TokenService;
@@ -107,7 +105,6 @@ class AppServiceProvider extends ServiceProvider
         // ==========================================
 
         // Repository interfaces
-        $this->app->bind(PlayerRepositoryInterface::class, SysPlayerRepository::class);
         $this->app->bind(DeviceRepositoryInterface::class, SysPlayerDeviceRepository::class);
         $this->app->bind(TokenRepositoryInterface::class, SysPlayerTokenRepository::class);
 

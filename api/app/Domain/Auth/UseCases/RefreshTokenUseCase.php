@@ -9,8 +9,8 @@ use App\Exceptions\GameException;
 use App\Http\Responses\Auth\RefreshTokenResponse;
 use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;
+use App\Repositories\Sys\SysPlayerRepository;
 use NexusAuth\Contracts\DeviceRepositoryInterface;
-use NexusAuth\Contracts\PlayerRepositoryInterface;
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Services\TokenService;
 
@@ -27,7 +27,7 @@ class RefreshTokenUseCase extends _BaseUseCase
     public function __construct(
         private readonly TokenService $tokenService,
         private readonly PlayerAuthService $playerAuthService,
-        private readonly PlayerRepositoryInterface $playerRepository,
+        private readonly SysPlayerRepository $playerRepository,
         private readonly DeviceRepositoryInterface $deviceRepository,
     ) {}
 

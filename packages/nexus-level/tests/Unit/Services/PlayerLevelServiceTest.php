@@ -5,6 +5,7 @@ namespace NexusLevel\Tests\Unit\Services;
 use NexusLevel\Contracts\PlayerLevelUpHandlerInterface;
 use NexusLevel\Repositories\PlayerLevelRepositoryInterface;
 use NexusLevel\Services\PlayerLevelService;
+use NexusPlayer\Contracts\PlayerModelInterface;
 use NexusPlayer\DataTransferObjects\Player;
 use NexusPlayer\Repositories\PlayerRepositoryInterface;
 use PHPUnit\Framework\Attributes\Test;
@@ -211,6 +212,12 @@ class FakePlayerRepository implements PlayerRepositoryInterface
     public array $persisted = [];
 
     public function __construct(private Player $player) {}
+
+    public function insertPlayerAndCommit(): PlayerModelInterface
+    {
+        // レベル進行では作成を使わない
+        throw new \LogicException('not used');
+    }
 
     public function selectById(int $id): ?Player
     {

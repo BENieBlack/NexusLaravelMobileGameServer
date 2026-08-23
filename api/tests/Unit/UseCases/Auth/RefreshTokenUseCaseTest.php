@@ -15,7 +15,6 @@ use App\Repositories\Sys\SysPlayerTokenRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use NexusAuth\Contracts\DeviceRepositoryInterface;
-use NexusAuth\Contracts\PlayerRepositoryInterface;
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Services\TokenService;
 use NexusUnitOfWork\Persistence\QueryManager;
@@ -34,7 +33,7 @@ class RefreshTokenUseCaseTest extends TestCase
 
     private PlayerAuthService $playerAuthService;
 
-    private PlayerRepositoryInterface $playerRepository;
+    private SysPlayerRepository $playerRepository;
 
     private DeviceRepositoryInterface $deviceRepository;
 
@@ -53,7 +52,7 @@ class RefreshTokenUseCaseTest extends TestCase
         parent::setUp();
 
         // Repositoriesを取得
-        $this->playerRepository = app(PlayerRepositoryInterface::class);
+        $this->playerRepository = app(SysPlayerRepository::class);
         $this->deviceRepository = app(DeviceRepositoryInterface::class);
         $tokenRepository = app(SysPlayerTokenRepository::class);
 

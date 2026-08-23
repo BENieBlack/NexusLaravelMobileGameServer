@@ -15,7 +15,6 @@ use App\Repositories\Mst\MstGachaRarityRateRepository;
 use App\Repositories\Mst\MstGachaRepository;
 use App\Repositories\Mst\MstGachaStepRepository;
 use App\Repositories\Mst\MstItemRepository;
-use App\Repositories\Mst\MstMailboxRepository;
 use App\Repositories\Mst\MstUnitRepository;
 use Database\Seeders\SysShardingSeeder;
 use Illuminate\Support\Facades\DB;
@@ -826,7 +825,6 @@ class WalkthroughTest extends TestCase
             MstItemRepository::class,
             MstUnitRepository::class,
             MstEquipmentRepository::class,
-            MstMailboxRepository::class,
         ];
 
         foreach ($repositoryClasses as $repositoryClass) {

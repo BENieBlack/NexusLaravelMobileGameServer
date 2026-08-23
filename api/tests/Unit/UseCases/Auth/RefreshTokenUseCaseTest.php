@@ -3,11 +3,8 @@
 namespace Tests\Unit\UseCases\Auth;
 
 use App\Domain\Auth\UseCases\RefreshTokenUseCase;
-use App\Domain\Player\Services\PlayerService;
 use App\Exceptions\GameException;
 use App\Http\Responses\Auth\RefreshTokenResponse;
-use App\Models\Sys\SysPlayer;
-use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
 use App\Repositories\Sys\SysPlayerRepository;
@@ -16,7 +13,6 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Services\TokenService;
-use NexusPlayer\Repositories\PlayerDeviceRepositoryInterface;
 use NexusUnitOfWork\Persistence\QueryManager;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
@@ -27,15 +23,13 @@ class RefreshTokenUseCaseTest extends TestCase
 
     private RefreshTokenUseCase $useCase;
 
-    private PlayerService $playerService;
-
     private TokenService $tokenService;
 
     private PlayerAuthService $playerAuthService;
 
     private SysPlayerRepository $playerRepository;
 
-    private PlayerDeviceRepositoryInterface $deviceRepository;
+    private SysPlayerDeviceRepository $deviceRepository;
 
     /**
      * Define database connections to migrate for this test
@@ -53,14 +47,8 @@ class RefreshTokenUseCaseTest extends TestCase
 
         // Repositoriesを取得
         $this->playerRepository = app(SysPlayerRepository::class);
-        $this->deviceRepository = app(PlayerDeviceRepositoryInterface::class);
+        $this->deviceRepository = app(SysPlayerDeviceRepository::class);
         $tokenRepository = app(SysPlayerTokenRepository::class);
-
-        $this->playerService = new PlayerService(
-            new SysPlayerRepository(new SysPlayer),
-            new SysPlayerDeviceRepository(new SysPlayerDevice),
-            $tokenRepository
-        );
 
         $this->playerAuthService = app(PlayerAuthService::class);
         $this->tokenService = app(TokenService::class);
@@ -82,9 +70,12 @@ class RefreshTokenUseCaseTest extends TestCase
      */
     private function createPlayerDeviceAndToken(): array
     {
-        $result = $this->playerService->createPlayer('test-device-'.uniqid(), ['model' => 'Test']);
-        $sysPlayer = $result['sys_player'];
-        $sysPlayerDevice = $result['sys_player_device'];
+        $sysPlayer = $this->playerRepository->insertPlayerAndCommit();
+        $sysPlayerDevice = $this->deviceRepository->insertDevice(
+            $sysPlayer->getId(),
+            'test-device-'.uniqid(),
+            ['model' => 'Test']
+        );
 
         [$token, $sysPlayerToken] = $this->tokenService->generateToken(
             $sysPlayer,
@@ -288,7 +279,7 @@ class RefreshTokenUseCaseTest extends TestCase
         $this->useCase->exec($token->getRefreshToken());
 
         // Assert - last_login_atが更新されている
-        $updatedDevice = $this->playerService->selectByDeviceId($sysPlayerDevice->getUuid());
+        $updatedDevice = $this->deviceRepository->selectByDeviceId($sysPlayerDevice->getUuid());
         $this->assertNotNull($updatedDevice);
         $updatedLastLoginAtString = $updatedDevice->getLastLoginAt();
         $this->assertNotNull($updatedLastLoginAtString);

@@ -8,10 +8,10 @@ use App\Exceptions\BusinessLogicException;
 use App\Http\Responses\Auth\SignUpResponse;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
 use App\Repositories\Sys\SysPlayerRepository;
-use NexusAuth\Contracts\DeviceRepositoryInterface;
 use NexusAuth\Contracts\TokenRepositoryInterface;
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Services\TokenService;
+use NexusPlayer\Repositories\PlayerDeviceRepositoryInterface;
 use Throwable;
 
 /**
@@ -28,7 +28,7 @@ class SignUpUseCase extends _BaseUseCase
     public function __construct(
         private readonly PlayerAuthService $playerAuthService,
         private readonly TokenService $tokenService,
-        private readonly DeviceRepositoryInterface $deviceRepository,
+        private readonly PlayerDeviceRepositoryInterface $deviceRepository,
         private readonly TokenRepositoryInterface $tokenRepository,
         private readonly SysPlayerDeviceRepository $sysPlayerDeviceRepository,
         private readonly SysPlayerRepository $sysPlayerRepository,

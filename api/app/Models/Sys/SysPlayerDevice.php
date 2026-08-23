@@ -5,7 +5,7 @@ namespace App\Models\Sys;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Nexus\Core\Utilities\ClockUtility;
-use NexusAuth\Contracts\DeviceModelInterface;
+use NexusPlayer\Contracts\DeviceModelInterface;
 use NexusPlayer\Contracts\PlayerModelInterface;
 
 /**

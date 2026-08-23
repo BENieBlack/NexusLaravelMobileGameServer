@@ -1,8 +1,6 @@
 <?php
 
-namespace NexusAuth\Contracts;
-
-use NexusPlayer\Contracts\PlayerModelInterface;
+namespace NexusPlayer\Contracts;
 
 /**
  * DeviceModelInterface

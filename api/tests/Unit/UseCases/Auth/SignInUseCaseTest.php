@@ -11,10 +11,10 @@ use App\Models\Sys\SysPlayerToken;
 use App\Repositories\Sys\SysPlayerRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
-use NexusAuth\Contracts\DeviceRepositoryInterface;
 use NexusAuth\Contracts\TokenRepositoryInterface;
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Services\TokenService;
+use NexusPlayer\Repositories\PlayerDeviceRepositoryInterface;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
 
@@ -30,7 +30,7 @@ class SignInUseCaseTest extends TestCase
 
     private SysPlayerRepository $playerRepository;
 
-    private DeviceRepositoryInterface $deviceRepository;
+    private PlayerDeviceRepositoryInterface $deviceRepository;
 
     private TokenRepositoryInterface $tokenRepository;
 
@@ -50,7 +50,7 @@ class SignInUseCaseTest extends TestCase
 
         // Repositoriesを取得
         $this->playerRepository = app(SysPlayerRepository::class);
-        $this->deviceRepository = app(DeviceRepositoryInterface::class);
+        $this->deviceRepository = app(PlayerDeviceRepositoryInterface::class);
         $this->tokenRepository = app(TokenRepositoryInterface::class);
 
         // Servicesを作成

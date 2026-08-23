@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e455edda9624c7e2ee9195abe534cb23",
+    "content-hash": "507f4346dda3c0c638d6be62569ab928",
     "packages": [
         {
             "name": "brick/math",
@@ -2665,12 +2665,13 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-core-auth",
-                "reference": "d3356defb2667729ba29ade45750a73bebd68728"
+                "reference": "4526feef688c18506efe77a57ede7ed1e0769c18"
             },
             "require": {
                 "firebase/php-jwt": "^6.10",
                 "illuminate/support": "^10.0|^11.0|^12.0",
                 "nexus/core": "@dev",
+                "nexus/core-player": "@dev",
                 "nexus/core-security": "@dev",
                 "nexus/core-unit-of-work": "@dev",
                 "php": "^8.4"
@@ -2703,9 +2704,10 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-core-billing",
-                "reference": "ba862e32353bd2ab87112f9cb1b7a6a5f7781f47"
+                "reference": "434267108acb0a0d1a059c04042cacbc685674d1"
             },
             "require": {
+                "firebase/php-jwt": "^6.10",
                 "guzzlehttp/guzzle": "^7.0",
                 "illuminate/cache": "^10.0|^11.0|^12.0",
                 "illuminate/http": "^10.0|^11.0|^12.0",
@@ -2746,6 +2748,48 @@
                 }
             ],
             "description": "Mobile billing verification and processing for Laravel with support for AppStore and Google Play",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "nexus/core-player",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/nexus-core-player",
+                "reference": "e889d59d6c30c7db8a1d5552beca02a45c62ad75"
+            },
+            "require": {
+                "nexus/core": "@dev",
+                "php": "^8.4"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.6",
+                "phpunit/phpunit": "^10.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "NexusPlayer\\PlayerServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "NexusPlayer\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "NexusPlayer\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Player entity package for Nexus mobile game (identity, devices, shard routing)",
             "transport-options": {
                 "relative": true
             }
@@ -2932,10 +2976,10 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-guild",
-                "reference": "e8ec366a7a3cb5bd8a28ee7034c35055880a06c3"
+                "reference": "99de4aff261cfd5b13f889a84d8213bace994bf1"
             },
             "require": {
-                "nexus/player": "@dev",
+                "nexus/core-player": "@dev",
                 "php": "^8.4"
             },
             "require-dev": {
@@ -2967,15 +3011,23 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-level",
-                "reference": "bd3e42a2a74ed7ad2b72d877d677b03107d8c70f"
+                "reference": "232432a38e13ef62b8c0640b4bd4ccc8e6d07078"
             },
             "require": {
+                "nexus/core-player": "@dev",
                 "php": "^8.4"
             },
             "require-dev": {
                 "phpunit/phpunit": "^10.0"
             },
             "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "NexusLevel\\LevelServiceProvider"
+                    ]
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "NexusLevel\\": "src/"
@@ -2989,7 +3041,7 @@
             "license": [
                 "MIT"
             ],
-            "description": "Level management package for Nexus mobile game",
+            "description": "Level and experience progression for Nexus mobile game",
             "transport-options": {
                 "relative": true
             }
@@ -3200,48 +3252,6 @@
                 }
             ],
             "description": "Point-In-Time Recovery system for TrxDB using LogDB change history",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
-            "name": "nexus/player",
-            "version": "dev-main",
-            "dist": {
-                "type": "path",
-                "url": "../packages/nexus-player",
-                "reference": "863fffd2fa4502b67bdaf62825ce14fbb17d5f2b"
-            },
-            "require": {
-                "nexus/core": "@dev",
-                "php": "^8.4"
-            },
-            "require-dev": {
-                "mockery/mockery": "^1.6",
-                "phpunit/phpunit": "^10.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "NexusPlayer\\PlayerServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "NexusPlayer\\": "src/"
-                }
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "NexusPlayer\\Tests\\": "tests/"
-                }
-            },
-            "license": [
-                "MIT"
-            ],
-            "description": "Player management package for Nexus mobile game",
             "transport-options": {
                 "relative": true
             }
@@ -10656,6 +10666,7 @@
         "nexus/core": 20,
         "nexus/core-auth": 20,
         "nexus/core-billing": 20,
+        "nexus/core-player": 20,
         "nexus/core-security": 20,
         "nexus/core-unit-of-work": 20,
         "nexus/friend": 20,
@@ -10666,7 +10677,6 @@
         "nexus/mailbox": 20,
         "nexus/maintenance": 20,
         "nexus/pitr": 20,
-        "nexus/player": 20,
         "nexus/resource": 20,
         "nexus/resource-delivery": 20,
         "nexus/stamina": 20,

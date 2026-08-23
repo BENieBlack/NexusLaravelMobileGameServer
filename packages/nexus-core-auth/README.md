@@ -32,12 +32,15 @@ composer require nexus/auth
 
 アプリケーション側でEloquentモデルとRepositoryに実装:
 
-- `PlayerModelInterface` - プレイヤーモデル
-- `DeviceModelInterface` - デバイスモデル
 - `TokenModelInterface` - トークンモデル
-- `PlayerRepositoryInterface` - プレイヤーリポジトリ
-- `DeviceRepositoryInterface` - デバイスリポジトリ
 - `TokenRepositoryInterface` - トークンリポジトリ
+
+プレイヤーとデバイスの契約は nexus-core-player が持つ（このパッケージはそれに依存する）:
+
+- `NexusPlayer\Contracts\PlayerModelInterface` - プレイヤーモデル
+- `NexusPlayer\Contracts\DeviceModelInterface` - デバイスモデル
+- `NexusPlayer\Repositories\PlayerRepositoryInterface` - プレイヤーリポジトリ
+- `NexusPlayer\Repositories\PlayerDeviceRepositoryInterface` - デバイスリポジトリ
 
 ### Services
 
@@ -54,7 +57,7 @@ composer require nexus/auth
 ### 1. モデルにインターフェースを実装
 
 ```php
-use NexusAuth\Contracts\PlayerModelInterface;
+use NexusPlayer\Contracts\PlayerModelInterface;
 
 class SysPlayer extends Model implements PlayerModelInterface
 {
@@ -67,12 +70,15 @@ class SysPlayer extends Model implements PlayerModelInterface
 ### 2. Repositoryにインターフェースを実装
 
 ```php
-use NexusAuth\Contracts\PlayerRepositoryInterface;
+use NexusPlayer\Repositories\PlayerRepositoryInterface;
 
-class SysPlayerRepository implements PlayerRepositoryInterface
+class PlayerRepositoryAdapter implements PlayerRepositoryInterface
 {
-    public function createPlayerAndCommit(): PlayerModelInterface { /* ... */ }
-    public function selectById(int $id): ?PlayerModelInterface { /* ... */ }
+    // 生成だけはDBの採番が要るためモデルを返す
+    public function insertPlayerAndCommit(): PlayerModelInterface { /* ... */ }
+
+    // 参照・更新はDTOでやりとりする
+    public function selectById(int $id): ?Player { /* ... */ }
 }
 ```
 
@@ -80,11 +86,11 @@ class SysPlayerRepository implements PlayerRepositoryInterface
 
 ```php
 // AppServiceProvider
-use NexusAuth\Contracts\PlayerRepositoryInterface;
-use App\Repositories\Sys\SysPlayerRepository;
+use NexusPlayer\Repositories\PlayerRepositoryInterface;
+use App\Repositories\Sys\PlayerRepositoryAdapter;
 
-$this->app->bind(PlayerRepositoryInterface::class, SysPlayerRepository::class);
-$this->app->bind(DeviceRepositoryInterface::class, SysPlayerDeviceRepository::class);
+$this->app->bind(PlayerRepositoryInterface::class, PlayerRepositoryAdapter::class);
+$this->app->bind(PlayerDeviceRepositoryInterface::class, SysPlayerDeviceRepository::class);
 $this->app->bind(TokenRepositoryInterface::class, SysPlayerTokenRepository::class);
 
 // TokenService登録

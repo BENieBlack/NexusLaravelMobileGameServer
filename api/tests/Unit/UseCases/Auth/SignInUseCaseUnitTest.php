@@ -8,9 +8,9 @@ use App\Http\Responses\Auth\SignInResponse;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;
+use App\Repositories\Sys\SysPlayerDeviceRepository;
+use App\Repositories\Sys\SysPlayerRepository;
 use Mockery;
-use NexusAuth\Contracts\DeviceRepositoryInterface;
-use NexusAuth\Contracts\PlayerRepositoryInterface;
 use NexusAuth\Contracts\TokenRepositoryInterface;
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Services\TokenService;
@@ -25,9 +25,9 @@ class SignInUseCaseUnitTest extends TestCase
 
     private TokenService $tokenService;
 
-    private PlayerRepositoryInterface $playerRepository;
+    private SysPlayerRepository $playerRepository;
 
-    private DeviceRepositoryInterface $deviceRepository;
+    private SysPlayerDeviceRepository $deviceRepository;
 
     private TokenRepositoryInterface $tokenRepository;
 
@@ -36,8 +36,8 @@ class SignInUseCaseUnitTest extends TestCase
         parent::setUp();
 
         // Mock repositories
-        $this->playerRepository = Mockery::mock(PlayerRepositoryInterface::class);
-        $this->deviceRepository = Mockery::mock(DeviceRepositoryInterface::class);
+        $this->playerRepository = Mockery::mock(SysPlayerRepository::class);
+        $this->deviceRepository = Mockery::mock(SysPlayerDeviceRepository::class);
         $this->tokenRepository = Mockery::mock(TokenRepositoryInterface::class);
 
         // Mock services

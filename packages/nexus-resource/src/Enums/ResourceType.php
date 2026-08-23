@@ -15,13 +15,15 @@ enum ResourceType: string
     case GOLD = 'gold';                     // ゴールド
     case COIN = 'coin';                     // コイン
     
-    // リソース系
+    // 自然資源系（Walletで残高管理する採取リソース）
     case FOOD = 'food';                     // 食料
     case WOOD = 'wood';                     // 木材
     case STONE = 'stone';                   // 石材
     case IRON = 'iron';                     // 鉄
-    case STAMINA = 'stamina';               // スタミナ
-    case EXPERIENCE = 'experience';         // 経験値
+
+    // 独自の管理が要るリソース
+    case STAMINA = 'stamina';               // スタミナ（回復時刻の管理があるためWalletでは扱わない）
+    case EXPERIENCE = 'experience';         // 経験値（先入先出の必要がないためWalletでは扱わない）
     
     // アイテム系
     case ITEM = 'item';                     // 汎用アイテム
@@ -131,17 +133,19 @@ enum ResourceType: string
     }
 
     /**
-     * リソースタイプかどうか
+     * 自然資源タイプかどうか
+     *
+     * Walletで残高として管理する採取リソース。
+     * スタミナ（回復時刻の管理がある）と経験値（先入先出が不要）は
+     * 別管理なのでここには含めない。
      */
-    public function isResource(): bool
+    public function isNaturalResource(): bool
     {
         return in_array($this, [
             self::FOOD,
             self::WOOD,
             self::STONE,
             self::IRON,
-            self::STAMINA,
-            self::EXPERIENCE,
         ]);
     }
 

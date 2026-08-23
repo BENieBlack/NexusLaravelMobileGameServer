@@ -7,6 +7,7 @@ use App\Domain\Login\Services\ComeBackLoginBonusService;
 use App\Domain\Login\Services\LoginBonusService;
 use App\Domain\Login\Services\VipLoginBonusService;
 use App\Domain\Player\Services\PlayerLevelServiceAdapter;
+use App\Domain\Player\Services\PlayerLevelUpStaminaHandler;
 use App\Persistence\ApiSession;
 use App\Repositories\Log\LogVipPointRepository;
 use App\Repositories\Mst\LoginBonusRepositoryAdapter;
@@ -64,6 +65,7 @@ use NexusLogin\Repositories\LoginBonusHistoryRepositoryInterface;
 use NexusLogin\Repositories\LoginBonusRepositoryInterface;
 use NexusLogin\Services\LoginBonusOrchestrator;
 use NexusMailbox\Repositories\MailboxRepositoryInterface;
+use NexusPlayer\Contracts\PlayerLevelUpHandlerInterface;
 use NexusPlayer\Repositories\PlayerDeviceRepositoryInterface;
 use NexusPlayer\Repositories\PlayerLevelRepositoryInterface;
 use NexusPlayer\Repositories\PlayerRepositoryInterface as PlayerRepoInterface;
@@ -180,6 +182,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(PlayerRepoInterface::class, PlayerRepositoryAdapter::class);
         $this->app->bind(PlayerDeviceRepositoryInterface::class, PlayerDeviceRepositoryAdapter::class);
         $this->app->bind(PlayerLevelRepositoryInterface::class, PlayerLevelRepositoryAdapter::class);
+
+        // レベルアップ時のゲーム固有処理（スタミナ全回復）
+        $this->app->bind(PlayerLevelUpHandlerInterface::class, PlayerLevelUpStaminaHandler::class);
 
         // ==========================================
         // NexusVip Package Bindings

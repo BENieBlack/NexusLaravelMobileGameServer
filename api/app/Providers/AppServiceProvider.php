@@ -6,8 +6,10 @@ use App\Domain\Auth\Services\TokenValidator;
 use App\Domain\Login\Services\ComeBackLoginBonusService;
 use App\Domain\Login\Services\LoginBonusService;
 use App\Domain\Login\Services\VipLoginBonusService;
+use App\Domain\Player\Services\ExperienceGranterAdapter;
 use App\Domain\Player\Services\PlayerLevelServiceAdapter;
 use App\Domain\Player\Services\PlayerLevelUpStaminaHandler;
+use App\Domain\Stamina\Services\StaminaGranterAdapter;
 use App\Persistence\ApiSession;
 use App\Repositories\Log\LogVipPointRepository;
 use App\Repositories\Mst\LoginBonusRepositoryAdapter;
@@ -26,11 +28,9 @@ use App\Repositories\Sys\FriendApplyRepositoryAdapter;
 use App\Repositories\Sys\GuildApplyRepositoryAdapter;
 use App\Repositories\Sys\GuildMemberRepositoryAdapter;
 use App\Repositories\Sys\GuildRepositoryAdapter;
-use App\Repositories\Sys\PlayerDeviceRepositoryAdapter;
 use App\Repositories\Sys\PlayerRepositoryAdapter;
 use App\Repositories\Sys\SysMaintenanceRepository;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
-use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;
 use App\Repositories\Trx\DiamondRepositoryAdapter;
 use App\Repositories\Trx\EquipmentRepositoryAdapter;
@@ -46,8 +46,6 @@ use App\Repositories\Trx\WalletBalanceRepositoryAdapter;
 use App\Repositories\Trx\WalletRepositoryAdapter;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
-use NexusAuth\Contracts\DeviceRepositoryInterface;
-use NexusAuth\Contracts\PlayerRepositoryInterface;
 use NexusAuth\Contracts\TokenRepositoryInterface;
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Services\TokenService;
@@ -61,22 +59,28 @@ use NexusGacha\Repositories\GachaStepRepositoryInterface;
 use NexusGuild\Repositories\GuildApplyRepositoryInterface;
 use NexusGuild\Repositories\GuildMemberRepositoryInterface;
 use NexusGuild\Repositories\GuildRepositoryInterface;
+use NexusLevel\Contracts\PlayerLevelUpHandlerInterface;
+use NexusLevel\Repositories\PlayerLevelRepositoryInterface;
 use NexusLogin\Repositories\LoginBonusHistoryRepositoryInterface;
 use NexusLogin\Repositories\LoginBonusRepositoryInterface;
 use NexusLogin\Services\LoginBonusOrchestrator;
 use NexusMailbox\Repositories\MailboxRepositoryInterface;
-use NexusPlayer\Contracts\PlayerLevelUpHandlerInterface;
 use NexusPlayer\Repositories\PlayerDeviceRepositoryInterface;
-use NexusPlayer\Repositories\PlayerLevelRepositoryInterface;
 use NexusPlayer\Repositories\PlayerRepositoryInterface as PlayerRepoInterface;
 use NexusResource\Contracts\DiamondRepositoryInterface;
 use NexusResource\Contracts\ItemRepositoryInterface;
 use NexusResourceDelivery\Contracts\EquipmentRepositoryInterface;
+use NexusResourceDelivery\Contracts\ExperienceGranterInterface;
+use NexusResourceDelivery\Contracts\StaminaGranterInterface;
 use NexusResourceDelivery\Contracts\UnitRepositoryInterface;
 use NexusResourceDelivery\Handlers\CurrencyDeliveryHandler;
 use NexusResourceDelivery\Handlers\DiamondDeliveryHandler;
 use NexusResourceDelivery\Handlers\EquipmentDeliveryHandler;
+use NexusResourceDelivery\Handlers\ExperienceDeliveryHandler;
 use NexusResourceDelivery\Handlers\ItemDeliveryHandler;
+use NexusResourceDelivery\Handlers\NaturalResourceDeliveryHandler;
+use NexusResourceDelivery\Handlers\PointsDeliveryHandler;
+use NexusResourceDelivery\Handlers\StaminaDeliveryHandler;
 use NexusResourceDelivery\Handlers\UnitDeliveryHandler;
 use NexusResourceDelivery\Managers\ResourceDeliveryManager;
 use NexusResourceDelivery\Managers\ResourceDeliveryManagerInterface;
@@ -107,8 +111,7 @@ class AppServiceProvider extends ServiceProvider
         // ==========================================
 
         // Repository interfaces
-        $this->app->bind(PlayerRepositoryInterface::class, SysPlayerRepository::class);
-        $this->app->bind(DeviceRepositoryInterface::class, SysPlayerDeviceRepository::class);
+        $this->app->bind(PlayerDeviceRepositoryInterface::class, SysPlayerDeviceRepository::class);
         $this->app->bind(TokenRepositoryInterface::class, SysPlayerTokenRepository::class);
 
         // TokenService (singleton)
@@ -180,7 +183,6 @@ class AppServiceProvider extends ServiceProvider
 
         // Repository interfaces
         $this->app->bind(PlayerRepoInterface::class, PlayerRepositoryAdapter::class);
-        $this->app->bind(PlayerDeviceRepositoryInterface::class, PlayerDeviceRepositoryAdapter::class);
         $this->app->bind(PlayerLevelRepositoryInterface::class, PlayerLevelRepositoryAdapter::class);
 
         // レベルアップ時のゲーム固有処理（スタミナ全回復）
@@ -242,6 +244,8 @@ class AppServiceProvider extends ServiceProvider
         // ユニット/装備はパッケージ側にDTOを持たないため、Adapterが直接Modelを組み立てる
         $this->app->bind(UnitRepositoryInterface::class, UnitRepositoryAdapter::class);
         $this->app->bind(EquipmentRepositoryInterface::class, EquipmentRepositoryAdapter::class);
+        $this->app->bind(StaminaGranterInterface::class, StaminaGranterAdapter::class);
+        $this->app->bind(ExperienceGranterInterface::class, ExperienceGranterAdapter::class);
 
         // ResourceDeliveryManager のバインディング
         // リクエストスコープ: 各リクエストごとに新しいインスタンスを生成
@@ -295,6 +299,10 @@ class AppServiceProvider extends ServiceProvider
             $service->registerHandler($app->make(EquipmentDeliveryHandler::class));
             $service->registerHandler($app->make(DiamondDeliveryHandler::class));
             $service->registerHandler($app->make(CurrencyDeliveryHandler::class));
+            $service->registerHandler($app->make(NaturalResourceDeliveryHandler::class));
+            $service->registerHandler($app->make(PointsDeliveryHandler::class));
+            $service->registerHandler($app->make(StaminaDeliveryHandler::class));
+            $service->registerHandler($app->make(ExperienceDeliveryHandler::class));
         });
 
         // ==========================================

@@ -2,10 +2,11 @@
 
 namespace NexusAuth\Services;
 
-use NexusAuth\Contracts\DeviceModelInterface;
-use NexusAuth\Contracts\DeviceRepositoryInterface;
-use NexusAuth\Contracts\PlayerModelInterface;
-use NexusAuth\Contracts\PlayerRepositoryInterface;
+use NexusPlayer\Contracts\DeviceModelInterface;
+use NexusPlayer\Repositories\PlayerDeviceRepositoryInterface;
+use NexusPlayer\Contracts\PlayerModelInterface;
+use NexusPlayer\DataTransferObjects\Player;
+use NexusPlayer\Repositories\PlayerRepositoryInterface;
 
 /**
  * PlayerAuthService
@@ -19,11 +20,11 @@ class PlayerAuthService
      * コンストラクタ
      *
      * @param PlayerRepositoryInterface $playerRepository
-     * @param DeviceRepositoryInterface $deviceRepository
+     * @param PlayerDeviceRepositoryInterface $deviceRepository
      */
     public function __construct(
         private readonly PlayerRepositoryInterface $playerRepository,
-        private readonly DeviceRepositoryInterface $deviceRepository,
+        private readonly PlayerDeviceRepositoryInterface $deviceRepository,
     ) {
     }
 
@@ -65,9 +66,9 @@ class PlayerAuthService
      * IDでプレイヤーを検索
      *
      * @param int $id プレイヤーID
-     * @return PlayerModelInterface|null
+     * @return Player|null
      */
-    public function selectById(int $id): ?PlayerModelInterface
+    public function selectById(int $id): ?Player
     {
         return $this->playerRepository->selectById($id);
     }

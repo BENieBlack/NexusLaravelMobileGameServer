@@ -5,6 +5,7 @@ namespace App\Repositories\Sys;
 use App\Adapters\Player\PlayerAdapter;
 use App\Adapters\Player\PlayerVipAdapter;
 use App\Models\Sys\SysPlayer;
+use NexusPlayer\Contracts\PlayerModelInterface;
 use NexusPlayer\DataTransferObjects\Player;
 use NexusPlayer\Repositories\PlayerRepositoryInterface as PlayerRepoInterface;
 use NexusVip\DataTransferObjects\PlayerVip;
@@ -13,7 +14,7 @@ use NexusVip\Repositories\PlayerVipRepositoryInterface;
 /**
  * PlayerRepositoryAdapter
  *
- * nexus-player / nexus-vip パッケージのRepositoryInterfaceを実装し、
+ * nexus-core-player / nexus-vip パッケージのRepositoryInterfaceを実装し、
  * Application層のSysPlayerRepositoryをラップする。
  *
  * Repositoryは常にModelを返し、DTOへの変換はこのアダプタが担う。
@@ -25,6 +26,14 @@ class PlayerRepositoryAdapter implements PlayerRepoInterface, PlayerVipRepositor
     public function __construct(
         private readonly SysPlayerRepository $sysPlayerRepository,
     ) {}
+
+    /**
+     * {@inheritDoc}
+     */
+    public function insertPlayerAndCommit(): PlayerModelInterface
+    {
+        return $this->sysPlayerRepository->insertPlayerAndCommit();
+    }
 
     /**
      * {@inheritDoc}

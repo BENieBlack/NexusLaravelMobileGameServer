@@ -25,18 +25,6 @@ parameters:
 			path: ../packages/nexus-core-billing/src/Constants/PurchaseLimitResetType.php
 
 		-
-			message: '#^Method NexusBilling\\Contracts\\IdempotencyCheckerInterface\:\:ensureNotProcessed\(\) has parameter \$metadata with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-core-billing/src/Contracts/IdempotencyCheckerInterface.php
-
-		-
-			message: '#^Method NexusBilling\\Contracts\\IdempotencyCheckerInterface\:\:markAsProcessed\(\) has parameter \$metadata with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-core-billing/src/Contracts/IdempotencyCheckerInterface.php
-
-		-
 			message: '#^Method NexusBilling\\DataTransferObjects\\Purchase\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -543,12 +531,6 @@ parameters:
 			path: ../packages/nexus-mailbox/src/Repositories/MailboxRepositoryInterface.php
 
 		-
-			message: '#^Method NexusMailbox\\Services\\MailboxService\:\:getMailboxList\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: ../packages/nexus-mailbox/src/Services/MailboxService.php
-
-		-
 			message: '#^Method NexusMailbox\\Services\\Template\\PlaceholderResolverInterface\:\:resolve\(\) has parameter \$context with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -687,40 +669,10 @@ parameters:
 			path: ../packages/nexus-pitr/src/DataTransferObjects/ChangeLog.php
 
 		-
-			message: '#^Using nullsafe property access "\?\-\>current_sequence" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 2
-			path: ../packages/nexus-pitr/src/Logger/SequenceManager.php
-
-		-
 			message: '#^Method NexusPitr\\Logger\\TrxChangeLogger\:\:encodeJsonData\(\) has parameter \$data with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: ../packages/nexus-pitr/src/Logger/TrxChangeLogger.php
-
-		-
-			message: '#^Trait NexusPitr\\Migrations\\DynamicShardingTrait is used zero times and is not analysed\.$#'
-			identifier: trait.unused
-			count: 1
-			path: ../packages/nexus-pitr/src/Migrations/DynamicShardingTrait.php
-
-		-
-			message: '#^Method NexusPlayer\\DataTransferObjects\\PlayerDevice\:\:__construct\(\) has parameter \$deviceInfo with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-player/src/DataTransferObjects/PlayerDevice.php
-
-		-
-			message: '#^Method NexusPlayer\\DataTransferObjects\\PlayerDevice\:\:getDeviceInfo\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-player/src/DataTransferObjects/PlayerDevice.php
-
-		-
-			message: '#^Method NexusPlayer\\Repositories\\PlayerDeviceRepositoryInterface\:\:selectByPlayerId\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: ../packages/nexus-player/src/Repositories/PlayerDeviceRepositoryInterface.php
 
 		-
 			message: '#^Method NexusResourceDelivery\\DataTransferObjects\\ResourceDeliveryComplete\:\:__construct\(\) has parameter \$contents with generic class Nexus\\Core\\Support\\CustomCollection but does not specify its types\: TKey, TValue$#'
@@ -829,12 +781,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: ../packages/nexus-resource-delivery/src/Services/ResourceDeliveryService.php
-
-		-
-			message: '#^Method NexusResourceDelivery\\ValueObjects\\ResourceDeliveryResult\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-resource-delivery/src/ValueObjects/ResourceDeliveryResult.php
 
 		-
 			message: '#^Method NexusResource\\DataTransferObjects\\Item\:\:fromArray\(\) has parameter \$data with no value type specified in iterable type array\.$#'
@@ -1005,12 +951,6 @@ parameters:
 			path: ../packages/nexus-vip/src/ValueObjects/VipBenefit.php
 
 		-
-			message: '#^Method NexusVip\\ValueObjects\\VipInfo\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-vip/src/ValueObjects/VipInfo.php
-
-		-
 			message: '#^Method NexusVip\\ValueObjects\\VipReward\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -1053,18 +993,6 @@ parameters:
 			path: app/Domain/Auth/UseCases/SignInUseCase.php
 
 		-
-			message: '#^Parameter \$sysPlayer of class App\\Http\\Responses\\Auth\\SignInResponse constructor expects App\\Models\\Sys\\SysPlayer, NexusAuth\\Contracts\\PlayerModelInterface given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Domain/Auth/UseCases/SignInUseCase.php
-
-		-
-			message: '#^Parameter \$sysPlayerDevice of class App\\Http\\Responses\\Auth\\SignInResponse constructor expects App\\Models\\Sys\\SysPlayerDevice, NexusAuth\\Contracts\\DeviceModelInterface given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Domain/Auth/UseCases/SignInUseCase.php
-
-		-
 			message: '#^Parameter \$sysPlayerToken of class App\\Http\\Responses\\Auth\\SignInResponse constructor expects App\\Models\\Sys\\SysPlayerToken, NexusAuth\\Contracts\\TokenModelInterface given\.$#'
 			identifier: argument.type
 			count: 1
@@ -1073,12 +1001,6 @@ parameters:
 		-
 			message: '#^Method App\\Domain\\Auth\\UseCases\\SignUpUseCase\:\:exec\(\) has parameter \$deviceInfo with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
-			count: 1
-			path: app/Domain/Auth/UseCases/SignUpUseCase.php
-
-		-
-			message: '#^Parameter \$sysPlayer of class App\\Http\\Responses\\Auth\\SignUpResponse constructor expects App\\Models\\Sys\\SysPlayer, NexusAuth\\Contracts\\PlayerModelInterface given\.$#'
-			identifier: argument.type
 			count: 1
 			path: app/Domain/Auth/UseCases/SignUpUseCase.php
 
@@ -1173,18 +1095,6 @@ parameters:
 			identifier: return.type
 			count: 1
 			path: app/Domain/InAppPurchase/Services/InAppPurchasePassService.php
-
-		-
-			message: '#^Method App\\Domain\\Item\\Constants\\ItemConst\:\:allEffects\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Domain/Item/Constants/ItemConst.php
-
-		-
-			message: '#^Method App\\Domain\\Item\\Constants\\ItemConst\:\:allTypes\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Domain/Item/Constants/ItemConst.php
 
 		-
 			message: '#^Method App\\Domain\\Login\\Services\\ComeBackLoginBonusService\:\:findBonusContents\(\) has parameter \$bonusData with no value type specified in iterable type array\.$#'
@@ -1333,18 +1243,6 @@ parameters:
 			identifier: catch.neverThrown
 			count: 1
 			path: app/Domain/_BaseUseCase.php
-
-		-
-			message: '#^Method App\\Http\\CustomJsonResponse\:\:__construct\(\) has parameter \$headers with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/CustomJsonResponse.php
-
-		-
-			message: '#^Method App\\Http\\CustomJsonResponse\:\:setStatusCode\(\) overrides @final method Symfony\\Component\\HttpFoundation\\Response\:\:setStatusCode\(\)\.$#'
-			identifier: method.parentMethodFinalByPhpDoc
-			count: 1
-			path: app/Http/CustomJsonResponse.php
 
 		-
 			message: '#^Method App\\Http\\Requests\\Auth\\SignInRequest\:\:getDeviceInfo\(\) return type has no value type specified in iterable type array\.$#'
@@ -1791,12 +1689,6 @@ parameters:
 			path: app/Models/Trx/TrxMailbox.php
 
 		-
-			message: '#^Method App\\Models\\Trx\\TrxPlayerSns\:\:availableTypes\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Trx/TrxPlayerSns.php
-
-		-
 			message: '#^PHPDoc type array\<string\> of property App\\Models\\Trx\\TrxStamina\:\:\$primaryKey is not covariant with PHPDoc type string of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$primaryKey\.$#'
 			identifier: property.phpDocType
 			count: 1
@@ -1807,36 +1699,6 @@ parameters:
 			identifier: property.defaultValue
 			count: 1
 			path: app/Models/Trx/TrxStamina.php
-
-		-
-			message: '#^Method App\\Repositories\\Log\\LogAccessRepository\:\:insertAccessLog\(\) has parameter \$requestBody with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Log/LogAccessRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Log\\LogAccessRepository\:\:insertAccessLog\(\) has parameter \$requestHeader with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Log/LogAccessRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Log\\LogAccessRepository\:\:insertAccessLog\(\) has parameter \$responseBody with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Log/LogAccessRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Log\\LogAccessRepository\:\:insertAccessLog\(\) has parameter \$responseHeader with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Log/LogAccessRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Log\\LogGachaRepository\:\:insertGachaLog\(\) has parameter \$result with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Log/LogGachaRepository.php
 
 
 		-
@@ -2215,9 +2077,3 @@ parameters:
 			path: app/Repositories/Trx/VipLoginBonusHistoryRepositoryInterface.php
 
 
-
-		-
-			message: '#^Trait App\\Traits\\RequiresRefreshTokenTrait is used zero times and is not analysed\.$#'
-			identifier: trait.unused
-			count: 1
-			path: app/Traits/RequiresRefreshTokenTrait.php

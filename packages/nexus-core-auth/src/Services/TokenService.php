@@ -5,7 +5,7 @@ namespace NexusAuth\Services;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use NexusAuth\Contracts\DeviceModelInterface;
-use NexusAuth\Contracts\PlayerModelInterface;
+use NexusPlayer\Contracts\PlayerModelInterface;
 use NexusAuth\Contracts\TokenModelInterface;
 use NexusAuth\Contracts\TokenRepositoryInterface;
 use NexusAuth\ValueObjects\Token;

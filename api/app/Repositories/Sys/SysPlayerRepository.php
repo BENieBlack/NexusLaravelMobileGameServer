@@ -6,7 +6,6 @@ use App\Models\Sys\SysPlayer;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Str;
 use Nexus\Core\Support\CustomCollection;
-use NexusAuth\Contracts\PlayerRepositoryInterface as AuthPlayerRepositoryInterface;
 use NexusUnitOfWork\Contracts\QueryManagerInterface;
 
 /**
@@ -16,7 +15,7 @@ use NexusUnitOfWork\Contracts\QueryManagerInterface;
  *
  * @extends _BaseSysRepository<SysPlayer>
  */
-class SysPlayerRepository extends _BaseSysRepository implements AuthPlayerRepositoryInterface
+class SysPlayerRepository extends _BaseSysRepository
 {
     protected string $modelClass = SysPlayer::class;
 

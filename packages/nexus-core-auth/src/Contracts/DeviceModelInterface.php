@@ -2,6 +2,8 @@
 
 namespace NexusAuth\Contracts;
 
+use NexusPlayer\Contracts\PlayerModelInterface;
+
 /**
  * DeviceModelInterface
  * 

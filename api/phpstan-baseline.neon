@@ -1053,12 +1053,6 @@ parameters:
 			path: app/Domain/Auth/UseCases/SignInUseCase.php
 
 		-
-			message: '#^Parameter \$sysPlayer of class App\\Http\\Responses\\Auth\\SignInResponse constructor expects App\\Models\\Sys\\SysPlayer, NexusAuth\\Contracts\\PlayerModelInterface given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Domain/Auth/UseCases/SignInUseCase.php
-
-		-
 			message: '#^Parameter \$sysPlayerDevice of class App\\Http\\Responses\\Auth\\SignInResponse constructor expects App\\Models\\Sys\\SysPlayerDevice, NexusAuth\\Contracts\\DeviceModelInterface given\.$#'
 			identifier: argument.type
 			count: 1
@@ -1073,12 +1067,6 @@ parameters:
 		-
 			message: '#^Method App\\Domain\\Auth\\UseCases\\SignUpUseCase\:\:exec\(\) has parameter \$deviceInfo with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
-			count: 1
-			path: app/Domain/Auth/UseCases/SignUpUseCase.php
-
-		-
-			message: '#^Parameter \$sysPlayer of class App\\Http\\Responses\\Auth\\SignUpResponse constructor expects App\\Models\\Sys\\SysPlayer, NexusAuth\\Contracts\\PlayerModelInterface given\.$#'
-			identifier: argument.type
 			count: 1
 			path: app/Domain/Auth/UseCases/SignUpUseCase.php
 

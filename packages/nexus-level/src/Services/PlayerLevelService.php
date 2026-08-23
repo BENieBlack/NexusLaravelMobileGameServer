@@ -1,11 +1,10 @@
 <?php
 
-namespace NexusPlayer\Services;
+namespace NexusLevel\Services;
 
-use NexusLevel\Services\_BaseLevelService;
-use NexusPlayer\Contracts\PlayerLevelUpHandlerInterface;
+use NexusLevel\Contracts\PlayerLevelUpHandlerInterface;
+use NexusLevel\Repositories\PlayerLevelRepositoryInterface;
 use NexusPlayer\DataTransferObjects\Player;
-use NexusPlayer\Repositories\PlayerLevelRepositoryInterface;
 use NexusPlayer\Repositories\PlayerRepositoryInterface;
 
 /**

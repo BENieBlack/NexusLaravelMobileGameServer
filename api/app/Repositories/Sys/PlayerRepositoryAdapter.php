@@ -13,7 +13,7 @@ use NexusVip\Repositories\PlayerVipRepositoryInterface;
 /**
  * PlayerRepositoryAdapter
  *
- * nexus-player / nexus-vip パッケージのRepositoryInterfaceを実装し、
+ * nexus-core-player / nexus-vip パッケージのRepositoryInterfaceを実装し、
  * Application層のSysPlayerRepositoryをラップする。
  *
  * Repositoryは常にModelを返し、DTOへの変換はこのアダプタが担う。

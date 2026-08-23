@@ -7,16 +7,16 @@ use App\Models\Trx\TrxStamina;
 use App\Repositories\Mst\MstPlayerLevelRepository;
 use App\Repositories\Trx\TrxStaminaRepository;
 use Nexus\Core\Utilities\ClockUtility;
-use NexusPlayer\Contracts\PlayerLevelUpHandlerInterface;
+use NexusLevel\Contracts\PlayerLevelUpHandlerInterface;
 
 /**
  * PlayerLevelUpStaminaHandler
  *
  * レベルアップ時にスタミナを全回復するゲーム固有処理。
  *
- * レベルアップ自体の計算は NexusPlayer\Services\PlayerLevelService が担い、
+ * レベルアップ自体の計算は NexusLevel\Services\PlayerLevelService が担い、
  * その報酬にあたるこの処理だけをApplication層に置く。
- * （パッケージ側にスタミナ操作を持たせると nexus-player と nexus-stamina が
+ * （パッケージ側にスタミナ操作を持たせると nexus-level と nexus-stamina が
  * 相互に依存してしまうため）
  */
 class PlayerLevelUpStaminaHandler implements PlayerLevelUpHandlerInterface

@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-use App\Domain\Auth\Services\TokenValidator;
 use App\Domain\Login\Services\ComeBackLoginBonusService;
 use App\Domain\Login\Services\LoginBonusService;
 use App\Domain\Login\Services\VipLoginBonusService;
@@ -51,6 +50,7 @@ use Nexus\Core\Repositories\PlayerRepositoryInterface as PlayerRepoInterface;
 use NexusAuth\Contracts\TokenRepositoryInterface;
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Services\TokenService;
+use NexusAuth\Services\TokenValidator;
 use NexusFriend\Repositories\FriendApplyRepositoryInterface;
 use NexusGacha\Repositories\GachaPrizeRepositoryInterface;
 use NexusGacha\Repositories\GachaProgressRepositoryInterface;

@@ -42,7 +42,7 @@ class PitrMigrateCommand extends Command
         $logMigrationPaths = [
             'database/migrations/log',
             '../packages/nexus-pitr/database/migrations/log',
-            '../packages/nexus-core-player/database/migrations/log',
+            '../packages/nexus-core/database/migrations/log',
             '../packages/nexus-resource/database/migrations/log',
             '../packages/nexus-wallet/database/migrations/log',
             '../packages/nexus-stamina/database/migrations/log',
@@ -58,7 +58,7 @@ class PitrMigrateCommand extends Command
         
         $this->info("Running LogDB migrations on all {$shardCount} shards...");
         $this->info("Target shards: {$shardList}");
-        $this->info('This includes migrations from: nexus-pitr, nexus-core-player, nexus-resource, nexus-wallet, nexus-stamina, nexus-core-billing, nexus-mailbox, nexus-gacha, nexus-login, nexus-vip');
+        $this->info('This includes migrations from: nexus-pitr, nexus-core, nexus-resource, nexus-wallet, nexus-stamina, nexus-core-billing, nexus-mailbox, nexus-gacha, nexus-login, nexus-vip');
         $this->newLine();
         
         foreach ($logConnections as $logConnection) {

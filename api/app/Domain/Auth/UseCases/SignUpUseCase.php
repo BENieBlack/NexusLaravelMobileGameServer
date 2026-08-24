@@ -8,10 +8,10 @@ use App\Exceptions\BusinessLogicException;
 use App\Http\Responses\Auth\SignUpResponse;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
 use App\Repositories\Sys\SysPlayerRepository;
+use Nexus\Core\Repositories\PlayerDeviceRepositoryInterface;
 use NexusAuth\Contracts\TokenRepositoryInterface;
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Services\TokenService;
-use NexusPlayer\Repositories\PlayerDeviceRepositoryInterface;
 use Throwable;
 
 /**

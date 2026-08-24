@@ -67,10 +67,6 @@
         },
         {
             "type": "path",
-            "url": "../packages/nexus-core-player"
-        },
-        {
-            "type": "path",
             "url": "../packages/nexus-vip"
         },
         {
@@ -110,7 +106,6 @@
         "nexus/stamina": "@dev",
         "nexus/gacha": "@dev",
         "nexus/mailbox": "@dev",
-        "nexus/core-player": "@dev",
         "nexus/vip": "@dev",
         "nexus/level": "@dev",
         "nexus/friend": "@dev",
@@ -145,7 +140,6 @@
             "NexusMailbox\\": "../packages/nexus-mailbox/src/",
             "NexusMaintenance\\": "../packages/nexus-maintenance/src/",
             "NexusPitr\\": "../packages/nexus-pitr/src/",
-            "NexusPlayer\\": "../packages/nexus-core-player/src/",
             "NexusResourceDelivery\\": "../packages/nexus-resource-delivery/src/",
             "NexusResource\\": "../packages/nexus-resource/src/",
             "NexusSecurity\\": "../packages/nexus-core-security/src/",

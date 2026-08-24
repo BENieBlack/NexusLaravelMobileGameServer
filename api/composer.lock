@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "507f4346dda3c0c638d6be62569ab928",
+    "content-hash": "472c57e6c7597d6a5f53e52e1f764ffd",
     "packages": [
         {
             "name": "brick/math",
@@ -2665,13 +2665,12 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-core-auth",
-                "reference": "4526feef688c18506efe77a57ede7ed1e0769c18"
+                "reference": "d3356defb2667729ba29ade45750a73bebd68728"
             },
             "require": {
                 "firebase/php-jwt": "^6.10",
                 "illuminate/support": "^10.0|^11.0|^12.0",
                 "nexus/core": "@dev",
-                "nexus/core-player": "@dev",
                 "nexus/core-security": "@dev",
                 "nexus/core-unit-of-work": "@dev",
                 "php": "^8.4"
@@ -2748,48 +2747,6 @@
                 }
             ],
             "description": "Mobile billing verification and processing for Laravel with support for AppStore and Google Play",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
-            "name": "nexus/core-player",
-            "version": "dev-main",
-            "dist": {
-                "type": "path",
-                "url": "../packages/nexus-core-player",
-                "reference": "e889d59d6c30c7db8a1d5552beca02a45c62ad75"
-            },
-            "require": {
-                "nexus/core": "@dev",
-                "php": "^8.4"
-            },
-            "require-dev": {
-                "mockery/mockery": "^1.6",
-                "phpunit/phpunit": "^10.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "NexusPlayer\\PlayerServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "NexusPlayer\\": "src/"
-                }
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "NexusPlayer\\Tests\\": "tests/"
-                }
-            },
-            "license": [
-                "MIT"
-            ],
-            "description": "Player entity package for Nexus mobile game (identity, devices, shard routing)",
             "transport-options": {
                 "relative": true
             }
@@ -2976,10 +2933,10 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-guild",
-                "reference": "99de4aff261cfd5b13f889a84d8213bace994bf1"
+                "reference": "9c2ebb114a6e159dfad0007ec0e660eda21d9f48"
             },
             "require": {
-                "nexus/core-player": "@dev",
+                "nexus/core": "@dev",
                 "php": "^8.4"
             },
             "require-dev": {
@@ -3011,10 +2968,10 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-level",
-                "reference": "232432a38e13ef62b8c0640b4bd4ccc8e6d07078"
+                "reference": "80eb3f47d743595a05110b8b50aa50ff21153b76"
             },
             "require": {
-                "nexus/core-player": "@dev",
+                "nexus/core": "@dev",
                 "php": "^8.4"
             },
             "require-dev": {
@@ -10666,7 +10623,6 @@
         "nexus/core": 20,
         "nexus/core-auth": 20,
         "nexus/core-billing": 20,
-        "nexus/core-player": 20,
         "nexus/core-security": 20,
         "nexus/core-unit-of-work": 20,
         "nexus/friend": 20,

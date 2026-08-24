@@ -5,9 +5,9 @@ namespace NexusLevel\Tests\Unit\Services;
 use NexusLevel\Contracts\PlayerLevelUpHandlerInterface;
 use NexusLevel\Repositories\PlayerLevelRepositoryInterface;
 use NexusLevel\Services\PlayerLevelService;
-use NexusPlayer\Contracts\PlayerModelInterface;
-use NexusPlayer\DataTransferObjects\Player;
-use NexusPlayer\Repositories\PlayerRepositoryInterface;
+use Nexus\Core\Contracts\PlayerModelInterface;
+use Nexus\Core\DataTransferObjects\Player;
+use Nexus\Core\Repositories\PlayerRepositoryInterface;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

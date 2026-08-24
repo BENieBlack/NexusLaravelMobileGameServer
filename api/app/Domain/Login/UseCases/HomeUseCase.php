@@ -60,6 +60,10 @@ class HomeUseCase extends _BaseUseCase
 
             // ログインボーナスをチェック・配布
             // 履歴はプレイヤーのシャードに記録するため、接続名を渡す
+            //
+            // 注意: 日跨ぎの判定に「更新前の」last_login_at を使う。
+            // 下の updateLastLoginAt() より前に呼ぶ必要があり、
+            // 最終ログインの更新をミドルウェア等に移すとボーナスが出なくなる。
             $loginBonusContents = $this->loginBonusService->process(
                 $sysPlayerId,
                 $sysPlayer->getLastLoginAt(),

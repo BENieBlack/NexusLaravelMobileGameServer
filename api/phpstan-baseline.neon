@@ -975,12 +975,6 @@ parameters:
 			path: ../packages/nexus-wallet/src/ValueObjects/CurrencyOperationResult.php
 
 		-
-			message: '#^Method App\\Domain\\Auth\\Services\\TokenValidator\:\:validateAccessToken\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Domain/Auth/Services/TokenValidator.php
-
-		-
 			message: '#^Property App\\Domain\\Auth\\UseCases\\RefreshTokenUseCase\:\:\$deviceRepository is never read, only written\.$#'
 			identifier: property.onlyWritten
 			count: 1

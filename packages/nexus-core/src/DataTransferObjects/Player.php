@@ -1,6 +1,6 @@
 <?php
 
-namespace NexusPlayer\DataTransferObjects;
+namespace Nexus\Core\DataTransferObjects;
 
 /**
  * Player

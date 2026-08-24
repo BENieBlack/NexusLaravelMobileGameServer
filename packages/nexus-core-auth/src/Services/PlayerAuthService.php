@@ -2,11 +2,11 @@
 
 namespace NexusAuth\Services;
 
-use NexusPlayer\Contracts\DeviceModelInterface;
-use NexusPlayer\Repositories\PlayerDeviceRepositoryInterface;
-use NexusPlayer\Contracts\PlayerModelInterface;
-use NexusPlayer\DataTransferObjects\Player;
-use NexusPlayer\Repositories\PlayerRepositoryInterface;
+use Nexus\Core\Contracts\DeviceModelInterface;
+use Nexus\Core\Repositories\PlayerDeviceRepositoryInterface;
+use Nexus\Core\Contracts\PlayerModelInterface;
+use Nexus\Core\DataTransferObjects\Player;
+use Nexus\Core\Repositories\PlayerRepositoryInterface;
 
 /**
  * PlayerAuthService

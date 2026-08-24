@@ -85,7 +85,7 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
      */
     public function markLastLoginAt(): void
     {
-        $this->last_login_at = now();
+        $this->last_login_at = ClockUtility::now();
     }
 
     /**

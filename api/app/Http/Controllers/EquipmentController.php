@@ -35,6 +35,7 @@ class EquipmentController extends _BaseController
             return $this->equipmentLevelUpUseCase->exec(
                 sysPlayerId: $sysPlayerId,
                 trxEquipmentId: $request->getTrxEquipmentId(),
+                mstItemId: $request->getMstItemId(),
                 afterLevel: $request->getAfterLevel(),
             );
         });

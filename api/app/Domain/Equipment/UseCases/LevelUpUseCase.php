@@ -3,7 +3,6 @@
 namespace App\Domain\Equipment\UseCases;
 
 use App\Domain\_BaseUseCase;
-use App\Domain\Equipment\Constants\EquipmentConst;
 use App\Domain\Equipment\Services\EquipmentLevelService;
 use App\Domain\Item\Services\ItemService;
 use App\Exceptions\BusinessLogicException;
@@ -17,6 +16,7 @@ use App\Repositories\Mst\MstItemRepository;
 use App\Repositories\Trx\TrxEquipmentRepository;
 use App\Traits\RequiresAuthenticationTrait;
 use Illuminate\Support\Str;
+use NexusResource\Enums\ItemEffectType;
 
 /**
  * LevelUpUseCase
@@ -50,6 +50,7 @@ class LevelUpUseCase extends _BaseUseCase
      *
      * @param  int  $sysPlayerId  sys_player.id（プレイヤーID）
      * @param  int  $trxEquipmentId  trx_equipment.id（プレイヤー所有装備）
+     * @param  string  $mstItemId  mst_item.id（装備経験値アイテム）
      * @param  int  $afterLevel  目標レベル
      *
      * @throws TransactionDataException 装備が存在しない場合
@@ -57,7 +58,7 @@ class LevelUpUseCase extends _BaseUseCase
      * @throws MasterDataException アイテムマスターが存在しない場合
      * @throws BusinessLogicException アイテムタイプが不正、または所持数が不足している場合
      */
-    public function validation(int $sysPlayerId, int $trxEquipmentId, int $afterLevel): void
+    public function validation(int $sysPlayerId, int $trxEquipmentId, string $mstItemId, int $afterLevel): void
     {
         // 1. 装備の存在確認
         $trxEquipment = $this->trxEquipmentRepository->selectById($trxEquipmentId);
@@ -82,17 +83,18 @@ class LevelUpUseCase extends _BaseUseCase
         }
 
         // 2. 経験値アイテムマスターデータを取得
-        $mstItem = $this->mstItemRepository->selectById(EquipmentConst::EXP_ITEM_ID);
+        $mstItem = $this->mstItemRepository->selectById($mstItemId);
         if (! $mstItem) {
-            throw MasterDataException::item(EquipmentConst::EXP_ITEM_ID);
+            throw MasterDataException::item($mstItemId);
         }
 
-        // アイテムタイプが経験値アイテムかチェック
-        if ($mstItem->getType() !== 'EquipmentEnhancement' || $mstItem->getEffect() !== 'EquipmentExp') {
+        // 装備経験値アイテムかチェック
+        // 判定は effect（効果種別）で行う。type はアイテムの分類で、効果を決める値ではない
+        if (ItemEffectType::tryFromEffect($mstItem->getEffect()) !== ItemEffectType::EQUIPMENT_EXP) {
             throw BusinessLogicException::invalidItemType(
-                EquipmentConst::EXP_ITEM_ID,
-                'EquipmentEnhancement/EquipmentExp',
-                "{$mstItem->getType()}/{$mstItem->getEffect()}"
+                $mstItemId,
+                ItemEffectType::EQUIPMENT_EXP->value,
+                $mstItem->getEffect()
             );
         }
 
@@ -110,9 +112,9 @@ class LevelUpUseCase extends _BaseUseCase
         $requiredItemCount = (int) ceil($requiredExp / $expPerItem);
 
         // 5. アイテム所持数確認
-        $currentAmount = $this->itemService->findItemAmount($sysPlayerId, EquipmentConst::EXP_ITEM_ID);
+        $currentAmount = $this->itemService->findItemAmount($sysPlayerId, $mstItemId);
         if ($currentAmount < $requiredItemCount) {
-            throw BusinessLogicException::itemNotEnough(EquipmentConst::EXP_ITEM_ID, $requiredItemCount, $currentAmount);
+            throw BusinessLogicException::itemNotEnough($mstItemId, $requiredItemCount, $currentAmount);
         }
     }
 
@@ -121,16 +123,17 @@ class LevelUpUseCase extends _BaseUseCase
      *
      * @param  int  $sysPlayerId  sys_player.id（プレイヤーID）
      * @param  int  $trxEquipmentId  trx_equipment.id（プレイヤー所有装備）
+     * @param  string  $mstItemId  mst_item.id（装備経験値アイテム）
      * @param  int  $afterLevel  目標レベル
      *
      * @throws \Exception|\Throwable
      */
-    public function exec(int $sysPlayerId, int $trxEquipmentId, int $afterLevel): LevelUpResponse
+    public function exec(int $sysPlayerId, int $trxEquipmentId, string $mstItemId, int $afterLevel): LevelUpResponse
     {
         // バリデーション実行
-        $this->validation($sysPlayerId, $trxEquipmentId, $afterLevel);
+        $this->validation($sysPlayerId, $trxEquipmentId, $mstItemId, $afterLevel);
 
-        return $this->executeWithTransaction(function () use ($sysPlayerId, $trxEquipmentId, $afterLevel) {
+        return $this->executeWithTransaction(function () use ($sysPlayerId, $trxEquipmentId, $mstItemId, $afterLevel) {
             // ユニークリクエストIDを生成
             $uniqueRequestId = Str::uuid()->toString();
 
@@ -138,7 +141,7 @@ class LevelUpUseCase extends _BaseUseCase
             $trxEquipmentBefore = $this->trxEquipmentRepository->selectById($trxEquipmentId);
 
             // アイテムマスターデータを再取得（バリデーション済み）
-            $mstItem = $this->mstItemRepository->selectById(EquipmentConst::EXP_ITEM_ID);
+            $mstItem = $this->mstItemRepository->selectById($mstItemId);
 
             // 必要な経験値を計算
             $requiredExp = $this->equipmentLevelService->calculateRequiredExp($trxEquipmentId, $afterLevel);
@@ -148,7 +151,7 @@ class LevelUpUseCase extends _BaseUseCase
             $requiredItemCount = (int) ceil($requiredExp / $expPerItem);
 
             // アイテムを消費（消費後のデータを取得）
-            $trxItem = $this->itemService->consumeItem($sysPlayerId, EquipmentConst::EXP_ITEM_ID, $requiredItemCount);
+            $trxItem = $this->itemService->consumeItem($sysPlayerId, $mstItemId, $requiredItemCount);
 
             // 経験値を加算（更新後の装備データを取得）
             // mst_item.value は double なので、経験値として使う前に整数へ切り捨てる

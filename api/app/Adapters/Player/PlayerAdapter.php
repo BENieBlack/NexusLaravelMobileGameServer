@@ -3,7 +3,7 @@
 namespace App\Adapters\Player;
 
 use App\Models\Sys\SysPlayer;
-use NexusPlayer\DataTransferObjects\Player;
+use Nexus\Core\DataTransferObjects\Player;
 
 /**
  * PlayerAdapter

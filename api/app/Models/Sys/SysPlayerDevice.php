@@ -4,9 +4,9 @@ namespace App\Models\Sys;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Nexus\Core\Contracts\DeviceModelInterface;
+use Nexus\Core\Contracts\PlayerModelInterface;
 use Nexus\Core\Utilities\ClockUtility;
-use NexusPlayer\Contracts\DeviceModelInterface;
-use NexusPlayer\Contracts\PlayerModelInterface;
 
 /**
  * SysPlayerDevice Model

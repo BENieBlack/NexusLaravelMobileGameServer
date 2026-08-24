@@ -3,8 +3,8 @@
 namespace App\Repositories\Sys;
 
 use App\Models\Sys\SysPlayerDevice;
+use Nexus\Core\Repositories\PlayerDeviceRepositoryInterface;
 use Nexus\Core\Support\CustomCollection;
-use NexusPlayer\Repositories\PlayerDeviceRepositoryInterface;
 
 /**
  * SysPlayerDeviceRepository

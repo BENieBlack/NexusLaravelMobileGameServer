@@ -1,9 +1,9 @@
 <?php
 
-namespace NexusPlayer\Repositories;
+namespace Nexus\Core\Repositories;
 
-use NexusPlayer\Contracts\PlayerModelInterface;
-use NexusPlayer\DataTransferObjects\Player;
+use Nexus\Core\Contracts\PlayerModelInterface;
+use Nexus\Core\DataTransferObjects\Player;
 
 /**
  * PlayerRepositoryInterface

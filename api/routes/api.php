@@ -7,6 +7,7 @@ use App\Http\Controllers\FriendController;
 use App\Http\Controllers\GachaController;
 use App\Http\Controllers\GuildController;
 use App\Http\Controllers\InAppPurchaseController;
+use App\Http\Controllers\ItemController;
 use App\Http\Controllers\MailboxController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\UnitController;
@@ -68,6 +69,9 @@ Route::middleware('maintenance')->group(function () {
 
         // In-App Purchase endpoints
         Route::post('/in_app_purchase/buy', [InAppPurchaseController::class, 'buy']);
+
+        // Item endpoints
+        Route::post('/item/use', [ItemController::class, 'use']);
 
         // Unit endpoints
         Route::post('/unit/level_up', [UnitController::class, 'levelUp']);

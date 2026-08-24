@@ -552,6 +552,7 @@ class WalkthroughTest extends TestCase
             'Authorization' => 'Bearer '.$this->accessToken,
         ])->postJson('/api/equipment/level_up', [
             'trx_equipment_id' => $this->equipmentId,
+            'mst_item_id' => 'equipment_exp_potion',
             'after_level' => 2,
         ]);
 

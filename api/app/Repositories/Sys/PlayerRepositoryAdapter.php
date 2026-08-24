@@ -5,16 +5,16 @@ namespace App\Repositories\Sys;
 use App\Adapters\Player\PlayerAdapter;
 use App\Adapters\Player\PlayerVipAdapter;
 use App\Models\Sys\SysPlayer;
-use NexusPlayer\Contracts\PlayerModelInterface;
-use NexusPlayer\DataTransferObjects\Player;
-use NexusPlayer\Repositories\PlayerRepositoryInterface as PlayerRepoInterface;
+use Nexus\Core\Contracts\PlayerModelInterface;
+use Nexus\Core\DataTransferObjects\Player;
+use Nexus\Core\Repositories\PlayerRepositoryInterface as PlayerRepoInterface;
 use NexusVip\DataTransferObjects\PlayerVip;
 use NexusVip\Repositories\PlayerVipRepositoryInterface;
 
 /**
  * PlayerRepositoryAdapter
  *
- * nexus-core-player / nexus-vip パッケージのRepositoryInterfaceを実装し、
+ * nexus-core / nexus-vip パッケージのRepositoryInterfaceを実装し、
  * Application層のSysPlayerRepositoryをラップする。
  *
  * Repositoryは常にModelを返し、DTOへの変換はこのアダプタが担う。

@@ -35,12 +35,12 @@ composer require nexus/auth
 - `TokenModelInterface` - トークンモデル
 - `TokenRepositoryInterface` - トークンリポジトリ
 
-プレイヤーとデバイスの契約は nexus-core-player が持つ（このパッケージはそれに依存する）:
+プレイヤーとデバイスの契約は nexus-core が持つ（このパッケージはそれに依存する）:
 
-- `NexusPlayer\Contracts\PlayerModelInterface` - プレイヤーモデル
-- `NexusPlayer\Contracts\DeviceModelInterface` - デバイスモデル
-- `NexusPlayer\Repositories\PlayerRepositoryInterface` - プレイヤーリポジトリ
-- `NexusPlayer\Repositories\PlayerDeviceRepositoryInterface` - デバイスリポジトリ
+- `Nexus\Core\Contracts\PlayerModelInterface` - プレイヤーモデル
+- `Nexus\Core\Contracts\DeviceModelInterface` - デバイスモデル
+- `Nexus\Core\Repositories\PlayerRepositoryInterface` - プレイヤーリポジトリ
+- `Nexus\Core\Repositories\PlayerDeviceRepositoryInterface` - デバイスリポジトリ
 
 ### Services
 
@@ -57,7 +57,7 @@ composer require nexus/auth
 ### 1. モデルにインターフェースを実装
 
 ```php
-use NexusPlayer\Contracts\PlayerModelInterface;
+use Nexus\Core\Contracts\PlayerModelInterface;
 
 class SysPlayer extends Model implements PlayerModelInterface
 {
@@ -70,7 +70,7 @@ class SysPlayer extends Model implements PlayerModelInterface
 ### 2. Repositoryにインターフェースを実装
 
 ```php
-use NexusPlayer\Repositories\PlayerRepositoryInterface;
+use Nexus\Core\Repositories\PlayerRepositoryInterface;
 
 class PlayerRepositoryAdapter implements PlayerRepositoryInterface
 {
@@ -86,7 +86,7 @@ class PlayerRepositoryAdapter implements PlayerRepositoryInterface
 
 ```php
 // AppServiceProvider
-use NexusPlayer\Repositories\PlayerRepositoryInterface;
+use Nexus\Core\Repositories\PlayerRepositoryInterface;
 use App\Repositories\Sys\PlayerRepositoryAdapter;
 
 $this->app->bind(PlayerRepositoryInterface::class, PlayerRepositoryAdapter::class);

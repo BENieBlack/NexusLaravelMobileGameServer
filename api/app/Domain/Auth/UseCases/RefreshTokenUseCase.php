@@ -10,9 +10,9 @@ use App\Http\Responses\Auth\RefreshTokenResponse;
 use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;
 use App\Repositories\Sys\SysPlayerRepository;
+use Nexus\Core\Repositories\PlayerDeviceRepositoryInterface;
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Services\TokenService;
-use NexusPlayer\Repositories\PlayerDeviceRepositoryInterface;
 
 /**
  * RefreshTokenUseCase

@@ -64,11 +64,11 @@
 
 ```php
 // ✅ 名前空間で役割が分かる
-use NexusPlayer\DataTransferObjects\Player;
+use Nexus\Core\DataTransferObjects\Player;
 use NexusVip\ValueObjects\VipConfig;
 
 // ❌ サフィックスの重複
-use NexusPlayer\DataTransferObjects\PlayerDto;
+use Nexus\Core\DataTransferObjects\PlayerDto;
 ```
 
 Eloquent Modelは `Sys` / `Trx` / `Mst` / `Log` の接頭辞を持つため、

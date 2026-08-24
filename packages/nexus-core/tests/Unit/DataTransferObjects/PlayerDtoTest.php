@@ -1,8 +1,8 @@
 <?php
 
-namespace NexusPlayer\Tests\Unit\DataTransferObjects;
+namespace Nexus\Core\Tests\Unit\DataTransferObjects;
 
-use NexusPlayer\DataTransferObjects\Player;
+use Nexus\Core\DataTransferObjects\Player;
 use PHPUnit\Framework\TestCase;
 
 class PlayerDtoTest extends TestCase

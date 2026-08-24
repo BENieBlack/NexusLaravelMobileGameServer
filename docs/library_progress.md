@@ -41,7 +41,7 @@ LaravelモバイルRPGサーバーのフレームワーク部分を再利用可�
 | ログインボーナス | Domain/Login/Services | nexus-login | 🔄 要統合 |
 | ガチャ | Domain/Gacha/Services | nexus-gacha | 🔄 要統合 |
 | スタミナ | Domain/Stamina/Services | nexus-stamina | ✅ パッケージ優先 |
-| プレイヤー管理 | Domain/Player/Services | nexus-core-player | 🔄 要統合 |
+| プレイヤー管理 | Domain/Player/Services | nexus-core | 🔄 要統合 |
 | リソース配送 | Domain/Resource/Services | nexus-resource-delivery | ✅ パッケージ優先 |
 
 **完了条件**: すべてのビジネスロジックがパッケージに集約され、api側は薄いアダプタ層のみ

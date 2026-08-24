@@ -24,7 +24,6 @@ parameters:
         - ../packages/nexus-mailbox/src
         - ../packages/nexus-maintenance/src
         - ../packages/nexus-pitr/src
-        - ../packages/nexus-core-player/src
         - ../packages/nexus-resource/src
         - ../packages/nexus-resource-delivery/src
         - ../packages/nexus-stamina/src

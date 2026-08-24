@@ -40,7 +40,7 @@ class TrxMigrateCommand extends Command
         
         // TrxDBマイグレーションパスを定義（base_path()からの相対パス）
         $trxMigrationPaths = [
-            '../packages/nexus-core-player/database/migrations/trx',
+            '../packages/nexus-core/database/migrations/trx',
             '../packages/nexus-resource/database/migrations/trx',
             '../packages/nexus-wallet/database/migrations/trx',
             '../packages/nexus-stamina/database/migrations/trx',
@@ -56,7 +56,7 @@ class TrxMigrateCommand extends Command
         
         $this->info("Running TrxDB migrations on all {$shardCount} shards...");
         $this->info("Target shards: {$shardList}");
-        $this->info('This includes migrations from packages: nexus-core-player, nexus-resource, nexus-wallet, nexus-stamina, nexus-core-billing, nexus-mailbox, nexus-gacha, nexus-login, nexus-vip');
+        $this->info('This includes migrations from packages: nexus-core, nexus-resource, nexus-wallet, nexus-stamina, nexus-core-billing, nexus-mailbox, nexus-gacha, nexus-login, nexus-vip');
         $this->newLine();
         
         foreach ($trxConnections as $trxConnection) {

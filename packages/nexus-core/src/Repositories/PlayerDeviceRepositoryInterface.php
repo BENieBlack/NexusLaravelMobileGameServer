@@ -1,8 +1,8 @@
 <?php
 
-namespace NexusPlayer\Repositories;
+namespace Nexus\Core\Repositories;
 
-use NexusPlayer\Contracts\DeviceModelInterface;
+use Nexus\Core\Contracts\DeviceModelInterface;
 
 /**
  * PlayerDeviceRepositoryInterface

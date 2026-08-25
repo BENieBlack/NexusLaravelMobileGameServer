@@ -2665,10 +2665,11 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-core-auth",
-                "reference": "d3356defb2667729ba29ade45750a73bebd68728"
+                "reference": "6d57a22e39276f444a0b6def3e88e17bf8e93065"
             },
             "require": {
                 "firebase/php-jwt": "^6.10",
+                "illuminate/database": "^10.0|^11.0|^12.0",
                 "illuminate/support": "^10.0|^11.0|^12.0",
                 "nexus/core": "@dev",
                 "nexus/core-security": "@dev",
@@ -2679,6 +2680,13 @@
                 "phpunit/phpunit": "^10.0"
             },
             "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "NexusAuth\\AuthServiceProvider"
+                    ]
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "NexusAuth\\": "src/"

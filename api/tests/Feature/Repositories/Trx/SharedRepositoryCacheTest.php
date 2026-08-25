@@ -4,7 +4,9 @@ namespace Tests\Feature\Repositories\Trx;
 
 use App\Persistence\ApiSession;
 use App\Repositories\Trx\TrxItemRepository;
+use App\Repositories\Trx\TrxUnitRepository;
 use Illuminate\Support\Facades\DB;
+use NexusUnitOfWork\Persistence\QueryManager;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
@@ -98,6 +100,27 @@ class SharedRepositoryCacheTest extends TestCase
         $repository->queryOrMemory();
 
         $this->assertSame(0, $queryCount, '0件でもキャッシュから返るべき');
+    }
+
+    #[Test]
+    public function 作成した行はフラッシュ後にidで引ける(): void
+    {
+        ApiSession::setSysPlayerId($this->playerA);
+        $repository = app(TrxUnitRepository::class);
+
+        // 採番前はキャッシュ上のキーが仮のものになる
+        $trxUnit = $repository->insertUnitForPlayer($this->playerA, 'unit_for_rekey');
+
+        app(QueryManager::class)->execAllQuery();
+
+        $this->assertNotNull($trxUnit->getId());
+        $this->assertNotNull(
+            $repository->selectById($trxUnit->getId()),
+            'フラッシュ後は採番されたIDで引けるべき'
+        );
+
+        DB::connection(ApiSession::resolveConnectionName('trx'))
+            ->table('trx_unit')->where('sys_player_id', $this->playerA)->delete();
     }
 
     /**

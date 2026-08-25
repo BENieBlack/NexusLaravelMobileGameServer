@@ -65,12 +65,8 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
         // DEFAULT CURRENT_TIMESTAMP / ON UPDATE CURRENT_TIMESTAMP に任せる
 
         // ユニークキーを生成
-        $uniqueKey = implode(':', array_map(fn($key) => $model->getAttribute($key), $this->getUniqueKeys()));
-        
-        // 新規モデル（IDがnull）の場合、一時的なユニークキーを生成
-        if ($uniqueKey === '' || $uniqueKey === ':' || strpos($uniqueKey, ':') === 0 || strpos($uniqueKey, ':') === strlen($uniqueKey) - 1) {
-            $uniqueKey = '_new_' . $this->newModelCounter++;
-        }
+        // 新規モデル（IDがnull）の場合は一時的なキーを割り当てる
+        $uniqueKey = $this->buildUniqueKey($model) ?? '_new_' . $this->newModelCounter++;
 
         // 初回のsetModel時に変更前の状態を保存
         if (!isset($this->originalStateArray[$uniqueKey])) {
@@ -94,9 +90,62 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
      */
     public function clearQueue(): void
     {
+        // フラッシュでIDが採番されているので、仮キーを本来のキーへ振り直す
+        $this->rekeyInsertedModels();
+
         parent::clearQueue();
         $this->originalStateArray = [];
         $this->newModelCounter = 0;
+    }
+
+    /**
+     * ユニークキーを組み立てる
+     *
+     * 値が揃っていない（新規モデルでIDが未採番など）場合はnullを返す。
+     *
+     * @param mixed $model
+     * @return string|null
+     */
+    protected function buildUniqueKey($model): ?string
+    {
+        $values = array_map(fn($key) => $model->getAttribute($key), $this->getUniqueKeys());
+
+        foreach ($values as $value) {
+            if ($value === null || $value === '') {
+                return null;
+            }
+        }
+
+        return $values === [] ? null : implode(':', $values);
+    }
+
+    /**
+     * INSERT後のモデルをキャッシュ上で正しいキーに置き直す
+     *
+     * 新規モデルは採番前なので仮キー（_new_N）でキャッシュしている。
+     * フラッシュでIDが入るため、そのままだと selectById() で引けない。
+     *
+     * @return void
+     */
+    private function rekeyInsertedModels(): void
+    {
+        if ($this->models === null) {
+            return;
+        }
+
+        foreach ($this->models as $key => $model) {
+            if (! str_starts_with((string) $key, '_new_')) {
+                continue;
+            }
+
+            $uniqueKey = $this->buildUniqueKey($model);
+
+            if ($uniqueKey === null) {
+                continue;
+            }
+            $this->models->forget($key);
+            $this->models->put($uniqueKey, $model);
+        }
     }
 
     /**

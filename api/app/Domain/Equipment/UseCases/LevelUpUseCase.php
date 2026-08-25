@@ -137,8 +137,14 @@ class LevelUpUseCase extends _BaseUseCase
             // ユニークリクエストIDを生成
             $uniqueRequestId = Str::uuid()->toString();
 
-            // 装備データを取得（レベルアップ前の状態を記録するため）
+            // レベルアップ前の状態を控える
+            // Repositoryは同じModelインスタンスを返すため、参照を持つだけでは
+            // 加算後に書き換わってしまう。値をここで取り出しておく
             $trxEquipmentBefore = $this->trxEquipmentRepository->selectById($trxEquipmentId);
+            $mstEquipmentId = $trxEquipmentBefore->getMstEquipmentId();
+            $beforeGrade = $trxEquipmentBefore->getGrade();
+            $beforeLevel = $trxEquipmentBefore->getLevel();
+            $beforeLevelExp = $trxEquipmentBefore->getLevelExp();
 
             // アイテムマスターデータを再取得（バリデーション済み）
             $mstItem = $this->mstItemRepository->selectById($mstItemId);
@@ -165,11 +171,11 @@ class LevelUpUseCase extends _BaseUseCase
                 uniqueRequestId: $uniqueRequestId,
                 sysPlayerId: $sysPlayerId,
                 trxEquipmentId: $trxEquipmentId,
-                mstEquipmentId: $trxEquipmentBefore->getMstEquipmentId(),
-                beforeGrade: $trxEquipmentBefore->getGrade(),
+                mstEquipmentId: $mstEquipmentId,
+                beforeGrade: $beforeGrade,
                 afterGrade: $trxEquipment->getGrade(),
-                beforeLevel: $trxEquipmentBefore->getLevel(),
-                beforeLevelExp: $trxEquipmentBefore->getLevelExp(),
+                beforeLevel: $beforeLevel,
+                beforeLevelExp: $beforeLevelExp,
                 afterLevel: $trxEquipment->getLevel(),
                 afterLevelExp: $trxEquipment->getLevelExp(),
             );

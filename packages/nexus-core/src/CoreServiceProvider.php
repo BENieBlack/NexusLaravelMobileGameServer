@@ -15,7 +15,7 @@ use Illuminate\Support\ServiceProvider;
  * - Contracts: プレイヤー／デバイスのModelインターフェース
  * - DataTransferObjects: Player
  * - Support: CustomCollection等
- * - Utilities: ClockUtility, RedisUtility
+ * - Utilities: ClockUtility
  * - ValueObjects: ErrorResponse等
  *
  * プレイヤーはこのフレームワークの前提（trx/logの行は全て sys_player_id で引く）

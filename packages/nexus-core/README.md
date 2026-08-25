@@ -24,7 +24,6 @@ Eloquent Model基底クラス、Repository基底クラス、ユーティリテ�
 
 ### Utilities
 - `ClockUtility` - 時刻操作ユーティリティ（テスト時の時刻固定、ゲーム内日付対応）
-- `RedisUtility` - Redisキャッシュ操作ユーティリティ
 
 ### ValueObjects
 - `ErrorResponse` - エラーレスポンスValueObject（HTTP 299対応、3階層エラーコード）
@@ -128,7 +127,7 @@ nexus-core/
 │   ├── Models/          # Eloquent Model基底クラス
 │   ├── Repositories/    # Repository基底クラス
 │   ├── Support/         # CustomCollection等
-│   ├── Utilities/       # ClockUtility, RedisUtility
+│   ├── Utilities/       # ClockUtility
 │   ├── ValueObjects/    # ErrorResponse等のValueObject
 │   ├── Traits/          # 共通Trait
 │   └── CoreServiceProvider.php

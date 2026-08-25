@@ -68,7 +68,9 @@ class RepositoryDeleteTest extends TestCase
         $repo = new TrxEquipmentRepository;
 
         $equipments = $repo->queryOrMemory();
-        $equipmentToDelete = $equipments->get(1);
+        // queryOrMemory()はユニークキー（id）でキーイングされるため、
+        // キー指定だとauto_incrementの採番に依存してしまう。並び順で取る
+        $equipmentToDelete = $equipments->values()->get(1);
 
         $this->assertNotNull($equipmentToDelete);
         $this->assertFalse((bool) $equipmentToDelete->is_delete);

@@ -22,6 +22,16 @@ interface ExperienceGranterInterface
     public const TARGET_PLAYER = 'player';
 
     /**
+     * ユニットの経験値（targetIdに trx_unit.id が要る）
+     */
+    public const TARGET_UNIT = 'unit';
+
+    /**
+     * 装備の経験値（targetIdに trx_equipment.id が要る）
+     */
+    public const TARGET_EQUIPMENT = 'equipment';
+
+    /**
      * 経験値を付与する
      *
      * @param  int  $sysPlayerId  付与先プレイヤーID

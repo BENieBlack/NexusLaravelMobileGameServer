@@ -271,6 +271,38 @@ class AppServiceProvider extends ServiceProvider
 
         // ApiSessionクラス自体もscopedバインドとして登録
         $this->app->scoped(ApiSession::class);
+
+        $this->registerScopedRepositories();
+    }
+
+    /**
+     * Repositoryをリクエストスコープで共有する
+     *
+     * Trx/Log/SysのRepositoryは取得したモデルをインスタンス内にキャッシュする。
+     * 注入のたびに別インスタンスだと同じSELECTがUseCaseごとに走り、
+     * 書き込みキューもインスタンスごとに分かれてしまうため、
+     * リクエスト（キューならジョブ）単位で1つを共有する。
+     *
+     * singletonではなくscopedを使う。singletonはOctaneやキューワーカーで
+     * リクエストを跨いでインスタンスが残り、別プレイヤーのキャッシュを
+     * 持ち越してしまう。
+     *
+     * Mstは_BaseMstRepositoryが静的にキャッシュするため対象外。
+     */
+    private function registerScopedRepositories(): void
+    {
+        foreach (['Trx', 'Log', 'Sys'] as $group) {
+            foreach (glob(app_path("Repositories/{$group}/*.php")) ?: [] as $file) {
+                $class = "App\\Repositories\\{$group}\\".basename($file, '.php');
+
+                // 抽象基底クラス（_Base*）とインターフェースは解決対象にしない
+                if (str_starts_with(basename($file), '_') || str_ends_with($file, 'Interface.php')) {
+                    continue;
+                }
+
+                $this->app->scoped($class);
+            }
+        }
     }
 
     /**

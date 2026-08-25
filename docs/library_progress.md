@@ -63,7 +63,6 @@ LaravelモバイルRPGサーバーのフレームワーク部分を再利用可�
 
 **内容**:
 - `ClockUtility`: 固定時刻管理ユーティリティ
-- `RedisUtility`: Redis操作ヘルパー
 
 **名前空間**: `LaravelUtilities\`
 
@@ -447,7 +446,6 @@ packages/
 ├── laravel-utilities/
 │   ├── src/
 │   │   ├── ClockUtility.php
-│   │   └── RedisUtility.php
 │   ├── composer.json
 │   └── README.md
 │

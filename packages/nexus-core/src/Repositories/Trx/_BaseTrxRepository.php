@@ -36,12 +36,12 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
     protected string $connection = 'trx1';
 
     /**
-     * キャッシュされたプレイヤーID（パフォーマンス最適化）
-     * PlayerSessionResolverから取得した値を保持し、毎回app()を呼ばないようにする
+     * キャッシュがどのプレイヤーのものかを保持する
+     * 別プレイヤーで問い合わせられたらキャッシュを破棄して取り直す
      *
      * @var int|null
      */
-    private ?int $cachedSysPlayerId = null;
+    private ?int $cachedForSysPlayerId = null;
 
     /**
      * 各モデルの変更前の状態を保持（ログ記録用）
@@ -72,15 +72,11 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
      */
     protected function resolveCachedSysPlayerId(): int
     {
-        // キャッシュがあればそれを返す（高速パス）
-        if ($this->cachedSysPlayerId !== null) {
-            return $this->cachedSysPlayerId;
-        }
-
-        // PlayerSessionResolverから取得してキャッシュ
+        // インスタンスに固定しない。
+        // Repositoryはリクエスト単位で共有されるため、途中でプレイヤーが
+        // 切り替わる経路（selectBySysPlayerId等）で古いIDを返してしまう
         if (static::hasSysPlayerId()) {
-            $this->cachedSysPlayerId = static::getSysPlayerId();
-            return $this->cachedSysPlayerId;
+            return static::getSysPlayerId();
         }
 
         // PlayerSessionResolverが未設定の場合はエラー
@@ -110,13 +106,14 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
      */
     public function queryOrMemory(): CustomCollection
     {
-        // メモリキャッシュにデータがあればそれを返す
-        if ($this->models !== null && $this->models->isNotEmpty()) {
+        // プレイヤーIDを先に解決する（キャッシュが誰のものかの判定に使う）
+        $sysPlayerId = $this->resolveCachedSysPlayerId();
+
+        // 同じプレイヤーのキャッシュがあればそれを返す
+        // 0件だった場合もキャッシュとして扱う（毎回問い合わせない）
+        if ($this->models !== null && $this->cachedForSysPlayerId === $sysPlayerId) {
             return $this->models;
         }
-
-        // プレイヤーIDを取得（PlayerSessionResolver優先、なければ$sysPlayerIdフィールド）
-        $sysPlayerId = $this->resolveCachedSysPlayerId();
 
         // キャッシュが空の場合、データベースから取得
         /** @var T $instance */
@@ -133,6 +130,7 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
         /** @var CustomCollection<string, T> $cached キーはユニークキーの連結 */
         $cached = new CustomCollection($records->all());
         $this->models = $cached;
+        $this->cachedForSysPlayerId = $sysPlayerId;
 
         return $this->models;
     }

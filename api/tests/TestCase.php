@@ -42,6 +42,23 @@ abstract class TestCase extends BaseTestCase
     }
 
     /**
+     * HTTPリクエストを送る前にscopedバインディングを捨てる
+     *
+     * Repositoryはリクエストスコープで共有され、取得したモデルをキャッシュする。
+     * 本番はリクエストごとにコンテナが作り直されるため自然に破棄されるが、
+     * テストは1つのアプリケーションを使い回すのでキャッシュがリクエストを跨いでしまう。
+     * 実際の挙動に合わせるため、ここで明示的に捨てる。
+     *
+     * {@inheritDoc}
+     */
+    public function call($method, $uri, $parameters = [], $cookies = [], $files = [], $server = [], $content = null)
+    {
+        $this->app->forgetScopedInstances();
+
+        return parent::call($method, $uri, $parameters, $cookies, $files, $server, $content);
+    }
+
+    /**
      * Mstリポジトリのキャッシュをクリアする
      * テストでマスターデータを作成した後に呼び出すことで、
      * リポジトリが新しいデータを読み込むようにする

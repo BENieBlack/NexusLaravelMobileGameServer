@@ -916,7 +916,7 @@ $effectTypes = InAppPurchaseConst::getAllEffectTypes();
 - 必ず `*Utility` サフィックスをつける
 - 機能を表す明確な名前
 - ✅ `StringUtility`, `DateUtility`, `RandomUtility`, `CryptoUtility`
-- ✅ `ClockUtility`, `RedisUtility`（既存）
+- ✅ `ClockUtility`（既存）
 - ❌ `Helper`, `Utils`, `Common`（曖昧）
 
 #### Constants

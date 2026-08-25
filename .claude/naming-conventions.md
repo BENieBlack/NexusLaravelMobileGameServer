@@ -1619,7 +1619,7 @@ app/Domain/Auth/DTO/       // ❌ 単数形
 | **Handler** | `Handlers/` | `XXXHandler` | `ItemDeliveryHandler` | |
 | **Interface** | `Handlers/` | `XXXInterface` | `DeliveryHandlerInterface` | |
 | **Constants** | `Constants/` | `XXXConst` | `UnitConst`, `EquipmentConst`, `ItemConst`, `BillingConst`, `InAppPurchaseConst` | Modelに定数を定義しない |
-| **Utility** | `Utilities/` | `XXXUtility` | `ClockUtility`, `RedisUtility` | |
+| **Utility** | `Utilities/` | `XXXUtility` | `ClockUtility` | |
 | **Request (HTTP)** | `Http/Requests/` | `XXXRequest` | `VersionCheckRequest` | HTTPリクエスト専用 |
 | **Response** | `Http/Responses/` | `XXXResponse` | `VersionCheckResponse` | |
 | **Controller** | `Http/Controllers/` | `XXXController` | `AuthController` | |

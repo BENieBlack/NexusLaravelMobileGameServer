@@ -43,17 +43,32 @@ class ExperienceDeliveryHandlerTest extends TestCase
     }
 
     #[Test]
-    public function metadataで付与先を指定できる(): void
+    public function metadataでユニットを付与先に指定できる(): void
+    {
+        $granter = new RecordingExperienceGranter;
+        $handler = new ExperienceDeliveryHandler($granter);
+
+        // ユニットと装備は trx 側のIDで対象を特定する
+        $handler->handle(777, $this->makeContent(500, [
+            'target_type' => ExperienceGranterInterface::TARGET_UNIT,
+            'target_id' => '12',
+        ]));
+
+        $this->assertSame([[777, 500, 'unit', '12']], $granter->calls);
+    }
+
+    #[Test]
+    public function metadataで装備を付与先に指定できる(): void
     {
         $granter = new RecordingExperienceGranter;
         $handler = new ExperienceDeliveryHandler($granter);
 
         $handler->handle(777, $this->makeContent(500, [
-            'target_type' => 'unit',
-            'target_id' => 'unit_001',
+            'target_type' => ExperienceGranterInterface::TARGET_EQUIPMENT,
+            'target_id' => '34',
         ]));
 
-        $this->assertSame([[777, 500, 'unit', 'unit_001']], $granter->calls);
+        $this->assertSame([[777, 500, 'equipment', '34']], $granter->calls);
     }
 
     /**

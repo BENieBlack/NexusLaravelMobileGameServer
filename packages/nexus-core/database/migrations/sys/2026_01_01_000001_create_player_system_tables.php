@@ -51,26 +51,6 @@ return new class extends Migration
         });
 
         // ========================================
-        // sys_player_token: リフレッシュトークン管理
-        // ========================================
-        Schema::connection('sys')->create('sys_player_token', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
-            $table->unsignedBigInteger('sys_player_device_id')->comment('sys_player_deviceテーブルのID');
-            $table->string('refresh_token_hash', 64)->unique()->comment('リフレッシュトークンのSHA-256ハッシュ');
-            $table->dateTime('expires_at')->comment('有効期限（30日）');
-            $table->dateTime('revoked_at')->nullable()->comment('無効化日時');
-            $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
-            $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
-
-            // インデックス
-            $table->index('sys_player_id');
-            $table->index('sys_player_device_id');
-            $table->index('refresh_token_hash');
-            $table->index('expires_at');
-        });
-
-        // ========================================
         // sys_sharding_node_player: プレイヤーとノードの紐付け
         // ========================================
         Schema::connection('sys')->create('sys_sharding_node_player', function (Blueprint $table) {
@@ -92,7 +72,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::connection('sys')->dropIfExists('sys_sharding_node_player');
-        Schema::connection('sys')->dropIfExists('sys_player_token');
         Schema::connection('sys')->dropIfExists('sys_player_device');
         Schema::connection('sys')->dropIfExists('sys_player');
     }

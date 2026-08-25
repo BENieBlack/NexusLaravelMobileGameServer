@@ -6,6 +6,7 @@ use App\Domain\Stamina\Constants\StaminaConst;
 use App\Domain\Stamina\Services\StaminaService;
 use App\Persistence\ApiSession;
 use Illuminate\Support\Facades\DB;
+use Nexus\Core\Utilities\ClockUtility;
 use NexusUnitOfWork\Persistence\QueryManager;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;
@@ -103,6 +104,34 @@ class StaminaServiceTest extends TestCase
     }
 
     #[Test]
+    public function 取得時に時間経過分が自然回復する(): void
+    {
+        ClockUtility::setNow('2026-03-15 12:00:00');
+        // 25分前が最終回復。300秒で1ポイント回復するので5ポイント
+        $this->createStamina(currentStamina: 10, lastRecoveryAt: '2026-03-15 11:35:00');
+
+        $trxStamina = $this->service->findStamina($this->sysPlayerId);
+
+        $this->assertSame(15, $trxStamina->getCurrentStamina());
+        $this->assertSame('2026-03-15 12:00:00', (string) $trxStamina->last_recovery_at);
+
+        // 読み取りではDBに書き込まない（消費・回復時に同じ計算を通って永続化される）
+        $this->queryManager->execAllQuery();
+        $row = $this->findStaminaRow();
+        $this->assertSame(10, $row->current_stamina);
+    }
+
+    #[Test]
+    public function 自然回復は最大値で頭打ちになる(): void
+    {
+        ClockUtility::setNow('2026-03-15 12:00:00');
+        // 10時間前（120ポイント分）だが最大値50で止まる
+        $this->createStamina(currentStamina: 10, lastRecoveryAt: '2026-03-15 02:00:00');
+
+        $this->assertSame(self::MAX_STAMINA, $this->service->findStamina($this->sysPlayerId)->getCurrentStamina());
+    }
+
+    #[Test]
     public function 満タンなら完全回復までの時間は0秒(): void
     {
         $this->createStamina(currentStamina: self::MAX_STAMINA);
@@ -170,14 +199,17 @@ class StaminaServiceTest extends TestCase
         ]);
     }
 
-    private function createStamina(int $currentStamina, float $recoveryRateMultiplier = 1.0): void
-    {
+    private function createStamina(
+        int $currentStamina,
+        float $recoveryRateMultiplier = 1.0,
+        ?string $lastRecoveryAt = null
+    ): void {
         DB::connection('trx1')->table('trx_stamina')->insert([
             'sys_player_id' => $this->sysPlayerId,
             'type' => StaminaConst::TYPE_NORMAL,
             'current_stamina' => $currentStamina,
             'recovery_rate_multiplier' => $recoveryRateMultiplier,
-            'last_recovery_at' => now()->format('Y-m-d H:i:s'),
+            'last_recovery_at' => $lastRecoveryAt ?? ClockUtility::nowToString(),
             'created_at' => now(),
             'updated_at' => now(),
         ]);

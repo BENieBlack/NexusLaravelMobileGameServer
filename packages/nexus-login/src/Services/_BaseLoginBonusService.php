@@ -52,16 +52,16 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
      * @param int $sysPlayerId プレイヤーID
      * @param int $currentDay 現在の受け取り日数
      * @param string|null $lastLoginAt 最終ログイン日時
-     * @return array|null ボーナスデータ、存在しない場合はnull
+     * @return array<string, mixed>|null ボーナスデータ、存在しない場合はnull
      */
     abstract protected function findLoginBonusData(int $sysPlayerId, int $currentDay, ?string $lastLoginAt): ?array;
 
     /**
      * ログインボーナスの報酬内容を取得（サブクラスで実装必須）
      *
-     * @param array $bonusData ログインボーナスデータ
+     * @param array<string, mixed> $bonusData ログインボーナスデータ
      * @param int $currentDay 現在の受け取り日数
-     * @return CustomCollection
+     * @return CustomCollection<int, mixed>
      */
     abstract protected function findBonusContents(array $bonusData, int $currentDay): CustomCollection;
 
@@ -69,9 +69,9 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
      * ログインボーナス履歴を記録（サブクラスで実装必須）
      * 
      * @param int $sysPlayerId プレイヤーID
-     * @param array $bonusData ログインボーナスデータ
+     * @param array<string, mixed> $bonusData ログインボーナスデータ
      * @param int $currentDay 現在の受け取り日数
-     * @param CustomCollection $contents 報酬内容
+     * @param CustomCollection<int, mixed> $contents 報酬内容
      * @param string $connectionName シャーディングされたDB接続名
      * @return void
      */
@@ -211,7 +211,7 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
      * 配布前のフック（サブクラスでオーバーライド可能）
      * 
      * @param int $sysPlayerId プレイヤーID
-     * @param array $bonusData ログインボーナスデータ
+     * @param array<string, mixed> $bonusData ログインボーナスデータ
      * @param int $currentDay 現在の受け取り日数
      * @param string $connectionName シャーディングされたDB接続名
      * @return bool 配布を続行する場合true、中止する場合false
@@ -225,9 +225,9 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
      * 配布後のフック（サブクラスでオーバーライド可能）
      * 
      * @param int $sysPlayerId プレイヤーID
-     * @param array $bonusData ログインボーナスデータ
+     * @param array<string, mixed> $bonusData ログインボーナスデータ
      * @param int $currentDay 現在の受け取り日数
-     * @param array $rewards 配布した報酬
+     * @param array<int, mixed> $rewards 配布した報酬
      * @param string $connectionName シャーディングされたDB接続名
      * @return void
      */
@@ -240,7 +240,7 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
      * ログインボーナスを配布
      *
      * @param int $sysPlayerId プレイヤーID
-     * @param array $bonusData ログインボーナスデータ
+     * @param array<string, mixed> $bonusData ログインボーナスデータ
      * @param int $currentDay 現在の受け取り日数
      * @param string $connectionName シャーディングされたDB接続名
      * @return array<Resource> 配布した報酬

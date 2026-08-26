@@ -48,6 +48,15 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
     protected string $connection;
 
     /**
+     * setConnection() で接続を明示指定されたか
+     *
+     * 明示されている場合はシャードの自動解決より優先する
+     *
+     * @var bool
+     */
+    protected bool $connectionExplicitlySet = false;
+
+    /**
      * キャッシュの有効期限（秒）
      *
      * @var int
@@ -145,6 +154,7 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
     public function setConnection(string $connection): void
     {
         $this->connection = $connection;
+        $this->connectionExplicitlySet = true;
     }
 
     /**

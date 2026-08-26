@@ -2,7 +2,9 @@
 
 namespace App\Models\Log;
 
+use App\Persistence\ApiSession;
 use Nexus\Core\Models\Log\_BaseLog as PersistenceBaseLog;
+use NexusPitr\Logger\ShardMapper;
 
 /**
  * _BaseLog
@@ -12,5 +14,21 @@ use Nexus\Core\Models\Log\_BaseLog as PersistenceBaseLog;
  */
 abstract class _BaseLog extends PersistenceBaseLog implements _BaseLogInterface
 {
-    // App-specific customizations can go here
+    /**
+     * ログイン中プレイヤーの割り当てシャードに対応するLogDB接続を返す
+     *
+     * ログは対になるTrxシャードと同じ番号のLogDBへ書く（trx2 → log2）
+     */
+    protected static function resolveShardConnection(): ?string
+    {
+        if (! ApiSession::hasSysPlayerId()) {
+            return null;
+        }
+
+        try {
+            return ShardMapper::resolveLogConnection(ApiSession::resolveConnectionName('trx'));
+        } catch (\RuntimeException|\InvalidArgumentException) {
+            return null;
+        }
+    }
 }

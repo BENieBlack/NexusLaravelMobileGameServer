@@ -4,6 +4,7 @@ namespace App\Domain\Auth\UseCases;
 
 use App\Domain\_BaseUseCase;
 use App\Domain\Auth\Traits\BuildsSysPlayerToken;
+use App\Domain\Sharding\Services\ShardAssignmentService;
 use App\Exceptions\BusinessLogicException;
 use App\Http\Responses\Auth\SignUpResponse;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
@@ -30,6 +31,7 @@ class SignUpUseCase extends _BaseUseCase
         private readonly PlayerDeviceRepositoryInterface $deviceRepository,
         private readonly SysPlayerDeviceRepository $sysPlayerDeviceRepository,
         private readonly SysPlayerRepository $sysPlayerRepository,
+        private readonly ShardAssignmentService $shardAssignmentService,
     ) {}
 
     /**
@@ -57,6 +59,10 @@ class SignUpUseCase extends _BaseUseCase
 
             // 新規プレイヤー作成（PlayerAuthService使用）
             $player = $this->playerAuthService->createPlayer($deviceId, $deviceInfo);
+
+            // trx_* の読み書き先はシャード割り当てで決まる。
+            // 割り当てが無いと以降のAPIが接続先を解決できないため、ここで必ず作る
+            $this->shardAssignmentService->assign($player->getId());
 
             // レスポンスとトークン生成にはModelが要る。
             // 直前に採番済みでリポジトリのメモリキャッシュに載っているため追加クエリは発生しない

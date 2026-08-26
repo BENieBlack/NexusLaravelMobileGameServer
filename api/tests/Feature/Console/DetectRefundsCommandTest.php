@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Mockery;
 use NexusBilling\Exceptions\PlatformApiException;
 use NexusBilling\Facades\BillingFacade;
+use NexusPitr\Logger\ShardMapper;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -161,7 +162,7 @@ class DetectRefundsCommandTest extends TestCase
 
     private function cleanUp(): void
     {
-        foreach (['log1', 'log2', 'log3'] as $connection) {
+        foreach (ShardMapper::allLogConnections() as $connection) {
             DB::connection($connection)->table('log_in_app_purchase')->delete();
         }
     }

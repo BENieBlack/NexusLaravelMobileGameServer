@@ -4,6 +4,9 @@ namespace App\Repositories\Trx;
 
 use App\Models\Trx\TrxVipLoginBonusHistory;
 
+/**
+ * @extends _BaseTrxRepository<TrxVipLoginBonusHistory>
+ */
 class TrxVipLoginBonusHistoryRepository extends _BaseTrxRepository implements VipLoginBonusHistoryRepositoryInterface
 {
     /**

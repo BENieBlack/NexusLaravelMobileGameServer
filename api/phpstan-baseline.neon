@@ -84,84 +84,11 @@ parameters:
 			count: 1
 			path: ../packages/nexus-core-unit-of-work/src/Persistence/QueryManager.php
 
-
 		-
 			message: '#^Property NexusUnitOfWork\\Persistence\\QueryManager\:\:\$purchaseLogRepositories with generic class Nexus\\Core\\Repositories\\Log\\_BaseLogRepository does not specify its types\: T$#'
 			identifier: missingType.generics
 			count: 1
 			path: ../packages/nexus-core-unit-of-work/src/Persistence/QueryManager.php
-
-		-
-			message: '#^Instanceof between Nexus\\Core\\Repositories\\Sys\\_BaseSysRepository\|Nexus\\Core\\Repositories\\Trx\\_BaseTrxRepository and Nexus\\Core\\Repositories\\Log\\_BaseLogRepository will always evaluate to false\.$#'
-			identifier: instanceof.alwaysFalse
-			count: 1
-			path: ../packages/nexus-core-unit-of-work/src/Persistence/QueryManager/OperationCollector.php
-
-		-
-			message: '#^Method NexusUnitOfWork\\Persistence\\QueryManager\\OperationCollector\:\:collect\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-core-unit-of-work/src/Persistence/QueryManager/OperationCollector.php
-
-		-
-			message: '#^Method NexusUnitOfWork\\Persistence\\QueryManager\\OperationCollector\:\:collectLogs\(\) has parameter \$logRepositories with generic class Nexus\\Core\\Repositories\\Log\\_BaseLogRepository but does not specify its types\: T$#'
-			identifier: missingType.generics
-			count: 1
-			path: ../packages/nexus-core-unit-of-work/src/Persistence/QueryManager/OperationCollector.php
-
-		-
-			message: '#^Method NexusUnitOfWork\\Persistence\\QueryManager\\OperationCollector\:\:collectLogs\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-core-unit-of-work/src/Persistence/QueryManager/OperationCollector.php
-
-		-
-			message: '#^PHPDoc tag @var for variable \$repository contains generic class Nexus\\Core\\Repositories\\Sys\\_BaseSysRepository but does not specify its types\: T$#'
-			identifier: missingType.generics
-			count: 1
-			path: ../packages/nexus-core-unit-of-work/src/Persistence/QueryManager/OperationCollector.php
-
-		-
-			message: '#^PHPDoc tag @var for variable \$repository contains generic class Nexus\\Core\\Repositories\\Trx\\_BaseTrxRepository but does not specify its types\: T$#'
-			identifier: missingType.generics
-			count: 1
-			path: ../packages/nexus-core-unit-of-work/src/Persistence/QueryManager/OperationCollector.php
-
-		-
-			message: '#^Call to function is_array\(\) with string will always evaluate to false\.$#'
-			identifier: function.impossibleType
-			count: 1
-			path: ../packages/nexus-core-unit-of-work/src/Persistence/QueryManager/UpdateQueryBuilder.php
-
-		-
-			message: '#^Method NexusUnitOfWork\\Persistence\\QueryManager\\UpdateQueryBuilder\:\:buildRelativeUpdate\(\) has parameter \$data with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-core-unit-of-work/src/Persistence/QueryManager/UpdateQueryBuilder.php
-
-		-
-			message: '#^Method NexusUnitOfWork\\Persistence\\QueryManager\\UpdateQueryBuilder\:\:buildRelativeUpdate\(\) has parameter \$relativeChanges with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-core-unit-of-work/src/Persistence/QueryManager/UpdateQueryBuilder.php
-
-		-
-			message: '#^Method NexusUnitOfWork\\Persistence\\QueryManager\\UpdateQueryBuilder\:\:buildRelativeUpdate\(\) has parameter \$where with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-core-unit-of-work/src/Persistence/QueryManager/UpdateQueryBuilder.php
-
-		-
-			message: '#^Method NexusUnitOfWork\\Persistence\\QueryManager\\UpdateQueryBuilder\:\:buildRelativeUpdate\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-core-unit-of-work/src/Persistence/QueryManager/UpdateQueryBuilder.php
-
-		-
-			message: '#^Method NexusUnitOfWork\\Persistence\\QueryManager\\UpdateQueryBuilder\:\:buildWhereCondition\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-core-unit-of-work/src/Persistence/QueryManager/UpdateQueryBuilder.php
 
 		-
 			message: '#^Method Nexus\\Core\\Models\\Trx\\_BaseTrx\:\:getUniqueKeys\(\) return type has no value type specified in iterable type array\.$#'
@@ -193,7 +120,6 @@ parameters:
 			count: 1
 			path: ../packages/nexus-core/src/Repositories/Log/_BaseLogRepository.php
 
-
 		-
 			message: '#^Call to function is_array\(\) with string will always evaluate to false\.$#'
 			identifier: function.impossibleType
@@ -206,17 +132,6 @@ parameters:
 			count: 1
 			path: ../packages/nexus-core/src/Repositories/Trx/_BaseTrxRepository.php
 
-
-
-
-
-
-
-
-
-
-
-
 		-
 			message: '#^Method Nexus\\Core\\Repositories\\_BaseRepositoryInterface\:\:getQueuedDeleteModels\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
@@ -228,7 +143,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: ../packages/nexus-core/src/Repositories/_BaseRepositoryInterface.php
-
 
 		-
 			message: '#^Called ''env'' outside of the config directory which returns null when the config is cached, use ''config''\.$#'
@@ -289,66 +203,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: ../packages/nexus-gacha/src/ValueObjects/GachaPrize.php
-
-		-
-			message: '#^Method NexusLogin\\Repositories\\LoginBonusHistoryRepositoryInterface\:\:insert\(\) has parameter \$data with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-login/src/Repositories/LoginBonusHistoryRepositoryInterface.php
-
-		-
-			message: '#^Method NexusLogin\\Repositories\\LoginBonusHistoryRepositoryInterface\:\:selectByPlayerAndBonusAndDate\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-login/src/Repositories/LoginBonusHistoryRepositoryInterface.php
-
-		-
-			message: '#^Method NexusLogin\\Repositories\\LoginBonusHistoryRepositoryInterface\:\:selectFirstComebackByPlayerId\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-login/src/Repositories/LoginBonusHistoryRepositoryInterface.php
-
-		-
-			message: '#^Method NexusLogin\\Repositories\\LoginBonusHistoryRepositoryInterface\:\:selectLatestByPlayer\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-login/src/Repositories/LoginBonusHistoryRepositoryInterface.php
-
-		-
-			message: '#^Method NexusLogin\\Repositories\\LoginBonusHistoryRepositoryInterface\:\:selectLatestByPlayerId\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-login/src/Repositories/LoginBonusHistoryRepositoryInterface.php
-
-		-
-			message: '#^Method NexusLogin\\Repositories\\LoginBonusRepositoryInterface\:\:selectActiveByDay\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-login/src/Repositories/LoginBonusRepositoryInterface.php
-
-		-
-			message: '#^Method NexusLogin\\Repositories\\LoginBonusRepositoryInterface\:\:selectActiveDailyBonus\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-login/src/Repositories/LoginBonusRepositoryInterface.php
-
-		-
-			message: '#^Method NexusLogin\\Repositories\\LoginBonusRepositoryInterface\:\:selectContentsByLoginBonusId\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-login/src/Repositories/LoginBonusRepositoryInterface.php
-
-		-
-			message: '#^Method NexusLogin\\Repositories\\LoginBonusRepositoryInterface\:\:selectContentsByLoginBonusIdAndDay\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-login/src/Repositories/LoginBonusRepositoryInterface.php
-
-		-
-			message: '#^Method NexusLogin\\Repositories\\LoginBonusRepositoryInterface\:\:selectEligibleComebackBonus\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-login/src/Repositories/LoginBonusRepositoryInterface.php
 
 		-
 			message: '#^Method NexusMailbox\\Repositories\\MailboxRepositoryInterface\:\:selectByPlayerId\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
@@ -469,42 +323,6 @@ parameters:
 			identifier: missingType.generics
 			count: 1
 			path: ../packages/nexus-resource-delivery/src/Managers/ResourceDeliveryManagerInterface.php
-
-		-
-			message: '#^Method NexusResourceDelivery\\Services\\ResourceDeliveryService\:\:addContents\(\) has parameter \$contents with generic class Nexus\\Core\\Support\\CustomCollection but does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: ../packages/nexus-resource-delivery/src/Services/ResourceDeliveryService.php
-
-		-
-			message: '#^Method NexusResourceDelivery\\Services\\ResourceDeliveryService\:\:addContents\(\) has parameter \$contents with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-resource-delivery/src/Services/ResourceDeliveryService.php
-
-		-
-			message: '#^Method NexusResourceDelivery\\Services\\ResourceDeliveryService\:\:addContents\(\) has parameter \$contents with no value type specified in iterable type array\|Nexus\\Core\\Support\\CustomCollection\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-resource-delivery/src/Services/ResourceDeliveryService.php
-
-		-
-			message: '#^Method NexusResourceDelivery\\Services\\ResourceDeliveryService\:\:addResources\(\) has parameter \$resources with generic class Nexus\\Core\\Support\\CustomCollection but does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: ../packages/nexus-resource-delivery/src/Services/ResourceDeliveryService.php
-
-		-
-			message: '#^Method NexusResourceDelivery\\Services\\ResourceDeliveryService\:\:addResources\(\) has parameter \$resources with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-resource-delivery/src/Services/ResourceDeliveryService.php
-
-		-
-			message: '#^Method NexusResourceDelivery\\Services\\ResourceDeliveryService\:\:addResources\(\) has parameter \$resources with no value type specified in iterable type array\|Nexus\\Core\\Support\\CustomCollection\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: ../packages/nexus-resource-delivery/src/Services/ResourceDeliveryService.php
 
 		-
 			message: '#^Method NexusResource\\DataTransferObjects\\Item\:\:fromArray\(\) has parameter \$data with no value type specified in iterable type array\.$#'
@@ -692,12 +510,6 @@ parameters:
 			count: 1
 			path: app/Domain/Auth/UseCases/SignUpUseCase.php
 
-
-
-
-
-
-
 		-
 			message: '#^Method App\\Domain\\Gacha\\UseCases\\DrawUseCase\:\:persistHistory\(\) has parameter \$prizes with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
@@ -764,8 +576,6 @@ parameters:
 			count: 1
 			path: app/Domain/InAppPurchase/Services/InAppPurchasePackService.php
 
-
-
 		-
 			message: '#^Method App\\Domain\\InAppPurchase\\Services\\InAppPurchasePassService\:\:calcTotalEffectValue\(\) should return float but returns App\\Models\\Trx\\TrxInAppPurchaseEffect\.$#'
 			identifier: return.type
@@ -820,10 +630,6 @@ parameters:
 			count: 1
 			path: app/Domain/Unit/Constants/UnitConst.php
 
-
-
-
-
 		-
 			message: '#^Dead catch \- Exception is never thrown in the try block\.$#'
 			identifier: catch.neverThrown
@@ -855,54 +661,6 @@ parameters:
 			path: app/Http/Responses/Auth/LoginResponse.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysPlayer\:\:\$my_id\.$#'
-			identifier: property.notFound
-			count: 4
-			path: app/Http/Responses/Friend/ApplyListResponse.php
-
-		-
-			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Sys\\SysFriendApply\>\:\:map\(\) contains unresolvable type\.$#'
-			identifier: argument.unresolvableType
-			count: 1
-			path: app/Http/Responses/Friend/ApplyListResponse.php
-
-		-
-			message: '#^Return type of call to method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Sys\\SysFriendApply\>\:\:map\(\) contains unresolvable type\.$#'
-			identifier: method.unresolvableReturnType
-			count: 1
-			path: app/Http/Responses/Friend/ApplyListResponse.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysPlayer\:\:\$level\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Responses/Friend/ListResponse.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysPlayer\:\:\$my_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Responses/Friend/ListResponse.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sys\\SysPlayer\:\:\$name\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Responses/Friend/ListResponse.php
-
-		-
-			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Sys\\SysFriendApply\>\:\:map\(\) contains unresolvable type\.$#'
-			identifier: argument.unresolvableType
-			count: 1
-			path: app/Http/Responses/Friend/ListResponse.php
-
-		-
-			message: '#^Return type of call to method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Sys\\SysFriendApply\>\:\:map\(\) contains unresolvable type\.$#'
-			identifier: method.unresolvableReturnType
-			count: 1
-			path: app/Http/Responses/Friend/ListResponse.php
-
-		-
 			message: '#^Method App\\Http\\Responses\\Gacha\\DrawResponse\:\:__construct\(\) has parameter \$nextStepInfo with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -919,48 +677,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Http/Responses/InAppPurchase/BuyResponse.php
-
-		-
-			message: '#^Method App\\Http\\Responses\\Mailbox\\ListResponse\:\:__construct\(\) has parameter \$mailboxArray with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Responses/Mailbox/ListResponse.php
-
-		-
-			message: '#^Method App\\Http\\Responses\\Mailbox\\ListResponse\:\:fromCollection\(\) has parameter \$trxMailboxCollection with generic class Nexus\\Core\\Support\\CustomCollection but does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Http/Responses/Mailbox/ListResponse.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>body" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Http/Responses/Mailbox/ListResponse.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>icon_url" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Http/Responses/Mailbox/ListResponse.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>sender_id" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Http/Responses/Mailbox/ListResponse.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>title" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Http/Responses/Mailbox/ListResponse.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>value" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 3
-			path: app/Http/Responses/Mailbox/ListResponse.php
 
 		-
 			message: '#^Method App\\Http\\Responses\\Mailbox\\ReceiveAllResponse\:\:__construct\(\) has parameter \$deliveryContents with no value type specified in iterable type array\.$#'
@@ -1039,18 +755,6 @@ parameters:
 			identifier: method.nonObject
 			count: 3
 			path: app/Models/Mst/MstMailbox.php
-
-		-
-			message: '#^Method App\\Models\\Mst\\MstMailboxContent\:\:getContentOption\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Mst/MstMailboxContent.php
-
-		-
-			message: '#^Return type \(array\<int, string\>\) of method App\\Models\\Mst\\MstMailboxContent\:\:getKeyName\(\) should be compatible with return type \(string\) of method Illuminate\\Database\\Eloquent\\Model\:\:getKeyName\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: app/Models/Mst/MstMailboxContent.php
 
 		-
 			message: '#^Return type \(array\<int, string\>\) of method App\\Models\\Mst\\MstMessageI18n\:\:getKeyName\(\) should be compatible with return type \(string\) of method Illuminate\\Database\\Eloquent\\Model\:\:getKeyName\(\)$#'
@@ -1251,24 +955,6 @@ parameters:
 			path: app/Models/Trx/TrxInAppPurchaseEffect.php
 
 		-
-			message: '#^Class App\\Models\\Trx\\TrxMailbox has PHPDoc tag @property for property \$custom_params with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Trx/TrxMailbox.php
-
-		-
-			message: '#^Method App\\Models\\Trx\\TrxMailbox\:\:getCustomParams\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Trx/TrxMailbox.php
-
-		-
-			message: '#^Method App\\Models\\Trx\\TrxMailbox\:\:setCustomParams\(\) has parameter \$customParams with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Trx/TrxMailbox.php
-
-		-
 			message: '#^PHPDoc type array\<string\> of property App\\Models\\Trx\\TrxStamina\:\:\$primaryKey is not covariant with PHPDoc type string of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$primaryKey\.$#'
 			identifier: property.phpDocType
 			count: 1
@@ -1280,13 +966,11 @@ parameters:
 			count: 1
 			path: app/Models/Trx/TrxStamina.php
 
-
 		-
 			message: '#^Method App\\Repositories\\Log\\LogInAppPurchaseRepository\:\:insertPurchaseLog\(\) has parameter \$receipt with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Repositories/Log/LogInAppPurchaseRepository.php
-
 
 		-
 			message: '#^Method App\\Repositories\\Log\\LogVipPointRepository\:\:log\(\) has parameter \$metadata with no value type specified in iterable type array\.$#'
@@ -1294,57 +978,17 @@ parameters:
 			count: 1
 			path: app/Repositories/Log/LogVipPointRepository.php
 
-
-
 		-
 			message: '#^Method App\\Repositories\\Log\\LogVipPointRepository\:\:selectHistory\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Repositories/Log/LogVipPointRepository.php
 
-
-
-
-
-		-
-			message: '#^Method App\\Repositories\\Mst\\LoginBonusRepositoryAdapter\:\:selectActiveByDay\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Mst/LoginBonusRepositoryAdapter.php
-
-		-
-			message: '#^Method App\\Repositories\\Mst\\LoginBonusRepositoryAdapter\:\:selectActiveDailyBonus\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Mst/LoginBonusRepositoryAdapter.php
-
-		-
-			message: '#^Method App\\Repositories\\Mst\\LoginBonusRepositoryAdapter\:\:selectContentsByLoginBonusId\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Mst/LoginBonusRepositoryAdapter.php
-
-		-
-			message: '#^Method App\\Repositories\\Mst\\LoginBonusRepositoryAdapter\:\:selectContentsByLoginBonusIdAndDay\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Mst/LoginBonusRepositoryAdapter.php
-
-		-
-			message: '#^Method App\\Repositories\\Mst\\LoginBonusRepositoryAdapter\:\:selectEligibleComebackBonus\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Mst/LoginBonusRepositoryAdapter.php
-
 		-
 			message: '#^Property App\\Repositories\\Mst\\LoginBonusRepositoryAdapter\:\:\$historyRepository is never read, only written\.$#'
 			identifier: property.onlyWritten
 			count: 1
 			path: app/Repositories/Mst/LoginBonusRepositoryAdapter.php
-
-
-
-
 
 		-
 			message: '#^Method App\\Repositories\\Mst\\MstEquipmentLevelRepository\:\:selectAll\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
@@ -1382,23 +1026,11 @@ parameters:
 			count: 1
 			path: app/Repositories/Mst/MstGachaStepBonusRepository.php
 
-
-
-
-
-
-
-
-
-
 		-
 			message: '#^Method App\\Repositories\\Mst\\MstPlayerLevelRepository\:\:selectAll\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Repositories/Mst/MstPlayerLevelRepository.php
-
-
-
 
 		-
 			message: '#^Method App\\Repositories\\Mst\\MstUnitLevelRepository\:\:selectAll\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
@@ -1418,15 +1050,11 @@ parameters:
 			count: 1
 			path: app/Repositories/Mst/MstVipLevelRepository.php
 
-
 		-
 			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRepository\:\:selectAllLevels\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Repositories/Mst/MstVipLevelRepository.php
-
-
-
 
 		-
 			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRewardRepository\:\:selectActiveByLevelRange\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
@@ -1434,13 +1062,11 @@ parameters:
 			count: 1
 			path: app/Repositories/Mst/MstVipLevelRewardRepository.php
 
-
 		-
 			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRewardRepository\:\:selectActiveByVipLevel\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Repositories/Mst/MstVipLevelRewardRepository.php
-
 
 		-
 			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRewardRepository\:\:selectAllActive\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
@@ -1448,14 +1074,11 @@ parameters:
 			count: 1
 			path: app/Repositories/Mst/MstVipLevelRewardRepository.php
 
-
 		-
 			message: '#^Method App\\Repositories\\Mst\\MstVipLevelRewardRepository\:\:selectByVipLevel\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Repositories/Mst/MstVipLevelRewardRepository.php
-
-
 
 		-
 			message: '#^Class App\\Repositories\\Mst\\MstVipLoginBonusRepository extends generic class App\\Repositories\\Mst\\_BaseMstRepository but does not specify its types\: T$#'
@@ -1486,8 +1109,6 @@ parameters:
 			identifier: missingType.generics
 			count: 1
 			path: app/Repositories/Mst/VipLoginBonusRepositoryInterface.php
-
-
 
 		-
 			message: '#^Method App\\Repositories\\Sys\\SysDeployRepository\:\:selectActiveList\(\) return type with generic class Nexus\\Core\\Support\\CustomCollection does not specify its types\: TKey, TValue$#'
@@ -1537,58 +1158,17 @@ parameters:
 			count: 1
 			path: app/Repositories/Sys/SysMaintenanceRepository.php
 
-
-
-		-
-			message: '#^Method App\\Repositories\\Trx\\LoginBonusHistoryRepositoryAdapter\:\:insert\(\) has parameter \$data with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Trx/LoginBonusHistoryRepositoryAdapter.php
-
-		-
-			message: '#^Method App\\Repositories\\Trx\\LoginBonusHistoryRepositoryAdapter\:\:selectByPlayerAndBonusAndDate\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Trx/LoginBonusHistoryRepositoryAdapter.php
-
-		-
-			message: '#^Method App\\Repositories\\Trx\\LoginBonusHistoryRepositoryAdapter\:\:selectFirstComebackByPlayerId\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Trx/LoginBonusHistoryRepositoryAdapter.php
-
-		-
-			message: '#^Method App\\Repositories\\Trx\\LoginBonusHistoryRepositoryAdapter\:\:selectLatestByPlayer\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Trx/LoginBonusHistoryRepositoryAdapter.php
-
-		-
-			message: '#^Method App\\Repositories\\Trx\\LoginBonusHistoryRepositoryAdapter\:\:selectLatestByPlayerId\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Trx/LoginBonusHistoryRepositoryAdapter.php
-
-
-
-
 		-
 			message: '#^Property App\\Repositories\\Trx\\TrxGachaRepository\:\:\$apiSession is never read, only written\.$#'
 			identifier: property.onlyWritten
 			count: 1
 			path: app/Repositories/Trx/TrxGachaRepository.php
 
-
-
-
 		-
 			message: '#^Using nullsafe property access "\?\-\>priority" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 2
 			path: app/Repositories/Trx/TrxMailboxRepository.php
-
-
-
 
 		-
 			message: '#^Strict comparison using \!\=\= between int and null will always evaluate to true\.$#'
@@ -1603,57 +1183,7 @@ parameters:
 			path: app/Repositories/Trx/TrxUnitRepository.php
 
 		-
-			message: '#^Class App\\Repositories\\Trx\\TrxVipLoginBonusHistoryRepository extends generic class App\\Repositories\\Trx\\_BaseTrxRepository but does not specify its types\: T$#'
-			identifier: missingType.generics
+			message: '#^Return type \(array\<int, string\>\) of method App\\Models\\Mst\\MstMailboxContent\:\:getKeyName\(\) should be compatible with return type \(string\) of method Illuminate\\Database\\Eloquent\\Model\:\:getKeyName\(\)$#'
+			identifier: method.childReturnType
 			count: 1
-			path: app/Repositories/Trx/TrxVipLoginBonusHistoryRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Trx\\TrxVipLoginBonusHistoryRepository\:\:insert\(\) has parameter \$data with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Trx/TrxVipLoginBonusHistoryRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Trx\\TrxVipLoginBonusHistoryRepository\:\:insert\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Trx/TrxVipLoginBonusHistoryRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Trx\\TrxVipLoginBonusHistoryRepository\:\:selectByPlayerAndBonusAndDate\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Trx/TrxVipLoginBonusHistoryRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Trx\\TrxVipLoginBonusHistoryRepository\:\:selectLatestByPlayerId\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Trx/TrxVipLoginBonusHistoryRepository.php
-
-		-
-			message: '#^Method App\\Repositories\\Trx\\VipLoginBonusHistoryRepositoryInterface\:\:insert\(\) has parameter \$data with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Trx/VipLoginBonusHistoryRepositoryInterface.php
-
-		-
-			message: '#^Method App\\Repositories\\Trx\\VipLoginBonusHistoryRepositoryInterface\:\:insert\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Trx/VipLoginBonusHistoryRepositoryInterface.php
-
-		-
-			message: '#^Method App\\Repositories\\Trx\\VipLoginBonusHistoryRepositoryInterface\:\:selectByPlayerAndBonusAndDate\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Trx/VipLoginBonusHistoryRepositoryInterface.php
-
-		-
-			message: '#^Method App\\Repositories\\Trx\\VipLoginBonusHistoryRepositoryInterface\:\:selectLatestByPlayerId\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Repositories/Trx/VipLoginBonusHistoryRepositoryInterface.php
-
-
+			path: app/Models/Mst/MstMailboxContent.php

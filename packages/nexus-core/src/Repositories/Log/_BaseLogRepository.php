@@ -86,6 +86,17 @@ abstract class _BaseLogRepository extends _BaseRepository implements _BaseLogRep
      * @return CustomCollection<int, T>
      * @throws \RuntimeException プレイヤーIDが取得できない場合
      */
+    /**
+     * {@inheritDoc}
+     *
+     * どのプレイヤー向けのキャッシュだったかも忘れる
+     */
+    public function forgetCachedModels(): void
+    {
+        parent::forgetCachedModels();
+        $this->cachedForSysPlayerId = null;
+    }
+
     public function queryOrMemory(): CustomCollection
     {
         // プレイヤーIDを先に解決する（キャッシュが誰のものかの判定に使う）

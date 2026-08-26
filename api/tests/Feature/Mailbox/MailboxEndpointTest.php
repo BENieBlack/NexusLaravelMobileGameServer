@@ -85,8 +85,52 @@ class MailboxEndpointTest extends TestCase
     }
 
     #[Test]
+    public function test_list_returns_mailboxes(): void
+    {
+        ['player' => $player, 'token' => $token] = $this->signUpPlayer();
+        $mailbox = $this->makeMailbox($player->id);
+
+        $response = $this->withHeaders($this->authHeaders($token))
+            ->getJson('/api/mailbox/list');
+
+        $response->assertOk();
+        $response->assertJsonPath('mailbox_array.0.trx_mailbox_id', $mailbox->id);
+    }
+
+    #[Test]
+    public function test_list_returns_datetime_columns_as_string(): void
+    {
+        // expires_at / read_at / received_at はキャストしていないため生の文字列で入っている。
+        // レスポンス側がCarbonのつもりで触ると落ちるので、文字列で返ることを固定する。
+        ['player' => $player, 'token' => $token] = $this->signUpPlayer();
+        $this->makeMailbox($player->id);
+
+        $response = $this->withHeaders($this->authHeaders($token))
+            ->getJson('/api/mailbox/list');
+
+        $response->assertOk();
+        $this->assertIsString($response->json('mailbox_array.0.expires_at'));
+        $this->assertNull($response->json('mailbox_array.0.read_at'));
+        $this->assertNull($response->json('mailbox_array.0.received_at'));
+    }
+
+    #[Test]
+    public function test_list_is_empty_when_player_has_no_mailbox(): void
+    {
+        ['token' => $token] = $this->signUpPlayer();
+
+        $this->withHeaders($this->authHeaders($token))
+            ->getJson('/api/mailbox/list')
+            ->assertOk()
+            ->assertJsonPath('mailbox_array', [])
+            ->assertJsonPath('total_unread', 0);
+    }
+
+    #[Test]
     public function test_endpoints_require_authentication(): void
     {
+        $this->getJson('/api/mailbox/list')->assertStatus(401);
+
         $this->postJson('/api/mailbox/lock', [
             'trx_mailbox_id' => 1,
             'is_locked' => true,

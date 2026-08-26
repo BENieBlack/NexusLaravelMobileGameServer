@@ -64,6 +64,9 @@ class LoginBonusHistoryRepositoryAdapter implements LoginBonusHistoryRepositoryI
      * @param  string  $connectionName  シャーディングされたDB接続名
      * @return array|null 最初のカムバック履歴（なければnull）
      */
+    /**
+     * @return array<string, mixed>|null
+     */
     public function selectFirstComebackByPlayerId(int $sysPlayerId, string $connectionName): ?array
     {
         $result = DB::connection($connectionName)
@@ -84,6 +87,9 @@ class LoginBonusHistoryRepositoryAdapter implements LoginBonusHistoryRepositoryI
      * @param  string  $receivedDate  受け取り日時（Y-m-d H:i:s形式）
      * @param  string  $connectionName  シャーディングされたDB接続名
      * @return array|null 履歴（なければnull）
+     */
+    /**
+     * @return array<string, mixed>|null
      */
     public function selectByPlayerAndBonusAndDate(int $sysPlayerId, string $bonusId, string $receivedDate, string $connectionName): ?array
     {

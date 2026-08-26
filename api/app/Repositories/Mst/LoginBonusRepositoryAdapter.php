@@ -48,6 +48,9 @@ class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
      *
      * @return array|null ログインボーナス設定
      */
+    /**
+     * @return array<string, mixed>|null
+     */
     public function selectActiveDailyBonus(): ?array
     {
         $bonus = MstLoginBonus::dailyType()
@@ -122,6 +125,9 @@ class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
      * @param  string  $loginBonusId  ログインボーナスID
      * @param  int  $day  日数
      * @return array コンテンツの配列
+     */
+    /**
+     * @return array<int, array<string, mixed>>
      */
     public function selectContentsByLoginBonusIdAndDay(string $loginBonusId, int $day): array
     {

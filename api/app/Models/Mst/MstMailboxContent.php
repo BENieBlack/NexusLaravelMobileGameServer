@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $content_type
  * @property string $content_id
  * @property int $amount
+ * @property ?string $rarity
+ * @property bool $is_highlight
  * @property int $sort_desc
  * @property string $created_at
  * @property string $updated_at
@@ -31,6 +33,8 @@ class MstMailboxContent extends _BaseMst
         'content_option',
         'content_quantity',
         'amount',
+        'rarity',
+        'is_highlight',
         'sort_desc',
     ];
 
@@ -43,6 +47,7 @@ class MstMailboxContent extends _BaseMst
         'content_option' => 'array',
         'content_quantity' => 'integer',
         'amount' => 'integer',
+        'is_highlight' => 'boolean',
         'sort_desc' => 'integer',
     ];
 
@@ -87,6 +92,9 @@ class MstMailboxContent extends _BaseMst
 
     /**
      * コンテンツオプションを取得
+     */
+    /**
+     * @return array<string, mixed>|null
      */
     public function getContentOption(): ?array
     {

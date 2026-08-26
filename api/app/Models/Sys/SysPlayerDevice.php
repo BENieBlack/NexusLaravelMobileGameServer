@@ -2,10 +2,8 @@
 
 namespace App\Models\Sys;
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Nexus\Core\Contracts\DeviceModelInterface;
-use Nexus\Core\Contracts\PlayerModelInterface;
 use Nexus\Core\Utilities\ClockUtility;
 
 /**
@@ -48,17 +46,6 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
     protected $casts = [
         'device_info' => 'array',
     ];
-
-    /**
-     * プレイヤーとのリレーション
-     */
-    /**
-     * @return BelongsTo<SysPlayer, $this>
-     */
-    public function player(): BelongsTo
-    {
-        return $this->belongsTo(SysPlayer::class, 'sys_player_id');
-    }
 
     /**
      * トークン情報とのリレーション
@@ -210,14 +197,6 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
     public function getPlayerId(): int
     {
         return $this->sys_player_id;
-    }
-
-    /**
-     * プレイヤーを取得 (NexusAuth DeviceModelInterface)
-     */
-    public function getPlayer(): ?PlayerModelInterface
-    {
-        return $this->player;
     }
 
     /**

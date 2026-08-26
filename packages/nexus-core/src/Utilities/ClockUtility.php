@@ -40,7 +40,9 @@ class ClockUtility
     public static function calcDayStartTime(): string
     {
         if (self::$dayStartTime === null) {
-            self::$dayStartTime = env('DAY_START_TIME', '00:00:00');
+            // env()はconfig:cache時にnullを返すため、必ずconfig経由で読む。
+            // キーがnullで存在する場合はconfig()の第2引数が効かないので ?: で受ける
+            self::$dayStartTime = (string) (config('nexus-core.day_start_time') ?: '00:00:00');
         }
         return self::$dayStartTime;
     }

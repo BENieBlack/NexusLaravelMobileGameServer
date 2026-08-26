@@ -48,7 +48,7 @@ class SysGuildRepository extends _BaseSysRepository
     /**
      * 全ギルド一覧を取得（Model返却）
      *
-     * @return Collection<SysGuild>
+     * @return Collection<array-key, SysGuild>
      */
     public function selectAll(): Collection
     {

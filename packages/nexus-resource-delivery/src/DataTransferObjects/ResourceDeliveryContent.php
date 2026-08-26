@@ -120,6 +120,7 @@ class ResourceDeliveryContent
 
     /**
      * メタデータを取得
+     * @return array<string, mixed>|null
      */
     public function getMetadata(): ?array
     {
@@ -288,6 +289,7 @@ class ResourceDeliveryContent
 
     /**
      * 配列からResourceDeliveryContentを生成
+     * @param  array<string, mixed>  $data
      */
     public static function fromArray(array $data): self
     {
@@ -306,6 +308,8 @@ class ResourceDeliveryContent
 
     /**
      * 配列に変換
+     *
+     * @return array<string, mixed>
      */
     public function toArray(): array
     {

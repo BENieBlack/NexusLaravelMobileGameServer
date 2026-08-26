@@ -5,7 +5,6 @@ namespace App\Repositories\Mst;
 use App\Models\Mst\MstLoginBonus;
 use App\Models\Mst\MstLoginBonusContent;
 use Nexus\Core\Utilities\ClockUtility;
-use NexusLogin\Repositories\LoginBonusHistoryRepositoryInterface;
 use NexusLogin\Repositories\LoginBonusRepositoryInterface;
 
 /**
@@ -15,9 +14,7 @@ use NexusLogin\Repositories\LoginBonusRepositoryInterface;
  */
 class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
 {
-    public function __construct(
-        private readonly LoginBonusHistoryRepositoryInterface $historyRepository,
-    ) {}
+    public function __construct() {}
 
     /**
      * {@inheritDoc}

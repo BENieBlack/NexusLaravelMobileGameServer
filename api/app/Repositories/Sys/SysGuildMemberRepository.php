@@ -57,7 +57,7 @@ class SysGuildMemberRepository extends _BaseSysRepository
      * ギルドIDでメンバー一覧を取得（Model返却）
      *
      * @param  int  $guildId  ギルドID
-     * @return Collection<SysGuildMember>
+     * @return Collection<array-key, SysGuildMember>
      */
     public function selectByGuildId(int $guildId): Collection
     {

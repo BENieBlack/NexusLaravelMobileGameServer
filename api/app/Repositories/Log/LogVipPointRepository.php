@@ -25,6 +25,8 @@ class LogVipPointRepository extends _BaseLogRepository implements VipPointLogRep
 
     /**
      * VIPポイント変動ログを記録
+     *
+     * @param  array<string, mixed>  $metadata
      */
     public function log(
         string $uniqueRequestId,
@@ -58,6 +60,8 @@ class LogVipPointRepository extends _BaseLogRepository implements VipPointLogRep
 
     /**
      * プレイヤーのVIPポイント履歴を取得
+     *
+     * @return array<int, array<string, mixed>>
      */
     public function selectHistory(int $sysPlayerId, int $limit = 100): array
     {

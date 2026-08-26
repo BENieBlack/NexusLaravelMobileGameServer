@@ -4,6 +4,9 @@ namespace App\Http\Responses\Auth;
 
 use App\Http\Responses\_BaseResponse;
 use App\Models\Sys\SysPlayer;
+use App\Models\Trx\TrxItem;
+use App\Models\Trx\TrxUnit;
+use App\Models\Trx\TrxWallet;
 use NexusResource\DataTransferObjects\Resource;
 
 /**
@@ -16,10 +19,10 @@ class LoginResponse extends _BaseResponse
 {
     /**
      * @param  SysPlayer  $sysPlayer  プレイヤー情報
-     * @param  array  $trxUnits  所持ユニット一覧
-     * @param  array  $trxItems  所持アイテム一覧
-     * @param  array  $trxWallets  ウォレット一覧
-     * @param  array<resource>  $loginBonusContents  ログインボーナス内容
+     * @param  array<int, TrxUnit>  $trxUnits  所持ユニット一覧
+     * @param  array<int, TrxItem>  $trxItems  所持アイテム一覧
+     * @param  array<int, TrxWallet>  $trxWallets  ウォレット一覧
+     * @param  array<int, \NexusResource\DataTransferObjects\Resource>  $loginBonusContents  ログインボーナス内容
      */
     public function __construct(
         public readonly SysPlayer $sysPlayer,

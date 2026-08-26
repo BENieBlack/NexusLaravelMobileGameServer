@@ -40,7 +40,7 @@ class SignInUseCase extends _BaseUseCase
      * 既存デバイスIDで新しいトークンを発行
      *
      * @param  string  $deviceId  デバイスID
-     * @param  array  $deviceInfo  デバイス情報（現在未使用だが将来的な拡張のため保持）
+     * @param  array<string, mixed>  $deviceInfo
      *
      * @throws GameException デバイスIDが存在しない場合
      * @throws Exception|Throwable

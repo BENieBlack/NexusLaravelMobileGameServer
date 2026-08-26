@@ -95,7 +95,7 @@ class MstEquipmentLevel extends _BaseMst
     /**
      * 指定したレアリティの全レベルデータを取得
      *
-     * @return Collection
+     * @return Collection<int, self>
      */
     public static function selectAllLevelsByRarity(string $rarity)
     {

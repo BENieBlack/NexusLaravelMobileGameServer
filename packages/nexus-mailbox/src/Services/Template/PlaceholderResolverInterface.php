@@ -44,7 +44,7 @@ interface PlaceholderResolverInterface
      * プレースホルダーを解決
      *
      * @param  string  $key  プレースホルダーキー
-     * @param  array  $context  コンテキスト情報（player, alliance, battleなど）
+     * @param  array<string, mixed>  $context
      * @return string|null 解決した値、解決できない場合はnull
      */
     public function resolve(string $key, array $context): ?string;

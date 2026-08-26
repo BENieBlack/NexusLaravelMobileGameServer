@@ -85,7 +85,7 @@ class ReceiveAllUseCase extends _BaseUseCase
 
                 // マスターデータから添付物を取得
                 $mstMailbox = $trxMailbox->mstMailbox;
-                $contentCollection = $mstMailbox?->contentCollection ?? new CustomCollection;
+                $contentCollection = $mstMailbox->contentCollection ?? new CustomCollection;
 
                 if ($contentCollection->isEmpty()) {
                     // 添付物がなくても受取済みにする

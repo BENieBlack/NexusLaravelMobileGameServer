@@ -49,6 +49,8 @@ class VipRewardService
 
     /**
      * 報酬を配列形式で取得（API レスポンス用）
+     *
+     * @return array<int, array<string, mixed>>
      */
     public function buildRewardsArray(int $vipLevel): array
     {

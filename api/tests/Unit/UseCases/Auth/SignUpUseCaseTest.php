@@ -66,7 +66,6 @@ class SignUpUseCaseTest extends TestCase
             $this->playerAuthService,
             $this->tokenService,
             $this->deviceRepository,
-            $this->tokenRepository,
             $this->deviceRepository,
             $sysPlayerRepository
         );

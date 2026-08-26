@@ -21,14 +21,14 @@ interface _BaseRepositoryInterface
     /**
      * 溜め込んだモデルキューを取得（QueryManagerから呼ばれる）
      *
-     * @return array
+     * @return array<array-key, \Illuminate\Database\Eloquent\Model>
      */
     public function getQueuedModels(): array;
 
     /**
      * 削除対象のモデルキューを取得（QueryManagerから呼ばれる）
      *
-     * @return array
+     * @return array<array-key, \Illuminate\Database\Eloquent\Model>
      */
     public function getQueuedDeleteModels(): array;
 

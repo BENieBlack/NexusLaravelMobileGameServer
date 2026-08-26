@@ -15,7 +15,7 @@ interface GachaStepBonusContentRepositoryInterface
      * ボーナスIDでコンテンツリストを取得
      * 
      * @param string $bonusId
-     * @return CustomCollection
+     * @return CustomCollection<array-key, \Illuminate\Database\Eloquent\Model>
      */
     public function selectByBonusId(string $bonusId): CustomCollection;
 

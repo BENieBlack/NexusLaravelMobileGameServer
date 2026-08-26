@@ -19,7 +19,8 @@ use Tests\TestCase;
  * 内部で呼ぶ Artisan::call を差し替えて、どのシャードへ
  * どのオプションを渡しているかを検証する。
  *
- * シャード数は DB_TRX_SHARDS（テストでは3）から決まる。
+ * シャード数は DB_TRX_SHARDS で決まる。テストは2シャード前提
+ * （phpunit.xml と CI の両方で 2 に揃えてある）。
  */
 class ShardMigrationCommandTest extends TestCase
 {
@@ -49,15 +50,15 @@ class ShardMigrationCommandTest extends TestCase
 
         $this->assertSame(TrxMigrateCommand::SUCCESS, $this->runCommand(TrxMigrateCommand::class, [], $output));
 
-        $this->assertSame(['trx1', 'trx2', 'trx3'], array_column(array_column($this->calls, 1), '--database'));
-        $this->assertSame(['migrate', 'migrate', 'migrate'], array_column($this->calls, 0));
+        $this->assertSame(['trx1', 'trx2'], array_column(array_column($this->calls, 1), '--database'));
+        $this->assertSame(['migrate', 'migrate'], array_column($this->calls, 0));
 
         // trxサブディレクトリだけを対象にする
         foreach ($this->calls[0][1]['--path'] as $path) {
             $this->assertStringEndsWith('/database/migrations/trx', $path);
         }
 
-        $this->assertStringContainsString('Target shards: trx1, trx2, trx3', $output->fetch());
+        $this->assertStringContainsString('Target shards: trx1, trx2', $output->fetch());
     }
 
     #[Test]
@@ -92,8 +93,8 @@ class ShardMigrationCommandTest extends TestCase
             $this->runCommand(TrxRollbackCommand::class, ['--step' => 2, '--force' => true])
         );
 
-        $this->assertSame(['migrate:rollback', 'migrate:rollback', 'migrate:rollback'], array_column($this->calls, 0));
-        $this->assertSame(['trx1', 'trx2', 'trx3'], array_column(array_column($this->calls, 1), '--database'));
+        $this->assertSame(['migrate:rollback', 'migrate:rollback'], array_column($this->calls, 0));
+        $this->assertSame(['trx1', 'trx2'], array_column(array_column($this->calls, 1), '--database'));
         $this->assertSame(2, $this->calls[0][1]['--step']);
         $this->assertTrue($this->calls[0][1]['--force']);
     }
@@ -105,14 +106,14 @@ class ShardMigrationCommandTest extends TestCase
 
         $this->assertSame(PitrMigrateCommand::SUCCESS, $this->runCommand(PitrMigrateCommand::class, [], $output));
 
-        $this->assertSame(['log1', 'log2', 'log3'], array_column(array_column($this->calls, 1), '--database'));
+        $this->assertSame(['log1', 'log2'], array_column(array_column($this->calls, 1), '--database'));
 
         // logサブディレクトリだけを対象にする
         foreach ($this->calls[0][1]['--path'] as $path) {
             $this->assertStringEndsWith('database/migrations/log', $path);
         }
 
-        $this->assertStringContainsString('Target shards: log1, log2, log3', $output->fetch());
+        $this->assertStringContainsString('Target shards: log1, log2', $output->fetch());
     }
 
     #[Test]
@@ -123,7 +124,7 @@ class ShardMigrationCommandTest extends TestCase
             $this->runCommand(PitrRollbackCommand::class, ['--force' => true])
         );
 
-        $this->assertSame(['log1', 'log2', 'log3'], array_column(array_column($this->calls, 1), '--database'));
+        $this->assertSame(['log1', 'log2'], array_column(array_column($this->calls, 1), '--database'));
         $this->assertSame('database/migrations/log', $this->calls[0][1]['--path']);
     }
 

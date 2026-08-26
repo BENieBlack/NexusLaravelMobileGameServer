@@ -67,7 +67,11 @@
         <env name="REDIS_PORT" value="6379"/>
 
         <!-- Sharding Configuration for Testing -->
-        <env name="DB_TRX_SHARDS" value="3"/>
+        <!-- テストは2シャード前提。
+             force を付けないと、開発用の .env（DB_TRX_SHARDS=3）や
+             CIのjob envが実環境変数として優先され、環境ごとに前提が変わってしまう。
+             trx3 / log3 の接続情報は残してあるので、増やしたい場合はここを変える -->
+        <env name="DB_TRX_SHARDS" value="2" force="true"/>
 
         <!-- System DB Testing -->
         <env name="DB_SYSTEM_HOST" value="db-sys"/>

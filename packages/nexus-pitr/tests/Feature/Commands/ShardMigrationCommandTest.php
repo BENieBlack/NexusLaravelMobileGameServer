@@ -7,7 +7,6 @@ use NexusPitr\Commands\PitrMigrateCommand;
 use NexusPitr\Commands\PitrRollbackCommand;
 use NexusPitr\Commands\TrxMigrateCommand;
 use NexusPitr\Commands\TrxRollbackCommand;
-use NexusPitr\Logger\ShardMapper;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -20,8 +19,8 @@ use Tests\TestCase;
  * 内部で呼ぶ Artisan::call を差し替えて、どのシャードへ
  * どのオプションを渡しているかを検証する。
  *
- * シャード数は DB_TRX_SHARDS から決まり、環境によって変わる（CIは2、ローカルは3）ため、
- * 期待値は ShardMapper から組み立てる。
+ * シャード数は DB_TRX_SHARDS で決まる。テストは2シャード前提
+ * （phpunit.xml と CI の両方で 2 に揃えてある）。
  */
 class ShardMigrationCommandTest extends TestCase
 {
@@ -51,19 +50,15 @@ class ShardMigrationCommandTest extends TestCase
 
         $this->assertSame(TrxMigrateCommand::SUCCESS, $this->runCommand(TrxMigrateCommand::class, [], $output));
 
-        $trxConnections = ShardMapper::allTrxConnections();
-        $this->assertSame($trxConnections, array_column(array_column($this->calls, 1), '--database'));
-        $this->assertSame(array_fill(0, count($trxConnections), 'migrate'), array_column($this->calls, 0));
+        $this->assertSame(['trx1', 'trx2'], array_column(array_column($this->calls, 1), '--database'));
+        $this->assertSame(['migrate', 'migrate'], array_column($this->calls, 0));
 
         // trxサブディレクトリだけを対象にする
         foreach ($this->calls[0][1]['--path'] as $path) {
             $this->assertStringEndsWith('/database/migrations/trx', $path);
         }
 
-        $this->assertStringContainsString(
-            'Target shards: '.implode(', ', $trxConnections),
-            $output->fetch()
-        );
+        $this->assertStringContainsString('Target shards: trx1, trx2', $output->fetch());
     }
 
     #[Test]
@@ -98,12 +93,8 @@ class ShardMigrationCommandTest extends TestCase
             $this->runCommand(TrxRollbackCommand::class, ['--step' => 2, '--force' => true])
         );
 
-        $trxConnections = ShardMapper::allTrxConnections();
-        $this->assertSame(
-            array_fill(0, count($trxConnections), 'migrate:rollback'),
-            array_column($this->calls, 0)
-        );
-        $this->assertSame($trxConnections, array_column(array_column($this->calls, 1), '--database'));
+        $this->assertSame(['migrate:rollback', 'migrate:rollback'], array_column($this->calls, 0));
+        $this->assertSame(['trx1', 'trx2'], array_column(array_column($this->calls, 1), '--database'));
         $this->assertSame(2, $this->calls[0][1]['--step']);
         $this->assertTrue($this->calls[0][1]['--force']);
     }
@@ -115,18 +106,14 @@ class ShardMigrationCommandTest extends TestCase
 
         $this->assertSame(PitrMigrateCommand::SUCCESS, $this->runCommand(PitrMigrateCommand::class, [], $output));
 
-        $logConnections = ShardMapper::allLogConnections();
-        $this->assertSame($logConnections, array_column(array_column($this->calls, 1), '--database'));
+        $this->assertSame(['log1', 'log2'], array_column(array_column($this->calls, 1), '--database'));
 
         // logサブディレクトリだけを対象にする
         foreach ($this->calls[0][1]['--path'] as $path) {
             $this->assertStringEndsWith('database/migrations/log', $path);
         }
 
-        $this->assertStringContainsString(
-            'Target shards: '.implode(', ', $logConnections),
-            $output->fetch()
-        );
+        $this->assertStringContainsString('Target shards: log1, log2', $output->fetch());
     }
 
     #[Test]
@@ -137,10 +124,7 @@ class ShardMigrationCommandTest extends TestCase
             $this->runCommand(PitrRollbackCommand::class, ['--force' => true])
         );
 
-        $this->assertSame(
-            ShardMapper::allLogConnections(),
-            array_column(array_column($this->calls, 1), '--database')
-        );
+        $this->assertSame(['log1', 'log2'], array_column(array_column($this->calls, 1), '--database'));
         $this->assertSame('database/migrations/log', $this->calls[0][1]['--path']);
     }
 

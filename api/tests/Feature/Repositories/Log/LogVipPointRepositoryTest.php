@@ -198,7 +198,7 @@ class LogVipPointRepositoryTest extends TestCase
 
     private function cleanUp(): void
     {
-        foreach (['log1', 'log2', 'log3'] as $connection) {
+        foreach (['log1', 'log2'] as $connection) {
             DB::connection($connection)->table('log_vip_point')->delete();
         }
     }

@@ -161,7 +161,7 @@ class DetectRefundsCommandTest extends TestCase
 
     private function cleanUp(): void
     {
-        foreach (['log1', 'log2', 'log3'] as $connection) {
+        foreach (['log1', 'log2'] as $connection) {
             DB::connection($connection)->table('log_in_app_purchase')->delete();
         }
     }

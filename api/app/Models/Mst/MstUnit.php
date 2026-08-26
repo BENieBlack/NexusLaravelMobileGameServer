@@ -20,11 +20,6 @@ class MstUnit extends _BaseMst
         'type',
         'element',
         'rarity',
-        'grade',
-        'hp',
-        'attack',
-        'defense',
-        'speed',
     ];
 
     /**
@@ -33,11 +28,6 @@ class MstUnit extends _BaseMst
     /** @var array<string, string> */
     protected $casts = [
         'deploy_key' => 'integer',
-        'grade' => 'integer',
-        'hp' => 'integer',
-        'attack' => 'integer',
-        'defense' => 'integer',
-        'speed' => 'integer',
     ];
 
     public $timestamps = true;

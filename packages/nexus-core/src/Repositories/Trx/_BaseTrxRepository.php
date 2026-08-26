@@ -322,6 +322,17 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
     }
 
     /**
+     * {@inheritDoc}
+     *
+     * どのプレイヤー向けのキャッシュだったかも忘れる
+     */
+    public function forgetCachedModels(): void
+    {
+        parent::forgetCachedModels();
+        $this->cachedForSysPlayerId = null;
+    }
+
+    /**
      * キューと変更前状態をクリア
      *
      * @return void

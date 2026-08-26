@@ -114,6 +114,19 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
     }
 
     /**
+     * メモリキャッシュを破棄する
+     *
+     * バッチのようにシャードを跨いで同じRepositoryを使い回す場合、
+     * 前のシャードで読んだモデルが残っていると混ざるため明示的に捨てる
+     *
+     * @return void
+     */
+    public function forgetCachedModels(): void
+    {
+        $this->models = null;
+    }
+
+    /**
      * データベース接続名を取得
      *
      * @return string

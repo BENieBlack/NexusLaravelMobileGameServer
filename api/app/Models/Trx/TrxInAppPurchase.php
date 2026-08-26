@@ -139,6 +139,14 @@ class TrxInAppPurchase extends _BaseTrx
     }
 
     /**
+     * 累計購入回数を取得
+     */
+    public function getTotalPurchaseCount(): int
+    {
+        return (int) $this->getAttribute('total_purchase_count');
+    }
+
+    /**
      * 期間内購入回数を取得
      */
     public function getPurchaseCount(): int

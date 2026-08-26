@@ -6,6 +6,9 @@ namespace NexusGacha\DataTransferObjects;
  * GachaProgress
  * 
  * ガチャの進行状況を表すDTO
+ *
+ * daily_reset_at / total_reset_at はDB側がnullableなので、
+ * 一度もリセットしていない状態をnullで表現する
  */
 class GachaProgress
 {
@@ -14,9 +17,9 @@ class GachaProgress
         private readonly string $mstGachaId,
         private int $currentStep,
         private int $dailyDrawCount,
-        private string $dailyResetAt,
+        private ?string $dailyResetAt,
         private int $totalDrawCount,
-        private string $totalResetAt,
+        private ?string $totalResetAt,
     ) {
     }
 
@@ -50,7 +53,7 @@ class GachaProgress
         $this->dailyDrawCount = $dailyDrawCount;
     }
 
-    public function getDailyResetAt(): string
+    public function getDailyResetAt(): ?string
     {
         return $this->dailyResetAt;
     }
@@ -70,7 +73,7 @@ class GachaProgress
         $this->totalDrawCount = $totalDrawCount;
     }
 
-    public function getTotalResetAt(): string
+    public function getTotalResetAt(): ?string
     {
         return $this->totalResetAt;
     }

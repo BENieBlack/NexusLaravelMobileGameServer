@@ -89,6 +89,8 @@ class MstPlayerLevel extends _BaseMst
 
     /**
      * 全レベルデータを取得（レベル昇順）
+     *
+     * @return Collection<int, self>
      */
     public static function selectAllLevels(): Collection
     {

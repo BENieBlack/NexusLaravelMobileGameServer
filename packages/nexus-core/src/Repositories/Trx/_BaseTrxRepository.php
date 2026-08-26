@@ -294,6 +294,8 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
      */
     protected function resolvePrimaryKeyValues($model): array
     {
+        // 複合主キーのモデル（TrxStamina など）は getKeyName() が配列を返す
+        /** @var string|array<int, string> $keyName */
         $keyName = $model->getKeyName();
         
         if (is_array($keyName)) {

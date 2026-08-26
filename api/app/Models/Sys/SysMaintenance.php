@@ -148,8 +148,8 @@ class SysMaintenance extends _BaseSys
     /**
      * 現在有効なメンテナンスを取得（スコープ）
      *
-     * @param  Builder  $query
-     * @return Builder
+     * @param  Builder<self>  $query
+     * @return Builder<self>
      */
     public function scopeActive($query)
     {
@@ -159,8 +159,8 @@ class SysMaintenance extends _BaseSys
     /**
      * 進行中のメンテナンスを取得（スコープ）
      *
-     * @param  Builder  $query
-     * @return Builder
+     * @param  Builder<self>  $query
+     * @return Builder<self>
      */
     public function scopeInProgress($query)
     {

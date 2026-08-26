@@ -21,7 +21,7 @@ class MstVipLevelRewardRepository extends _BaseMstRepository implements VipLevel
      * VIPレベルに対応する報酬一覧を取得
      * sort_order昇順でソート
      *
-     * @return CustomCollection<MstVipLevelReward>
+     * @return CustomCollection<array-key, MstVipLevelReward>
      */
     public function selectByVipLevel(int $vipLevel): CustomCollection
     {
@@ -35,7 +35,7 @@ class MstVipLevelRewardRepository extends _BaseMstRepository implements VipLevel
      * 有効な報酬のみを取得
      * sort_order昇順でソート
      *
-     * @return CustomCollection<MstVipLevelReward>
+     * @return CustomCollection<array-key, MstVipLevelReward>
      */
     public function selectActiveByVipLevel(int $vipLevel): CustomCollection
     {
@@ -52,7 +52,7 @@ class MstVipLevelRewardRepository extends _BaseMstRepository implements VipLevel
      *
      * @param  int  $fromLevel  開始VIPレベル（含まない）
      * @param  int  $toLevel  終了VIPレベル（含む）
-     * @return CustomCollection<MstVipLevelReward>
+     * @return CustomCollection<array-key, MstVipLevelReward>
      */
     public function selectActiveByLevelRange(int $fromLevel, int $toLevel): CustomCollection
     {
@@ -70,7 +70,7 @@ class MstVipLevelRewardRepository extends _BaseMstRepository implements VipLevel
     /**
      * 全ての有効な報酬を取得
      *
-     * @return CustomCollection<MstVipLevelReward>
+     * @return CustomCollection<array-key, MstVipLevelReward>
      */
     public function selectAllActive(): CustomCollection
     {

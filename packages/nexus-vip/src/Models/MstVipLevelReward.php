@@ -9,7 +9,7 @@ use Nexus\Core\Models\Mst\_BaseMst;
  *
  * @property int $amount
  * @property string $content_id
- * @property ?array $content_option
+ * @property array<string, mixed>|null $content_option
  * @property int $content_quantity
  * @property string $content_type
  * @property bool $is_active
@@ -76,6 +76,7 @@ class MstVipLevelReward extends _BaseMst
 
     /**
      * コンテンツオプションを取得
+     * @return array<string, mixed>|null
      */
     public function getContentOption(): ?array
     {

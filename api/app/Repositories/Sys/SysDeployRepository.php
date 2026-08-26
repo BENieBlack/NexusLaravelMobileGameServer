@@ -72,6 +72,8 @@ class SysDeployRepository extends _BaseSysRepository
 
     /**
      * 有効なデプロイ一覧を取得
+     *
+     * @return CustomCollection<array-key, SysDeploy>
      */
     public function selectActiveList(): CustomCollection
     {

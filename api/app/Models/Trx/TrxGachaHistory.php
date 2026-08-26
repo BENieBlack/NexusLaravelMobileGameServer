@@ -14,7 +14,7 @@ namespace App\Models\Trx;
  * @property string $cost_type
  * @property string|null $cost_id
  * @property int $cost_amount
- * @property array $prizes
+ * @property array<int, array<string, mixed>> $prizes
  * @property bool $is_delete
  */
 class TrxGachaHistory extends _BaseTrx

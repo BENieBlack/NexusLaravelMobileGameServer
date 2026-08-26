@@ -20,6 +20,44 @@ use Tests\TestCase;
 class ReceiveAllResponseTest extends TestCase
 {
     #[Test]
+    public function test_delivery_contents_are_read_through_getters(): void
+    {
+        // Resource のプロパティは private なので、直接触ると実行時に落ちる
+        $response = new ReceiveAllResponse(
+            receivedMailboxIds: [1],
+            totalCount: 1,
+            skippedCount: 0,
+            deliveryContents: [
+                Resource::item('item_potion', 3),
+                Resource::diamond(100),
+            ],
+        );
+
+        $array = $response->toArray();
+
+        $this->assertSame(
+            [
+                ['type' => 'item', 'id' => 'item_potion', 'amount' => 3],
+                ['type' => 'diamond', 'id' => 'diamond', 'amount' => 100],
+            ],
+            $array['delivery_contents'],
+        );
+    }
+
+    #[Test]
+    public function test_delivery_contents_are_omitted_when_empty(): void
+    {
+        $response = new ReceiveAllResponse(
+            receivedMailboxIds: [],
+            totalCount: 0,
+            skippedCount: 0,
+            deliveryContents: [],
+        );
+
+        $this->assertArrayNotHasKey('delivery_contents', $response->toArray());
+    }
+
+    #[Test]
     public function test_accepts_delivery_summary_returned_by_delivery_service(): void
     {
         $summary = $this->makeSummary();

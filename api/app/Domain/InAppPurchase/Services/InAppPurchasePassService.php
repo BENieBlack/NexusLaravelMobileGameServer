@@ -91,9 +91,10 @@ class InAppPurchasePassService
      */
     public function calcTotalEffectValue(int $sysPlayerId, string $effectType): float
     {
+        // value は decimal:2 なので文字列で入っている。callback版のsum()で数値として畳む
         return $this->findActiveEffects($sysPlayerId)
             ->where('effect_type', $effectType)
-            ->sum('value');
+            ->sum(fn (TrxInAppPurchaseEffect $effect) => (float) $effect->getAttribute('value'));
     }
 
     /**

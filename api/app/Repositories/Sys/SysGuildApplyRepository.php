@@ -49,7 +49,7 @@ class SysGuildApplyRepository extends _BaseSysRepository
      * ギルドIDに関連する申請一覧を取得（Model返却）
      *
      * @param  int  $guildId  ギルドID
-     * @return Collection<SysGuildApply>
+     * @return Collection<array-key, SysGuildApply>
      */
     public function selectAppliesByGuildId(int $guildId): Collection
     {
@@ -62,7 +62,7 @@ class SysGuildApplyRepository extends _BaseSysRepository
      * プレイヤーIDに関連する申請一覧を取得（Model返却）
      *
      * @param  int  $playerId  プレイヤーID
-     * @return Collection<SysGuildApply>
+     * @return Collection<array-key, SysGuildApply>
      */
     public function selectAppliesByPlayerId(int $playerId): Collection
     {

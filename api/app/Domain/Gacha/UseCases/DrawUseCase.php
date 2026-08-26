@@ -149,6 +149,7 @@ class DrawUseCase extends _BaseUseCase
      * ガチャ履歴を保存
      *
      * @param  mixed  $cost
+     * @param  array<int, array<string, mixed>>  $prizes
      */
     private function persistHistory(int $sysPlayerId, string $mstGachaId, int $drawCount, $cost, array $prizes): void
     {

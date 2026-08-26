@@ -14,6 +14,9 @@ use Nexus\Core\Traits\JsonSerializableTrait;
 class Verification
 {
     use JsonSerializableTrait;
+    /**
+     * @param  array<string, mixed>  $rawResponse
+     */
     public function __construct(
         
         private readonly bool $isValid,                      // 検証が成功したか
@@ -29,6 +32,7 @@ class Verification
 
     /**
      * 配列に変換
+     * @return array<string, mixed>
      */
     public function toArray(): array
     {
@@ -95,6 +99,8 @@ class Verification
 
     /**
      * プラットフォームAPIの生レスポンス取得
+     *
+     * @return array<string, mixed>
      */
     public function getRawResponse(): array
     {

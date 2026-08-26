@@ -198,8 +198,8 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
     /**
      * 有効なトークンのスコープ
      *
-     * @param  Builder  $query
-     * @return Builder
+     * @param  Builder<self>  $query
+     * @return Builder<self>
      */
     public function scopeValid($query)
     {

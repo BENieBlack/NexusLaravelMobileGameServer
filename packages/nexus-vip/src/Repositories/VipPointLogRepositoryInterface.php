@@ -9,6 +9,7 @@ interface VipPointLogRepositoryInterface
 {
     /**
      * VIPポイント変動ログを記録
+     * @param  array<string, mixed>  $metadata
      */
     public function log(
         string $uniqueRequestId,
@@ -24,6 +25,8 @@ interface VipPointLogRepositoryInterface
 
     /**
      * プレイヤーのVIPポイント履歴を取得
+     *
+     * @return array<int, array<string, mixed>>
      */
     public function selectHistory(int $sysPlayerId, int $limit = 100): array;
 }

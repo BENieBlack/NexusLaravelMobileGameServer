@@ -10,7 +10,7 @@ namespace App\Models\Mst;
  * @property string $mst_gacha_step_bonus_id
  * @property string $content_type
  * @property string $content_id
- * @property array|null $content_option
+ * @property array<string, mixed>|null $content_option
  * @property int $content_quantity
  * @property int $amount
  * @property int $weight
@@ -79,6 +79,8 @@ class MstGachaStepBonusContent extends _BaseMst
 
     /**
      * コンテンツオプションを取得
+     *
+     * @return array<string, mixed>|null
      */
     public function getContentOption(): ?array
     {

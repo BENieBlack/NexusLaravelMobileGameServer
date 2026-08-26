@@ -75,7 +75,10 @@ class TrxStaminaRepository extends _BaseTrxRepository
      */
     public function selectByPlayerAndType(int $sysPlayerId, string $type): ?TrxStamina
     {
-        $originalPlayerId = $this->apiSession->getSysPlayerId();
+        // 未設定のまま getPlayerId() を呼ぶと例外になるので、あるときだけ退避する
+        $originalPlayerId = $this->apiSession->hasPlayerId()
+            ? $this->apiSession->getPlayerId()
+            : null;
         $this->apiSession->setSysPlayerId($sysPlayerId);
 
         $stamina = $this->selectByType($type);

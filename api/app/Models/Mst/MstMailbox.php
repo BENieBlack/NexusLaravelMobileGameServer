@@ -122,23 +122,26 @@ class MstMailbox extends _BaseMst
     {
         $array = parent::toResponseArray();
 
-        // Enumを文字列に変換
-        if (isset($array['category']) && $array['category'] instanceof Category) {
-            $array['category'] = $array['category']->value;
-            $array['category_label'] = $array['category']->label();
-            $array['category_icon'] = $array['category']->icon();
+        // toArray()の時点でEnumは値に落ちているので、Enum自体はモデルの属性から取り直す
+        $category = $this->getAttribute('category');
+        if ($category instanceof Category) {
+            $array['category'] = $category->value;
+            $array['category_label'] = $category->label();
+            $array['category_icon'] = $category->icon();
         }
 
-        if (isset($array['priority']) && $array['priority'] instanceof Priority) {
-            $array['priority'] = $array['priority']->value;
-            $array['priority_label'] = $array['priority']->label();
-            $array['priority_color'] = $array['priority']->color();
-            $array['priority_icon'] = $array['priority']->icon();
+        $priority = $this->getAttribute('priority');
+        if ($priority instanceof Priority) {
+            $array['priority'] = $priority->value;
+            $array['priority_label'] = $priority->label();
+            $array['priority_color'] = $priority->color();
+            $array['priority_icon'] = $priority->icon();
         }
 
-        if (isset($array['sender_type']) && $array['sender_type'] instanceof SenderType) {
-            $array['sender_type'] = $array['sender_type']->value;
-            $array['sender_type_label'] = $array['sender_type']->label();
+        $senderType = $this->getAttribute('sender_type');
+        if ($senderType instanceof SenderType) {
+            $array['sender_type'] = $senderType->value;
+            $array['sender_type_label'] = $senderType->label();
         }
 
         return $array;

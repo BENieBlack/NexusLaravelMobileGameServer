@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Mailbox;
 
+use App\Exceptions\GameErrorCode;
 use App\Models\Trx\TrxMailbox;
 use App\Persistence\ApiSession;
 use Nexus\Core\Models\_BaseModel;
@@ -85,6 +86,42 @@ class MailboxEndpointTest extends TestCase
     }
 
     #[Test]
+    public function test_lock_rejects_deleted_mailbox(): void
+    {
+        ['player' => $player, 'token' => $token] = $this->signUpPlayer();
+        $mailbox = $this->makeMailbox($player->id, isDelete: true);
+
+        // 削除済みはビジネスエラー（HTTP 299）で弾く
+        $this->withHeaders($this->authHeaders($token))
+            ->postJson('/api/mailbox/lock', [
+                'trx_mailbox_id' => $mailbox->id,
+                'is_locked' => true,
+            ])
+            ->assertStatus(299)
+            ->assertJsonPath('error_code', GameErrorCode::MAILBOX_ALREADY_DELETED);
+
+        $this->assertDatabaseHas('trx_mailbox', [
+            'id' => $mailbox->id,
+            'is_protected' => false,
+        ], 'trx1');
+    }
+
+    #[Test]
+    public function test_lock_rejects_other_players_mailbox(): void
+    {
+        ['player' => $owner] = $this->signUpPlayer();
+        ['token' => $otherToken] = $this->signUpPlayer();
+        $mailbox = $this->makeMailbox($owner->id);
+
+        $this->withHeaders($this->authHeaders($otherToken))
+            ->postJson('/api/mailbox/lock', [
+                'trx_mailbox_id' => $mailbox->id,
+                'is_locked' => true,
+            ])
+            ->assertStatus(299);
+    }
+
+    #[Test]
     public function test_list_returns_mailboxes(): void
     {
         ['player' => $player, 'token' => $token] = $this->signUpPlayer();
@@ -139,16 +176,17 @@ class MailboxEndpointTest extends TestCase
         $this->postJson('/api/mailbox/receive_all', [])->assertStatus(401);
     }
 
-    private function makeMailbox(int $sysPlayerId, bool $isProtected = false): TrxMailbox
+    private function makeMailbox(int $sysPlayerId, bool $isProtected = false, bool $isDelete = false): TrxMailbox
     {
         ApiSession::setSysPlayerId($sysPlayerId);
 
-        return _BaseModel::allowDirectWrites(function () use ($sysPlayerId, $isProtected) {
+        return _BaseModel::allowDirectWrites(function () use ($sysPlayerId, $isProtected, $isDelete) {
             $mailbox = new TrxMailbox([
                 'sys_player_id' => $sysPlayerId,
                 'mst_mailbox_id' => 'mailbox_test_001',
                 'is_opened' => false,
                 'is_received' => false,
+                'is_delete' => $isDelete,
                 'is_protected' => $isProtected,
                 'expires_at' => now()->addDays(30),
             ]);

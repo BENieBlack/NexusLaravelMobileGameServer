@@ -558,11 +558,6 @@ parameters:
 			count: 1
 			path: app/Domain/InAppPurchase/Constants/InAppPurchaseConst.php
 
-		-
-			message: '#^Call to an undefined method App\\Models\\Trx\\TrxInAppPurchase\:\:getTotalPurchaseCount\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Domain/InAppPurchase/Services/InAppPurchaseHistoryService.php
 
 		-
 			message: '#^Method App\\Domain\\InAppPurchase\\Services\\InAppPurchasePackService\:\:purchasePack\(\) return type has no value type specified in iterable type array\.$#'
@@ -606,11 +601,6 @@ parameters:
 			count: 1
 			path: app/Domain/Mailbox/Services/Placeholders/PlayerPlaceholder.php
 
-		-
-			message: '#^Access to undefined constant App\\Exceptions\\GameErrorCode\:\:MAILBOX_ALREADY_DELETED\.$#'
-			identifier: classConstant.notFound
-			count: 1
-			path: app/Domain/Mailbox/UseCases/LockUseCase.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>contentCollection" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
@@ -738,23 +728,8 @@ parameters:
 			count: 1
 			path: app/Models/Mst/MstLoginBonusContent.php
 
-		-
-			message: '#^Cannot call method color\(\) on string\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: app/Models/Mst/MstMailbox.php
 
-		-
-			message: '#^Cannot call method icon\(\) on string\.$#'
-			identifier: method.nonObject
-			count: 2
-			path: app/Models/Mst/MstMailbox.php
 
-		-
-			message: '#^Cannot call method label\(\) on string\.$#'
-			identifier: method.nonObject
-			count: 3
-			path: app/Models/Mst/MstMailbox.php
 
 		-
 			message: '#^Return type \(array\<int, string\>\) of method App\\Models\\Mst\\MstMessageI18n\:\:getKeyName\(\) should be compatible with return type \(string\) of method Illuminate\\Database\\Eloquent\\Model\:\:getKeyName\(\)$#'
@@ -942,17 +917,7 @@ parameters:
 			count: 1
 			path: app/Models/Trx/TrxGachaHistory.php
 
-		-
-			message: '#^Parameter \#2 \$foreignKey of method Illuminate\\Database\\Eloquent\\Model\:\:belongsTo\(\) expects string\|null, array\<int, string\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Models/Trx/TrxInAppPurchaseEffect.php
 
-		-
-			message: '#^Parameter \#3 \$ownerKey of method Illuminate\\Database\\Eloquent\\Model\:\:belongsTo\(\) expects string\|null, array\<int, string\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Models/Trx/TrxInAppPurchaseEffect.php
 
 		-
 			message: '#^PHPDoc type array\<string\> of property App\\Models\\Trx\\TrxStamina\:\:\$primaryKey is not covariant with PHPDoc type string of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$primaryKey\.$#'
@@ -1176,11 +1141,6 @@ parameters:
 			count: 1
 			path: app/Repositories/Trx/TrxStaminaRepository.php
 
-		-
-			message: '#^Parameter \#4 \$mstUnitId of method App\\Repositories\\Log\\LogUnitRepository\:\:insertUnitLog\(\) expects int, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Repositories/Trx/TrxUnitRepository.php
 
 		-
 			message: '#^Return type \(array\<int, string\>\) of method App\\Models\\Mst\\MstMailboxContent\:\:getKeyName\(\) should be compatible with return type \(string\) of method Illuminate\\Database\\Eloquent\\Model\:\:getKeyName\(\)$#'

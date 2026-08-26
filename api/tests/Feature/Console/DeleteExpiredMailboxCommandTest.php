@@ -16,7 +16,8 @@ use Tests\TestCase;
  * mailbox:delete-expired のテスト
  *
  * 期限切れメールを論理削除するバッチ。
- * 保護されたメールと削除済みのメールを触らないことが要点。
+ * 保護されたメールと削除済みのメールを触らないこと、
+ * trx1 以外のシャードのメールも消えることが要点。
  */
 class DeleteExpiredMailboxCommandTest extends TestCase
 {
@@ -49,8 +50,10 @@ class DeleteExpiredMailboxCommandTest extends TestCase
 
     protected function tearDown(): void
     {
-        DB::connection('trx1')->table('trx_mailbox')
-            ->whereIn('sys_player_id', [$this->sysPlayerId, $this->otherPlayerId])->delete();
+        foreach (['trx1', 'trx2'] as $connection) {
+            DB::connection($connection)->table('trx_mailbox')
+                ->whereIn('sys_player_id', [$this->sysPlayerId, $this->otherPlayerId])->delete();
+        }
         ApiSession::clearForTest();
         ClockUtility::reset();
         app(QueryManager::class)->clear();
@@ -147,11 +150,64 @@ class DeleteExpiredMailboxCommandTest extends TestCase
             ->assertExitCode(0);
     }
 
-    private function makeMailbox(?string $expiresAt, bool $isProtected = false, ?int $sysPlayerId = null): TrxMailbox
+    #[Test]
+    public function trx1以外のシャードのメールも削除する(): void
     {
+        // trx_mailbox はプレイヤーごとにシャードへ分かれる。
+        // TrxMailbox の既定接続（trx1）だけを見ると他シャードのメールが残り続ける
+        $onShard1 = $this->makeMailbox(expiresAt: '2026-03-15 11:00:00', connection: 'trx1');
+        $onShard2 = $this->makeMailbox(expiresAt: '2026-03-15 11:00:00', connection: 'trx2');
+
+        $this->artisan('mailbox:delete-expired')
+            ->expectsOutputToContain('削除: 2 件')
+            ->assertExitCode(0);
+
+        $this->assertTrue((bool) $this->findRow($onShard1->id, 'trx1')->is_delete);
+        $this->assertTrue((bool) $this->findRow($onShard2->id, 'trx2')->is_delete, 'trx2のメールが削除されていない');
+    }
+
+    #[Test]
+    public function 件数の上限は全シャードの合計で効く(): void
+    {
+        $this->makeMailbox(expiresAt: '2026-03-15 11:00:00', connection: 'trx1');
+        $this->makeMailbox(expiresAt: '2026-03-15 11:00:00', connection: 'trx2');
+
+        $this->artisan('mailbox:delete-expired', ['--limit' => 1])
+            ->expectsOutputToContain('期限切れメールが 1 件見つかりました')
+            ->assertExitCode(0);
+
+        $deleted = 0;
+        foreach (['trx1', 'trx2'] as $connection) {
+            $deleted += DB::connection($connection)->table('trx_mailbox')
+                ->where('sys_player_id', $this->sysPlayerId)
+                ->where('is_delete', true)
+                ->count();
+        }
+
+        $this->assertSame(1, $deleted);
+    }
+
+    #[Test]
+    public function dry_runは他シャードのメールも変更しない(): void
+    {
+        $onShard2 = $this->makeMailbox(expiresAt: '2026-03-15 11:00:00', connection: 'trx2');
+
+        $this->artisan('mailbox:delete-expired', ['--dry-run' => true])
+            ->expectsOutputToContain('削除: 1 件')
+            ->assertExitCode(0);
+
+        $this->assertFalse((bool) $this->findRow($onShard2->id, 'trx2')->is_delete);
+    }
+
+    private function makeMailbox(
+        ?string $expiresAt,
+        bool $isProtected = false,
+        ?int $sysPlayerId = null,
+        string $connection = 'trx1',
+    ): TrxMailbox {
         $sysPlayerId ??= $this->sysPlayerId;
 
-        return _BaseModel::allowDirectWrites(function () use ($expiresAt, $isProtected, $sysPlayerId) {
+        return _BaseModel::allowDirectWrites(function () use ($expiresAt, $isProtected, $sysPlayerId, $connection) {
             $mailbox = new TrxMailbox([
                 'sys_player_id' => $sysPlayerId,
                 'mst_mailbox_id' => 'mailbox_test_001',
@@ -160,15 +216,15 @@ class DeleteExpiredMailboxCommandTest extends TestCase
                 'is_protected' => $isProtected,
                 'expires_at' => $expiresAt,
             ]);
-            $mailbox->setConnection('trx1');
+            $mailbox->setConnection($connection);
             $mailbox->save();
 
             return $mailbox;
         });
     }
 
-    private function findRow(int $id): ?object
+    private function findRow(int $id, string $connection = 'trx1'): ?object
     {
-        return DB::connection('trx1')->table('trx_mailbox')->where('id', $id)->first();
+        return DB::connection($connection)->table('trx_mailbox')->where('id', $id)->first();
     }
 }

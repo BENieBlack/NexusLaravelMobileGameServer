@@ -15,6 +15,8 @@ use Nexus\Core\Utilities\ClockUtility;
  * デバイス固有IDとデバイス情報を管理
  *
  * @property ?string $last_login_at
+ * @property ?string $created_at
+ * @property ?string $updated_at
  * @property int $sys_player_id
  */
 class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
@@ -138,6 +140,9 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
 
     /**
      * device_infoを設定
+     */
+    /**
+     * @param  array<string, mixed>  $deviceInfo
      */
     public function setDeviceInfo(array $deviceInfo): void
     {

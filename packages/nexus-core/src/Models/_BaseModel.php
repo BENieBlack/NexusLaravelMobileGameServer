@@ -14,6 +14,7 @@ use Nexus\Core\Exceptions\DirectWriteNotAllowedException;
  */
 abstract class _BaseModel extends Model implements _BaseModelInterface
 {
+    /** @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory<static>> */
     use HasFactory;
 
     /**
@@ -283,6 +284,9 @@ abstract class _BaseModel extends Model implements _BaseModelInterface
      * 
      * @return array
      */
+    /**
+     * @return array<string, mixed>
+     */
     public function toDebugArray(): array
     {
         return [
@@ -351,8 +355,9 @@ abstract class _BaseModel extends Model implements _BaseModelInterface
                     // エラーログは出さずに続行（DBから取得した値は通常パース可能）
                 }
             } elseif (isset($array[$dateField]) && $array[$dateField] instanceof \DateTimeInterface) {
-                // 既にCarbon/DateTime型の場合（後方互換性のため）
-                $array[$dateField] = $array[$dateField]->toIso8601String();
+                // 既にCarbon/DateTime型の場合（後方互換性のため）。
+                // toIso8601String()はCarbon固有なので、素の\DateTimeでも通るformatを使う
+                $array[$dateField] = $array[$dateField]->format(\DateTimeInterface::ATOM);
             }
         }
         

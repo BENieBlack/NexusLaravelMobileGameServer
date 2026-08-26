@@ -20,7 +20,11 @@ class DynamoDBMaintenanceStorage implements MaintenanceStorageInterface
     private string $tableName;
     private string $primaryKey;
 
-    public function __construct(array $config)
+    /**
+     * @param array<string, mixed> $config
+     * @param DynamoDbClient|null $client 生成済みのクライアント（テストや差し替え用）
+     */
+    public function __construct(array $config, ?DynamoDbClient $client = null)
     {
         $this->tableName = $config['table'];
         $this->primaryKey = $config['primary_key'];
@@ -39,7 +43,7 @@ class DynamoDBMaintenanceStorage implements MaintenanceStorageInterface
             $clientConfig['endpoint'] = $config['endpoint'];
         }
 
-        $this->client = new DynamoDbClient($clientConfig);
+        $this->client = $client ?? new DynamoDbClient($clientConfig);
     }
 
     /**
@@ -142,6 +146,8 @@ class DynamoDBMaintenanceStorage implements MaintenanceStorageInterface
 
     /**
      * DynamoDBアイテムをSysMaintenanceに変換
+     *
+     * @param array<string, array<string, mixed>> $item DynamoDBの属性値マップ
      */
     private function parseItem(array $item): Maintenance
     {

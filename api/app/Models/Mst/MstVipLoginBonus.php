@@ -2,6 +2,7 @@
 
 namespace App\Models\Mst;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Nexus\Core\Models\Mst\_BaseMst;
 
@@ -61,8 +62,11 @@ class MstVipLoginBonus extends _BaseMst
 
     /**
      * 有効なVIPログインボーナスのみ取得するスコープ
+     *
+     * @param  Builder<self>  $query
+     * @return Builder<self>
      */
-    public function scopeActive($query)
+    public function scopeActive(Builder $query): Builder
     {
         $now = now();
 
@@ -79,8 +83,11 @@ class MstVipLoginBonus extends _BaseMst
 
     /**
      * VIPレベルでフィルタするスコープ
+     *
+     * @param  Builder<self>  $query
+     * @return Builder<self>
      */
-    public function scopeForVipLevel($query, int $vipLevel)
+    public function scopeForVipLevel(Builder $query, int $vipLevel): Builder
     {
         return $query->where('vip_level', $vipLevel);
     }

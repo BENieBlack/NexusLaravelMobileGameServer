@@ -17,7 +17,7 @@ interface GachaPrizeRepositoryInterface
      * @param string $mstGachaId
      * @param int $rarity
      * @param bool $pickupOnly
-     * @return CustomCollection
+     * @return CustomCollection<array-key, \Illuminate\Database\Eloquent\Model>
      */
     public function selectByGachaIdAndRarity(string $mstGachaId, int $rarity, bool $pickupOnly): CustomCollection;
 }

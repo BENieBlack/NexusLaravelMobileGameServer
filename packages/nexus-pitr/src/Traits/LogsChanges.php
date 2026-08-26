@@ -153,7 +153,7 @@ trait LogsChanges
     private function resolveApiEndpoint(): ?string
     {
         if (function_exists('request')) {
-            return request()->path() ?? 'console';
+            return request()->path();
         }
         
         return 'console';

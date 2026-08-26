@@ -9,7 +9,6 @@ use App\Http\Responses\Auth\SignUpResponse;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
 use App\Repositories\Sys\SysPlayerRepository;
 use Nexus\Core\Repositories\PlayerDeviceRepositoryInterface;
-use NexusAuth\Contracts\TokenRepositoryInterface;
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Services\TokenService;
 use Throwable;
@@ -29,7 +28,6 @@ class SignUpUseCase extends _BaseUseCase
         private readonly PlayerAuthService $playerAuthService,
         private readonly TokenService $tokenService,
         private readonly PlayerDeviceRepositoryInterface $deviceRepository,
-        private readonly TokenRepositoryInterface $tokenRepository,
         private readonly SysPlayerDeviceRepository $sysPlayerDeviceRepository,
         private readonly SysPlayerRepository $sysPlayerRepository,
     ) {}
@@ -41,7 +39,7 @@ class SignUpUseCase extends _BaseUseCase
      * 既存デバイスIDの場合はエラーを返す（sign_inを使用すべき）
      *
      * @param  string  $deviceId  デバイスID
-     * @param  array  $deviceInfo  デバイス情報
+     * @param  array<string, mixed>  $deviceInfo
      *
      * @throws BusinessLogicException|Throwable 既存デバイスIDの場合
      */

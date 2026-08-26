@@ -3,6 +3,7 @@
 namespace App\Http\Responses\Mailbox;
 
 use App\Http\Responses\_BaseResponse;
+use NexusResource\DataTransferObjects\Resource;
 use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
 use NexusResourceDelivery\DataTransferObjects\ResourceDeliverySummary;
 
@@ -17,7 +18,7 @@ class ReceiveAllResponse extends _BaseResponse
      * @param  array<int>  $receivedMailboxIds  受取完了したメールID配列
      * @param  int  $totalCount  受取完了したメール数
      * @param  int  $skippedCount  スキップされたメール数
-     * @param  array  $deliveryContents  配送されたアイテム情報
+     * @param  array<int, \NexusResource\DataTransferObjects\Resource>  $deliveryContents  配送されたアイテム情報
      * @param  ResourceDeliverySummary|null  $deliverySummary  配送サマリー
      */
     public function __construct(
@@ -42,11 +43,11 @@ class ReceiveAllResponse extends _BaseResponse
 
         // 配送内容を追加
         if (count($this->deliveryContents) > 0) {
-            $response['delivery_contents'] = array_map(function ($content) {
+            $response['delivery_contents'] = array_map(function (Resource $content) {
                 return [
-                    'type' => $content->type,
-                    'id' => $content->id,
-                    'amount' => $content->amount,
+                    'type' => $content->getTypeValue(),
+                    'id' => $content->getId(),
+                    'amount' => $content->getAmount(),
                 ];
             }, $this->deliveryContents);
         }

@@ -33,7 +33,7 @@ class QueryManager implements QueryManagerInterface
     /**
      * 課金関連のログRepositoryのリスト
      *
-     * @var array<_BaseLogRepository>
+     * @var array<_BaseLogRepository<\Nexus\Core\Models\Log\_BaseLog>>
      */
     private array $purchaseLogRepositories = [];
 
@@ -198,7 +198,7 @@ class QueryManager implements QueryManagerInterface
             // 課金ログリポジトリリストをクリア
             $this->purchaseLogRepositories = [];
             
-        } catch (\Exception | \Throwable $e) {
+        } catch (\Throwable $e) {
             // 同一トランザクション内で実行しているため、失敗時は全体をロールバックさせる
             \Log::error('Failed to write logs (critical)', [
                 'error' => $e->getMessage(),

@@ -104,7 +104,7 @@ class TrxChangeLogger
     /**
      * JSONエンコード（nullセーフ）
      * 
-     * @param array|null $data
+     * @param  array<array-key, mixed>|null  $data スタックトレースはlist、変更内容は連想配列
      * @return string|null
      */
     private function encodeJsonData(?array $data): ?string

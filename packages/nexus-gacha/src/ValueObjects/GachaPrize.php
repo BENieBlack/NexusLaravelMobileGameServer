@@ -90,6 +90,7 @@ final class GachaPrize
 
     /**
      * 配列形式に変換
+     * @return array<string, mixed>
      */
     public function toArray(): array
     {

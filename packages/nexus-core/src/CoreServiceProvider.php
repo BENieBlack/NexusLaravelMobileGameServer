@@ -28,7 +28,7 @@ class CoreServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // 必要に応じて追加
+        $this->mergeConfigFrom(__DIR__.'/../config/nexus-core.php', 'nexus-core');
     }
 
     /**
@@ -38,6 +38,10 @@ class CoreServiceProvider extends ServiceProvider
     {
         // マイグレーションをロード（動的シャーディング対応）
         // 注意: php artisan trx:migrate で全TrxDBシャード（trx1, trx2, ...）に実行
+        $this->publishes([
+            __DIR__.'/../config/nexus-core.php' => config_path('nexus-core.php'),
+        ], 'nexus-core-config');
+
         $baseDir = __DIR__.'/../database/migrations';
 
         // 各サブディレクトリを個別に読み込む

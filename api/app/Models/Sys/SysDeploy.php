@@ -187,8 +187,8 @@ class SysDeploy extends _BaseSys
     /**
      * 現在有効なデプロイを取得（スコープ）
      *
-     * @param  Builder  $query
-     * @return Builder
+     * @param  Builder<self>  $query
+     * @return Builder<self>
      */
     public function scopeActive($query)
     {
@@ -198,8 +198,8 @@ class SysDeploy extends _BaseSys
     /**
      * ダウンロード可能なデプロイを取得（スコープ）
      *
-     * @param  Builder  $query
-     * @return Builder
+     * @param  Builder<self>  $query
+     * @return Builder<self>
      */
     public function scopeDownloadable($query)
     {

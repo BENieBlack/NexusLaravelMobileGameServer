@@ -27,6 +27,8 @@ class CompositeUniqueKeyCacheTest extends TestCase
 
     private int $sysPlayerId;
 
+    private string $connection;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -34,12 +36,13 @@ class CompositeUniqueKeyCacheTest extends TestCase
         ['player' => $player] = $this->signUpPlayer();
         $this->sysPlayerId = $player->id;
         ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->connection = $this->playerConnection($this->sysPlayerId);
     }
 
     protected function tearDown(): void
     {
         foreach (['trx_stamina', 'trx_diamond', 'trx_wallet', 'trx_in_app_purchase'] as $table) {
-            DB::connection('trx1')->table($table)->where('sys_player_id', $this->sysPlayerId)->delete();
+            DB::connection($this->connection)->table($table)->where('sys_player_id', $this->sysPlayerId)->delete();
         }
         ApiSession::clearForTest();
 
@@ -52,7 +55,7 @@ class CompositeUniqueKeyCacheTest extends TestCase
         $types = [StaminaConst::TYPE_NORMAL, StaminaConst::TYPE_RAID, StaminaConst::TYPE_PVP];
 
         foreach ($types as $type) {
-            DB::connection('trx1')->table('trx_stamina')->insert([
+            DB::connection($this->connection)->table('trx_stamina')->insert([
                 'sys_player_id' => $this->sysPlayerId,
                 'type' => $type,
                 'current_stamina' => 10,
@@ -73,7 +76,7 @@ class CompositeUniqueKeyCacheTest extends TestCase
     public function ダイヤはプラットフォームごとにキャッシュされる(): void
     {
         foreach (['AppStore', 'GooglePlay'] as $platform) {
-            DB::connection('trx1')->table('trx_diamond')->insert([
+            DB::connection($this->connection)->table('trx_diamond')->insert([
                 'sys_player_id' => $this->sysPlayerId,
                 'platform' => $platform,
                 'free_amount' => 100,
@@ -88,7 +91,7 @@ class CompositeUniqueKeyCacheTest extends TestCase
     public function 課金履歴は商品ごとにキャッシュされる(): void
     {
         foreach ([['AppStore', 1], ['AppStore', 2], ['GooglePlay', 1]] as [$platform, $productId]) {
-            DB::connection('trx1')->table('trx_in_app_purchase')->insert([
+            DB::connection($this->connection)->table('trx_in_app_purchase')->insert([
                 'sys_player_id' => $this->sysPlayerId,
                 'billing_platform' => $platform,
                 'mst_in_app_purchase_id' => $productId,
@@ -104,7 +107,7 @@ class CompositeUniqueKeyCacheTest extends TestCase
     public function ウォレットはアイテムごとにキャッシュされる(): void
     {
         foreach (['item_gold', 'item_silver'] as $mstItemId) {
-            DB::connection('trx1')->table('trx_wallet')->insert([
+            DB::connection($this->connection)->table('trx_wallet')->insert([
                 'sys_player_id' => $this->sysPlayerId,
                 'mst_item_id' => $mstItemId,
                 'free_amount' => 100,

@@ -14,11 +14,45 @@ abstract class _BaseTrx extends _BaseModel implements _BaseTrxInterface
 {
     /**
      * データベース接続名（trx1, trx2など）
-     * サブクラスでオーバーライド可能
-     * 
+     *
+     * 既定はnull。プレイヤーの割り当てシャードから解決するため、
+     * ここで固定してしまうと全プレイヤーが同じシャードを向いてしまう。
+     * setConnection() や ::on() で明示された場合はそちらが優先される。
+     *
+     * @var string|null
+     */
+    protected $connection = null;
+
+    /**
+     * 既定のデータベース接続名（シャードを解決できない場合の退避先）
+     *
      * @var string
      */
-    protected $connection = 'trx1';
+    protected string $fallbackConnection = 'trx1';
+
+    /**
+     * 使用するデータベース接続名を返す
+     *
+     * 優先順位:
+     * 1. setConnection() / ::on() で明示された接続
+     * 2. ログイン中プレイヤーの割り当てシャード
+     * 3. $fallbackConnection（コンソール等、プレイヤーが居ない文脈）
+     */
+    public function getConnectionName(): string
+    {
+        return $this->connection ?? static::resolveShardConnection() ?? $this->fallbackConnection;
+    }
+
+    /**
+     * ログイン中プレイヤーの割り当てシャードを返す
+     *
+     * アプリケーション層でオーバーライドして接続名を返す。
+     * 解決できない場合はnullを返し、$fallbackConnection が使われる。
+     */
+    protected static function resolveShardConnection(): ?string
+    {
+        return null;
+    }
 
     /**
      * Unit of Workパターンを使用

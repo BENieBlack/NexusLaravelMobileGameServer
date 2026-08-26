@@ -47,7 +47,7 @@ class MailboxRepositoryAdapterTest extends TestCase
 
     protected function tearDown(): void
     {
-        DB::connection('trx1')->table('trx_mailbox')->where('sys_player_id', $this->sysPlayerId)->delete();
+        DB::connection($this->playerConnection($this->sysPlayerId))->table('trx_mailbox')->where('sys_player_id', $this->sysPlayerId)->delete();
         ApiSession::clearForTest();
         $this->queryManager->clear();
 
@@ -132,7 +132,7 @@ class MailboxRepositoryAdapterTest extends TestCase
         $mailbox = $this->makeMailbox();
         $dto = $this->repository->selectById($mailbox->id);
 
-        DB::connection('trx1')->table('trx_mailbox')->where('id', $mailbox->id)->delete();
+        DB::connection($this->playerConnection($this->sysPlayerId))->table('trx_mailbox')->where('id', $mailbox->id)->delete();
         app(QueryManager::class)->clear();
 
         // 対象が無いので例外にはならず、何も起きない
@@ -165,7 +165,7 @@ class MailboxRepositoryAdapterTest extends TestCase
                 'is_protected' => false,
                 'expires_at' => now()->addDays(30),
             ]);
-            $mailbox->setConnection('trx1');
+            $mailbox->setConnection($this->playerConnection($this->sysPlayerId));
             $mailbox->save();
 
             return $mailbox;
@@ -174,6 +174,6 @@ class MailboxRepositoryAdapterTest extends TestCase
 
     private function findRow(int $id): ?object
     {
-        return DB::connection('trx1')->table('trx_mailbox')->where('id', $id)->first();
+        return DB::connection($this->playerConnection($this->sysPlayerId))->table('trx_mailbox')->where('id', $id)->first();
     }
 }

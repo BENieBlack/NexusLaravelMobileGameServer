@@ -30,6 +30,31 @@ abstract class _BaseLogRepository extends _BaseRepository implements _BaseLogRep
     protected string $connection = 'log1';
 
     /**
+     * 使用するデータベース接続名を返す
+     *
+     * setConnection() で明示されていればそれを、
+     * 無ければログイン中プレイヤーの割り当てシャードに対応するLogDBを使う。
+     */
+    public function getConnection(): string
+    {
+        if ($this->connectionExplicitlySet) {
+            return $this->connection;
+        }
+
+        return static::resolveShardConnection() ?? $this->connection;
+    }
+
+    /**
+     * ログイン中プレイヤーの割り当てシャードに対応するLogDB接続を返す
+     *
+     * アプリケーション層でオーバーライドして接続名を返す
+     */
+    protected static function resolveShardConnection(): ?string
+    {
+        return null;
+    }
+
+    /**
      * 課金ログかどうか
      *
      * @var bool
@@ -113,7 +138,7 @@ abstract class _BaseLogRepository extends _BaseRepository implements _BaseLogRep
         $instance = new $this->modelClass();
 
         // sys_player_idで検索してIDでkeyByしてキャッシュに保存
-        $records = $instance::on($this->connection)
+        $records = $instance::on($this->getConnection())
             ->where($this->selectKey, $sysPlayerId)
             ->get()
             ->keyBy('id');

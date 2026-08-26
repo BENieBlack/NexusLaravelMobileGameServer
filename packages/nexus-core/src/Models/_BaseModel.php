@@ -19,9 +19,11 @@ abstract class _BaseModel extends Model implements _BaseModelInterface
 
     /**
      * データベース接続名
-     * サブクラスでオーバーライド必須
-     * 
-     * @var string
+     *
+     * シャードを跨ぐモデル（_BaseTrx / _BaseLog）は既定をnullにして
+     * getConnectionName() で解決するため、nullを許容する
+     *
+     * @var string|null
      */
     protected $connection;
 
@@ -266,7 +268,7 @@ abstract class _BaseModel extends Model implements _BaseModelInterface
      */
     public function getConnectionName(): string
     {
-        return $this->connection;
+        return (string) $this->connection;
     }
 
     /**

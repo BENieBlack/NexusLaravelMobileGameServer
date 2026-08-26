@@ -36,6 +36,31 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
     protected string $connection = 'trx1';
 
     /**
+     * 使用するデータベース接続名を返す
+     *
+     * setConnection() で明示されていればそれを、
+     * 無ければログイン中プレイヤーの割り当てシャードを使う。
+     */
+    public function getConnection(): string
+    {
+        if ($this->connectionExplicitlySet) {
+            return $this->connection;
+        }
+
+        return static::resolveShardConnection() ?? $this->connection;
+    }
+
+    /**
+     * ログイン中プレイヤーの割り当てシャードを返す
+     *
+     * アプリケーション層でオーバーライドして接続名を返す
+     */
+    protected static function resolveShardConnection(): ?string
+    {
+        return null;
+    }
+
+    /**
      * 論理削除された行を読み取りから除外するか
      *
      * is_deleteカラムを持たないテーブル（履歴系など）のRepositoryは
@@ -130,7 +155,9 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
         $instance = new $this->modelClass();
         
         // sys_player_idで検索してユニークキーでkeyByしてキャッシュに保存
-        $query = $instance::where($this->selectKey, $sysPlayerId);
+        // Repositoryが向いている接続で引く（setConnection()されていればそちら）
+        $query = $instance::on($this->getConnection())
+            ->where($this->selectKey, $sysPlayerId);
 
         // 論理削除された行は取得しない
         if ($this->excludesSoftDeleted) {

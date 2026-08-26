@@ -35,7 +35,7 @@ class MailboxEndpointTest extends TestCase
         $this->assertDatabaseHas('trx_mailbox', [
             'id' => $mailbox->id,
             'is_protected' => true,
-        ], 'trx1');
+        ], $this->playerConnection($player->id));
     }
 
     #[Test]
@@ -54,7 +54,7 @@ class MailboxEndpointTest extends TestCase
         $this->assertDatabaseHas('trx_mailbox', [
             'id' => $mailbox->id,
             'is_protected' => false,
-        ], 'trx1');
+        ], $this->playerConnection($player->id));
     }
 
     #[Test]
@@ -71,7 +71,7 @@ class MailboxEndpointTest extends TestCase
         $this->assertDatabaseHas('trx_mailbox', [
             'id' => $mailbox->id,
             'is_received' => true,
-        ], 'trx1');
+        ], $this->playerConnection($player->id));
     }
 
     #[Test]
@@ -103,7 +103,7 @@ class MailboxEndpointTest extends TestCase
         $this->assertDatabaseHas('trx_mailbox', [
             'id' => $mailbox->id,
             'is_protected' => false,
-        ], 'trx1');
+        ], $this->playerConnection($player->id));
     }
 
     #[Test]
@@ -180,7 +180,9 @@ class MailboxEndpointTest extends TestCase
     {
         ApiSession::setSysPlayerId($sysPlayerId);
 
-        return _BaseModel::allowDirectWrites(function () use ($sysPlayerId, $isProtected, $isDelete) {
+        $connection = $this->playerConnection($sysPlayerId);
+
+        return _BaseModel::allowDirectWrites(function () use ($sysPlayerId, $isProtected, $isDelete, $connection) {
             $mailbox = new TrxMailbox([
                 'sys_player_id' => $sysPlayerId,
                 'mst_mailbox_id' => 'mailbox_test_001',
@@ -190,7 +192,7 @@ class MailboxEndpointTest extends TestCase
                 'is_protected' => $isProtected,
                 'expires_at' => now()->addDays(30),
             ]);
-            $mailbox->setConnection('trx1');
+            $mailbox->setConnection($connection);
             $mailbox->save();
 
             return $mailbox;

@@ -23,6 +23,24 @@ abstract class _BaseTrxRepository extends PersistenceBaseTrxRepository implement
 {
     use UsesUnitOfWork;
 
+    /**
+     * ログイン中プレイヤーの割り当てシャードを返す
+     *
+     * 割り当てを引けない場合はnullを返し、基底クラスの既定接続に委ねる
+     */
+    protected static function resolveShardConnection(): ?string
+    {
+        if (! ApiSession::hasSysPlayerId()) {
+            return null;
+        }
+
+        try {
+            return ApiSession::resolveConnectionName('trx');
+        } catch (\RuntimeException) {
+            return null;
+        }
+    }
+
     protected static function hasSysPlayerId(): bool
     {
         return ApiSession::hasSysPlayerId();

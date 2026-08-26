@@ -82,7 +82,7 @@ class BuyEndpointTest extends TestCase
         $this->assertSame(self::PAID_DIAMOND_AMOUNT, $response->json('paid_diamond_amount'));
 
         // 実際に付与されている
-        $diamond = DB::connection('trx1')->table('trx_diamond')
+        $diamond = DB::connection($this->playerConnection($this->sysPlayerId))->table('trx_diamond')
             ->where('sys_player_id', $this->sysPlayerId)
             ->first();
         $this->assertNotNull($diamond);
@@ -140,7 +140,7 @@ class BuyEndpointTest extends TestCase
 
         // 付与されていない
         $this->assertNull(
-            DB::connection('trx1')->table('trx_diamond')->where('sys_player_id', $this->sysPlayerId)->first()
+            DB::connection($this->playerConnection($this->sysPlayerId))->table('trx_diamond')->where('sys_player_id', $this->sysPlayerId)->first()
         );
     }
 
@@ -260,9 +260,12 @@ class BuyEndpointTest extends TestCase
      */
     private function cleanUpPurchases(): void
     {
-        DB::connection('trx1')->table('trx_in_app_purchase')
-            ->where('transaction_id', 'like', 'GPA.ENDPOINT%')
-            ->delete();
+        // setUpのプレイヤー作成前にも呼ぶため、全シャードをまとめて掃除する
+        foreach (['trx1', 'trx2'] as $connection) {
+            DB::connection($connection)->table('trx_in_app_purchase')
+                ->where('transaction_id', 'like', 'GPA.ENDPOINT%')
+                ->delete();
+        }
     }
 
     private function generatePrivateKey(): string

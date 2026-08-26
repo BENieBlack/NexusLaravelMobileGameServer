@@ -3,6 +3,7 @@
 namespace Tests\Unit\UseCases\Auth;
 
 use App\Domain\Auth\UseCases\SignUpUseCase;
+use App\Domain\Sharding\Services\ShardAssignmentService;
 use App\Exceptions\BusinessLogicException;
 use App\Http\Responses\Auth\SignUpResponse;
 use App\Models\Sys\SysPlayer;
@@ -67,7 +68,8 @@ class SignUpUseCaseTest extends TestCase
             $this->tokenService,
             $this->deviceRepository,
             $this->deviceRepository,
-            $sysPlayerRepository
+            $sysPlayerRepository,
+            new ShardAssignmentService,
         );
 
         // Suppress log output during tests

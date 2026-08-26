@@ -4,6 +4,7 @@ namespace App\Repositories\Log;
 
 use App\Persistence\ApiSession;
 use Nexus\Core\Repositories\Log\_BaseLogRepository as PersistenceBaseLogRepository;
+use NexusPitr\Logger\ShardMapper;
 use NexusUnitOfWork\Traits\UsesUnitOfWork;
 
 /**
@@ -22,6 +23,24 @@ use NexusUnitOfWork\Traits\UsesUnitOfWork;
 abstract class _BaseLogRepository extends PersistenceBaseLogRepository implements _BaseLogRepositoryInterface
 {
     use UsesUnitOfWork;
+
+    /**
+     * ログイン中プレイヤーの割り当てシャードに対応するLogDB接続を返す
+     *
+     * ログは対になるTrxシャードと同じ番号のLogDBへ書く（trx2 → log2）
+     */
+    protected static function resolveShardConnection(): ?string
+    {
+        if (! ApiSession::hasSysPlayerId()) {
+            return null;
+        }
+
+        try {
+            return ShardMapper::resolveLogConnection(ApiSession::resolveConnectionName('trx'));
+        } catch (\RuntimeException|\InvalidArgumentException) {
+            return null;
+        }
+    }
 
     protected static function hasSysPlayerId(): bool
     {

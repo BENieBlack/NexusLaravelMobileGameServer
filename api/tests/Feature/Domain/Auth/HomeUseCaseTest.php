@@ -51,10 +51,12 @@ class HomeUseCaseTest extends TestCase
     protected function tearDown(): void
     {
         // テストデータをクリア
-        DB::connection('trx1')->table('trx_login_bonus_history')->delete();
-        DB::connection('trx1')->table('trx_unit')->delete();
-        DB::connection('trx1')->table('trx_item')->delete();
-        DB::connection('trx1')->table('trx_wallet')->delete();
+        foreach (['trx1', 'trx2'] as $connection) {
+            DB::connection($connection)->table('trx_login_bonus_history')->delete();
+            DB::connection($connection)->table('trx_unit')->delete();
+            DB::connection($connection)->table('trx_item')->delete();
+            DB::connection($connection)->table('trx_wallet')->delete();
+        }
         DB::connection('mst')->table('mst_login_bonus_content')->delete();
         DB::connection('mst')->table('mst_login_bonus')->delete();
 
@@ -85,23 +87,7 @@ class HomeUseCaseTest extends TestCase
 
         $this->testPlayer = SysPlayer::where('my_id', $myId)->first();
 
-        // シャーディングノードへの割り当てを手動で作成（sign_upでは作成されないため）
-        $sharding = DB::connection('sys')->table('sys_sharding')
-            ->where('name', 'trx_sharding')
-            ->first();
-
-        $node = DB::connection('sys')->table('sys_sharding_node')
-            ->where('sys_sharding_id', $sharding->id)
-            ->where('node_name', 'node1')
-            ->first();
-
-        DB::connection('sys')->table('sys_sharding_node_player')->insert([
-            'sys_sharding_node_id' => $node->id,
-            'sys_player_id' => $this->testPlayer->id,
-            'assigned_at' => now(),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        // シャード割り当てはサインアップ時に作られる
     }
 
     /**
@@ -175,7 +161,7 @@ class HomeUseCaseTest extends TestCase
         $this->assertSame(10, $loginBonusList[0]['amount']);
 
         // 履歴が記録されていることを確認
-        $history = DB::connection('trx1')
+        $history = DB::connection($this->playerConnection($this->testPlayer->id))
             ->table('trx_login_bonus_history')
             ->where('sys_player_id', $this->testPlayer->id)
             ->first();

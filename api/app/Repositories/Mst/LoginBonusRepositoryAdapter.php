@@ -5,7 +5,6 @@ namespace App\Repositories\Mst;
 use App\Models\Mst\MstLoginBonus;
 use App\Models\Mst\MstLoginBonusContent;
 use Nexus\Core\Utilities\ClockUtility;
-use NexusLogin\Repositories\LoginBonusHistoryRepositoryInterface;
 use NexusLogin\Repositories\LoginBonusRepositoryInterface;
 
 /**
@@ -15,9 +14,7 @@ use NexusLogin\Repositories\LoginBonusRepositoryInterface;
  */
 class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
 {
-    public function __construct(
-        private readonly LoginBonusHistoryRepositoryInterface $historyRepository,
-    ) {}
+    public function __construct() {}
 
     /**
      * {@inheritDoc}
@@ -47,6 +44,9 @@ class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
      * 有効な通常ログインボーナスを取得
      *
      * @return array|null ログインボーナス設定
+     */
+    /**
+     * @return array<string, mixed>|null
      */
     public function selectActiveDailyBonus(): ?array
     {
@@ -122,6 +122,9 @@ class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
      * @param  string  $loginBonusId  ログインボーナスID
      * @param  int  $day  日数
      * @return array コンテンツの配列
+     */
+    /**
+     * @return array<int, array<string, mixed>>
      */
     public function selectContentsByLoginBonusIdAndDay(string $loginBonusId, int $day): array
     {

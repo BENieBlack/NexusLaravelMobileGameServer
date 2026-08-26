@@ -61,6 +61,7 @@ class IdempotencyService
      * 
      * @param string $uniqueRequestId 一意なリクエストID
      * @return array|null 検証結果（存在しない場合null）
+     * @return array<string, mixed>|null
      */
     public function findResult(string $uniqueRequestId): ?array
     {

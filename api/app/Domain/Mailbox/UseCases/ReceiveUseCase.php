@@ -45,7 +45,7 @@ class ReceiveUseCase extends _BaseUseCase
 
             // マスターデータから添付物を取得
             $mstMailbox = $trxMailbox->mstMailbox;
-            $contentCollection = $mstMailbox?->contentCollection ?? new CustomCollection;
+            $contentCollection = $mstMailbox->contentCollection ?? new CustomCollection;
 
             // Resource配列に変換
             $resources = $contentCollection->map(function ($content) {

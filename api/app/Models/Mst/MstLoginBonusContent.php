@@ -90,6 +90,8 @@ class MstLoginBonusContent extends _BaseMst
 
     /**
      * コンテンツオプションを取得
+     *
+     * @return array<string, mixed>|null
      */
     public function getContentOption(): ?array
     {

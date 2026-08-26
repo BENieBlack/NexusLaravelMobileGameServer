@@ -3,6 +3,9 @@
 namespace NexusUnitOfWork\Persistence\QueryManager;
 
 use Nexus\Core\Repositories\_BaseRepository;
+use Nexus\Core\Models\Log\_BaseLog;
+use Nexus\Core\Models\Sys\_BaseSys;
+use Nexus\Core\Models\Trx\_BaseTrx;
 use Nexus\Core\Repositories\Log\_BaseLogRepository;
 use Nexus\Core\Repositories\Sys\_BaseSysRepository;
 use Nexus\Core\Repositories\Trx\_BaseTrxRepository;
@@ -18,7 +21,12 @@ class OperationCollector
      * Repositoryのリストから操作を収集
      *
      * @param array<_BaseRepository<array-key, \Illuminate\Database\Eloquent\Model>> $repositories
-     * @return array ['inserts' => array, 'updates' => array, 'deletes' => array, 'logs' => array]
+     * @return array{
+     *     inserts: array<string, array{connection: string, table: string, records: array<int, array<string, mixed>>, models: array<int, mixed>, repository: mixed, originalStates: array<int, array<string, mixed>>}>,
+     *     updates: array<int, array{connection: string, table: string, model: mixed, data: array<string, mixed>, repository: mixed, uniqueKey: string, originalState: array<string, mixed>}>,
+     *     deletes: array<int, array{connection: string, table: string, model: mixed}>,
+     *     logs: array<int, _BaseLogRepository<_BaseLog>>
+     * }
      */
     public function collect(array $repositories): array
     {
@@ -35,7 +43,7 @@ class OperationCollector
             }
             
             // TrxRepositoryまたはSysRepository
-            /** @var _BaseTrxRepository|_BaseSysRepository $repository */
+            /** @var _BaseTrxRepository<_BaseTrx>|_BaseSysRepository<_BaseSys> $repository */
             $connection = $repository->getConnection();
             $table = $repository->getTableName();
             $models = $repository->getQueuedModels();
@@ -79,16 +87,14 @@ class OperationCollector
                 }
             }
             
-            // DELETE対象のモデルを取り出す
-            if (!$repository instanceof _BaseLogRepository) {
-                $deleteModels = $repository->getQueuedDeleteModels();
-                foreach ($deleteModels as $model) {
-                    $deletes[] = [
-                        'connection' => $connection,
-                        'table' => $table,
-                        'model' => $model,
-                    ];
-                }
+            // DELETE対象のモデルを取り出す（Logは冒頭でcontinue済み）
+            $deleteModels = $repository->getQueuedDeleteModels();
+            foreach ($deleteModels as $model) {
+                $deletes[] = [
+                    'connection' => $connection,
+                    'table' => $table,
+                    'model' => $model,
+                ];
             }
         }
         
@@ -103,8 +109,8 @@ class OperationCollector
     /**
      * ログRepositoryから操作を収集
      *
-     * @param array<_BaseLogRepository> $logRepositories
-     * @return array
+     * @param array<int, _BaseLogRepository<_BaseLog>> $logRepositories
+     * @return array<string, array{connection: string, table: string, records: array<int, array<string, mixed>>}>
      */
     public function collectLogs(array $logRepositories): array
     {

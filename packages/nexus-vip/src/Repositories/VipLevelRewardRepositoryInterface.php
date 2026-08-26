@@ -13,14 +13,14 @@ interface VipLevelRewardRepositoryInterface
     /**
      * VIPレベルに対応する報酬一覧を取得
      *
-     * @return CustomCollection<MstVipLevelReward>
+     * @return CustomCollection<array-key, MstVipLevelReward>
      */
     public function selectByVipLevel(int $vipLevel): CustomCollection;
 
     /**
      * 有効な報酬のみを取得
      *
-     * @return CustomCollection<MstVipLevelReward>
+     * @return CustomCollection<array-key, MstVipLevelReward>
      */
     public function selectActiveByVipLevel(int $vipLevel): CustomCollection;
 }

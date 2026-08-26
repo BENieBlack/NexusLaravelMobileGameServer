@@ -69,6 +69,8 @@ class SysShardingNode extends _BaseSys
 
     /**
      * 利用可能なステータス一覧を取得
+     *
+     * @return array<int, string>
      */
     public static function availableStatuses(): array
     {
@@ -293,6 +295,8 @@ class SysShardingNode extends _BaseSys
 
     /**
      * データベース接続設定をconfig/database.phpから取得
+     *
+     * @return array<string, mixed>|null
      */
     public function getConnectionConfig(): ?array
     {

@@ -67,7 +67,7 @@ class ResourceDeliveryService
      * リソースを追加する（複数）
      * 実際の配送はdeliver()で実行する
      *
-     * @param  CustomCollection|array  $resources  リソースのリスト
+     * @param  CustomCollection<array-key, Resource>|array<array-key, Resource>  $resources  リソースのリスト
      */
     public function addResources(CustomCollection|array $resources): void
     {
@@ -90,6 +90,8 @@ class ResourceDeliveryService
 
     /**
      * 配送コンテンツを直接追加する（複数）
+     *
+     * @param  CustomCollection<array-key, ResourceDeliveryContent>|array<array-key, ResourceDeliveryContent>  $contents  配送コンテンツのリスト
      */
     public function addContents(CustomCollection|array $contents): void
     {

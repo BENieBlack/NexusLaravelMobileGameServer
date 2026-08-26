@@ -64,6 +64,8 @@ class SysSharding extends _BaseSys
 
     /**
      * 利用可能なシャーディング戦略一覧を取得
+     *
+     * @return array<int, string>
      */
     public static function availableStrategies(): array
     {
@@ -76,6 +78,8 @@ class SysSharding extends _BaseSys
 
     /**
      * 利用可能なシャーディング対象一覧を取得
+     *
+     * @return array<int, string>
      */
     public static function availableTargets(): array
     {
@@ -202,6 +206,8 @@ class SysSharding extends _BaseSys
 
     /**
      * アクティブなシャーディングノードを取得
+     *
+     * @return HasMany<SysShardingNode, $this>
      */
     public function activeNodes(): HasMany
     {

@@ -43,7 +43,7 @@ class BillingConst
     /**
      * 全プラットフォームの配列を取得
      * 
-     * @return array
+     * @return array<int, string>
      */
     public static function allPlatforms(): array
     {
@@ -58,7 +58,7 @@ class BillingConst
     /**
      * 全商品タイプの配列を取得
      * 
-     * @return array
+     * @return array<int, string>
      */
     public static function allProductTypes(): array
     {

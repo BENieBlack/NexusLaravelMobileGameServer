@@ -10,7 +10,6 @@ use App\Http\Responses\Auth\RefreshTokenResponse;
 use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;
 use App\Repositories\Sys\SysPlayerRepository;
-use Nexus\Core\Repositories\PlayerDeviceRepositoryInterface;
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Services\TokenService;
 
@@ -28,7 +27,6 @@ class RefreshTokenUseCase extends _BaseUseCase
         private readonly TokenService $tokenService,
         private readonly PlayerAuthService $playerAuthService,
         private readonly SysPlayerRepository $playerRepository,
-        private readonly PlayerDeviceRepositoryInterface $deviceRepository,
     ) {}
 
     /**

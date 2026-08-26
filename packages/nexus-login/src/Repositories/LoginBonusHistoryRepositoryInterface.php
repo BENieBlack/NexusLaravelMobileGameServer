@@ -14,7 +14,7 @@ interface LoginBonusHistoryRepositoryInterface
      * 
      * @param int $sysPlayerId プレイヤーID
      * @param string $connectionName DB接続名
-     * @return array|null 履歴データの連想配列、存在しない場合はnull
+     * @return array<string, mixed>|null 履歴データの連想配列、存在しない場合はnull
      */
     public function selectLatestByPlayer(int $sysPlayerId, string $connectionName): ?array;
 
@@ -31,7 +31,7 @@ interface LoginBonusHistoryRepositoryInterface
     /**
      * ログインボーナス履歴を記録
      * 
-     * @param array $data 履歴データ
+     * @param array<string, mixed> $data 履歴データ
      * @param string $connectionName DB接続名
      * @return void
      */
@@ -42,7 +42,7 @@ interface LoginBonusHistoryRepositoryInterface
      *
      * @param int $sysPlayerId プレイヤーID
      * @param string $connectionName シャーディングされたDB接続名
-     * @return array|null 履歴データ
+     * @return array<string, mixed>|null 履歴データ
      */
     public function selectLatestByPlayerId(int $sysPlayerId, string $connectionName): ?array;
 
@@ -51,7 +51,7 @@ interface LoginBonusHistoryRepositoryInterface
      *
      * @param int $sysPlayerId プレイヤーID
      * @param string $connectionName シャーディングされたDB接続名
-     * @return array|null 履歴データ
+     * @return array<string, mixed>|null 履歴データ
      */
     public function selectFirstComebackByPlayerId(int $sysPlayerId, string $connectionName): ?array;
 
@@ -62,7 +62,7 @@ interface LoginBonusHistoryRepositoryInterface
      * @param string $bonusId ログインボーナスID
      * @param string $receivedDate 受取日
      * @param string $connectionName シャーディングされたDB接続名
-     * @return array|null 履歴データ
+     * @return array<string, mixed>|null 履歴データ
      */
     public function selectByPlayerAndBonusAndDate(
         int $sysPlayerId,

@@ -83,7 +83,7 @@ class Item
     /**
      * 配列からDTOを生成
      *
-     * @param array $data
+     * @param  array<string, mixed>  $data
      * @return self
      */
     public static function fromArray(array $data): self
@@ -99,7 +99,7 @@ class Item
     /**
      * 配列に変換
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function toArray(): array
     {

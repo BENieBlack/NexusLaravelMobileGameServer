@@ -85,8 +85,8 @@ class TrxMailboxRepository extends _BaseTrxRepository
 
         $sorted = $results->sort(function ($a, $b) use ($priorityOrder) {
             // マスターが引けないメールは通常扱いにする
-            $priorityAValue = ($a->mstMailbox?->priority ?? Priority::NORMAL)->value;
-            $priorityBValue = ($b->mstMailbox?->priority ?? Priority::NORMAL)->value;
+            $priorityAValue = ($a->mstMailbox->priority ?? Priority::NORMAL)->value;
+            $priorityBValue = ($b->mstMailbox->priority ?? Priority::NORMAL)->value;
 
             $orderA = $priorityOrder[$priorityAValue];
             $orderB = $priorityOrder[$priorityBValue];

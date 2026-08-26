@@ -73,6 +73,7 @@ class PlayerVip
 
     /**
      * 配列に変換
+     * @return array<string, mixed>
      */
     public function toArray(): array
     {

@@ -23,7 +23,7 @@ use Nexus\Core\Utilities\ClockUtility;
  * @property ?string $read_at
  * @property ?string $received_at
  * @property string|null $sender_name
- * @property array|null $custom_params
+ * @property array<string, mixed>|null $custom_params
  * @property string $created_at
  * @property string $updated_at
  */
@@ -189,6 +189,9 @@ class TrxMailbox extends _BaseTrx
     /**
      * カスタムパラメータを取得
      */
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getCustomParams(): ?array
     {
         return $this->getAttribute('custom_params');
@@ -292,6 +295,9 @@ class TrxMailbox extends _BaseTrx
 
     /**
      * カスタムパラメータを設定
+     */
+    /**
+     * @param  array<string, mixed>|null  $customParams
      */
     public function setCustomParams(?array $customParams): void
     {

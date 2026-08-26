@@ -13,6 +13,14 @@ use Nexus\Core\Utilities\ClockUtility;
  * プレイヤーマスターテーブル
  * プレイヤーの基本情報を管理
  *
+ * @property int $id
+ * @property string $uuid
+ * @property string $my_id
+ * @property string $name
+ * @property int $level
+ * @property int $level_exp
+ * @property int $vip_point
+ * @property string $total_paid_amount
  * @property ?string $created_at
  * @property ?string $last_login_at
  */

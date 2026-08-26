@@ -14,7 +14,6 @@ use Nexus\Core\Utilities\ClockUtility;
  * @property int $sys_guild_id
  * @property int $sys_player_id
  * @property string $role
- * @property int $contribution
  * @property string $joined_at
  * @property string $created_at
  * @property string $updated_at

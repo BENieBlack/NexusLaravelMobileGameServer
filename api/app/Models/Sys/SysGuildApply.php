@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $sys_player_id
  * @property int $sys_guild_id
- * @property string|null $message
  * @property string $created_at
  * @property string $updated_at
  */

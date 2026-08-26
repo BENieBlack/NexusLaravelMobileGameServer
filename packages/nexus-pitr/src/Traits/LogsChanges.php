@@ -28,6 +28,10 @@ trait LogsChanges
      * @param array $primaryKey
      * @return void
      */
+    /**
+     * @param array<string, mixed> $afterData 追加された行データ
+     * @param array<string, mixed> $primaryKey 対象行を特定する主キーの値
+     */
     protected function queueInsertLog(int $sysPlayerId, array $afterData, array $primaryKey): void
     {
         $this->pitrLogQueue[] = new ChangeLog(
@@ -54,6 +58,11 @@ trait LogsChanges
      * @param array $primaryKey
      * @return void
      */
+    /**
+     * @param array<string, mixed> $beforeData 変更前の行データ
+     * @param array<string, mixed> $afterData 変更後の行データ
+     * @param array<string, mixed> $primaryKey 対象行を特定する主キーの値
+     */
     protected function queueUpdateLog(int $sysPlayerId, array $beforeData, array $afterData, array $primaryKey): void
     {
         $this->pitrLogQueue[] = new ChangeLog(
@@ -78,6 +87,10 @@ trait LogsChanges
      * @param array $beforeData
      * @param array $primaryKey
      * @return void
+     */
+    /**
+     * @param array<string, mixed> $beforeData 削除された行データ
+     * @param array<string, mixed> $primaryKey 対象行を特定する主キーの値
      */
     protected function queueDeleteLog(int $sysPlayerId, array $beforeData, array $primaryKey): void
     {

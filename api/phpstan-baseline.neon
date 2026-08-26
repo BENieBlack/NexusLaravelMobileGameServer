@@ -1485,12 +1485,6 @@ parameters:
 			path: app/Models/Sys/SysFriendApply.php
 
 		-
-			message: '#^Cannot call method format\(\) on string\.$#'
-			identifier: method.nonObject
-			count: 3
-			path: app/Models/Sys/SysMaintenance.php
-
-		-
 			message: '#^Method App\\Models\\Sys\\SysMaintenance\:\:scopeActive\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
 			identifier: missingType.generics
 			count: 1

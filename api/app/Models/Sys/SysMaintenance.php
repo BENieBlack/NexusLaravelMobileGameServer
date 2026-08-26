@@ -3,6 +3,7 @@
 namespace App\Models\Sys;
 
 use Illuminate\Database\Eloquent\Builder;
+use Nexus\Core\Utilities\ClockUtility;
 use NexusMaintenance\ValueObjects\Maintenance;
 
 /**
@@ -190,12 +191,31 @@ class SysMaintenance extends _BaseSys
     {
         return new Maintenance(
             isMaintenance: $this->is_active,
-            startAt: $this->start_at?->format('Y-m-d H:i:s'),
-            endAt: $this->end_at?->format('Y-m-d H:i:s'),
+            startAt: $this->formatDateTime($this->start_at),
+            endAt: $this->formatDateTime($this->end_at),
             title: $this->title,
             message: $this->message,
-            updatedAt: $this->updated_at?->format('Y-m-d H:i:s'),
+            updatedAt: $this->formatDateTime($this->updated_at),
         );
+    }
+
+    /**
+     * 日時をY-m-d H:i:s形式の文字列に正規化する
+     *
+     * start_at / end_at はキャストしていないため文字列で入っている。
+     * 将来キャストを足してCarbonになっても壊れないよう両方を受ける。
+     */
+    private function formatDateTime(mixed $value): ?string
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format('Y-m-d H:i:s');
+        }
+
+        return ClockUtility::parse((string) $value)->format('Y-m-d H:i:s');
     }
 
     /**

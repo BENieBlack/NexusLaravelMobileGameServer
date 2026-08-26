@@ -113,6 +113,8 @@
         "nexus/pitr": "@dev"
     },
     "require-dev": {
+        "aliyun/aliyun-tablestore-sdk-php": "^6.0",
+        "aws/aws-sdk-php": "^3.394",
         "fakerphp/faker": "^1.23",
         "larastan/larastan": "^3.0",
         "laravel/pail": "^1.2.2",

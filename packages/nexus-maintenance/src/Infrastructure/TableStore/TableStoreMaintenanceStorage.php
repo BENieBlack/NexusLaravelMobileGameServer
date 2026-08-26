@@ -21,12 +21,16 @@ class TableStoreMaintenanceStorage implements MaintenanceStorageInterface
     private string $tableName;
     private string $primaryKey;
 
-    public function __construct(array $config)
+    /**
+     * @param array<string, mixed> $config
+     * @param OTSClient|null $client 生成済みのクライアント（テストや差し替え用）
+     */
+    public function __construct(array $config, ?OTSClient $client = null)
     {
         $this->tableName = $config['table'];
         $this->primaryKey = $config['primary_key'];
-        
-        $this->client = new OTSClient([
+
+        $this->client = $client ?? new OTSClient([
             'EndPoint' => $config['endpoint'],
             'AccessKeyID' => $config['access_key_id'],
             'AccessKeySecret' => $config['access_key_secret'],
@@ -74,11 +78,11 @@ class TableStoreMaintenanceStorage implements MaintenanceStorageInterface
                     ['id', $this->primaryKey],
                 ],
                 'attribute_columns' => [
-                    ['is_maintenance', $maintenance->isMaintenance],
-                    ['start_at', $maintenance->startAt ?? ''],
-                    ['end_at', $maintenance->endAt ?? ''],
-                    ['title', $maintenance->title ?? ''],
-                    ['message', $maintenance->message ?? ''],
+                    ['is_maintenance', $maintenance->getIsMaintenance()],
+                    ['start_at', $maintenance->getStartAt() ?? ''],
+                    ['end_at', $maintenance->getEndAt() ?? ''],
+                    ['title', $maintenance->getTitle() ?? ''],
+                    ['message', $maintenance->getMessage() ?? ''],
                     ['updated_at', ClockUtility::nowToString()],
                 ],
             ]);
@@ -138,6 +142,8 @@ class TableStoreMaintenanceStorage implements MaintenanceStorageInterface
 
     /**
      * TableStore行データをSysMaintenanceに変換
+     *
+     * @param array<int, array{0: string, 1: mixed}> $columns [カラム名, 値] の配列
      */
     private function parseRow(array $columns): Maintenance
     {

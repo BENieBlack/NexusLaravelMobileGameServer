@@ -9,6 +9,7 @@ use App\Repositories\Trx\TrxUnitRepository;
 use Illuminate\Support\Facades\DB;
 use Nexus\Core\Models\_BaseModel;
 use Nexus\Core\Utilities\ClockUtility;
+use NexusPitr\Logger\ShardMapper;
 use NexusUnitOfWork\Persistence\QueryManager;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;
@@ -58,7 +59,7 @@ class TrxUnitRepositoryLogTest extends TestCase
 
     protected function tearDown(): void
     {
-        foreach (['log1', 'log2', 'log3'] as $connection) {
+        foreach (ShardMapper::allLogConnections() as $connection) {
             DB::connection($connection)->table('log_unit')
                 ->where('sys_player_id', $this->sysPlayerId)->delete();
         }
@@ -160,7 +161,7 @@ class TrxUnitRepositoryLogTest extends TestCase
 
     private function findLog(): ?object
     {
-        foreach (['log1', 'log2', 'log3'] as $connection) {
+        foreach (ShardMapper::allLogConnections() as $connection) {
             $log = DB::connection($connection)->table('log_unit')
                 ->where('sys_player_id', $this->sysPlayerId)->first();
 

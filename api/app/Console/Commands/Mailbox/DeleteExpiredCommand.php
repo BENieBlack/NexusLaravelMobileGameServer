@@ -7,6 +7,7 @@ use App\Repositories\Trx\TrxMailboxRepository;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection;
+use NexusUnitOfWork\Contracts\QueryManagerInterface;
 
 /**
  * DeleteExpiredCommand
@@ -37,6 +38,7 @@ class DeleteExpiredCommand extends Command
      */
     public function __construct(
         private TrxMailboxRepository $trxMailboxRepository,
+        private QueryManagerInterface $queryManager,
     ) {
         parent::__construct();
     }
@@ -121,6 +123,11 @@ class DeleteExpiredCommand extends Command
 
         $bar->finish();
         $this->newLine(2);
+
+        // setModel()はキューに積むだけなので、ここで書き込む
+        if (! $isDryRun && $deletedCount > 0) {
+            $this->queryManager->flush();
+        }
 
         // 結果表示
         $this->info('=== 処理結果 ===');

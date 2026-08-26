@@ -66,17 +66,7 @@ parameters:
 			count: 1
 			path: ../packages/nexus-core-security/src/Contracts/TokenValidatorInterface.php
 
-		-
-			message: '#^Call to an undefined method Symfony\\Component\\HttpFoundation\\Response\:\:withHeaders\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: ../packages/nexus-core-security/src/Middleware/ThrottleAuth.php
 
-		-
-			message: '#^Call to an undefined method Symfony\\Component\\HttpFoundation\\Response\:\:withHeaders\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: ../packages/nexus-core-security/src/Middleware/ThrottleSignUp.php
 
 		-
 			message: '#^Dead catch \- Exception is never thrown in the try block\.$#'
@@ -174,17 +164,7 @@ parameters:
 			count: 1
 			path: ../packages/nexus-gacha/src/Repositories/GachaStepBonusRepositoryInterface.php
 
-		-
-			message: '#^Strict comparison using \!\=\= between string and null will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: ../packages/nexus-gacha/src/Services/GachaProgressService.php
 
-		-
-			message: '#^Strict comparison using \=\=\= between string and null will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
-			path: ../packages/nexus-gacha/src/Services/GachaProgressService.php
 
 		-
 			message: '#^Method NexusGacha\\Strategies\\NoneDrawStrategy\:\:weightedRandom\(\) has parameter \$items with no value type specified in iterable type array\.$#'

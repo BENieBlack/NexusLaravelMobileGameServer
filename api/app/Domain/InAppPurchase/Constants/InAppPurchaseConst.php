@@ -53,6 +53,8 @@ class InAppPurchaseConst
 
     /**
      * 全課金商品タイプの配列を取得
+     *
+     * @return array<int, string>
      */
     public static function allTypes(): array
     {
@@ -65,6 +67,8 @@ class InAppPurchaseConst
 
     /**
      * 全購入制限リセットの配列を取得
+     *
+     * @return array<int, string>
      */
     public static function allPurchaseLimitResets(): array
     {
@@ -78,6 +82,8 @@ class InAppPurchaseConst
 
     /**
      * 全コンテンツタイプの配列を取得
+     *
+     * @return array<int, string>
      */
     public static function allContentTypes(): array
     {
@@ -90,6 +96,8 @@ class InAppPurchaseConst
 
     /**
      * 全効果タイプの配列を取得
+     *
+     * @return array<int, string>
      */
     public static function allEffectTypes(): array
     {

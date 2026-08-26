@@ -15,6 +15,7 @@ interface TokenValidatorInterface
      *
      * @param string $token アクセストークン
      * @return array|null ペイロード（player_id, uuid等）、無効な場合はnull
+     * @return array<string, mixed>|null
      */
     public function validateAccessToken(string $token): ?array;
 }

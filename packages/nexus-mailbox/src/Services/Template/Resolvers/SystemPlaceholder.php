@@ -59,6 +59,7 @@ class SystemPlaceholder implements PlaceholderResolverInterface
 
     /**
      * {@inheritDoc}
+     * @param  array<string, mixed>  $context
      */
     public function resolve(string $key, array $context): ?string
     {

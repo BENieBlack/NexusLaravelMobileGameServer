@@ -95,11 +95,12 @@ class ThrottleSignUp
             Cache::put("{$deviceKey}:ttl", $this->calcRemainingSeconds($deviceKey, $rateLimitWindow), $rateLimitWindow);
         }
 
-        // レート制限情報をヘッダーに追加
-        return $response->withHeaders([
-            'X-RateLimit-Limit' => $maxAttemptsPerIp,
-            'X-RateLimit-Remaining' => max(0, $maxAttemptsPerIp - $newIpAttempts),
-        ]);
+        // レート制限情報をヘッダーに追加。
+        // $next() は withHeaders() を持たない Symfony の Response を返しうるのでHeaderBagを使う
+        $response->headers->set('X-RateLimit-Limit', (string) $maxAttemptsPerIp);
+        $response->headers->set('X-RateLimit-Remaining', (string) max(0, $maxAttemptsPerIp - $newIpAttempts));
+
+        return $response;
     }
 
     /**

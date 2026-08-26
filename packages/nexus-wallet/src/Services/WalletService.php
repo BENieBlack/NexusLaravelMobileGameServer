@@ -105,7 +105,7 @@ class WalletService
         $wallet = $this->walletRepository->selectByCurrencyId($playerId, $currencyId);
 
         if ($wallet === null || $wallet->total_amount < $amount) {
-            $available = $wallet?->total_amount ?? 0;
+            $available = $wallet->total_amount ?? 0;
             throw new InsufficientBalanceException($currencyId, $amount, $available);
         }
 

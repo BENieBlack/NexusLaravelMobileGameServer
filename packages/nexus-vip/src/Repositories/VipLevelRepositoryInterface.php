@@ -13,7 +13,7 @@ interface VipLevelRepositoryInterface
     /**
      * 全VIPレベルを取得（キャッシュから）
      *
-     * @return CustomCollection<MstVipLevel>
+     * @return CustomCollection<array-key, MstVipLevel>
      */
     public function selectAllLevels(): CustomCollection;
 

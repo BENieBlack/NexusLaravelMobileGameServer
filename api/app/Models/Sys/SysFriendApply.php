@@ -152,6 +152,8 @@ class SysFriendApply extends _BaseSys
 
     /**
      * 利用可能なステータス一覧を取得
+     *
+     * @return array<int, string>
      */
     public static function availableStatuses(): array
     {

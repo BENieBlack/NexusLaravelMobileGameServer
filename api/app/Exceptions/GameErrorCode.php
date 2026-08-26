@@ -225,6 +225,8 @@ class GameErrorCode
 
     const MAILBOX_NOT_OPENED = 20003;
 
+    const MAILBOX_ALREADY_DELETED = 20004;
+
     // ========================================
     // アプリケーション汎用エラー (99000-99999)
     // ========================================

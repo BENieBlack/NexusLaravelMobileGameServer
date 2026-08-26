@@ -23,7 +23,7 @@ class BatchExecutor
     /**
      * INSERT操作を実行
      *
-     * @param array $insertsByTable
+     * @param array<string, array{connection: string, table: string, records: array<int, array<string, mixed>>, models: array<int, mixed>, repository: mixed, originalStates: array<int, array<string, mixed>>}> $insertsByTable
      * @return void
      */
     public function executeInserts(array $insertsByTable): void
@@ -36,7 +36,6 @@ class BatchExecutor
             $models = $item['models'];
             $records = $item['records'];
             $originalStates = $item['originalStates'];
-            /** @var _BaseTrxRepository|_BaseSysRepository $repository */
             $repository = $item['repository'];
             $table = $item['table'];
             
@@ -72,8 +71,9 @@ class BatchExecutor
                     $model->exists = true;
 
                     // auto-incrementのIDを設定（複数レコードの場合は連番）
+                    // lastInsertId()は文字列を返すため、加算前に数値へ変換する
                     if ($firstId && $model->getIncrementing()) {
-                        $model->setAttribute($model->getKeyName(), $firstId + $index);
+                        $model->setAttribute($model->getKeyName(), (int) $firstId + $index);
                     }
 
                     // created_at / updated_at はDB側のDEFAULT CURRENT_TIMESTAMPで
@@ -131,13 +131,12 @@ class BatchExecutor
     /**
      * UPDATE操作を実行
      *
-     * @param array $updates
+     * @param array<int, array{connection: string, table: string, model: mixed, data: array<string, mixed>, repository: mixed, uniqueKey: string, originalState: array<string, mixed>}> $updates
      * @return void
      */
     public function executeUpdates(array $updates): void
     {
         foreach ($updates as $item) {
-            /** @var _BaseTrxRepository|_BaseSysRepository $repository */
             $repository = $item['repository'];
             $model = $item['model'];
             $where = $this->queryBuilder->buildWhereCondition($model);
@@ -161,8 +160,8 @@ class BatchExecutor
     /**
      * 相対的な更新を実行
      *
-     * @param array $item
-     * @param array $where
+     * @param array{connection: string, table: string, model: mixed, data: array<string, mixed>, repository: mixed, uniqueKey: string, originalState: array<string, mixed>} $item
+     * @param array<string, mixed> $where
      * @return void
      */
     private function executeRelativeUpdate(array $item, array $where): void
@@ -190,8 +189,8 @@ class BatchExecutor
     /**
      * 通常のUPDATEを実行
      *
-     * @param array $item
-     * @param array $where
+     * @param array{connection: string, table: string, model: mixed, data: array<string, mixed>, repository: mixed, uniqueKey: string, originalState: array<string, mixed>} $item
+     * @param array<string, mixed> $where
      * @return void
      */
     private function executeStandardUpdate(array $item, array $where): void
@@ -205,7 +204,7 @@ class BatchExecutor
     /**
      * DELETE操作を実行
      *
-     * @param array $deletes
+     * @param array<int, array{connection: string, table: string, model: mixed}> $deletes
      * @return void
      */
     public function executeDeletes(array $deletes): void
@@ -224,7 +223,7 @@ class BatchExecutor
     /**
      * ログのINSERT操作を実行
      *
-     * @param array $insertsByTable
+     * @param array<string, array{connection: string, table: string, records: array<int, array<string, mixed>>}> $insertsByTable
      * @return void
      */
     public function executeLogInserts(array $insertsByTable): void

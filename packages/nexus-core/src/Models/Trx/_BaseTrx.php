@@ -64,7 +64,7 @@ abstract class _BaseTrx extends _BaseModel implements _BaseTrxInterface
     /**
      * ユニークキーを取得
      * 
-     * @return array
+     * @return list<string>
      */
     public function getUniqueKeys(): array
     {

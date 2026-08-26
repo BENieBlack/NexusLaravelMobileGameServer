@@ -19,6 +19,16 @@ class TrxWalletRepository extends _BaseTrxRepository
     protected string $modelClass = TrxWallet::class;
 
     /**
+     * ユニークキー（trx_wallet の主キー）
+     *
+     * 既定の ['id'] のままだとtrx_walletにはidが無いため、
+     * キャッシュのキーが全行で同じになり1件しか保持できない
+     *
+     * @var list<string>
+     */
+    protected array $uniqueKeys = ['sys_player_id', 'mst_item_id'];
+
+    /**
      * プレイヤーIDとアイテムIDでウォレットを取得
      *
      * @param  int  $sysPlayerId  プレイヤーID

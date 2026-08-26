@@ -26,6 +26,8 @@ class LogInAppPurchaseRepository extends _BaseLogRepository
     /**
      * 課金ログを記録（Unit of Work パターン使用）
      * 課金ログはトランザクション内で実行される
+     *
+     * @param  array<string, mixed>  $receipt
      */
     public function insertPurchaseLog(
         string $uniqueRequestId,

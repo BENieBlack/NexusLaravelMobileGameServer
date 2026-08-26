@@ -13,6 +13,7 @@ interface DeployRepositoryInterface
      * 最新のダウンロード可能なデプロイを取得
      * 
      * @return array|null デプロイデータの連想配列、存在しない場合はnull
+     * @return array<string, mixed>|null
      */
     public function selectLatestDownloadable(): ?array;
 
@@ -21,6 +22,7 @@ interface DeployRepositoryInterface
      * 
      * @param int $deployId
      * @return array|null デプロイデータの連想配列、存在しない場合はnull
+     * @return array<string, mixed>|null
      */
     public function selectById(int $deployId): ?array;
 }

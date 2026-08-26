@@ -24,6 +24,16 @@ class TrxStaminaRepository extends _BaseTrxRepository
 {
     protected string $modelClass = TrxStamina::class;
 
+    /**
+     * ユニークキー（trx_stamina の主キー）
+     *
+     * 既定の ['id'] のままだとtrx_staminaにはidが無いため、
+     * キャッシュのキーが全行で同じになり1件しか保持できない
+     *
+     * @var list<string>
+     */
+    protected array $uniqueKeys = ['sys_player_id', 'type'];
+
     protected string $selectKey = 'sys_player_id';
 
     public function __construct(
@@ -65,7 +75,10 @@ class TrxStaminaRepository extends _BaseTrxRepository
      */
     public function selectByPlayerAndType(int $sysPlayerId, string $type): ?TrxStamina
     {
-        $originalPlayerId = $this->apiSession->getSysPlayerId();
+        // 未設定のまま getPlayerId() を呼ぶと例外になるので、あるときだけ退避する
+        $originalPlayerId = $this->apiSession->hasPlayerId()
+            ? $this->apiSession->getPlayerId()
+            : null;
         $this->apiSession->setSysPlayerId($sysPlayerId);
 
         $stamina = $this->selectByType($type);

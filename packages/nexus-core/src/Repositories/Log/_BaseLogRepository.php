@@ -130,8 +130,7 @@ abstract class _BaseLogRepository extends _BaseRepository implements _BaseLogRep
         }
 
         // キャッシュがない場合、queryOrMemoryでロードしてから取得
-        $this->queryOrMemory();
-        return $this->models?->get($logRecordId);
+        return $this->queryOrMemory()->get($logRecordId);
     }
 
     /**

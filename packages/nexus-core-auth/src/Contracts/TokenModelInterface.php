@@ -44,4 +44,14 @@ interface TokenModelInterface
      * @return bool
      */
     public function isExpired(): bool;
+
+    /**
+     * レスポンス用の配列に変換
+     *
+     * Eloquent の Model::toArray() は戻り値型を宣言していないため、
+     * ここでも宣言しない（宣言すると実装側と互換にならない）
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray();
 }

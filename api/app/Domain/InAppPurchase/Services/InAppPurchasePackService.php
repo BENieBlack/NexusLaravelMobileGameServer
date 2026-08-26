@@ -7,7 +7,6 @@ use App\Domain\Item\Services\ItemService;
 use App\Models\Mst\MstInAppPurchase;
 use App\Models\Trx\TrxInAppPurchase;
 use App\Models\Trx\TrxUnit;
-use App\Repositories\Trx\TrxInAppPurchaseRepository;
 use App\Repositories\Trx\TrxUnitRepository;
 
 /**
@@ -22,7 +21,6 @@ class InAppPurchasePackService
         private readonly InAppPurchaseDiamondBalanceService $diamondBalanceService,
         private readonly ItemService $itemService,
         private readonly TrxUnitRepository $trxUnitRepository,
-        private readonly TrxInAppPurchaseRepository $trxInAppPurchaseRepository,
         private readonly InAppPurchaseValidationService $validationService,
         private readonly InAppPurchaseHistoryService $purchaseHistoryService,
     ) {}
@@ -35,7 +33,7 @@ class InAppPurchasePackService
      * @param  string  $platform  プラットフォーム（Apple, Google）
      * @param  string  $billingPlatform  決済プラットフォーム（AppStore, GooglePlay等）
      * @param  string  $transactionId  プラットフォーム固有のトランザクションID
-     * @return array{contents: array, total_free_diamond_amount: int}
+     * @return array{contents: array<int, array<string, mixed>>, total_free_diamond_amount: int}
      */
     public function purchasePack(
         int $sysPlayerId,

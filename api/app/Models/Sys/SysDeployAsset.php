@@ -12,7 +12,7 @@ namespace App\Models\Sys;
  * @property string $s3_bucket
  * @property string $s3_path
  * @property string $status
- * @property int $total_size
+ * @property ?int $total_size
  */
 class SysDeployAsset extends _BaseSys
 {
@@ -70,6 +70,8 @@ class SysDeployAsset extends _BaseSys
 
     /**
      * 利用可能なステータス一覧を取得
+     *
+     * @return array<int, string>
      */
     public static function availableStatuses(): array
     {

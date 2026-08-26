@@ -77,8 +77,8 @@ abstract class _BaseTemplateEngine
      * テンプレートをレンダリング
      *
      * @param  string  $template  テンプレート文字列
-     * @param  array  $params  カスタムパラメータ（最優先）
-     * @param  array  $context  コンテキスト情報（player, alliance, battle, etc.）
+     * @param  array<string, mixed>  $params  カスタムパラメータ（最優先）
+     * @param  array<string, mixed>  $context  コンテキスト情報（player, alliance, battle, etc.）
      * @return string レンダリング結果
      */
     public function render(string $template, array $params = [], array $context = []): string
@@ -131,8 +131,8 @@ abstract class _BaseTemplateEngine
     /**
      * プレースホルダーを解決
      *
-     * @param  array  $params  カスタムパラメータ
-     * @param  array  $context  コンテキスト
+     * @param  array<string, mixed>  $params  カスタムパラメータ
+     * @param  array<string, mixed>  $context  コンテキスト
      */
     protected function resolvePlaceholder(string $key, array $params, array $context): ?string
     {

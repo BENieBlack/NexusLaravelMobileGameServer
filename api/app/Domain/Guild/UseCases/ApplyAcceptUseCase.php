@@ -6,7 +6,6 @@ use App\Domain\_BaseUseCase;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Http\Responses\Guild\GuildApplyAcceptResponse;
-use App\Repositories\Sys\SysGuildApplyRepository;
 use App\Repositories\Sys\SysGuildMemberRepository;
 use NexusGuild\Constants\GuildRole;
 use NexusGuild\Exceptions\GuildException;
@@ -20,7 +19,6 @@ use NexusGuild\Services\GuildService;
 class ApplyAcceptUseCase extends _BaseUseCase
 {
     public function __construct(
-        private readonly SysGuildApplyRepository $sysGuildApplyRepository,
         private readonly SysGuildMemberRepository $sysGuildMemberRepository,
         private readonly GuildService $guildService,
     ) {}

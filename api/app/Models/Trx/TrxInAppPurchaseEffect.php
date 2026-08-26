@@ -78,17 +78,6 @@ class TrxInAppPurchaseEffect extends _BaseTrx
     }
 
     /**
-     * trx_in_app_purchaseとのリレーション
-     */
-    /**
-     * @return BelongsTo<TrxInAppPurchase, $this>
-     */
-    public function trxInAppPurchase(): BelongsTo
-    {
-        return $this->belongsTo(TrxInAppPurchase::class, ['sys_player_id', 'mst_in_app_purchase_id'], ['sys_player_id', 'mst_in_app_purchase_id']);
-    }
-
-    /**
      * 効果が有効かチェック
      */
     public function isEffective(): bool

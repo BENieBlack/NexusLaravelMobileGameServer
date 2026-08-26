@@ -3,7 +3,6 @@
 namespace App\Repositories\Trx;
 
 use App\Models\Trx\TrxGacha;
-use App\Persistence\ApiSession;
 
 /**
  * TrxGachaRepository
@@ -26,10 +25,6 @@ class TrxGachaRepository extends _BaseTrxRepository
      */
     /** @var list<string> */
     protected array $uniqueKeys = ['sys_player_id', 'mst_gacha_id'];
-
-    public function __construct(
-        private readonly ApiSession $apiSession
-    ) {}
 
     /**
      * プレイヤーと対象ガチャの進行状況を取得

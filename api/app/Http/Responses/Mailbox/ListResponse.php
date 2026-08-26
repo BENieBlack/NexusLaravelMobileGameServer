@@ -5,6 +5,8 @@ namespace App\Http\Responses\Mailbox;
 use App\Domain\Mailbox\Constants\ContentType;
 use App\Domain\Mailbox\Services\TemplateEngine;
 use App\Http\Responses\_BaseResponse;
+use App\Models\Mst\MstMailboxContent;
+use App\Models\Trx\TrxMailbox;
 use App\Persistence\ApiSession;
 use Nexus\Core\Support\CustomCollection;
 
@@ -16,6 +18,7 @@ use Nexus\Core\Support\CustomCollection;
 class ListResponse extends _BaseResponse
 {
     /**
+     * @param  array<int, array<string, mixed>>  $mailboxArray  メール1件ずつの表示内容
      * @param  array<string, int>  $unreadCounts  カテゴリ別未読数
      */
     public function __construct(
@@ -26,6 +29,7 @@ class ListResponse extends _BaseResponse
     /**
      * CustomCollectionからレスポンスを生成
      *
+     * @param  CustomCollection<int, TrxMailbox>  $trxMailboxCollection
      * @param  array<string, int>  $unreadCounts
      */
     public static function fromCollection(
@@ -39,7 +43,7 @@ class ListResponse extends _BaseResponse
         $language = ApiSession::getLanguage();
         $defaultLanguage = (string) config('language.default');
 
-        $mailboxArray = $trxMailboxCollection->map(function ($trxMailbox) use ($templateEngine, $language, $defaultLanguage) {
+        $mailboxArray = $trxMailboxCollection->map(function (TrxMailbox $trxMailbox) use ($templateEngine, $language, $defaultLanguage) {
             $mstMailbox = $trxMailbox->mstMailbox;
             $mstMessage = $mstMailbox?->message;
 
@@ -60,19 +64,19 @@ class ListResponse extends _BaseResponse
 
             // タイトル・本文をレンダリング
             $title = $templateEngine->render(
-                $i18n?->title ?? '',
+                $i18n->title ?? '',
                 $customParams,
                 $context
             );
 
             $body = $templateEngine->render(
-                $i18n?->body ?? '',
+                $i18n->body ?? '',
                 $customParams,
                 $context
             );
 
             // コンテンツ情報を取得
-            $contentArray = $mstMailbox?->contentCollection->map(function ($content) {
+            $contentArray = $mstMailbox?->contentCollection->map(function (MstMailboxContent $content) {
                 $contentType = ContentType::fromString($content->content_type);
 
                 return [
@@ -100,22 +104,22 @@ class ListResponse extends _BaseResponse
                 'body' => $body,
 
                 // カテゴリ・優先度
-                'category' => $category?->value ?? null,
+                'category' => $category->value ?? null,
                 'category_label' => $category?->label() ?? null,
                 'category_icon' => $category?->icon() ?? null,
-                'priority' => $priority?->value ?? null,
+                'priority' => $priority->value ?? null,
                 'priority_label' => $priority?->label() ?? null,
                 'priority_color' => $priority?->color() ?? null,
                 'priority_icon' => $priority?->icon() ?? null,
 
                 // 送信者情報
-                'sender_type' => $mstMailbox?->sender_type?->value ?? null,
+                'sender_type' => $mstMailbox?->sender_type->value ?? null,
                 'sender_type_label' => $mstMailbox?->sender_type?->label() ?? null,
-                'sender_id' => $mstMailbox?->sender_id ?? null,
+                'sender_id' => $mstMailbox->sender_id ?? null,
                 'sender_name' => $trxMailbox->sender_name ?? null,
 
                 // アイコン
-                'icon_url' => $mstMailbox?->icon_url ?? null,
+                'icon_url' => $mstMailbox->icon_url ?? null,
 
                 // 状態
                 'is_opened' => $trxMailbox->is_opened,
@@ -125,9 +129,9 @@ class ListResponse extends _BaseResponse
                 'is_unread' => $trxMailbox->isUnread(),
 
                 // 日時
-                'expires_at' => $trxMailbox->expires_at?->toIso8601String() ?? null,
-                'read_at' => $trxMailbox->read_at?->toIso8601String() ?? null,
-                'received_at' => $trxMailbox->received_at?->toIso8601String() ?? null,
+                'expires_at' => $trxMailbox->getExpiresAt(),
+                'read_at' => $trxMailbox->getReadAt(),
+                'received_at' => $trxMailbox->getReceivedAt(),
                 'created_at' => (string) $trxMailbox->getAttribute('created_at'),
 
                 // 添付物
@@ -141,6 +145,8 @@ class ListResponse extends _BaseResponse
 
     /**
      * レスポンス配列を取得
+     *
+     * @return array<string, mixed>
      */
     public function toArray(): array
     {

@@ -122,7 +122,7 @@ class TrxUnit extends _BaseTrx
     /**
      * マスターユニットIDを設定
      */
-    public function setMstUnitId(int $mstUnitId): void
+    public function setMstUnitId(string $mstUnitId): void
     {
         $this->setAttribute('mst_unit_id', $mstUnitId);
     }

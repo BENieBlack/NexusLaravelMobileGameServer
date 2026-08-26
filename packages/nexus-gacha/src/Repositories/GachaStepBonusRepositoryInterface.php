@@ -15,7 +15,7 @@ interface GachaStepBonusRepositoryInterface
      * ステップIDでステップボーナスリストを取得
      * 
      * @param string $stepId
-     * @return CustomCollection
+     * @return CustomCollection<array-key, \Illuminate\Database\Eloquent\Model>
      */
     public function selectByStepId(string $stepId): CustomCollection;
 }

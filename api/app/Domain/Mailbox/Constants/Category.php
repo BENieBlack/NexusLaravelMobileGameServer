@@ -50,7 +50,7 @@ enum Category: string
     /**
      * 全カテゴリを取得
      *
-     * @return array<string, string>
+     * @return array<int, string>
      */
     public static function all(): array
     {

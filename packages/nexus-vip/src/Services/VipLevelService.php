@@ -95,7 +95,7 @@ class VipLevelService
     /**
      * 全VIPレベルのリストを取得
      *
-     * @return array<int, array>
+     * @return array<int, array<string, mixed>>
      */
     public function findAllLevels(): array
     {

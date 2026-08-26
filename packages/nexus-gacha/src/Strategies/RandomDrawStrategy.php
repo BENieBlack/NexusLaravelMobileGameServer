@@ -67,7 +67,7 @@ class RandomDrawStrategy implements GachaDrawStrategyInterface
     /**
      * 重み付きランダム抽選
      * 
-     * @param array $items 候補アイテム配列
+     * @param array<array-key, \Illuminate\Database\Eloquent\Model> $items 候補アイテム配列
      * @param string $weightKey 重みを取得するための属性キー
      * @return mixed 抽選されたアイテム
      * @throws GachaDrawException 候補が空の場合

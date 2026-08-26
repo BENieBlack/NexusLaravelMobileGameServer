@@ -32,7 +32,7 @@ class PurchaseLimitResetType
     /**
      * 全リセットタイプの配列を取得
      * 
-     * @return array
+     * @return array<int, string>
      */
     public static function all(): array
     {

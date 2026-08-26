@@ -1,8 +1,5 @@
 includes:
     - vendor/larastan/larastan/extension.neon
-    # 既存の指摘はbaselineに退避し、新規に混入した分だけを検出する
-    # baselineを減らす作業は別途進める
-    - phpstan-baseline.neon
 
 parameters:
     level: 6
@@ -42,12 +39,19 @@ parameters:
         - phpstan/bootstrap.php
 
     ignoreErrors:
-        # 複合主キーのモデルは $primaryKey に配列を入れる（App\Traits\CompositePrimaryKeyTrait）。
+        # 複合主キーのモデルは $primaryKey に配列を入れ、getKeyName() も配列を返す
+        # （App\Traits\CompositePrimaryKeyTrait）。
         # Laravel本体が string 前提のため必ず出るが、意図した実装なので無視する。
         # larastanが Model をスタブ済みでスタブの上書きができないため、ここで指定する。
         -
             identifier: property.defaultValue
-            message: '#^Property App\\Models\\.+\:\:\$primaryKey \(string\) does not accept default value of type array\<int, string\>\.$#'
+            message: '#^Property .+\:\:\$primaryKey \(string\) does not accept default value of type array\<int, string\>\.$#'
+        -
+            identifier: property.phpDocType
+            message: '#^PHPDoc type array\<string\> of property .+\:\:\$primaryKey is not covariant with PHPDoc type string of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$primaryKey\.$#'
+        -
+            identifier: method.childReturnType
+            message: '#^Return type \(array\<int, string\>\) of method .+\:\:getKeyName\(\) should be compatible with return type \(string\) of method Illuminate\\Database\\Eloquent\\Model\:\:getKeyName\(\)$#'
 
         # パッケージが同梱するLaravel設定ファイル。config/配下ではないため
         # larastanのenv()チェックに引っかかるが、役割としては設定ファイルそのもので、

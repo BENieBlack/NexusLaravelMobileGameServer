@@ -15,7 +15,7 @@ interface GachaRarityRateRepositoryInterface
      * ガチャIDでレアリティ確率リストを取得
      * 
      * @param string $mstGachaId
-     * @return CustomCollection
+     * @return CustomCollection<array-key, \Illuminate\Database\Eloquent\Model>
      */
     public function selectByGachaId(string $mstGachaId): CustomCollection;
 }

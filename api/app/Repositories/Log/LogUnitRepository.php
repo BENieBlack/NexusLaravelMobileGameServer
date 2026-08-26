@@ -29,7 +29,7 @@ class LogUnitRepository extends _BaseLogRepository
         string $uniqueRequestId,
         int $sysPlayerId,
         int $trxUnitId,
-        int $mstUnitId,
+        string $mstUnitId,
         int $beforeGrade,
         int $afterGrade,
         int $beforeLevel,

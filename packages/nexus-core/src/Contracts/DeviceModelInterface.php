@@ -52,11 +52,4 @@ interface DeviceModelInterface
      * 永続化はRepositoryのsetModel()経由で行うこと。
      */
     public function markLastLoginAt(): void;
-
-    /**
-     * プレイヤーモデルを取得（リレーション）
-     * 
-     * @return PlayerModelInterface|null
-     */
-    public function getPlayer(): ?PlayerModelInterface;
 }

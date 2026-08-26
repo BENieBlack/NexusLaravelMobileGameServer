@@ -13,6 +13,10 @@ use NexusUnitOfWork\Contracts\QueryManagerInterface;
  * DeleteExpiredCommand
  *
  * 期限切れメールを自動削除するバッチコマンド
+ *
+ * trx_mailbox はプレイヤーごとにシャードへ分かれているため、
+ * TrxMailbox の既定接続（trx1）だけを見ると他シャードのメールが消えない。
+ * config('database.pitr.active_trx_connections') の全シャードを走査する。
  */
 class DeleteExpiredCommand extends Command
 {
@@ -24,7 +28,7 @@ class DeleteExpiredCommand extends Command
     protected $signature = 'mailbox:delete-expired
                             {--dry-run : 実行結果をシミュレートのみ（実際には削除しない）}
                             {--player-id= : 特定プレイヤーのみ処理}
-                            {--limit=1000 : 一度に処理する最大件数}';
+                            {--limit=1000 : 一度に処理する最大件数（全シャード合計）}';
 
     /**
      * コマンドの説明
@@ -68,9 +72,12 @@ class DeleteExpiredCommand extends Command
         $this->info("最大処理件数: {$limit}");
         $this->newLine();
 
-        // 期限切れメールを取得
-        $expiredMailboxes = $this->selectExpiredMailboxes($playerId, $limit);
-        $totalCount = $expiredMailboxes->count();
+        // シャードごとに期限切れメールを取得する（--limitは全シャードの合計）
+        $expiredByConnection = $this->selectExpiredMailboxesByConnection($playerId, $limit);
+        $totalCount = array_sum(array_map(
+            fn (Collection $mailboxes) => $mailboxes->count(),
+            $expiredByConnection
+        ));
 
         if ($totalCount === 0) {
             $this->info('期限切れメールは見つかりませんでした');
@@ -88,46 +95,56 @@ class DeleteExpiredCommand extends Command
         $skippedCount = 0;
         $errorCount = 0;
 
-        foreach ($expiredMailboxes as $mailbox) {
-            try {
-                // 保護されているメールはスキップ
-                if ($mailbox->getIsProtected()) {
-                    $skippedCount++;
-                    $bar->advance();
+        foreach ($expiredByConnection as $connection => $expiredMailboxes) {
+            // Repositoryは接続ごとに書き込み先が決まるので、シャードを跨ぐ前に切り替える
+            $this->trxMailboxRepository->setConnection($connection);
+            $deletedInShard = 0;
 
-                    continue;
+            foreach ($expiredMailboxes as $mailbox) {
+                try {
+                    // 保護されているメールはスキップ
+                    if ($mailbox->getIsProtected()) {
+                        $skippedCount++;
+                        $bar->advance();
+
+                        continue;
+                    }
+
+                    // 既に削除済みならスキップ
+                    if ($mailbox->getIsDelete()) {
+                        $skippedCount++;
+                        $bar->advance();
+
+                        continue;
+                    }
+
+                    // Dry runでなければ削除
+                    if (! $isDryRun) {
+                        $mailbox->setIsDelete(true);
+                        $this->trxMailboxRepository->setModel($mailbox);
+                    }
+
+                    $deletedCount++;
+                    $deletedInShard++;
+                } catch (\Exception $e) {
+                    $errorCount++;
+                    $this->error("\nエラー: メールID {$mailbox->getId()} - {$e->getMessage()}");
                 }
 
-                // 既に削除済みならスキップ
-                if ($mailbox->getIsDelete()) {
-                    $skippedCount++;
-                    $bar->advance();
-
-                    continue;
-                }
-
-                // Dry runでなければ削除
-                if (! $isDryRun) {
-                    $mailbox->setIsDelete(true);
-                    $this->trxMailboxRepository->setModel($mailbox);
-                }
-
-                $deletedCount++;
-            } catch (\Exception $e) {
-                $errorCount++;
-                $this->error("\nエラー: メールID {$mailbox->getId()} - {$e->getMessage()}");
+                $bar->advance();
             }
 
-            $bar->advance();
+            // setModel()はキューに積むだけなので、次のシャードへ移る前に書き込む
+            if (! $isDryRun && $deletedInShard > 0) {
+                $this->queryManager->flush();
+            }
+
+            // 前のシャードのモデルを持ち越さない
+            $this->trxMailboxRepository->forgetCachedModels();
         }
 
         $bar->finish();
         $this->newLine(2);
-
-        // setModel()はキューに積むだけなので、ここで書き込む
-        if (! $isDryRun && $deletedCount > 0) {
-            $this->queryManager->flush();
-        }
 
         // 結果表示
         $this->info('=== 処理結果 ===');
@@ -149,21 +166,54 @@ class DeleteExpiredCommand extends Command
     }
 
     /**
-     * 期限切れメールを取得
+     * シャードごとに期限切れメールを取得する
+     *
+     * $limit は全シャードの合計として扱い、埋まった時点で以降のシャードは見ない。
+     *
+     * @return array<string, Collection<int, TrxMailbox>> 接続名 => メール一覧（空のシャードは含まない）
      */
-    private function selectExpiredMailboxes(?int $playerId, int $limit): Collection
+    private function selectExpiredMailboxesByConnection(?int $playerId, int $limit): array
     {
-        $query = TrxMailbox::query()
-            ->where('is_delete', false)
-            ->where('is_protected', false)
-            ->whereNotNull('expires_at')
-            ->where('expires_at', '<=', Carbon::now())
-            ->limit($limit);
+        $result = [];
+        $remaining = $limit;
 
-        if ($playerId !== null) {
-            $query->where('sys_player_id', $playerId);
+        foreach ($this->trxConnections() as $connection) {
+            if ($remaining <= 0) {
+                break;
+            }
+
+            $query = TrxMailbox::on($connection)
+                ->where('is_delete', false)
+                ->where('is_protected', false)
+                ->whereNotNull('expires_at')
+                ->where('expires_at', '<=', Carbon::now())
+                ->limit($remaining);
+
+            if ($playerId !== null) {
+                $query->where('sys_player_id', $playerId);
+            }
+
+            $mailboxes = $query->get();
+
+            if ($mailboxes->isNotEmpty()) {
+                $result[$connection] = $mailboxes;
+                $remaining -= $mailboxes->count();
+            }
         }
 
-        return $query->get();
+        return $result;
+    }
+
+    /**
+     * 走査対象のTrxDB接続を返す
+     *
+     * @return list<string>
+     */
+    private function trxConnections(): array
+    {
+        /** @var list<string> $connections */
+        $connections = config('database.pitr.active_trx_connections', ['trx1']);
+
+        return $connections;
     }
 }

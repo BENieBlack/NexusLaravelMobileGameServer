@@ -6,6 +6,7 @@ use App\Persistence\ApiSession;
 use App\Repositories\Log\LogVipPointRepository;
 use Illuminate\Support\Facades\DB;
 use Nexus\Core\Utilities\ClockUtility;
+use NexusPitr\Logger\ShardMapper;
 use NexusUnitOfWork\Persistence\QueryManager;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;
@@ -198,7 +199,7 @@ class LogVipPointRepositoryTest extends TestCase
 
     private function cleanUp(): void
     {
-        foreach (['log1', 'log2', 'log3'] as $connection) {
+        foreach (ShardMapper::allLogConnections() as $connection) {
             DB::connection($connection)->table('log_vip_point')->delete();
         }
     }

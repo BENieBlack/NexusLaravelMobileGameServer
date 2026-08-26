@@ -5,6 +5,7 @@ namespace Tests;
 use App\Models\Sys\SysPlayer;
 use App\Repositories\Mst\_BaseMstRepository;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Support\Facades\DB;
 use Nexus\Core\Models\_BaseModel;
 use Nexus\Core\Models\Mst\_BaseMst;
 use Nexus\Core\Utilities\ClockUtility;
@@ -112,6 +113,34 @@ abstract class TestCase extends BaseTestCase
      *
      * @return array<string, string>
      */
+    /**
+     * プレイヤーが割り当てられているTrxDB接続名を返す
+     *
+     * trx_* の行はプレイヤーごとにシャードへ分かれる。
+     * テストで直接フィクスチャを差す場合は、必ずこの接続を使う。
+     */
+    protected function playerConnection(int $sysPlayerId): string
+    {
+        $nodeNo = DB::connection('sys')->table('sys_sharding_node_player as p')
+            ->join('sys_sharding_node as n', 'n.id', '=', 'p.sys_sharding_node_id')
+            ->where('p.sys_player_id', $sysPlayerId)
+            ->value('n.node_no');
+
+        if ($nodeNo === null) {
+            throw new \RuntimeException("Shard assignment not found for player: {$sysPlayerId}");
+        }
+
+        return 'trx'.$nodeNo;
+    }
+
+    /**
+     * プレイヤーが割り当てられているLogDB接続名を返す
+     */
+    protected function playerLogConnection(int $sysPlayerId): string
+    {
+        return 'log'.substr($this->playerConnection($sysPlayerId), 3);
+    }
+
     protected function authHeaders(string $accessToken): array
     {
         return ['Authorization' => 'Bearer '.$accessToken];

@@ -234,6 +234,10 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
 
         // 論理削除はUPDATE処理なので、setModelを呼び出してmodelQueueに追加
         $this->setModel($model);
+
+        // 削除済みの行は以降の読み取りに出てはいけないのでキャッシュから外す
+        // （modelQueueには残るのでUPDATEは実行される）
+        $this->forgetCachedModel($model);
     }
 
     /**
@@ -247,8 +251,41 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
     public function hardDeleteModel($model): void
     {
         $uniqueKey = implode(':', array_map(fn($key) => $model->getAttribute($key), $this->getUniqueKeys()));
-
         $this->deleteQueue[$uniqueKey] = $model;
+
+        // 削除する行は以降の読み取りに出てはいけないのでキャッシュから外す
+        $this->forgetCachedModel($model);
+    }
+
+    /**
+     * 読み取りキャッシュからモデルを取り除く
+     *
+     * @param TModel $model
+     * @return void
+     */
+    protected function forgetCachedModel($model): void
+    {
+        if ($this->models === null) {
+            return;
+        }
+
+        // DBから取り直したインスタンスで削除される場合があるため、
+        // 同一性ではなくユニークキーの値で突き合わせる
+        $values = array_map(fn($key) => $model->getAttribute($key), $this->getUniqueKeys());
+
+        $keysToForget = [];
+
+        foreach ($this->models as $key => $cached) {
+            $cachedValues = array_map(fn($uniqueKey) => $cached->getAttribute($uniqueKey), $this->getUniqueKeys());
+
+            if ($cachedValues === $values) {
+                $keysToForget[] = $key;
+            }
+        }
+
+        foreach ($keysToForget as $key) {
+            $this->models->forget($key);
+        }
     }
 
     /**

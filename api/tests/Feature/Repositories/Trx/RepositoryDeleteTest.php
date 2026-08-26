@@ -62,6 +62,30 @@ class RepositoryDeleteTest extends TestCase
     }
 
     #[Test]
+    public function 論理削除済みの行は読み込まれない(): void
+    {
+        ApiSession::setSysPlayerId($this->sysPlayerId);
+
+        DB::connection('trx1')->table('trx_equipment')->insert([
+            'sys_player_id' => $this->sysPlayerId,
+            'mst_equipment_id' => 'equipment_deleted',
+            'level' => 1,
+            'level_exp' => 0,
+            'grade' => 1,
+            'is_delete' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $equipments = (new TrxEquipmentRepository)->queryOrMemory();
+
+        $this->assertNotContains(
+            'equipment_deleted',
+            $equipments->pluck('mst_equipment_id')->all()
+        );
+    }
+
+    #[Test]
     public function soft_delete_modelで論理削除できる(): void
     {
         ApiSession::setSysPlayerId($this->sysPlayerId);
@@ -79,9 +103,9 @@ class RepositoryDeleteTest extends TestCase
 
         $this->assertTrue((bool) $equipmentToDelete->is_delete);
 
-        // キャッシュから確認
+        // 論理削除した行は以降の読み取りに出てこない
         $cached = $repo->queryOrMemory()->where('id', $equipmentToDelete->id)->first();
-        $this->assertTrue((bool) $cached->is_delete);
+        $this->assertNull($cached);
 
         // 論理削除はUPDATEなのでmodelQueueに積まれる
         $reflection = new \ReflectionClass($repo);

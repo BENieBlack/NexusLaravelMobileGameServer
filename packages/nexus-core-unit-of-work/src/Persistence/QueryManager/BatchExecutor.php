@@ -223,7 +223,7 @@ class BatchExecutor
     /**
      * ログのINSERT操作を実行
      *
-     * @param array<string, array{connection: string, table: string, records: array<int, array<string, mixed>>, models: array<int, mixed>, repository: mixed, originalStates: array<int, array<string, mixed>>}> $insertsByTable
+     * @param array<string, array{connection: string, table: string, records: array<int, array<string, mixed>>}> $insertsByTable
      * @return void
      */
     public function executeLogInserts(array $insertsByTable): void

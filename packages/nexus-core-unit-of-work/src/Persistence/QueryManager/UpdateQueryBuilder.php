@@ -15,10 +15,10 @@ class UpdateQueryBuilder
      * 相対的な更新を含むUPDATE文を構築
      *
      * @param string $table テーブル名
-     * @param array $data 通常の更新データ
-     * @param array $relativeChanges 相対的な変更データ
-     * @param array $where WHERE条件
-     * @return array ['sql' => string, 'bindings' => array]
+     * @param array<string, mixed> $data 通常の更新データ
+     * @param array<string, int|float> $relativeChanges 相対的な変更データ
+     * @param array<string, mixed> $where WHERE条件
+     * @return array{sql: string, bindings: array<int, mixed>}
      */
     public function buildRelativeUpdate(string $table, array $data, array $relativeChanges, array $where): array
     {
@@ -65,10 +65,12 @@ class UpdateQueryBuilder
      * プライマリキーを使用（複合主キーにも対応）
      *
      * @param Model $model
-     * @return array
+     * @return array<string, mixed>
      */
     public function buildWhereCondition(Model $model): array
     {
+        // 複合主キーのモデル（MstMailboxContent など）は getKeyName() が配列を返す
+        /** @var string|array<int, string> $primaryKey */
         $primaryKey = $model->getKeyName();
         
         // 複合主キーの場合

@@ -20,7 +20,7 @@ interface LoginBonusRepositoryInterface
      * 指定された日のアクティブなログインボーナスを取得
      * 
      * @param int $day 日数（1〜loop_days）
-     * @return array|null ログインボーナスデータの連想配列、存在しない場合はnull
+     * @return array<string, mixed>|null ログインボーナスデータの連想配列、存在しない場合はnull
      */
     public function selectActiveByDay(int $day): ?array;
 
@@ -28,7 +28,7 @@ interface LoginBonusRepositoryInterface
      * ログインボーナスIDに紐づく報酬内容を取得
      * 
      * @param string $loginBonusId ログインボーナスID
-     * @return array 報酬内容の配列（sort_order順）
+     * @return array<int, array<string, mixed>> 報酬内容の配列（sort_order順）
      */
     public function selectContentsByLoginBonusId(string $loginBonusId): array;
 
@@ -36,7 +36,7 @@ interface LoginBonusRepositoryInterface
      * 指定された休眠日数に該当するカムバックボーナスを取得
      * 
      * @param int $absentDays 休眠日数
-     * @return array|null カムバックボーナスデータ（優先度順で最も高いもの）
+     * @return array<string, mixed>|null カムバックボーナスデータ（優先度順で最も高いもの）
      */
     public function selectEligibleComebackBonus(int $absentDays): ?array;
 
@@ -59,7 +59,7 @@ interface LoginBonusRepositoryInterface
     /**
      * 有効な通常ログインボーナスを取得
      *
-     * @return array|null ログインボーナス設定
+     * @return array<string, mixed>|null ログインボーナス設定
      */
     public function selectActiveDailyBonus(): ?array;
 
@@ -68,7 +68,7 @@ interface LoginBonusRepositoryInterface
      *
      * @param string $loginBonusId ログインボーナスID
      * @param int $day 日数
-     * @return array コンテンツの配列
+     * @return array<int, array<string, mixed>> コンテンツの配列
      */
     public function selectContentsByLoginBonusIdAndDay(string $loginBonusId, int $day): array;
 }

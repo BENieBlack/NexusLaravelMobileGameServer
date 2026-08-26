@@ -36,6 +36,16 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
     protected string $connection = 'trx1';
 
     /**
+     * 論理削除された行を読み取りから除外するか
+     *
+     * is_deleteカラムを持たないテーブル（履歴系など）のRepositoryは
+     * falseにする。
+     *
+     * @var bool
+     */
+    protected bool $excludesSoftDeleted = true;
+
+    /**
      * キャッシュがどのプレイヤーのものかを保持する
      * 別プレイヤーで問い合わせられたらキャッシュを破棄して取り直す
      *
@@ -120,7 +130,14 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
         $instance = new $this->modelClass();
         
         // sys_player_idで検索してユニークキーでkeyByしてキャッシュに保存
-        $records = $instance::where($this->selectKey, $sysPlayerId)
+        $query = $instance::where($this->selectKey, $sysPlayerId);
+
+        // 論理削除された行は取得しない
+        if ($this->excludesSoftDeleted) {
+            $query->where('is_delete', false);
+        }
+
+        $records = $query
             ->get()
             ->keyBy(function ($record) {
                 // ユニークキーのカラム値を連結してキーを生成
@@ -181,12 +198,8 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
         // DEFAULT CURRENT_TIMESTAMP / ON UPDATE CURRENT_TIMESTAMP に任せる
 
         // ユニークキーを生成
-        $uniqueKey = implode(':', array_map(fn($key) => $model->getAttribute($key), $this->getUniqueKeys()));
-        
-        // 新規モデル（IDがnull）の場合、一時的なユニークキーを生成
-        if ($uniqueKey === '' || $uniqueKey === ':' || strpos($uniqueKey, ':') === 0 || strpos($uniqueKey, ':') === strlen($uniqueKey) - 1) {
-            $uniqueKey = '_new_' . $this->newModelCounter++;
-        }
+        // 新規モデル（IDがnull）の場合は一時的なキーを割り当てる
+        $uniqueKey = $this->buildUniqueKey($model) ?? '_new_' . $this->newModelCounter++;
 
         // 最初にsetModelが呼ばれた時のみ、変更前の状態を保存
         if (!isset($this->originalStateArray[$uniqueKey])) {
@@ -313,10 +326,65 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
      */
     public function clearQueue(): void
     {
+        // フラッシュでIDが採番されているので、仮キーを本来のキーへ振り直す
+        $this->rekeyInsertedModels();
+
         parent::clearQueue();
         $this->originalStateArray = [];
         $this->newModelCounter = 0;
         $this->clearPitrLogQueue(); // PITRログキューもクリア
+    }
+
+    /**
+     * ユニークキーを組み立てる
+     *
+     * 値が揃っていない（新規モデルでIDが未採番など）場合はnullを返す。
+     *
+     * @param _BaseTrx $model
+     * @return string|null
+     */
+    protected function buildUniqueKey($model): ?string
+    {
+        $values = array_map(fn($key) => $model->getAttribute($key), $this->getUniqueKeys());
+
+        foreach ($values as $value) {
+            if ($value === null || $value === '') {
+                return null;
+            }
+        }
+
+        return $values === [] ? null : implode(':', $values);
+    }
+
+    /**
+     * INSERT後のモデルをキャッシュ上で正しいキーに置き直す
+     *
+     * 新規モデルは採番前なので仮キー（_new_N）でキャッシュしている。
+     * フラッシュでIDが入るため、そのままだと selectById() で引けない。
+     *
+     * @return void
+     */
+    private function rekeyInsertedModels(): void
+    {
+        if ($this->models === null) {
+            return;
+        }
+
+        foreach ($this->models as $key => $model) {
+            if (! str_starts_with((string) $key, '_new_')) {
+                continue;
+            }
+
+            $uniqueKey = $this->buildUniqueKey($model);
+
+            // まだ採番されていない場合はそのまま（次のフラッシュで置き直す）
+            if ($uniqueKey === null) {
+                continue;
+            }
+
+            $this->models->forget($key);
+            $this->models->put($uniqueKey, $model);
+        }
     }
 
     /**

@@ -43,6 +43,10 @@ class EquipmentLevelUpTest extends TestCase
 
     protected function tearDown(): void
     {
+        // トランザクションで包んでいないため、入れた行は自分で片付ける。
+        // 残すと sys_player_id=1 を使う他のテストの件数がずれる
+        $this->cleanUpTestData();
+
         ApiSession::clearForTest();
         parent::tearDown();
     }
@@ -136,9 +140,11 @@ class EquipmentLevelUpTest extends TestCase
         $this->assertSame($afterLevel, $log->after_level);
     }
 
-    private function insertTestData(): void
+    /**
+     * このテストが入れた行を消す
+     */
+    private function cleanUpTestData(): void
     {
-        // 既存データをクリア（テスト間でクリーンな状態を保つため）
         DB::connection('trx1')->table('trx_equipment')->where('id', $this->trxEquipmentId)->delete();
         DB::connection('trx1')->table('trx_item')->where('sys_player_id', $this->sysPlayerId)->delete();
         DB::connection('mst')->table('mst_equipment__l10n')->where('mst_equipment_id', 'equipment_001')->delete();
@@ -146,6 +152,15 @@ class EquipmentLevelUpTest extends TestCase
         DB::connection('mst')->table('mst_equipment_level')->where('rarity', 'SR')->delete();
         DB::connection('mst')->table('mst_item__l10n')->where('mst_item_id', self::EXP_ITEM_ID)->delete();
         DB::connection('mst')->table('mst_item')->where('id', self::EXP_ITEM_ID)->delete();
+
+        // 入れたマスターをキャッシュに残さない
+        $this->refreshMstCache();
+    }
+
+    private function insertTestData(): void
+    {
+        // 既存データをクリア（テスト間でクリーンな状態を保つため）
+        $this->cleanUpTestData();
 
         // マスターデータ
         DB::connection('mst')->table('mst_equipment')->insert([

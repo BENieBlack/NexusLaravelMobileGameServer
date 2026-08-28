@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\MaintenanceController as AdminMaintenanceController;
+use App\Http\Controllers\AlbumController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EquipmentController;
 use App\Http\Controllers\FriendController;
@@ -85,6 +86,9 @@ Route::middleware('maintenance')->group(function () {
         Route::post('/friend/apply/reject', [FriendController::class, 'applyReject']);
         Route::get('/friend/apply/list', [FriendController::class, 'applyList']);
         Route::get('/friend/list', [FriendController::class, 'list']);
+
+        // アルバム（収集記録）
+        Route::get('/album/list', [AlbumController::class, 'list']);
         Route::post('/friend/delete', [FriendController::class, 'delete']);
 
         // Guild endpoints

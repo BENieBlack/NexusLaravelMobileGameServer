@@ -8,6 +8,7 @@ parameters:
     phpVersion: 80400
     paths:
         - app
+        - ../packages/nexus-album/src
         - ../packages/nexus-core/src
         - ../packages/nexus-core-auth/src
         - ../packages/nexus-core-billing/src

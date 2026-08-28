@@ -79,6 +79,10 @@
         },
         {
             "type": "path",
+            "url": "../packages/nexus-album"
+        },
+        {
+            "type": "path",
             "url": "../packages/nexus-guild"
         },
         {
@@ -109,6 +113,7 @@
         "nexus/vip": "@dev",
         "nexus/level": "@dev",
         "nexus/friend": "@dev",
+        "nexus/album": "@dev",
         "nexus/guild": "@dev",
         "nexus/pitr": "@dev"
     },

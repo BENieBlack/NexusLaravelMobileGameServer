@@ -156,14 +156,14 @@ VALUES (3, 'Pack', 500, 1000, ...);
 
 #### mst_vip_level_reward
 
-VIPレベルアップ時に付与される報酬を定義。既存のコンテンツ構造（content_type/content_id）に準拠し、`content_option`, `content_quantity`, `amount`による柔軟な報酬設定をサポート。
+VIPレベルアップ時に付与される報酬を定義。既存のコンテンツ構造（content_type/content_mst_id）に準拠し、`content_option`, `content_quantity`, `amount`による柔軟な報酬設定をサポート。
 
 ```sql
 CREATE TABLE mst_vip_level_reward (
     deploy_key INT DEFAULT 202601010 COMMENT 'デプロイキー',
     vip_level SMALLINT NOT NULL COMMENT 'VIPレベル',
     content_type ENUM('item', 'unit', 'equipment', 'diamond', 'wallet', 'stamina') NOT NULL COMMENT 'コンテンツタイプ',
-    content_id VARCHAR(255) NOT NULL COMMENT 'コンテンツID (mst_item_id等、diamond/stamina/walletはダミー値)',
+    content_mst_id VARCHAR(255) NOT NULL COMMENT 'コンテンツID (mst_item_id等、diamond/stamina/walletはダミー値)',
     content_option JSON NULLABLE COMMENT 'コンテンツオプション (例: {"grade":1, "level":5})',
     content_quantity INT UNSIGNED DEFAULT 1 COMMENT '1配布あたりのコンテンツ数量',
     amount INT UNSIGNED DEFAULT 1 COMMENT '配布回数（content_quantity × amount = 実際の配布量）',
@@ -173,7 +173,7 @@ CREATE TABLE mst_vip_level_reward (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
-    PRIMARY KEY (vip_level, content_type, content_id),
+    PRIMARY KEY (vip_level, content_type, content_mst_id),
     INDEX idx_deploy_key (deploy_key),
     INDEX idx_vip_level_sort (vip_level, sort_order),
     INDEX idx_is_active (is_active)
@@ -182,7 +182,7 @@ CREATE TABLE mst_vip_level_reward (
 
 **コンテンツ構造:**
 - `content_type`: コンテンツの種類
-- `content_id`: コンテンツを識別するID
+- `content_mst_id`: コンテンツを識別するID
 - `content_option`: コンテンツの付加情報（JSON形式）
 - `content_quantity`: 1配布あたりの数量
 - `amount`: 配布回数
@@ -198,7 +198,7 @@ CREATE TABLE mst_vip_level_reward (
 
 **マスターデータ例:**
 
-| vip_level | content_type | content_id | content_option | content_quantity | amount | 実際の配布量 | 説明 |
+| vip_level | content_type | content_mst_id | content_option | content_quantity | amount | 実際の配布量 | 説明 |
 |-----------|--------------|------------|----------------|-----------------|--------|------------|------|
 | 1         | diamond      | free       | null           | 100             | 1      | 100        | VIP1達成で無償100ダイヤ |
 | 2         | diamond      | free       | null           | 200             | 1      | 200        | VIP2達成で無償200ダイヤ |
@@ -211,15 +211,15 @@ CREATE TABLE mst_vip_level_reward (
 **使用例:**
 ```php
 // 例1: ダイヤ100個
-content_type='diamond', content_id='free', content_option=null, content_quantity=100, amount=1
+content_type='diamond', content_mst_id='free', content_option=null, content_quantity=100, amount=1
 → 実際の配布量: 100個
 
 // 例2: グレード1の装備5個
-content_type='equipment', content_id='equipment01', content_option={"grade":1}, content_quantity=1, amount=5
+content_type='equipment', content_mst_id='equipment01', content_option={"grade":1}, content_quantity=1, amount=5
 → 実際の配布量: 5個（各1個のグレード1装備を5回配布）
 
 // 例3: レベル5のユニット3体
-content_type='unit', content_id='unit001', content_option={"level":5}, content_quantity=1, amount=3
+content_type='unit', content_mst_id='unit001', content_option={"level":5}, content_quantity=1, amount=3
 → 実際の配布量: 3体（各1体のレベル5ユニットを3回配布）
 ```
 
@@ -624,7 +624,7 @@ class VipLevelUpRewardListener
             $this->grantReward(
                 $event->sysPlayerId,
                 $reward['reward_type'],
-                $reward['reward_id'],
+                $reward['reward_mst_id'],
                 $reward['reward_amount']
             );
         }

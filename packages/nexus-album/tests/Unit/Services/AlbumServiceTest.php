@@ -4,7 +4,7 @@ namespace NexusAlbum\Tests\Unit\Services;
 
 use Nexus\Core\Utilities\ClockUtility;
 use NexusAlbum\DataTransferObjects\AlbumEntry;
-use NexusAlbum\Enums\AlbumEntryType;
+use NexusAlbum\Enums\AlbumContentType;
 use NexusAlbum\Repositories\AlbumCatalogRepositoryInterface;
 use NexusAlbum\Repositories\AlbumEntryRepositoryInterface;
 use NexusAlbum\Services\AlbumService;
@@ -51,25 +51,25 @@ class AlbumServiceTest extends TestCase
     #[Test]
     public function 初めての対象は記録される(): void
     {
-        $unlocked = $this->service->unlock(self::PLAYER_ID, AlbumEntryType::UNIT, 'unit_knight_001');
+        $unlocked = $this->service->unlock(self::PLAYER_ID, AlbumContentType::UNIT, 'unit_knight_001');
 
         $this->assertTrue($unlocked);
         $this->assertCount(1, $this->entryRepository->entries);
 
         $entry = $this->entryRepository->entries[0];
         $this->assertSame(self::PLAYER_ID, $entry->getSysPlayerId());
-        $this->assertSame('unit', $entry->getTypeValue());
-        $this->assertSame('unit_knight_001', $entry->getMasterId());
+        $this->assertSame('unit', $entry->getContentTypeValue());
+        $this->assertSame('unit_knight_001', $entry->getContentMstId());
         $this->assertSame('2026-08-28 12:00:00', $entry->getUnlockedAt());
     }
 
     #[Test]
     public function 二度目は記録されない(): void
     {
-        $this->service->unlock(self::PLAYER_ID, AlbumEntryType::UNIT, 'unit_knight_001');
+        $this->service->unlock(self::PLAYER_ID, AlbumContentType::UNIT, 'unit_knight_001');
 
         $this->assertFalse(
-            $this->service->unlock(self::PLAYER_ID, AlbumEntryType::UNIT, 'unit_knight_001'),
+            $this->service->unlock(self::PLAYER_ID, AlbumContentType::UNIT, 'unit_knight_001'),
             '2回目は新規登録として扱わない'
         );
         $this->assertCount(1, $this->entryRepository->entries);
@@ -78,10 +78,10 @@ class AlbumServiceTest extends TestCase
     #[Test]
     public function 解放日時は初回のものが残る(): void
     {
-        $this->service->unlock(self::PLAYER_ID, AlbumEntryType::UNIT, 'unit_knight_001');
+        $this->service->unlock(self::PLAYER_ID, AlbumContentType::UNIT, 'unit_knight_001');
 
         ClockUtility::setNow('2026-09-01 09:00:00');
-        $this->service->unlock(self::PLAYER_ID, AlbumEntryType::UNIT, 'unit_knight_001');
+        $this->service->unlock(self::PLAYER_ID, AlbumContentType::UNIT, 'unit_knight_001');
 
         $this->assertSame('2026-08-28 12:00:00', $this->entryRepository->entries[0]->getUnlockedAt());
     }
@@ -89,9 +89,9 @@ class AlbumServiceTest extends TestCase
     #[Test]
     public function アルバム対象でないマスターは記録しない(): void
     {
-        $this->catalogRepository->targets[AlbumEntryType::ITEM->value] = ['item_collectible_001'];
+        $this->catalogRepository->targets[AlbumContentType::ITEM->value] = ['item_collectible_001'];
 
-        $unlocked = $this->service->unlock(self::PLAYER_ID, AlbumEntryType::ITEM, 'item_potion_001');
+        $unlocked = $this->service->unlock(self::PLAYER_ID, AlbumContentType::ITEM, 'item_potion_001');
 
         $this->assertFalse($unlocked, '消耗品などの対象外は記録しない');
         $this->assertSame([], $this->entryRepository->entries);
@@ -100,8 +100,8 @@ class AlbumServiceTest extends TestCase
     #[Test]
     public function 種別が違えば別の記録になる(): void
     {
-        $this->service->unlock(self::PLAYER_ID, AlbumEntryType::UNIT, 'shared_id');
-        $this->service->unlock(self::PLAYER_ID, AlbumEntryType::ITEM, 'shared_id');
+        $this->service->unlock(self::PLAYER_ID, AlbumContentType::UNIT, 'shared_id');
+        $this->service->unlock(self::PLAYER_ID, AlbumContentType::ITEM, 'shared_id');
 
         $this->assertCount(2, $this->entryRepository->entries);
     }
@@ -110,9 +110,9 @@ class AlbumServiceTest extends TestCase
     public function まとめて記録できる(): void
     {
         $unlockedCount = $this->service->unlockMany(self::PLAYER_ID, [
-            [AlbumEntryType::UNIT, 'unit_a'],
-            [AlbumEntryType::UNIT, 'unit_b'],
-            [AlbumEntryType::UNIT, 'unit_a'],
+            [AlbumContentType::UNIT, 'unit_a'],
+            [AlbumContentType::UNIT, 'unit_b'],
+            [AlbumContentType::UNIT, 'unit_a'],
         ]);
 
         $this->assertSame(2, $unlockedCount, '重複分は数えない');
@@ -122,10 +122,10 @@ class AlbumServiceTest extends TestCase
     #[Test]
     public function 記録済みかどうかを問い合わせられる(): void
     {
-        $this->service->unlock(self::PLAYER_ID, AlbumEntryType::UNIT, 'unit_knight_001');
+        $this->service->unlock(self::PLAYER_ID, AlbumContentType::UNIT, 'unit_knight_001');
 
-        $this->assertTrue($this->service->isUnlocked(self::PLAYER_ID, AlbumEntryType::UNIT, 'unit_knight_001'));
-        $this->assertFalse($this->service->isUnlocked(self::PLAYER_ID, AlbumEntryType::UNIT, 'unit_mage_002'));
+        $this->assertTrue($this->service->isUnlocked(self::PLAYER_ID, AlbumContentType::UNIT, 'unit_knight_001'));
+        $this->assertFalse($this->service->isUnlocked(self::PLAYER_ID, AlbumContentType::UNIT, 'unit_mage_002'));
     }
 
     #[Test]
@@ -137,13 +137,13 @@ class AlbumServiceTest extends TestCase
             'item' => [],
         ];
 
-        $this->service->unlock(self::PLAYER_ID, AlbumEntryType::UNIT, 'unit_a');
-        $this->service->unlock(self::PLAYER_ID, AlbumEntryType::EQUIPMENT, 'equip_a');
-        $this->service->unlock(self::PLAYER_ID, AlbumEntryType::EQUIPMENT, 'equip_b');
+        $this->service->unlock(self::PLAYER_ID, AlbumContentType::UNIT, 'unit_a');
+        $this->service->unlock(self::PLAYER_ID, AlbumContentType::EQUIPMENT, 'equip_a');
+        $this->service->unlock(self::PLAYER_ID, AlbumContentType::EQUIPMENT, 'equip_b');
 
         $progressByType = [];
         foreach ($this->service->findProgress(self::PLAYER_ID) as $progress) {
-            $progressByType[$progress->getTypeValue()] = $progress;
+            $progressByType[$progress->getContentTypeValue()] = $progress;
         }
 
         $this->assertSame(1, $progressByType['unit']->getUnlockedCount());
@@ -162,8 +162,8 @@ class AlbumServiceTest extends TestCase
     #[Test]
     public function 記録の一覧を取得できる(): void
     {
-        $this->service->unlock(self::PLAYER_ID, AlbumEntryType::UNIT, 'unit_a');
-        $this->service->unlock(self::PLAYER_ID, AlbumEntryType::ITEM, 'item_a');
+        $this->service->unlock(self::PLAYER_ID, AlbumContentType::UNIT, 'unit_a');
+        $this->service->unlock(self::PLAYER_ID, AlbumContentType::ITEM, 'item_a');
 
         $entries = $this->service->findEntries(self::PLAYER_ID);
 
@@ -188,10 +188,10 @@ class FakeAlbumEntryRepository implements AlbumEntryRepositoryInterface
         ));
     }
 
-    public function exists(int $sysPlayerId, AlbumEntryType $type, string $masterId): bool
+    public function exists(int $sysPlayerId, AlbumContentType $contentType, string $contentMstId): bool
     {
         foreach ($this->selectByPlayerId($sysPlayerId) as $entry) {
-            if ($entry->isSameTarget($type, $masterId)) {
+            if ($entry->isSameTarget($contentType, $contentMstId)) {
                 return true;
             }
         }
@@ -209,8 +209,8 @@ class FakeAlbumEntryRepository implements AlbumEntryRepositoryInterface
         $countByType = [];
 
         foreach ($this->selectByPlayerId($sysPlayerId) as $entry) {
-            $type = $entry->getTypeValue();
-            $countByType[$type] = ($countByType[$type] ?? 0) + 1;
+            $contentType = $entry->getContentTypeValue();
+            $countByType[$contentType] = ($countByType[$contentType] ?? 0) + 1;
         }
 
         return $countByType;
@@ -236,12 +236,12 @@ class FakeAlbumCatalogRepository implements AlbumCatalogRepositoryInterface
         return array_map(fn (array $ids) => count($ids), $this->targets);
     }
 
-    public function isTarget(AlbumEntryType $type, string $masterId): bool
+    public function isTarget(AlbumContentType $contentType, string $contentMstId): bool
     {
         if ($this->targets === null) {
             return true;
         }
 
-        return in_array($masterId, $this->targets[$type->value] ?? [], true);
+        return in_array($contentMstId, $this->targets[$contentType->value] ?? [], true);
     }
 }

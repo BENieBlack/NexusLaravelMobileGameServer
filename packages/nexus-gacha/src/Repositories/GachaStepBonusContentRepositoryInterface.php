@@ -22,8 +22,8 @@ interface GachaStepBonusContentRepositoryInterface
     /**
      * コンテンツIDでコンテンツを取得
      * 
-     * @param string $contentId
+     * @param string $contentMstId
      * @return mixed|null
      */
-    public function selectById(string $contentId): mixed;
+    public function selectById(string $contentMstId): mixed;
 }

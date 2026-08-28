@@ -148,7 +148,7 @@ class VipLoginBonusServiceTest extends TestCase
                     'mst_vip_login_bonus_id' => $bonusId,
                     'day' => $day,
                     'content_type' => 'gold',
-                    'content_id' => 'gold',
+                    'content_mst_id' => 'gold',
                     'content_option' => null,
                     'content_quantity' => $goldAmount,
                     'amount' => 1,

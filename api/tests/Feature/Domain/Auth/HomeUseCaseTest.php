@@ -109,7 +109,7 @@ class HomeUseCaseTest extends TestCase
             MstLoginBonusContent::create([
                 'mst_login_bonus_id' => $bonusId,
                 'content_type' => 'item',
-                'content_id' => 'item_potion_001',
+                'content_mst_id' => 'item_potion_001',
                 'amount' => $day * 10,
                 'is_paid' => false,
                 'sort_order' => 1,
@@ -120,7 +120,7 @@ class HomeUseCaseTest extends TestCase
                 MstLoginBonusContent::create([
                     'mst_login_bonus_id' => $bonusId,
                     'content_type' => 'diamond',
-                    'content_id' => 'diamond',
+                    'content_mst_id' => 'diamond',
                     'amount' => 100,
                     'is_paid' => false,
                     'sort_order' => 2,

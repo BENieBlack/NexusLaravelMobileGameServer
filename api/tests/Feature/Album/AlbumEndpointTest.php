@@ -5,7 +5,7 @@ namespace Tests\Feature\Album;
 use App\Persistence\ApiSession;
 use Illuminate\Support\Facades\DB;
 use Nexus\Core\Utilities\ClockUtility;
-use NexusAlbum\Enums\AlbumEntryType;
+use NexusAlbum\Enums\AlbumContentType;
 use NexusAlbum\Services\AlbumService;
 use NexusResource\DataTransferObjects\Resource;
 use NexusResourceDelivery\Services\ResourceDeliveryService;
@@ -87,15 +87,15 @@ class AlbumEndpointTest extends TestCase
     #[Test]
     public function 直接解放した対象が一覧に載る(): void
     {
-        $this->albumService()->unlock($this->sysPlayerId, AlbumEntryType::UNIT, 'unit_knight_001');
+        $this->albumService()->unlock($this->sysPlayerId, AlbumContentType::UNIT, 'unit_knight_001');
         $this->flush();
 
         $response = $this->withHeaders($this->authHeaders($this->accessToken))
             ->getJson('/api/album/list');
 
         $response->assertOk();
-        $response->assertJsonPath('album_entry_array.0.type', 'unit');
-        $response->assertJsonPath('album_entry_array.0.master_id', 'unit_knight_001');
+        $response->assertJsonPath('album_entry_array.0.content_type', 'unit');
+        $response->assertJsonPath('album_entry_array.0.content_mst_id', 'unit_knight_001');
         $response->assertJsonPath('album_entry_array.0.unlocked_at', '2026-08-28 12:00:00');
     }
 
@@ -215,8 +215,8 @@ class AlbumEndpointTest extends TestCase
             ->where('sys_player_id', $this->sysPlayerId)
             ->get();
 
-        // type は ENUM なので ORDER BY が宣言順になる。比較しやすいようPHP側で並べる
-        $entries = $rows->map(fn ($row) => [$row->type, $row->master_id])->all();
+        // content_type は ENUM なので ORDER BY が宣言順になる。比較しやすいようPHP側で並べる
+        $entries = $rows->map(fn ($row) => [$row->content_type, $row->content_mst_id])->all();
         sort($entries);
 
         return $entries;
@@ -231,7 +231,7 @@ class AlbumEndpointTest extends TestCase
         $indexed = [];
 
         foreach ($progressArray as $progress) {
-            $indexed[$progress['type']] = $progress;
+            $indexed[$progress['content_type']] = $progress;
         }
 
         return $indexed;

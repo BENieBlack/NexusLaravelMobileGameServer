@@ -51,6 +51,8 @@ class PitrMigrateCommand extends Command
             '../packages/nexus-gacha/database/migrations/log',
             '../packages/nexus-login/database/migrations/log',
             '../packages/nexus-vip/database/migrations/log',
+            // TiDB用の変換は、対象テーブルが揃ったあとに流す
+            '../packages/nexus-tidb/database/migrations/log',
         ];
         
         $shardCount = count($logConnections);

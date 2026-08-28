@@ -4,6 +4,7 @@ namespace App\Models\Trx;
 
 use App\Persistence\ApiSession;
 use Nexus\Core\Models\Trx\_BaseTrx as PersistenceBaseTrx;
+use NexusTidb\Concerns\UsesUuidPrimaryKey;
 
 /**
  * _BaseTrx
@@ -13,6 +14,9 @@ use Nexus\Core\Models\Trx\_BaseTrx as PersistenceBaseTrx;
  */
 abstract class _BaseTrx extends PersistenceBaseTrx implements _BaseTrxInterface
 {
+    // TiDB利用時のみ、単一主キーidをUUIDで払い出す
+    use UsesUuidPrimaryKey;
+
     /**
      * ログイン中プレイヤーの割り当てシャードを返す
      *

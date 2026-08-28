@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "425d4c615d8962b29c87e9c58e713cc2",
+    "content-hash": "1ea43b0d201edc8d93e6954594950388",
     "packages": [
         {
             "name": "brick/math",
@@ -2609,6 +2609,48 @@
             "time": "2026-07-17T23:02:45+00:00"
         },
         {
+            "name": "nexus/album",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/nexus-album",
+                "reference": "d099130cd39376a9e5869a70d518c74a06e25469"
+            },
+            "require": {
+                "nexus/core": "@dev",
+                "php": "^8.4"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.6",
+                "phpunit/phpunit": "^10.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "NexusAlbum\\AlbumServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "NexusAlbum\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "NexusAlbum\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Album (collection) package for Nexus mobile game",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "nexus/core",
             "version": "dev-main",
             "dist": {
@@ -3114,7 +3156,7 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-maintenance",
-                "reference": "bd8d9a1244caf83e0f5f2521d3f718990c2bb3ac"
+                "reference": "43b514fcf320b7469bb918a3e10a35cc7189a2a6"
             },
             "require": {
                 "illuminate/cache": "^10.0|^11.0|^12.0",
@@ -3124,6 +3166,8 @@
                 "php": "^8.4"
             },
             "require-dev": {
+                "aliyun/aliyun-tablestore-sdk-php": "^6.0",
+                "aws/aws-sdk-php": "^3.0",
                 "mockery/mockery": "^1.6",
                 "orchestra/testbench": "^9.0",
                 "phpunit/phpunit": "^11.0"
@@ -11064,6 +11108,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "nexus/album": 20,
         "nexus/core": 20,
         "nexus/core-auth": 20,
         "nexus/core-billing": 20,

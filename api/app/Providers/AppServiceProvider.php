@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Domain\Album\Handlers\AlbumRecordingDeliveryHandler;
 use App\Domain\Login\Services\ComeBackLoginBonusService;
 use App\Domain\Login\Services\LoginBonusService;
 use App\Domain\Login\Services\VipLoginBonusService;
@@ -11,6 +12,7 @@ use App\Domain\Player\Services\PlayerLevelUpStaminaHandler;
 use App\Domain\Stamina\Services\StaminaGranterAdapter;
 use App\Persistence\ApiSession;
 use App\Repositories\Log\LogVipPointRepository;
+use App\Repositories\Mst\AlbumCatalogRepositoryAdapter;
 use App\Repositories\Mst\LoginBonusRepositoryAdapter;
 use App\Repositories\Mst\MstGachaPrizeRepository;
 use App\Repositories\Mst\MstGachaRarityRateRepository;
@@ -31,6 +33,7 @@ use App\Repositories\Sys\PlayerRepositoryAdapter;
 use App\Repositories\Sys\SysMaintenanceRepository;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;
+use App\Repositories\Trx\AlbumEntryRepositoryAdapter;
 use App\Repositories\Trx\DiamondRepositoryAdapter;
 use App\Repositories\Trx\EquipmentRepositoryAdapter;
 use App\Repositories\Trx\GachaProgressRepositoryAdapter;
@@ -47,6 +50,9 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Nexus\Core\Repositories\PlayerDeviceRepositoryInterface;
 use Nexus\Core\Repositories\PlayerRepositoryInterface as PlayerRepoInterface;
+use NexusAlbum\Repositories\AlbumCatalogRepositoryInterface;
+use NexusAlbum\Repositories\AlbumEntryRepositoryInterface;
+use NexusAlbum\Services\AlbumService;
 use NexusAuth\Contracts\TokenRepositoryInterface;
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Services\TokenService;
@@ -80,6 +86,7 @@ use NexusResourceDelivery\Handlers\ExperienceDeliveryHandler;
 use NexusResourceDelivery\Handlers\ItemDeliveryHandler;
 use NexusResourceDelivery\Handlers\NaturalResourceDeliveryHandler;
 use NexusResourceDelivery\Handlers\PointsDeliveryHandler;
+use NexusResourceDelivery\Handlers\ResourceDeliveryHandlerInterface;
 use NexusResourceDelivery\Handlers\StaminaDeliveryHandler;
 use NexusResourceDelivery\Handlers\UnitDeliveryHandler;
 use NexusResourceDelivery\Managers\ResourceDeliveryManager;
@@ -214,6 +221,10 @@ class AppServiceProvider extends ServiceProvider
         // Repository interfaces
         $this->app->bind(FriendApplyRepositoryInterface::class, FriendApplyRepositoryAdapter::class);
 
+        // アルバム（収集記録）
+        $this->app->bind(AlbumEntryRepositoryInterface::class, AlbumEntryRepositoryAdapter::class);
+        $this->app->bind(AlbumCatalogRepositoryInterface::class, AlbumCatalogRepositoryAdapter::class);
+
         // ==========================================
         // NexusResource Package Bindings
         // ==========================================
@@ -326,9 +337,17 @@ class AppServiceProvider extends ServiceProvider
 
         // ResourceDeliveryServiceにHandlerを登録
         $this->app->afterResolving(ResourceDeliveryService::class, function (ResourceDeliveryService $service, $app) {
-            $service->registerHandler($app->make(ItemDeliveryHandler::class));
-            $service->registerHandler($app->make(UnitDeliveryHandler::class));
-            $service->registerHandler($app->make(EquipmentDeliveryHandler::class));
+            // アイテム・ユニット・装備はアルバムの記録対象。
+            // findHandler()は最初に一致した1つしか返さないため、
+            // 並べて登録するのではなく本来のHandlerを包む
+            $recordToAlbum = fn (ResourceDeliveryHandlerInterface $handler) => new AlbumRecordingDeliveryHandler(
+                $handler,
+                $app->make(AlbumService::class),
+            );
+
+            $service->registerHandler($recordToAlbum($app->make(ItemDeliveryHandler::class)));
+            $service->registerHandler($recordToAlbum($app->make(UnitDeliveryHandler::class)));
+            $service->registerHandler($recordToAlbum($app->make(EquipmentDeliveryHandler::class)));
             $service->registerHandler($app->make(DiamondDeliveryHandler::class));
             $service->registerHandler($app->make(CurrencyDeliveryHandler::class));
             $service->registerHandler($app->make(NaturalResourceDeliveryHandler::class));

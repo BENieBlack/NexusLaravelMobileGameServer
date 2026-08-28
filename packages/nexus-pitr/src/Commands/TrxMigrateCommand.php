@@ -49,6 +49,7 @@ class TrxMigrateCommand extends Command
             '../packages/nexus-gacha/database/migrations/trx',
             '../packages/nexus-login/database/migrations/trx',
             '../packages/nexus-vip/database/migrations/trx',
+            '../packages/nexus-album/database/migrations/trx',
         ];
         
         $shardCount = count($trxConnections);
@@ -56,7 +57,7 @@ class TrxMigrateCommand extends Command
         
         $this->info("Running TrxDB migrations on all {$shardCount} shards...");
         $this->info("Target shards: {$shardList}");
-        $this->info('This includes migrations from packages: nexus-core, nexus-resource, nexus-wallet, nexus-stamina, nexus-core-billing, nexus-mailbox, nexus-gacha, nexus-login, nexus-vip');
+        $this->info('This includes migrations from packages: nexus-core, nexus-resource, nexus-wallet, nexus-stamina, nexus-core-billing, nexus-mailbox, nexus-gacha, nexus-login, nexus-vip, nexus-album');
         $this->newLine();
         
         foreach ($trxConnections as $trxConnection) {

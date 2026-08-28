@@ -20,7 +20,7 @@ return new class extends Migration
         Schema::create('log_trx_login_bonus_history', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->unsignedBigInteger('sys_player_id')->comment('プレイヤーID');
-            $table->unsignedBigInteger('history_id')->nullable()->comment('履歴ID');
+            $table->unsignedBigInteger('trx_login_bonus_history_id')->nullable()->comment('trx_login_bonus_historyテーブルのID');
             $table->enum('operation_type', ['insert', 'update', 'delete'])->comment('操作タイプ');
             
             $table->json('before_data')->nullable()->comment('変更前データ');
@@ -42,7 +42,7 @@ return new class extends Migration
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             
             $table->index('sys_player_id');
-            $table->index('history_id');
+            $table->index('trx_login_bonus_history_id');
             $table->index('operation_type');
             $table->index('reason');
             $table->index('received_date');

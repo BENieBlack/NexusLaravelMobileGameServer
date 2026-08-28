@@ -26,15 +26,15 @@ return new class extends Migration
     private const TRX_ID_REFERENCES = [
         'log_equipment' => ['trx_equipment_id' => false],
         'log_unit' => ['trx_unit_id' => false],
-        'log_trx_diamond_balance' => ['balance_id' => true],
-        'log_trx_equipment' => ['equipment_id' => true],
-        'log_trx_gacha' => ['gacha_id' => true],
-        'log_trx_in_app_purchase_effect' => ['effect_id' => true],
-        'log_trx_login_bonus_history' => ['history_id' => true],
-        'log_trx_mailbox' => ['mailbox_id' => true],
-        'log_trx_unit' => ['unit_id' => true],
-        'log_trx_vip_login_bonus_history' => ['history_id' => true],
-        'log_trx_wallet_balance' => ['balance_id' => true],
+        'log_trx_diamond_balance' => ['trx_diamond_balance_id' => true],
+        'log_trx_equipment' => ['trx_equipment_id' => true],
+        'log_trx_gacha' => ['trx_gacha_id' => true],
+        'log_trx_in_app_purchase_effect' => ['trx_in_app_purchase_effect_id' => true],
+        'log_trx_login_bonus_history' => ['trx_login_bonus_history_id' => true],
+        'log_trx_mailbox' => ['trx_mailbox_id' => true],
+        'log_trx_unit' => ['trx_unit_id' => true],
+        'log_trx_vip_login_bonus_history' => ['trx_vip_login_bonus_history_id' => true],
+        'log_trx_wallet_balance' => ['trx_wallet_balance_id' => true],
     ];
 
     public function up(): void

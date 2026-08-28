@@ -55,7 +55,7 @@ return new class extends Migration
         Schema::create('log_trx_in_app_purchase_effect', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->unsignedBigInteger('sys_player_id')->comment('プレイヤーID');
-            $table->unsignedBigInteger('effect_id')->nullable()->comment('エフェクトID');
+            $table->unsignedBigInteger('trx_in_app_purchase_effect_id')->nullable()->comment('trx_in_app_purchase_effectテーブルのID');
             $table->enum('operation_type', ['insert', 'update', 'delete'])->comment('操作タイプ');
             
             $table->json('before_data')->nullable()->comment('変更前データ');
@@ -76,7 +76,8 @@ return new class extends Migration
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             
             $table->index('sys_player_id');
-            $table->index('effect_id');
+            // 自動生成名だと64文字を超えるため明示的に付ける
+            $table->index('trx_in_app_purchase_effect_id', 'idx_effect_id');
             $table->index('effect_type');
             $table->index('operation_type');
             $table->index('reason');
@@ -125,7 +126,7 @@ return new class extends Migration
         Schema::create('log_trx_diamond_balance', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->unsignedBigInteger('sys_player_id')->comment('プレイヤーID');
-            $table->unsignedBigInteger('balance_id')->nullable()->comment('残高ID');
+            $table->unsignedBigInteger('trx_diamond_balance_id')->nullable()->comment('trx_diamond_balanceテーブルのID');
             $table->string('platform')->comment('プラットフォーム');
             $table->enum('operation_type', ['insert', 'update', 'delete'])->comment('操作タイプ');
             
@@ -148,7 +149,7 @@ return new class extends Migration
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             
             $table->index('sys_player_id');
-            $table->index('balance_id');
+            $table->index('trx_diamond_balance_id');
             $table->index('platform');
             $table->index('operation_type');
             $table->index('reason');

@@ -10,7 +10,7 @@ use Illuminate\Support\ServiceProvider;
  * アルバム（収集記録）パッケージのサービスプロバイダー
  *
  * 提供機能:
- * - Enums: AlbumEntryType
+ * - Enums: AlbumContentType
  * - DataTransferObjects: AlbumEntry
  * - ValueObjects: AlbumProgress
  * - Repositories: AlbumEntryRepositoryInterface / AlbumCatalogRepositoryInterface

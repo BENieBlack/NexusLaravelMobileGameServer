@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $deploy_key
  * @property string $mst_mailbox_id
  * @property string $content_type
- * @property string $content_id
+ * @property string $content_mst_id
  * @property int $amount
  * @property ?string $rarity
  * @property bool $is_highlight
@@ -29,7 +29,7 @@ class MstMailboxContent extends _BaseMst
         'deploy_key',
         'mst_mailbox_id',
         'content_type',
-        'content_id',
+        'content_mst_id',
         'content_option',
         'content_quantity',
         'amount',
@@ -60,7 +60,7 @@ class MstMailboxContent extends _BaseMst
      */
     public function getKeyName(): array
     {
-        return ['mst_mailbox_id', 'content_type', 'content_id'];
+        return ['mst_mailbox_id', 'content_type', 'content_mst_id'];
     }
 
     /**
@@ -85,9 +85,9 @@ class MstMailboxContent extends _BaseMst
     /**
      * コンテンツIDを取得
      */
-    public function getContentId(): string
+    public function getContentMstId(): string
     {
-        return $this->getAttribute('content_id');
+        return $this->getAttribute('content_mst_id');
     }
 
     /**

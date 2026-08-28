@@ -32,7 +32,7 @@ class GachaPrizeService
         foreach ($prizes as $prize) {
             $resources[] = $this->createResource(
                 $prize->getContentType(),
-                $prize->getContentId(),
+                $prize->getContentMstId(),
                 $prize->getAmount()
             );
         }
@@ -46,16 +46,16 @@ class GachaPrizeService
      * 景品データからResourceを作成
      *
      * @param string $contentType
-     * @param string $contentId
+     * @param string $contentMstId
      * @param int $amount
      * @return Resource
      */
-    private function createResource(string $contentType, string $contentId, int $amount): Resource
+    private function createResource(string $contentType, string $contentMstId, int $amount): Resource
     {
         return match ($contentType) {
-            'item' => Resource::item($contentId, $amount),
-            'unit' => Resource::unit($contentId, $amount),
-            'equipment' => Resource::equipment($contentId, $amount),
+            'item' => Resource::item($contentMstId, $amount),
+            'unit' => Resource::unit($contentMstId, $amount),
+            'equipment' => Resource::equipment($contentMstId, $amount),
             default => throw new \Exception("Unsupported content type: {$contentType}"),
         };
     }

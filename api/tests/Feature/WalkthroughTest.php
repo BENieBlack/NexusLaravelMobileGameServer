@@ -469,7 +469,7 @@ class WalkthroughTest extends TestCase
 
         $result = $data['prizes'][0];
         $this->assertArrayHasKey('content_type', $result);
-        $this->assertArrayHasKey('content_id', $result);
+        $this->assertArrayHasKey('content_mst_id', $result);
 
         // ガチャではアイテムのみ出るので、ユニットと装備は手動で作成
         $this->createTestUnit();
@@ -681,7 +681,7 @@ class WalkthroughTest extends TestCase
         DB::connection('mst')->table('mst_mailbox_content')->insert([
             'mst_mailbox_id' => 'mail_welcome_001',
             'content_type' => 'Item',
-            'content_id' => 'item_potion_001',
+            'content_mst_id' => 'item_potion_001',
             'amount' => 10,
             'sort_desc' => 1,
             'created_at' => now(),
@@ -733,7 +733,7 @@ class WalkthroughTest extends TestCase
             'mst_gacha_id' => 'test_gacha_01',
             'step_number' => 1,
             'content_type' => 'item',
-            'content_id' => 'item_potion_001',
+            'content_mst_id' => 'item_potion_001',
             'content_amount' => 10,
             'rarity' => 1,
             'weight' => 100,

@@ -216,7 +216,7 @@ INSERT INTO mst_in_app_purchase (..., vip_point) VALUES (..., 1500);
 
 ### VIPレベルアップ報酬
 
-報酬は`content_type`, `content_id`, `content_option`, `content_quantity`, `amount`で定義されます。
+報酬は`content_type`, `content_mst_id`, `content_option`, `content_quantity`, `amount`で定義されます。
 
 **コンテンツ構造:**
 - `content_quantity`: 1配布あたりの数量
@@ -240,12 +240,12 @@ INSERT INTO mst_in_app_purchase (..., vip_point) VALUES (..., 1500);
 ```sql
 -- グレード1の装備を5個配布
 INSERT INTO mst_vip_level_reward 
-(vip_level, content_type, content_id, content_option, content_quantity, amount)
+(vip_level, content_type, content_mst_id, content_option, content_quantity, amount)
 VALUES (3, 'equipment', 'equipment01', '{"grade":1}', 1, 5);
 
 -- レベル5のユニットを3体配布
 INSERT INTO mst_vip_level_reward 
-(vip_level, content_type, content_id, content_option, content_quantity, amount)
+(vip_level, content_type, content_mst_id, content_option, content_quantity, amount)
 VALUES (5, 'unit', 'unit001', '{"level":5}', 1, 3);
 ```
 
@@ -279,7 +279,7 @@ class VipLevelUpRewardListener
         // 報酬を付与
         foreach ($event->rewards as $reward) {
             $contentType = $reward['content_type'];      // item, unit, equipment, diamond, wallet, stamina
-            $contentId = $reward['content_id'];          // コンテンツID
+            $contentMstId = $reward['content_mst_id'];          // コンテンツID
             $contentOption = $reward['content_option'];  // {"grade":1, "level":5} 等
             $contentQuantity = $reward['content_quantity']; // 1配布あたりの数量
             $amount = $reward['amount'];                 // 配布回数
@@ -289,7 +289,7 @@ class VipLevelUpRewardListener
             $this->grantReward(
                 $event->sysPlayerId,
                 $contentType,
-                $contentId,
+                $contentMstId,
                 $contentOption,
                 $contentQuantity,
                 $amount,

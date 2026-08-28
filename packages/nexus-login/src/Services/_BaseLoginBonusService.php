@@ -284,7 +284,7 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
 
         return Resource::fromTypeString(
             typeString: $content->content_type,
-            id: $content->content_id,
+            id: $content->content_mst_id,
             amount: $content->content_quantity * $content->amount,
             metadata: empty($metadata) ? null : $metadata,
         );

@@ -27,7 +27,7 @@ class TrxAlbumRepository extends _BaseTrxRepository
      *
      * @var list<string>
      */
-    protected array $uniqueKeys = ['sys_player_id', 'type', 'master_id'];
+    protected array $uniqueKeys = ['sys_player_id', 'content_type', 'content_mst_id'];
 
     /**
      * プレイヤーの記録を全件取得する
@@ -42,24 +42,24 @@ class TrxAlbumRepository extends _BaseTrxRepository
     /**
      * 種別とマスターIDで1件取得する
      */
-    public function selectByTypeAndMasterId(string $type, string $masterId): ?TrxAlbum
+    public function selectByContentTypeAndMstId(string $contentType, string $contentMstId): ?TrxAlbum
     {
         /** @var TrxAlbum|null */
         return $this->queryOrMemory()
-            ->where('type', $type)
-            ->where('master_id', $masterId)
+            ->where('content_type', $contentType)
+            ->where('content_mst_id', $contentMstId)
             ->first();
     }
 
     /**
      * 記録を1件追加する（キューに積むだけ。書き込みはQueryManager）
      */
-    public function insertEntry(int $sysPlayerId, string $type, string $masterId, string $unlockedAt): TrxAlbum
+    public function insertEntry(int $sysPlayerId, string $contentType, string $contentMstId, string $unlockedAt): TrxAlbum
     {
         $trxAlbum = new TrxAlbum([
             'sys_player_id' => $sysPlayerId,
-            'type' => $type,
-            'master_id' => $masterId,
+            'content_type' => $contentType,
+            'content_mst_id' => $contentMstId,
             'unlocked_at' => $unlockedAt,
             'is_delete' => false,
         ]);

@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('mst_gacha_id')->comment('ガチャID');
             $table->unsignedInteger('draw_count')->comment('実行回数（1連、10連など）');
             $table->enum('cost_type', ['diamond', 'paid_diamond', 'item'])->comment('使用したコストタイプ');
-            $table->string('cost_id')->nullable()->comment('使用したコストID（itemの場合）');
+            $table->string('cost_mst_id')->nullable()->comment('使用したコストID（itemの場合）');
             $table->unsignedInteger('cost_amount')->comment('使用したコスト量');
             $table->json('prizes')->comment('獲得した景品リスト（JSON配列）');
             $table->boolean('is_delete')->default(false)->comment('論理削除フラグ');

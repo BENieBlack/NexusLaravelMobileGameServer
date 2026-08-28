@@ -10,7 +10,7 @@ namespace App\Models\Mst;
  * @property string $mst_gacha_id
  * @property int $rarity
  * @property string $content_type
- * @property string $content_id
+ * @property string $content_mst_id
  * @property int $amount
  * @property int $weight
  * @property bool $is_pickup
@@ -31,7 +31,7 @@ class MstGachaPrize extends _BaseMst
         'mst_gacha_id',
         'rarity',
         'content_type',
-        'content_id',
+        'content_mst_id',
         'content_option',
         'content_quantity',
         'amount',
@@ -65,9 +65,9 @@ class MstGachaPrize extends _BaseMst
     /**
      * コンテンツIDを取得
      */
-    public function getContentId(): string
+    public function getContentMstId(): string
     {
-        return $this->getAttribute('content_id');
+        return $this->getAttribute('content_mst_id');
     }
 
     /**

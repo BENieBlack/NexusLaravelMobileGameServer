@@ -37,7 +37,7 @@ return new class extends Migration
             $table->string('mst_vip_login_bonus_id', 64)->comment('VIPログインボーナスID');
             $table->unsignedInteger('day')->comment('ログイン日数（1日目、2日目...）');
             $table->string('content_type', 32)->comment('報酬タイプ（diamond, item, unit等）');
-            $table->string('content_id', 64)->comment('報酬ID');
+            $table->string('content_mst_id', 64)->comment('報酬ID');
             $table->json('content_option')->nullable()->comment('報酬オプション（JSON）');
             $table->unsignedInteger('content_quantity')->default(1)->comment('報酬の基本個数');
             $table->unsignedInteger('amount')->default(1)->comment('報酬の倍率（実際の配布量 = content_quantity × amount）');

@@ -12,7 +12,7 @@ namespace App\Models\Trx;
  * @property string $mst_gacha_id
  * @property int $draw_count
  * @property string $cost_type
- * @property string|null $cost_id
+ * @property string|null $cost_mst_id
  * @property int $cost_amount
  * @property array<int, array<string, mixed>> $prizes
  * @property bool $is_delete
@@ -33,7 +33,7 @@ class TrxGachaHistory extends _BaseTrx
         'mst_gacha_id',
         'draw_count',
         'cost_type',
-        'cost_id',
+        'cost_mst_id',
         'cost_amount',
         'prizes',
         'is_delete',

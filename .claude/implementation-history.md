@@ -71,7 +71,7 @@ bash command/setup.sh
 **コーディング規約遵守**
 - ✅ CustomCollection使用（Illuminate\Support\Collection不使用）
 - ✅ 基底クラス命名規則（`_Base`プレフィックス）
-- ✅ 統一コンテンツ構造（content_type/content_id/content_option/content_quantity/amount）
+- ✅ 統一コンテンツ構造（content_type/content_mst_id/content_option/content_quantity/amount）
 - ✅ シャーディング対応（trx1/trx2）
 - ✅ Template Method Pattern実装
 

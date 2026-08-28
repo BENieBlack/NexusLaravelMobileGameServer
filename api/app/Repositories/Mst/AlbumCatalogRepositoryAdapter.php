@@ -4,7 +4,7 @@ namespace App\Repositories\Mst;
 
 use App\Models\Mst\_BaseMst;
 use Nexus\Core\Support\CustomCollection;
-use NexusAlbum\Enums\AlbumEntryType;
+use NexusAlbum\Enums\AlbumContentType;
 use NexusAlbum\Repositories\AlbumCatalogRepositoryInterface;
 
 /**
@@ -31,8 +31,8 @@ class AlbumCatalogRepositoryAdapter implements AlbumCatalogRepositoryInterface
     {
         $countByType = [];
 
-        foreach (AlbumEntryType::cases() as $type) {
-            $countByType[$type->value] = $this->findTargets($type)->count();
+        foreach (AlbumContentType::cases() as $contentType) {
+            $countByType[$contentType->value] = $this->findTargets($contentType)->count();
         }
 
         return $countByType;
@@ -41,10 +41,10 @@ class AlbumCatalogRepositoryAdapter implements AlbumCatalogRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function isTarget(AlbumEntryType $type, string $masterId): bool
+    public function isTarget(AlbumContentType $contentType, string $contentMstId): bool
     {
-        return $this->findTargets($type)
-            ->contains(fn (_BaseMst $master) => (string) $master->getAttribute('id') === $masterId);
+        return $this->findTargets($contentType)
+            ->contains(fn (_BaseMst $master) => (string) $master->getAttribute('id') === $contentMstId);
     }
 
     /**
@@ -52,12 +52,12 @@ class AlbumCatalogRepositoryAdapter implements AlbumCatalogRepositoryInterface
      *
      * @return CustomCollection<array-key, _BaseMst>
      */
-    private function findTargets(AlbumEntryType $type): CustomCollection
+    private function findTargets(AlbumContentType $contentType): CustomCollection
     {
-        $repository = match ($type) {
-            AlbumEntryType::UNIT => $this->mstUnitRepository,
-            AlbumEntryType::EQUIPMENT => $this->mstEquipmentRepository,
-            AlbumEntryType::ITEM => $this->mstItemRepository,
+        $repository = match ($contentType) {
+            AlbumContentType::UNIT => $this->mstUnitRepository,
+            AlbumContentType::EQUIPMENT => $this->mstEquipmentRepository,
+            AlbumContentType::ITEM => $this->mstItemRepository,
         };
 
         /** @var CustomCollection<array-key, _BaseMst> $targets */

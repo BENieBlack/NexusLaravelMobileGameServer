@@ -2,7 +2,7 @@
 
 namespace NexusAlbum\ValueObjects;
 
-use NexusAlbum\Enums\AlbumEntryType;
+use NexusAlbum\Enums\AlbumContentType;
 
 /**
  * AlbumProgress
@@ -12,19 +12,19 @@ use NexusAlbum\Enums\AlbumEntryType;
 final class AlbumProgress
 {
     public function __construct(
-        private readonly AlbumEntryType $type,
+        private readonly AlbumContentType $contentType,
         private readonly int $unlockedCount,
         private readonly int $totalCount,
     ) {}
 
-    public function getType(): AlbumEntryType
+    public function getContentType(): AlbumContentType
     {
-        return $this->type;
+        return $this->contentType;
     }
 
-    public function getTypeValue(): string
+    public function getContentTypeValue(): string
     {
-        return $this->type->value;
+        return $this->contentType->value;
     }
 
     public function getUnlockedCount(): int
@@ -67,7 +67,7 @@ final class AlbumProgress
     public function toArray(): array
     {
         return [
-            'type' => $this->type->value,
+            'content_type' => $this->contentType->value,
             'unlocked_count' => $this->unlockedCount,
             'total_count' => $this->totalCount,
             'rate' => round($this->calcRate(), 4),

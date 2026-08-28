@@ -244,8 +244,8 @@ public function grantPrizes(int $sysPlayerId, array $prizes): void
     $resources = [];
     foreach ($prizes as $prize) {
         $resources[] = match($prize['content_type']) {
-            'unit' => Resource::unit($prize['content_id'], 1),
-            'equipment' => Resource::equipment($prize['content_id'], 1),
+            'unit' => Resource::unit($prize['content_mst_id'], 1),
+            'equipment' => Resource::equipment($prize['content_mst_id'], 1),
             'diamond' => Resource::diamond($prize['amount']),
             default => null,
         };

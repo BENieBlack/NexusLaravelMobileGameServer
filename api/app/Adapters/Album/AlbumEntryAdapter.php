@@ -4,7 +4,7 @@ namespace App\Adapters\Album;
 
 use App\Models\Trx\TrxAlbum;
 use NexusAlbum\DataTransferObjects\AlbumEntry;
-use NexusAlbum\Enums\AlbumEntryType;
+use NexusAlbum\Enums\AlbumContentType;
 
 /**
  * AlbumEntryAdapter
@@ -20,8 +20,8 @@ class AlbumEntryAdapter
     {
         return new AlbumEntry(
             sysPlayerId: $model->getSysPlayerId(),
-            type: AlbumEntryType::from($model->getType()),
-            masterId: $model->getMasterId(),
+            contentType: AlbumContentType::from($model->getContentType()),
+            contentMstId: $model->getContentMstId(),
             unlockedAt: (string) $model->getUnlockedAt(),
         );
     }

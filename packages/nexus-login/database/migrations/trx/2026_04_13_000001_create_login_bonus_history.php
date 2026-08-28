@@ -24,7 +24,7 @@ return new class extends Migration
                 ->comment('休眠日数（カムバックボーナスの場合のみ）');
             $table->date('received_date')->comment('受け取った日付（UTC）');
             $table->enum('reward_type', ['item', 'unit', 'equipment', 'wallet', 'diamond'])->comment('報酬タイプ');
-            $table->string('reward_id')->comment('報酬ID');
+            $table->string('reward_mst_id')->comment('報酬ID');
             $table->unsignedInteger('reward_amount')->comment('報酬数量');
             $table->boolean('is_paid')->default(false)->comment('有償フラグ');
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');

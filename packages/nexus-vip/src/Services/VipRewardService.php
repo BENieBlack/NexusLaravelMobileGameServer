@@ -28,7 +28,7 @@ class VipRewardService
         return $rewards->map(function ($reward) {
             return new VipReward(
                 contentType: $reward->getContentType(),
-                contentId: $reward->getContentId(),
+                contentMstId: $reward->getContentMstId(),
                 contentOption: $reward->getContentOption(),
                 contentQuantity: $reward->getContentQuantity(),
                 amount: $reward->getAmount(),

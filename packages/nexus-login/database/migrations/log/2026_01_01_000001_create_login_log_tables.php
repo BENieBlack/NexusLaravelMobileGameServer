@@ -30,7 +30,7 @@ return new class extends Migration
             $table->string('mst_login_bonus_id')->nullable()->comment('ログインボーナスID');
             $table->date('received_date')->nullable()->comment('受け取り日付');
             $table->enum('reward_type', ['item', 'unit', 'equipment', 'wallet', 'diamond'])->nullable()->comment('報酬タイプ');
-            $table->string('reward_id')->nullable()->comment('報酬ID');
+            $table->string('reward_mst_id')->nullable()->comment('報酬ID');
             $table->unsignedInteger('reward_amount')->nullable()->comment('報酬数量');
             
             $table->string('reason', 100)->nullable()->comment('変更理由 (grant, admin_correction, admin_delete)');

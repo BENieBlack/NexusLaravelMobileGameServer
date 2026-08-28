@@ -100,7 +100,7 @@ class ReceiveAllUseCase extends _BaseUseCase
                 foreach ($contentCollection as $content) {
                     $resource = Resource::fromTypeString(
                         strtolower($content->getContentType()),
-                        $content->getContentId(),
+                        $content->getContentMstId(),
                         $content->getAmount(),
                     );
                     $allResources[] = $resource;

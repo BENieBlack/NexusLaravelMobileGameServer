@@ -8,12 +8,12 @@ namespace App\Models\Trx;
  * プレイヤーが一度でも入手・解放した対象の記録
  *
  * 所持テーブル（trx_unit等）と違い、手放しても消えない。
- * (sys_player_id, type, master_id) で一意。
+ * (sys_player_id, content_type, content_mst_id) で一意。
  *
  * @property int $id
  * @property int $sys_player_id
- * @property string $type
- * @property string $master_id
+ * @property string $content_type
+ * @property string $content_mst_id
  * @property string $unlocked_at
  * @property bool $is_delete
  * @property string $created_at
@@ -33,13 +33,13 @@ class TrxAlbum extends _BaseTrx
      *
      * @var list<string>
      */
-    protected array $uniqueKeys = ['sys_player_id', 'type', 'master_id'];
+    protected array $uniqueKeys = ['sys_player_id', 'content_type', 'content_mst_id'];
 
     /** @var list<string> */
     protected $fillable = [
         'sys_player_id',
-        'type',
-        'master_id',
+        'content_type',
+        'content_mst_id',
         'unlocked_at',
         'is_delete',
     ];
@@ -60,14 +60,14 @@ class TrxAlbum extends _BaseTrx
         return (int) $this->getAttribute('sys_player_id');
     }
 
-    public function getType(): string
+    public function getContentType(): string
     {
-        return (string) $this->getAttribute('type');
+        return (string) $this->getAttribute('content_type');
     }
 
-    public function getMasterId(): string
+    public function getContentMstId(): string
     {
-        return (string) $this->getAttribute('master_id');
+        return (string) $this->getAttribute('content_mst_id');
     }
 
     /**

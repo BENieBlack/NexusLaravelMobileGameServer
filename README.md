@@ -123,7 +123,8 @@ docker compose stop
 # API - 全データベース（sys, mst, trx1..N, log1..N）
 make migrate
 
-# API - リセットして再実行
+# API - リセットして再実行（sys/mst/trx/log をすべて作り直す）
+# 既存のマイグレーションを書き換えたときはこちら
 make migrate-fresh
 
 # API - 初期データを投入
@@ -155,6 +156,7 @@ docker exec tool-php php artisan migrate --database=tool --path=database/migrati
 ```
 
 **シャーディング対応マイグレーション:**
+- `trx:migrate` / `pitr:migrate` - trx / log の全シャードにマイグレーション（`--fresh` で作り直し）
 - `migrate:shards` - すべてのトランザクションシャード（trx1, trx2, ...）に一括マイグレーション
 - `migrate:shards-status` - すべてのシャードのマイグレーション状態を確認
 - `migrate:shards-rollback` - すべてのシャードでロールバック

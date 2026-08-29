@@ -3,8 +3,8 @@
 namespace NexusBilling\Tests\Unit\Services;
 
 use NexusBilling\ApiClients\AppStoreApiClient;
-use NexusBilling\Constants\BillingConst;
 use NexusBilling\ApiClients\GooglePlayApiClient;
+use NexusBilling\Constants\BillingConst;
 use NexusBilling\Exceptions\InvalidReceiptException;
 use NexusBilling\Exceptions\PlatformApiException;
 use NexusBilling\Services\AppStoreBillingService;
@@ -54,7 +54,7 @@ class BillingRefundAndSubscriptionTest extends TestCase
     }
 
     #[Test]
-    public function AppStoreの返金履歴に含まれていれば返金済み(): void
+    public function app_storeの返金履歴に含まれていれば返金済み(): void
     {
         $serverApiClient = $this->createMock(AppStoreApiClient::class);
         $serverApiClient->method('fetchRefundHistory')
@@ -68,7 +68,7 @@ class BillingRefundAndSubscriptionTest extends TestCase
     }
 
     #[Test]
-    public function AppStoreの返金履歴を最後のページまで辿る(): void
+    public function app_storeの返金履歴を最後のページまで辿る(): void
     {
         $serverApiClient = $this->createMock(AppStoreApiClient::class);
         $serverApiClient->method('fetchRefundHistory')->willReturnCallback(
@@ -88,7 +88,7 @@ class BillingRefundAndSubscriptionTest extends TestCase
     }
 
     #[Test]
-    public function AppStoreの返金履歴が空なら返金されていない(): void
+    public function app_storeの返金履歴が空なら返金されていない(): void
     {
         $serverApiClient = $this->createMock(AppStoreApiClient::class);
         $serverApiClient->method('fetchRefundHistory')->willReturn(['signedTransactions' => []]);
@@ -99,7 +99,7 @@ class BillingRefundAndSubscriptionTest extends TestCase
     }
 
     #[Test]
-    public function AppStoreの有効なサブスクリプションを取得できる(): void
+    public function app_storeの有効なサブスクリプションを取得できる(): void
     {
         $serverApiClient = $this->createMock(AppStoreApiClient::class);
         $serverApiClient->method('fetchSubscriptionStatuses')->willReturn([
@@ -127,7 +127,7 @@ class BillingRefundAndSubscriptionTest extends TestCase
     }
 
     #[Test]
-    public function AppStoreの失効したサブスクリプションは無効として返す(): void
+    public function app_storeの失効したサブスクリプションは無効として返す(): void
     {
         $serverApiClient = $this->createMock(AppStoreApiClient::class);
         $serverApiClient->method('fetchSubscriptionStatuses')->willReturn([
@@ -150,7 +150,7 @@ class BillingRefundAndSubscriptionTest extends TestCase
     }
 
     #[Test]
-    public function AppStoreで購読が見つからなければ例外になる(): void
+    public function app_storeで購読が見つからなければ例外になる(): void
     {
         $serverApiClient = $this->createMock(AppStoreApiClient::class);
         $serverApiClient->method('fetchSubscriptionStatuses')->willReturn(['data' => []]);

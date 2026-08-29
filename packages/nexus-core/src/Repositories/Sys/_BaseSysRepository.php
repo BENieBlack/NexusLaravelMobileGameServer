@@ -6,6 +6,7 @@ use Nexus\Core\Models\Sys\_BaseSys;
 use Nexus\Core\Repositories\_BaseRepository;
 use Nexus\Core\Support\CustomCollection;
 use Nexus\Core\Utilities\ClockUtility;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 
@@ -35,6 +36,28 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
      * データベース接続名
      */
     protected string $connection = 'sys';
+
+    /**
+     * 自分の行を絞り込む列
+     *
+     * queryOrMemory() はここに挙げた列でログイン中プレイヤーの行だけを読む。
+     * 複数指定した場合はORで繋ぐ（フレンド申請のように、送信者でも受信者でも
+     * 自分の行になるテーブル向け）。
+     *
+     * 空配列にすると自分スコープを持たないテーブルとして扱い、
+     * queryOrMemory() は使えなくなる（selectWithoutCache() を使うこと）。
+     *
+     * @var list<string>
+     */
+    protected array $selfScopeKeys = ['sys_player_id'];
+
+    /**
+     * 現在のキャッシュがどのプレイヤーのものか
+     *
+     * リポジトリはリクエスト単位で共有されるため、
+     * 途中でプレイヤーが切り替わったら読み直す
+     */
+    protected ?int $cachedForSysPlayerId = null;
 
     /**
      * 新規モデル用の一時IDカウンター
@@ -183,24 +206,135 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
     }
 
     /**
-     * データベースまたはメモリからデータを取得
-     * メモリキャッシュのみ使用（特定のRepositoryでRedisを使う場合はオーバーライド）
-     * 
+     * ログイン中プレイヤーに関係する行だけを読み、メモリキャッシュに載せる
+     *
+     * Sysテーブルは全プレイヤー分が1つのテーブルに入っているため、
+     * 全件読みは決してしない。$selfScopeKeys で自分の行に絞る。
+     *
+     * ここに載った行だけが setModel() で更新できる。
+     * 他人の行や全体を見る用途には selectWithoutCache() を使う。
+     *
      * @return CustomCollection<int|string, T>
      */
     public function queryOrMemory(): CustomCollection
     {
-        if ($this->models !== null) {
+        if ($this->selfScopeKeys === []) {
+            throw new \RuntimeException(sprintf(
+                '%s は自分スコープを持たないため queryOrMemory() を使えない。selectWithoutCache() を使うこと',
+                static::class
+            ));
+        }
+
+        $sysPlayerId = $this->resolveSessionPlayerId();
+
+        // 同じプレイヤーのキャッシュがあればそれを返す
+        // 0件だった場合もキャッシュとして扱う（毎回問い合わせない）
+        if ($this->models !== null && $this->cachedForSysPlayerId === $sysPlayerId) {
             return $this->models;
         }
 
-        // DBから全レコードを取得してメモリキャッシュに保存
-        $records = $this->modelClass::all()->keyBy('id');
-        /** @var CustomCollection<int|string, T> $models */
-        $models = new CustomCollection($records->all());
-        $this->models = $models;
+        $query = $this->selectWithoutCache();
+        $this->applySelfScope($query, $sysPlayerId);
+
+        // ユニークキーのカラム値を連結してキーにする。
+        // Collection::keyBy() は1件ずつクロージャを通すため、
+        // リクエストごとに走るここでは素のforeachで組む
+        $uniqueKeys = $this->getUniqueKeys();
+        $keyed = [];
+
+        foreach ($query->get() as $record) {
+            $key = [];
+
+            foreach ($uniqueKeys as $uniqueKey) {
+                $key[] = $record->{$uniqueKey};
+            }
+
+            $keyed[implode(':', $key)] = $record;
+        }
+
+        /** @var CustomCollection<int|string, T> $cached */
+        $cached = new CustomCollection($keyed);
+        $this->models = $cached;
+        $this->cachedForSysPlayerId = $sysPlayerId;
 
         return $this->models;
+    }
+
+    /**
+     * 自分の行を絞り込む条件をクエリに足す
+     *
+     * $selfScopeKeys が複数ある場合はORで繋ぐ。
+     *
+     * @param  Builder<covariant Model>  $query
+     */
+    protected function applySelfScope(Builder $query, int $sysPlayerId): void
+    {
+        $selfScopeKeys = $this->selfScopeKeys;
+
+        $query->where(function (Builder $builder) use ($selfScopeKeys, $sysPlayerId) {
+            foreach ($selfScopeKeys as $column) {
+                $builder->orWhere($column, $sysPlayerId);
+            }
+        });
+    }
+
+    /**
+     * キャッシュにも更新キューにも載せない読み取り
+     *
+     * 他人のプロフィール、ギルド検索、認証前のトークン照合など、
+     * 「自分の行ではないので更新しない」読み取りに使う。
+     *
+     * ここで得たモデルを setModel() に渡してはいけない。
+     *
+     * @return Builder<covariant Model>
+     */
+    protected function selectWithoutCache(): Builder
+    {
+        return $this->modelClass::on($this->connection);
+    }
+
+    /**
+     * 渡されたIDがログイン中プレイヤー自身かどうか
+     *
+     * 認証前（サインアップ・トークン照合など）はfalseになる。
+     */
+    protected function isSessionPlayer(int $sysPlayerId): bool
+    {
+        return static::hasSysPlayerId() && static::getSysPlayerId() === $sysPlayerId;
+    }
+
+    /**
+     * ログイン中プレイヤーのIDを取得
+     *
+     * @throws \RuntimeException 認証前など、プレイヤーが確定していない場合
+     */
+    protected function resolveSessionPlayerId(): int
+    {
+        if (static::hasSysPlayerId()) {
+            return static::getSysPlayerId();
+        }
+
+        throw new \RuntimeException(
+            'Player ID is not available. Make sure authentication middleware is applied.'
+        );
+    }
+
+    /**
+     * プレイヤーIDが設定されているかチェック
+     * アプリケーション側の基底クラスでオーバーライドして実装する
+     */
+    protected static function hasSysPlayerId(): bool
+    {
+        throw new \RuntimeException('hasSysPlayerId() must be implemented by subclass or overridden by application');
+    }
+
+    /**
+     * プレイヤーIDを取得
+     * アプリケーション側の基底クラスでオーバーライドして実装する
+     */
+    protected static function getSysPlayerId(): int
+    {
+        throw new \RuntimeException('getSysPlayerId() must be implemented by subclass or overridden by application');
     }
 
     /**

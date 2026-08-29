@@ -14,7 +14,7 @@ use Nexus\Core\Models\Mst\_BaseMst;
  * @property string $mst_vip_login_bonus_id VIPログインボーナスID
  * @property int $day ログイン日数
  * @property string $content_type 報酬タイプ
- * @property string $content_id 報酬ID
+ * @property string $content_mst_id 報酬ID
  * @property array<string, mixed>|null $content_option 報酬オプション
  * @property int $content_quantity 報酬の基本個数
  * @property int $amount 報酬の倍率
@@ -32,7 +32,7 @@ class MstVipLoginBonusContent extends _BaseMst
         'mst_vip_login_bonus_id',
         'day',
         'content_type',
-        'content_id',
+        'content_mst_id',
         'content_option',
         'content_quantity',
         'amount',

@@ -32,9 +32,9 @@ class MstGachaStepBonusContentRepository extends _BaseMstRepository implements G
     /**
      * {@inheritDoc}
      */
-    public function selectById($contentId): mixed
+    public function selectById($contentMstId): mixed
     {
-        return parent::selectById($contentId);
+        return parent::selectById($contentMstId);
     }
 
     /**

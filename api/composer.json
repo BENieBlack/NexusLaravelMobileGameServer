@@ -83,6 +83,10 @@
         },
         {
             "type": "path",
+            "url": "../packages/nexus-tidb"
+        },
+        {
+            "type": "path",
             "url": "../packages/nexus-guild"
         },
         {
@@ -114,6 +118,7 @@
         "nexus/level": "@dev",
         "nexus/friend": "@dev",
         "nexus/album": "@dev",
+        "nexus/tidb": "@dev",
         "nexus/guild": "@dev",
         "nexus/pitr": "@dev"
     },

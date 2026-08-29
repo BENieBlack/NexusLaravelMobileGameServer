@@ -2,7 +2,7 @@
 
 namespace NexusAlbum\Repositories;
 
-use NexusAlbum\Enums\AlbumEntryType;
+use NexusAlbum\Enums\AlbumContentType;
 
 /**
  * AlbumCatalogRepositoryInterface
@@ -26,5 +26,5 @@ interface AlbumCatalogRepositoryInterface
      *
      * 対象外のマスターを渡された場合に記録しないための判定に使う
      */
-    public function isTarget(AlbumEntryType $type, string $masterId): bool;
+    public function isTarget(AlbumContentType $contentType, string $contentMstId): bool;
 }

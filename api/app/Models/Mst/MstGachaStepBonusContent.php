@@ -9,7 +9,7 @@ namespace App\Models\Mst;
  * @property string $id
  * @property string $mst_gacha_step_bonus_id
  * @property string $content_type
- * @property string $content_id
+ * @property string $content_mst_id
  * @property array<string, mixed>|null $content_option
  * @property int $content_quantity
  * @property int $amount
@@ -31,7 +31,7 @@ class MstGachaStepBonusContent extends _BaseMst
         'id',
         'mst_gacha_step_bonus_id',
         'content_type',
-        'content_id',
+        'content_mst_id',
         'content_option',
         'content_quantity',
         'amount',
@@ -72,9 +72,9 @@ class MstGachaStepBonusContent extends _BaseMst
     /**
      * コンテンツIDを取得
      */
-    public function getContentId(): string
+    public function getContentMstId(): string
     {
-        return $this->getAttribute('content_id');
+        return $this->getAttribute('content_mst_id');
     }
 
     /**

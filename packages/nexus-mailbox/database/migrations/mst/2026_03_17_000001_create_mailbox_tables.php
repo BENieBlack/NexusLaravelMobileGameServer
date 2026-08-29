@@ -100,7 +100,7 @@ return new class extends Migration
                 'Gold', 'Food', 'Wood', 'Stone', 'Stamina',
                 'Experience', 'AlliancePoints', 'Custom'
             ])->comment('コンテンツタイプ');
-            $table->string('content_id')->comment('コンテンツID');
+            $table->string('content_mst_id')->comment('コンテンツID');
             $table->json('content_option')->nullable()->comment('コンテンツオプション (例: {"grade":1, "level":5})');
             $table->unsignedInteger('content_quantity')->default(1)->comment('1配布あたりのコンテンツ数量');
             $table->unsignedInteger('amount')->default(1)->comment('配布回数（content_quantity × amount = 実際の配布量）');
@@ -117,7 +117,7 @@ return new class extends Migration
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
 
-            $table->primary(['mst_mailbox_id', 'content_type', 'content_id'], 'pk_mailbox_content');
+            $table->primary(['mst_mailbox_id', 'content_type', 'content_mst_id'], 'pk_mailbox_content');
             $table->index('deploy_key');
             $table->index('mst_mailbox_id');
         });

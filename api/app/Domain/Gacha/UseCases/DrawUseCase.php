@@ -158,7 +158,7 @@ class DrawUseCase extends _BaseUseCase
             'mst_gacha_id' => $mstGachaId,
             'draw_count' => $drawCount,
             'cost_type' => $cost->getAttribute('cost_type'),
-            'cost_id' => $cost->getAttribute('cost_id'),
+            'cost_mst_id' => $cost->getAttribute('cost_mst_id'),
             'cost_amount' => $cost->getAttribute('cost_amount'),
             'prizes' => $prizes,
         ]);

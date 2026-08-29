@@ -63,7 +63,7 @@ return new class extends Migration
             $table->string('mst_gacha_id')->comment('ガチャID');
             $table->unsignedInteger('draw_count')->comment('実行回数（1連、10連など）');
             $table->enum('cost_type', ['diamond', 'paid_diamond', 'item'])->comment('コストタイプ');
-            $table->string('cost_id')->nullable()->comment('コストID（itemの場合はmst_item_id）');
+            $table->string('cost_mst_id')->nullable()->comment('コストID（itemの場合はmst_item_id）');
             $table->unsignedInteger('cost_amount')->comment('コスト量');
             $table->boolean('is_active')->default(true)->comment('有効フラグ');
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
@@ -72,7 +72,7 @@ return new class extends Migration
             $table->index('deploy_key');
             $table->index('mst_gacha_id');
             $table->index('is_active');
-            $table->unique(['mst_gacha_id', 'draw_count', 'cost_type', 'cost_id'], 'uk_gacha_cost');
+            $table->unique(['mst_gacha_id', 'draw_count', 'cost_type', 'cost_mst_id'], 'uk_gacha_cost');
         });
 
         // ========================================
@@ -102,7 +102,7 @@ return new class extends Migration
             $table->string('mst_gacha_id')->comment('ガチャID');
             $table->unsignedTinyInteger('rarity')->comment('レアリティ（1~5）');
             $table->enum('content_type', ['item', 'unit', 'equipment'])->comment('コンテンツタイプ');
-            $table->string('content_id')->comment('コンテンツID');
+            $table->string('content_mst_id')->comment('コンテンツID');
             $table->json('content_option')->nullable()->comment('コンテンツオプション (例: {"grade":1, "level":5})');
             $table->unsignedInteger('content_quantity')->default(1)->comment('1配布あたりのコンテンツ数量');
             $table->unsignedInteger('amount')->default(1)->comment('配布回数（content_quantity × amount = 実際の配布量）');
@@ -129,7 +129,7 @@ return new class extends Migration
             $table->unsignedInteger('step_number')->comment('ステップ番号（1, 2, 3...）');
             $table->unsignedInteger('draw_count')->default(10)->comment('実行回数（通常10連）');
             $table->enum('cost_type', ['diamond', 'paid_diamond', 'item'])->nullable()->comment('コストタイプ上書き（NULL=通常設定を使用）');
-            $table->string('cost_id')->nullable()->comment('コストID上書き（itemの場合）');
+            $table->string('cost_mst_id')->nullable()->comment('コストID上書き（itemの場合）');
             $table->unsignedInteger('cost_amount')->nullable()->comment('コスト量上書き（NULL=通常設定を使用）');
             $table->boolean('is_loop_start')->default(false)->comment('ループ開始ステップか（このステップ以降繰り返す）');
             $table->boolean('is_active')->default(true)->comment('有効フラグ');
@@ -176,7 +176,7 @@ return new class extends Migration
             $table->string('id')->primary()->comment('ボーナスコンテンツID');
             $table->string('mst_gacha_step_bonus_id')->comment('ステップボーナスID');
             $table->enum('content_type', ['item', 'unit', 'equipment'])->comment('コンテンツタイプ');
-            $table->string('content_id')->comment('コンテンツID');
+            $table->string('content_mst_id')->comment('コンテンツID');
             $table->json('content_option')->nullable()->comment('コンテンツオプション (例: {"grade":1, "level":5})');
             $table->unsignedInteger('content_quantity')->default(1)->comment('1配布あたりのコンテンツ数量');
             $table->unsignedInteger('amount')->default(1)->comment('配布回数（content_quantity × amount = 実際の配布量）');

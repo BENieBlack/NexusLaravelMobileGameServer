@@ -56,7 +56,7 @@ trait RefreshMultipleDatabases
         ];
 
         // Add dynamic sharded connections
-        $shardCount = (int) env('DB_TRX_SHARDS', 2);
+        $shardCount = (int) env('DB_SHARD_COUNT', 2);
 
         for ($i = 1; $i <= $shardCount; $i++) {
             $connections["trx{$i}"] = null;
@@ -202,7 +202,7 @@ trait RefreshMultipleDatabases
 
         $trxPaths = $this->migrationPaths('trx');
         $logPaths = $this->migrationPaths('log');
-        $shardCount = (int) env('DB_TRX_SHARDS', 2);
+        $shardCount = (int) env('DB_SHARD_COUNT', 2);
 
         for ($i = 1; $i <= $shardCount; $i++) {
             $targets[] = ["trx{$i}", $trxPaths];
@@ -253,7 +253,7 @@ trait RefreshMultipleDatabases
 
         sort($entries);
 
-        return md5(implode('|', $entries).'|shards='.env('DB_TRX_SHARDS', 2));
+        return md5(implode('|', $entries).'|shards='.env('DB_SHARD_COUNT', 2));
     }
 
     /**

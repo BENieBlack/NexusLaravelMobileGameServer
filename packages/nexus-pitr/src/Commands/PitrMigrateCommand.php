@@ -10,7 +10,7 @@ use NexusPitr\Logger\ShardMapper;
  * PitrMigrateCommand
  * 
  * すべてのLogDBシャードに対してマイグレーションを実行
- * 動的シャーディング対応（DB_TRX_SHARDSに応じてlog1, log2, ...に実行）
+ * 動的シャーディング対応（DB_SHARD_COUNTに応じてlog1, log2, ...に実行）
  */
 class PitrMigrateCommand extends Command
 {
@@ -51,6 +51,8 @@ class PitrMigrateCommand extends Command
             '../packages/nexus-gacha/database/migrations/log',
             '../packages/nexus-login/database/migrations/log',
             '../packages/nexus-vip/database/migrations/log',
+            // TiDB用の変換は、対象テーブルが揃ったあとに流す
+            '../packages/nexus-tidb/database/migrations/log',
         ];
         
         $shardCount = count($logConnections);

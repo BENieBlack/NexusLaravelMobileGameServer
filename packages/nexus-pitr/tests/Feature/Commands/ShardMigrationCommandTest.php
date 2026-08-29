@@ -19,7 +19,7 @@ use Tests\TestCase;
  * 内部で呼ぶ Artisan::call を差し替えて、どのシャードへ
  * どのオプションを渡しているかを検証する。
  *
- * シャード数は DB_TRX_SHARDS で決まる。テストは2シャード前提
+ * シャード数は DB_SHARD_COUNT で決まる。テストは2シャード前提
  * （phpunit.xml と CI の両方で 2 に揃えてある）。
  */
 class ShardMigrationCommandTest extends TestCase

@@ -39,11 +39,11 @@
 | mst_gacha_id | string | ガチャID |
 | draw_count | int | 実行回数（1, 10など） |
 | cost_type | enum | コストタイプ（diamond/paid_diamond/item） |
-| cost_id | string | コストID（itemの場合はmst_item_id） |
+| cost_mst_id | string | コストID（itemの場合はmst_item_id） |
 | cost_amount | int | コスト量 |
 | is_active | bool | 有効フラグ |
 
-**主キー**: (mst_gacha_id, draw_count, cost_type, cost_id)
+**主キー**: (mst_gacha_id, draw_count, cost_type, cost_mst_id)
 
 **例**:
 ```
@@ -85,7 +85,7 @@ gacha_001, 1, 3000  # レア1: 30%
 | mst_gacha_id | string | ガチャID |
 | rarity | tinyint | レアリティ（1~5） |
 | content_type | enum | コンテンツタイプ（item/unit/equipment） |
-| content_id | string | コンテンツID |
+| content_mst_id | string | コンテンツID |
 | amount | int | 獲得数量 |
 | weight | int | 重み（同レアリティ内での排出率） |
 | is_pickup | bool | ピックアップ対象か |
@@ -110,7 +110,7 @@ gacha_001, 1, 3000  # レア1: 30%
 | mst_gacha_id | string | ガチャID |
 | draw_count | int | 実行回数（1連、10連など） |
 | cost_type | enum | 使用したコストタイプ |
-| cost_id | string | 使用したコストID |
+| cost_mst_id | string | 使用したコストID |
 | cost_amount | int | 使用したコスト量 |
 | prizes | json | 獲得した景品リスト |
 | created_at | datetime | 実行日時 |
@@ -121,14 +121,14 @@ gacha_001, 1, 3000  # レア1: 30%
   {
     "rarity": 5,
     "content_type": "unit",
-    "content_id": "unit_001",
+    "content_mst_id": "unit_001",
     "amount": 1,
     "is_pickup": true
   },
   {
     "rarity": 3,
     "content_type": "item",
-    "content_id": "item_002",
+    "content_mst_id": "item_002",
     "amount": 10,
     "is_pickup": false
   }
@@ -323,7 +323,7 @@ app/Repositories/
     {
       "rarity": 5,
       "content_type": "unit",
-      "content_id": "unit_001",
+      "content_mst_id": "unit_001",
       "amount": 1,
       "is_pickup": true,
       "is_new": true
@@ -331,7 +331,7 @@ app/Repositories/
     {
       "rarity": 4,
       "content_type": "equipment",
-      "content_id": "equip_002",
+      "content_mst_id": "equip_002",
       "amount": 1,
       "is_pickup": false,
       "is_new": false

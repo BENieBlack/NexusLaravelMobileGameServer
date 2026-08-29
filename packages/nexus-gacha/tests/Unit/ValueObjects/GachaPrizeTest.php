@@ -11,14 +11,14 @@ class GachaPrizeTest extends TestCase
     {
         $dto = new GachaPrize(
             contentType: 'Item',
-            contentId: 'item_001',
+            contentMstId: 'item_001',
             amount: 10,
             rarity: 3,
             isGuaranteed: false
         );
 
         $this->assertSame('Item', $dto->getContentType());
-        $this->assertSame('item_001', $dto->getContentId());
+        $this->assertSame('item_001', $dto->getContentMstId());
         $this->assertSame(10, $dto->getAmount());
         $this->assertSame(3, $dto->getRarity());
         $this->assertFalse($dto->isGuaranteed());
@@ -28,7 +28,7 @@ class GachaPrizeTest extends TestCase
     {
         $dto = new GachaPrize(
             contentType: 'Unit',
-            contentId: 'unit_ssr_001',
+            contentMstId: 'unit_ssr_001',
             amount: 1,
             rarity: 5,
             isGuaranteed: true
@@ -41,7 +41,7 @@ class GachaPrizeTest extends TestCase
     {
         $dto = new GachaPrize(
             contentType: 'Equipment',
-            contentId: 'equip_001',
+            contentMstId: 'equip_001',
             amount: 1,
             rarity: 4,
             isGuaranteed: false
@@ -49,7 +49,7 @@ class GachaPrizeTest extends TestCase
 
         $expected = [
             'content_type' => 'Equipment',
-            'content_id' => 'equip_001',
+            'content_mst_id' => 'equip_001',
             'amount' => 1,
             'rarity' => 4,
             'is_guaranteed' => false,
@@ -62,7 +62,7 @@ class GachaPrizeTest extends TestCase
     {
         $dto = new GachaPrize(
             contentType: 'Unit',
-            contentId: 'unit_001',
+            contentMstId: 'unit_001',
             amount: 1,
             rarity: 5,
             isGuaranteed: true

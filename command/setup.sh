@@ -81,7 +81,7 @@ fi
 APP_NAME=$(get_env_value "$ROOT_ENV_FILE" "APP_NAME")
 APP_ENV=$(get_env_value "$ROOT_ENV_FILE" "APP_ENV")
 MYSQL_ROOT_PASSWORD=$(get_env_value "$ROOT_ENV_FILE" "MYSQL_ROOT_PASSWORD")
-SHARD_COUNT=$(get_env_value "$ROOT_ENV_FILE" "DB_TRX_SHARDS")
+SHARD_COUNT=$(get_env_value "$ROOT_ENV_FILE" "DB_SHARD_COUNT")
 
 if [ -z "$APP_NAME" ] || [ -z "$APP_ENV" ]; then
   error_message "APP_NAME または APP_ENV が $ROOT_ENV_FILE にありません。"
@@ -139,7 +139,7 @@ for target in "${DB_TARGETS[@]}"; do
   container="${target%%:*}"
   if ! "${COMPOSE[@]}" ps --services | grep -qx "$container"; then
     error_message "コンテナ ${container} が docker-compose.yml に定義されていません。"
-    error_message "DB_TRX_SHARDS=${SHARD_COUNT} に対してコンテナ定義が不足しています。"
+    error_message "DB_SHARD_COUNT=${SHARD_COUNT} に対してコンテナ定義が不足しています。"
     exit 1
   fi
 done

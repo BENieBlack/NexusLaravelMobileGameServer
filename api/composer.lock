@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1ea43b0d201edc8d93e6954594950388",
+    "content-hash": "31444f1e26e9b9a87800942ca6b3bc76",
     "packages": [
         {
             "name": "brick/math",
@@ -3397,6 +3397,48 @@
                 "MIT"
             ],
             "description": "Nexus Stamina Package - スタミナ管理パッケージ",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "nexus/tidb",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/nexus-tidb",
+                "reference": "f261fe93e1e5f8417c8378e1646520aeaf23e172"
+            },
+            "require": {
+                "nexus/core": "@dev",
+                "php": "^8.4"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.6",
+                "phpunit/phpunit": "^10.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "NexusTidb\\TidbServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "NexusTidb\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "NexusTidb\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "TiDB support package for Nexus mobile game",
             "transport-options": {
                 "relative": true
             }
@@ -11125,6 +11167,7 @@
         "nexus/resource": 20,
         "nexus/resource-delivery": 20,
         "nexus/stamina": 20,
+        "nexus/tidb": 20,
         "nexus/version": 20,
         "nexus/vip": 20,
         "nexus/wallet": 20

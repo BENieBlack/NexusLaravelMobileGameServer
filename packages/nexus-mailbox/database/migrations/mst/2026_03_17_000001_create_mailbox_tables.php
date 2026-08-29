@@ -66,7 +66,14 @@ return new class extends Migration
             // 送信者情報
             $table->enum('sender_type', ['System', 'Player', 'Alliance', 'NPC'])
                 ->default('System')->comment('送信者タイプ');
-            $table->string('sender_id')->nullable()->comment('送信者ID');
+            // sender_type によって参照先が変わる多相参照。
+            // Player は sys_player、Alliance はギルド、NPC はマスターを指す想定で、
+            // sys と mst にまたがるため content_mst_id のような接頭辞は付けられない。
+            //
+            // 現状どこからも書き込んでおらず、Alliance / NPC のテーブルも未整備。
+            // 送信者機能を作るときに sender_sys_player_id のような
+            // 型ごとの列へ分けること（sys_friend_apply と同じ書き方）。
+            $table->string('sender_id')->nullable()->comment('送信者ID（sender_typeで参照先が変わる。未使用）');
             
             // 有効期限（日数）
             $table->unsignedInteger('expires_in_days')->default(30)

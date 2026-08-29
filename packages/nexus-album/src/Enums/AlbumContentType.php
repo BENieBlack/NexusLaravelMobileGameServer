@@ -3,14 +3,14 @@
 namespace NexusAlbum\Enums;
 
 /**
- * AlbumEntryType
+ * AlbumContentType
  *
  * アルバムに記録する対象の種類
  *
  * 「一度でも入手・解放したこと」を記録する対象だけを持つ。
  * 数量を持つリソース（ダイヤ、スタミナ等）はアルバムの対象にならない。
  */
-enum AlbumEntryType: string
+enum AlbumContentType: string
 {
     case UNIT = 'unit';             // ユニット
     case EQUIPMENT = 'equipment';   // 装備

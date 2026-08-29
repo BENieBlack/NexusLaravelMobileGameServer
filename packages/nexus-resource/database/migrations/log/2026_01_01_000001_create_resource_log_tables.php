@@ -20,7 +20,7 @@ return new class extends Migration
         Schema::create('log_trx_unit', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->unsignedBigInteger('sys_player_id')->comment('プレイヤーID');
-            $table->unsignedBigInteger('unit_id')->nullable()->comment('ユニット所持ID');
+            $table->unsignedBigInteger('trx_unit_id')->nullable()->comment('trx_unitテーブルのID');
             $table->string('mst_unit_id')->nullable()->comment('マスターユニットID');
             $table->enum('operation_type', ['insert', 'update', 'delete'])->comment('操作タイプ');
             
@@ -37,7 +37,7 @@ return new class extends Migration
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             
             $table->index('sys_player_id');
-            $table->index('unit_id');
+            $table->index('trx_unit_id');
             $table->index('mst_unit_id');
             $table->index('operation_type');
             $table->index('reason');
@@ -51,7 +51,7 @@ return new class extends Migration
         Schema::create('log_trx_equipment', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->unsignedBigInteger('sys_player_id')->comment('プレイヤーID');
-            $table->unsignedBigInteger('equipment_id')->nullable()->comment('装備所持ID');
+            $table->unsignedBigInteger('trx_equipment_id')->nullable()->comment('trx_equipmentテーブルのID');
             $table->string('mst_equipment_id')->nullable()->comment('マスター装備ID');
             $table->enum('operation_type', ['insert', 'update', 'delete'])->comment('操作タイプ');
             
@@ -68,7 +68,7 @@ return new class extends Migration
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             
             $table->index('sys_player_id');
-            $table->index('equipment_id');
+            $table->index('trx_equipment_id');
             $table->index('mst_equipment_id');
             $table->index('operation_type');
             $table->index('reason');

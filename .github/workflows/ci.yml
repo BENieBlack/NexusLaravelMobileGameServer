@@ -114,7 +114,7 @@ jobs:
     env:
       # CIのサービスコンテナはlocalhost経由で見えるため、
       # phpunit.xmlのDocker用ホスト名(db-sys等)を上書きする
-      DB_TRX_SHARDS: 2
+      DB_SHARD_COUNT: 2
       DB_SYSTEM_HOST: 127.0.0.1
       DB_SYSTEM_PORT: 33062
       DB_MASTER_HOST: 127.0.0.1

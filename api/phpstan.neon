@@ -25,6 +25,7 @@ parameters:
         - ../packages/nexus-resource/src
         - ../packages/nexus-resource-delivery/src
         - ../packages/nexus-stamina/src
+        - ../packages/nexus-tidb/src
         - ../packages/nexus-version/src
         - ../packages/nexus-vip/src
         - ../packages/nexus-wallet/src

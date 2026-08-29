@@ -12,7 +12,7 @@ final class GachaPrize
 {
     /**
      * @param  string  $contentType  景品タイプ（item, unit, equipment等）
-     * @param  string  $contentId  景品ID
+     * @param  string  $contentMstId  景品ID
      * @param  int  $amount  獲得数
      * @param  int  $rarity  レアリティ
      * @param  bool  $isGuaranteed  確定枠で獲得したか
@@ -21,7 +21,7 @@ final class GachaPrize
      */
     public function __construct(
         private readonly string $contentType,
-        private readonly string $contentId,
+        private readonly string $contentMstId,
         private readonly int $amount,
         private readonly int $rarity,
         private readonly bool $isGuaranteed,
@@ -30,7 +30,7 @@ final class GachaPrize
             throw new \InvalidArgumentException('景品タイプは必須です');
         }
 
-        if ($contentId === '') {
+        if ($contentMstId === '') {
             throw new \InvalidArgumentException('景品IDは必須です');
         }
 
@@ -48,9 +48,9 @@ final class GachaPrize
         return $this->contentType;
     }
 
-    public function getContentId(): string
+    public function getContentMstId(): string
     {
-        return $this->contentId;
+        return $this->contentMstId;
     }
 
     public function getAmount(): int
@@ -82,7 +82,7 @@ final class GachaPrize
     public function equals(self $other): bool
     {
         return $this->contentType === $other->contentType
-            && $this->contentId === $other->contentId
+            && $this->contentMstId === $other->contentMstId
             && $this->amount === $other->amount
             && $this->rarity === $other->rarity
             && $this->isGuaranteed === $other->isGuaranteed;
@@ -96,7 +96,7 @@ final class GachaPrize
     {
         return [
             'content_type' => $this->contentType,
-            'content_id' => $this->contentId,
+            'content_mst_id' => $this->contentMstId,
             'amount' => $this->amount,
             'rarity' => $this->rarity,
             'is_guaranteed' => $this->isGuaranteed,

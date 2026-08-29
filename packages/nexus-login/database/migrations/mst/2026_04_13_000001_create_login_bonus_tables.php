@@ -58,7 +58,7 @@ return new class extends Migration
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
             $table->string('mst_login_bonus_id')->comment('ログインボーナスID');
             $table->enum('content_type', ['item', 'unit', 'equipment', 'diamond', 'wallet'])->comment('コンテンツタイプ');
-            $table->string('content_id')->comment('コンテンツID (mst_item_id, mst_unit_id等)');
+            $table->string('content_mst_id')->comment('コンテンツID (mst_item_id, mst_unit_id等)');
             $table->json('content_option')->nullable()->comment('コンテンツオプション (例: {"grade":1, "level":5})');
             $table->unsignedInteger('content_quantity')->default(1)->comment('1配布あたりのコンテンツ数量');
             $table->unsignedInteger('amount')->default(1)->comment('配布回数（content_quantity × amount = 実際の配布量）');
@@ -67,7 +67,7 @@ return new class extends Migration
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
 
-            $table->primary(['mst_login_bonus_id', 'content_type', 'content_id'], 'pk_login_bonus_content');
+            $table->primary(['mst_login_bonus_id', 'content_type', 'content_mst_id'], 'pk_login_bonus_content');
             $table->index('deploy_key');
             $table->index('sort_order');
             

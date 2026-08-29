@@ -72,21 +72,21 @@ class InAppPurchasePackService
 
                 case InAppPurchaseConst::CONTENT_TYPE_ITEM:
                     // アイテムを付与
-                    $this->itemService->addItem($sysPlayerId, $content->getContentId(), $content->getAmount());
+                    $this->itemService->addItem($sysPlayerId, $content->getContentMstId(), $content->getAmount());
                     $grantedContentArray[] = [
                         'type' => 'Item',
-                        'item_id' => $content->getContentId(),
+                        'item_id' => $content->getContentMstId(),
                         'amount' => $content->getAmount(),
                     ];
                     break;
 
                 case InAppPurchaseConst::CONTENT_TYPE_UNIT:
                     // ユニットを付与
-                    $unitId = $this->grantUnit($sysPlayerId, $content->getContentId(), $content->getAmount());
+                    $unitId = $this->grantUnit($sysPlayerId, $content->getContentMstId(), $content->getAmount());
                     $grantedContentArray[] = [
                         'type' => 'Unit',
                         'unit_id' => $unitId,
-                        'mst_unit_id' => $content->getContentId(),
+                        'mst_unit_id' => $content->getContentMstId(),
                         'amount' => $content->getAmount(),
                     ];
                     break;

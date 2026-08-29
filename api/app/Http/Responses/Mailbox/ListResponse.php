@@ -83,7 +83,7 @@ class ListResponse extends _BaseResponse
                     'content_type' => $content->content_type,
                     'content_type_label' => $contentType?->label() ?? $content->content_type,
                     'content_type_icon' => $contentType?->icon() ?? '',
-                    'content_id' => $content->content_id,
+                    'content_mst_id' => $content->content_mst_id,
                     'amount' => $content->amount,
                     'rarity' => $content->rarity,
                     'is_highlight' => $content->is_highlight ?? false,

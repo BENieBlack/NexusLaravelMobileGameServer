@@ -115,10 +115,10 @@ return [
         // ========================================
         // 動的シャーディング: TrxDB
         // ========================================
-        // DB_TRX_SHARDS環境変数でシャード数を指定（デフォルト: 2）
-        // 例: DB_TRX_SHARDS=4 の場合、trx1, trx2, trx3, trx4 を生成
+        // DB_SHARD_COUNT環境変数でシャード数を指定（デフォルト: 2）
+        // 例: DB_SHARD_COUNT=4 の場合、trx1, trx2, trx3, trx4 を生成
         ...(function () {
-            $shardCount = (int) env('DB_TRX_SHARDS', 2);
+            $shardCount = (int) env('DB_SHARD_COUNT', 2);
             $connections = [];
 
             for ($i = 1; $i <= $shardCount; $i++) {
@@ -147,9 +147,9 @@ return [
         // 動的シャーディング: LogDB
         // ========================================
         // TrxDBと1:1対応でLogDBシャードを生成
-        // DB_TRX_SHARDS=2 の場合、log1, log2 を生成
+        // DB_SHARD_COUNT=2 の場合、log1, log2 を生成
         ...(function () {
-            $shardCount = (int) env('DB_TRX_SHARDS', 2);
+            $shardCount = (int) env('DB_SHARD_COUNT', 2);
             $connections = [];
 
             for ($i = 1; $i <= $shardCount; $i++) {
@@ -305,14 +305,14 @@ return [
     |--------------------------------------------------------------------------
     |
     | TrxDB故障時のポイントインタイムリカバリー設定
-    | shard_count: TrxDB/LogDBのシャード数（DB_TRX_SHARDSと同期）
+    | shard_count: TrxDB/LogDBのシャード数（DB_SHARD_COUNTと同期）
     | active_trx_connections: トランザクションで使用するTrxDB接続のリスト
     |
     */
     'pitr' => [
-        'shard_count' => (int) env('DB_TRX_SHARDS', 2),
+        'shard_count' => (int) env('DB_SHARD_COUNT', 2),
         'active_trx_connections' => (function () {
-            $shardCount = (int) env('DB_TRX_SHARDS', 2);
+            $shardCount = (int) env('DB_SHARD_COUNT', 2);
             $connections = [];
             for ($i = 1; $i <= $shardCount; $i++) {
                 $connections[] = "trx{$i}";

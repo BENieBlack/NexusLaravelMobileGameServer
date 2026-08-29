@@ -119,7 +119,7 @@ class RandomDrawStrategyTest extends TestCase
         $result = $this->strategy->draw($bonus, null, 'gacha_001', $this->context);
         
         // weight=100のアイテムが選ばれるはず
-        $this->assertSame('guaranteed_item', $result->getContentId());
+        $this->assertSame('guaranteed_item', $result->getContentMstId());
         $this->assertSame(999, $result->getAmount());
     }
 
@@ -151,12 +151,12 @@ class RandomDrawStrategyTest extends TestCase
     /**
      * 候補のモックを作成
      */
-    private function createCandidateMock(string $contentType, string $contentId, int $amount, int $weight): object
+    private function createCandidateMock(string $contentType, string $contentMstId, int $amount, int $weight): object
     {
-        return new class($contentType, $contentId, $amount, $weight) {
+        return new class($contentType, $contentMstId, $amount, $weight) {
             public function __construct(
                 private string $contentType,
-                private string $contentId,
+                private string $contentMstId,
                 private int $amount,
                 private int $weight
             ) {}
@@ -164,7 +164,7 @@ class RandomDrawStrategyTest extends TestCase
             public function getAttribute(string $key): mixed {
                 return match($key) {
                     'content_type' => $this->contentType,
-                    'content_id' => $this->contentId,
+                    'content_mst_id' => $this->contentMstId,
                     'amount' => $this->amount,
                     'weight' => $this->weight,
                     default => null,

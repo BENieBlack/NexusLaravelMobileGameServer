@@ -4,7 +4,7 @@ namespace App\Repositories\Trx;
 
 use App\Adapters\Album\AlbumEntryAdapter;
 use NexusAlbum\DataTransferObjects\AlbumEntry;
-use NexusAlbum\Enums\AlbumEntryType;
+use NexusAlbum\Enums\AlbumContentType;
 use NexusAlbum\Repositories\AlbumEntryRepositoryInterface;
 
 /**
@@ -29,9 +29,9 @@ class AlbumEntryRepositoryAdapter implements AlbumEntryRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function exists(int $sysPlayerId, AlbumEntryType $type, string $masterId): bool
+    public function exists(int $sysPlayerId, AlbumContentType $contentType, string $contentMstId): bool
     {
-        return $this->trxAlbumRepository->selectByTypeAndMasterId($type->value, $masterId) !== null;
+        return $this->trxAlbumRepository->selectByContentTypeAndMstId($contentType->value, $contentMstId) !== null;
     }
 
     /**
@@ -41,8 +41,8 @@ class AlbumEntryRepositoryAdapter implements AlbumEntryRepositoryInterface
     {
         $this->trxAlbumRepository->insertEntry(
             $albumEntry->getSysPlayerId(),
-            $albumEntry->getTypeValue(),
-            $albumEntry->getMasterId(),
+            $albumEntry->getContentTypeValue(),
+            $albumEntry->getContentMstId(),
             $albumEntry->getUnlockedAt(),
         );
     }
@@ -55,8 +55,8 @@ class AlbumEntryRepositoryAdapter implements AlbumEntryRepositoryInterface
         $countByType = [];
 
         foreach ($this->trxAlbumRepository->selectAllByPlayer() as $trxAlbum) {
-            $type = $trxAlbum->getType();
-            $countByType[$type] = ($countByType[$type] ?? 0) + 1;
+            $contentType = $trxAlbum->getContentType();
+            $countByType[$contentType] = ($countByType[$contentType] ?? 0) + 1;
         }
 
         return $countByType;

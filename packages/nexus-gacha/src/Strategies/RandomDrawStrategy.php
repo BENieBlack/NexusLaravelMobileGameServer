@@ -57,7 +57,7 @@ class RandomDrawStrategy implements GachaDrawStrategyInterface
         // 4. 景品DTOを生成
         return new GachaPrize(
             contentType: $candidate->getAttribute('content_type'),
-            contentId: $candidate->getAttribute('content_id'),
+            contentMstId: $candidate->getAttribute('content_mst_id'),
             amount: $candidate->getAttribute('amount'),
             rarity: $bonus->getAttribute('bonus_rarity'),
             isGuaranteed: true

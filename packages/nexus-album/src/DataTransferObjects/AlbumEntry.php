@@ -2,7 +2,7 @@
 
 namespace NexusAlbum\DataTransferObjects;
 
-use NexusAlbum\Enums\AlbumEntryType;
+use NexusAlbum\Enums\AlbumContentType;
 
 /**
  * AlbumEntry
@@ -16,8 +16,8 @@ class AlbumEntry
 {
     public function __construct(
         private readonly int $sysPlayerId,
-        private readonly AlbumEntryType $type,
-        private readonly string $masterId,
+        private readonly AlbumContentType $contentType,
+        private readonly string $contentMstId,
         private readonly string $unlockedAt,
     ) {}
 
@@ -26,25 +26,25 @@ class AlbumEntry
         return $this->sysPlayerId;
     }
 
-    public function getType(): AlbumEntryType
+    public function getContentType(): AlbumContentType
     {
-        return $this->type;
+        return $this->contentType;
     }
 
     /**
      * 種別の文字列表現（レスポンスやDBに入れる値）
      */
-    public function getTypeValue(): string
+    public function getContentTypeValue(): string
     {
-        return $this->type->value;
+        return $this->contentType->value;
     }
 
     /**
      * マスターID（mst_unit.id など）
      */
-    public function getMasterId(): string
+    public function getContentMstId(): string
     {
-        return $this->masterId;
+        return $this->contentMstId;
     }
 
     /**
@@ -58,9 +58,9 @@ class AlbumEntry
     /**
      * 同じ対象を指しているか
      */
-    public function isSameTarget(AlbumEntryType $type, string $masterId): bool
+    public function isSameTarget(AlbumContentType $contentType, string $contentMstId): bool
     {
-        return $this->type === $type && $this->masterId === $masterId;
+        return $this->contentType === $contentType && $this->contentMstId === $contentMstId;
     }
 
     /**
@@ -69,8 +69,8 @@ class AlbumEntry
     public function toArray(): array
     {
         return [
-            'type' => $this->type->value,
-            'master_id' => $this->masterId,
+            'content_type' => $this->contentType->value,
+            'content_mst_id' => $this->contentMstId,
             'unlocked_at' => $this->unlockedAt,
         ];
     }

@@ -4,7 +4,7 @@ namespace NexusAlbum\Services;
 
 use Nexus\Core\Utilities\ClockUtility;
 use NexusAlbum\DataTransferObjects\AlbumEntry;
-use NexusAlbum\Enums\AlbumEntryType;
+use NexusAlbum\Enums\AlbumContentType;
 use NexusAlbum\Repositories\AlbumCatalogRepositoryInterface;
 use NexusAlbum\Repositories\AlbumEntryRepositoryInterface;
 use NexusAlbum\ValueObjects\AlbumProgress;
@@ -33,20 +33,20 @@ class AlbumService
      *
      * @return bool 今回新しく記録したならtrue
      */
-    public function unlock(int $sysPlayerId, AlbumEntryType $type, string $masterId): bool
+    public function unlock(int $sysPlayerId, AlbumContentType $contentType, string $contentMstId): bool
     {
-        if (! $this->albumCatalogRepository->isTarget($type, $masterId)) {
+        if (! $this->albumCatalogRepository->isTarget($contentType, $contentMstId)) {
             return false;
         }
 
-        if ($this->albumEntryRepository->exists($sysPlayerId, $type, $masterId)) {
+        if ($this->albumEntryRepository->exists($sysPlayerId, $contentType, $contentMstId)) {
             return false;
         }
 
         $this->albumEntryRepository->insert(new AlbumEntry(
             sysPlayerId: $sysPlayerId,
-            type: $type,
-            masterId: $masterId,
+            contentType: $contentType,
+            contentMstId: $contentMstId,
             unlockedAt: ClockUtility::nowToString(),
         ));
 
@@ -56,15 +56,15 @@ class AlbumService
     /**
      * 複数の対象をまとめて記録する
      *
-     * @param  array<int, array{0: AlbumEntryType, 1: string}>  $targets  [種別, マスターID] の配列
+     * @param  array<int, array{0: AlbumContentType, 1: string}>  $targets  [種別, マスターID] の配列
      * @return int 新しく記録した件数
      */
     public function unlockMany(int $sysPlayerId, array $targets): int
     {
         $unlockedCount = 0;
 
-        foreach ($targets as [$type, $masterId]) {
-            if ($this->unlock($sysPlayerId, $type, $masterId)) {
+        foreach ($targets as [$contentType, $contentMstId]) {
+            if ($this->unlock($sysPlayerId, $contentType, $contentMstId)) {
                 $unlockedCount++;
             }
         }
@@ -75,9 +75,9 @@ class AlbumService
     /**
      * 記録済みかどうか
      */
-    public function isUnlocked(int $sysPlayerId, AlbumEntryType $type, string $masterId): bool
+    public function isUnlocked(int $sysPlayerId, AlbumContentType $contentType, string $contentMstId): bool
     {
-        return $this->albumEntryRepository->exists($sysPlayerId, $type, $masterId);
+        return $this->albumEntryRepository->exists($sysPlayerId, $contentType, $contentMstId);
     }
 
     /**
@@ -104,11 +104,11 @@ class AlbumService
 
         $progressList = [];
 
-        foreach (AlbumEntryType::cases() as $type) {
+        foreach (AlbumContentType::cases() as $contentType) {
             $progressList[] = new AlbumProgress(
-                type: $type,
-                unlockedCount: $unlockedCountByType[$type->value] ?? 0,
-                totalCount: $totalCountByType[$type->value] ?? 0,
+                contentType: $contentType,
+                unlockedCount: $unlockedCountByType[$contentType->value] ?? 0,
+                totalCount: $totalCountByType[$contentType->value] ?? 0,
             );
         }
 

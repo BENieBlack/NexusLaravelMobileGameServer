@@ -45,7 +45,7 @@ class VipRewardServiceTest extends TestCase
 
         $mockReward1 = Mockery::mock(MstVipLevelReward::class);
         $mockReward1->shouldReceive('getContentType')->andReturn('diamond');
-        $mockReward1->shouldReceive('getContentId')->andReturn('free_diamond');
+        $mockReward1->shouldReceive('getContentMstId')->andReturn('free_diamond');
         $mockReward1->shouldReceive('getContentOption')->andReturn(null);
         $mockReward1->shouldReceive('getContentQuantity')->andReturn(100);
         $mockReward1->shouldReceive('getAmount')->andReturn(1);
@@ -53,7 +53,7 @@ class VipRewardServiceTest extends TestCase
 
         $mockReward2 = Mockery::mock(MstVipLevelReward::class);
         $mockReward2->shouldReceive('getContentType')->andReturn('item');
-        $mockReward2->shouldReceive('getContentId')->andReturn('item_001');
+        $mockReward2->shouldReceive('getContentMstId')->andReturn('item_001');
         $mockReward2->shouldReceive('getContentOption')->andReturn(['rarity' => 5]);
         $mockReward2->shouldReceive('getContentQuantity')->andReturn(10);
         $mockReward2->shouldReceive('getAmount')->andReturn(2);
@@ -164,7 +164,7 @@ class VipRewardServiceTest extends TestCase
 
         $mockReward = Mockery::mock(MstVipLevelReward::class);
         $mockReward->shouldReceive('getContentType')->andReturn('diamond');
-        $mockReward->shouldReceive('getContentId')->andReturn('paid_diamond');
+        $mockReward->shouldReceive('getContentMstId')->andReturn('paid_diamond');
         $mockReward->shouldReceive('getContentOption')->andReturn(null);
         $mockReward->shouldReceive('getContentQuantity')->andReturn(500);
         $mockReward->shouldReceive('getAmount')->andReturn(1);
@@ -185,12 +185,12 @@ class VipRewardServiceTest extends TestCase
         $this->assertIsArray($result);
         $this->assertCount(1, $result);
         $this->assertArrayHasKey('content_type', $result[0]);
-        $this->assertArrayHasKey('content_id', $result[0]);
+        $this->assertArrayHasKey('content_mst_id', $result[0]);
         $this->assertArrayHasKey('content_quantity', $result[0]);
         $this->assertArrayHasKey('amount', $result[0]);
         $this->assertArrayHasKey('is_paid', $result[0]);
         $this->assertSame('diamond', $result[0]['content_type']);
-        $this->assertSame('paid_diamond', $result[0]['content_id']);
+        $this->assertSame('paid_diamond', $result[0]['content_mst_id']);
         $this->assertSame(500, $result[0]['content_quantity']);
         $this->assertTrue($result[0]['is_paid']);
     }
@@ -206,7 +206,7 @@ class VipRewardServiceTest extends TestCase
 
         $mockReward = Mockery::mock(MstVipLevelReward::class);
         $mockReward->shouldReceive('getContentType')->andReturn('item');
-        $mockReward->shouldReceive('getContentId')->andReturn('item_999');
+        $mockReward->shouldReceive('getContentMstId')->andReturn('item_999');
         $mockReward->shouldReceive('getContentOption')->andReturn(null);
         $mockReward->shouldReceive('getContentQuantity')->andReturn(10);
         $mockReward->shouldReceive('getAmount')->andReturn(5);

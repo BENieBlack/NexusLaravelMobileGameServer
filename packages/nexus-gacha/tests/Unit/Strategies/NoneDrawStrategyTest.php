@@ -80,7 +80,7 @@ class NoneDrawStrategyTest extends TestCase
         $result = $this->strategy->draw($bonus, null, 'gacha_001', $this->context);
         
         $this->assertSame('Unit', $result->getContentType());
-        $this->assertSame('unit_ssr_001', $result->getContentId());
+        $this->assertSame('unit_ssr_001', $result->getContentMstId());
         $this->assertSame(5, $result->getRarity());
         $this->assertTrue($result->isGuaranteed());
     }
@@ -117,7 +117,7 @@ class NoneDrawStrategyTest extends TestCase
         $result = $this->strategy->draw($bonus, null, 'gacha_001', $this->context);
         
         $this->assertSame('Item', $result->getContentType());
-        $this->assertSame('item_001', $result->getContentId());
+        $this->assertSame('item_001', $result->getContentMstId());
         $this->assertFalse($result->isGuaranteed()); // 通常抽選なのでfalse
     }
 
@@ -138,7 +138,7 @@ class NoneDrawStrategyTest extends TestCase
         
         $result = $this->strategy->draw($bonus, null, 'gacha_001', $this->context);
         
-        $this->assertSame('pickup_unit', $result->getContentId());
+        $this->assertSame('pickup_unit', $result->getContentMstId());
     }
 
     public function test_draw_falls_back_to_normal_prizes_when_no_pickup_prizes(): void
@@ -162,7 +162,7 @@ class NoneDrawStrategyTest extends TestCase
         
         $result = $this->strategy->draw($bonus, null, 'gacha_001', $this->context);
         
-        $this->assertSame('normal_item', $result->getContentId());
+        $this->assertSame('normal_item', $result->getContentMstId());
     }
 
     public function test_draw_throws_exception_when_no_prizes_available(): void
@@ -242,12 +242,12 @@ class NoneDrawStrategyTest extends TestCase
     /**
      * 景品のモックを作成
      */
-    private function createPrizeMock(string $contentType, string $contentId, int $amount, int $weight): object
+    private function createPrizeMock(string $contentType, string $contentMstId, int $amount, int $weight): object
     {
-        return new class($contentType, $contentId, $amount, $weight) {
+        return new class($contentType, $contentMstId, $amount, $weight) {
             public function __construct(
                 private string $contentType,
-                private string $contentId,
+                private string $contentMstId,
                 private int $amount,
                 private int $weight
             ) {}
@@ -255,7 +255,7 @@ class NoneDrawStrategyTest extends TestCase
             public function getAttribute(string $key): mixed {
                 return match($key) {
                     'content_type' => $this->contentType,
-                    'content_id' => $this->contentId,
+                    'content_mst_id' => $this->contentMstId,
                     'amount' => $this->amount,
                     'weight' => $this->weight,
                     default => null,

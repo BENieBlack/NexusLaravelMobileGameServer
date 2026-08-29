@@ -24,7 +24,6 @@ class ResponseKeyNamingTest extends TestCase
         'receiver_my_id',
         'deleted_my_id',
         'device_id',
-        'content_id',
         'sender_id',
         'product_id',
         'transaction_id',
@@ -59,6 +58,13 @@ class ResponseKeyNamingTest extends TestCase
                     continue;
                 }
 
+                // 参照先が content_type などで決まる多相参照は、
+                // 指す先が必ずマスターであることを _mst_id で示す
+                // 例: content_mst_id, cost_mst_id, reward_mst_id
+                if (str_ends_with($key, '_mst_id')) {
+                    continue;
+                }
+
                 $violations[] = $this->relativePath($file).": '{$key}'";
             }
         }
@@ -71,6 +77,7 @@ class ResponseKeyNamingTest extends TestCase
             "IDキーはテーブルまで特定できる名前にしてください:\n".
             implode("\n", $violations)."\n".
             "例: 'apply_id' → 'sys_guild_apply_id'\n".
+            "参照先が実行時に決まる場合は 'content_mst_id' のように _mst_id で終わらせてください\n".
             'カラム名に接頭辞が無いものは ALLOWED に追加してください。'
         );
     }

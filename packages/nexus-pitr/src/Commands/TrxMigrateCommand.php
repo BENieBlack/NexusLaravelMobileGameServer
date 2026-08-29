@@ -10,7 +10,7 @@ use NexusPitr\Logger\ShardMapper;
  * TrxMigrateCommand
  * 
  * すべてのTrxDBシャードに対してマイグレーションを実行
- * 動的シャーディング対応（DB_TRX_SHARDSに応じてtrx1, trx2, ...に実行）
+ * 動的シャーディング対応（DB_SHARD_COUNTに応じてtrx1, trx2, ...に実行）
  */
 class TrxMigrateCommand extends Command
 {
@@ -50,6 +50,8 @@ class TrxMigrateCommand extends Command
             '../packages/nexus-login/database/migrations/trx',
             '../packages/nexus-vip/database/migrations/trx',
             '../packages/nexus-album/database/migrations/trx',
+            // TiDB用の変換は、対象テーブルが揃ったあとに流す
+            '../packages/nexus-tidb/database/migrations/trx',
         ];
         
         $shardCount = count($trxConnections);
@@ -57,7 +59,7 @@ class TrxMigrateCommand extends Command
         
         $this->info("Running TrxDB migrations on all {$shardCount} shards...");
         $this->info("Target shards: {$shardList}");
-        $this->info('This includes migrations from packages: nexus-core, nexus-resource, nexus-wallet, nexus-stamina, nexus-core-billing, nexus-mailbox, nexus-gacha, nexus-login, nexus-vip, nexus-album');
+        $this->info('This includes migrations from packages: nexus-core, nexus-resource, nexus-wallet, nexus-stamina, nexus-core-billing, nexus-mailbox, nexus-gacha, nexus-login, nexus-vip, nexus-album, nexus-tidb');
         $this->newLine();
         
         foreach ($trxConnections as $trxConnection) {

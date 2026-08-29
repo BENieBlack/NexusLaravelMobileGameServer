@@ -104,7 +104,7 @@ class ShardAssignmentService
             ->all();
 
         // 接続設定が無いノードへ割り当てると、以降その行を読み書きできなくなる。
-        // sys_sharding_node の行数と DB_TRX_SHARDS がずれていても安全side に倒す
+        // sys_sharding_node の行数と DB_SHARD_COUNT がずれていても安全side に倒す
         /** @var list<string> $available */
         $available = config('database.pitr.active_trx_connections', ['trx1']);
         $nodes = array_values(array_filter(

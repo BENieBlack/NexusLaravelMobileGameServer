@@ -14,7 +14,7 @@ services:
     environment:
       # 既定値は設けない。未設定なら署名検証が起動時に失敗する（既知の鍵で通してしまうのを防ぐ）
       - CLIENT_SECRET=${CLIENT_SECRET}
-      - DB_TRX_SHARDS=${DB_TRX_SHARDS:-2}
+      - DB_SHARD_COUNT=${DB_SHARD_COUNT:-2}
     networks:
       - local-network
 

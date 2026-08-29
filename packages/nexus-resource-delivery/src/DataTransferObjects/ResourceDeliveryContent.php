@@ -33,7 +33,7 @@ class ResourceDeliveryContent
     /** @var ResourceDeliveryResultReason 配送失敗理由 */
     private ResourceDeliveryResultReason $failureReason;
 
-    /** @var resource|null 元のリソース（変換前） */
+    /** 元のリソース（変換前） */
     private ?Resource $originalResource = null;
 
     /** @var int ログ用：付与前のリソース量 */
@@ -42,9 +42,6 @@ class ResourceDeliveryContent
     /** @var int ログ用：付与後のリソース量 */
     private int $afterAmount = 0;
 
-    /**
-     * @param  Resource  $resource  リソース
-     */
     public function __construct(
         private Resource $resource,
     ) {
@@ -120,6 +117,7 @@ class ResourceDeliveryContent
 
     /**
      * メタデータを取得
+     *
      * @return array<string, mixed>|null
      */
     public function getMetadata(): ?array
@@ -231,9 +229,6 @@ class ResourceDeliveryContent
      * Domain層（api/app/Domain/...）で判定してから呼ぶこと。**
      * 例: 重複ユニットを欠片に変える、上限超過分をメールボックスに回す。
      * パッケージ側に変換ルールを埋め込むと、他タイトルで再利用できなくなる。
-     *
-     * @param  Resource  $newResource  新しいリソース
-     * @param  ResourceDeliveryResultReason  $reason  変換理由
      */
     public function convertTo(Resource $newResource, ResourceDeliveryResultReason $reason): void
     {
@@ -289,6 +284,7 @@ class ResourceDeliveryContent
 
     /**
      * 配列からResourceDeliveryContentを生成
+     *
      * @param  array<string, mixed>  $data
      */
     public static function fromArray(array $data): self

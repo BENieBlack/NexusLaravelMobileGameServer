@@ -28,14 +28,15 @@ class TrxGachaRepository extends _BaseTrxRepository
 
     /**
      * プレイヤーと対象ガチャの進行状況を取得
+     *
+     * 生クエリではなくキャッシュ経由で引く。
+     * 直前に insertProgress() で積んだ未フラッシュの行も拾えるようにするため。
      */
     public function selectByPlayerAndGacha(int $sysPlayerId, string $mstGachaId): ?TrxGacha
     {
         /** @var TrxGacha|null */
-        return TrxGacha::query()
-            ->where('sys_player_id', $sysPlayerId)
+        return $this->selectMapBySysPlayerId($sysPlayerId)
             ->where('mst_gacha_id', $mstGachaId)
-            ->where('is_delete', false)
             ->first();
     }
 

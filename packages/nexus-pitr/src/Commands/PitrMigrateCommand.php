@@ -5,6 +5,7 @@ namespace NexusPitr\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use NexusPitr\Logger\ShardMapper;
+use NexusPitr\Support\ShardMigrationPaths;
 
 /**
  * PitrMigrateCommand
@@ -20,6 +21,7 @@ class PitrMigrateCommand extends Command
      * @var string
      */
     protected $signature = 'pitr:migrate 
+                            {--fresh : Drop all tables on each shard and re-run every migration}
                             {--force : Force the operation to run when in production}
                             {--seed : Indicates if the seed task should be re-run}
                             {--step : Force the migrations to be run so they can be rolled back individually}';
@@ -39,28 +41,15 @@ class PitrMigrateCommand extends Command
         $logConnections = ShardMapper::allLogConnections();
         
         // LogDBマイグレーションパスを定義（base_path()からの相対パス）
-        $logMigrationPaths = [
-            'database/migrations/log',
-            '../packages/nexus-pitr/database/migrations/log',
-            '../packages/nexus-core/database/migrations/log',
-            '../packages/nexus-resource/database/migrations/log',
-            '../packages/nexus-wallet/database/migrations/log',
-            '../packages/nexus-stamina/database/migrations/log',
-            '../packages/nexus-core-billing/database/migrations/log',
-            '../packages/nexus-mailbox/database/migrations/log',
-            '../packages/nexus-gacha/database/migrations/log',
-            '../packages/nexus-login/database/migrations/log',
-            '../packages/nexus-vip/database/migrations/log',
-            // TiDB用の変換は、対象テーブルが揃ったあとに流す
-            '../packages/nexus-tidb/database/migrations/log',
-        ];
+        // パスはpackages/を走査して集める（パッケージを増やしても直さなくてよい）
+        $logMigrationPaths = ShardMigrationPaths::find('log');
         
         $shardCount = count($logConnections);
         $shardList = implode(', ', $logConnections);
         
         $this->info("Running LogDB migrations on all {$shardCount} shards...");
         $this->info("Target shards: {$shardList}");
-        $this->info('This includes migrations from: nexus-pitr, nexus-core, nexus-resource, nexus-wallet, nexus-stamina, nexus-core-billing, nexus-mailbox, nexus-gacha, nexus-login, nexus-vip');
+        $this->info('Migration paths: '.implode(', ', $logMigrationPaths));
         $this->newLine();
         
         foreach ($logConnections as $logConnection) {
@@ -84,7 +73,11 @@ class PitrMigrateCommand extends Command
             }
             
             // LogDBマイグレーション実行（logサブディレクトリのみ）
-            $exitCode = Artisan::call('migrate', $options, $this->getOutput());
+            // --fresh はシャードの全テーブルを落としてから流し直す。
+            // 既存マイグレーションを書き換えたときはこちらでないと反映されない
+            $migrateCommand = $this->option('fresh') ? 'migrate:fresh' : 'migrate';
+
+            $exitCode = Artisan::call($migrateCommand, $options, $this->getOutput());
             
             if ($exitCode !== 0) {
                 $this->error("❌ Migration failed for {$logConnection}");

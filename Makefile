@@ -64,11 +64,11 @@ migrate: up ## マイグレーションを実行
 	$(DOCKER_COMPOSE) exec -T api-php php artisan trx:migrate --force
 	$(DOCKER_COMPOSE) exec -T api-php php artisan pitr:migrate --force
 
-migrate-fresh: up ## マイグレーションをリセットして再実行
+migrate-fresh: up ## マイグレーションをリセットして再実行（trx/logも作り直す）
 	$(call migrate_group,migrate:fresh,sys,sys)
 	$(call migrate_group,migrate:fresh,mst,mst)
-	$(DOCKER_COMPOSE) exec -T api-php php artisan migrate:shards --force
-	$(DOCKER_COMPOSE) exec -T api-php php artisan pitr:migrate --force
+	$(DOCKER_COMPOSE) exec -T api-php php artisan trx:migrate --fresh --force
+	$(DOCKER_COMPOSE) exec -T api-php php artisan pitr:migrate --fresh --force
 
 seed: up ## シーダーを実行
 	$(DOCKER_COMPOSE) exec -T api-php php artisan db:seed --force

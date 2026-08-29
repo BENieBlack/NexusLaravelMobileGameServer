@@ -3,8 +3,12 @@
 namespace Tests\Feature\Domain\InAppPurchase\UseCases;
 
 use App\Domain\InAppPurchase\UseCases\BuyPackUseCase;
+use App\Exceptions\GameErrorCode;
+use App\Exceptions\GameException;
+use App\Models\Mst\MstInAppPurchase;
 use App\Persistence\ApiSession;
 use Illuminate\Support\Facades\DB;
+use Nexus\Core\Utilities\ClockUtility;
 use NexusUnitOfWork\Persistence\QueryManager;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;
@@ -218,6 +222,65 @@ class BuyPackUseCaseTest extends TestCase
         $this->assertSame(2, $history->purchase_count);
         $this->assertSame(600, DB::connection('trx1')->table('trx_diamond')
             ->where('sys_player_id', $this->sysPlayerId)->value('free_amount'));
+    }
+
+    #[Test]
+    public function 購入回数の上限に達すると次から買えない(): void
+    {
+        $mstInAppPurchase = $this->createProduct('Pack', purchaseLimit: 1);
+        $this->createPackContents($mstInAppPurchase->getId());
+
+        $this->buy($mstInAppPurchase, 'GPA.PACK-2001');
+
+        try {
+            $this->buy($mstInAppPurchase, 'GPA.PACK-2002');
+            $this->fail('上限に達しているのに2回目が通ってしまった');
+        } catch (GameException $e) {
+            $this->assertSame(GameErrorCode::PURCHASE_LIMIT_EXCEEDED, $e->getErrorCode());
+        }
+
+        // 2回目は何も付与されない
+        $this->assertSame(300, DB::connection('trx1')->table('trx_diamond')
+            ->where('sys_player_id', $this->sysPlayerId)->value('free_amount'));
+        $this->assertSame(1, DB::connection('trx1')->table('trx_in_app_purchase')
+            ->where('sys_player_id', $this->sysPlayerId)->value('purchase_count'));
+    }
+
+    #[Test]
+    public function 日次の上限は日付が変われば買い直せる(): void
+    {
+        $mstInAppPurchase = $this->createProduct('Pack', purchaseLimit: 1, purchaseLimitReset: 'Daily');
+        $this->createPackContents($mstInAppPurchase->getId());
+
+        ClockUtility::setNow('2026-03-15 12:00:00');
+        $this->buy($mstInAppPurchase, 'GPA.PACK-2101');
+
+        ClockUtility::setNow('2026-03-16 12:00:00');
+        $this->buy($mstInAppPurchase, 'GPA.PACK-2102');
+
+        $this->assertSame(600, DB::connection('trx1')->table('trx_diamond')
+            ->where('sys_player_id', $this->sysPlayerId)->value('free_amount'));
+
+        ClockUtility::reset();
+    }
+
+    /**
+     * 1回ぶん購入してフラッシュする
+     */
+    private function buy(MstInAppPurchase $mstInAppPurchase, string $orderId): void
+    {
+        app(BuyPackUseCase::class)->exec(
+            $this->sysPlayerId,
+            $mstInAppPurchase,
+            'Google',
+            'GooglePlay',
+            'purchase-token-'.$orderId,
+            $orderId,
+            'pack_limited'
+        );
+
+        $this->queryManager->execAllQuery();
+        $this->queryManager->clear();
     }
 
     /**

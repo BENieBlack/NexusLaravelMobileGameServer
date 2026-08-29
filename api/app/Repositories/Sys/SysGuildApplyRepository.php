@@ -22,16 +22,6 @@ class SysGuildApplyRepository extends _BaseSysRepository
     // ========================================
 
     /**
-     * IDで申請を検索（Model返却）
-     *
-     * @param  int  $applyId  申請ID
-     */
-    public function selectById(int $applyId): ?SysGuildApply
-    {
-        return SysGuildApply::find($applyId);
-    }
-
-    /**
      * ギルドIDとプレイヤーIDで既存の申請を検索（Model返却）
      *
      * @param  int  $guildId  ギルドID

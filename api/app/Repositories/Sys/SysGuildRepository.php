@@ -26,16 +26,6 @@ class SysGuildRepository extends _BaseSysRepository
     // ========================================
 
     /**
-     * IDでギルドを検索（Model返却）
-     *
-     * @param  int  $guildId  ギルドID
-     */
-    public function selectById(int $guildId): ?SysGuild
-    {
-        return SysGuild::find($guildId);
-    }
-
-    /**
      * ギルド名で検索（Model返却）
      *
      * @param  string  $name  ギルド名

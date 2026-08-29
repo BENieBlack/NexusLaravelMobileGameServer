@@ -2,6 +2,8 @@
 
 namespace App\Domain\Mailbox\Constants;
 
+use NexusResource\Enums\ResourceType;
+
 /**
  * メールボックスコンテンツのタイプ定数
  */
@@ -20,6 +22,32 @@ enum ContentType: string
     case EXPERIENCE = 'Experience';         // 経験値
     case ALLIANCE_POINTS = 'AlliancePoints'; // アライアンスポイント
     case CUSTOM = 'Custom';                 // カスタムリソース
+
+    /**
+     * 配送側のリソース種別へ変換する
+     *
+     * メールの種別はパスカルケース、配送側はスネークケースで、
+     * PaidDiamond / AlliancePoints のような複数語は小文字化だけでは合わない。
+     * 対応を1箇所に書いて、増やしたときに match が落ちるようにしておく。
+     */
+    public function toResourceType(): ResourceType
+    {
+        return match ($this) {
+            self::DIAMOND => ResourceType::DIAMOND,
+            self::PAID_DIAMOND => ResourceType::PAID_DIAMOND,
+            self::ITEM => ResourceType::ITEM,
+            self::UNIT => ResourceType::UNIT,
+            self::EQUIPMENT => ResourceType::EQUIPMENT,
+            self::GOLD => ResourceType::GOLD,
+            self::FOOD => ResourceType::FOOD,
+            self::WOOD => ResourceType::WOOD,
+            self::STONE => ResourceType::STONE,
+            self::STAMINA => ResourceType::STAMINA,
+            self::EXPERIENCE => ResourceType::EXPERIENCE,
+            self::ALLIANCE_POINTS => ResourceType::ALLIANCE_POINTS,
+            self::CUSTOM => ResourceType::CUSTOM,
+        };
+    }
 
     /**
      * ラベルを取得

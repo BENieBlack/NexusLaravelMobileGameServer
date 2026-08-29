@@ -17,18 +17,6 @@ class TrxAlbumRepository extends _BaseTrxRepository
 {
     protected string $modelClass = TrxAlbum::class;
 
-    protected string $selectKey = 'sys_player_id';
-
-    /**
-     * ユニークキー（trx_album の一意制約と揃える）
-     *
-     * 既定の ['id'] のままだと同じプレイヤーの記録が
-     * キャッシュ上で1件に潰れてしまう
-     *
-     * @var list<string>
-     */
-    protected array $uniqueKeys = ['sys_player_id', 'content_type', 'content_mst_id'];
-
     /**
      * プレイヤーの記録を全件取得する
      *

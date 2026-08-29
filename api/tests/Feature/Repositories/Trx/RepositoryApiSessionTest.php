@@ -44,18 +44,17 @@ class RepositoryApiSessionTest extends TestCase
     }
 
     #[Test]
-    public function ユニークキーがプロパティとして定義されている(): void
+    public function ユニークキーはmodelから解決される(): void
     {
+        // Repositoryで明示しなければModelの宣言（無ければ主キー）に従う。
+        // 二重に持つと片方だけ直し忘れる
         ApiSession::setSysPlayerId($this->sysPlayerId);
         $repo = new TrxEquipmentRepository;
 
-        $reflection = new \ReflectionClass($repo);
-        $property = $reflection->getProperty('uniqueKeys');
-        $property->setAccessible(true);
-        $uniqueKeys = $property->getValue($repo);
+        $method = new \ReflectionMethod($repo, 'getUniqueKeys');
+        $method->setAccessible(true);
 
-        $this->assertIsArray($uniqueKeys);
-        $this->assertContains('id', $uniqueKeys);
+        $this->assertSame(['id'], $method->invoke($repo));
     }
 
     #[Test]

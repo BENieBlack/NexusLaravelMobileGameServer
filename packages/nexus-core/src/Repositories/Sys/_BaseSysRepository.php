@@ -3,7 +3,6 @@
 namespace Nexus\Core\Repositories\Sys;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Nexus\Core\Models\Sys\_BaseSys;
 use Nexus\Core\Repositories\_BaseRepository;
@@ -50,7 +49,7 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
      *
      * @var list<string>
      */
-    protected array $selfScopeKeys = ['sys_player_id'];
+    protected array $selectKeys = [];
 
     /**
      * 現在のキャッシュがどのプレイヤーのものか
@@ -188,14 +187,6 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
     }
 
     /**
-     * モデルインスタンスを取得
-     */
-    protected function getModelInstance(): Model
-    {
-        return new $this->modelClass;
-    }
-
-    /**
      * Sysテーブルの全件取得は禁止
      *
      * sys_player は全プレイヤー、sys_guild は全ギルドが1つのテーブルに入る。
@@ -224,7 +215,7 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
      * ログイン中プレイヤーに関係する行だけを読み、メモリキャッシュに載せる
      *
      * Sysテーブルは全プレイヤー分が1つのテーブルに入っているため、
-     * 全件読みは決してしない。$selfScopeKeys で自分の行に絞る。
+     * 全件読みは決してしない。$selectKeys で自分の行に絞る。
      *
      * ここに載った行だけが setModel() で更新できる。
      * 他人の行や全体を見る用途には selectWithoutCache() を使う。
@@ -233,7 +224,7 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
      */
     public function queryOrMemory(): CustomCollection
     {
-        if ($this->selfScopeKeys === []) {
+        if ($this->getSelectKeys() === []) {
             throw new \RuntimeException(sprintf(
                 '%s は自分スコープを持たないため queryOrMemory() を使えない。selectWithoutCache() を使うこと',
                 static::class
@@ -249,7 +240,7 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
         }
 
         $query = $this->selectWithoutCache();
-        $this->applySelfScope($query, $sysPlayerId);
+        $this->applySelectScope($query, $sysPlayerId);
 
         // ユニークキーのカラム値を連結してキーにする。
         // Collection::keyBy() は1件ずつクロージャを通すため、
@@ -287,16 +278,16 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
     /**
      * 自分の行を絞り込む条件をクエリに足す
      *
-     * $selfScopeKeys が複数ある場合はORで繋ぐ。
+     * $selectKeys が複数ある場合はORで繋ぐ。
      *
      * @param  Builder<T>  $query
      */
-    protected function applySelfScope(Builder $query, int $sysPlayerId): void
+    protected function applySelectScope(Builder $query, int $sysPlayerId): void
     {
-        $selfScopeKeys = $this->selfScopeKeys;
+        $selectKeys = $this->getSelectKeys();
 
-        $query->where(function (Builder $builder) use ($selfScopeKeys, $sysPlayerId) {
-            foreach ($selfScopeKeys as $column) {
+        $query->where(function (Builder $builder) use ($selectKeys, $sysPlayerId) {
+            foreach ($selectKeys as $column) {
                 $builder->orWhere($column, $sysPlayerId);
             }
         });
@@ -321,13 +312,32 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
     }
 
     /**
+     * 絞り込みキーを取得
+     *
+     * Repositoryでの明示があればそれを優先し、無ければModelに聞く。
+     * Modelも未設定なら sys_player_id を使う。
+     *
+     * @return list<string>
+     */
+    protected function getSelectKeys(): array
+    {
+        if ($this->selectKeys !== []) {
+            return $this->selectKeys;
+        }
+
+        $modelKeys = $this->getModelInstance()->getSelectKeys();
+
+        return $modelKeys !== [] ? $modelKeys : ['sys_player_id'];
+    }
+
+    /**
      * 今このリクエストで自分スコープの読み取りが使えるか
      *
      * 認証前や、プレイヤーに紐づかないテーブルではfalseになる。
      */
     protected function hasSelfScope(): bool
     {
-        return $this->selfScopeKeys !== [] && static::hasSysPlayerId();
+        return $this->getSelectKeys() !== [] && static::hasSysPlayerId();
     }
 
     /**

@@ -19,16 +19,6 @@ class TrxDiamondRepository extends _BaseTrxRepository
     protected string $modelClass = TrxDiamond::class;
 
     /**
-     * ユニークキー（trx_diamond の主キー）
-     *
-     * 既定の ['id'] のままだとtrx_diamondにはidが無いため、
-     * キャッシュのキーが全行で同じになり1件しか保持できない
-     *
-     * @var list<string>
-     */
-    protected array $uniqueKeys = ['sys_player_id', 'platform'];
-
-    /**
      * プレイヤーIDとプラットフォームでダイヤモンドを取得
      *
      * @param  int  $sysPlayerId  プレイヤーID

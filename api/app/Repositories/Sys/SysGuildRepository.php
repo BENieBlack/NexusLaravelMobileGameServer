@@ -35,7 +35,7 @@ class SysGuildRepository extends _BaseSysRepository
      *
      * @param  Builder<SysGuild>  $query
      */
-    protected function applySelfScope(Builder $query, int $sysPlayerId): void
+    protected function applySelectScope(Builder $query, int $sysPlayerId): void
     {
         $query->whereIn('id', SysGuildMember::query()
             ->where('sys_player_id', $sysPlayerId)

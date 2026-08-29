@@ -57,7 +57,13 @@ class LogInAppPurchaseRepository extends _BaseLogRepository
             'system_at' => ClockUtility::now(),
         ]);
 
-        // 課金ログとして登録（isPurchaseLogプロパティが使用される）
+        // 注意: isPurchaseLog プロパティはここでは読まれていない。
+        // setModel() に明示的に渡さない限り通常ログと同じ枠に登録され、
+        // execAllLogs() で書かれる。
+        // 課金ログを独立して書きたい場合は setModel($model, true) にしたうえで
+        // 呼び出し側が execPurchaseQuery() を呼ぶ必要がある。
+        // なお検証失敗時の記録は insertFailedPurchaseLog() が
+        // トランザクション外へ直接INSERTしているため、そちらで担保されている。
         $this->setModel($model);
     }
 

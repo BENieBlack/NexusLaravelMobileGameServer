@@ -152,6 +152,29 @@ class MailboxEndpointTest extends TestCase
     }
 
     #[Test]
+    public function test_list_can_filter_by_category(): void
+    {
+        // mst_mailbox は別のDB接続にあるため、JOINで絞ろうとするとSQLエラーになる
+        ['player' => $player, 'token' => $token] = $this->signUpPlayer();
+        $this->makeMailbox($player->id);
+
+        $this->withHeaders($this->authHeaders($token))
+            ->getJson('/api/mailbox/list?category=System')
+            ->assertOk();
+    }
+
+    #[Test]
+    public function test_list_can_filter_by_priority(): void
+    {
+        ['player' => $player, 'token' => $token] = $this->signUpPlayer();
+        $this->makeMailbox($player->id);
+
+        $this->withHeaders($this->authHeaders($token))
+            ->getJson('/api/mailbox/list?priority=Normal')
+            ->assertOk();
+    }
+
+    #[Test]
     public function test_list_is_empty_when_player_has_no_mailbox(): void
     {
         ['token' => $token] = $this->signUpPlayer();

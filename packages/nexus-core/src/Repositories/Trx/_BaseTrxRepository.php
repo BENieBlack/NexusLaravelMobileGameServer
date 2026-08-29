@@ -164,15 +164,24 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
             $query->where('is_delete', false);
         }
 
-        $records = $query
-            ->get()
-            ->keyBy(function ($record) {
-                // ユニークキーのカラム値を連結してキーを生成
-                return implode(':', array_map(fn($key) => $record->{$key}, $this->getUniqueKeys()));
-            });
+        // ユニークキーのカラム値を連結してキーにする。
+        // Collection::keyBy() は1件ずつクロージャを通すため、
+        // リクエストごとに走るここでは素のforeachで組む
+        $uniqueKeys = $this->getUniqueKeys();
+        $keyed = [];
+
+        foreach ($query->get() as $record) {
+            $key = [];
+
+            foreach ($uniqueKeys as $uniqueKey) {
+                $key[] = $record->{$uniqueKey};
+            }
+
+            $keyed[implode(':', $key)] = $record;
+        }
 
         /** @var CustomCollection<string, T> $cached キーはユニークキーの連結 */
-        $cached = new CustomCollection($records->all());
+        $cached = new CustomCollection($keyed);
         $this->models = $cached;
         $this->cachedForSysPlayerId = $sysPlayerId;
 

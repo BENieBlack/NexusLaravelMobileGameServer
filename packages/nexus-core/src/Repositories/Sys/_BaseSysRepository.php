@@ -2,22 +2,23 @@
 
 namespace Nexus\Core\Repositories\Sys;
 
-use Nexus\Core\Models\Sys\_BaseSys;
-use Nexus\Core\Repositories\_BaseRepository;
-use Nexus\Core\Support\CustomCollection;
-use Nexus\Core\Utilities\ClockUtility;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
+use Nexus\Core\Models\Sys\_BaseSys;
+use Nexus\Core\Repositories\_BaseRepository;
+use Nexus\Core\Support\CustomCollection;
 
 /**
  * _BaseSysRepository
- * 
+ *
  * Sysデータベースのリポジトリ基底クラス
  * キャッシュ機能を含む共通のCRUD操作を実装
- * 
+ *
  * @template T of _BaseSys
+ *
  * @extends _BaseRepository<int|string, T>
+ *
  * @implements _BaseSysRepositoryInterface<T>
  */
 abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRepositoryInterface
@@ -62,8 +63,6 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
     /**
      * 新規モデル用の一時IDカウンター
      * モデルのIDがnullの場合に一意なキーを生成するために使用
-     *
-     * @var int
      */
     private int $newModelCounter = 0;
 
@@ -79,8 +78,7 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
      * モデルをキャッシュに保存し、内部キューに溜め込む
      * ユニークキーで管理し、同じキーのモデルは上書きされる
      *
-     * @param mixed $model
-     * @return void
+     * @param  mixed  $model
      */
     public function setModel($model): void
     {
@@ -89,16 +87,16 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
 
         // ユニークキーを生成
         // 新規モデル（IDがnull）の場合は一時的なキーを割り当てる
-        $uniqueKey = $this->buildUniqueKey($model) ?? '_new_' . $this->newModelCounter++;
+        $uniqueKey = $this->buildUniqueKey($model) ?? '_new_'.$this->newModelCounter++;
 
         // 初回のsetModel時に変更前の状態を保存
-        if (!isset($this->originalStateArray[$uniqueKey])) {
+        if (! isset($this->originalStateArray[$uniqueKey])) {
             $this->originalStateArray[$uniqueKey] = $model->getAttributes();
         }
 
         // CacheRecordTraitのキャッシュに保存
         if ($this->models === null) {
-            $this->models = new CustomCollection();
+            $this->models = new CustomCollection;
         }
         $this->models->put($uniqueKey, $model);
 
@@ -108,8 +106,6 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
 
     /**
      * モデルキューをクリアし、カウンターと変更前状態をリセット
-     *
-     * @return void
      */
     public function clearQueue(): void
     {
@@ -126,12 +122,11 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
      *
      * 値が揃っていない（新規モデルでIDが未採番など）場合はnullを返す。
      *
-     * @param mixed $model
-     * @return string|null
+     * @param  mixed  $model
      */
     protected function buildUniqueKey($model): ?string
     {
-        $values = array_map(fn($key) => $model->getAttribute($key), $this->getUniqueKeys());
+        $values = array_map(fn ($key) => $model->getAttribute($key), $this->getUniqueKeys());
 
         foreach ($values as $value) {
             if ($value === null || $value === '') {
@@ -147,8 +142,6 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
      *
      * 新規モデルは採番前なので仮キー（_new_N）でキャッシュしている。
      * フラッシュでIDが入るため、そのままだと selectById() で引けない。
-     *
-     * @return void
      */
     private function rekeyInsertedModels(): void
     {
@@ -174,10 +167,9 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
     /**
      * INSERT/UPDATE後のフック
      * サブクラスでオーバーライドして、ログ記録処理を実装
-     * 
-     * @param mixed $model 保存されたモデル（最終状態）
-     * @param array<string, mixed> $originalState 変更前の状態（初回setModel時の状態）
-     * @return void
+     *
+     * @param  mixed  $model  保存されたモデル（最終状態）
+     * @param  array<string, mixed>  $originalState  変更前の状態（初回setModel時の状態）
      */
     public function afterSave($model, array $originalState): void
     {
@@ -197,8 +189,6 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
 
     /**
      * モデルインスタンスを取得
-     *
-     * @return Model
      */
     protected function getModelInstance(): Model
     {
@@ -254,6 +244,15 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
 
         /** @var CustomCollection<int|string, T> $cached */
         $cached = new CustomCollection($keyed);
+
+        // 既に setModel で積んだ行はDBの値で上書きしない。
+        // 上書きすると、フラッシュ前の変更が読み戻しで消える
+        if ($this->models !== null) {
+            foreach ($this->models as $key => $model) {
+                $cached->put($key, $model);
+            }
+        }
+
         $this->models = $cached;
         $this->cachedForSysPlayerId = $sysPlayerId;
 
@@ -265,7 +264,7 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
      *
      * $selfScopeKeys が複数ある場合はORで繋ぐ。
      *
-     * @param  Builder<covariant Model>  $query
+     * @param  Builder<T>  $query
      */
     protected function applySelfScope(Builder $query, int $sysPlayerId): void
     {
@@ -286,11 +285,24 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
      *
      * ここで得たモデルを setModel() に渡してはいけない。
      *
-     * @return Builder<covariant Model>
+     * @return Builder<T>
      */
     protected function selectWithoutCache(): Builder
     {
-        return $this->modelClass::on($this->connection);
+        /** @var Builder<T> $query */
+        $query = $this->modelClass::on($this->connection);
+
+        return $query;
+    }
+
+    /**
+     * 今このリクエストで自分スコープの読み取りが使えるか
+     *
+     * 認証前や、プレイヤーに紐づかないテーブルではfalseになる。
+     */
+    protected function hasSelfScope(): bool
+    {
+        return $this->selfScopeKeys !== [] && static::hasSysPlayerId();
     }
 
     /**
@@ -339,52 +351,45 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
 
     /**
      * IDでモデルを取得
-     * メモリキャッシュから取得、なければDBから取得
      *
-     * @param int $sysRecordId
+     * 自分に関係する行はキャッシュ経由で返す。
+     * それ以外は読むだけで、返ったモデルを setModel() に渡してはいけない。
+     *
      * @return T|null
      */
     public function selectById(int $sysRecordId)
     {
-        // メモリキャッシュから取得を試みる
-        $model = $this->findCachedModel($sysRecordId);
-        
-        if ($model !== null) {
-            return $model;
+        // 自分に関係する行ならキャッシュから返す
+        if ($this->hasSelfScope()) {
+            $model = $this->queryOrMemory()->get((string) $sysRecordId);
+
+            if ($model !== null) {
+                return $model;
+            }
         }
-        
-        // DBから取得してメモリキャッシュに保存
-        $model = $this->modelClass::find($sysRecordId);
-        
-        if ($model !== null) {
-            $this->setModel($model);
-        }
-        
-        return $model;
+
+        // 自分スコープ外の行はキャッシュにも更新キューにも載せない
+        return $this->selectWithoutCache()->find($sysRecordId);
     }
 
     /**
      * Redis キャッシュキーを生成
-     *
-     * @param string $key
-     * @return string
      */
     protected function buildCacheKey(string $key): string
     {
         $modelInstance = $this->getModelInstance();
         $tableName = $modelInstance->getTable();
+
         return "{$this->cachePrefix}:{$tableName}:{$key}";
     }
 
     /**
      * Redis キャッシュをクリア
-     *
-     * @param string $key
-     * @return bool
      */
     protected function clearCache(string $key): bool
     {
         $cacheKey = $this->buildCacheKey($key);
+
         return Cache::store($this->cacheDriver)->forget($cacheKey);
     }
 }

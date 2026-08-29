@@ -161,6 +161,20 @@ docker exec tool-php php artisan migrate --database=tool --path=database/migrati
 - `migrate:shards-status` - すべてのシャードのマイグレーション状態を確認
 - `migrate:shards-rollback` - すべてのシャードでロールバック
 
+**シャード割り当て:**
+
+プレイヤーがどのシャードを使うかは `sys_sharding_node_player` の割り当てで決まり、
+サインアップ時に作られます。割り当てが無いプレイヤーは接続先を解決できずログインに失敗します。
+
+```bash
+# 割り当ての無いプレイヤーへ割り当てを作る（まずは --dry-run で確認）
+docker exec api-php php artisan sharding:assign-players --dry-run
+docker exec api-php php artisan sharding:assign-players
+```
+
+既にデータがあるプレイヤーは、そのデータが入っているシャードへ寄せます
+（ハッシュで振り直すと今あるデータへ届かなくなるため）。
+
 詳細は [シャーディングマイグレーションシステム](./docs/sharding_migration_system.md) を参照してください。
 
 ### Laravel Sailラッパー

@@ -10,7 +10,7 @@ use NexusPitr\Logger\ShardMapper;
  * TrxMigrateCommand
  * 
  * すべてのTrxDBシャードに対してマイグレーションを実行
- * 動的シャーディング対応（DB_TRX_SHARDSに応じてtrx1, trx2, ...に実行）
+ * 動的シャーディング対応（DB_SHARD_COUNTに応じてtrx1, trx2, ...に実行）
  */
 class TrxMigrateCommand extends Command
 {

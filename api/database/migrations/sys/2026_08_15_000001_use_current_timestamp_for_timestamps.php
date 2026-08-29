@@ -23,7 +23,7 @@ return new class extends Migration
     {
         $connections = ['sys', 'mst'];
 
-        $shardCount = (int) env('DB_TRX_SHARDS', 2);
+        $shardCount = (int) env('DB_SHARD_COUNT', 2);
         for ($i = 1; $i <= $shardCount; $i++) {
             $connections[] = "trx{$i}";
             $connections[] = "log{$i}";

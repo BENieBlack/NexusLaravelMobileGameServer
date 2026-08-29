@@ -10,7 +10,7 @@ use NexusPitr\Logger\ShardMapper;
  * TrxRollbackCommand
  * 
  * すべてのTrxDBシャードに対してマイグレーションをロールバック
- * 動的シャーディング対応（DB_TRX_SHARDSに応じてtrx1, trx2, ...に実行）
+ * 動的シャーディング対応（DB_SHARD_COUNTに応じてtrx1, trx2, ...に実行）
  */
 class TrxRollbackCommand extends Command
 {

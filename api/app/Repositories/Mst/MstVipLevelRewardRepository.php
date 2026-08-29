@@ -17,6 +17,9 @@ class MstVipLevelRewardRepository extends _BaseMstRepository implements VipLevel
 {
     protected string $modelClass = MstVipLevelReward::class;
 
+    /** @var list<string> id列を持たない複合主キーのマスター */
+    protected array $uniqueKeys = ['vip_level', 'content_type', 'content_mst_id'];
+
     /**
      * VIPレベルに対応する報酬一覧を取得
      * sort_order昇順でソート

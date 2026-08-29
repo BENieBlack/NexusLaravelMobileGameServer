@@ -44,21 +44,45 @@ class ShardAssignmentService
         }
 
         $node = $this->chooseNode($sysPlayerId);
-        $now = ClockUtility::nowToString();
 
-        DB::connection('sys')->table('sys_sharding_node_player')->insert([
-            'sys_sharding_node_id' => $node->id,
-            'sys_player_id' => $sysPlayerId,
-            'assigned_at' => $now,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
-
-        DB::connection('sys')->table('sys_sharding_node')
-            ->where('id', $node->id)
-            ->increment('current_player_count');
+        $this->insertAssignment($sysPlayerId, (int) $node->id);
 
         return (int) $node->node_no;
+    }
+
+    /**
+     * ノードを指定して割り当てる
+     *
+     * 既存プレイヤーの移行など、選び方を呼び出し側が決める場合に使う。
+     * 既に割り当て済みなら何もしない（割り当ては動かさない）。
+     *
+     * @param  int  $nodeNo  ノード番号（1始まり）
+     * @return bool 今回割り当てたならtrue
+     *
+     * @throws \RuntimeException 指定したノードが無い、または書き込み不可の場合
+     */
+    public function assignToNode(int $sysPlayerId, int $nodeNo): bool
+    {
+        if ($this->findAssignedNodeNo($sysPlayerId) !== null) {
+            return false;
+        }
+
+        $node = DB::connection('sys')->table('sys_sharding_node as n')
+            ->join('sys_sharding as s', 's.id', '=', 'n.sys_sharding_id')
+            ->where('s.name', self::SHARDING_NAME)
+            ->where('n.node_no', $nodeNo)
+            ->where('n.status', 'active')
+            ->where('n.is_writable', true)
+            ->select('n.id')
+            ->first();
+
+        if ($node === null) {
+            throw new \RuntimeException("Writable sharding node not found: node_no={$nodeNo}");
+        }
+
+        $this->insertAssignment($sysPlayerId, (int) $node->id);
+
+        return true;
     }
 
     /**
@@ -72,6 +96,26 @@ class ShardAssignmentService
             ->value('n.node_no');
 
         return $row === null ? null : (int) $row;
+    }
+
+    /**
+     * 割り当てを1件作り、ノードの人数を増やす
+     */
+    private function insertAssignment(int $sysPlayerId, int $shardingNodeId): void
+    {
+        $now = ClockUtility::nowToString();
+
+        DB::connection('sys')->table('sys_sharding_node_player')->insert([
+            'sys_sharding_node_id' => $shardingNodeId,
+            'sys_player_id' => $sysPlayerId,
+            'assigned_at' => $now,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+
+        DB::connection('sys')->table('sys_sharding_node')
+            ->where('id', $shardingNodeId)
+            ->increment('current_player_count');
     }
 
     /**

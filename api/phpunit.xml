@@ -27,6 +27,7 @@
     <source>
         <include>
             <directory>app</directory>
+            <directory>../packages/nexus-album/src</directory>
             <directory>../packages/nexus-core/src</directory>
             <directory>../packages/nexus-core-auth/src</directory>
             <directory>../packages/nexus-core-billing/src</directory>
@@ -43,6 +44,7 @@
             <directory>../packages/nexus-resource/src</directory>
             <directory>../packages/nexus-resource-delivery/src</directory>
             <directory>../packages/nexus-stamina/src</directory>
+            <directory>../packages/nexus-tidb/src</directory>
             <directory>../packages/nexus-version/src</directory>
             <directory>../packages/nexus-vip/src</directory>
             <directory>../packages/nexus-wallet/src</directory>

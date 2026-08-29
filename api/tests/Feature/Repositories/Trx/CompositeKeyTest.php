@@ -3,6 +3,7 @@
 namespace Tests\Feature\Repositories\Trx;
 
 use App\Persistence\ApiSession;
+use App\Repositories\Trx\TrxGachaRepository;
 use App\Repositories\Trx\TrxItemRepository;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\Attributes\Test;
@@ -31,19 +32,33 @@ class CompositeKeyTest extends TestCase
     }
 
     #[Test]
-    public function 複合キーが正しく設定されている(): void
+    public function 複合キーはmodelの主キーから決まる(): void
     {
+        // trx_item の主キーは (sys_player_id, mst_item_id)。
+        // Repositoryにもモデルにも書かず、$primaryKey から解決される
         $this->insertTestData();
 
         ApiSession::setSysPlayerId($this->sysPlayerId);
         $repo = new TrxItemRepository;
 
-        $reflection = new \ReflectionClass($repo);
-        $uniqueKeysProperty = $reflection->getProperty('uniqueKeys');
-        $uniqueKeysProperty->setAccessible(true);
-        $uniqueKeys = $uniqueKeysProperty->getValue($repo);
+        $method = new \ReflectionMethod($repo, 'getUniqueKeys');
+        $method->setAccessible(true);
 
-        $this->assertSame(['sys_player_id', 'mst_item_id'], $uniqueKeys);
+        $this->assertSame(['sys_player_id', 'mst_item_id'], $method->invoke($repo));
+    }
+
+    #[Test]
+    public function 主キーと論理的な一意が違うテーブルはモデルで明示する(): void
+    {
+        // trx_gacha の主キーは採番id。二重INSERTを防ぐには
+        // uk_player_gacha の (sys_player_id, mst_gacha_id) でキーを組む必要がある
+        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $repo = new TrxGachaRepository;
+
+        $method = new \ReflectionMethod($repo, 'getUniqueKeys');
+        $method->setAccessible(true);
+
+        $this->assertSame(['sys_player_id', 'mst_gacha_id'], $method->invoke($repo));
     }
 
     #[Test]

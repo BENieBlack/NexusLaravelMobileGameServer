@@ -22,9 +22,6 @@ class MstEquipmentLevelRepository extends _BaseMstRepository
 {
     protected string $modelClass = MstEquipmentLevel::class;
 
-    /** @var list<string> id列を持たないマスター */
-    protected array $uniqueKeys = ['rarity', 'level'];
-
     /**
      * レアリティとレベルで検索
      *

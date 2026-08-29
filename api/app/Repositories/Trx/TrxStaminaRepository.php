@@ -24,18 +24,6 @@ class TrxStaminaRepository extends _BaseTrxRepository
 {
     protected string $modelClass = TrxStamina::class;
 
-    /**
-     * ユニークキー（trx_stamina の主キー）
-     *
-     * 既定の ['id'] のままだとtrx_staminaにはidが無いため、
-     * キャッシュのキーが全行で同じになり1件しか保持できない
-     *
-     * @var list<string>
-     */
-    protected array $uniqueKeys = ['sys_player_id', 'type'];
-
-    protected string $selectKey = 'sys_player_id';
-
     public function __construct(
         private readonly ApiSession $apiSession
     ) {}

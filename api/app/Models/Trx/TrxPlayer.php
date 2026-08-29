@@ -33,13 +33,12 @@ class TrxPlayer extends _BaseTrx
     /**
      * SELECTキー（この場合はPKと同じ）
      */
-    protected string $selectKey = 'sys_player_id';
+    /** @var list<string> */
+    protected array $selectKeys = ['sys_player_id'];
 
     /**
      * ユニークキー（プレイヤーはsys_player_idで一意）
      */
-    /** @var list<string> */
-    protected array $uniqueKeys = ['sys_player_id'];
 
     /** @var list<string> */
     protected $fillable = [

@@ -56,9 +56,24 @@ abstract class _BaseMstRepository extends _BaseRepository implements _BaseMstRep
             $cacheKey,
             $this->cacheTtl,
             function () {
-                // 全レコードを取得し、IDをキーにしたコレクションを返す
-                $all = $this->modelClass::all();
-                return $all->keyBy('id')->all(); // 配列として保存
+                // ユニークキーの連結をキーにする。
+                // 'id' 決め打ちにすると、複合主キーで id 列を持たない
+                // マスター（mst_vip_level_reward など）が
+                // 全行同じキーに潰れて1件しか読めなくなる
+                $uniqueKeys = $this->getUniqueKeys();
+                $keyed = [];
+
+                foreach ($this->modelClass::all() as $record) {
+                    $key = [];
+
+                    foreach ($uniqueKeys as $uniqueKey) {
+                        $key[] = $record->{$uniqueKey};
+                    }
+
+                    $keyed[implode(':', $key)] = $record;
+                }
+
+                return $keyed; // 配列として保存
             }
         );
 

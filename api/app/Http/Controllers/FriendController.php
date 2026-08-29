@@ -8,8 +8,6 @@ use App\Domain\Friend\UseCases\ApplyRejectUseCase;
 use App\Domain\Friend\UseCases\ApplySendUseCase;
 use App\Domain\Friend\UseCases\DeleteUseCase;
 use App\Domain\Friend\UseCases\ListUseCase;
-use App\Exceptions\GameErrorCode;
-use App\Exceptions\GameException;
 use App\Http\Requests\Friend\ApplyAcceptRequest;
 use App\Http\Requests\Friend\ApplyListRequest;
 use App\Http\Requests\Friend\ApplyRejectRequest;
@@ -28,14 +26,7 @@ class FriendController extends _BaseController
     public function applySend(ApplySendRequest $request, ApplySendUseCase $useCase): JsonResponse
     {
         // 認証情報を取得
-        $sysPlayerId = $request->resolveAuthenticatedPlayerId();
-
-        if (! $sysPlayerId) {
-            throw new GameException(
-                GameErrorCode::AUTHENTICATION_FAILED,
-                'Player ID not found in request'
-            );
-        }
+        $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
         // リクエストパラメータを取得
         $targetMyId = $request->getMyId();
@@ -51,14 +42,7 @@ class FriendController extends _BaseController
     public function applyAccept(ApplyAcceptRequest $request, ApplyAcceptUseCase $useCase): JsonResponse
     {
         // 認証情報を取得
-        $sysPlayerId = $request->resolveAuthenticatedPlayerId();
-
-        if (! $sysPlayerId) {
-            throw new GameException(
-                GameErrorCode::AUTHENTICATION_FAILED,
-                'Player ID not found in request'
-            );
-        }
+        $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
         // リクエストパラメータを取得
         $sysFriendApplyId = $request->getSysFriendApplyId();
@@ -74,14 +58,7 @@ class FriendController extends _BaseController
     public function applyReject(ApplyRejectRequest $request, ApplyRejectUseCase $useCase): JsonResponse
     {
         // 認証情報を取得
-        $sysPlayerId = $request->resolveAuthenticatedPlayerId();
-
-        if (! $sysPlayerId) {
-            throw new GameException(
-                GameErrorCode::AUTHENTICATION_FAILED,
-                'Player ID not found in request'
-            );
-        }
+        $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
         // リクエストパラメータを取得
         $sysFriendApplyId = $request->getSysFriendApplyId();
@@ -97,14 +74,7 @@ class FriendController extends _BaseController
     public function applyList(ApplyListRequest $request, ApplyListUseCase $useCase): JsonResponse
     {
         // 認証情報を取得
-        $sysPlayerId = $request->resolveAuthenticatedPlayerId();
-
-        if (! $sysPlayerId) {
-            throw new GameException(
-                GameErrorCode::AUTHENTICATION_FAILED,
-                'Player ID not found in request'
-            );
-        }
+        $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
         return $this->execute(fn () => $useCase->exec($sysPlayerId));
     }
@@ -117,14 +87,7 @@ class FriendController extends _BaseController
     public function list(ListRequest $request, ListUseCase $useCase): JsonResponse
     {
         // 認証情報を取得
-        $sysPlayerId = $request->resolveAuthenticatedPlayerId();
-
-        if (! $sysPlayerId) {
-            throw new GameException(
-                GameErrorCode::AUTHENTICATION_FAILED,
-                'Player ID not found in request'
-            );
-        }
+        $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
         return $this->execute(fn () => $useCase->exec($sysPlayerId));
     }
@@ -137,14 +100,7 @@ class FriendController extends _BaseController
     public function delete(DeleteRequest $request, DeleteUseCase $useCase): JsonResponse
     {
         // 認証情報を取得
-        $sysPlayerId = $request->resolveAuthenticatedPlayerId();
-
-        if (! $sysPlayerId) {
-            throw new GameException(
-                GameErrorCode::AUTHENTICATION_FAILED,
-                'Player ID not found in request'
-            );
-        }
+        $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
         // リクエストパラメータを取得
         $targetMyId = $request->getMyId();

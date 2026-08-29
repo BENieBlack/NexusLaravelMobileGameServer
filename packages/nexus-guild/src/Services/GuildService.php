@@ -4,8 +4,8 @@ namespace NexusGuild\Services;
 
 use NexusGuild\Constants\GuildApplyStatus;
 use NexusGuild\Constants\GuildRole;
-use NexusGuild\DataTransferObjects\GuildApply;
 use NexusGuild\DataTransferObjects\Guild;
+use NexusGuild\DataTransferObjects\GuildApply;
 use NexusGuild\DataTransferObjects\GuildMember;
 use NexusGuild\Exceptions\GuildException;
 use NexusGuild\Repositories\GuildApplyRepositoryInterface;
@@ -322,12 +322,16 @@ class GuildService
     }
 
     /**
-     * 全ギルド一覧を取得
+     * ギルド一覧を取得
      *
+     * 並び順はRepositoryの実装（タイトル側）が決める。
+     *
+     * @param  int  $limit  取得件数
+     * @param  int  $offset  読み飛ばす件数
      * @return array<Guild>
      */
-    public function getAllGuilds(): array
+    public function findGuildList(int $limit, int $offset): array
     {
-        return $this->guildRepository->selectAll();
+        return $this->guildRepository->selectList($limit, $offset);
     }
 }

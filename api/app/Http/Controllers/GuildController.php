@@ -11,8 +11,6 @@ use App\Domain\Guild\UseCases\DetailUseCase;
 use App\Domain\Guild\UseCases\LeaveUseCase;
 use App\Domain\Guild\UseCases\ListUseCase;
 use App\Domain\Guild\UseCases\MemberListUseCase;
-use App\Exceptions\GameErrorCode;
-use App\Exceptions\GameException;
 use App\Http\Requests\Guild\ApplyAcceptRequest;
 use App\Http\Requests\Guild\ApplyRejectRequest;
 use App\Http\Requests\Guild\ApplySendRequest;
@@ -26,9 +24,12 @@ class GuildController extends _BaseController
     /**
      * ギルド一覧取得API
      */
-    public function list(ListUseCase $useCase): JsonResponse
+    public function list(Request $request, ListUseCase $useCase): JsonResponse
     {
-        return $this->execute(fn () => $useCase->exec());
+        $limit = (int) $request->input('limit', 50);
+        $offset = (int) $request->input('offset', 0);
+
+        return $this->execute(fn () => $useCase->exec($limit, $offset));
     }
 
     /**
@@ -47,14 +48,7 @@ class GuildController extends _BaseController
     public function create(CreateRequest $request, CreateUseCase $useCase): JsonResponse
     {
         // 認証情報を取得
-        $sysPlayerId = $request->resolveAuthenticatedPlayerId();
-
-        if (! $sysPlayerId) {
-            throw new GameException(
-                GameErrorCode::AUTHENTICATION_FAILED,
-                'Player ID not found in request'
-            );
-        }
+        $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
         // リクエストパラメータを取得
         $name = $request->getName();
@@ -69,14 +63,7 @@ class GuildController extends _BaseController
     public function applySend(ApplySendRequest $request, ApplySendUseCase $useCase): JsonResponse
     {
         // 認証情報を取得
-        $sysPlayerId = $request->resolveAuthenticatedPlayerId();
-
-        if (! $sysPlayerId) {
-            throw new GameException(
-                GameErrorCode::AUTHENTICATION_FAILED,
-                'Player ID not found in request'
-            );
-        }
+        $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
         // リクエストパラメータを取得
         $guildId = $request->getGuildId();
@@ -90,14 +77,7 @@ class GuildController extends _BaseController
     public function applyAccept(ApplyAcceptRequest $request, ApplyAcceptUseCase $useCase): JsonResponse
     {
         // 認証情報を取得
-        $sysPlayerId = $request->resolveAuthenticatedPlayerId();
-
-        if (! $sysPlayerId) {
-            throw new GameException(
-                GameErrorCode::AUTHENTICATION_FAILED,
-                'Player ID not found in request'
-            );
-        }
+        $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
         // リクエストパラメータを取得
         $applyId = $request->getApplyId();
@@ -111,14 +91,7 @@ class GuildController extends _BaseController
     public function applyReject(ApplyRejectRequest $request, ApplyRejectUseCase $useCase): JsonResponse
     {
         // 認証情報を取得
-        $sysPlayerId = $request->resolveAuthenticatedPlayerId();
-
-        if (! $sysPlayerId) {
-            throw new GameException(
-                GameErrorCode::AUTHENTICATION_FAILED,
-                'Player ID not found in request'
-            );
-        }
+        $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
         // リクエストパラメータを取得
         $applyId = $request->getApplyId();
@@ -152,14 +125,7 @@ class GuildController extends _BaseController
     public function leave(LeaveRequest $request, LeaveUseCase $useCase): JsonResponse
     {
         // 認証情報を取得
-        $sysPlayerId = $request->resolveAuthenticatedPlayerId();
-
-        if (! $sysPlayerId) {
-            throw new GameException(
-                GameErrorCode::AUTHENTICATION_FAILED,
-                'Player ID not found in request'
-            );
-        }
+        $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
         return $this->execute(fn () => $useCase->exec($sysPlayerId));
     }

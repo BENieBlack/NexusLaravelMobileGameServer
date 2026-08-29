@@ -18,13 +18,24 @@ class ListUseCase extends _BaseUseCase
     ) {}
 
     /**
-     * ギルド一覧取得処理を実行
+     * 1回に返すギルドの上限
+     *
+     * ギルドはゲーム内に無数にあるため、全件は決して返さない。
      */
-    public function exec(): GuildListResponse
+    private const MAX_LIMIT = 50;
+
+    /**
+     * ギルド一覧取得処理を実行
+     *
+     * @param  int  $limit  取得件数（MAX_LIMITで頭打ち）
+     * @param  int  $offset  読み飛ばす件数
+     */
+    public function exec(int $limit = self::MAX_LIMIT, int $offset = 0): GuildListResponse
     {
-        // 全ギルド一覧を取得（Package層のServiceメソッド経由）
-        // 将来的にはページネーションや検索条件を追加可能
-        $guildDtos = $this->guildService->getAllGuilds();
+        $guildDtos = $this->guildService->findGuildList(
+            max(1, min($limit, self::MAX_LIMIT)),
+            max(0, $offset),
+        );
 
         return GuildListResponse::fromDtoArray($guildDtos);
     }

@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Sys;
 
+use App\Persistence\ApiSession;
 use Nexus\Core\Repositories\Sys\_BaseSysRepository as PersistenceBaseSysRepository;
 use NexusUnitOfWork\Traits\UsesUnitOfWork;
 
@@ -20,4 +21,14 @@ use NexusUnitOfWork\Traits\UsesUnitOfWork;
 abstract class _BaseSysRepository extends PersistenceBaseSysRepository implements _BaseSysRepositoryInterface
 {
     use UsesUnitOfWork;
+
+    protected static function hasSysPlayerId(): bool
+    {
+        return ApiSession::hasSysPlayerId();
+    }
+
+    protected static function getSysPlayerId(): int
+    {
+        return ApiSession::getSysPlayerId();
+    }
 }

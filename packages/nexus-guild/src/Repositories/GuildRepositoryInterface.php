@@ -26,11 +26,17 @@ interface GuildRepositoryInterface
     public function selectByName(string $name): ?Guild;
 
     /**
-     * 全ギルド一覧を取得
+     * ギルド一覧を取得
      *
+     * 並び順と絞り込みはタイトルごとに違う（アクティブ順、募集中順、新着順など）ため
+     * 実装側で決める。パッケージが約束するのは件数を区切ることだけで、
+     * 全件を返す実装にしてはいけない。
+     *
+     * @param  int  $limit  取得件数
+     * @param  int  $offset  読み飛ばす件数
      * @return array<Guild>
      */
-    public function selectAll(): array;
+    public function selectList(int $limit, int $offset): array;
 
     /**
      * ギルドを作成

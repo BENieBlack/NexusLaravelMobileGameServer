@@ -24,9 +24,12 @@ class GuildController extends _BaseController
     /**
      * ギルド一覧取得API
      */
-    public function list(ListUseCase $useCase): JsonResponse
+    public function list(Request $request, ListUseCase $useCase): JsonResponse
     {
-        return $this->execute(fn () => $useCase->exec());
+        $limit = (int) $request->input('limit', 50);
+        $offset = (int) $request->input('offset', 0);
+
+        return $this->execute(fn () => $useCase->exec($limit, $offset));
     }
 
     /**

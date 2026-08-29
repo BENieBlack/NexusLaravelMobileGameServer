@@ -5,6 +5,7 @@ namespace NexusPitr\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use NexusPitr\Logger\ShardMapper;
+use NexusPitr\Support\ShardMigrationPaths;
 
 /**
  * PitrRollbackCommand
@@ -45,7 +46,7 @@ class PitrRollbackCommand extends Command
             
             $options = [
                 '--database' => $logConnection,
-                '--path' => 'database/migrations/log',
+                '--path' => ShardMigrationPaths::find('log'),
                 '--step' => $this->option('step'),
             ];
             

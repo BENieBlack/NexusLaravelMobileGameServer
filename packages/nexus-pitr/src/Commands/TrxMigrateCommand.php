@@ -5,6 +5,7 @@ namespace NexusPitr\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use NexusPitr\Logger\ShardMapper;
+use NexusPitr\Support\ShardMigrationPaths;
 
 /**
  * TrxMigrateCommand
@@ -20,6 +21,7 @@ class TrxMigrateCommand extends Command
      * @var string
      */
     protected $signature = 'trx:migrate 
+                            {--fresh : Drop all tables on each shard and re-run every migration}
                             {--force : Force the operation to run when in production}
                             {--seed : Indicates if the seed task should be re-run}
                             {--step : Force the migrations to be run so they can be rolled back individually}';
@@ -38,28 +40,15 @@ class TrxMigrateCommand extends Command
     {
         $trxConnections = ShardMapper::allTrxConnections();
         
-        // TrxDBマイグレーションパスを定義（base_path()からの相対パス）
-        $trxMigrationPaths = [
-            '../packages/nexus-core/database/migrations/trx',
-            '../packages/nexus-resource/database/migrations/trx',
-            '../packages/nexus-wallet/database/migrations/trx',
-            '../packages/nexus-stamina/database/migrations/trx',
-            '../packages/nexus-core-billing/database/migrations/trx',
-            '../packages/nexus-mailbox/database/migrations/trx',
-            '../packages/nexus-gacha/database/migrations/trx',
-            '../packages/nexus-login/database/migrations/trx',
-            '../packages/nexus-vip/database/migrations/trx',
-            '../packages/nexus-album/database/migrations/trx',
-            // TiDB用の変換は、対象テーブルが揃ったあとに流す
-            '../packages/nexus-tidb/database/migrations/trx',
-        ];
+        // パスはpackages/を走査して集める（パッケージを増やしても直さなくてよい）
+        $trxMigrationPaths = ShardMigrationPaths::find('trx');
         
         $shardCount = count($trxConnections);
         $shardList = implode(', ', $trxConnections);
         
         $this->info("Running TrxDB migrations on all {$shardCount} shards...");
         $this->info("Target shards: {$shardList}");
-        $this->info('This includes migrations from packages: nexus-core, nexus-resource, nexus-wallet, nexus-stamina, nexus-core-billing, nexus-mailbox, nexus-gacha, nexus-login, nexus-vip, nexus-album, nexus-tidb');
+        $this->info('Migration paths: '.implode(', ', $trxMigrationPaths));
         $this->newLine();
         
         foreach ($trxConnections as $trxConnection) {
@@ -83,7 +72,11 @@ class TrxMigrateCommand extends Command
             }
             
             // TrxDBマイグレーション実行（trxサブディレクトリのみ）
-            $exitCode = Artisan::call('migrate', $options, $this->getOutput());
+            // --fresh はシャードの全テーブルを落としてから流し直す。
+            // 既存マイグレーションを書き換えたときはこちらでないと反映されない
+            $migrateCommand = $this->option('fresh') ? 'migrate:fresh' : 'migrate';
+
+            $exitCode = Artisan::call($migrateCommand, $options, $this->getOutput());
             
             if ($exitCode !== 0) {
                 $this->error("❌ Migration failed for {$trxConnection}");

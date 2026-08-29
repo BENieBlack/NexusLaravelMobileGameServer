@@ -3,6 +3,8 @@
 namespace App\Repositories\Sys;
 
 use App\Models\Sys\SysGuild;
+use App\Models\Sys\SysGuildMember;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use NexusGuild\Constants\GuildRole;
 
@@ -26,33 +28,51 @@ class SysGuildRepository extends _BaseSysRepository
     // ========================================
 
     /**
-     * IDでギルドを検索（Model返却）
+     * 自分が所属するギルドだけを読む
      *
-     * @param  int  $guildId  ギルドID
+     * sys_guild にはプレイヤーを指す列が無いので、
+     * 所属メンバー行を経由して絞る。
+     *
+     * @param  Builder<SysGuild>  $query
      */
-    public function selectById(int $guildId): ?SysGuild
+    protected function applySelfScope(Builder $query, int $sysPlayerId): void
     {
-        return SysGuild::find($guildId);
+        $query->whereIn('id', SysGuildMember::query()
+            ->where('sys_player_id', $sysPlayerId)
+            ->select('sys_guild_id'));
     }
 
     /**
-     * ギルド名で検索（Model返却）
+     * ギルド名で検索（キャッシュを通さない）
+     *
+     * 名前の重複チェックに使う。他人のギルドも対象なので更新はできない。
      *
      * @param  string  $name  ギルド名
      */
     public function selectByName(string $name): ?SysGuild
     {
-        return SysGuild::where('name', $name)->first();
+        /** @var SysGuild|null */
+        return $this->selectWithoutCache()->where('name', $name)->first();
     }
 
     /**
-     * 全ギルド一覧を取得（Model返却）
+     * ギルド一覧を取得（キャッシュを通さない）
      *
+     * 全件は返さない。並び順はレベルの高い順で、同レベルならID順。
+     * タイトルごとに「アクティブ順」「募集中順」などへ差し替える想定。
+     *
+     * @param  int  $limit  取得件数
+     * @param  int  $offset  読み飛ばす件数
      * @return Collection<array-key, SysGuild>
      */
-    public function selectAll(): Collection
+    public function selectList(int $limit, int $offset): Collection
     {
-        return SysGuild::all();
+        return $this->selectWithoutCache()
+            ->orderByDesc('level')
+            ->orderBy('id')
+            ->offset($offset)
+            ->limit($limit)
+            ->get();
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Exceptions\InfraErrorCode;
 use App\Http\Responses\_BaseResponseInterface;
@@ -40,6 +41,27 @@ abstract class _BaseController
         } catch (Throwable $e) {
             return $this->handleException($e);
         }
+    }
+
+    /**
+     * 認証済みプレイヤーIDを取り出す（無ければ例外）
+     *
+     * 実際にはauth.tokenミドルウェアが先に401を返すため、ここは通らない。
+     * 認証グループの外にルートを置いてしまったときの保険と、
+     * ?int を int に絞るための処理を兼ねている。
+     *
+     * @throws GameException 認証情報が無い場合
+     */
+    protected function requireAuthenticatedPlayerId(?int $sysPlayerId): int
+    {
+        if (! $sysPlayerId) {
+            throw new GameException(
+                GameErrorCode::AUTHENTICATION_FAILED,
+                'Player ID not found in request'
+            );
+        }
+
+        return $sysPlayerId;
     }
 
     /**

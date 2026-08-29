@@ -5,7 +5,7 @@ namespace App\Models\Log;
 use App\Persistence\ApiSession;
 use Nexus\Core\Models\Log\_BaseLog as PersistenceBaseLog;
 use NexusPitr\Logger\ShardMapper;
-use NexusTidb\Concerns\UsesUuidPrimaryKey;
+use NexusTidb\Traits\UuidPrimaryKey;
 
 /**
  * _BaseLog
@@ -16,7 +16,7 @@ use NexusTidb\Concerns\UsesUuidPrimaryKey;
 abstract class _BaseLog extends PersistenceBaseLog implements _BaseLogInterface
 {
     // TiDB利用時のみ、単一主キーidをUUIDで払い出す
-    use UsesUuidPrimaryKey;
+    use UuidPrimaryKey;
 
     /**
      * ログイン中プレイヤーの割り当てシャードに対応するLogDB接続を返す

@@ -137,7 +137,7 @@ trait PreparesPurchaseFixtures
 
     private function cleanUp(): void
     {
-        foreach (['trx_diamond', 'trx_diamond_balance', 'trx_item', 'trx_in_app_purchase', 'trx_in_app_purchase_effect'] as $table) {
+        foreach (['trx_diamond', 'trx_diamond_balance', 'trx_item', 'trx_unit', 'trx_in_app_purchase', 'trx_in_app_purchase_effect'] as $table) {
             DB::connection('trx1')->table($table)->delete();
         }
         DB::connection('log1')->table('log_in_app_purchase')->delete();

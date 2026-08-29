@@ -2,6 +2,7 @@
 
 namespace NexusBilling\Tests\Unit\ApiClients;
 
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use NexusBilling\ApiClients\GooglePlayApiClient;
 use NexusBilling\Exceptions\PlatformApiException;
@@ -20,6 +21,9 @@ class GooglePlayApiClientTest extends TestCase
 
     private GooglePlayApiClient $client;
 
+    /** @var list<string> テスト中に作った一時ファイル */
+    private array $temporaryFiles = [];
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -36,6 +40,16 @@ class GooglePlayApiClientTest extends TestCase
         cache()->flush();
 
         $this->client = new GooglePlayApiClient;
+    }
+
+    protected function tearDown(): void
+    {
+        foreach ($this->temporaryFiles as $path) {
+            @unlink($path);
+        }
+        $this->temporaryFiles = [];
+
+        parent::tearDown();
     }
 
     #[Test]
@@ -90,7 +104,7 @@ class GooglePlayApiClientTest extends TestCase
     }
 
     #[Test]
-    public function APIがエラーを返すと例外になる(): void
+    public function apiがエラーを返すと例外になる(): void
     {
         Http::fake([
             'oauth2.googleapis.com/token' => Http::response(['access_token' => 'test-token']),
@@ -125,6 +139,116 @@ class GooglePlayApiClientTest extends TestCase
         $this->expectExceptionMessage('Failed to obtain Google Play access token');
 
         $this->client->verifyPurchase(self::PACKAGE_NAME, 'diamond_100', 'purchase-token');
+    }
+
+    #[Test]
+    public function サブスクリプションの購入情報を取得できる(): void
+    {
+        Http::fake([
+            'oauth2.googleapis.com/token' => Http::response(['access_token' => 'test-token']),
+            'androidpublisher.googleapis.com/*' => Http::response([
+                'expiryTimeMillis' => '1755648000000',
+                'autoRenewing' => true,
+            ]),
+        ]);
+
+        $result = $this->client->fetchSubscription(self::PACKAGE_NAME, 'monthly_pass', 'purchase-token');
+
+        $this->assertTrue($result['autoRenewing']);
+
+        Http::assertSent(fn ($request) => $request->url() === 'https://androidpublisher.googleapis.com/androidpublisher/v3'
+            .'/applications/com.example.nexus/purchases/subscriptions/monthly_pass/tokens/purchase-token');
+    }
+
+    #[Test]
+    public function 購入トークンはurlエスケープされる(): void
+    {
+        // 購入トークンには / や + が入る。素で繋ぐとパスが壊れる
+        Http::fake([
+            'oauth2.googleapis.com/token' => Http::response(['access_token' => 'test-token']),
+            'androidpublisher.googleapis.com/*' => Http::response(['purchaseState' => 0]),
+        ]);
+
+        $this->client->verifyPurchase(self::PACKAGE_NAME, 'diamond_100', 'abc/def+ghi');
+
+        Http::assertSent(fn ($request) => str_ends_with($request->url(), '/tokens/abc%2Fdef%2Bghi'));
+    }
+
+    #[Test]
+    public function 通信できなければ例外になる(): void
+    {
+        Http::fake([
+            'oauth2.googleapis.com/token' => Http::response(['access_token' => 'test-token']),
+            'androidpublisher.googleapis.com/*' => fn () => throw new ConnectionException('cURL error 28: Operation timed out'),
+        ]);
+
+        $this->expectException(PlatformApiException::class);
+        $this->expectExceptionMessage('Failed to communicate with Google Play');
+
+        $this->client->verifyPurchase(self::PACKAGE_NAME, 'diamond_100', 'purchase-token');
+    }
+
+    #[Test]
+    public function アクセストークンが返らなければ例外になる(): void
+    {
+        Http::fake([
+            'oauth2.googleapis.com/token' => Http::response(['token_type' => 'Bearer']),
+        ]);
+
+        $this->expectException(PlatformApiException::class);
+        $this->expectExceptionMessage('Google Play access token was not returned');
+
+        $this->client->verifyPurchase(self::PACKAGE_NAME, 'diamond_100', 'purchase-token');
+    }
+
+    #[Test]
+    public function サービスアカウントはjsonファイルからも読める(): void
+    {
+        $json = (string) config('services.google_play.service_account');
+        config(['services.google_play.service_account' => $this->writeTemporaryFile($json)]);
+
+        Http::fake([
+            'oauth2.googleapis.com/token' => Http::response(['access_token' => 'test-token']),
+            'androidpublisher.googleapis.com/*' => Http::response(['purchaseState' => 0]),
+        ]);
+
+        $result = $this->client->verifyPurchase(self::PACKAGE_NAME, 'diamond_100', 'purchase-token');
+
+        $this->assertSame(0, $result['purchaseState']);
+    }
+
+    #[Test]
+    public function サービスアカウントのファイルが読めなければ例外になる(): void
+    {
+        config(['services.google_play.service_account' => '/no/such/service-account.json']);
+
+        $this->expectException(PlatformApiException::class);
+        $this->expectExceptionMessage('service account file is not readable');
+
+        $this->client->verifyPurchase(self::PACKAGE_NAME, 'diamond_100', 'purchase-token');
+    }
+
+    #[Test]
+    public function サービスアカウントjsonに鍵が欠けていれば例外になる(): void
+    {
+        config(['services.google_play.service_account' => json_encode(['client_email' => 'nexus@example.com'])]);
+
+        $this->expectException(PlatformApiException::class);
+        $this->expectExceptionMessage('must contain client_email and private_key');
+
+        $this->client->verifyPurchase(self::PACKAGE_NAME, 'diamond_100', 'purchase-token');
+    }
+
+    /**
+     * 内容を一時ファイルに書き出してパスを返す（tearDownで消す）
+     */
+    private function writeTemporaryFile(string $contents): string
+    {
+        $path = tempnam(sys_get_temp_dir(), 'nexus-billing').'.json';
+        file_put_contents($path, $contents);
+        $this->temporaryFiles[] = $path;
+
+        return $path;
     }
 
     /**

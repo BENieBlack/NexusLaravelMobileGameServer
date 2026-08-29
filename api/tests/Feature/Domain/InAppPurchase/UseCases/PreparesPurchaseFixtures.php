@@ -49,6 +49,8 @@ trait PreparesPurchaseFixtures
         string $type,
         int $paidDiamondAmount = 0,
         ?int $effectDurationDays = null,
+        ?int $purchaseLimit = null,
+        string $purchaseLimitReset = 'None',
     ): MstInAppPurchase {
         $platformProductId = DB::connection('mst')->table('mst_billing_platform_product')->insertGetId([
             'deploy_key' => self::DEPLOY_KEY,
@@ -68,7 +70,8 @@ trait PreparesPurchaseFixtures
             'paid_diamond_amount' => $paidDiamondAmount,
             'vip_point' => self::VIP_POINT,
             'effect_duration_days' => $effectDurationDays,
-            'purchase_limit_reset' => 'None',
+            'purchase_limit' => $purchaseLimit,
+            'purchase_limit_reset' => $purchaseLimitReset,
             'google_play_product_id' => $platformProductId,
             'sort_desc' => 1,
             'is_active' => true,

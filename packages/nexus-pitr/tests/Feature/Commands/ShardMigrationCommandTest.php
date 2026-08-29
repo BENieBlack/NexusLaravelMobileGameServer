@@ -125,7 +125,11 @@ class ShardMigrationCommandTest extends TestCase
         );
 
         $this->assertSame(['log1', 'log2'], array_column(array_column($this->calls, 1), '--database'));
-        $this->assertSame('database/migrations/log', $this->calls[0][1]['--path']);
+
+        // パスはpackages/を走査して集めるので、logサブディレクトリだけが並ぶ
+        foreach ($this->calls[0][1]['--path'] as $path) {
+            $this->assertStringEndsWith('database/migrations/log', $path);
+        }
     }
 
     #[Test]

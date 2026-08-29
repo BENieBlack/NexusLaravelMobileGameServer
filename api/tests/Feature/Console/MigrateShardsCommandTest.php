@@ -47,8 +47,13 @@ class MigrateShardsCommandTest extends TestCase
         $this->assertSame('trx1', $this->calls[0][1]['--database']);
         $this->assertSame('trx2', $this->calls[1][1]['--database']);
 
-        // パス未指定ならtrxディレクトリを既定にする
-        $this->assertSame(['database/migrations/trx'], $this->calls[0][1]['--path']);
+        // パス未指定なら、packages/を走査して集めたtrxディレクトリを既定にする
+        $paths = $this->calls[0][1]['--path'];
+        $this->assertNotEmpty($paths);
+
+        foreach ($paths as $path) {
+            $this->assertStringEndsWith('database/migrations/trx', $path);
+        }
     }
 
     #[Test]

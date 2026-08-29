@@ -36,8 +36,7 @@ class TrxGachaRepository extends _BaseTrxRepository
     {
         /** @var TrxGacha|null */
         return $this->selectMapBySysPlayerId($sysPlayerId)
-            ->where('mst_gacha_id', $mstGachaId)
-            ->first();
+            ->firstWhere('mst_gacha_id', $mstGachaId);
     }
 
     /**

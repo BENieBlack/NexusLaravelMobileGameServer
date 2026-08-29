@@ -47,8 +47,7 @@ class TrxAlbumRepository extends _BaseTrxRepository
         /** @var TrxAlbum|null */
         return $this->queryOrMemory()
             ->where('content_type', $contentType)
-            ->where('content_mst_id', $contentMstId)
-            ->first();
+            ->firstWhere('content_mst_id', $contentMstId);
     }
 
     /**

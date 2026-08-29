@@ -4,11 +4,11 @@ namespace NexusVip\Tests\Unit\Services;
 
 use Mockery;
 use Nexus\Core\Support\CustomCollection;
-use NexusVip\ValueObjects\VipBenefit;
 use NexusVip\Exceptions\VipLevelNotFoundException;
 use NexusVip\Models\MstVipLevel;
 use NexusVip\Repositories\VipLevelRepositoryInterface;
 use NexusVip\Services\VipLevelService;
+use NexusVip\ValueObjects\VipBenefit;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

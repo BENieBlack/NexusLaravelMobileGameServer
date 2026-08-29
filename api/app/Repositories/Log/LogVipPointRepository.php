@@ -94,8 +94,7 @@ class LogVipPointRepository extends _BaseLogRepository implements VipPointLogRep
     public function selectByUniqueRequestId(string $uniqueRequestId): ?LogVipPoint
     {
         return $this->queryOrMemory()
-            ->where('unique_request_id', $uniqueRequestId)
-            ->first();
+            ->firstWhere('unique_request_id', $uniqueRequestId);
     }
 
     /**

@@ -32,9 +32,8 @@ class MstGachaStepRepository extends _BaseMstRepository implements GachaStepRepo
 
         return $this->models
             ->where('mst_gacha_id', $mstGachaId)
-            ->where('step_number', $stepNumber)
             ->where('is_active', true)
-            ->first();
+            ->firstWhere('step_number', $stepNumber);
     }
 
     /**

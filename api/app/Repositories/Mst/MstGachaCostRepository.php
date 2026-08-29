@@ -22,8 +22,7 @@ class MstGachaCostRepository extends _BaseMstRepository
 
         return $this->models
             ->where('mst_gacha_id', $mstGachaId)
-            ->where('draw_count', $drawCount)
             ->where('is_active', true)
-            ->first();
+            ->firstWhere('draw_count', $drawCount);
     }
 }

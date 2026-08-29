@@ -4,9 +4,11 @@ namespace App\Domain\Mailbox\UseCases;
 
 use App\Domain\_BaseUseCase;
 use App\Domain\Mailbox\Constants\Category;
+use App\Domain\Mailbox\Constants\ContentType;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Http\Responses\Mailbox\ReceiveAllResponse;
+use App\Models\Mst\MstMailboxContent;
 use App\Repositories\Trx\TrxMailboxRepository;
 use Nexus\Core\Support\CustomCollection;
 use NexusResource\DataTransferObjects\Resource;
@@ -98,12 +100,7 @@ class ReceiveAllUseCase extends _BaseUseCase
 
                 // Resource配列に変換して集約
                 foreach ($contentCollection as $content) {
-                    $resource = Resource::fromTypeString(
-                        strtolower($content->getContentType()),
-                        $content->getContentMstId(),
-                        $content->getAmount(),
-                    );
-                    $allResources[] = $resource;
+                    $allResources[] = $this->toResource($content);
                 }
 
                 $receivedMailboxIds[] = $trxMailbox->getId();
@@ -136,5 +133,30 @@ class ReceiveAllUseCase extends _BaseUseCase
                 deliverySummary: $deliverySummary
             );
         });
+    }
+
+    /**
+     * メールの添付物を配送用のリソースへ変換する
+     *
+     * 種別はパスカルケースで入っているため、小文字化ではなく
+     * ContentType 経由で写す（PaidDiamond → paid_diamond）。
+     * 配布量は content_quantity × amount。
+     */
+    private function toResource(MstMailboxContent $content): Resource
+    {
+        $contentType = ContentType::fromString($content->getContentType());
+
+        if ($contentType === null) {
+            throw new GameException(
+                GameErrorCode::MASTER_DATA_NOT_FOUND,
+                "Unknown mailbox content type: {$content->getContentType()}"
+            );
+        }
+
+        return new Resource(
+            type: $contentType->toResourceType(),
+            id: $content->getContentMstId(),
+            amount: $content->getTotalQuantity(),
+        );
     }
 }

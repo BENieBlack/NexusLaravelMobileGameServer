@@ -54,8 +54,6 @@ class ResourceDeliveryService
     /**
      * リソースを追加する（単一）
      * 実際の配送はdeliver()で実行する
-     *
-     * @param  Resource  $resource  リソース
      */
     public function addResource(Resource $resource): void
     {
@@ -67,7 +65,7 @@ class ResourceDeliveryService
      * リソースを追加する（複数）
      * 実際の配送はdeliver()で実行する
      *
-     * @param  CustomCollection<array-key, Resource>|array<array-key, Resource>  $resources  リソースのリスト
+     * @param  CustomCollection<array-key, \NexusResource\DataTransferObjects\Resource>|array<array-key, \NexusResource\DataTransferObjects\Resource>  $resources  リソースのリスト
      */
     public function addResources(CustomCollection|array $resources): void
     {

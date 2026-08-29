@@ -13,6 +13,9 @@ use NexusTidb\Support\UuidColumnConverter;
  * TiDBは AUTO_INCREMENT の単調増加を保証せず、連番キーは書き込みが
  * 特定リージョンへ集中する原因にもなるため、idをUUIDで払い出す。
  * 値の生成は NexusTidb\Concerns\UsesUuidPrimaryKey が行う。
+ *
+ * 対象は列名の規約（参照先のテーブル名 + _id）から割り出すので、
+ * テーブルが増えても一覧を直す必要はない。
  */
 return new class extends Migration
 {
@@ -29,6 +32,16 @@ return new class extends Migration
         foreach (UuidColumnConverter::findAutoIncrementIdTables($connection) as $table) {
             UuidColumnConverter::toUuid($connection, $table);
         }
+
+        // trx同士でidを指し合う列があれば合わせて変換する
+        foreach ($this->findTrxIdReferences($connection) as $reference) {
+            UuidColumnConverter::referenceToUuid(
+                $connection,
+                $reference['table'],
+                $reference['column'],
+                $reference['isNullable'],
+            );
+        }
     }
 
     public function down(): void
@@ -41,9 +54,31 @@ return new class extends Migration
         // 実行時の既定接続を使う（固定するとシャードを取り違える）
         $connection = $this->getConnection() ?? DB::getDefaultConnection();
 
+        foreach ($this->findTrxIdReferences($connection) as $reference) {
+            UuidColumnConverter::referenceToBigInt(
+                $connection,
+                $reference['table'],
+                $reference['column'],
+                $reference['isNullable'],
+            );
+        }
+
         foreach ($this->convertedTables($connection) as $table) {
             UuidColumnConverter::toAutoIncrement($connection, $table);
         }
+    }
+
+    /**
+     * 同じTrxDB内でidを指している列を割り出す
+     *
+     * @return list<array{table: string, column: string, isNullable: bool}>
+     */
+    private function findTrxIdReferences(string $connection): array
+    {
+        return UuidColumnConverter::findReferenceColumns(
+            $connection,
+            UuidColumnConverter::findSingleIdPrimaryKeyTables($connection),
+        );
     }
 
     /**

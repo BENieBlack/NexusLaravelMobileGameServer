@@ -4,6 +4,7 @@ namespace App\Http\Responses\Friend;
 
 use App\Http\Responses\_BaseResponse;
 use App\Models\Sys\SysFriendApply;
+use NexusFriend\DataTransferObjects\FriendApply;
 
 /**
  * ApplySendResponse
@@ -31,6 +32,20 @@ class ApplySendResponse extends _BaseResponse
             receiverSysPlayerId: $sysFriendApply->receiver_sys_player_id,
             status: $sysFriendApply->status,
             createdAt: $sysFriendApply->getCreatedAt(),
+        );
+    }
+
+    /**
+     * FriendApply DTOからレスポンスを生成
+     */
+    public static function fromDto(FriendApply $friendApply): self
+    {
+        return new self(
+            sysFriendApplyId: $friendApply->getId(),
+            senderSysPlayerId: $friendApply->getSenderPlayerId(),
+            receiverSysPlayerId: $friendApply->getReceiverPlayerId(),
+            status: $friendApply->getStatus(),
+            createdAt: (string) $friendApply->getCreatedAt(),
         );
     }
 

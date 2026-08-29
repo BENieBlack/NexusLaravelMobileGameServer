@@ -29,14 +29,7 @@ class InAppPurchaseController extends _BaseController
         BuyPassUseCase $buyPassUseCase
     ): JsonResponse {
         // 認証情報を取得
-        $sysPlayerId = $request->resolveAuthenticatedPlayerId();
-
-        if (! $sysPlayerId) {
-            throw new GameException(
-                GameErrorCode::AUTHENTICATION_FAILED,
-                'Player ID not found in request'
-            );
-        }
+        $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
         // リクエストパラメータを取得
         $platform = $request->getPlatform();

@@ -21,16 +21,6 @@ class SysGuildMemberRepository extends _BaseSysRepository
     // ========================================
 
     /**
-     * IDでメンバーを検索（Model返却）
-     *
-     * @param  int  $memberId  メンバーID
-     */
-    public function selectById(int $memberId): ?SysGuildMember
-    {
-        return SysGuildMember::find($memberId);
-    }
-
-    /**
      * ギルドIDとプレイヤーIDでメンバーを検索（Model返却）
      *
      * @param  int  $guildId  ギルドID

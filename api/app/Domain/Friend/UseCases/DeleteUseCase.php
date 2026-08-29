@@ -3,11 +3,12 @@
 namespace App\Domain\Friend\UseCases;
 
 use App\Domain\_BaseUseCase;
+use App\Domain\Friend\Support\FriendExceptionTranslator;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Http\Responses\Friend\DeleteResponse;
-use App\Repositories\Sys\SysFriendApplyRepository;
 use App\Repositories\Sys\SysPlayerRepository;
+use NexusFriend\Services\FriendService;
 
 /**
  * DeleteUseCase
@@ -17,7 +18,7 @@ use App\Repositories\Sys\SysPlayerRepository;
 class DeleteUseCase extends _BaseUseCase
 {
     public function __construct(
-        private readonly SysFriendApplyRepository $sysFriendApplyRepository,
+        private readonly FriendService $friendService,
         private readonly SysPlayerRepository $sysPlayerRepository,
     ) {}
 
@@ -45,28 +46,12 @@ class DeleteUseCase extends _BaseUseCase
 
             $targetPlayerId = $targetPlayer->getId();
 
-            // 2. 自分自身の削除をチェック
-            if ($sysPlayerId === $targetPlayerId) {
-                throw new GameException(
-                    GameErrorCode::CANNOT_DELETE_SELF,
-                    'Cannot delete yourself'
-                );
-            }
-
-            // 3. フレンド関係を削除
-            $deletedRelation = $this->sysFriendApplyRepository->deleteFriendRelationModel(
-                $sysPlayerId,
-                $targetPlayerId
+            // 2. フレンド関係を削除（自分自身のチェックはFriendServiceが持つ）
+            FriendExceptionTranslator::translateForDelete(
+                fn () => $this->friendService->deleteFriend($sysPlayerId, $targetPlayerId)
             );
 
-            if ($deletedRelation === null) {
-                throw new GameException(
-                    GameErrorCode::FRIEND_NOT_FOUND,
-                    'Friend relation not found'
-                );
-            }
-
-            // 4. レスポンスを返す
+            // 3. レスポンスを返す
             return DeleteResponse::success($targetPlayer->getMyId());
         });
     }

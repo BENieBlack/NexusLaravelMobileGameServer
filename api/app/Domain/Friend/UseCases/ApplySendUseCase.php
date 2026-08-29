@@ -3,10 +3,10 @@
 namespace App\Domain\Friend\UseCases;
 
 use App\Domain\_BaseUseCase;
+use App\Domain\Friend\Support\FriendExceptionTranslator;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Http\Responses\Friend\ApplySendResponse;
-use App\Repositories\Sys\SysFriendApplyRepository;
 use App\Repositories\Sys\SysPlayerRepository;
 use NexusFriend\Services\FriendService;
 
@@ -18,7 +18,6 @@ use NexusFriend\Services\FriendService;
 class ApplySendUseCase extends _BaseUseCase
 {
     public function __construct(
-        private readonly SysFriendApplyRepository $sysFriendApplyRepository,
         private readonly SysPlayerRepository $sysPlayerRepository,
         private readonly FriendService $friendService,
     ) {}
@@ -47,29 +46,13 @@ class ApplySendUseCase extends _BaseUseCase
 
             $receivePlayerId = $targetPlayer->getId();
 
-            // 2. バリデーション（FriendServiceを使用）
-            try {
-                $this->friendService->validateNotSelfApply($sysPlayerId, $receivePlayerId);
-                $this->friendService->validateNoDuplicateApply($sysPlayerId, $receivePlayerId);
-            } catch (\RuntimeException $e) {
-                // パッケージの例外をGameExceptionに変換
-                $errorCode = match ($e->getMessage()) {
-                    'Cannot send friend request to yourself' => GameErrorCode::CANNOT_SEND_FRIEND_REQUEST_TO_SELF,
-                    'Friend request already exists' => GameErrorCode::FRIEND_REQUEST_ALREADY_EXISTS,
-                    'Already friends' => GameErrorCode::FRIEND_ALREADY_EXISTS,
-                    default => GameErrorCode::FRIEND_REQUEST_ALREADY_EXISTS,
-                };
-                throw new GameException($errorCode, $e->getMessage());
-            }
-
-            // 3. 新規フレンド申請を作成
-            $sysFriendApply = $this->sysFriendApplyRepository->insertApply(
-                $sysPlayerId,
-                $receivePlayerId
+            // 2. 申請を作成（重複や自分自身のチェックはFriendServiceが持つ）
+            $friendApply = FriendExceptionTranslator::translate(
+                fn () => $this->friendService->sendApply($sysPlayerId, $receivePlayerId)
             );
 
-            // 4. レスポンスを返す
-            return ApplySendResponse::fromModel($sysFriendApply);
+            // 3. レスポンスを返す
+            return ApplySendResponse::fromDto($friendApply);
         });
     }
 }

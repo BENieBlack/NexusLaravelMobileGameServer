@@ -4,7 +4,7 @@
 
 LogDBをTrxDBと同様に**動的シャーディング対応**し、スケーラビリティと復旧効率を向上させます。
 
-**新機能**: `DB_TRX_SHARDS`環境変数でシャード数を制御し、手動のコード変更なしでスケール可能。
+**新機能**: `DB_SHARD_COUNT`環境変数でシャード数を制御し、手動のコード変更なしでスケール可能。
 
 ## シャーディング方針
 
@@ -16,8 +16,8 @@ TrxDB : LogDB = 1 : 1 の対応関係（動的）
 
 - **trx1** → **log1** (trx1の変更ログ専用)
 - **trx2** → **log2** (trx2の変更ログ専用)
-- **trx3** → **log3** (DB_TRX_SHARDS=3以上の場合)
-- **trx4** → **log4** (DB_TRX_SHARDS=4以上の場合)
+- **trx3** → **log3** (DB_SHARD_COUNT=3以上の場合)
+- **trx4** → **log4** (DB_SHARD_COUNT=4以上の場合)
 - ...（環境変数で自由に拡張可能）
 
 ### 利点
@@ -60,7 +60,7 @@ trx1とtrx2を同時復旧:
 
 ```env
 # シャード数を指定（デフォルト: 2）
-DB_TRX_SHARDS=4
+DB_SHARD_COUNT=4
 ```
 
 上記設定で自動的に以下が生成されます：
@@ -70,17 +70,17 @@ DB_TRX_SHARDS=4
 ### 物理構成
 
 ```
-Docker Compose（DB_TRX_SHARDS=2の場合）:
+Docker Compose（DB_SHARD_COUNT=2の場合）:
   db-log1  (MySQL 8.4) ← trx1のログ専用
   db-log2  (MySQL 8.4) ← trx2のログ専用
   
-Docker Compose（DB_TRX_SHARDS=4の場合）:
+Docker Compose（DB_SHARD_COUNT=4の場合）:
   db-log1  (MySQL 8.4) ← trx1のログ専用
   db-log2  (MySQL 8.4) ← trx2のログ専用
   db-log3  (MySQL 8.4) ← trx3のログ専用
   db-log4  (MySQL 8.4) ← trx4のログ専用
   
-本番環境（DB_TRX_SHARDS=4の場合）:
+本番環境（DB_SHARD_COUNT=4の場合）:
   RDS log1 (Multi-AZ) ← trx1のログ専用
   RDS log2 (Multi-AZ) ← trx2のログ専用
   RDS log3 (Multi-AZ) ← trx3のログ専用
@@ -96,8 +96,8 @@ Docker Compose（DB_TRX_SHARDS=4の場合）:
     // ========================================
     // 動的シャーディング: TrxDB
     // ========================================
-    // DB_TRX_SHARDS環境変数でシャード数を指定（デフォルト: 2）
-    // 例: DB_TRX_SHARDS=4 の場合、trx1, trx2, trx3, trx4 を生成
+    // DB_SHARD_COUNT環境変数でシャード数を指定（デフォルト: 2）
+    // 例: DB_SHARD_COUNT=4 の場合、trx1, trx2, trx3, trx4 を生成
     ...array_merge(
         // 後方互換用: trx接続（trx1を参照）
         [
@@ -117,7 +117,7 @@ Docker Compose（DB_TRX_SHARDS=4の場合）:
         ],
         // 動的生成: trx1, trx2, ...
         (function() {
-            $shardCount = (int) env('DB_TRX_SHARDS', 2);
+            $shardCount = (int) env('DB_SHARD_COUNT', 2);
             $connections = [];
             
             for ($i = 1; $i <= $shardCount; $i++) {
@@ -144,7 +144,7 @@ Docker Compose（DB_TRX_SHARDS=4の場合）:
     // 動的シャーディング: LogDB
     // ========================================
     // TrxDBと1:1対応でLogDBシャードを生成
-    // DB_TRX_SHARDS=2 の場合、log1, log2 を生成
+    // DB_SHARD_COUNT=2 の場合、log1, log2 を生成
     ...array_merge(
         // 後方互換用: log接続（単一LogDB）
         [
@@ -164,7 +164,7 @@ Docker Compose（DB_TRX_SHARDS=4の場合）:
         ],
         // 動的生成: log1, log2, ...
         (function() {
-            $shardCount = (int) env('DB_TRX_SHARDS', 2);
+            $shardCount = (int) env('DB_SHARD_COUNT', 2);
             $connections = [];
             
             for ($i = 1; $i <= $shardCount; $i++) {
@@ -190,9 +190,9 @@ Docker Compose（DB_TRX_SHARDS=4の場合）:
 
 // PITR設定
 'pitr' => [
-    'shard_count' => (int) env('DB_TRX_SHARDS', 2),
+    'shard_count' => (int) env('DB_SHARD_COUNT', 2),
     'active_trx_connections' => (function() {
-        $shardCount = (int) env('DB_TRX_SHARDS', 2);
+        $shardCount = (int) env('DB_SHARD_COUNT', 2);
         $connections = [];
         for ($i = 1; $i <= $shardCount; $i++) {
             $connections[] = "trx{$i}";
@@ -204,11 +204,11 @@ Docker Compose（DB_TRX_SHARDS=4の場合）:
 ],
 ```
 
-### .env設定例（DB_TRX_SHARDS=4の場合）
+### .env設定例（DB_SHARD_COUNT=4の場合）
 
 ```env
 # シャード数指定
-DB_TRX_SHARDS=4
+DB_SHARD_COUNT=4
 
 # Log1 DB (trx1用)
 DB_LOG1_HOST=db-log1
@@ -295,7 +295,7 @@ namespace NexusPitr\Logger;
  * ShardMapper
  * 
  * TrxDB接続とLogDB接続のマッピングを管理
- * 動的シャーディング対応（DB_TRX_SHARDS環境変数でシャード数を制御）
+ * 動的シャーディング対応（DB_SHARD_COUNT環境変数でシャード数を制御）
  */
 class ShardMapper
 {
@@ -440,7 +440,7 @@ class ShardMapper
      */
     private static function getMaxShardCount(): int
     {
-        return (int) (getenv('DB_TRX_SHARDS') ?: 2);
+        return (int) (getenv('DB_SHARD_COUNT') ?: 2);
     }
 }
 ```
@@ -628,7 +628,7 @@ volumes:
 ### 1. 動的マイグレーションコマンド
 
 ```bash
-# すべてのLogDBシャードに対してマイグレーションを実行（DB_TRX_SHARDSに応じて自動）
+# すべてのLogDBシャードに対してマイグレーションを実行（DB_SHARD_COUNTに応じて自動）
 php artisan pitr:migrate
 
 # ロールバック
@@ -650,7 +650,7 @@ use NexusPitr\Logger\ShardMapper;
  * PitrMigrateCommand
  * 
  * すべてのLogDBシャードに対してマイグレーションを実行
- * 動的シャーディング対応（DB_TRX_SHARDSに応じてlog1, log2, ...に実行）
+ * 動的シャーディング対応（DB_SHARD_COUNTに応じてlog1, log2, ...に実行）
  */
 class PitrMigrateCommand extends Command
 {
@@ -788,7 +788,7 @@ ALTER TABLE log_trx_change PARTITION BY RANGE (YEAR(created_at) * 100 + MONTH(cr
 
 #### 導入済み（実装完了）
 
-- ✅ config/database.php: 動的シャーディング対応（DB_TRX_SHARDS環境変数）
+- ✅ config/database.php: 動的シャーディング対応（DB_SHARD_COUNT環境変数）
 - ✅ ShardMapper: 動的マッピング対応
 - ✅ PitrMigrateCommand: 動的マイグレーション対応
 - ✅ ユニットテスト: 動的シャーディングテスト完備

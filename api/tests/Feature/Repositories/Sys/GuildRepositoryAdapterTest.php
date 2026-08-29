@@ -111,20 +111,32 @@ class GuildRepositoryAdapterTest extends TestCase
     }
 
     #[Test]
-    public function 全件取得できる(): void
+    public function 一覧を取得できる(): void
     {
         $this->createGuild();
         $this->createGuild('ふたつめ');
 
-        $names = array_map(fn (Guild $guild) => $guild->getName(), $this->repository->selectAll());
+        $names = array_map(fn (Guild $guild) => $guild->getName(), $this->repository->selectList(50, 0));
 
         $this->assertEqualsCanonicalizing(['テストギルド', 'ふたつめ'], $names);
     }
 
     #[Test]
-    public function ギルドが無ければ全件取得は空(): void
+    public function 一覧は件数を区切れる(): void
     {
-        $this->assertSame([], $this->repository->selectAll());
+        // ギルドはゲーム内に無数にあるため、全件を返す口は用意しない
+        $this->createGuild();
+        $this->createGuild('ふたつめ');
+
+        $this->assertCount(1, $this->repository->selectList(1, 0));
+        $this->assertCount(1, $this->repository->selectList(1, 1));
+        $this->assertCount(0, $this->repository->selectList(50, 2));
+    }
+
+    #[Test]
+    public function ギルドが無ければ一覧は空(): void
+    {
+        $this->assertSame([], $this->repository->selectList(50, 0));
     }
 
     #[Test]

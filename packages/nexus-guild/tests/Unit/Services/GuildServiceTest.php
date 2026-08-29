@@ -395,11 +395,11 @@ class GuildServiceTest extends TestCase
     }
 
     #[Test]
-    public function 全ギルド一覧を取得できる(): void
+    public function ギルド一覧を件数を区切って取得できる(): void
     {
         $this->guildRepository->all = [$this->guild()];
 
-        $this->assertCount(1, $this->service->getAllGuilds());
+        $this->assertCount(1, $this->service->findGuildList(50, 0));
     }
 
     #[Test]
@@ -529,9 +529,9 @@ class FakeGuildRepository implements GuildRepositoryInterface
         return $this->byName;
     }
 
-    public function selectAll(): array
+    public function selectList(int $limit, int $offset): array
     {
-        return $this->all;
+        return array_slice($this->all, $offset, $limit);
     }
 
     public function insert(string $name, string $description, int $masterPlayerId): Guild

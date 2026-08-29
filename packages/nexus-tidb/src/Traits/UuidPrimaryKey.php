@@ -1,12 +1,12 @@
 <?php
 
-namespace NexusTidb\Concerns;
+namespace NexusTidb\Traits;
 
 use Illuminate\Support\Str;
 use NexusTidb\Support\TidbMode;
 
 /**
- * UsesUuidPrimaryKey
+ * UuidPrimaryKey
  *
  * TiDB利用時に、単一主キー id をUUIDで払い出すtrait
  *
@@ -26,14 +26,14 @@ use NexusTidb\Support\TidbMode;
  * UUIDはコンストラクタで入れる。INSERTはUnitOfWorkがEloquentを介さず
  * 直接実行するため、Eloquentのcreatingイベントでは間に合わない。
  */
-trait UsesUuidPrimaryKey
+trait UuidPrimaryKey
 {
     /**
      * Eloquentがコンストラクタで呼ぶ初期化フック
      *
      * すでに値が入っている場合（DBから読んだ行など）は触らない
      */
-    public function initializeUsesUuidPrimaryKey(): void
+    public function initializeUuidPrimaryKey(): void
     {
         if (! $this->usesUuidPrimaryKey()) {
             return;

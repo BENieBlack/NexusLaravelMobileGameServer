@@ -12,7 +12,7 @@ use NexusTidb\Support\UuidColumnConverter;
  *
  * TiDBは AUTO_INCREMENT の単調増加を保証せず、連番キーは書き込みが
  * 特定リージョンへ集中する原因にもなるため、idをUUIDで払い出す。
- * 値の生成は NexusTidb\Concerns\UsesUuidPrimaryKey が行う。
+ * 値の生成は NexusTidb\Traits\UuidPrimaryKey が行う。
  *
  * 対象は列名の規約（参照先のテーブル名 + _id）から割り出すので、
  * テーブルが増えても一覧を直す必要はない。

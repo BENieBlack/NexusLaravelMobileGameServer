@@ -11,7 +11,7 @@ use NexusBilling\Exceptions\PlatformApiException;
 
 /**
  * Apple App Store API クライアント
- * 
+ *
  * App Store のレシート検証APIとの通信を担当
  */
 class AppStoreApiClient
@@ -43,10 +43,11 @@ class AppStoreApiClient
 
     /**
      * レシート検証
-     * 
-     * @param array<string, mixed> $payload 検証リクエストのペイロード
-     * @param bool|null $isSandbox Sandbox環境を使うか。nullなら設定に従う
+     *
+     * @param  array<string, mixed>  $payload  検証リクエストのペイロード
+     * @param  bool|null  $isSandbox  Sandbox環境を使うか。nullなら設定に従う
      * @return array<string, mixed> レスポンス
+     *
      * @throws PlatformApiException API通信エラー時
      */
     public function verifyReceipt(array $payload, ?bool $isSandbox = null): array
@@ -58,7 +59,7 @@ class AppStoreApiClient
             $response = Http::timeout(self::TIMEOUT)
                 ->post($url, $payload);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 throw new PlatformApiException(
                     "App Store API returned error: HTTP {$response->status()}"
                 );
@@ -67,14 +68,24 @@ class AppStoreApiClient
             $data = $response->json();
 
             // ステータス21007（Sandbox receipt sent to Production）の場合は自動的にSandboxで再試行
-            if (isset($data['status']) && $data['status'] === 21007 && !$isSandbox) {
+            if (isset($data['status']) && $data['status'] === 21007 && ! $isSandbox) {
                 Log::info('App Store: Sandbox receipt detected, retrying with sandbox endpoint');
+
                 return $this->verifyReceipt($payload, true);
             }
 
             return $data;
 
-        } catch (\Exception $e) {
+        } catch (PlatformApiException $e) {
+            // Appleは応答している。通信エラーと混ぜるとHTTPステータスが
+            // 「Failed to communicate」の後ろに埋もれるので、そのまま上げる
+            Log::error('App Store API error', [
+                'message' => $e->getMessage(),
+                'url' => $url,
+            ]);
+
+            throw $e;
+        } catch (\Throwable $e) {
             Log::error('App Store API error', [
                 'message' => $e->getMessage(),
                 'url' => $url,
@@ -102,7 +113,7 @@ class AppStoreApiClient
      */
     private const MAX_TTL = 3600;
 
-        /**
+    /**
      * サブスクリプションの全状態を取得
      *
      * GET /inApps/v1/subscriptions/{transactionId}
@@ -402,19 +413,21 @@ class AppStoreApiClient
      */
     private function publicKeyOf(string $pemCertificate): string
     {
-        $certificate = openssl_x509_read($pemCertificate);
+        // 警告はLaravelがErrorExceptionに変えてしまうため、
+        // 下の戻り値チェックへ倒せるように抑制する
+        $certificate = @openssl_x509_read($pemCertificate);
 
         if ($certificate === false) {
             throw new PlatformApiException('App Store certificate could not be parsed');
         }
 
-        $publicKey = openssl_pkey_get_public($certificate);
+        $publicKey = @openssl_pkey_get_public($certificate);
 
         if ($publicKey === false) {
             throw new PlatformApiException('App Store certificate has no usable public key');
         }
 
-        $details = openssl_pkey_get_details($publicKey);
+        $details = @openssl_pkey_get_details($publicKey);
 
         if ($details === false || ! isset($details['key'])) {
             throw new PlatformApiException('App Store public key could not be exported');

@@ -10,7 +10,7 @@ use Illuminate\Support\ServiceProvider;
  * TiDB対応パッケージのサービスプロバイダー
  *
  * 提供機能:
- * - Concerns: UsesUuidPrimaryKey（単一主キーidをUUIDで払い出すtrait）
+ * - Traits: UuidPrimaryKey（単一主キーidをUUIDで払い出すtrait）
  * - Support: TidbMode（TiDBとして扱うかの判定）
  */
 class TidbServiceProvider extends ServiceProvider

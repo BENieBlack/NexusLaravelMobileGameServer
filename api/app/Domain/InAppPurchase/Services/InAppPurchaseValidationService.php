@@ -224,8 +224,9 @@ class InAppPurchaseValidationService
         $platformProduct = $this->getPlatformProduct($mstInAppPurchase, $billingPlatform);
 
         return [
+            // PHPの除算は割り切れるとintを返すため、宣言どおりfloatへ寄せる
             'amount' => $platformProduct?->price_amount_micros !== null
-                ? (int) $platformProduct->price_amount_micros / 1_000_000
+                ? (float) ((int) $platformProduct->price_amount_micros / 1_000_000)
                 : 0.0,
             'currency' => $platformProduct?->price_currency_code,
         ];

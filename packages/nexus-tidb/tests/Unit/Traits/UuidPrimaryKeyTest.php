@@ -1,15 +1,15 @@
 <?php
 
-namespace NexusTidb\Tests\Unit\Concerns;
+namespace NexusTidb\Tests\Unit\Traits;
 
 use Illuminate\Database\Eloquent\Model;
-use NexusTidb\Concerns\UsesUuidPrimaryKey;
+use NexusTidb\Traits\UuidPrimaryKey;
 use NexusTidb\Support\TidbMode;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
- * UsesUuidPrimaryKey のユニットテスト
+ * UuidPrimaryKey のユニットテスト
  *
  * TiDBは AUTO_INCREMENT の単調増加を保証しないため、
  * 単一主キー id をUUIDで払い出す。
@@ -17,7 +17,7 @@ use PHPUnit\Framework\TestCase;
  * 効くのは「TiDB利用時」かつ「主キーが単一のid」のときだけで、
  * 複合主キーや id 以外の主キーには触らないことが要点。
  */
-class UsesUuidPrimaryKeyTest extends TestCase
+class UuidPrimaryKeyTest extends TestCase
 {
     protected function tearDown(): void
     {
@@ -137,7 +137,7 @@ class UsesUuidPrimaryKeyTest extends TestCase
  */
 class UuidKeyStub extends Model
 {
-    use UsesUuidPrimaryKey;
+    use UuidPrimaryKey;
 
     protected $table = 'trx_stub';
 
@@ -149,7 +149,7 @@ class UuidKeyStub extends Model
  */
 class CompositeKeyStub extends Model
 {
-    use UsesUuidPrimaryKey;
+    use UuidPrimaryKey;
 
     protected $table = 'trx_composite_stub';
 
@@ -166,7 +166,7 @@ class CompositeKeyStub extends Model
  */
 class PlayerKeyStub extends Model
 {
-    use UsesUuidPrimaryKey;
+    use UuidPrimaryKey;
 
     protected $table = 'trx_player_stub';
 
@@ -182,7 +182,7 @@ class PlayerKeyStub extends Model
  */
 class IntCastKeyStub extends Model
 {
-    use UsesUuidPrimaryKey;
+    use UuidPrimaryKey;
 
     protected $table = 'log_stub';
 

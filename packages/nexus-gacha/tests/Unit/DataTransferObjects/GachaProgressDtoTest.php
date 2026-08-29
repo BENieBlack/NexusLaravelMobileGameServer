@@ -41,9 +41,9 @@ class GachaProgressDtoTest extends TestCase
         );
 
         $this->assertSame(1, $dto->getCurrentStep());
-        
+
         $dto->setCurrentStep(2);
-        
+
         $this->assertSame(2, $dto->getCurrentStep());
     }
 
@@ -60,9 +60,9 @@ class GachaProgressDtoTest extends TestCase
         );
 
         $this->assertSame(5, $dto->getDailyDrawCount());
-        
+
         $dto->setDailyDrawCount(10);
-        
+
         $this->assertSame(10, $dto->getDailyDrawCount());
     }
 
@@ -80,7 +80,7 @@ class GachaProgressDtoTest extends TestCase
 
         $newDate = '2026-01-03 00:00:00';
         $dto->setDailyResetAt($newDate);
-        
+
         $this->assertSame($newDate, $dto->getDailyResetAt());
     }
 
@@ -97,9 +97,9 @@ class GachaProgressDtoTest extends TestCase
         );
 
         $this->assertSame(50, $dto->getTotalDrawCount());
-        
+
         $dto->setTotalDrawCount(100);
-        
+
         $this->assertSame(100, $dto->getTotalDrawCount());
     }
 
@@ -117,7 +117,7 @@ class GachaProgressDtoTest extends TestCase
 
         $newDate = '2026-03-01 00:00:00';
         $dto->setTotalResetAt($newDate);
-        
+
         $this->assertSame($newDate, $dto->getTotalResetAt());
     }
 }

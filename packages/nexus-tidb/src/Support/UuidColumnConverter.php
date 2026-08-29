@@ -25,6 +25,11 @@ final class UuidColumnConverter
     private const AUTO_INCREMENT_COLUMN_TYPE = 'BIGINT UNSIGNED';
 
     /**
+     * Laravel自身が作るテーブル（アプリのデータではないので対象外）
+     */
+    private const LARAVEL_TABLES = ['migrations', 'jobs', 'job_batches', 'failed_jobs', 'cache', 'cache_locks'];
+
+    /**
      * 接続内の「単一主キー id が AUTO_INCREMENT」のテーブル名を返す
      *
      * @return list<string>
@@ -46,8 +51,7 @@ final class UuidColumnConverter
         foreach ($rows as $row) {
             $tableName = (string) $row->table_name;
 
-            // Laravel自身のテーブルは対象外
-            if (in_array($tableName, ['migrations', 'jobs', 'job_batches', 'failed_jobs'], true)) {
+            if (in_array($tableName, self::LARAVEL_TABLES, true)) {
                 continue;
             }
 
@@ -55,6 +59,83 @@ final class UuidColumnConverter
         }
 
         return $tables;
+    }
+
+    /**
+     * 接続内の「主キーが id 単独」のテーブル名を返す
+     *
+     * 変換の前後どちらでも同じ結果になるよう、AUTO_INCREMENTではなく
+     * 主キーの構成で判定する。
+     *
+     * @return list<string>
+     */
+    public static function findSingleIdPrimaryKeyTables(string $connection): array
+    {
+        $rows = DB::connection($connection)->select(
+            'SELECT TABLE_NAME AS table_name
+             FROM INFORMATION_SCHEMA.STATISTICS
+             WHERE TABLE_SCHEMA = DATABASE() AND INDEX_NAME = ?
+             GROUP BY TABLE_NAME
+             HAVING COUNT(*) = 1 AND MAX(COLUMN_NAME) = ?
+             ORDER BY TABLE_NAME',
+            ['PRIMARY', 'id']
+        );
+
+        $tables = [];
+
+        foreach ($rows as $row) {
+            $tableName = (string) $row->table_name;
+
+            if (in_array($tableName, self::LARAVEL_TABLES, true)) {
+                continue;
+            }
+
+            $tables[] = $tableName;
+        }
+
+        return $tables;
+    }
+
+    /**
+     * 他テーブルのidを指す列を探す
+     *
+     * 列名の規約（参照先のテーブル名 + _id）から参照先を割り出し、
+     * その参照先がUUID化される場合だけ対象にする。
+     * 一覧を手で持たないので、テーブルが増えても取りこぼさない。
+     *
+     * @param  list<string>  $uuidTables  UUID化される参照先テーブル
+     * @return list<array{table: string, column: string, isNullable: bool}>
+     */
+    public static function findReferenceColumns(string $connection, array $uuidTables): array
+    {
+        $rows = DB::connection($connection)->select(
+            'SELECT TABLE_NAME AS table_name, COLUMN_NAME AS column_name, IS_NULLABLE AS is_nullable
+             FROM INFORMATION_SCHEMA.COLUMNS
+             WHERE TABLE_SCHEMA = DATABASE() AND COLUMN_NAME LIKE ? AND COLUMN_NAME <> ?
+             ORDER BY TABLE_NAME, COLUMN_NAME',
+            ['%\_id', 'id']
+        );
+
+        $references = [];
+
+        foreach ($rows as $row) {
+            $columnName = (string) $row->column_name;
+
+            // 参照先のテーブル名は列名から _id を落としたもの
+            $referencedTable = substr($columnName, 0, -3);
+
+            if (! in_array($referencedTable, $uuidTables, true)) {
+                continue;
+            }
+
+            $references[] = [
+                'table' => (string) $row->table_name,
+                'column' => $columnName,
+                'isNullable' => $row->is_nullable === 'YES',
+            ];
+        }
+
+        return $references;
     }
 
     /**

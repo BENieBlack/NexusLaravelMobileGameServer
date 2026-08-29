@@ -6,7 +6,7 @@ namespace NexusPitr\Logger;
  * ShardMapper
  * 
  * TrxDB接続とLogDB接続のマッピングを管理
- * 動的シャーディング対応（DB_TRX_SHARDS環境変数でシャード数を制御）
+ * 動的シャーディング対応（DB_SHARD_COUNT環境変数でシャード数を制御）
  */
 class ShardMapper
 {
@@ -131,6 +131,6 @@ class ShardMapper
      */
     private static function getMaxShardCount(): int
     {
-        return (int) (getenv('DB_TRX_SHARDS') ?: 2);
+        return (int) (getenv('DB_SHARD_COUNT') ?: 2);
     }
 }

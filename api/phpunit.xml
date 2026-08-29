@@ -68,13 +68,13 @@
 
         <!-- Sharding Configuration for Testing -->
         <!-- テストは2シャード前提。
-             force を付けないと、開発用の .env（DB_TRX_SHARDS=3）や
+             force を付けないと、開発用の .env（DB_SHARD_COUNT=3）や
              CIのjob envが実環境変数として優先され、環境ごとに前提が変わってしまう。
              <env> は $_ENV / putenv にしか効かず、Laravel の env() は $_SERVER を
              先に見るため、<server> も併せて指定しないと値がずれる。
              trx3 / log3 の接続情報は残してあるので、増やしたい場合はここを変える -->
-        <env name="DB_TRX_SHARDS" value="2" force="true"/>
-        <server name="DB_TRX_SHARDS" value="2" force="true"/>
+        <env name="DB_SHARD_COUNT" value="2" force="true"/>
+        <server name="DB_SHARD_COUNT" value="2" force="true"/>
 
         <!-- System DB Testing -->
         <env name="DB_SYSTEM_HOST" value="db-sys"/>

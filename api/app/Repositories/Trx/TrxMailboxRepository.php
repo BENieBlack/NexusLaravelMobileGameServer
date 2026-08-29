@@ -4,6 +4,7 @@ namespace App\Repositories\Trx;
 
 use App\Domain\Mailbox\Constants\Category;
 use App\Domain\Mailbox\Constants\Priority;
+use App\Models\Mst\MstMailbox;
 use App\Models\Trx\TrxMailbox;
 use Carbon\Carbon;
 use Nexus\Core\Support\CustomCollection;
@@ -46,18 +47,11 @@ class TrxMailboxRepository extends _BaseTrxRepository
                 ->orWhere('expires_at', '>', Carbon::now());
         });
 
-        // カテゴリフィルタ
-        if ($category !== null) {
-            $query->whereHas('mstMailbox', function ($q) use ($category) {
-                $q->where('category', $category->value);
-            });
-        }
-
-        // 優先度フィルタ
-        if ($priority !== null) {
-            $query->whereHas('mstMailbox', function ($q) use ($priority) {
-                $q->where('priority', $priority->value);
-            });
+        // カテゴリ・優先度はマスター側の値。
+        // mst_mailbox は別のDB接続にあるため、whereHas ではJOINできない。
+        // 先にマスターから該当するIDを引いて whereIn で絞る。
+        if ($category !== null || $priority !== null) {
+            $query->whereIn('mst_mailbox_id', $this->findMstMailboxIds($category, $priority));
         }
 
         // 未読フィルタ
@@ -200,5 +194,27 @@ class TrxMailboxRepository extends _BaseTrxRepository
             ->get();
 
         return new CustomCollection($records->all());
+    }
+
+    /**
+     * カテゴリ・優先度に一致するメールボックスマスターのIDを返す
+     *
+     * mst_mailbox は mst 接続にあり、trx 側のクエリから直接JOINできない。
+     *
+     * @return list<string>
+     */
+    private function findMstMailboxIds(?Category $category, ?Priority $priority): array
+    {
+        $query = MstMailbox::query();
+
+        if ($category !== null) {
+            $query->where('category', $category->value);
+        }
+
+        if ($priority !== null) {
+            $query->where('priority', $priority->value);
+        }
+
+        return $query->pluck('id')->map(fn ($id) => (string) $id)->all();
     }
 }

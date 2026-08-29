@@ -24,10 +24,13 @@ class ResponseKeyNamingTest extends TestCase
         'receiver_my_id',
         'deleted_my_id',
         'device_id',
-        'sender_id',
         'product_id',
         'transaction_id',
         'selected_candidate_id',
+        // mst_mailbox.sender_id は sender_type で参照先が変わり、
+        // 参照先が sys と mst にまたがるため _mst_id では表せない。
+        // 送信者機能を作るときに型ごとの列へ分ける
+        'sender_id',
         // sys_friend_apply の実カラム名（sender_ / receiver_ の接頭辞が付く）
         'sender_sys_player_id',
         'receiver_sys_player_id',

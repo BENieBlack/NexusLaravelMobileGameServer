@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property Category $category
  * @property Priority $priority
  * @property SenderType $sender_type
- * @property string|null $sender_id
+ * @property string|null $sender_id sender_typeで参照先が変わる多相参照（未使用）
  * @property int $expires_in_days
  * @property string|null $icon_url
  * @property bool $is_bulk_distributable

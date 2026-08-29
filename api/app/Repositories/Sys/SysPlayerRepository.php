@@ -19,9 +19,6 @@ class SysPlayerRepository extends _BaseSysRepository
 {
     protected string $modelClass = SysPlayer::class;
 
-    /** 自分の行は主キーで決まる */
-    protected array $selfScopeKeys = ['id'];
-
     /**
      * プレイヤーを作成して即座にコミット（即コミット専用）
      *

@@ -42,14 +42,8 @@ class TrxStamina extends _BaseTrx
     /**
      * SELECTキー（sys_player_idで検索）
      */
-    protected string $selectKey = 'sys_player_id';
-
-    /**
-     * ユニークキー（sys_player_id + typeで一意）
-     *
-     * @var list<string>
-     */
-    protected array $uniqueKeys = ['sys_player_id', 'type'];
+    /** @var list<string> */
+    protected array $selectKeys = ['sys_player_id'];
 
     /** @var list<string> */
     protected $fillable = [

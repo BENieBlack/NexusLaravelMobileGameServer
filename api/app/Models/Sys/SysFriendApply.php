@@ -22,6 +22,9 @@ class SysFriendApply extends _BaseSys
      */
     protected $table = 'sys_friend_apply';
 
+    /** @var list<string> */
+    protected array $selectKeys = ['sender_sys_player_id', 'receiver_sys_player_id'];
+
     /**
      * 複数代入可能な属性
      *

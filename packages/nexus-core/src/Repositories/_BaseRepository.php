@@ -2,6 +2,7 @@
 
 namespace Nexus\Core\Repositories;
 
+use Nexus\Core\Models\_BaseModel;
 use Nexus\Core\Support\CustomCollection;
 
 /**
@@ -9,10 +10,10 @@ use Nexus\Core\Support\CustomCollection;
  *
  * 全てのRepositoryの基底クラス
  * モデルのメモリキャッシュとQueryManager登録の共通処理を提供
- * 
+ *
  * キャッシュのキーはサブクラスごとに体系が違う（Mstはid、Trxはユニークキーの
  * 連結文字列、Logは連番）ため、キーの型もテンプレートで受け取る。
- * 
+ *
  * @template TKey of array-key
  * @template TModel of object
  */
@@ -28,8 +29,9 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
      *
      * @var array<string>
      */
-        /** @var list<string> */
-        protected array $uniqueKeys = ['id'];
+    /** @var list<string> */
+    /** @var list<string> Repositoryで明示する場合のみ設定する。空ならModelから決まる */
+    protected array $uniqueKeys = [];
 
     /**
      * メモリキャッシュされたモデルのコレクション
@@ -42,8 +44,6 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
 
     /**
      * データベース接続名
-     *
-     * @var string
      */
     protected string $connection;
 
@@ -51,29 +51,21 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
      * setConnection() で接続を明示指定されたか
      *
      * 明示されている場合はシャードの自動解決より優先する
-     *
-     * @var bool
      */
     protected bool $connectionExplicitlySet = false;
 
     /**
      * キャッシュの有効期限（秒）
-     *
-     * @var int
      */
     protected int $cacheTtl = 3600;
 
     /**
      * キャッシュキーのプレフィックス
-     *
-     * @var string
      */
     protected string $cachePrefix = 'app';
 
     /**
      * キャッシュドライバー名
-     *
-     * @var string
      */
     protected string $cacheDriver = 'redis';
 
@@ -113,8 +105,6 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
 
     /**
      * モデルキューをクリア
-     *
-     * @return void
      */
     public function clearQueue(): void
     {
@@ -127,8 +117,6 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
      *
      * バッチのようにシャードを跨いで同じRepositoryを使い回す場合、
      * 前のシャードで読んだモデルが残っていると混ざるため明示的に捨てる
-     *
-     * @return void
      */
     public function forgetCachedModels(): void
     {
@@ -137,8 +125,6 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
 
     /**
      * データベース接続名を取得
-     *
-     * @return string
      */
     public function getConnection(): string
     {
@@ -147,9 +133,6 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
 
     /**
      * データベース接続名を設定
-     *
-     * @param string $connection
-     * @return void
      */
     public function setConnection(string $connection): void
     {
@@ -159,8 +142,6 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
 
     /**
      * テーブル名を取得
-     *
-     * @return string
      */
     public function getTableName(): string
     {
@@ -170,7 +151,7 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
     /**
      * キーを指定してモデルを取得
      *
-     * @param string|int $key ユニークキー
+     * @param  string|int  $key  ユニークキー
      * @return TModel|null
      */
     protected function findCachedModel(string|int $key)
@@ -179,20 +160,20 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
             return null;
         }
 
-        return $this->models->get((string)$key);
+        return $this->models->get((string) $key);
     }
 
     /**
      * キャッシュされたモデルを取得
      * キーが指定された場合は、そのキーに一致するモデルのみを返す
      *
-     * @param CustomCollection<int, TKey>|null $keys 取得したいモデルのキーのコレクション（nullの場合は全て）
+     * @param  CustomCollection<int, TKey>|null  $keys  取得したいモデルのキーのコレクション（nullの場合は全て）
      * @return CustomCollection<TKey, TModel>
      */
     protected function findCachedModels(?CustomCollection $keys = null): CustomCollection
     {
         if ($this->models === null) {
-            $this->models = new CustomCollection();
+            $this->models = new CustomCollection;
         }
 
         // キーが指定されていない場合は全てのモデルを返す
@@ -209,23 +190,21 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
      * ユニークキーで管理し、同じキーのモデルは上書きされる
      * サブクラスでオーバーライド可能
      *
-     * @param TModel $model
-     * @return void
+     * @param  TModel  $model
      */
     public function setModel($model): void
     {
         if ($this->models === null) {
-            $this->models = new CustomCollection();
+            $this->models = new CustomCollection;
         }
-        $key = implode(':', array_map(fn($uniqueKey) => $model->{$uniqueKey}, $this->getUniqueKeys()));
+        $key = implode(':', array_map(fn ($uniqueKey) => $model->{$uniqueKey}, $this->getUniqueKeys()));
         $this->models->put($key, $model);
     }
 
     /**
      * 複数のモデルをキャッシュに保存
      *
-     * @param CustomCollection<TKey, TModel> $models
-     * @return void
+     * @param  CustomCollection<TKey, TModel>  $models
      */
     protected function setModels(CustomCollection $models): void
     {
@@ -243,8 +222,7 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
      * is_deleteカラムを持つのはtrx系テーブルのみ。sys系は論理削除できないため
      * hardDeleteModel()を使うこと。
      *
-     * @param TModel $model
-     * @return void
+     * @param  TModel  $model
      */
     public function softDeleteModel($model): void
     {
@@ -268,12 +246,11 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
      *
      * deleteQueueに溜め込み、フラッシュ時にDELETEが実行される。
      *
-     * @param TModel $model
-     * @return void
+     * @param  TModel  $model
      */
     public function hardDeleteModel($model): void
     {
-        $uniqueKey = implode(':', array_map(fn($key) => $model->getAttribute($key), $this->getUniqueKeys()));
+        $uniqueKey = implode(':', array_map(fn ($key) => $model->getAttribute($key), $this->getUniqueKeys()));
         $this->deleteQueue[$uniqueKey] = $model;
 
         // 削除する行は以降の読み取りに出てはいけないのでキャッシュから外す
@@ -283,8 +260,7 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
     /**
      * 読み取りキャッシュからモデルを取り除く
      *
-     * @param TModel $model
-     * @return void
+     * @param  TModel  $model
      */
     protected function forgetCachedModel($model): void
     {
@@ -294,12 +270,12 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
 
         // DBから取り直したインスタンスで削除される場合があるため、
         // 同一性ではなくユニークキーの値で突き合わせる
-        $values = array_map(fn($key) => $model->getAttribute($key), $this->getUniqueKeys());
+        $values = array_map(fn ($key) => $model->getAttribute($key), $this->getUniqueKeys());
 
         $keysToForget = [];
 
         foreach ($this->models as $key => $cached) {
-            $cachedValues = array_map(fn($uniqueKey) => $cached->getAttribute($uniqueKey), $this->getUniqueKeys());
+            $cachedValues = array_map(fn ($uniqueKey) => $cached->getAttribute($uniqueKey), $this->getUniqueKeys());
 
             if ($cachedValues === $values) {
                 $keysToForget[] = $key;
@@ -324,6 +300,7 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
      * パフォーマンス最適化されたCustomCollectionを返す
      *
      * @return CustomCollection<TKey, TModel>
+     *
      * @deprecated Use queryOrMemory() directly as it now returns CustomCollection
      */
     protected function queryOrMemoryCustom(): CustomCollection
@@ -338,6 +315,22 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
      */
     protected function getUniqueKeys(): array
     {
-        return $this->uniqueKeys;
+        // Repositoryでの明示があればそれを優先する
+        if ($this->uniqueKeys !== []) {
+            return $this->uniqueKeys;
+        }
+
+        // 無ければModelに聞く。Modelも未設定なら主キーから決まる。
+        // 複合主キーのテーブルでRepository側の宣言を忘れても、
+        // 全行が同じキーに潰れないようにするため
+        return $this->getModelInstance()->getUniqueKeys();
+    }
+
+    /**
+     * Modelのインスタンスを取得
+     */
+    protected function getModelInstance(): _BaseModel
+    {
+        return new $this->modelClass;
     }
 }

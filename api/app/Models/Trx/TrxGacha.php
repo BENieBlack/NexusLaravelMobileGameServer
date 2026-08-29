@@ -25,9 +25,16 @@ class TrxGacha extends _BaseTrx
 
     protected $keyType = 'int';
 
-    protected string $selectKey = 'sys_player_id';
-
     /** @var list<string> */
+    protected array $selectKeys = ['sys_player_id'];
+
+    /**
+     * 主キーは採番id。論理的な一意は「誰の・どのガチャ」で、
+     * uk_player_gacha がそれを保証している。UnitOfWorkはこちらでキーを組まないと
+     * 同じ進捗が二重にINSERTされる
+     *
+     * @var list<string>
+     */
     protected array $uniqueKeys = ['sys_player_id', 'mst_gacha_id'];
 
     /** @var list<string> */

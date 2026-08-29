@@ -42,13 +42,12 @@ class TrxInAppPurchase extends _BaseTrx
     /**
      * SELECTキー（プレイヤーIDでSELECT）
      */
-    protected string $selectKey = 'sys_player_id';
+    /** @var list<string> */
+    protected array $selectKeys = ['sys_player_id'];
 
     /**
      * ユニークキー（課金商品は複合キーで一意）
      */
-    /** @var list<string> */
-    protected array $uniqueKeys = ['sys_player_id', 'billing_platform', 'mst_in_app_purchase_id'];
 
     /** @var list<string> */
     protected $fillable = [

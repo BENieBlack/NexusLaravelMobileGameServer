@@ -11,7 +11,7 @@ class VerificationDtoTest extends TestCase
     {
         $purchaseDate = '2026-07-13 10:00:00';
         $rawResponse = ['status' => 'success', 'data' => ['test' => 'value']];
-        
+
         $result = new Verification(
             isValid: true,
             transactionId: 'txn_123456',
@@ -34,7 +34,7 @@ class VerificationDtoTest extends TestCase
     public function test_construct_with_invalid_result()
     {
         $purchaseDate = '2026-07-13 10:00:00';
-        
+
         $result = new Verification(
             isValid: false,
             transactionId: 'txn_789012',
@@ -52,7 +52,7 @@ class VerificationDtoTest extends TestCase
     {
         $purchaseDate = '2026-07-13 10:00:00';
         $rawResponse = ['status' => 'success'];
-        
+
         $result = new Verification(
             isValid: true,
             transactionId: 'txn_123456',
@@ -78,7 +78,7 @@ class VerificationDtoTest extends TestCase
     public function test_to_json()
     {
         $purchaseDate = '2026-07-13 10:00:00';
-        
+
         $result = new Verification(
             isValid: true,
             transactionId: 'txn_123456',

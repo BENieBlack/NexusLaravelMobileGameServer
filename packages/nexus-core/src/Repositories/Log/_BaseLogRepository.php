@@ -59,6 +59,13 @@ abstract class _BaseLogRepository extends _BaseRepository implements _BaseLogRep
      *
      * @var bool
      */
+    /**
+     * 課金関連のログか
+     *
+     * 注意: この値はサブクラスが宣言するだけで、現状どこからも読まれていない。
+     * QueryManagerの課金ログ枠へ入れるには setModel($model, true) のように
+     * 明示的に渡す必要がある。
+     */
     protected bool $isPurchaseLog = false;
 
     /**

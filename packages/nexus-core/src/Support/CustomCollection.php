@@ -35,7 +35,12 @@ class CustomCollection extends Collection
 {
     /**
      * コレクションの各アイテムに対してフィルタを実行
-     * 
+     *
+     * 注意: コールバックを省略したときの挙動が親クラスと違う。
+     * 親は falsy を全て落とす（0 や '' や false も消える）が、
+     * こちらは null だけを落とす。
+     * 0件と「値が0」を区別したいため意図的にこうしている。
+     *
      * @param callable|null $callback
      * @return static
      */

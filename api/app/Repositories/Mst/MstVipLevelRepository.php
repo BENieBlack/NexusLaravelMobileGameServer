@@ -39,9 +39,8 @@ class MstVipLevelRepository extends _BaseMstRepository implements VipLevelReposi
     public function selectByLevel(int $level): ?MstVipLevel
     {
         return $this->queryOrMemory()
-            ->where('level', $level)
             ->where('is_active', true)
-            ->first();
+            ->firstWhere('level', $level);
     }
 
     /**

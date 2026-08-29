@@ -196,6 +196,31 @@ abstract class _BaseSysRepository extends _BaseRepository implements _BaseSysRep
     }
 
     /**
+     * Sysテーブルの全件取得は禁止
+     *
+     * sys_player は全プレイヤー、sys_guild は全ギルドが1つのテーブルに入る。
+     * Trxのようにプレイヤーで分かれていないため、全件を読むクエリは
+     * 件数が増えた分だけそのまま重くなる。
+     *
+     * 器だけ残して落としているのは、うっかり生やしたときに
+     * 黙って全件を読むのではなく、その場で気づけるようにするため。
+     *
+     * - 自分に関係する行  → queryOrMemory()
+     * - それ以外を見たい  → selectWithoutCache() に条件と件数の上限を付ける
+     *
+     * @throws \LogicException 常に
+     */
+    final public function selectAll(): never
+    {
+        throw new \LogicException(sprintf(
+            '%s: Sysテーブルの全件取得は禁止。'
+            .'自分に関係する行は queryOrMemory()、それ以外は '
+            .'selectWithoutCache() に条件と件数の上限を付けて使うこと',
+            static::class
+        ));
+    }
+
+    /**
      * ログイン中プレイヤーに関係する行だけを読み、メモリキャッシュに載せる
      *
      * Sysテーブルは全プレイヤー分が1つのテーブルに入っているため、

@@ -223,6 +223,57 @@ class CustomCollectionTest extends TestCase
         $this->assertNull($custom->firstWhere('level', 10));
     }
 
+    #[Test]
+    public function pluckは本家と同じ結果になる(): void
+    {
+        $this->assertMatchesCollection(fn ($c) => $c->pluck('name'));
+        $this->assertMatchesCollection(fn ($c) => $c->pluck('name', 'id'), 'キー付きでも一致する');
+        $this->assertMatchesCollection(fn ($c) => $c->pluck('level'), 'nullを含んでも一致する');
+    }
+
+    #[Test]
+    public function pluckはドット記法でも本家と同じ結果になる(): void
+    {
+        $rows = [
+            ['id' => 1, 'meta' => ['code' => 'a']],
+            ['id' => 2, 'meta' => ['code' => 'b']],
+        ];
+
+        $this->assertSame(
+            (new Collection($rows))->pluck('meta.code')->all(),
+            (new CustomCollection($rows))->pluck('meta.code')->all(),
+        );
+    }
+
+    #[Test]
+    public function sumは本家と同じ結果になる(): void
+    {
+        $custom = new CustomCollection(self::ROWS);
+        $plain = new Collection(self::ROWS);
+
+        $this->assertSame($plain->sum('level'), $custom->sum('level'), 'nullは0として扱われる');
+        $this->assertSame(
+            $plain->sum(fn (array $row) => $row['id']),
+            $custom->sum(fn (array $row) => $row['id']),
+            'コールバックでも一致する',
+        );
+        $this->assertSame((new Collection([1, 2, 3]))->sum(), (new CustomCollection([1, 2, 3]))->sum());
+    }
+
+    #[Test]
+    public function sumはドット記法でも本家と同じ結果になる(): void
+    {
+        $rows = [
+            ['meta' => ['point' => 10]],
+            ['meta' => ['point' => 20]],
+        ];
+
+        $this->assertSame(
+            (new Collection($rows))->sum('meta.point'),
+            (new CustomCollection($rows))->sum('meta.point'),
+        );
+    }
+
     /**
      * 同じ操作を本家のCollectionにも適用し、結果が一致することを確かめる
      *

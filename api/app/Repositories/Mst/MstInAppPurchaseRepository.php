@@ -67,8 +67,7 @@ class MstInAppPurchaseRepository extends _BaseMstRepository
     public function selectActiveById(int $mstInAppPurchaseId): ?MstInAppPurchase
     {
         return $this->queryOrMemory()
-            ->where('id', $mstInAppPurchaseId)
             ->where('is_active', true)
-            ->first();
+            ->firstWhere('id', $mstInAppPurchaseId);
     }
 }

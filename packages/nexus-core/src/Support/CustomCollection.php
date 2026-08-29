@@ -337,4 +337,38 @@ class CustomCollection extends Collection
         // callableの場合は親クラスの実装を使用
         return parent::sortBy($callback, $options, $descending);
     }
+
+    /**
+     * 指定したキーの値だけを取り出す
+     *
+     * @param  string|array<int, string>|null  $value
+     * @param  string|null  $key  ドット記法は本家に任せる
+     * @return \Illuminate\Support\Collection<array-key, mixed>
+     */
+    public function pluck($value, $key = null)
+    {
+        // ドット記法や配列指定は本家に任せる
+        if (is_string($value) && ! str_contains($value, '.')
+            && ($key === null || ! str_contains($key, '.'))) {
+            return new static(array_column($this->items, $value, $key));
+        }
+
+        return parent::pluck($value, $key);
+    }
+
+    /**
+     * 合計を求める
+     *
+     * @param  callable|string|null  $callback
+     * @return int|float
+     */
+    public function sum($callback = null)
+    {
+        // 単純なキー名なら array_column でまとめて足せる
+        if (is_string($callback) && ! str_contains($callback, '.')) {
+            return array_sum(array_column($this->items, $callback));
+        }
+
+        return parent::sum($callback);
+    }
 }

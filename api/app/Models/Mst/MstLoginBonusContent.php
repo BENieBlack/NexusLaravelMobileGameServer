@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $deploy_key
  * @property string $mst_login_bonus_id
  * @property string $content_type
- * @property string $content_id
+ * @property string $content_mst_id
  * @property int $amount
  * @property bool $is_paid
  * @property int $sort_order
@@ -29,7 +29,7 @@ class MstLoginBonusContent extends _BaseMst
     /**
      * 複合主キー
      */
-    protected $primaryKey = ['mst_login_bonus_id', 'content_type', 'content_id'];
+    protected $primaryKey = ['mst_login_bonus_id', 'content_type', 'content_mst_id'];
 
     protected $keyType = 'string';
 
@@ -38,7 +38,7 @@ class MstLoginBonusContent extends _BaseMst
         'deploy_key',
         'mst_login_bonus_id',
         'content_type',
-        'content_id',
+        'content_mst_id',
         'content_option',
         'content_quantity',
         'amount',
@@ -83,9 +83,9 @@ class MstLoginBonusContent extends _BaseMst
     /**
      * コンテンツIDを取得
      */
-    public function getContentId(): string
+    public function getContentMstId(): string
     {
-        return $this->getAttribute('content_id');
+        return $this->getAttribute('content_mst_id');
     }
 
     /**

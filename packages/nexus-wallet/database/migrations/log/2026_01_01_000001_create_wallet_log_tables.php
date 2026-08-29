@@ -56,7 +56,7 @@ return new class extends Migration
         Schema::create('log_trx_wallet_balance', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->unsignedBigInteger('sys_player_id')->comment('プレイヤーID');
-            $table->unsignedBigInteger('balance_id')->nullable()->comment('残高ID');
+            $table->unsignedBigInteger('trx_wallet_balance_id')->nullable()->comment('trx_wallet_balanceテーブルのID');
             $table->string('mst_item_id')->comment('通貨アイテムID');
             $table->enum('operation_type', ['insert', 'update', 'delete'])->comment('操作タイプ');
             
@@ -79,7 +79,7 @@ return new class extends Migration
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             
             $table->index('sys_player_id');
-            $table->index('balance_id');
+            $table->index('trx_wallet_balance_id');
             $table->index('mst_item_id');
             $table->index('operation_type');
             $table->index('reason');

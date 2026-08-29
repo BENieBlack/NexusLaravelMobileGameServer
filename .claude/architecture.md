@@ -1410,7 +1410,7 @@ readonly class DeliveryContent
 {
     public function __construct(
         public string $contentType,  // 'item', 'unit', 'equipment', 'diamond', 'wallet'
-        public string $contentId,    // mst_item.id, mst_unit.id 等
+        public string $contentMstId,    // mst_item.id, mst_unit.id 等
         public int $amount,          // 配布数量
     ) {}
     
@@ -1477,9 +1477,9 @@ class EquipmentDeliveryHandler implements DeliveryHandlerInterface
     public function handle(int $sysPlayerId, DeliveryContent $content): DeliveryResult
     {
         // 1. マスターデータ検証
-        $mstEquipment = $this->mstEquipmentRepository->selectById($content->contentId);
+        $mstEquipment = $this->mstEquipmentRepository->selectById($content->contentMstId);
         if ($mstEquipment === null) {
-            throw MasterDataException::equipment($content->contentId);
+            throw MasterDataException::equipment($content->contentMstId);
         }
 
         // 2. 装備作成（複数個の場合はループ）
@@ -1487,7 +1487,7 @@ class EquipmentDeliveryHandler implements DeliveryHandlerInterface
         for ($i = 0; $i < $content->amount; $i++) {
             $trxEquipment = $this->trxEquipmentRepository->createEquipment(
                 sysPlayerId: $sysPlayerId,
-                mstEquipmentId: $content->contentId,
+                mstEquipmentId: $content->contentMstId,
                 level: 1,
                 exp: 0
             );
@@ -1497,7 +1497,7 @@ class EquipmentDeliveryHandler implements DeliveryHandlerInterface
         // 3. 結果を返す
         return new DeliveryResult(
             contentType: 'equipment',
-            contentId: $content->contentId,
+            contentMstId: $content->contentMstId,
             amount: $content->amount,
             details: ['created_ids' => $createdIds]
         );
@@ -1521,9 +1521,9 @@ class GachaPrizeService
         $deliveryContents = [];
         foreach ($prizes as $prize) {
             $deliveryContents[] = match ($prize['content_type']) {
-                'item' => DeliveryContent::item($prize['content_id'], $prize['amount']),
-                'unit' => DeliveryContent::unit($prize['content_id'], $prize['amount']),
-                'equipment' => DeliveryContent::equipment($prize['content_id'], $prize['amount']),
+                'item' => DeliveryContent::item($prize['content_mst_id'], $prize['amount']),
+                'unit' => DeliveryContent::unit($prize['content_mst_id'], $prize['amount']),
+                'equipment' => DeliveryContent::equipment($prize['content_mst_id'], $prize['amount']),
                 default => throw BusinessLogicException::unsupportedContentType($prize['content_type']),
             };
         }
@@ -1534,7 +1534,7 @@ class GachaPrizeService
         // 3. 結果を返す
         return array_map(fn($result) => [
             'content_type' => $result->contentType,
-            'content_id' => $result->contentId,
+            'content_mst_id' => $result->contentMstId,
             'amount' => $result->amount,
         ], $results);
     }

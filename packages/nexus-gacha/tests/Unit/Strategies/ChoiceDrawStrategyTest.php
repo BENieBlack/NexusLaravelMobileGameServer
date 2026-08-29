@@ -118,7 +118,7 @@ class ChoiceDrawStrategyTest extends TestCase
         $result = $this->strategy->draw($bonus, 'candidate_001', 'gacha_001', $this->context);
         
         $this->assertSame('Unit', $result->getContentType());
-        $this->assertSame('unit_ssr_001', $result->getContentId());
+        $this->assertSame('unit_ssr_001', $result->getContentMstId());
         $this->assertSame(500, $result->getAmount());
         $this->assertSame(5, $result->getRarity());
         $this->assertTrue($result->isGuaranteed());
@@ -152,13 +152,13 @@ class ChoiceDrawStrategyTest extends TestCase
     /**
      * 候補のモックを作成
      */
-    private function createCandidateMock(string $bonusId, string $contentType, string $contentId, int $amount): object
+    private function createCandidateMock(string $bonusId, string $contentType, string $contentMstId, int $amount): object
     {
-        return new class($bonusId, $contentType, $contentId, $amount) {
+        return new class($bonusId, $contentType, $contentMstId, $amount) {
             public function __construct(
                 private string $bonusId,
                 private string $contentType,
-                private string $contentId,
+                private string $contentMstId,
                 private int $amount
             ) {}
             
@@ -166,7 +166,7 @@ class ChoiceDrawStrategyTest extends TestCase
                 return match($key) {
                     'mst_gacha_step_bonus_id' => $this->bonusId,
                     'content_type' => $this->contentType,
-                    'content_id' => $this->contentId,
+                    'content_mst_id' => $this->contentMstId,
                     'amount' => $this->amount,
                     default => null,
                 };

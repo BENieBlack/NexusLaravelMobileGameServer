@@ -20,7 +20,7 @@ return new class extends Migration
         Schema::create('log_trx_gacha', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->unsignedBigInteger('sys_player_id')->comment('プレイヤーID');
-            $table->unsignedBigInteger('gacha_id')->nullable()->comment('ガチャID');
+            $table->unsignedBigInteger('trx_gacha_id')->nullable()->comment('trx_gachaテーブルのID');
             $table->string('mst_gacha_id')->nullable()->comment('マスターガチャID');
             $table->enum('operation_type', ['insert', 'update', 'delete'])->comment('操作タイプ');
             
@@ -41,7 +41,7 @@ return new class extends Migration
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             
             $table->index('sys_player_id');
-            $table->index('gacha_id');
+            $table->index('trx_gacha_id');
             $table->index('mst_gacha_id');
             $table->index('operation_type');
             $table->index('reason');

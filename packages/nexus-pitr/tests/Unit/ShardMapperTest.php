@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
  * ShardMapperTest
  * 
  * 動的シャーディング対応のテスト
- * DB_TRX_SHARDS環境変数をモック（デフォルト: 2）
+ * DB_SHARD_COUNT環境変数をモック（デフォルト: 2）
  */
 class ShardMapperTest extends TestCase
 {
@@ -18,9 +18,9 @@ class ShardMapperTest extends TestCase
     {
         parent::setUp();
         
-        // DB_TRX_SHARDSのデフォルト値を2に設定（テスト環境）
-        if (!getenv('DB_TRX_SHARDS')) {
-            putenv('DB_TRX_SHARDS=2');
+        // DB_SHARD_COUNTのデフォルト値を2に設定（テスト環境）
+        if (!getenv('DB_SHARD_COUNT')) {
+            putenv('DB_SHARD_COUNT=2');
         }
     }
     
@@ -43,14 +43,14 @@ class ShardMapperTest extends TestCase
     #[Test]
     public function getLogConnection_supports_dynamic_shards(): void
     {
-        // DB_TRX_SHARDS=4の場合
-        putenv('DB_TRX_SHARDS=4');
+        // DB_SHARD_COUNT=4の場合
+        putenv('DB_SHARD_COUNT=4');
         
         $this->assertEquals('log3', ShardMapper::resolveLogConnection('trx3'));
         $this->assertEquals('log4', ShardMapper::resolveLogConnection('trx4'));
         
         // 元に戻す
-        putenv('DB_TRX_SHARDS=2');
+        putenv('DB_SHARD_COUNT=2');
     }
 
     #[Test]
@@ -90,14 +90,14 @@ class ShardMapperTest extends TestCase
     #[Test]
     public function getTrxConnection_supports_dynamic_shards(): void
     {
-        // DB_TRX_SHARDS=4の場合
-        putenv('DB_TRX_SHARDS=4');
+        // DB_SHARD_COUNT=4の場合
+        putenv('DB_SHARD_COUNT=4');
         
         $this->assertEquals('trx3', ShardMapper::resolveTrxConnection('log3'));
         $this->assertEquals('trx4', ShardMapper::resolveTrxConnection('log4'));
         
         // 元に戻す
-        putenv('DB_TRX_SHARDS=2');
+        putenv('DB_SHARD_COUNT=2');
     }
 
     #[Test]
@@ -120,15 +120,15 @@ class ShardMapperTest extends TestCase
     #[Test]
     public function getAllLogConnections_returns_dynamic_shards(): void
     {
-        // DB_TRX_SHARDS=4の場合
-        putenv('DB_TRX_SHARDS=4');
+        // DB_SHARD_COUNT=4の場合
+        putenv('DB_SHARD_COUNT=4');
         
         $result = ShardMapper::allLogConnections();
         
         $this->assertEquals(['log1', 'log2', 'log3', 'log4'], $result);
         
         // 元に戻す
-        putenv('DB_TRX_SHARDS=2');
+        putenv('DB_SHARD_COUNT=2');
     }
 
     #[Test]
@@ -142,15 +142,15 @@ class ShardMapperTest extends TestCase
     #[Test]
     public function getAllTrxConnections_returns_dynamic_shards(): void
     {
-        // DB_TRX_SHARDS=4の場合
-        putenv('DB_TRX_SHARDS=4');
+        // DB_SHARD_COUNT=4の場合
+        putenv('DB_SHARD_COUNT=4');
         
         $result = ShardMapper::allTrxConnections();
         
         $this->assertEquals(['trx1', 'trx2', 'trx3', 'trx4'], $result);
         
         // 元に戻す
-        putenv('DB_TRX_SHARDS=2');
+        putenv('DB_SHARD_COUNT=2');
     }
 
     #[Test]
@@ -163,15 +163,15 @@ class ShardMapperTest extends TestCase
     #[Test]
     public function isValidTrxConnection_validates_dynamic_shards(): void
     {
-        // DB_TRX_SHARDS=4の場合
-        putenv('DB_TRX_SHARDS=4');
+        // DB_SHARD_COUNT=4の場合
+        putenv('DB_SHARD_COUNT=4');
         
         $this->assertTrue(ShardMapper::isValidTrxConnection('trx3'));
         $this->assertTrue(ShardMapper::isValidTrxConnection('trx4'));
         $this->assertFalse(ShardMapper::isValidTrxConnection('trx5'));
         
         // 元に戻す
-        putenv('DB_TRX_SHARDS=2');
+        putenv('DB_SHARD_COUNT=2');
     }
 
     #[Test]
@@ -192,15 +192,15 @@ class ShardMapperTest extends TestCase
     #[Test]
     public function isValidLogConnection_validates_dynamic_shards(): void
     {
-        // DB_TRX_SHARDS=4の場合
-        putenv('DB_TRX_SHARDS=4');
+        // DB_SHARD_COUNT=4の場合
+        putenv('DB_SHARD_COUNT=4');
         
         $this->assertTrue(ShardMapper::isValidLogConnection('log3'));
         $this->assertTrue(ShardMapper::isValidLogConnection('log4'));
         $this->assertFalse(ShardMapper::isValidLogConnection('log5'));
         
         // 元に戻す
-        putenv('DB_TRX_SHARDS=2');
+        putenv('DB_SHARD_COUNT=2');
     }
 
     #[Test]

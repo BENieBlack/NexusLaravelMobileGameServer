@@ -244,7 +244,7 @@ Responseクラスは `_BaseResponse` を継承し、`toArray()` だけを実装�
 
 リクエストのパラメータ名も同じ規則に従う。
 
-カラム名自体に接頭辞が無いもの（`my_id` `content_id` `sender_id` `device_id` など）は、
+カラム名自体に接頭辞が無いもの（`my_id` `content_mst_id` `sender_id` `device_id` など）は、
 DBのカラム名がそのまま対応するため据え置く。
 
 ### エンベロープは付けない

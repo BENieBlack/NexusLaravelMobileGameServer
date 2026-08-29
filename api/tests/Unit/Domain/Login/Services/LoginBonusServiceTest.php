@@ -141,7 +141,7 @@ class LoginBonusServiceTest extends TestCase
             MstLoginBonusContent::create([
                 'mst_login_bonus_id' => $bonusId,
                 'content_type' => 'item',
-                'content_id' => 'item_potion_001',
+                'content_mst_id' => 'item_potion_001',
                 'amount' => $day * 10, // 1日目10個、2日目20個...
                 'is_paid' => false,
                 'sort_order' => 1,
@@ -264,7 +264,7 @@ class LoginBonusServiceTest extends TestCase
         MstLoginBonusContent::create([
             'mst_login_bonus_id' => $bonusId,
             'content_type' => 'item',
-            'content_id' => 'item_potion_001',
+            'content_mst_id' => 'item_potion_001',
             'amount' => 70,
             'is_paid' => false,
             'sort_order' => 1,
@@ -273,7 +273,7 @@ class LoginBonusServiceTest extends TestCase
         MstLoginBonusContent::create([
             'mst_login_bonus_id' => $bonusId,
             'content_type' => 'diamond',
-            'content_id' => 'diamond',
+            'content_mst_id' => 'diamond',
             'amount' => 100,
             'is_paid' => false,
             'sort_order' => 2,
@@ -339,7 +339,7 @@ class LoginBonusServiceTest extends TestCase
         MstLoginBonusContent::create([
             'mst_login_bonus_id' => $bonusId,
             'content_type' => 'item',
-            'content_id' => 'item_potion_001',
+            'content_mst_id' => 'item_potion_001',
             'amount' => 50,
             'is_paid' => false,
             'sort_order' => 1,
@@ -348,7 +348,7 @@ class LoginBonusServiceTest extends TestCase
         MstLoginBonusContent::create([
             'mst_login_bonus_id' => $bonusId,
             'content_type' => 'diamond',
-            'content_id' => 'diamond',
+            'content_mst_id' => 'diamond',
             'amount' => 100,
             'is_paid' => false,
             'sort_order' => 2,
@@ -378,13 +378,13 @@ class LoginBonusServiceTest extends TestCase
         // アイテム履歴
         $itemHistory = $histories->firstWhere('reward_type', 'item');
         $this->assertNotNull($itemHistory);
-        $this->assertSame('item_potion_001', $itemHistory->reward_id);
+        $this->assertSame('item_potion_001', $itemHistory->reward_mst_id);
         $this->assertSame(50, $itemHistory->reward_amount);
 
         // ダイヤ履歴
         $diamondHistory = $histories->firstWhere('reward_type', 'diamond');
         $this->assertNotNull($diamondHistory);
-        $this->assertSame('diamond', $diamondHistory->reward_id);
+        $this->assertSame('diamond', $diamondHistory->reward_mst_id);
         $this->assertSame(100, $diamondHistory->reward_amount);
 
         ClockUtility::reset();

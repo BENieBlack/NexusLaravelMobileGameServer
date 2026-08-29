@@ -2,7 +2,7 @@
 
 namespace App\Domain\Album\Handlers;
 
-use NexusAlbum\Enums\AlbumEntryType;
+use NexusAlbum\Enums\AlbumContentType;
 use NexusAlbum\Services\AlbumService;
 use NexusResource\Enums\ResourceType;
 use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
@@ -25,9 +25,9 @@ class AlbumRecordingDeliveryHandler implements ResourceDeliveryHandlerInterface
      * 配布のリソース種別と、アルバムの記録種別の対応
      */
     private const TYPE_MAP = [
-        'unit' => AlbumEntryType::UNIT,
-        'equipment' => AlbumEntryType::EQUIPMENT,
-        'item' => AlbumEntryType::ITEM,
+        'unit' => AlbumContentType::UNIT,
+        'equipment' => AlbumContentType::EQUIPMENT,
+        'item' => AlbumContentType::ITEM,
     ];
 
     public function __construct(

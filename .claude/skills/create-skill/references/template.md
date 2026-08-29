@@ -91,7 +91,7 @@ mst/sys/log は単一DBなのでこのスキルは不要。
 
 1. `api/database/migrations/trx/` に `YYYY_MM_DD_NNNNNN_<説明>.php` を作る
 2. クラスに `$connections = ['trx1', 'trx2']` を必ず書く
-3. `DB_TRX_SHARDS` を確認する。シャードを増やしている場合は配列も合わせる
+3. `DB_SHARD_COUNT` を確認する。シャードを増やしている場合は配列も合わせる
 4. 実行して両シャードに反映されたか確認する
 
 ## 落とし穴

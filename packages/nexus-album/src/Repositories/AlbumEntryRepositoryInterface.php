@@ -3,7 +3,7 @@
 namespace NexusAlbum\Repositories;
 
 use NexusAlbum\DataTransferObjects\AlbumEntry;
-use NexusAlbum\Enums\AlbumEntryType;
+use NexusAlbum\Enums\AlbumContentType;
 
 /**
  * AlbumEntryRepositoryInterface
@@ -22,7 +22,7 @@ interface AlbumEntryRepositoryInterface
     /**
      * 指定した対象が記録済みかどうか
      */
-    public function exists(int $sysPlayerId, AlbumEntryType $type, string $masterId): bool;
+    public function exists(int $sysPlayerId, AlbumContentType $contentType, string $contentMstId): bool;
 
     /**
      * 記録を1件追加する

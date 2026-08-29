@@ -39,11 +39,11 @@ class GachaCostService
                 break;
 
             case 'item':
-                $costId = $cost->getAttribute('cost_id');
-                if (! $costId) {
-                    throw new \Exception('cost_id is required for item cost type');
+                $costMstId = $cost->getAttribute('cost_mst_id');
+                if (! $costMstId) {
+                    throw new \Exception('cost_mst_id is required for item cost type');
                 }
-                $this->itemService->consumeItem($sysPlayerId, $costId, $costAmount);
+                $this->itemService->consumeItem($sysPlayerId, $costMstId, $costAmount);
                 break;
 
             default:

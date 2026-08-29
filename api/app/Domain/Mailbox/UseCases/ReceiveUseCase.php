@@ -51,7 +51,7 @@ class ReceiveUseCase extends _BaseUseCase
             $resources = $contentCollection->map(function ($content) {
                 return Resource::fromTypeString(
                     strtolower($content->getContentType()), // Diamond -> diamond
-                    $content->getContentId(),
+                    $content->getContentMstId(),
                     $content->getAmount(),
                 );
             })->toArray();

@@ -143,7 +143,7 @@ class NoneDrawStrategy implements GachaDrawStrategyInterface
 
         return new GachaPrize(
             contentType: $prize->getAttribute('content_type'),
-            contentId: $prize->getAttribute('content_id'),
+            contentMstId: $prize->getAttribute('content_mst_id'),
             amount: $prize->getAttribute('amount'),
             rarity: $rarity,
             isGuaranteed: $isGuaranteed

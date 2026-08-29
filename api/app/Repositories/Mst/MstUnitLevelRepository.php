@@ -3,7 +3,6 @@
 namespace App\Repositories\Mst;
 
 use App\Models\Mst\MstUnitLevel;
-use Illuminate\Support\Facades\Cache;
 use Nexus\Core\Support\CustomCollection;
 
 /**
@@ -38,37 +37,8 @@ class MstUnitLevelRepository extends _BaseMstRepository
 {
     protected string $modelClass = MstUnitLevel::class;
 
-    /**
-     * キャッシュからデータを取得、存在しない場合はDBから取得してキャッシュに保存
-     * レアリティをキーにしてキャッシュ
-     */
-    public function queryOrMemory(): CustomCollection
-    {
-        if (isset($this->models)) {
-            return $this->models;
-        }
-
-        $modelInstance = new $this->modelClass;
-        $tableName = $modelInstance->getTable();
-        $cacheKey = "{$this->cachePrefix}:{$tableName}:all";
-
-        // Laravel Cacheを使ってキャッシュから取得、なければDBから取得してキャッシュに保存
-        $cached = Cache::store($this->cacheDriver)->remember(
-            $cacheKey,
-            $this->cacheTtl,
-            function () use ($modelInstance) {
-                // 全レコードを取得（配列として保存）
-                return $modelInstance::all()->all();
-            }
-        );
-
-        // CustomCollectionとして保持する
-        /** @var CustomCollection<int|string, MstUnitLevel> $models */
-        $models = new CustomCollection($cached);
-        $this->models = $models;
-
-        return $this->models;
-    }
+    /** @var list<string> id列を持たないマスター */
+    protected array $uniqueKeys = ['rarity', 'level'];
 
     /**
      * レアリティとレベルで検索

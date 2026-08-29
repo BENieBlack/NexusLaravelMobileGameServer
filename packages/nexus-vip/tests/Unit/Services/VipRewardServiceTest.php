@@ -4,10 +4,10 @@ namespace NexusVip\Tests\Unit\Services;
 
 use Mockery;
 use Nexus\Core\Support\CustomCollection;
-use NexusVip\ValueObjects\VipReward;
 use NexusVip\Models\MstVipLevelReward;
 use NexusVip\Repositories\VipLevelRewardRepositoryInterface;
 use NexusVip\Services\VipRewardService;
+use NexusVip\ValueObjects\VipReward;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

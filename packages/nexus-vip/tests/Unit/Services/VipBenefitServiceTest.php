@@ -3,9 +3,9 @@
 namespace NexusVip\Tests\Unit\Services;
 
 use Mockery;
-use NexusVip\ValueObjects\VipBenefit;
 use NexusVip\Services\VipBenefitService;
 use NexusVip\Services\VipLevelService;
+use NexusVip\ValueObjects\VipBenefit;
 use NexusVip\ValueObjects\VipConfig;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

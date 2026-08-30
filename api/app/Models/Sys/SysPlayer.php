@@ -31,6 +31,9 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
      */
     protected $table = 'sys_player';
 
+    /** @var list<string> */
+    protected array $selectKeys = ['id'];
+
     /**
      * 複数代入可能な属性
      *

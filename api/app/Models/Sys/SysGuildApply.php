@@ -22,6 +22,9 @@ class SysGuildApply extends _BaseSys
      */
     protected $table = 'sys_guild_apply';
 
+    /** @var list<string> */
+    protected array $selectKeys = ['sys_player_id'];
+
     /**
      * 複数代入可能な属性
      *

@@ -8,7 +8,8 @@ class MstInAppPurchaseContent extends _BaseMst
 {
     public $table = 'mst_in_app_purchase_content';
 
-    protected $primaryKey = null;
+    /** テーブル定義どおりの複合主キー */
+    protected $primaryKey = ['mst_in_app_purchase_id', 'content_type', 'content_mst_id'];
 
     public $incrementing = false;
 

@@ -26,10 +26,18 @@ class TrxAlbum extends _BaseTrx
     /**
      * SELECTキー（プレイヤーIDでSELECT）
      */
-    protected string $selectKey = 'sys_player_id';
+    /** @var list<string> */
+    protected array $selectKeys = ['sys_player_id'];
 
     /**
      * ユニークキー（プレイヤー・種別・マスターIDで一意）
+     *
+     * @var list<string>
+     */
+    /**
+     * 主キーは採番id。論理的な一意は「誰の・どの種別の・どのマスター」で、
+     * uk_player_content がそれを保証している。UnitOfWorkはこちらでキーを組まないと
+     * 同じ記録が二重にINSERTされる
      *
      * @var list<string>
      */

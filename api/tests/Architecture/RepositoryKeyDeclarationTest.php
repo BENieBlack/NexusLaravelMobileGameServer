@@ -11,9 +11,12 @@ use Tests\TestCase;
 /**
  * アーキテクチャテスト: キー宣言の単一化
  *
- * $uniqueKeys と $selectKeys はModelが持ち、Repositoryはそこから解決する。
- * 両方に書くと片方だけ直し忘れる（mst_vip_level_reward が
- * Repository側の宣言漏れで全行同じキーに潰れていた）。
+ * ユニークキーは $primaryKey がそのまま担う。絞り込みキーは
+ * Model の $selectKeys が持ち、Repositoryはそこから解決する。
+ *
+ * 同じことを2箇所に書くと片方だけ直し忘れる。実際
+ * mst_vip_level_reward は Repository 側の宣言漏れで
+ * 全行が同じキーに潰れ、報酬が1件しか配られていなかった。
  */
 class RepositoryKeyDeclarationTest extends TestCase
 {
@@ -25,7 +28,7 @@ class RepositoryKeyDeclarationTest extends TestCase
         foreach ($this->repositoryFiles() as $file) {
             $content = (string) file_get_contents($file);
 
-            foreach (['uniqueKeys', 'selectKeys'] as $property) {
+            foreach (['selectKeys'] as $property) {
                 if (! preg_match('/protected array \$'.$property.' = (\[[^\]]*\]);/', $content, $matches)) {
                     continue;
                 }
@@ -52,32 +55,26 @@ class RepositoryKeyDeclarationTest extends TestCase
     }
 
     #[Test]
-    public function test_models_do_not_repeat_their_primary_key(): void
+    public function test_no_model_declares_unique_keys(): void
     {
-        // $uniqueKeys を書かなければ $primaryKey から決まる。
-        // 同じ内容を二度書くと、主キーを変えたときにずれる
+        // ユニークキーは $primaryKey がそのまま担う。
+        // 採番idを別に持つと「行の識別子」と「業務上の一意」が
+        // 二重管理になるため、trxテーブルは業務キーを主キーにする
         $violations = [];
 
         foreach ($this->modelFiles() as $file) {
             $content = (string) file_get_contents($file);
 
-            if (! preg_match('/protected array \$uniqueKeys = (\[[^\]]*\]);/', $content, $unique)) {
-                continue;
-            }
-
-            preg_match('/protected \$primaryKey = ([^;]+);/', $content, $primary);
-            $primaryKey = $primary[1] ?? "'id'";
-
-            if ($this->columns($primaryKey) === $this->columns($unique[1])) {
-                $violations[] = basename($file).' の $uniqueKeys は $primaryKey と同じ';
+            if (preg_match('/protected array \$uniqueKeys = /', $content)) {
+                $violations[] = basename($file);
             }
         }
 
         $this->assertSame(
             [],
             $violations,
-            "主キーと同じ \$uniqueKeys は書かないでください:\n".implode("\n", $violations)."\n"
-            .'採番idと論理的な一意が違うテーブル（trx_gacha など）だけ明示します。'
+            "\$uniqueKeys は廃止しました:\n".implode("\n", $violations)."\n"
+            .'業務上の一意をそのまま $primaryKey に書いてください（配列で複合主キーを表せます）。'
         );
     }
 
@@ -171,17 +168,5 @@ class RepositoryKeyDeclarationTest extends TestCase
         }
 
         return $files;
-    }
-
-    /**
-     * 宣言からカラム名の並びを取り出す
-     *
-     * @return list<string>
-     */
-    private function columns(string $declaration): array
-    {
-        preg_match_all("/'([^']+)'/", $declaration, $matches);
-
-        return $matches[1];
     }
 }

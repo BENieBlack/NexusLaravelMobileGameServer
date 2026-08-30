@@ -58,17 +58,6 @@ abstract class _BaseModel extends Model implements _BaseModelInterface
     protected static bool $directWritesAllowed = false;
 
     /**
-     * @var list<string> 自身のデータ内で一意となるカラム名
-     *
-     * 未設定なら $primaryKey から決める。複合主キーは
-     * $primaryKey を配列で書けばそのまま拾える。
-     *
-     * @example trx_item であれば ['sys_player_id', 'mst_item_id']
-     */
-    /** @var list<string> */
-    protected array $uniqueKeys = [];
-
-    /**
      * @var list<string> 自分に関係する行を絞り込むカラム名
      *
      * 複数指定した場合はORで繋ぐ。
@@ -274,17 +263,16 @@ abstract class _BaseModel extends Model implements _BaseModelInterface
     /**
      * ユニークキーを取得
      *
-     * 明示が無ければ主キーから決める。$primaryKey が配列なら
-     * そのまま複合キーとして扱う。
+     * 主キーがそのままユニークキー。複合主キーは $primaryKey を
+     * 配列で書けばそのまま拾える。
+     *
+     * 採番idを別に持つと「行の識別子」と「業務上の一意」が
+     * 二重管理になるため、trxテーブルは業務キーを主キーにする。
      *
      * @return list<string>
      */
     public function getUniqueKeys(): array
     {
-        if ($this->uniqueKeys !== []) {
-            return $this->uniqueKeys;
-        }
-
         /** @var string|array<int, string> $primaryKey */
         $primaryKey = $this->primaryKey;
 

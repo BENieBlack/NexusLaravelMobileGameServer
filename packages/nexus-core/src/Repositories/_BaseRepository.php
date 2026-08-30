@@ -23,17 +23,6 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
     protected string $modelClass;
 
     /**
-     * ユニークキーの配列
-     * サブクラスでオーバーライドして独自のユニークキーを定義
-     * 例: ['id'], ['sys_player_id', 'mst_item_id']
-     *
-     * @var array<string>
-     */
-    /** @var list<string> */
-    /** @var list<string> Repositoryで明示する場合のみ設定する。空ならModelから決まる */
-    protected array $uniqueKeys = [];
-
-    /**
      * メモリキャッシュされたモデルのコレクション
      * データベースから取得したモデルをメモリにキャッシュし、
      * 同一リクエスト内での重複クエリを防ぐ
@@ -315,14 +304,9 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
      */
     protected function getUniqueKeys(): array
     {
-        // Repositoryでの明示があればそれを優先する
-        if ($this->uniqueKeys !== []) {
-            return $this->uniqueKeys;
-        }
-
-        // 無ければModelに聞く。Modelも未設定なら主キーから決まる。
-        // 複合主キーのテーブルでRepository側の宣言を忘れても、
-        // 全行が同じキーに潰れないようにするため
+        // Modelの主キーがそのままユニークキー。
+        // Repository側にも持たせると二重管理になり、
+        // 片方だけ直し忘れると全行が同じキーに潰れる
         return $this->getModelInstance()->getUniqueKeys();
     }
 

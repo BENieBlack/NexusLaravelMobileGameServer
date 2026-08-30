@@ -41,9 +41,6 @@ class MstPlayerLevelRepository extends _BaseMstRepository
 {
     protected string $modelClass = MstPlayerLevel::class;
 
-    /** @var list<string> id列を持たないマスター */
-    protected array $uniqueKeys = ['level'];
-
     /**
      * レベルで検索
      *

@@ -25,6 +25,9 @@ class SysGuildMember extends _BaseSys
      */
     protected $table = 'sys_guild_member';
 
+    /** @var list<string> */
+    protected array $selectKeys = ['sys_player_id'];
+
     /**
      * 複数代入可能な属性
      *

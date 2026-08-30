@@ -17,9 +17,6 @@ class SysGuildMemberRepository extends _BaseSysRepository
 {
     protected string $modelClass = SysGuildMember::class;
 
-    /** @var list<string> 自分の行。所属ギルドの分は applySelfScope で足す */
-    protected array $selfScopeKeys = ['sys_player_id'];
-
     // ========================================
     // Application層専用メソッド（Model返却）
     // ========================================
@@ -32,7 +29,7 @@ class SysGuildMemberRepository extends _BaseSysRepository
      *
      * @param  Builder<SysGuildMember>  $query
      */
-    protected function applySelfScope(Builder $query, int $sysPlayerId): void
+    protected function applySelectScope(Builder $query, int $sysPlayerId): void
     {
         $query->where(function (Builder $builder) use ($sysPlayerId) {
             $builder->where('sys_player_id', $sysPlayerId)

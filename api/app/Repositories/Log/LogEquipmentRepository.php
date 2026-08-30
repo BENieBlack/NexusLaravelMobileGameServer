@@ -22,8 +22,6 @@ class LogEquipmentRepository extends _BaseLogRepository
      *
      * @var array<string>
      */
-    /** @var list<string> */
-    protected array $uniqueKeys = ['id'];
 
     /**
      * 通常ログであることを明示

@@ -16,7 +16,6 @@ return new class extends Migration
         // 数量は持たず、(sys_player_id, content_type, content_mst_id) で一意。
         // ========================================
         Schema::create('trx_album', function (Blueprint $table) {
-            $table->id()->comment('アルバム記録ID');
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
             $table->enum('content_type', ['unit', 'equipment', 'item'])->comment('記録対象の種別');
             $table->string('content_mst_id')->comment('種別に対応するマスターのID（mst_unit.id など）');
@@ -25,8 +24,9 @@ return new class extends Migration
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
 
-            // 同じ対象を二重に記録しない
-            $table->unique(['sys_player_id', 'content_type', 'content_mst_id'], 'uk_player_content');
+            // 同じ対象を二重に記録しない。
+            // 採番idは持たず、業務上の一意をそのまま主キーにする
+            $table->primary(['sys_player_id', 'content_type', 'content_mst_id'], 'pk_album');
             $table->index(['sys_player_id', 'content_type']);
         });
     }

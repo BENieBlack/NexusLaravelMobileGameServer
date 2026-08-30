@@ -2,6 +2,8 @@
 
 namespace App\Models\Trx;
 
+use App\Traits\CompositePrimaryKeyTrait;
+
 /**
  * TrxGacha Model
  *
@@ -19,23 +21,21 @@ namespace App\Models\Trx;
  */
 class TrxGacha extends _BaseTrx
 {
+    use CompositePrimaryKeyTrait;
+
     protected $table = 'trx_gacha';
 
-    public $incrementing = true;
+    /**
+     * 採番idは持たず、業務上の一意をそのまま主キーにする
+     */
+    public $incrementing = false;
 
-    protected $keyType = 'int';
+    protected $keyType = 'string';
+
+    protected $primaryKey = ['sys_player_id', 'mst_gacha_id'];
 
     /** @var list<string> */
     protected array $selectKeys = ['sys_player_id'];
-
-    /**
-     * 主キーは採番id。論理的な一意は「誰の・どのガチャ」で、
-     * uk_player_gacha がそれを保証している。UnitOfWorkはこちらでキーを組まないと
-     * 同じ進捗が二重にINSERTされる
-     *
-     * @var list<string>
-     */
-    protected array $uniqueKeys = ['sys_player_id', 'mst_gacha_id'];
 
     /** @var list<string> */
     protected $fillable = [

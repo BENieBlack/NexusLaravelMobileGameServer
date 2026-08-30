@@ -3,6 +3,7 @@
 namespace App\Repositories\Sys;
 
 use App\Models\Sys\SysFriendApply;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
@@ -41,14 +42,10 @@ class SysFriendApplyRepository extends _BaseSysRepository
         }
 
         return $this->selectWithoutCache()
-            ->where(function ($query) use ($applyPlayerId, $receivePlayerId) {
-                $query->where('sender_sys_player_id', $applyPlayerId)
-                    ->where('receiver_sys_player_id', $receivePlayerId);
-            })
-            ->orWhere(function ($query) use ($applyPlayerId, $receivePlayerId) {
-                $query->where('sender_sys_player_id', $receivePlayerId)
-                    ->where('receiver_sys_player_id', $applyPlayerId);
-            })
+            // 向きのORはひとまとめにする。外に出すと
+            // ANDが先に効いて (片方向) OR (もう片方向 AND ステータス)
+            // になり、片方向だけステータスが無視される
+            ->where(fn ($query) => $this->wherePair($query, $applyPlayerId, $receivePlayerId))
             ->whereIn('status', [
                 SysFriendApply::STATUS_APPLIED,
                 SysFriendApply::STATUS_ACCEPTED,
@@ -167,15 +164,8 @@ class SysFriendApplyRepository extends _BaseSysRepository
     public function deleteFriendRelationModel(int $playerId, int $targetPlayerId): ?SysFriendApply
     {
         // 双方向で検索（自分がsenderまたはreceiver）
-        $friendRelation = $this->modelClass::query()
-            ->where(function ($query) use ($playerId, $targetPlayerId) {
-                $query->where('sender_sys_player_id', $playerId)
-                    ->where('receiver_sys_player_id', $targetPlayerId);
-            })
-            ->orWhere(function ($query) use ($playerId, $targetPlayerId) {
-                $query->where('sender_sys_player_id', $targetPlayerId)
-                    ->where('receiver_sys_player_id', $playerId);
-            })
+        $friendRelation = $this->selectWithoutCache()
+            ->where(fn ($query) => $this->wherePair($query, $playerId, $targetPlayerId))
             ->where('status', SysFriendApply::STATUS_ACCEPTED)
             ->first();
 
@@ -187,6 +177,25 @@ class SysFriendApplyRepository extends _BaseSysRepository
         $this->hardDeleteModel($friendRelation);
 
         return $friendRelation;
+    }
+
+    /**
+     * この2人の間の申請に絞る（向きは問わない）
+     *
+     * 呼び出し側は必ず where(fn ($query) => ...) で包むこと。
+     * 直に並べるとORが外へ漏れて、後続のANDが片方向にしか効かない。
+     *
+     * @param  Builder<SysFriendApply>  $query
+     */
+    private function wherePair(Builder $query, int $onePlayerId, int $otherPlayerId): void
+    {
+        $query->where(function ($builder) use ($onePlayerId, $otherPlayerId) {
+            $builder->where('sender_sys_player_id', $onePlayerId)
+                ->where('receiver_sys_player_id', $otherPlayerId);
+        })->orWhere(function ($builder) use ($onePlayerId, $otherPlayerId) {
+            $builder->where('sender_sys_player_id', $otherPlayerId)
+                ->where('receiver_sys_player_id', $onePlayerId);
+        });
     }
 
     /**

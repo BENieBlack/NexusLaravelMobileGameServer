@@ -16,13 +16,12 @@ class TrxUnit extends _BaseTrx
     /**
      * SELECTキー（プレイヤーIDでSELECT）
      */
-    protected string $selectKey = 'sys_player_id';
+    /** @var list<string> */
+    protected array $selectKeys = ['sys_player_id'];
 
     /**
      * ユニークキー（ユニットはIDで一意）
      */
-    /** @var list<string> */
-    protected array $uniqueKeys = ['id'];
 
     /** @var list<string> */
     protected $fillable = [

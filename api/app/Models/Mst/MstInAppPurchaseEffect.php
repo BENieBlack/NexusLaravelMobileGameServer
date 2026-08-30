@@ -8,7 +8,8 @@ class MstInAppPurchaseEffect extends _BaseMst
 {
     public $table = 'mst_in_app_purchase_effect';
 
-    protected $primaryKey = null;
+    /** テーブル定義どおりの複合主キー */
+    protected $primaryKey = ['mst_in_app_purchase_id', 'effect_type'];
 
     public $incrementing = false;
 

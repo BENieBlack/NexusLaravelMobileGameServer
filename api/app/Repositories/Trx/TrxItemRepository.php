@@ -15,12 +15,4 @@ use App\Models\Trx\TrxItem;
 class TrxItemRepository extends _BaseTrxRepository
 {
     protected string $modelClass = TrxItem::class;
-
-    /**
-     * ユニークキー（sys_player_id, mst_item_id の複合キー）
-     *
-     * @var array<string>
-     */
-    /** @var list<string> */
-    protected array $uniqueKeys = ['sys_player_id', 'mst_item_id'];
 }

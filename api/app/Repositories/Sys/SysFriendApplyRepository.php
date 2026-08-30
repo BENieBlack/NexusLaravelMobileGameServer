@@ -16,13 +16,6 @@ class SysFriendApplyRepository extends _BaseSysRepository
 {
     protected string $modelClass = SysFriendApply::class;
 
-    /**
-     * 自分が出した申請と、自分宛の申請の両方が「自分の行」
-     *
-     * @var list<string>
-     */
-    protected array $selfScopeKeys = ['sender_sys_player_id', 'receiver_sys_player_id'];
-
     // ========================================
     // 以下、内部用のModelベースメソッド（既存の実装）
     // ========================================

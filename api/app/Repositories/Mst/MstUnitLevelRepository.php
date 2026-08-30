@@ -37,9 +37,6 @@ class MstUnitLevelRepository extends _BaseMstRepository
 {
     protected string $modelClass = MstUnitLevel::class;
 
-    /** @var list<string> id列を持たないマスター */
-    protected array $uniqueKeys = ['rarity', 'level'];
-
     /**
      * レアリティとレベルで検索
      *

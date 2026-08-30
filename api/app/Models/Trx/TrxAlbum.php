@@ -2,6 +2,8 @@
 
 namespace App\Models\Trx;
 
+use App\Traits\CompositePrimaryKeyTrait;
+
 /**
  * TrxAlbum Model
  *
@@ -21,7 +23,18 @@ namespace App\Models\Trx;
  */
 class TrxAlbum extends _BaseTrx
 {
+    use CompositePrimaryKeyTrait;
+
     protected $table = 'trx_album';
+
+    /**
+     * 採番idは持たず、業務上の一意をそのまま主キーにする
+     */
+    public $incrementing = false;
+
+    protected $keyType = 'string';
+
+    protected $primaryKey = ['sys_player_id', 'content_type', 'content_mst_id'];
 
     /**
      * SELECTキー（プレイヤーIDでSELECT）
@@ -34,14 +47,6 @@ class TrxAlbum extends _BaseTrx
      *
      * @var list<string>
      */
-    /**
-     * 主キーは採番id。論理的な一意は「誰の・どの種別の・どのマスター」で、
-     * uk_player_content がそれを保証している。UnitOfWorkはこちらでキーを組まないと
-     * 同じ記録が二重にINSERTされる
-     *
-     * @var list<string>
-     */
-    protected array $uniqueKeys = ['sys_player_id', 'content_type', 'content_mst_id'];
 
     /** @var list<string> */
     protected $fillable = [

@@ -48,7 +48,6 @@ return new class extends Migration
         // - ガチャ期間が終了した場合、total_draw_countとcurrent_stepをリセットしてtotal_reset_atを更新
         // ========================================
         Schema::create('trx_gacha', function (Blueprint $table) {
-            $table->bigIncrements('id')->comment('ID');
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
             $table->string('mst_gacha_id')->comment('ガチャID');
             $table->unsignedInteger('current_step')->default(1)->comment('現在のステップ番号（ステップアップガチャ用）');
@@ -61,7 +60,9 @@ return new class extends Migration
             $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
 
             $table->index('sys_player_id');
-            $table->unique(['sys_player_id', 'mst_gacha_id'], 'uk_player_gacha');
+
+            // 採番idは持たず、業務上の一意をそのまま主キーにする
+            $table->primary(['sys_player_id', 'mst_gacha_id'], 'pk_gacha');
         });
     }
 

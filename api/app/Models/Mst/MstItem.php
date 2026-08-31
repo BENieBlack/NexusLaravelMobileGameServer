@@ -26,6 +26,7 @@ class MstItem extends _BaseMst
         'type',
         'effect',
         'value',
+        'is_wallet',
     ];
 
     /**
@@ -36,9 +37,21 @@ class MstItem extends _BaseMst
         'deploy_key' => 'integer',
         // DBは double。integerにすると小数が落ちる
         'value' => 'float',
+        'is_wallet' => 'boolean',
     ];
 
     public $timestamps = true;
+
+    /**
+     * Wallet管理のアイテムかどうか
+     *
+     * trueなら残高として持ち、trx_item ではなく trx_wallet 系で扱う。
+     * 取得単位の有効期限と先入先出の消費が要るものに立てる。
+     */
+    public function isWallet(): bool
+    {
+        return (bool) $this->getAttribute('is_wallet');
+    }
 
     /**
      * アイテムタイプを取得

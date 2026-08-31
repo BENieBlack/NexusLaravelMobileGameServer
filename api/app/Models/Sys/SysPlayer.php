@@ -139,7 +139,9 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
      */
     public function getLevel(): int
     {
-        return $this->getAttribute('level');
+        // 採番前のインスタンスでは属性が入っていない。
+        // テーブル定義の既定値に合わせて1を返す
+        return (int) ($this->getAttribute('level') ?? 1);
     }
 
     /**
@@ -147,7 +149,7 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
      */
     public function getLevelExp(): int
     {
-        return $this->getAttribute('level_exp');
+        return (int) ($this->getAttribute('level_exp') ?? 0);
     }
 
     /**
@@ -273,7 +275,9 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
      */
     public function getVipPoint(): int
     {
-        return $this->getAttribute('vip_point');
+        // getTotalPaidAmount() は (float) キャストで null を許容している。
+        // こちらだけ落ちると、採番前のインスタンスへの加算がTypeErrorになる
+        return (int) ($this->getAttribute('vip_point') ?? 0);
     }
 
     /**

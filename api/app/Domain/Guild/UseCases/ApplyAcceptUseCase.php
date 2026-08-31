@@ -3,12 +3,11 @@
 namespace App\Domain\Guild\UseCases;
 
 use App\Domain\_BaseUseCase;
-use App\Exceptions\GameErrorCode;
+use App\Domain\Guild\Support\GuildExceptionTranslator;
 use App\Exceptions\GameException;
 use App\Http\Responses\Guild\GuildApplyAcceptResponse;
 use App\Repositories\Sys\SysGuildMemberRepository;
 use NexusGuild\Constants\GuildRole;
-use NexusGuild\Exceptions\GuildException;
 use NexusGuild\Services\GuildService;
 
 /**
@@ -35,7 +34,7 @@ class ApplyAcceptUseCase extends _BaseUseCase
     {
         // トランザクション開始
         return $this->executeWithTransaction(function () use ($sysPlayerId, $applyId) {
-            try {
+            return GuildExceptionTranslator::forApplyAccept(function () use ($sysPlayerId, $applyId) {
                 // 申請承認（Service経由でバリデーション含む）
                 $apply = $this->guildService->acceptApply($applyId, $sysPlayerId);
 
@@ -48,18 +47,7 @@ class ApplyAcceptUseCase extends _BaseUseCase
 
                 // レスポンスを返す
                 return GuildApplyAcceptResponse::fromDto($apply);
-            } catch (GuildException $e) {
-                // パッケージの例外をGameExceptionに変換
-                $errorCode = match (true) {
-                    str_contains($e->getMessage(), 'Apply not found') => GameErrorCode::GUILD_APPLY_NOT_FOUND,
-                    str_contains($e->getMessage(), 'Member not found') => GameErrorCode::GUILD_MEMBER_NOT_FOUND,
-                    str_contains($e->getMessage(), 'permission') => GameErrorCode::GUILD_PERMISSION_DENIED,
-                    str_contains($e->getMessage(), 'full') => GameErrorCode::GUILD_FULL,
-                    str_contains($e->getMessage(), 'Invalid status') => GameErrorCode::GUILD_INVALID_STATUS,
-                    default => GameErrorCode::GUILD_APPLY_ACCEPT_FAILED,
-                };
-                throw new GameException($errorCode, $e->getMessage());
-            }
+            });
         });
     }
 }

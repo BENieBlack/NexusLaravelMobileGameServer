@@ -187,6 +187,73 @@ class QueryManagerTest extends TestCase
         $this->assertSame(0, $this->countPurchaseLog());
     }
 
+    #[Test]
+    public function 課金ログ枠へ登録すればexec_purchase_queryで書ける(): void
+    {
+        // 振り分ける経路はまだ無いが、直接登録すれば仕組みは動く。
+        // 課金だけ先に確定させたい場合に使う想定
+        $this->queueInAppPurchaseLog();
+        $this->queryManager->registerRepository(app(LogInAppPurchaseRepository::class), isPurchaseLog: true);
+
+        $this->queryManager->execPurchaseQuery();
+
+        $this->assertSame(1, $this->countPurchaseLog());
+    }
+
+    #[Test]
+    public function 課金ログ枠は一度書いたら空になる(): void
+    {
+        $this->queueInAppPurchaseLog();
+        $this->queryManager->registerRepository(app(LogInAppPurchaseRepository::class), isPurchaseLog: true);
+        $this->queryManager->execPurchaseQuery();
+
+        // 続けて execAllLogs を呼んでも二重に書かれない
+        $this->queryManager->execAllLogs();
+
+        $this->assertSame(1, $this->countPurchaseLog());
+    }
+
+    #[Test]
+    public function 課金ログ枠も重複登録しない(): void
+    {
+        $repository = app(LogInAppPurchaseRepository::class);
+        $this->queueInAppPurchaseLog();
+
+        $this->queryManager->registerRepository($repository, isPurchaseLog: true);
+        $this->queryManager->registerRepository($repository, isPurchaseLog: true);
+        $this->queryManager->execPurchaseQuery();
+
+        $this->assertSame(1, $this->countPurchaseLog());
+    }
+
+    #[Test]
+    public function clearは課金ログ枠も捨てる(): void
+    {
+        $this->queueInAppPurchaseLog();
+        $this->queryManager->registerRepository(app(LogInAppPurchaseRepository::class), isPurchaseLog: true);
+
+        $this->queryManager->clear();
+        $this->queryManager->execPurchaseQuery();
+
+        $this->assertSame(0, $this->countPurchaseLog());
+    }
+
+    #[Test]
+    public function ログの書き込みに失敗したら例外を投げ直す(): void
+    {
+        // ビジネスデータと同じトランザクションで書くため、
+        // ここで握り潰すとログだけ欠けた状態でコミットされる
+        $failing = \Mockery::mock(LogInAppPurchaseRepository::class)->makePartial();
+        $failing->shouldReceive('getQueuedModels')->andThrow(new \RuntimeException('log db is down'));
+
+        $this->queryManager->registerRepository($failing, isPurchaseLog: true);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('log db is down');
+
+        $this->queryManager->execAllLogs();
+    }
+
     private function queueMailbox(string $mstMailboxId = 'mailbox_test_001'): void
     {
         $repository = app(TrxMailboxRepository::class);

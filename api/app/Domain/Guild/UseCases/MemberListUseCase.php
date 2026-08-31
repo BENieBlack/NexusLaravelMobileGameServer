@@ -3,10 +3,9 @@
 namespace App\Domain\Guild\UseCases;
 
 use App\Domain\_BaseUseCase;
-use App\Exceptions\GameErrorCode;
+use App\Domain\Guild\Support\GuildExceptionTranslator;
 use App\Exceptions\GameException;
 use App\Http\Responses\Guild\GuildMemberListResponse;
-use NexusGuild\Exceptions\GuildException;
 use NexusGuild\Services\GuildService;
 
 /**
@@ -29,17 +28,11 @@ class MemberListUseCase extends _BaseUseCase
      */
     public function exec(int $guildId): GuildMemberListResponse
     {
-        try {
+        return GuildExceptionTranslator::forRead(function () use ($guildId) {
             // ギルドメンバー一覧を取得
             $memberDtos = $this->guildService->findMemberList($guildId);
 
             return GuildMemberListResponse::fromDtoArray($memberDtos);
-        } catch (GuildException $e) {
-            $errorCode = match (true) {
-                str_contains($e->getMessage(), 'Guild not found') => GameErrorCode::GUILD_NOT_FOUND,
-                default => GameErrorCode::INTERNAL_ERROR,
-            };
-            throw new GameException($errorCode, $e->getMessage());
-        }
+        });
     }
 }

@@ -126,6 +126,31 @@ class MstItemSeeder extends Seeder
                 'effect' => 'None',
                 'value' => 0,
             ],
+
+            // ========================================
+            // Wallet管理のアイテム（残高として持つもの）
+            //
+            // trx_item ではなく trx_wallet 系で扱う。
+            // ResourceType の値と id を合わせており、
+            // 配送側の Resource::gold() などがそのまま指す
+            // ========================================
+
+            // 通貨
+            ['id' => 'gold', 'type' => 'Currency', 'effect' => 'None', 'value' => 0, 'is_wallet' => true],
+            ['id' => 'coin', 'type' => 'Currency', 'effect' => 'None', 'value' => 0, 'is_wallet' => true],
+
+            // 自然資源
+            ['id' => 'food', 'type' => 'NaturalResource', 'effect' => 'None', 'value' => 0, 'is_wallet' => true],
+            ['id' => 'wood', 'type' => 'NaturalResource', 'effect' => 'None', 'value' => 0, 'is_wallet' => true],
+            ['id' => 'stone', 'type' => 'NaturalResource', 'effect' => 'None', 'value' => 0, 'is_wallet' => true],
+            ['id' => 'iron', 'type' => 'NaturalResource', 'effect' => 'None', 'value' => 0, 'is_wallet' => true],
+
+            // ポイント
+            ['id' => 'alliance_points', 'type' => 'Points', 'effect' => 'None', 'value' => 0, 'is_wallet' => true],
+            ['id' => 'pvp_points', 'type' => 'Points', 'effect' => 'None', 'value' => 0, 'is_wallet' => true],
+            ['id' => 'event_points', 'type' => 'Points', 'effect' => 'None', 'value' => 0, 'is_wallet' => true],
+            ['id' => 'achievement_points', 'type' => 'Points', 'effect' => 'None', 'value' => 0, 'is_wallet' => true],
+            ['id' => 'vip_points', 'type' => 'Points', 'effect' => 'None', 'value' => 0, 'is_wallet' => true],
         ];
 
         foreach ($items as $itemData) {

@@ -63,6 +63,54 @@ class SysShardingTest extends TestCase
         $this->assertSame('トランザクションDBの分散', $sharding->getDescription());
     }
 
+    #[Test]
+    public function 利用可能な戦略の一覧を取れる(): void
+    {
+        $this->assertSame(
+            [
+                SysSharding::STRATEGY_HASH,
+                SysSharding::STRATEGY_RANGE,
+                SysSharding::STRATEGY_CONSISTENT,
+            ],
+            SysSharding::availableStrategies()
+        );
+    }
+
+    #[Test]
+    public function 利用可能な対象の一覧を取れる(): void
+    {
+        // trx と log で別々にシャーディングを定義できる
+        $this->assertSame(
+            [SysSharding::TARGET_TRANSACTION, SysSharding::TARGET_LOG],
+            SysSharding::availableTargets()
+        );
+    }
+
+    #[Test]
+    public function 説明は未設定でもよい(): void
+    {
+        $sharding = new SysSharding;
+
+        $this->assertNull($sharding->getDescription());
+
+        $sharding->setDescription('trxのシャーディング');
+        $this->assertSame('trxのシャーディング', $sharding->getDescription());
+
+        $sharding->setDescription(null);
+        $this->assertNull($sharding->getDescription());
+    }
+
+    #[Test]
+    public function 有効フラグを切り替えられる(): void
+    {
+        // 定義を止めると新規割り当てができなくなる
+        $sharding = new SysSharding(['is_active' => true]);
+        $this->assertTrue($sharding->isActive());
+
+        $sharding->setIsActive(false);
+        $this->assertFalse($sharding->isActive());
+    }
+
     /**
      * @param  array<string, mixed>  $attributes
      */

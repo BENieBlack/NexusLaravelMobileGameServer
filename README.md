@@ -305,6 +305,7 @@ make migrate-fresh
 ### 実装済み機能
 - [ガチャシステム](./docs/gacha_implementation.md) - 通常/ステップアップ/ピックアップガチャ、確率制御、保証機能
 - [ギルドシステム](./docs/guild_implementation.md) - ギルド作成、メンバー管理、申請承認、役職制御
+- [Wallet管理への切り替え手順](./docs/wallet_managed_item_migration.md) - mst_item.is_wallet、リリース後の残高移行
 
 ### Tool固有
 - [Tool仕様](./.claude/tool.md) - 運営ツールの機能、データベース構成

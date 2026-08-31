@@ -59,10 +59,17 @@ return new class extends Migration
             $table->string('type')->comment('アイテムタイプ');
             $table->string('effect')->comment('効果');
             $table->float('value')->comment('効果値');
+
+            // 残高として持つアイテム（gold, coin, 各種ポイントなど）。
+            // trueなら trx_item ではなく trx_wallet 系で管理し、
+            // 取得単位の有効期限と先入先出の消費ができる
+            $table->boolean('is_wallet')->default(false)->comment('Wallet管理フラグ');
+
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
 
             $table->index('deploy_key');
+            $table->index('is_wallet');
         });
 
         // ========================================

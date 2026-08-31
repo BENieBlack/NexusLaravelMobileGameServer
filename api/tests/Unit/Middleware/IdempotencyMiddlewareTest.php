@@ -128,6 +128,80 @@ class IdempotencyMiddlewareTest extends TestCase
         $this->assertEquals(['result' => 'cached'], $data);
     }
 
+    public function test_returns_conflict_while_previous_request_is_in_flight()
+    {
+        // 同じリクエストが処理中なら、二重に走らせず409で待たせる。
+        // ここを通してしまうと同じ購入が2回処理される
+        Config::set('security.idempotency.enabled', true);
+        Config::set('security.idempotency.cache_prefix', 'idempotency');
+
+        $cacheKey = 'idempotency:12345:in-flight:api:test';
+
+        Cache::shouldReceive('has')->with($cacheKey)->andReturn(true);
+        Cache::shouldReceive('get')->with($cacheKey)->andReturn('__PROCESSING__');
+
+        $response = (new IdempotencyMiddleware)->handle(
+            $this->authenticatedRequest('in-flight'),
+            fn () => $this->fail('処理中なのに後続が呼ばれた')
+        );
+
+        $this->assertEquals(409, $response->getStatusCode());
+        $this->assertEquals('PROCESSING', $response->headers->get('X-Idempotency-Cache'));
+        $this->assertEquals(40900, json_decode($response->getContent(), true)['error_code']);
+    }
+
+    public function test_returns_conflict_when_another_request_reserves_first()
+    {
+        // has() では見つからなくても、add() の時点で他が先に予約していれば競合。
+        // 同時に届いた2本のうち後発をここで止める
+        Config::set('security.idempotency.enabled', true);
+        Config::set('security.idempotency.cache_prefix', 'idempotency');
+
+        Cache::shouldReceive('has')->andReturn(false);
+        Cache::shouldReceive('add')->andReturn(false);
+
+        $response = (new IdempotencyMiddleware)->handle(
+            $this->authenticatedRequest('raced'),
+            fn () => $this->fail('予約に失敗したのに後続が呼ばれた')
+        );
+
+        $this->assertEquals(409, $response->getStatusCode());
+        $this->assertEquals('CONFLICT', $response->headers->get('X-Idempotency-Cache'));
+    }
+
+    public function test_releases_reservation_when_handler_throws()
+    {
+        // 例外で落ちたまま予約が残ると、リトライしても409のままになる
+        Config::set('security.idempotency.enabled', true);
+        Config::set('security.idempotency.cache_prefix', 'idempotency');
+
+        $cacheKey = 'idempotency:12345:boom:api:test';
+
+        Cache::shouldReceive('has')->with($cacheKey)->andReturn(false);
+        Cache::shouldReceive('add')->andReturn(true);
+        Cache::shouldReceive('forget')->with($cacheKey)->once();
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('handler exploded');
+
+        (new IdempotencyMiddleware)->handle(
+            $this->authenticatedRequest('boom'),
+            fn () => throw new \RuntimeException('handler exploded')
+        );
+    }
+
+    /**
+     * 認証済みで冪等キー付きのPOSTリクエストを組む
+     */
+    private function authenticatedRequest(string $uniqueRequestId): Request
+    {
+        $request = Request::create('/api/test', 'POST', [], [], [], [], '{"test":"data"}');
+        $request->attributes->set('authenticated_player_id', 12345);
+        $request->headers->set('X-Unique-Request-Identifier', $uniqueRequestId);
+
+        return $request;
+    }
+
     public function test_caches_successful_response()
     {
         Config::set('security.idempotency.enabled', true);

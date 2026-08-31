@@ -3,10 +3,9 @@
 namespace App\Domain\Guild\UseCases;
 
 use App\Domain\_BaseUseCase;
-use App\Exceptions\GameErrorCode;
+use App\Domain\Guild\Support\GuildExceptionTranslator;
 use App\Exceptions\GameException;
 use App\Http\Responses\Guild\GuildApplySendResponse;
-use NexusGuild\Exceptions\GuildException;
 use NexusGuild\Services\GuildService;
 
 /**
@@ -32,23 +31,13 @@ class ApplySendUseCase extends _BaseUseCase
     {
         // トランザクション開始
         return $this->executeWithTransaction(function () use ($sysPlayerId, $guildId) {
-            try {
+            return GuildExceptionTranslator::forApplySend(function () use ($sysPlayerId, $guildId) {
                 // 申請送信（Service経由でバリデーション含む）
                 $apply = $this->guildService->sendApply($guildId, $sysPlayerId);
 
                 // レスポンスを返す
                 return GuildApplySendResponse::fromDto($apply);
-            } catch (GuildException $e) {
-                // パッケージの例外をGameExceptionに変換
-                $errorCode = match (true) {
-                    str_contains($e->getMessage(), 'Guild not found') => GameErrorCode::GUILD_NOT_FOUND,
-                    str_contains($e->getMessage(), 'already in a guild') => GameErrorCode::PLAYER_ALREADY_IN_GUILD,
-                    str_contains($e->getMessage(), 'already exists') => GameErrorCode::GUILD_APPLY_ALREADY_EXISTS,
-                    str_contains($e->getMessage(), 'full') => GameErrorCode::GUILD_FULL,
-                    default => GameErrorCode::GUILD_APPLY_FAILED,
-                };
-                throw new GameException($errorCode, $e->getMessage());
-            }
+            });
         });
     }
 }

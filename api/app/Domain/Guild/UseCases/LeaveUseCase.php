@@ -3,10 +3,9 @@
 namespace App\Domain\Guild\UseCases;
 
 use App\Domain\_BaseUseCase;
-use App\Exceptions\GameErrorCode;
+use App\Domain\Guild\Support\GuildExceptionTranslator;
 use App\Exceptions\GameException;
 use App\Http\Responses\Guild\GuildLeaveResponse;
-use NexusGuild\Exceptions\GuildException;
 use NexusGuild\Services\GuildService;
 
 /**
@@ -31,18 +30,10 @@ class LeaveUseCase extends _BaseUseCase
     {
         // トランザクション開始
         return $this->executeWithTransaction(function () use ($sysPlayerId) {
-            try {
-                // ギルド脱退（Service経由でバリデーション含む）
+            // 脱退は戻り値を持たないため、応答は翻訳の外で組む
+            GuildExceptionTranslator::forLeave(function () use ($sysPlayerId) {
                 $this->guildService->leaveGuild($sysPlayerId);
-            } catch (GuildException $e) {
-                // パッケージの例外をGameExceptionに変換
-                $errorCode = match (true) {
-                    str_contains($e->getMessage(), 'not in any guild') => GameErrorCode::PLAYER_NOT_IN_GUILD,
-                    str_contains($e->getMessage(), 'Master cannot leave') => GameErrorCode::GUILD_MASTER_CANNOT_LEAVE,
-                    default => GameErrorCode::GUILD_LEAVE_FAILED,
-                };
-                throw new GameException($errorCode, $e->getMessage());
-            }
+            });
 
             return new GuildLeaveResponse($sysPlayerId);
         });

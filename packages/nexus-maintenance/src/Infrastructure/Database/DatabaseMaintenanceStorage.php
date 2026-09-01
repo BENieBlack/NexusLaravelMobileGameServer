@@ -2,6 +2,7 @@
 
 namespace NexusMaintenance\Infrastructure\Database;
 
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Nexus\Core\Utilities\ClockUtility;
@@ -147,7 +148,7 @@ class DatabaseMaintenanceStorage implements MaintenanceStorageInterface
     /**
      * クエリビルダを取得
      */
-    private function query(): \Illuminate\Database\Query\Builder
+    private function query(): Builder
     {
         return DB::connection($this->connection)->table($this->table);
     }

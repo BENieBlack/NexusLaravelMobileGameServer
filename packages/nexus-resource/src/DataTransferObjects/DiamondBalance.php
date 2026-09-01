@@ -10,18 +10,17 @@ namespace NexusResource\DataTransferObjects;
 class DiamondBalance
 {
     /**
-     * @param int $sysPlayerId プレイヤーID
-     * @param string $platform プラットフォーム（Apple, Google）
-     * @param int $paidAmount 有償ダイヤモンド数
-     * @param int $freeAmount 無償ダイヤモンド数
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  string  $platform  プラットフォーム（Apple, Google）
+     * @param  int  $paidAmount  有償ダイヤモンド数
+     * @param  int  $freeAmount  無償ダイヤモンド数
      */
     public function __construct(
         private int $sysPlayerId,
         private string $platform,
         private int $paidAmount,
         private int $freeAmount,
-    ) {
-    }
+    ) {}
 
     /**
      * プレイヤーIDを取得
@@ -82,7 +81,7 @@ class DiamondBalance
     /**
      * 配列からDTOを生成
      *
-     * @param array{sys_player_id: int, platform: string, paid_amount?: int, free_amount?: int} $data
+     * @param  array{sys_player_id: int, platform: string, paid_amount?: int, free_amount?: int}  $data
      * @return self
      */
     public static function fromArray(array $data): self

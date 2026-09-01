@@ -7,7 +7,7 @@ use NexusResource\DataTransferObjects\Resource;
 
 /**
  * LoginBonusOrchestrator
- * 
+ *
  * 複数のログインボーナス戦略を統合管理するオーケストレーター
  * 通常ログインボーナス、カムバックログインボーナスなどを一括処理
  */
@@ -19,8 +19,8 @@ class LoginBonusOrchestrator
     /**
      * ログインボーナス戦略を登録
      *
-     * @param LoginBonusStrategyInterface $strategy 戦略
-     * @param int $priority 優先度（大きいほど先に実行）
+     * @param  LoginBonusStrategyInterface  $strategy  戦略
+     * @param  int  $priority  優先度（大きいほど先に実行）
      * @return void
      */
     public function registerStrategy(LoginBonusStrategyInterface $strategy, int $priority = 0): void
@@ -31,16 +31,16 @@ class LoginBonusOrchestrator
         ];
 
         // 優先度順にソート
-        usort($this->strategies, fn($a, $b) => $b['priority'] <=> $a['priority']);
+        usort($this->strategies, fn ($a, $b) => $b['priority'] <=> $a['priority']);
     }
 
     /**
      * 全ての適用可能な戦略を実行
      *
-     * @param int $sysPlayerId プレイヤーID
-     * @param string|null $lastLoginAt 最終ログイン日時（UTC、文字列形式）
-     * @param string $connectionName シャーディングされたDB接続名
-     * @return array{daily: array<Resource>, comeback: array<Resource>} 配布した報酬
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  string|null  $lastLoginAt  最終ログイン日時（UTC、文字列形式）
+     * @param  string  $connectionName  シャーディングされたDB接続名
+     * @return array{daily: array<resource>, comeback: array<resource>} 配布した報酬
      */
     public function executeAll(int $sysPlayerId, ?string $lastLoginAt, string $connectionName): array
     {
@@ -72,15 +72,15 @@ class LoginBonusOrchestrator
     /**
      * 全ての報酬を統合して返す
      *
-     * @param int $sysPlayerId プレイヤーID
-     * @param string|null $lastLoginAt 最終ログイン日時（UTC、文字列形式）
-     * @param string $connectionName シャーディングされたDB接続名
-     * @return array<Resource> 配布した全報酬
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  string|null  $lastLoginAt  最終ログイン日時（UTC、文字列形式）
+     * @param  string  $connectionName  シャーディングされたDB接続名
+     * @return array<resource> 配布した全報酬
      */
     public function executeAllMerged(int $sysPlayerId, ?string $lastLoginAt, string $connectionName): array
     {
         $results = $this->executeAll($sysPlayerId, $lastLoginAt, $connectionName);
-        
+
         return array_merge($results['daily'], $results['comeback']);
     }
 

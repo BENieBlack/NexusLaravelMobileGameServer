@@ -7,7 +7,7 @@ use NexusVersion\Repositories\MaintenanceRepositoryInterface;
 
 /**
  * VersionService
- * 
+ *
  * バージョンチェックのビジネスロジック
  */
 class VersionService
@@ -15,14 +15,14 @@ class VersionService
     public function __construct(
         private readonly DeployRepositoryInterface $deployRepository,
         private readonly MaintenanceRepositoryInterface $maintenanceRepository
-    ) {
-    }
+    ) {}
 
     /**
      * バージョンチェックを実行
      *
-     * @param int|null $currentDeployId クライアントが保持しているデプロイID
+     * @param  int|null  $currentDeployId  クライアントが保持しているデプロイID
      * @return array{deploy: array<string, mixed>|null, maintenance: array<string, mixed>|null}
+     *
      * @throws \RuntimeException ダウンロード可能なデプロイが存在しない場合
      */
     public function checkVersion(?int $currentDeployId): array

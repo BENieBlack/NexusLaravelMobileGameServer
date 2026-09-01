@@ -24,8 +24,8 @@ class MstVipLevelReward extends _BaseMst
 
     protected $primaryKey = ['vip_level', 'content_type', 'content_mst_id'];
 
-        /** @var list<string> */
-        protected $fillable = [
+    /** @var list<string> */
+    protected $fillable = [
         'deploy_key',
         'vip_level',
         'content_type',
@@ -76,6 +76,7 @@ class MstVipLevelReward extends _BaseMst
 
     /**
      * コンテンツオプションを取得
+     *
      * @return array<string, mixed>|null
      */
     public function getContentOption(): ?array

@@ -9,13 +9,13 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * ThrottleSignUp Middleware
- * 
+ *
  * sign_upエンドポイントへのレート制限を行います。
- * 
+ *
  * 制限の種類:
  * 1. IPアドレスごとの制限: 設定可能（デフォルト: 1時間に10回まで）
  * 2. デバイスIDごとの制限: 設定可能（デフォルト: 1時間に3回まで）
- * 
+ *
  * 連打攻撃やアカウント大量生成を防止します。
  */
 class ThrottleSignUp
@@ -23,18 +23,18 @@ class ThrottleSignUp
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
         $ip = $request->ip();
         $deviceId = $request->input('device_id');
-        
+
         \Log::info('ThrottleSignUp: Checking rate limits', [
             'ip' => $ip,
             'device_id' => $deviceId,
         ]);
-        
+
         $maxAttemptsPerIp = config('security.throttle_signup.max_attempts_per_ip', 10);
         $maxAttemptsPerDevice = config('security.throttle_signup.max_attempts_per_device', 3);
         $rateLimitWindow = config('security.throttle_signup.rate_limit_window', 3600);
@@ -51,6 +51,7 @@ class ThrottleSignUp
 
         if ($ipAttempts >= $maxAttemptsPerIp) {
             \Log::warning('ThrottleSignUp: IP rate limit exceeded');
+
             return response()->json([
                 'error' => 'TOO_MANY_REQUESTS',
                 'message' => 'Too many sign up attempts from this IP address. Please try again later.',
@@ -71,6 +72,7 @@ class ThrottleSignUp
 
             if ($deviceAttempts >= $maxAttemptsPerDevice) {
                 \Log::warning('ThrottleSignUp: Device rate limit exceeded');
+
                 return response()->json([
                     'error' => 'TOO_MANY_REQUESTS',
                     'message' => 'Too many sign up attempts from this device. Please try again later.',
@@ -105,9 +107,9 @@ class ThrottleSignUp
 
     /**
      * キャッシュの残り時間を取得
-     * 
-     * @param string $key キャッシュキー
-     * @param int $rateLimitWindow レート制限ウィンドウ
+     *
+     * @param  string  $key  キャッシュキー
+     * @param  int  $rateLimitWindow  レート制限ウィンドウ
      * @return int 残り秒数
      */
     private function calcRemainingSeconds(string $key, int $rateLimitWindow): int

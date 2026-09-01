@@ -2,15 +2,15 @@
 
 namespace NexusBilling\Validators;
 
-use NexusBilling\Constants\PurchaseLimitResetType;
 use Nexus\Core\Utilities\ClockUtility;
+use NexusBilling\Constants\PurchaseLimitResetType;
 
 /**
  * 購入制限チェッカー（汎用ロジック）
- * 
+ *
  * アプリ内課金商品の購入回数制限をチェックする汎用ロジックを提供
  * フレームワーク非依存、全ゲームで再利用可能
- * 
+ *
  * このクラスは判定ロジックのみを提供し、例外は投げません
  * Application層で判定結果に基づいて適切な例外処理を行います
  */
@@ -18,11 +18,11 @@ class _BasePurchaseLimitValidator
 {
     /**
      * 購入制限を超えているかチェック
-     * 
-     * @param int|null $purchaseLimit 購入制限（nullの場合は制限なし）
-     * @param int $currentPurchaseCount 現在の購入回数
-     * @param string $resetType リセット種別（PurchaseLimitResetTypeの定数）
-     * @param string|null $lastResetAt 最終リセット日時（Y-m-d H:i:s）
+     *
+     * @param  int|null  $purchaseLimit  購入制限（nullの場合は制限なし）
+     * @param  int  $currentPurchaseCount  現在の購入回数
+     * @param  string  $resetType  リセット種別（PurchaseLimitResetTypeの定数）
+     * @param  string|null  $lastResetAt  最終リセット日時（Y-m-d H:i:s）
      * @return bool 制限を超えている場合true
      */
     public function isLimitExceeded(
@@ -48,12 +48,12 @@ class _BasePurchaseLimitValidator
 
     /**
      * 有効な購入回数を計算
-     * 
+     *
      * リセットが必要な場合は0を返し、不要な場合は現在の購入回数を返す
-     * 
-     * @param int $currentPurchaseCount 現在の購入回数
-     * @param string $resetType リセット種別（PurchaseLimitResetTypeの定数）
-     * @param string|null $lastResetAt 最終リセット日時（Y-m-d H:i:s）
+     *
+     * @param  int  $currentPurchaseCount  現在の購入回数
+     * @param  string  $resetType  リセット種別（PurchaseLimitResetTypeの定数）
+     * @param  string|null  $lastResetAt  最終リセット日時（Y-m-d H:i:s）
      * @return int 有効な購入回数
      */
     public function calculateEffectiveCount(
@@ -70,9 +70,9 @@ class _BasePurchaseLimitValidator
 
     /**
      * 購入回数をリセットすべきかチェック
-     * 
-     * @param string $resetType リセット種別（PurchaseLimitResetTypeの定数）
-     * @param string|null $lastResetAt 最終リセット日時（Y-m-d H:i:s）
+     *
+     * @param  string  $resetType  リセット種別（PurchaseLimitResetTypeの定数）
+     * @param  string|null  $lastResetAt  最終リセット日時（Y-m-d H:i:s）
      * @return bool リセットが必要な場合true
      */
     public function shouldResetPurchaseCount(
@@ -87,7 +87,7 @@ class _BasePurchaseLimitValidator
         $lastResetAtString = $lastResetAt;
 
         return match ($resetType) {
-            PurchaseLimitResetType::DAILY => !ClockUtility::isToday($lastResetAtString),
+            PurchaseLimitResetType::DAILY => ! ClockUtility::isToday($lastResetAtString),
             PurchaseLimitResetType::WEEKLY => $this->isDifferentWeek($lastResetAtString),
             PurchaseLimitResetType::MONTHLY => $this->isDifferentMonth($lastResetAtString),
             default => false,
@@ -96,9 +96,9 @@ class _BasePurchaseLimitValidator
 
     /**
      * リセットが必要な場合の新しいリセット日時を取得
-     * 
-     * @param string $resetType リセット種別（PurchaseLimitResetTypeの定数）
-     * @param string|null $lastResetAt 最終リセット日時（Y-m-d H:i:s）
+     *
+     * @param  string  $resetType  リセット種別（PurchaseLimitResetTypeの定数）
+     * @param  string|null  $lastResetAt  最終リセット日時（Y-m-d H:i:s）
      * @return string|null 新しいリセット日時（リセット不要ならnull）
      */
     public function getNewResetDateIfNeeded(
@@ -114,8 +114,8 @@ class _BasePurchaseLimitValidator
 
     /**
      * 週が異なるかチェック
-     * 
-     * @param string $lastResetAtString 最終リセット日時文字列
+     *
+     * @param  string  $lastResetAtString  最終リセット日時文字列
      * @return bool 週が異なる場合true
      */
     private function isDifferentWeek(string $lastResetAtString): bool
@@ -133,8 +133,8 @@ class _BasePurchaseLimitValidator
 
     /**
      * 月が異なるかチェック
-     * 
-     * @param string $lastResetAtString 最終リセット日時文字列
+     *
+     * @param  string  $lastResetAtString  最終リセット日時文字列
      * @return bool 月が異なる場合true
      */
     private function isDifferentMonth(string $lastResetAtString): bool

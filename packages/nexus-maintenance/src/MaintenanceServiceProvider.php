@@ -2,16 +2,16 @@
 
 namespace NexusMaintenance;
 
+use Illuminate\Support\ServiceProvider;
 use NexusMaintenance\Contracts\MaintenanceStorageInterface;
 use NexusMaintenance\Infrastructure\Database\DatabaseMaintenanceStorage;
 use NexusMaintenance\Infrastructure\DynamoDB\DynamoDBMaintenanceStorage;
 use NexusMaintenance\Infrastructure\TableStore\TableStoreMaintenanceStorage;
 use NexusMaintenance\Services\MaintenanceService;
-use Illuminate\Support\ServiceProvider;
 
 /**
  * メンテナンスサービスプロバイダー
- * 
+ *
  * メンテナンス機能の依存性注入を設定
  */
 class MaintenanceServiceProvider extends ServiceProvider
@@ -74,7 +74,7 @@ class MaintenanceServiceProvider extends ServiceProvider
      */
     private function createDynamoDBStorage(): DynamoDBMaintenanceStorage
     {
-        if (!class_exists('Aws\DynamoDb\DynamoDbClient')) {
+        if (! class_exists('Aws\DynamoDb\DynamoDbClient')) {
             throw new \RuntimeException(
                 'AWS SDK is required for DynamoDB storage. Install it with: composer require aws/aws-sdk-php'
             );
@@ -88,7 +88,7 @@ class MaintenanceServiceProvider extends ServiceProvider
      */
     private function createTableStoreStorage(): TableStoreMaintenanceStorage
     {
-        if (!class_exists('Aliyun\OTS\OTSClient')) {
+        if (! class_exists('Aliyun\OTS\OTSClient')) {
             throw new \RuntimeException(
                 'Alibaba Cloud TableStore SDK is required for TableStore storage. Install it with: composer require aliyun/aliyun-tablestore-sdk-php'
             );

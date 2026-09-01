@@ -16,7 +16,11 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'admin'),
+    // ルートの .env は API と共有しており、DB_CONNECTION=sqlite が入っている
+    // （引数なしの migrate が実DBを書き換えないようにするための既定値）。
+    // その値を既定接続として読むと、接続を明示していないクエリが
+    // 存在しない sqlite ファイルへ向かうため、Tool専用の変数で受ける
+    'default' => env('TOOL_DB_CONNECTION', 'admin'),
 
     /*
     |--------------------------------------------------------------------------

@@ -7,10 +7,10 @@ use DateTime;
 class ChangeLog
 {
     /**
-     * @param array<string, mixed>|null $beforeData 変更前の行データ（INSERTならnull）
-     * @param array<string, mixed>|null $afterData 変更後の行データ（DELETEならnull）
-     * @param array<string, mixed> $primaryKey 対象行を特定する主キーの値
-     * @param array<int, mixed>|null $stackTrace 記録時のスタックトレース
+     * @param  array<string, mixed>|null  $beforeData  変更前の行データ（INSERTならnull）
+     * @param  array<string, mixed>|null  $afterData  変更後の行データ（DELETEならnull）
+     * @param  array<string, mixed>  $primaryKey  対象行を特定する主キーの値
+     * @param  array<int, mixed>|null  $stackTrace  記録時のスタックトレース
      */
     public function __construct(
         private readonly string $uniqueRequestId,

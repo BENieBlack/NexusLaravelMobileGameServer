@@ -2,33 +2,35 @@
 
 namespace NexusMaintenance\Infrastructure\DynamoDB;
 
-use NexusMaintenance\Contracts\MaintenanceStorageInterface;
-use NexusMaintenance\ValueObjects\Maintenance;
-use Nexus\Core\Utilities\ClockUtility;
 use Aws\DynamoDb\DynamoDbClient;
 use Aws\DynamoDb\Exception\DynamoDbException;
 use Illuminate\Support\Facades\Log;
+use Nexus\Core\Utilities\ClockUtility;
+use NexusMaintenance\Contracts\MaintenanceStorageInterface;
+use NexusMaintenance\ValueObjects\Maintenance;
 
 /**
  * DynamoDB メンテナンスストレージ実装
- * 
+ *
  * AWS DynamoDBを使用したメンテナンス情報の永続化
  */
 class DynamoDBMaintenanceStorage implements MaintenanceStorageInterface
 {
     private DynamoDbClient $client;
+
     private string $tableName;
+
     private string $primaryKey;
 
     /**
-     * @param array<string, mixed> $config
-     * @param DynamoDbClient|null $client 生成済みのクライアント（テストや差し替え用）
+     * @param  array<string, mixed>  $config
+     * @param  DynamoDbClient|null  $client  生成済みのクライアント（テストや差し替え用）
      */
     public function __construct(array $config, ?DynamoDbClient $client = null)
     {
         $this->tableName = $config['table'];
         $this->primaryKey = $config['primary_key'];
-        
+
         $clientConfig = [
             'version' => 'latest',
             'region' => $config['region'],
@@ -39,7 +41,7 @@ class DynamoDBMaintenanceStorage implements MaintenanceStorageInterface
         ];
 
         // ローカル開発用エンドポイント設定
-        if (!empty($config['endpoint'])) {
+        if (! empty($config['endpoint'])) {
             $clientConfig['endpoint'] = $config['endpoint'];
         }
 
@@ -59,7 +61,7 @@ class DynamoDBMaintenanceStorage implements MaintenanceStorageInterface
                 ],
             ]);
 
-            if (!isset($result['Item'])) {
+            if (! isset($result['Item'])) {
                 return null;
             }
 
@@ -69,6 +71,7 @@ class DynamoDBMaintenanceStorage implements MaintenanceStorageInterface
                 'error' => $e->getMessage(),
                 'table' => $this->tableName,
             ]);
+
             return null;
         }
     }
@@ -98,6 +101,7 @@ class DynamoDBMaintenanceStorage implements MaintenanceStorageInterface
                 'error' => $e->getMessage(),
                 'table' => $this->tableName,
             ]);
+
             return false;
         }
     }
@@ -121,6 +125,7 @@ class DynamoDBMaintenanceStorage implements MaintenanceStorageInterface
                 'error' => $e->getMessage(),
                 'table' => $this->tableName,
             ]);
+
             return false;
         }
     }
@@ -134,12 +139,14 @@ class DynamoDBMaintenanceStorage implements MaintenanceStorageInterface
             $this->client->describeTable([
                 'TableName' => $this->tableName,
             ]);
+
             return true;
         } catch (DynamoDbException $e) {
             Log::error('DynamoDB health check failed', [
                 'error' => $e->getMessage(),
                 'table' => $this->tableName,
             ]);
+
             return false;
         }
     }
@@ -147,17 +154,17 @@ class DynamoDBMaintenanceStorage implements MaintenanceStorageInterface
     /**
      * DynamoDBアイテムをSysMaintenanceに変換
      *
-     * @param array<string, array<string, mixed>> $item DynamoDBの属性値マップ
+     * @param  array<string, array<string, mixed>>  $item  DynamoDBの属性値マップ
      */
     private function parseItem(array $item): Maintenance
     {
         return new Maintenance(
             isMaintenance: $item['is_maintenance']['BOOL'] ?? false,
-            startAt: !empty($item['start_at']['S']) ? $item['start_at']['S'] : null,
-            endAt: !empty($item['end_at']['S']) ? $item['end_at']['S'] : null,
+            startAt: ! empty($item['start_at']['S']) ? $item['start_at']['S'] : null,
+            endAt: ! empty($item['end_at']['S']) ? $item['end_at']['S'] : null,
             title: $item['title']['S'] ?? null,
             message: $item['message']['S'] ?? null,
-            updatedAt: !empty($item['updated_at']['S']) ? $item['updated_at']['S'] : null,
+            updatedAt: ! empty($item['updated_at']['S']) ? $item['updated_at']['S'] : null,
         );
     }
 }

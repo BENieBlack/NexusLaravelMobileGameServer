@@ -41,10 +41,10 @@ return [
     'batch' => [
         // バッチINSERTの最大行数（MySQLの max_allowed_packet を考慮）
         'max_insert_rows' => env('UNIT_OF_WORK_BATCH_INSERT_MAX', 1000),
-        
+
         // バッチUPDATEの最大行数
         'max_update_rows' => env('UNIT_OF_WORK_BATCH_UPDATE_MAX', 1000),
-        
+
         // トランザクションタイムアウト（秒）
         'transaction_timeout' => env('UNIT_OF_WORK_TRANSACTION_TIMEOUT', 30),
     ],

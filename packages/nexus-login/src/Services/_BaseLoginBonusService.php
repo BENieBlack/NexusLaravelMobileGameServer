@@ -2,24 +2,24 @@
 
 namespace NexusLogin\Services;
 
+use Carbon\CarbonImmutable;
+use Nexus\Core\Support\CustomCollection;
+use Nexus\Core\Utilities\ClockUtility;
+use NexusLogin\Contracts\LoginBonusStrategyInterface;
 use NexusResource\DataTransferObjects\Resource;
 use NexusResourceDelivery\Services\ResourceDeliveryService;
-use NexusLogin\Contracts\LoginBonusStrategyInterface;
-use Carbon\CarbonImmutable;
-use Nexus\Core\Utilities\ClockUtility;
-use Nexus\Core\Support\CustomCollection;
 
 /**
  * _BaseLoginBonusService
  *
  * ログインボーナス全般の基本処理を提供する抽象クラス
  * Template Method Patternを使用して、拡張可能な設計を実現
- * 
+ *
  * **デフォルト動作: 通常ログインボーナス（ループ有、スキップなし）**
- * 
+ *
  * Package側: 通常ログインボーナスの動作をデフォルト実装
  * Domain側: 差分のみオーバーライドして使用
- * 
+ *
  * オーバーライド可能なメソッド:
  * - isEligible(): 配布対象判定ロジック（必須）
  * - shouldLoop(): ループするかどうか（デフォルト: true）
@@ -36,22 +36,21 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
 {
     public function __construct(
         protected readonly ResourceDeliveryService $resourceDeliveryService,
-    ) {
-    }
+    ) {}
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * サブクラスで実装必須
      */
     abstract public function isEligible(int $sysPlayerId, ?string $lastLoginAt): bool;
 
     /**
      * ログインボーナスデータを取得（サブクラスで実装必須）
-     * 
-     * @param int $sysPlayerId プレイヤーID
-     * @param int $currentDay 現在の受け取り日数
-     * @param string|null $lastLoginAt 最終ログイン日時
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  int  $currentDay  現在の受け取り日数
+     * @param  string|null  $lastLoginAt  最終ログイン日時
      * @return array<string, mixed>|null ボーナスデータ、存在しない場合はnull
      */
     abstract protected function findLoginBonusData(int $sysPlayerId, int $currentDay, ?string $lastLoginAt): ?array;
@@ -59,20 +58,20 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
     /**
      * ログインボーナスの報酬内容を取得（サブクラスで実装必須）
      *
-     * @param array<string, mixed> $bonusData ログインボーナスデータ
-     * @param int $currentDay 現在の受け取り日数
+     * @param  array<string, mixed>  $bonusData  ログインボーナスデータ
+     * @param  int  $currentDay  現在の受け取り日数
      * @return CustomCollection<int, mixed>
      */
     abstract protected function findBonusContents(array $bonusData, int $currentDay): CustomCollection;
 
     /**
      * ログインボーナス履歴を記録（サブクラスで実装必須）
-     * 
-     * @param int $sysPlayerId プレイヤーID
-     * @param array<string, mixed> $bonusData ログインボーナスデータ
-     * @param int $currentDay 現在の受け取り日数
-     * @param CustomCollection<int, mixed> $contents 報酬内容
-     * @param string $connectionName シャーディングされたDB接続名
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  array<string, mixed>  $bonusData  ログインボーナスデータ
+     * @param  int  $currentDay  現在の受け取り日数
+     * @param  CustomCollection<int, mixed>  $contents  報酬内容
+     * @param  string  $connectionName  シャーディングされたDB接続名
      * @return void
      */
     abstract protected function recordHistory(
@@ -85,10 +84,10 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
 
     /**
      * ループするかどうか
-     * 
+     *
      * デフォルト: true（通常ログインボーナス、VIPログインボーナス）
      * オーバーライド: カムバックボーナスはfalse
-     * 
+     *
      * @return bool
      */
     protected function shouldLoop(): bool
@@ -98,10 +97,10 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
 
     /**
      * 休眠時にスキップするかどうか
-     * 
+     *
      * デフォルト: false（通常ログインボーナス、VIPログインボーナス）
      * オーバーライド: カムバックボーナスはtrue
-     * 
+     *
      * @return bool
      */
     protected function shouldSkipOnAbsence(): bool
@@ -111,14 +110,14 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
 
     /**
      * 現在の受け取り日数を計算
-     * 
+     *
      * デフォルト実装: 通常ログインボーナスの動作
      * - ループ有、スキップなし
      * - 前回の受け取り日数 + 1、ループ日数を超えたら1に戻る
-     * 
-     * @param int $sysPlayerId プレイヤーID
-     * @param string|null $lastLoginAt 最終ログイン日時
-     * @param string $connectionName シャーディングされたDB接続名
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  string|null  $lastLoginAt  最終ログイン日時
+     * @param  string  $connectionName  シャーディングされたDB接続名
      * @return int 現在の受け取り日数（1から開始）
      */
     protected function calculateCurrentDay(int $sysPlayerId, ?string $lastLoginAt, string $connectionName): int
@@ -147,11 +146,11 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
 
     /**
      * 前回受け取った日数を取得
-     * 
+     *
      * サブクラスでオーバーライド可能
-     * 
-     * @param int $sysPlayerId プレイヤーID
-     * @param string $connectionName シャーディングされたDB接続名
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  string  $connectionName  シャーディングされたDB接続名
      * @return int|null 前回受け取った日数、初回の場合はnull
      */
     protected function findLastReceivedDay(int $sysPlayerId, string $connectionName): ?int
@@ -162,10 +161,10 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
 
     /**
      * ループ日数を取得
-     * 
+     *
      * サブクラスでオーバーライド可能
-     * 
-     * @param int $sysPlayerId プレイヤーID
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
      * @return int|null ループ日数、ループしない場合はnull
      */
     protected function findLoopDays(int $sysPlayerId): ?int
@@ -179,7 +178,7 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
      */
     final public function process(int $sysPlayerId, ?string $lastLoginAt, string $connectionName): array
     {
-        if (!$this->isEligible($sysPlayerId, $lastLoginAt)) {
+        if (! $this->isEligible($sysPlayerId, $lastLoginAt)) {
             return [];
         }
 
@@ -194,7 +193,7 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
         }
 
         // 配布前のフック
-        if (!$this->beforeGrant($sysPlayerId, $bonusData, $currentDay, $connectionName)) {
+        if (! $this->beforeGrant($sysPlayerId, $bonusData, $currentDay, $connectionName)) {
             return [];
         }
 
@@ -209,11 +208,11 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
 
     /**
      * 配布前のフック（サブクラスでオーバーライド可能）
-     * 
-     * @param int $sysPlayerId プレイヤーID
-     * @param array<string, mixed> $bonusData ログインボーナスデータ
-     * @param int $currentDay 現在の受け取り日数
-     * @param string $connectionName シャーディングされたDB接続名
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  array<string, mixed>  $bonusData  ログインボーナスデータ
+     * @param  int  $currentDay  現在の受け取り日数
+     * @param  string  $connectionName  シャーディングされたDB接続名
      * @return bool 配布を続行する場合true、中止する場合false
      */
     protected function beforeGrant(int $sysPlayerId, array $bonusData, int $currentDay, string $connectionName): bool
@@ -223,12 +222,12 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
 
     /**
      * 配布後のフック（サブクラスでオーバーライド可能）
-     * 
-     * @param int $sysPlayerId プレイヤーID
-     * @param array<string, mixed> $bonusData ログインボーナスデータ
-     * @param int $currentDay 現在の受け取り日数
-     * @param array<int, mixed> $rewards 配布した報酬
-     * @param string $connectionName シャーディングされたDB接続名
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  array<string, mixed>  $bonusData  ログインボーナスデータ
+     * @param  int  $currentDay  現在の受け取り日数
+     * @param  array<int, mixed>  $rewards  配布した報酬
+     * @param  string  $connectionName  シャーディングされたDB接続名
      * @return void
      */
     protected function afterGrant(int $sysPlayerId, array $bonusData, int $currentDay, array $rewards, string $connectionName): void
@@ -239,11 +238,11 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
     /**
      * ログインボーナスを配布
      *
-     * @param int $sysPlayerId プレイヤーID
-     * @param array<string, mixed> $bonusData ログインボーナスデータ
-     * @param int $currentDay 現在の受け取り日数
-     * @param string $connectionName シャーディングされたDB接続名
-     * @return array<Resource> 配布した報酬
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  array<string, mixed>  $bonusData  ログインボーナスデータ
+     * @param  int  $currentDay  現在の受け取り日数
+     * @param  string  $connectionName  シャーディングされたDB接続名
+     * @return array<resource> 配布した報酬
      */
     protected function grantBonus(int $sysPlayerId, array $bonusData, int $currentDay, string $connectionName): array
     {
@@ -271,9 +270,9 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
 
     /**
      * ContentをResourceに変換（サブクラスでオーバーライド可能）
-     * 
-     * @param object $content
-     * @return Resource
+     *
+     * @param  object  $content
+     * @return resource
      */
     protected function convertToResource(object $content): Resource
     {

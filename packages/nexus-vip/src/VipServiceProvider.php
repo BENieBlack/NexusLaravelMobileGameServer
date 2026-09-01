@@ -46,7 +46,6 @@ class VipServiceProvider extends ServiceProvider
         // Note: Repository実装クラスは api/app/Repositories に配置されるため、
         // ここではインターフェースのみ定義し、実装は AppServiceProvider でバインドする
 
-
         // VIPレベルサービス
         $this->app->singleton(VipLevelService::class, function ($app) {
             return new VipLevelService(
@@ -89,7 +88,7 @@ class VipServiceProvider extends ServiceProvider
         // マイグレーションをロード（動的シャーディング対応）
         // 注意: php artisan pitr:migrate で全LogDBシャード（log1, log2, ...）に実行
         $baseDir = __DIR__.'/../database/migrations';
-        
+
         // 各サブディレクトリを個別に読み込む
         foreach (['mst', 'trx', 'log', 'sys'] as $type) {
             $path = "{$baseDir}/{$type}";

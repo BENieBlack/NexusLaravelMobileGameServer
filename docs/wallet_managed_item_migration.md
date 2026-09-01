@@ -34,23 +34,29 @@ Wallet 側と `trx_item` 側に分岐します。
 つまりデータは失われませんが、**間の時間はプレイヤーから残高が消えて見え、
 消費が例外で落ちます**。この窓を開けたまま運用してはいけません。
 
+後述の手順どおり「移行コマンド → マスターキャッシュ削除」の順で、
+かつメンテナンス中に実施すれば、この状態はプレイヤーから見えません。
+
 ## マスターキャッシュに注意
 
 `mst_item` は Redis に TTL 3600 秒でキャッシュされます
 （`Nexus\Core\Repositories\Mst\_BaseMstRepository::$cacheTtl`）。
 `mst` DB を更新しただけでは、キーが切れるまで最大1時間は
-`is_wallet=false` のまま動き続けます。
+**ゲーム側は `is_wallet=false` のまま動き続けます**。
 
-**移行コマンド自身も同じキャッシュを読みます。**
-マスター配信直後にコマンドを流すと、対象0件と判定して
+一方、移行コマンドは `mst` DB を直接読みます。キャッシュ越しに読むと
+`is_wallet` を立てた直後は false に見えて、1件も移さないまま
+成功扱いで終わってしまうためです。
 
-```
-Wallet管理のアイテムが見つかりませんでした
-```
+この差を利用して、切り替えの窓を無くします。
 
-と表示し、**終了コード0で成功したように終わります**。
-流したつもりで1件も移っていない状態になるため、
-必ずキャッシュを消してからコマンドを実行してください。
+1. 先に **移行コマンド** を流して残高を Wallet へ移す（ゲーム側はまだ `trx_item` を見ている）
+2. その後に **キャッシュを消す**（ゲーム側が Wallet を見るようになる）
+
+この順にすれば、`trx_item` が空でゲーム側がまだ `trx_item` を見ている状態は
+メンテナンス中にしか存在しません。逆順にすると、
+キャッシュを消してからコマンドが終わるまでの間、
+プレイヤーからは残高が0に見え、消費が `InsufficientBalanceException` で落ちます。
 
 キャッシュキーは `mst:{テーブル名}:all` です（`mst_item` なら `mst:mst_item:all`）。
 現状これを消す artisan コマンドは無いため、tinker から実行します。
@@ -73,22 +79,7 @@ Wallet管理のアイテムが見つかりませんでした
 UPDATE mst_item SET is_wallet = true WHERE id IN ('gold', 'coin');
 ```
 
-### 3. マスターキャッシュを消す
-
-```bash
-docker compose exec api-php php artisan tinker --execute="\Illuminate\Support\Facades\Cache::store('redis')->forget('mst:mst_item:all');"
-```
-
-これを飛ばすと、次のコマンドが対象0件で成功終了します。
-
-`_BaseMstRepository::clearAllCaches()` でも消えますが、こちらは
-Redis キャッシュストア全体を `flush()` します。`CACHE_STORE=redis` のため
-他のマスターテーブルとアプリケーションキャッシュも巻き添えで消えます
-（セッションは `SESSION_DRIVER=database` なので影響しません）。
-消えたぶんは次のアクセスで DB から読み直されるだけですが、
-本番では上記のキー単位の削除を使ってください。
-
-### 4. 移行内容を確認する（dry-run）
+### 3. 移行内容を確認する（dry-run）
 
 ```bash
 docker compose exec api-php php artisan wallet:migrate-items --dry-run
@@ -96,37 +87,64 @@ docker compose exec api-php php artisan wallet:migrate-items --dry-run
 
 ```
 [DRY RUN モード] 実際には移しません
-対象アイテム: gold, coin
+対象アイテム: coin, gold
 trx1: 12034 件
 trx2: 11987 件
 移行: 24021 件（合計 48291503）
 ```
 
 `対象アイテム` に狙ったIDが並んでいることを確認します。
-ここが空、または「Wallet管理のアイテムが見つかりませんでした」と出る場合は
-ステップ3のキャッシュ削除ができていません。
 
-### 5. 移行する
+### 4. 移行する
 
 ```bash
 docker compose exec api-php php artisan wallet:migrate-items
 ```
 
 特定のアイテムだけ移す場合は `--item` を付けます。
+マスターに無いIDや `is_wallet` が立っていないIDを渡すと、
+エラーを表示して終了コード1で終わります。
 
 ```bash
 docker compose exec api-php php artisan wallet:migrate-items --item=gold
 ```
 
 コマンドは `config('database.pitr.active_trx_connections')` の全シャードを走査し、
+主キー `(sys_player_id, mst_item_id)` を辿って `--chunk` 件（既定1000）ずつ読み出し、
 1行ごとに同一シャード内のトランザクションで次を行います。
 
-1. `trx_wallet` に加算（行が無ければ作成）
-2. `trx_wallet_balance` に無償ぶん・有償ぶんを1行ずつ挿入
-3. 移し終えた `trx_item` の行を物理削除
+1. `trx_item` の行を `FOR UPDATE` で読み直す（消えていればスキップ）
+2. `trx_wallet` に加算（行が無ければ作成）
+3. `trx_wallet_balance` に無償ぶん・有償ぶんを1行ずつ挿入
+4. 移し終えた `trx_item` の行を物理削除
 
 `trx_item` に有効期限は無いため、移した残高は `expire_at = null`（無期限）で入ります。
 有償・無償の内訳はそのまま保たれます。
+
+読み直した時点で行が消えていた、または論理削除されていた場合はスキップし、
+最後に件数を警告として出します。
+
+```
+移行中に変化した行をスキップしました: 3 件
+```
+
+メンテナンス中であればここは0件になるはずです。0件でない場合は
+アクセスが止まっていないため、残高が合っているか確認してください。
+
+### 5. マスターキャッシュを消す
+
+ここで初めてゲーム側が `is_wallet` を見るようになります。
+
+```bash
+docker compose exec api-php php artisan tinker --execute="\Illuminate\Support\Facades\Cache::store('redis')->forget('mst:mst_item:all');"
+```
+
+`_BaseMstRepository::clearAllCaches()` でも消えますが、こちらは
+Redis キャッシュストア全体を `flush()` します。`CACHE_STORE=redis` のため
+他のマスターテーブルとアプリケーションキャッシュも巻き添えで消えます
+（セッションは `SESSION_DRIVER=database` なので影響しません）。
+消えたぶんは次のアクセスで DB から読み直されるだけですが、
+本番では上記のキー単位の削除を使ってください。
 
 ### 6. 結果を確認する
 
@@ -150,11 +168,15 @@ WHERE mst_item_id IN ('gold', 'coin') GROUP BY mst_item_id;
 
 ### 稼働中に流してはいけない
 
-コマンドは対象行を `->get()` でトランザクション**外**に読み出し、
-その値を使ってトランザクション内で Wallet へ書き、
-`WHERE sys_player_id AND mst_item_id` で `trx_item` を削除します。
-読み出しから削除までの間に同じ行が増減すると、その差分が失われるか二重になります。
+金額はトランザクション内で `FOR UPDATE` を取って読み直すため、
+コマンド単体で残高を取りこぼすことはありません。
+ただし、ゲーム側は UnitOfWork でリクエスト終了時にまとめて書き込みます。
+読み取り時点では存在した `trx_item` の行がコマンドに消された後で
+`UPDATE` が走ると、その更新は行に当たらず捨てられます。
 メンテナンス中に実行してください。
+
+スキップされた行があると警告が出ます。0件でない場合はアクセスが
+止まっていないため、対象プレイヤーの残高を確認してください。
 
 ### 論理削除済みの行は移らない
 
@@ -163,14 +185,8 @@ WHERE mst_item_id IN ('gold', 'coin') GROUP BY mst_item_id;
 
 ### メモリ
 
-シャードごとに対象行を全件メモリへ読み込みます。
-対象行数が多い場合は、`--item` でアイテムを分けて複数回に分けて実行してください。
-
-### 失敗しても終了コードが0になる
-
-`--item` に Wallet 管理でないIDを渡した場合、エラーを表示しますが
-終了コードは 0 です。バッチのジョブ管理から失敗を検知できないため、
-出力内容を確認してください。
+`--chunk` 件ずつ読み出すため、対象行が多くてもメモリは一定です。
+既定は1000件で、行数が多い場合に落ちるようなら小さくしてください。
 
 ### 元に戻せない
 

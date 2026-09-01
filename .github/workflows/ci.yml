@@ -36,9 +36,15 @@ jobs:
         working-directory: api
         run: composer install --no-interaction --prefer-dist --no-progress
 
+      # 引数なしのpintはカレントディレクトリしか見ない。
+      # packages/ はコード行数の約4割を占めるため、明示的に渡す
       - name: コードフォーマットの検証
         working-directory: api
         run: ./vendor/bin/pint --test
+
+      - name: コードフォーマットの検証（packages）
+        working-directory: api
+        run: ./vendor/bin/pint --test ../packages
 
       - name: 静的解析
         working-directory: api

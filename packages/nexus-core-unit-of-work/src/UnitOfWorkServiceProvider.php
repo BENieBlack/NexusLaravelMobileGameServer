@@ -8,7 +8,7 @@ use NexusUnitOfWork\Persistence\QueryManager;
 
 /**
  * UnitOfWorkServiceProvider
- * 
+ *
  * Laravel Unit of Work パッケージのサービスプロバイダー
  */
 class UnitOfWorkServiceProvider extends ServiceProvider
@@ -30,7 +30,7 @@ class UnitOfWorkServiceProvider extends ServiceProvider
         // singleton から scoped へ変更することで、リクエストごとに新しいインスタンスを生成
         // これにより、リクエスト間でのデータ混在を防ぎ、メモリリークを防止
         $this->app->scoped(QueryManagerInterface::class, function ($app) {
-            return new QueryManager();
+            return new QueryManager;
         });
 
         // QueryManagerクラスとしても登録（後方互換性のため）

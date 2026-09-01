@@ -2,20 +2,20 @@
 
 namespace NexusBilling\Services;
 
+use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\Log;
 use NexusBilling\ApiClients\AppStoreApiClient;
 use NexusBilling\Constants\BillingConst;
 use NexusBilling\Contracts\BillingPlatformInterface;
 use NexusBilling\DataTransferObjects\Receipt;
-use NexusBilling\ValueObjects\Subscription;
 use NexusBilling\DataTransferObjects\Verification;
 use NexusBilling\Exceptions\InvalidReceiptException;
 use NexusBilling\Exceptions\PlatformApiException;
-use Carbon\CarbonImmutable;
-use Illuminate\Support\Facades\Log;
+use NexusBilling\ValueObjects\Subscription;
 
 /**
  * App Store 決済サービス
- * 
+ *
  * Apple App Store のレシート検証とサブスクリプション管理を担当
  */
 class AppStoreBillingService implements BillingPlatformInterface
@@ -64,7 +64,7 @@ class AppStoreBillingService implements BillingPlatformInterface
         $response = $this->apiClient->verifyReceipt($payload);
 
         // 3. レスポンス検証
-        if (!isset($response['status']) || $response['status'] !== 0) {
+        if (! isset($response['status']) || $response['status'] !== 0) {
             $status = $response['status'] ?? 'unknown';
             throw new InvalidReceiptException(
                 "App Store receipt verification failed with status: {$status}"
@@ -73,7 +73,7 @@ class AppStoreBillingService implements BillingPlatformInterface
 
         // 4. トランザクション情報抽出
         $latestReceipt = $response['receipt']['in_app'][0] ?? null;
-        if (!$latestReceipt) {
+        if (! $latestReceipt) {
             throw new InvalidReceiptException('No transaction found in receipt');
         }
 
@@ -82,8 +82,8 @@ class AppStoreBillingService implements BillingPlatformInterface
             isValid: true,
             transactionId: $latestReceipt['transaction_id'],
             productId: $latestReceipt['product_id'],
-            purchaseDate: CarbonImmutable::createFromTimestampMs((int)$latestReceipt['purchase_date_ms'])->format('Y-m-d H:i:s'),
-            quantity: (int)($latestReceipt['quantity'] ?? 1),
+            purchaseDate: CarbonImmutable::createFromTimestampMs((int) $latestReceipt['purchase_date_ms'])->format('Y-m-d H:i:s'),
+            quantity: (int) ($latestReceipt['quantity'] ?? 1),
             originalTransactionId: $latestReceipt['original_transaction_id'],
             rawResponse: $response,
         );

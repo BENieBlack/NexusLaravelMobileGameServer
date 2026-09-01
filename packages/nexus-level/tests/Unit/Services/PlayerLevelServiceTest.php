@@ -2,12 +2,12 @@
 
 namespace NexusLevel\Tests\Unit\Services;
 
-use NexusLevel\Contracts\PlayerLevelUpHandlerInterface;
-use NexusLevel\Repositories\PlayerLevelRepositoryInterface;
-use NexusLevel\Services\PlayerLevelService;
 use Nexus\Core\Contracts\PlayerModelInterface;
 use Nexus\Core\DataTransferObjects\Player;
 use Nexus\Core\Repositories\PlayerRepositoryInterface;
+use NexusLevel\Contracts\PlayerLevelUpHandlerInterface;
+use NexusLevel\Repositories\PlayerLevelRepositoryInterface;
+use NexusLevel\Services\PlayerLevelService;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -252,7 +252,7 @@ class FakePlayerRepository implements PlayerRepositoryInterface
 class FakePlayerLevelRepository implements PlayerLevelRepositoryInterface
 {
     /**
-     * @param  array<int, array{0: int, 1: int}>  $levels レベル => [必要累積経験値, 最大スタミナ]
+     * @param  array<int, array{0: int, 1: int}>  $levels  レベル => [必要累積経験値, 最大スタミナ]
      */
     public function __construct(private readonly array $levels) {}
 

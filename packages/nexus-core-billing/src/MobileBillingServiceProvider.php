@@ -5,7 +5,6 @@ namespace NexusBilling;
 use Illuminate\Support\ServiceProvider;
 use NexusBilling\ApiClients\AppStoreApiClient;
 use NexusBilling\ApiClients\GooglePlayApiClient;
-use NexusBilling\Contracts\BillingPlatformInterface;
 use NexusBilling\Facades\BillingFacade;
 use NexusBilling\Services\AppStoreBillingService;
 use NexusBilling\Services\BillingPlatformFactory;
@@ -14,7 +13,7 @@ use NexusBilling\Services\IdempotencyService;
 
 /**
  * Mobile Billing Service Provider
- * 
+ *
  * パッケージのサービス登録と初期化を担当
  */
 class MobileBillingServiceProvider extends ServiceProvider
@@ -31,11 +30,11 @@ class MobileBillingServiceProvider extends ServiceProvider
 
         // API Clients
         $this->app->singleton(AppStoreApiClient::class, function ($app) {
-            return new AppStoreApiClient();
+            return new AppStoreApiClient;
         });
 
         $this->app->singleton(GooglePlayApiClient::class, function ($app) {
-            return new GooglePlayApiClient();
+            return new GooglePlayApiClient;
         });
 
         // Platform Services
@@ -61,7 +60,7 @@ class MobileBillingServiceProvider extends ServiceProvider
 
         // Idempotency Service
         $this->app->singleton(IdempotencyService::class, function ($app) {
-            return new IdempotencyService();
+            return new IdempotencyService;
         });
 
         // Facade
@@ -84,7 +83,7 @@ class MobileBillingServiceProvider extends ServiceProvider
         // マイグレーションをロード（動的シャーディング対応）
         // 注意: php artisan pitr:migrate で全LogDBシャード（log1, log2, ...）に実行
         $baseDir = __DIR__.'/../database/migrations';
-        
+
         // 各サブディレクトリを個別に読み込む
         foreach (['mst', 'trx', 'log', 'sys'] as $type) {
             $path = "{$baseDir}/{$type}";
@@ -92,7 +91,7 @@ class MobileBillingServiceProvider extends ServiceProvider
                 $this->loadMigrationsFrom($path);
             }
         }
-        
+
         // 設定ファイルの公開
         if ($this->app->runningInConsole()) {
             $this->publishes([

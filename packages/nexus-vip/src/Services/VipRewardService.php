@@ -2,8 +2,8 @@
 
 namespace NexusVip\Services;
 
-use NexusVip\ValueObjects\VipReward;
 use NexusVip\Repositories\VipLevelRewardRepositoryInterface;
+use NexusVip\ValueObjects\VipReward;
 
 /**
  * VIP報酬サービス

@@ -2,8 +2,8 @@
 
 namespace NexusResourceDelivery\Handlers;
 
-use NexusResource\Services\ItemService;
 use NexusResource\Enums\ResourceType;
+use NexusResource\Services\ItemService;
 use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
 
 /**

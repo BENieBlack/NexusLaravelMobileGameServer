@@ -2,18 +2,18 @@
 
 namespace NexusSecurity\Middleware;
 
-use NexusSecurity\Contracts\TokenValidatorInterface;
-use NexusSecurity\Contracts\PlayerSessionInterface;
 use Closure;
 use Illuminate\Http\Request;
+use NexusSecurity\Contracts\PlayerSessionInterface;
+use NexusSecurity\Contracts\TokenValidatorInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * VerifyAccessToken Middleware
- * 
+ *
  * アクセストークンを検証し、リクエストにプレイヤー情報を追加する
  * PlayerSessionにプレイヤーIDを設定してアプリケーション全体で利用可能にする
- * 
+ *
  * 使用方法:
  * 1. TokenValidatorInterfaceを実装したクラスを作成
  * 2. PlayerSessionInterfaceを実装したクラスを作成（オプション）
@@ -24,8 +24,8 @@ use Symfony\Component\HttpFoundation\Response;
 class VerifyAccessToken
 {
     /**
-     * @param TokenValidatorInterface $tokenValidator
-     * @param PlayerSessionInterface|null $playerSession
+     * @param  TokenValidatorInterface  $tokenValidator
+     * @param  PlayerSessionInterface|null  $playerSession
      */
     public function __construct(
         private TokenValidatorInterface $tokenValidator,
@@ -35,16 +35,16 @@ class VerifyAccessToken
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
         // Authorizationヘッダーからトークンを取得
         $authHeader = $request->headers->get('Authorization');
-        
-        if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
+
+        if (! $authHeader || ! str_starts_with($authHeader, 'Bearer ')) {
             return response()->json([
-                'error' => 'Authorization header missing or invalid'
+                'error' => 'Authorization header missing or invalid',
             ], 401);
         }
 
@@ -54,9 +54,9 @@ class VerifyAccessToken
         // トークンを検証
         $payload = $this->tokenValidator->validateAccessToken($token);
 
-        if (!$payload) {
+        if (! $payload) {
             return response()->json([
-                'error' => 'Invalid or expired access token'
+                'error' => 'Invalid or expired access token',
             ], 401);
         }
 

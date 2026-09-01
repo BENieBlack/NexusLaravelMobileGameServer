@@ -2,10 +2,10 @@
 
 namespace NexusStamina\Services;
 
+use Nexus\Core\Utilities\ClockUtility;
 use NexusStamina\Constants\StaminaConst;
 use NexusStamina\DataTransferObjects\Stamina;
 use NexusStamina\Repositories\StaminaRepositoryInterface;
-use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * StaminaService

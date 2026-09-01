@@ -6,14 +6,15 @@ use Nexus\Core\Traits\JsonSerializableTrait;
 
 /**
  * レシートデータDTO
- * 
+ *
  * クライアントから送信されるレシート情報を保持
  */
 class Receipt
 {
     use JsonSerializableTrait;
+
     public function __construct(
-        
+
         private readonly int $playerId,
         private readonly string $billingPlatform,
         private readonly ?string $receipt = null,           // AppStore用: base64エンコードされたレシート
@@ -24,6 +25,7 @@ class Receipt
 
     /**
      * 配列に変換
+     *
      * @return array<string, mixed>
      */
     public function toArray(): array

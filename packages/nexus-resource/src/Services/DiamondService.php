@@ -7,19 +7,19 @@ use NexusResource\DataTransferObjects\DiamondBalance;
 
 /**
  * DiamondService（パッケージ層）
- * 
+ *
  * ダイヤモンド残高の管理を担当するサービス
- * 
+ *
  * Responsibilities:
  * - ダイヤモンド残高の取得
  * - ダイヤモンドの加算（有償/無償）
  * - ダイヤモンドの消費（無償→有償、または有償のみ）
- * 
+ *
  * Characteristics:
  * - DTOベースのビジネスロジック
  * - Repository Interfaceに依存（Model非依存）
  * - 純粋なビジネスルール実装
- * 
+ *
  * 消費順序:
  * - デフォルト: 無償ダイヤ → 有償ダイヤ
  * - isPaidOnly=true: 有償ダイヤのみ
@@ -28,20 +28,19 @@ class DiamondService
 {
     public function __construct(
         private readonly DiamondRepositoryInterface $diamondRepository,
-    ) {
-    }
+    ) {}
 
     /**
      * ダイヤモンド残高を取得
-     * 
-     * @param int $sysPlayerId プレイヤーID
-     * @param string $platform プラットフォーム（Apple, Google）
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  string  $platform  プラットフォーム（Apple, Google）
      * @return array{paid_amount: int, free_amount: int, total_amount: int}
      */
     public function findBalance(int $sysPlayerId, string $platform): array
     {
         $diamond = $this->diamondRepository->selectByPlatform($sysPlayerId, $platform);
-        
+
         if ($diamond === null) {
             return [
                 'paid_amount' => 0,
@@ -49,7 +48,7 @@ class DiamondService
                 'total_amount' => 0,
             ];
         }
-        
+
         return [
             'paid_amount' => $diamond->getPaidAmount(),
             'free_amount' => $diamond->getFreeAmount(),
@@ -59,11 +58,11 @@ class DiamondService
 
     /**
      * ダイヤモンドを加算（有償/無償）
-     * 
-     * @param int $sysPlayerId プレイヤーID
-     * @param string $platform プラットフォーム（Apple, Google）
-     * @param int $amount 加算する数量
-     * @param bool $isPaid 有償ダイヤモンドか（falseの場合は無償）
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  string  $platform  プラットフォーム（Apple, Google）
+     * @param  int  $amount  加算する数量
+     * @param  bool  $isPaid  有償ダイヤモンドか（falseの場合は無償）
      * @return DiamondBalance 加算後のダイヤモンドDTO
      */
     public function addDiamond(int $sysPlayerId, string $platform, int $amount, bool $isPaid = false): DiamondBalance
@@ -95,11 +94,12 @@ class DiamondService
 
     /**
      * ダイヤモンドを消費（無償 → 有償の順で消費、または有償のみ）
-     * 
-     * @param int $sysPlayerId プレイヤーID
-     * @param int $amount 消費する数量
-     * @param bool $isPaidOnly 有償ダイヤのみを消費するか（falseの場合は無償→有償の順）
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  int  $amount  消費する数量
+     * @param  bool  $isPaidOnly  有償ダイヤのみを消費するか（falseの場合は無償→有償の順）
      * @return void
+     *
      * @throws \Exception 残高不足の場合
      */
     public function consumeDiamond(int $sysPlayerId, int $amount, bool $isPaidOnly = false): void
@@ -112,8 +112,8 @@ class DiamondService
         }
 
         // 合計残高を計算
-        $totalFree = array_sum(array_map(fn($dto) => $dto->getFreeAmount(), $diamondDtos));
-        $totalPaid = array_sum(array_map(fn($dto) => $dto->getPaidAmount(), $diamondDtos));
+        $totalFree = array_sum(array_map(fn ($dto) => $dto->getFreeAmount(), $diamondDtos));
+        $totalPaid = array_sum(array_map(fn ($dto) => $dto->getPaidAmount(), $diamondDtos));
 
         // 残高チェック
         if ($isPaidOnly) {
@@ -131,10 +131,11 @@ class DiamondService
 
     /**
      * 有償ダイヤ残高チェック
-     * 
-     * @param int $totalPaid 現在の有償ダイヤ残高
-     * @param int $required 必要な数量
+     *
+     * @param  int  $totalPaid  現在の有償ダイヤ残高
+     * @param  int  $required  必要な数量
      * @return void
+     *
      * @throws \Exception 残高不足の場合
      */
     private function validatePaidBalance(int $totalPaid, int $required): void
@@ -146,10 +147,11 @@ class DiamondService
 
     /**
      * 合計ダイヤ残高チェック
-     * 
-     * @param int $total 現在の合計残高
-     * @param int $required 必要な数量
+     *
+     * @param  int  $total  現在の合計残高
+     * @param  int  $required  必要な数量
      * @return void
+     *
      * @throws \Exception 残高不足の場合
      */
     private function validateTotalBalance(int $total, int $required): void
@@ -161,20 +163,24 @@ class DiamondService
 
     /**
      * 有償ダイヤのみを消費
-     * 
-     * @param array<DiamondBalance> $diamondDtos ダイヤモンドDTOの配列
-     * @param int $amount 消費する数量
+     *
+     * @param  array<DiamondBalance>  $diamondDtos  ダイヤモンドDTOの配列
+     * @param  int  $amount  消費する数量
      * @return void
      */
     private function consumePaidDiamond(array $diamondDtos, int $amount): void
     {
         $remaining = $amount;
-        
+
         foreach ($diamondDtos as $diamond) {
-            if ($remaining <= 0) break;
+            if ($remaining <= 0) {
+                break;
+            }
 
             $paidAmount = $diamond->getPaidAmount();
-            if ($paidAmount <= 0) continue;
+            if ($paidAmount <= 0) {
+                continue;
+            }
 
             $consume = min($paidAmount, $remaining);
             $diamond->setPaidAmount($paidAmount - $consume);
@@ -185,9 +191,9 @@ class DiamondService
 
     /**
      * 無償ダイヤ → 有償ダイヤの順で消費
-     * 
-     * @param array<DiamondBalance> $diamondDtos ダイヤモンドDTOの配列
-     * @param int $amount 消費する数量
+     *
+     * @param  array<DiamondBalance>  $diamondDtos  ダイヤモンドDTOの配列
+     * @param  int  $amount  消費する数量
      * @return void
      */
     private function consumeFreeThenPaidDiamond(array $diamondDtos, int $amount): void
@@ -196,10 +202,14 @@ class DiamondService
 
         // まず無償ダイヤから消費
         foreach ($diamondDtos as $diamond) {
-            if ($remaining <= 0) break;
+            if ($remaining <= 0) {
+                break;
+            }
 
             $freeAmount = $diamond->getFreeAmount();
-            if ($freeAmount <= 0) continue;
+            if ($freeAmount <= 0) {
+                continue;
+            }
 
             $consume = min($freeAmount, $remaining);
             $diamond->setFreeAmount($freeAmount - $consume);

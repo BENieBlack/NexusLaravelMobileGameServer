@@ -2,15 +2,18 @@
 
 namespace NexusAuth\Services;
 
+use Firebase\JWT\BeforeValidException;
+use Firebase\JWT\ExpiredException;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+use Firebase\JWT\SignatureInvalidException;
+use Illuminate\Support\Str;
 use Nexus\Core\Contracts\DeviceModelInterface;
 use Nexus\Core\Contracts\PlayerModelInterface;
+use Nexus\Core\Utilities\ClockUtility;
 use NexusAuth\Contracts\TokenModelInterface;
 use NexusAuth\Contracts\TokenRepositoryInterface;
 use NexusAuth\ValueObjects\Token;
-use Nexus\Core\Utilities\ClockUtility;
-use Illuminate\Support\Str;
 
 /**
  * TokenService
@@ -46,10 +49,10 @@ class TokenService
     /**
      * コンストラクタ
      *
-     * @param TokenRepositoryInterface $tokenRepository
-     * @param string $appKey アプリケーションキー（署名用、最低32文字推奨）
-     * @param int $accessTokenExpiration アクセストークン有効期限（秒）
-     * @param int $refreshTokenExpirationDays リフレッシュトークン有効期限（日）
+     * @param  TokenRepositoryInterface  $tokenRepository
+     * @param  string  $appKey  アプリケーションキー（署名用、最低32文字推奨）
+     * @param  int  $accessTokenExpiration  アクセストークン有効期限（秒）
+     * @param  int  $refreshTokenExpirationDays  リフレッシュトークン有効期限（日）
      */
     public function __construct(
         private readonly TokenRepositoryInterface $tokenRepository,
@@ -74,24 +77,24 @@ class TokenService
      * - alg 固定（HS256のみ）
      * - 鍵ローテーション対応（kid）
      *
-     * @param PlayerModelInterface $player
-     * @param DeviceModelInterface $device
+     * @param  PlayerModelInterface  $player
+     * @param  DeviceModelInterface  $device
      * @return string
      */
     public function generateAccessToken(PlayerModelInterface $player, DeviceModelInterface $device): string
     {
         $now = time();
-        
+
         // JWT標準のペイロード
         $payload = [
             'iss' => config('app.url'),              // Issuer
-            'sub' => (string)$player->getId(),       // Subject (player_id)
+            'sub' => (string) $player->getId(),       // Subject (player_id)
             'aud' => config('app.name'),             // Audience
             'exp' => $now + $this->accessTokenExpiration, // Expiration Time
             'iat' => $now,                           // Issued At
             'nbf' => $now,                           // Not Before
             'jti' => Str::uuid()->toString(),        // JWT ID (一意識別子)
-            
+
             // カスタムクレーム
             'player_id' => $player->getId(),
             'uuid' => $player->getUuid(),
@@ -105,7 +108,7 @@ class TokenService
     /**
      * アクセストークンを検証
      *
-     * @param string $token
+     * @param  string  $token
      * @return array<string, mixed>|null ペイロード（検証成功時）、null（失敗時）
      */
     public function validateAccessToken(string $token): ?array
@@ -117,17 +120,17 @@ class TokenService
             // - nbf（Not Before）
             // - alg（アルゴリズム固定）
             $decoded = JWT::decode($token, new Key($this->appKey, self::ALGORITHM));
-            
+
             // stdClass を配列に変換
             return json_decode(json_encode($decoded), true);
-            
-        } catch (\Firebase\JWT\ExpiredException $e) {
+
+        } catch (ExpiredException $e) {
             // トークン期限切れ
             return null;
-        } catch (\Firebase\JWT\SignatureInvalidException $e) {
+        } catch (SignatureInvalidException $e) {
             // 署名が不正
             return null;
-        } catch (\Firebase\JWT\BeforeValidException $e) {
+        } catch (BeforeValidException $e) {
             // nbf より前
             return null;
         } catch (\Exception $e) {
@@ -139,9 +142,9 @@ class TokenService
     /**
      * Token DTOとTokenModelを生成
      *
-     * @param PlayerModelInterface $player
-     * @param DeviceModelInterface $device
-     * @param callable $tokenModelFactory トークンモデルを生成するファクトリ関数
+     * @param  PlayerModelInterface  $player
+     * @param  DeviceModelInterface  $device
+     * @param  callable  $tokenModelFactory  トークンモデルを生成するファクトリ関数
      * @return array{Token, TokenModelInterface}
      */
     public function generateToken(
@@ -176,22 +179,23 @@ class TokenService
     /**
      * リフレッシュトークンを検証
      *
-     * @param string $refreshToken
+     * @param  string  $refreshToken
      * @return TokenModelInterface|null
      */
     public function validateRefreshToken(string $refreshToken): ?TokenModelInterface
     {
         $tokenHash = hash('sha256', $refreshToken);
+
         return $this->tokenRepository->selectByRefreshToken($tokenHash);
     }
 
     /**
      * トークンをローテーション（古いトークンを無効化し、新しいトークンを生成）
      *
-     * @param TokenModelInterface $oldToken
-     * @param PlayerModelInterface $player
-     * @param DeviceModelInterface $device
-     * @param callable(int, int, string, string): TokenModelInterface $tokenModelFactory
+     * @param  TokenModelInterface  $oldToken
+     * @param  PlayerModelInterface  $player
+     * @param  DeviceModelInterface  $device
+     * @param  callable(int, int, string, string): TokenModelInterface  $tokenModelFactory
      * @return array{Token, TokenModelInterface}
      */
     public function rotateToken(
@@ -210,7 +214,7 @@ class TokenService
     /**
      * プレイヤーの全トークンを無効化
      *
-     * @param int $playerId
+     * @param  int  $playerId
      * @return int 無効化したトークン数
      */
     public function revokePlayerTokens(int $playerId): int

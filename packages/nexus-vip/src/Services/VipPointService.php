@@ -102,6 +102,7 @@ class VipPointService
 
     /**
      * VIPポイント変動ログを記録
+     *
      * @param  array<string, mixed>  $metadata
      */
     protected function logVipPointChange(

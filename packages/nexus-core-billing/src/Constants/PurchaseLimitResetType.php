@@ -4,7 +4,7 @@ namespace NexusBilling\Constants;
 
 /**
  * 購入制限リセット種別の定数定義
- * 
+ *
  * アプリ内課金商品の購入回数制限をいつリセットするかを定義
  */
 class PurchaseLimitResetType
@@ -31,7 +31,7 @@ class PurchaseLimitResetType
 
     /**
      * 全リセットタイプの配列を取得
-     * 
+     *
      * @return array<int, string>
      */
     public static function all(): array
@@ -46,8 +46,8 @@ class PurchaseLimitResetType
 
     /**
      * リセットタイプが有効かチェック
-     * 
-     * @param string $resetType
+     *
+     * @param  string  $resetType
      * @return bool
      */
     public static function isValid(string $resetType): bool

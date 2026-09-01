@@ -7,10 +7,10 @@ use Illuminate\Support\Facades\Schema;
 
 /**
  * PITR用テーブル作成マイグレーション
- * 
+ *
  * 注意: このマイグレーションは`php artisan pitr:migrate`で実行してください。
  * PitrMigrateCommandが全LogDBシャード（log1, log2, ...）に対して自動的に実行します。
- * 
+ *
  * 直接実行する場合（非推奨）:
  *   php artisan migrate --database=log1 --path=database/migrations/log
  *   php artisan migrate --database=log2 --path=database/migrations/log
@@ -24,7 +24,7 @@ return new class extends Migration
     {
         // 注意: Schema::connection()は使用しない
         // PitrMigrateCommandが--databaseオプションで接続を指定するため
-        
+
         // ========================================
         // log_trx_change: TrxDB統合変更ログ (PITR用)
         // ========================================

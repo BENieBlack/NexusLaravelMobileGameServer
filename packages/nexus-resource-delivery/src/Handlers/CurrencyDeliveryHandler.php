@@ -2,9 +2,9 @@
 
 namespace NexusResourceDelivery\Handlers;
 
-use NexusWallet\Services\WalletService;
 use NexusResource\Enums\ResourceType;
 use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
+use NexusWallet\Services\WalletService;
 
 /**
  * CurrencyDeliveryHandler

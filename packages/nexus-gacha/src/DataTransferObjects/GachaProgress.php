@@ -4,7 +4,7 @@ namespace NexusGacha\DataTransferObjects;
 
 /**
  * GachaProgress
- * 
+ *
  * ガチャの進行状況を表すDTO
  *
  * daily_reset_at / total_reset_at はDB側がnullableなので、
@@ -20,8 +20,7 @@ class GachaProgress
         private ?string $dailyResetAt,
         private int $totalDrawCount,
         private ?string $totalResetAt,
-    ) {
-    }
+    ) {}
 
     public function getSysPlayerId(): int
     {

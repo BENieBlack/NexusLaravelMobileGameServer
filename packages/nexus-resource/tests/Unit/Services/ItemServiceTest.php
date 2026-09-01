@@ -2,16 +2,16 @@
 
 namespace NexusResource\Tests\Unit\Services;
 
-use NexusResource\Services\ItemService;
 use NexusResource\Contracts\ItemRepositoryInterface;
 use NexusResource\DataTransferObjects\Item;
+use NexusResource\Services\ItemService;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /**
  * ItemServiceのユニットテスト
- * 
+ *
  * パッケージ層の純粋なビジネスロジックをテスト
  * - Modelに依存しない
  * - DTOのみを使用
@@ -20,6 +20,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 class ItemServiceTest extends TestCase
 {
     private ItemService $itemService;
+
     private ItemRepositoryInterface|MockObject $mockRepository;
 
     protected function setUp(): void
@@ -28,7 +29,7 @@ class ItemServiceTest extends TestCase
 
         // Repository InterfaceをMock化
         $this->mockRepository = $this->createMock(ItemRepositoryInterface::class);
-        
+
         // ItemServiceをインスタンス化
         $this->itemService = new ItemService($this->mockRepository);
     }
@@ -463,7 +464,7 @@ class ItemServiceTest extends TestCase
         // Arrange
         $sysPlayerId = 1;
         $mstItemIds = ['item_potion_001', 'item_sword_001', 'item_shield_001'];
-        
+
         $items = [
             new Item($sysPlayerId, 'item_potion_001', 100, 50), // 合計150
             new Item($sysPlayerId, 'item_sword_001', 5, 2),     // 合計7
@@ -493,7 +494,7 @@ class ItemServiceTest extends TestCase
         // Arrange
         $sysPlayerId = 999;
         $mstItemIds = ['item_potion_001', 'item_nonexistent'];
-        
+
         $items = [
             new Item($sysPlayerId, 'item_potion_001', 100, 50), // 合計150
         ];

@@ -2,16 +2,18 @@
 
 namespace NexusVersion\Tests\Unit\Services;
 
-use NexusVersion\Services\VersionService;
+use Mockery;
 use NexusVersion\Repositories\DeployRepositoryInterface;
 use NexusVersion\Repositories\MaintenanceRepositoryInterface;
-use Mockery;
+use NexusVersion\Services\VersionService;
 use PHPUnit\Framework\TestCase;
 
 class VersionServiceTest extends TestCase
 {
     private VersionService $service;
+
     private DeployRepositoryInterface $deployRepository;
+
     private MaintenanceRepositoryInterface $maintenanceRepository;
 
     protected function setUp(): void
@@ -40,7 +42,7 @@ class VersionServiceTest extends TestCase
     {
         // Arrange
         $currentDeployId = 100;
-        
+
         $latestDeploy = [
             'id' => 100,
             'deploy_key' => 202601010,
@@ -71,7 +73,7 @@ class VersionServiceTest extends TestCase
     {
         // Arrange
         $currentDeployId = 99;
-        
+
         $latestDeploy = [
             'id' => 100,
             'deploy_key' => 202601020,
@@ -135,7 +137,7 @@ class VersionServiceTest extends TestCase
     {
         // Arrange
         $currentDeployId = 100;
-        
+
         $latestDeploy = [
             'id' => 100,
             'deploy_key' => 202601010,
@@ -197,7 +199,7 @@ class VersionServiceTest extends TestCase
     {
         // Arrange
         $currentDeployId = 99;
-        
+
         $latestDeploy = [
             'id' => 100,
             'deploy_key' => 202601020,

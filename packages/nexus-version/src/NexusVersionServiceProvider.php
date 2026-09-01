@@ -9,7 +9,7 @@ class NexusVersionServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Load migrations from specific subdirectories
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations/sys');
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations/sys');
     }
 
     public function register(): void

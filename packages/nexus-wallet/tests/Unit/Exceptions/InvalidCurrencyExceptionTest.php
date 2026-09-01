@@ -13,7 +13,7 @@ class InvalidCurrencyExceptionTest extends TestCase
     {
         $exception = new InvalidCurrencyException('invalid_currency');
 
-        $expectedMessage = "Invalid currency ID: invalid_currency";
+        $expectedMessage = 'Invalid currency ID: invalid_currency';
         $this->assertSame($expectedMessage, $exception->getMessage());
     }
 

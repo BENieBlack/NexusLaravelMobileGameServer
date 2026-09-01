@@ -2,19 +2,19 @@
 
 namespace NexusBilling\Services;
 
+use Carbon\CarbonImmutable;
 use NexusBilling\ApiClients\GooglePlayApiClient;
 use NexusBilling\Constants\BillingConst;
 use NexusBilling\Contracts\BillingPlatformInterface;
 use NexusBilling\DataTransferObjects\Receipt;
-use NexusBilling\ValueObjects\Subscription;
 use NexusBilling\DataTransferObjects\Verification;
 use NexusBilling\Exceptions\DuplicatePurchaseException;
 use NexusBilling\Exceptions\InvalidReceiptException;
-use Carbon\CarbonImmutable;
+use NexusBilling\ValueObjects\Subscription;
 
 /**
  * Google Play 決済サービス
- * 
+ *
  * Google Play のレシート検証とサブスクリプション管理を担当
  */
 class GooglePlayBillingService implements BillingPlatformInterface
@@ -52,7 +52,7 @@ class GooglePlayBillingService implements BillingPlatformInterface
         );
 
         // 3. 購入状態確認
-        if (!isset($response['purchaseState']) || $response['purchaseState'] !== 0) {
+        if (! isset($response['purchaseState']) || $response['purchaseState'] !== 0) {
             $state = $response['purchaseState'] ?? 'unknown';
             throw new InvalidReceiptException(
                 "Google Play purchase not in purchased state: {$state}"
@@ -75,11 +75,11 @@ class GooglePlayBillingService implements BillingPlatformInterface
             isValid: true,
             transactionId: $response['orderId'],
             productId: $receipt->getProductId(),
-            purchaseDate: CarbonImmutable::createFromTimestampMs((int)$response['purchaseTimeMillis'])->format('Y-m-d H:i:s'),
-            quantity: (int)($response['quantity'] ?? 1),
+            purchaseDate: CarbonImmutable::createFromTimestampMs((int) $response['purchaseTimeMillis'])->format('Y-m-d H:i:s'),
+            quantity: (int) ($response['quantity'] ?? 1),
             originalTransactionId: $response['orderId'],
             rawResponse: $response,
-            priceAmountMicros: isset($response['priceAmountMicros']) ? (int)$response['priceAmountMicros'] : null,
+            priceAmountMicros: isset($response['priceAmountMicros']) ? (int) $response['priceAmountMicros'] : null,
             priceCurrencyCode: $response['priceCurrencyCode'] ?? null,
         );
     }
@@ -113,7 +113,7 @@ class GooglePlayBillingService implements BillingPlatformInterface
 
         return new Subscription(
             isActive: $isActive,
-            expiresAt: CarbonImmutable::createFromTimestampMs((int)$response['expiryTimeMillis'])->format('Y-m-d H:i:s'),
+            expiresAt: CarbonImmutable::createFromTimestampMs((int) $response['expiryTimeMillis'])->format('Y-m-d H:i:s'),
             autoRenew: $autoRenew,
             state: $isActive ? BillingConst::SUBSCRIPTION_STATE_ACTIVE : BillingConst::SUBSCRIPTION_STATE_EXPIRED,
         );

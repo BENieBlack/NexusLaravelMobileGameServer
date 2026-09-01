@@ -12,7 +12,7 @@ class ChangeLogDtoTest extends TestCase
     public function constructor_sets_all_properties(): void
     {
         $systemAt = new \DateTime('2026-08-09 12:00:00');
-        
+
         $dto = new ChangeLog(
             uniqueRequestId: 'req-001',
             sysPlayerId: 123,
@@ -44,7 +44,7 @@ class ChangeLogDtoTest extends TestCase
     public function constructor_accepts_null_optional_parameters(): void
     {
         $systemAt = new \DateTime('2026-08-09 12:00:00');
-        
+
         $dto = new ChangeLog(
             uniqueRequestId: 'req-001',
             sysPlayerId: 123,
@@ -65,7 +65,7 @@ class ChangeLogDtoTest extends TestCase
     public function getters_return_correct_types(): void
     {
         $systemAt = new \DateTime('2026-08-09 12:00:00');
-        
+
         $dto = new ChangeLog(
             uniqueRequestId: 'req-001',
             sysPlayerId: 123,
@@ -97,7 +97,7 @@ class ChangeLogDtoTest extends TestCase
     public function dto_is_readonly_and_immutable(): void
     {
         $systemAt = new \DateTime('2026-08-09 12:00:00');
-        
+
         $dto = new ChangeLog(
             uniqueRequestId: 'req-001',
             sysPlayerId: 123,
@@ -112,7 +112,7 @@ class ChangeLogDtoTest extends TestCase
 
         // DTOは読み取り専用なので、プロパティを変更できないことを確認
         // PHP 8.1+のreadonly propertyはset不可能
-        
+
         $this->assertEquals('req-001', $dto->getUniqueRequestId());
         $this->assertEquals(123, $dto->getSysPlayerId());
     }
@@ -121,7 +121,7 @@ class ChangeLogDtoTest extends TestCase
     public function handles_complex_primary_key(): void
     {
         $systemAt = new \DateTime('2026-08-09 12:00:00');
-        
+
         $dto = new ChangeLog(
             uniqueRequestId: 'req-001',
             sysPlayerId: 123,
@@ -144,12 +144,12 @@ class ChangeLogDtoTest extends TestCase
     public function handles_large_data_arrays(): void
     {
         $systemAt = new \DateTime('2026-08-09 12:00:00');
-        
+
         $largeData = [];
         for ($i = 0; $i < 100; $i++) {
             $largeData["field_{$i}"] = "value_{$i}";
         }
-        
+
         $dto = new ChangeLog(
             uniqueRequestId: 'req-001',
             sysPlayerId: 123,

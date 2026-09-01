@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 
 /**
  * TrxDB用プレイヤーテーブル作成マイグレーション
- * 
+ *
  * 注意: このマイグレーションは`php artisan trx:migrate`で実行してください。
  * TrxMigrateCommandが全TrxDBシャード（trx1, trx2, ...）に対して自動的に実行します。
  */

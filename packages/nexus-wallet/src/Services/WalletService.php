@@ -2,11 +2,11 @@
 
 namespace NexusWallet\Services;
 
-use NexusWallet\ValueObjects\CurrencyBalance;
-use NexusWallet\ValueObjects\CurrencyOperationResult;
 use NexusWallet\Exceptions\InsufficientBalanceException;
 use NexusWallet\Repositories\WalletBalanceRepositoryInterface;
 use NexusWallet\Repositories\WalletRepositoryInterface;
+use NexusWallet\ValueObjects\CurrencyBalance;
+use NexusWallet\ValueObjects\CurrencyOperationResult;
 
 /**
  * WalletService
@@ -24,8 +24,8 @@ class WalletService
     /**
      * 通貨残高を取得
      *
-     * @param int $playerId プレイヤーID
-     * @param string $currencyId 通貨アイテムID
+     * @param  int  $playerId  プレイヤーID
+     * @param  string  $currencyId  通貨アイテムID
      * @return CurrencyBalance 残高情報
      */
     public function findBalance(int $playerId, string $currencyId): CurrencyBalance
@@ -46,11 +46,11 @@ class WalletService
     /**
      * 通貨を加算
      *
-     * @param int $playerId プレイヤーID
-     * @param string $currencyId 通貨アイテムID（例: "gold", "event_coin"）
-     * @param int $freeAmount 無償通貨数（デフォルト: 0）
-     * @param int $paidAmount 有償通貨数（デフォルト: 0）
-     * @param string|null $expireAt 有効期限 (Y-m-d H:i:s)（NULLの場合は無期限）
+     * @param  int  $playerId  プレイヤーID
+     * @param  string  $currencyId  通貨アイテムID（例: "gold", "event_coin"）
+     * @param  int  $freeAmount  無償通貨数（デフォルト: 0）
+     * @param  int  $paidAmount  有償通貨数（デフォルト: 0）
+     * @param  string|null  $expireAt  有効期限 (Y-m-d H:i:s)（NULLの場合は無期限）
      * @return CurrencyOperationResult 操作結果
      */
     public function addCurrency(
@@ -89,9 +89,9 @@ class WalletService
     /**
      * 通貨を消費（FIFO方式、有償優先）
      *
-     * @param int $playerId プレイヤーID
-     * @param string $currencyId 通貨アイテムID
-     * @param int $amount 消費する数量
+     * @param  int  $playerId  プレイヤーID
+     * @param  string  $currencyId  通貨アイテムID
+     * @param  int  $amount  消費する数量
      * @return CurrencyOperationResult 操作結果
      *
      * @throws InsufficientBalanceException 残高不足の場合
@@ -130,9 +130,9 @@ class WalletService
     /**
      * 有効期限切れの通貨を削除
      *
-     * @param int $playerId プレイヤーID
-     * @param string $currencyId 通貨アイテムID
-     * @param string $currentTime 現在時刻 (Y-m-d H:i:s)
+     * @param  int  $playerId  プレイヤーID
+     * @param  string  $currencyId  通貨アイテムID
+     * @param  string  $currentTime  現在時刻 (Y-m-d H:i:s)
      * @return int 削除された数量
      */
     public function removeExpiredCurrency(int $playerId, string $currencyId, string $currentTime): int
@@ -159,8 +159,8 @@ class WalletService
     /**
      * 複数通貨の残高を一括取得
      *
-     * @param int $playerId プレイヤーID
-     * @param array<string> $currencyIds 通貨IDリスト
+     * @param  int  $playerId  プレイヤーID
+     * @param  array<string>  $currencyIds  通貨IDリスト
      * @return array<string, CurrencyBalance> 通貨ID => 残高情報のマップ
      */
     public function findBulkBalances(int $playerId, array $currencyIds): array
@@ -180,8 +180,8 @@ class WalletService
     /**
      * バランスから通貨を消費（FIFO）
      *
-     * @param iterable<object> $balances バランスコレクション
-     * @param int $amount 消費する数量
+     * @param  iterable<object>  $balances  バランスコレクション
+     * @param  int  $amount  消費する数量
      * @return array{free: int, paid: int} 消費した無償/有償の数量
      */
     private function consumeFromBalances(iterable $balances, int $amount): array
@@ -218,7 +218,7 @@ class WalletService
     /**
      * 有効期限切れのバランスを削除
      *
-     * @param iterable<object> $expiredBalances 期限切れバランスコレクション
+     * @param  iterable<object>  $expiredBalances  期限切れバランスコレクション
      * @return array{total: int, free: int, paid: int} 削除された総数/無償/有償
      */
     private function removeExpiredBalances(iterable $expiredBalances): array

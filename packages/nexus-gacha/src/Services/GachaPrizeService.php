@@ -8,21 +8,20 @@ use NexusResourceDelivery\Services\ResourceDeliveryService;
 
 /**
  * GachaPrizeService
- * 
+ *
  * ガチャ景品の付与を行うサービス
  */
 class GachaPrizeService
 {
     public function __construct(
         private readonly ResourceDeliveryService $resourceDeliveryService,
-    ) {
-    }
+    ) {}
 
     /**
      * 景品リストを付与
      *
-     * @param int $sysPlayerId
-     * @param array<GachaPrize> $prizes
+     * @param  int  $sysPlayerId
+     * @param  array<GachaPrize>  $prizes
      * @return void
      */
     public function grantPrizes(int $sysPlayerId, array $prizes): void
@@ -45,10 +44,10 @@ class GachaPrizeService
     /**
      * 景品データからResourceを作成
      *
-     * @param string $contentType
-     * @param string $contentMstId
-     * @param int $amount
-     * @return Resource
+     * @param  string  $contentType
+     * @param  string  $contentMstId
+     * @param  int  $amount
+     * @return resource
      */
     private function createResource(string $contentType, string $contentMstId, int $amount): Resource
     {

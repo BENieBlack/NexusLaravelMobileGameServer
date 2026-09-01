@@ -2,10 +2,10 @@
 
 namespace NexusLevel\Services;
 
-use NexusLevel\Contracts\PlayerLevelUpHandlerInterface;
-use NexusLevel\Repositories\PlayerLevelRepositoryInterface;
 use Nexus\Core\DataTransferObjects\Player;
 use Nexus\Core\Repositories\PlayerRepositoryInterface;
+use NexusLevel\Contracts\PlayerLevelUpHandlerInterface;
+use NexusLevel\Repositories\PlayerLevelRepositoryInterface;
 
 /**
  * PlayerLevelService

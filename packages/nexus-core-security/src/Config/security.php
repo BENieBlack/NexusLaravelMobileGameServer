@@ -45,4 +45,18 @@ return [
         'max_attempts_per_device' => env('THROTTLE_SIGNUP_MAX_ATTEMPTS_PER_DEVICE', 3),
         'rate_limit_window' => env('THROTTLE_SIGNUP_RATE_LIMIT_WINDOW', 3600), // 1時間
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Throttle Public Read
+    |--------------------------------------------------------------------------
+    |
+    | 認証不要の参照系エンドポイントのレート制限設定
+    |
+    */
+    'throttle_public_read' => [
+        'enabled' => env('THROTTLE_PUBLIC_READ_ENABLED', true),
+        'max_attempts_per_ip' => env('THROTTLE_PUBLIC_READ_MAX_ATTEMPTS_PER_IP', 60),
+        'rate_limit_window' => env('THROTTLE_PUBLIC_READ_RATE_LIMIT_WINDOW', 60), // 1分
+    ],
 ];

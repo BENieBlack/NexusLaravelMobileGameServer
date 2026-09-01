@@ -55,10 +55,13 @@ Route::middleware('maintenance')->group(function () {
         Route::post('/auth/refresh_token', [AuthController::class, 'refreshToken']);
     });
 
-    // Guild list/detail endpoints (public access for browsing)
-    Route::get('/guild/list', [GuildController::class, 'list']);
-    Route::get('/guild/detail', [GuildController::class, 'detail']);
-    Route::get('/guild/member/list', [GuildController::class, 'memberList']);
+    // ギルドの参照系は加入前に見られる必要があるため認証不要で公開する。
+    // ただし繰り返し叩けば他プレイヤーの所属を集められるため、IP単位で制限する
+    Route::middleware('throttle.public:guild_read')->group(function () {
+        Route::get('/guild/list', [GuildController::class, 'list']);
+        Route::get('/guild/detail', [GuildController::class, 'detail']);
+        Route::get('/guild/member/list', [GuildController::class, 'memberList']);
+    });
 
     // Protected endpoints (require access token)
     // idempotencyミドルウェアを追加して重複リクエストを防止

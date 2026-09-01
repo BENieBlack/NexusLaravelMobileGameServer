@@ -2,13 +2,13 @@
 
 namespace NexusBilling\Services;
 
+use InvalidArgumentException;
 use NexusBilling\Constants\BillingConst;
 use NexusBilling\Contracts\BillingPlatformInterface;
-use InvalidArgumentException;
 
 /**
  * Billing プラットフォームファクトリ
- * 
+ *
  * プラットフォーム名に応じて適切なBillingServiceを返す
  */
 class BillingPlatformFactory
@@ -20,9 +20,10 @@ class BillingPlatformFactory
 
     /**
      * プラットフォームに対応するサービスを取得
-     * 
-     * @param string $billingPlatform プラットフォーム名（BillingConst::PLATFORM_*）
+     *
+     * @param  string  $billingPlatform  プラットフォーム名（BillingConst::PLATFORM_*）
      * @return BillingPlatformInterface
+     *
      * @throws InvalidArgumentException サポートされていないプラットフォームの場合
      */
     public function create(string $billingPlatform): BillingPlatformInterface
@@ -38,8 +39,8 @@ class BillingPlatformFactory
 
     /**
      * サポートされているプラットフォームかチェック
-     * 
-     * @param string $billingPlatform
+     *
+     * @param  string  $billingPlatform
      * @return bool
      */
     public function isSupported(string $billingPlatform): bool

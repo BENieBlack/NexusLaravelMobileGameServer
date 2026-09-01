@@ -128,7 +128,7 @@ class StaminaServiceTest extends TestCase
             ->with($sysPlayerId, StaminaConst::TYPE_NORMAL)
             ->andReturn($stamina);
 
-        $this->playerLevelService->shouldReceive("findMaxStamina")
+        $this->playerLevelService->shouldReceive('findMaxStamina')
             ->once()
             ->with($sysPlayerId)
             ->andReturn(100);
@@ -170,7 +170,7 @@ class StaminaServiceTest extends TestCase
             ->with($sysPlayerId, StaminaConst::TYPE_NORMAL)
             ->andReturn($stamina);
 
-        $this->playerLevelService->shouldReceive("findMaxStamina")
+        $this->playerLevelService->shouldReceive('findMaxStamina')
             ->once()
             ->with($sysPlayerId)
             ->andReturn(100);
@@ -206,7 +206,7 @@ class StaminaServiceTest extends TestCase
             ->with($sysPlayerId, StaminaConst::TYPE_NORMAL)
             ->andReturn($stamina);
 
-        $this->playerLevelService->shouldReceive("findMaxStamina")
+        $this->playerLevelService->shouldReceive('findMaxStamina')
             ->once()
             ->with($sysPlayerId)
             ->andReturn(100);
@@ -248,7 +248,7 @@ class StaminaServiceTest extends TestCase
             ->with($sysPlayerId, StaminaConst::TYPE_NORMAL)
             ->andReturn($stamina);
 
-        $this->playerLevelService->shouldReceive("findMaxStamina")
+        $this->playerLevelService->shouldReceive('findMaxStamina')
             ->once()
             ->with($sysPlayerId)
             ->andReturn(100);

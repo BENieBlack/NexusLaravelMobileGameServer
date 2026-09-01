@@ -2,21 +2,22 @@
 
 namespace NexusResource\Tests\Unit\Services;
 
-use NexusResource\Services\DiamondService;
 use NexusResource\Contracts\DiamondRepositoryInterface;
 use NexusResource\DataTransferObjects\DiamondBalance;
+use NexusResource\Services\DiamondService;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /**
  * DiamondServiceのユニットテスト
- * 
+ *
  * パッケージ層の純粋なビジネスロジックをテスト
  */
 class DiamondServiceTest extends TestCase
 {
     private DiamondService $diamondService;
+
     private DiamondRepositoryInterface|MockObject $mockRepository;
 
     protected function setUp(): void

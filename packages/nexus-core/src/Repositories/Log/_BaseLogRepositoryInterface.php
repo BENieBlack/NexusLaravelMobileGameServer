@@ -11,7 +11,7 @@ use Nexus\Core\Support\CustomCollection;
  *
  * LogデータRepository用のインターフェース
  * ログはINSERT ONLYでキャッシュなし
- * 
+ *
  * @template T of _BaseLog
  */
 interface _BaseLogRepositoryInterface extends _BaseRepositoryInterface
@@ -29,7 +29,7 @@ interface _BaseLogRepositoryInterface extends _BaseRepositoryInterface
     /**
      * IDでログレコードを取得
      *
-     * @param int $logRecordId
+     * @param  int  $logRecordId
      * @return T|null
      */
     public function selectById(int $logRecordId);

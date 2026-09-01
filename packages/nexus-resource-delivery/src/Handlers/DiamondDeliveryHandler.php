@@ -2,8 +2,8 @@
 
 namespace NexusResourceDelivery\Handlers;
 
-use NexusResource\Services\DiamondService;
 use NexusResource\Enums\ResourceType;
+use NexusResource\Services\DiamondService;
 use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
 
 /**

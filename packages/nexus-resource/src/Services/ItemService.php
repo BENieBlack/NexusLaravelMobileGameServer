@@ -24,14 +24,13 @@ class ItemService
 {
     public function __construct(
         private readonly ItemRepositoryInterface $itemRepository,
-    ) {
-    }
+    ) {}
 
     /**
      * アイテムの所持数を取得
      *
-     * @param int $sysPlayerId プレイヤーID
-     * @param string $mstItemId アイテムID
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  string  $mstItemId  アイテムID
      * @return int 所持数（無償+有償の合計、存在しない場合は0）
      */
     public function findItemAmount(int $sysPlayerId, string $mstItemId): int
@@ -44,8 +43,8 @@ class ItemService
     /**
      * 複数アイテムの所持数を一括取得
      *
-     * @param int $sysPlayerId プレイヤーID
-     * @param array<string> $mstItemIds アイテムIDリスト
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  array<string>  $mstItemIds  アイテムIDリスト
      * @return array<string, int> アイテムID => 所持数のマップ
      */
     public function findItemAmounts(int $sysPlayerId, array $mstItemIds): array
@@ -59,7 +58,7 @@ class ItemService
 
         // 存在しないアイテムは0を設定
         foreach ($mstItemIds as $mstItemId) {
-            if (!isset($amounts[$mstItemId])) {
+            if (! isset($amounts[$mstItemId])) {
                 $amounts[$mstItemId] = 0;
             }
         }
@@ -70,10 +69,10 @@ class ItemService
     /**
      * アイテムを加算（既存の場合は加算、新規の場合は作成）
      *
-     * @param int $sysPlayerId プレイヤーID
-     * @param string $mstItemId アイテムID
-     * @param int $freeAmount 無償アイテム数（デフォルト: 0）
-     * @param int $paidAmount 有償アイテム数（デフォルト: 0）
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  string  $mstItemId  アイテムID
+     * @param  int  $freeAmount  無償アイテム数（デフォルト: 0）
+     * @param  int  $paidAmount  有償アイテム数（デフォルト: 0）
      * @return Item 加算後のアイテムDTO
      */
     public function addItem(int $sysPlayerId, string $mstItemId, int $freeAmount = 0, int $paidAmount = 0): Item
@@ -105,10 +104,11 @@ class ItemService
      * アイテムを消費（減算）
      * 有償アイテムから優先的に消費し、不足分は無償アイテムから消費する
      *
-     * @param int $sysPlayerId プレイヤーID
-     * @param string $mstItemId mst_item.id
-     * @param int $amount 消費する数量
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  string  $mstItemId  mst_item.id
+     * @param  int  $amount  消費する数量
      * @return Item 消費後のアイテムDTO
+     *
      * @throws \Exception 所持数が不足している場合、またはアイテムが存在しない場合
      */
     public function consumeItem(int $sysPlayerId, string $mstItemId, int $amount): Item
@@ -116,7 +116,7 @@ class ItemService
         // 既存のアイテムを取得
         $item = $this->itemRepository->selectItem($sysPlayerId, $mstItemId);
 
-        if (!$item) {
+        if (! $item) {
             throw new \Exception("Item not found: {$mstItemId}");
         }
 
@@ -135,9 +135,10 @@ class ItemService
     /**
      * 残高が十分かチェック
      *
-     * @param Item $item
-     * @param int $amount
+     * @param  Item  $item
+     * @param  int  $amount
      * @return void
+     *
      * @throws \Exception
      */
     private function validateSufficientAmount(Item $item, int $amount): void
@@ -151,8 +152,8 @@ class ItemService
     /**
      * 有償優先で消費
      *
-     * @param Item $item
-     * @param int $amount
+     * @param  Item  $item
+     * @param  int  $amount
      * @return void
      */
     private function consumeWithPaidFirst(Item $item, int $amount): void

@@ -9,6 +9,7 @@ interface VipPointLogRepositoryInterface
 {
     /**
      * VIPポイント変動ログを記録
+     *
      * @param  array<string, mixed>  $metadata
      */
     public function log(

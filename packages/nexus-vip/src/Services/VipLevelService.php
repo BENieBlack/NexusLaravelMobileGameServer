@@ -2,10 +2,10 @@
 
 namespace NexusVip\Services;
 
-use NexusVip\ValueObjects\VipBenefit;
 use NexusVip\Exceptions\VipLevelNotFoundException;
 use NexusVip\Models\MstVipLevel;
 use NexusVip\Repositories\VipLevelRepositoryInterface;
+use NexusVip\ValueObjects\VipBenefit;
 
 /**
  * VIPレベルサービス

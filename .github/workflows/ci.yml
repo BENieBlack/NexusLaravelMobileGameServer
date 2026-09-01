@@ -36,9 +36,15 @@ jobs:
         working-directory: api
         run: composer install --no-interaction --prefer-dist --no-progress
 
+      # 引数なしのpintはカレントディレクトリしか見ない。
+      # packages/ はコード行数の約4割を占めるため、明示的に渡す
       - name: コードフォーマットの検証
         working-directory: api
         run: ./vendor/bin/pint --test
+
+      - name: コードフォーマットの検証（packages）
+        working-directory: api
+        run: ./vendor/bin/pint --test ../packages
 
       - name: 静的解析
         working-directory: api
@@ -162,8 +168,8 @@ jobs:
 
       # phpunit.xml の Unit / Feature / Packages を全て実行する
       # （Packages は ../packages/*/tests を対象にしている）
-      # カバレッジは app と packages/*/src が対象。--min は現状値より少し低い値を置き、
-      # 下がったらCIで気づけるようにしている
+      # カバレッジは app と packages/*/src が対象。--min は現状値のすぐ下に置く。
+      # 実測から離れた値にすると、下がってもCIが通ってしまい検知にならない
       - name: テスト（api + packages）
         working-directory: api
-        run: php artisan test --coverage --min=55
+        run: php artisan test --coverage --min=85

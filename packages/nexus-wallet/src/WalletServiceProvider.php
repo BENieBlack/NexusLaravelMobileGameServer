@@ -37,7 +37,7 @@ class WalletServiceProvider extends ServiceProvider
         // マイグレーションをロード（動的シャーディング対応）
         // 注意: php artisan trx:migrate で全TrxDBシャード（trx1, trx2, ...）に実行
         $baseDir = __DIR__.'/../database/migrations';
-        
+
         // 各サブディレクトリを個別に読み込む
         foreach (['mst', 'trx', 'log', 'sys'] as $type) {
             $path = "{$baseDir}/{$type}";
@@ -45,7 +45,7 @@ class WalletServiceProvider extends ServiceProvider
                 $this->loadMigrationsFrom($path);
             }
         }
-        
+
         // 設定ファイルの公開
         if ($this->app->runningInConsole()) {
             $this->publishes([

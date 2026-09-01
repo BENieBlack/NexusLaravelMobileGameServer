@@ -4,7 +4,7 @@ namespace NexusWallet\Exceptions;
 
 /**
  * 残高不足例外
- * 
+ *
  * 通貨を消費しようとした際に残高が不足している場合にスローされる
  * エラーコード: 1001 (WalletErrorCode::INSUFFICIENT_BALANCE)
  */

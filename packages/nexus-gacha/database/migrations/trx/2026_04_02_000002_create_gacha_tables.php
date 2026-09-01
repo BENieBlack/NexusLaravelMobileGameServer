@@ -42,7 +42,7 @@ return new class extends Migration
         // プレイヤーごとのガチャ実行状況を記録
         // - 日次実行回数と最後にリセットした日時
         // - ステップアップガチャの進行状況と最後にリセットした日時
-        // 
+        //
         // リセットロジック:
         // - daily_reset_at < 今日の0時の場合、daily_draw_countを0にリセットしてdaily_reset_atを更新
         // - ガチャ期間が終了した場合、total_draw_countとcurrent_stepをリセットしてtotal_reset_atを更新
@@ -71,7 +71,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-    Schema::dropIfExists('trx_gacha');
-    Schema::dropIfExists('trx_gacha_history');
+        Schema::dropIfExists('trx_gacha');
+        Schema::dropIfExists('trx_gacha_history');
     }
 };

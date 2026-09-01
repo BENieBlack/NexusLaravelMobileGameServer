@@ -3,8 +3,8 @@
 namespace NexusTidb\Tests\Unit\Traits;
 
 use Illuminate\Database\Eloquent\Model;
-use NexusTidb\Traits\UuidPrimaryKey;
 use NexusTidb\Support\TidbMode;
+use NexusTidb\Traits\UuidPrimaryKey;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

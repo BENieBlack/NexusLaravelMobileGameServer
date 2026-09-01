@@ -3,11 +3,11 @@
 namespace NexusPitr;
 
 use Illuminate\Support\ServiceProvider;
-use NexusPitr\Logger\TrxChangeLogger;
 use NexusPitr\Commands\PitrMigrateCommand;
 use NexusPitr\Commands\PitrRollbackCommand;
 use NexusPitr\Commands\TrxMigrateCommand;
 use NexusPitr\Commands\TrxRollbackCommand;
+use NexusPitr\Logger\TrxChangeLogger;
 
 class NexusPitrServiceProvider extends ServiceProvider
 {
@@ -18,7 +18,7 @@ class NexusPitrServiceProvider extends ServiceProvider
     {
         // TrxChangeLoggerをシングルトンとして登録
         $this->app->singleton(TrxChangeLogger::class, function ($app) {
-            return new TrxChangeLogger();
+            return new TrxChangeLogger;
         });
 
         // 設定ファイルをマージ
@@ -34,7 +34,7 @@ class NexusPitrServiceProvider extends ServiceProvider
     {
         // マイグレーションをロード（動的シャーディング対応）
         $baseDir = __DIR__.'/../database/migrations';
-        
+
         // 各サブディレクトリを個別に読み込む
         foreach (['mst', 'trx', 'log', 'sys'] as $type) {
             $path = "{$baseDir}/{$type}";

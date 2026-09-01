@@ -84,35 +84,35 @@ return new class extends Migration
         $vipRewards = [
             // VIP1報酬: 無償ダイヤ100個
             ['vip_level' => 1, 'content_type' => 'diamond', 'content_mst_id' => 'free', 'content_option' => null, 'content_quantity' => 100, 'amount' => 1, 'is_paid' => false, 'sort_order' => 1],
-            
+
             // VIP2報酬: 無償ダイヤ200個 + スタミナ50
             ['vip_level' => 2, 'content_type' => 'diamond', 'content_mst_id' => 'free', 'content_option' => null, 'content_quantity' => 200, 'amount' => 1, 'is_paid' => false, 'sort_order' => 1],
             ['vip_level' => 2, 'content_type' => 'stamina', 'content_mst_id' => 'stamina', 'content_option' => null, 'content_quantity' => 50, 'amount' => 1, 'is_paid' => false, 'sort_order' => 2],
-            
+
             // VIP3報酬: 無償ダイヤ300個
             ['vip_level' => 3, 'content_type' => 'diamond', 'content_mst_id' => 'free', 'content_option' => null, 'content_quantity' => 300, 'amount' => 1, 'is_paid' => false, 'sort_order' => 1],
-            
+
             // VIP4報酬: 無償ダイヤ500個 + スタミナ100
             ['vip_level' => 4, 'content_type' => 'diamond', 'content_mst_id' => 'free', 'content_option' => null, 'content_quantity' => 500, 'amount' => 1, 'is_paid' => false, 'sort_order' => 1],
             ['vip_level' => 4, 'content_type' => 'stamina', 'content_mst_id' => 'stamina', 'content_option' => null, 'content_quantity' => 100, 'amount' => 1, 'is_paid' => false, 'sort_order' => 2],
-            
+
             // VIP5報酬: 無償ダイヤ1000個
             ['vip_level' => 5, 'content_type' => 'diamond', 'content_mst_id' => 'free', 'content_option' => null, 'content_quantity' => 1000, 'amount' => 1, 'is_paid' => false, 'sort_order' => 1],
-            
+
             // VIP6報酬: 無償ダイヤ1500個 + スタミナ150
             ['vip_level' => 6, 'content_type' => 'diamond', 'content_mst_id' => 'free', 'content_option' => null, 'content_quantity' => 1500, 'amount' => 1, 'is_paid' => false, 'sort_order' => 1],
             ['vip_level' => 6, 'content_type' => 'stamina', 'content_mst_id' => 'stamina', 'content_option' => null, 'content_quantity' => 150, 'amount' => 1, 'is_paid' => false, 'sort_order' => 2],
-            
+
             // VIP7報酬: 無償ダイヤ2000個
             ['vip_level' => 7, 'content_type' => 'diamond', 'content_mst_id' => 'free', 'content_option' => null, 'content_quantity' => 2000, 'amount' => 1, 'is_paid' => false, 'sort_order' => 1],
-            
+
             // VIP8報酬: 無償ダイヤ3000個 + スタミナ200
             ['vip_level' => 8, 'content_type' => 'diamond', 'content_mst_id' => 'free', 'content_option' => null, 'content_quantity' => 3000, 'amount' => 1, 'is_paid' => false, 'sort_order' => 1],
             ['vip_level' => 8, 'content_type' => 'stamina', 'content_mst_id' => 'stamina', 'content_option' => null, 'content_quantity' => 200, 'amount' => 1, 'is_paid' => false, 'sort_order' => 2],
-            
+
             // VIP9報酬: 無償ダイヤ5000個
             ['vip_level' => 9, 'content_type' => 'diamond', 'content_mst_id' => 'free', 'content_option' => null, 'content_quantity' => 5000, 'amount' => 1, 'is_paid' => false, 'sort_order' => 1],
-            
+
             // VIP10報酬（最高レベル）: 無償ダイヤ10000個 + スタミナ300
             ['vip_level' => 10, 'content_type' => 'diamond', 'content_mst_id' => 'free', 'content_option' => null, 'content_quantity' => 10000, 'amount' => 1, 'is_paid' => false, 'sort_order' => 1],
             ['vip_level' => 10, 'content_type' => 'stamina', 'content_mst_id' => 'stamina', 'content_option' => null, 'content_quantity' => 300, 'amount' => 1, 'is_paid' => false, 'sort_order' => 2],

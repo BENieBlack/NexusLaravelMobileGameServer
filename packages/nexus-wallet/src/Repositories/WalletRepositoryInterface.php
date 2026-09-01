@@ -12,8 +12,8 @@ interface WalletRepositoryInterface
     /**
      * 通貨IDで現在値を取得
      *
-     * @param int $playerId プレイヤーID
-     * @param string $currencyId 通貨アイテムID
+     * @param  int  $playerId  プレイヤーID
+     * @param  string  $currencyId  通貨アイテムID
      * @return object|null { free_amount: int, paid_amount: int, total_amount: int } または null
      */
     public function selectByCurrencyId(int $playerId, string $currencyId): ?object;
@@ -21,10 +21,10 @@ interface WalletRepositoryInterface
     /**
      * 通貨現在値を保存（INSERT or UPDATE）
      *
-     * @param int $playerId プレイヤーID
-     * @param string $currencyId 通貨アイテムID
-     * @param int $freeAmount 無償通貨数
-     * @param int $paidAmount 有償通貨数
+     * @param  int  $playerId  プレイヤーID
+     * @param  string  $currencyId  通貨アイテムID
+     * @param  int  $freeAmount  無償通貨数
+     * @param  int  $paidAmount  有償通貨数
      * @return void
      */
     public function persist(int $playerId, string $currencyId, int $freeAmount, int $paidAmount): void;

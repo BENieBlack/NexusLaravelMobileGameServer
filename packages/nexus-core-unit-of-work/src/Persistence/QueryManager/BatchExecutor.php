@@ -2,28 +2,26 @@
 
 namespace NexusUnitOfWork\Persistence\QueryManager;
 
-use Nexus\Core\Repositories\Sys\_BaseSysRepository;
-use Nexus\Core\Repositories\Trx\_BaseTrxRepository;
 use Illuminate\Support\Facades\DB;
 
 /**
  * BatchExecutor
- * 
+ *
  * データベース操作の実行を担当するクラス
  */
 class BatchExecutor
 {
     private UpdateQueryBuilder $queryBuilder;
-    
+
     public function __construct()
     {
-        $this->queryBuilder = new UpdateQueryBuilder();
+        $this->queryBuilder = new UpdateQueryBuilder;
     }
-    
+
     /**
      * INSERT操作を実行
      *
-     * @param array<string, array{connection: string, table: string, records: array<int, array<string, mixed>>, models: array<int, mixed>, repository: mixed, originalStates: array<int, array<string, mixed>>}> $insertsByTable
+     * @param  array<string, array{connection: string, table: string, records: array<int, array<string, mixed>>, models: array<int, mixed>, repository: mixed, originalStates: array<int, array<string, mixed>>}>  $insertsByTable
      * @return void
      */
     public function executeInserts(array $insertsByTable): void
@@ -32,27 +30,27 @@ class BatchExecutor
             if (empty($item['records'])) {
                 continue;
             }
-            
+
             $models = $item['models'];
             $records = $item['records'];
             $originalStates = $item['originalStates'];
             $repository = $item['repository'];
             $table = $item['table'];
-            
+
             // sys_playerテーブルのみ個別INSERT（IDを取得）
             if ($table === 'sys_player') {
                 foreach ($models as $index => $model) {
                     $attributes = $records[$index];
-                    
+
                     // INSERTを実行してIDを取得
                     $id = DB::connection($item['connection'])
                         ->table($table)
                         ->insertGetId($attributes);
-                    
+
                     // モデルにIDをセット
                     $model->setAttribute($model->getKeyName(), $id);
                     $model->exists = true;
-                    
+
                     // afterSaveフックを呼び出す
                     $originalState = $originalStates[$index] ?? [];
                     $repository->afterSave($model, $originalState);
@@ -62,10 +60,10 @@ class BatchExecutor
                 DB::connection($item['connection'])
                     ->table($table)
                     ->insert($records);
-                
+
                 // バッチINSERT後に、LAST_INSERT_ID()で最初のレコードのIDを取得
                 $firstId = DB::connection($item['connection'])->getPdo()->lastInsertId();
-                
+
                 // モデルにexists = trueとIDを設定し、afterSaveフックを呼び出す
                 foreach ($models as $index => $model) {
                     $model->exists = true;
@@ -86,13 +84,13 @@ class BatchExecutor
             }
         }
     }
-    
+
     /**
      * DB側で採番された created_at / updated_at をモデルへ読み戻す
      *
-     * @param mixed $model
-     * @param string $connection
-     * @param string $table
+     * @param  mixed  $model
+     * @param  string  $connection
+     * @param  string  $table
      * @return void
      */
     private function refreshTimestamps($model, string $connection, string $table): void
@@ -131,7 +129,7 @@ class BatchExecutor
     /**
      * UPDATE操作を実行
      *
-     * @param array<int, array{connection: string, table: string, model: mixed, data: array<string, mixed>, repository: mixed, uniqueKey: string, originalState: array<string, mixed>}> $updates
+     * @param  array<int, array{connection: string, table: string, model: mixed, data: array<string, mixed>, repository: mixed, uniqueKey: string, originalState: array<string, mixed>}>  $updates
      * @return void
      */
     public function executeUpdates(array $updates): void
@@ -140,35 +138,35 @@ class BatchExecutor
             $repository = $item['repository'];
             $model = $item['model'];
             $where = $this->queryBuilder->buildWhereCondition($model);
-            
+
             // _BaseTrxモデルの場合、相対的な変更をチェック
-            $hasRelativeChanges = method_exists($model, 'getRelativeChanges') 
-                && method_exists($model, 'hasRelativeChanges') 
+            $hasRelativeChanges = method_exists($model, 'getRelativeChanges')
+                && method_exists($model, 'hasRelativeChanges')
                 && $model->hasRelativeChanges();
-            
+
             if ($hasRelativeChanges) {
                 $this->executeRelativeUpdate($item, $where);
             } else {
                 $this->executeStandardUpdate($item, $where);
             }
-            
+
             // afterSaveフックを呼び出す
             $repository->afterSave($model, $item['originalState']);
         }
     }
-    
+
     /**
      * 相対的な更新を実行
      *
-     * @param array{connection: string, table: string, model: mixed, data: array<string, mixed>, repository: mixed, uniqueKey: string, originalState: array<string, mixed>} $item
-     * @param array<string, mixed> $where
+     * @param  array{connection: string, table: string, model: mixed, data: array<string, mixed>, repository: mixed, uniqueKey: string, originalState: array<string, mixed>}  $item
+     * @param  array<string, mixed>  $where
      * @return void
      */
     private function executeRelativeUpdate(array $item, array $where): void
     {
         $model = $item['model'];
         $relativeChanges = $model->getRelativeChanges();
-        
+
         // UPDATE文を構築
         $result = $this->queryBuilder->buildRelativeUpdate(
             $item['table'],
@@ -176,21 +174,21 @@ class BatchExecutor
             $relativeChanges,
             $where
         );
-        
+
         // SQL文を実行
-        if (!empty($result['bindings']) || !empty($relativeChanges)) {
+        if (! empty($result['bindings']) || ! empty($relativeChanges)) {
             DB::connection($item['connection'])->update($result['sql'], $result['bindings']);
         }
-        
+
         // 相対的な変更をクリア
         $model->clearRelativeChanges();
     }
-    
+
     /**
      * 通常のUPDATEを実行
      *
-     * @param array{connection: string, table: string, model: mixed, data: array<string, mixed>, repository: mixed, uniqueKey: string, originalState: array<string, mixed>} $item
-     * @param array<string, mixed> $where
+     * @param  array{connection: string, table: string, model: mixed, data: array<string, mixed>, repository: mixed, uniqueKey: string, originalState: array<string, mixed>}  $item
+     * @param  array<string, mixed>  $where
      * @return void
      */
     private function executeStandardUpdate(array $item, array $where): void
@@ -200,11 +198,11 @@ class BatchExecutor
             ->where($where)
             ->update($item['data']);
     }
-    
+
     /**
      * DELETE操作を実行
      *
-     * @param array<int, array{connection: string, table: string, model: mixed}> $deletes
+     * @param  array<int, array{connection: string, table: string, model: mixed}>  $deletes
      * @return void
      */
     public function executeDeletes(array $deletes): void
@@ -212,18 +210,18 @@ class BatchExecutor
         foreach ($deletes as $item) {
             $model = $item['model'];
             $where = $this->queryBuilder->buildWhereCondition($model);
-            
+
             DB::connection($item['connection'])
                 ->table($item['table'])
                 ->where($where)
                 ->delete();
         }
     }
-    
+
     /**
      * ログのINSERT操作を実行
      *
-     * @param array<string, array{connection: string, table: string, records: array<int, array<string, mixed>>}> $insertsByTable
+     * @param  array<string, array{connection: string, table: string, records: array<int, array<string, mixed>>}>  $insertsByTable
      * @return void
      */
     public function executeLogInserts(array $insertsByTable): void
@@ -232,7 +230,7 @@ class BatchExecutor
             if (empty($item['records'])) {
                 continue;
             }
-            
+
             DB::connection($item['connection'])
                 ->table($item['table'])
                 ->insert($item['records']);

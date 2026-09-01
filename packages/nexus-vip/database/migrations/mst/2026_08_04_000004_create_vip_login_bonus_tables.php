@@ -10,7 +10,7 @@ return new class extends Migration
      * Run the migrations.
      *
      * VIPログインボーナス機能のマスターテーブルを作成
-     * 
+     *
      * mst_vip_login_bonus: VIPレベル別のログインボーナス設定
      * mst_vip_login_bonus_content: VIPログインボーナスの日別報酬内容
      */

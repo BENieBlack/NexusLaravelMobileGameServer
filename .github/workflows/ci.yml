@@ -162,8 +162,8 @@ jobs:
 
       # phpunit.xml の Unit / Feature / Packages を全て実行する
       # （Packages は ../packages/*/tests を対象にしている）
-      # カバレッジは app と packages/*/src が対象。--min は現状値より少し低い値を置き、
-      # 下がったらCIで気づけるようにしている
+      # カバレッジは app と packages/*/src が対象。--min は現状値のすぐ下に置く。
+      # 実測から離れた値にすると、下がってもCIが通ってしまい検知にならない
       - name: テスト（api + packages）
         working-directory: api
-        run: php artisan test --coverage --min=55
+        run: php artisan test --coverage --min=85

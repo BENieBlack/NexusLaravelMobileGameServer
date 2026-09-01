@@ -438,4 +438,4 @@ abstract class _BaseSysRepository extends _BaseRepository
 
 - [データベース設計](../database.md) - データベース全体の設計方針
 - [アーキテクチャ設計](../architecture.md) - レイヤー構造とトランザクション管理
-- [カスタムHTTPステータスコード](./custom-http-status.md) - 600番台エラーコード体系
+- [カスタムHTTPステータスコード](../api/custom-http-status.md) - 600番台エラーコード体系

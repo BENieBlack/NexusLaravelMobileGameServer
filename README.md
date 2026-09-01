@@ -307,6 +307,10 @@ make migrate-fresh
 - [ギルドシステム](./docs/guild_implementation.md) - ギルド作成、メンバー管理、申請承認、役職制御
 - [Wallet管理への切り替え手順](./docs/wallet_managed_item_migration.md) - mst_item.is_wallet、リリース後の残高移行
 
+### 評価レポート
+- [プロジェクト評価 2026-09-01](./docs/project_evaluation_2026-09-01.md) - 品質ゲート整備後の状態、前回指摘16件の追跡
+- [プロジェクト評価 2026-08-12](./docs/project_evaluation_2026-08-12.md) - 初回評価
+
 ### Tool固有
 - [Tool仕様](./.claude/tool.md) - 運営ツールの機能、データベース構成
 

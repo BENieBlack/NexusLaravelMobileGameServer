@@ -285,6 +285,22 @@ docker logs db-mst
 make migrate-fresh
 ```
 
+### APIが全て404を返す
+
+`api-php` を単体で再起動したあとに起きます。
+コンテナのIPが変わっても、nginx（`api-web`）は `fastcgi_pass api-php:9000` の
+名前解決を起動時の一度だけしか行わないため、古いIPへ送り続けます。
+別のコンテナへ届くと、ルーティングが一致せず404になります。
+
+`php artisan route:list` にはルートが並ぶのに、curlすると404、という形で現れます。
+
+```bash
+# nginx側を再起動して名前解決をやり直す
+docker compose restart api-web
+```
+
+`api-php` を再起動したら `api-web` も一緒に再起動するのが確実です。
+
 ## ドキュメント
 
 ### プロジェクト全体

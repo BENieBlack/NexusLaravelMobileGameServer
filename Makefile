@@ -56,7 +56,9 @@ coverage-html: up ## カバレッジをHTMLで出力（api/storage/coverage/inde
 phpstan: up ## PHPStan静的解析を実行（Docker環境）
 	$(DOCKER_COMPOSE) exec -T api-php ./vendor/bin/phpstan analyse --memory-limit=2G
 
-check: phpstan test-unit ## 静的解析とユニットテストを実行
+# CIと同じ検査をローカルで回す。
+# 一部だけを見ていると、ローカルで通してもCIで落ちる
+check: pint-test phpstan test ## CIと同じ検査（フォーマット・静的解析・全テスト）
 
 migrate: up ## マイグレーションを実行
 	$(call migrate_group,migrate,sys,sys)
@@ -91,3 +93,6 @@ pint: ## Laravel Pintでコードフォーマット
 
 pint-dirty: ## 変更されたファイルのみPint実行
 	$(DOCKER_COMPOSE) exec -T api-php ./vendor/bin/pint --dirty
+
+pint-test: ## コードフォーマットを検証のみ（CIと同じ。書き換えない）
+	$(DOCKER_COMPOSE) exec -T api-php ./vendor/bin/pint --test

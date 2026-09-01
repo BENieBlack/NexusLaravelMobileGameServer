@@ -1,4 +1,4 @@
-.PHONY: help up down ps logs test test-fresh test-unit test-feature coverage coverage-html phpstan check migrate migrate-fresh seed shell tinker clean install pint pint-dirty
+.PHONY: help up down ps logs test test-fresh test-unit test-feature coverage coverage-html phpstan check migrate migrate-fresh seed shell tinker clean install pint pint-dirty pint-test
 
 # Compose v2 (docker compose) を優先し、無ければ v1 (docker-compose) にフォールバック
 DOCKER_COMPOSE := $(shell docker compose version > /dev/null 2>&1 && echo "docker compose" || echo "docker-compose")
@@ -56,7 +56,9 @@ coverage-html: up ## カバレッジをHTMLで出力（api/storage/coverage/inde
 phpstan: up ## PHPStan静的解析を実行（Docker環境）
 	$(DOCKER_COMPOSE) exec -T api-php ./vendor/bin/phpstan analyse --memory-limit=2G
 
-check: phpstan test-unit ## 静的解析とユニットテストを実行
+# CIと同じ検査をローカルで回す。
+# 一部だけを見ていると、ローカルで通してもCIで落ちる
+check: pint-test phpstan test ## CIと同じ検査（フォーマット・静的解析・全テスト）
 
 migrate: up ## マイグレーションを実行
 	$(call migrate_group,migrate,sys,sys)
@@ -86,8 +88,15 @@ clean: down ## Docker環境をクリーンアップ（ボリュームも削除�
 install: ## 初回セットアップ（setup.sh に委譲）
 	./command/setup.sh
 
-pint: ## Laravel Pintでコードフォーマット
+# 引数なしのpintはカレントディレクトリ（api）しか見ないため、
+# packages を明示的に渡す。設定は api/pint.json を共有する
+pint: ## Laravel Pintでコードフォーマット（api + packages）
 	$(DOCKER_COMPOSE) exec -T api-php ./vendor/bin/pint
+	$(DOCKER_COMPOSE) exec -T api-php ./vendor/bin/pint ../packages
 
 pint-dirty: ## 変更されたファイルのみPint実行
 	$(DOCKER_COMPOSE) exec -T api-php ./vendor/bin/pint --dirty
+
+pint-test: ## コードフォーマットを検証のみ（CIと同じ。書き換えない）
+	$(DOCKER_COMPOSE) exec -T api-php ./vendor/bin/pint --test
+	$(DOCKER_COMPOSE) exec -T api-php ./vendor/bin/pint --test ../packages

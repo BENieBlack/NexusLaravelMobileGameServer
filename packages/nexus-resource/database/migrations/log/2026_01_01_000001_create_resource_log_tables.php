@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 
 /**
  * LogDB用リソースログテーブル作成マイグレーション
- * 
+ *
  * 注意: このマイグレーションは`php artisan pitr:migrate`で実行してください。
  */
 return new class extends Migration
@@ -23,19 +23,19 @@ return new class extends Migration
             $table->unsignedBigInteger('trx_unit_id')->nullable()->comment('trx_unitテーブルのID');
             $table->string('mst_unit_id')->nullable()->comment('マスターユニットID');
             $table->enum('operation_type', ['insert', 'update', 'delete'])->comment('操作タイプ');
-            
+
             $table->json('before_data')->nullable()->comment('変更前データ');
             $table->json('after_data')->nullable()->comment('変更後データ');
             $table->json('changed_columns')->nullable()->comment('変更カラムリスト');
-            
+
             $table->string('reason', 100)->nullable()->comment('変更理由 (gacha, quest_reward, level_up, grade_up, exchange, present, delete)');
             $table->json('metadata')->nullable()->comment('メタデータ');
-            
+
             $table->string('unique_request_id', 100)->nullable()->comment('リクエストID');
             $table->string('api_endpoint', 255)->nullable()->comment('APIエンドポイント');
             $table->unsignedBigInteger('admin_id')->nullable()->comment('管理者ID');
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
-            
+
             $table->index('sys_player_id');
             $table->index('trx_unit_id');
             $table->index('mst_unit_id');
@@ -54,19 +54,19 @@ return new class extends Migration
             $table->unsignedBigInteger('trx_equipment_id')->nullable()->comment('trx_equipmentテーブルのID');
             $table->string('mst_equipment_id')->nullable()->comment('マスター装備ID');
             $table->enum('operation_type', ['insert', 'update', 'delete'])->comment('操作タイプ');
-            
+
             $table->json('before_data')->nullable()->comment('変更前データ');
             $table->json('after_data')->nullable()->comment('変更後データ');
             $table->json('changed_columns')->nullable()->comment('変更カラムリスト');
-            
+
             $table->string('reason', 100)->nullable()->comment('変更理由 (gacha, quest_reward, level_up, grade_up, craft, exchange, present, delete)');
             $table->json('metadata')->nullable()->comment('メタデータ');
-            
+
             $table->string('unique_request_id', 100)->nullable()->comment('リクエストID');
             $table->string('api_endpoint', 255)->nullable()->comment('APIエンドポイント');
             $table->unsignedBigInteger('admin_id')->nullable()->comment('管理者ID');
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
-            
+
             $table->index('sys_player_id');
             $table->index('trx_equipment_id');
             $table->index('mst_equipment_id');
@@ -84,22 +84,22 @@ return new class extends Migration
             $table->unsignedBigInteger('sys_player_id')->comment('プレイヤーID');
             $table->string('mst_item_id')->comment('マスターアイテムID');
             $table->enum('operation_type', ['insert', 'update', 'delete'])->comment('操作タイプ');
-            
+
             $table->json('before_data')->nullable()->comment('変更前データ');
             $table->json('after_data')->nullable()->comment('変更後データ');
             $table->json('changed_columns')->nullable()->comment('変更カラムリスト');
-            
+
             $table->integer('free_amount_diff')->nullable()->comment('無償アイテム増減量');
             $table->integer('paid_amount_diff')->nullable()->comment('有償アイテム増減量');
-            
+
             $table->string('reason', 100)->nullable()->comment('変更理由 (quest_reward, shop_purchase, consume_craft, consume_upgrade, gacha, present, expire)');
             $table->json('metadata')->nullable()->comment('メタデータ');
-            
+
             $table->string('unique_request_id', 100)->nullable()->comment('リクエストID');
             $table->string('api_endpoint', 255)->nullable()->comment('APIエンドポイント');
             $table->unsignedBigInteger('admin_id')->nullable()->comment('管理者ID');
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
-            
+
             $table->index('sys_player_id');
             $table->index('mst_item_id');
             $table->index('operation_type');

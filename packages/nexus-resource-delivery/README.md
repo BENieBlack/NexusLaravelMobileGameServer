@@ -131,12 +131,26 @@ private array $sendCompleteContents = [
 | ハンドラー | 対応タイプ | 処理内容 |
 |-----------|-----------|---------|
 | `DiamondDeliveryHandler` | DIAMOND, PAID_DIAMOND | DiamondServiceでダイヤ付与 |
-| `CurrencyDeliveryHandler` | GOLD, COIN | WalletServiceで通貨付与 |
-| `BasicResourceDeliveryHandler` | FOOD, WOOD, STONE, IRON, STAMINA, EXPERIENCE | WalletServiceでリソース付与 |
-| `ItemDeliveryHandler` | ITEM, CONSUMABLE, MATERIAL, TICKET, GACHA_TICKET | ItemServiceでアイテム付与 |
-| `UnitDeliveryHandler` | UNIT | TrxUnitRepositoryでユニット作成 |
-| `EquipmentDeliveryHandler` | EQUIPMENT, WEAPON, ARMOR, ACCESSORY | TrxEquipmentRepositoryで装備作成 |
-| `PointsDeliveryHandler` | ALLIANCE_POINTS, PVP_POINTS等 | WalletServiceでポイント付与 |
+| `CurrencyDeliveryHandler` | GOLD, COIN | WalletServiceで通貨付与（有償/無償と期限を反映） |
+| `NaturalResourceDeliveryHandler` | FOOD, WOOD, STONE, IRON | WalletServiceで付与（常に無償・無期限） |
+| `PointsDeliveryHandler` | ALLIANCE_POINTS, PVP_POINTS等 | WalletServiceで付与（常に無償・期限は反映） |
+| `StaminaDeliveryHandler` | STAMINA | `StaminaGranterInterface` へ委譲 |
+| `ExperienceDeliveryHandler` | EXPERIENCE | `ExperienceGranterInterface` へ委譲 |
+| `ItemDeliveryHandler` | ITEM, CONSUMABLE, MATERIAL, TICKET, GACHA_TICKET | `ItemGranterInterface` へ委譲 |
+| `UnitDeliveryHandler` | UNIT | `UnitRepositoryInterface` へ委譲 |
+| `EquipmentDeliveryHandler` | EQUIPMENT, WEAPON, ARMOR, ACCESSORY | `EquipmentRepositoryInterface` へ委譲 |
+
+**`Contracts/` のインターフェースについて:**
+
+付与先の決定にマスターやアプリ固有の設定が要るものは、パッケージ層で
+直接サービスを呼ばず `Contracts/` のインターフェースへ委譲し、
+実装をApplication層に置く。
+
+`ItemDeliveryHandler` がその代表で、アイテムを `trx_item` で持つか
+Wallet の残高として持つかは `mst_item.is_wallet` で決まる。
+パッケージ層のItemServiceを直接呼ぶとこの判定を通らず、
+残高として持つべきアイテムが `trx_item` へ入り、
+所持数はWallet側を見るためプレイヤーから受け取れていないように見える。
 
 **Strategy Pattern:**
 - 各ハンドラーは`ResourceDeliveryHandlerInterface`を実装
@@ -283,11 +297,13 @@ api/app/Domain/
     │   ├── ResourceDeliveryHandlerInterface.php
     │   ├── DiamondDeliveryHandler.php
     │   ├── CurrencyDeliveryHandler.php
-    │   ├── BasicResourceDeliveryHandler.php
+    │   ├── NaturalResourceDeliveryHandler.php
+    │   ├── PointsDeliveryHandler.php
+    │   ├── StaminaDeliveryHandler.php
+    │   ├── ExperienceDeliveryHandler.php
     │   ├── ItemDeliveryHandler.php
     │   ├── UnitDeliveryHandler.php
-    │   ├── EquipmentDeliveryHandler.php
-    │   └── PointsDeliveryHandler.php
+    │   └── EquipmentDeliveryHandler.php
     ├── Managers/
     │   ├── ResourceDeliveryManager.php          # 状態管理（リクエストスコープ）
     │   └── ResourceDeliveryManagerInterface.php

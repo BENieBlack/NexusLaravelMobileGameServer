@@ -198,6 +198,9 @@ Wallet から `trx_item` へ戻すコマンドはありません。
 ## 関連
 
 - `api/app/Domain/Item/Services/ItemService.php` - 振り分けの分岐点
+- `api/app/Domain/Item/Services/ItemGranterAdapter.php` - 配送から振り分けへ入る経路。
+  メールボックスやガチャの中身は `ItemDeliveryHandler` を通るため、
+  ここを経由しないと `is_wallet` の判定を通らない
 - `api/app/Console/Commands/Wallet/MigrateItemsCommand.php` - 移行コマンド
 - `api/app/Repositories/Mst/MstItemRepository.php` - `isWalletManaged()` / `selectWalletManaged()`
 - `api/tests/Feature/Domain/Item/WalletManagedItemTest.php` - 振り分けと移行の挙動を固定したテスト

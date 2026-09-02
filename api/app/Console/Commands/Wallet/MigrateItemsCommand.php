@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands\Wallet;
 
+use App\Domain\Item\Support\WalletItemMigrator;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * MigrateItemsCommand
@@ -19,6 +19,9 @@ use Nexus\Core\Utilities\ClockUtility;
  * config('database.pitr.active_trx_connections') の全シャードを走査する。
  *
  * trx_item に有効期限は無いので、移した残高は無期限として入れる。
+ *
+ * 移す処理そのものは WalletItemMigrator にある。プレイヤーが触った時点で
+ * その場で移す経路と同じ実装を使う。移し方が2つあると片方だけ直したときに壊れる。
  *
  * 手順は docs/wallet_managed_item_migration.md を参照。
  * メンテナンス中に実行する前提で、稼働中の実行は想定していない。
@@ -46,6 +49,12 @@ class MigrateItemsCommand extends Command
      * @var string
      */
     protected $description = 'Wallet管理に切り替えたアイテムの残高を trx_item から trx_wallet へ移す';
+
+    public function __construct(
+        private readonly WalletItemMigrator $walletItemMigrator,
+    ) {
+        parent::__construct();
+    }
 
     /**
      * コマンド実行
@@ -160,7 +169,11 @@ class MigrateItemsCommand extends Command
                     continue;
                 }
 
-                $moved = $this->moveToWallet($connection, (int) $row->sys_player_id, (string) $row->mst_item_id);
+                $moved = $this->walletItemMigrator->moveRow(
+                    $connection,
+                    (int) $row->sys_player_id,
+                    (string) $row->mst_item_id
+                );
 
                 if ($moved === null) {
                     $skippedRows++;
@@ -178,93 +191,6 @@ class MigrateItemsCommand extends Command
         }
 
         return ['rows' => $movedRows, 'amount' => $movedAmount, 'skipped' => $skippedRows];
-    }
-
-    /**
-     * 1件ぶんの残高をWalletへ移し、元の行を消す
-     *
-     * 同じシャード内で完結するため、まとめてトランザクションに入れる。
-     * 途中で落ちると残高が二重に見えるか消えるため、片方だけ通してはいけない。
-     *
-     * 金額はトランザクション内で読み直す。外で読んだ値を使うと、
-     * 読み出しから削除までの間に増減したぶんが消えるか二重になる。
-     *
-     * @return int|null 移した合計。対象が消えていた場合は null
-     */
-    private function moveToWallet(string $connection, int $sysPlayerId, string $mstItemId): ?int
-    {
-        $now = ClockUtility::nowToString();
-
-        return DB::connection($connection)->transaction(function () use ($connection, $sysPlayerId, $mstItemId, $now): ?int {
-            $item = DB::connection($connection)->table('trx_item')
-                ->where('sys_player_id', $sysPlayerId)
-                ->where('mst_item_id', $mstItemId)
-                ->lockForUpdate()
-                ->first();
-
-            // 読み出してからロックを取るまでに消えた／論理削除された
-            if ($item === null || (bool) $item->is_delete) {
-                return null;
-            }
-
-            $freeAmount = (int) $item->free_amount;
-            $paidAmount = (int) $item->paid_amount;
-
-            // 現在値。既にWalletに残高があれば足し込む
-            $wallet = DB::connection($connection)->table('trx_wallet')
-                ->where('sys_player_id', $sysPlayerId)
-                ->where('mst_item_id', $mstItemId)
-                ->lockForUpdate()
-                ->first();
-
-            if ($wallet === null) {
-                DB::connection($connection)->table('trx_wallet')->insert([
-                    'sys_player_id' => $sysPlayerId,
-                    'mst_item_id' => $mstItemId,
-                    'free_amount' => $freeAmount,
-                    'paid_amount' => $paidAmount,
-                    'is_delete' => false,
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ]);
-            } else {
-                DB::connection($connection)->table('trx_wallet')
-                    ->where('sys_player_id', $sysPlayerId)
-                    ->where('mst_item_id', $mstItemId)
-                    ->update([
-                        'free_amount' => (int) $wallet->free_amount + $freeAmount,
-                        'paid_amount' => (int) $wallet->paid_amount + $paidAmount,
-                        'updated_at' => $now,
-                    ]);
-            }
-
-            // 取得単位の残高。trx_item に有効期限は無いので無期限で入れる
-            foreach ([false => $freeAmount, true => $paidAmount] as $isPaid => $amount) {
-                if ($amount <= 0) {
-                    continue;
-                }
-
-                DB::connection($connection)->table('trx_wallet_balance')->insert([
-                    'sys_player_id' => $sysPlayerId,
-                    'mst_item_id' => $mstItemId,
-                    'is_paid' => (bool) $isPaid,
-                    'current_amount' => $amount,
-                    'initial_amount' => $amount,
-                    'expire_at' => null,
-                    'is_delete' => false,
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ]);
-            }
-
-            // 移し終えた行は残さない。残すと同じ残高が2箇所に見える
-            DB::connection($connection)->table('trx_item')
-                ->where('sys_player_id', $sysPlayerId)
-                ->where('mst_item_id', $mstItemId)
-                ->delete();
-
-            return $freeAmount + $paidAmount;
-        });
     }
 
     /**

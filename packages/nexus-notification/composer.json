@@ -1,6 +1,6 @@
 {
     "name": "nexus/notification",
-    "description": "In-game notification delivery infrastructure for Nexus mobile game",
+    "description": "Nexusモバイルゲーム向けゲーム内通知配送インフラパッケージ",
     "type": "library",
     "license": "MIT",
     "require": {

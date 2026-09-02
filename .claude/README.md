@@ -39,7 +39,6 @@
 `.claude/api/`ディレクトリには、各レイヤーの詳細ルールがあります：
 
 - [controller.md](./api/controller.md) - Controllerの実装詳細
-- [usecase.md](./api/usecase.md) - UseCaseの実装詳細
 - [service.md](./api/service.md) - Serviceの実装詳細
 - [repository.md](./api/repository.md) - Repositoryの実装詳細
 - [dto.md](./api/dto.md) - DTOの設計ルール

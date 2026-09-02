@@ -124,8 +124,13 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(PlayerDeviceRepositoryInterface::class, SysPlayerDeviceRepository::class);
         $this->app->bind(TokenRepositoryInterface::class, SysPlayerTokenRepository::class);
 
-        // TokenService (singleton)
-        $this->app->singleton(TokenService::class, function ($app) {
+        // TokenService
+        //
+        // singletonではなくscopedを使う。TokenServiceはSys配下のRepositoryを
+        // コンストラクタで受け取って持ち続けるため、singletonにすると
+        // Octaneやキューワーカーでリクエストを跨いでインスタンスが残り、
+        // 別プレイヤーのキャッシュを持ち越してしまう
+        $this->app->scoped(TokenService::class, function ($app) {
             return new TokenService(
                 tokenRepository: $app->make(TokenRepositoryInterface::class),
                 appKey: config('app.key'),

@@ -1,6 +1,6 @@
 {
     "name": "nexus/chat",
-    "description": "In-game chat package for Nexus mobile game (friend & guild chat via Laravel Reverb)",
+    "description": "Nexusモバイルゲーム向けチャットパッケージ（フレンドDM・ギルド・グループチャット / Laravel Reverb対応）",
     "type": "library",
     "license": "MIT",
     "require": {

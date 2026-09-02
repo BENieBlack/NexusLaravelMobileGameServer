@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Domain\Album\Handlers\AlbumRecordingDeliveryHandler;
 use App\Domain\Item\Services\ItemGranterAdapter;
+use App\Domain\Item\Support\WalletItemMigrator;
 use App\Domain\Login\Services\ComeBackLoginBonusService;
 use App\Domain\Login\Services\LoginBonusService;
 use App\Domain\Login\Services\VipLoginBonusService;
@@ -258,6 +259,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(UnitRepositoryInterface::class, UnitRepositoryAdapter::class);
         $this->app->bind(EquipmentRepositoryInterface::class, EquipmentRepositoryAdapter::class);
         $this->app->bind(ItemGranterInterface::class, ItemGranterAdapter::class);
+
+        // 同じリクエスト内で二重に移さないよう、移行済みの記憶を共有する
+        $this->app->scoped(WalletItemMigrator::class);
+
         $this->app->bind(StaminaGranterInterface::class, StaminaGranterAdapter::class);
         $this->app->bind(ExperienceGranterInterface::class, ExperienceGranterAdapter::class);
 

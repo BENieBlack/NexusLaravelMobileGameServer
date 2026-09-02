@@ -59,4 +59,17 @@ return [
         'max_attempts_per_ip' => env('THROTTLE_PUBLIC_READ_MAX_ATTEMPTS_PER_IP', 60),
         'rate_limit_window' => env('THROTTLE_PUBLIC_READ_RATE_LIMIT_WINDOW', 60), // 1分
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Slack Error Notification
+    |--------------------------------------------------------------------------
+    |
+    | APIエラー発生時のSlack通知設定
+    | SLACK_ERROR_POST_CHANNEL: 通知先チャンネルID
+    | SLACK_BOT_TOKEN: SlackのBotトークン
+    |
+    */
+    'slack_error_channel' => env('SLACK_ERROR_POST_CHANNEL'),
+    'slack_bot_token'     => env('SLACK_BOT_TOKEN'),
 ];

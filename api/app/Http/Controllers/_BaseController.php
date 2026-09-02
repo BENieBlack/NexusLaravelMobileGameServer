@@ -7,8 +7,10 @@ use App\Exceptions\GameException;
 use App\Exceptions\InfraErrorCode;
 use App\Http\Responses\_BaseResponseInterface;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use LogicException;
 use Nexus\Core\ValueObjects\ErrorResponse;
+use NexusSecurity\Services\SlackErrorNotifier;
 use Throwable;
 
 abstract class _BaseController
@@ -79,20 +81,28 @@ abstract class _BaseController
      */
     protected function handleException(Throwable $e): JsonResponse
     {
-        // 例外の詳細をログに記録
-        \Log::error('Exception in API request', [
-            'exception' => get_class($e),
-            'message' => $e->getMessage(),
-            'code' => $e->getCode(),
-            'file' => $e->getFile(),
-            'line' => $e->getLine(),
-            'trace' => $e->getTraceAsString(),
-        ]);
+        /** @var Request $request */
+        $request = request();
 
         // GameExceptionの場合はHTTP 299のビジネスロジックエラー
         if ($e instanceof GameException) {
+            $errorCode = $e->getErrorCode();
+
+            // ログに記録
+            \Log::error('Exception in API request', [
+                'exception' => get_class($e),
+                'message'   => $e->getMessage(),
+                'code'      => $errorCode,
+                'file'      => $e->getFile(),
+                'line'      => $e->getLine(),
+                'trace'     => $e->getTraceAsString(),
+            ]);
+
+            // Slackへ通知
+            $this->notifySlack($e, $request, $errorCode);
+
             $errorResponse = ErrorResponse::businessError(
-                errorCode: $e->getErrorCode(),
+                errorCode: $errorCode,
                 message: $e->getMessage()
             );
 
@@ -102,7 +112,20 @@ abstract class _BaseController
 
         // その他の例外はシステムエラーとして扱う
         $httpStatus = $this->determineStatusCode($e);
-        $errorCode = $e->getCode() ?: InfraErrorCode::UNKNOWN_ERROR;
+        $errorCode  = $e->getCode() ?: InfraErrorCode::UNKNOWN_ERROR;
+
+        // ログに記録
+        \Log::error('Exception in API request', [
+            'exception' => get_class($e),
+            'message'   => $e->getMessage(),
+            'code'      => $errorCode,
+            'file'      => $e->getFile(),
+            'line'      => $e->getLine(),
+            'trace'     => $e->getTraceAsString(),
+        ]);
+
+        // Slackへ通知
+        $this->notifySlack($e, $request, $errorCode);
 
         $errorResponse = ErrorResponse::withStatus(
             errorCode: $errorCode,
@@ -128,5 +151,22 @@ abstract class _BaseController
 
         // デフォルトは500（Internal Server Error）
         return 500;
+    }
+
+    /**
+     * Slackへエラー通知を送信する
+     *
+     * 通知失敗（Slack側の障害・設定ミス等）がAPIレスポンスに影響しないよう
+     * 例外を握り潰す。
+     */
+    private function notifySlack(Throwable $e, Request $request, int $errorCode): void
+    {
+        try {
+            /** @var SlackErrorNotifier $notifier */
+            $notifier = app(SlackErrorNotifier::class);
+            $notifier->notify($e, $request, $errorCode);
+        } catch (Throwable) {
+            // Slack通知の失敗はAPIレスポンスに影響させない
+        }
     }
 }

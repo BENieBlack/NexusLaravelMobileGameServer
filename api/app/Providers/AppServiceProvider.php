@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Domain\Album\Handlers\AlbumRecordingDeliveryHandler;
+use App\Domain\Item\Services\ItemGranterAdapter;
 use App\Domain\Login\Services\ComeBackLoginBonusService;
 use App\Domain\Login\Services\LoginBonusService;
 use App\Domain\Login\Services\VipLoginBonusService;
@@ -77,6 +78,7 @@ use NexusResource\Contracts\DiamondRepositoryInterface;
 use NexusResource\Contracts\ItemRepositoryInterface;
 use NexusResourceDelivery\Contracts\EquipmentRepositoryInterface;
 use NexusResourceDelivery\Contracts\ExperienceGranterInterface;
+use NexusResourceDelivery\Contracts\ItemGranterInterface;
 use NexusResourceDelivery\Contracts\StaminaGranterInterface;
 use NexusResourceDelivery\Contracts\UnitRepositoryInterface;
 use NexusResourceDelivery\Handlers\CurrencyDeliveryHandler;
@@ -255,6 +257,7 @@ class AppServiceProvider extends ServiceProvider
         // ユニット/装備はパッケージ側にDTOを持たないため、Adapterが直接Modelを組み立てる
         $this->app->bind(UnitRepositoryInterface::class, UnitRepositoryAdapter::class);
         $this->app->bind(EquipmentRepositoryInterface::class, EquipmentRepositoryAdapter::class);
+        $this->app->bind(ItemGranterInterface::class, ItemGranterAdapter::class);
         $this->app->bind(StaminaGranterInterface::class, StaminaGranterAdapter::class);
         $this->app->bind(ExperienceGranterInterface::class, ExperienceGranterAdapter::class);
 

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\MaintenanceController as AdminMaintenanceController;
 use App\Http\Controllers\AlbumController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\EquipmentController;
 use App\Http\Controllers\FriendController;
 use App\Http\Controllers\GachaController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\GuildController;
 use App\Http\Controllers\InAppPurchaseController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\MailboxController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\UnitController;
 use Illuminate\Support\Facades\Route;
@@ -111,6 +113,29 @@ Route::middleware('maintenance')->group(function () {
 
         // Gacha endpoints
         Route::post('/gacha/draw', [GachaController::class, 'draw']);
+
+        // Notification endpoints
+        Route::get('/notification/list', [NotificationController::class, 'list']);
+        Route::post('/notification/read', [NotificationController::class, 'read']);
+        Route::post('/notification/read_all', [NotificationController::class, 'readAll']);
+
+        // Chat endpoints
+        // フレンドDM
+        Route::post('/chat/friend/room', [ChatController::class, 'friendRoom']);
+        Route::get('/chat/messages', [ChatController::class, 'messages']);
+        Route::post('/chat/message/send', [ChatController::class, 'send']);
+        Route::post('/chat/message/delete', [ChatController::class, 'deleteMessage']);
+        // グループチャット
+        Route::post('/chat/group/create', [ChatController::class, 'createGroup']);
+        Route::post('/chat/group/invite', [ChatController::class, 'invite']);
+        Route::post('/chat/group/kick', [ChatController::class, 'kick']);
+        Route::post('/chat/group/leave', [ChatController::class, 'leaveGroup']);
+        Route::post('/chat/group/role', [ChatController::class, 'changeRole']);
+        Route::get('/chat/group/members', [ChatController::class, 'groupMembers']);
+        // ギルドチャット
+        Route::post('/chat/guild/room', [ChatController::class, 'guildRoom']);
+        // 参加中ルーム一覧
+        Route::get('/chat/rooms', [ChatController::class, 'rooms']);
     });
 
     // Legacy signup endpoint (DEPRECATED - use /auth/signup instead)

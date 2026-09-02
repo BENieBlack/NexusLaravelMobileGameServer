@@ -19,6 +19,10 @@ use Nexus\Core\Utilities\ClockUtility;
  * 触られた時点でその場で移せば、この窓そのものが無くなり、
  * 切り替えにメンテナンスが要らなくなる。
  *
+ * この遅延移行は wallet.lazy_migration で切れる。切った場合は
+ * wallet:migrate-items だけが移す手段になるため、
+ * メンテナンス中にコマンドを流して切り替える運用になる。
+ *
  * 一括移行コマンド（wallet:migrate-items）もここを通る。
  * 移し方が2つあると片方だけ直したときに壊れるため、実装は1つにする。
  *
@@ -49,11 +53,18 @@ class WalletItemMigrator
      * Wallet管理のアイテムを読み書きする前に呼ぶ。
      * 残っていなければ何もしないので、通常時の負荷は問い合わせ1回。
      *
+     * wallet.lazy_migration が false なら何もしない。
+     *
      * @param  int  $sysPlayerId  プレイヤーID
      * @param  string  $mstItemId  mst_item.id（Wallet管理のもの）
      */
     public function migrate(int $sysPlayerId, string $mstItemId): void
     {
+        // 切ってある場合はコマンドだけが移す
+        if (! config('wallet.lazy_migration', true)) {
+            return;
+        }
+
         $key = $sysPlayerId.':'.$mstItemId;
 
         if (isset($this->migrated[$key])) {

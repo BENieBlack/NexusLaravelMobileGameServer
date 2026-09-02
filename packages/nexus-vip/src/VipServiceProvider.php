@@ -61,7 +61,14 @@ class VipServiceProvider extends ServiceProvider
         });
 
         // VIPポイントサービス
-        $this->app->singleton(VipPointService::class, function ($app) {
+        //
+        // singletonではなくscopedを使う。Sys/LogのRepositoryを受け取って
+        // 持ち続けるため、singletonにするとOctaneやキューワーカーで
+        // リクエストを跨いでインスタンスが残り、
+        // 別プレイヤーのキャッシュを持ち越してしまう。
+        // VipLevelService / VipRewardService が持つのはMstのRepositoryで、
+        // こちらは意図的に静的キャッシュのため singleton のままでよい
+        $this->app->scoped(VipPointService::class, function ($app) {
             return new VipPointService(
                 $app->make(PlayerVipRepositoryInterface::class),
                 $app->make(VipPointLogRepositoryInterface::class),

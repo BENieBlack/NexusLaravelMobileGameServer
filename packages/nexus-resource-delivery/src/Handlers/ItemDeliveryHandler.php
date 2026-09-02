@@ -3,7 +3,7 @@
 namespace NexusResourceDelivery\Handlers;
 
 use NexusResource\Enums\ResourceType;
-use NexusResource\Services\ItemService;
+use NexusResourceDelivery\Contracts\ItemGranterInterface;
 use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
 
 /**
@@ -22,7 +22,7 @@ use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
 class ItemDeliveryHandler implements ResourceDeliveryHandlerInterface
 {
     public function __construct(
-        private readonly ItemService $itemService,
+        private readonly ItemGranterInterface $itemGranter,
     ) {}
 
     /**
@@ -35,11 +35,13 @@ class ItemDeliveryHandler implements ResourceDeliveryHandlerInterface
      */
     public function handle(int $sysPlayerId, ResourceDeliveryContent $resourceDeliveryContent): void
     {
-        // ItemServiceのaddItemメソッドを使用（既存の場合は加算、新規の場合は作成）
-        $this->itemService->addItem(
+        // 既存なら加算、無ければ作成。
+        // trx_item と Wallet のどちらへ入れるかは実装側が mst_item.is_wallet で決める
+        $this->itemGranter->grantItem(
             $sysPlayerId,
             $resourceDeliveryContent->getId(),
-            $resourceDeliveryContent->getAmount()
+            $resourceDeliveryContent->getAmount(),
+            $resourceDeliveryContent->getExpireAt()
         );
     }
 

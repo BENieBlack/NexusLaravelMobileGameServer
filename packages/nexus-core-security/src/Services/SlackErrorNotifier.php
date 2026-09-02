@@ -22,6 +22,7 @@ use Throwable;
  * 設定:
  * - SLACK_ERROR_POST_CHANNEL: 通知先チャンネルID（api/.env）
  * - SLACK_BOT_TOKEN: SlackのBotトークン（グローバル設定）
+ * - security.slack_ignore_error_codes: 通知しないエラーコードの配列（config/security.php）
  */
 class SlackErrorNotifier
 {
@@ -41,9 +42,32 @@ class SlackErrorNotifier
             return;
         }
 
+        // ignore設定に含まれるエラーコードは通知しない
+        if ($this->isIgnored($errorCode)) {
+            return;
+        }
+
         $payload = $this->buildPayload($e, $request, $errorCode, $channel);
 
         $this->post($token, $payload);
+    }
+
+    /**
+     * 指定エラーコードが通知対象外か判定する
+     *
+     * config('security.slack_ignore_error_codes') に含まれる場合は通知しない。
+     * AppServiceProviderなどで上書き可能:
+     *
+     *   config(['security.slack_ignore_error_codes' => [10001, 10002, 10003]]);
+     *
+     * @param  int  $errorCode
+     * @return bool
+     */
+    private function isIgnored(int $errorCode): bool
+    {
+        $ignoreCodes = config('security.slack_ignore_error_codes', []);
+
+        return in_array($errorCode, $ignoreCodes, true);
     }
 
     /**

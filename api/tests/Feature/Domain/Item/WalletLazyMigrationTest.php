@@ -219,6 +219,51 @@ class WalletLazyMigrationTest extends TestCase
         $this->assertSame(1, $this->itemRowCount(self::WALLET_ITEM), '触らずに残す');
     }
 
+    // ========================================
+    // 設定で切った場合（コマンドだけで移す運用）
+    // ========================================
+
+    #[Test]
+    public function 設定で切れる(): void
+    {
+        // 読み取りの中で書き込みが走るのを避けたいタイトル向け
+        config(['wallet.lazy_migration' => false]);
+        $this->makeTrxItem(self::WALLET_ITEM, freeAmount: 700);
+
+        $amount = $this->itemService()->findItemAmount($this->sysPlayerId, self::WALLET_ITEM);
+        $this->flush();
+
+        $this->assertSame(0, $amount, '移さないので残高は見えない');
+        $this->assertSame(1, $this->itemRowCount(self::WALLET_ITEM), 'trx_item はそのまま');
+        $this->assertSame(0, $this->walletAmount(self::WALLET_ITEM));
+    }
+
+    #[Test]
+    public function 切ってあってもコマンドなら移せる(): void
+    {
+        config(['wallet.lazy_migration' => false]);
+        $this->makeTrxItem(self::WALLET_ITEM, freeAmount: 700, paidAmount: 300);
+
+        $this->artisan('wallet:migrate-items', ['--item' => self::WALLET_ITEM])
+            ->expectsOutputToContain('移行: 1 件（合計 1000）')
+            ->assertExitCode(0);
+
+        $this->assertSame(1000, $this->walletAmount(self::WALLET_ITEM));
+        $this->assertSame(0, $this->itemRowCount(self::WALLET_ITEM));
+    }
+
+    #[Test]
+    public function コマンドで移した後は設定を切ったままでも読める(): void
+    {
+        config(['wallet.lazy_migration' => false]);
+        $this->makeTrxItem(self::WALLET_ITEM, freeAmount: 700);
+
+        $this->artisan('wallet:migrate-items', ['--item' => self::WALLET_ITEM])->assertExitCode(0);
+        $this->nextRequest();
+
+        $this->assertSame(700, $this->itemService()->findItemAmount($this->sysPlayerId, self::WALLET_ITEM));
+    }
+
     #[Test]
     public function wallet管理でないアイテムは移さない(): void
     {

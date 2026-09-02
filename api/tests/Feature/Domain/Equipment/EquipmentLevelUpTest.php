@@ -203,7 +203,7 @@ class EquipmentLevelUpTest extends TestCase
         DB::connection('mst')->table('mst_item')->insert([
             'id' => self::EXP_ITEM_ID,
             'type' => 'EquipmentEnhancement',
-            'effect' => 'EquipmentExp',
+            'effect' => 'equipment_exp',
             'value' => 100,
             'created_at' => now(),
             'updated_at' => now(),

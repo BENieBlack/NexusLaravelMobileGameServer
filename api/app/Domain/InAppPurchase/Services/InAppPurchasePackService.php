@@ -64,7 +64,7 @@ class InAppPurchasePackService
                     $this->diamondBalanceService->addDiamond($sysPlayerId, $platform, $content->getAmount(), isPaid: false);
                     $totalFreeDiamond += $content->getAmount();
                     $grantedContentArray[] = [
-                        'type' => 'FreeDiamond',
+                        'type' => 'free_diamond',
                         'amount' => $content->getAmount(),
                     ];
                     break;
@@ -73,7 +73,7 @@ class InAppPurchasePackService
                     // アイテムを付与
                     $this->itemService->addItem($sysPlayerId, $content->getContentMstId(), $content->getAmount());
                     $grantedContentArray[] = [
-                        'type' => 'Item',
+                        'type' => 'item',
                         'item_id' => $content->getContentMstId(),
                         'amount' => $content->getAmount(),
                     ];
@@ -85,7 +85,7 @@ class InAppPurchasePackService
                     // アイテムと同じく、何がいくつ付いたかはマスターIDと個数で表す
                     $this->grantUnit($sysPlayerId, $content->getContentMstId(), $content->getAmount());
                     $grantedContentArray[] = [
-                        'type' => 'Unit',
+                        'type' => 'unit',
                         'mst_unit_id' => $content->getContentMstId(),
                         'amount' => $content->getAmount(),
                     ];

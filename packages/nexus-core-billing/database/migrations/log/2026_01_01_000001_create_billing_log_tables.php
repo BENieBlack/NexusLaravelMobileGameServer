@@ -62,7 +62,7 @@ return new class extends Migration
             $table->json('after_data')->nullable()->comment('変更後データ');
             $table->json('changed_columns')->nullable()->comment('変更カラムリスト');
 
-            $table->enum('effect_type', ['IdleRewardMultiplier', 'AdSkip', 'ExpBoost', 'GoldBoost', 'DailyMissionBonus'])->nullable()->comment('効果タイプ');
+            $table->string('effect_type')->nullable()->comment('効果タイプ (idle_reward_multiplier, ad_skip, exp_boost, gold_boost, daily_mission_bonus)');
             $table->decimal('value', 10, 2)->nullable()->comment('効果値');
             $table->dateTime('expires_at')->nullable()->comment('有効期限');
             $table->boolean('is_active')->nullable()->comment('有効フラグ');

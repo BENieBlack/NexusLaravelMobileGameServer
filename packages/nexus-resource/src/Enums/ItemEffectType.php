@@ -16,16 +16,16 @@ namespace NexusResource\Enums;
 enum ItemEffectType: string
 {
     /** プレイヤー経験値を加算する */
-    case PLAYER_EXP = 'PlayerExp';
+    case PLAYER_EXP = 'player_exp';
 
     /** ユニット経験値を加算する（対象のユニットを指定する必要がある） */
-    case UNIT_EXP = 'UnitExp';
+    case UNIT_EXP = 'unit_exp';
 
     /** 装備経験値を加算する（対象の装備を指定する必要がある） */
-    case EQUIPMENT_EXP = 'EquipmentExp';
+    case EQUIPMENT_EXP = 'equipment_exp';
 
     /** スタミナを回復する */
-    case STAMINA_RECOVER = 'StaminaRecover';
+    case STAMINA_RECOVER = 'stamina_recover';
 
     /**
      * 効果の適用に対象の指定が要るかどうか

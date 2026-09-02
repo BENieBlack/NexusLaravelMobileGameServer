@@ -23,8 +23,8 @@ return new class extends Migration
         Schema::connection('mst')->create('mst_unit', function (Blueprint $table) {
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
             $table->string('id')->primary()->comment('ユニットID');
-            $table->enum('type', ['Attack', 'Defense', 'Support'])->comment('ユニットタイプ');
-            $table->enum('element', ['Fire', 'Water', 'Wind', 'Earth', 'Light', 'Dark'])->comment('属性');
+            $table->enum('type', ['attack', 'defense', 'support'])->comment('ユニットタイプ');
+            $table->enum('element', ['fire', 'water', 'wind', 'earth', 'light', 'dark'])->comment('属性');
             $table->enum('rarity', ['UR', 'SSR', 'SR', 'R', 'UC', 'C'])->comment('レアリティ');
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
@@ -94,8 +94,8 @@ return new class extends Migration
         Schema::connection('mst')->create('mst_equipment', function (Blueprint $table) {
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
             $table->string('id')->primary()->comment('装備ID');
-            $table->enum('type', ['Attack', 'Defense', 'Support'])->comment('装備タイプ');
-            $table->enum('element', ['Fire', 'Water', 'Wind', 'Earth', 'Light', 'Dark'])->comment('属性');
+            $table->enum('type', ['attack', 'defense', 'support'])->comment('装備タイプ');
+            $table->enum('element', ['fire', 'water', 'wind', 'earth', 'light', 'dark'])->comment('属性');
             $table->enum('rarity', ['UR', 'SSR', 'SR', 'R', 'UC', 'C'])->comment('レアリティ');
             $table->unsignedInteger('attack')->default(0)->comment('攻撃力');
             $table->unsignedInteger('defense')->default(0)->comment('防御力');

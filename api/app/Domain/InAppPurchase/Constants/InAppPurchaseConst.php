@@ -12,44 +12,44 @@ class InAppPurchaseConst
     /**
      * 課金商品タイプ
      */
-    const TYPE_DIAMOND = 'Diamond';
+    const TYPE_DIAMOND = 'diamond';
 
-    const TYPE_PACK = 'Pack';
+    const TYPE_PACK = 'pack';
 
-    const TYPE_PASS = 'Pass';
+    const TYPE_PASS = 'pass';
 
     /**
      * 購入制限リセット
      */
-    const PURCHASE_LIMIT_RESET_NONE = 'None';
+    const PURCHASE_LIMIT_RESET_NONE = 'none';
 
-    const PURCHASE_LIMIT_RESET_DAILY = 'Daily';
+    const PURCHASE_LIMIT_RESET_DAILY = 'daily';
 
-    const PURCHASE_LIMIT_RESET_WEEKLY = 'Weekly';
+    const PURCHASE_LIMIT_RESET_WEEKLY = 'weekly';
 
-    const PURCHASE_LIMIT_RESET_MONTHLY = 'Monthly';
+    const PURCHASE_LIMIT_RESET_MONTHLY = 'monthly';
 
     /**
      * コンテンツタイプ
      */
-    const CONTENT_TYPE_ITEM = 'Item';
+    const CONTENT_TYPE_ITEM = 'item';
 
-    const CONTENT_TYPE_UNIT = 'Unit';
+    const CONTENT_TYPE_UNIT = 'unit';
 
-    const CONTENT_TYPE_FREE_DIAMOND = 'FreeDiamond';
+    const CONTENT_TYPE_FREE_DIAMOND = 'free_diamond';
 
     /**
      * 効果タイプ
      */
-    const EFFECT_TYPE_IDLE_REWARD_MULTIPLIER = 'IdleRewardMultiplier';
+    const EFFECT_TYPE_IDLE_REWARD_MULTIPLIER = 'idle_reward_multiplier';
 
-    const EFFECT_TYPE_AD_SKIP = 'AdSkip';
+    const EFFECT_TYPE_AD_SKIP = 'ad_skip';
 
-    const EFFECT_TYPE_EXP_BOOST = 'ExpBoost';
+    const EFFECT_TYPE_EXP_BOOST = 'exp_boost';
 
-    const EFFECT_TYPE_GOLD_BOOST = 'GoldBoost';
+    const EFFECT_TYPE_GOLD_BOOST = 'gold_boost';
 
-    const EFFECT_TYPE_DAILY_MISSION_BONUS = 'DailyMissionBonus';
+    const EFFECT_TYPE_DAILY_MISSION_BONUS = 'daily_mission_bonus';
 
     /**
      * 全課金商品タイプの配列を取得

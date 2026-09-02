@@ -73,14 +73,14 @@ class BuyPackUseCaseTest extends TestCase
     #[Test]
     public function パック購入で無償ダイヤとアイテムが付与される(): void
     {
-        $mstInAppPurchase = $this->createProduct('Pack');
+        $mstInAppPurchase = $this->createProduct('pack');
         $this->createPackContents($mstInAppPurchase->getId());
 
         $response = app(BuyPackUseCase::class)->exec(
             $this->sysPlayerId,
             $mstInAppPurchase,
             'Google',
-            'GooglePlay',
+            'google_play',
             'purchase-token-pack',
             'GPA.PACK-0001',
             'pack_starter'
@@ -109,14 +109,14 @@ class BuyPackUseCaseTest extends TestCase
         // grade を入れずに new TrxUnit() を組むと NOT NULL で落ち、
         // 採番前の id を返そうとすると TypeError になる。
         // ユニットの組み立てはRepositoryに任せる
-        $mstInAppPurchase = $this->createProduct('Pack');
+        $mstInAppPurchase = $this->createProduct('pack');
         $this->createUnitContent($mstInAppPurchase->getId(), amount: 2);
 
         $response = app(BuyPackUseCase::class)->exec(
             $this->sysPlayerId,
             $mstInAppPurchase,
             'Google',
-            'GooglePlay',
+            'google_play',
             'purchase-token-pack',
             'GPA.PACK-0002',
             'pack_unit'
@@ -134,7 +134,7 @@ class BuyPackUseCaseTest extends TestCase
         $this->assertSame(0, (int) $units[0]->level_exp);
 
         $rewards = $response->toArray()['rewards'];
-        $this->assertSame('Unit', $rewards[0]['type']);
+        $this->assertSame('unit', $rewards[0]['type']);
         $this->assertSame('unit_001', $rewards[0]['mst_unit_id']);
         $this->assertSame(2, $rewards[0]['amount']);
     }
@@ -142,7 +142,7 @@ class BuyPackUseCaseTest extends TestCase
     #[Test]
     public function 三種類のコンテンツをまとめて付与できる(): void
     {
-        $mstInAppPurchase = $this->createProduct('Pack');
+        $mstInAppPurchase = $this->createProduct('pack');
         $this->createPackContents($mstInAppPurchase->getId());
         $this->createUnitContent($mstInAppPurchase->getId());
 
@@ -150,7 +150,7 @@ class BuyPackUseCaseTest extends TestCase
             $this->sysPlayerId,
             $mstInAppPurchase,
             'Google',
-            'GooglePlay',
+            'google_play',
             'purchase-token-pack',
             'GPA.PACK-0003',
             'pack_all'
@@ -172,13 +172,13 @@ class BuyPackUseCaseTest extends TestCase
     #[Test]
     public function 中身が空のパックでも購入履歴は残る(): void
     {
-        $mstInAppPurchase = $this->createProduct('Pack');
+        $mstInAppPurchase = $this->createProduct('pack');
 
         $response = app(BuyPackUseCase::class)->exec(
             $this->sysPlayerId,
             $mstInAppPurchase,
             'Google',
-            'GooglePlay',
+            'google_play',
             'purchase-token-pack',
             'GPA.PACK-0004',
             'pack_empty'
@@ -199,7 +199,7 @@ class BuyPackUseCaseTest extends TestCase
     #[Test]
     public function 購入回数は積み上がる(): void
     {
-        $mstInAppPurchase = $this->createProduct('Pack');
+        $mstInAppPurchase = $this->createProduct('pack');
         $this->createPackContents($mstInAppPurchase->getId());
 
         foreach (['GPA.PACK-1001', 'GPA.PACK-1002'] as $orderId) {
@@ -207,7 +207,7 @@ class BuyPackUseCaseTest extends TestCase
                 $this->sysPlayerId,
                 $mstInAppPurchase,
                 'Google',
-                'GooglePlay',
+                'google_play',
                 'purchase-token-'.$orderId,
                 $orderId,
                 'pack_starter'
@@ -227,7 +227,7 @@ class BuyPackUseCaseTest extends TestCase
     #[Test]
     public function 購入回数の上限に達すると次から買えない(): void
     {
-        $mstInAppPurchase = $this->createProduct('Pack', purchaseLimit: 1);
+        $mstInAppPurchase = $this->createProduct('pack', purchaseLimit: 1);
         $this->createPackContents($mstInAppPurchase->getId());
 
         $this->buy($mstInAppPurchase, 'GPA.PACK-2001');
@@ -249,7 +249,7 @@ class BuyPackUseCaseTest extends TestCase
     #[Test]
     public function 日次の上限は日付が変われば買い直せる(): void
     {
-        $mstInAppPurchase = $this->createProduct('Pack', purchaseLimit: 1, purchaseLimitReset: 'Daily');
+        $mstInAppPurchase = $this->createProduct('pack', purchaseLimit: 1, purchaseLimitReset: 'daily');
         $this->createPackContents($mstInAppPurchase->getId());
 
         ClockUtility::setNow('2026-03-15 12:00:00');
@@ -273,7 +273,7 @@ class BuyPackUseCaseTest extends TestCase
             $this->sysPlayerId,
             $mstInAppPurchase,
             'Google',
-            'GooglePlay',
+            'google_play',
             'purchase-token-'.$orderId,
             $orderId,
             'pack_limited'
@@ -291,7 +291,7 @@ class BuyPackUseCaseTest extends TestCase
         DB::connection('mst')->table('mst_in_app_purchase_content')->insert([
             'deploy_key' => self::DEPLOY_KEY,
             'mst_in_app_purchase_id' => $mstInAppPurchaseId,
-            'content_type' => 'Unit',
+            'content_type' => 'unit',
             'content_mst_id' => 'unit_001',
             'content_quantity' => 1,
             'amount' => $amount,

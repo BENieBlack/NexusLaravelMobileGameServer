@@ -63,7 +63,7 @@ class PurchaseLimitTest extends TestCase
     {
         $product = $this->makeProduct(purchaseLimit: null);
 
-        $this->service->validatePurchaseLimit($product, $this->makeHistory(purchaseCount: 999), 'GooglePlay');
+        $this->service->validatePurchaseLimit($product, $this->makeHistory(purchaseCount: 999), 'google_play');
 
         $this->addToAssertionCount(1);
     }
@@ -73,7 +73,7 @@ class PurchaseLimitTest extends TestCase
     {
         $product = $this->makeProduct(purchaseLimit: 1);
 
-        $this->service->validatePurchaseLimit($product, null, 'GooglePlay');
+        $this->service->validatePurchaseLimit($product, null, 'google_play');
 
         $this->addToAssertionCount(1);
     }
@@ -87,7 +87,7 @@ class PurchaseLimitTest extends TestCase
     {
         $product = $this->makeProduct(purchaseLimit: 3);
 
-        $this->service->validatePurchaseLimit($product, $this->makeHistory(purchaseCount: 2), 'GooglePlay');
+        $this->service->validatePurchaseLimit($product, $this->makeHistory(purchaseCount: 2), 'google_play');
 
         $this->addToAssertionCount(1);
     }
@@ -98,7 +98,7 @@ class PurchaseLimitTest extends TestCase
         $product = $this->makeProduct(purchaseLimit: 3);
 
         try {
-            $this->service->validatePurchaseLimit($product, $this->makeHistory(purchaseCount: 3), 'GooglePlay');
+            $this->service->validatePurchaseLimit($product, $this->makeHistory(purchaseCount: 3), 'google_play');
             $this->fail('上限に達しているのに通ってしまった');
         } catch (GameException $e) {
             $this->assertSame(GameErrorCode::PURCHASE_LIMIT_EXCEEDED, $e->getErrorCode());
@@ -110,12 +110,12 @@ class PurchaseLimitTest extends TestCase
     #[Test]
     public function リセットなしは日付が変わっても持ち越す(): void
     {
-        $product = $this->makeProduct(purchaseLimit: 1, purchaseLimitReset: 'None');
+        $product = $this->makeProduct(purchaseLimit: 1, purchaseLimitReset: 'none');
         $history = $this->makeHistory(purchaseCount: 1, resetAt: '2026-01-01 00:00:00');
 
         $this->expectException(GameException::class);
 
-        $this->service->validatePurchaseLimit($product, $history, 'GooglePlay');
+        $this->service->validatePurchaseLimit($product, $history, 'google_play');
     }
 
     // ========================================
@@ -125,13 +125,13 @@ class PurchaseLimitTest extends TestCase
     #[Test]
     public function 日次は日付が変われば買い直せる(): void
     {
-        $product = $this->makeProduct(purchaseLimit: 1, purchaseLimitReset: 'Daily');
+        $product = $this->makeProduct(purchaseLimit: 1, purchaseLimitReset: 'daily');
 
         // 前日に上限まで買っていても、日付が変わればリセットされる
         $this->service->validatePurchaseLimit(
             $product,
             $this->makeHistory(purchaseCount: 1, resetAt: '2026-03-14 23:59:59'),
-            'GooglePlay'
+            'google_play'
         );
 
         $this->addToAssertionCount(1);
@@ -140,27 +140,27 @@ class PurchaseLimitTest extends TestCase
     #[Test]
     public function 日次は同じ日なら弾かれる(): void
     {
-        $product = $this->makeProduct(purchaseLimit: 1, purchaseLimitReset: 'Daily');
+        $product = $this->makeProduct(purchaseLimit: 1, purchaseLimitReset: 'daily');
 
         $this->expectException(GameException::class);
 
         $this->service->validatePurchaseLimit(
             $product,
             $this->makeHistory(purchaseCount: 1, resetAt: '2026-03-15 00:00:00'),
-            'GooglePlay'
+            'google_play'
         );
     }
 
     #[Test]
     public function 週次は週が変われば買い直せる(): void
     {
-        $product = $this->makeProduct(purchaseLimit: 1, purchaseLimitReset: 'Weekly');
+        $product = $this->makeProduct(purchaseLimit: 1, purchaseLimitReset: 'weekly');
 
         // 2026-03-15 は日曜。前の週の日時ならリセットされる
         $this->service->validatePurchaseLimit(
             $product,
             $this->makeHistory(purchaseCount: 1, resetAt: '2026-03-05 12:00:00'),
-            'GooglePlay'
+            'google_play'
         );
 
         $this->addToAssertionCount(1);
@@ -169,26 +169,26 @@ class PurchaseLimitTest extends TestCase
     #[Test]
     public function 週次は同じ週なら弾かれる(): void
     {
-        $product = $this->makeProduct(purchaseLimit: 1, purchaseLimitReset: 'Weekly');
+        $product = $this->makeProduct(purchaseLimit: 1, purchaseLimitReset: 'weekly');
 
         $this->expectException(GameException::class);
 
         $this->service->validatePurchaseLimit(
             $product,
             $this->makeHistory(purchaseCount: 1, resetAt: '2026-03-13 12:00:00'),
-            'GooglePlay'
+            'google_play'
         );
     }
 
     #[Test]
     public function 月次は月が変われば買い直せる(): void
     {
-        $product = $this->makeProduct(purchaseLimit: 1, purchaseLimitReset: 'Monthly');
+        $product = $this->makeProduct(purchaseLimit: 1, purchaseLimitReset: 'monthly');
 
         $this->service->validatePurchaseLimit(
             $product,
             $this->makeHistory(purchaseCount: 1, resetAt: '2026-02-28 23:59:59'),
-            'GooglePlay'
+            'google_play'
         );
 
         $this->addToAssertionCount(1);
@@ -197,14 +197,14 @@ class PurchaseLimitTest extends TestCase
     #[Test]
     public function 月次は同じ月なら弾かれる(): void
     {
-        $product = $this->makeProduct(purchaseLimit: 1, purchaseLimitReset: 'Monthly');
+        $product = $this->makeProduct(purchaseLimit: 1, purchaseLimitReset: 'monthly');
 
         $this->expectException(GameException::class);
 
         $this->service->validatePurchaseLimit(
             $product,
             $this->makeHistory(purchaseCount: 1, resetAt: '2026-03-01 00:00:00'),
-            'GooglePlay'
+            'google_play'
         );
     }
 
@@ -212,12 +212,12 @@ class PurchaseLimitTest extends TestCase
     public function リセットされた回数は0として案内される(): void
     {
         // リセット済みなら上限に達していないので、そもそも例外にならない
-        $product = $this->makeProduct(purchaseLimit: 2, purchaseLimitReset: 'Daily');
+        $product = $this->makeProduct(purchaseLimit: 2, purchaseLimitReset: 'daily');
 
         $this->service->validatePurchaseLimit(
             $product,
             $this->makeHistory(purchaseCount: 5, resetAt: '2026-03-14 12:00:00'),
-            'GooglePlay'
+            'google_play'
         );
 
         $this->addToAssertionCount(1);
@@ -232,18 +232,18 @@ class PurchaseLimitTest extends TestCase
     {
         $this->assertSame(
             '2026-03-15 12:00:00',
-            $this->service->getNewResetDateIfNeeded('Daily', '2026-03-14 12:00:00')
+            $this->service->getNewResetDateIfNeeded('daily', '2026-03-14 12:00:00')
         );
 
-        $this->assertNull($this->service->getNewResetDateIfNeeded('Daily', '2026-03-15 00:00:00'));
-        $this->assertNull($this->service->getNewResetDateIfNeeded('None', '2026-01-01 00:00:00'));
+        $this->assertNull($this->service->getNewResetDateIfNeeded('daily', '2026-03-15 00:00:00'));
+        $this->assertNull($this->service->getNewResetDateIfNeeded('none', '2026-01-01 00:00:00'));
     }
 
-    private function makeProduct(?int $purchaseLimit, string $purchaseLimitReset = 'None'): MstInAppPurchase
+    private function makeProduct(?int $purchaseLimit, string $purchaseLimitReset = 'none'): MstInAppPurchase
     {
         DB::connection('mst')->table('mst_in_app_purchase')->insert([
             'id' => self::PRODUCT_ID,
-            'type' => 'Diamond',
+            'type' => 'diamond',
             'paid_diamond_amount' => 100,
             'vip_point' => 0,
             'purchase_limit' => $purchaseLimit,
@@ -261,7 +261,7 @@ class PurchaseLimitTest extends TestCase
         // trx_in_app_purchase は複合主キーで id を持たない
         DB::connection('trx1')->table('trx_in_app_purchase')->insert([
             'sys_player_id' => $this->sysPlayerId,
-            'billing_platform' => 'GooglePlay',
+            'billing_platform' => 'google_play',
             'mst_in_app_purchase_id' => self::PRODUCT_ID,
             'transaction_id' => 'txn-limit-'.$purchaseCount,
             'total_purchase_count' => $purchaseCount,
@@ -274,7 +274,7 @@ class PurchaseLimitTest extends TestCase
 
         return TrxInAppPurchase::query()
             ->where('sys_player_id', $this->sysPlayerId)
-            ->where('billing_platform', 'GooglePlay')
+            ->where('billing_platform', 'google_play')
             ->where('mst_in_app_purchase_id', self::PRODUCT_ID)
             ->firstOrFail();
     }

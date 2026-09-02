@@ -66,7 +66,7 @@ class UseItemTest extends TestCase
         // value=100 のアイテムを3個 → 300exp
         $response = $this->useCase->exec($this->sysPlayerId, self::PLAYER_EXP_ITEM_ID, 3);
 
-        $this->assertSame('PlayerExp', $response->effect);
+        $this->assertSame('player_exp', $response->effect);
         $this->assertSame(3, $response->itemUsed);
         $this->assertSame(300, $response->appliedValue);
 
@@ -94,7 +94,7 @@ class UseItemTest extends TestCase
     {
         $response = $this->useCase->exec($this->sysPlayerId, self::STAMINA_ITEM_ID, 2);
 
-        $this->assertSame('StaminaRecover', $response->effect);
+        $this->assertSame('stamina_recover', $response->effect);
         $this->assertSame(60, $response->appliedValue);
 
         $stamina = DB::connection('trx1')->table('trx_stamina')
@@ -144,7 +144,7 @@ class UseItemTest extends TestCase
             [
                 'id' => self::PLAYER_EXP_ITEM_ID,
                 'type' => 'consumable',
-                'effect' => 'PlayerExp',
+                'effect' => 'player_exp',
                 'value' => 100,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -152,7 +152,7 @@ class UseItemTest extends TestCase
             [
                 'id' => self::STAMINA_ITEM_ID,
                 'type' => 'consumable',
-                'effect' => 'StaminaRecover',
+                'effect' => 'stamina_recover',
                 'value' => 30,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -160,7 +160,7 @@ class UseItemTest extends TestCase
             [
                 'id' => self::UNIT_EXP_ITEM_ID,
                 'type' => 'UnitEnhancement',
-                'effect' => 'UnitExp',
+                'effect' => 'unit_exp',
                 'value' => 50,
                 'created_at' => now(),
                 'updated_at' => now(),

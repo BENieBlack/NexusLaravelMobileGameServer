@@ -26,49 +26,49 @@ class MstInAppPurchaseSeeder extends Seeder
         DB::connection('mst')->table('mst_in_app_purchase')->truncate();
 
         // プラットフォーム商品IDを取得
-        $appStoreDiamond100 = MstBillingPlatformProduct::where('billing_platform', 'AppStore')
+        $appStoreDiamond100 = MstBillingPlatformProduct::where('billing_platform', 'app_store')
             ->where('platform_product_id', 'com.example.game.diamond100')
             ->first();
-        $googlePlayDiamond100 = MstBillingPlatformProduct::where('billing_platform', 'GooglePlay')
+        $googlePlayDiamond100 = MstBillingPlatformProduct::where('billing_platform', 'google_play')
             ->where('platform_product_id', 'com.example.game.diamond100')
             ->first();
 
-        $appStoreDiamond500 = MstBillingPlatformProduct::where('billing_platform', 'AppStore')
+        $appStoreDiamond500 = MstBillingPlatformProduct::where('billing_platform', 'app_store')
             ->where('platform_product_id', 'com.example.game.diamond500')
             ->first();
-        $googlePlayDiamond500 = MstBillingPlatformProduct::where('billing_platform', 'GooglePlay')
+        $googlePlayDiamond500 = MstBillingPlatformProduct::where('billing_platform', 'google_play')
             ->where('platform_product_id', 'com.example.game.diamond500')
             ->first();
 
-        $appStoreDiamond1000 = MstBillingPlatformProduct::where('billing_platform', 'AppStore')
+        $appStoreDiamond1000 = MstBillingPlatformProduct::where('billing_platform', 'app_store')
             ->where('platform_product_id', 'com.example.game.diamond1000')
             ->first();
-        $googlePlayDiamond1000 = MstBillingPlatformProduct::where('billing_platform', 'GooglePlay')
+        $googlePlayDiamond1000 = MstBillingPlatformProduct::where('billing_platform', 'google_play')
             ->where('platform_product_id', 'com.example.game.diamond1000')
             ->first();
 
-        $appStoreStarterPack = MstBillingPlatformProduct::where('billing_platform', 'AppStore')
+        $appStoreStarterPack = MstBillingPlatformProduct::where('billing_platform', 'app_store')
             ->where('platform_product_id', 'com.example.game.starter_pack')
             ->first();
-        $googlePlayStarterPack = MstBillingPlatformProduct::where('billing_platform', 'GooglePlay')
+        $googlePlayStarterPack = MstBillingPlatformProduct::where('billing_platform', 'google_play')
             ->where('platform_product_id', 'com.example.game.starter_pack')
             ->first();
 
-        $appStoreMonthlyPass = MstBillingPlatformProduct::where('billing_platform', 'AppStore')
+        $appStoreMonthlyPass = MstBillingPlatformProduct::where('billing_platform', 'app_store')
             ->where('platform_product_id', 'com.example.game.monthly_pass')
             ->first();
-        $googlePlayMonthlyPass = MstBillingPlatformProduct::where('billing_platform', 'GooglePlay')
+        $googlePlayMonthlyPass = MstBillingPlatformProduct::where('billing_platform', 'google_play')
             ->where('platform_product_id', 'com.example.game.monthly_pass')
             ->first();
 
         // 1. Diamond商品（有償ダイアモンドのみ）
         MstInAppPurchase::create([
             'deploy_key' => 202601010,
-            'type' => 'Diamond',
+            'type' => 'diamond',
             'paid_diamond_amount' => 100,
             'effect_duration_days' => null, // Diamond商品は効果なし
             'purchase_limit' => null, // 無制限
-            'purchase_limit_reset' => 'None',
+            'purchase_limit_reset' => 'none',
             'app_store_product_id' => $appStoreDiamond100->id,
             'google_play_product_id' => $googlePlayDiamond100->id,
             'sort_desc' => 300,
@@ -77,11 +77,11 @@ class MstInAppPurchaseSeeder extends Seeder
 
         MstInAppPurchase::create([
             'deploy_key' => 202601010,
-            'type' => 'Diamond',
+            'type' => 'diamond',
             'paid_diamond_amount' => 500,
             'effect_duration_days' => null,
             'purchase_limit' => null,
-            'purchase_limit_reset' => 'None',
+            'purchase_limit_reset' => 'none',
             'app_store_product_id' => $appStoreDiamond500->id,
             'google_play_product_id' => $googlePlayDiamond500->id,
             'sort_desc' => 200,
@@ -90,11 +90,11 @@ class MstInAppPurchaseSeeder extends Seeder
 
         MstInAppPurchase::create([
             'deploy_key' => 202601010,
-            'type' => 'Diamond',
+            'type' => 'diamond',
             'paid_diamond_amount' => 1000,
             'effect_duration_days' => null,
             'purchase_limit' => null,
-            'purchase_limit_reset' => 'None',
+            'purchase_limit_reset' => 'none',
             'app_store_product_id' => $appStoreDiamond1000->id,
             'google_play_product_id' => $googlePlayDiamond1000->id,
             'sort_desc' => 100,
@@ -104,11 +104,11 @@ class MstInAppPurchaseSeeder extends Seeder
         // 2. Pack商品（有償ダイアモンド + 無償ダイアモンド + アイテム）
         $starterPack = MstInAppPurchase::create([
             'deploy_key' => 202601010,
-            'type' => 'Pack',
+            'type' => 'pack',
             'paid_diamond_amount' => 300,
             'effect_duration_days' => null, // Pack商品は効果なし
             'purchase_limit' => 1, // 1回のみ購入可能
-            'purchase_limit_reset' => 'None', // リセットなし
+            'purchase_limit_reset' => 'none', // リセットなし
             'app_store_product_id' => $appStoreStarterPack->id,
             'google_play_product_id' => $googlePlayStarterPack->id,
             'sort_desc' => 500,
@@ -119,7 +119,7 @@ class MstInAppPurchaseSeeder extends Seeder
         MstInAppPurchaseContent::create([
             'deploy_key' => 202601010,
             'mst_in_app_purchase_id' => $starterPack->id,
-            'content_type' => 'FreeDiamond',
+            'content_type' => 'free_diamond',
             'content_mst_id' => 'diamond', // FreeDiamondの場合は'diamond'
             'amount' => 500,
             'sort_desc' => 300,
@@ -138,11 +138,11 @@ class MstInAppPurchaseSeeder extends Seeder
         // 3. Pass商品（有償ダイアモンド + 継続効果）
         $monthlyPass = MstInAppPurchase::create([
             'deploy_key' => 202601010,
-            'type' => 'Pass',
+            'type' => 'pass',
             'paid_diamond_amount' => 500,
             'effect_duration_days' => 30, // 30日間有効
             'purchase_limit' => 1, // 1回のみ購入可能
-            'purchase_limit_reset' => 'Monthly', // 毎月リセット
+            'purchase_limit_reset' => 'monthly', // 毎月リセット
             'app_store_product_id' => $appStoreMonthlyPass->id,
             'google_play_product_id' => $googlePlayMonthlyPass->id,
             'sort_desc' => 600,
@@ -153,7 +153,7 @@ class MstInAppPurchaseSeeder extends Seeder
         MstInAppPurchaseContent::create([
             'deploy_key' => 202601010,
             'mst_in_app_purchase_id' => $monthlyPass->id,
-            'content_type' => 'FreeDiamond',
+            'content_type' => 'free_diamond',
             'content_mst_id' => 'diamond',
             'amount' => 100, // 1日あたり100個
             'sort_desc' => 100,
@@ -163,21 +163,21 @@ class MstInAppPurchaseSeeder extends Seeder
         MstInAppPurchaseEffect::create([
             'deploy_key' => 202601010,
             'mst_in_app_purchase_id' => $monthlyPass->id,
-            'effect_type' => 'IdleRewardMultiplier',
+            'effect_type' => 'idle_reward_multiplier',
             'value' => 2.0, // 放置報酬2倍
         ]);
 
         MstInAppPurchaseEffect::create([
             'deploy_key' => 202601010,
             'mst_in_app_purchase_id' => $monthlyPass->id,
-            'effect_type' => 'AdSkip',
+            'effect_type' => 'ad_skip',
             'value' => 1, // 広告スキップ有効
         ]);
 
         MstInAppPurchaseEffect::create([
             'deploy_key' => 202601010,
             'mst_in_app_purchase_id' => $monthlyPass->id,
-            'effect_type' => 'ExpBoost',
+            'effect_type' => 'exp_boost',
             'value' => 1.5, // 経験値1.5倍
         ]);
     }

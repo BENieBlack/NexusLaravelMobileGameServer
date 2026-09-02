@@ -12,22 +12,22 @@ class PurchaseLimitResetType
     /**
      * リセットしない（永久制限）
      */
-    const NONE = 'None';
+    const NONE = 'none';
 
     /**
      * 日次リセット（毎日0時にリセット）
      */
-    const DAILY = 'Daily';
+    const DAILY = 'daily';
 
     /**
      * 週次リセット（毎週月曜0時にリセット）
      */
-    const WEEKLY = 'Weekly';
+    const WEEKLY = 'weekly';
 
     /**
      * 月次リセット（毎月1日0時にリセット）
      */
-    const MONTHLY = 'Monthly';
+    const MONTHLY = 'monthly';
 
     /**
      * 全リセットタイプの配列を取得

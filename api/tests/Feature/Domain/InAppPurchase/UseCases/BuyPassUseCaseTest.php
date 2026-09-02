@@ -69,14 +69,14 @@ class BuyPassUseCaseTest extends TestCase
     #[Test]
     public function パス購入で有償ダイヤと効果が付与される(): void
     {
-        $mstInAppPurchase = $this->createProduct('Pass', paidDiamondAmount: 100, effectDurationDays: 30);
+        $mstInAppPurchase = $this->createProduct('pass', paidDiamondAmount: 100, effectDurationDays: 30);
         $this->createPassEffect($mstInAppPurchase->getId());
 
         $response = app(BuyPassUseCase::class)->exec(
             $this->sysPlayerId,
             $mstInAppPurchase,
             'Google',
-            'GooglePlay',
+            'google_play',
             'purchase-token-pass',
             'GPA.PASS-0001',
             'pass_monthly'
@@ -94,7 +94,7 @@ class BuyPassUseCaseTest extends TestCase
         $effect = DB::connection('trx1')->table('trx_in_app_purchase_effect')
             ->where('sys_player_id', $this->sysPlayerId)->first();
         $this->assertNotNull($effect);
-        $this->assertSame('ExpBoost', $effect->effect_type);
+        $this->assertSame('exp_boost', $effect->effect_type);
         $this->assertSame(1, (int) $effect->is_active);
 
         $this->assertVipPointAndLogsRecorded();

@@ -25,7 +25,7 @@ trait PreparesPurchaseFixtures
         $log = DB::connection('log1')->table('log_in_app_purchase')
             ->where('sys_player_id', $this->sysPlayerId)->first();
         $this->assertNotNull($log);
-        $this->assertSame('Purchased', $log->status);
+        $this->assertSame('purchased', $log->status);
         $this->assertSame('980.00', (string) $log->pay_amount);
     }
 
@@ -50,13 +50,13 @@ trait PreparesPurchaseFixtures
         int $paidDiamondAmount = 0,
         ?int $effectDurationDays = null,
         ?int $purchaseLimit = null,
-        string $purchaseLimitReset = 'None',
+        string $purchaseLimitReset = 'none',
     ): MstInAppPurchase {
         $platformProductId = DB::connection('mst')->table('mst_billing_platform_product')->insertGetId([
             'deploy_key' => self::DEPLOY_KEY,
             'platform_product_id' => strtolower($type),
-            'billing_platform' => 'GooglePlay',
-            'product_type' => 'Consumable',
+            'billing_platform' => 'google_play',
+            'product_type' => 'consumable',
             'price_amount_micros' => self::PRICE_MICROS,
             'price_currency_code' => 'JPY',
             'is_active' => true,
@@ -88,7 +88,7 @@ trait PreparesPurchaseFixtures
             [
                 'deploy_key' => self::DEPLOY_KEY,
                 'mst_in_app_purchase_id' => $mstInAppPurchaseId,
-                'content_type' => 'FreeDiamond',
+                'content_type' => 'free_diamond',
                 'content_mst_id' => 'free_diamond',
                 'content_quantity' => 1,
                 'amount' => 300,
@@ -115,7 +115,7 @@ trait PreparesPurchaseFixtures
         DB::connection('mst')->table('mst_in_app_purchase_effect')->insert([
             'deploy_key' => self::DEPLOY_KEY,
             'mst_in_app_purchase_id' => $mstInAppPurchaseId,
-            'effect_type' => 'ExpBoost',
+            'effect_type' => 'exp_boost',
             'value' => 1.50,
             'created_at' => now(),
             'updated_at' => now(),

@@ -215,5 +215,5 @@ NexusFriend\Constants\FriendStatus    // APPLIED, ACCEPTED, REJECTED, DELETED
 ## 参考資料
 
 - [UseCaseパターン実装](../api/app/Domain/_BaseUseCase.php)
-- [Repositoryパターン実装](../packages/nexus-core-persistence/)
-- [過去のリファクタリング履歴](../CHANGELOG.md)
+- [Repositoryパターン実装](../packages/nexus-core/src/Repositories/)
+- [Repositoryパターン実装ガイド](../api/docs/repository_pattern.md)

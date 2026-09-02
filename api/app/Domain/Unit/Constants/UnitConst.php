@@ -13,11 +13,11 @@ class UnitConst
     /**
      * ユニットタイプ
      */
-    const TYPE_ATTACK = 'Attack';
+    const TYPE_ATTACK = 'attack';
 
-    const TYPE_DEFENSE = 'Defense';
+    const TYPE_DEFENSE = 'defense';
 
-    const TYPE_SUPPORT = 'Support';
+    const TYPE_SUPPORT = 'support';
 
     /**
      * 全タイプの配列を取得

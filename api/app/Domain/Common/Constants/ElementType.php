@@ -13,32 +13,32 @@ class ElementType
     /**
      * 火属性
      */
-    const FIRE = 'Fire';
+    const FIRE = 'fire';
 
     /**
      * 水属性
      */
-    const WATER = 'Water';
+    const WATER = 'water';
 
     /**
      * 風属性
      */
-    const WIND = 'Wind';
+    const WIND = 'wind';
 
     /**
      * 地属性
      */
-    const EARTH = 'Earth';
+    const EARTH = 'earth';
 
     /**
      * 光属性
      */
-    const LIGHT = 'Light';
+    const LIGHT = 'light';
 
     /**
      * 闇属性
      */
-    const DARK = 'Dark';
+    const DARK = 'dark';
 
     /**
      * 全属性の配列を取得

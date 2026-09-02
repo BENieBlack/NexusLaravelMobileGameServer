@@ -69,7 +69,7 @@ class ToResponseArrayTest extends TestCase
         $balance->id = 789;
         $balance->sys_player_id = 1;
         $balance->platform = 'apple';
-        $balance->billing_platform = 'AppStore';
+        $balance->billing_platform = 'app_store';
         $balance->current_amount = 1000;
         $balance->purchase_amount = 1000;
         $balance->unit_price = 0.99;
@@ -161,7 +161,7 @@ class ToResponseArrayTest extends TestCase
         $purchase = new MstInAppPurchase;
         $purchase->id = 444;
         $purchase->deploy_key = 202501011;
-        $purchase->type = 'Diamond';
+        $purchase->type = 'diamond';
         $purchase->paid_diamond_amount = 100;
         $purchase->is_active = true;
 

@@ -1718,7 +1718,7 @@ LogEquipment::create([
 
 ---
 
-## ENUM型の使用ルール
+ ## ENUM型の使用ルール
 
 ### 概要
 
@@ -1734,16 +1734,61 @@ ENUM型は適切に使用しないと、サービス全体の停止を引き起�
 - デプロイ時に一括更新されるため、ENUM拡張も同時に実施可能
 - 計画的なメンテナンス時に更新できる
 
+✅ **tol_*** (運営ツールテーブル)
+- 運営ツール専用DBのため、ゲームサービスを停止せずにALTERを実施可能
+
+✅ **adm_*** (管理テーブル)
+- 管理者向けDBのため、ゲームサービスを停止せずにALTERを実施可能
+
 #### ENUM型を使用してはいけないテーブル
 
 ❌ **trx_*** (トランザクションテーブル)
 - API経由で常時書き込まれるため、テーブルロックが許容できない
+- **STRING型を使用すること**
 
 ❌ **sys_*** (システムテーブル)
 - API経由で常時書き込まれるため、テーブルロックが許容できない
+- **STRING型を使用すること**
 
 ❌ **log_*** (ログテーブル)
 - API経由で常時書き込まれるため、テーブルロックが許容できない
+- **STRING型を使用すること**
+
+### ENUM値・定数のケース統一ルール
+
+**重要: DBに登録される全ての文字列値はスネークケースに統一する。**
+
+#### 理由
+
+- `mst_billing_platform_product.platform_product_id` のようにApp Storeの商品IDはスネークケースで登録される
+- ENUMやその他の定数がパスカルケースだと「ここだけスネーク、他はパスカル」となり一貫性がなくなる
+- スネークケースに統一することで、DBに保存される全文字列の表記が一致する
+
+#### ルール
+
+```php
+// ✅ Good: ENUM値はスネークケース
+$table->enum('billing_platform', ['app_store', 'google_play', 'pay_pal', 'stripe']);
+$table->enum('type', ['attack', 'defense', 'support']);
+$table->enum('status', ['applied', 'accepted', 'rejected', 'deleted']);
+
+// ✅ Good: PHP定数・Enumクラスの値もスネークケース
+const PLATFORM_APP_STORE = 'app_store';
+case APP_STORE = 'app_store';
+
+// ❌ Bad: パスカルケース
+$table->enum('billing_platform', ['AppStore', 'GooglePlay']);
+const PLATFORM_APP_STORE = 'AppStore';
+case APP_STORE = 'AppStore';
+```
+
+#### 例外（スネークケースにしない値）
+
+以下は外部仕様・規格に従うため変更しない：
+- `language` カラムの値: `ja`, `en`, `zh-TW` 等（RFC 5646準拠）
+- `rarity` カラムの値: `UR`, `SSR`, `SR`, `R`, `UC`, `C`（ゲーム業界の慣習的な略称）
+- `operation_type`: `insert`, `update`, `delete`（SQL操作名）
+- `PITR`の`operation`: `INSERT`, `UPDATE`, `DELETE`（SQL操作名・大文字）
 
 ### 実装例
 
@@ -1751,7 +1796,7 @@ ENUM型は適切に使用しないと、サービス全体の停止を引き起�
 
 ```php
 // マイグレーション
-$table->enum('billing_platform', ['apple', 'google']);
+$table->enum('billing_platform', ['app_store', 'google_play']);
 
 // 問題: 新しい値を追加する際にサービス停止が必要
 ```
@@ -1761,16 +1806,17 @@ $table->enum('billing_platform', ['apple', 'google']);
 ```php
 // マイグレーション
 $table->string('billing_platform')
-    ->comment('課金プラットフォーム (apple, google等)');
+    ->comment('課金プラットフォーム (app_store, google_play等)');
 
 // 利点: 新しい値を追加してもテーブル構造の変更不要
 ```
 
-#### ✅ Good: mstテーブルではENUMを使用可能
+#### ✅ Good: mst/tol/admテーブルではENUMを使用可能（値はスネークケース）
 
 ```php
 // マイグレーション
 $table->enum('status', ['active', 'inactive', 'maintenance']);
+$table->enum('billing_platform', ['app_store', 'google_play', 'pay_pal', 'stripe']);
 
 // 理由: デプロイ時に計画的に更新可能
 ```
@@ -1786,7 +1832,7 @@ $table->enum('status', ['active', 'inactive', 'maintenance']);
 ```sql
 -- ENUM拡張の例（テーブル全体がロックされる）
 ALTER TABLE trx_diamond_balance 
-MODIFY COLUMN billing_platform ENUM('AppStore', 'GooglePlay', 'PayPal', 'Stripe', 'NewPlatform');
+MODIFY COLUMN billing_platform ENUM('app_store', 'google_play', 'pay_pal', 'stripe', 'new_platform');
 
 -- この間、テーブルへの書き込みが全てブロックされる
 -- 大量のレコードがある場合、数分〜数十分かかる可能性
@@ -1795,25 +1841,25 @@ MODIFY COLUMN billing_platform ENUM('AppStore', 'GooglePlay', 'PayPal', 'Stripe'
 ### ベストプラクティス
 
 1. **設計時の判断基準**
-   - mstテーブル: ENUM型を使用可（値の追加頻度が低い場合）
-   - その他のテーブル: STRING型を使用
+   - mst/tol/admテーブル: ENUM型を使用可（値はスネークケース）
+   - sys/trx/logテーブル: STRING型を使用（値はスネークケース）
 
 2. **コメントでの補足**
    - STRING型を使用する場合、許容される値をコメントで明記
-   - 例: `->comment('決済プラットフォーム (AppStore, GooglePlay, PayPal, Stripe等)')`
+   - 例: `->comment('課金プラットフォーム (app_store, google_play等)')`
 
 3. **バリデーション**
    - STRING型でも、アプリケーション層で値の検証を行う
-   - Enumクラスやバリデーションルールで許容値を定義
+   - Enumクラスやバリデーションルールで許容値を定義（値はスネークケース）
 
 ```php
-// Enumクラスで値を管理
+// ✅ Good: Enumクラスの値はスネークケース
 enum BillingPlatform: string
 {
-    case AppStore = 'AppStore';
-    case GooglePlay = 'GooglePlay';
-    case PayPal = 'PayPal';
-    case Stripe = 'Stripe';
+    case AppStore   = 'app_store';
+    case GooglePlay = 'google_play';
+    case PayPal     = 'pay_pal';
+    case Stripe     = 'stripe';
 }
 
 // バリデーション
@@ -1827,6 +1873,7 @@ $request->validate([
 ## 課金通貨管理システム（ダイヤモンド管理）
 
 ### 設計方針
+
 
 課金通貨（ダイヤモンドなど）は、**現在値テーブル + 残高テーブル**の2テーブル構成で管理します。
 
@@ -2174,14 +2221,15 @@ foreach ($balances as $balance) {
 
 ### 概要
 
-マスター・ディテール関係（親子関係）を持つテーブルにおいて、子テーブルのENUM型カラムは、システム全体で使用されている標準的な型定義（DeliveryConst等）に合わせる必要があります。
+マスター・ディテール関係（親子関係）を持つテーブルにおいて、ENUM値やSTRING値は、システム全体で使用されている標準的な型定義（DeliveryConst等）と一致させる必要があります。
 
 ### 重要な原則
 
-**子テーブルのENUM値は、システムの標準定義と一致させる**
+**全てのDB文字列値はスネークケースに統一する**
 
-- マスターデータテーブル（mst）のENUM値は、配送システム（DeliveryConst）などの標準定数と一致させる
-- トランザクションテーブル（trx）のログテーブルでも同様
+- mst/tol/admテーブルのENUM値はスネークケースで定義する
+- sys/trx/logテーブルはENUMではなくSTRING型を使用し、値はスネークケース
+- PHPの定数クラス・Enumクラスの値もスネークケースで定義する
 - 大文字小文字の表記も完全に一致させる
 
 ### 具体例：ログインボーナステーブル
@@ -2189,54 +2237,44 @@ foreach ($balances as $balance) {
 #### ❌ 誤った実装例
 
 ```php
-// マスターテーブル: mst_login_bonus_content
+// マスターテーブル: mst_login_bonus_content（ENUM値がパスカルケース）
 Schema::connection('mst')->create('mst_login_bonus_content', function (Blueprint $table) {
     $table->enum('content_type', ['Item', 'Unit', 'Equipment', 'Diamond', 'Currency'])
         ->comment('コンテンツタイプ');
-    // ↑ 大文字始まりで定義
+    // ❌ パスカルケース・Currencyという名称がDeliveryConstと不一致
 });
 
-// ログテーブル: trx_login_bonus_history
+// trxテーブルでENUMを使用（ENUMはtrxに使ってはいけない）
 Schema::connection('trx1')->create('trx_login_bonus_history', function (Blueprint $table) {
     $table->enum('reward_type', ['Item', 'Unit', 'Equipment', 'Diamond', 'Currency'])
         ->comment('報酬タイプ');
-    // ↑ 大文字始まりで定義
+    // ❌ trxテーブルにENUMは使用禁止・かつパスカルケース
 });
-
-// 配送システムの定数定義
-class DeliveryConst
-{
-    public const CONTENT_TYPE_ITEM = 'item';      // ← 小文字！
-    public const CONTENT_TYPE_UNIT = 'unit';      // ← 小文字！
-    public const CONTENT_TYPE_EQUIPMENT = 'equipment';
-    public const CONTENT_TYPE_DIAMOND = 'diamond';
-    public const CONTENT_TYPE_WALLET = 'wallet';  // ← Currencyではない！
-}
 ```
 
 **問題点:**
-1. ENUM値が大文字始まり（Item, Unit）だが、DeliveryConstは小文字（item, unit）
+1. ENUM値がパスカルケース（`Item`, `Unit`）で、DeliveryConstのスネークケース（`item`, `unit`）と不一致
 2. ENUMに`Currency`があるが、DeliveryConstでは`wallet`を使用
-3. データ挿入時にENUM値の不一致エラーが発生
+3. trxテーブルでENUMを使用している（ALTER時にサービス停止が必要になる）
 
 #### ✅ 正しい実装例
 
 ```php
-// マスターテーブル: mst_login_bonus_content
+// マスターテーブル: mst_login_bonus_content（ENUMかつスネークケース）
 Schema::connection('mst')->create('mst_login_bonus_content', function (Blueprint $table) {
     $table->enum('content_type', ['item', 'unit', 'equipment', 'diamond', 'wallet'])
         ->comment('コンテンツタイプ');
-    // ↑ DeliveryConstと完全一致（小文字、walletを使用）
+    // ✅ mstテーブルはENUM可・DeliveryConstと完全一致（スネークケース）
 });
 
-// ログテーブル: trx_login_bonus_history
+// trxテーブル: ENUMではなくSTRING（値はスネークケース）
 Schema::connection('trx1')->create('trx_login_bonus_history', function (Blueprint $table) {
-    $table->enum('reward_type', ['item', 'unit', 'equipment', 'diamond', 'wallet'])
-        ->comment('報酬タイプ');
-    // ↑ DeliveryConstと完全一致
+    $table->string('reward_type')
+        ->comment('報酬タイプ (item, unit, equipment, diamond, wallet)');
+    // ✅ trxテーブルはSTRING型・コメントで許容値を明記
 });
 
-// 配送システムの定数定義（変更なし）
+// 配送システムの定数定義（スネークケース）
 class DeliveryConst
 {
     public const CONTENT_TYPE_ITEM = 'item';
@@ -2249,14 +2287,13 @@ class DeliveryConst
 
 ### 実装時のチェックリスト
 
-マスター・ディテールパターンでENUM型を使用する際は、以下を確認してください：
+マスター・ディテールパターンで実装する際は、以下を確認してください：
 
 **マイグレーション作成時:**
-- [ ] システムの標準定数（DeliveryConst等）を確認
-- [ ] ENUM値の大文字小文字が定数と完全一致しているか
-- [ ] ENUM値のラベル（Currency vs wallet等）が定数と一致しているか
-- [ ] 親テーブルと子テーブルでENUM値が統一されているか
-- [ ] ログテーブルでも同じENUM値を使用しているか
+- [ ] mst/tol/admテーブルのENUM値がスネークケースか
+- [ ] sys/trx/logテーブルでENUMを使っていないか（STRING型を使用する）
+- [ ] ENUM値・STRING値のラベルが定数（DeliveryConst等）と一致しているか
+- [ ] 親テーブルと子テーブルで値が統一されているか
 
 **既存マイグレーションの修正時:**
 - [ ] 既存データがある場合は、データ移行スクリプトを作成
@@ -2265,21 +2302,22 @@ class DeliveryConst
 
 ### 命名規則の統一
 
-| 用途 | テーブル | カラム名 | ENUM値 |
-|------|---------|---------|--------|
-| コンテンツタイプ（汎用） | mst_*_content | `content_type` | `item`, `unit`, `equipment`, `diamond`, `wallet` |
-| 報酬タイプ（ログ） | log_* / trx_*_history | `reward_type` | `item`, `unit`, `equipment`, `diamond`, `wallet` |
-| 配送タイプ（配送システム） | - | - | DeliveryConst::CONTENT_TYPE_* |
+| 用途 | テーブル | 型 | カラム名 | 値のケース |
+|------|---------|-----|---------|--------|
+| コンテンツタイプ（mstマスター） | mst_*_content | ENUM | `content_type` | スネークケース（`item`, `unit`, `wallet`等） |
+| 報酬タイプ（trx履歴） | trx_*_history | STRING | `reward_type` | スネークケース（`item`, `unit`, `wallet`等） |
+| 課金プラットフォーム（mst） | mst_billing_* | ENUM | `billing_platform` | スネークケース（`app_store`, `google_play`等） |
+| 課金プラットフォーム（trx） | trx_diamond_* | STRING | `billing_platform` | スネークケース（`app_store`, `google_play`等） |
 
 ### 注意事項
 
-1. **ENUM値は常に小文字**
-   - LaravelのENUM型は大文字小文字を区別する
-   - システム全体で小文字に統一
+1. **ENUM値・STRING値は常にスネークケース**
+   - DBに保存される全ての文字列値をスネークケースに統一
+   - PHPの定数・Enumクラスの値も同様
 
-2. **Currency vs Wallet**
-   - 過去に`Currency`を使っていた可能性があるが、現在は`wallet`に統一
-   - 新規作成時は必ず`wallet`を使用
+2. **trx/sys/logテーブルはSTRING型**
+   - ENUMの値追加にはALTERが必要でサービス停止を招く
+   - STRING型なら値の追加はアプリケーション側の変更のみで対応可能
 
 3. **マイグレーションのロールバック**
    - ENUM値を変更する場合、既存データの移行が必要
@@ -2306,7 +2344,7 @@ class DeliveryConst
 
 2. 挿入しようとしている値を確認
    ```php
-   // 'wallet'を挿入しようとしたが、ENUMに'Currency'しか定義されていない
+   // 'wallet'を挿入しようとしたが、ENUMに'currency'しか定義されていない
    ```
 
 3. マイグレーションを修正してロールバック・再実行
@@ -2314,3 +2352,4 @@ class DeliveryConst
    php artisan migrate:rollback --step=1
    php artisan migrate
    ```
+

@@ -277,7 +277,7 @@ class QueryManagerTest extends TestCase
             uniqueRequestId: 'request-'.uniqid(),
             sysPlayerId: $this->sysPlayerId,
             platform: 'Google',
-            billingPlatform: 'GooglePlay',
+            billingPlatform: 'google_play',
             receiptId: 'receipt-'.uniqid(),
             receipt: [],
             status: 'completed',

@@ -75,7 +75,7 @@ class InAppPurchasePassServiceTest extends TestCase
         $effect = $this->findEffects()->first();
 
         $this->assertNotNull($effect);
-        $this->assertSame('ExpBoost', $effect->effect_type);
+        $this->assertSame('exp_boost', $effect->effect_type);
         $this->assertSame('1.50', (string) $effect->value);
         $this->assertSame('2026-04-14 12:00:00', $effect->expires_at, '30日後');
         $this->assertSame(1, (int) $effect->is_active);
@@ -130,21 +130,21 @@ class InAppPurchasePassServiceTest extends TestCase
     #[Test]
     public function 有効な効果だけが返る(): void
     {
-        $this->insertEffect('ExpBoost', 1.50, expiresAt: '2026-04-01 00:00:00');
-        $this->insertEffect('GoldBoost', 2.00, expiresAt: '2026-03-01 00:00:00');
+        $this->insertEffect('exp_boost', 1.50, expiresAt: '2026-04-01 00:00:00');
+        $this->insertEffect('gold_boost', 2.00, expiresAt: '2026-03-01 00:00:00');
 
         $active = $this->service->findActiveEffects($this->sysPlayerId);
 
         $this->assertCount(1, $active);
-        $this->assertSame('ExpBoost', $active->first()->getAttribute('effect_type'));
+        $this->assertSame('exp_boost', $active->first()->getAttribute('effect_type'));
     }
 
     #[Test]
     public function 期限切れの効果には論理削除フラグが立つ(): void
     {
         // 毎回読み飛ばすのではなく、掃除できるように印を付ける
-        $expiredId = $this->insertEffect('GoldBoost', 2.00, expiresAt: '2026-03-01 00:00:00');
-        $aliveId = $this->insertEffect('ExpBoost', 1.50, expiresAt: '2026-04-01 00:00:00');
+        $expiredId = $this->insertEffect('gold_boost', 2.00, expiresAt: '2026-03-01 00:00:00');
+        $aliveId = $this->insertEffect('exp_boost', 1.50, expiresAt: '2026-04-01 00:00:00');
 
         $this->service->findActiveEffects($this->sysPlayerId);
         $this->flush();
@@ -157,7 +157,7 @@ class InAppPurchasePassServiceTest extends TestCase
     public function 手動で無効にした効果も返らない(): void
     {
         // 期限内でも is_active が落ちていれば効かない
-        $this->insertEffect('ExpBoost', 1.50, expiresAt: '2026-04-01 00:00:00', isActive: false);
+        $this->insertEffect('exp_boost', 1.50, expiresAt: '2026-04-01 00:00:00', isActive: false);
 
         $this->assertCount(0, $this->service->findActiveEffects($this->sysPlayerId));
     }
@@ -175,30 +175,30 @@ class InAppPurchasePassServiceTest extends TestCase
     #[Test]
     public function 同じ効果タイプの値を合計する(): void
     {
-        $this->insertEffect('ExpBoost', 1.50, expiresAt: '2026-04-01 00:00:00');
-        $this->insertEffect('ExpBoost', 0.25, expiresAt: '2026-04-01 00:00:00');
-        $this->insertEffect('GoldBoost', 2.00, expiresAt: '2026-04-01 00:00:00');
+        $this->insertEffect('exp_boost', 1.50, expiresAt: '2026-04-01 00:00:00');
+        $this->insertEffect('exp_boost', 0.25, expiresAt: '2026-04-01 00:00:00');
+        $this->insertEffect('gold_boost', 2.00, expiresAt: '2026-04-01 00:00:00');
 
         // decimal は文字列で入っているので、数値として畳めていることを見る
-        $this->assertSame(1.75, $this->service->calcTotalEffectValue($this->sysPlayerId, 'ExpBoost'));
-        $this->assertSame(2.0, $this->service->calcTotalEffectValue($this->sysPlayerId, 'GoldBoost'));
+        $this->assertSame(1.75, $this->service->calcTotalEffectValue($this->sysPlayerId, 'exp_boost'));
+        $this->assertSame(2.0, $this->service->calcTotalEffectValue($this->sysPlayerId, 'gold_boost'));
     }
 
     #[Test]
     public function 期限切れの効果は合計に入らない(): void
     {
-        $this->insertEffect('ExpBoost', 1.50, expiresAt: '2026-04-01 00:00:00');
-        $this->insertEffect('ExpBoost', 5.00, expiresAt: '2026-03-01 00:00:00');
+        $this->insertEffect('exp_boost', 1.50, expiresAt: '2026-04-01 00:00:00');
+        $this->insertEffect('exp_boost', 5.00, expiresAt: '2026-03-01 00:00:00');
 
-        $this->assertSame(1.5, $this->service->calcTotalEffectValue($this->sysPlayerId, 'ExpBoost'));
+        $this->assertSame(1.5, $this->service->calcTotalEffectValue($this->sysPlayerId, 'exp_boost'));
     }
 
     #[Test]
     public function 該当する効果が無ければ0(): void
     {
-        $this->insertEffect('ExpBoost', 1.50, expiresAt: '2026-04-01 00:00:00');
+        $this->insertEffect('exp_boost', 1.50, expiresAt: '2026-04-01 00:00:00');
 
-        $this->assertSame(0.0, (float) $this->service->calcTotalEffectValue($this->sysPlayerId, 'AdSkip'));
+        $this->assertSame(0.0, (float) $this->service->calcTotalEffectValue($this->sysPlayerId, 'ad_skip'));
     }
 
     // ========================================
@@ -208,8 +208,8 @@ class InAppPurchasePassServiceTest extends TestCase
     #[Test]
     public function 商品を指定して効果を無効にできる(): void
     {
-        $targetId = $this->insertEffect('ExpBoost', 1.50, expiresAt: '2026-04-01 00:00:00', mstInAppPurchaseId: 10);
-        $otherId = $this->insertEffect('GoldBoost', 2.00, expiresAt: '2026-04-01 00:00:00', mstInAppPurchaseId: 20);
+        $targetId = $this->insertEffect('exp_boost', 1.50, expiresAt: '2026-04-01 00:00:00', mstInAppPurchaseId: 10);
+        $otherId = $this->insertEffect('gold_boost', 2.00, expiresAt: '2026-04-01 00:00:00', mstInAppPurchaseId: 20);
 
         $this->service->deactivatePassEffects(10);
         $this->flush();
@@ -221,7 +221,7 @@ class InAppPurchasePassServiceTest extends TestCase
     #[Test]
     public function 無効にした効果はもう返らない(): void
     {
-        $this->insertEffect('ExpBoost', 1.50, expiresAt: '2026-04-01 00:00:00', mstInAppPurchaseId: 10);
+        $this->insertEffect('exp_boost', 1.50, expiresAt: '2026-04-01 00:00:00', mstInAppPurchaseId: 10);
 
         $this->service->deactivatePassEffects(10);
 
@@ -231,7 +231,7 @@ class InAppPurchasePassServiceTest extends TestCase
     #[Test]
     public function 対象の効果が無ければ何も起きない(): void
     {
-        $this->insertEffect('ExpBoost', 1.50, expiresAt: '2026-04-01 00:00:00', mstInAppPurchaseId: 10);
+        $this->insertEffect('exp_boost', 1.50, expiresAt: '2026-04-01 00:00:00', mstInAppPurchaseId: 10);
 
         $this->service->deactivatePassEffects(999);
         $this->flush();
@@ -289,11 +289,11 @@ class InAppPurchasePassServiceTest extends TestCase
     {
         $id = DB::connection('mst')->table('mst_in_app_purchase')->insertGetId([
             'deploy_key' => self::DEPLOY_KEY,
-            'type' => 'Pass',
+            'type' => 'pass',
             'paid_diamond_amount' => 100,
             'vip_point' => 98,
             'effect_duration_days' => $effectDurationDays,
-            'purchase_limit_reset' => 'None',
+            'purchase_limit_reset' => 'none',
             'sort_desc' => 1,
             'is_active' => true,
             'created_at' => now(),
@@ -304,7 +304,7 @@ class InAppPurchasePassServiceTest extends TestCase
             DB::connection('mst')->table('mst_in_app_purchase_effect')->insert([
                 'deploy_key' => self::DEPLOY_KEY,
                 'mst_in_app_purchase_id' => $id,
-                'effect_type' => 'ExpBoost',
+                'effect_type' => 'exp_boost',
                 'value' => 1.50,
                 'created_at' => now(),
                 'updated_at' => now(),

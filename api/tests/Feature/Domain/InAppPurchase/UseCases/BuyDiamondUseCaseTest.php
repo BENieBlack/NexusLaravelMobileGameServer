@@ -82,7 +82,7 @@ class BuyDiamondUseCaseTest extends TestCase
     #[Test]
     public function google_playのレシートを検証してダイヤモンドを付与する(): void
     {
-        $mstInAppPurchase = $this->createProduct('GooglePlay');
+        $mstInAppPurchase = $this->createProduct('google_play');
 
         Http::fake([
             'oauth2.googleapis.com/token' => Http::response(['access_token' => 'test-token']),
@@ -101,7 +101,7 @@ class BuyDiamondUseCaseTest extends TestCase
             $this->sysPlayerId,
             $mstInAppPurchase,
             'Google',
-            'GooglePlay',
+            'google_play',
             'purchase-token-abc',
             'GPA.0000-1111-2222-33333',
             'diamond_500'
@@ -152,8 +152,8 @@ class BuyDiamondUseCaseTest extends TestCase
             ->first();
         $this->assertNotNull($purchaseLog);
         $this->assertSame('google', $purchaseLog->platform);
-        $this->assertSame('GooglePlay', $purchaseLog->billing_platform);
-        $this->assertSame('Purchased', $purchaseLog->status);
+        $this->assertSame('google_play', $purchaseLog->billing_platform);
+        $this->assertSame('purchased', $purchaseLog->status);
         $this->assertSame('JPY', $purchaseLog->currency_code);
         $this->assertSame('490.00', (string) $purchaseLog->pay_amount);
         $this->assertSame('¥490', $purchaseLog->pay_string);
@@ -168,7 +168,7 @@ class BuyDiamondUseCaseTest extends TestCase
     #[Test]
     public function app_storeのレシートを検証してダイヤモンドを付与する(): void
     {
-        $mstInAppPurchase = $this->createProduct('AppStore');
+        $mstInAppPurchase = $this->createProduct('app_store');
 
         Http::fake([
             '*itunes.apple.com/verifyReceipt' => Http::response([
@@ -189,7 +189,7 @@ class BuyDiamondUseCaseTest extends TestCase
             $this->sysPlayerId,
             $mstInAppPurchase,
             'Apple',
-            'AppStore',
+            'app_store',
             'base64-encoded-receipt',
             '1000000000000001',
             'diamond_500'
@@ -214,7 +214,7 @@ class BuyDiamondUseCaseTest extends TestCase
     #[Test]
     public function google_playで購入済みでない場合は付与しない(): void
     {
-        $mstInAppPurchase = $this->createProduct('GooglePlay');
+        $mstInAppPurchase = $this->createProduct('google_play');
 
         Http::fake([
             'oauth2.googleapis.com/token' => Http::response(['access_token' => 'test-token']),
@@ -230,7 +230,7 @@ class BuyDiamondUseCaseTest extends TestCase
                 $this->sysPlayerId,
                 $mstInAppPurchase,
                 'Google',
-                'GooglePlay',
+                'google_play',
                 'purchase-token-abc',
                 'GPA.0000-1111-2222-33333',
                 'diamond_500'
@@ -255,7 +255,7 @@ class BuyDiamondUseCaseTest extends TestCase
             ->where('sys_player_id', $this->sysPlayerId)
             ->first();
         $this->assertNotNull($log);
-        $this->assertSame('Failed', $log->status);
+        $this->assertSame('failed', $log->status);
         $this->assertSame('google', $log->platform);
 
         $receipt = json_decode($log->receipt, true);
@@ -266,7 +266,7 @@ class BuyDiamondUseCaseTest extends TestCase
     #[Test]
     public function 外部_ap_iに繋がらない場合も失敗ログが残る(): void
     {
-        $mstInAppPurchase = $this->createProduct('GooglePlay');
+        $mstInAppPurchase = $this->createProduct('google_play');
 
         Http::fake([
             'oauth2.googleapis.com/token' => Http::response(['error' => 'invalid_grant'], 400),
@@ -277,7 +277,7 @@ class BuyDiamondUseCaseTest extends TestCase
                 $this->sysPlayerId,
                 $mstInAppPurchase,
                 'Google',
-                'GooglePlay',
+                'google_play',
                 'purchase-token-abc',
                 'GPA.0000-1111-2222-33333',
                 'diamond_500'
@@ -291,7 +291,7 @@ class BuyDiamondUseCaseTest extends TestCase
             ->where('sys_player_id', $this->sysPlayerId)
             ->first();
         $this->assertNotNull($log);
-        $this->assertSame('Failed', $log->status);
+        $this->assertSame('failed', $log->status);
 
         // 検証結果が無いため、マスターの価格で埋める
         $this->assertSame('JPY', $log->currency_code);
@@ -326,7 +326,7 @@ class BuyDiamondUseCaseTest extends TestCase
             'deploy_key' => self::DEPLOY_KEY,
             'platform_product_id' => 'diamond_500',
             'billing_platform' => $billingPlatform,
-            'product_type' => 'Consumable',
+            'product_type' => 'consumable',
             'price_amount_micros' => self::PRICE_MICROS,
             'price_currency_code' => 'JPY',
             'is_active' => true,
@@ -336,12 +336,12 @@ class BuyDiamondUseCaseTest extends TestCase
 
         $id = DB::connection('mst')->table('mst_in_app_purchase')->insertGetId([
             'deploy_key' => self::DEPLOY_KEY,
-            'type' => 'Diamond',
+            'type' => 'diamond',
             'paid_diamond_amount' => self::PAID_DIAMOND_AMOUNT,
             'vip_point' => self::VIP_POINT,
-            'purchase_limit_reset' => 'None',
-            'app_store_product_id' => $billingPlatform === 'AppStore' ? $platformProductId : null,
-            'google_play_product_id' => $billingPlatform === 'GooglePlay' ? $platformProductId : null,
+            'purchase_limit_reset' => 'none',
+            'app_store_product_id' => $billingPlatform === 'app_store' ? $platformProductId : null,
+            'google_play_product_id' => $billingPlatform === 'google_play' ? $platformProductId : null,
             'sort_desc' => 1,
             'is_active' => true,
             'created_at' => now(),

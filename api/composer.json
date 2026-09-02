@@ -92,6 +92,14 @@
         {
             "type": "path",
             "url": "../packages/nexus-pitr"
+        },
+        {
+            "type": "path",
+            "url": "../packages/nexus-notification"
+        },
+        {
+            "type": "path",
+            "url": "../packages/nexus-chat"
         }
     ],
     "require": {
@@ -120,7 +128,9 @@
         "nexus/album": "@dev",
         "nexus/tidb": "@dev",
         "nexus/guild": "@dev",
-        "nexus/pitr": "@dev"
+        "nexus/pitr": "@dev",
+        "nexus/notification": "@dev",
+        "nexus/chat": "@dev"
     },
     "require-dev": {
         "aliyun/aliyun-tablestore-sdk-php": "^6.0",
@@ -152,6 +162,8 @@
             "NexusMailbox\\": "../packages/nexus-mailbox/src/",
             "NexusMaintenance\\": "../packages/nexus-maintenance/src/",
             "NexusPitr\\": "../packages/nexus-pitr/src/",
+            "NexusNotification\\": "../packages/nexus-notification/src/",
+            "NexusChat\\": "../packages/nexus-chat/src/",
             "NexusResourceDelivery\\": "../packages/nexus-resource-delivery/src/",
             "NexusResource\\": "../packages/nexus-resource/src/",
             "NexusSecurity\\": "../packages/nexus-core-security/src/",

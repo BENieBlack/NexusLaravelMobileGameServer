@@ -78,7 +78,7 @@ class MailboxReceiveContentTest extends TestCase
     {
         // PaidDiamond を素で小文字化すると paiddiamond になり、
         // ResourceType の paid_diamond と合わずに ValueError で落ちる
-        $this->makeContent('AlliancePoints', 'alliance_points', contentQuantity: 1, amount: 30);
+        $this->makeContent('alliance_points', 'alliance_points', contentQuantity: 1, amount: 30);
         $mailbox = $this->makeMailbox();
 
         app(ReceiveUseCase::class)->exec($this->sysPlayerId, $mailbox->id);
@@ -103,7 +103,7 @@ class MailboxReceiveContentTest extends TestCase
     #[Test]
     public function 一括受取でも複数語の種別を受け取れる(): void
     {
-        $this->makeContent('AlliancePoints', 'alliance_points', contentQuantity: 1, amount: 30);
+        $this->makeContent('alliance_points', 'alliance_points', contentQuantity: 1, amount: 30);
         $this->makeMailbox();
 
         app(ReceiveAllUseCase::class)->exec($this->sysPlayerId);

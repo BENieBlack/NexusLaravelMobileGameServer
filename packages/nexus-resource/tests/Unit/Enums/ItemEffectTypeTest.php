@@ -17,10 +17,10 @@ class ItemEffectTypeTest extends TestCase
     #[Test]
     public function マスタに入る文字列と対応する(): void
     {
-        $this->assertSame('PlayerExp', ItemEffectType::PLAYER_EXP->value);
-        $this->assertSame('UnitExp', ItemEffectType::UNIT_EXP->value);
-        $this->assertSame('EquipmentExp', ItemEffectType::EQUIPMENT_EXP->value);
-        $this->assertSame('StaminaRecover', ItemEffectType::STAMINA_RECOVER->value);
+        $this->assertSame('player_exp', ItemEffectType::PLAYER_EXP->value);
+        $this->assertSame('unit_exp', ItemEffectType::UNIT_EXP->value);
+        $this->assertSame('equipment_exp', ItemEffectType::EQUIPMENT_EXP->value);
+        $this->assertSame('stamina_recover', ItemEffectType::STAMINA_RECOVER->value);
     }
 
     #[Test]
@@ -36,7 +36,7 @@ class ItemEffectTypeTest extends TestCase
     #[Test]
     public function 未知の効果や未設定はnullになる(): void
     {
-        $this->assertSame(ItemEffectType::UNIT_EXP, ItemEffectType::tryFromEffect('UnitExp'));
+        $this->assertSame(ItemEffectType::UNIT_EXP, ItemEffectType::tryFromEffect('unit_exp'));
         $this->assertNull(ItemEffectType::tryFromEffect('restore_hp'));
         $this->assertNull(ItemEffectType::tryFromEffect(''));
         $this->assertNull(ItemEffectType::tryFromEffect(null));

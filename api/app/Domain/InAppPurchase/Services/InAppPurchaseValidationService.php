@@ -262,8 +262,8 @@ class InAppPurchaseValidationService
         string $billingPlatform
     ): ?MstBillingPlatformProduct {
         return match ($billingPlatform) {
-            'AppStore' => $mstInAppPurchase->appStoreProduct,
-            'GooglePlay' => $mstInAppPurchase->googlePlayProduct,
+            'app_store' => $mstInAppPurchase->appStoreProduct,
+            'google_play' => $mstInAppPurchase->googlePlayProduct,
             default => null,
         };
     }

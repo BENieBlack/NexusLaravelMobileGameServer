@@ -159,7 +159,7 @@ class MailboxEndpointTest extends TestCase
         $this->makeMailbox($player->id);
 
         $this->withHeaders($this->authHeaders($token))
-            ->getJson('/api/mailbox/list?category=System')
+            ->getJson('/api/mailbox/list?category=system')
             ->assertOk();
     }
 
@@ -170,7 +170,7 @@ class MailboxEndpointTest extends TestCase
         $this->makeMailbox($player->id);
 
         $this->withHeaders($this->authHeaders($token))
-            ->getJson('/api/mailbox/list?priority=Normal')
+            ->getJson('/api/mailbox/list?priority=normal')
             ->assertOk();
     }
 

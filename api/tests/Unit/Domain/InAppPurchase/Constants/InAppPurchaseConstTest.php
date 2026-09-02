@@ -95,10 +95,10 @@ class InAppPurchaseConstTest extends TestCase
     #[Test]
     public function 大文字小文字は区別する(): void
     {
-        // DBのenumはパスカルケース。小文字で入れると保存できない
-        $this->assertFalse(InAppPurchaseConst::isValidType('diamond'));
-        $this->assertFalse(InAppPurchaseConst::isValidContentType('item'));
-        $this->assertFalse(InAppPurchaseConst::isValidEffectType('expboost'));
+        // DBの値はスネークケース統一。パスカルケースで入れると保存できない
+        $this->assertFalse(InAppPurchaseConst::isValidType('Diamond'));
+        $this->assertFalse(InAppPurchaseConst::isValidContentType('Item'));
+        $this->assertFalse(InAppPurchaseConst::isValidEffectType('ExpBoost'));
     }
 
     #[Test]

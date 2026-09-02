@@ -67,7 +67,7 @@ class BuyEndpointTest extends TestCase
             ->postJson('/api/in_app_purchase/buy', [
                 'mst_in_app_purchase_id' => $mstInAppPurchaseId,
                 'platform' => 'Google',
-                'billing_platform' => 'GooglePlay',
+                'billing_platform' => 'google_play',
                 'receipt' => 'purchase-token-endpoint',
                 'transaction_id' => 'GPA.ENDPOINT-0001',
                 'product_id' => 'diamond_500',
@@ -96,7 +96,7 @@ class BuyEndpointTest extends TestCase
             ->postJson('/api/in_app_purchase/buy', [
                 'mst_in_app_purchase_id' => 999999,
                 'platform' => 'Google',
-                'billing_platform' => 'GooglePlay',
+                'billing_platform' => 'google_play',
                 'receipt' => 'purchase-token-endpoint',
                 'transaction_id' => 'GPA.ENDPOINT-0002',
                 'product_id' => 'diamond_500',
@@ -108,7 +108,7 @@ class BuyEndpointTest extends TestCase
     #[Test]
     public function app_storeでレシートのプロダクト_i_dが違うとエラーになる(): void
     {
-        $mstInAppPurchaseId = $this->createDiamondProduct('AppStore');
+        $mstInAppPurchaseId = $this->createDiamondProduct('app_store');
 
         // レシートは diamond_500 のものだが、リクエストは diamond_999 を主張する
         Http::fake([
@@ -130,7 +130,7 @@ class BuyEndpointTest extends TestCase
             ->postJson('/api/in_app_purchase/buy', [
                 'mst_in_app_purchase_id' => $mstInAppPurchaseId,
                 'platform' => 'Apple',
-                'billing_platform' => 'AppStore',
+                'billing_platform' => 'app_store',
                 'receipt' => 'base64-encoded-receipt',
                 'transaction_id' => $this->orderId,
                 'product_id' => 'diamond_999',
@@ -150,7 +150,7 @@ class BuyEndpointTest extends TestCase
         $response = $this->postJson('/api/in_app_purchase/buy', [
             'mst_in_app_purchase_id' => 1,
             'platform' => 'Google',
-            'billing_platform' => 'GooglePlay',
+            'billing_platform' => 'google_play',
             'receipt' => 'purchase-token-endpoint',
             'product_id' => 'diamond_500',
         ]);
@@ -213,13 +213,13 @@ class BuyEndpointTest extends TestCase
         ]);
     }
 
-    private function createDiamondProduct(string $billingPlatform = 'GooglePlay'): int
+    private function createDiamondProduct(string $billingPlatform = 'google_play'): int
     {
         $platformProductId = DB::connection('mst')->table('mst_billing_platform_product')->insertGetId([
             'deploy_key' => self::DEPLOY_KEY,
             'platform_product_id' => 'diamond_500',
             'billing_platform' => $billingPlatform,
-            'product_type' => 'Consumable',
+            'product_type' => 'consumable',
             'price_amount_micros' => self::PRICE_MICROS,
             'price_currency_code' => 'JPY',
             'is_active' => true,
@@ -229,12 +229,12 @@ class BuyEndpointTest extends TestCase
 
         $id = (int) DB::connection('mst')->table('mst_in_app_purchase')->insertGetId([
             'deploy_key' => self::DEPLOY_KEY,
-            'type' => 'Diamond',
+            'type' => 'diamond',
             'paid_diamond_amount' => self::PAID_DIAMOND_AMOUNT,
             'vip_point' => 0,
-            'purchase_limit_reset' => 'None',
-            'app_store_product_id' => $billingPlatform === 'AppStore' ? $platformProductId : null,
-            'google_play_product_id' => $billingPlatform === 'GooglePlay' ? $platformProductId : null,
+            'purchase_limit_reset' => 'none',
+            'app_store_product_id' => $billingPlatform === 'app_store' ? $platformProductId : null,
+            'google_play_product_id' => $billingPlatform === 'google_play' ? $platformProductId : null,
             'sort_desc' => 1,
             'is_active' => true,
             'created_at' => now(),

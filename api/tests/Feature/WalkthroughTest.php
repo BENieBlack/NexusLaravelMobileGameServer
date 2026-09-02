@@ -588,7 +588,7 @@ class WalkthroughTest extends TestCase
         DB::connection('mst')->table('mst_item')->insert([
             'id' => 'item_unit_exp_001',
             'type' => 'UnitEnhancement',
-            'effect' => 'UnitExp',
+            'effect' => 'unit_exp',
             'value' => 50,
             'created_at' => now(),
             'updated_at' => now(),
@@ -597,7 +597,7 @@ class WalkthroughTest extends TestCase
         DB::connection('mst')->table('mst_item')->insert([
             'id' => 'item_equipment_exp_001',
             'type' => 'EquipmentEnhancement',
-            'effect' => 'EquipmentExp',
+            'effect' => 'equipment_exp',
             'value' => 50,
             'created_at' => now(),
             'updated_at' => now(),
@@ -607,7 +607,7 @@ class WalkthroughTest extends TestCase
         DB::connection('mst')->table('mst_item')->insert([
             'id' => 'equipment_exp_potion',
             'type' => 'EquipmentEnhancement',
-            'effect' => 'EquipmentExp',
+            'effect' => 'equipment_exp',
             'value' => 50,
             'created_at' => now(),
             'updated_at' => now(),

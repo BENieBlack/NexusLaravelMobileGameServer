@@ -10,7 +10,9 @@ use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
  * ItemDeliveryHandler
  *
  * アイテム配送処理を担当するHandler
- * NexusResource\Services\ItemServiceを使用して、複合主キー (sys_player_id, mst_item_id) でアイテムを管理
+ * 付与は ItemGranterInterface へ委譲する。trx_item と Wallet の
+ * どちらへ入れるかは mst_item.is_wallet で決まり、その判定には
+ * マスターの読み取りが要るためApplication層にしか置けない
  *
  * 対応リソース:
  * - ResourceType::ITEM

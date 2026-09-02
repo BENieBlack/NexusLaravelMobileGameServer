@@ -2,6 +2,7 @@
 
 namespace App\Domain\Item\Services;
 
+use App\Domain\Item\Support\WalletItemMigrator;
 use App\Models\Trx\TrxItem;
 use App\Repositories\Mst\MstItemRepository;
 use NexusResource\Services\ItemService as PackageItemService;
@@ -17,6 +18,10 @@ use NexusWallet\Services\WalletService;
  * 振り分けをここに集約しているので、呼び出し側は
  * アイテムか残高かを意識しなくてよい。
  *
+ * リリース後に is_wallet を立てた場合、trx_item に残っている残高は
+ * WalletItemMigrator が触られた時点で Wallet へ移す。
+ * そのため切り替えにメンテナンスは要らない。
+ *
  * Note: ビジネスロジックはパッケージ層（NexusResource\Services\ItemService /
  * NexusWallet\Services\WalletService）に存在する。
  */
@@ -26,6 +31,7 @@ class ItemService
         private readonly PackageItemService $packageItemService,
         private readonly WalletService $walletService,
         private readonly MstItemRepository $mstItemRepository,
+        private readonly WalletItemMigrator $walletItemMigrator,
     ) {}
 
     /**
@@ -45,6 +51,7 @@ class ItemService
         ?string $expireAt = null,
     ): void {
         if ($this->isWalletManaged($mstItemId)) {
+            $this->walletItemMigrator->migrate($sysPlayerId, $mstItemId);
             $this->walletService->addCurrency($sysPlayerId, $mstItemId, $freeAmount, $paidAmount, $expireAt);
 
             return;
@@ -69,6 +76,8 @@ class ItemService
     public function consumeItem(int $sysPlayerId, string $mstItemId, int $amount): TrxItem
     {
         if ($this->isWalletManaged($mstItemId)) {
+            $this->walletItemMigrator->migrate($sysPlayerId, $mstItemId);
+
             return $this->consumeFromWallet($sysPlayerId, $mstItemId, $amount);
         }
 
@@ -103,6 +112,8 @@ class ItemService
     public function findItemAmount(int $sysPlayerId, string $mstItemId): int
     {
         if ($this->isWalletManaged($mstItemId)) {
+            $this->walletItemMigrator->migrate($sysPlayerId, $mstItemId);
+
             return $this->walletService->findBalance($sysPlayerId, $mstItemId)->getTotalAmount();
         }
 

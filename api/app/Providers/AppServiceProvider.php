@@ -12,6 +12,7 @@ use App\Domain\Player\Services\ExperienceGranterAdapter;
 use App\Domain\Player\Services\PlayerLevelServiceAdapter;
 use App\Domain\Player\Services\PlayerLevelUpStaminaHandler;
 use App\Domain\Stamina\Services\StaminaGranterAdapter;
+use App\Exceptions\GameErrorCode;
 use App\Persistence\ApiSession;
 use App\Repositories\Log\LogVipPointRepository;
 use App\Repositories\Mst\AlbumCatalogRepositoryAdapter;
@@ -368,6 +369,24 @@ class AppServiceProvider extends ServiceProvider
             $service->registerHandler($app->make(StaminaDeliveryHandler::class));
             $service->registerHandler($app->make(ExperienceDeliveryHandler::class));
         });
+
+        // ==========================================
+        // Slack Error Notification - Ignore Error Codes
+        // ==========================================
+
+        // Slack通知をしないエラーコードを設定する。
+        // ユーザー起因の想定内エラー（認証失敗・入力ミス等）を除外することで
+        // 通知のノイズを減らす。
+        config(['security.slack_ignore_error_codes' => [
+            // 認証関連（ユーザー起因の想定内エラー）
+            GameErrorCode::AUTHENTICATION_FAILED,     // 10001
+            GameErrorCode::PLAYER_NOT_FOUND,          // 10002
+            GameErrorCode::INVALID_TOKEN,             // 10003
+
+            // バリデーション・パラメータエラー
+            GameErrorCode::INVALID_PARAMETER,         // 99001
+            GameErrorCode::VALIDATION_FAILED,         // 99002
+        ]]);
 
         // ==========================================
         // LoginBonusOrchestrator Strategies Registration

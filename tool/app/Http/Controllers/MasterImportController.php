@@ -98,7 +98,7 @@ class MasterImportController extends Controller
 
             return response()->json([
                 'status'  => 'success',
-                'preview' => $preview,
+                'preview' => $preview, // テーブル名をキーとした連想配列
             ]);
         } catch (Throwable $e) {
             return $this->errorResponse($e);
@@ -108,8 +108,8 @@ class MasterImportController extends Controller
     /**
      * インポートを実行する
      *
-     * シート名をテーブル名として使用する。
-     * 例: シート名「mst_item」→ mst データベースの mst_item テーブルへインポート
+     * シート内の全テーブルをインポートする。
+     * 1行目のテーブル名ごとに対応するmstテーブルへ書き込む。
      */
     public function execute(Request $request): JsonResponse
     {
@@ -121,32 +121,44 @@ class MasterImportController extends Controller
         $spreadsheetId = $request->input('spreadsheet_id');
         $sheetTitle    = $request->input('sheet_title');
 
-        // シート名をテーブル名として使用
-        $tableName = $sheetTitle;
-
         try {
-            // スプレッドシートからデータ取得
-            $data = $this->spreadsheetService->getSheetData($spreadsheetId, $sheetTitle);
+            // スプレッドシートからデータ取得（テーブルごとにグループ化済み）
+            $tableData = $this->spreadsheetService->getSheetData($spreadsheetId, $sheetTitle);
 
-            if (empty($data['rows'])) {
+            if (empty($tableData)) {
                 return response()->json([
                     'status'  => 'warning',
                     'message' => "シート「{$sheetTitle}」にデータが存在しません。",
-                    'result'  => null,
+                    'results' => [],
                 ]);
             }
 
-            // mstデータベースへインポート
-            $result = $this->importService->import(
-                $tableName,
-                $data['headers'],
-                $data['rows'],
-            );
+            $results = [];
+            foreach ($tableData as $tableName => $data) {
+                if (empty($data['rows'])) {
+                    $results[] = [
+                        'table'    => $tableName,
+                        'inserted' => 0,
+                        'skipped'  => 0,
+                        'errors'   => ['データ行がありません'],
+                    ];
+                    continue;
+                }
+
+                $results[] = $this->importService->import(
+                    $tableName,
+                    $data['headers'],
+                    $data['rows'],
+                );
+            }
+
+            $totalInserted = array_sum(array_column($results, 'inserted'));
+            $tableNames    = implode(', ', array_column($results, 'table'));
 
             return response()->json([
                 'status'  => 'success',
-                'message' => "「{$tableName}」へ {$result['inserted']} 件インポートしました。",
-                'result'  => $result,
+                'message' => "「{$tableNames}」へ合計 {$totalInserted} 件インポートしました。",
+                'results' => $results,
             ]);
         } catch (Throwable $e) {
             return $this->errorResponse($e);

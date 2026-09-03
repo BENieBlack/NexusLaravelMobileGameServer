@@ -47,7 +47,7 @@ class ResolvePurchasePriceTest extends TestCase
         $price = $this->service->resolvePurchasePrice(
             $this->verification(priceAmountMicros: null),
             $mstInAppPurchase,
-            'AppStore'
+            'app_store'
         );
 
         $this->assertSame(1.2, $price);
@@ -62,7 +62,7 @@ class ResolvePurchasePriceTest extends TestCase
         $price = $this->service->resolvePurchasePrice(
             $this->verification(priceAmountMicros: null),
             $mstInAppPurchase,
-            'AppStore'
+            'app_store'
         );
 
         // 金額不明のまま固定値を入れると返金計算が狂うため0.0を返す

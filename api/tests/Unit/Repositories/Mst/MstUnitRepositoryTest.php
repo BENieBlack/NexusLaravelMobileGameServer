@@ -32,8 +32,8 @@ class MstUnitRepositoryTest extends TestCase
         $unit = MstUnit::create([
             'id' => 'unit_001',
             'deploy_key' => 202601010,
-            'type' => 'Attack',
-            'element' => 'Fire',
+            'type' => 'attack',
+            'element' => 'fire',
             'rarity' => 'SSR',
         ]);
 
@@ -43,7 +43,7 @@ class MstUnitRepositoryTest extends TestCase
         // Assert
         $this->assertNotNull($result);
         $this->assertEquals('unit_001', $result->id);
-        $this->assertEquals('Attack', $result->type);
+        $this->assertEquals('attack', $result->type);
     }
 
     /**
@@ -67,24 +67,24 @@ class MstUnitRepositoryTest extends TestCase
         MstUnit::create([
             'id' => 'unit_001',
             'deploy_key' => 202601010,
-            'type' => 'Attack',
-            'element' => 'Fire',
+            'type' => 'attack',
+            'element' => 'fire',
             'rarity' => 'SSR',
         ]);
 
         MstUnit::create([
             'id' => 'unit_002',
             'deploy_key' => 202601010,
-            'type' => 'Defense',
-            'element' => 'Water',
+            'type' => 'defense',
+            'element' => 'water',
             'rarity' => 'SR',
         ]);
 
         MstUnit::create([
             'id' => 'unit_003',
             'deploy_key' => 202601010,
-            'type' => 'Support',
-            'element' => 'Wind',
+            'type' => 'support',
+            'element' => 'wind',
             'rarity' => 'R',
         ]);
 
@@ -118,8 +118,8 @@ class MstUnitRepositoryTest extends TestCase
         MstUnit::create([
             'id' => 'unit_001',
             'deploy_key' => 202601010,
-            'type' => 'Attack',
-            'element' => 'Fire',
+            'type' => 'attack',
+            'element' => 'fire',
             'rarity' => 'SSR',
         ]);
 
@@ -130,8 +130,8 @@ class MstUnitRepositoryTest extends TestCase
         MstUnit::create([
             'id' => 'unit_002',
             'deploy_key' => 202601010,
-            'type' => 'Defense',
-            'element' => 'Water',
+            'type' => 'defense',
+            'element' => 'water',
             'rarity' => 'SR',
         ]);
 
@@ -154,8 +154,8 @@ class MstUnitRepositoryTest extends TestCase
         MstUnit::create([
             'id' => 'unit_001',
             'deploy_key' => 202601010,
-            'type' => 'Attack',
-            'element' => 'Fire',
+            'type' => 'attack',
+            'element' => 'fire',
             'rarity' => 'SSR',
         ]);
 
@@ -172,8 +172,8 @@ class MstUnitRepositoryTest extends TestCase
         MstUnit::create([
             'id' => 'unit_002',
             'deploy_key' => 202601010,
-            'type' => 'Defense',
-            'element' => 'Water',
+            'type' => 'defense',
+            'element' => 'water',
             'rarity' => 'SR',
         ]);
 
@@ -192,9 +192,9 @@ class MstUnitRepositoryTest extends TestCase
     public function test_select_list_by_ids_returns_all_matching_units(): void
     {
         // Arrange
-        MstUnit::create(['id' => 'unit_001', 'deploy_key' => 202601010, 'type' => 'Attack', 'element' => 'Fire', 'rarity' => 'SSR']);
-        MstUnit::create(['id' => 'unit_002', 'deploy_key' => 202601010, 'type' => 'Defense', 'element' => 'Water', 'rarity' => 'SR']);
-        MstUnit::create(['id' => 'unit_003', 'deploy_key' => 202601010, 'type' => 'Support', 'element' => 'Wind', 'rarity' => 'R']);
+        MstUnit::create(['id' => 'unit_001', 'deploy_key' => 202601010, 'type' => 'attack', 'element' => 'fire', 'rarity' => 'SSR']);
+        MstUnit::create(['id' => 'unit_002', 'deploy_key' => 202601010, 'type' => 'defense', 'element' => 'water', 'rarity' => 'SR']);
+        MstUnit::create(['id' => 'unit_003', 'deploy_key' => 202601010, 'type' => 'support', 'element' => 'wind', 'rarity' => 'R']);
 
         // Act
         $result = $this->repository->selectListByIds(['unit_003', 'unit_001', 'unit_002']);
@@ -213,8 +213,8 @@ class MstUnitRepositoryTest extends TestCase
     public function test_handles_different_unit_types(): void
     {
         // Arrange
-        $types = ['Attack', 'Defense', 'Support'];
-        $elements = ['Fire', 'Water', 'Wind'];
+        $types = ['attack', 'defense', 'support'];
+        $elements = ['fire', 'water', 'wind'];
         $rarities = ['SSR', 'SR', 'R'];
 
         foreach ($types as $index => $type) {
@@ -232,7 +232,7 @@ class MstUnitRepositoryTest extends TestCase
 
         // Assert
         $this->assertNotNull($result);
-        $this->assertEquals('Support', $result->type);
+        $this->assertEquals('support', $result->type);
     }
 
     protected function tearDown(): void

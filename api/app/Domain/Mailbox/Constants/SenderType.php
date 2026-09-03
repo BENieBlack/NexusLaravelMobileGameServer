@@ -7,10 +7,10 @@ namespace App\Domain\Mailbox\Constants;
  */
 enum SenderType: string
 {
-    case SYSTEM = 'System';           // システム
-    case PLAYER = 'Player';           // プレイヤー
-    case ALLIANCE = 'Alliance';       // アライアンス
-    case NPC = 'NPC';                 // NPC
+    case SYSTEM = 'system';           // システム
+    case PLAYER = 'player';           // プレイヤー
+    case ALLIANCE = 'alliance';       // アライアンス
+    case NPC = 'npc';                 // NPC
 
     /**
      * ラベルを取得

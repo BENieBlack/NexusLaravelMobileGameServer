@@ -55,17 +55,17 @@ return new class extends Migration
 
             // カテゴリ
             $table->enum('category', [
-                'System', 'Battle', 'Alliance', 'Friend',
-                'Trade', 'Reward', 'Personal',
-            ])->default('System')->comment('メールカテゴリ');
+                'system', 'battle', 'alliance', 'friend',
+                'trade', 'reward', 'personal',
+            ])->default('system')->comment('メールカテゴリ');
 
             // 優先度
-            $table->enum('priority', ['Normal', 'Important', 'Urgent'])
-                ->default('Normal')->comment('優先度');
+            $table->enum('priority', ['normal', 'important', 'urgent'])
+                ->default('normal')->comment('優先度');
 
             // 送信者情報
-            $table->enum('sender_type', ['System', 'Player', 'Alliance', 'NPC'])
-                ->default('System')->comment('送信者タイプ');
+            $table->enum('sender_type', ['system', 'player', 'alliance', 'npc'])
+                ->default('system')->comment('送信者タイプ');
             // sender_type によって参照先が変わる多相参照。
             // Player は sys_player、Alliance はギルド、NPC はマスターを指す想定で、
             // sys と mst にまたがるため content_mst_id のような接頭辞は付けられない。
@@ -103,9 +103,9 @@ return new class extends Migration
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
             $table->string('mst_mailbox_id')->comment('メールボックスID');
             $table->enum('content_type', [
-                'Diamond', 'PaidDiamond', 'Item', 'Unit', 'Equipment',
-                'Gold', 'Food', 'Wood', 'Stone', 'Stamina',
-                'Experience', 'AlliancePoints', 'Custom',
+                'diamond', 'paid_diamond', 'item', 'unit', 'equipment',
+                'gold', 'food', 'wood', 'stone', 'stamina',
+                'experience', 'alliance_points', 'custom',
             ])->comment('コンテンツタイプ');
             $table->string('content_mst_id')->comment('コンテンツID');
             $table->json('content_option')->nullable()->comment('コンテンツオプション (例: {"grade":1, "level":5})');

@@ -128,7 +128,7 @@ class EquipmentLevelUpValidationTest extends TestCase
             app(LevelUpUseCase::class)->exec($this->sysPlayerId, $this->trxEquipmentId, self::WRONG_ITEM_ID, 10);
             $this->fail('効果種別が違うアイテムで育ってしまった');
         } catch (BusinessLogicException $e) {
-            $this->assertStringContainsString('EquipmentExp', $e->getMessage());
+            $this->assertStringContainsString('equipment_exp', $e->getMessage());
         }
 
         $this->assertSame($before, $this->findItemAmount(self::WRONG_ITEM_ID), 'アイテムは減らない');
@@ -353,7 +353,7 @@ class EquipmentLevelUpValidationTest extends TestCase
             [
                 'id' => self::EXP_ITEM_ID,
                 'type' => 'EquipmentEnhancement',
-                'effect' => 'EquipmentExp',
+                'effect' => 'equipment_exp',
                 'value' => 100,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -361,7 +361,7 @@ class EquipmentLevelUpValidationTest extends TestCase
             [
                 'id' => self::WRONG_ITEM_ID,
                 'type' => 'EquipmentEnhancement',
-                'effect' => 'UnitExp',
+                'effect' => 'unit_exp',
                 'value' => 100,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -369,7 +369,7 @@ class EquipmentLevelUpValidationTest extends TestCase
             [
                 'id' => self::ZERO_EXP_ITEM_ID,
                 'type' => 'EquipmentEnhancement',
-                'effect' => 'EquipmentExp',
+                'effect' => 'equipment_exp',
                 'value' => 0,
                 'created_at' => now(),
                 'updated_at' => now(),

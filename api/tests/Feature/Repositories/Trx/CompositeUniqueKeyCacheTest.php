@@ -90,7 +90,7 @@ class CompositeUniqueKeyCacheTest extends TestCase
     #[Test]
     public function 課金履歴は商品ごとにキャッシュされる(): void
     {
-        foreach ([['AppStore', 1], ['AppStore', 2], ['GooglePlay', 1]] as [$platform, $productId]) {
+        foreach ([['app_store', 1], ['app_store', 2], ['google_play', 1]] as [$platform, $productId]) {
             DB::connection($this->connection)->table('trx_in_app_purchase')->insert([
                 'sys_player_id' => $this->sysPlayerId,
                 'billing_platform' => $platform,

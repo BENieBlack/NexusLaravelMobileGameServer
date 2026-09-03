@@ -5,7 +5,7 @@ namespace App\Models\Mst;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * MstMessageI18n Model
+ * MstMessageL10n Model
  *
  * @property int $deploy_key
  * @property string $mst_message_id
@@ -15,9 +15,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $created_at
  * @property string $updated_at
  */
-class MstMessageI18n extends _BaseMst
+class MstMessageL10n extends _BaseMst
 {
-    public $table = 'mst_message__i18n';
+    public $table = 'mst_message__l10n';
 
     public $incrementing = false;
 

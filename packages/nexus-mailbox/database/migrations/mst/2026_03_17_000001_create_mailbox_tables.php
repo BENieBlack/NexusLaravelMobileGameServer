@@ -30,9 +30,9 @@ return new class extends Migration
         });
 
         // ========================================
-        // mst_message__i18n: メッセージ多言語
+        // mst_message__l10n: メッセージ多言語
         // ========================================
-        Schema::connection('mst')->create('mst_message__i18n', function (Blueprint $table) {
+        Schema::connection('mst')->create('mst_message__l10n', function (Blueprint $table) {
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
             $table->string('mst_message_id')->comment('メッセージID');
             $table->enum('language', $this->supportedLanguages)->comment('言語コード');
@@ -137,7 +137,7 @@ return new class extends Migration
     {
         Schema::connection('mst')->dropIfExists('mst_mailbox_content');
         Schema::connection('mst')->dropIfExists('mst_mailbox');
-        Schema::connection('mst')->dropIfExists('mst_message__i18n');
+        Schema::connection('mst')->dropIfExists('mst_message__l10n');
         Schema::connection('mst')->dropIfExists('mst_message');
     }
 };

@@ -281,8 +281,14 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
             $metadata['is_paid'] = true;
         }
 
+        // content_type='wallet' の場合、content_mst_id をResourceTypeとして使用する
+        // （DBのenum定義は 'wallet' だが、ResourceTypeには 'gold'/'coin' 等が存在する）
+        $typeString = $content->content_type === 'wallet'
+            ? $content->content_mst_id
+            : $content->content_type;
+
         return Resource::fromTypeString(
-            typeString: $content->content_type,
+            typeString: $typeString,
             id: $content->content_mst_id,
             amount: $content->content_quantity * $content->amount,
             metadata: empty($metadata) ? null : $metadata,

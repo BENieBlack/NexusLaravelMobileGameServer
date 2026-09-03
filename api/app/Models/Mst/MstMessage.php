@@ -40,11 +40,11 @@ class MstMessage extends _BaseMst
      * 多言語データとのリレーション
      */
     /**
-     * @return HasMany<MstMessageI18n, $this>
+     * @return HasMany<MstMessageL10n, $this>
      */
-    public function i18n(): HasMany
+    public function l10n(): HasMany
     {
-        return $this->hasMany(MstMessageI18n::class, 'mst_message_id', 'id');
+        return $this->hasMany(MstMessageL10n::class, 'mst_message_id', 'id');
     }
 
     /**

@@ -153,7 +153,7 @@ class WalkthroughTest extends TestCase
         DB::connection('mst')->table('mst_gacha')->delete();
         DB::connection('mst')->table('mst_mailbox_content')->delete();
         DB::connection('mst')->table('mst_mailbox')->delete();
-        DB::connection('mst')->table('mst_message__i18n')->delete();
+        DB::connection('mst')->table('mst_message__l10n')->delete();
         DB::connection('mst')->table('mst_message')->delete();
         DB::connection('mst')->table('mst_unit')->delete();
         DB::connection('mst')->table('mst_equipment')->delete();
@@ -660,7 +660,7 @@ class WalkthroughTest extends TestCase
             'updated_at' => now(),
         ]);
 
-        DB::connection('mst')->table('mst_message__i18n')->insert([
+        DB::connection('mst')->table('mst_message__l10n')->insert([
             'mst_message_id' => 'msg_welcome_001',
             'language' => 'ja',
             'title' => 'Welcome!',

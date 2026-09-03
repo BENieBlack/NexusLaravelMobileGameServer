@@ -48,10 +48,10 @@ class ListResponse extends _BaseResponse
             $mstMessage = $mstMailbox?->message;
 
             // 該当言語の文言が無い場合は既定言語にフォールバックする（空文字を返さない）
-            $i18n = $mstMessage?->i18n()->where('language', $language)->first()
+            $l10n = $mstMessage?->l10n()->where('language', $language)->first()
                 ?? ($language === $defaultLanguage
                     ? null
-                    : $mstMessage?->i18n()->where('language', $defaultLanguage)->first());
+                    : $mstMessage?->l10n()->where('language', $defaultLanguage)->first());
 
             // テンプレートレンダリング用のコンテキスト
             $context = [
@@ -64,13 +64,13 @@ class ListResponse extends _BaseResponse
 
             // タイトル・本文をレンダリング
             $title = $templateEngine->render(
-                $i18n->title ?? '',
+                $l10n->title ?? '',
                 $customParams,
                 $context
             );
 
             $body = $templateEngine->render(
-                $i18n->body ?? '',
+                $l10n->body ?? '',
                 $customParams,
                 $context
             );

@@ -65,15 +65,15 @@ class LogInAppPurchaseSeeder extends Seeder
 
         $platforms = ['apple', 'google'];
         $billingPlatforms = [
-            'apple' => 'AppStore',
-            'google' => 'GooglePlay',
+            'apple' => 'app_store',
+            'google' => 'google_play',
         ];
 
         $statuses = [
-            'Purchased' => 85,  // 85%が購入完了
-            'CheckAvailability' => 10,  // 10%が確認中
-            'Failed' => 3,  // 3%が失敗
-            'Refunded' => 2,  // 2%が返金
+            'purchased' => 85,  // 85%が購入完了
+            'check_availability' => 10,  // 10%が確認中
+            'failed' => 3,  // 3%が失敗
+            'refunded' => 2,  // 2%が返金
         ];
 
         echo "アプリ内課金の仮データを生成中...\n";
@@ -89,7 +89,7 @@ class LogInAppPurchaseSeeder extends Seeder
             // ステータスを確率に基づいて選択
             $rand = rand(1, 100);
             $cumulativePercent = 0;
-            $selectedStatus = 'Purchased';
+            $selectedStatus = 'purchased';
             foreach ($statuses as $status => $percent) {
                 $cumulativePercent += $percent;
                 if ($rand <= $cumulativePercent) {

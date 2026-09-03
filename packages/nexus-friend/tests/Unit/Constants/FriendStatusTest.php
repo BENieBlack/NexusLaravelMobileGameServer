@@ -41,8 +41,8 @@ class FriendStatusTest extends TestCase
     #[Test]
     public function 大文字小文字は区別する(): void
     {
-        // DBのenumはパスカルケース。小文字で入れると保存できない
-        $this->assertFalse(FriendStatus::isValid('applied'));
+        // DBの値はスネークケース統一。パスカルケースや大文字は無効
+        $this->assertFalse(FriendStatus::isValid('Applied'));
         $this->assertFalse(FriendStatus::isValid('APPLIED'));
     }
 }

@@ -93,7 +93,7 @@ class BillingVerifyReceiptTest extends TestCase
 
         $service->verifyReceipt(new Receipt(
             playerId: 1,
-            billingPlatform: 'GooglePlay',
+            billingPlatform: 'google_play',
             purchaseToken: null,
             productId: 'diamond_100',
         ));
@@ -109,7 +109,7 @@ class BillingVerifyReceiptTest extends TestCase
 
         $service->verifyReceipt(new Receipt(
             playerId: 1,
-            billingPlatform: 'GooglePlay',
+            billingPlatform: 'google_play',
             purchaseToken: 'purchase-token',
             productId: null,
         ));
@@ -251,7 +251,7 @@ class BillingVerifyReceiptTest extends TestCase
 
         $service->verifyReceipt(new Receipt(
             playerId: 1,
-            billingPlatform: 'AppStore',
+            billingPlatform: 'app_store',
             receipt: null,
         ));
     }
@@ -385,7 +385,7 @@ class BillingVerifyReceiptTest extends TestCase
     {
         return new Receipt(
             playerId: 1,
-            billingPlatform: 'GooglePlay',
+            billingPlatform: 'google_play',
             purchaseToken: 'purchase-token',
             productId: 'diamond_100',
         );
@@ -395,7 +395,7 @@ class BillingVerifyReceiptTest extends TestCase
     {
         return new Receipt(
             playerId: 1,
-            billingPlatform: 'AppStore',
+            billingPlatform: 'app_store',
             receipt: 'base64-receipt-data',
         );
     }

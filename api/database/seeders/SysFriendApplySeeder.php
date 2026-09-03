@@ -32,7 +32,7 @@ class SysFriendApplySeeder extends Seeder
             $friendApplies[] = [
                 'sender_sys_player_id' => $players[0],
                 'receiver_sys_player_id' => $players[$i],
-                'status' => 'Accepted',
+                'status' => 'accepted',
                 'created_at' => now()->subDays(rand(5, 20)),
                 'updated_at' => now()->subDays(rand(1, 5)),
             ];
@@ -43,7 +43,7 @@ class SysFriendApplySeeder extends Seeder
             $friendApplies[] = [
                 'sender_sys_player_id' => $players[2],
                 'receiver_sys_player_id' => $players[4],
-                'status' => 'Accepted',
+                'status' => 'accepted',
                 'created_at' => now()->subDays(rand(3, 10)),
                 'updated_at' => now()->subDays(rand(1, 3)),
             ];
@@ -54,7 +54,7 @@ class SysFriendApplySeeder extends Seeder
             $friendApplies[] = [
                 'sender_sys_player_id' => $players[4],
                 'receiver_sys_player_id' => $players[0],
-                'status' => 'Applied',
+                'status' => 'applied',
                 'created_at' => now()->subDays(rand(1, 3)),
                 'updated_at' => now()->subDays(rand(1, 3)),
             ];
@@ -65,7 +65,7 @@ class SysFriendApplySeeder extends Seeder
             $friendApplies[] = [
                 'sender_sys_player_id' => $players[5],
                 'receiver_sys_player_id' => $players[1],
-                'status' => 'Applied',
+                'status' => 'applied',
                 'created_at' => now()->subHours(rand(1, 24)),
                 'updated_at' => now()->subHours(rand(1, 24)),
             ];
@@ -76,7 +76,7 @@ class SysFriendApplySeeder extends Seeder
             $friendApplies[] = [
                 'sender_sys_player_id' => $players[1],
                 'receiver_sys_player_id' => $players[6],
-                'status' => 'Deleted',
+                'status' => 'deleted',
                 'created_at' => now()->subDays(rand(10, 20)),
                 'updated_at' => now()->subDays(rand(1, 5)),
             ];
@@ -85,8 +85,8 @@ class SysFriendApplySeeder extends Seeder
         DB::connection('sys')->table('sys_friend_apply')->insert($friendApplies);
 
         $this->command->info('✅ SysFriendApplySeeder: Created '.count($friendApplies).' friend applies');
-        $this->command->info('   - Accepted: '.collect($friendApplies)->where('status', 'Accepted')->count());
-        $this->command->info('   - Applied: '.collect($friendApplies)->where('status', 'Applied')->count());
-        $this->command->info('   - Deleted: '.collect($friendApplies)->where('status', 'Deleted')->count());
+        $this->command->info('   - Accepted: '.collect($friendApplies)->where('status', 'accepted')->count());
+        $this->command->info('   - Applied: '.collect($friendApplies)->where('status', 'applied')->count());
+        $this->command->info('   - Deleted: '.collect($friendApplies)->where('status', 'deleted')->count());
     }
 }

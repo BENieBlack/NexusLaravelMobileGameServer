@@ -12,22 +12,22 @@ class BillingConst
     /**
      * 決済プラットフォーム
      */
-    const PLATFORM_APP_STORE = 'AppStore';
+    const PLATFORM_APP_STORE = 'app_store';
 
-    const PLATFORM_GOOGLE_PLAY = 'GooglePlay';
+    const PLATFORM_GOOGLE_PLAY = 'google_play';
 
-    const PLATFORM_PAYPAL = 'PayPal';
+    const PLATFORM_PAYPAL = 'pay_pal';
 
-    const PLATFORM_STRIPE = 'Stripe';
+    const PLATFORM_STRIPE = 'stripe';
 
     /**
      * プラットフォーム商品種別
      */
-    const PRODUCT_TYPE_CONSUMABLE = 'Consumable';
+    const PRODUCT_TYPE_CONSUMABLE = 'consumable';
 
-    const PRODUCT_TYPE_NON_CONSUMABLE = 'NonConsumable';
+    const PRODUCT_TYPE_NON_CONSUMABLE = 'non_consumable';
 
-    const PRODUCT_TYPE_SUBSCRIPTION = 'Subscription';
+    const PRODUCT_TYPE_SUBSCRIPTION = 'subscription';
 
     /**
      * レシート検証ステータス

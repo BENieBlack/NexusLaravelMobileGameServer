@@ -89,7 +89,7 @@ class InAppPurchaseModelTest extends TestCase
         // total_purchase_count は戻らない
         $history = new TrxInAppPurchase;
         $history->setSysPlayerId(1);
-        $history->setBillingPlatform('GooglePlay');
+        $history->setBillingPlatform('google_play');
         $history->setMstInAppPurchaseId(10);
         $history->setTotalPurchaseCount(7);
         $history->setPurchaseCount(2);

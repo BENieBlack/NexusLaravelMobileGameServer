@@ -11,7 +11,7 @@ use Tests\TestCase;
 /**
  * メール添付物の種別のテスト
  *
- * DBの enum（パスカルケース）と配送側の ResourceType（スネークケース）を
+ * DBの値（スネークケース）と配送側の ResourceType（スネークケース）を
  * 繋ぐ位置にある。ここがずれると受取時に落ちるか、黙って配られない。
  */
 class ContentTypeTest extends TestCase
@@ -19,15 +19,15 @@ class ContentTypeTest extends TestCase
     #[Test]
     public function 文字列から変換できる(): void
     {
-        $this->assertSame(ContentType::PAID_DIAMOND, ContentType::fromString('PaidDiamond'));
+        $this->assertSame(ContentType::PAID_DIAMOND, ContentType::fromString('paid_diamond'));
         $this->assertNull(ContentType::fromString('NoSuchType'));
     }
 
     #[Test]
     public function 有効な種別かどうかを判定できる(): void
     {
-        $this->assertTrue(ContentType::isValid('AlliancePoints'));
-        $this->assertFalse(ContentType::isValid('alliancepoints'), '大文字小文字は区別する');
+        $this->assertTrue(ContentType::isValid('alliance_points'));
+        $this->assertFalse(ContentType::isValid('AlliancePoints'), '大文字小文字は区別する');
         $this->assertFalse(ContentType::isValid('NoSuchType'));
     }
 
@@ -36,8 +36,8 @@ class ContentTypeTest extends TestCase
     {
         $all = ContentType::all();
 
-        $this->assertContains('Diamond', $all);
-        $this->assertContains('AlliancePoints', $all);
+        $this->assertContains('diamond', $all);
+        $this->assertContains('alliance_points', $all);
         $this->assertCount(count(ContentType::cases()), $all);
     }
 

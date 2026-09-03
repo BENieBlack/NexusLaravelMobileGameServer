@@ -240,15 +240,15 @@ class AlbumEndpointTest extends TestCase
     private function createMaster(): void
     {
         DB::connection('mst')->table('mst_unit')->insert([
-            ['id' => 'unit_knight_001', 'type' => 'Attack', 'element' => 'Fire', 'rarity' => 'R', 'is_album_target' => true],
-            ['id' => 'unit_mage_002', 'type' => 'Attack', 'element' => 'Water', 'rarity' => 'SR', 'is_album_target' => true],
+            ['id' => 'unit_knight_001', 'type' => 'attack', 'element' => 'fire', 'rarity' => 'R', 'is_album_target' => true],
+            ['id' => 'unit_mage_002', 'type' => 'attack', 'element' => 'water', 'rarity' => 'SR', 'is_album_target' => true],
         ]);
 
         DB::connection('mst')->table('mst_item')->insert([
             // 収集対象のアイテム
-            ['id' => 'item_collectible_001', 'type' => 'Material', 'effect' => 'None', 'value' => 0, 'is_album_target' => true],
+            ['id' => 'item_collectible_001', 'type' => 'material', 'effect' => 'none', 'value' => 0, 'is_album_target' => true],
             // 消耗品はアルバムに載せない
-            ['id' => 'item_potion_001', 'type' => 'Consumable', 'effect' => 'None', 'value' => 0, 'is_album_target' => false],
+            ['id' => 'item_potion_001', 'type' => 'consumable', 'effect' => 'none', 'value' => 0, 'is_album_target' => false],
         ]);
     }
 

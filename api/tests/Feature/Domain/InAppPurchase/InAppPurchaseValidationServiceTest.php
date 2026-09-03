@@ -55,7 +55,7 @@ class InAppPurchaseValidationServiceTest extends TestCase
         $this->service->validatePurchasePrice(
             $this->makeVerification(priceMicros: 480_000_000, currency: 'JPY'),
             $mstInAppPurchase,
-            'GooglePlay',
+            'google_play',
         );
 
         $this->addToAssertionCount(1);
@@ -72,7 +72,7 @@ class InAppPurchaseValidationServiceTest extends TestCase
         $this->service->validatePurchasePrice(
             $this->makeVerification(priceMicros: 120_000_000, currency: 'JPY'),
             $mstInAppPurchase,
-            'GooglePlay',
+            'google_play',
         );
     }
 
@@ -86,7 +86,7 @@ class InAppPurchaseValidationServiceTest extends TestCase
         $this->service->validatePurchasePrice(
             $this->makeVerification(priceMicros: 480_000_000, currency: 'USD'),
             $mstInAppPurchase,
-            'GooglePlay',
+            'google_play',
         );
     }
 
@@ -99,7 +99,7 @@ class InAppPurchaseValidationServiceTest extends TestCase
         $this->service->validatePurchasePrice(
             $this->makeVerification(priceMicros: null, currency: null),
             $mstInAppPurchase,
-            'AppStore',
+            'app_store',
         );
 
         $this->addToAssertionCount(1);
@@ -113,7 +113,7 @@ class InAppPurchaseValidationServiceTest extends TestCase
         $this->service->validatePurchasePrice(
             $this->makeVerification(priceMicros: 480_000_000, currency: 'JPY'),
             $mstInAppPurchase,
-            'GooglePlay',
+            'google_play',
         );
 
         $this->addToAssertionCount(1);
@@ -142,7 +142,7 @@ class InAppPurchaseValidationServiceTest extends TestCase
         $price = $this->service->resolvePurchasePrice(
             $this->makeVerification(priceMicros: 610_000_000, currency: 'JPY'),
             $mstInAppPurchase,
-            'GooglePlay',
+            'google_play',
         );
 
         $this->assertSame(610.0, $price);
@@ -157,7 +157,7 @@ class InAppPurchaseValidationServiceTest extends TestCase
         $price = $this->service->resolvePurchasePrice(
             $this->makeVerification(priceMicros: null, currency: null),
             $mstInAppPurchase,
-            'AppStore',
+            'app_store',
         );
 
         $this->assertSame(480.0, $price);
@@ -171,7 +171,7 @@ class InAppPurchaseValidationServiceTest extends TestCase
         $price = $this->service->resolvePurchasePrice(
             $this->makeVerification(priceMicros: null, currency: null),
             $mstInAppPurchase,
-            'AppStore',
+            'app_store',
         );
 
         $this->assertSame(0.0, $price, '金額不明のまま固定値を入れない');
@@ -187,7 +187,7 @@ class InAppPurchaseValidationServiceTest extends TestCase
             $this->service->resolvePurchaseCurrency(
                 $this->makeVerification(priceMicros: 480_000_000, currency: 'USD'),
                 $mstInAppPurchase,
-                'AppStore',
+                'app_store',
             ),
         );
 
@@ -196,7 +196,7 @@ class InAppPurchaseValidationServiceTest extends TestCase
             $this->service->resolvePurchaseCurrency(
                 $this->makeVerification(priceMicros: null, currency: null),
                 $mstInAppPurchase,
-                'AppStore',
+                'app_store',
             ),
         );
     }
@@ -208,7 +208,7 @@ class InAppPurchaseValidationServiceTest extends TestCase
 
         $this->assertSame(
             ['amount' => 480.0, 'currency' => 'JPY'],
-            $this->service->findMasterPrice($mstInAppPurchase, 'AppStore'),
+            $this->service->findMasterPrice($mstInAppPurchase, 'app_store'),
         );
     }
 
@@ -219,7 +219,7 @@ class InAppPurchaseValidationServiceTest extends TestCase
 
         $this->assertSame(
             ['amount' => 0.0, 'currency' => null],
-            $this->service->findMasterPrice($mstInAppPurchase, 'AppStore'),
+            $this->service->findMasterPrice($mstInAppPurchase, 'app_store'),
         );
     }
 
@@ -228,16 +228,16 @@ class InAppPurchaseValidationServiceTest extends TestCase
         ?int $googlePlayPriceMicros = null,
         ?string $currency = 'JPY',
     ): MstInAppPurchase {
-        $this->makePlatformProduct(self::APP_STORE_PRODUCT_ID, 'AppStore', $appStorePriceMicros, $currency);
-        $this->makePlatformProduct(self::GOOGLE_PLAY_PRODUCT_ID, 'GooglePlay', $googlePlayPriceMicros, $currency);
+        $this->makePlatformProduct(self::APP_STORE_PRODUCT_ID, 'app_store', $appStorePriceMicros, $currency);
+        $this->makePlatformProduct(self::GOOGLE_PLAY_PRODUCT_ID, 'google_play', $googlePlayPriceMicros, $currency);
 
         DB::connection('mst')->table('mst_in_app_purchase')->insert([
             'id' => self::PRODUCT_ID,
-            'type' => 'Diamond',
+            'type' => 'diamond',
             'paid_diamond_amount' => 100,
             'vip_point' => 0,
             'purchase_limit' => null,
-            'purchase_limit_reset' => 'None',
+            'purchase_limit_reset' => 'none',
             'app_store_product_id' => self::APP_STORE_PRODUCT_ID,
             'google_play_product_id' => self::GOOGLE_PLAY_PRODUCT_ID,
             'is_active' => true,
@@ -254,7 +254,7 @@ class InAppPurchaseValidationServiceTest extends TestCase
             'id' => $id,
             'platform_product_id' => 'store.'.self::PRODUCT_ID,
             'billing_platform' => $platform,
-            'product_type' => 'Consumable',
+            'product_type' => 'consumable',
             'price_amount_micros' => $priceMicros,
             'price_currency_code' => $priceMicros === null ? null : $currency,
             'is_active' => true,

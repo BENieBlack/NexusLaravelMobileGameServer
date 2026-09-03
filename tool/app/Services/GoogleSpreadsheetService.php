@@ -189,6 +189,26 @@ class GoogleSpreadsheetService
             $tables[$meta['table']][] = $meta;
         }
 
+        // 親テーブルの id 列インデックスを事前に取得しておく
+        // l10nテーブル行に親IDを自動注入するために使用
+        // 例: mst_unit__l10n → mst_unit の id 列インデックス
+        $parentIdIndexMap = []; // ['mst_unit__l10n' => 3] のような形
+        foreach ($tables as $tableName => $columns) {
+            if (!str_ends_with($tableName, '__l10n')) {
+                continue;
+            }
+            $parentTableName = substr($tableName, 0, -strlen('__l10n'));
+            if (!isset($tables[$parentTableName])) {
+                continue;
+            }
+            foreach ($tables[$parentTableName] as $col) {
+                if ($col['column'] === 'id') {
+                    $parentIdIndexMap[$tableName] = $col['index'];
+                    break;
+                }
+            }
+        }
+
         // テーブルごとにデータ行を連想配列化
         $result = [];
         foreach ($tables as $tableName => $columns) {
@@ -208,6 +228,11 @@ class GoogleSpreadsheetService
                     $assoc[$col['column']] = isset($row[$col['index']]) ? strval($row[$col['index']]) : '';
                 }
 
+                // l10nテーブルの場合、同行の親テーブルの id を _parent_id として注入
+                if (str_ends_with($tableName, '__l10n') && isset($parentIdIndexMap[$tableName])) {
+                    $assoc['_parent_id'] = strval($row[$parentIdIndexMap[$tableName]] ?? '');
+                }
+
                 // 全列が空の行はスキップ（is_active以外）
                 if (empty(array_filter($assoc, fn ($v) => $v !== ''))) {
                     continue;
@@ -216,9 +241,11 @@ class GoogleSpreadsheetService
             }
 
             // l10nテーブル: 「カラム名.言語コード」列を言語ごとの行に展開する
+            // 親テーブル名を導出（例: mst_unit__l10n → mst_unit）
             if (str_ends_with($tableName, '__l10n')) {
-                $rows    = $this->expandL10nRows($rows);
-                $headers = $this->buildL10nHeaders($columns);
+                $parentTableName = substr($tableName, 0, -strlen('__l10n'));
+                $rows    = $this->expandL10nRows($rows, $parentTableName);
+                $headers = $this->buildL10nHeaders($columns, $parentTableName);
             } else {
                 $headers = array_column($columns, 'column');
             }
@@ -238,29 +265,40 @@ class GoogleSpreadsheetService
     /**
      * l10n行を言語ごとの行に展開する
      *
-     * 入力: [{ mst_unit_id: "unit_001", "name.ja": "炎の剣士", "name.en": "Flame Swordsman" }]
-     * 出力: [
-     *   { mst_unit_id: "unit_001", language: "ja", name: "炎の剣士" },
-     *   { mst_unit_id: "unit_001", language: "en", name: "Flame Swordsman" },
-     * ]
+     * スプレッドシートでは親IDを持たず、事前に注入された `_parent_id` の値を
+     * `{parentTable}_id` として自動セットする。
      *
-     * @param  array<int, array<string, string>>  $rows
+     * 入力 (mst_unit__l10n): [{ "_parent_id": "unit_001", "name.ja": "炎の剣士", "name.en": "Flame Swordsman" }]
+     *
+     * 出力:
+     *   { mst_unit_id: "unit_001", language: "ja", name: "炎の剣士" }
+     *   { mst_unit_id: "unit_001", language: "en", name: "Flame Swordsman" }
+     *
+     * @param  array<int, array<string, string>>  $rows            l10n列のデータ（_parent_id付き）
+     * @param  string                             $parentTableName 親テーブル名（例: mst_unit）
      * @return array<int, array<string, string>>
      */
-    private function expandL10nRows(array $rows): array
+    private function expandL10nRows(array $rows, string $parentTableName): array
     {
-        $expanded = [];
+        $expanded    = [];
+        $parentIdKey = $parentTableName . '_id'; // 例: mst_unit_id
 
         foreach ($rows as $row) {
+            // _parent_id を取り出して親ID列として使用
+            $parentId = $row['_parent_id'] ?? '';
+
             // カラム名に「.言語コード」を含むものを抽出して言語コードを収集
             $languages    = [];
-            $langColumns  = []; // ['ja' => ['name' => 'name.ja', ...], ...]
-            $commonFields = []; // 言語に依存しないフィールド（mst_unit_id 等）
+            $langColumns  = []; // ['ja' => ['name' => '炎の剣士', ...], ...]
+            $commonFields = []; // 言語に依存しないフィールド（deploy_key 等）
 
             foreach ($row as $key => $value) {
+                if ($key === '_parent_id') {
+                    continue; // 内部キーはスキップ
+                }
                 if (str_contains($key, '.')) {
                     [$colName, $lang] = explode('.', $key, 2);
-                    $languages[$lang]        = true;
+                    $languages[$lang]             = true;
                     $langColumns[$lang][$colName] = $value;
                 } else {
                     $commonFields[$key] = $value;
@@ -269,13 +307,13 @@ class GoogleSpreadsheetService
 
             // 言語ごとに1行生成
             foreach ($languages as $lang => $_) {
-                $langRow = $commonFields;
+                $langRow = [$parentIdKey => $parentId] + $commonFields;
                 $langRow['language'] = $lang;
                 foreach ($langColumns[$lang] as $col => $val) {
                     $langRow[$col] = $val;
                 }
                 // 言語列の値が全て空なら行をスキップ
-                $langValues = array_diff_key($langRow, $commonFields, ['language' => '']);
+                $langValues = array_diff_key($langRow, [$parentIdKey => ''], $commonFields, ['language' => '']);
                 if (empty(array_filter($langValues, fn ($v) => $v !== ''))) {
                     continue;
                 }
@@ -289,24 +327,31 @@ class GoogleSpreadsheetService
     /**
      * l10nテーブル用のヘッダ列を構築する
      *
-     * 「カラム名.言語コード」形式の列名から「カラム名」と「language」列を返す。
+     * スプレッドシートの l10n 列には親IDは含まれず、
+     * `{parentTable}_id`、`language`、言語依存カラムの順でヘッダを返す。
      *
      * @param  array<int, array{table: string, column: string, index: int}>  $columns
+     * @param  string                                                         $parentTableName
      * @return array<int, string>
      */
-    private function buildL10nHeaders(array $columns): array
+    private function buildL10nHeaders(array $columns, string $parentTableName): array
     {
-        $headers = [];
-        $langCols = [];
+        $parentIdKey = $parentTableName . '_id'; // 例: mst_unit_id
+        $headers     = [];
+        $langCols    = [];
 
         foreach ($columns as $col) {
             if (str_contains($col['column'], '.')) {
                 [$colName] = explode('.', $col['column'], 2);
                 $langCols[$colName] = true;
-            } else {
+            } elseif ($col['column'] !== 'id') {
+                // id 列は親ID列として変換するため除外
                 $headers[] = $col['column'];
             }
         }
+
+        // 先頭に {parentTable}_id を追加
+        array_unshift($headers, $parentIdKey);
 
         // language 列を追加
         $headers[] = 'language';

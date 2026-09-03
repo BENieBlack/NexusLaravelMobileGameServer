@@ -179,7 +179,7 @@ class UnitLevelUpTest extends TestCase
             app(LevelUpUseCase::class)->exec($this->sysPlayerId, $this->trxUnitId, self::WRONG_ITEM_ID, 1);
             $this->fail('効果種別が違うアイテムで育ってしまった');
         } catch (BusinessLogicException $e) {
-            $this->assertStringContainsString('UnitExp', $e->getMessage());
+            $this->assertStringContainsString('unit_exp', $e->getMessage());
         }
 
         $this->assertSame($before, $this->findItemAmount(self::WRONG_ITEM_ID), 'アイテムは減らない');
@@ -341,7 +341,7 @@ class UnitLevelUpTest extends TestCase
             [
                 'id' => self::EXP_ITEM_ID,
                 'type' => 'UnitEnhancement',
-                'effect' => 'UnitExp',
+                'effect' => 'unit_exp',
                 'value' => 100,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -349,7 +349,7 @@ class UnitLevelUpTest extends TestCase
             [
                 'id' => self::WRONG_ITEM_ID,
                 'type' => 'UnitEnhancement',
-                'effect' => 'StaminaRecover',
+                'effect' => 'stamina_recover',
                 'value' => 50,
                 'created_at' => now(),
                 'updated_at' => now(),

@@ -51,13 +51,13 @@ class SysFriendApply extends _BaseSys
     /**
      * ステータス定数
      */
-    public const STATUS_APPLIED = 'Applied';
+    public const STATUS_APPLIED = 'applied';
 
-    public const STATUS_ACCEPTED = 'Accepted';
+    public const STATUS_ACCEPTED = 'accepted';
 
-    public const STATUS_REJECTED = 'Rejected';
+    public const STATUS_REJECTED = 'rejected';
 
-    public const STATUS_DELETED = 'Deleted';
+    public const STATUS_DELETED = 'deleted';
 
     /**
      * 申請送信者

@@ -7,9 +7,9 @@ namespace App\Domain\Mailbox\Constants;
  */
 enum Priority: string
 {
-    case NORMAL = 'Normal';           // 通常
-    case IMPORTANT = 'Important';     // 重要
-    case URGENT = 'Urgent';           // 緊急
+    case NORMAL = 'normal';           // 通常
+    case IMPORTANT = 'important';     // 重要
+    case URGENT = 'urgent';           // 緊急
 
     /**
      * ラベルを取得

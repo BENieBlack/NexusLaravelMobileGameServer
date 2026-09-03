@@ -46,13 +46,13 @@ class LogInAppPurchase extends _BaseLog
      * Failed: 検証や付与に失敗
      * Refunded: 返金済み
      */
-    public const STATUS_CHECK_AVAILABILITY = 'CheckAvailability';
+    public const STATUS_CHECK_AVAILABILITY = 'check_availability';
 
-    public const STATUS_PURCHASED = 'Purchased';
+    public const STATUS_PURCHASED = 'purchased';
 
-    public const STATUS_FAILED = 'Failed';
+    public const STATUS_FAILED = 'failed';
 
-    public const STATUS_REFUNDED = 'Refunded';
+    public const STATUS_REFUNDED = 'refunded';
 
     /**
      * プラットフォーム定数

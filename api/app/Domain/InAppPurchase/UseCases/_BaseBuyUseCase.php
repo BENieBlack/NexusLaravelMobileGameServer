@@ -174,8 +174,8 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
         return new Receipt(
             playerId: $sysPlayerId,
             billingPlatform: $billingPlatform,
-            receipt: $billingPlatform === 'AppStore' ? $receipt : null,
-            purchaseToken: $billingPlatform === 'GooglePlay' ? $receipt : null,
+            receipt: $billingPlatform === 'app_store' ? $receipt : null,
+            purchaseToken: $billingPlatform === 'google_play' ? $receipt : null,
             productId: $productId,
             transactionId: $transactionId
         );

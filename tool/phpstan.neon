@@ -1,0 +1,16 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: 6
+    # api側と揃える。実行環境のPHPに追従させるとCIとローカルで結果が変わる
+    phpVersion: 80400
+    paths:
+        - app
+    excludePaths:
+        # 親インターフェース App\Repositories\_BaseRepositoryInterface と、
+        # 戻り値の NexusPersistence\Support\CustomCollection がどちらも存在しない。
+        # 後者は削除済みの nexus-core-persistence パッケージのもの。
+        # 参照元も無く、読み込むとfatalになるため解析対象から外している。
+        # 残すか消すかを決めたら、この除外も外すこと。
+        - app/Repositories/Tol/_BaseTolRepositoryInterface.php

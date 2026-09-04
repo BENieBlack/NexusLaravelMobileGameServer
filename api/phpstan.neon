@@ -9,6 +9,7 @@ parameters:
     paths:
         - app
         - ../packages/nexus-album/src
+        - ../packages/nexus-chat/src
         - ../packages/nexus-core/src
         - ../packages/nexus-core-auth/src
         - ../packages/nexus-core-billing/src
@@ -21,6 +22,7 @@ parameters:
         - ../packages/nexus-login/src
         - ../packages/nexus-mailbox/src
         - ../packages/nexus-maintenance/src
+        - ../packages/nexus-notification/src
         - ../packages/nexus-pitr/src
         - ../packages/nexus-resource/src
         - ../packages/nexus-resource-delivery/src

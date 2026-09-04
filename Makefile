@@ -1,4 +1,4 @@
-.PHONY: help up down ps logs test test-fresh test-unit test-feature coverage coverage-html phpstan check migrate migrate-fresh seed shell tinker clean install pint pint-dirty pint-test
+.PHONY: help up down ps logs test test-fresh test-unit test-feature coverage coverage-html phpstan check migrate migrate-fresh seed shell tinker clean install pint pint-dirty pint-test tool-check
 
 # Compose v2 (docker compose) を優先し、無ければ v1 (docker-compose) にフォールバック
 DOCKER_COMPOSE := $(shell docker compose version > /dev/null 2>&1 && echo "docker compose" || echo "docker-compose")
@@ -58,7 +58,14 @@ phpstan: up ## PHPStan静的解析を実行（Docker環境）
 
 # CIと同じ検査をローカルで回す。
 # 一部だけを見ていると、ローカルで通してもCIで落ちる
-check: pint-test phpstan test ## CIと同じ検査（フォーマット・静的解析・全テスト）
+check: pint-test phpstan test tool-check ## CIと同じ検査（フォーマット・静的解析・全テスト）
+
+# tool は api とは別のLaravelアプリで、composerの依存も分かれている。
+# api-php コンテナからは見えないため、tool-php で回す
+tool-check: up ## toolの検査（フォーマット・静的解析・テスト）
+	$(DOCKER_COMPOSE) exec -T tool-php ./vendor/bin/pint --test
+	$(DOCKER_COMPOSE) exec -T tool-php ./vendor/bin/phpstan analyse --memory-limit=1G --no-progress
+	$(DOCKER_COMPOSE) exec -T tool-php ./vendor/bin/phpunit
 
 migrate: up ## マイグレーションを実行
 	$(call migrate_group,migrate,sys,sys)

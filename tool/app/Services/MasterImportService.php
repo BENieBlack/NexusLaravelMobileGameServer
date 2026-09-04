@@ -36,9 +36,9 @@ class MasterImportService
     /**
      * シートデータをmstテーブルへインポートする
      *
-     * @param  string  $tableName   インポート先テーブル名（例: mst_item）
-     * @param  array   $headers     ヘッダ（カラム名）配列
-     * @param  array   $rows        データ行配列（連想配列）
+     * @param  string  $tableName  インポート先テーブル名（例: mst_item）
+     * @param  array<int, string>  $headers  ヘッダ（カラム名）配列
+     * @param  array<int, array<string, mixed>>  $rows  データ行配列（連想配列）
      * @return array{
      *   table: string,
      *   inserted: int,
@@ -51,13 +51,13 @@ class MasterImportService
         $this->validateTableName($tableName);
 
         $existingColumns = $this->getTableColumns($tableName);
-        $now             = now()->format('Y-m-d H:i:s');
+        $now = now()->format('Y-m-d H:i:s');
 
         // テーブルに存在するヘッダのみ絞り込む（自動設定カラムは除外）
         $validHeaders = array_filter(
             $headers,
             fn (string $h) => in_array($h, $existingColumns, true)
-                && !in_array($h, self::AUTO_SET_COLUMNS, true),
+                && ! in_array($h, self::AUTO_SET_COLUMNS, true),
         );
 
         if (empty($validHeaders)) {
@@ -67,8 +67,8 @@ class MasterImportService
         }
 
         $insertData = [];
-        $skipped    = 0;
-        $errors     = [];
+        $skipped = 0;
+        $errors = [];
 
         foreach ($rows as $index => $row) {
             try {
@@ -89,17 +89,17 @@ class MasterImportService
 
                 $insertData[] = $record;
             } catch (\Throwable $e) {
-                $errors[] = "行 " . ($index + 2) . ": " . $e->getMessage();
+                $errors[] = '行 '.($index + 2).': '.$e->getMessage();
                 $skipped++;
             }
         }
 
         if (empty($insertData)) {
             return [
-                'table'    => $tableName,
+                'table' => $tableName,
                 'inserted' => 0,
-                'skipped'  => $skipped,
-                'errors'   => $errors,
+                'skipped' => $skipped,
+                'errors' => $errors,
             ];
         }
 
@@ -115,14 +115,14 @@ class MasterImportService
 
         Log::info("マスターインポート完了: {$tableName}", [
             'inserted' => count($insertData),
-            'skipped'  => $skipped,
+            'skipped' => $skipped,
         ]);
 
         return [
-            'table'    => $tableName,
+            'table' => $tableName,
             'inserted' => count($insertData),
-            'skipped'  => $skipped,
-            'errors'   => $errors,
+            'skipped' => $skipped,
+            'errors' => $errors,
         ];
     }
 
@@ -131,15 +131,15 @@ class MasterImportService
      */
     private function validateTableName(string $tableName): void
     {
-        if (!str_starts_with($tableName, self::ALLOWED_TABLE_PREFIX)) {
+        if (! str_starts_with($tableName, self::ALLOWED_TABLE_PREFIX)) {
             throw new RuntimeException(
                 "インポート対象外のテーブルです: {$tableName}。"
-                . self::ALLOWED_TABLE_PREFIX . " で始まるテーブルのみ許可されています。"
+                .self::ALLOWED_TABLE_PREFIX.' で始まるテーブルのみ許可されています。'
             );
         }
 
         // SQLインジェクション対策: テーブル名に英数字とアンダースコア以外を含まないことを確認
-        if (!preg_match('/^[a-z0-9_]+$/', $tableName)) {
+        if (! preg_match('/^[a-z0-9_]+$/', $tableName)) {
             throw new RuntimeException(
                 "テーブル名に不正な文字が含まれています: {$tableName}"
             );

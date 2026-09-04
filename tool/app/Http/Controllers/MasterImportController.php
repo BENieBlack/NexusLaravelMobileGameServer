@@ -35,7 +35,7 @@ class MasterImportController extends Controller
     public function index(Request $request): Response
     {
         return Inertia::render('MasterImport/Index', [
-            'auth'         => ['user' => $request->user()],
+            'auth' => ['user' => $request->user()],
             'is_configured' => $this->spreadsheetService->isConfigured(),
         ]);
     }
@@ -49,7 +49,7 @@ class MasterImportController extends Controller
             $spreadsheets = $this->spreadsheetService->listSpreadsheets();
 
             return response()->json([
-                'status'       => 'success',
+                'status' => 'success',
                 'spreadsheets' => $spreadsheets,
             ]);
         } catch (Throwable $e) {
@@ -87,7 +87,7 @@ class MasterImportController extends Controller
     {
         $request->validate([
             'spreadsheet_id' => ['required', 'string'],
-            'sheet_title'    => ['required', 'string'],
+            'sheet_title' => ['required', 'string'],
         ]);
 
         try {
@@ -97,7 +97,7 @@ class MasterImportController extends Controller
             );
 
             return response()->json([
-                'status'  => 'success',
+                'status' => 'success',
                 'preview' => $preview, // テーブル名をキーとした連想配列
             ]);
         } catch (Throwable $e) {
@@ -115,11 +115,11 @@ class MasterImportController extends Controller
     {
         $request->validate([
             'spreadsheet_id' => ['required', 'string'],
-            'sheet_title'    => ['required', 'string'],
+            'sheet_title' => ['required', 'string'],
         ]);
 
         $spreadsheetId = $request->input('spreadsheet_id');
-        $sheetTitle    = $request->input('sheet_title');
+        $sheetTitle = $request->input('sheet_title');
 
         try {
             // スプレッドシートからデータ取得（テーブルごとにグループ化済み）
@@ -127,7 +127,7 @@ class MasterImportController extends Controller
 
             if (empty($tableData)) {
                 return response()->json([
-                    'status'  => 'warning',
+                    'status' => 'warning',
                     'message' => "シート「{$sheetTitle}」にデータが存在しません。",
                     'results' => [],
                 ]);
@@ -137,11 +137,12 @@ class MasterImportController extends Controller
             foreach ($tableData as $tableName => $data) {
                 if (empty($data['rows'])) {
                     $results[] = [
-                        'table'    => $tableName,
+                        'table' => $tableName,
                         'inserted' => 0,
-                        'skipped'  => 0,
-                        'errors'   => ['データ行がありません'],
+                        'skipped' => 0,
+                        'errors' => ['データ行がありません'],
                     ];
+
                     continue;
                 }
 
@@ -153,10 +154,10 @@ class MasterImportController extends Controller
             }
 
             $totalInserted = array_sum(array_column($results, 'inserted'));
-            $tableNames    = implode(', ', array_column($results, 'table'));
+            $tableNames = implode(', ', array_column($results, 'table'));
 
             return response()->json([
-                'status'  => 'success',
+                'status' => 'success',
                 'message' => "「{$tableNames}」へ合計 {$totalInserted} 件インポートしました。",
                 'results' => $results,
             ]);
@@ -171,7 +172,7 @@ class MasterImportController extends Controller
     private function errorResponse(Throwable $e): JsonResponse
     {
         return response()->json([
-            'status'  => 'error',
+            'status' => 'error',
             'message' => $e->getMessage(),
         ], 422);
     }

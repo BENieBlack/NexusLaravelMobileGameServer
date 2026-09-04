@@ -4,22 +4,22 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class DashboardController extends Controller
 {
     /**
      * ダッシュボードを表示
      */
-    public function index(Request $request)
+    public function index(Request $request): Response
     {
         $period = $request->input('period', '1day');
         $revenuePeriod = $request->input('revenuePeriod', '1month');
-        
+
         // 表示期間のアクセス統計を取得
         $accessStats = $this->selectAccessStats($period);
-        
+
         // 表示期間の売上統計を取得
         $revenueStats = $this->selectRevenueStats($revenuePeriod);
 
@@ -33,13 +33,14 @@ class DashboardController extends Controller
 
     /**
      * 指定期間のアクセス数を取得
-     * 
-     * @param string $period '1day', '1week', '2weeks', '1month', '6months', '1year', 'all'
+     *
+     * @param  string  $period  '1day', '1week', '2weeks', '1month', '6months', '1year', 'all'
+     * @return array<string, mixed>
      */
-    private function selectAccessStats($period = '1day')
+    private function selectAccessStats($period = '1day'): array
     {
         $now = now();
-        
+
         // 期間に応じて開始時刻と集計間隔を設定
         switch ($period) {
             case '1day':
@@ -116,7 +117,7 @@ class DashboardController extends Controller
         $timeSlots = [];
         $labels = [];
         $current = $startTime->copy();
-        
+
         while ($current <= $now) {
             if (in_array($period, ['1month', '6months'])) {
                 // 日単位
@@ -211,7 +212,7 @@ class DashboardController extends Controller
         // データを時間枠にマッピング
         $counts = [];
         foreach ($timeSlots as $slot) {
-            $counts[] = isset($accessData[$slot]) ? (int)$accessData[$slot]->count : 0;
+            $counts[] = isset($accessData[$slot]) ? (int) $accessData[$slot]->count : 0;
         }
 
         return [
@@ -219,16 +220,17 @@ class DashboardController extends Controller
             'data' => $counts,
         ];
     }
-    
+
     /**
      * 指定期間の売上統計を取得（通貨別）
-     * 
-     * @param string $period '1day', '1week', '2weeks', '1month', '6months', '1year', 'all'
+     *
+     * @param  string  $period  '1day', '1week', '2weeks', '1month', '6months', '1year', 'all'
+     * @return array<string, mixed>
      */
-    private function selectRevenueStats($period = '1month')
+    private function selectRevenueStats($period = '1month'): array
     {
         $now = now();
-        
+
         // 期間に応じて開始時刻と集計間隔を設定
         switch ($period) {
             case '1day':
@@ -305,7 +307,7 @@ class DashboardController extends Controller
         $timeSlots = [];
         $labels = [];
         $current = $startTime->copy();
-        
+
         while ($current <= $now) {
             if (in_array($period, ['1month', '6months'])) {
                 // 日単位
@@ -339,7 +341,7 @@ class DashboardController extends Controller
 
         // 通貨別のデータセットを作成
         $datasets = [];
-        
+
         foreach ($currencies as $currency) {
             // log_in_app_purchaseテーブルから通貨別に集計
             if (in_array($period, ['1month', '6months'])) {
@@ -422,7 +424,7 @@ class DashboardController extends Controller
             // データを時間枠にマッピング
             $amounts = [];
             foreach ($timeSlots as $slot) {
-                $amounts[] = isset($revenueData[$slot]) ? (float)$revenueData[$slot]->total_amount : 0;
+                $amounts[] = isset($revenueData[$slot]) ? (float) $revenueData[$slot]->total_amount : 0;
             }
 
             $datasets[] = [

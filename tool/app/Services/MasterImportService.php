@@ -70,13 +70,25 @@ class MasterImportService
         $skipped = 0;
         $errors = [];
 
+        // NULLableなカラムを取得（空文字をNULLに変換する対象）
+        $nullableColumns = $this->getNullableColumns($tableName);
+
         foreach ($rows as $index => $row) {
             try {
                 $record = [];
                 foreach ($validHeaders as $header) {
                     $value = $row[$header] ?? '';
-                    // 空文字はNULLに変換（NULLableカラム対応）
-                    $record[$header] = $value === '' ? null : $value;
+                    // NULLableカラムのみ空文字をNULLに変換。NOT NULLカラムは空文字のまま
+                    $converted = ($value === '' && in_array($header, $nullableColumns, true))
+                        ? null
+                        : $value;
+
+                    // rarity 系カラムは文字列（UR/SSR等）を数値に変換
+                    if (in_array($header, self::RARITY_COLUMNS, true) && $converted !== null) {
+                        $converted = self::RARITY_MAP[$converted] ?? $converted;
+                    }
+
+                    $record[$header] = $converted;
                 }
 
                 // created_at / updated_at を自動設定
@@ -103,15 +115,24 @@ class MasterImportService
             ];
         }
 
-        DB::connection('mst')->transaction(function () use ($tableName, $insertData) {
-            // 既存データを全削除
+        // 外部キー制約を無効化したまま TRUNCATE → INSERT を実行する
+        // MySQLでは FOREIGN_KEY_CHECKS はセッションスコープのため
+        // 同一接続内で有効。TRUNCATE は DDL なのでトランザクション外で実行する。
+        DB::connection('mst')->statement('SET FOREIGN_KEY_CHECKS=0');
+
+        try {
             DB::connection('mst')->table($tableName)->truncate();
 
-            // チャンク単位でINSERT（大量データ対応）
-            foreach (array_chunk($insertData, 500) as $chunk) {
-                DB::connection('mst')->table($tableName)->insert($chunk);
-            }
-        });
+            // INSERT はトランザクション内でチャンク単位に実行（大量データ対応）
+            DB::connection('mst')->transaction(function () use ($tableName, $insertData) {
+                foreach (array_chunk($insertData, 500) as $chunk) {
+                    DB::connection('mst')->table($tableName)->insert($chunk);
+                }
+            });
+        } finally {
+            // 例外が起きても必ず外部キーチェックを元に戻す
+            DB::connection('mst')->statement('SET FOREIGN_KEY_CHECKS=1');
+        }
 
         Log::info("マスターインポート完了: {$tableName}", [
             'inserted' => count($insertData),
@@ -125,6 +146,24 @@ class MasterImportService
             'errors' => $errors,
         ];
     }
+
+    /**
+     * レアリティ文字列 → 数値マッピング
+     * mst_gacha_rarity_rate / mst_gacha_prize / mst_gacha_step_bonus 等で使用
+     */
+    private const RARITY_MAP = [
+        'UR'  => 6,
+        'SSR' => 5,
+        'SR'  => 4,
+        'R'   => 3,
+        'UC'  => 2,
+        'C'   => 1,
+    ];
+
+    /**
+     * rarity 系のカラム名（tinyint として数値変換が必要）
+     */
+    private const RARITY_COLUMNS = ['rarity', 'bonus_rarity'];
 
     /**
      * テーブル名のバリデーション（mst_プレフィックスのみ許可）
@@ -154,7 +193,9 @@ class MasterImportService
     private function getTableColumns(string $tableName): array
     {
         try {
-            $columns = DB::connection('mst')->getSchemaBuilder()->getColumnListing($tableName);
+            // getColumnListing() はキャッシュ問題があるため SHOW COLUMNS を直接使用
+            $rows    = DB::connection('mst')->select("SHOW COLUMNS FROM `{$tableName}`");
+            $columns = array_map(fn ($r) => $r->Field, $rows);
         } catch (\Throwable $e) {
             throw new RuntimeException(
                 "テーブル {$tableName} が mst データベースに存在しません。"
@@ -168,5 +209,26 @@ class MasterImportService
         }
 
         return $columns;
+    }
+
+    /**
+     * NULLableなカラム名一覧を取得する
+     *
+     * SHOW COLUMNS の Null カラムが 'YES' のもの。
+     * 空文字をNULLに変換するか否かの判定に使用する。
+     *
+     * @return array<int, string>
+     */
+    private function getNullableColumns(string $tableName): array
+    {
+        try {
+            $rows = DB::connection('mst')->select("SHOW COLUMNS FROM `{$tableName}`");
+            return array_map(
+                fn ($r) => $r->Field,
+                array_filter($rows, fn ($r) => $r->Null === 'YES')
+            );
+        } catch (\Throwable) {
+            return [];
+        }
     }
 }

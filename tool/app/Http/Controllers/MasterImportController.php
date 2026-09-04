@@ -6,6 +6,7 @@ use App\Services\GoogleSpreadsheetService;
 use App\Services\MasterImportService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 use Throwable;
@@ -16,7 +17,8 @@ use Throwable;
  * Google スプレッドシートからマスターデータをインポートする。
  *
  * エンドポイント:
- * GET  /master-import                    インポート画面
+ * GET  /master-import                    インポート画面（キャッシュがあれば初期表示）
+ * GET  /master-import/all-sheets         全スプレッドシートの全シート一括取得・キャッシュ保存 (JSON)
  * GET  /master-import/spreadsheets       スプレッドシート一覧取得 (JSON)
  * GET  /master-import/sheets             シート一覧取得 (JSON)
  * GET  /master-import/preview            プレビューデータ取得 (JSON)
@@ -24,6 +26,11 @@ use Throwable;
  */
 class MasterImportController extends Controller
 {
+    /**
+     * キャッシュファイルのパス（storage/app/ 配下）
+     */
+    private const CACHE_FILE = 'master-import/sheet-list-cache.json';
+
     public function __construct(
         private readonly GoogleSpreadsheetService $spreadsheetService,
         private readonly MasterImportService $importService,
@@ -31,13 +38,72 @@ class MasterImportController extends Controller
 
     /**
      * インポート画面を表示する
+     *
+     * キャッシュファイルが存在する場合は初期データとして渡す。
      */
     public function index(Request $request): Response
     {
+        $cachedSheets  = null;
+        $cachedAt      = null;
+
+        if (Storage::exists(self::CACHE_FILE)) {
+            $raw = Storage::get(self::CACHE_FILE);
+            $decoded = json_decode($raw, true);
+            if (is_array($decoded)) {
+                $cachedSheets = $decoded['sheets'] ?? null;
+                $cachedAt     = $decoded['cached_at'] ?? null;
+            }
+        }
+
         return Inertia::render('MasterImport/Index', [
-            'auth' => ['user' => $request->user()],
-            'is_configured' => $this->spreadsheetService->isConfigured(),
+            'auth'           => ['user' => $request->user()],
+            'is_configured'  => $this->spreadsheetService->isConfigured(),
+            'folder_id'      => config('services.google_spreadsheet.folder_id'),
+            'cached_sheets'  => $cachedSheets,
+            'cached_at'      => $cachedAt,
         ]);
+    }
+
+    /**
+     * フォルダ内の全スプレッドシートの全シートを一括取得してキャッシュに保存する
+     *
+     * 返却形式:
+     * { status, sheets: [{ spreadsheet_id, spreadsheet_name, sheet_title, is_mst }], cached_at }
+     */
+    public function allSheets(): JsonResponse
+    {
+        try {
+            $spreadsheets = $this->spreadsheetService->listSpreadsheets();
+            $allSheets    = [];
+
+            foreach ($spreadsheets as $ss) {
+                $sheets = $this->spreadsheetService->listSheets($ss['id']);
+                foreach ($sheets as $sheet) {
+                    $allSheets[] = [
+                        'spreadsheet_id'   => $ss['id'],
+                        'spreadsheet_name' => $ss['name'],
+                        'sheet_title'      => $sheet['title'],
+                        'is_mst'           => str_starts_with($sheet['title'], 'mst_'),
+                    ];
+                }
+            }
+
+            $cachedAt = now()->format('Y-m-d H:i:s');
+
+            // キャッシュファイルに保存
+            Storage::put(self::CACHE_FILE, json_encode([
+                'sheets'    => $allSheets,
+                'cached_at' => $cachedAt,
+            ], JSON_UNESCAPED_UNICODE));
+
+            return response()->json([
+                'status'    => 'success',
+                'sheets'    => $allSheets,
+                'cached_at' => $cachedAt,
+            ]);
+        } catch (Throwable $e) {
+            return $this->errorResponse($e);
+        }
     }
 
     /**

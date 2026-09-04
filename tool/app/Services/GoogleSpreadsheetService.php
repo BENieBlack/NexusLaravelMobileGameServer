@@ -26,13 +26,15 @@ use RuntimeException;
 class GoogleSpreadsheetService
 {
     private Client $client;
+
     private Drive $driveService;
+
     private Sheets $sheetsService;
 
     public function __construct()
     {
         $this->client = $this->buildClient();
-        $this->driveService  = new Drive($this->client);
+        $this->driveService = new Drive($this->client);
         $this->sheetsService = new Sheets($this->client);
     }
 
@@ -48,12 +50,13 @@ class GoogleSpreadsheetService
 
         // JSON直書き または ファイルパスのどちらかが設定されていればOK
         $jsonContent = config('services.google_spreadsheet.credentials_json');
-        if (!empty($jsonContent)) {
+        if (! empty($jsonContent)) {
             return true;
         }
 
         $credPath = config('services.google_spreadsheet.credentials_path');
-        return !empty($credPath) && file_exists($credPath);
+
+        return ! empty($credPath) && file_exists($credPath);
     }
 
     /**
@@ -66,14 +69,14 @@ class GoogleSpreadsheetService
         $folderId = $this->getFolderId();
 
         $response = $this->driveService->files->listFiles([
-            'q'       => "'{$folderId}' in parents and mimeType='application/vnd.google-apps.spreadsheet' and trashed=false",
-            'fields'  => 'files(id, name, modifiedTime)',
+            'q' => "'{$folderId}' in parents and mimeType='application/vnd.google-apps.spreadsheet' and trashed=false",
+            'fields' => 'files(id, name, modifiedTime)',
             'orderBy' => 'name',
         ]);
 
         return array_map(fn (DriveFile $file) => [
-            'id'          => $file->getId(),
-            'name'        => $file->getName(),
+            'id' => $file->getId(),
+            'name' => $file->getName(),
             'modified_at' => $file->getModifiedTime(),
         ], $response->getFiles());
     }
@@ -89,7 +92,7 @@ class GoogleSpreadsheetService
 
         return array_map(fn ($sheet) => [
             'sheet_id' => $sheet->getProperties()->getSheetId(),
-            'title'    => $sheet->getProperties()->getTitle(),
+            'title' => $sheet->getProperties()->getTitle(),
         ], $spreadsheet->getSheets());
     }
 
@@ -140,13 +143,16 @@ class GoogleSpreadsheetService
             $sheetTitle,
         );
 
-        $values = $response->getValues() ?? [];
+        // ライブラリの宣言は array だが、空シートでは null が返る
+        /** @var array<int, array<int, string>>|null $rawValues */
+        $rawValues = $response->getValues();
+        $values = $rawValues ?? [];
 
         if (count($values) < 2) {
             return [];
         }
 
-        $tableRow  = $values[0]; // 1行目: テーブル名
+        $tableRow = $values[0]; // 1行目: テーブル名
         $headerRow = $values[1]; // 2行目: カラム名
 
         // is_active 列の存在チェック（必須）
@@ -154,19 +160,19 @@ class GoogleSpreadsheetService
         if ($isActiveHeader !== 'is_active') {
             throw new RuntimeException(
                 "シート「{$sheetTitle}」の1列目は \"is_active\" である必要があります。"
-                . "現在の値: \"{$isActiveHeader}\"\n"
-                . "スプレッドシートの1列目（A列）に is_active 列を追加してください。"
+                ."現在の値: \"{$isActiveHeader}\"\n"
+                .'スプレッドシートの1列目（A列）に is_active 列を追加してください。'
             );
         }
-        $dataRows  = array_slice($values, 2);
+        $dataRows = array_slice($values, 2);
 
         // 列ごとに「テーブル名」と「カラム名」を対応付ける
         // 1列目は is_active 予約列なので除外し、インデックス1以降を処理する
         // 1行目が空の場合は直前のテーブル名を引き継ぐ
         $columnMeta = [];
-        $lastTable  = '';
+        $lastTable = '';
         for ($i = 0; $i < count($headerRow); $i++) {
-            $tableName  = strval($tableRow[$i] ?? '');
+            $tableName = strval($tableRow[$i] ?? '');
             $columnName = strval($headerRow[$i] ?? '');
 
             // 1列目（is_active列）はテーブルデータとして扱わない
@@ -194,11 +200,11 @@ class GoogleSpreadsheetService
         // 例: mst_unit__l10n → mst_unit の id 列インデックス
         $parentIdIndexMap = []; // ['mst_unit__l10n' => 3] のような形
         foreach ($tables as $tableName => $columns) {
-            if (!str_ends_with($tableName, '__l10n')) {
+            if (! str_ends_with($tableName, '__l10n')) {
                 continue;
             }
             $parentTableName = substr($tableName, 0, -strlen('__l10n'));
-            if (!isset($tables[$parentTableName])) {
+            if (! isset($tables[$parentTableName])) {
                 continue;
             }
             foreach ($tables[$parentTableName] as $col) {
@@ -212,14 +218,15 @@ class GoogleSpreadsheetService
         // テーブルごとにデータ行を連想配列化
         $result = [];
         foreach ($tables as $tableName => $columns) {
-            $rows         = [];
+            $rows = [];
             $skippedCount = 0;
 
             foreach ($dataRows as $row) {
                 // is_active チェック（1列目）: 空・0・false は取り込み対象外
                 $isActive = strval($row[self::IS_ACTIVE_COLUMN_INDEX] ?? '');
-                if (!in_array($isActive, self::ACTIVE_VALUES, true)) {
+                if (! in_array($isActive, self::ACTIVE_VALUES, true)) {
                     $skippedCount++;
+
                     continue;
                 }
 
@@ -244,17 +251,17 @@ class GoogleSpreadsheetService
             // 親テーブル名を導出（例: mst_unit__l10n → mst_unit）
             if (str_ends_with($tableName, '__l10n')) {
                 $parentTableName = substr($tableName, 0, -strlen('__l10n'));
-                $rows    = $this->expandL10nRows($rows, $parentTableName);
+                $rows = $this->expandL10nRows($rows, $parentTableName);
                 $headers = $this->buildL10nHeaders($columns, $parentTableName);
             } else {
                 $headers = array_column($columns, 'column');
             }
 
             $result[$tableName] = [
-                'table'         => $tableName,
-                'headers'       => $headers,
-                'rows'          => $rows,
-                'raw_count'     => count($dataRows),
+                'table' => $tableName,
+                'headers' => $headers,
+                'rows' => $rows,
+                'raw_count' => count($dataRows),
                 'skipped_count' => $skippedCount,
             ];
         }
@@ -274,22 +281,22 @@ class GoogleSpreadsheetService
      *   { mst_unit_id: "unit_001", language: "ja", name: "炎の剣士" }
      *   { mst_unit_id: "unit_001", language: "en", name: "Flame Swordsman" }
      *
-     * @param  array<int, array<string, string>>  $rows            l10n列のデータ（_parent_id付き）
-     * @param  string                             $parentTableName 親テーブル名（例: mst_unit）
+     * @param  array<int, array<string, string>>  $rows  l10n列のデータ（_parent_id付き）
+     * @param  string  $parentTableName  親テーブル名（例: mst_unit）
      * @return array<int, array<string, string>>
      */
     private function expandL10nRows(array $rows, string $parentTableName): array
     {
-        $expanded    = [];
-        $parentIdKey = $parentTableName . '_id'; // 例: mst_unit_id
+        $expanded = [];
+        $parentIdKey = $parentTableName.'_id'; // 例: mst_unit_id
 
         foreach ($rows as $row) {
             // _parent_id を取り出して親ID列として使用
             $parentId = $row['_parent_id'] ?? '';
 
             // カラム名に「.言語コード」を含むものを抽出して言語コードを収集
-            $languages    = [];
-            $langColumns  = []; // ['ja' => ['name' => '炎の剣士', ...], ...]
+            $languages = [];
+            $langColumns = []; // ['ja' => ['name' => '炎の剣士', ...], ...]
             $commonFields = []; // 言語に依存しないフィールド（deploy_key 等）
 
             foreach ($row as $key => $value) {
@@ -298,7 +305,7 @@ class GoogleSpreadsheetService
                 }
                 if (str_contains($key, '.')) {
                     [$colName, $lang] = explode('.', $key, 2);
-                    $languages[$lang]             = true;
+                    $languages[$lang] = true;
                     $langColumns[$lang][$colName] = $value;
                 } else {
                     $commonFields[$key] = $value;
@@ -331,14 +338,14 @@ class GoogleSpreadsheetService
      * `{parentTable}_id`、`language`、言語依存カラムの順でヘッダを返す。
      *
      * @param  array<int, array{table: string, column: string, index: int}>  $columns
-     * @param  string                                                         $parentTableName
+     * @param  string  $parentTableName
      * @return array<int, string>
      */
     private function buildL10nHeaders(array $columns, string $parentTableName): array
     {
-        $parentIdKey = $parentTableName . '_id'; // 例: mst_unit_id
-        $headers     = [];
-        $langCols    = [];
+        $parentIdKey = $parentTableName.'_id'; // 例: mst_unit_id
+        $headers = [];
+        $langCols = [];
 
         foreach ($columns as $col) {
             if (str_contains($col['column'], '.')) {
@@ -382,10 +389,10 @@ class GoogleSpreadsheetService
         $result = [];
         foreach ($tableData as $tableName => $data) {
             $result[$tableName] = [
-                'table'        => $tableName,
-                'headers'      => $data['headers'],
-                'rows'         => array_slice($data['rows'], 0, $limit),
-                'total_rows'   => count($data['rows']),
+                'table' => $tableName,
+                'headers' => $data['headers'],
+                'rows' => array_slice($data['rows'], 0, $limit),
+                'total_rows' => count($data['rows']),
                 'preview_rows' => min($limit, count($data['rows'])),
             ];
         }
@@ -402,7 +409,7 @@ class GoogleSpreadsheetService
      */
     private function buildClient(): Client
     {
-        $client = new Client();
+        $client = new Client;
         $client->setApplicationName('Nexus Master Importer');
         $client->setScopes([
             Drive::DRIVE_READONLY,
@@ -411,12 +418,12 @@ class GoogleSpreadsheetService
 
         // JSON直書きを優先
         $jsonContent = config('services.google_spreadsheet.credentials_json');
-        if (!empty($jsonContent)) {
+        if (! empty($jsonContent)) {
             // private_key の \n をPHPの改行コードに変換
             $decoded = json_decode($jsonContent, true);
             if (json_last_error() !== JSON_ERROR_NONE) {
                 throw new RuntimeException(
-                    'TOL_GOOGLE_SERVICE_ACCOUNT_JSON_CONTENT のJSONが不正です: ' . json_last_error_msg()
+                    'TOL_GOOGLE_SERVICE_ACCOUNT_JSON_CONTENT のJSONが不正です: '.json_last_error_msg()
                 );
             }
             // private_key 内の \\n を実際の改行に変換（.envでエスケープされる場合）
@@ -424,6 +431,7 @@ class GoogleSpreadsheetService
                 $decoded['private_key'] = str_replace('\\n', "\n", $decoded['private_key']);
             }
             $client->setAuthConfig($decoded);
+
             return $client;
         }
 
@@ -434,12 +442,13 @@ class GoogleSpreadsheetService
                 'TOL_GOOGLE_SERVICE_ACCOUNT_JSON_CONTENT または TOL_GOOGLE_SERVICE_ACCOUNT_JSON を設定してください。'
             );
         }
-        if (!file_exists($credentialsPath)) {
+        if (! file_exists($credentialsPath)) {
             throw new RuntimeException(
                 "サービスアカウント認証ファイルが見つかりません: {$credentialsPath}"
             );
         }
         $client->setAuthConfig($credentialsPath);
+
         return $client;
     }
 

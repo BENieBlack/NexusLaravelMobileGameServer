@@ -100,6 +100,10 @@
         {
             "type": "path",
             "url": "../packages/nexus-chat"
+        },
+        {
+            "type": "path",
+            "url": "../packages/nexus-reward-track"
         }
     ],
     "require": {
@@ -130,7 +134,8 @@
         "nexus/guild": "@dev",
         "nexus/pitr": "@dev",
         "nexus/notification": "@dev",
-        "nexus/chat": "@dev"
+        "nexus/chat": "@dev",
+        "nexus/reward-track": "@dev"
     },
     "require-dev": {
         "aliyun/aliyun-tablestore-sdk-php": "^6.0",
@@ -164,6 +169,7 @@
             "NexusPitr\\": "../packages/nexus-pitr/src/",
             "NexusNotification\\": "../packages/nexus-notification/src/",
             "NexusChat\\": "../packages/nexus-chat/src/",
+            "NexusRewardTrack\\": "../packages/nexus-reward-track/src/",
             "NexusResourceDelivery\\": "../packages/nexus-resource-delivery/src/",
             "NexusResource\\": "../packages/nexus-resource/src/",
             "NexusSecurity\\": "../packages/nexus-core-security/src/",

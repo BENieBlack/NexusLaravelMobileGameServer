@@ -28,7 +28,7 @@ enum ChatRoomRole: string
     {
         return match ($this) {
             self::OWNER, self::ADMIN => true,
-            self::MEMBER             => false,
+            self::MEMBER => false,
         };
     }
 
@@ -39,7 +39,7 @@ enum ChatRoomRole: string
     {
         return match ($this) {
             self::OWNER, self::ADMIN => true,
-            self::MEMBER             => false,
+            self::MEMBER => false,
         };
     }
 

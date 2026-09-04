@@ -13,7 +13,10 @@ use Illuminate\Notifications\Notifiable;
  */
 class AdmAccount extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    /** @use HasFactory<\Database\Factories\Adm\AdmAccountFactory> */
+    use HasFactory;
+
+    use Notifiable;
 
     /**
      * データベース接続名
@@ -30,8 +33,8 @@ class AdmAccount extends Authenticatable
      *
      * @var array<int, string>
      */
-        /** @var list<string> */
-        protected $fillable = [
+    /** @var list<string> */
+    protected $fillable = [
         'name',
         'email',
         'password',
@@ -42,8 +45,8 @@ class AdmAccount extends Authenticatable
      *
      * @var array<int, string>
      */
-        /** @var list<string> */
-        protected $hidden = [
+    /** @var list<string> */
+    protected $hidden = [
         'password',
         'remember_token',
     ];

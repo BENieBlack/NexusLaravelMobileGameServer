@@ -11,6 +11,9 @@ use NexusNotification\Constants\NotificationType;
  */
 readonly class Notification
 {
+    /**
+     * @param  array<string, mixed>  $payload  追加データ（ミッションID、フレンドID等）
+     */
     public function __construct(
         public int $id,
         public int $playerId,

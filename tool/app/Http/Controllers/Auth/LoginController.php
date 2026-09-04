@@ -3,17 +3,19 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class LoginController extends Controller
 {
     /**
      * ログインフォームを表示
      */
-    public function showLoginForm()
+    public function showLoginForm(): Response
     {
         return Inertia::render('Auth/Login');
     }
@@ -21,7 +23,7 @@ class LoginController extends Controller
     /**
      * ログイン処理
      */
-    public function login(Request $request)
+    public function login(Request $request): RedirectResponse
     {
         $credentials = $request->validate([
             'email' => ['required', 'email'],
@@ -42,7 +44,7 @@ class LoginController extends Controller
     /**
      * ログアウト処理
      */
-    public function logout(Request $request)
+    public function logout(Request $request): RedirectResponse
     {
         Auth::logout();
 

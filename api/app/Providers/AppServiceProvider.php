@@ -109,6 +109,14 @@ use NexusVip\Repositories\VipLevelRewardRepositoryInterface;
 use NexusVip\Repositories\VipPointLogRepositoryInterface;
 use NexusWallet\Repositories\WalletBalanceRepositoryInterface;
 use NexusWallet\Repositories\WalletRepositoryInterface;
+use App\Repositories\Mst\RewardTrackMasterRepository;
+use App\Repositories\Trx\TrxRewardTrackRepository;
+use App\Repositories\Trx\TrxRewardTrackLineRepository;
+use App\Repositories\Trx\TrxRewardTrackMilestoneRepository;
+use NexusRewardTrack\Contracts\RewardTrackMasterRepositoryInterface;
+use NexusRewardTrack\Repositories\RewardTrackRepositoryInterface;
+use NexusRewardTrack\Repositories\RewardTrackLineRepositoryInterface;
+use NexusRewardTrack\Repositories\RewardTrackMilestoneRepositoryInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -296,6 +304,14 @@ class AppServiceProvider extends ServiceProvider
 
         // ApiSessionクラス自体もscopedバインドとして登録
         $this->app->scoped(ApiSession::class);
+
+        // ==========================================
+        // NexusRewardTrack Package Bindings
+        // ==========================================
+        $this->app->singleton(RewardTrackMasterRepositoryInterface::class, RewardTrackMasterRepository::class);
+        $this->app->scoped(RewardTrackRepositoryInterface::class, TrxRewardTrackRepository::class);
+        $this->app->scoped(RewardTrackLineRepositoryInterface::class, TrxRewardTrackLineRepository::class);
+        $this->app->scoped(RewardTrackMilestoneRepositoryInterface::class, TrxRewardTrackMilestoneRepository::class);
 
         $this->registerScopedRepositories();
     }

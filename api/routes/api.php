@@ -13,6 +13,7 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\MailboxController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PlayerController;
+use App\Http\Controllers\RewardTrackController;
 use App\Http\Controllers\UnitController;
 use Illuminate\Support\Facades\Route;
 
@@ -136,6 +137,16 @@ Route::middleware('maintenance')->group(function () {
         Route::post('/chat/guild/room', [ChatController::class, 'guildRoom']);
         // 参加中ルーム一覧
         Route::get('/chat/rooms', [ChatController::class, 'rooms']);
+    });
+
+    // =========================================
+    // RewardTrack（バトルパス型報酬トラック）
+    // =========================================
+    Route::prefix('reward-track')->group(function () {
+        // トラックサマリー取得（進捗・所持ライン・受け取り済みマイルストーン）
+        Route::get('/summary', [RewardTrackController::class, 'summary']);
+        // マイルストーンの報酬を受け取る
+        Route::post('/receive', [RewardTrackController::class, 'receive']);
     });
 
     // Legacy signup endpoint (DEPRECATED - use /auth/signup instead)

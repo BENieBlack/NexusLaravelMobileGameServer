@@ -50,8 +50,8 @@ interface ChatRoomRepositoryInterface
     /**
      * プレイヤーが参加しているルーム一覧を取得
      *
-     * @param  int            $playerId  プレイヤーID
-     * @param  ChatRoomType[]  $types    フィルタする種別（空=全種別）
+     * @param  int  $playerId  プレイヤーID
+     * @param  ChatRoomType[]  $types  フィルタする種別（空=全種別）
      * @return array<ChatRoom>
      */
     public function selectRoomsByPlayerId(int $playerId, array $types = []): array;
@@ -59,7 +59,7 @@ interface ChatRoomRepositoryInterface
     /**
      * メンバー数を更新（insert/delete時にデノーマライズ）
      *
-     * @param  int  $chatRoomId   チャットルームID
+     * @param  int  $chatRoomId  チャットルームID
      * @param  int  $memberCount  新しいメンバー数
      */
     public function updateMemberCount(int $chatRoomId, int $memberCount): void;

@@ -2,8 +2,8 @@
 
 namespace NexusChat\Contracts;
 
-use NexusChat\DataTransferObjects\ChatRoomMember;
 use NexusChat\Constants\ChatRoomRole;
+use NexusChat\DataTransferObjects\ChatRoomMember;
 
 /**
  * ChatRoomMemberRepositoryInterface
@@ -25,17 +25,17 @@ interface ChatRoomMemberRepositoryInterface
      * プレイヤーがルームのメンバーか取得
      *
      * @param  int  $chatRoomId  チャットルームID
-     * @param  int  $playerId    プレイヤーID
+     * @param  int  $playerId  プレイヤーID
      */
     public function selectByRoomAndPlayer(int $chatRoomId, int $playerId): ?ChatRoomMember;
 
     /**
      * メンバーを追加（招待時）
      *
-     * @param  int           $chatRoomId   チャットルームID
-     * @param  int           $playerId     追加するプレイヤーID
-     * @param  string        $playerName   表示名（非正規化）
-     * @param  ChatRoomRole  $role         付与するロール
+     * @param  int  $chatRoomId  チャットルームID
+     * @param  int  $playerId  追加するプレイヤーID
+     * @param  string  $playerName  表示名（非正規化）
+     * @param  ChatRoomRole  $role  付与するロール
      */
     public function insert(
         int $chatRoomId,
@@ -47,9 +47,9 @@ interface ChatRoomMemberRepositoryInterface
     /**
      * メンバーのロールを更新
      *
-     * @param  int           $chatRoomId  チャットルームID
-     * @param  int           $playerId    対象プレイヤーID
-     * @param  ChatRoomRole  $newRole     新しいロール
+     * @param  int  $chatRoomId  チャットルームID
+     * @param  int  $playerId  対象プレイヤーID
+     * @param  ChatRoomRole  $newRole  新しいロール
      */
     public function updateRole(int $chatRoomId, int $playerId, ChatRoomRole $newRole): void;
 
@@ -57,7 +57,7 @@ interface ChatRoomMemberRepositoryInterface
      * メンバーを削除（退室・キック）
      *
      * @param  int  $chatRoomId  チャットルームID
-     * @param  int  $playerId    対象プレイヤーID
+     * @param  int  $playerId  対象プレイヤーID
      */
     public function delete(int $chatRoomId, int $playerId): void;
 

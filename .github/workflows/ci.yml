@@ -50,6 +50,53 @@ jobs:
         working-directory: api
         run: ./vendor/bin/phpstan analyse --memory-limit=2G --no-progress
 
+  # tool は api とは別のLaravelアプリで、composerの依存も分かれている。
+  # api側のジョブから見えないため、専用のジョブで同じ3種類の検査を回す
+  tool:
+    name: ツール（tool）
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: PHPのセットアップ
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_mysql, redis, bcmath, zip
+          coverage: none
+
+      - name: Composerキャッシュの復元
+        uses: actions/cache@v4
+        with:
+          path: tool/vendor
+          key: composer-tool-${{ hashFiles('tool/composer.lock') }}
+          restore-keys: composer-tool-
+
+      - name: 依存関係のインストール
+        working-directory: tool
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      # tool は環境変数をリポジトリ直下の .env から読む
+      - name: .envの準備
+        run: cp .env.example .env
+
+      - name: アプリケーションキーの生成
+        working-directory: tool
+        run: php artisan key:generate
+
+      - name: コードフォーマットの検証
+        working-directory: tool
+        run: ./vendor/bin/pint --test
+
+      - name: 静的解析
+        working-directory: tool
+        run: ./vendor/bin/phpstan analyse --memory-limit=1G --no-progress
+
+      - name: テスト
+        working-directory: tool
+        run: ./vendor/bin/phpunit
+
   test:
     name: テスト
     runs-on: ubuntu-latest

@@ -39,12 +39,12 @@ class MessageSent
     public function broadcastWith(): array
     {
         return [
-            'message_id'       => $this->message->getId(),
-            'chat_room_id'     => $this->message->getChatRoomId(),
+            'message_id' => $this->message->getId(),
+            'chat_room_id' => $this->message->getChatRoomId(),
             'sender_player_id' => $this->message->getSenderPlayerId(),
-            'sender_name'      => $this->message->getSenderName(),
-            'body'             => $this->message->getBody(),
-            'created_at'       => $this->message->getCreatedAt(),
+            'sender_name' => $this->message->getSenderName(),
+            'body' => $this->message->getBody(),
+            'created_at' => $this->message->getCreatedAt(),
         ];
     }
 

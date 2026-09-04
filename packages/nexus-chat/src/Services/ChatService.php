@@ -42,10 +42,10 @@ class ChatService
     /**
      * チャットルームへメッセージを送信する
      *
-     * @param  int     $chatRoomId     送信先ルームID
-     * @param  int     $senderPlayerId 送信者プレイヤーID
-     * @param  string  $senderName     送信者表示名
-     * @param  string  $body           メッセージ本文
+     * @param  int  $chatRoomId  送信先ルームID
+     * @param  int  $senderPlayerId  送信者プレイヤーID
+     * @param  string  $senderName  送信者表示名
+     * @param  string  $body  メッセージ本文
      *
      * @throws ChatException ルームが存在しない、メンバーでない、文字数超過
      */
@@ -83,10 +83,10 @@ class ChatService
     /**
      * メッセージ履歴を取得（カーソルページネーション）
      *
-     * @param  int       $chatRoomId      ルームID
-     * @param  int       $requestPlayerId リクエスト者（メンバー確認用）
-     * @param  int       $limit           取得件数
-     * @param  int|null  $beforeMessageId このID以前を取得（NULL=最新から）
+     * @param  int  $chatRoomId  ルームID
+     * @param  int  $requestPlayerId  リクエスト者（メンバー確認用）
+     * @param  int  $limit  取得件数
+     * @param  int|null  $beforeMessageId  このID以前を取得（NULL=最新から）
      * @return array<ChatMessage>
      *
      * @throws ChatException メンバーでない場合
@@ -170,9 +170,9 @@ class ChatService
      *
      * 作成者は自動的に OWNER ロールで参加する
      *
-     * @param  string  $name            グループ名
-     * @param  int     $ownerPlayerId   作成者プレイヤーID
-     * @param  string  $ownerName       作成者表示名
+     * @param  string  $name  グループ名
+     * @param  int  $ownerPlayerId  作成者プレイヤーID
+     * @param  string  $ownerName  作成者表示名
      * @return ChatRoom 作成されたルーム
      */
     public function createGroupRoom(string $name, int $ownerPlayerId, string $ownerName): ChatRoom
@@ -194,10 +194,10 @@ class ChatService
     /**
      * グループチャットへメンバーを招待する
      *
-     * @param  int     $chatRoomId       ルームID
-     * @param  int     $inviterPlayerId  招待者プレイヤーID
-     * @param  int     $targetPlayerId   招待対象プレイヤーID
-     * @param  string  $targetName       招待対象表示名
+     * @param  int  $chatRoomId  ルームID
+     * @param  int  $inviterPlayerId  招待者プレイヤーID
+     * @param  int  $targetPlayerId  招待対象プレイヤーID
+     * @param  string  $targetName  招待対象表示名
      *
      * @throws ChatException ルームが存在しない、招待権限がない、満員
      */
@@ -248,7 +248,7 @@ class ChatService
     /**
      * グループチャットからメンバーをキックする
      *
-     * @param  int  $chatRoomId      ルームID
+     * @param  int  $chatRoomId  ルームID
      * @param  int  $kickerPlayerId  キック実行者プレイヤーID
      * @param  int  $targetPlayerId  キック対象プレイヤーID
      *
@@ -288,7 +288,7 @@ class ChatService
      * （Application層のUseCaseで委譲処理を行ってからこのメソッドを呼ぶこと）
      *
      * @param  int  $chatRoomId  ルームID
-     * @param  int  $playerId    退室するプレイヤーID
+     * @param  int  $playerId  退室するプレイヤーID
      */
     public function leaveGroup(int $chatRoomId, int $playerId): void
     {
@@ -303,10 +303,10 @@ class ChatService
     /**
      * グループチャットのメンバーロールを変更する（OWNERのみ）
      *
-     * @param  int           $chatRoomId      ルームID
-     * @param  int           $ownerPlayerId   実行者（OWNER）プレイヤーID
-     * @param  int           $targetPlayerId  対象プレイヤーID
-     * @param  ChatRoomRole  $newRole         新しいロール
+     * @param  int  $chatRoomId  ルームID
+     * @param  int  $ownerPlayerId  実行者（OWNER）プレイヤーID
+     * @param  int  $targetPlayerId  対象プレイヤーID
+     * @param  ChatRoomRole  $newRole  新しいロール
      *
      * @throws ChatException OWNER以外が実行した場合
      */
@@ -338,8 +338,8 @@ class ChatService
     /**
      * グループチャットのメンバー一覧を取得
      *
-     * @param  int  $chatRoomId      ルームID
-     * @param  int  $requestPlayerId リクエスト者（メンバー確認用）
+     * @param  int  $chatRoomId  ルームID
+     * @param  int  $requestPlayerId  リクエスト者（メンバー確認用）
      * @return array<ChatRoomMember>
      *
      * @throws ChatException メンバーでない場合

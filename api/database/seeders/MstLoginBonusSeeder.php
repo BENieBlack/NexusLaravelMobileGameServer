@@ -50,32 +50,32 @@ class MstLoginBonusSeeder extends Seeder
             $bonusId = "daily_login_day{$day}";
 
             DB::connection('mst')->table('mst_login_bonus')->insert([
-                'id'                   => $bonusId,
-                'type'                 => 'daily',
-                'day'                  => $day,
-                'loop_days'            => self::LOOP_DAYS,
+                'id' => $bonusId,
+                'type' => 'daily',
+                'day' => $day,
+                'loop_days' => self::LOOP_DAYS,
                 'required_absent_days' => null,
-                'valid_days'           => null,
-                'priority'             => 0,
-                'is_active'            => true,
-                'start_at'             => null,
-                'end_at'               => null,
-                'created_at'           => $now,
-                'updated_at'           => $now,
+                'valid_days' => null,
+                'priority' => 0,
+                'is_active' => true,
+                'start_at' => null,
+                'end_at' => null,
+                'created_at' => $now,
+                'updated_at' => $now,
             ]);
 
             foreach ($dayRewards[$day] as $i => $reward) {
                 DB::connection('mst')->table('mst_login_bonus_content')->insert([
                     'mst_login_bonus_id' => $bonusId,
-                    'content_type'       => $reward['content_type'],
-                    'content_mst_id'     => $reward['content_mst_id'],
-                    'content_option'     => null,
-                    'content_quantity'   => $reward['amount'],
-                    'amount'             => $reward['amount'],
-                    'is_paid'            => false,
-                    'sort_order'         => $i,
-                    'created_at'         => $now,
-                    'updated_at'         => $now,
+                    'content_type' => $reward['content_type'],
+                    'content_mst_id' => $reward['content_mst_id'],
+                    'content_option' => null,
+                    'content_quantity' => $reward['amount'],
+                    'amount' => $reward['amount'],
+                    'is_paid' => false,
+                    'sort_order' => $i,
+                    'created_at' => $now,
+                    'updated_at' => $now,
                 ]);
             }
         }

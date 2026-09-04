@@ -91,11 +91,11 @@ abstract class _BaseController
             // ログに記録
             \Log::error('Exception in API request', [
                 'exception' => get_class($e),
-                'message'   => $e->getMessage(),
-                'code'      => $errorCode,
-                'file'      => $e->getFile(),
-                'line'      => $e->getLine(),
-                'trace'     => $e->getTraceAsString(),
+                'message' => $e->getMessage(),
+                'code' => $errorCode,
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             // Slackへ通知
@@ -112,16 +112,16 @@ abstract class _BaseController
 
         // その他の例外はシステムエラーとして扱う
         $httpStatus = $this->determineStatusCode($e);
-        $errorCode  = (int) ($e->getCode() ?: InfraErrorCode::UNKNOWN_ERROR);
+        $errorCode = (int) ($e->getCode() ?: InfraErrorCode::UNKNOWN_ERROR);
 
         // ログに記録
         \Log::error('Exception in API request', [
             'exception' => get_class($e),
-            'message'   => $e->getMessage(),
-            'code'      => $errorCode,
-            'file'      => $e->getFile(),
-            'line'      => $e->getLine(),
-            'trace'     => $e->getTraceAsString(),
+            'message' => $e->getMessage(),
+            'code' => $errorCode,
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => $e->getTraceAsString(),
         ]);
 
         // Slackへ通知

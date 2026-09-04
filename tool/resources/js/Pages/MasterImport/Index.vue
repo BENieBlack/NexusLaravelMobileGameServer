@@ -1,7 +1,29 @@
 <template>
     <DashboardLayout :auth="auth">
         <div class="p-8">
-            <h1 class="text-2xl font-bold text-gray-800 mb-6">マスターデータインポート</h1>
+            <div class="flex items-center justify-between mb-6">
+                <h1 class="text-2xl font-bold text-gray-800">マスターデータインポート</h1>
+                <a
+                    v-if="folder_id"
+                    :href="`https://drive.google.com/drive/folders/${folder_id}`"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-800 transition-colors shadow-sm"
+                >
+                    <svg class="w-4 h-4" viewBox="0 0 87.3 78" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3L27.5 53H0c0 1.55.4 3.1 1.2 4.5z" fill="#0066DA"/>
+                        <path d="M43.65 25L29.9 1.2C28.55.4 27 0 25.45 0c-1.55 0-3.1.4-4.45 1.2L6.6 25h37.05z" fill="#00AC47"/>
+                        <path d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75L86.1 57.5c.8-1.4 1.2-2.95 1.2-4.5H59.8L73.55 76.8z" fill="#EA4335"/>
+                        <path d="M43.65 25L57.4 1.2C56.05.4 54.5 0 52.95 0H34.35c-1.55 0-3.1.4-4.45 1.2L43.65 25z" fill="#00832D"/>
+                        <path d="M59.8 53H27.5L13.75 76.8c1.35.8 2.9 1.2 4.45 1.2h50.9c1.55 0 3.1-.4 4.45-1.2L59.8 53z" fill="#2684FC"/>
+                        <path d="M73.4 26.5l-7.35-12.75c-1.35-2.35-3.5-4.1-6-5.05L43.65 25 59.8 53h26.25c0-1.55-.4-3.1-1.2-4.5L73.4 26.5z" fill="#FFBA00"/>
+                    </svg>
+                    Google Drive を開く
+                    <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                    </svg>
+                </a>
+            </div>
 
             <!-- 未設定の警告 -->
             <div v-if="!is_configured" class="mb-6 bg-yellow-50 border border-yellow-300 rounded-lg p-4 flex items-start gap-3">
@@ -10,7 +32,7 @@
                     <p class="font-semibold text-yellow-800">Google スプレッドシート連携が設定されていません</p>
                     <p class="text-sm text-yellow-700 mt-1">
                         <code class="bg-yellow-100 px-1 rounded">TOL_GOOGLE_SPREADSHEET_DIR</code> と
-                        <code class="bg-yellow-100 px-1 rounded">TOL_GOOGLE_SERVICE_ACCOUNT_JSON</code>
+                        <code class="bg-yellow-100 px-1 rounded">TOL_GOOGLE_SERVICE_ACCOUNT_JSON_CONTENT</code>
                         を <code class="bg-yellow-100 px-1 rounded">.env</code> に設定してください。
                     </p>
                 </div>
@@ -18,183 +40,196 @@
 
             <div v-else class="space-y-6">
 
-                <!-- STEP 1: スプレッドシート選択 -->
+                <!-- シート一覧取得ボタン -->
                 <div class="bg-white rounded-lg shadow p-6">
-                    <h2 class="text-lg font-semibold text-gray-700 mb-4">
-                        <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-purple-100 text-purple-700 text-sm font-bold mr-2">1</span>
-                        スプレッドシートを選択
-                    </h2>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-700">取り込み対象シートを選択</h2>
+                            <p class="text-sm text-gray-500 mt-1">
+                                フォルダ内の全スプレッドシートからシート一覧を読み込みます。<br>
+                                左側のシートを右側にダブルクリックで移動すると取り込み対象になります。
+                            </p>
+                            <!-- キャッシュ情報 -->
+                            <p v-if="cachedAt" class="text-xs text-gray-400 mt-2 flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                キャッシュ: {{ cachedAt }} 取得
+                                <span class="text-purple-400">（再取得するにはボタンを押してください）</span>
+                            </p>
+                        </div>
+                        <button
+                            @click="loadAllSheets"
+                            :disabled="loading"
+                            class="px-5 py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium whitespace-nowrap"
+                        >
+                            {{ loading ? '読み込み中...' : (cachedAt ? '🔄 再取得' : '📥 シート一覧を取得') }}
+                        </button>
+                    </div>
+                </div>
+
+                <!-- デュアルリスト -->
+                <div v-if="availableSheets.length > 0 || selectedSheets.length > 0" class="bg-white rounded-lg shadow p-6">
+                    <div class="flex gap-4 items-stretch">
+
+                        <!-- 左: 取り込み対象外 -->
+                        <div class="flex-1 flex flex-col">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-sm font-semibold text-gray-600">
+                                    対象外シート
+                                    <span class="ml-1 text-xs text-gray-400 font-normal">（{{ filteredAvailable.length }}件）</span>
+                                </h3>
+                                <button
+                                    @click="addAll"
+                                    class="text-xs text-purple-600 hover:text-purple-800 font-medium"
+                                >全て追加 »»</button>
+                            </div>
+                            <!-- 検索 -->
+                            <input
+                                v-model="searchLeft"
+                                type="text"
+                                placeholder="シート名で絞り込み..."
+                                class="mb-2 px-3 py-1.5 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            />
+                            <div
+                                class="border border-gray-200 rounded-lg overflow-y-auto bg-gray-50"
+                                style="height: 400px;"
+                            >
+                                <div
+                                    v-for="item in filteredAvailable"
+                                    :key="item.key"
+                                    @dblclick="addSheet(item)"
+                                    :class="[
+                                        'flex items-center gap-2 px-3 py-2 border-b border-gray-100 cursor-pointer select-none transition-colors',
+                                        item.is_mst
+                                            ? 'hover:bg-purple-50'
+                                            : 'opacity-50 hover:bg-gray-100'
+                                    ]"
+                                    :title="item.is_mst ? 'ダブルクリックで追加' : 'mst_プレフィックスなし（インポート不可）'"
+                                >
+                                    <span class="text-xs">{{ item.is_mst ? '📄' : '⚠️' }}</span>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-xs font-medium text-gray-800 truncate">{{ item.sheet_title }}</p>
+                                        <p class="text-xs text-gray-400 truncate">{{ item.spreadsheet_name }}</p>
+                                    </div>
+                                </div>
+                                <div v-if="filteredAvailable.length === 0" class="p-4 text-center text-xs text-gray-400">
+                                    {{ searchLeft ? '一致するシートがありません' : 'すべて選択済みです' }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 中央: 矢印ボタン -->
+                        <div class="flex flex-col items-center justify-center gap-3 pt-16">
+                            <button
+                                @click="addSheet(hoveredLeft)"
+                                :disabled="!hoveredLeft"
+                                class="px-3 py-1.5 bg-purple-100 text-purple-700 rounded hover:bg-purple-200 disabled:opacity-30 disabled:cursor-not-allowed text-sm font-bold transition-colors"
+                                title="右へ移動"
+                            >›</button>
+                            <button
+                                @click="removeSheet(hoveredRight)"
+                                :disabled="!hoveredRight"
+                                class="px-3 py-1.5 bg-gray-100 text-gray-600 rounded hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed text-sm font-bold transition-colors"
+                                title="左へ戻す"
+                            >‹</button>
+                        </div>
+
+                        <!-- 右: 取り込み対象 -->
+                        <div class="flex-1 flex flex-col">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-sm font-semibold text-gray-600">
+                                    取り込み対象
+                                    <span class="ml-1 text-xs text-gray-400 font-normal">（{{ selectedSheets.length }}件）</span>
+                                </h3>
+                                <button
+                                    @click="removeAll"
+                                    class="text-xs text-gray-500 hover:text-gray-700 font-medium"
+                                >«« 全て戻す</button>
+                            </div>
+                            <!-- 検索 -->
+                            <input
+                                v-model="searchRight"
+                                type="text"
+                                placeholder="シート名で絞り込み..."
+                                class="mb-2 px-3 py-1.5 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            />
+                            <div
+                                class="border-2 border-purple-200 rounded-lg overflow-y-auto bg-purple-50"
+                                style="height: 400px;"
+                            >
+                                <div
+                                    v-for="item in filteredSelected"
+                                    :key="item.key"
+                                    @dblclick="removeSheet(item)"
+                                    class="flex items-center gap-2 px-3 py-2 border-b border-purple-100 cursor-pointer select-none hover:bg-purple-100 transition-colors"
+                                    title="ダブルクリックで対象外に戻す"
+                                >
+                                    <span class="text-xs">📄</span>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-xs font-medium text-gray-800 truncate">{{ item.sheet_title }}</p>
+                                        <p class="text-xs text-gray-400 truncate">{{ item.spreadsheet_name }}</p>
+                                    </div>
+                                    <span class="text-purple-400 text-xs">✓</span>
+                                </div>
+                                <div v-if="filteredSelected.length === 0" class="p-4 text-center text-xs text-gray-400">
+                                    {{ searchRight ? '一致するシートがありません' : 'シートをダブルクリックで追加' }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- インポート実行 -->
+                <div v-if="selectedSheets.length > 0" class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-semibold text-gray-700">インポート実行</h2>
+                        <span class="text-sm text-gray-500">{{ selectedSheets.length }} シートを対象</span>
+                    </div>
+
+                    <div class="mb-4 flex flex-wrap gap-2">
+                        <span
+                            v-for="item in selectedSheets"
+                            :key="item.key"
+                            class="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-100 text-purple-800 text-xs rounded-full"
+                        >
+                            <span>{{ item.sheet_title }}</span>
+                            <span class="text-purple-500 text-xs">/ {{ item.spreadsheet_name }}</span>
+                        </span>
+                    </div>
 
                     <button
-                        @click="loadSpreadsheets"
-                        :disabled="loading.spreadsheets"
-                        class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+                        @click="executeImport"
+                        :disabled="importing"
+                        class="px-6 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold"
                     >
-                        {{ loading.spreadsheets ? '読み込み中...' : 'スプレッドシート一覧を取得' }}
+                        {{ importing ? 'インポート中...' : `▶ ${selectedSheets.length}件のシートをインポート` }}
                     </button>
-
-                    <div v-if="spreadsheets.length > 0" class="mt-4">
-                        <label class="block text-sm font-medium text-gray-600 mb-2">スプレッドシート</label>
-                        <select
-                            v-model="selectedSpreadsheetId"
-                            @change="onSpreadsheetChange"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        >
-                            <option value="">-- 選択してください --</option>
-                            <option v-for="ss in spreadsheets" :key="ss.id" :value="ss.id">
-                                {{ ss.name }}
-                                <span class="text-gray-400 text-xs">（更新: {{ formatDate(ss.modified_at) }}）</span>
-                            </option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- STEP 2: シート選択 -->
-                <div v-if="selectedSpreadsheetId" class="bg-white rounded-lg shadow p-6">
-                    <h2 class="text-lg font-semibold text-gray-700 mb-4">
-                        <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-purple-100 text-purple-700 text-sm font-bold mr-2">2</span>
-                        シートを選択
-                        <span class="text-xs text-gray-400 font-normal ml-2">（シート名がテーブル名になります）</span>
-                    </h2>
-
-                    <div v-if="loading.sheets" class="text-sm text-gray-500">シート一覧を読み込み中...</div>
-
-                    <div v-else-if="sheets.length > 0" class="space-y-2">
-                        <div
-                            v-for="sheet in sheets"
-                            :key="sheet.sheet_id"
-                            @click="selectSheet(sheet)"
-                            :class="[
-                                'flex items-center gap-3 px-4 py-3 rounded-lg border cursor-pointer transition-colors',
-                                selectedSheet?.title === sheet.title
-                                    ? 'border-purple-500 bg-purple-50'
-                                    : 'border-gray-200 hover:border-purple-300 hover:bg-gray-50'
-                            ]"
-                        >
-                            <span class="text-lg">📄</span>
-                            <div class="flex-1">
-                                <span class="font-medium text-gray-800">{{ sheet.title }}</span>
-                                <span
-                                    v-if="isMstTable(sheet.title)"
-                                    class="ml-2 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full"
-                                >
-                                    インポート可
-                                </span>
-                                <span
-                                    v-else
-                                    class="ml-2 text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full"
-                                >
-                                    mst_プレフィックスなし
-                                </span>
-                            </div>
-                            <span v-if="selectedSheet?.title === sheet.title" class="text-purple-500">✓</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- STEP 3: プレビュー＆インポート実行 -->
-                <div v-if="selectedSheet" class="bg-white rounded-lg shadow p-6">
-                    <h2 class="text-lg font-semibold text-gray-700 mb-4">
-                        <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-purple-100 text-purple-700 text-sm font-bold mr-2">3</span>
-                        プレビュー・実行
-                    </h2>
-
-                    <!-- プレビュー読み込み -->
-                    <div v-if="loading.preview" class="text-sm text-gray-500 mb-4">プレビューを読み込み中...</div>
-
-                    <!-- プレビューテーブル -->
-                    <div v-else-if="preview" class="mb-6">
-                        <div class="flex items-center justify-between mb-2">
-                            <p class="text-sm text-gray-600">
-                                先頭 <strong>{{ preview.preview_rows }}</strong> 行を表示
-                                （全 <strong>{{ preview.total_rows }}</strong> 行）
-                            </p>
-                            <span class="text-xs text-gray-400">テーブル: {{ selectedSheet.title }}</span>
-                        </div>
-
-                        <div class="overflow-x-auto border border-gray-200 rounded-lg">
-                            <table class="min-w-full text-xs">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th
-                                            v-for="header in preview.headers"
-                                            :key="header"
-                                            class="px-3 py-2 text-left font-semibold text-gray-600 border-b border-gray-200 whitespace-nowrap"
-                                        >
-                                            {{ header }}
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr
-                                        v-for="(row, i) in preview.rows"
-                                        :key="i"
-                                        class="border-b border-gray-100 hover:bg-gray-50"
-                                    >
-                                        <td
-                                            v-for="header in preview.headers"
-                                            :key="header"
-                                            class="px-3 py-2 text-gray-700 whitespace-nowrap max-w-xs truncate"
-                                            :title="row[header]"
-                                        >
-                                            {{ row[header] || '—' }}
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- インポート実行ボタン -->
-                    <div class="flex items-center gap-4">
-                        <button
-                            @click="executeImport"
-                            :disabled="loading.importing || !isMstTable(selectedSheet.title)"
-                            class="px-6 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold"
-                        >
-                            {{ loading.importing ? 'インポート中...' : `「${selectedSheet.title}」をインポート` }}
-                        </button>
-
-                        <p v-if="!isMstTable(selectedSheet.title)" class="text-sm text-red-500">
-                            ⚠️ シート名が <code class="bg-red-50 px-1 rounded">mst_</code> で始まらないためインポートできません
-                        </p>
-                    </div>
                 </div>
 
                 <!-- 実行結果 -->
-                <div v-if="importResult" :class="[
-                    'rounded-lg p-5 border',
-                    importResult.status === 'success' ? 'bg-green-50 border-green-300' :
-                    importResult.status === 'warning' ? 'bg-yellow-50 border-yellow-300' :
-                                                        'bg-red-50 border-red-300'
-                ]">
-                    <div class="flex items-start gap-3">
-                        <span class="text-2xl">
-                            {{ importResult.status === 'success' ? '✅' : importResult.status === 'warning' ? '⚠️' : '❌' }}
-                        </span>
-                        <div class="flex-1">
-                            <p :class="[
-                                'font-semibold',
-                                importResult.status === 'success' ? 'text-green-800' :
-                                importResult.status === 'warning' ? 'text-yellow-800' : 'text-red-800'
-                            ]">
-                                {{ importResult.message }}
-                            </p>
-
-                            <div v-if="importResult.result" class="mt-3 text-sm space-y-1">
-                                <p class="text-gray-700">
-                                    インポート件数: <strong>{{ importResult.result.inserted }}</strong> 件
-                                </p>
-                                <p v-if="importResult.result.skipped > 0" class="text-yellow-700">
-                                    スキップ: {{ importResult.result.skipped }} 件
-                                </p>
-                                <div v-if="importResult.result.errors?.length > 0" class="mt-2">
-                                    <p class="font-medium text-red-700 mb-1">エラー詳細:</p>
-                                    <ul class="list-disc list-inside space-y-0.5">
-                                        <li v-for="(err, i) in importResult.result.errors" :key="i" class="text-red-600 text-xs">
-                                            {{ err }}
-                                        </li>
-                                    </ul>
+                <div v-if="importResults.length > 0" class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-lg font-semibold text-gray-700 mb-4">実行結果</h2>
+                    <div class="space-y-3">
+                        <div
+                            v-for="(result, i) in importResults"
+                            :key="i"
+                            :class="[
+                                'flex items-start gap-3 p-3 rounded-lg border text-sm',
+                                result.status === 'success' ? 'bg-green-50 border-green-200' :
+                                result.status === 'warning' ? 'bg-yellow-50 border-yellow-200' :
+                                                              'bg-red-50 border-red-200'
+                            ]"
+                        >
+                            <span>{{ result.status === 'success' ? '✅' : result.status === 'warning' ? '⚠️' : '❌' }}</span>
+                            <div class="flex-1">
+                                <p class="font-medium text-gray-800">{{ result.sheet_title }}</p>
+                                <p class="text-xs text-gray-500">{{ result.spreadsheet_name }}</p>
+                                <p class="mt-1 text-xs">{{ result.message }}</p>
+                                <div v-if="result.details" class="mt-1 space-y-0.5">
+                                    <p v-for="(d, j) in result.details" :key="j" class="text-xs text-gray-600">
+                                        　{{ d.table }}: {{ d.inserted }}件取込 / {{ d.skipped_count }}件スキップ
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -207,124 +242,149 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
 import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 
 const props = defineProps({
     auth: Object,
     is_configured: Boolean,
+    folder_id: String,
+    cached_sheets: Array,   // サーバー側のキャッシュファイルから渡される
+    cached_at: String,      // キャッシュの作成日時
 });
 
-// ステート
-const spreadsheets         = ref([]);
-const sheets               = ref([]);
-const selectedSpreadsheetId = ref('');
-const selectedSheet        = ref(null);
-const preview              = ref(null);
-const importResult         = ref(null);
+// ---- ステート ----
+const allSheets      = ref([]);  // { key, spreadsheet_id, spreadsheet_name, sheet_title, is_mst }
+const selectedSheets = ref([]);  // 取り込み対象
+const loading        = ref(false);
+const importing      = ref(false);
+const importResults  = ref([]);
+const searchLeft     = ref('');
+const searchRight    = ref('');
+const hoveredLeft    = ref(null);
+const hoveredRight   = ref(null);
+const cachedAt       = ref(props.cached_at ?? null);
 
-const loading = ref({
-    spreadsheets: false,
-    sheets:       false,
-    preview:      false,
-    importing:    false,
-});
-
-// スプレッドシート一覧を取得
-const loadSpreadsheets = async () => {
-    loading.value.spreadsheets = true;
-    importResult.value = null;
-    try {
-        const res = await axios.get('/master-import/spreadsheets');
-        spreadsheets.value = res.data.spreadsheets;
-    } catch (e) {
-        alert('スプレッドシート一覧の取得に失敗しました: ' + (e.response?.data?.message ?? e.message));
-    } finally {
-        loading.value.spreadsheets = false;
+// ---- キャッシュから初期ロード ----
+onMounted(() => {
+    if (props.cached_sheets && props.cached_sheets.length > 0) {
+        allSheets.value = props.cached_sheets.map(s => ({
+            ...s,
+            key: `${s.spreadsheet_id}::${s.sheet_title}`,
+        }));
     }
-};
+});
 
-// スプレッドシート変更時にシート一覧を取得
-const onSpreadsheetChange = async () => {
-    if (!selectedSpreadsheetId.value) return;
-    sheets.value     = [];
-    selectedSheet.value = null;
-    preview.value    = null;
-    importResult.value = null;
+// 左リスト（選択済みを除いたもの）
+const availableSheets = computed(() =>
+    allSheets.value.filter(s => !selectedSheets.value.some(sel => sel.key === s.key))
+);
 
-    loading.value.sheets = true;
+const filteredAvailable = computed(() => {
+    const q = searchLeft.value.toLowerCase();
+    return q
+        ? availableSheets.value.filter(s =>
+            s.sheet_title.toLowerCase().includes(q) ||
+            s.spreadsheet_name.toLowerCase().includes(q)
+          )
+        : availableSheets.value;
+});
+
+const filteredSelected = computed(() => {
+    const q = searchRight.value.toLowerCase();
+    return q
+        ? selectedSheets.value.filter(s =>
+            s.sheet_title.toLowerCase().includes(q) ||
+            s.spreadsheet_name.toLowerCase().includes(q)
+          )
+        : selectedSheets.value;
+});
+
+// ---- API ----
+const loadAllSheets = async () => {
+    loading.value        = true;
+    allSheets.value      = [];
+    selectedSheets.value = [];
+    importResults.value  = [];
+    searchLeft.value     = '';
+    searchRight.value    = '';
+
     try {
-        const res = await axios.get('/master-import/sheets', {
-            params: { spreadsheet_id: selectedSpreadsheetId.value },
-        });
-        sheets.value = res.data.sheets;
+        const res = await axios.get('/master-import/all-sheets');
+        allSheets.value = res.data.sheets.map(s => ({
+            ...s,
+            key: `${s.spreadsheet_id}::${s.sheet_title}`,
+        }));
+        cachedAt.value = res.data.cached_at ?? null;
     } catch (e) {
         alert('シート一覧の取得に失敗しました: ' + (e.response?.data?.message ?? e.message));
     } finally {
-        loading.value.sheets = false;
+        loading.value = false;
     }
 };
 
-// シートを選択してプレビューを取得
-const selectSheet = async (sheet) => {
-    selectedSheet.value = sheet;
-    preview.value       = null;
-    importResult.value  = null;
+// ---- デュアルリスト操作 ----
+const addSheet = (item) => {
+    if (!item || !item.is_mst) return;
+    if (selectedSheets.value.some(s => s.key === item.key)) return;
+    selectedSheets.value.push(item);
+};
 
-    if (!isMstTable(sheet.title)) return;
+const removeSheet = (item) => {
+    if (!item) return;
+    selectedSheets.value = selectedSheets.value.filter(s => s.key !== item.key);
+};
 
-    loading.value.preview = true;
-    try {
-        const res = await axios.get('/master-import/preview', {
-            params: {
-                spreadsheet_id: selectedSpreadsheetId.value,
-                sheet_title:    sheet.title,
-            },
+const addAll = () => {
+    availableSheets.value
+        .filter(s => s.is_mst)
+        .forEach(s => {
+            if (!selectedSheets.value.some(sel => sel.key === s.key)) {
+                selectedSheets.value.push(s);
+            }
         });
-        preview.value = res.data.preview;
-    } catch (e) {
-        alert('プレビューの取得に失敗しました: ' + (e.response?.data?.message ?? e.message));
-    } finally {
-        loading.value.preview = false;
-    }
 };
 
-// インポート実行
+const removeAll = () => {
+    selectedSheets.value = [];
+};
+
+// ---- インポート実行 ----
 const executeImport = async () => {
-    if (!confirm(`「${selectedSheet.value.title}」テーブルの既存データを全て削除してインポートします。よろしいですか？`)) {
+    if (!confirm(`${selectedSheets.value.length} 件のシートをインポートします。\n既存データは全て削除されます。よろしいですか？`)) {
         return;
     }
 
-    loading.value.importing = true;
-    importResult.value = null;
+    importing.value     = true;
+    importResults.value = [];
 
-    try {
-        const res = await axios.post('/master-import/execute', {
-            spreadsheet_id: selectedSpreadsheetId.value,
-            sheet_title:    selectedSheet.value.title,
-        });
-        importResult.value = res.data;
-    } catch (e) {
-        importResult.value = {
-            status:  'error',
-            message: e.response?.data?.message ?? e.message,
-            result:  null,
-        };
-    } finally {
-        loading.value.importing = false;
+    for (const sheet of selectedSheets.value) {
+        try {
+            const res = await axios.post('/master-import/execute', {
+                spreadsheet_id: sheet.spreadsheet_id,
+                sheet_title:    sheet.sheet_title,
+            });
+
+            const data = res.data;
+            importResults.value.push({
+                status:           data.status,
+                sheet_title:      sheet.sheet_title,
+                spreadsheet_name: sheet.spreadsheet_name,
+                message:          data.message,
+                details:          data.results ?? (data.result ? [data.result] : null),
+            });
+        } catch (e) {
+            importResults.value.push({
+                status:           'error',
+                sheet_title:      sheet.sheet_title,
+                spreadsheet_name: sheet.spreadsheet_name,
+                message:          e.response?.data?.message ?? e.message,
+                details:          null,
+            });
+        }
     }
-};
 
-// シート名が mst_ で始まるか確認
-const isMstTable = (title) => title.startsWith('mst_');
-
-// ISO日付を読みやすい形式に変換
-const formatDate = (isoString) => {
-    if (!isoString) return '';
-    return new Date(isoString).toLocaleString('ja-JP', {
-        year: 'numeric', month: '2-digit', day: '2-digit',
-        hour: '2-digit', minute: '2-digit',
-    });
+    importing.value = false;
 };
 </script>

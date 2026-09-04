@@ -46,8 +46,8 @@ readonly class ChatRoom
     {
         return match ($this->type) {
             ChatRoomType::FRIEND => "private-chat.friend.{$this->roomKey}",
-            ChatRoomType::GUILD  => "presence-chat.guild.{$this->roomKey}",
-            ChatRoomType::GROUP  => "private-chat.group.{$this->roomKey}",
+            ChatRoomType::GUILD => "presence-chat.guild.{$this->roomKey}",
+            ChatRoomType::GROUP => "private-chat.group.{$this->roomKey}",
         };
     }
 

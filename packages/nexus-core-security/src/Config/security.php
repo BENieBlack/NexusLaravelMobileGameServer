@@ -76,7 +76,7 @@ return [
     |   例: [10001, 10002, 10003]
     |
     */
-    'slack_error_channel'  => env('SLACK_ERROR_POST_CHANNEL'),
-    'slack_bot_token'      => env('SLACK_BOT_TOKEN'),
+    'slack_error_channel' => env('SLACK_ERROR_POST_CHANNEL'),
+    'slack_bot_token' => env('SLACK_BOT_TOKEN'),
     'slack_ignore_error_codes' => [],
 ];

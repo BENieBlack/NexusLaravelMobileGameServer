@@ -53,10 +53,10 @@ $app = Application::configure(basePath: dirname(__DIR__))
 
             Log::error('Exception in API request', [
                 'exception' => $e::class,
-                'message'   => $e->getMessage(),
-                'code'      => $errorCode,
-                'file'      => $e->getFile(),
-                'line'      => $e->getLine(),
+                'message' => $e->getMessage(),
+                'code' => $errorCode,
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
             ]);
 
             // Slackへ通知
@@ -80,7 +80,6 @@ $app = Application::configure(basePath: dirname(__DIR__))
 $app->useEnvironmentPath(dirname($app->basePath()));
 
 return $app;
-
 
 $app = Application::configure(basePath: dirname(__DIR__))
     ->withRouting(

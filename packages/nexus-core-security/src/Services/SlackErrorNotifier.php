@@ -29,14 +29,14 @@ class SlackErrorNotifier
     /**
      * エラー通知を送信する
      *
-     * @param  Throwable  $e          発生した例外
-     * @param  Request    $request    HTTPリクエスト
-     * @param  int        $errorCode  エラーコード
+     * @param  Throwable  $e  発生した例外
+     * @param  Request  $request  HTTPリクエスト
+     * @param  int  $errorCode  エラーコード
      */
     public function notify(Throwable $e, Request $request, int $errorCode): void
     {
         $channel = config('security.slack_error_channel');
-        $token   = config('security.slack_bot_token');
+        $token = config('security.slack_bot_token');
 
         if (empty($channel) || empty($token)) {
             return;
@@ -73,8 +73,8 @@ class SlackErrorNotifier
     /**
      * Slack API に投稿する
      *
-     * @param  string  $token    Slack Bot Token
-     * @param  array   $payload  リクエストボディ
+     * @param  string  $token  Slack Bot Token
+     * @param  array<string, mixed>  $payload  リクエストボディ
      */
     private function post(string $token, array $payload): void
     {
@@ -82,9 +82,9 @@ class SlackErrorNotifier
 
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST           => true,
-            CURLOPT_POSTFIELDS     => json_encode($payload),
-            CURLOPT_HTTPHEADER     => [
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => json_encode($payload),
+            CURLOPT_HTTPHEADER => [
                 'Content-Type: application/json; charset=utf-8',
                 "Authorization: Bearer {$token}",
             ],
@@ -99,20 +99,20 @@ class SlackErrorNotifier
      * Slack メッセージのペイロードを構築する
      *
      * @param  Throwable  $e
-     * @param  Request    $request
-     * @param  int        $errorCode
-     * @param  string     $channel
-     * @return array
+     * @param  Request  $request
+     * @param  int  $errorCode
+     * @param  string  $channel
+     * @return array<string, mixed>
      */
     private function buildPayload(Throwable $e, Request $request, int $errorCode, string $channel): array
     {
-        $url            = $request->fullUrl();
-        $message        = $e->getMessage();
-        $traceLines     = $this->formatStackTrace($e, 10);
-        $headers        = $this->formatHeaders($request);
-        $body           = $this->formatBody($request);
+        $url = $request->fullUrl();
+        $message = $e->getMessage();
+        $traceLines = $this->formatStackTrace($e, 10);
+        $headers = $this->formatHeaders($request);
+        $body = $this->formatBody($request);
         $exceptionClass = get_class($e);
-        $env            = config('app.env', 'unknown');
+        $env = config('app.env', 'unknown');
 
         $text = implode("\n", [
             ":rotating_light: *APIエラー発生* [{$env}]",
@@ -155,8 +155,8 @@ class SlackErrorNotifier
 
         return [
             'channel' => $channel,
-            'text'    => "[APIエラー] {$url} - {$errorCode}: {$message}",
-            'blocks'  => $blocks,
+            'text' => "[APIエラー] {$url} - {$errorCode}: {$message}",
+            'blocks' => $blocks,
         ];
     }
 
@@ -164,7 +164,7 @@ class SlackErrorNotifier
      * スタックトレースを上位N行に整形する
      *
      * @param  Throwable  $e
-     * @param  int        $limit
+     * @param  int  $limit
      * @return string
      */
     private function formatStackTrace(Throwable $e, int $limit): string
@@ -193,7 +193,7 @@ class SlackErrorNotifier
 
         foreach ($request->headers->all() as $key => $values) {
             $lowerKey = strtolower($key);
-            $value    = in_array($lowerKey, $sensitiveKeys, true)
+            $value = in_array($lowerKey, $sensitiveKeys, true)
                 ? '***MASKED***'
                 : implode(', ', $values);
 
@@ -229,7 +229,7 @@ class SlackErrorNotifier
 
         // Slackのブロック文字数制限（3000文字）を考慮して切り詰める
         if (strlen($json) > 2000) {
-            $json = mb_substr($json, 0, 2000) . "\n... (truncated)";
+            $json = mb_substr($json, 0, 2000)."\n... (truncated)";
         }
 
         return $json !== false ? $json : '(bodyの取得に失敗)';

@@ -40,7 +40,7 @@ interface RewardTrackMasterRepositoryInterface
      * マイルストーンの報酬コンテンツを取得する（ライン×コンテンツ）
      *
      * @param  array<string>  $milestoneIds
-     * @return array<array{mst_reward_track_milestone_id: string, mst_reward_track_line_id: string, content_type: string, content_mst_id: string, content_option: ?array, content_quantity: int, amount: int, sort_order: int}>
+     * @return array<array{mst_reward_track_milestone_id: string, mst_reward_track_line_id: string, content_type: string, content_mst_id: string, content_option: array<string, mixed>|null, content_quantity: int, amount: int, sort_order: int}>
      */
     public function selectContentsByMilestoneIds(array $milestoneIds): array;
 

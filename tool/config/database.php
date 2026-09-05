@@ -95,6 +95,46 @@ return [
             ]) : [],
         ],
 
+        'log2' => [
+            'driver' => 'mysql',
+            'url' => env('DB_URL'),
+            'host' => env('DB_LOG2_HOST', 'db-log2'),
+            'port' => env('DB_LOG2_PORT', '3306'),
+            'database' => env('DB_LOG2_DATABASE', 'nexus-local-log2'),
+            'username' => env('DB_LOG2_USERNAME', 'root'),
+            'password' => env('DB_LOG2_PASSWORD', 'root'),
+            'unix_socket' => env('DB_SOCKET', ''),
+            'charset' => env('DB_CHARSET', 'utf8mb4'),
+            'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                (PHP_VERSION_ID >= 80500 ? \Pdo\Mysql::ATTR_SSL_CA : \PDO::MYSQL_ATTR_SSL_CA) => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+
+        'log3' => [
+            'driver' => 'mysql',
+            'url' => env('DB_URL'),
+            'host' => env('DB_LOG3_HOST', 'db-log3'),
+            'port' => env('DB_LOG3_PORT', '3306'),
+            'database' => env('DB_LOG3_DATABASE', 'nexus-local-log3'),
+            'username' => env('DB_LOG3_USERNAME', 'root'),
+            'password' => env('DB_LOG3_PASSWORD', 'root'),
+            'unix_socket' => env('DB_SOCKET', ''),
+            'charset' => env('DB_CHARSET', 'utf8mb4'),
+            'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                (PHP_VERSION_ID >= 80500 ? \Pdo\Mysql::ATTR_SSL_CA : \PDO::MYSQL_ATTR_SSL_CA) => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+
         'mst' => [
             'driver'    => 'mysql',
             'url'       => env('DB_URL'),

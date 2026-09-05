@@ -32,6 +32,7 @@ use NexusWallet\Exceptions\WalletErrorCode;
  * - 18000-18999: ギルド関連エラー (Guild)
  * - 19000-19999: ガチャ関連エラー (Gacha)
  * - 20000-20999: メールボックス関連エラー (Mailbox)
+ * - 21000-21999: チャット関連エラー (Chat)
  * - 99000-99999: アプリケーション汎用エラー
  *
  * インフラ層エラーコード（3桁以下）はInfraErrorCodeで定義：
@@ -226,6 +227,35 @@ class GameErrorCode
     const MAILBOX_NOT_OPENED = 20003;
 
     const MAILBOX_ALREADY_DELETED = 20004;
+
+    // ========================================
+    // チャット関連エラー (21000-21999)
+    // ========================================
+    const CHAT_ROOM_NOT_FOUND = 21001;
+
+    const CHAT_NOT_ROOM_MEMBER = 21002;
+
+    const CHAT_MESSAGE_TOO_LONG = 21003;
+
+    const CHAT_MESSAGE_EMPTY = 21004;
+
+    const CHAT_NOT_MESSAGE_OWNER = 21005;
+
+    const CHAT_NOT_FRIENDS = 21006;
+
+    const CHAT_NOT_GUILD_MEMBER = 21007;
+
+    const CHAT_NO_INVITE_PERMISSION = 21008;
+
+    const CHAT_NO_KICK_PERMISSION = 21009;
+
+    const CHAT_NO_ROLE_MANAGE_PERMISSION = 21010;
+
+    const CHAT_ROOM_FULL = 21011;
+
+    const CHAT_ALREADY_MEMBER = 21012;
+
+    const CHAT_CANNOT_KICK_OWNER = 21013;
 
     // ========================================
     // アプリケーション汎用エラー (99000-99999)

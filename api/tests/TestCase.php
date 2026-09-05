@@ -170,6 +170,27 @@ abstract class TestCase extends BaseTestCase
     }
 
     /**
+     * そのテーブルに今は存在しないIDを返す
+     *
+     * 「存在しないID」を999のように決め打ちすると、採番がそこへ到達した時点で
+     * 前提が崩れる。テストDBのAUTO_INCREMENTは行を消しても戻らないため、
+     * 実行を重ねるほど決め打ちの値へ近づく（実際 sys_player は1200番台まで進んでいた）。
+     * 現在の最大値の次であれば、その時点で必ず存在しない。
+     */
+    protected function nonExistentId(string $table, string $connection = 'sys', string $column = 'id'): int
+    {
+        return (int) DB::connection($connection)->table($table)->max($column) + 1;
+    }
+
+    /**
+     * 存在しないプレイヤーIDを返す
+     */
+    protected function nonExistentSysPlayerId(): int
+    {
+        return $this->nonExistentId('sys_player');
+    }
+
+    /**
      * プレイヤーにシャードを割り当てる（既にあれば何もしない）
      */
     protected function assignShard(int $sysPlayerId, int $nodeNo = 1): void

@@ -54,7 +54,7 @@ class UnitLevelUpTest extends TestCase
 
         ApiSession::clearForTest();
         $this->insertTestData();
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
     }
 
     protected function tearDown(): void

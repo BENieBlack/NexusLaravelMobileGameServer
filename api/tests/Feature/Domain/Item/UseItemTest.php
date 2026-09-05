@@ -40,7 +40,7 @@ class UseItemTest extends TestCase
         parent::setUp();
 
         ApiSession::clearForTest();
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         $this->useCase = app(UseItemUseCase::class);
 

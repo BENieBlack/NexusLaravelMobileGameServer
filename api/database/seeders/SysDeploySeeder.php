@@ -14,6 +14,7 @@ class SysDeploySeeder extends Seeder
     {
         // べき等性を確保するため、既存データを削除
         DB::connection('sys')->table('sys_deploy')->truncate();
+        DB::connection('sys')->table('sys_deploy_master_table')->truncate();
         DB::connection('sys')->table('sys_deploy_asset')->truncate();
         DB::connection('sys')->table('sys_deploy_master')->truncate();
 

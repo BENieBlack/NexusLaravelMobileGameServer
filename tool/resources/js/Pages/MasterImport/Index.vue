@@ -264,16 +264,18 @@
                         </p>
                         <div v-if="exportResult.status === 'success'" class="mt-3 space-y-1 text-sm">
                             <div class="grid grid-cols-2 gap-x-4 gap-y-1 text-gray-700">
-                                <p><span class="font-medium">ファイル名:</span> {{ exportResult.export.file_name }}</p>
-                                <p><span class="font-medium">ハッシュ:</span> <code class="text-xs bg-gray-100 px-1 rounded">{{ exportResult.export.hash.slice(0, 16) }}...</code></p>
+                                <p><span class="font-medium">デプロイハッシュ:</span> <code class="text-xs bg-gray-100 px-1 rounded">{{ exportResult.export.hash.slice(0, 16) }}...</code></p>
                                 <p><span class="font-medium">ファイルサイズ:</span> {{ (exportResult.export.file_size / 1024).toFixed(1) }} KB</p>
                                 <p><span class="font-medium">テーブル数:</span> {{ exportResult.export.table_count }}</p>
+                                <p><span class="font-medium">ファイル数:</span> {{ exportResult.export.file_count }}</p>
                                 <p><span class="font-medium">deploy_key:</span> {{ exportResult.deploy.deploy_key }}</p>
-                                <p><span class="font-medium">DLパス:</span>
-                                    <a :href="exportResult.export.public_url" target="_blank" class="text-blue-600 underline text-xs">
-                                        {{ exportResult.export.public_url }}
-                                    </a>
-                                </p>
+                            </div>
+                            <div class="mt-3 border-t border-blue-200 pt-2 space-y-1">
+                                <p class="font-medium text-gray-700">テーブル別DL:</p>
+                                <div v-for="(table, tableName) in exportResult.export.tables" :key="tableName" class="flex items-center gap-2 text-xs">
+                                    <span class="w-64 truncate">{{ tableName }}</span>
+                                    <a :href="table.public_url" target="_blank" class="text-blue-600 underline truncate">{{ table.public_url }}</a>
+                                </div>
                             </div>
                         </div>
                     </div>

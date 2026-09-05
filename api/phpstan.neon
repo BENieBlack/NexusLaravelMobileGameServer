@@ -25,6 +25,7 @@ parameters:
         - ../packages/nexus-notification/src
         - ../packages/nexus-pitr/src
         - ../packages/nexus-resource/src
+        - ../packages/nexus-reward-track/src
         - ../packages/nexus-resource-delivery/src
         - ../packages/nexus-stamina/src
         - ../packages/nexus-tidb/src

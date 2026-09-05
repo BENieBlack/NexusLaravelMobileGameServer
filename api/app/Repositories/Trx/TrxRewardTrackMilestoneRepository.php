@@ -63,16 +63,25 @@ class TrxRewardTrackMilestoneRepository implements RewardTrackMilestoneRepositor
 
     public function findReceivedKeySet(int $sysPlayerId, string $mstRewardTrackId, string $connectionName): array
     {
+        // mst と trx は別のDBサーバに載っているため、跨いだJOINはできない
+        // （'Unknown database' で落ちる）。マスター側で対象マイルストーンを引いてから、
+        // そのIDでシャード側を絞る
+        $milestoneIds = DB::connection('mst')
+            ->table('mst_reward_track_milestone')
+            ->where('mst_reward_track_id', $mstRewardTrackId)
+            ->pluck('id')
+            ->all();
+
+        if (empty($milestoneIds)) {
+            return [];
+        }
+
         $rows = DB::connection($connectionName)
-            ->table('trx_reward_track_milestone as trm')
-            ->join(
-                DB::connection('mst')->getDatabaseName().'.mst_reward_track_milestone as mstm',
-                'trm.mst_reward_track_milestone_id', '=', 'mstm.id'
-            )
-            ->where('trm.sys_player_id', $sysPlayerId)
-            ->where('mstm.mst_reward_track_id', $mstRewardTrackId)
-            ->where('trm.is_delete', false)
-            ->select('trm.mst_reward_track_milestone_id', 'trm.mst_reward_track_line_id')
+            ->table('trx_reward_track_milestone')
+            ->where('sys_player_id', $sysPlayerId)
+            ->whereIn('mst_reward_track_milestone_id', $milestoneIds)
+            ->where('is_delete', false)
+            ->select('mst_reward_track_milestone_id', 'mst_reward_track_line_id')
             ->get();
 
         $keySet = [];

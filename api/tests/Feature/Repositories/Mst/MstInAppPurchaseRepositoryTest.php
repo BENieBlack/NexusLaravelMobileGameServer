@@ -101,8 +101,10 @@ class MstInAppPurchaseRepositoryTest extends TestCase
     #[Test]
     public function 存在しないidはnull(): void
     {
-        $this->assertNull($this->repository->selectActiveById(999));
-        $this->assertNull($this->repository->selectByIdWithRelations(999));
+        $absentId = $this->nonExistentId('mst_in_app_purchase', 'mst');
+
+        $this->assertNull($this->repository->selectActiveById($absentId));
+        $this->assertNull($this->repository->selectByIdWithRelations($absentId));
     }
 
     #[Test]

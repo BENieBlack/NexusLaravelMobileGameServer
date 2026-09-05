@@ -9,13 +9,13 @@ use NexusRewardTrack\Contracts\RewardTrackMasterRepositoryInterface;
 use NexusRewardTrack\DataTransferObjects\RewardTrack;
 use NexusRewardTrack\DataTransferObjects\RewardTrackLine;
 use NexusRewardTrack\DataTransferObjects\RewardTrackMilestone;
+use NexusRewardTrack\Exceptions\RewardTrackException;
 use NexusRewardTrack\Repositories\RewardTrackLineRepositoryInterface;
 use NexusRewardTrack\Repositories\RewardTrackMilestoneRepositoryInterface;
 use NexusRewardTrack\Repositories\RewardTrackRepositoryInterface;
 use NexusRewardTrack\Services\RewardTrackService;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use RuntimeException;
 
 /**
  * RewardTrackServiceのユニットテスト
@@ -88,10 +88,30 @@ class RewardTrackServiceTest extends TestCase
     {
         $this->masterRepository->shouldReceive('selectTrackById')->andReturn(null);
 
-        $this->expectException(RuntimeException::class);
+        $this->expectException(RewardTrackException::class);
         $this->expectExceptionMessage('RewardTrack が見つかりません: bp_001');
 
         $this->service->addProgress(100, 'bp_001', 5, self::CONNECTION);
+    }
+
+    #[Test]
+    public function 例外は種類を示すエラーコードを持つ(): void
+    {
+        // アプリケーション層がこのコードを見てクライアント向けの番号へ翻訳する。
+        // 文字列が変わると翻訳表から漏れて汎用エラーに落ちる
+        $this->assertSame('REWARD_TRACK_NOT_FOUND', RewardTrackException::trackNotFound('bp_001')->getErrorCode());
+        $this->assertSame('REWARD_TRACK_NOT_STARTED', RewardTrackException::trackNotStarted('bp_001')->getErrorCode());
+        $this->assertSame('REWARD_TRACK_ENDED', RewardTrackException::trackEnded('bp_001')->getErrorCode());
+        $this->assertSame('REWARD_TRACK_LINE_NOT_FOUND', RewardTrackException::lineNotFound('l')->getErrorCode());
+        $this->assertSame(
+            'REWARD_TRACK_FREE_LINE_NOT_PURCHASABLE',
+            RewardTrackException::freeLineNotPurchasable('l')->getErrorCode()
+        );
+        $this->assertSame('REWARD_TRACK_LINE_ALREADY_OWNED', RewardTrackException::lineAlreadyOwned('l')->getErrorCode());
+        $this->assertSame('REWARD_TRACK_LINE_NOT_OWNED', RewardTrackException::lineNotOwned('l')->getErrorCode());
+        $this->assertSame('REWARD_TRACK_MILESTONE_NOT_FOUND', RewardTrackException::milestoneNotFound('m')->getErrorCode());
+        $this->assertSame('REWARD_TRACK_PROGRESS_NOT_ENOUGH', RewardTrackException::progressNotEnough(10, 9)->getErrorCode());
+        $this->assertSame('REWARD_TRACK_ALREADY_RECEIVED', RewardTrackException::alreadyReceived('m', 'l')->getErrorCode());
     }
 
     #[Test]
@@ -100,7 +120,7 @@ class RewardTrackServiceTest extends TestCase
         $this->masterRepository->shouldReceive('selectTrackById')
             ->andReturn($this->makeTrack(startAt: '2099-01-01 00:00:00'));
 
-        $this->expectException(RuntimeException::class);
+        $this->expectException(RewardTrackException::class);
         $this->expectExceptionMessage('トラックはまだ開始していません');
 
         $this->service->addProgress(100, 'bp_001', 5, self::CONNECTION);
@@ -112,7 +132,7 @@ class RewardTrackServiceTest extends TestCase
         $this->masterRepository->shouldReceive('selectTrackById')
             ->andReturn($this->makeTrack(endAt: '2020-01-01 00:00:00'));
 
-        $this->expectException(RuntimeException::class);
+        $this->expectException(RewardTrackException::class);
         $this->expectExceptionMessage('トラックは終了しています');
 
         $this->service->addProgress(100, 'bp_001', 5, self::CONNECTION);
@@ -148,7 +168,7 @@ class RewardTrackServiceTest extends TestCase
     {
         $this->masterRepository->shouldReceive('selectTrackById')->andReturn(null);
 
-        $this->expectException(RuntimeException::class);
+        $this->expectException(RewardTrackException::class);
 
         $this->service->setProgress(100, 'bp_001', 30, self::CONNECTION);
     }
@@ -181,7 +201,7 @@ class RewardTrackServiceTest extends TestCase
         $this->masterRepository->shouldReceive('selectActiveTracks')->andReturn([$this->makeTrack()]);
         $this->masterRepository->shouldReceive('selectLinesByTrackId')->andReturn($this->lines());
 
-        $this->expectException(RuntimeException::class);
+        $this->expectException(RewardTrackException::class);
         $this->expectExceptionMessage('無料ラインは購入できません');
 
         $this->service->grantLine(100, 'bp_001_free', 501, self::CONNECTION);
@@ -194,7 +214,7 @@ class RewardTrackServiceTest extends TestCase
         $this->masterRepository->shouldReceive('selectLinesByTrackId')->andReturn($this->lines());
         $this->lineRepository->shouldReceive('hasLine')->andReturn(true);
 
-        $this->expectException(RuntimeException::class);
+        $this->expectException(RewardTrackException::class);
         $this->expectExceptionMessage('既に購入済みのラインです');
 
         $this->service->grantLine(100, 'bp_001_paid', 501, self::CONNECTION);
@@ -206,8 +226,9 @@ class RewardTrackServiceTest extends TestCase
         $this->masterRepository->shouldReceive('selectActiveTracks')->andReturn([$this->makeTrack()]);
         $this->masterRepository->shouldReceive('selectLinesByTrackId')->andReturn($this->lines());
 
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('ラインIDからトラックIDを解決できませんでした');
+        $this->expectException(RewardTrackException::class);
+        // どのトラックにも属さないラインは「見つからない」に寄せている
+        $this->expectExceptionMessage('RewardTrackLine が見つかりません: unknown_line');
 
         $this->service->grantLine(100, 'unknown_line', 501, self::CONNECTION);
     }
@@ -260,7 +281,7 @@ class RewardTrackServiceTest extends TestCase
     {
         $this->masterRepository->shouldReceive('selectTrackById')->andReturn(null);
 
-        $this->expectException(RuntimeException::class);
+        $this->expectException(RewardTrackException::class);
 
         $this->service->getSummary(100, 'bp_001', self::CONNECTION);
     }
@@ -304,7 +325,7 @@ class RewardTrackServiceTest extends TestCase
     {
         $this->stubReceiveMilestone(currentProgress: 9, ownsPaidLine: true, alreadyReceived: false);
 
-        $this->expectException(RuntimeException::class);
+        $this->expectException(RewardTrackException::class);
         $this->expectExceptionMessage('進捗が不足しています。必要: 10, 現在: 9');
 
         $this->service->receiveMilestone(100, 'bp_001_ms_10', 'bp_001_paid', self::CONNECTION);
@@ -315,7 +336,7 @@ class RewardTrackServiceTest extends TestCase
     {
         $this->stubReceiveMilestone(currentProgress: 10, ownsPaidLine: false, alreadyReceived: false);
 
-        $this->expectException(RuntimeException::class);
+        $this->expectException(RewardTrackException::class);
         $this->expectExceptionMessage('このラインは購入していません');
 
         $this->service->receiveMilestone(100, 'bp_001_ms_10', 'bp_001_paid', self::CONNECTION);
@@ -326,7 +347,7 @@ class RewardTrackServiceTest extends TestCase
     {
         $this->stubReceiveMilestone(currentProgress: 10, ownsPaidLine: true, alreadyReceived: true);
 
-        $this->expectException(RuntimeException::class);
+        $this->expectException(RewardTrackException::class);
         $this->expectExceptionMessage('既に受け取り済みです');
 
         $this->service->receiveMilestone(100, 'bp_001_ms_10', 'bp_001_paid', self::CONNECTION);
@@ -338,8 +359,8 @@ class RewardTrackServiceTest extends TestCase
         $this->masterRepository->shouldReceive('selectActiveTracks')->andReturn([$this->makeTrack()]);
         $this->masterRepository->shouldReceive('selectMilestonesByTrackId')->andReturn($this->milestones());
 
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('マイルストーンIDからトラックIDを解決できませんでした');
+        $this->expectException(RewardTrackException::class);
+        $this->expectExceptionMessage('マイルストーンが見つかりません: unknown_ms');
 
         $this->service->receiveMilestone(100, 'unknown_ms', 'bp_001_paid', self::CONNECTION);
     }

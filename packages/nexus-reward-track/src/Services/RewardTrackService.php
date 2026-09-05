@@ -9,10 +9,10 @@ use NexusRewardTrack\Contracts\RewardTrackMasterRepositoryInterface;
 use NexusRewardTrack\DataTransferObjects\RewardTrack;
 use NexusRewardTrack\DataTransferObjects\RewardTrackLine;
 use NexusRewardTrack\DataTransferObjects\RewardTrackMilestone;
+use NexusRewardTrack\Exceptions\RewardTrackException;
 use NexusRewardTrack\Repositories\RewardTrackLineRepositoryInterface;
 use NexusRewardTrack\Repositories\RewardTrackMilestoneRepositoryInterface;
 use NexusRewardTrack\Repositories\RewardTrackRepositoryInterface;
-use RuntimeException;
 
 /**
  * RewardTrackService
@@ -43,13 +43,13 @@ class RewardTrackService
     /**
      * 進捗を加算する
      *
-     * @throws RuntimeException トラックが存在しない・期間外の場合
+     * @throws RewardTrackException トラックが存在しない・期間外の場合
      */
     public function addProgress(int $sysPlayerId, string $trackId, int $delta, string $connectionName): RewardTrack
     {
         $track = $this->masterRepository->selectTrackById($trackId);
         if ($track === null) {
-            throw new RuntimeException("RewardTrack が見つかりません: {$trackId}");
+            throw RewardTrackException::trackNotFound($trackId);
         }
 
         $this->assertTrackActive($track);
@@ -60,13 +60,13 @@ class RewardTrackService
     /**
      * 進捗を直接設定する（player_level タイプ等、外部から値をセットする場合）
      *
-     * @throws RuntimeException トラックが存在しない・期間外の場合
+     * @throws RewardTrackException トラックが存在しない・期間外の場合
      */
     public function setProgress(int $sysPlayerId, string $trackId, int $progress, string $connectionName): RewardTrack
     {
         $track = $this->masterRepository->selectTrackById($trackId);
         if ($track === null) {
-            throw new RuntimeException("RewardTrack が見つかりません: {$trackId}");
+            throw RewardTrackException::trackNotFound($trackId);
         }
 
         $this->assertTrackActive($track);
@@ -81,7 +81,7 @@ class RewardTrackService
     /**
      * 有料ラインをプレイヤーに付与する（課金完了後に呼ぶ）
      *
-     * @throws RuntimeException 既に所持している場合・無料ラインは購入不可
+     * @throws RewardTrackException 既に所持している場合・無料ラインは購入不可
      */
     public function grantLine(int $sysPlayerId, string $lineId, int $mstInAppPurchaseId, string $connectionName): RewardTrackLine
     {
@@ -90,15 +90,15 @@ class RewardTrackService
         $line = collect($lines)->firstWhere('id', $lineId);
 
         if ($line === null) {
-            throw new RuntimeException("RewardTrackLine が見つかりません: {$lineId}");
+            throw RewardTrackException::lineNotFound($lineId);
         }
 
         if ($line['is_free']) {
-            throw new RuntimeException("無料ラインは購入できません: {$lineId}");
+            throw RewardTrackException::freeLineNotPurchasable($lineId);
         }
 
         if ($this->lineRepository->hasLine($sysPlayerId, $lineId, $connectionName)) {
-            throw new RuntimeException("既に購入済みのラインです: {$lineId}");
+            throw RewardTrackException::lineAlreadyOwned($lineId);
         }
 
         return $this->lineRepository->insertLine(
@@ -137,7 +137,7 @@ class RewardTrackService
     {
         $track = $this->masterRepository->selectTrackById($trackId);
         if ($track === null) {
-            throw new RuntimeException("RewardTrack が見つかりません: {$trackId}");
+            throw RewardTrackException::trackNotFound($trackId);
         }
 
         $lines = $this->masterRepository->selectLinesByTrackId($trackId);
@@ -189,7 +189,7 @@ class RewardTrackService
     /**
      * マイルストーン×ラインの報酬を受け取る
      *
-     * @throws RuntimeException 受け取り条件を満たさない場合
+     * @throws RewardTrackException 受け取り条件を満たさない場合
      */
     public function receiveMilestone(
         int $sysPlayerId,
@@ -202,7 +202,7 @@ class RewardTrackService
 
         $track = $this->masterRepository->selectTrackById($trackId);
         if ($track === null) {
-            throw new RuntimeException("RewardTrack が見つかりません: {$trackId}");
+            throw RewardTrackException::trackNotFound($trackId);
         }
 
         // トラックが期間内か確認
@@ -217,13 +217,14 @@ class RewardTrackService
         $milestone = collect($milestones)->firstWhere('id', $milestoneId);
 
         if ($milestone === null) {
-            throw new RuntimeException("マイルストーンが見つかりません: {$milestoneId}");
+            throw RewardTrackException::milestoneNotFound($milestoneId);
         }
 
         // 進捗チェック（解放済みか）
         if ($currentProgress < $milestone['required_progress']) {
-            throw new RuntimeException(
-                "進捗が不足しています。必要: {$milestone['required_progress']}, 現在: {$currentProgress}"
+            throw RewardTrackException::progressNotEnough(
+                (int) $milestone['required_progress'],
+                $currentProgress,
             );
         }
 
@@ -231,19 +232,19 @@ class RewardTrackService
         $lines = $this->masterRepository->selectLinesByTrackId($trackId);
         $lineData = collect($lines)->firstWhere('id', $lineId);
         if ($lineData === null) {
-            throw new RuntimeException("ラインが見つかりません: {$lineId}");
+            throw RewardTrackException::lineNotFound($lineId);
         }
 
         $freeLineId = $this->masterRepository->selectFreeLineId($trackId);
         $isFree = ($lineId === $freeLineId);
 
         if (! $isFree && ! $this->lineRepository->hasLine($sysPlayerId, $lineId, $connectionName)) {
-            throw new RuntimeException("このラインは購入していません: {$lineId}");
+            throw RewardTrackException::lineNotOwned($lineId);
         }
 
         // 二重受け取りチェック
         if ($this->milestoneRepository->hasReceived($sysPlayerId, $milestoneId, $lineId, $connectionName)) {
-            throw new RuntimeException("既に受け取り済みです: {$milestoneId} / {$lineId}");
+            throw RewardTrackException::alreadyReceived($milestoneId, $lineId);
         }
 
         // 報酬コンテンツを取得
@@ -295,11 +296,11 @@ class RewardTrackService
         $now = ClockUtility::nowToString();
 
         if (! ClockUtility::greaterThanOrEqual($track['start_at'])) {
-            throw new RuntimeException("トラックはまだ開始していません: {$track['id']}");
+            throw RewardTrackException::trackNotStarted((string) $track['id']);
         }
 
         if ($track['end_at'] !== null && ! ClockUtility::lessThanOrEqual($track['end_at'])) {
-            throw new RuntimeException("トラックは終了しています: {$track['id']}");
+            throw RewardTrackException::trackEnded((string) $track['id']);
         }
     }
 
@@ -317,7 +318,7 @@ class RewardTrackService
                 }
             }
         }
-        throw new RuntimeException("ラインIDからトラックIDを解決できませんでした: {$lineId}");
+        throw RewardTrackException::lineNotFound($lineId);
     }
 
     /**
@@ -334,6 +335,6 @@ class RewardTrackService
                 }
             }
         }
-        throw new RuntimeException("マイルストーンIDからトラックIDを解決できませんでした: {$milestoneId}");
+        throw RewardTrackException::milestoneNotFound($milestoneId);
     }
 }

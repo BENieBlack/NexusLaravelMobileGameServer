@@ -1607,51 +1607,87 @@ public function toArray(): array
 
 ## マスターデータ配信システム
 
-このプロジェクトでは、ゲームのマスターデータ（キャラクター定義、アイテム定義等）をクライアントに効率的に配信するため、JSON + 差分更新 + ハイブリッドアプローチを採用しています。
+このプロジェクトでは、ゲームのマスターデータ（キャラクター定義、アイテム定義等）をクライアントに効率的に配信するため、**SQLiteファイル配信**方式を採用しています。
 
 ### アーキテクチャ方針
 
-**配信形式: JSON + 差分更新 + ハイブリッドアプローチ**
+**配信形式: SQLiteファイル一括配信**
 
 ```
-Server                     Client
-┌────────────────┐        ┌────────────────┐
-│ MySQL (Master) │        │                │
-└────────────────┘        │                │
-        ↓                 │                │
-┌────────────────┐        │                │
-│ JSON Export    │──────→ │ JSON Download  │
-│ (gzip + AES)   │        │ (差分のみ)      │
-└────────────────┘        └────────────────┘
-                                  ↓
-                          ┌────────────────┐
-                          │ Local SQLite   │
-                          │ (高速クエリ)    │
-                          └────────────────┘
+運営ツール (tol)                API サーバー           クライアント
+┌─────────────────────┐        ┌──────────────┐        ┌────────────────┐
+│ Google Spreadsheet  │        │              │        │                │
+│   ↓ インポート      │        │ POST         │        │ POST           │
+│ mstデータベース     │        │ /auth/version│←───────│ /auth/version  │
+│   ↓ エクスポート    │        │              │        │ (deploy_key)   │
+│ SQLiteファイル生成  │        │ needs_update │───────→│                │
+│ SHA-256ハッシュ付与 │        │ + hash       │        │ needs_update?  │
+│   ↓ 登録           │        └──────────────┘        │   ↓ YES        │
+│ sys_deploy_master   │                                 │ GET /masterdata│
+│ sys_deploy          │───────────────────────────────→│ /{hash}.sqlite │
+└─────────────────────┘                                 └────────────────┘
+   tool/public/masterdata/
+   master_{hash}.sqlite
 ```
 
 #### 設計理由
 
-1. **JSON配信**
-   - 軽量でクライアント側の実装が容易
-   - 柔軟なデータ構造（スキーマ変更に強い）
-   - 暗号化（AES）が容易
-   - gzip圧縮で通信量削減
+1. **SQLite一括配信**
+   - クライアント側でそのままSQLクエリが使える
+   - スキーマ変更に強い（差分管理不要）
+   - ファイル単体でバージョン管理できる
 
-2. **差分更新**
-   - 変更されたテーブルのみダウンロード
-   - 通信量とダウンロード時間の削減
-   - ハッシュ値で差分判定
+2. **SHA-256ハッシュによるバージョン管理**
+   - ファイル名にハッシュを含める: `master_{hash}.sqlite`
+   - 同一内容なら同じファイルを再利用（重複生成防止）
+   - クライアントはハッシュ比較で更新要否を判定
 
-3. **ハッシュ管理（SHA-256）**
-   - マスターデータのバージョン管理
-   - データ整合性の検証
-   - キャッシュの有効性判定
+3. **sys_deployとの連携**
+   - `sys_deploy_master.hash` が最新SQLiteのハッシュ
+   - `auth/version` APIがクライアントのハッシュと比較
+   - `needs_update: true` のときDLパスをレスポンスに含める
 
-4. **ローカルSQLite**
-   - クライアント側で高速なSQLクエリ
-   - オフラインプレイ対応
-   - 複雑な検索・フィルタリング
+### マスターデータ生成フロー（運営ツール）
+
+#### 1. スプレッドシートからインポート
+
+```
+tol の「マスターインポート」画面
+    → Google Drive フォルダのスプレッドシートを選択
+    → mstデータベースに TRUNCATE & INSERT
+    → 「SQLiteエクスポート & デプロイ登録」ボタンをクリック
+```
+
+#### 2. SQLiteエクスポート（MasterDataExporter）
+
+```php
+// tool/app/Services/MasterDataExporter.php
+// mst_* テーブルを全件取得 → SQLiteに変換
+// SHA-256ハッシュを計算 → master_{hash}.sqlite として配置
+
+// 出力先: tool/public/masterdata/master_{hash}.sqlite
+// DLパス: GET /masterdata/master_{hash}.sqlite
+```
+
+- mst_* テーブル全件を SQLite に変換（PDO使用）
+- MySQLの型をSQLiteの INTEGER / REAL / TEXT に変換
+- 複合主キー（`__l10n` テーブル等）にも対応
+- 同一ハッシュのファイルが既存の場合は再利用（冪等性）
+
+#### 3. sys_deploy登録（MasterDeployService）
+
+```php
+// tool/app/Services/MasterDeployService.php
+// sys_deploy_master に hash / deploy_key を登録
+// sys_deploy の is_active を切り替え（旧: false → 新: true）
+
+// deploy_key の形式: YYYYMMDD * 100 + 当日連番
+// 例: 2026090501（2026年9月5日1回目）
+```
+
+- 同一ハッシュの重複登録は防止（`is_new: false` で返す）
+- `sys_deploy_master` → `sys_deploy_asset`（ダミー）→ `sys_deploy` の順でINSERT
+- 登録後、旧 `sys_deploy` の `is_active` を全て `false` にしてから新レコードを `true`
 
 ### デプロイ管理テーブル
 
@@ -1662,324 +1698,94 @@ Server                     Client
 ```sql
 CREATE TABLE sys_deploy (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    deploy_key INT UNSIGNED UNIQUE NOT NULL COMMENT '人間が管理しやすいキー',
+    deploy_key INT UNSIGNED UNIQUE NOT NULL COMMENT '人間が管理しやすいキー（YYYYMMDD連番）',
     start_at DATETIME NOT NULL COMMENT 'ダウンロード可能日時',
-    sys_deploy_master_id BIGINT UNSIGNED COMMENT 'マスターデータのデプロイID',
-    sys_deploy_asset_id BIGINT UNSIGNED COMMENT 'アセットデータのデプロイID',
-    is_active BOOLEAN DEFAULT FALSE COMMENT 'アクティブフラグ',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (sys_deploy_master_id) REFERENCES sys_deploy_master(id),
-    FOREIGN KEY (sys_deploy_asset_id) REFERENCES sys_deploy_asset(id)
+    sys_deploy_master_id BIGINT UNSIGNED NOT NULL COMMENT 'マスターデータのデプロイID',
+    sys_deploy_asset_id BIGINT UNSIGNED NOT NULL COMMENT 'アセットデータのデプロイID',
+    is_active BOOLEAN DEFAULT TRUE COMMENT 'アクティブフラグ（最新1件のみtrue）',
+    created_at DATETIME,
+    updated_at DATETIME
 );
 ```
 
 **役割:**
-- マスターデータとアセットデータの配信を統括管理
-- `deploy_key`: 人間が識別しやすい連番キー（例: 100, 101, 102...）
-- `start_at`: 配信開始日時（段階的リリースに対応）
-- `is_active`: 現在アクティブなデプロイを示す
+- `is_active = true` のレコードが現在クライアントに配信中のバージョン
+- `deploy_key`: YYYYMMDD * 100 + 当日連番（例: 2026090501）
+- `start_at`: 配信開始日時
 
-#### sys_deploy_master（マスターデータ）
+#### sys_deploy_master（マスターデータバージョン）
 
 ```sql
 CREATE TABLE sys_deploy_master (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    deploy_key INT UNSIGNED UNIQUE NOT NULL COMMENT '人間が管理しやすいキー',
-    hash VARCHAR(64) NOT NULL COMMENT 'SHA-256ハッシュ',
-    deploy_date DATE NOT NULL COMMENT 'デプロイ日',
-    status ENUM('pending', 'active', 'archived') DEFAULT 'pending',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    deploy_key INT UNSIGNED UNIQUE NOT NULL,
+    hash VARCHAR(64) NOT NULL COMMENT 'SQLiteファイルのSHA-256ハッシュ',
+    deploy_date DATE NOT NULL,
+    deploy_count TINYINT UNSIGNED NOT NULL COMMENT 'その日の何回目のデプロイか',
+    status ENUM('scheduled','in_progress','completed','failed','rolled_back'),
+    deployed_by VARCHAR(191) COMMENT 'デプロイ実行者（master_import固定）',
+    deployed_at DATETIME,
+    description TEXT,
+    created_at DATETIME,
+    updated_at DATETIME
 );
 ```
 
 **役割:**
-- マスターデータのバージョン管理
-- `hash`: 全マスターデータのSHA-256ハッシュ（差分判定用）
-- `status`: デプロイのステータス管理
+- `hash`: SQLiteファイル（`master_{hash}.sqlite`）のSHA-256
+- この `hash` が `auth/version` レスポンスの `master.hash` として返る
 
-#### sys_deploy_asset（アセットデータ）
+### バージョンチェックフロー
 
-```sql
-CREATE TABLE sys_deploy_asset (
-    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    deploy_key INT UNSIGNED UNIQUE NOT NULL COMMENT '人間が管理しやすいキー',
-    hash VARCHAR(64) NOT NULL COMMENT 'SHA-256ハッシュ',
-    s3_bucket VARCHAR(255) NOT NULL COMMENT 'S3バケット名',
-    s3_path VARCHAR(255) NOT NULL COMMENT 'S3パス',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-```
-
-**役割:**
-- アセットデータのバージョン管理
-- `s3_bucket`, `s3_path`: S3上のアセット配置場所
-- `hash`: アセットデータのSHA-256ハッシュ
-
-### ハッシュの用途
-
-#### 1. データ整合性検証
-
-```php
-// クライアント側での検証
-$downloadedData = downloadMasterData();
-$calculatedHash = hash('sha256', $downloadedData);
-
-if ($calculatedHash !== $expectedHash) {
-    throw new DataIntegrityException('Hash mismatch');
-}
-```
-
-#### 2. キャッシュ管理
-
-```php
-// サーバー側でハッシュを返す
-$response = [
-    'master' => [
-        'deploy_master_id' => 10,
-        'hash' => '430fe9e35ab4660c35127cb6d7425aaf9c2b4d3d1868a5845d1a96d9409a1736',
-    ],
-];
-
-// クライアント側でキャッシュ判定
-if ($localHash === $response['master']['hash']) {
-    // キャッシュ有効 → ダウンロード不要
-    return;
-}
-```
-
-#### 3. 差分判定の高速化
-
-```php
-// テーブルごとのハッシュ管理
-$tableHashes = [
-    'mst_item' => 'abc123...',
-    'mst_equipment' => 'def456...',
-    'mst_quest' => 'ghi789...',
-];
-
-// 変更されたテーブルのみダウンロード
-foreach ($tableHashes as $table => $hash) {
-    if ($localHashes[$table] !== $hash) {
-        downloadTable($table);
-    }
-}
-```
-
-### 配信フロー
-
-#### 1. バージョンチェック
+#### 1. クライアントのバージョンチェック
 
 ```
-Client                          Server
-  |                               |
-  | POST /auth/version            |
-  |------------------------------>|
-  | { current_deploy_key: 100 }   |
-  |                               |
-  |      VersionResponse          |
-  |<------------------------------|
-  | {                             |
-  |   needs_update: true,         |
-  |   latest_deploy_key: 101,     |
-  |   master: {                   |
-  |     hash: "abc123..."         |
-  |   }                           |
-  | }                             |
-  |                               |
-```
+POST /auth/version
+{ "deploy_version": <現在保持しているsys_deploy.id> }
 
-#### 2. 差分ダウンロード
+↓
 
-```
-Client                          Server
-  |                               |
-  | GET /master/download          |
-  |------------------------------>|
-  | { deploy_key: 101 }           |
-  |                               |
-  |      JSON (gzip + AES)        |
-  |<------------------------------|
-  | {                             |
-  |   tables: {                   |
-  |     "mst_item": [...],        |
-  |     "mst_equipment": [...]    |
-  |   }                           |
-  | }                             |
-  |                               |
-```
-
-#### 3. ローカルSQLiteへ適用
-
-```
-Client
-  |
-  | 1. JSON復号化・展開
-  |
-  | 2. ハッシュ検証
-  |
-  | 3. SQLiteトランザクション開始
-  |
-  | 4. 各テーブルにデータをINSERT/UPDATE
-  |
-  | 5. トランザクションコミット
-  |
-  | 6. ローカルハッシュ更新
-  |
-```
-
-### 実装例
-
-#### サーバー側（Version API）
-
-```php
-// api/app/Domain/Auth/Services/VersionCheckService.php
-class VersionCheckService
+VersionResponse:
 {
-    public function checkVersion(int $clientDeployKey): array
-    {
-        // アクティブなデプロイを取得
-        $activeDeploy = SysDeployRepository::getActiveDeploy();
-        
-        // バージョン比較
-        $needsUpdate = $clientDeployKey < $activeDeploy->deploy_key;
-        
-        return [
-            'needs_update' => $needsUpdate,
-            'latest_deploy_key' => $activeDeploy->deploy_key,
-            'master' => [
-                'deploy_master_id' => $activeDeploy->sys_deploy_master_id,
-                'hash' => $activeDeploy->master->hash,
-            ],
-            'asset' => [
-                'deploy_asset_id' => $activeDeploy->sys_deploy_asset_id,
-                'hash' => $activeDeploy->asset->hash,
-            ],
-        ];
-    }
+  "needs_update": true,          // ハッシュが異なる場合
+  "sys_deploy_id": 5,
+  "latest_deploy_key": 2026090501,
+  "master": {
+    "sys_deploy_master_id": 4,
+    "hash": "4c693973c4a84d..."   // SQLiteファイルのハッシュ
+  }
 }
 ```
 
-#### クライアント側（ダウンロード処理）
+#### 2. クライアントのSQLiteダウンロード
 
-```kotlin
-// Kotlin (Android例)
-class MasterDataDownloader {
-    suspend fun downloadIfNeeded() {
-        // 1. バージョンチェック
-        val versionResponse = apiClient.checkVersion(localDeployKey)
-        
-        if (!versionResponse.needsUpdate) {
-            return // 更新不要
-        }
-        
-        // 2. マスターデータダウンロード
-        val masterData = apiClient.downloadMasterData(
-            deployKey = versionResponse.latestDeployKey
-        )
-        
-        // 3. ハッシュ検証
-        val calculatedHash = calculateHash(masterData)
-        if (calculatedHash != versionResponse.master.hash) {
-            throw DataIntegrityException("Hash mismatch")
-        }
-        
-        // 4. ローカルSQLiteに保存
-        database.transaction {
-            masterData.tables.forEach { (tableName, records) ->
-                insertOrUpdateTable(tableName, records)
-            }
-        }
-        
-        // 5. ローカルバージョン更新
-        preferences.saveDeployKey(versionResponse.latestDeployKey)
-        preferences.saveHash(versionResponse.master.hash)
-    }
-}
+```
+// needs_update: true の場合
+GET /masterdata/master_4c693973c4a84d...sqlite
+→ SQLiteファイルをDL
+→ ローカルDBを更新
+→ 以降のマスタ参照はローカルSQLiteから
 ```
 
-### ベストプラクティス
+### ファイル配置
 
-#### 1. 段階的リリース
-
-```php
-// 段階的にリリース（start_atを未来に設定）
-$deploy = new SysDeploy([
-    'deploy_key' => 101,
-    'start_at' => now()->addHours(2), // 2時間後に配信開始
-    'is_active' => false,
-]);
-
-// 時間になったらアクティブ化
-// (cronやキューで定期実行)
-if (now()->gte($deploy->start_at)) {
-    $deploy->is_active = true;
-    $deploy->save();
-}
+```
+tool/public/masterdata/
+├── .gitkeep                              ← ディレクトリ管理用（Gitに含む）
+└── master_{hash}.sqlite                  ← 生成ファイル（.gitignoreで除外）
 ```
 
-#### 2. ロールバック対応
-
-```php
-// 問題発生時、以前のデプロイに戻す
-$previousDeploy = SysDeploy::where('deploy_key', 100)->first();
-$previousDeploy->is_active = true;
-$previousDeploy->save();
-
-$currentDeploy = SysDeploy::where('deploy_key', 101)->first();
-$currentDeploy->is_active = false;
-$currentDeploy->save();
-```
-
-#### 3. テーブルごとのハッシュ管理
-
-```php
-// より細かい差分管理のため、テーブルごとにハッシュを保存
-class SysDeployMasterTable extends Model
-{
-    protected $fillable = [
-        'sys_deploy_master_id',
-        'table_name',
-        'hash',
-        'record_count',
-    ];
-}
-
-// 変更されたテーブルのみダウンロード
-$tablesToUpdate = SysDeployMasterTable::where('sys_deploy_master_id', $deployMasterId)
-    ->get()
-    ->filter(fn($table) => $table->hash !== $localHashes[$table->table_name]);
-```
+- DL URL: `GET /masterdata/master_{hash}.sqlite`
+- `.gitignore` で `*.sqlite` は除外（本番はS3等に移行予定）
 
 ### チェックリスト
 
-#### デプロイ準備時
+マスターデータをリリースする際は以下を実行：
 
-- [ ] マスターデータのエクスポート処理を実行
-- [ ] SHA-256ハッシュを計算・保存
-- [ ] JSONファイルをgzip + AES暗号化
-- [ ] S3にアップロード（アセットデータの場合）
-- [ ] sys_deploy_masterレコードを作成
-- [ ] sys_deployレコードを作成（start_atを設定）
-- [ ] ステージング環境でテスト
-
-#### クライアント実装時
-
-- [ ] バージョンチェックAPIを実装
-- [ ] ハッシュ検証機能を実装
-- [ ] ダウンロードリトライ機能を実装
-- [ ] ローカルSQLiteへの保存処理を実装
-- [ ] ダウンロード進行状況の表示
-- [ ] ネットワークエラーハンドリング
-- [ ] データ破損時のフォールバック処理
-
-#### 運用時
-
-- [ ] デプロイ履歴の監視
-- [ ] ダウンロード成功率の監視
-- [ ] ハッシュ不一致エラーの監視
-- [ ] ロールバック手順の確認
-- [ ] 段階的リリース計画の策定
+- [ ] 運営ツールでスプレッドシートからインポート実行
+- [ ] インポート結果が全て ✅ であることを確認
+- [ ] 「SQLiteエクスポート & デプロイ登録」ボタンをクリック
+- [ ] `deploy_key` が発行されたことを確認
+- [ ] `/masterdata/master_{hash}.sqlite` へのアクセスでDLできることを確認
+- [ ] `POST /auth/version` で `needs_update: true` が返ることを確認
 

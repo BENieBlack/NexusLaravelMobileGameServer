@@ -33,6 +33,7 @@ use NexusWallet\Exceptions\WalletErrorCode;
  * - 19000-19999: ガチャ関連エラー (Gacha)
  * - 20000-20999: メールボックス関連エラー (Mailbox)
  * - 21000-21999: チャット関連エラー (Chat)
+ * - 22000-22999: リワードトラック関連エラー (RewardTrack)
  * - 99000-99999: アプリケーション汎用エラー
  *
  * インフラ層エラーコード（3桁以下）はInfraErrorCodeで定義：
@@ -256,6 +257,29 @@ class GameErrorCode
     const CHAT_ALREADY_MEMBER = 21012;
 
     const CHAT_CANNOT_KICK_OWNER = 21013;
+
+    // ========================================
+    // リワードトラック関連エラー (22000-22999)
+    // ========================================
+    const REWARD_TRACK_NOT_FOUND = 22001;
+
+    const REWARD_TRACK_NOT_STARTED = 22002;
+
+    const REWARD_TRACK_ENDED = 22003;
+
+    const REWARD_TRACK_LINE_NOT_FOUND = 22004;
+
+    const REWARD_TRACK_FREE_LINE_NOT_PURCHASABLE = 22005;
+
+    const REWARD_TRACK_LINE_ALREADY_OWNED = 22006;
+
+    const REWARD_TRACK_LINE_NOT_OWNED = 22007;
+
+    const REWARD_TRACK_MILESTONE_NOT_FOUND = 22008;
+
+    const REWARD_TRACK_PROGRESS_NOT_ENOUGH = 22009;
+
+    const REWARD_TRACK_ALREADY_RECEIVED = 22010;
 
     // ========================================
     // アプリケーション汎用エラー (99000-99999)

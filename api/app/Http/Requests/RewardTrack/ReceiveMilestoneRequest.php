@@ -6,21 +6,24 @@ use App\Http\Requests\_BaseRequest;
 
 class ReceiveMilestoneRequest extends _BaseRequest
 {
+    /**
+     * @return array<string, mixed>
+     */
     public function rules(): array
     {
         return [
-            'milestone_id' => ['required', 'string', 'max:64'],
-            'line_id'      => ['required', 'string', 'max:64'],
+            'mst_reward_track_milestone_id' => ['required', 'string', 'max:64'],
+            'mst_reward_track_line_id' => ['required', 'string', 'max:64'],
         ];
     }
 
-    public function getMilestoneId(): string
+    public function getMstRewardTrackMilestoneId(): string
     {
-        return $this->input('milestone_id');
+        return $this->input('mst_reward_track_milestone_id');
     }
 
-    public function getLineId(): string
+    public function getMstRewardTrackLineId(): string
     {
-        return $this->input('line_id');
+        return $this->input('mst_reward_track_line_id');
     }
 }

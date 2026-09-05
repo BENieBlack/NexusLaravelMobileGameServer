@@ -18,7 +18,7 @@ class ReceiveMilestoneUseCase
     public function handle(string $milestoneId, string $lineId): RewardTrackMilestone
     {
         $sysPlayerId = ApiSession::getSysPlayerId();
-        $connectionName = ApiSession::getShardConnectionName();
+        $connectionName = ApiSession::resolveConnectionName();
 
         return $this->executeWithTransaction(
             function () use ($sysPlayerId, $milestoneId, $lineId, $connectionName) {

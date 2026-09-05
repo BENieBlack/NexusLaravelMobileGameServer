@@ -6,15 +6,18 @@ use App\Http\Requests\_BaseRequest;
 
 class GetSummaryRequest extends _BaseRequest
 {
+    /**
+     * @return array<string, mixed>
+     */
     public function rules(): array
     {
         return [
-            'track_id' => ['required', 'string', 'max:64'],
+            'mst_reward_track_id' => ['required', 'string', 'max:64'],
         ];
     }
 
-    public function getTrackId(): string
+    public function getMstRewardTrackId(): string
     {
-        return $this->input('track_id');
+        return $this->input('mst_reward_track_id');
     }
 }

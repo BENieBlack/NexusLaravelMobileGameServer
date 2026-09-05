@@ -39,6 +39,9 @@ class PurchaseLimitTest extends TestCase
 
         ApiSession::clearForTest();
         $this->useSessionPlayer($this->sysPlayerId);
+        // 日次・週次・月次の判定はゲーム内日付の境界に依存する。
+        // .env の DAY_START_TIME に左右されないよう明示する
+        ClockUtility::setDayStartTime('00:00:00');
         ClockUtility::setNow('2026-03-15 12:00:00');
 
         $this->cleanUp();

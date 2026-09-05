@@ -50,13 +50,13 @@ class TrxRewardTrackLineRepository implements RewardTrackLineRepositoryInterface
         $now = ClockUtility::nowToString();
 
         $id = DB::connection($connectionName)->table('trx_reward_track_line')->insertGetId([
-            'sys_player_id'            => $sysPlayerId,
+            'sys_player_id' => $sysPlayerId,
             'mst_reward_track_line_id' => $mstRewardTrackLineId,
-            'mst_in_app_purchase_id'   => $mstInAppPurchaseId,
-            'purchased_at'             => $purchasedAt,
-            'is_delete'                => false,
-            'created_at'               => $now,
-            'updated_at'               => $now,
+            'mst_in_app_purchase_id' => $mstInAppPurchaseId,
+            'purchased_at' => $purchasedAt,
+            'is_delete' => false,
+            'created_at' => $now,
+            'updated_at' => $now,
         ]);
 
         $row = DB::connection($connectionName)
@@ -67,17 +67,20 @@ class TrxRewardTrackLineRepository implements RewardTrackLineRepositoryInterface
         return $this->toDto((array) $row);
     }
 
+    /**
+     * @param  array<string, mixed>  $row
+     */
     private function toDto(array $row): RewardTrackLine
     {
         return new RewardTrackLine(
-            id:                   (int) $row['id'],
-            sysPlayerId:          (int) $row['sys_player_id'],
+            id: (int) $row['id'],
+            sysPlayerId: (int) $row['sys_player_id'],
             mstRewardTrackLineId: $row['mst_reward_track_line_id'],
-            mstInAppPurchaseId:   (int) $row['mst_in_app_purchase_id'],
-            purchasedAt:          $row['purchased_at'],
-            isDelete:             (bool) $row['is_delete'],
-            createdAt:            $row['created_at'] ?? null,
-            updatedAt:            $row['updated_at'] ?? null,
+            mstInAppPurchaseId: (int) $row['mst_in_app_purchase_id'],
+            purchasedAt: $row['purchased_at'],
+            isDelete: (bool) $row['is_delete'],
+            createdAt: $row['created_at'] ?? null,
+            updatedAt: $row['updated_at'] ?? null,
         );
     }
 }

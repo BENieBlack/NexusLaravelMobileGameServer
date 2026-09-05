@@ -18,10 +18,33 @@ readonly class RewardTrackLine
         public ?string $updatedAt,
     ) {}
 
-    public function getId(): int { return $this->id; }
-    public function getSysPlayerId(): int { return $this->sysPlayerId; }
-    public function getMstRewardTrackLineId(): string { return $this->mstRewardTrackLineId; }
-    public function getMstInAppPurchaseId(): int { return $this->mstInAppPurchaseId; }
-    public function getPurchasedAt(): string { return $this->purchasedAt; }
-    public function isDelete(): bool { return $this->isDelete; }
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function getSysPlayerId(): int
+    {
+        return $this->sysPlayerId;
+    }
+
+    public function getMstRewardTrackLineId(): string
+    {
+        return $this->mstRewardTrackLineId;
+    }
+
+    public function getMstInAppPurchaseId(): int
+    {
+        return $this->mstInAppPurchaseId;
+    }
+
+    public function getPurchasedAt(): string
+    {
+        return $this->purchasedAt;
+    }
+
+    public function isDelete(): bool
+    {
+        return $this->isDelete;
+    }
 }

@@ -2,6 +2,9 @@
 
 namespace NexusRewardTrack\Services;
 
+use Nexus\Core\Utilities\ClockUtility;
+use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
+use NexusResourceDelivery\Services\ResourceDeliveryService;
 use NexusRewardTrack\Contracts\RewardTrackMasterRepositoryInterface;
 use NexusRewardTrack\DataTransferObjects\RewardTrack;
 use NexusRewardTrack\DataTransferObjects\RewardTrackLine;
@@ -9,9 +12,6 @@ use NexusRewardTrack\DataTransferObjects\RewardTrackMilestone;
 use NexusRewardTrack\Repositories\RewardTrackLineRepositoryInterface;
 use NexusRewardTrack\Repositories\RewardTrackMilestoneRepositoryInterface;
 use NexusRewardTrack\Repositories\RewardTrackRepositoryInterface;
-use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
-use NexusResourceDelivery\Services\ResourceDeliveryService;
-use Nexus\Core\Utilities\ClockUtility;
 use RuntimeException;
 
 /**
@@ -29,11 +29,11 @@ use RuntimeException;
 class RewardTrackService
 {
     public function __construct(
-        private readonly RewardTrackMasterRepositoryInterface      $masterRepository,
-        private readonly RewardTrackRepositoryInterface            $progressRepository,
-        private readonly RewardTrackLineRepositoryInterface        $lineRepository,
-        private readonly RewardTrackMilestoneRepositoryInterface   $milestoneRepository,
-        private readonly ResourceDeliveryService                   $deliveryService,
+        private readonly RewardTrackMasterRepositoryInterface $masterRepository,
+        private readonly RewardTrackRepositoryInterface $progressRepository,
+        private readonly RewardTrackLineRepositoryInterface $lineRepository,
+        private readonly RewardTrackMilestoneRepositoryInterface $milestoneRepository,
+        private readonly ResourceDeliveryService $deliveryService,
     ) {}
 
     // ==========================================
@@ -87,7 +87,7 @@ class RewardTrackService
     {
         // ライン定義を取得
         $lines = $this->masterRepository->selectLinesByTrackId($this->resolveTrackIdFromLineId($lineId));
-        $line  = collect($lines)->firstWhere('id', $lineId);
+        $line = collect($lines)->firstWhere('id', $lineId);
 
         if ($line === null) {
             throw new RuntimeException("RewardTrackLine が見つかりません: {$lineId}");
@@ -125,11 +125,11 @@ class RewardTrackService
      * - 各マイルストーンの受け取り可否
      *
      * @return array{
-     *   track: array,
-     *   lines: array,
-     *   milestones: array,
+     *   track: array<string, mixed>,
+     *   lines: array<int, array<string, mixed>>,
+     *   milestones: array<int, array<string, mixed>>,
      *   current_progress: int,
-     *   owned_line_ids: array<string>,
+     *   owned_line_ids: array<int, string>,
      *   received_key_set: array<string, bool>
      * }
      */
@@ -140,11 +140,11 @@ class RewardTrackService
             throw new RuntimeException("RewardTrack が見つかりません: {$trackId}");
         }
 
-        $lines      = $this->masterRepository->selectLinesByTrackId($trackId);
+        $lines = $this->masterRepository->selectLinesByTrackId($trackId);
         $milestones = $this->masterRepository->selectMilestonesByTrackId($trackId);
 
         $milestoneIds = array_column($milestones, 'id');
-        $contents     = $this->masterRepository->selectContentsByMilestoneIds($milestoneIds);
+        $contents = $this->masterRepository->selectContentsByMilestoneIds($milestoneIds);
 
         // コンテンツをマイルストーン×ラインでグループ化
         $contentMap = [];
@@ -155,28 +155,29 @@ class RewardTrackService
         // マイルストーンにコンテンツを付与
         $milestonesWithContents = array_map(function ($milestone) use ($contentMap) {
             $milestone['contents'] = $contentMap[$milestone['id']] ?? [];
+
             return $milestone;
         }, $milestones);
 
         // プレイヤーデータ
         $progress = $this->progressRepository->findByPlayerAndTrack($sysPlayerId, $trackId, $connectionName);
-        $lineIds  = array_column($lines, 'id');
+        $lineIds = array_column($lines, 'id');
 
-        $ownedLineIds   = $this->lineRepository->findOwnedLineIds($sysPlayerId, $lineIds, $connectionName);
+        $ownedLineIds = $this->lineRepository->findOwnedLineIds($sysPlayerId, $lineIds, $connectionName);
         $receivedKeySet = $this->milestoneRepository->findReceivedKeySet($sysPlayerId, $trackId, $connectionName);
 
         // 無料ラインは常に所持
         $freeLineId = $this->masterRepository->selectFreeLineId($trackId);
-        if ($freeLineId !== null && !in_array($freeLineId, $ownedLineIds, true)) {
+        if ($freeLineId !== null && ! in_array($freeLineId, $ownedLineIds, true)) {
             $ownedLineIds[] = $freeLineId;
         }
 
         return [
-            'track'            => $track,
-            'lines'            => $lines,
-            'milestones'       => $milestonesWithContents,
+            'track' => $track,
+            'lines' => $lines,
+            'milestones' => $milestonesWithContents,
             'current_progress' => $progress?->getCurrentProgress() ?? 0,
-            'owned_line_ids'   => $ownedLineIds,
+            'owned_line_ids' => $ownedLineIds,
             'received_key_set' => $receivedKeySet,
         ];
     }
@@ -191,7 +192,7 @@ class RewardTrackService
      * @throws RuntimeException 受け取り条件を満たさない場合
      */
     public function receiveMilestone(
-        int    $sysPlayerId,
+        int $sysPlayerId,
         string $milestoneId,
         string $lineId,
         string $connectionName
@@ -212,8 +213,8 @@ class RewardTrackService
         $currentProgress = $progress?->getCurrentProgress() ?? 0;
 
         // マイルストーンを取得
-        $milestones     = $this->masterRepository->selectMilestonesByTrackId($trackId);
-        $milestone      = collect($milestones)->firstWhere('id', $milestoneId);
+        $milestones = $this->masterRepository->selectMilestonesByTrackId($trackId);
+        $milestone = collect($milestones)->firstWhere('id', $milestoneId);
 
         if ($milestone === null) {
             throw new RuntimeException("マイルストーンが見つかりません: {$milestoneId}");
@@ -227,16 +228,16 @@ class RewardTrackService
         }
 
         // ラインの所持チェック
-        $lines      = $this->masterRepository->selectLinesByTrackId($trackId);
-        $lineData   = collect($lines)->firstWhere('id', $lineId);
+        $lines = $this->masterRepository->selectLinesByTrackId($trackId);
+        $lineData = collect($lines)->firstWhere('id', $lineId);
         if ($lineData === null) {
             throw new RuntimeException("ラインが見つかりません: {$lineId}");
         }
 
         $freeLineId = $this->masterRepository->selectFreeLineId($trackId);
-        $isFree     = ($lineId === $freeLineId);
+        $isFree = ($lineId === $freeLineId);
 
-        if (!$isFree && !$this->lineRepository->hasLine($sysPlayerId, $lineId, $connectionName)) {
+        if (! $isFree && ! $this->lineRepository->hasLine($sysPlayerId, $lineId, $connectionName)) {
             throw new RuntimeException("このラインは購入していません: {$lineId}");
         }
 
@@ -249,19 +250,25 @@ class RewardTrackService
         $contents = $this->masterRepository->selectContentsByMilestoneIds([$milestoneId]);
         $lineContents = array_filter($contents, fn ($c) => $c['mst_reward_track_line_id'] === $lineId);
 
-        if (!empty($lineContents)) {
+        if (! empty($lineContents)) {
             // 報酬を配布
             $deliveryContents = array_map(
                 fn ($c) => ResourceDeliveryContent::fromArray([
-                    'type'             => $c['content_type'],
-                    'mst_id'           => $c['content_mst_id'],
-                    'quantity'         => $c['content_quantity'] * $c['amount'],
-                    'content_option'   => $c['content_option'] ?? [],
+                    // Resource::fromArray が読むキーは type / id / amount。
+                    // マスター側の列名（content_mst_id, content_quantity）のままでは
+                    // id と amount が埋まらず、配布時に TypeError になる
+                    'type' => $c['content_type'],
+                    'id' => $c['content_mst_id'],
+                    'amount' => $c['content_quantity'] * $c['amount'],
+                    'metadata' => empty($c['content_option']) ? null : $c['content_option'],
                 ]),
                 array_values($lineContents)
             );
 
-            $this->deliveryService->deliverMultiple($sysPlayerId, $deliveryContents);
+            // ResourceDeliveryService は「積んでから配る」形。
+            // deliverMultiple というメソッドは存在しない
+            $this->deliveryService->addContents($deliveryContents);
+            $this->deliveryService->deliver($sysPlayerId);
         }
 
         // 受け取り履歴を記録
@@ -280,16 +287,18 @@ class RewardTrackService
 
     /**
      * トラックが現在アクティブか確認する
+     *
+     * @param  array<string, mixed>  $track
      */
     private function assertTrackActive(array $track): void
     {
         $now = ClockUtility::nowToString();
 
-        if (!ClockUtility::greaterThanOrEqual($track['start_at'])) {
+        if (! ClockUtility::greaterThanOrEqual($track['start_at'])) {
             throw new RuntimeException("トラックはまだ開始していません: {$track['id']}");
         }
 
-        if ($track['end_at'] !== null && !ClockUtility::lessThanOrEqual($track['end_at'])) {
+        if ($track['end_at'] !== null && ! ClockUtility::lessThanOrEqual($track['end_at'])) {
             throw new RuntimeException("トラックは終了しています: {$track['id']}");
         }
     }

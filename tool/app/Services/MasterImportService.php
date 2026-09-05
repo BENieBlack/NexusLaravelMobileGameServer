@@ -152,12 +152,12 @@ class MasterImportService
      * mst_gacha_rarity_rate / mst_gacha_prize / mst_gacha_step_bonus 等で使用
      */
     private const RARITY_MAP = [
-        'UR'  => 6,
+        'UR' => 6,
         'SSR' => 5,
-        'SR'  => 4,
-        'R'   => 3,
-        'UC'  => 2,
-        'C'   => 1,
+        'SR' => 4,
+        'R' => 3,
+        'UC' => 2,
+        'C' => 1,
     ];
 
     /**
@@ -194,7 +194,7 @@ class MasterImportService
     {
         try {
             // getColumnListing() はキャッシュ問題があるため SHOW COLUMNS を直接使用
-            $rows    = DB::connection('mst')->select("SHOW COLUMNS FROM `{$tableName}`");
+            $rows = DB::connection('mst')->select("SHOW COLUMNS FROM `{$tableName}`");
             $columns = array_map(fn ($r) => $r->Field, $rows);
         } catch (\Throwable $e) {
             throw new RuntimeException(
@@ -223,6 +223,7 @@ class MasterImportService
     {
         try {
             $rows = DB::connection('mst')->select("SHOW COLUMNS FROM `{$tableName}`");
+
             return array_map(
                 fn ($r) => $r->Field,
                 array_filter($rows, fn ($r) => $r->Null === 'YES')

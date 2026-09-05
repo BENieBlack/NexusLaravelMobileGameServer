@@ -3,7 +3,6 @@
 namespace NexusRewardTrack;
 
 use Illuminate\Support\ServiceProvider;
-use NexusRewardTrack\Services\RewardTrackService;
 
 /**
  * RewardTrackServiceProvider
@@ -20,7 +19,7 @@ class RewardTrackServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $baseDir = __DIR__ . '/../database/migrations';
+        $baseDir = __DIR__.'/../database/migrations';
 
         foreach (['mst', 'trx'] as $type) {
             $path = "{$baseDir}/{$type}";

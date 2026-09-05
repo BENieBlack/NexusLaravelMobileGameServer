@@ -68,15 +68,15 @@ class GoogleSpreadsheetService
     {
         $folderId = $this->getFolderId();
 
-        $response = $this->driveService->files->listFiles([
-            'q' => "'{$folderId}' in parents and mimeType='application/vnd.google-apps.spreadsheet' and trashed=false",
-            'fields' => 'files(id, name, modifiedTime)',
+        $response = $this->withRetry(fn () => $this->driveService->files->listFiles([
+            'q'       => "'{$folderId}' in parents and mimeType='application/vnd.google-apps.spreadsheet' and trashed=false",
+            'fields'  => 'files(id, name, modifiedTime)',
             'orderBy' => 'name',
-        ]);
+        ]));
 
         return array_map(fn (DriveFile $file) => [
-            'id' => $file->getId(),
-            'name' => $file->getName(),
+            'id'          => $file->getId(),
+            'name'        => $file->getName(),
             'modified_at' => $file->getModifiedTime(),
         ], $response->getFiles());
     }
@@ -88,11 +88,11 @@ class GoogleSpreadsheetService
      */
     public function listSheets(string $spreadsheetId): array
     {
-        $spreadsheet = $this->sheetsService->spreadsheets->get($spreadsheetId);
+        $spreadsheet = $this->withRetry(fn () => $this->sheetsService->spreadsheets->get($spreadsheetId));
 
         return array_map(fn ($sheet) => [
             'sheet_id' => $sheet->getProperties()->getSheetId(),
-            'title' => $sheet->getProperties()->getTitle(),
+            'title'    => $sheet->getProperties()->getTitle(),
         ], $spreadsheet->getSheets());
     }
 
@@ -138,10 +138,10 @@ class GoogleSpreadsheetService
     public function getSheetData(string $spreadsheetId, string $sheetTitle): array
     {
         /** @var ValueRange $response */
-        $response = $this->sheetsService->spreadsheets_values->get(
+        $response = $this->withRetry(fn () => $this->sheetsService->spreadsheets_values->get(
             $spreadsheetId,
             $sheetTitle,
-        );
+        ));
 
         // ライブラリの宣言は array だが、空シートでは null が返る
         /** @var array<int, array<int, string>>|null $rawValues */
@@ -466,5 +466,44 @@ class GoogleSpreadsheetService
         }
 
         return $folderId;
+    }
+
+    /**
+     * Google API コールをリトライ付きで実行する
+     *
+     * 503 (Service Unavailable) や 429 (Rate Limit) の場合に
+     * 指数バックオフでリトライする。
+     *
+     * @template T
+     * @param  callable(): T  $call
+     * @param  int            $maxRetries
+     * @return T
+     */
+    private function withRetry(callable $call, int $maxRetries = 3): mixed
+    {
+        $attempt = 0;
+        $lastException = null;
+
+        while ($attempt <= $maxRetries) {
+            try {
+                return $call();
+            } catch (\Google\Service\Exception $e) {
+                $code = $e->getCode();
+                $isRetryable = in_array($code, [429, 500, 503], true);
+
+                if (!$isRetryable || $attempt >= $maxRetries) {
+                    throw $e;
+                }
+
+                // 指数バックオフ: 1秒, 2秒, 4秒
+                $waitSeconds = pow(2, $attempt);
+                sleep((int) $waitSeconds);
+
+                $attempt++;
+                $lastException = $e;
+            }
+        }
+
+        throw $lastException;
     }
 }

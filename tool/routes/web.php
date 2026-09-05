@@ -18,6 +18,8 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/access-status',    [DashboardController::class, 'accessStatus'])->name('dashboard.access-status');
+    Route::get('/dashboard/retention-status', [DashboardController::class, 'retentionStatus'])->name('dashboard.retention-status');
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 

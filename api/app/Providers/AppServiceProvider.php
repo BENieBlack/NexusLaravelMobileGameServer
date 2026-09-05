@@ -34,6 +34,9 @@ use App\Repositories\Sys\GuildApplyRepositoryAdapter;
 use App\Repositories\Sys\GuildMemberRepositoryAdapter;
 use App\Repositories\Sys\GuildRepositoryAdapter;
 use App\Repositories\Sys\PlayerRepositoryAdapter;
+use App\Repositories\Sys\SysChatMessageRepository;
+use App\Repositories\Sys\SysChatRoomMemberRepository;
+use App\Repositories\Sys\SysChatRoomRepository;
 use App\Repositories\Sys\SysMaintenanceRepository;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;
@@ -45,6 +48,7 @@ use App\Repositories\Trx\ItemRepositoryAdapter;
 use App\Repositories\Trx\LoginBonusHistoryRepositoryAdapter;
 use App\Repositories\Trx\MailboxRepositoryAdapter;
 use App\Repositories\Trx\StaminaRepositoryAdapter;
+use App\Repositories\Trx\TrxNotificationRepository;
 use App\Repositories\Trx\TrxRewardTrackLineRepository;
 use App\Repositories\Trx\TrxRewardTrackMilestoneRepository;
 use App\Repositories\Trx\TrxRewardTrackRepository;
@@ -64,6 +68,9 @@ use NexusAuth\Contracts\TokenRepositoryInterface;
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Services\TokenService;
 use NexusAuth\Services\TokenValidator;
+use NexusChat\Contracts\ChatMessageRepositoryInterface;
+use NexusChat\Contracts\ChatRoomMemberRepositoryInterface;
+use NexusChat\Contracts\ChatRoomRepositoryInterface;
 use NexusFriend\Repositories\FriendApplyRepositoryInterface;
 use NexusGacha\Repositories\GachaPrizeRepositoryInterface;
 use NexusGacha\Repositories\GachaProgressRepositoryInterface;
@@ -80,6 +87,7 @@ use NexusLogin\Repositories\LoginBonusHistoryRepositoryInterface;
 use NexusLogin\Repositories\LoginBonusRepositoryInterface;
 use NexusLogin\Services\LoginBonusOrchestrator;
 use NexusMailbox\Repositories\MailboxRepositoryInterface;
+use NexusNotification\Contracts\NotificationRepositoryInterface;
 use NexusResource\Contracts\DiamondRepositoryInterface;
 use NexusResource\Contracts\ItemRepositoryInterface;
 use NexusResourceDelivery\Contracts\EquipmentRepositoryInterface;
@@ -237,6 +245,14 @@ class AppServiceProvider extends ServiceProvider
 
         // Repository interfaces
         $this->app->bind(FriendApplyRepositoryInterface::class, FriendApplyRepositoryAdapter::class);
+
+        // ゲーム内通知
+        $this->app->bind(NotificationRepositoryInterface::class, TrxNotificationRepository::class);
+
+        // チャット（フレンドDM・ギルド・グループ）
+        $this->app->bind(ChatRoomRepositoryInterface::class, SysChatRoomRepository::class);
+        $this->app->bind(ChatMessageRepositoryInterface::class, SysChatMessageRepository::class);
+        $this->app->bind(ChatRoomMemberRepositoryInterface::class, SysChatRoomMemberRepository::class);
 
         // アルバム（収集記録）
         $this->app->bind(AlbumEntryRepositoryInterface::class, AlbumEntryRepositoryAdapter::class);

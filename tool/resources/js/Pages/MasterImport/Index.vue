@@ -209,7 +209,21 @@
 
                 <!-- 実行結果 -->
                 <div v-if="importResults.length > 0" class="bg-white rounded-lg shadow p-6">
-                    <h2 class="text-lg font-semibold text-gray-700 mb-4">実行結果</h2>
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-semibold text-gray-700">実行結果</h2>
+                        <!-- インポート成功後にSQLiteエクスポートボタンを表示 -->
+                        <button
+                            v-if="importSuccessCount > 0"
+                            @click="executeExport"
+                            :disabled="exporting"
+                            class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-semibold"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                            </svg>
+                            {{ exporting ? 'SQLite生成中...' : 'SQLiteエクスポート & デプロイ登録' }}
+                        </button>
+                    </div>
                     <div class="space-y-3">
                         <div
                             v-for="(result, i) in importResults"
@@ -235,15 +249,43 @@
                         </div>
                     </div>
                 </div>
-
             </div>
+
+            <!-- エクスポート結果 -->
+            <div v-if="exportResult" :class="[
+                'rounded-lg p-5 border',
+                exportResult.status === 'success' ? 'bg-blue-50 border-blue-300' : 'bg-red-50 border-red-300'
+            ]">
+                <div class="flex items-start gap-3">
+                    <span class="text-2xl">{{ exportResult.status === 'success' ? '📦' : '❌' }}</span>
+                    <div class="flex-1">
+                        <p class="font-semibold" :class="exportResult.status === 'success' ? 'text-blue-800' : 'text-red-800'">
+                            {{ exportResult.message }}
+                        </p>
+                        <div v-if="exportResult.status === 'success'" class="mt-3 space-y-1 text-sm">
+                            <div class="grid grid-cols-2 gap-x-4 gap-y-1 text-gray-700">
+                                <p><span class="font-medium">ファイル名:</span> {{ exportResult.export.file_name }}</p>
+                                <p><span class="font-medium">ハッシュ:</span> <code class="text-xs bg-gray-100 px-1 rounded">{{ exportResult.export.hash.slice(0, 16) }}...</code></p>
+                                <p><span class="font-medium">ファイルサイズ:</span> {{ (exportResult.export.file_size / 1024).toFixed(1) }} KB</p>
+                                <p><span class="font-medium">テーブル数:</span> {{ exportResult.export.table_count }}</p>
+                                <p><span class="font-medium">deploy_key:</span> {{ exportResult.deploy.deploy_key }}</p>
+                                <p><span class="font-medium">DLパス:</span>
+                                    <a :href="exportResult.export.public_url" target="_blank" class="text-blue-600 underline text-xs">
+                                        {{ exportResult.export.public_url }}
+                                    </a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </DashboardLayout>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import axios from 'axios';
+import { ref, computed, onMounted } from 'vue';import axios from 'axios';
 import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 
 const props = defineProps({
@@ -255,16 +297,23 @@ const props = defineProps({
 });
 
 // ---- ステート ----
-const allSheets      = ref([]);  // { key, spreadsheet_id, spreadsheet_name, sheet_title, is_mst }
-const selectedSheets = ref([]);  // 取り込み対象
+const allSheets      = ref([]);
+const selectedSheets = ref([]);
 const loading        = ref(false);
 const importing      = ref(false);
+const exporting      = ref(false);
 const importResults  = ref([]);
+const exportResult   = ref(null);
 const searchLeft     = ref('');
 const searchRight    = ref('');
 const hoveredLeft    = ref(null);
 const hoveredRight   = ref(null);
 const cachedAt       = ref(props.cached_at ?? null);
+
+// インポート成功件数（エクスポートボタン表示判定用）
+const importSuccessCount = computed(() =>
+    importResults.value.filter(r => r.status === 'success').length
+);
 
 // ---- キャッシュから初期ロード ----
 onMounted(() => {
@@ -386,5 +435,25 @@ const executeImport = async () => {
     }
 
     importing.value = false;
+};
+
+// ---- SQLiteエクスポート & デプロイ登録 ----
+const executeExport = async () => {
+    if (!confirm('mstデータベースのSQLiteファイルを生成し、sys_deployに登録します。よろしいですか？')) return;
+
+    exporting.value  = true;
+    exportResult.value = null;
+
+    try {
+        const res = await axios.post('/master-import/export');
+        exportResult.value = res.data;
+    } catch (e) {
+        exportResult.value = {
+            status:  'error',
+            message: e.response?.data?.message ?? e.message,
+        };
+    } finally {
+        exporting.value = false;
+    }
 };
 </script>

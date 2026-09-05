@@ -38,7 +38,7 @@ class CompositeKeyTest extends TestCase
         // Repositoryにもモデルにも書かず、$primaryKey から解決される
         $this->insertTestData();
 
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
         $repo = new TrxItemRepository;
 
         $method = new \ReflectionMethod($repo, 'getUniqueKeys');
@@ -52,7 +52,7 @@ class CompositeKeyTest extends TestCase
     {
         // trx_gacha の主キーは採番id。二重INSERTを防ぐには
         // uk_player_gacha の (sys_player_id, mst_gacha_id) でキーを組む必要がある
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
         $repo = new TrxGachaRepository;
 
         $method = new \ReflectionMethod($repo, 'getUniqueKeys');
@@ -66,7 +66,7 @@ class CompositeKeyTest extends TestCase
     {
         $this->insertTestData();
 
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
         $repo = new TrxItemRepository;
 
         $items = $repo->queryOrMemory();
@@ -89,7 +89,7 @@ class CompositeKeyTest extends TestCase
     {
         $this->insertTestData();
 
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
         $repo = new TrxItemRepository;
 
         $items = $repo->queryOrMemory();

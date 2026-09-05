@@ -34,7 +34,7 @@ class RepositoryDeleteTest extends TestCase
     #[Test]
     public function set_modelでモデルを更新できる(): void
     {
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
         $repo = new TrxEquipmentRepository;
 
         $equipment = $repo->queryOrMemory()->first();
@@ -64,7 +64,7 @@ class RepositoryDeleteTest extends TestCase
     #[Test]
     public function 論理削除済みの行は読み込まれない(): void
     {
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         DB::connection('trx1')->table('trx_equipment')->insert([
             'sys_player_id' => $this->sysPlayerId,
@@ -88,7 +88,7 @@ class RepositoryDeleteTest extends TestCase
     #[Test]
     public function soft_delete_modelで論理削除できる(): void
     {
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
         $repo = new TrxEquipmentRepository;
 
         $equipments = $repo->queryOrMemory();
@@ -124,7 +124,7 @@ class RepositoryDeleteTest extends TestCase
     #[Test]
     public function hard_delete_modelで物理削除キューに積まれる(): void
     {
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
         $repo = new TrxEquipmentRepository;
 
         $equipments = $repo->queryOrMemory();
@@ -149,7 +149,7 @@ class RepositoryDeleteTest extends TestCase
     #[Test]
     public function hard_delete_modelで_d_bから行が消える(): void
     {
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
         $repo = new TrxEquipmentRepository;
 
         $equipmentToDelete = $repo->queryOrMemory()->last();

@@ -26,7 +26,10 @@ abstract class _BaseTrxRepository extends PersistenceBaseTrxRepository implement
     /**
      * ログイン中プレイヤーの割り当てシャードを返す
      *
-     * 割り当てを引けない場合はnullを返し、基底クラスの既定接続に委ねる
+     * プレイヤーが居ない文脈（コンソール・バッチ等）だけ null を返す。
+     * ログイン中プレイヤーに割り当てが無い場合は例外をそのまま投げる。
+     * 既定接続へ退避すると、書き込みと読み出しが別のDBに向いて
+     * 「行が消えた」ように見えるだけで、原因が分からなくなる。
      */
     protected static function resolveShardConnection(): ?string
     {
@@ -34,11 +37,7 @@ abstract class _BaseTrxRepository extends PersistenceBaseTrxRepository implement
             return null;
         }
 
-        try {
-            return ApiSession::resolveConnectionName('trx');
-        } catch (\RuntimeException) {
-            return null;
-        }
+        return ApiSession::resolveConnectionName('trx');
     }
 
     protected static function hasSysPlayerId(): bool

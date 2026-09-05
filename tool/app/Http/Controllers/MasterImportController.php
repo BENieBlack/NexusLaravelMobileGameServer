@@ -250,7 +250,7 @@ class MasterImportController extends Controller
      *
      * 処理フロー:
      * 1. mst全テーブルをSQLiteファイルに変換
-     * 2. SHA-256ハッシュでファイル名を決定して public/masterdata/ に配置
+     * 2. デプロイ単位のハッシュディレクトリへテーブル別SQLiteを配置
      * 3. sys_deploy_master / sys_deploy_asset / sys_deploy に登録
      */
     public function export(): JsonResponse
@@ -268,11 +268,11 @@ class MasterImportController extends Controller
                     ? "SQLiteを生成し sys_deploy (deploy_key={$deployResult['deploy_key']}) に登録しました。"
                     : "同一ハッシュのデプロイが既に登録されています (deploy_key={$deployResult['deploy_key']})。",
                 'export'  => [
-                    'file_name'  => $exportResult['file_name'],
                     'hash'       => $exportResult['hash'],
                     'file_size'  => $exportResult['file_size'],
-                    'table_count'=> $exportResult['table_count'],
-                    'public_url' => $exportResult['public_url'],
+                    'table_count' => $exportResult['table_count'],
+                    'file_count' => $exportResult['file_count'],
+                    'tables'     => $exportResult['tables'],
                 ],
                 'deploy'  => [
                     'deploy_key'           => $deployResult['deploy_key'],

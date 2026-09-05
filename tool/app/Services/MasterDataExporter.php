@@ -3,13 +3,15 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use RuntimeException;
 
+/**
+ * mstデータを親テーブル単位のSQLiteファイルへ出力する。
+ * __l10nテーブルは親テーブルと同じファイルに含める。
+ */
 class MasterDataExporter
 {
-    /**
-     * SQLiteファイルの出力先ディレクトリ（public/masterdata/）
-     */
     private string $outputDir;
 
     public function __construct()
@@ -18,158 +20,181 @@ class MasterDataExporter
     }
 
     /**
-     * mstデータベースの全テーブルをSQLiteに書き出す
-     *
      * @return array{
-     *   file_path: string,   // フルパス
-     *   file_name: string,   // ファイル名（master_{hash}.sqlite）
-     *   hash: string,        // SHA-256ハッシュ
-     *   file_size: int,      // バイト数
-     *   table_count: int,    // テーブル数
-     *   public_url: string,  // /masterdata/master_{hash}.sqlite
+     *   hash: string,
+     *   file_size: int,
+     *   table_count: int,
+     *   file_count: int,
+     *   tables: array<string, array{hash: string, file_name: string, file_size: int, public_url: string}>
      * }
      */
     public function export(): array
     {
-        // 出力ディレクトリを作成
-        if (!is_dir($this->outputDir)) {
+        if (! is_dir($this->outputDir)) {
             mkdir($this->outputDir, 0755, true);
         }
 
-        // 一時ファイルを作成してSQLiteに書き出す
-        $tmpPath = $this->outputDir . '/tmp_' . uniqid() . '.sqlite';
+        // 全ファイルを一時ディレクトリへ出力し、マニフェストハッシュ確定後に公開する。
+        $stagingDir = $this->outputDir . '/.tmp_' . uniqid('', true);
+        mkdir($stagingDir, 0755, true);
+
+        $tableNames = array_map(
+            static fn ($row) => array_values((array) $row)[0],
+            DB::connection('mst')->select("SHOW TABLES LIKE 'mst_%'")
+        );
+        $tableGroupArray = $this->groupTables($tableNames);
+        $tableResultArray = [];
+
+        try {
+            foreach ($tableGroupArray as $groupName => $groupTableArray) {
+                $tableResultArray[$groupName] = $this->exportGroup($groupName, $groupTableArray, $stagingDir);
+            }
+
+            $manifestHash = hash('sha256', json_encode(
+                array_map(static fn ($result) => $result['hash'], $tableResultArray),
+                JSON_THROW_ON_ERROR
+            ));
+            $deploymentDir = $this->outputDir . '/' . $manifestHash;
+
+            if (is_dir($deploymentDir)) {
+                File::deleteDirectory($stagingDir);
+            } else {
+                if (! rename($stagingDir, $deploymentDir)) {
+                    throw new RuntimeException('SQLite公開ディレクトリの作成に失敗しました');
+                }
+            }
+
+            foreach ($tableResultArray as &$tableResult) {
+                $tableResult['public_url'] = '/masterdata/' . $manifestHash . '/' . $tableResult['file_name'];
+            }
+            unset($tableResult);
+        } catch (\Throwable $exception) {
+            if (is_dir($stagingDir)) {
+                File::deleteDirectory($stagingDir);
+            }
+            throw $exception;
+        }
+
+        return [
+            'hash' => $manifestHash,
+            'file_size' => array_sum(array_column($tableResultArray, 'file_size')),
+            'table_count' => count($tableNames),
+            'file_count' => count($tableResultArray),
+            'tables' => $tableResultArray,
+        ];
+    }
+
+    /** @param array<int, string> $tableNameArray
+     *  @return array<string, array<int, string>>
+     */
+    private function groupTables(array $tableNameArray): array
+    {
+        $groupTableArray = [];
+        foreach ($tableNameArray as $tableName) {
+            $groupName = str_ends_with($tableName, '__l10n')
+                ? substr($tableName, 0, -6)
+                : $tableName;
+            $groupTableArray[$groupName][] = $tableName;
+        }
+
+        return $groupTableArray;
+    }
+
+    /** @param array<int, string> $tableNameArray
+     *  @return array{hash: string, file_name: string, file_size: int, public_url: string}
+     */
+    private function exportGroup(string $groupName, array $tableNameArray, string $outputDir): array
+    {
+        $tmpPath = $outputDir . '/' . $groupName . '.sqlite';
 
         try {
             $sqlite = new \PDO('sqlite:' . $tmpPath);
             $sqlite->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-
-            // mst_で始まる全テーブルを取得
-            $tables = DB::connection('mst')
-                ->select("SHOW TABLES LIKE 'mst_%'");
-
-            $tableNames = array_map(fn($r) => array_values((array)$r)[0], $tables);
-
             $sqlite->beginTransaction();
 
-            foreach ($tableNames as $tableName) {
-                // テーブル構造を取得してSQLiteに作成
+            foreach ($tableNameArray as $tableName) {
                 $columns = DB::connection('mst')->select("SHOW COLUMNS FROM `{$tableName}`");
-                $createSql = $this->buildCreateTableSql($tableName, $columns);
-                $sqlite->exec($createSql);
+                $sqlite->exec($this->buildCreateTableSql($tableName, $columns));
+                $rowCollection = DB::connection('mst')->table($tableName)->get();
 
-                // データを全件取得してINSERT
-                $rows = DB::connection('mst')->table($tableName)->get();
+                if ($rowCollection->isEmpty()) {
+                    continue;
+                }
 
-                if ($rows->isNotEmpty()) {
-                    $columnNames = array_keys((array) $rows->first());
-                    $placeholders = implode(', ', array_fill(0, count($columnNames), '?'));
-                    $cols = implode(', ', array_map(fn($c) => "`{$c}`", $columnNames));
-                    $stmt = $sqlite->prepare("INSERT INTO `{$tableName}` ({$cols}) VALUES ({$placeholders})");
+                $columnArray = array_keys((array) $rowCollection->first());
+                $columnSql = implode(', ', array_map(static fn ($column) => "`{$column}`", $columnArray));
+                $placeholderSql = implode(', ', array_fill(0, count($columnArray), '?'));
+                $statement = $sqlite->prepare("INSERT INTO `{$tableName}` ({$columnSql}) VALUES ({$placeholderSql})");
 
-                    foreach ($rows as $row) {
-                        $values = array_values((array) $row);
-                        $stmt->execute($values);
-                    }
+                foreach ($rowCollection as $row) {
+                    $statement->execute(array_values((array) $row));
                 }
             }
 
             $sqlite->commit();
-            unset($sqlite); // 接続を閉じる
+            unset($sqlite);
 
-            // ファイルのSHA-256ハッシュを計算
             $hash = hash_file('sha256', $tmpPath);
-
-            // 最終ファイル名にハッシュを含める
-            $fileName = "master_{$hash}.sqlite";
-            $finalPath = $this->outputDir . '/' . $fileName;
-
-            // 同じハッシュのファイルが既存ならそのまま使う
-            if (!file_exists($finalPath)) {
-                rename($tmpPath, $finalPath);
-            } else {
-                unlink($tmpPath);
-            }
+            $fileName = "{$groupName}_{$hash}.sqlite";
+            $finalPath = $outputDir . '/' . $fileName;
+            rename($tmpPath, $finalPath);
 
             return [
-                'file_path'   => $finalPath,
-                'file_name'   => $fileName,
-                'hash'        => $hash,
-                'file_size'   => filesize($finalPath),
-                'table_count' => count($tableNames),
-                'public_url'  => '/masterdata/' . $fileName,
+                'hash' => $hash,
+                'file_name' => $fileName,
+                'file_size' => filesize($finalPath),
+                'public_url' => '',
             ];
-
-        } catch (\Throwable $e) {
-            // 一時ファイルをクリーンアップ
+        } catch (\Throwable $exception) {
             if (file_exists($tmpPath)) {
                 unlink($tmpPath);
             }
-            throw new RuntimeException('SQLiteエクスポートに失敗しました: ' . $e->getMessage(), 0, $e);
+            throw new RuntimeException('SQLiteエクスポートに失敗しました: ' . $exception->getMessage(), 0, $exception);
         }
     }
 
-    /**
-     * MySQLのカラム情報からSQLiteのCREATE TABLE文を生成する
-     *
-     * 複合主キー（l10nテーブル等）に対応:
-     * - PRI が複数ある場合は個別のカラム定義に PRIMARY KEY を付けず
-     *   末尾に PRIMARY KEY (col1, col2) を追加する
-     * - PRI が1つ + AUTO_INCREMENT → INTEGER PRIMARY KEY AUTOINCREMENT
-     */
+    /** @param array<int, object> $columns */
     private function buildCreateTableSql(string $tableName, array $columns): string
     {
-        $pkColumns     = [];
-        $autoIncrement = null;
-
-        // まず主キー構成を確認
-        foreach ($columns as $col) {
-            $col = (array) $col;
-            if ($col['Key'] === 'PRI') {
-                $pkColumns[] = $col['Field'];
-                if (str_contains($col['Extra'] ?? '', 'auto_increment')) {
-                    $autoIncrement = $col['Field'];
+        $primaryKeyArray = [];
+        $autoIncrementColumn = null;
+        foreach ($columns as $column) {
+            $column = (array) $column;
+            if ($column['Key'] === 'PRI') {
+                $primaryKeyArray[] = $column['Field'];
+                if (str_contains($column['Extra'] ?? '', 'auto_increment')) {
+                    $autoIncrementColumn = $column['Field'];
                 }
             }
         }
 
-        $isCompositePk = count($pkColumns) > 1;
-        $colDefs       = [];
+        $compositePrimaryKey = count($primaryKeyArray) > 1;
+        $columnDefinitionArray = [];
+        foreach ($columns as $column) {
+            $column = (array) $column;
+            $name = $column['Field'];
+            $type = strtolower($column['Type']);
+            $null = $column['Null'] === 'YES' ? '' : ' NOT NULL';
+            $sqliteType = preg_match('/^(int|bigint|tinyint|smallint|mediumint)/', $type)
+                ? 'INTEGER'
+                : (preg_match('/^(decimal|float|double|numeric)/', $type) ? 'REAL' : 'TEXT');
 
-        foreach ($columns as $col) {
-            $col  = (array) $col;
-            $name = $col['Field'];
-            $type = strtolower($col['Type']);
-            $null = $col['Null'] === 'YES' ? '' : ' NOT NULL';
-
-            // 型変換
-            if (preg_match('/^(int|bigint|tinyint|smallint|mediumint)/', $type)) {
-                $sqliteType = 'INTEGER';
-            } elseif (preg_match('/^(decimal|float|double|numeric)/', $type)) {
-                $sqliteType = 'REAL';
+            if (! $compositePrimaryKey && $column['Key'] === 'PRI' && $autoIncrementColumn === $name) {
+                $columnDefinitionArray[] = "`{$name}` INTEGER PRIMARY KEY AUTOINCREMENT";
+            } elseif (! $compositePrimaryKey && $column['Key'] === 'PRI') {
+                $columnDefinitionArray[] = "`{$name}` {$sqliteType}{$null} PRIMARY KEY";
             } else {
-                $sqliteType = 'TEXT';
-            }
-
-            if (!$isCompositePk && $col['Key'] === 'PRI' && $autoIncrement === $name) {
-                // 単一PK + AUTO_INCREMENT
-                $colDefs[] = "`{$name}` INTEGER PRIMARY KEY AUTOINCREMENT";
-            } elseif (!$isCompositePk && $col['Key'] === 'PRI') {
-                // 単一PK（AUTO_INCREMENTなし）
-                $colDefs[] = "`{$name}` {$sqliteType}{$null} PRIMARY KEY";
-            } else {
-                // 複合PKの場合は個別に PRIMARY KEY を付けない
-                $colDefs[] = "`{$name}` {$sqliteType}{$null}";
+                $columnDefinitionArray[] = "`{$name}` {$sqliteType}{$null}";
             }
         }
 
-        // 複合主キーは末尾に追加
-        if ($isCompositePk) {
-            $pkCols    = implode(', ', array_map(fn($c) => "`{$c}`", $pkColumns));
-            $colDefs[] = "PRIMARY KEY ({$pkCols})";
+        if ($compositePrimaryKey) {
+            $primaryKeySql = implode(', ', array_map(static fn ($column) => "`{$column}`", $primaryKeyArray));
+            $columnDefinitionArray[] = "PRIMARY KEY ({$primaryKeySql})";
         }
 
         return "CREATE TABLE IF NOT EXISTS `{$tableName}` (\n  "
-            . implode(",\n  ", $colDefs)
+            . implode(",\n  ", $columnDefinitionArray)
             . "\n)";
     }
 }

@@ -38,12 +38,12 @@ class TrxRewardTrackRepository implements RewardTrackRepositoryInterface
 
         DB::connection($connectionName)->table('trx_reward_track')->upsert(
             [
-                'sys_player_id'       => $sysPlayerId,
+                'sys_player_id' => $sysPlayerId,
                 'mst_reward_track_id' => $mstRewardTrackId,
-                'current_progress'    => $progress,
-                'is_delete'           => false,
-                'created_at'          => $now,
-                'updated_at'          => $now,
+                'current_progress' => $progress,
+                'is_delete' => false,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             ['sys_player_id', 'mst_reward_track_id'],
             ['current_progress', 'updated_at']
@@ -58,12 +58,12 @@ class TrxRewardTrackRepository implements RewardTrackRepositoryInterface
 
         DB::connection($connectionName)->table('trx_reward_track')->upsert(
             [
-                'sys_player_id'       => $sysPlayerId,
+                'sys_player_id' => $sysPlayerId,
                 'mst_reward_track_id' => $mstRewardTrackId,
-                'current_progress'    => $delta,
-                'is_delete'           => false,
-                'created_at'          => $now,
-                'updated_at'          => $now,
+                'current_progress' => $delta,
+                'is_delete' => false,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             ['sys_player_id', 'mst_reward_track_id'],
             ['current_progress' => DB::raw("current_progress + {$delta}"), 'updated_at' => $now]
@@ -72,16 +72,19 @@ class TrxRewardTrackRepository implements RewardTrackRepositoryInterface
         return $this->findByPlayerAndTrack($sysPlayerId, $mstRewardTrackId, $connectionName);
     }
 
+    /**
+     * @param  array<string, mixed>  $row
+     */
     private function toDto(array $row): RewardTrack
     {
         return new RewardTrack(
-            id:               (int) $row['id'],
-            sysPlayerId:      (int) $row['sys_player_id'],
+            id: (int) $row['id'],
+            sysPlayerId: (int) $row['sys_player_id'],
             mstRewardTrackId: $row['mst_reward_track_id'],
-            currentProgress:  (int) $row['current_progress'],
-            isDelete:         (bool) $row['is_delete'],
-            createdAt:        $row['created_at'] ?? null,
-            updatedAt:        $row['updated_at'] ?? null,
+            currentProgress: (int) $row['current_progress'],
+            isDelete: (bool) $row['is_delete'],
+            createdAt: $row['created_at'] ?? null,
+            updatedAt: $row['updated_at'] ?? null,
         );
     }
 }

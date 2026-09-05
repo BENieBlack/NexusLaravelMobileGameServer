@@ -43,24 +43,24 @@ class MasterImportController extends Controller
      */
     public function index(Request $request): Response
     {
-        $cachedSheets  = null;
-        $cachedAt      = null;
+        $cachedSheets = null;
+        $cachedAt = null;
 
         if (Storage::exists(self::CACHE_FILE)) {
             $raw = Storage::get(self::CACHE_FILE);
             $decoded = json_decode($raw, true);
             if (is_array($decoded)) {
                 $cachedSheets = $decoded['sheets'] ?? null;
-                $cachedAt     = $decoded['cached_at'] ?? null;
+                $cachedAt = $decoded['cached_at'] ?? null;
             }
         }
 
         return Inertia::render('MasterImport/Index', [
-            'auth'           => ['user' => $request->user()],
-            'is_configured'  => $this->spreadsheetService->isConfigured(),
-            'folder_id'      => config('services.google_spreadsheet.folder_id'),
-            'cached_sheets'  => $cachedSheets,
-            'cached_at'      => $cachedAt,
+            'auth' => ['user' => $request->user()],
+            'is_configured' => $this->spreadsheetService->isConfigured(),
+            'folder_id' => config('services.google_spreadsheet.folder_id'),
+            'cached_sheets' => $cachedSheets,
+            'cached_at' => $cachedAt,
         ]);
     }
 
@@ -74,16 +74,16 @@ class MasterImportController extends Controller
     {
         try {
             $spreadsheets = $this->spreadsheetService->listSpreadsheets();
-            $allSheets    = [];
+            $allSheets = [];
 
             foreach ($spreadsheets as $ss) {
                 $sheets = $this->spreadsheetService->listSheets($ss['id']);
                 foreach ($sheets as $sheet) {
                     $allSheets[] = [
-                        'spreadsheet_id'   => $ss['id'],
+                        'spreadsheet_id' => $ss['id'],
                         'spreadsheet_name' => $ss['name'],
-                        'sheet_title'      => $sheet['title'],
-                        'is_mst'           => str_starts_with($sheet['title'], 'mst_'),
+                        'sheet_title' => $sheet['title'],
+                        'is_mst' => str_starts_with($sheet['title'], 'mst_'),
                     ];
                 }
             }
@@ -92,13 +92,13 @@ class MasterImportController extends Controller
 
             // キャッシュファイルに保存
             Storage::put(self::CACHE_FILE, json_encode([
-                'sheets'    => $allSheets,
+                'sheets' => $allSheets,
                 'cached_at' => $cachedAt,
             ], JSON_UNESCAPED_UNICODE));
 
             return response()->json([
-                'status'    => 'success',
-                'sheets'    => $allSheets,
+                'status' => 'success',
+                'sheets' => $allSheets,
                 'cached_at' => $cachedAt,
             ]);
         } catch (Throwable $e) {

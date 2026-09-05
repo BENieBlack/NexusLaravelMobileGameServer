@@ -17,9 +17,28 @@ readonly class RewardTrack
         public ?string $updatedAt,
     ) {}
 
-    public function getId(): int { return $this->id; }
-    public function getSysPlayerId(): int { return $this->sysPlayerId; }
-    public function getMstRewardTrackId(): string { return $this->mstRewardTrackId; }
-    public function getCurrentProgress(): int { return $this->currentProgress; }
-    public function isDelete(): bool { return $this->isDelete; }
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function getSysPlayerId(): int
+    {
+        return $this->sysPlayerId;
+    }
+
+    public function getMstRewardTrackId(): string
+    {
+        return $this->mstRewardTrackId;
+    }
+
+    public function getCurrentProgress(): int
+    {
+        return $this->currentProgress;
+    }
+
+    public function isDelete(): bool
+    {
+        return $this->isDelete;
+    }
 }

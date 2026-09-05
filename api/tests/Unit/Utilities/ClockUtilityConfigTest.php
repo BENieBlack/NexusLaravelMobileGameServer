@@ -49,8 +49,13 @@ class ClockUtilityConfigTest extends TestCase
     #[Test]
     public function パッケージの設定がマージされている(): void
     {
-        // ServiceProviderのmergeConfigFromで既定値が入る
-        $this->assertSame('00:00:00', config('nexus-core.day_start_time'));
+        // ServiceProviderのmergeConfigFromでキーが生える。
+        // 値は env(DAY_START_TIME) 由来なので運用で変わる。
+        // ここで '00:00:00' を決め打ちすると、境界を変えた瞬間に落ちる
+        $dayStartTime = config('nexus-core.day_start_time');
+
+        $this->assertNotNull($dayStartTime, 'mergeConfigFromでキーが入っていない');
+        $this->assertMatchesRegularExpression('/^\d{2}:\d{2}:\d{2}$/', (string) $dayStartTime);
     }
 
     #[Test]

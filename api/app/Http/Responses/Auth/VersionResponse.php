@@ -39,9 +39,18 @@ class VersionResponse extends _BaseResponse
 
             // マスターデータ情報
             if ($this->sysDeploy->deployMaster !== null) {
+                $tableArray = [];
+                foreach ($this->sysDeploy->deployMaster->tables as $table) {
+                    $tableArray[$table->table_name] = [
+                        'hash' => $table->hash,
+                        'url' => $table->public_url,
+                        'file_size' => $table->file_size,
+                    ];
+                }
                 $data['master'] = [
                     'sys_deploy_master_id' => $this->sysDeploy->sys_deploy_master_id,
                     'hash' => $this->sysDeploy->deployMaster->hash,
+                    'tables' => $tableArray,
                 ];
             }
 

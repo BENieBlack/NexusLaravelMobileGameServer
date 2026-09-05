@@ -33,7 +33,7 @@ return new class extends Migration
             $table->string('name', 100)->nullable()->comment('グループ名');
 
             // GUILDチャット用のギルドID
-            $table->unsignedBigInteger('guild_id')->nullable()->comment('ギルドID（guild タイプのみ）');
+            $table->unsignedBigInteger('sys_guild_id')->nullable()->comment('ギルドID（guild タイプのみ）');
 
             // デノーマライズしたメンバー数（group チャットの満員チェックに使用）
             $table->unsignedSmallInteger('member_count')->default(0)->comment('メンバー数');
@@ -42,7 +42,7 @@ return new class extends Migration
             $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
 
             $table->index('type');
-            $table->index('guild_id');
+            $table->index('sys_guild_id');
         });
 
         // ========================================

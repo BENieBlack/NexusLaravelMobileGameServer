@@ -54,7 +54,7 @@ class EquipmentLevelUpTest extends TestCase
     #[Test]
     public function 装備のレベルアップができる(): void
     {
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         $afterLevel = 10;
 
@@ -88,7 +88,7 @@ class EquipmentLevelUpTest extends TestCase
     #[Test]
     public function レベルアップ時にアイテムが消費される(): void
     {
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         $afterLevel = 7;
 
@@ -114,7 +114,7 @@ class EquipmentLevelUpTest extends TestCase
     #[Test]
     public function レベルアップ時にログが記録される(): void
     {
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         $afterLevel = 7;
 

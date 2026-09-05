@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\RewardTrack;
 
+use App\Exceptions\GameErrorCode;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Testing\TestResponse;
 use PHPUnit\Framework\Attributes\Test;
@@ -132,6 +133,18 @@ class RewardTrackEndpointTest extends TestCase
     }
 
     #[Test]
+    public function 存在しないトラックのサマリーは業務エラーで返る(): void
+    {
+        $response = $this->getJson(
+            '/api/reward-track/summary?mst_reward_track_id=not_exist',
+            $this->authHeaders($this->token)
+        );
+
+        $response->assertStatus(299);
+        $this->assertSame(GameErrorCode::REWARD_TRACK_NOT_FOUND, $response->json('error_code'));
+    }
+
+    #[Test]
     public function 認証なしではサマリーを取得できない(): void
     {
         $this->getJson('/api/reward-track/summary?mst_reward_track_id='.self::TRACK_ID)
@@ -175,8 +188,11 @@ class RewardTrackEndpointTest extends TestCase
         $this->makeProgress(10);
         $this->receive(self::MILESTONE_10, self::FREE_LINE_ID)->assertOk();
 
-        $this->receive(self::MILESTONE_10, self::FREE_LINE_ID);
+        $response = $this->receive(self::MILESTONE_10, self::FREE_LINE_ID);
 
+        // 業務エラーなので299。500だとクライアントが障害と区別できない
+        $response->assertStatus(299);
+        $this->assertSame(GameErrorCode::REWARD_TRACK_ALREADY_RECEIVED, $response->json('error_code'));
         $this->assertSame(1, $this->countReceipts(), '履歴は増えない');
         $this->assertSame(100, $this->findWalletAmount('gold'), '報酬も増えない');
     }
@@ -186,8 +202,10 @@ class RewardTrackEndpointTest extends TestCase
     {
         $this->makeProgress(10);
 
-        $this->receive(self::MILESTONE_20, self::FREE_LINE_ID);
+        $response = $this->receive(self::MILESTONE_20, self::FREE_LINE_ID);
 
+        $response->assertStatus(299);
+        $this->assertSame(GameErrorCode::REWARD_TRACK_PROGRESS_NOT_ENOUGH, $response->json('error_code'));
         $this->assertSame(0, $this->countReceipts());
         $this->assertSame(0, $this->findWalletAmount('gold'));
     }
@@ -197,8 +215,10 @@ class RewardTrackEndpointTest extends TestCase
     {
         $this->makeProgress(10);
 
-        $this->receive(self::MILESTONE_10, self::PAID_LINE_ID);
+        $response = $this->receive(self::MILESTONE_10, self::PAID_LINE_ID);
 
+        $response->assertStatus(299);
+        $this->assertSame(GameErrorCode::REWARD_TRACK_LINE_NOT_OWNED, $response->json('error_code'));
         $this->assertSame(0, $this->countReceipts());
         $this->assertSame(0, $this->findWalletAmount('gold'));
     }

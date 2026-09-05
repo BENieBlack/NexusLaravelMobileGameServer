@@ -86,7 +86,7 @@ class PlayerLevelServiceTest extends TestCase
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('Player not found');
 
-        $this->service->findPlayerLevel(999);
+        $this->service->findPlayerLevel($this->nonExistentSysPlayerId());
     }
 
     #[Test]

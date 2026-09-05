@@ -3,8 +3,10 @@
 namespace Tests;
 
 use App\Models\Sys\SysPlayer;
+use App\Persistence\ApiSession;
 use App\Repositories\Mst\_BaseMstRepository;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Nexus\Core\Models\_BaseModel;
 use Nexus\Core\Models\Mst\_BaseMst;
@@ -144,5 +146,53 @@ abstract class TestCase extends BaseTestCase
     protected function authHeaders(string $accessToken): array
     {
         return ['Authorization' => 'Bearer '.$accessToken];
+    }
+
+    /**
+     * セッションのプレイヤーを差し替える（シャード割り当てもあわせて作る）
+     *
+     * trx_* / log_* の接続先は sys_sharding_node_player の割り当てで決まる。
+     * 本番はサインアップがプレイヤー作成の直後に必ず作るため、割り当ての無い
+     * ログイン中プレイヤーは存在しない。IDを決め打ちするテストでは同じ状態を
+     * ここで用意する。
+     *
+     * 既定はノード1（trx1 / log1）。テストが直接 connection('trx1') で
+     * フィクスチャを差すため、そこへ揃える。
+     */
+    protected function useSessionPlayer(int $sysPlayerId, int $nodeNo = 1): void
+    {
+        $this->assignShard($sysPlayerId, $nodeNo);
+
+        // 接続名はApiSessionのインスタンスに載る。プレイヤーを差し替えるだけでは
+        // 前のプレイヤーのシャードを掴んだままになるため、いったん捨ててから入れ直す
+        ApiSession::clearForTest();
+        ApiSession::setSysPlayerId($sysPlayerId);
+    }
+
+    /**
+     * プレイヤーにシャードを割り当てる（既にあれば何もしない）
+     */
+    protected function assignShard(int $sysPlayerId, int $nodeNo = 1): void
+    {
+        $nodeId = DB::connection('sys')->table('sys_sharding_node')
+            ->where('node_no', $nodeNo)
+            ->value('id');
+
+        if ($nodeId === null) {
+            throw new \RuntimeException("Sharding node not found: node_no={$nodeNo}");
+        }
+
+        DB::connection('sys')->table('sys_sharding_node_player')->updateOrInsert(
+            ['sys_player_id' => $sysPlayerId],
+            [
+                'sys_sharding_node_id' => $nodeId,
+                'assigned_at' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        );
+
+        // シャード解決はRedisにも載る。割り当てを差し替えたら捨てて引き直させる
+        Cache::forget("shard:player:{$sysPlayerId}");
     }
 }

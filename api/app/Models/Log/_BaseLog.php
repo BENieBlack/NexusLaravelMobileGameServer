@@ -29,10 +29,6 @@ abstract class _BaseLog extends PersistenceBaseLog implements _BaseLogInterface
             return null;
         }
 
-        try {
-            return ShardMapper::resolveLogConnection(ApiSession::resolveConnectionName('trx'));
-        } catch (\RuntimeException|\InvalidArgumentException) {
-            return null;
-        }
+        return ShardMapper::resolveLogConnection(ApiSession::resolveConnectionName('trx'));
     }
 }

@@ -15,7 +15,6 @@ use App\Models\Trx\TrxDiamond;
 use App\Models\Trx\TrxEquipment;
 use App\Models\Trx\TrxItem;
 use App\Models\Trx\TrxUnit;
-use App\Persistence\ApiSession;
 use Nexus\Core\Utilities\ClockUtility;
 use NexusAuth\Services\TokenService;
 use Tests\RefreshMultipleDatabases;
@@ -87,7 +86,7 @@ class GachaDrawTest extends TestCase
         ]);
 
         // ApiSessionにプレイヤーIDを設定
-        ApiSession::setSysPlayerId($this->testPlayerId);
+        $this->useSessionPlayer($this->testPlayerId);
 
         // 初期ダイヤモンドを付与（ガチャコスト用）
         TrxDiamond::create([

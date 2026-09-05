@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('mst_gacha_id')->comment('ガチャID');
             $table->unsignedInteger('draw_count')->comment('実行回数（1連、10連など）');
             $table->enum('cost_type', ['diamond', 'paid_diamond', 'item'])->comment('使用したコストタイプ');
-            $table->string('cost_id')->nullable()->comment('使用したコストID（itemの場合）');
+            $table->string('cost_mst_id')->nullable()->comment('使用したコストID（itemの場合）');
             $table->unsignedInteger('cost_amount')->comment('使用したコスト量');
             $table->json('prizes')->comment('獲得した景品リスト（JSON配列）');
             $table->boolean('is_delete')->default(false)->comment('論理削除フラグ');
@@ -42,13 +42,12 @@ return new class extends Migration
         // プレイヤーごとのガチャ実行状況を記録
         // - 日次実行回数と最後にリセットした日時
         // - ステップアップガチャの進行状況と最後にリセットした日時
-        // 
+        //
         // リセットロジック:
         // - daily_reset_at < 今日の0時の場合、daily_draw_countを0にリセットしてdaily_reset_atを更新
         // - ガチャ期間が終了した場合、total_draw_countとcurrent_stepをリセットしてtotal_reset_atを更新
         // ========================================
         Schema::create('trx_gacha', function (Blueprint $table) {
-            $table->bigIncrements('id')->comment('ID');
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
             $table->string('mst_gacha_id')->comment('ガチャID');
             $table->unsignedInteger('current_step')->default(1)->comment('現在のステップ番号（ステップアップガチャ用）');
@@ -61,7 +60,9 @@ return new class extends Migration
             $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
 
             $table->index('sys_player_id');
-            $table->unique(['sys_player_id', 'mst_gacha_id'], 'uk_player_gacha');
+
+            // 採番idは持たず、業務上の一意をそのまま主キーにする
+            $table->primary(['sys_player_id', 'mst_gacha_id'], 'pk_gacha');
         });
     }
 
@@ -70,7 +71,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-    Schema::dropIfExists('trx_gacha');
-    Schema::dropIfExists('trx_gacha_history');
+        Schema::dropIfExists('trx_gacha');
+        Schema::dropIfExists('trx_gacha_history');
     }
 };

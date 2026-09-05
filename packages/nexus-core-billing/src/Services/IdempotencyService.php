@@ -2,12 +2,12 @@
 
 namespace NexusBilling\Services;
 
-use NexusBilling\DataTransferObjects\Verification;
 use Illuminate\Support\Facades\Cache;
+use NexusBilling\DataTransferObjects\Verification;
 
 /**
  * 冪等性管理サービス
- * 
+ *
  * 同じリクエストIDでの重複購入を防止するためのサービス
  */
 class IdempotencyService
@@ -25,10 +25,10 @@ class IdempotencyService
 
     /**
      * 重複チェック
-     * 
+     *
      * 指定されたリクエストIDが既に処理済みか確認する
-     * 
-     * @param string $uniqueRequestId 一意なリクエストID
+     *
+     * @param  string  $uniqueRequestId  一意なリクエストID
      * @return bool 重複している場合true
      */
     public function isDuplicate(string $uniqueRequestId): bool
@@ -38,11 +38,11 @@ class IdempotencyService
 
     /**
      * 処理済みとして登録
-     * 
+     *
      * リクエストIDと検証結果をキャッシュに保存する
-     * 
-     * @param string $uniqueRequestId 一意なリクエストID
-     * @param Verification $result 検証結果
+     *
+     * @param  string  $uniqueRequestId  一意なリクエストID
+     * @param  Verification  $result  検証結果
      * @return void
      */
     public function register(string $uniqueRequestId, Verification $result): void
@@ -56,11 +56,12 @@ class IdempotencyService
 
     /**
      * 処理済み結果を取得
-     * 
+     *
      * 既に処理済みのリクエストの結果を取得する
-     * 
-     * @param string $uniqueRequestId 一意なリクエストID
+     *
+     * @param  string  $uniqueRequestId  一意なリクエストID
      * @return array|null 検証結果（存在しない場合null）
+     * @return array<string, mixed>|null
      */
     public function findResult(string $uniqueRequestId): ?array
     {
@@ -69,19 +70,19 @@ class IdempotencyService
 
     /**
      * キャッシュキーを構築
-     * 
-     * @param string $uniqueRequestId
+     *
+     * @param  string  $uniqueRequestId
      * @return string
      */
     private function buildCacheKey(string $uniqueRequestId): string
     {
-        return self::CACHE_KEY_PREFIX . $uniqueRequestId;
+        return self::CACHE_KEY_PREFIX.$uniqueRequestId;
     }
 
     /**
      * キャッシュをクリア（テスト用）
-     * 
-     * @param string $uniqueRequestId
+     *
+     * @param  string  $uniqueRequestId
      * @return void
      */
     public function forget(string $uniqueRequestId): void

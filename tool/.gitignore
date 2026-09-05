@@ -22,3 +22,6 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+/storage/app/credentials/
+/public/masterdata/*.sqlite
+/public/masterdata/**/*.sqlite

@@ -12,9 +12,9 @@ namespace App\Models\Trx;
  * @property string $mst_gacha_id
  * @property int $draw_count
  * @property string $cost_type
- * @property string|null $cost_id
+ * @property string|null $cost_mst_id
  * @property int $cost_amount
- * @property array $prizes
+ * @property array<int, array<string, mixed>> $prizes
  * @property bool $is_delete
  */
 class TrxGachaHistory extends _BaseTrx
@@ -25,19 +25,22 @@ class TrxGachaHistory extends _BaseTrx
 
     protected $keyType = 'int';
 
-    protected string $selectKey = 'sys_player_id';
+    /** @var list<string> */
+    protected array $selectKeys = ['sys_player_id'];
 
+    /** @var list<string> */
     protected $fillable = [
         'sys_player_id',
         'mst_gacha_id',
         'draw_count',
         'cost_type',
-        'cost_id',
+        'cost_mst_id',
         'cost_amount',
         'prizes',
         'is_delete',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'id' => 'integer',
         'sys_player_id' => 'integer',

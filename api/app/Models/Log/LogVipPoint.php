@@ -2,8 +2,6 @@
 
 namespace App\Models\Log;
 
-use Illuminate\Database\Eloquent\Model;
-
 /**
  * LogVipPoint Model
  *
@@ -21,17 +19,16 @@ use Illuminate\Database\Eloquent\Model;
  * @property float|null $purchase_amount
  * @property string|null $currency_code
  * @property string|null $mst_in_app_purchase_id
- * @property \DateTimeImmutable $system_at
- * @property \DateTimeImmutable $created_at
+ * @property string $system_at
+ * @property string $created_at
  */
-class LogVipPoint extends Model
+class LogVipPoint extends _BaseLog
 {
-    protected $connection = 'log1';
-
     protected $table = 'log_vip_point';
 
     public $timestamps = false;
 
+    /** @var list<string> */
     protected $fillable = [
         'unique_request_id',
         'sys_player_id',
@@ -48,6 +45,7 @@ class LogVipPoint extends Model
         'created_at',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'id' => 'integer',
         'sys_player_id' => 'integer',
@@ -150,8 +148,8 @@ class LogVipPoint extends Model
     /**
      * システム日時を取得
      */
-    public function getSystemAt(): \DateTimeImmutable
+    public function getSystemAt(): string
     {
-        return $this->system_at;
+        return (string) $this->system_at;
     }
 }

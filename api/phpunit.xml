@@ -27,6 +27,30 @@
     <source>
         <include>
             <directory>app</directory>
+            <directory>../packages/nexus-album/src</directory>
+            <directory>../packages/nexus-chat/src</directory>
+            <directory>../packages/nexus-core/src</directory>
+            <directory>../packages/nexus-core-auth/src</directory>
+            <directory>../packages/nexus-core-billing/src</directory>
+            <directory>../packages/nexus-core-security/src</directory>
+            <directory>../packages/nexus-core-unit-of-work/src</directory>
+            <directory>../packages/nexus-friend/src</directory>
+            <directory>../packages/nexus-gacha/src</directory>
+            <directory>../packages/nexus-guild/src</directory>
+            <directory>../packages/nexus-level/src</directory>
+            <directory>../packages/nexus-login/src</directory>
+            <directory>../packages/nexus-mailbox/src</directory>
+            <directory>../packages/nexus-maintenance/src</directory>
+            <directory>../packages/nexus-notification/src</directory>
+            <directory>../packages/nexus-pitr/src</directory>
+            <directory>../packages/nexus-resource/src</directory>
+            <directory>../packages/nexus-reward-track/src</directory>
+            <directory>../packages/nexus-resource-delivery/src</directory>
+            <directory>../packages/nexus-stamina/src</directory>
+            <directory>../packages/nexus-tidb/src</directory>
+            <directory>../packages/nexus-version/src</directory>
+            <directory>../packages/nexus-vip/src</directory>
+            <directory>../packages/nexus-wallet/src</directory>
         </include>
     </source>
     <php>
@@ -37,6 +61,10 @@
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="BROADCAST_CONNECTION" value="null"/>
         <env name="CACHE_STORE" value="array"/>
+        <!-- 日跨ぎの境界。開発者の .env に左右されると、境界に依存する
+             テストの結果がローカルとCIで変わる。ここで固定し、
+             別の境界での挙動はテスト側で setDayStartTime() して確かめる -->
+        <env name="DAY_START_TIME" value="00:00:00"/>
         <env name="DB_CONNECTION" value="mst"/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
@@ -48,7 +76,14 @@
         <env name="REDIS_PORT" value="6379"/>
 
         <!-- Sharding Configuration for Testing -->
-        <env name="DB_TRX_SHARDS" value="3"/>
+        <!-- テストは2シャード前提。
+             force を付けないと、開発用の .env（DB_SHARD_COUNT=3）や
+             CIのjob envが実環境変数として優先され、環境ごとに前提が変わってしまう。
+             <env> は $_ENV / putenv にしか効かず、Laravel の env() は $_SERVER を
+             先に見るため、<server> も併せて指定しないと値がずれる。
+             trx3 / log3 の接続情報は残してあるので、増やしたい場合はここを変える -->
+        <env name="DB_SHARD_COUNT" value="2" force="true"/>
+        <server name="DB_SHARD_COUNT" value="2" force="true"/>
 
         <!-- System DB Testing -->
         <env name="DB_SYSTEM_HOST" value="db-sys"/>
@@ -65,9 +100,9 @@
         <env name="DB_MASTER_PASSWORD" value="root"/>
 
         <!-- Log DB Testing (generic) -->
-        <env name="DB_LOG_HOST" value="db-log1"/>
+        <env name="DB_LOG_HOST" value="db-log"/>
         <env name="DB_LOG_PORT" value="3306"/>
-        <env name="DB_LOG_DATABASE" value="nexus-testing-log1"/>
+        <env name="DB_LOG_DATABASE" value="nexus-testing-log"/>
         <env name="DB_LOG_USERNAME" value="root"/>
         <env name="DB_LOG_PASSWORD" value="root"/>
 

@@ -3,71 +3,68 @@
 namespace App\Repositories\Sys;
 
 use App\Models\Sys\SysPlayerDevice;
+use Nexus\Core\Repositories\PlayerDeviceRepositoryInterface;
 use Nexus\Core\Support\CustomCollection;
-use NexusAuth\Contracts\DeviceRepositoryInterface;
 
 /**
  * SysPlayerDeviceRepository
  *
  * プレイヤーデバイス情報のRepository実装
  *
- * 常にEloquent Modelを返す。DTOが必要な箇所は
- * PlayerDeviceRepositoryAdapterを経由すること。
+ * デバイスはトークン発行やレスポンス組み立てまでModelのまま持ち回るため、
+ * DTOには詰め替えずPlayerDeviceRepositoryInterfaceをそのまま実装する。
  *
  * @extends _BaseSysRepository<SysPlayerDevice>
  */
-class SysPlayerDeviceRepository extends _BaseSysRepository implements DeviceRepositoryInterface
+class SysPlayerDeviceRepository extends _BaseSysRepository implements PlayerDeviceRepositoryInterface
 {
     protected string $modelClass = SysPlayerDevice::class;
 
     /**
-     * デバイスUUID（device_id）からデバイス情報を検索
-     * メモリキャッシュから検索、なければDBから取得
+     * デバイスUUID（device_id）からデバイス情報を検索（キャッシュを通さない）
+     *
+     * サインイン・サインアップの入口で呼ばれる。この時点では
+     * まだログイン中プレイヤーが確定していないため、自分スコープを使えない。
+     * 更新が要る場合は呼び出し側が setModel() すること。
      */
     public function selectByDeviceId(string $deviceId): ?SysPlayerDevice
     {
-        // メモリキャッシュから検索
-        $sysPlayerDevice = $this->findCachedModels()->firstWhere('uuid', $deviceId);
+        // サインアップで登録した直後の端末は、まだDBに無い可能性がある。
+        // キューに積んだ自分の行だけは先に見る
+        $queued = $this->findCachedModels()->firstWhere('uuid', $deviceId);
 
-        if ($sysPlayerDevice !== null) {
+        if ($queued !== null) {
             /** @var SysPlayerDevice */
-            return $sysPlayerDevice;
+            return $queued;
         }
 
-        // DBから取得してメモリキャッシュに保存
-        $sysPlayerDevice = $this->modelClass::where('uuid', $deviceId)->first();
-
-        if ($sysPlayerDevice !== null) {
-            $this->setModel($sysPlayerDevice);
-        }
-
-        return $sysPlayerDevice;
+        /** @var SysPlayerDevice|null */
+        return $this->selectWithoutCache()->where('uuid', $deviceId)->first();
     }
 
     /**
      * プレイヤーIDからデバイス一覧を取得
-     * メモリキャッシュから検索、なければDBから取得
      *
      * @param  int  $sysPlayerId  sys_player.id（プレイヤーID）
      * @return CustomCollection<int, SysPlayerDevice>
      */
     public function selectListByPlayerId(int $sysPlayerId): CustomCollection
     {
-        // メモリキャッシュから検索
-        $sysPlayerDeviceCollection = $this->findCachedModels()->where('sys_player_id', $sysPlayerId);
+        if ($this->isSessionPlayer($sysPlayerId)) {
+            /** @var CustomCollection<int, SysPlayerDevice> $devices */
+            $devices = $this->queryOrMemory()
+                ->filter(fn (SysPlayerDevice $device) => $device->getSysPlayerId() === $sysPlayerId)
+                ->values();
 
-        if ($sysPlayerDeviceCollection->isNotEmpty()) {
-            return $sysPlayerDeviceCollection->values();
+            return $devices;
         }
 
-        // DBから取得してメモリキャッシュに保存
-        $sysPlayerDeviceCollection = $this->modelClass::where('sys_player_id', $sysPlayerId)->get();
+        /** @var CustomCollection<int, SysPlayerDevice> $devices */
+        $devices = new CustomCollection(
+            $this->selectWithoutCache()->where('sys_player_id', $sysPlayerId)->get()->all()
+        );
 
-        foreach ($sysPlayerDeviceCollection as $sysPlayerDevice) {
-            $this->setModel($sysPlayerDevice);
-        }
-
-        return new CustomCollection($sysPlayerDeviceCollection->all());
+        return $devices;
     }
 
     /**

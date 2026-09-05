@@ -131,12 +131,26 @@ private array $sendCompleteContents = [
 | ハンドラー | 対応タイプ | 処理内容 |
 |-----------|-----------|---------|
 | `DiamondDeliveryHandler` | DIAMOND, PAID_DIAMOND | DiamondServiceでダイヤ付与 |
-| `CurrencyDeliveryHandler` | GOLD, COIN | WalletServiceで通貨付与 |
-| `BasicResourceDeliveryHandler` | FOOD, WOOD, STONE, IRON, STAMINA, EXPERIENCE | WalletServiceでリソース付与 |
-| `ItemDeliveryHandler` | ITEM, CONSUMABLE, MATERIAL, TICKET, GACHA_TICKET | ItemServiceでアイテム付与 |
-| `UnitDeliveryHandler` | UNIT | TrxUnitRepositoryでユニット作成 |
-| `EquipmentDeliveryHandler` | EQUIPMENT, WEAPON, ARMOR, ACCESSORY | TrxEquipmentRepositoryで装備作成 |
-| `PointsDeliveryHandler` | ALLIANCE_POINTS, PVP_POINTS等 | WalletServiceでポイント付与 |
+| `CurrencyDeliveryHandler` | GOLD, COIN | WalletServiceで通貨付与（有償/無償と期限を反映） |
+| `NaturalResourceDeliveryHandler` | FOOD, WOOD, STONE, IRON | WalletServiceで付与（常に無償・無期限） |
+| `PointsDeliveryHandler` | ALLIANCE_POINTS, PVP_POINTS等 | WalletServiceで付与（常に無償・期限は反映） |
+| `StaminaDeliveryHandler` | STAMINA | `StaminaGranterInterface` へ委譲 |
+| `ExperienceDeliveryHandler` | EXPERIENCE | `ExperienceGranterInterface` へ委譲 |
+| `ItemDeliveryHandler` | ITEM, CONSUMABLE, MATERIAL, TICKET, GACHA_TICKET | `ItemGranterInterface` へ委譲 |
+| `UnitDeliveryHandler` | UNIT | `UnitRepositoryInterface` へ委譲 |
+| `EquipmentDeliveryHandler` | EQUIPMENT, WEAPON, ARMOR, ACCESSORY | `EquipmentRepositoryInterface` へ委譲 |
+
+**`Contracts/` のインターフェースについて:**
+
+付与先の決定にマスターやアプリ固有の設定が要るものは、パッケージ層で
+直接サービスを呼ばず `Contracts/` のインターフェースへ委譲し、
+実装をApplication層に置く。
+
+`ItemDeliveryHandler` がその代表で、アイテムを `trx_item` で持つか
+Wallet の残高として持つかは `mst_item.is_wallet` で決まる。
+パッケージ層のItemServiceを直接呼ぶとこの判定を通らず、
+残高として持つべきアイテムが `trx_item` へ入り、
+所持数はWallet側を見るためプレイヤーから受け取れていないように見える。
 
 **Strategy Pattern:**
 - 各ハンドラーは`ResourceDeliveryHandlerInterface`を実装
@@ -244,8 +258,8 @@ public function grantPrizes(int $sysPlayerId, array $prizes): void
     $resources = [];
     foreach ($prizes as $prize) {
         $resources[] = match($prize['content_type']) {
-            'unit' => Resource::unit($prize['content_id'], 1),
-            'equipment' => Resource::equipment($prize['content_id'], 1),
+            'unit' => Resource::unit($prize['content_mst_id'], 1),
+            'equipment' => Resource::equipment($prize['content_mst_id'], 1),
             'diamond' => Resource::diamond($prize['amount']),
             default => null,
         };
@@ -283,11 +297,13 @@ api/app/Domain/
     │   ├── ResourceDeliveryHandlerInterface.php
     │   ├── DiamondDeliveryHandler.php
     │   ├── CurrencyDeliveryHandler.php
-    │   ├── BasicResourceDeliveryHandler.php
+    │   ├── NaturalResourceDeliveryHandler.php
+    │   ├── PointsDeliveryHandler.php
+    │   ├── StaminaDeliveryHandler.php
+    │   ├── ExperienceDeliveryHandler.php
     │   ├── ItemDeliveryHandler.php
     │   ├── UnitDeliveryHandler.php
-    │   ├── EquipmentDeliveryHandler.php
-    │   └── PointsDeliveryHandler.php
+    │   └── EquipmentDeliveryHandler.php
     ├── Managers/
     │   ├── ResourceDeliveryManager.php          # 状態管理（リクエストスコープ）
     │   └── ResourceDeliveryManagerInterface.php
@@ -324,6 +340,10 @@ api/app/Domain/
 1. **リソース変換機能の実装**
    - 重複ユニット/装備の自動変換
    - ボックスアイテムの展開
+   - 変換の器（`ResourceDeliveryContent::convertTo()` と
+     `ResourceDeliveryResultReason`）は用意済みだが、呼び出し側が無い
+   - **変換ルールはタイトル固有のゲーム仕様のため、Domain層（`api/app/Domain`）で
+     判定して `convertTo()` を呼ぶ。パッケージ側にルールを埋め込まない**
 
 2. **メールボックス連携の完全実装**
    - リソース上限超過時の自動メールボックス送信
@@ -333,6 +353,9 @@ api/app/Domain/
 
 4. **配送プレビュー機能の拡張**
    - チュートリアルガチャの引き直し機能対応
+   - 上記1とセットで実装する。変換前のコンテンツをそのまま返す
+     `getConvertedContentsWithoutSend()` が「変換後」を名乗っていたため削除した
+     （2026-08-20）。プレビューは変換の実装と同時に入れる
 
 ## 変更履歴
 

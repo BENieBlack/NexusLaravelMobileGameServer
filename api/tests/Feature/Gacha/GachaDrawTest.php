@@ -15,7 +15,6 @@ use App\Models\Trx\TrxDiamond;
 use App\Models\Trx\TrxEquipment;
 use App\Models\Trx\TrxItem;
 use App\Models\Trx\TrxUnit;
-use App\Persistence\ApiSession;
 use Nexus\Core\Utilities\ClockUtility;
 use NexusAuth\Services\TokenService;
 use Tests\RefreshMultipleDatabases;
@@ -87,7 +86,7 @@ class GachaDrawTest extends TestCase
         ]);
 
         // ApiSessionにプレイヤーIDを設定
-        ApiSession::setSysPlayerId($this->testPlayerId);
+        $this->useSessionPlayer($this->testPlayerId);
 
         // 初期ダイヤモンドを付与（ガチャコスト用）
         TrxDiamond::create([
@@ -122,7 +121,7 @@ class GachaDrawTest extends TestCase
             'mst_gacha_id' => $this->testGachaId,
             'draw_count' => 1,
             'cost_type' => 'diamond',
-            'cost_id' => 'diamond',
+            'cost_mst_id' => 'diamond',
             'cost_amount' => 100,
         ]);
 
@@ -133,7 +132,7 @@ class GachaDrawTest extends TestCase
             'mst_gacha_id' => $this->testGachaId,
             'draw_count' => 10,
             'cost_type' => 'diamond',
-            'cost_id' => 'diamond',
+            'cost_mst_id' => 'diamond',
             'cost_amount' => 900,
         ]);
 
@@ -184,7 +183,7 @@ class GachaDrawTest extends TestCase
             'mst_gacha_id' => $this->testGachaId,
             'rarity' => 3,
             'content_type' => 'item',
-            'content_id' => 'test_item_gold',
+            'content_mst_id' => 'test_item_gold',
             'amount' => 100,
             'weight' => 100,
             'is_active' => true,
@@ -197,7 +196,7 @@ class GachaDrawTest extends TestCase
             'mst_gacha_id' => $this->testGachaId,
             'rarity' => 4,
             'content_type' => 'item',
-            'content_id' => 'test_item_diamond',
+            'content_mst_id' => 'test_item_diamond',
             'amount' => 50,
             'weight' => 100,
             'is_active' => true,
@@ -210,7 +209,7 @@ class GachaDrawTest extends TestCase
             'mst_gacha_id' => $this->testGachaId,
             'rarity' => 3,
             'content_type' => 'unit',
-            'content_id' => 'test_unit_soldier',
+            'content_mst_id' => 'test_unit_soldier',
             'amount' => 1,
             'weight' => 100,
             'is_active' => true,
@@ -223,7 +222,7 @@ class GachaDrawTest extends TestCase
             'mst_gacha_id' => $this->testGachaId,
             'rarity' => 4,
             'content_type' => 'unit',
-            'content_id' => 'test_unit_hero',
+            'content_mst_id' => 'test_unit_hero',
             'amount' => 1,
             'weight' => 100,
             'is_active' => true,
@@ -236,7 +235,7 @@ class GachaDrawTest extends TestCase
             'mst_gacha_id' => $this->testGachaId,
             'rarity' => 3,
             'content_type' => 'equipment',
-            'content_id' => 'test_equipment_dagger',
+            'content_mst_id' => 'test_equipment_dagger',
             'amount' => 1,
             'weight' => 100,
             'is_active' => true,
@@ -249,7 +248,7 @@ class GachaDrawTest extends TestCase
             'mst_gacha_id' => $this->testGachaId,
             'rarity' => 4,
             'content_type' => 'equipment',
-            'content_id' => 'test_equipment_sword',
+            'content_mst_id' => 'test_equipment_sword',
             'amount' => 1,
             'weight' => 100,
             'is_active' => true,

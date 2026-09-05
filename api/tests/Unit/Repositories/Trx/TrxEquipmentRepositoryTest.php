@@ -21,7 +21,7 @@ class TrxEquipmentRepositoryTest extends TestCase
 
         // ApiSessionを初期化（テスト用のプレイヤーID=1を設定）
         ClockUtility::initialize();
-        ApiSession::setSysPlayerId(1);
+        $this->useSessionPlayer(1);
 
         $this->repository = new TrxEquipmentRepository;
     }
@@ -195,7 +195,7 @@ class TrxEquipmentRepositoryTest extends TestCase
     public function test_create_equipment_uses_api_session_for_player_id(): void
     {
         // Arrange
-        ApiSession::setSysPlayerId(42);
+        $this->useSessionPlayer(42);
         $repository = new TrxEquipmentRepository;
 
         // Act
@@ -288,9 +288,11 @@ class TrxEquipmentRepositoryTest extends TestCase
     }
 
     /**
-     * Test createEquipment sets timestamps
+     * タイムスタンプはDB側のDEFAULT CURRENT_TIMESTAMPで採番される
+     *
+     * キューに積んだ時点では未設定で、フラッシュ後にモデルへ読み戻される。
      */
-    public function test_create_equipment_sets_timestamps(): void
+    public function test_create_equipment_sets_timestamps_on_flush(): void
     {
         // Act
         $trxEquipment = $this->repository->insertEquipment(
@@ -298,13 +300,18 @@ class TrxEquipmentRepositoryTest extends TestCase
             level: 2
         );
 
-        // Assert
-        $this->assertNotNull($trxEquipment->created_at);
-        $this->assertNotNull($trxEquipment->updated_at);
-        $this->assertEquals(
-            $trxEquipment->created_at->format('Y-m-d H:i:s'),
-            $trxEquipment->updated_at->format('Y-m-d H:i:s')
-        );
+        // Assert: フラッシュ前はアプリ側で設定していない
+        $this->assertNull($trxEquipment->getAttribute('created_at'));
+
+        $this->flushQueue();
+
+        // Assert: フラッシュ後はDBが採番した値が入る
+        $this->assertNotNull($trxEquipment->getAttribute('created_at'));
+        $this->assertNotNull($trxEquipment->getAttribute('updated_at'));
+
+        $this->assertDatabaseHas('trx_equipment', [
+            'id' => $trxEquipment->id,
+        ], 'trx1');
     }
 
     /**

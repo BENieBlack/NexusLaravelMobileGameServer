@@ -1,13 +1,15 @@
 includes:
     - vendor/larastan/larastan/extension.neon
-    # 既存の指摘はbaselineに退避し、新規に混入した分だけを検出する
-    # baselineを減らす作業は別途進める
-    - phpstan-baseline.neon
 
 parameters:
     level: 6
+    # 解析対象のPHPバージョンを固定する。
+    # 実行環境のPHPに追従させると、CIとローカルで結果が変わる。
+    phpVersion: 80400
     paths:
         - app
+        - ../packages/nexus-album/src
+        - ../packages/nexus-chat/src
         - ../packages/nexus-core/src
         - ../packages/nexus-core-auth/src
         - ../packages/nexus-core-billing/src
@@ -20,11 +22,13 @@ parameters:
         - ../packages/nexus-login/src
         - ../packages/nexus-mailbox/src
         - ../packages/nexus-maintenance/src
+        - ../packages/nexus-notification/src
         - ../packages/nexus-pitr/src
-        - ../packages/nexus-player/src
         - ../packages/nexus-resource/src
+        - ../packages/nexus-reward-track/src
         - ../packages/nexus-resource-delivery/src
         - ../packages/nexus-stamina/src
+        - ../packages/nexus-tidb/src
         - ../packages/nexus-version/src
         - ../packages/nexus-vip/src
         - ../packages/nexus-wallet/src
@@ -33,21 +37,34 @@ parameters:
         - app/Console/*
     scanDirectories:
         - phpstan
+
     
     # カスタムルールの有効化
     bootstrapFiles:
         - phpstan/bootstrap.php
 
     ignoreErrors:
-        # 外部ストレージ/課金SDKはオプション依存であり、
-        # 該当ドライバを使う環境でのみ composer で追加する。
-        # クラスが見つからないのは想定どおりなので個別に無視する。
+        # 複合主キーのモデルは $primaryKey に配列を入れ、getKeyName() も配列を返す
+        # （App\Traits\CompositePrimaryKeyTrait）。
+        # Laravel本体が string 前提のため必ず出るが、意図した実装なので無視する。
+        # larastanが Model をスタブ済みでスタブの上書きができないため、ここで指定する。
         -
-            identifier: class.notFound
+            identifier: property.defaultValue
+            message: '#^Property .+\:\:\$primaryKey \(string\) does not accept default value of type array\<int, string\>\.$#'
+        -
+            identifier: property.phpDocType
+            message: '#^PHPDoc type array\<string\> of property .+\:\:\$primaryKey is not covariant with PHPDoc type string of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$primaryKey\.$#'
+        -
+            identifier: method.childReturnType
+            message: '#^Return type \(array\<int, string\>\) of method .+\:\:getKeyName\(\) should be compatible with return type \(string\) of method Illuminate\\Database\\Eloquent\\Model\:\:getKeyName\(\)$#'
+
+        # パッケージが同梱するLaravel設定ファイル。config/配下ではないため
+        # larastanのenv()チェックに引っかかるが、役割としては設定ファイルそのもので、
+        # ServiceProviderからmergeConfigFrom()で読み込まれる。
+        -
+            identifier: larastan.noEnvCallsOutsideOfConfig
             paths:
-                - ../packages/nexus-maintenance/src/Infrastructure/DynamoDB/*
-                - ../packages/nexus-maintenance/src/Infrastructure/TableStore/*
-                - ../packages/nexus-core-billing/src/ApiClients/GooglePlayApiClient.php
+                - ../packages/*/src/Config/*.php
 
 rules:
     - App\PHPStan\Rules\NoDirectEloquentSaveInServiceRule

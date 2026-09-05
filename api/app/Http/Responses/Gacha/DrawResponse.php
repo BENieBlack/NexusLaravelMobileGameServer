@@ -2,24 +2,22 @@
 
 namespace App\Http\Responses\Gacha;
 
-use Illuminate\Contracts\Support\Responsable;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use App\Http\Responses\_BaseResponse;
 
 /**
  * DrawResponse
  *
  * ガチャ実行APIのレスポンス
  */
-class DrawResponse implements Responsable
+class DrawResponse extends _BaseResponse
 {
     /**
-     * @param  array  $prizes  獲得した景品リスト
+     * @param  array<int, array<string, mixed>>  $prizes  獲得した景品リスト
      * @param  int  $currentStep  現在のステップ番号
      * @param  int  $dailyDrawCount  本日の実行回数
      * @param  int  $totalDrawCount  累計実行回数
      * @param  bool  $hasNextStep  次のステップがあるか
-     * @param  array|null  $nextStepInfo  次のステップ情報（あれば）
+     * @param  array{step_number: int, draw_count: mixed}|null  $nextStepInfo  次のステップ情報（あれば）
      */
     public function __construct(
         public readonly array $prizes,
@@ -32,18 +30,16 @@ class DrawResponse implements Responsable
 
     /**
      * レスポンスを生成
-     *
-     * @param  Request  $request
      */
-    public function toResponse($request): JsonResponse
+    public function toArray(): array
     {
-        return response()->json([
+        return [
             'prizes' => $this->prizes,
             'current_step' => $this->currentStep,
             'daily_draw_count' => $this->dailyDrawCount,
             'total_draw_count' => $this->totalDrawCount,
             'has_next_step' => $this->hasNextStep,
             'next_step_info' => $this->nextStepInfo,
-        ]);
+        ];
     }
 }

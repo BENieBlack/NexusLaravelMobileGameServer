@@ -115,20 +115,23 @@ return [
         // ========================================
         // 動的シャーディング: TrxDB
         // ========================================
-        // DB_TRX_SHARDS環境変数でシャード数を指定（デフォルト: 2）
-        // 例: DB_TRX_SHARDS=4 の場合、trx1, trx2, trx3, trx4 を生成
+        // DB_SHARD_COUNT環境変数でシャード数を指定（デフォルト: 2）
+        // 例: DB_SHARD_COUNT=4 の場合、trx1, trx2, trx3, trx4 を生成
         ...(function () {
-            $shardCount = (int) env('DB_TRX_SHARDS', 2);
+            $shardCount = (int) env('DB_SHARD_COUNT', 2);
             $connections = [];
 
             for ($i = 1; $i <= $shardCount; $i++) {
                 $connections["trx{$i}"] = [
                     'driver' => 'mysql',
-                    'host' => env("DB_TRX{$i}_HOST", "db-trx{$i}"),
-                    'port' => env("DB_TRX{$i}_PORT", '3306'),
-                    'database' => env("DB_TRX{$i}_DATABASE") ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local')."-trx{$i}",
-                    'username' => env("DB_TRX{$i}_USERNAME", 'root'),
-                    'password' => env("DB_TRX{$i}_PASSWORD", 'root'),
+                    // DB_TRANSACTION_* はシャード共通のベース。ホストとDB名にはシャード番号を付ける
+                    // （DB_TRANSACTION_HOST=db-trx → db-trx1, db-trx2, ...）
+                    // シャードごとに変える場合のみ DB_TRX{N}_* で上書きする
+                    'host' => env("DB_TRX{$i}_HOST") ?? env('DB_TRANSACTION_HOST', 'db-trx').$i,
+                    'port' => env("DB_TRX{$i}_PORT") ?? env('DB_TRANSACTION_PORT', '3306'),
+                    'database' => env("DB_TRX{$i}_DATABASE") ?: (env('DB_TRANSACTION_DATABASE') ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local').'-trx').$i,
+                    'username' => env("DB_TRX{$i}_USERNAME") ?? env('DB_TRANSACTION_USERNAME', 'root'),
+                    'password' => env("DB_TRX{$i}_PASSWORD") ?? env('DB_TRANSACTION_PASSWORD', 'root'),
                     'charset' => 'utf8mb4',
                     'collation' => 'utf8mb4_unicode_ci',
                     'prefix' => '',
@@ -144,19 +147,21 @@ return [
         // 動的シャーディング: LogDB
         // ========================================
         // TrxDBと1:1対応でLogDBシャードを生成
-        // DB_TRX_SHARDS=2 の場合、log1, log2 を生成
+        // DB_SHARD_COUNT=2 の場合、log1, log2 を生成
         ...(function () {
-            $shardCount = (int) env('DB_TRX_SHARDS', 2);
+            $shardCount = (int) env('DB_SHARD_COUNT', 2);
             $connections = [];
 
             for ($i = 1; $i <= $shardCount; $i++) {
                 $connections["log{$i}"] = [
                     'driver' => 'mysql',
-                    'host' => env("DB_LOG{$i}_HOST", "db-log{$i}"),
-                    'port' => env("DB_LOG{$i}_PORT", '3306'),
-                    'database' => env("DB_LOG{$i}_DATABASE") ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local')."-log{$i}",
-                    'username' => env("DB_LOG{$i}_USERNAME", 'root'),
-                    'password' => env("DB_LOG{$i}_PASSWORD", 'root'),
+                    // DB_LOG_* はシャード共通のベース。ホストとDB名にはシャード番号を付ける
+                    // シャードごとに変える場合のみ DB_LOG{N}_* で上書きする
+                    'host' => env("DB_LOG{$i}_HOST") ?? env('DB_LOG_HOST', 'db-log').$i,
+                    'port' => env("DB_LOG{$i}_PORT") ?? env('DB_LOG_PORT', '3306'),
+                    'database' => env("DB_LOG{$i}_DATABASE") ?: (env('DB_LOG_DATABASE') ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local').'-log').$i,
+                    'username' => env("DB_LOG{$i}_USERNAME") ?? env('DB_LOG_USERNAME', 'root'),
+                    'password' => env("DB_LOG{$i}_PASSWORD") ?? env('DB_LOG_PASSWORD', 'root'),
                     'charset' => 'utf8mb4',
                     'collation' => 'utf8mb4_unicode_ci',
                     'prefix' => '',
@@ -204,11 +209,11 @@ return [
         // テストコードの互換性のため、trx/logという名前でtrx1/log1を参照
         'trx' => [
             'driver' => 'mysql',
-            'host' => env('DB_TRX1_HOST', 'db-trx1'),
-            'port' => env('DB_TRX1_PORT', '3306'),
-            'database' => env('DB_TRX1_DATABASE') ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local').'-trx1',
-            'username' => env('DB_TRX1_USERNAME', 'root'),
-            'password' => env('DB_TRX1_PASSWORD', 'root'),
+            'host' => env('DB_TRX1_HOST') ?? env('DB_TRANSACTION_HOST', 'db-trx').'1',
+            'port' => env('DB_TRX1_PORT') ?? env('DB_TRANSACTION_PORT', '3306'),
+            'database' => env('DB_TRX1_DATABASE') ?: (env('DB_TRANSACTION_DATABASE') ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local').'-trx').'1',
+            'username' => env('DB_TRX1_USERNAME') ?? env('DB_TRANSACTION_USERNAME', 'root'),
+            'password' => env('DB_TRX1_PASSWORD') ?? env('DB_TRANSACTION_PASSWORD', 'root'),
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix' => '',
@@ -218,11 +223,11 @@ return [
 
         'log' => [
             'driver' => 'mysql',
-            'host' => env('DB_LOG1_HOST', 'db-log1'),
-            'port' => env('DB_LOG1_PORT', '3306'),
-            'database' => env('DB_LOG1_DATABASE') ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local').'-log1',
-            'username' => env('DB_LOG1_USERNAME', 'root'),
-            'password' => env('DB_LOG1_PASSWORD', 'root'),
+            'host' => env('DB_LOG1_HOST') ?? env('DB_LOG_HOST', 'db-log').'1',
+            'port' => env('DB_LOG1_PORT') ?? env('DB_LOG_PORT', '3306'),
+            'database' => env('DB_LOG1_DATABASE') ?: (env('DB_LOG_DATABASE') ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local').'-log').'1',
+            'username' => env('DB_LOG1_USERNAME') ?? env('DB_LOG_USERNAME', 'root'),
+            'password' => env('DB_LOG1_PASSWORD') ?? env('DB_LOG_PASSWORD', 'root'),
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix' => '',
@@ -300,14 +305,14 @@ return [
     |--------------------------------------------------------------------------
     |
     | TrxDB故障時のポイントインタイムリカバリー設定
-    | shard_count: TrxDB/LogDBのシャード数（DB_TRX_SHARDSと同期）
+    | shard_count: TrxDB/LogDBのシャード数（DB_SHARD_COUNTと同期）
     | active_trx_connections: トランザクションで使用するTrxDB接続のリスト
     |
     */
     'pitr' => [
-        'shard_count' => (int) env('DB_TRX_SHARDS', 2),
+        'shard_count' => (int) env('DB_SHARD_COUNT', 2),
         'active_trx_connections' => (function () {
-            $shardCount = (int) env('DB_TRX_SHARDS', 2);
+            $shardCount = (int) env('DB_SHARD_COUNT', 2);
             $connections = [];
             for ($i = 1; $i <= $shardCount; $i++) {
                 $connections[] = "trx{$i}";

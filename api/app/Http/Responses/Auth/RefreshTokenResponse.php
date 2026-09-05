@@ -2,9 +2,7 @@
 
 namespace App\Http\Responses\Auth;
 
-use Illuminate\Contracts\Support\Responsable;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use App\Http\Responses\_BaseResponse;
 use NexusAuth\ValueObjects\Token;
 
 /**
@@ -13,7 +11,7 @@ use NexusAuth\ValueObjects\Token;
  * トークンリフレッシュAPIのレスポンス
  * token のみを返す（プレイヤー情報は含まない）
  */
-class RefreshTokenResponse implements Responsable
+class RefreshTokenResponse extends _BaseResponse
 {
     /**
      * @param  Token  $token  トークン情報DTO
@@ -24,13 +22,11 @@ class RefreshTokenResponse implements Responsable
 
     /**
      * レスポンスを生成
-     *
-     * @param  Request  $request
      */
-    public function toResponse($request): JsonResponse
+    public function toArray(): array
     {
-        return response()->json([
+        return [
             'token' => $this->token->toArray(),
-        ]);
+        ];
     }
 }

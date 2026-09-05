@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Domain\Equipment;
 
-use App\Domain\Equipment\UseCases\EquipmentLevelUpUseCase;
+use App\Domain\Equipment\UseCases\LevelUpUseCase;
 use App\Persistence\ApiSession;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\Attributes\Test;
@@ -22,6 +22,9 @@ class EquipmentLevelUpTest extends TestCase
 
     private int $trxEquipmentId = 1;
 
+    /** 装備経験値アイテム（mst_item.effect = EquipmentExp） */
+    private const EXP_ITEM_ID = 'equipment_exp_potion';
+
     /**
      * Override to prevent automatic transaction wrapping
      * because UseCases manage their own transactions
@@ -40,6 +43,10 @@ class EquipmentLevelUpTest extends TestCase
 
     protected function tearDown(): void
     {
+        // トランザクションで包んでいないため、入れた行は自分で片付ける。
+        // 残すと sys_player_id=1 を使う他のテストの件数がずれる
+        $this->cleanUpTestData();
+
         ApiSession::clearForTest();
         parent::tearDown();
     }
@@ -47,7 +54,7 @@ class EquipmentLevelUpTest extends TestCase
     #[Test]
     public function 装備のレベルアップができる(): void
     {
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         $afterLevel = 10;
 
@@ -61,8 +68,8 @@ class EquipmentLevelUpTest extends TestCase
         $this->assertLessThan($afterLevel, $beforeEquipment->level);
 
         // UseCaseを実行
-        $useCase = app(EquipmentLevelUpUseCase::class);
-        $response = $useCase->exec($this->sysPlayerId, $this->trxEquipmentId, $afterLevel);
+        $useCase = app(LevelUpUseCase::class);
+        $response = $useCase->exec($this->sysPlayerId, $this->trxEquipmentId, self::EXP_ITEM_ID, $afterLevel);
 
         // レスポンス確認
         $this->assertNotNull($response->trxEquipment);
@@ -81,7 +88,7 @@ class EquipmentLevelUpTest extends TestCase
     #[Test]
     public function レベルアップ時にアイテムが消費される(): void
     {
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         $afterLevel = 7;
 
@@ -89,14 +96,14 @@ class EquipmentLevelUpTest extends TestCase
         $beforeItem = DB::connection('trx1')
             ->table('trx_item')
             ->where('sys_player_id', $this->sysPlayerId)
-            ->where('mst_item_id', 'equipment_exp_potion')
+            ->where('mst_item_id', self::EXP_ITEM_ID)
             ->first();
 
         $beforeItemAmount = $beforeItem ? ($beforeItem->free_amount + $beforeItem->paid_amount) : 0;
 
         // UseCaseを実行
-        $useCase = app(EquipmentLevelUpUseCase::class);
-        $response = $useCase->exec($this->sysPlayerId, $this->trxEquipmentId, $afterLevel);
+        $useCase = app(LevelUpUseCase::class);
+        $response = $useCase->exec($this->sysPlayerId, $this->trxEquipmentId, self::EXP_ITEM_ID, $afterLevel);
 
         // アイテム消費確認
         $this->assertNotNull($response->trxItem);
@@ -107,7 +114,7 @@ class EquipmentLevelUpTest extends TestCase
     #[Test]
     public function レベルアップ時にログが記録される(): void
     {
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         $afterLevel = 7;
 
@@ -117,8 +124,8 @@ class EquipmentLevelUpTest extends TestCase
             ->first();
 
         // UseCaseを実行
-        $useCase = app(EquipmentLevelUpUseCase::class);
-        $response = $useCase->exec($this->sysPlayerId, $this->trxEquipmentId, $afterLevel);
+        $useCase = app(LevelUpUseCase::class);
+        $response = $useCase->exec($this->sysPlayerId, $this->trxEquipmentId, self::EXP_ITEM_ID, $afterLevel);
 
         // ログ確認
         $log = DB::connection('log')
@@ -133,16 +140,27 @@ class EquipmentLevelUpTest extends TestCase
         $this->assertSame($afterLevel, $log->after_level);
     }
 
-    private function insertTestData(): void
+    /**
+     * このテストが入れた行を消す
+     */
+    private function cleanUpTestData(): void
     {
-        // 既存データをクリア（テスト間でクリーンな状態を保つため）
         DB::connection('trx1')->table('trx_equipment')->where('id', $this->trxEquipmentId)->delete();
         DB::connection('trx1')->table('trx_item')->where('sys_player_id', $this->sysPlayerId)->delete();
         DB::connection('mst')->table('mst_equipment__l10n')->where('mst_equipment_id', 'equipment_001')->delete();
         DB::connection('mst')->table('mst_equipment')->where('id', 'equipment_001')->delete();
         DB::connection('mst')->table('mst_equipment_level')->where('rarity', 'SR')->delete();
-        DB::connection('mst')->table('mst_item__l10n')->where('mst_item_id', 'equipment_exp_potion')->delete();
-        DB::connection('mst')->table('mst_item')->where('id', 'equipment_exp_potion')->delete();
+        DB::connection('mst')->table('mst_item__l10n')->where('mst_item_id', self::EXP_ITEM_ID)->delete();
+        DB::connection('mst')->table('mst_item')->where('id', self::EXP_ITEM_ID)->delete();
+
+        // 入れたマスターをキャッシュに残さない
+        $this->refreshMstCache();
+    }
+
+    private function insertTestData(): void
+    {
+        // 既存データをクリア（テスト間でクリーンな状態を保つため）
+        $this->cleanUpTestData();
 
         // マスターデータ
         DB::connection('mst')->table('mst_equipment')->insert([
@@ -183,9 +201,9 @@ class EquipmentLevelUpTest extends TestCase
         ]);
 
         DB::connection('mst')->table('mst_item')->insert([
-            'id' => 'equipment_exp_potion',
+            'id' => self::EXP_ITEM_ID,
             'type' => 'EquipmentEnhancement',
-            'effect' => 'EquipmentExp',
+            'effect' => 'equipment_exp',
             'value' => 100,
             'created_at' => now(),
             'updated_at' => now(),
@@ -193,7 +211,7 @@ class EquipmentLevelUpTest extends TestCase
 
         // アイテム名の多言語データ
         DB::connection('mst')->table('mst_item__l10n')->insert([
-            'mst_item_id' => 'equipment_exp_potion',
+            'mst_item_id' => self::EXP_ITEM_ID,
             'language' => 'ja',
             'name' => '装備経験値ポーション',
             'description' => '装備の経験値を増やすポーション',
@@ -216,7 +234,7 @@ class EquipmentLevelUpTest extends TestCase
 
         DB::connection('trx1')->table('trx_item')->insert([
             'sys_player_id' => $this->sysPlayerId,
-            'mst_item_id' => 'equipment_exp_potion',
+            'mst_item_id' => self::EXP_ITEM_ID,
             'free_amount' => 1000,
             'paid_amount' => 0,
             'is_delete' => false,

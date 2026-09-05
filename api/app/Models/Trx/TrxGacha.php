@@ -2,6 +2,8 @@
 
 namespace App\Models\Trx;
 
+use App\Traits\CompositePrimaryKeyTrait;
+
 /**
  * TrxGacha Model
  *
@@ -19,16 +21,23 @@ namespace App\Models\Trx;
  */
 class TrxGacha extends _BaseTrx
 {
+    use CompositePrimaryKeyTrait;
+
     protected $table = 'trx_gacha';
 
-    public $incrementing = true;
+    /**
+     * 採番idは持たず、業務上の一意をそのまま主キーにする
+     */
+    public $incrementing = false;
 
-    protected $keyType = 'int';
+    protected $keyType = 'string';
 
-    protected string $selectKey = 'sys_player_id';
+    protected $primaryKey = ['sys_player_id', 'mst_gacha_id'];
 
-    protected array $uniqueKeys = ['sys_player_id', 'mst_gacha_id'];
+    /** @var list<string> */
+    protected array $selectKeys = ['sys_player_id'];
 
+    /** @var list<string> */
     protected $fillable = [
         'sys_player_id',
         'mst_gacha_id',
@@ -40,6 +49,7 @@ class TrxGacha extends _BaseTrx
         'is_delete',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'id' => 'integer',
         'sys_player_id' => 'integer',

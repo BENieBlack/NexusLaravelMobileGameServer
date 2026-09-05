@@ -99,13 +99,16 @@ class VipLoginBonusServiceTest extends TestCase
         ]);
 
         // シャーディング情報を作成
-        DB::connection('sys')->table('sys_sharding_node_player')->insert([
-            'sys_player_id' => $this->sysPlayerId,
-            'sys_sharding_node_id' => $nodeId,
-            'assigned_at' => now(),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        // 他のテストが同じIDへ割り当てを残していることがあるため上書きで入れる
+        DB::connection('sys')->table('sys_sharding_node_player')->updateOrInsert(
+            ['sys_player_id' => $this->sysPlayerId],
+            [
+                'sys_sharding_node_id' => $nodeId,
+                'assigned_at' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        );
     }
 
     protected function tearDown(): void
@@ -148,7 +151,7 @@ class VipLoginBonusServiceTest extends TestCase
                     'mst_vip_login_bonus_id' => $bonusId,
                     'day' => $day,
                     'content_type' => 'gold',
-                    'content_id' => 'gold',
+                    'content_mst_id' => 'gold',
                     'content_option' => null,
                     'content_quantity' => $goldAmount,
                     'amount' => 1,

@@ -24,6 +24,7 @@ class SysSharding extends _BaseSys
      *
      * @var array
      */
+    /** @var list<string> */
     protected $fillable = [
         'name',
         'target',
@@ -39,6 +40,7 @@ class SysSharding extends _BaseSys
      *
      * @var array
      */
+    /** @var array<string, string> */
     protected $casts = [
         'node_count' => 'integer',
         'is_active' => 'boolean',
@@ -62,6 +64,8 @@ class SysSharding extends _BaseSys
 
     /**
      * 利用可能なシャーディング戦略一覧を取得
+     *
+     * @return array<int, string>
      */
     public static function availableStrategies(): array
     {
@@ -74,6 +78,8 @@ class SysSharding extends _BaseSys
 
     /**
      * 利用可能なシャーディング対象一覧を取得
+     *
+     * @return array<int, string>
      */
     public static function availableTargets(): array
     {
@@ -190,6 +196,9 @@ class SysSharding extends _BaseSys
     /**
      * シャーディングノードとのリレーション
      */
+    /**
+     * @return HasMany<SysShardingNode, $this>
+     */
     public function nodes(): HasMany
     {
         return $this->hasMany(SysShardingNode::class, 'sys_sharding_id');
@@ -197,6 +206,8 @@ class SysSharding extends _BaseSys
 
     /**
      * アクティブなシャーディングノードを取得
+     *
+     * @return HasMany<SysShardingNode, $this>
      */
     public function activeNodes(): HasMany
     {

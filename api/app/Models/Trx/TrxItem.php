@@ -2,6 +2,7 @@
 
 namespace App\Models\Trx;
 
+use App\Traits\CompositePrimaryKeyTrait;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
@@ -12,6 +13,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class TrxItem extends _BaseTrx
 {
+    use CompositePrimaryKeyTrait;
+
     protected $table = 'trx_item';
 
     /**
@@ -32,13 +35,14 @@ class TrxItem extends _BaseTrx
     /**
      * SELECTキー（プレイヤーIDでSELECT）
      */
-    protected string $selectKey = 'sys_player_id';
+    /** @var list<string> */
+    protected array $selectKeys = ['sys_player_id'];
 
     /**
      * ユニークキー（アイテムは複合キーで一意）
      */
-    protected array $uniqueKeys = ['sys_player_id', 'mst_item_id'];
 
+    /** @var list<string> */
     protected $fillable = [
         'sys_player_id',
         'mst_item_id',
@@ -49,6 +53,7 @@ class TrxItem extends _BaseTrx
         'updated_at',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'sys_player_id' => 'integer',
         'free_amount' => 'integer',
@@ -56,46 +61,10 @@ class TrxItem extends _BaseTrx
     ];
 
     /**
-     * 複合主キーを設定
-     *
-     * @param  array  $ids
-     * @return $this
-     */
-    public function setKeysForSaveQuery($query)
-    {
-        $keys = $this->getKeyName();
-        if (! is_array($keys)) {
-            return parent::setKeysForSaveQuery($query);
-        }
-
-        foreach ($keys as $keyName) {
-            $query->where($keyName, '=', $this->getKeyForSaveQuery($keyName));
-        }
-
-        return $query;
-    }
-
-    /**
-     * 複合主キーの値を取得
-     *
-     * @param  string  $keyName
-     * @return mixed
-     */
-    protected function getKeyForSaveQuery($keyName = null)
-    {
-        if (is_null($keyName)) {
-            $keyName = $this->getKeyName();
-        }
-
-        if (isset($this->original[$keyName])) {
-            return $this->original[$keyName];
-        }
-
-        return $this->getAttribute($keyName);
-    }
-
-    /**
      * trx_playerとのリレーション
+     */
+    /**
+     * @return BelongsTo<TrxPlayer, $this>
      */
     public function trxPlayer(): BelongsTo
     {

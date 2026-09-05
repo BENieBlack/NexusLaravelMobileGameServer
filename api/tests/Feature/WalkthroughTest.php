@@ -15,7 +15,6 @@ use App\Repositories\Mst\MstGachaRarityRateRepository;
 use App\Repositories\Mst\MstGachaRepository;
 use App\Repositories\Mst\MstGachaStepRepository;
 use App\Repositories\Mst\MstItemRepository;
-use App\Repositories\Mst\MstMailboxRepository;
 use App\Repositories\Mst\MstUnitRepository;
 use Database\Seeders\SysShardingSeeder;
 use Illuminate\Support\Facades\DB;
@@ -137,13 +136,15 @@ class WalkthroughTest extends TestCase
         DB::connection('sys')->table('sys_deploy_master')->delete();
         DB::connection('sys')->table('sys_deploy_asset')->delete();
 
-        DB::connection('trx1')->table('trx_login_bonus_history')->delete();
-        DB::connection('trx1')->table('trx_mailbox')->delete();
-        DB::connection('trx1')->table('trx_unit')->delete();
-        DB::connection('trx1')->table('trx_equipment')->delete();
-        DB::connection('trx1')->table('trx_item')->delete();
-        DB::connection('trx1')->table('trx_wallet')->delete();
-        DB::connection('trx1')->table('trx_diamond')->delete();
+        foreach (['trx1', 'trx2'] as $connection) {
+            DB::connection($connection)->table('trx_login_bonus_history')->delete();
+            DB::connection($connection)->table('trx_mailbox')->delete();
+            DB::connection($connection)->table('trx_unit')->delete();
+            DB::connection($connection)->table('trx_equipment')->delete();
+            DB::connection($connection)->table('trx_item')->delete();
+            DB::connection($connection)->table('trx_wallet')->delete();
+            DB::connection($connection)->table('trx_diamond')->delete();
+        }
 
         DB::connection('mst')->table('mst_gacha_prize')->delete();
         DB::connection('mst')->table('mst_gacha_step')->delete();
@@ -152,7 +153,7 @@ class WalkthroughTest extends TestCase
         DB::connection('mst')->table('mst_gacha')->delete();
         DB::connection('mst')->table('mst_mailbox_content')->delete();
         DB::connection('mst')->table('mst_mailbox')->delete();
-        DB::connection('mst')->table('mst_message__i18n')->delete();
+        DB::connection('mst')->table('mst_message__l10n')->delete();
         DB::connection('mst')->table('mst_message')->delete();
         DB::connection('mst')->table('mst_unit')->delete();
         DB::connection('mst')->table('mst_equipment')->delete();
@@ -251,23 +252,7 @@ class WalkthroughTest extends TestCase
         $this->assertNotNull($player);
         $this->playerId = $player->id;
 
-        // シャーディングノードへの割り当てを作成
-        $sharding = DB::connection('sys')->table('sys_sharding')
-            ->where('name', 'trx_sharding')
-            ->first();
-
-        $node = DB::connection('sys')->table('sys_sharding_node')
-            ->where('sys_sharding_id', $sharding->id)
-            ->where('node_name', 'node1')
-            ->first();
-
-        DB::connection('sys')->table('sys_sharding_node_player')->insert([
-            'sys_sharding_node_id' => $node->id,
-            'sys_player_id' => $this->playerId,
-            'assigned_at' => now(),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        // シャード割り当てはサインアップ時に作られる
     }
 
     /**
@@ -311,7 +296,7 @@ class WalkthroughTest extends TestCase
         }
 
         $response->assertOk();
-        $data = $response->json('data');
+        $data = $response->json();
 
         $this->assertArrayHasKey('needs_update', $data);
         $this->assertArrayHasKey('latest_deploy_key', $data);
@@ -334,7 +319,7 @@ class WalkthroughTest extends TestCase
         ])->postJson('/api/auth/login');
 
         $response->assertOk();
-        $data = $response->json('data');
+        $data = $response->json();
 
         $this->assertArrayHasKey('sys_player', $data);
         $this->assertArrayHasKey('login_bonus_list', $data);
@@ -410,7 +395,7 @@ class WalkthroughTest extends TestCase
         $this->assertNotEmpty($result['received_content']);
 
         // アイテムが付与されたことを確認
-        $itemCount = DB::connection('trx1')
+        $itemCount = DB::connection($this->playerConnection($this->playerId))
             ->table('trx_item')
             ->where('sys_player_id', $this->playerId)
             ->where('mst_item_id', 'item_potion_001')
@@ -425,14 +410,14 @@ class WalkthroughTest extends TestCase
     private function step7_addDiamond(): void
     {
         // ダイヤモンドレコードが存在するか確認
-        $diamond = DB::connection('trx1')
+        $diamond = DB::connection($this->playerConnection($this->playerId))
             ->table('trx_diamond')
             ->where('sys_player_id', $this->playerId)
             ->first();
 
         if ($diamond) {
             // 既存レコードを更新
-            DB::connection('trx1')
+            DB::connection($this->playerConnection($this->playerId))
                 ->table('trx_diamond')
                 ->where('sys_player_id', $this->playerId)
                 ->update([
@@ -441,7 +426,7 @@ class WalkthroughTest extends TestCase
                 ]);
         } else {
             // 新規作成
-            DB::connection('trx1')->table('trx_diamond')->insert([
+            DB::connection($this->playerConnection($this->playerId))->table('trx_diamond')->insert([
                 'sys_player_id' => $this->playerId,
                 'platform' => 'ios',
                 'free_amount' => 1000,
@@ -452,7 +437,7 @@ class WalkthroughTest extends TestCase
         }
 
         // ダイヤが追加されたことを確認
-        $newDiamond = DB::connection('trx1')
+        $newDiamond = DB::connection($this->playerConnection($this->playerId))
             ->table('trx_diamond')
             ->where('sys_player_id', $this->playerId)
             ->first();
@@ -484,7 +469,7 @@ class WalkthroughTest extends TestCase
 
         $result = $data['prizes'][0];
         $this->assertArrayHasKey('content_type', $result);
-        $this->assertArrayHasKey('content_id', $result);
+        $this->assertArrayHasKey('content_mst_id', $result);
 
         // ガチャではアイテムのみ出るので、ユニットと装備は手動で作成
         $this->createTestUnit();
@@ -500,7 +485,7 @@ class WalkthroughTest extends TestCase
         $this->clearMstRepositoryCache();
 
         // レベルアップ用のアイテムを追加
-        DB::connection('trx1')->table('trx_item')->insert([
+        DB::connection($this->playerConnection($this->playerId))->table('trx_item')->insert([
             'sys_player_id' => $this->playerId,
             'mst_item_id' => 'item_unit_exp_001',
             'free_amount' => 100,
@@ -531,14 +516,46 @@ class WalkthroughTest extends TestCase
 
     /**
      * Step 10: 装備レベルアップ
-     *
-     * Note: Equipment level up requires mst_equipment_level_setting table to be populated
-     * with level/exp data for each rarity. Skipping for now in walkthrough test.
      */
     private function step10_equipmentLevelUp(): void
     {
-        // Skip equipment level up test due to missing master data requirements
-        $this->markTestSkipped('Equipment level up requires mst_equipment_level_setting master data');
+        // レベルアップ用の強化アイテムを付与する
+        DB::connection($this->playerConnection($this->playerId))->table('trx_item')->updateOrInsert(
+            [
+                'sys_player_id' => $this->playerId,
+                'mst_item_id' => 'equipment_exp_potion',
+            ],
+            [
+                'free_amount' => 100,
+                'paid_amount' => 0,
+                'is_delete' => false,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]
+        );
+
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer '.$this->accessToken,
+        ])->postJson('/api/equipment/level_up', [
+            'trx_equipment_id' => $this->equipmentId,
+            'mst_item_id' => 'equipment_exp_potion',
+            'after_level' => 2,
+        ]);
+
+        $response->assertOk();
+
+        // LevelUpResponse は Responsable なので data でラップされない
+        $data = $response->json();
+
+        $this->assertSame(2, $data['trx_equipment']['level']);
+
+        // DBにも反映されていること
+        $level = DB::connection($this->playerConnection($this->playerId))
+            ->table('trx_equipment')
+            ->where('id', $this->equipmentId)
+            ->value('level');
+
+        $this->assertSame(2, (int) $level);
     }
 
     /**
@@ -571,7 +588,7 @@ class WalkthroughTest extends TestCase
         DB::connection('mst')->table('mst_item')->insert([
             'id' => 'item_unit_exp_001',
             'type' => 'UnitEnhancement',
-            'effect' => 'UnitExp',
+            'effect' => 'unit_exp',
             'value' => 50,
             'created_at' => now(),
             'updated_at' => now(),
@@ -580,7 +597,7 @@ class WalkthroughTest extends TestCase
         DB::connection('mst')->table('mst_item')->insert([
             'id' => 'item_equipment_exp_001',
             'type' => 'EquipmentEnhancement',
-            'effect' => 'EquipmentExp',
+            'effect' => 'equipment_exp',
             'value' => 50,
             'created_at' => now(),
             'updated_at' => now(),
@@ -590,7 +607,7 @@ class WalkthroughTest extends TestCase
         DB::connection('mst')->table('mst_item')->insert([
             'id' => 'equipment_exp_potion',
             'type' => 'EquipmentEnhancement',
-            'effect' => 'EquipmentExp',
+            'effect' => 'equipment_exp',
             'value' => 50,
             'created_at' => now(),
             'updated_at' => now(),
@@ -621,6 +638,21 @@ class WalkthroughTest extends TestCase
             'updated_at' => now(),
         ]);
 
+        // 装備レベルマスター（equipment_sword_001 のレアリティ R 用）
+        DB::connection('mst')->table('mst_equipment_level')->where('rarity', 'R')->delete();
+        $equipmentLevels = [];
+        foreach ([1 => 0, 2 => 100, 3 => 250, 4 => 450, 5 => 700] as $level => $requiredExp) {
+            $equipmentLevels[] = [
+                'deploy_key' => 202601010,
+                'rarity' => 'R',
+                'level' => $level,
+                'required_exp' => $requiredExp,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+        DB::connection('mst')->table('mst_equipment_level')->insert($equipmentLevels);
+
         // メッセージマスター
         DB::connection('mst')->table('mst_message')->insert([
             'id' => 'msg_welcome_001',
@@ -628,7 +660,7 @@ class WalkthroughTest extends TestCase
             'updated_at' => now(),
         ]);
 
-        DB::connection('mst')->table('mst_message__i18n')->insert([
+        DB::connection('mst')->table('mst_message__l10n')->insert([
             'mst_message_id' => 'msg_welcome_001',
             'language' => 'ja',
             'title' => 'Welcome!',
@@ -649,7 +681,7 @@ class WalkthroughTest extends TestCase
         DB::connection('mst')->table('mst_mailbox_content')->insert([
             'mst_mailbox_id' => 'mail_welcome_001',
             'content_type' => 'Item',
-            'content_id' => 'item_potion_001',
+            'content_mst_id' => 'item_potion_001',
             'amount' => 10,
             'sort_desc' => 1,
             'created_at' => now(),
@@ -701,7 +733,7 @@ class WalkthroughTest extends TestCase
             'mst_gacha_id' => 'test_gacha_01',
             'step_number' => 1,
             'content_type' => 'item',
-            'content_id' => 'item_potion_001',
+            'content_mst_id' => 'item_potion_001',
             'content_amount' => 10,
             'rarity' => 1,
             'weight' => 100,
@@ -713,7 +745,7 @@ class WalkthroughTest extends TestCase
      */
     private function createTestMail(): void
     {
-        $mailId = DB::connection('trx1')->table('trx_mailbox')->insertGetId([
+        $mailId = DB::connection($this->playerConnection($this->playerId))->table('trx_mailbox')->insertGetId([
             'sys_player_id' => $this->playerId,
             'mst_mailbox_id' => 'mail_welcome_001',
             'is_opened' => false,
@@ -731,7 +763,7 @@ class WalkthroughTest extends TestCase
      */
     private function createTestUnit(): void
     {
-        $unitId = DB::connection('trx1')->table('trx_unit')->insertGetId([
+        $unitId = DB::connection($this->playerConnection($this->playerId))->table('trx_unit')->insertGetId([
             'sys_player_id' => $this->playerId,
             'mst_unit_id' => 'unit_knight_001',
             'grade' => 1,
@@ -750,7 +782,7 @@ class WalkthroughTest extends TestCase
      */
     private function createTestEquipment(): void
     {
-        $equipmentId = DB::connection('trx1')->table('trx_equipment')->insertGetId([
+        $equipmentId = DB::connection($this->playerConnection($this->playerId))->table('trx_equipment')->insertGetId([
             'sys_player_id' => $this->playerId,
             'mst_equipment_id' => 'equipment_sword_001',
             'grade' => 1,
@@ -780,7 +812,6 @@ class WalkthroughTest extends TestCase
             MstItemRepository::class,
             MstUnitRepository::class,
             MstEquipmentRepository::class,
-            MstMailboxRepository::class,
         ];
 
         foreach ($repositoryClasses as $repositoryClass) {

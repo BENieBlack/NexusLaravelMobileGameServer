@@ -35,4 +35,19 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Google スプレッドシート連携
+    |--------------------------------------------------------------------------
+    |
+    | マスターデータが格納されているGoogle Drive フォルダへのアクセス設定。
+    | サービスアカウントで認証し、Drive API / Sheets API を使用する。
+    |
+    */
+    'google_spreadsheet' => [
+        'folder_id' => env('TOL_GOOGLE_SPREADSHEET_DIR'),
+        'credentials_path' => env('TOL_GOOGLE_SERVICE_ACCOUNT_JSON'),
+        'credentials_json' => env('TOL_GOOGLE_SERVICE_ACCOUNT_JSON_CONTENT'),
+    ],
+
 ];

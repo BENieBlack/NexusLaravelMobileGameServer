@@ -101,13 +101,16 @@ class LoginBonusIntegrationTest extends TestCase
         ]);
 
         // シャーディング情報を作成
-        DB::connection('sys')->table('sys_sharding_node_player')->insert([
-            'sys_player_id' => $this->sysPlayerId,
-            'sys_sharding_node_id' => $nodeId,
-            'assigned_at' => now(),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        // 他のテストが同じIDへ割り当てを残していることがあるため上書きで入れる
+        DB::connection('sys')->table('sys_sharding_node_player')->updateOrInsert(
+            ['sys_player_id' => $this->sysPlayerId],
+            [
+                'sys_sharding_node_id' => $nodeId,
+                'assigned_at' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        );
     }
 
     protected function tearDown(): void
@@ -149,7 +152,7 @@ class LoginBonusIntegrationTest extends TestCase
             DB::connection('mst')->table('mst_login_bonus_content')->insert([
                 'mst_login_bonus_id' => $bonusId,
                 'content_type' => 'diamond',
-                'content_id' => 'free_diamond',
+                'content_mst_id' => 'free_diamond',
                 'amount' => $day * 100,
                 'is_paid' => false,
                 'sort_order' => 1,
@@ -184,7 +187,7 @@ class LoginBonusIntegrationTest extends TestCase
                     'mst_vip_login_bonus_id' => $bonusId,
                     'day' => $day,
                     'content_type' => 'diamond',
-                    'content_id' => 'free_diamond',
+                    'content_mst_id' => 'free_diamond',
                     'content_option' => null,
                     'content_quantity' => $goldAmount,
                     'amount' => 1,
@@ -219,7 +222,7 @@ class LoginBonusIntegrationTest extends TestCase
             DB::connection('mst')->table('mst_login_bonus_content')->insert([
                 'mst_login_bonus_id' => $bonusId,
                 'content_type' => 'diamond',
-                'content_id' => "day_{$day}_diamond", // 各日で異なるIDを使用
+                'content_mst_id' => "day_{$day}_diamond", // 各日で異なるIDを使用
                 'amount' => $day * 1000, // カムバックは豪華
                 'is_paid' => false,
                 'sort_order' => 1,

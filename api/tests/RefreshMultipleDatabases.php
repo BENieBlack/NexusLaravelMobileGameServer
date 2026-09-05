@@ -56,7 +56,7 @@ trait RefreshMultipleDatabases
         ];
 
         // Add dynamic sharded connections
-        $shardCount = (int) env('DB_TRX_SHARDS', 2);
+        $shardCount = (int) env('DB_SHARD_COUNT', 2);
 
         for ($i = 1; $i <= $shardCount; $i++) {
             $connections["trx{$i}"] = null;
@@ -174,11 +174,21 @@ trait RefreshMultipleDatabases
      * shard with --database, and with --path limited to their own directory —
      * otherwise every trx/log table lands in whichever database happens to be
      * the default for the run.
+     *
+     * Uses migrate:fresh, not migrate. This project edits existing migration
+     * files in place until release, and `migrate` would consider an edited file
+     * already applied and skip it — leaving the test databases on the old schema
+     * while the fingerprint says they are current. Rebuilding from scratch is the
+     * only way an edit reaches the schema. This runs only when the fingerprint
+     * changed, so the common case pays nothing.
+     *
+     * Each database holds exactly one migration group, so dropping all of its
+     * tables never takes out another group's schema.
      */
     protected function runMigrations(): void
     {
         foreach ($this->migrationTargets() as [$connection, $paths]) {
-            $this->artisan('migrate', [
+            $this->artisan('migrate:fresh', [
                 '--database' => $connection,
                 '--path' => $paths,
                 '--force' => true,
@@ -202,7 +212,7 @@ trait RefreshMultipleDatabases
 
         $trxPaths = $this->migrationPaths('trx');
         $logPaths = $this->migrationPaths('log');
-        $shardCount = (int) env('DB_TRX_SHARDS', 2);
+        $shardCount = (int) env('DB_SHARD_COUNT', 2);
 
         for ($i = 1; $i <= $shardCount; $i++) {
             $targets[] = ["trx{$i}", $trxPaths];
@@ -253,7 +263,7 @@ trait RefreshMultipleDatabases
 
         sort($entries);
 
-        return md5(implode('|', $entries).'|shards='.env('DB_TRX_SHARDS', 2));
+        return md5(implode('|', $entries).'|shards='.env('DB_SHARD_COUNT', 2));
     }
 
     /**

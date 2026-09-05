@@ -2,6 +2,10 @@
 
 namespace App\Exceptions;
 
+use NexusResource\Exceptions\ResourceErrorCode;
+use NexusStamina\Exceptions\StaminaErrorCode;
+use NexusWallet\Exceptions\WalletErrorCode;
+
 /**
  * GameErrorCode
  *
@@ -12,6 +16,9 @@ namespace App\Exceptions;
  * - インフラ/汎用エラー: 3桁以下（1-999） ← InfraErrorCodeで定義
  * - パッケージ層: 4桁（1000-9999） ← 各パッケージのErrorCodeクラスで定義
  * - アプリケーション層: 5桁（10000-99999） ← このクラスで定義
+ *
+ * インフラ層／パッケージ層で定義済みのコードは、このクラスに定数の別名だけを置く
+ * （末尾の「他レイヤーで定義されたエラーコードへの参照」を参照）。値は二重に持たない。
  *
  * アプリケーション層エラーコード範囲:
  * - 10000-10999: 認証関連エラー (Auth)
@@ -25,6 +32,8 @@ namespace App\Exceptions;
  * - 18000-18999: ギルド関連エラー (Guild)
  * - 19000-19999: ガチャ関連エラー (Gacha)
  * - 20000-20999: メールボックス関連エラー (Mailbox)
+ * - 21000-21999: チャット関連エラー (Chat)
+ * - 22000-22999: リワードトラック関連エラー (RewardTrack)
  * - 99000-99999: アプリケーション汎用エラー
  *
  * インフラ層エラーコード（3桁以下）はInfraErrorCodeで定義：
@@ -37,8 +46,8 @@ namespace App\Exceptions;
  * - 700-999: 汎用システムエラー
  *
  * パッケージ層エラーコード（4桁）は各パッケージで定義：
- * - nexus-wallet: 1000-1099 (WalletErrorCode)
- * - nexus-stamina: 1100-1199 (StaminaErrorCode)
+ * - nexus-wallet: 1000-1099 (WalletErrorCode) ✅実装済み
+ * - nexus-stamina: 1100-1199 (StaminaErrorCode) ✅実装済み
  * - nexus-vip: 1200-1299 (VipErrorCode)
  * - nexus-friend: 1300-1399 (FriendErrorCode)
  * - nexus-guild: 1400-1499 (GuildErrorCode)
@@ -46,7 +55,7 @@ namespace App\Exceptions;
  * - nexus-gacha: 1600-1699 (GachaErrorCode)
  * - nexus-login: 1700-1799 (LoginErrorCode)
  * - nexus-level: 1800-1899 (LevelErrorCode)
- * - nexus-resource: 1900-1999 (ResourceErrorCode)
+ * - nexus-resource: 1900-1999 (ResourceErrorCode) ✅実装済み
  * - nexus-billing: 2000-2099 (BillingErrorCode)
  */
 class GameErrorCode
@@ -218,6 +227,60 @@ class GameErrorCode
 
     const MAILBOX_NOT_OPENED = 20003;
 
+    const MAILBOX_ALREADY_DELETED = 20004;
+
+    // ========================================
+    // チャット関連エラー (21000-21999)
+    // ========================================
+    const CHAT_ROOM_NOT_FOUND = 21001;
+
+    const CHAT_NOT_ROOM_MEMBER = 21002;
+
+    const CHAT_MESSAGE_TOO_LONG = 21003;
+
+    const CHAT_MESSAGE_EMPTY = 21004;
+
+    const CHAT_NOT_MESSAGE_OWNER = 21005;
+
+    const CHAT_NOT_FRIENDS = 21006;
+
+    const CHAT_NOT_GUILD_MEMBER = 21007;
+
+    const CHAT_NO_INVITE_PERMISSION = 21008;
+
+    const CHAT_NO_KICK_PERMISSION = 21009;
+
+    const CHAT_NO_ROLE_MANAGE_PERMISSION = 21010;
+
+    const CHAT_ROOM_FULL = 21011;
+
+    const CHAT_ALREADY_MEMBER = 21012;
+
+    const CHAT_CANNOT_KICK_OWNER = 21013;
+
+    // ========================================
+    // リワードトラック関連エラー (22000-22999)
+    // ========================================
+    const REWARD_TRACK_NOT_FOUND = 22001;
+
+    const REWARD_TRACK_NOT_STARTED = 22002;
+
+    const REWARD_TRACK_ENDED = 22003;
+
+    const REWARD_TRACK_LINE_NOT_FOUND = 22004;
+
+    const REWARD_TRACK_FREE_LINE_NOT_PURCHASABLE = 22005;
+
+    const REWARD_TRACK_LINE_ALREADY_OWNED = 22006;
+
+    const REWARD_TRACK_LINE_NOT_OWNED = 22007;
+
+    const REWARD_TRACK_MILESTONE_NOT_FOUND = 22008;
+
+    const REWARD_TRACK_PROGRESS_NOT_ENOUGH = 22009;
+
+    const REWARD_TRACK_ALREADY_RECEIVED = 22010;
+
     // ========================================
     // アプリケーション汎用エラー (99000-99999)
     // ========================================
@@ -242,46 +305,50 @@ class GameErrorCode
     const INTERNAL_ERROR = 99999;
 
     // ========================================
-    // 非推奨（インフラ層に移行すべき）
+    // 他レイヤーで定義されたエラーコードへの参照
     // ========================================
+    //
+    // 値の定義はインフラ層／パッケージ層が持ち、ここは参照だけを置く。
+    // 呼び出し側がどのパッケージのコードかを意識せずに済むようにするための別名であり、
+    // 値を二重に持たないため、パッケージ側を直せばこちらも追従する。
 
     /**
-     * @deprecated Use InfraErrorCode::MASTER_DATA_NOT_FOUND (401) instead
+     * マスタデータ未検出（インフラ層で定義）
      */
-    const MASTER_DATA_NOT_FOUND = 98003;
+    const MASTER_DATA_NOT_FOUND = InfraErrorCode::MASTER_DATA_NOT_FOUND;
 
     /**
-     * @deprecated Use WalletErrorCode::INSUFFICIENT_BALANCE (1001) instead
+     * スタミナ不足（nexus-staminaで定義）
      */
-    const STAMINA_NOT_ENOUGH = 98101;
+    const STAMINA_NOT_ENOUGH = StaminaErrorCode::INSUFFICIENT_STAMINA;
 
     /**
-     * @deprecated Use WalletErrorCode::INSUFFICIENT_BALANCE (1001) instead
+     * ダイヤモンド残高不足（nexus-resourceで定義）
      */
-    const DIAMOND_NOT_ENOUGH = 98102;
+    const DIAMOND_NOT_ENOUGH = ResourceErrorCode::INSUFFICIENT_DIAMOND;
 
     /**
-     * @deprecated Use WalletErrorCode::INSUFFICIENT_BALANCE (1001) instead
+     * アイテム所持数不足（nexus-resourceで定義）
      */
-    const ITEM_NOT_ENOUGH = 98103;
+    const ITEM_NOT_ENOUGH = ResourceErrorCode::INSUFFICIENT_ITEM;
 
     /**
-     * @deprecated Use WalletErrorCode::INSUFFICIENT_BALANCE (1001) instead
+     * 通貨残高不足（nexus-walletで定義）
      */
-    const INSUFFICIENT_CURRENCY = 98104;
+    const INSUFFICIENT_CURRENCY = WalletErrorCode::INSUFFICIENT_BALANCE;
 
     /**
-     * @deprecated Use WalletErrorCode::WALLET_NOT_FOUND (1003) instead
+     * ウォレット未検出（nexus-walletで定義）
      */
-    const WALLET_NOT_FOUND = 98105;
+    const WALLET_NOT_FOUND = WalletErrorCode::WALLET_NOT_FOUND;
 
     /**
-     * @deprecated Define specific invalid type error in relevant domain
+     * 無効なアイテム種別（nexus-resourceで定義）
      */
-    const INVALID_ITEM_TYPE = 98004;
+    const INVALID_ITEM_TYPE = ResourceErrorCode::INVALID_ITEM_TYPE;
 
     /**
-     * @deprecated Define specific invalid type error in relevant domain
+     * 無効なリソース種別（nexus-resourceで定義）
      */
-    const INVALID_RESOURCE_TYPE = 98005;
+    const INVALID_RESOURCE_TYPE = ResourceErrorCode::INVALID_RESOURCE_TYPE;
 }

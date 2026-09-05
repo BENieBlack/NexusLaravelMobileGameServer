@@ -5,6 +5,7 @@ namespace App\Models\Trx;
 use App\Models\Mst\MstMailbox;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * TrxMailbox Model
@@ -18,13 +19,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property bool $is_received
  * @property bool $is_delete
  * @property bool $is_protected
- * @property Carbon|null $expires_at
- * @property Carbon|null $read_at
- * @property Carbon|null $received_at
+ * @property ?string $expires_at
+ * @property ?string $read_at
+ * @property ?string $received_at
  * @property string|null $sender_name
- * @property array|null $custom_params
- * @property Carbon $created_at
- * @property Carbon $updated_at
+ * @property array<string, mixed>|null $custom_params
+ * @property string $created_at
+ * @property string $updated_at
  */
 class TrxMailbox extends _BaseTrx
 {
@@ -33,16 +34,16 @@ class TrxMailbox extends _BaseTrx
     /**
      * SELECTキー（プレイヤーIDでSELECT）
      */
-    protected string $selectKey = 'sys_player_id';
+    /** @var list<string> */
+    protected array $selectKeys = ['sys_player_id'];
 
     /**
      * ユニークキー（IDで一意）
      *
      * @var array<int, string>
      */
-    protected array $uniqueKeys = ['id'];
 
-    /** @var array<int, string> */
+    /** @var list<string> */
     protected $fillable = [
         'sys_player_id',
         'mst_mailbox_id',
@@ -62,6 +63,7 @@ class TrxMailbox extends _BaseTrx
     /**
      * @var array<string, string>
      */
+    /** @var array<string, string> */
     protected $casts = [
         'sys_player_id' => 'integer',
         'is_opened' => 'boolean',
@@ -74,6 +76,9 @@ class TrxMailbox extends _BaseTrx
     /**
      * trx_playerとのリレーション
      */
+    /**
+     * @return BelongsTo<TrxPlayer, $this>
+     */
     public function trxPlayer(): BelongsTo
     {
         return $this->belongsTo(TrxPlayer::class, 'sys_player_id', 'sys_player_id');
@@ -81,6 +86,9 @@ class TrxMailbox extends _BaseTrx
 
     /**
      * mst_mailboxとのリレーション
+     */
+    /**
+     * @return BelongsTo<MstMailbox, $this>
      */
     public function mstMailbox(): BelongsTo
     {
@@ -145,26 +153,28 @@ class TrxMailbox extends _BaseTrx
 
     /**
      * 有効期限を取得
+     *
+     * DB取得時はstringで保持しているためCarbonImmutableに変換して返す
      */
-    public function getExpiresAt(): ?Carbon
+    public function getExpiresAt(): ?string
     {
-        return $this->getAttribute('expires_at');
+        return $this->getDateAttributeString('expires_at');
     }
 
     /**
      * 既読日時を取得
      */
-    public function getReadAt(): ?Carbon
+    public function getReadAt(): ?string
     {
-        return $this->getAttribute('read_at');
+        return $this->getDateAttributeString('read_at');
     }
 
     /**
      * 受取日時を取得
      */
-    public function getReceivedAt(): ?Carbon
+    public function getReceivedAt(): ?string
     {
-        return $this->getAttribute('received_at');
+        return $this->getDateAttributeString('received_at');
     }
 
     /**
@@ -178,6 +188,9 @@ class TrxMailbox extends _BaseTrx
     /**
      * カスタムパラメータを取得
      */
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getCustomParams(): ?array
     {
         return $this->getAttribute('custom_params');
@@ -188,9 +201,7 @@ class TrxMailbox extends _BaseTrx
      */
     public function isExpired(): bool
     {
-        $expiresAt = $this->getExpiresAt();
-
-        return $expiresAt !== null && $expiresAt->isPast();
+        return ClockUtility::isPast($this->getExpiresAt());
     }
 
     /**
@@ -283,6 +294,9 @@ class TrxMailbox extends _BaseTrx
 
     /**
      * カスタムパラメータを設定
+     */
+    /**
+     * @param  array<string, mixed>|null  $customParams
      */
     public function setCustomParams(?array $customParams): void
     {

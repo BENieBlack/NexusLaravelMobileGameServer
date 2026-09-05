@@ -6,10 +6,7 @@ use App\Domain\InAppPurchase\Constants\InAppPurchaseConst;
 use App\Domain\Item\Services\ItemService;
 use App\Models\Mst\MstInAppPurchase;
 use App\Models\Trx\TrxInAppPurchase;
-use App\Models\Trx\TrxUnit;
-use App\Repositories\Trx\TrxInAppPurchaseRepository;
 use App\Repositories\Trx\TrxUnitRepository;
-use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * InAppPurchasePackService
@@ -20,10 +17,9 @@ use Nexus\Core\Utilities\ClockUtility;
 class InAppPurchasePackService
 {
     public function __construct(
-        private readonly DiamondBalanceService $diamondBalanceService,
+        private readonly InAppPurchaseDiamondBalanceService $diamondBalanceService,
         private readonly ItemService $itemService,
         private readonly TrxUnitRepository $trxUnitRepository,
-        private readonly TrxInAppPurchaseRepository $trxInAppPurchaseRepository,
         private readonly InAppPurchaseValidationService $validationService,
         private readonly InAppPurchaseHistoryService $purchaseHistoryService,
     ) {}
@@ -36,7 +32,7 @@ class InAppPurchasePackService
      * @param  string  $platform  プラットフォーム（Apple, Google）
      * @param  string  $billingPlatform  決済プラットフォーム（AppStore, GooglePlay等）
      * @param  string  $transactionId  プラットフォーム固有のトランザクションID
-     * @return array{contents: array, total_free_diamond_amount: int}
+     * @return array{contents: array<int, array<string, mixed>>, total_free_diamond_amount: int}
      */
     public function purchasePack(
         int $sysPlayerId,
@@ -64,32 +60,33 @@ class InAppPurchasePackService
         foreach ($contentCollection as $content) {
             switch ($content->getContentType()) {
                 case InAppPurchaseConst::CONTENT_TYPE_FREE_DIAMOND:
-                    // 無償ダイヤモンドを付与（DiamondBalanceServiceに委譲）
+                    // 無償ダイヤモンドを付与（InAppPurchaseDiamondBalanceServiceに委譲）
                     $this->diamondBalanceService->addDiamond($sysPlayerId, $platform, $content->getAmount(), isPaid: false);
                     $totalFreeDiamond += $content->getAmount();
                     $grantedContentArray[] = [
-                        'type' => 'FreeDiamond',
+                        'type' => 'free_diamond',
                         'amount' => $content->getAmount(),
                     ];
                     break;
 
                 case InAppPurchaseConst::CONTENT_TYPE_ITEM:
                     // アイテムを付与
-                    $this->itemService->addItem($sysPlayerId, $content->getContentId(), $content->getAmount());
+                    $this->itemService->addItem($sysPlayerId, $content->getContentMstId(), $content->getAmount());
                     $grantedContentArray[] = [
-                        'type' => 'Item',
-                        'item_id' => $content->getContentId(),
+                        'type' => 'item',
+                        'item_id' => $content->getContentMstId(),
                         'amount' => $content->getAmount(),
                     ];
                     break;
 
                 case InAppPurchaseConst::CONTENT_TYPE_UNIT:
                     // ユニットを付与
-                    $unitId = $this->grantUnit($sysPlayerId, $content->getContentId(), $content->getAmount());
+                    // trx_unit.id はフラッシュまで採番されないので応答には載せない。
+                    // アイテムと同じく、何がいくつ付いたかはマスターIDと個数で表す
+                    $this->grantUnit($sysPlayerId, $content->getContentMstId(), $content->getAmount());
                     $grantedContentArray[] = [
-                        'type' => 'Unit',
-                        'unit_id' => $unitId,
-                        'mst_unit_id' => $content->getContentId(),
+                        'type' => 'unit',
+                        'mst_unit_id' => $content->getContentMstId(),
                         'amount' => $content->getAmount(),
                     ];
                     break;
@@ -114,33 +111,17 @@ class InAppPurchasePackService
     /**
      * ユニットを付与
      *
+     * 組み立てはRepositoryに任せる。ここで new TrxUnit() を書くと、
+     * grade の初期値や level_exp の列名を取りこぼす。
+     *
      * @param  int  $sysPlayerId  プレイヤーID
      * @param  string  $mstUnitId  ユニットマスターID
      * @param  int  $count  付与数
-     * @return int 付与されたユニットのID
      */
-    private function grantUnit(int $sysPlayerId, string $mstUnitId, int $count = 1): int
+    private function grantUnit(int $sysPlayerId, string $mstUnitId, int $count = 1): void
     {
-        // 複数個の場合も最初の1つのIDを返す（通常はcount=1）
-        $firstUnitId = null;
-
         for ($i = 0; $i < $count; $i++) {
-            $unit = new TrxUnit([
-                'sys_player_id' => $sysPlayerId,
-                'mst_unit_id' => $mstUnitId,
-                'level' => 1,
-                'exp' => 0,
-                'created_at' => ClockUtility::now(),
-                'updated_at' => ClockUtility::now(),
-            ]);
-
-            $this->trxUnitRepository->setModel($unit);
-
-            if ($firstUnitId === null) {
-                $firstUnitId = $unit->getId();
-            }
+            $this->trxUnitRepository->insertUnitForPlayer($sysPlayerId, $mstUnitId);
         }
-
-        return $firstUnitId;
     }
 }

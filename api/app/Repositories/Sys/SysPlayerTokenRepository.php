@@ -27,34 +27,30 @@ class SysPlayerTokenRepository extends _BaseSysRepository implements TokenReposi
     }
 
     /**
-     * refresh_token_hashから有効なトークンを取得
-     * メモリキャッシュから検索、なければDBから取得
+     * refresh_token_hashから有効なトークンを取得（キャッシュを通さない）
      */
     public function selectValidByHash(string $tokenHash): ?SysPlayerToken
     {
-        // メモリキャッシュから検索
-        $sysPlayerToken = $this->findCachedModels()
+        // 同じリクエストで発行したトークンは、まだDBに無い可能性がある。
+        // キューに積んだ自分の行だけは先に見る
+        $queued = $this->findCachedModels()->first(
+            fn (SysPlayerToken $token) => $token->getRefreshTokenHash() === $tokenHash && $token->isValid()
+        );
+
+        if ($queued !== null) {
+            /** @var SysPlayerToken */
+            return $queued;
+        }
+
+        // トークンの照合は認証そのものなので、
+        // この時点ではログイン中プレイヤーが確定していない。
+        // 読むだけで、キャッシュにも更新キューにも載せない
+        /** @var SysPlayerToken|null */
+        return $this->selectWithoutCache()
             ->where('refresh_token_hash', $tokenHash)
             ->whereNull('revoked_at')
             ->where('expires_at', '>', now())
             ->first();
-
-        if ($sysPlayerToken !== null) {
-            /** @var SysPlayerToken */
-            return $sysPlayerToken;
-        }
-
-        // DBから取得してメモリキャッシュに保存
-        $sysPlayerToken = $this->modelClass::where('refresh_token_hash', $tokenHash)
-            ->whereNull('revoked_at')
-            ->where('expires_at', '>', now())
-            ->first();
-
-        if ($sysPlayerToken !== null) {
-            $this->setModel($sysPlayerToken);
-        }
-
-        return $sysPlayerToken;
     }
 
     /**
@@ -66,27 +62,27 @@ class SysPlayerTokenRepository extends _BaseSysRepository implements TokenReposi
      */
     public function selectValidListByPlayerId(int $sysPlayerId): CustomCollection
     {
-        // メモリキャッシュから検索
-        $sysPlayerTokenCollection = $this->findCachedModels()
-            ->where('sys_player_id', $sysPlayerId)
-            ->whereNull('revoked_at')
-            ->filter(fn ($sysPlayerToken) => $sysPlayerToken->getExpiresAt() > now());
+        if ($this->isSessionPlayer($sysPlayerId)) {
+            /** @var CustomCollection<int, SysPlayerToken> $tokens */
+            $tokens = $this->queryOrMemory()
+                ->filter(fn (SysPlayerToken $token) => $token->getSysPlayerId() === $sysPlayerId
+                    && $token->isValid())
+                ->values();
 
-        if ($sysPlayerTokenCollection->isNotEmpty()) {
-            return $sysPlayerTokenCollection->values();
+            return $tokens;
         }
 
-        // DBから取得してメモリキャッシュに保存
-        $sysPlayerTokenCollection = $this->modelClass::where('sys_player_id', $sysPlayerId)
-            ->whereNull('revoked_at')
-            ->where('expires_at', '>', now())
-            ->get();
+        /** @var CustomCollection<int, SysPlayerToken> $tokens */
+        $tokens = new CustomCollection(
+            $this->selectWithoutCache()
+                ->where('sys_player_id', $sysPlayerId)
+                ->whereNull('revoked_at')
+                ->where('expires_at', '>', now())
+                ->get()
+                ->all()
+        );
 
-        foreach ($sysPlayerTokenCollection as $sysPlayerToken) {
-            $this->setModel($sysPlayerToken);
-        }
-
-        return new CustomCollection($sysPlayerTokenCollection->all());
+        return $tokens;
     }
 
     /**

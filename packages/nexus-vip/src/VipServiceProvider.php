@@ -46,7 +46,6 @@ class VipServiceProvider extends ServiceProvider
         // Note: Repository実装クラスは api/app/Repositories に配置されるため、
         // ここではインターフェースのみ定義し、実装は AppServiceProvider でバインドする
 
-
         // VIPレベルサービス
         $this->app->singleton(VipLevelService::class, function ($app) {
             return new VipLevelService(
@@ -62,7 +61,14 @@ class VipServiceProvider extends ServiceProvider
         });
 
         // VIPポイントサービス
-        $this->app->singleton(VipPointService::class, function ($app) {
+        //
+        // singletonではなくscopedを使う。Sys/LogのRepositoryを受け取って
+        // 持ち続けるため、singletonにするとOctaneやキューワーカーで
+        // リクエストを跨いでインスタンスが残り、
+        // 別プレイヤーのキャッシュを持ち越してしまう。
+        // VipLevelService / VipRewardService が持つのはMstのRepositoryで、
+        // こちらは意図的に静的キャッシュのため singleton のままでよい
+        $this->app->scoped(VipPointService::class, function ($app) {
             return new VipPointService(
                 $app->make(PlayerVipRepositoryInterface::class),
                 $app->make(VipPointLogRepositoryInterface::class),
@@ -89,7 +95,7 @@ class VipServiceProvider extends ServiceProvider
         // マイグレーションをロード（動的シャーディング対応）
         // 注意: php artisan pitr:migrate で全LogDBシャード（log1, log2, ...）に実行
         $baseDir = __DIR__.'/../database/migrations';
-        
+
         // 各サブディレクトリを個別に読み込む
         foreach (['mst', 'trx', 'log', 'sys'] as $type) {
             $path = "{$baseDir}/{$type}";

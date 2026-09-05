@@ -4,8 +4,16 @@ namespace App\Repositories\Trx;
 
 use App\Models\Trx\TrxVipLoginBonusHistory;
 
+/**
+ * @extends _BaseTrxRepository<TrxVipLoginBonusHistory>
+ */
 class TrxVipLoginBonusHistoryRepository extends _BaseTrxRepository implements VipLoginBonusHistoryRepositoryInterface
 {
+    /**
+     * trx_vip_login_bonus_history は履歴テーブルで is_delete を持たない
+     */
+    protected bool $excludesSoftDeleted = false;
+
     protected string $modelClass = TrxVipLoginBonusHistory::class;
 
     /**

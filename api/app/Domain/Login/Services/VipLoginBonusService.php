@@ -121,8 +121,6 @@ class VipLoginBonusService extends _BaseLoginBonusService
             'day' => $currentDay,
             'vip_level' => $bonusData['current_vip_level'],
             'received_at' => $receivedAt,
-            'created_at' => now(),
-            'updated_at' => now(),
         ], $connectionName);
     }
 

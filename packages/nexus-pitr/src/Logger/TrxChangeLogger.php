@@ -8,7 +8,7 @@ use NexusPitr\DataTransferObjects\ChangeLog;
 
 /**
  * TrxChangeLogger
- * 
+ *
  * TrxDBの変更履歴をLogDBに記録する
  * トランザクション内で実行され、TrxDBとLogDBの整合性を保証
  */
@@ -16,8 +16,8 @@ class TrxChangeLogger
 {
     /**
      * バッチログ記録（トランザクション内で実行）
-     * 
-     * @param array<ChangeLog> $changeLogDtos
+     *
+     * @param  array<ChangeLog>  $changeLogDtos
      * @return void
      */
     public function logBatch(array $changeLogDtos): void
@@ -30,7 +30,7 @@ class TrxChangeLogger
         $groupedByLog = [];
         foreach ($changeLogDtos as $dto) {
             $trxConn = $dto->getShardConnection();
-            
+
             try {
                 $logConn = ShardMapper::resolveLogConnection($trxConn);
             } catch (\InvalidArgumentException $e) {
@@ -38,43 +38,44 @@ class TrxChangeLogger
                     'trx_connection' => $trxConn,
                     'error' => $e->getMessage(),
                 ]);
+
                 continue;
             }
-            
-            if (!isset($groupedByLog[$logConn])) {
+
+            if (! isset($groupedByLog[$logConn])) {
                 $groupedByLog[$logConn] = [];
             }
             $groupedByLog[$logConn][] = $dto;
         }
-        
+
         // LogDBシャード毎に書き込み
         foreach ($groupedByLog as $logConn => $dtos) {
             $this->insertToLogDb($logConn, $dtos);
         }
     }
-    
+
     /**
      * 単一ログ記録（テスト用）
-     * 
-     * @param ChangeLog $changeLog
+     *
+     * @param  ChangeLog  $changeLog
      * @return void
      */
     public function log(ChangeLog $changeLog): void
     {
         $this->logBatch([$changeLog]);
     }
-    
+
     /**
      * LogDBにINSERT実行
-     * 
-     * @param string $logConnection
-     * @param array<ChangeLog> $dtos
+     *
+     * @param  string  $logConnection
+     * @param  array<ChangeLog>  $dtos
      * @return void
      */
     private function insertToLogDb(string $logConnection, array $dtos): void
     {
         $records = [];
-        
+
         foreach ($dtos as $dto) {
             $records[] = [
                 'id' => Str::uuid()->toString(), // UUIDv4（将来UUIDv7に変更推奨）
@@ -91,20 +92,20 @@ class TrxChangeLogger
                 'stack_trace' => $this->encodeJsonData($dto->getStackTrace()),
             ];
         }
-        
+
         // ✅ 同一トランザクション内でINSERT
         // バッチサイズで分割（大量データ対策）
         $batchSize = config('nexus-pitr.batch_size', 1000);
-        
+
         foreach (array_chunk($records, $batchSize) as $batch) {
             DB::connection($logConnection)->table('log_trx_change')->insert($batch);
         }
     }
-    
+
     /**
      * JSONエンコード（nullセーフ）
-     * 
-     * @param array|null $data
+     *
+     * @param  array<array-key, mixed>|null  $data  スタックトレースはlist、変更内容は連想配列
      * @return string|null
      */
     private function encodeJsonData(?array $data): ?string
@@ -112,7 +113,7 @@ class TrxChangeLogger
         if ($data === null) {
             return null;
         }
-        
+
         return json_encode($data, JSON_UNESCAPED_UNICODE);
     }
 }

@@ -9,8 +9,8 @@ namespace App\Models\Mst;
  * @property string $id
  * @property string $mst_gacha_step_bonus_id
  * @property string $content_type
- * @property string $content_id
- * @property array|null $content_option
+ * @property string $content_mst_id
+ * @property array<string, mixed>|null $content_option
  * @property int $content_quantity
  * @property int $amount
  * @property int $weight
@@ -25,12 +25,13 @@ class MstGachaStepBonusContent extends _BaseMst
 
     protected $keyType = 'string';
 
+    /** @var list<string> */
     protected $fillable = [
         'deploy_key',
         'id',
         'mst_gacha_step_bonus_id',
         'content_type',
-        'content_id',
+        'content_mst_id',
         'content_option',
         'content_quantity',
         'amount',
@@ -39,6 +40,7 @@ class MstGachaStepBonusContent extends _BaseMst
         'is_active',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'deploy_key' => 'integer',
         'content_option' => 'array',
@@ -70,13 +72,15 @@ class MstGachaStepBonusContent extends _BaseMst
     /**
      * コンテンツIDを取得
      */
-    public function getContentId(): string
+    public function getContentMstId(): string
     {
-        return $this->getAttribute('content_id');
+        return $this->getAttribute('content_mst_id');
     }
 
     /**
      * コンテンツオプションを取得
+     *
+     * @return array<string, mixed>|null
      */
     public function getContentOption(): ?array
     {

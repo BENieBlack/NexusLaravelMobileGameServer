@@ -2,33 +2,37 @@
 
 namespace Nexus\Core\Models;
 
+use Carbon\Carbon;
+use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Nexus\Core\Exceptions\DirectWriteNotAllowedException;
 
 /**
  * _BaseModel
- * 
+ *
  * 全てのモデルの最上位基底クラス
  * 共通の振る舞いとヘルパーメソッドを提供
  */
 abstract class _BaseModel extends Model implements _BaseModelInterface
 {
+    /** @use HasFactory<Factory<static>> */
     use HasFactory;
 
     /**
      * データベース接続名
-     * サブクラスでオーバーライド必須
-     * 
-     * @var string
+     *
+     * シャードを跨ぐモデル（_BaseTrx / _BaseLog）は既定をnullにして
+     * getConnectionName() で解決するため、nullを許容する
+     *
+     * @var string|null
      */
     protected $connection;
 
     /**
      * モデルがUnit of Workパターンで管理されるかどうか
      * Trx, Logモデルはtrue、Mst, Sysモデルはfalse
-     * 
-     * @var bool
      */
     protected bool $usesUnitOfWork = false;
 
@@ -36,9 +40,10 @@ abstract class _BaseModel extends Model implements _BaseModelInterface
      * タイムスタンプフィールドの自動キャストを無効化
      * パフォーマンス最適化のため、DB取得時はstring型のまま保持し、
      * toResponseArray()で必要に応じてCarbonにキャストしてISO8601形式で返す
-     * 
+     *
      * @var array<string, string>
      */
+    /** @var array<string, string> */
     protected $casts = [
         // デフォルトのcreated_at, updated_atのdatetime自動キャストを無効化
         // サブクラスで必要に応じて個別にキャスト定義可能
@@ -49,10 +54,19 @@ abstract class _BaseModel extends Model implements _BaseModelInterface
      *
      * 本番の実行時経路では常にfalse。
      * テストのフィクスチャやSeederのみ明示的に許可する。
-     *
-     * @var bool
      */
     protected static bool $directWritesAllowed = false;
+
+    /**
+     * @var list<string> 自分に関係する行を絞り込むカラム名
+     *
+     * 複数指定した場合はORで繋ぐ。
+     *
+     * @example trx_unit であれば ['sys_player_id']
+     * @example sys_friend_apply であれば ['sender_sys_player_id', 'receiver_sys_player_id']
+     */
+    /** @var list<string> */
+    protected array $selectKeys = [];
 
     /**
      * Eloquentによる即時書き込みを許可する
@@ -172,50 +186,111 @@ abstract class _BaseModel extends Model implements _BaseModelInterface
     /**
      * Eloquentのデフォルトタイムスタンプ自動キャストを無効化
      *
-     * @return bool
+     * Eloquentは $timestamps = true のとき created_at / updated_at を
+     * $casts の指定に関係なくCarbonへ変換する（HasAttributes::isDateAttribute()）。
+     * 日時は文字列のまま扱う方針のため、変換対象を空にして無効化する。
+     *
+     * タイムスタンプの自動設定（$timestamps）自体は有効なまま。
+     *
+     * @return array<int, string|null>
      */
-    public function usesTimestamps()
+    public function getDates()
     {
-        // タイムスタンプ機能自体は有効だが、Carbonへの自動キャストは行わない
-        return parent::usesTimestamps();
+        return [];
+    }
+
+    /**
+     * 日付属性を Y-m-d H:i:s 形式の文字列として取得
+     *
+     * DBから取得した時点で文字列なので、そのまま返すのが基本。
+     * Carbon等が入っている場合のみ整形する。
+     *
+     * 日時は文字列のまま扱う方針のため、比較は ClockUtility::isPast() /
+     * isFuture() / isWithin() を使う（固定長なので辞書順=時系列順）。
+     *
+     * @param  string  $attribute  属性名（例: 'created_at', 'start_at'）
+     */
+    protected function getDateAttributeString(string $attribute): ?string
+    {
+        $value = $this->getAttribute($attribute);
+
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        if (is_string($value)) {
+            return $value;
+        }
+
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format('Y-m-d H:i:s');
+        }
+
+        return (string) $value;
     }
 
     /**
      * 日付属性をCarbonImmutable型として取得
-     * 
+     *
      * パフォーマンス最適化のため、DB取得時はstring型で保持し、
      * このメソッドで必要に応じてCarbonImmutable型に変換する
-     * 
-     * @param string $attribute 属性名（例: 'created_at', 'start_at'）
-     * @return \Carbon\CarbonImmutable|null
+     *
+     * @param  string  $attribute  属性名（例: 'created_at', 'start_at'）
      */
-    protected function getDateAttribute(string $attribute): ?\Carbon\CarbonImmutable
+    protected function getDateAttribute(string $attribute): ?CarbonImmutable
     {
         $value = $this->getAttribute($attribute);
-        
+
         if ($value === null) {
             return null;
         }
-        
-        if ($value instanceof \Carbon\CarbonImmutable) {
+
+        if ($value instanceof CarbonImmutable) {
             return $value;
         }
-        
+
         if ($value instanceof \DateTimeInterface) {
-            return \Carbon\CarbonImmutable::instance($value);
+            return CarbonImmutable::instance($value);
         }
-        
+
         if (is_string($value)) {
-            return \Carbon\CarbonImmutable::parse($value);
+            return CarbonImmutable::parse($value);
         }
-        
+
         return null;
     }
 
     /**
+     * ユニークキーを取得
+     *
+     * 主キーがそのままユニークキー。複合主キーは $primaryKey を
+     * 配列で書けばそのまま拾える。
+     *
+     * 採番idを別に持つと「行の識別子」と「業務上の一意」が
+     * 二重管理になるため、trxテーブルは業務キーを主キーにする。
+     *
+     * @return list<string>
+     */
+    public function getUniqueKeys(): array
+    {
+        /** @var string|array<int, string> $primaryKey */
+        $primaryKey = $this->primaryKey;
+
+        return array_values((array) $primaryKey);
+    }
+
+    /**
+     * 絞り込みキーを取得
+     *
+     * @return list<string>
+     */
+    public function getSelectKeys(): array
+    {
+        return $this->selectKeys;
+    }
+
+    /**
      * Unit of Workパターンを使用するかどうか
-     * 
-     * @return bool
      */
     public function usesUnitOfWork(): bool
     {
@@ -224,18 +299,14 @@ abstract class _BaseModel extends Model implements _BaseModelInterface
 
     /**
      * データベース接続名を取得
-     * 
-     * @return string
      */
     public function getConnectionName(): string
     {
-        return $this->connection;
+        return (string) $this->connection;
     }
 
     /**
      * テーブル名を取得（エイリアス）
-     * 
-     * @return string
      */
     public function getTableName(): string
     {
@@ -244,8 +315,9 @@ abstract class _BaseModel extends Model implements _BaseModelInterface
 
     /**
      * モデルの属性を配列として取得（デバッグ用）
-     * 
-     * @return array
+     */
+    /**
+     * @return array<string, mixed>
      */
     public function toDebugArray(): array
     {
@@ -263,18 +335,14 @@ abstract class _BaseModel extends Model implements _BaseModelInterface
 
     /**
      * モデルが新規作成かどうか（INSERTが必要か）
-     * 
-     * @return bool
      */
     public function isNew(): bool
     {
-        return !$this->exists;
+        return ! $this->exists;
     }
 
     /**
      * モデルが更新対象かどうか（UPDATEが必要か）
-     * 
-     * @return bool
      */
     public function needsUpdate(): bool
     {
@@ -283,8 +351,6 @@ abstract class _BaseModel extends Model implements _BaseModelInterface
 
     /**
      * モデルに変更があるかどうか（INSERT or UPDATEが必要か）
-     * 
-     * @return bool
      */
     public function needsSave(): bool
     {
@@ -293,39 +359,40 @@ abstract class _BaseModel extends Model implements _BaseModelInterface
 
     /**
      * APIレスポンス用の配列に変換
-     * 
+     *
      * パフォーマンス最適化のため、DB取得時はstring型で保持し、
      * レスポンス生成時のみCarbonにパースしてISO8601形式に変換する
-     * 
+     *
      * @return array<string, mixed>
      */
     public function toResponseArray(): array
     {
         $array = $this->toArray();
-        
+
         // 日付フィールドをISO8601形式に変換
         // DB取得時はstring型なので、ここで明示的にCarbonにパースする
         foreach ($this->getDates() as $dateField) {
             if (isset($array[$dateField]) && is_string($array[$dateField])) {
                 try {
-                    $carbon = \Carbon\Carbon::parse($array[$dateField]);
+                    $carbon = Carbon::parse($array[$dateField]);
                     $array[$dateField] = $carbon->toIso8601String();
                 } catch (\Exception $e) {
                     // パース失敗時は元の値をそのまま使用
                     // エラーログは出さずに続行（DBから取得した値は通常パース可能）
                 }
             } elseif (isset($array[$dateField]) && $array[$dateField] instanceof \DateTimeInterface) {
-                // 既にCarbon/DateTime型の場合（後方互換性のため）
-                $array[$dateField] = $array[$dateField]->toIso8601String();
+                // 既にCarbon/DateTime型の場合（後方互換性のため）。
+                // toIso8601String()はCarbon固有なので、素の\DateTimeでも通るformatを使う
+                $array[$dateField] = $array[$dateField]->format(\DateTimeInterface::ATOM);
             }
         }
-        
+
         // クライアントに渡さない内部情報を除外
         unset($array['sys_player_id']);
         unset($array['uuid']);
         unset($array['created_at']);
         unset($array['updated_at']);
-        
+
         return $array;
     }
 }

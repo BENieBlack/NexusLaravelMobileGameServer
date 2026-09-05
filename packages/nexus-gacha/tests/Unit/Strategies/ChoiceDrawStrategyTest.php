@@ -2,39 +2,43 @@
 
 namespace NexusGacha\Tests\Unit\Strategies;
 
-use NexusGacha\Strategies\ChoiceDrawStrategy;
-use NexusGacha\Strategies\GachaDrawContext;
 use NexusGacha\Exceptions\GachaDrawException;
-use NexusGacha\Repositories\GachaStepBonusContentRepositoryInterface;
 use NexusGacha\Repositories\GachaPrizeRepositoryInterface;
 use NexusGacha\Repositories\GachaRarityRateRepositoryInterface;
-use PHPUnit\Framework\TestCase;
+use NexusGacha\Repositories\GachaStepBonusContentRepositoryInterface;
+use NexusGacha\Strategies\ChoiceDrawStrategy;
+use NexusGacha\Strategies\GachaDrawContext;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /**
  * ChoiceDrawStrategy テスト
- * 
+ *
  * ユーザー選択型抽選のテスト
  */
 class ChoiceDrawStrategyTest extends TestCase
 {
     private ChoiceDrawStrategy $strategy;
+
     private GachaStepBonusContentRepositoryInterface&MockObject $bonusContentRepository;
+
     private GachaPrizeRepositoryInterface&MockObject $prizeRepository;
+
     private GachaRarityRateRepositoryInterface&MockObject $rarityRateRepository;
+
     private GachaDrawContext $context;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
-        $this->strategy = new ChoiceDrawStrategy();
-        
+
+        $this->strategy = new ChoiceDrawStrategy;
+
         // モックRepositoryを作成
         $this->bonusContentRepository = $this->createMock(GachaStepBonusContentRepositoryInterface::class);
         $this->prizeRepository = $this->createMock(GachaPrizeRepositoryInterface::class);
         $this->rarityRateRepository = $this->createMock(GachaRarityRateRepositoryInterface::class);
-        
+
         // Contextを作成
         $this->context = new GachaDrawContext(
             bonusContentRepository: $this->bonusContentRepository,
@@ -62,7 +66,7 @@ class ChoiceDrawStrategyTest extends TestCase
         $this->expectExceptionCode(GachaDrawException::CODE_MISSING_CANDIDATE_ID);
 
         $bonus = $this->createBonusMock('choice', 5, false);
-        
+
         $this->strategy->draw($bonus, null, 'gacha_001', $this->context);
     }
 
@@ -73,14 +77,14 @@ class ChoiceDrawStrategyTest extends TestCase
         $this->expectExceptionCode(GachaDrawException::CODE_INVALID_CANDIDATE);
 
         $bonus = $this->createBonusMock('choice', 5, false, 'bonus_001');
-        
+
         // findByIdでnullを返す
         $this->bonusContentRepository
             ->expects($this->once())
             ->method('selectById')
             ->with('candidate_001')
             ->willReturn(null);
-        
+
         $this->strategy->draw($bonus, 'candidate_001', 'gacha_001', $this->context);
     }
 
@@ -91,16 +95,16 @@ class ChoiceDrawStrategyTest extends TestCase
         $this->expectExceptionCode(GachaDrawException::CODE_INVALID_CANDIDATE);
 
         $bonus = $this->createBonusMock('choice', 5, false, 'bonus_001');
-        
+
         // 異なるbonus_idを持つcandidateを返す
         $candidate = $this->createCandidateMock('bonus_002', 'Item', 'item_001', 100);
-        
+
         $this->bonusContentRepository
             ->expects($this->once())
             ->method('selectById')
             ->with('candidate_001')
             ->willReturn($candidate);
-        
+
         $this->strategy->draw($bonus, 'candidate_001', 'gacha_001', $this->context);
     }
 
@@ -108,17 +112,17 @@ class ChoiceDrawStrategyTest extends TestCase
     {
         $bonus = $this->createBonusMock('choice', 5, false, 'bonus_001');
         $candidate = $this->createCandidateMock('bonus_001', 'Unit', 'unit_ssr_001', 500);
-        
+
         $this->bonusContentRepository
             ->expects($this->once())
             ->method('selectById')
             ->with('candidate_001')
             ->willReturn($candidate);
-        
+
         $result = $this->strategy->draw($bonus, 'candidate_001', 'gacha_001', $this->context);
-        
+
         $this->assertSame('Unit', $result->getContentType());
-        $this->assertSame('unit_ssr_001', $result->getContentId());
+        $this->assertSame('unit_ssr_001', $result->getContentMstId());
         $this->assertSame(500, $result->getAmount());
         $this->assertSame(5, $result->getRarity());
         $this->assertTrue($result->isGuaranteed());
@@ -129,16 +133,18 @@ class ChoiceDrawStrategyTest extends TestCase
      */
     private function createBonusMock(string $selectionType, int $bonusRarity, bool $isPickupOnly, ?string $bonusId = null): object
     {
-        return new class($selectionType, $bonusRarity, $isPickupOnly, $bonusId) {
+        return new class($selectionType, $bonusRarity, $isPickupOnly, $bonusId)
+        {
             public function __construct(
                 private string $selectionType,
                 private int $bonusRarity,
                 private bool $isPickupOnly,
                 private ?string $bonusId
             ) {}
-            
-            public function getAttribute(string $key): mixed {
-                return match($key) {
+
+            public function getAttribute(string $key): mixed
+            {
+                return match ($key) {
                     'selection_type' => $this->selectionType,
                     'bonus_rarity' => $this->bonusRarity,
                     'is_pickup_only' => $this->isPickupOnly,
@@ -152,21 +158,23 @@ class ChoiceDrawStrategyTest extends TestCase
     /**
      * 候補のモックを作成
      */
-    private function createCandidateMock(string $bonusId, string $contentType, string $contentId, int $amount): object
+    private function createCandidateMock(string $bonusId, string $contentType, string $contentMstId, int $amount): object
     {
-        return new class($bonusId, $contentType, $contentId, $amount) {
+        return new class($bonusId, $contentType, $contentMstId, $amount)
+        {
             public function __construct(
                 private string $bonusId,
                 private string $contentType,
-                private string $contentId,
+                private string $contentMstId,
                 private int $amount
             ) {}
-            
-            public function getAttribute(string $key): mixed {
-                return match($key) {
+
+            public function getAttribute(string $key): mixed
+            {
+                return match ($key) {
                     'mst_gacha_step_bonus_id' => $this->bonusId,
                     'content_type' => $this->contentType,
-                    'content_id' => $this->contentId,
+                    'content_mst_id' => $this->contentMstId,
                     'amount' => $this->amount,
                     default => null,
                 };

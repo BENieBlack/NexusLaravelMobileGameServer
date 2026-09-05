@@ -11,7 +11,7 @@ namespace App\Models\Mst;
  * @property int $step_number
  * @property int $draw_count
  * @property string|null $cost_type
- * @property string|null $cost_id
+ * @property string|null $cost_mst_id
  * @property int|null $cost_amount
  * @property bool $is_loop_start
  * @property bool $is_active
@@ -24,6 +24,7 @@ class MstGachaStep extends _BaseMst
 
     protected $keyType = 'string';
 
+    /** @var list<string> */
     protected $fillable = [
         'deploy_key',
         'id',
@@ -31,12 +32,13 @@ class MstGachaStep extends _BaseMst
         'step_number',
         'draw_count',
         'cost_type',
-        'cost_id',
+        'cost_mst_id',
         'cost_amount',
         'is_loop_start',
         'is_active',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'deploy_key' => 'integer',
         'step_number' => 'integer',

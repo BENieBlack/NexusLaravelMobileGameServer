@@ -51,10 +51,12 @@ class HomeUseCaseTest extends TestCase
     protected function tearDown(): void
     {
         // テストデータをクリア
-        DB::connection('trx1')->table('trx_login_bonus_history')->delete();
-        DB::connection('trx1')->table('trx_unit')->delete();
-        DB::connection('trx1')->table('trx_item')->delete();
-        DB::connection('trx1')->table('trx_wallet')->delete();
+        foreach (['trx1', 'trx2'] as $connection) {
+            DB::connection($connection)->table('trx_login_bonus_history')->delete();
+            DB::connection($connection)->table('trx_unit')->delete();
+            DB::connection($connection)->table('trx_item')->delete();
+            DB::connection($connection)->table('trx_wallet')->delete();
+        }
         DB::connection('mst')->table('mst_login_bonus_content')->delete();
         DB::connection('mst')->table('mst_login_bonus')->delete();
 
@@ -85,23 +87,7 @@ class HomeUseCaseTest extends TestCase
 
         $this->testPlayer = SysPlayer::where('my_id', $myId)->first();
 
-        // シャーディングノードへの割り当てを手動で作成（sign_upでは作成されないため）
-        $sharding = DB::connection('sys')->table('sys_sharding')
-            ->where('name', 'trx_sharding')
-            ->first();
-
-        $node = DB::connection('sys')->table('sys_sharding_node')
-            ->where('sys_sharding_id', $sharding->id)
-            ->where('node_name', 'node1')
-            ->first();
-
-        DB::connection('sys')->table('sys_sharding_node_player')->insert([
-            'sys_sharding_node_id' => $node->id,
-            'sys_player_id' => $this->testPlayer->id,
-            'assigned_at' => now(),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        // シャード割り当てはサインアップ時に作られる
     }
 
     /**
@@ -123,7 +109,7 @@ class HomeUseCaseTest extends TestCase
             MstLoginBonusContent::create([
                 'mst_login_bonus_id' => $bonusId,
                 'content_type' => 'item',
-                'content_id' => 'item_potion_001',
+                'content_mst_id' => 'item_potion_001',
                 'amount' => $day * 10,
                 'is_paid' => false,
                 'sort_order' => 1,
@@ -134,7 +120,7 @@ class HomeUseCaseTest extends TestCase
                 MstLoginBonusContent::create([
                     'mst_login_bonus_id' => $bonusId,
                     'content_type' => 'diamond',
-                    'content_id' => 'diamond',
+                    'content_mst_id' => 'diamond',
                     'amount' => 100,
                     'is_paid' => false,
                     'sort_order' => 2,
@@ -157,7 +143,7 @@ class HomeUseCaseTest extends TestCase
         ])->postJson('/api/auth/login');
 
         $response->assertOk();
-        $data = $response->json('data');
+        $data = $response->json();
 
         // レスポンス構造を確認
         $this->assertArrayHasKey('sys_player', $data);
@@ -175,7 +161,7 @@ class HomeUseCaseTest extends TestCase
         $this->assertSame(10, $loginBonusList[0]['amount']);
 
         // 履歴が記録されていることを確認
-        $history = DB::connection('trx1')
+        $history = DB::connection($this->playerConnection($this->testPlayer->id))
             ->table('trx_login_bonus_history')
             ->where('sys_player_id', $this->testPlayer->id)
             ->first();
@@ -193,7 +179,7 @@ class HomeUseCaseTest extends TestCase
         ])->postJson('/api/auth/login');
 
         $response1->assertOk();
-        $data1 = $response1->json('data');
+        $data1 = $response1->json();
         $this->assertNotEmpty($data1['login_bonus_list']);
 
         // 2回目のログイン（同日）
@@ -202,7 +188,7 @@ class HomeUseCaseTest extends TestCase
         ])->postJson('/api/auth/login');
 
         $response2->assertOk();
-        $data2 = $response2->json('data');
+        $data2 = $response2->json();
 
         // ログインボーナスが空であることを確認
         $this->assertEmpty($data2['login_bonus_list']);
@@ -222,7 +208,7 @@ class HomeUseCaseTest extends TestCase
         ])->postJson('/api/auth/login');
 
         $response1->assertOk();
-        $data1 = $response1->json('data');
+        $data1 = $response1->json();
         $this->assertCount(1, $data1['login_bonus_list']);
         $this->assertSame(10, $data1['login_bonus_list'][0]['amount']); // 1日目: 10個
 
@@ -235,7 +221,7 @@ class HomeUseCaseTest extends TestCase
         ])->postJson('/api/auth/login');
 
         $response2->assertOk();
-        $data2 = $response2->json('data');
+        $data2 = $response2->json();
 
         $this->assertCount(1, $data2['login_bonus_list']);
         $this->assertSame('item', $data2['login_bonus_list'][0]['type']);
@@ -258,7 +244,7 @@ class HomeUseCaseTest extends TestCase
             ])->postJson('/api/auth/login');
 
             $response->assertOk();
-            $data = $response->json('data');
+            $data = $response->json();
 
             if ($i === 7) {
                 // 7日目は2つの報酬（アイテム + ダイヤ）
@@ -295,7 +281,7 @@ class HomeUseCaseTest extends TestCase
             ])->postJson('/api/auth/login');
 
             $response->assertOk();
-            $data = $response->json('data');
+            $data = $response->json();
 
             if ($i === 8) {
                 // 8日目は1日目の報酬にループ
@@ -337,7 +323,7 @@ class HomeUseCaseTest extends TestCase
         ])->postJson('/api/auth/login');
 
         $response->assertOk();
-        $data = $response->json('data');
+        $data = $response->json();
 
         // 休眠してもリセットされず、前回受け取り分（3日目）の次＝4日目が配布される
         // 休眠プレイヤー向けの救済はカムバックボーナス側が担当する
@@ -363,7 +349,7 @@ class HomeUseCaseTest extends TestCase
         ])->postJson('/api/auth/login');
 
         $response->assertOk();
-        $data = $response->json('data');
+        $data = $response->json();
 
         // ログインボーナスが空
         $this->assertEmpty($data['login_bonus_list']);

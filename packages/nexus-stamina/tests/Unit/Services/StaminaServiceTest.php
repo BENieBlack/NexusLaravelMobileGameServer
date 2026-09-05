@@ -3,6 +3,7 @@
 namespace NexusStamina\Tests\Unit\Services;
 
 use Mockery;
+use Nexus\Core\Utilities\ClockUtility;
 use NexusStamina\Constants\StaminaConst;
 use NexusStamina\DataTransferObjects\Stamina;
 use NexusStamina\Repositories\StaminaRepositoryInterface;
@@ -18,9 +19,19 @@ class StaminaServiceTest extends TestCase
 
     private PlayerLevelServiceInterface $playerLevelService;
 
+    /**
+     * テストで使うスタミナDTOの最終回復時刻
+     *
+     * 既定ではここに現在時刻を合わせ、経過時間による自然回復が
+     * 混ざらない状態で各機能を検証する。
+     */
+    private const LAST_RECOVERY_AT = '2026-01-15 10:00:00';
+
     protected function setUp(): void
     {
         parent::setUp();
+
+        ClockUtility::setNow(self::LAST_RECOVERY_AT);
 
         $this->staminaRepository = Mockery::mock(StaminaRepositoryInterface::class);
         $this->playerLevelService = Mockery::mock(PlayerLevelServiceInterface::class);
@@ -33,6 +44,7 @@ class StaminaServiceTest extends TestCase
 
     protected function tearDown(): void
     {
+        ClockUtility::reset();
         Mockery::close();
         parent::tearDown();
     }
@@ -51,7 +63,7 @@ class StaminaServiceTest extends TestCase
             type: StaminaConst::TYPE_NORMAL,
             currentStamina: $initialStamina,
             recoveryRateMultiplier: 1.00,
-            lastRecoveryAt: '2026-01-15 10:00:00'
+            lastRecoveryAt: self::LAST_RECOVERY_AT
         );
 
         $this->staminaRepository->shouldReceive('insert')
@@ -108,7 +120,7 @@ class StaminaServiceTest extends TestCase
             type: StaminaConst::TYPE_NORMAL,
             currentStamina: 100,
             recoveryRateMultiplier: 1.00,
-            lastRecoveryAt: '2026-01-15 10:00:00'
+            lastRecoveryAt: self::LAST_RECOVERY_AT
         );
 
         $this->staminaRepository->shouldReceive('selectByPlayerAndType')
@@ -116,7 +128,7 @@ class StaminaServiceTest extends TestCase
             ->with($sysPlayerId, StaminaConst::TYPE_NORMAL)
             ->andReturn($stamina);
 
-        $this->playerLevelService->shouldReceive("findMaxStamina")
+        $this->playerLevelService->shouldReceive('findMaxStamina')
             ->once()
             ->with($sysPlayerId)
             ->andReturn(100);
@@ -150,7 +162,7 @@ class StaminaServiceTest extends TestCase
             type: StaminaConst::TYPE_NORMAL,
             currentStamina: 100,
             recoveryRateMultiplier: 1.00,
-            lastRecoveryAt: '2026-01-15 10:00:00'
+            lastRecoveryAt: self::LAST_RECOVERY_AT
         );
 
         $this->staminaRepository->shouldReceive('selectByPlayerAndType')
@@ -158,7 +170,7 @@ class StaminaServiceTest extends TestCase
             ->with($sysPlayerId, StaminaConst::TYPE_NORMAL)
             ->andReturn($stamina);
 
-        $this->playerLevelService->shouldReceive("findMaxStamina")
+        $this->playerLevelService->shouldReceive('findMaxStamina')
             ->once()
             ->with($sysPlayerId)
             ->andReturn(100);
@@ -186,7 +198,7 @@ class StaminaServiceTest extends TestCase
             type: StaminaConst::TYPE_NORMAL,
             currentStamina: 50,
             recoveryRateMultiplier: 1.00,
-            lastRecoveryAt: '2026-01-15 10:00:00'
+            lastRecoveryAt: self::LAST_RECOVERY_AT
         );
 
         $this->staminaRepository->shouldReceive('selectByPlayerAndType')
@@ -194,7 +206,7 @@ class StaminaServiceTest extends TestCase
             ->with($sysPlayerId, StaminaConst::TYPE_NORMAL)
             ->andReturn($stamina);
 
-        $this->playerLevelService->shouldReceive("findMaxStamina")
+        $this->playerLevelService->shouldReceive('findMaxStamina')
             ->once()
             ->with($sysPlayerId)
             ->andReturn(100);
@@ -228,7 +240,7 @@ class StaminaServiceTest extends TestCase
             type: StaminaConst::TYPE_NORMAL,
             currentStamina: 50,
             recoveryRateMultiplier: 1.00,
-            lastRecoveryAt: '2026-01-15 10:00:00'
+            lastRecoveryAt: self::LAST_RECOVERY_AT
         );
 
         $this->staminaRepository->shouldReceive('selectByPlayerAndType')
@@ -236,7 +248,7 @@ class StaminaServiceTest extends TestCase
             ->with($sysPlayerId, StaminaConst::TYPE_NORMAL)
             ->andReturn($stamina);
 
-        $this->playerLevelService->shouldReceive("findMaxStamina")
+        $this->playerLevelService->shouldReceive('findMaxStamina')
             ->once()
             ->with($sysPlayerId)
             ->andReturn(100);
@@ -299,5 +311,115 @@ class StaminaServiceTest extends TestCase
         $this->assertFalse($result['success']);
         $this->assertEquals(0, $result['total']);
         $this->assertEquals('Stamina record not found', $result['message']);
+    }
+
+    /**
+     * 時間経過で自然回復する
+     */
+    public function test_find_stamina_applies_auto_recovery(): void
+    {
+        // Arrange
+        $sysPlayerId = 1;
+
+        // 最終回復から25分経過（300秒で1ポイント回復するので5ポイント）
+        ClockUtility::setNow('2026-01-15 10:25:00');
+
+        $stamina = new Stamina(
+            sysPlayerId: $sysPlayerId,
+            type: StaminaConst::TYPE_NORMAL,
+            currentStamina: 50,
+            recoveryRateMultiplier: 1.00,
+            lastRecoveryAt: self::LAST_RECOVERY_AT
+        );
+
+        $this->staminaRepository->shouldReceive('selectByPlayerAndType')
+            ->once()
+            ->with($sysPlayerId, StaminaConst::TYPE_NORMAL)
+            ->andReturn($stamina);
+
+        $this->playerLevelService->shouldReceive('findMaxStamina')
+            ->once()
+            ->with($sysPlayerId)
+            ->andReturn(100);
+
+        // Act
+        $result = $this->service->findStamina($sysPlayerId);
+
+        // Assert
+        $this->assertSame(55, $result->getCurrentStamina());
+        // 回復に使った分だけ基準時刻が進む
+        $this->assertSame('2026-01-15 10:25:00', $result->getLastRecoveryAt());
+    }
+
+    /**
+     * 自然回復は最大値で頭打ちになる
+     */
+    public function test_find_stamina_auto_recovery_stops_at_max(): void
+    {
+        // Arrange
+        $sysPlayerId = 1;
+
+        // 10時間経過（120ポイント分だが最大値100で止まる）
+        ClockUtility::setNow('2026-01-15 20:00:00');
+
+        $stamina = new Stamina(
+            sysPlayerId: $sysPlayerId,
+            type: StaminaConst::TYPE_NORMAL,
+            currentStamina: 50,
+            recoveryRateMultiplier: 1.00,
+            lastRecoveryAt: self::LAST_RECOVERY_AT
+        );
+
+        $this->staminaRepository->shouldReceive('selectByPlayerAndType')
+            ->once()
+            ->with($sysPlayerId, StaminaConst::TYPE_NORMAL)
+            ->andReturn($stamina);
+
+        $this->playerLevelService->shouldReceive('findMaxStamina')
+            ->once()
+            ->with($sysPlayerId)
+            ->andReturn(100);
+
+        // Act
+        $result = $this->service->findStamina($sysPlayerId);
+
+        // Assert
+        $this->assertSame(100, $result->getCurrentStamina());
+    }
+
+    /**
+     * 回復速度倍率が効く
+     */
+    public function test_find_stamina_auto_recovery_applies_multiplier(): void
+    {
+        // Arrange
+        $sysPlayerId = 1;
+
+        // 25分経過。倍率2.0なら50分相当で10ポイント回復する
+        ClockUtility::setNow('2026-01-15 10:25:00');
+
+        $stamina = new Stamina(
+            sysPlayerId: $sysPlayerId,
+            type: StaminaConst::TYPE_NORMAL,
+            currentStamina: 50,
+            recoveryRateMultiplier: 2.00,
+            lastRecoveryAt: self::LAST_RECOVERY_AT
+        );
+
+        $this->staminaRepository->shouldReceive('selectByPlayerAndType')
+            ->once()
+            ->with($sysPlayerId, StaminaConst::TYPE_NORMAL)
+            ->andReturn($stamina);
+
+        $this->playerLevelService->shouldReceive('findMaxStamina')
+            ->once()
+            ->with($sysPlayerId)
+            ->andReturn(100);
+
+        // Act
+        $result = $this->service->findStamina($sysPlayerId);
+
+        // Assert
+        $this->assertSame(60, $result->getCurrentStamina());
     }
 }

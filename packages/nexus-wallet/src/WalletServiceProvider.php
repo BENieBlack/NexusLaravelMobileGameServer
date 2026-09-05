@@ -1,10 +1,10 @@
 <?php
 
-namespace LaravelWallet;
+namespace NexusWallet;
 
 use Illuminate\Support\ServiceProvider;
-use LaravelWallet\Contracts\WalletManagerInterface;
-use LaravelWallet\Services\WalletService;
+use NexusWallet\Contracts\WalletManagerInterface;
+use NexusWallet\Services\WalletService;
 
 /**
  * Wallet Service Provider
@@ -25,8 +25,14 @@ class WalletServiceProvider extends ServiceProvider
 
         // WalletService を WalletManagerInterface として登録
         // Application層でRepositoryの実装を提供する必要がある
-        $this->app->singleton(WalletService::class);
-        $this->app->singleton(WalletManagerInterface::class, WalletService::class);
+        //
+        // singletonではなくscopedを使う。WalletServiceはRepositoryを
+        // コンストラクタで受け取って持ち続けるため、singletonにすると
+        // OctaneやキューワーカーでリクエストをまたいでRepositoryが残り、
+        // 別プレイヤーの残高キャッシュを持ち越してしまう。
+        // Repository側をscopedにしている意味が無くなる
+        $this->app->scoped(WalletService::class);
+        $this->app->scoped(WalletManagerInterface::class, WalletService::class);
     }
 
     /**
@@ -37,7 +43,7 @@ class WalletServiceProvider extends ServiceProvider
         // マイグレーションをロード（動的シャーディング対応）
         // 注意: php artisan trx:migrate で全TrxDBシャード（trx1, trx2, ...）に実行
         $baseDir = __DIR__.'/../database/migrations';
-        
+
         // 各サブディレクトリを個別に読み込む
         foreach (['mst', 'trx', 'log', 'sys'] as $type) {
             $path = "{$baseDir}/{$type}";
@@ -45,7 +51,7 @@ class WalletServiceProvider extends ServiceProvider
                 $this->loadMigrationsFrom($path);
             }
         }
-        
+
         // 設定ファイルの公開
         if ($this->app->runningInConsole()) {
             $this->publishes([

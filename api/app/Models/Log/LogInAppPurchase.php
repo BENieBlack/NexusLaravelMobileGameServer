@@ -6,6 +6,7 @@ class LogInAppPurchase extends _BaseLog
 {
     protected $table = 'log_in_app_purchase';
 
+    /** @var array<string, string> */
     protected $casts = [
         'id' => 'integer',
         'unique_request_id' => 'string',
@@ -21,6 +22,7 @@ class LogInAppPurchase extends _BaseLog
         'pay_string' => 'string',
     ];
 
+    /** @var list<string> */
     protected $fillable = [
         'unique_request_id',
         'sys_player_id',
@@ -37,6 +39,22 @@ class LogInAppPurchase extends _BaseLog
     ];
 
     /**
+     * ステータス定数
+     *
+     * CheckAvailability: 購入可能かの確認のみ
+     * Purchased: 購入完了
+     * Failed: 検証や付与に失敗
+     * Refunded: 返金済み
+     */
+    public const STATUS_CHECK_AVAILABILITY = 'check_availability';
+
+    public const STATUS_PURCHASED = 'purchased';
+
+    public const STATUS_FAILED = 'failed';
+
+    public const STATUS_REFUNDED = 'refunded';
+
+    /**
      * プラットフォーム定数
      */
     public const PLATFORM_APPLE = 'apple';
@@ -45,6 +63,8 @@ class LogInAppPurchase extends _BaseLog
 
     /**
      * 利用可能なプラットフォーム一覧を取得
+     *
+     * @return array<int, string>
      */
     public static function availablePlatforms(): array
     {

@@ -2,7 +2,7 @@
 
 ## 概要
 
-本システムは完全動的シャーディングに対応しており、環境変数`DB_TRX_SHARDS`を変更するだけで簡単にシャード数を増減できます。このドキュメントでは、シャードを増設する具体的な手順を説明します。
+本システムは完全動的シャーディングに対応しており、環境変数`DB_SHARD_COUNT`を変更するだけで簡単にシャード数を増減できます。このドキュメントでは、シャードを増設する具体的な手順を説明します。
 
 ## 前提条件
 
@@ -18,16 +18,18 @@
 
 #### 1.1 ルート.envファイルの更新
 
-`/.env`を編集し、`DB_TRX_SHARDS`の値を変更します。
+`/.env`を編集し、`DB_SHARD_COUNT`の値を変更します。
 
 ```bash
 # Sharding Configuration
-DB_TRX_SHARDS=3  # 2 → 3に変更
+DB_SHARD_COUNT=3  # 2 → 3に変更
 ```
 
-#### 1.2 api/.envファイルの更新
+#### 1.2 シャード接続情報の追加
 
-`/api/.env`を編集し、新しいシャードの接続情報を追加します。
+同じルートの `.env` に、新しいシャードの接続情報を追加します。
+（`api/.env` は読み込まれないため置かないこと。`api/bootstrap/app.php` が
+リポジトリルートの `.env` を参照する）
 
 ```bash
 # トランザクションDB接続 - ノード3（新規追加）
@@ -38,7 +40,7 @@ DB_TRX3_USERNAME=root
 DB_TRX3_PASSWORD=root
 
 # シャーディング設定
-DB_TRX_SHARDS=3
+DB_SHARD_COUNT=3
 
 # ログDB接続 - ノード3（新規追加）
 DB_LOG3_HOST=db-log3
@@ -114,7 +116,7 @@ volumes:
     # ... 他の設定 ...
     environment:
       - CLIENT_SECRET=${CLIENT_SECRET:-your-secret-key-change-in-production-12345}
-      - DB_TRX_SHARDS=${DB_TRX_SHARDS:-2}  # この行を追加
+      - DB_SHARD_COUNT=${DB_SHARD_COUNT:-2}  # この行を追加
 ```
 
 #### 2.4 ポート番号の参考
@@ -219,13 +221,13 @@ docker compose restart api-php
 
 ```bash
 docker exec api-php php artisan tinker --execute="
-echo 'DB_TRX_SHARDS: ' . getenv('DB_TRX_SHARDS') . PHP_EOL;
+echo 'DB_SHARD_COUNT: ' . getenv('DB_SHARD_COUNT') . PHP_EOL;
 "
 ```
 
 期待される出力：
 ```
-DB_TRX_SHARDS: 3
+DB_SHARD_COUNT: 3
 ```
 
 ### ステップ4: マイグレーション実行
@@ -378,7 +380,7 @@ done
 **原因:** 環境変数が正しく読み込まれていない、または`DB_TRXN_*`の設定が不足している。
 
 **解決策:**
-1. `.env`ファイルと`api/.env`ファイルの設定を確認
+1. ルートの `.env` の設定を確認（`api/.env` は読み込まれない）
 2. api-phpコンテナを再起動: `docker compose restart api-php`
 3. 環境変数を確認: `docker exec api-php env | grep DB_TRX`
 
@@ -438,7 +440,7 @@ docker exec db-log2 mysqldump -uroot -proot nexus-local-log2 > backup_log2_$(dat
 シャード数を減らす場合は**データ移行が必須**です：
 
 1. 削除予定シャードのデータを残存シャードに移行
-2. 移行完了後、`DB_TRX_SHARDS`を減少
+2. 移行完了後、`DB_SHARD_COUNT`を減少
 3. 不要なコンテナを停止・削除
 
 **警告:** データ移行なしにシャードを削除すると、データロスが発生します。
@@ -462,7 +464,7 @@ docker exec db-log2 mysqldump -uroot -proot nexus-local-log2 > backup_log2_$(dat
 
 本システムは以下の原則に基づいて動作します：
 
-1. **環境変数駆動**: `DB_TRX_SHARDS`でシャード数を制御
+1. **環境変数駆動**: `DB_SHARD_COUNT`でシャード数を制御
 2. **1:1マッピング**: trxN ↔ logN（N=1,2,3,...）
 3. **コード変更不要**: ShardMapperが自動的にシャード数を認識
 4. **マイグレーション自動化**: 各シャードに対して同一のスキーマを自動展開
@@ -471,7 +473,7 @@ docker exec db-log2 mysqldump -uroot -proot nexus-local-log2 > backup_log2_$(dat
 
 シャード増設は以下の手順で完了します：
 
-1. ✅ **環境変数設定** (.env, api/.env, docker-compose.yml)
+1. ✅ **環境変数設定** (ルートの .env, docker-compose.yml)
 2. ✅ **Dockerコンテナ起動** (docker compose up -d)
 3. ✅ **データベース作成** (CREATE DATABASE)
 4. ✅ **テスト用データベース作成** (CREATE DATABASE for testing)

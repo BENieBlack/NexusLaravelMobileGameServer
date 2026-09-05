@@ -92,11 +92,9 @@ class LoginBonusService extends _BaseLoginBonusService
                 'absent_days' => null,
                 'received_date' => $receivedDate,
                 'reward_type' => $content->content_type,
-                'reward_id' => $content->content_id,
+                'reward_mst_id' => $content->content_mst_id,
                 'reward_amount' => $content->content_quantity * $content->amount,
                 'is_paid' => $content->is_paid ?? false,
-                'created_at' => now(),
-                'updated_at' => now(),
             ], $connectionName);
         }
     }

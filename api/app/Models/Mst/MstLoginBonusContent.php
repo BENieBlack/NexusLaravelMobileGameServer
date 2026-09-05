@@ -2,7 +2,7 @@
 
 namespace App\Models\Mst;
 
-use Illuminate\Database\Eloquent\Builder;
+use App\Traits\CompositePrimaryKeyTrait;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
@@ -13,13 +13,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $deploy_key
  * @property string $mst_login_bonus_id
  * @property string $content_type
- * @property string $content_id
+ * @property string $content_mst_id
  * @property int $amount
  * @property bool $is_paid
  * @property int $sort_order
  */
 class MstLoginBonusContent extends _BaseMst
 {
+    use CompositePrimaryKeyTrait;
+
     public $table = 'mst_login_bonus_content';
 
     public $incrementing = false;
@@ -27,16 +29,16 @@ class MstLoginBonusContent extends _BaseMst
     /**
      * 複合主キー
      */
-    protected $primaryKey = ['mst_login_bonus_id', 'content_type', 'content_id'];
+    protected $primaryKey = ['mst_login_bonus_id', 'content_type', 'content_mst_id'];
 
     protected $keyType = 'string';
 
-    /** @var array<int, string> */
+    /** @var list<string> */
     protected $fillable = [
         'deploy_key',
         'mst_login_bonus_id',
         'content_type',
-        'content_id',
+        'content_mst_id',
         'content_option',
         'content_quantity',
         'amount',
@@ -47,6 +49,7 @@ class MstLoginBonusContent extends _BaseMst
     /**
      * @var array<string, string>
      */
+    /** @var array<string, string> */
     protected $casts = [
         'deploy_key' => 'integer',
         'content_option' => 'array',
@@ -59,46 +62,10 @@ class MstLoginBonusContent extends _BaseMst
     public $timestamps = true;
 
     /**
-     * 複合主キーを設定
-     *
-     * @param  Builder  $query
-     * @return Builder
-     */
-    public function setKeysForSaveQuery($query)
-    {
-        $keys = $this->getKeyName();
-        if (! is_array($keys)) {
-            return parent::setKeysForSaveQuery($query);
-        }
-
-        foreach ($keys as $keyName) {
-            $query->where($keyName, '=', $this->getKeyForSaveQuery($keyName));
-        }
-
-        return $query;
-    }
-
-    /**
-     * 複合主キーの値を取得
-     *
-     * @param  string|null  $keyName
-     * @return mixed
-     */
-    protected function getKeyForSaveQuery($keyName = null)
-    {
-        if (is_null($keyName)) {
-            $keyName = $this->getKeyName();
-        }
-
-        if (isset($this->original[$keyName])) {
-            return $this->original[$keyName];
-        }
-
-        return $this->getAttribute($keyName);
-    }
-
-    /**
      * ログインボーナス設定とのリレーション
+     */
+    /**
+     * @return BelongsTo<MstLoginBonus, $this>
      */
     public function loginBonus(): BelongsTo
     {
@@ -116,13 +83,15 @@ class MstLoginBonusContent extends _BaseMst
     /**
      * コンテンツIDを取得
      */
-    public function getContentId(): string
+    public function getContentMstId(): string
     {
-        return $this->getAttribute('content_id');
+        return $this->getAttribute('content_mst_id');
     }
 
     /**
      * コンテンツオプションを取得
+     *
+     * @return array<string, mixed>|null
      */
     public function getContentOption(): ?array
     {

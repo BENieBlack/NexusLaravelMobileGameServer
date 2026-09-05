@@ -2,11 +2,9 @@
 
 namespace App\Models\Sys;
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Nexus\Core\Contracts\DeviceModelInterface;
 use Nexus\Core\Utilities\ClockUtility;
-use NexusAuth\Contracts\DeviceModelInterface;
-use NexusAuth\Contracts\PlayerModelInterface;
 
 /**
  * SysPlayerDevice Model
@@ -15,6 +13,8 @@ use NexusAuth\Contracts\PlayerModelInterface;
  * デバイス固有IDとデバイス情報を管理
  *
  * @property ?string $last_login_at
+ * @property ?string $created_at
+ * @property ?string $updated_at
  * @property int $sys_player_id
  */
 class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
@@ -29,6 +29,7 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
      *
      * @var array<string>
      */
+    /** @var list<string> */
     protected $fillable = [
         'sys_player_id',
         'uuid',
@@ -41,20 +42,16 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
      *
      * @var array<string, string>
      */
+    /** @var array<string, string> */
     protected $casts = [
         'device_info' => 'array',
     ];
 
     /**
-     * プレイヤーとのリレーション
-     */
-    public function player(): BelongsTo
-    {
-        return $this->belongsTo(SysPlayer::class, 'sys_player_id');
-    }
-
-    /**
      * トークン情報とのリレーション
+     */
+    /**
+     * @return HasMany<SysPlayerToken, $this>
      */
     public function tokens(): HasMany
     {
@@ -77,7 +74,7 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
      */
     public function markLastLoginAt(): void
     {
-        $this->last_login_at = now();
+        $this->last_login_at = ClockUtility::now();
     }
 
     /**
@@ -131,6 +128,9 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
     /**
      * device_infoを設定
      */
+    /**
+     * @param  array<string, mixed>  $deviceInfo
+     */
     public function setDeviceInfo(array $deviceInfo): void
     {
         $this->setAttribute('device_info', $deviceInfo);
@@ -139,7 +139,7 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
     /**
      * last_login_atをDateTimeオブジェクトで取得 (内部用)
      */
-    public function getLastLoginAtDateTime(): ?\DateTime
+    public function getLastLoginAtDateTime(): ?string
     {
         return $this->getAttribute('last_login_at');
     }
@@ -197,14 +197,6 @@ class SysPlayerDevice extends _BaseSys implements DeviceModelInterface
     public function getPlayerId(): int
     {
         return $this->sys_player_id;
-    }
-
-    /**
-     * プレイヤーを取得 (NexusAuth DeviceModelInterface)
-     */
-    public function getPlayer(): ?PlayerModelInterface
-    {
-        return $this->player;
     }
 
     /**

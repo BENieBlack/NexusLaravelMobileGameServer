@@ -8,9 +8,9 @@ use NexusPitr\Logger\ShardMapper;
 
 /**
  * TrxRollbackCommand
- * 
+ *
  * すべてのTrxDBシャードに対してマイグレーションをロールバック
- * 動的シャーディング対応（DB_TRX_SHARDSに応じてtrx1, trx2, ...に実行）
+ * 動的シャーディング対応（DB_SHARD_COUNTに応じてtrx1, trx2, ...に実行）
  */
 class TrxRollbackCommand extends Command
 {
@@ -36,36 +36,37 @@ class TrxRollbackCommand extends Command
     public function handle(): int
     {
         $trxConnections = ShardMapper::allTrxConnections();
-        
+
         $this->info('Rolling back TrxDB migrations on all shards...');
-        $this->info('This includes migrations from packages: nexus-player, nexus-resource, nexus-wallet, nexus-stamina, nexus-core-billing, nexus-mailbox, nexus-gacha, nexus-login, nexus-vip');
+        $this->info('This includes migrations from packages: nexus-core, nexus-resource, nexus-wallet, nexus-stamina, nexus-core-billing, nexus-mailbox, nexus-gacha, nexus-login, nexus-vip');
         $this->newLine();
-        
+
         foreach ($trxConnections as $trxConnection) {
             $this->info("📦 Rolling back TrxDB: {$trxConnection}");
-            
+
             $options = [
                 '--database' => $trxConnection,
                 '--step' => $this->option('step'),
             ];
-            
+
             if ($this->option('force')) {
                 $options['--force'] = true;
             }
-            
+
             $exitCode = Artisan::call('migrate:rollback', $options, $this->getOutput());
-            
+
             if ($exitCode !== 0) {
                 $this->error("❌ Rollback failed for {$trxConnection}");
+
                 return self::FAILURE;
             }
-            
+
             $this->info("✅ Rollback completed for {$trxConnection}");
             $this->newLine();
         }
-        
+
         $this->info('🎉 All TrxDB rollbacks completed successfully!');
-        
+
         return self::SUCCESS;
     }
 }

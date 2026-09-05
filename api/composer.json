@@ -3,7 +3,10 @@
     "name": "laravel/laravel",
     "type": "project",
     "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "keywords": [
+        "laravel",
+        "framework"
+    ],
     "license": "MIT",
     "repositories": [
         {
@@ -64,10 +67,6 @@
         },
         {
             "type": "path",
-            "url": "../packages/nexus-player"
-        },
-        {
-            "type": "path",
             "url": "../packages/nexus-vip"
         },
         {
@@ -80,15 +79,35 @@
         },
         {
             "type": "path",
+            "url": "../packages/nexus-album"
+        },
+        {
+            "type": "path",
+            "url": "../packages/nexus-tidb"
+        },
+        {
+            "type": "path",
             "url": "../packages/nexus-guild"
         },
         {
             "type": "path",
             "url": "../packages/nexus-pitr"
+        },
+        {
+            "type": "path",
+            "url": "../packages/nexus-notification"
+        },
+        {
+            "type": "path",
+            "url": "../packages/nexus-chat"
+        },
+        {
+            "type": "path",
+            "url": "../packages/nexus-reward-track"
         }
     ],
     "require": {
-        "php": "^8.3",
+        "php": "^8.4",
         "doctrine/dbal": "^4.4",
         "firebase/php-jwt": "^6.10",
         "laravel/framework": "^12.0",
@@ -107,14 +126,20 @@
         "nexus/stamina": "@dev",
         "nexus/gacha": "@dev",
         "nexus/mailbox": "@dev",
-        "nexus/player": "@dev",
         "nexus/vip": "@dev",
         "nexus/level": "@dev",
         "nexus/friend": "@dev",
+        "nexus/album": "@dev",
+        "nexus/tidb": "@dev",
         "nexus/guild": "@dev",
-        "nexus/pitr": "@dev"
+        "nexus/pitr": "@dev",
+        "nexus/notification": "@dev",
+        "nexus/chat": "@dev",
+        "nexus/reward-track": "@dev"
     },
     "require-dev": {
+        "aliyun/aliyun-tablestore-sdk-php": "^6.0",
+        "aws/aws-sdk-php": "^3.394",
         "fakerphp/faker": "^1.23",
         "larastan/larastan": "^3.0",
         "laravel/pail": "^1.2.2",
@@ -131,7 +156,29 @@
         "psr-4": {
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
-            "Database\\Seeders\\": "database/seeders/"
+            "Database\\Seeders\\": "database/seeders/",
+            "NexusAuth\\": "../packages/nexus-core-auth/src/",
+            "NexusBilling\\": "../packages/nexus-core-billing/src/",
+            "NexusFriend\\": "../packages/nexus-friend/src/",
+            "NexusGacha\\": "../packages/nexus-gacha/src/",
+            "NexusGuild\\": "../packages/nexus-guild/src/",
+            "NexusLevel\\": "../packages/nexus-level/src/",
+            "NexusLogin\\": "../packages/nexus-login/src/",
+            "NexusMailbox\\": "../packages/nexus-mailbox/src/",
+            "NexusMaintenance\\": "../packages/nexus-maintenance/src/",
+            "NexusPitr\\": "../packages/nexus-pitr/src/",
+            "NexusNotification\\": "../packages/nexus-notification/src/",
+            "NexusChat\\": "../packages/nexus-chat/src/",
+            "NexusRewardTrack\\": "../packages/nexus-reward-track/src/",
+            "NexusResourceDelivery\\": "../packages/nexus-resource-delivery/src/",
+            "NexusResource\\": "../packages/nexus-resource/src/",
+            "NexusSecurity\\": "../packages/nexus-core-security/src/",
+            "NexusStamina\\": "../packages/nexus-stamina/src/",
+            "NexusUnitOfWork\\": "../packages/nexus-core-unit-of-work/src/",
+            "NexusVersion\\": "../packages/nexus-version/src/",
+            "NexusVip\\": "../packages/nexus-vip/src/",
+            "NexusWallet\\": "../packages/nexus-wallet/src/",
+            "Nexus\\Core\\": "../packages/nexus-core/src/"
         }
     },
     "autoload-dev": {
@@ -200,7 +247,7 @@
             "php-http/discovery": true
         },
         "platform": {
-            "php": "8.3"
+            "php": "8.4"
         }
     },
     "minimum-stability": "stable",

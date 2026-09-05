@@ -7,13 +7,12 @@ use Illuminate\Support\Facades\Schema;
 
 /**
  * TrxDB用課金テーブル作成マイグレーション
- * 
+ *
  * 注意: このマイグレーションは`php artisan trx:migrate`で実行してください。
  * TrxMigrateCommandが全TrxDBシャード（trx1, trx2, ...）に対して自動的に実行します。
  */
 return new class extends Migration
 {
-
     /**
      * Run the migrations.
      */
@@ -45,7 +44,7 @@ return new class extends Migration
             $table->id()->comment('レコードID');
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
             $table->unsignedBigInteger('mst_in_app_purchase_id')->comment('課金商品マスターID');
-            $table->enum('effect_type', ['IdleRewardMultiplier', 'AdSkip', 'ExpBoost', 'GoldBoost', 'DailyMissionBonus'])->comment('効果タイプ');
+            $table->string('effect_type')->comment('効果タイプ (idle_reward_multiplier, ad_skip, exp_boost, gold_boost, daily_mission_bonus)');
             $table->decimal('value', 10, 2)->comment('効果値');
             $table->dateTime('expires_at')->comment('効果の有効期限');
             $table->boolean('is_active')->default(true)->comment('有効フラグ（手動で無効化可能）');

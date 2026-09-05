@@ -54,8 +54,6 @@ class ResourceDeliveryService
     /**
      * リソースを追加する（単一）
      * 実際の配送はdeliver()で実行する
-     *
-     * @param  Resource  $resource  リソース
      */
     public function addResource(Resource $resource): void
     {
@@ -67,7 +65,7 @@ class ResourceDeliveryService
      * リソースを追加する（複数）
      * 実際の配送はdeliver()で実行する
      *
-     * @param  CustomCollection|array  $resources  リソースのリスト
+     * @param  CustomCollection<array-key, \NexusResource\DataTransferObjects\Resource>|array<array-key, \NexusResource\DataTransferObjects\Resource>  $resources  リソースのリスト
      */
     public function addResources(CustomCollection|array $resources): void
     {
@@ -90,6 +88,8 @@ class ResourceDeliveryService
 
     /**
      * 配送コンテンツを直接追加する（複数）
+     *
+     * @param  CustomCollection<array-key, ResourceDeliveryContent>|array<array-key, ResourceDeliveryContent>  $contents  配送コンテンツのリスト
      */
     public function addContents(CustomCollection|array $contents): void
     {
@@ -260,17 +260,5 @@ class ResourceDeliveryService
         }
 
         return array_unique($types);
-    }
-
-    /**
-     * 配送前のコンテンツをプレビュー（変換後の状態で取得）
-     * チュートリアルガチャの引き直し機能などで使用
-     *
-     * @return CustomCollection<ResourceDeliveryContent>
-     */
-    public function getConvertedContentsWithoutSend(): CustomCollection
-    {
-        // TODO: 変換機能の実装が必要
-        return $this->deliveryManager->getPendingContents();
     }
 }

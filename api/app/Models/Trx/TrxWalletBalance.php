@@ -33,13 +33,14 @@ class TrxWalletBalance extends _BaseTrx
     /**
      * SELECTキー（プレイヤーIDでSELECT）
      */
-    protected string $selectKey = 'sys_player_id';
+    /** @var list<string> */
+    protected array $selectKeys = ['sys_player_id'];
 
     /**
      * ユニークキー（IDで一意）
      */
-    protected array $uniqueKeys = ['id'];
 
+    /** @var list<string> */
     protected $fillable = [
         'sys_player_id',
         'mst_item_id',
@@ -52,6 +53,7 @@ class TrxWalletBalance extends _BaseTrx
         'updated_at',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'id' => 'integer',
         'sys_player_id' => 'integer',
@@ -63,6 +65,9 @@ class TrxWalletBalance extends _BaseTrx
 
     /**
      * trx_playerとのリレーション
+     */
+    /**
+     * @return BelongsTo<TrxPlayer, $this>
      */
     public function trxPlayer(): BelongsTo
     {
@@ -123,9 +128,9 @@ class TrxWalletBalance extends _BaseTrx
     /**
      * 有効期限を取得（無期限の場合はnull）
      */
-    public function getExpireAt(): ?CarbonImmutable
+    public function getExpireAt(): ?string
     {
-        return $this->getDateAttribute('expire_at');
+        return $this->getDateAttributeString('expire_at');
     }
 
     // ===== Setter Methods =====

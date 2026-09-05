@@ -2,11 +2,11 @@
 
 namespace App\Domain\Stamina\Services;
 
-use App\Domain\Player\Services\PlayerLevelService;
 use App\Domain\Stamina\Constants\StaminaConst;
 use App\Models\Trx\TrxStamina;
 use App\Repositories\Trx\TrxStaminaRepository;
 use Nexus\Core\Utilities\ClockUtility;
+use NexusLevel\Services\PlayerLevelService;
 use NexusStamina\Services\StaminaService as BaseStaminaService;
 
 /**
@@ -31,12 +31,32 @@ class StaminaService
     /**
      * プレイヤーのスタミナ情報を取得（時間経過での自動回復を適用）
      *
+     * 自然回復の計算はパッケージ層に一本化されているため、そちらへ委譲して
+     * 結果をModelに載せて返す。
+     *
+     * ここではDBに書き込まない（パッケージ層のfindStaminaと同じ扱い）。
+     * 回復後の値が永続化されるのは消費・回復アイテム使用など書き込みを伴う
+     * 経路で、そちらも同じ計算を通るため辻褄は合う。
+     *
      * @param  int  $sysPlayerId  プレイヤーID
      * @param  string  $type  スタミナタイプ
      */
     public function findStamina(int $sysPlayerId, string $type = StaminaConst::TYPE_NORMAL): ?TrxStamina
     {
-        return $this->trxStaminaRepository->selectByType($type);
+        $trxStamina = $this->trxStaminaRepository->selectByType($type);
+
+        if ($trxStamina === null) {
+            return null;
+        }
+
+        $recovered = $this->baseStaminaService->findStamina($sysPlayerId, $type);
+
+        if ($recovered !== null) {
+            $trxStamina->setCurrentStamina($recovered->getCurrentStamina());
+            $trxStamina->setLastRecoveryAt($recovered->getLastRecoveryAt());
+        }
+
+        return $trxStamina;
     }
 
     /**
@@ -56,8 +76,6 @@ class StaminaService
             'current_stamina' => $initialStamina,
             'recovery_rate_multiplier' => 1.00,
             'last_recovery_at' => $now,
-            'created_at' => $now,
-            'updated_at' => $now,
         ]);
 
         $trxStamina->exists = false;

@@ -2,8 +2,8 @@
 
 namespace NexusVip\Services;
 
-use NexusVip\ValueObjects\VipReward;
 use NexusVip\Repositories\VipLevelRewardRepositoryInterface;
+use NexusVip\ValueObjects\VipReward;
 
 /**
  * VIP報酬サービス
@@ -28,7 +28,7 @@ class VipRewardService
         return $rewards->map(function ($reward) {
             return new VipReward(
                 contentType: $reward->getContentType(),
-                contentId: $reward->getContentId(),
+                contentMstId: $reward->getContentMstId(),
                 contentOption: $reward->getContentOption(),
                 contentQuantity: $reward->getContentQuantity(),
                 amount: $reward->getAmount(),
@@ -49,6 +49,8 @@ class VipRewardService
 
     /**
      * 報酬を配列形式で取得（API レスポンス用）
+     *
+     * @return array<int, array<string, mixed>>
      */
     public function buildRewardsArray(int $vipLevel): array
     {

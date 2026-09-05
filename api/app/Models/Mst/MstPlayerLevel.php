@@ -61,6 +61,7 @@ class MstPlayerLevel extends _BaseMst
      */
     protected $keyType = 'int';
 
+    /** @var list<string> */
     protected $fillable = [
         'deploy_key',
         'level',
@@ -68,6 +69,7 @@ class MstPlayerLevel extends _BaseMst
         'max_stamina',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'level' => 'integer',
         'deploy_key' => 'integer',
@@ -87,6 +89,8 @@ class MstPlayerLevel extends _BaseMst
 
     /**
      * 全レベルデータを取得（レベル昇順）
+     *
+     * @return Collection<int, self>
      */
     public static function selectAllLevels(): Collection
     {

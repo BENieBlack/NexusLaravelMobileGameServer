@@ -8,21 +8,20 @@ use NexusResourceDelivery\Services\ResourceDeliveryService;
 
 /**
  * GachaPrizeService
- * 
+ *
  * ガチャ景品の付与を行うサービス
  */
 class GachaPrizeService
 {
     public function __construct(
         private readonly ResourceDeliveryService $resourceDeliveryService,
-    ) {
-    }
+    ) {}
 
     /**
      * 景品リストを付与
      *
-     * @param int $sysPlayerId
-     * @param array<GachaPrize> $prizes
+     * @param  int  $sysPlayerId
+     * @param  array<GachaPrize>  $prizes
      * @return void
      */
     public function grantPrizes(int $sysPlayerId, array $prizes): void
@@ -32,7 +31,7 @@ class GachaPrizeService
         foreach ($prizes as $prize) {
             $resources[] = $this->createResource(
                 $prize->getContentType(),
-                $prize->getContentId(),
+                $prize->getContentMstId(),
                 $prize->getAmount()
             );
         }
@@ -45,17 +44,17 @@ class GachaPrizeService
     /**
      * 景品データからResourceを作成
      *
-     * @param string $contentType
-     * @param string $contentId
-     * @param int $amount
-     * @return Resource
+     * @param  string  $contentType
+     * @param  string  $contentMstId
+     * @param  int  $amount
+     * @return resource
      */
-    private function createResource(string $contentType, string $contentId, int $amount): Resource
+    private function createResource(string $contentType, string $contentMstId, int $amount): Resource
     {
         return match ($contentType) {
-            'item' => Resource::item($contentId, $amount),
-            'unit' => Resource::unit($contentId, $amount),
-            'equipment' => Resource::equipment($contentId, $amount),
+            'item' => Resource::item($contentMstId, $amount),
+            'unit' => Resource::unit($contentMstId, $amount),
+            'equipment' => Resource::equipment($contentMstId, $amount),
             default => throw new \Exception("Unsupported content type: {$contentType}"),
         };
     }

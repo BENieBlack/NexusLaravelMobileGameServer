@@ -9,7 +9,7 @@ namespace App\Models\Mst;
  * @property string $id
  * @property string $type
  * @property string $effect
- * @property int $value
+ * @property float $value
  */
 class MstItem extends _BaseMst
 {
@@ -19,24 +19,39 @@ class MstItem extends _BaseMst
 
     protected $keyType = 'string';
 
-    /** @var array<int, string> */
+    /** @var list<string> */
     protected $fillable = [
         'deploy_key',
         'id',
         'type',
         'effect',
         'value',
+        'is_wallet',
     ];
 
     /**
      * @var array<string, string>
      */
+    /** @var array<string, string> */
     protected $casts = [
         'deploy_key' => 'integer',
-        'value' => 'integer',
+        // DBは double。integerにすると小数が落ちる
+        'value' => 'float',
+        'is_wallet' => 'boolean',
     ];
 
     public $timestamps = true;
+
+    /**
+     * Wallet管理のアイテムかどうか
+     *
+     * trueなら残高として持ち、trx_item ではなく trx_wallet 系で扱う。
+     * 取得単位の有効期限と先入先出の消費が要るものに立てる。
+     */
+    public function isWallet(): bool
+    {
+        return (bool) $this->getAttribute('is_wallet');
+    }
 
     /**
      * アイテムタイプを取得
@@ -57,9 +72,9 @@ class MstItem extends _BaseMst
     /**
      * アイテム値を取得
      */
-    public function getValue(): int
+    public function getValue(): float
     {
-        return $this->getAttribute('value');
+        return (float) $this->getAttribute('value');
     }
 
     /**

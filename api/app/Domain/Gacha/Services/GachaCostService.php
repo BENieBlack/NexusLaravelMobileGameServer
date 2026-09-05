@@ -2,7 +2,7 @@
 
 namespace App\Domain\Gacha\Services;
 
-use App\Domain\InAppPurchase\Services\DiamondService;
+use App\Domain\InAppPurchase\Services\InAppPurchaseDiamondBalanceService;
 use App\Domain\Item\Services\ItemService;
 use App\Exceptions\BusinessLogicException;
 use App\Models\Mst\MstGachaCost;
@@ -15,7 +15,7 @@ use App\Models\Mst\MstGachaCost;
 class GachaCostService
 {
     public function __construct(
-        private readonly DiamondService $diamondService,
+        private readonly InAppPurchaseDiamondBalanceService $diamondBalanceService,
         private readonly ItemService $itemService,
     ) {}
 
@@ -31,19 +31,19 @@ class GachaCostService
 
         switch ($costType) {
             case 'diamond':
-                $this->diamondService->consumeDiamond($sysPlayerId, $costAmount, false);
+                $this->diamondBalanceService->consumeDiamond($sysPlayerId, $costAmount, false);
                 break;
 
             case 'paid_diamond':
-                $this->diamondService->consumeDiamond($sysPlayerId, $costAmount, true);
+                $this->diamondBalanceService->consumeDiamond($sysPlayerId, $costAmount, true);
                 break;
 
             case 'item':
-                $costId = $cost->getAttribute('cost_id');
-                if (! $costId) {
-                    throw new \Exception('cost_id is required for item cost type');
+                $costMstId = $cost->getAttribute('cost_mst_id');
+                if (! $costMstId) {
+                    throw new \Exception('cost_mst_id is required for item cost type');
                 }
-                $this->itemService->consumeItem($sysPlayerId, $costId, $costAmount);
+                $this->itemService->consumeItem($sysPlayerId, $costMstId, $costAmount);
                 break;
 
             default:

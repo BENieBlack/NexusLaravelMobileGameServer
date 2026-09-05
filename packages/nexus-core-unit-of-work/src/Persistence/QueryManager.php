@@ -2,14 +2,14 @@
 
 namespace NexusUnitOfWork\Persistence;
 
-use NexusUnitOfWork\Contracts\QueryManagerInterface;
+use Nexus\Core\Models\Log\_BaseLog;
 use Nexus\Core\Repositories\_BaseRepositoryInterface;
 use Nexus\Core\Repositories\Log\_BaseLogRepository;
-use Nexus\Core\Repositories\Sys\_BaseSysRepository;
 use Nexus\Core\Repositories\Trx\_BaseTrxRepository;
-use NexusUnitOfWork\Persistence\QueryManager\OperationCollector;
-use NexusUnitOfWork\Persistence\QueryManager\BatchExecutor;
 use NexusPitr\Logger\TrxChangeLogger;
+use NexusUnitOfWork\Contracts\QueryManagerInterface;
+use NexusUnitOfWork\Persistence\QueryManager\BatchExecutor;
+use NexusUnitOfWork\Persistence\QueryManager\OperationCollector;
 
 /**
  * QueryManager
@@ -33,24 +33,25 @@ class QueryManager implements QueryManagerInterface
     /**
      * 課金関連のログRepositoryのリスト
      *
-     * @var array<_BaseLogRepository>
+     * @var array<_BaseLogRepository<_BaseLog>>
      */
     private array $purchaseLogRepositories = [];
 
     private OperationCollector $operationCollector;
+
     private BatchExecutor $batchExecutor;
 
     public function __construct()
     {
-        $this->operationCollector = new OperationCollector();
-        $this->batchExecutor = new BatchExecutor();
+        $this->operationCollector = new OperationCollector;
+        $this->batchExecutor = new BatchExecutor;
     }
 
     /**
      * Repositoryを登録する
      *
-     * @param _BaseRepositoryInterface $repository
-     * @param bool $isPurchaseLog 課金関連のログかどうか（LogRepositoryの場合のみ使用）
+     * @param  _BaseRepositoryInterface  $repository
+     * @param  bool  $isPurchaseLog  課金関連のログかどうか（LogRepositoryの場合のみ使用）
      * @return void
      */
     public function registerRepository(_BaseRepositoryInterface $repository, bool $isPurchaseLog = false): void
@@ -60,11 +61,11 @@ class QueryManager implements QueryManagerInterface
 
         // LogRepositoryで課金ログの場合は別リストに登録
         if ($repository instanceof _BaseLogRepository && $isPurchaseLog) {
-            if (!isset($this->purchaseLogRepositories[$hash])) {
+            if (! isset($this->purchaseLogRepositories[$hash])) {
                 $this->purchaseLogRepositories[$hash] = $repository;
             }
         } else {
-            if (!isset($this->repositories[$hash])) {
+            if (! isset($this->repositories[$hash])) {
                 $this->repositories[$hash] = $repository;
             }
         }
@@ -75,6 +76,7 @@ class QueryManager implements QueryManagerInterface
      * トランザクション内で呼び出される
      *
      * @return void
+     *
      * @throws \Exception
      */
     public function execPurchaseQuery(): void
@@ -96,6 +98,7 @@ class QueryManager implements QueryManagerInterface
      * 各Repositoryからモデルを取り出し、実行時にINSERT/UPDATEを判定
      *
      * @return void
+     *
      * @throws \Exception
      */
     public function execAllQuery(): void
@@ -120,7 +123,7 @@ class QueryManager implements QueryManagerInterface
 
     /**
      * PITRログをLogDBに記録（同一トランザクション内で実行）
-     * 
+     *
      * @return void
      */
     private function flushPitrLogs(): void
@@ -128,29 +131,29 @@ class QueryManager implements QueryManagerInterface
         try {
             $trxChangeLogger = app()->make(TrxChangeLogger::class);
             $allPitrLogs = [];
-            
+
             // 全TrxRepositoryからPITRログを収集
             foreach ($this->repositories as $repository) {
                 if ($repository instanceof _BaseTrxRepository) {
                     $pitrLogs = $repository->getPitrLogQueue();
-                    if (!empty($pitrLogs)) {
+                    if (! empty($pitrLogs)) {
                         $allPitrLogs = array_merge($allPitrLogs, $pitrLogs);
                     }
                 }
             }
-            
+
             // LogDBにバッチ記録（同一トランザクション内）
-            if (!empty($allPitrLogs)) {
+            if (! empty($allPitrLogs)) {
                 $trxChangeLogger->logBatch($allPitrLogs);
             }
-            
+
             // PITRログキューをクリア
             foreach ($this->repositories as $repository) {
                 if ($repository instanceof _BaseTrxRepository) {
                     $repository->clearPitrLogQueue();
                 }
             }
-            
+
         } catch (\Exception $e) {
             // PITRログ記録失敗は致命的エラー（トランザクション全体を失敗させる）
             \Log::error('Failed to write PITR logs (critical)', [
@@ -159,7 +162,7 @@ class QueryManager implements QueryManagerInterface
                 'line' => $e->getLine(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            
+
             throw $e; // トランザクションをロールバックさせる
         }
     }
@@ -171,6 +174,7 @@ class QueryManager implements QueryManagerInterface
      * ログの書き込みに失敗した場合は例外を再送出してロールバックさせる。
      *
      * @return void
+     *
      * @throws \Throwable
      */
     public function execAllLogs(): void
@@ -179,14 +183,14 @@ class QueryManager implements QueryManagerInterface
             // 通常ログRepositoryから収集
             $operations = $this->operationCollector->collect($this->repositories);
             $logInserts = $this->operationCollector->collectLogs($operations['logs']);
-            
+
             // 課金ログRepositoryから収集
             $purchaseLogInserts = $this->operationCollector->collectLogs($this->purchaseLogRepositories);
-            
+
             // 両方を実行
             $this->batchExecutor->executeLogInserts($logInserts);
             $this->batchExecutor->executeLogInserts($purchaseLogInserts);
-            
+
             // ログRepositoryをクリア
             foreach ($operations['logs'] as $repository) {
                 $repository->clearQueue();
@@ -194,11 +198,11 @@ class QueryManager implements QueryManagerInterface
             foreach ($this->purchaseLogRepositories as $repository) {
                 $repository->clearQueue();
             }
-            
+
             // 課金ログリポジトリリストをクリア
             $this->purchaseLogRepositories = [];
-            
-        } catch (\Exception | \Throwable $e) {
+
+        } catch (\Throwable $e) {
             // 同一トランザクション内で実行しているため、失敗時は全体をロールバックさせる
             \Log::error('Failed to write logs (critical)', [
                 'error' => $e->getMessage(),
@@ -220,7 +224,7 @@ class QueryManager implements QueryManagerInterface
     {
         // 各Repositoryのキューをクリア（ログ以外）
         foreach ($this->repositories as $repository) {
-            if (!($repository instanceof _BaseLogRepository)) {
+            if (! ($repository instanceof _BaseLogRepository)) {
                 $repository->clearQueue();
             }
         }
@@ -228,7 +232,7 @@ class QueryManager implements QueryManagerInterface
         // リポジトリリストからログ以外を削除
         $this->repositories = array_filter(
             $this->repositories,
-            fn($repository) => $repository instanceof _BaseLogRepository
+            fn ($repository) => $repository instanceof _BaseLogRepository
         );
     }
 
@@ -237,6 +241,7 @@ class QueryManager implements QueryManagerInterface
      * execAllQuery()のエイリアス
      *
      * @return void
+     *
      * @throws \Exception
      */
     public function flush(): void

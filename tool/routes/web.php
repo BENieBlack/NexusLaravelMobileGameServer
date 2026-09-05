@@ -23,11 +23,11 @@ Route::middleware('auth')->group(function () {
 
     // マスターデータインポート
     Route::prefix('master-import')->name('master-import.')->group(function () {
-        Route::get('/',             [MasterImportController::class, 'index'])->name('index');
-        Route::get('/all-sheets',   [MasterImportController::class, 'allSheets'])->name('all-sheets');
+        Route::get('/', [MasterImportController::class, 'index'])->name('index');
+        Route::get('/all-sheets', [MasterImportController::class, 'allSheets'])->name('all-sheets');
         Route::get('/spreadsheets', [MasterImportController::class, 'spreadsheets'])->name('spreadsheets');
-        Route::get('/sheets',       [MasterImportController::class, 'sheets'])->name('sheets');
-        Route::get('/preview',      [MasterImportController::class, 'preview'])->name('preview');
-        Route::post('/execute',     [MasterImportController::class, 'execute'])->name('execute');
+        Route::get('/sheets', [MasterImportController::class, 'sheets'])->name('sheets');
+        Route::get('/preview', [MasterImportController::class, 'preview'])->name('preview');
+        Route::post('/execute', [MasterImportController::class, 'execute'])->name('execute');
     });
 });

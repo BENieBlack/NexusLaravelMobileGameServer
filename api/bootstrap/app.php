@@ -2,6 +2,7 @@
 
 use App\Exceptions\GameException;
 use App\Http\Middleware\CheckMaintenance;
+use App\Http\Middleware\CheckMasterHash;
 use App\Http\Middleware\ResolveLanguage;
 use App\Http\Middleware\VerifyAdminToken;
 use Illuminate\Foundation\Application;
@@ -27,6 +28,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
         // 全APIリクエストでAccept-Languageから言語を解決する
         $middleware->api(prepend: [
             ResolveLanguage::class,
+            CheckMasterHash::class,
         ]);
 
         // ミドルウェアエイリアスを登録

@@ -233,7 +233,7 @@ class InAppPurchasePassServiceTest extends TestCase
     {
         $this->insertEffect('exp_boost', 1.50, expiresAt: '2026-04-01 00:00:00', mstInAppPurchaseId: 10);
 
-        $this->service->deactivatePassEffects(999);
+        $this->service->deactivatePassEffects($this->nonExistentSysPlayerId());
         $this->flush();
 
         $this->assertCount(1, $this->service->findActiveEffects($this->sysPlayerId));

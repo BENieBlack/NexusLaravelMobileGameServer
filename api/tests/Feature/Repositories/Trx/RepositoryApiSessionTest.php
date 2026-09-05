@@ -60,7 +60,9 @@ class RepositoryApiSessionTest extends TestCase
     #[Test]
     public function 異なるsys_player_idで別のリポジトリを作成できる(): void
     {
-        $this->useSessionPlayer(999);
+        // 装備を1件も持たないプレイヤー。IDを決め打ちすると、
+        // 採番がそこへ到達したときに実在プレイヤーの装備を拾う
+        $this->useSessionPlayer($this->nonExistentSysPlayerId());
         $repo = new TrxEquipmentRepository;
 
         $equipments = $repo->queryOrMemory();

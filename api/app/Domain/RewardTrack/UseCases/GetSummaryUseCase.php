@@ -14,10 +14,13 @@ class GetSummaryUseCase
         private readonly RewardTrackService $rewardTrackService,
     ) {}
 
+    /**
+     * @return array<string, mixed>
+     */
     public function handle(string $trackId): array
     {
         $sysPlayerId = ApiSession::getSysPlayerId();
-        $connectionName = ApiSession::getShardConnectionName();
+        $connectionName = ApiSession::resolveConnectionName();
 
         return $this->rewardTrackService->getSummary($sysPlayerId, $trackId, $connectionName);
     }

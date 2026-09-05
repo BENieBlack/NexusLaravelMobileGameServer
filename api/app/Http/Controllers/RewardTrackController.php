@@ -25,7 +25,7 @@ class RewardTrackController extends _BaseController
     public function summary(GetSummaryRequest $request, GetSummaryUseCase $useCase): JsonResponse
     {
         return $this->execute(function () use ($request, $useCase) {
-            $summary = $useCase->handle($request->getTrackId());
+            $summary = $useCase->handle($request->getMstRewardTrackId());
 
             return new SummaryResponse($summary);
         });
@@ -40,8 +40,8 @@ class RewardTrackController extends _BaseController
     {
         return $this->execute(function () use ($request, $useCase) {
             $milestone = $useCase->handle(
-                $request->getMilestoneId(),
-                $request->getLineId()
+                $request->getMstRewardTrackMilestoneId(),
+                $request->getMstRewardTrackLineId()
             );
 
             return new ReceiveMilestoneResponse($milestone);

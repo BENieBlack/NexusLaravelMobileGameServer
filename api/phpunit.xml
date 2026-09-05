@@ -44,6 +44,7 @@
             <directory>../packages/nexus-notification/src</directory>
             <directory>../packages/nexus-pitr/src</directory>
             <directory>../packages/nexus-resource/src</directory>
+            <directory>../packages/nexus-reward-track/src</directory>
             <directory>../packages/nexus-resource-delivery/src</directory>
             <directory>../packages/nexus-stamina/src</directory>
             <directory>../packages/nexus-tidb/src</directory>

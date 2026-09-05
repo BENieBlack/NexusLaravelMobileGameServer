@@ -25,7 +25,7 @@ interface RewardTrackLineRepositoryInterface
      * プレイヤーがトラックの無料ラインを含む全ラインIDを取得する
      *
      * @param  array<string>  $mstRewardTrackLineIds  トラックに紐づく全ラインID
-     * @return array<string>  プレイヤーが所持しているラインID
+     * @return array<string> プレイヤーが所持しているラインID
      */
     public function findOwnedLineIds(int $sysPlayerId, array $mstRewardTrackLineIds, string $connectionName): array;
 

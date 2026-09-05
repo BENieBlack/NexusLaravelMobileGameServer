@@ -14,7 +14,7 @@ return new class extends Migration
     public function up(): void
     {
         if (Schema::connection('mst')->hasTable('mst_message__i18n')
-            && !Schema::connection('mst')->hasTable('mst_message__l10n')) {
+            && ! Schema::connection('mst')->hasTable('mst_message__l10n')) {
             Schema::connection('mst')->rename('mst_message__i18n', 'mst_message__l10n');
         }
     }
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         if (Schema::connection('mst')->hasTable('mst_message__l10n')
-            && !Schema::connection('mst')->hasTable('mst_message__i18n')) {
+            && ! Schema::connection('mst')->hasTable('mst_message__i18n')) {
             Schema::connection('mst')->rename('mst_message__l10n', 'mst_message__i18n');
         }
     }

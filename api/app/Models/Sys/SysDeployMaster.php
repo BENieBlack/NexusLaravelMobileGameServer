@@ -252,6 +252,14 @@ class SysDeployMaster extends _BaseSys
     }
 
     /**
+     * テーブル単位SQLiteの配信情報を取得
+     */
+    public function tables(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(SysDeployMasterTable::class, 'sys_deploy_master_id');
+    }
+
+    /**
      * ハッシュからバージョン文字列を生成（短縮版）
      * セキュリティのため、ハッシュの最初の8文字のみを使用
      */

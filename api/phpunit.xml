@@ -61,6 +61,10 @@
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="BROADCAST_CONNECTION" value="null"/>
         <env name="CACHE_STORE" value="array"/>
+        <!-- 日跨ぎの境界。開発者の .env に左右されると、境界に依存する
+             テストの結果がローカルとCIで変わる。ここで固定し、
+             別の境界での挙動はテスト側で setDayStartTime() して確かめる -->
+        <env name="DAY_START_TIME" value="00:00:00"/>
         <env name="DB_CONNECTION" value="mst"/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>

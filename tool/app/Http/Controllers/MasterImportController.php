@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Services\GoogleSpreadsheetService;
+use App\Services\MasterDataExporter;
+use App\Services\MasterDeployService;
 use App\Services\MasterImportService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -23,17 +25,17 @@ use Throwable;
  * GET  /master-import/sheets             シート一覧取得 (JSON)
  * GET  /master-import/preview            プレビューデータ取得 (JSON)
  * POST /master-import/execute            インポート実行 (JSON)
+ * POST /master-import/export             SQLiteエクスポート＆sys_deploy登録 (JSON)
  */
 class MasterImportController extends Controller
 {
-    /**
-     * キャッシュファイルのパス（storage/app/ 配下）
-     */
     private const CACHE_FILE = 'master-import/sheet-list-cache.json';
 
     public function __construct(
         private readonly GoogleSpreadsheetService $spreadsheetService,
-        private readonly MasterImportService $importService,
+        private readonly MasterImportService      $importService,
+        private readonly MasterDataExporter       $exporter,
+        private readonly MasterDeployService      $deployService,
     ) {}
 
     /**
@@ -238,8 +240,49 @@ class MasterImportController extends Controller
     private function errorResponse(Throwable $e): JsonResponse
     {
         return response()->json([
-            'status' => 'error',
+            'status'  => 'error',
             'message' => $e->getMessage(),
         ], 422);
+    }
+
+    /**
+     * mstデータベースをSQLiteにエクスポートし sys_deploy に登録する
+     *
+     * 処理フロー:
+     * 1. mst全テーブルをSQLiteファイルに変換
+     * 2. SHA-256ハッシュでファイル名を決定して public/masterdata/ に配置
+     * 3. sys_deploy_master / sys_deploy_asset / sys_deploy に登録
+     */
+    public function export(): JsonResponse
+    {
+        try {
+            // SQLiteエクスポート
+            $exportResult = $this->exporter->export();
+
+            // sys_deploy 系テーブルに登録
+            $deployResult = $this->deployService->register($exportResult);
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => $deployResult['is_new']
+                    ? "SQLiteを生成し sys_deploy (deploy_key={$deployResult['deploy_key']}) に登録しました。"
+                    : "同一ハッシュのデプロイが既に登録されています (deploy_key={$deployResult['deploy_key']})。",
+                'export'  => [
+                    'file_name'  => $exportResult['file_name'],
+                    'hash'       => $exportResult['hash'],
+                    'file_size'  => $exportResult['file_size'],
+                    'table_count'=> $exportResult['table_count'],
+                    'public_url' => $exportResult['public_url'],
+                ],
+                'deploy'  => [
+                    'deploy_key'           => $deployResult['deploy_key'],
+                    'sys_deploy_master_id' => $deployResult['sys_deploy_master_id'],
+                    'sys_deploy_id'        => $deployResult['sys_deploy_id'],
+                    'is_new'               => $deployResult['is_new'],
+                ],
+            ]);
+        } catch (Throwable $e) {
+            return $this->errorResponse($e);
+        }
     }
 }

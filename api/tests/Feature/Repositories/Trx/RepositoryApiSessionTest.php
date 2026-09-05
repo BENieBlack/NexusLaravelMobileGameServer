@@ -35,7 +35,7 @@ class RepositoryApiSessionTest extends TestCase
     #[Test]
     public function query_or_memoryは引数なしで動作する(): void
     {
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
         $repo = new TrxEquipmentRepository;
 
         $equipments = $repo->queryOrMemory();
@@ -48,7 +48,7 @@ class RepositoryApiSessionTest extends TestCase
     {
         // Repositoryで明示しなければModelの宣言（無ければ主キー）に従う。
         // 二重に持つと片方だけ直し忘れる
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
         $repo = new TrxEquipmentRepository;
 
         $method = new \ReflectionMethod($repo, 'getUniqueKeys');
@@ -60,7 +60,7 @@ class RepositoryApiSessionTest extends TestCase
     #[Test]
     public function 異なるsys_player_idで別のリポジトリを作成できる(): void
     {
-        ApiSession::setSysPlayerId(999);
+        $this->useSessionPlayer(999);
         $repo = new TrxEquipmentRepository;
 
         $equipments = $repo->queryOrMemory();
@@ -71,7 +71,7 @@ class RepositoryApiSessionTest extends TestCase
     #[Test]
     public function api_sessionを設定して_trx_repositoryで使用できる(): void
     {
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         $trxEquipmentRepo = new TrxEquipmentRepository;
         $equipments = $trxEquipmentRepo->queryOrMemory();
@@ -82,7 +82,7 @@ class RepositoryApiSessionTest extends TestCase
     #[Test]
     public function log_repositoryでも_api_sessionが使用できる(): void
     {
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         $logEquipmentRepo = new LogEquipmentRepository;
         $logs = $logEquipmentRepo->queryOrMemory();

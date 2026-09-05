@@ -41,7 +41,7 @@ class InAppPurchasePassServiceTest extends TestCase
         parent::setUp();
 
         ApiSession::clearForTest();
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
         ClockUtility::setNow('2026-03-15 12:00:00');
 
         $this->service = app(InAppPurchasePassService::class);

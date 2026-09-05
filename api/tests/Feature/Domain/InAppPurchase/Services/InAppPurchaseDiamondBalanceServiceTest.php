@@ -41,7 +41,7 @@ class InAppPurchaseDiamondBalanceServiceTest extends TestCase
     {
         parent::setUp();
         ApiSession::clearForTest();
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         $this->diamondBalanceService = app(InAppPurchaseDiamondBalanceService::class);
         $this->queryManager = app(QueryManager::class);
@@ -123,7 +123,7 @@ class InAppPurchaseDiamondBalanceServiceTest extends TestCase
             'updated_at' => now(),
         ]);
 
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         // Execute: Consume 300 (should consume from free first)
         $this->diamondBalanceService->consumeDiamond($this->sysPlayerId, 300, isPaidOnly: false);
@@ -153,7 +153,7 @@ class InAppPurchaseDiamondBalanceServiceTest extends TestCase
             'updated_at' => now(),
         ]);
 
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         // Execute: Consume 1200 (1000 from free + 200 from paid)
         $this->diamondBalanceService->consumeDiamond($this->sysPlayerId, 1200, isPaidOnly: false);
@@ -183,7 +183,7 @@ class InAppPurchaseDiamondBalanceServiceTest extends TestCase
             'updated_at' => now(),
         ]);
 
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         // Execute: Consume 200 paid only
         $this->diamondBalanceService->consumeDiamond($this->sysPlayerId, 200, isPaidOnly: true);
@@ -208,21 +208,21 @@ class InAppPurchaseDiamondBalanceServiceTest extends TestCase
         $this->queryManager->execAllQuery();
 
         ApiSession::clearForTest();
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         // Second add (free)
         $this->diamondBalanceService->addDiamond($this->sysPlayerId, $this->platform, 300, isPaid: false);
         $this->queryManager->execAllQuery();
 
         ApiSession::clearForTest();
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         // Third add (paid)
         $this->diamondBalanceService->addDiamond($this->sysPlayerId, $this->platform, 200, isPaid: true);
         $this->queryManager->execAllQuery();
 
         ApiSession::clearForTest();
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         // Fourth add (paid)
         $this->diamondBalanceService->addDiamond($this->sysPlayerId, $this->platform, 100, isPaid: true);
@@ -247,7 +247,7 @@ class InAppPurchaseDiamondBalanceServiceTest extends TestCase
         $this->queryManager->execAllQuery();
 
         ApiSession::clearForTest();
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         // Execute & Verify
         $this->expectException(\Exception::class);
@@ -269,7 +269,7 @@ class InAppPurchaseDiamondBalanceServiceTest extends TestCase
             'updated_at' => now(),
         ]);
 
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         // Execute & Verify - trying to consume 200 paid but only have 100
         $this->expectException(\Exception::class);
@@ -295,20 +295,20 @@ class InAppPurchaseDiamondBalanceServiceTest extends TestCase
         $this->queryManager->execAllQuery();
 
         ApiSession::clearForTest();
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         $this->diamondBalanceService->addDiamond($this->sysPlayerId, 'Apple', 500, isPaid: true);
         $this->queryManager->execAllQuery();
 
         ApiSession::clearForTest();
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         // Add to Google platform
         $this->diamondBalanceService->addDiamond($this->sysPlayerId, 'Google', 2000, isPaid: false);
         $this->queryManager->execAllQuery();
 
         ApiSession::clearForTest();
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         $this->diamondBalanceService->addDiamond($this->sysPlayerId, 'Google', 800, isPaid: true);
         $this->queryManager->execAllQuery();
@@ -347,7 +347,7 @@ class InAppPurchaseDiamondBalanceServiceTest extends TestCase
             'updated_at' => now(),
         ]);
 
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         // Execute: Consume 120000 (100000 from free + 20000 from paid)
         $this->diamondBalanceService->consumeDiamond($this->sysPlayerId, 120000, isPaidOnly: false);

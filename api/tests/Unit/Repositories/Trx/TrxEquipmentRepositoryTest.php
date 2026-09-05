@@ -21,7 +21,7 @@ class TrxEquipmentRepositoryTest extends TestCase
 
         // ApiSessionを初期化（テスト用のプレイヤーID=1を設定）
         ClockUtility::initialize();
-        ApiSession::setSysPlayerId(1);
+        $this->useSessionPlayer(1);
 
         $this->repository = new TrxEquipmentRepository;
     }
@@ -195,7 +195,7 @@ class TrxEquipmentRepositoryTest extends TestCase
     public function test_create_equipment_uses_api_session_for_player_id(): void
     {
         // Arrange
-        ApiSession::setSysPlayerId(42);
+        $this->useSessionPlayer(42);
         $repository = new TrxEquipmentRepository;
 
         // Act

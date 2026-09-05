@@ -1772,10 +1772,12 @@ GET /masterdata/master_4c693973c4a84d...sqlite
 ```
 tool/public/masterdata/
 ├── .gitkeep                              ← ディレクトリ管理用（Gitに含む）
-└── master_{hash}.sqlite                  ← 生成ファイル（.gitignoreで除外）
+└── {manifest_hash}/                      ← デプロイ単位のディレクトリ
+    ├── mst_unit_{hash}.sqlite
+    └── mst_unit__l10nも同居               ← 親テーブルと同じファイルに格納
 ```
 
-- DL URL: `GET /masterdata/master_{hash}.sqlite`
+- DL URL: `GET /masterdata/{manifest_hash}/mst_unit_{hash}.sqlite`
 - `.gitignore` で `*.sqlite` は除外（本番はS3等に移行予定）
 
 ### チェックリスト
@@ -1786,6 +1788,5 @@ tool/public/masterdata/
 - [ ] インポート結果が全て ✅ であることを確認
 - [ ] 「SQLiteエクスポート & デプロイ登録」ボタンをクリック
 - [ ] `deploy_key` が発行されたことを確認
-- [ ] `/masterdata/master_{hash}.sqlite` へのアクセスでDLできることを確認
+- [ ] `/masterdata/{manifest_hash}/mst_unit_{hash}.sqlite` へのアクセスでDLできることを確認
 - [ ] `POST /auth/version` で `needs_update: true` が返ることを確認
-

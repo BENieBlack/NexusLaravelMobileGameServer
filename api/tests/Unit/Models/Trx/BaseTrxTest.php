@@ -3,7 +3,6 @@
 namespace Tests\Unit\Models\Trx;
 
 use App\Models\Trx\TrxItem;
-use App\Persistence\ApiSession;
 use Nexus\Core\Utilities\ClockUtility;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
@@ -18,7 +17,7 @@ class BaseTrxTest extends TestCase
 
         // ApiSessionを初期化
         ClockUtility::initialize();
-        ApiSession::setSysPlayerId(1);
+        $this->useSessionPlayer(1);
     }
 
     /**

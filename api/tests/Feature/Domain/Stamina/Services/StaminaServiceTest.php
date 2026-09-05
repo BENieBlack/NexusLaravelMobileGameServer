@@ -46,7 +46,7 @@ class StaminaServiceTest extends TestCase
         parent::setUp();
 
         ApiSession::clearForTest();
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         $this->service = app(StaminaService::class);
         $this->queryManager = app(QueryManager::class);

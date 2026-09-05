@@ -18,10 +18,33 @@ readonly class RewardTrackMilestone
         public ?string $updatedAt,
     ) {}
 
-    public function getId(): int { return $this->id; }
-    public function getSysPlayerId(): int { return $this->sysPlayerId; }
-    public function getMstRewardTrackMilestoneId(): string { return $this->mstRewardTrackMilestoneId; }
-    public function getMstRewardTrackLineId(): string { return $this->mstRewardTrackLineId; }
-    public function getReceivedAt(): string { return $this->receivedAt; }
-    public function isDelete(): bool { return $this->isDelete; }
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function getSysPlayerId(): int
+    {
+        return $this->sysPlayerId;
+    }
+
+    public function getMstRewardTrackMilestoneId(): string
+    {
+        return $this->mstRewardTrackMilestoneId;
+    }
+
+    public function getMstRewardTrackLineId(): string
+    {
+        return $this->mstRewardTrackLineId;
+    }
+
+    public function getReceivedAt(): string
+    {
+        return $this->receivedAt;
+    }
+
+    public function isDelete(): bool
+    {
+        return $this->isDelete;
+    }
 }

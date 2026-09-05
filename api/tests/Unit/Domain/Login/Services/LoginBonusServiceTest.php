@@ -36,6 +36,10 @@ class LoginBonusServiceTest extends TestCase
         ApiSession::clearForTest();
         ApiSession::setSysPlayerId($this->sysPlayerId);
 
+        // 日跨ぎの判定はゲーム内日付の境界に依存する。
+        // .env の DAY_START_TIME に左右されないよう明示する
+        ClockUtility::setDayStartTime('00:00:00');
+
         $this->loginBonusService = app(LoginBonusService::class);
 
         // テスト用のログインボーナスマスターを作成（7日間ループ）
@@ -471,6 +475,34 @@ class LoginBonusServiceTest extends TestCase
         $this->assertCount(1, $result);
         $this->assertSame('item', $result[0]->getType()->value);
         $this->assertSame(40, $result[0]->getAmount()); // 4日目の報酬（40個）
+
+        ClockUtility::reset();
+    }
+
+    #[Test]
+    public function 境界を9時にすると9時で日が変わる(): void
+    {
+        // DAY_START_TIME を運用で動かしたときに配布判定が追随するかを見る。
+        // 0時境界の前提がサービス側に焼き付いていると、ここが落ちる
+        ClockUtility::setDayStartTime('09:00:00');
+
+        $day1 = CarbonImmutable::parse('2026-04-20 10:00:00', 'UTC');
+        ClockUtility::setNow($day1);
+        $this->assertCount(1, $this->loginBonusService->process($this->sysPlayerId, null, 'trx1'));
+
+        // 翌日の朝でも9時前は同じゲーム内日なので配布されない
+        ClockUtility::setNow(CarbonImmutable::parse('2026-04-21 08:00:00', 'UTC'));
+        $this->assertCount(
+            0,
+            $this->loginBonusService->process($this->sysPlayerId, $day1->toDateTimeString(), 'trx1')
+        );
+
+        // 9時を過ぎたら翌日として2日目の報酬が出る
+        ClockUtility::setNow(CarbonImmutable::parse('2026-04-21 09:00:01', 'UTC'));
+        $result = $this->loginBonusService->process($this->sysPlayerId, $day1->toDateTimeString(), 'trx1');
+
+        $this->assertCount(1, $result);
+        $this->assertSame(20, $result[0]->getAmount());
 
         ClockUtility::reset();
     }

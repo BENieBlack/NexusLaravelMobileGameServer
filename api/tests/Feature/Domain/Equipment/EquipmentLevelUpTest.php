@@ -129,7 +129,7 @@ class EquipmentLevelUpTest extends TestCase
 
         // ログ確認
         $log = DB::connection('log')
-            ->table('log_equipment')
+            ->table('log_action_equipment_levelup')
             ->where('sys_player_id', $this->sysPlayerId)
             ->where('trx_equipment_id', $this->trxEquipmentId)
             ->orderBy('id', 'desc')

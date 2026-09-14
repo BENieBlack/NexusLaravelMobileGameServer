@@ -142,7 +142,7 @@ class ShardRoutingTest extends TestCase
         $this->withHeaders($this->authHeaders($token))->postJson('/api/auth/login')->assertOk();
 
         foreach (['trx1', 'trx2'] as $connection) {
-            $count = DB::connection($connection)->table('trx_login_bonus_history')
+            $count = DB::connection($connection)->table('trx_login_bonus')
                 ->where('sys_player_id', $player->id)->count();
 
             if ($connection === $expected) {

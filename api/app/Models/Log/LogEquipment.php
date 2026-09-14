@@ -4,7 +4,7 @@ namespace App\Models\Log;
 
 class LogEquipment extends _BaseLog
 {
-    protected $table = 'log_equipment';
+    protected $table = 'log_action_equipment_levelup';
 
     /** @var array<string, string> */
     protected $casts = [

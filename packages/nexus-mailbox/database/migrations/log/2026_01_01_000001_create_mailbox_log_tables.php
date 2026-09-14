@@ -15,9 +15,9 @@ return new class extends Migration
     public function up(): void
     {
         // ========================================
-        // log_trx_mailbox: メールボックス変更ログ
+        // log_change_mailbox: メールボックス変更ログ
         // ========================================
-        Schema::create('log_trx_mailbox', function (Blueprint $table) {
+        Schema::create('log_change_mailbox', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->unsignedBigInteger('sys_player_id')->comment('プレイヤーID');
             $table->unsignedBigInteger('trx_mailbox_id')->nullable()->comment('trx_mailboxテーブルのID');
@@ -52,6 +52,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('log_trx_mailbox');
+        Schema::dropIfExists('log_change_mailbox');
     }
 };

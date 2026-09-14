@@ -15,9 +15,9 @@ return new class extends Migration
     public function up(): void
     {
         // ========================================
-        // log_trx_in_app_purchase: 課金購入履歴変更ログ
+        // log_change_in_app_purchase: 課金購入履歴変更ログ
         // ========================================
-        Schema::create('log_trx_in_app_purchase', function (Blueprint $table) {
+        Schema::create('log_change_in_app_purchase', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->unsignedBigInteger('sys_player_id')->comment('プレイヤーID');
             $table->string('billing_platform')->comment('決済プラットフォーム');
@@ -50,9 +50,9 @@ return new class extends Migration
         });
 
         // ========================================
-        // log_trx_in_app_purchase_effect: 課金効果変更ログ
+        // log_change_in_app_purchase_effect: 課金効果変更ログ
         // ========================================
-        Schema::create('log_trx_in_app_purchase_effect', function (Blueprint $table) {
+        Schema::create('log_change_in_app_purchase_effect', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->unsignedBigInteger('sys_player_id')->comment('プレイヤーID');
             $table->unsignedBigInteger('trx_in_app_purchase_effect_id')->nullable()->comment('trx_in_app_purchase_effectテーブルのID');
@@ -85,9 +85,9 @@ return new class extends Migration
         });
 
         // ========================================
-        // log_trx_diamond: ダイヤモンド変更ログ
+        // log_change_diamond: ダイヤモンド変更ログ
         // ========================================
-        Schema::create('log_trx_diamond', function (Blueprint $table) {
+        Schema::create('log_change_diamond', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->unsignedBigInteger('sys_player_id')->comment('プレイヤーID');
             $table->string('platform')->comment('プラットフォーム (Apple, Google)');
@@ -121,9 +121,9 @@ return new class extends Migration
         });
 
         // ========================================
-        // log_trx_diamond_balance: ダイヤモンド残高変更ログ
+        // log_change_diamond_balance: ダイヤモンド残高変更ログ
         // ========================================
-        Schema::create('log_trx_diamond_balance', function (Blueprint $table) {
+        Schema::create('log_change_diamond_balance', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->unsignedBigInteger('sys_player_id')->comment('プレイヤーID');
             $table->unsignedBigInteger('trx_diamond_balance_id')->nullable()->comment('trx_diamond_balanceテーブルのID');
@@ -159,9 +159,9 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('log_trx_diamond_balance');
-        Schema::dropIfExists('log_trx_diamond');
-        Schema::dropIfExists('log_trx_in_app_purchase_effect');
-        Schema::dropIfExists('log_trx_in_app_purchase');
+        Schema::dropIfExists('log_change_diamond_balance');
+        Schema::dropIfExists('log_change_diamond');
+        Schema::dropIfExists('log_change_in_app_purchase_effect');
+        Schema::dropIfExists('log_change_in_app_purchase');
     }
 };

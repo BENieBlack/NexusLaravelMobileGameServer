@@ -92,7 +92,7 @@ class UuidMigrationTest extends TestCase
             $this->assertSame([], $remaining, 'BIGINTのまま残った参照列がある');
 
             // 代表例として、TrxDBのメールIDを控える列を確認する
-            $this->assertSame('varchar(36)', $this->columnType('log1', 'log_trx_mailbox', 'trx_mailbox_id'));
+            $this->assertSame('varchar(36)', $this->columnType('log1', 'log_change_mailbox', 'trx_mailbox_id'));
             $this->assertSame('varchar(36)', $this->columnType('log1', 'log_unit', 'trx_unit_id'));
         } finally {
             $this->runMigration(self::LOG_MIGRATION, 'log1', 'down');
@@ -107,8 +107,8 @@ class UuidMigrationTest extends TestCase
         $this->runMigration(self::LOG_MIGRATION, 'log1', 'up');
         $this->runMigration(self::LOG_MIGRATION, 'log1', 'down');
 
-        $this->assertSame('bigint unsigned', $this->columnType('log1', 'log_trx_mailbox', 'trx_mailbox_id'));
-        $this->assertSame('YES', $this->isNullable('log1', 'log_trx_mailbox', 'trx_mailbox_id'), 'NULL許容が保たれる');
+            $this->assertSame('bigint unsigned', $this->columnType('log1', 'log_change_mailbox', 'trx_mailbox_id'));
+            $this->assertSame('YES', $this->isNullable('log1', 'log_change_mailbox', 'trx_mailbox_id'), 'NULL許容が保たれる');
         $this->assertSame('NO', $this->isNullable('log1', 'log_unit', 'trx_unit_id'), 'NOT NULLが保たれる');
     }
 

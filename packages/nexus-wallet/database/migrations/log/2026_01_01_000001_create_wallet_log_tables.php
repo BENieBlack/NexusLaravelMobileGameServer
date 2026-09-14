@@ -15,9 +15,9 @@ return new class extends Migration
     public function up(): void
     {
         // ========================================
-        // log_trx_wallet: 通貨変更ログ
+        // log_change_wallet: 通貨変更ログ
         // ========================================
-        Schema::create('log_trx_wallet', function (Blueprint $table) {
+        Schema::create('log_change_wallet', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->unsignedBigInteger('sys_player_id')->comment('プレイヤーID');
             $table->string('mst_item_id')->comment('通貨アイテムID');
@@ -51,9 +51,9 @@ return new class extends Migration
         });
 
         // ========================================
-        // log_trx_wallet_balance: 通貨残高変更ログ
+        // log_change_wallet_balance: 通貨残高変更ログ
         // ========================================
-        Schema::create('log_trx_wallet_balance', function (Blueprint $table) {
+        Schema::create('log_change_wallet_balance', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->unsignedBigInteger('sys_player_id')->comment('プレイヤーID');
             $table->unsignedBigInteger('trx_wallet_balance_id')->nullable()->comment('trx_wallet_balanceテーブルのID');
@@ -90,7 +90,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('log_trx_wallet_balance');
-        Schema::dropIfExists('log_trx_wallet');
+        Schema::dropIfExists('log_change_wallet_balance');
+        Schema::dropIfExists('log_change_wallet');
     }
 };

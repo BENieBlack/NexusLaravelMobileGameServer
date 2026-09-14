@@ -23,7 +23,6 @@ class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
     {
         return MstLoginBonus::dailyType()
             ->active()
-            ->where('day', 1)
             ->value('loop_days');
     }
 
@@ -34,7 +33,6 @@ class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
     {
         $bonus = MstLoginBonus::dailyType()
             ->active()
-            ->where('day', $day)
             ->first();
 
         return $bonus ? $bonus->toArray() : null;
@@ -52,7 +50,6 @@ class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
     {
         $bonus = MstLoginBonus::dailyType()
             ->active()
-            ->where('day', 1)
             ->first();
 
         return $bonus ? $bonus->toArray() : null;
@@ -107,8 +104,9 @@ class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
         $validFrom = ClockUtility::now()->subDays($validDays)->format('Y-m-d H:i:s');
 
         $history = \DB::connection($connectionName)
-            ->table('trx_login_bonus_history')
+            ->table('trx_login_bonus')
             ->where('sys_player_id', $sysPlayerId)
+            ->where('type', 'comeback')
             ->where('mst_login_bonus_id', $comebackBonusId)
             ->where('received_date', '>=', $validFrom)
             ->exists();
@@ -128,8 +126,17 @@ class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
      */
     public function selectContentsByLoginBonusIdAndDay(string $loginBonusId, int $day): array
     {
-        // カムバックボーナスの場合、dayは無視して全コンテンツを返す
-        return MstLoginBonusContent::where('mst_login_bonus_id', $loginBonusId)
+        $bonusType = MstLoginBonus::whereKey($loginBonusId)->value('type');
+        $contentQuery = MstLoginBonusContent::where('mst_login_bonus_id', $loginBonusId);
+
+        if ($bonusType === MstLoginBonus::TYPE_DAILY) {
+            $contentQuery->where('day', $day);
+        } else {
+            // カムバック報酬は日次サイクルではないため、day=0の内容を返す。
+            $contentQuery->where('day', 0);
+        }
+
+        return $contentQuery
             ->orderBy('sort_order')
             ->get()
             ->map(fn ($content) => $content->toArray())

@@ -83,10 +83,8 @@ class LoginBonusRepositoryAdapterTest extends TestCase
     public function 日数を指定して通常ボーナスを引ける(): void
     {
         $this->makeDaily('daily_1', day: 1);
-        $this->makeDaily('daily_3', day: 3);
 
-        $this->assertSame('daily_3', $this->repository->selectActiveByDay(3)['id']);
-        $this->assertNull($this->repository->selectActiveByDay(5), '定義の無い日数はnull');
+        $this->assertSame('daily_1', $this->repository->selectActiveByDay(3)['id']);
     }
 
     #[Test]
@@ -257,7 +255,6 @@ class LoginBonusRepositoryAdapterTest extends TestCase
         bool $isActive = true,
     ): void {
         $this->insertBonus($id, MstLoginBonus::TYPE_DAILY, [
-            'day' => $day,
             'loop_days' => $loopDays,
             'is_active' => $isActive,
         ]);
@@ -272,7 +269,6 @@ class LoginBonusRepositoryAdapterTest extends TestCase
         ?string $endAt = null,
     ): void {
         $this->insertBonus($id, MstLoginBonus::TYPE_COMEBACK, [
-            'day' => 1,
             'required_absent_days' => $requiredAbsentDays,
             'valid_days' => 30,
             'priority' => $priority,
@@ -290,7 +286,6 @@ class LoginBonusRepositoryAdapterTest extends TestCase
         DB::connection('mst')->table('mst_login_bonus')->insert(array_merge([
             'id' => $id,
             'type' => $type,
-            'day' => 1,
             'loop_days' => 7,
             'priority' => 0,
             'is_active' => true,
@@ -305,6 +300,7 @@ class LoginBonusRepositoryAdapterTest extends TestCase
     {
         DB::connection('mst')->table('mst_login_bonus_content')->insert([
             'mst_login_bonus_id' => $bonusId,
+            'day' => 1,
             'content_type' => 'item',
             'content_mst_id' => $contentMstId,
             'content_quantity' => 1,
@@ -323,15 +319,15 @@ class LoginBonusRepositoryAdapterTest extends TestCase
         $sysPlayerId ??= $this->sysPlayerId;
 
         DB::connection($this->playerConnection($sysPlayerId))
-            ->table('trx_login_bonus_history')->insert([
+            ->table('trx_login_bonus')->insert([
+                'type' => 'comeback',
                 'sys_player_id' => $sysPlayerId,
                 'mst_login_bonus_id' => $bonusId,
+                'day' => 0,
+                'absent_days' => null,
                 'received_date' => $receivedAt,
-                'reward_type' => 'item',
-                'reward_mst_id' => 'item_potion',
-                'reward_amount' => 1,
-                'is_paid' => false,
                 'created_at' => now(),
+                'updated_at' => now(),
             ]);
     }
 
@@ -341,7 +337,7 @@ class LoginBonusRepositoryAdapterTest extends TestCase
         DB::connection('mst')->table('mst_login_bonus')->delete();
         foreach ([$this->sysPlayerId, $this->otherPlayerId] as $playerId) {
             DB::connection($this->playerConnection($playerId))
-                ->table('trx_login_bonus_history')->where('sys_player_id', $playerId)->delete();
+                ->table('trx_login_bonus')->where('sys_player_id', $playerId)->delete();
         }
         $this->refreshMstCache();
     }

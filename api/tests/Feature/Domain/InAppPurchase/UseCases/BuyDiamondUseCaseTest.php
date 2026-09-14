@@ -139,7 +139,7 @@ class BuyDiamondUseCaseTest extends TestCase
         $this->assertSame('490.00', (string) $player->total_paid_amount);
 
         // VIPポイントの変動ログが残っている
-        $vipLog = DB::connection('log1')->table('log_vip_point')
+        $vipLog = DB::connection('log1')->table('log_action_vip_point_change')
             ->where('sys_player_id', $this->sysPlayerId)
             ->first();
         $this->assertNotNull($vipLog);
@@ -147,7 +147,7 @@ class BuyDiamondUseCaseTest extends TestCase
         $this->assertSame('purchase', $vipLog->reason);
 
         // 課金ログが残っている（CS調査で使う）
-        $purchaseLog = DB::connection('log1')->table('log_in_app_purchase')
+        $purchaseLog = DB::connection('log1')->table('log_action_in_app_purchase')
             ->where('sys_player_id', $this->sysPlayerId)
             ->first();
         $this->assertNotNull($purchaseLog);
@@ -251,7 +251,7 @@ class BuyDiamondUseCaseTest extends TestCase
         $this->assertSame(0, $player->vip_point);
 
         // 失敗した事実はログに残る（トランザクション外に書くためロールバックされない）
-        $log = DB::connection('log1')->table('log_in_app_purchase')
+        $log = DB::connection('log1')->table('log_action_in_app_purchase')
             ->where('sys_player_id', $this->sysPlayerId)
             ->first();
         $this->assertNotNull($log);
@@ -287,7 +287,7 @@ class BuyDiamondUseCaseTest extends TestCase
             // 検証まで到達しない
         }
 
-        $log = DB::connection('log1')->table('log_in_app_purchase')
+        $log = DB::connection('log1')->table('log_action_in_app_purchase')
             ->where('sys_player_id', $this->sysPlayerId)
             ->first();
         $this->assertNotNull($log);
@@ -359,8 +359,8 @@ class BuyDiamondUseCaseTest extends TestCase
         DB::connection('mst')->table('mst_in_app_purchase')->delete();
         DB::connection('mst')->table('mst_billing_platform_product')->delete();
         DB::connection('sys')->table('sys_player')->where('id', $this->sysPlayerId)->delete();
-        DB::connection('log1')->table('log_in_app_purchase')->delete();
-        DB::connection('log1')->table('log_vip_point')->delete();
+        DB::connection('log1')->table('log_action_in_app_purchase')->delete();
+        DB::connection('log1')->table('log_action_vip_point_change')->delete();
     }
 
     private function generatePrivateKey(): string

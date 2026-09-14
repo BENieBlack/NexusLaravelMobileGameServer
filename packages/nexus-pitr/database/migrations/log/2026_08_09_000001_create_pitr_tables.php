@@ -26,9 +26,9 @@ return new class extends Migration
         // PitrMigrateCommandが--databaseオプションで接続を指定するため
 
         // ========================================
-        // log_trx_change: TrxDB統合変更ログ (PITR用)
+        // log_change: TrxDB統合変更ログ (PITR用)
         // ========================================
-        Schema::create('log_trx_change', function (Blueprint $table) {
+        Schema::create('log_change', function (Blueprint $table) {
             $table->uuid('id')->primary()->comment('ログID (UUID)');
             $table->string('unique_request_id', 100)->comment('リクエスト一意ID');
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
@@ -114,6 +114,6 @@ return new class extends Migration
     {
         Schema::dropIfExists('log_pitr_verification');
         Schema::dropIfExists('log_pitr_recovery');
-        Schema::dropIfExists('log_trx_change');
+        Schema::dropIfExists('log_change');
     }
 };

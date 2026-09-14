@@ -52,7 +52,7 @@ class HomeUseCaseTest extends TestCase
     {
         // テストデータをクリア
         foreach (['trx1', 'trx2'] as $connection) {
-            DB::connection($connection)->table('trx_login_bonus_history')->delete();
+            DB::connection($connection)->table('trx_login_bonus')->delete();
             DB::connection($connection)->table('trx_unit')->delete();
             DB::connection($connection)->table('trx_item')->delete();
             DB::connection($connection)->table('trx_wallet')->delete();
@@ -162,7 +162,7 @@ class HomeUseCaseTest extends TestCase
 
         // 履歴が記録されていることを確認
         $history = DB::connection($this->playerConnection($this->testPlayer->id))
-            ->table('trx_login_bonus_history')
+            ->table('trx_login_bonus')
             ->where('sys_player_id', $this->testPlayer->id)
             ->first();
 

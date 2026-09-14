@@ -122,7 +122,7 @@ class RetentionCacheService
         $cohort = Carbon::parse($cohortDate);
 
         $newUserRows = DB::connection('log')
-            ->table('log_access')
+            ->table('log_action_api_access')
             ->selectRaw('sys_player_id, MIN(DATE(system_at)) as first_day')
             ->groupBy('sys_player_id')
             ->havingRaw('first_day = ?', [$cohortDate])
@@ -142,7 +142,7 @@ class RetentionCacheService
         $playerIds = $newUserRows->pluck('sys_player_id')->all();
 
         $allVisits = DB::connection('log')
-            ->table('log_access')
+            ->table('log_action_api_access')
             ->whereIn('sys_player_id', $playerIds)
             ->selectRaw('sys_player_id, DATE(system_at) as visit_date')
             ->distinct()

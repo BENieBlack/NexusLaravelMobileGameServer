@@ -114,13 +114,21 @@ class VipLoginBonusService extends _BaseLoginBonusService
     ): void {
         $receivedAt = $this->calcGameDayStart()->format('Y-m-d H:i:s');
 
-        // VIPログインボーナス履歴テーブルに記録
+        $rewards = $contents->map(fn ($content) => [
+            'type' => $content->content_type,
+            'id' => $content->content_mst_id,
+            'amount' => $content->content_quantity * $content->amount,
+            'is_paid' => $content->is_paid ?? false,
+        ])->all();
+
+        // 最新状態はtrx、受取履歴はlogへ記録
         $this->vipHistoryRepository->insert([
             'sys_player_id' => $sysPlayerId,
             'mst_vip_login_bonus_id' => $bonusData['id'],
             'day' => $currentDay,
             'vip_level' => $bonusData['current_vip_level'],
             'received_at' => $receivedAt,
+            'rewards' => $rewards,
         ], $connectionName);
     }
 

@@ -4,7 +4,7 @@ namespace App\Models\Log;
 
 class LogInAppPurchase extends _BaseLog
 {
-    protected $table = 'log_in_app_purchase';
+    protected $table = 'log_action_in_app_purchase';
 
     /** @var array<string, string> */
     protected $casts = [

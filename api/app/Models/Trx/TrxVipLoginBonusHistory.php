@@ -20,7 +20,7 @@ use Nexus\Core\Models\Trx\_BaseTrx;
  */
 class TrxVipLoginBonusHistory extends _BaseTrx
 {
-    protected $table = 'trx_vip_login_bonus_history';
+    protected $table = 'trx_vip_login_bonus';
 
     /** @var list<string> */
     protected $fillable = [

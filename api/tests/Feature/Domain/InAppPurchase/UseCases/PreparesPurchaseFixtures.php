@@ -22,7 +22,7 @@ trait PreparesPurchaseFixtures
         $player = DB::connection('sys')->table('sys_player')->where('id', $this->sysPlayerId)->first();
         $this->assertSame(self::VIP_POINT, $player->vip_point);
 
-        $log = DB::connection('log1')->table('log_in_app_purchase')
+        $log = DB::connection('log1')->table('log_action_in_app_purchase')
             ->where('sys_player_id', $this->sysPlayerId)->first();
         $this->assertNotNull($log);
         $this->assertSame('purchased', $log->status);
@@ -143,8 +143,8 @@ trait PreparesPurchaseFixtures
         foreach (['trx_diamond', 'trx_diamond_balance', 'trx_item', 'trx_unit', 'trx_in_app_purchase', 'trx_in_app_purchase_effect'] as $table) {
             DB::connection('trx1')->table($table)->delete();
         }
-        DB::connection('log1')->table('log_in_app_purchase')->delete();
-        DB::connection('log1')->table('log_vip_point')->delete();
+        DB::connection('log1')->table('log_action_in_app_purchase')->delete();
+        DB::connection('log1')->table('log_action_vip_point_change')->delete();
         DB::connection('sys')->table('sys_player')->where('id', $this->sysPlayerId)->delete();
         foreach (['mst_in_app_purchase', 'mst_billing_platform_product', 'mst_in_app_purchase_content', 'mst_in_app_purchase_effect'] as $table) {
             DB::connection('mst')->table($table)->delete();

@@ -12,8 +12,8 @@ use Nexus\Core\Models\Mst\_BaseMst;
  * 通常ログインボーナスのマスターデータを生成
  * 7日サイクルのデイリーログインボーナス
  *
- * mst_login_bonus: 1行 = 1日分のボーナス設定（day=1〜7）
- * mst_login_bonus_content: 各日の報酬内容
+ * mst_login_bonus: ログインボーナスの種類とループ設定
+ * mst_login_bonus_content: 各日の報酬内容（day=1〜7）
  */
 class MstLoginBonusSeeder extends Seeder
 {
@@ -34,39 +34,36 @@ class MstLoginBonusSeeder extends Seeder
         // content_type: DBのenum値('wallet','item','diamond'等)を使用
         // wallet の場合、サービス層で content_mst_id (gold/coin等) をResourceTypeとして扱う
         $dayRewards = [
-            1 => [['content_type' => 'wallet',  'content_mst_id' => 'gold',         'amount' => 1000]],
-            2 => [['content_type' => 'wallet',  'content_mst_id' => 'gold',         'amount' => 2000]],
-            3 => [['content_type' => 'item',    'content_mst_id' => 'item_001',     'amount' => 1]],
-            4 => [['content_type' => 'wallet',  'content_mst_id' => 'gold',         'amount' => 3000]],
-            5 => [['content_type' => 'item',    'content_mst_id' => 'item_001',     'amount' => 2]],
-            6 => [['content_type' => 'wallet',  'content_mst_id' => 'gold',         'amount' => 5000]],
-            7 => [
-                ['content_type' => 'diamond',   'content_mst_id' => 'free_diamond', 'amount' => 10],
-                ['content_type' => 'wallet',    'content_mst_id' => 'gold',         'amount' => 10000],
-            ],
+            1 => [['content_type' => 'diamond', 'content_mst_id' => 'free_diamond', 'amount' => 100]],
+            2 => [['content_type' => 'wallet',  'content_mst_id' => 'gold',         'amount' => 5000]],
+            3 => [['content_type' => 'diamond', 'content_mst_id' => 'free_diamond', 'amount' => 100]],
+            4 => [['content_type' => 'wallet',  'content_mst_id' => 'gold',         'amount' => 10000]],
+            5 => [['content_type' => 'stamina', 'content_mst_id' => 'stamina',      'amount' => 50]],
+            6 => [['content_type' => 'diamond', 'content_mst_id' => 'diamond',      'amount' => 20000]],
+            7 => [['content_type' => 'diamond', 'content_mst_id' => 'free_diamond', 'amount' => 500]],
         ];
 
+        $bonusId = 'daily_login';
+
+        DB::connection('mst')->table('mst_login_bonus')->insert([
+            'id' => $bonusId,
+            'type' => 'daily',
+            'loop_days' => self::LOOP_DAYS,
+            'required_absent_days' => null,
+            'valid_days' => null,
+            'priority' => 0,
+            'is_active' => true,
+            'start_at' => null,
+            'end_at' => null,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+
         for ($day = 1; $day <= self::LOOP_DAYS; $day++) {
-            $bonusId = "daily_login_day{$day}";
-
-            DB::connection('mst')->table('mst_login_bonus')->insert([
-                'id' => $bonusId,
-                'type' => 'daily',
-                'day' => $day,
-                'loop_days' => self::LOOP_DAYS,
-                'required_absent_days' => null,
-                'valid_days' => null,
-                'priority' => 0,
-                'is_active' => true,
-                'start_at' => null,
-                'end_at' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ]);
-
             foreach ($dayRewards[$day] as $i => $reward) {
                 DB::connection('mst')->table('mst_login_bonus_content')->insert([
                     'mst_login_bonus_id' => $bonusId,
+                    'day' => $day,
                     'content_type' => $reward['content_type'],
                     'content_mst_id' => $reward['content_mst_id'],
                     'content_option' => null,

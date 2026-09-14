@@ -13,7 +13,7 @@ class LogPlayerSeeder extends Seeder
     public function run(): void
     {
         // べき等性を確保するため、既存データを削除
-        DB::connection('log')->table('log_player')->truncate();
+        DB::connection('log')->table('log_action_player_update')->truncate();
 
         // log_accessからプレイヤー関連のエンドポイントのunique_request_idを取得
         $playerEndpoints = [
@@ -24,7 +24,7 @@ class LogPlayerSeeder extends Seeder
         ];
 
         $accessLogs = DB::connection('log')
-            ->table('log_access')
+            ->table('log_action_api_access')
             ->whereIn('endpoint', $playerEndpoints)
             ->select('unique_request_id', 'sys_player_id', 'system_at', 'created_at')
             ->limit(200) // サンプルとして200件に限定
@@ -45,7 +45,7 @@ class LogPlayerSeeder extends Seeder
             $beforeExp = rand(0, 999);
             $afterExp = $afterLevel > $beforeLevel ? rand(0, 300) : $beforeExp + rand(100, 500);
 
-            DB::connection('log')->table('log_player')->insert([
+            DB::connection('log')->table('log_action_player_update')->insert([
                 'unique_request_id' => $accessLog->unique_request_id,
                 'sys_player_id' => $accessLog->sys_player_id,
                 'before_level' => $beforeLevel,

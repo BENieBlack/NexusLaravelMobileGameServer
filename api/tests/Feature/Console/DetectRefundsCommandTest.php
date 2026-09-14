@@ -40,7 +40,7 @@ class DetectRefundsCommandTest extends TestCase
 
         $this->artisan('billing:detect-refunds')->assertSuccessful();
 
-        $refunded = DB::connection('log1')->table('log_in_app_purchase')
+        $refunded = DB::connection('log1')->table('log_action_in_app_purchase')
             ->where('status', 'refunded')
             ->get();
 
@@ -51,7 +51,7 @@ class DetectRefundsCommandTest extends TestCase
         // 購入時のログは残したまま
         $this->assertSame(
             2,
-            DB::connection('log1')->table('log_in_app_purchase')->where('status', 'purchased')->count()
+            DB::connection('log1')->table('log_action_in_app_purchase')->where('status', 'purchased')->count()
         );
     }
 
@@ -68,7 +68,7 @@ class DetectRefundsCommandTest extends TestCase
 
         $this->assertSame(
             0,
-            DB::connection('log1')->table('log_in_app_purchase')->where('status', 'refunded')->count()
+            DB::connection('log1')->table('log_action_in_app_purchase')->where('status', 'refunded')->count()
         );
     }
 
@@ -105,7 +105,7 @@ class DetectRefundsCommandTest extends TestCase
         $this->artisan('billing:detect-refunds')->assertFailed();
 
         // 確認できた分は記録される
-        $refunded = DB::connection('log1')->table('log_in_app_purchase')->where('status', 'refunded')->get();
+        $refunded = DB::connection('log1')->table('log_action_in_app_purchase')->where('status', 'refunded')->get();
         $this->assertCount(1, $refunded);
         $this->assertSame('GPA.2222', $refunded[0]->receipt_id);
     }
@@ -141,7 +141,7 @@ class DetectRefundsCommandTest extends TestCase
         string $status = 'purchased',
         ?string $systemAt = null,
     ): void {
-        DB::connection('log1')->table('log_in_app_purchase')->insert([
+        DB::connection('log1')->table('log_action_in_app_purchase')->insert([
             'unique_request_id' => $uniqueRequestId,
             'sys_player_id' => 1,
             'platform' => $billingPlatform === 'app_store' ? 'apple' : 'google',
@@ -162,7 +162,7 @@ class DetectRefundsCommandTest extends TestCase
     private function cleanUp(): void
     {
         foreach (['log1', 'log2'] as $connection) {
-            DB::connection($connection)->table('log_in_app_purchase')->delete();
+            DB::connection($connection)->table('log_action_in_app_purchase')->delete();
         }
     }
 }

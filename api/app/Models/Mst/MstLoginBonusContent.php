@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int $deploy_key
  * @property string $mst_login_bonus_id
+ * @property int $day
  * @property string $content_type
  * @property string $content_mst_id
  * @property int $amount
@@ -37,6 +38,7 @@ class MstLoginBonusContent extends _BaseMst
     protected $fillable = [
         'deploy_key',
         'mst_login_bonus_id',
+        'day',
         'content_type',
         'content_mst_id',
         'content_option',
@@ -53,6 +55,7 @@ class MstLoginBonusContent extends _BaseMst
     protected $casts = [
         'deploy_key' => 'integer',
         'content_option' => 'array',
+        'day' => 'integer',
         'content_quantity' => 'integer',
         'amount' => 'integer',
         'is_paid' => 'boolean',

@@ -24,7 +24,7 @@ namespace App\Models\Log;
  */
 class LogVipPoint extends _BaseLog
 {
-    protected $table = 'log_vip_point';
+    protected $table = 'log_action_vip_point_change';
 
     public $timestamps = false;
 

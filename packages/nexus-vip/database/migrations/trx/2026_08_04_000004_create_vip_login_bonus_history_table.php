@@ -9,13 +9,12 @@ return new class extends Migration
     /**
      * Run the migrations.
      *
-     * VIPログインボーナス受け取り履歴テーブル
+     * VIPログインボーナスの最新受取状態テーブル
      * シャーディング対応（trx1, trx2...）
      */
     public function up(): void
     {
-        Schema::create('trx_vip_login_bonus_history', function (Blueprint $table) {
-            $table->id();
+        Schema::create('trx_vip_login_bonus', function (Blueprint $table) {
             $table->unsignedBigInteger('sys_player_id')->comment('プレイヤーID');
             $table->string('mst_vip_login_bonus_id', 64)->comment('VIPログインボーナスID');
             $table->unsignedInteger('day')->comment('受け取った日数（1日目、2日目...）');
@@ -23,12 +22,8 @@ return new class extends Migration
             $table->timestamp('received_at')->comment('受け取り日時（UTC）');
             $table->timestamps();
 
-            // sys_player_idでの検索用インデックス
-            $table->index('sys_player_id');
-            // VIPログインボーナスID + プレイヤーIDでの検索用
-            $table->index(['mst_vip_login_bonus_id', 'sys_player_id'], 'idx_vip_bonus_player');
-            // 受け取り日時での検索用
-            $table->index('received_at');
+            $table->primary('sys_player_id', 'pk_vip_login_bonus');
+            $table->index('mst_vip_login_bonus_id');
         });
     }
 
@@ -37,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('trx_vip_login_bonus_history');
+        Schema::dropIfExists('trx_vip_login_bonus');
     }
 };

@@ -17,9 +17,9 @@ interface LoginBonusRepositoryInterface
     public function selectLoopDaysForActiveBonus(): ?int;
 
     /**
-     * 指定された日のアクティブなログインボーナスを取得
+     * アクティブな通常ログインボーナス定義を取得
      *
-     * @param  int  $day  日数（1〜loop_days）
+     * @param  int  $day  日数（報酬contentの検索に使用）
      * @return array<string, mixed>|null ログインボーナスデータの連想配列、存在しない場合はnull
      */
     public function selectActiveByDay(int $day): ?array;
@@ -64,7 +64,7 @@ interface LoginBonusRepositoryInterface
     public function selectActiveDailyBonus(): ?array;
 
     /**
-     * ログインボーナスIDと日数でコンテンツを取得
+     * ログインボーナスIDと日数で報酬contentを取得
      *
      * @param  string  $loginBonusId  ログインボーナスID
      * @param  int  $day  日数

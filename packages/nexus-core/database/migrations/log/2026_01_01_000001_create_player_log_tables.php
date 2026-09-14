@@ -19,9 +19,9 @@ return new class extends Migration
     public function up(): void
     {
         // ========================================
-        // log_trx_player: プレイヤーアカウント変更ログ
+        // log_change_player: プレイヤーアカウント変更ログ
         // ========================================
-        Schema::create('log_trx_player', function (Blueprint $table) {
+        Schema::create('log_change_player', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->unsignedBigInteger('sys_player_id')->comment('プレイヤーID');
             $table->enum('operation_type', ['insert', 'update', 'delete'])->comment('操作タイプ');
@@ -51,9 +51,9 @@ return new class extends Migration
         });
 
         // ========================================
-        // log_trx_player_sns: SNS連携変更ログ
+        // log_change_player_sns: SNS連携変更ログ
         // ========================================
-        Schema::create('log_trx_player_sns', function (Blueprint $table) {
+        Schema::create('log_change_player_sns', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->unsignedBigInteger('sys_player_id')->comment('プレイヤーID');
             $table->enum('operation_type', ['insert', 'update', 'delete'])->comment('操作タイプ');
@@ -90,7 +90,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('log_trx_player_sns');
-        Schema::dropIfExists('log_trx_player');
+        Schema::dropIfExists('log_change_player_sns');
+        Schema::dropIfExists('log_change_player');
     }
 };

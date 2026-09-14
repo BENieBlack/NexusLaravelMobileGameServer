@@ -15,13 +15,13 @@ return new class extends Migration
     public function up(): void
     {
         // ========================================
-        // log_trx_gacha: ガチャ進行状況変更ログ
+        // log_change_gacha: ガチャ進行状況変更ログ
         // ========================================
-        Schema::create('log_trx_gacha', function (Blueprint $table) {
+        Schema::create('log_change_gacha', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->unsignedBigInteger('sys_player_id')->comment('プレイヤーID');
             // trx_gacha は採番idを持たず (sys_player_id, mst_gacha_id) で一意。
-            // 対象行はこの2つで特定する（log_trx_wallet と同じ形）
+            // 対象行はこの2つで特定する（log_change_wallet と同じ形）
             $table->string('mst_gacha_id')->nullable()->comment('マスターガチャID');
             $table->enum('operation_type', ['insert', 'update', 'delete'])->comment('操作タイプ');
 
@@ -51,6 +51,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('log_trx_gacha');
+        Schema::dropIfExists('log_change_gacha');
     }
 };

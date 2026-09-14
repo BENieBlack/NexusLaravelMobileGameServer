@@ -4,7 +4,7 @@ namespace App\Models\Log;
 
 class LogUnit extends _BaseLog
 {
-    protected $table = 'log_unit';
+    protected $table = 'log_action_unit_levelup';
 
     /** @var array<string, string> */
     protected $casts = [

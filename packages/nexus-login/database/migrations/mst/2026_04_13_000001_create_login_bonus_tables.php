@@ -57,7 +57,7 @@ return new class extends Migration
         Schema::connection('mst')->create('mst_login_bonus_content', function (Blueprint $table) {
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
             $table->string('mst_login_bonus_id')->comment('ログインボーナスID');
-            $table->enum('content_type', ['item', 'unit', 'equipment', 'diamond', 'wallet'])->comment('コンテンツタイプ');
+            $table->enum('content_type', ['item', 'unit', 'equipment', 'diamond', 'wallet', 'stamina'])->comment('コンテンツタイプ');
             $table->string('content_mst_id')->comment('コンテンツID (mst_item_id, mst_unit_id等)');
             $table->json('content_option')->nullable()->comment('コンテンツオプション (例: {"grade":1, "level":5})');
             $table->unsignedInteger('content_quantity')->default(1)->comment('1配布あたりのコンテンツ数量');

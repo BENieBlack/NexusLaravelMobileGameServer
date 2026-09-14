@@ -116,8 +116,8 @@ class LoginBonusIntegrationTest extends TestCase
     protected function tearDown(): void
     {
         // テストデータをクリア
-        DB::connection('trx1')->table('trx_login_bonus_history')->delete();
-        DB::connection('trx1')->table('trx_vip_login_bonus_history')->delete();
+        DB::connection('trx1')->table('trx_login_bonus')->delete();
+        DB::connection('trx1')->table('trx_vip_login_bonus')->delete();
         DB::connection('mst')->table('mst_login_bonus_content')->delete();
         DB::connection('mst')->table('mst_login_bonus')->delete();
         DB::connection('mst')->table('mst_vip_login_bonus_content')->delete();

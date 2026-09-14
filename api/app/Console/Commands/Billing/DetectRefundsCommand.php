@@ -130,12 +130,12 @@ class DetectRefundsCommand extends Command
         ?string $billingPlatform
     ): Collection {
         $refundedReceiptIds = DB::connection($connection)
-            ->table('log_in_app_purchase')
+            ->table('log_action_in_app_purchase')
             ->where('status', LogInAppPurchase::STATUS_REFUNDED)
             ->pluck('receipt_id');
 
         return DB::connection($connection)
-            ->table('log_in_app_purchase')
+            ->table('log_action_in_app_purchase')
             ->where('status', LogInAppPurchase::STATUS_PURCHASED)
             ->where('system_at', '>=', $since)
             ->when($billingPlatform !== null, fn ($query) => $query->where('billing_platform', $billingPlatform))

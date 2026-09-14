@@ -88,8 +88,10 @@ class LoginBonusService extends _BaseLoginBonusService
         foreach ($contents as $content) {
             $this->historyRepository->insert([
                 'sys_player_id' => $sysPlayerId,
+                'type' => 'daily',
                 'mst_login_bonus_id' => $bonusData['id'],
-                'absent_days' => null,
+                    'day' => $currentDay,
+                    'absent_days' => null,
                 'received_date' => $receivedDate,
                 'reward_type' => $content->content_type,
                 'reward_mst_id' => $content->content_mst_id,
@@ -107,6 +109,10 @@ class LoginBonusService extends _BaseLoginBonusService
         $lastHistory = $this->historyRepository->selectLatestByPlayerId($sysPlayerId, $connectionName);
         if ($lastHistory === null) {
             return null;
+        }
+
+        if (isset($lastHistory['day'])) {
+            return (int) $lastHistory['day'];
         }
 
         // ログインボーナスIDから日数を取得（例: login_bonus_day_3 -> 3）

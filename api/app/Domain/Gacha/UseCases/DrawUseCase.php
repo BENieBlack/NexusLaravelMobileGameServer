@@ -6,7 +6,6 @@ use App\Domain\_BaseUseCase;
 use App\Domain\Gacha\Services\GachaCostService;
 use App\Domain\Gacha\Services\GachaValidationService;
 use App\Http\Responses\Gacha\DrawResponse;
-use App\Models\Trx\TrxGachaHistory;
 use App\Repositories\Mst\MstGachaStepRepository;
 use App\Repositories\Trx\TrxGachaHistoryRepository;
 use App\Traits\RequiresAuthenticationTrait;
@@ -153,7 +152,7 @@ class DrawUseCase extends _BaseUseCase
      */
     private function persistHistory(int $sysPlayerId, string $mstGachaId, int $drawCount, $cost, array $prizes): void
     {
-        $history = new TrxGachaHistory([
+        $this->historyRepository->insert([
             'sys_player_id' => $sysPlayerId,
             'mst_gacha_id' => $mstGachaId,
             'draw_count' => $drawCount,
@@ -161,9 +160,7 @@ class DrawUseCase extends _BaseUseCase
             'cost_mst_id' => $cost->getAttribute('cost_mst_id'),
             'cost_amount' => $cost->getAttribute('cost_amount'),
             'prizes' => $prizes,
+            'unique_request_id' => request()->header('X-Request-ID', (string) \Illuminate\Support\Str::uuid()),
         ]);
-        $history->exists = false;
-
-        $this->historyRepository->setModel($history);
     }
 }

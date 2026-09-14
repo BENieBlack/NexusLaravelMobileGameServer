@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $deploy_key
  * @property string $id
  * @property string $type
- * @property int $day
  * @property int $loop_days
  * @property int|null $required_absent_days
  * @property int|null $valid_days
@@ -39,7 +38,6 @@ class MstLoginBonus extends _BaseMst
         'deploy_key',
         'id',
         'type',
-        'day',
         'loop_days',
         'required_absent_days',
         'valid_days',
@@ -55,7 +53,6 @@ class MstLoginBonus extends _BaseMst
     /** @var array<string, string> */
     protected $casts = [
         'deploy_key' => 'integer',
-        'day' => 'integer',
         'loop_days' => 'integer',
         'required_absent_days' => 'integer',
         'valid_days' => 'integer',

@@ -13,7 +13,7 @@ class LogGachaSeeder extends Seeder
     public function run(): void
     {
         // べき等性を確保するため、既存データを削除
-        DB::connection('log')->table('log_gacha')->truncate();
+        DB::connection('log')->table('log_action_gacha_draw')->truncate();
 
         // log_accessからガチャ関連のエンドポイントのunique_request_idを取得
         $gachaEndpoints = [
@@ -21,7 +21,7 @@ class LogGachaSeeder extends Seeder
         ];
 
         $accessLogs = DB::connection('log')
-            ->table('log_access')
+            ->table('log_action_api_access')
             ->whereIn('endpoint', $gachaEndpoints)
             ->select('unique_request_id', 'sys_player_id', 'system_at', 'created_at')
             ->limit(150) // サンプルとして150件に限定
@@ -60,7 +60,7 @@ class LogGachaSeeder extends Seeder
                 ];
             }
 
-            DB::connection('log')->table('log_gacha')->insert([
+            DB::connection('log')->table('log_action_gacha_draw')->insert([
                 'unique_request_id' => $accessLog->unique_request_id,
                 'sys_player_id' => $accessLog->sys_player_id,
                 'mst_gacha_id' => $gachaTypes[array_rand($gachaTypes)],

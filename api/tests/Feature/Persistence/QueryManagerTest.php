@@ -59,7 +59,7 @@ class QueryManagerTest extends TestCase
             ->where('sys_player_id', $this->sysPlayerId)->delete();
 
         foreach (['log1', 'log2'] as $connection) {
-            DB::connection($connection)->table('log_in_app_purchase')
+            DB::connection($connection)->table('log_action_in_app_purchase')
                 ->where('sys_player_id', $this->sysPlayerId)->delete();
         }
 
@@ -299,7 +299,7 @@ class QueryManagerTest extends TestCase
         $count = 0;
 
         foreach (['log1', 'log2'] as $connection) {
-            $count += DB::connection($connection)->table('log_in_app_purchase')
+            $count += DB::connection($connection)->table('log_action_in_app_purchase')
                 ->where('sys_player_id', $this->sysPlayerId)->count();
         }
 

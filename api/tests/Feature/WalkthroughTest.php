@@ -137,7 +137,7 @@ class WalkthroughTest extends TestCase
         DB::connection('sys')->table('sys_deploy_asset')->delete();
 
         foreach (['trx1', 'trx2'] as $connection) {
-            DB::connection($connection)->table('trx_login_bonus_history')->delete();
+            DB::connection($connection)->table('trx_login_bonus')->delete();
             DB::connection($connection)->table('trx_mailbox')->delete();
             DB::connection($connection)->table('trx_unit')->delete();
             DB::connection($connection)->table('trx_equipment')->delete();

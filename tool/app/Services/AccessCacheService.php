@@ -126,7 +126,7 @@ class AccessCacheService
         foreach (self::LOG_CONNECTIONS as $conn) {
             try {
                 $rows = DB::connection($conn)
-                    ->table('log_access')
+                    ->table('log_action_api_access')
                     ->selectRaw('COUNT(*) as cnt, COUNT(DISTINCT sys_player_id) as uniq, SUM(CASE WHEN status_code >= 400 THEN 1 ELSE 0 END) as errs')
                     ->whereRaw('DATE(system_at) = ?', [$dateStr])
                     ->first();
@@ -136,7 +136,7 @@ class AccessCacheService
                     $errorCount  += (int) $rows->errs;
                     // ユニークユーザーはシャード間で重複する可能性があるため別途集計
                     $ids = DB::connection($conn)
-                        ->table('log_access')
+                        ->table('log_action_api_access')
                         ->selectRaw('DISTINCT sys_player_id')
                         ->whereRaw('DATE(system_at) = ?', [$dateStr])
                         ->pluck('sys_player_id')
@@ -197,7 +197,7 @@ class AccessCacheService
         foreach (self::LOG_CONNECTIONS as $conn) {
             try {
                 $min = DB::connection($conn)
-                    ->table('log_access')
+                    ->table('log_action_api_access')
                     ->min('system_at');
                 if ($min && (!$oldest || $min < $oldest)) {
                     $oldest = $min;

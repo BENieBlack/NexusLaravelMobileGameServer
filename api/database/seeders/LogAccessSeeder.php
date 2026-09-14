@@ -16,7 +16,7 @@ class LogAccessSeeder extends Seeder
         $connection = 'log';
 
         // 既存のデータを削除
-        DB::connection($connection)->table('log_access')->truncate();
+        DB::connection($connection)->table('log_action_api_access')->truncate();
 
         $now = now();
         $startDate = $now->copy()->subYear(); // 1年前から開始
@@ -99,7 +99,7 @@ class LogAccessSeeder extends Seeder
 
             // 大量データをバッチで挿入（1000件ごと）
             if (count($data) >= 1000) {
-                DB::connection($connection)->table('log_access')->insert($data);
+                DB::connection($connection)->table('log_action_api_access')->insert($data);
                 echo '挿入: '.count($data)." 件\n";
                 $data = [];
             }
@@ -107,11 +107,11 @@ class LogAccessSeeder extends Seeder
 
         // 残りのデータを挿入
         if (! empty($data)) {
-            DB::connection($connection)->table('log_access')->insert($data);
+            DB::connection($connection)->table('log_action_api_access')->insert($data);
             echo '挿入: '.count($data)." 件\n";
         }
 
-        $totalCount = DB::connection($connection)->table('log_access')->count();
+        $totalCount = DB::connection($connection)->table('log_action_api_access')->count();
         echo "\n完了: 合計 {$totalCount} 件のログデータを生成しました。\n";
     }
 }

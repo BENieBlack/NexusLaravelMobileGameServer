@@ -118,7 +118,7 @@ class LoginBonusServiceTest extends TestCase
     protected function tearDown(): void
     {
         // テストデータをクリア
-        DB::connection('trx1')->table('trx_login_bonus_history')->delete();
+        DB::connection('trx1')->table('trx_login_bonus')->delete();
         DB::connection('mst')->table('mst_login_bonus_content')->delete();
         DB::connection('mst')->table('mst_login_bonus')->delete();
         DB::connection('sys')->table('sys_sharding_node_player')->where('sys_player_id', $this->sysPlayerId)->delete();
@@ -134,19 +134,18 @@ class LoginBonusServiceTest extends TestCase
      */
     private function createLoginBonusMasterData(): void
     {
+        $bonusId = 'daily_login';
+        MstLoginBonus::create([
+            'id' => $bonusId,
+            'type' => 'daily',
+            'loop_days' => 7,
+            'is_active' => true,
+        ]);
+
         for ($day = 1; $day <= 7; $day++) {
-            $bonusId = "login_bonus_day_{$day}";
-
-            MstLoginBonus::create([
-                'id' => $bonusId,
-                'day' => $day,
-                'loop_days' => 7,
-                'is_active' => true,
-            ]);
-
-            // アイテム報酬のみ（連続日数カウントを正確にするため）
             MstLoginBonusContent::create([
                 'mst_login_bonus_id' => $bonusId,
+                'day' => $day,
                 'content_type' => 'item',
                 'content_mst_id' => 'item_potion_001',
                 'amount' => $day * 10, // 1日目10個、2日目20個...
@@ -180,13 +179,13 @@ class LoginBonusServiceTest extends TestCase
 
         // 履歴が記録されていることを確認
         $history = DB::connection('trx1')
-            ->table('trx_login_bonus_history')
+            ->table('trx_login_bonus')
             ->where('sys_player_id', $this->sysPlayerId)
             ->where('received_date', 'LIKE', '2026-04-20')
             ->first();
 
         $this->assertNotNull($history);
-        $this->assertSame('login_bonus_day_1', $history->mst_login_bonus_id);
+        $this->assertSame('daily_login', $history->mst_login_bonus_id);
     }
 
     #[Test]
@@ -256,20 +255,33 @@ class LoginBonusServiceTest extends TestCase
         // 既存の7日目データを無効化
         DB::connection('mst')
             ->table('mst_login_bonus')
-            ->where('day', 7)
+            ->where('type', 'daily')
             ->update(['is_active' => false]);
 
         // 7日目用の特別なマスターデータを作成
         $bonusId = 'login_bonus_day_7_special';
         MstLoginBonus::create([
             'id' => $bonusId,
-            'day' => 7,
+            'type' => 'daily',
             'loop_days' => 7,
             'is_active' => true,
         ]);
 
+        for ($day = 1; $day <= 6; $day++) {
+            MstLoginBonusContent::create([
+                'mst_login_bonus_id' => $bonusId,
+                'day' => $day,
+                'content_type' => 'item',
+                'content_mst_id' => 'item_potion_001',
+                'amount' => 1,
+                'is_paid' => false,
+                'sort_order' => 1,
+            ]);
+        }
+
         MstLoginBonusContent::create([
             'mst_login_bonus_id' => $bonusId,
+            'day' => 7,
             'content_type' => 'item',
             'content_mst_id' => 'item_potion_001',
             'amount' => 70,
@@ -279,6 +291,7 @@ class LoginBonusServiceTest extends TestCase
 
         MstLoginBonusContent::create([
             'mst_login_bonus_id' => $bonusId,
+            'day' => 7,
             'content_type' => 'diamond',
             'content_mst_id' => 'diamond',
             'amount' => 100,
@@ -331,20 +344,21 @@ class LoginBonusServiceTest extends TestCase
         // 既存の1日目データを無効化
         DB::connection('mst')
             ->table('mst_login_bonus')
-            ->where('day', 1)
+            ->where('type', 'daily')
             ->update(['is_active' => false]);
 
         // 複数報酬のマスターデータを作成
         $bonusId = 'login_bonus_multi_reward';
         MstLoginBonus::create([
             'id' => $bonusId,
-            'day' => 1,
+            'type' => 'daily',
             'loop_days' => 7,
             'is_active' => true,
         ]);
 
         MstLoginBonusContent::create([
             'mst_login_bonus_id' => $bonusId,
+            'day' => 1,
             'content_type' => 'item',
             'content_mst_id' => 'item_potion_001',
             'amount' => 50,
@@ -354,6 +368,7 @@ class LoginBonusServiceTest extends TestCase
 
         MstLoginBonusContent::create([
             'mst_login_bonus_id' => $bonusId,
+            'day' => 1,
             'content_type' => 'diamond',
             'content_mst_id' => 'diamond',
             'amount' => 100,
@@ -375,7 +390,7 @@ class LoginBonusServiceTest extends TestCase
 
         // 履歴を確認（アイテムとダイヤの2件）
         $histories = DB::connection('trx1')
-            ->table('trx_login_bonus_history')
+            ->table('trx_login_bonus')
             ->where('sys_player_id', $this->sysPlayerId)
             ->where('received_date', $currentDay->toDateString())
             ->get();
@@ -430,13 +445,13 @@ class LoginBonusServiceTest extends TestCase
 
         // 履歴を確認
         $history = DB::connection('trx1')
-            ->table('trx_login_bonus_history')
+            ->table('trx_login_bonus')
             ->where('sys_player_id', $this->sysPlayerId)
             ->where('received_date', $currentDay->toDateString())
             ->first();
 
         $this->assertNotNull($history);
-        $this->assertSame('login_bonus_day_1', $history->mst_login_bonus_id);
+        $this->assertSame('daily_login', $history->mst_login_bonus_id);
 
         ClockUtility::reset();
     }
@@ -569,7 +584,7 @@ class LoginBonusServiceTest extends TestCase
         // 1日目の報酬内容を削除
         DB::connection('mst')
             ->table('mst_login_bonus_content')
-            ->where('mst_login_bonus_id', 'login_bonus_day_1')
+            ->where('mst_login_bonus_id', 'daily_login')
             ->delete();
 
         $this->refreshMstCache();

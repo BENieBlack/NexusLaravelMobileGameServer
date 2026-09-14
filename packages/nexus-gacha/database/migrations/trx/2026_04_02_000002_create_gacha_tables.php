@@ -16,28 +16,6 @@ return new class extends Migration
     public function up(): void
     {
         // ========================================
-        // trx_gacha_history: ガチャ実行履歴
-        // プレイヤーのガチャ実行履歴を記録
-        // ========================================
-        Schema::create('trx_gacha_history', function (Blueprint $table) {
-            $table->bigIncrements('id')->comment('履歴ID');
-            $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
-            $table->string('mst_gacha_id')->comment('ガチャID');
-            $table->unsignedInteger('draw_count')->comment('実行回数（1連、10連など）');
-            $table->enum('cost_type', ['diamond', 'paid_diamond', 'item'])->comment('使用したコストタイプ');
-            $table->string('cost_mst_id')->nullable()->comment('使用したコストID（itemの場合）');
-            $table->unsignedInteger('cost_amount')->comment('使用したコスト量');
-            $table->json('prizes')->comment('獲得した景品リスト（JSON配列）');
-            $table->boolean('is_delete')->default(false)->comment('論理削除フラグ');
-            $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
-            $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
-
-            $table->index('sys_player_id');
-            $table->index(['sys_player_id', 'mst_gacha_id']);
-            $table->index('created_at');
-        });
-
-        // ========================================
         // trx_gacha: ガチャプレイヤー進行状況
         // プレイヤーごとのガチャ実行状況を記録
         // - 日次実行回数と最後にリセットした日時
@@ -72,6 +50,5 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('trx_gacha');
-        Schema::dropIfExists('trx_gacha_history');
     }
 };

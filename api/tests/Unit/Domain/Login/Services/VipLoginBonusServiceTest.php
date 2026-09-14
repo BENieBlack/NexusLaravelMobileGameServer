@@ -116,7 +116,7 @@ class VipLoginBonusServiceTest extends TestCase
         // テストデータをクリア
         // TRUNCATEはMySQLで暗黙コミットを起こし、テストのトランザクションを
         // 確定させてしまうためDELETEを使う
-        DB::connection('trx1')->table('trx_vip_login_bonus_history')->delete();
+        DB::connection('trx1')->table('trx_vip_login_bonus')->delete();
         DB::connection('mst')->table('mst_vip_login_bonus_content')->delete();
         DB::connection('mst')->table('mst_vip_login_bonus')->delete();
         DB::connection('sys')->table('sys_sharding_node_player')->where('sys_player_id', $this->sysPlayerId)->delete();
@@ -195,7 +195,7 @@ class VipLoginBonusServiceTest extends TestCase
         $this->assertSame(2500, $result[0]->getAmount(), 'VIP5はVIP0より多くのゴールドを受け取るべき');
 
         // 履歴で1日目として記録されていることを確認
-        $history = DB::connection('trx1')->table('trx_vip_login_bonus_history')
+        $history = DB::connection('trx1')->table('trx_vip_login_bonus')
             ->where('sys_player_id', $this->sysPlayerId)
             ->orderBy('id', 'desc')
             ->first();
@@ -223,21 +223,19 @@ class VipLoginBonusServiceTest extends TestCase
     #[Test]
     public function ループ処理が正しく動作する(): void
     {
-        // Arrange: 7日分の履歴を作成
+        // Arrange: 最新状態として7日目を作成
         $connectionName = 'trx1';
         $bonusId = 'vip_login_lv0';
 
-        for ($day = 1; $day <= 7; $day++) {
-            DB::connection($connectionName)->table('trx_vip_login_bonus_history')->insert([
-                'sys_player_id' => $this->sysPlayerId,
-                'mst_vip_login_bonus_id' => $bonusId,
-                'day' => $day,
-                'vip_level' => 0,
-                'received_at' => now()->subDays(7 - $day)->format('Y-m-d H:i:s'),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-        }
+        DB::connection($connectionName)->table('trx_vip_login_bonus')->insert([
+            'sys_player_id' => $this->sysPlayerId,
+            'mst_vip_login_bonus_id' => $bonusId,
+            'day' => 7,
+            'vip_level' => 0,
+            'received_at' => now()->subDay()->format('Y-m-d H:i:s'),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
 
         // Act: 8日目にログイン（1日目に戻るべき）
         $result = $this->vipLoginBonusService->process(
@@ -251,9 +249,8 @@ class VipLoginBonusServiceTest extends TestCase
         // Assert
         $this->assertCount(1, $result, '8日目にボーナスを受け取れるべき');
 
-        $history = DB::connection($connectionName)->table('trx_vip_login_bonus_history')
+        $history = DB::connection($connectionName)->table('trx_vip_login_bonus')
             ->where('sys_player_id', $this->sysPlayerId)
-            ->orderBy('id', 'desc')
             ->first();
 
         $this->assertSame(1, (int) $history->day, '8日目は1日目にループするべき');
@@ -283,18 +280,16 @@ class VipLoginBonusServiceTest extends TestCase
         $connectionName = 'trx1';
         $bonusIdVip0 = 'vip_login_lv0';
 
-        // VIP0で3日分受け取り
-        for ($day = 1; $day <= 3; $day++) {
-            DB::connection($connectionName)->table('trx_vip_login_bonus_history')->insert([
-                'sys_player_id' => $this->sysPlayerId,
-                'mst_vip_login_bonus_id' => $bonusIdVip0,
-                'day' => $day,
-                'vip_level' => 0,
-                'received_at' => now()->subDays(3 - $day)->format('Y-m-d H:i:s'),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-        }
+        // VIP0で3日目まで受け取り済み
+        DB::connection($connectionName)->table('trx_vip_login_bonus')->insert([
+            'sys_player_id' => $this->sysPlayerId,
+            'mst_vip_login_bonus_id' => $bonusIdVip0,
+            'day' => 3,
+            'vip_level' => 0,
+            'received_at' => now()->subDay()->format('Y-m-d H:i:s'),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
 
         // VIP5にレベルアップ
         DB::connection('sys')->table('sys_player')
@@ -317,9 +312,8 @@ class VipLoginBonusServiceTest extends TestCase
         $this->assertSame(10000, $result[0]->getAmount(), 'VIP5の報酬量になるべき');
 
         // 履歴を確認
-        $history = DB::connection($connectionName)->table('trx_vip_login_bonus_history')
+        $history = DB::connection($connectionName)->table('trx_vip_login_bonus')
             ->where('sys_player_id', $this->sysPlayerId)
-            ->orderBy('id', 'desc')
             ->first();
 
         $this->assertSame(4, (int) $history->day, '4日目のボーナスを受け取るべき');

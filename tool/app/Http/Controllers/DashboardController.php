@@ -97,7 +97,7 @@ class DashboardController extends Controller
             case 'all':
                 // 最古のデータから取得
                 $oldestRecord = DB::connection('log')
-                    ->table('log_in_app_purchase')
+                    ->table('log_action_in_app_purchase')
                     ->orderBy('system_at', 'asc')
                     ->first();
                 $startTime = $oldestRecord ? \Carbon\Carbon::parse($oldestRecord->system_at) : $now->copy()->subYear();
@@ -162,7 +162,7 @@ class DashboardController extends Controller
 
         // 通貨コードの取得
         $currencies = DB::connection('log')
-            ->table('log_in_app_purchase')
+            ->table('log_action_in_app_purchase')
             ->where('status', 'Purchased') // 購入完了のみ
             ->where('system_at', '>=', $startTime)
             ->where('system_at', '<=', $now)
@@ -178,7 +178,7 @@ class DashboardController extends Controller
             if (in_array($period, ['1month', '6months'])) {
                 // 1ヶ月・半年: 日単位で集計
                 $revenueData = DB::connection('log')
-                    ->table('log_in_app_purchase')
+                    ->table('log_action_in_app_purchase')
                     ->selectRaw("
                         DATE_FORMAT(system_at, '%Y-%m-%d 00:00:00') as time_slot,
                         SUM(pay_amount) as total_amount
@@ -194,7 +194,7 @@ class DashboardController extends Controller
             } elseif (in_array($period, ['1year', 'all'])) {
                 // 1年・通年: 月単位で集計
                 $revenueData = DB::connection('log')
-                    ->table('log_in_app_purchase')
+                    ->table('log_action_in_app_purchase')
                     ->selectRaw("
                         DATE_FORMAT(system_at, '%Y-%m-01 00:00:00') as time_slot,
                         SUM(pay_amount) as total_amount
@@ -210,7 +210,7 @@ class DashboardController extends Controller
             } elseif ($period === '1day') {
                 // 1日: 30分単位で集計
                 $revenueData = DB::connection('log')
-                    ->table('log_in_app_purchase')
+                    ->table('log_action_in_app_purchase')
                     ->selectRaw("
                         CONCAT(
                             DATE_FORMAT(system_at, '%Y-%m-%d %H:'),
@@ -233,7 +233,7 @@ class DashboardController extends Controller
                 // 1週間、2週間: 2時間または4時間単位で集計
                 $hours = $period === '1week' ? 2 : 4;
                 $revenueData = DB::connection('log')
-                    ->table('log_in_app_purchase')
+                    ->table('log_action_in_app_purchase')
                     ->selectRaw("
                         CONCAT(
                             DATE_FORMAT(system_at, '%Y-%m-%d '),

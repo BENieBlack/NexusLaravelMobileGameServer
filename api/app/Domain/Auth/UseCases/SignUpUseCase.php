@@ -12,6 +12,7 @@ use App\Repositories\Sys\SysPlayerRepository;
 use Nexus\Core\Repositories\PlayerDeviceRepositoryInterface;
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Services\TokenService;
+use NexusTidb\Support\TidbMode;
 use Throwable;
 
 /**
@@ -60,9 +61,10 @@ class SignUpUseCase extends _BaseUseCase
             // 新規プレイヤー作成（PlayerAuthService使用）
             $player = $this->playerAuthService->createPlayer($deviceId, $deviceInfo);
 
-            // trx_* の読み書き先はシャード割り当てで決まる。
-            // 割り当てが無いと以降のAPIが接続先を解決できないため、ここで必ず作る
-            $this->shardAssignmentService->assign($player->getId());
+            // TiDBではDB側の分散に任せるため、アプリケーション側の割り当ては作らない。
+            if (! TidbMode::isEnabled()) {
+                $this->shardAssignmentService->assign($player->getId());
+            }
 
             // レスポンスとトークン生成にはModelが要る。
             // 直前に採番済みでリポジトリのメモリキャッシュに載っているため追加クエリは発生しない

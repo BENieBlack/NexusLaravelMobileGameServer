@@ -6,6 +6,7 @@ use App\Domain\Sharding\Services\PlayerShardLocatorService;
 use App\Domain\Sharding\Services\ShardAssignmentService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use NexusTidb\Support\TidbMode;
 
 /**
  * AssignPlayersCommand
@@ -50,6 +51,12 @@ class AssignPlayersCommand extends Command
      */
     public function handle(): int
     {
+        if (TidbMode::isEnabled()) {
+            $this->info('DB_IS_TIDB=true のため、アプリケーション側シャーディングを無効化しています');
+
+            return Command::SUCCESS;
+        }
+
         $isDryRun = (bool) $this->option('dry-run');
         $playerId = $this->option('player-id');
         $limit = (int) $this->option('limit');

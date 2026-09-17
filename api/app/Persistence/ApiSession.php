@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Nexus\Core\Utilities\ClockUtility;
 use NexusSecurity\Contracts\PlayerSessionInterface;
 use NexusUnitOfWork\Contracts\PlayerSessionResolverInterface;
+use NexusTidb\Support\TidbMode;
 
 /**
  * ApiSession
@@ -152,12 +153,17 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
      * 2. Redisキャッシュ（TTL: 1時間）
      * 3. DBクエリ（キャッシュミス時のみ）
      *
-     * @return string 接続名（trx1 または trx2）
+     * @return string 接続名（通常はtrx1またはtrx2、TiDBではtrx1）
      *
      * @throws \RuntimeException プレイヤーIDが設定されていない場合、またはシャーディング情報が見つからない場合
      */
     public function resolveConnectionNameValue(): string
     {
+        // TiDBではアプリケーション側のプレイヤー割り当てを行わず、単一接続を使う。
+        if (TidbMode::isEnabled()) {
+            return $this->connectionName = 'trx1';
+        }
+
         // 1. インスタンスキャッシュがあれば返す（リクエストスコープ）
         if ($this->connectionName !== null) {
             return $this->connectionName;

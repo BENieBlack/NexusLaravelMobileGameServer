@@ -16,7 +16,7 @@ class MstInAppPurchase extends _BaseMst
         'paid_diamond_amount',
         'vip_point',
         'effect_duration_days',
-        'purchase_limit',
+        'purchase_limit_count',
         'purchase_limit_reset',
         'app_store_product_id',
         'google_play_product_id',
@@ -33,7 +33,7 @@ class MstInAppPurchase extends _BaseMst
         'paid_diamond_amount' => 'integer',
         'vip_point' => 'integer',
         'effect_duration_days' => 'integer',
-        'purchase_limit' => 'integer',
+        'purchase_limit_count' => 'integer',
         'sort_desc' => 'integer',
         'is_active' => 'boolean',
     ];
@@ -125,11 +125,11 @@ class MstInAppPurchase extends _BaseMst
     }
 
     /**
-     * 購入制限を取得
+     * 購入可能回数を取得
      */
-    public function getPurchaseLimit(): ?int
+    public function getPurchaseLimitCount(): ?int
     {
-        return $this->getAttribute('purchase_limit');
+        return $this->getAttribute('purchase_limit_count');
     }
 
     /**

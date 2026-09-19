@@ -49,7 +49,7 @@ return new class extends Migration
             $table->unsignedInteger('paid_diamond_amount')->default(0)->comment('有償ダイヤ数');
             $table->unsignedInteger('vip_point')->default(0)->comment('付与VIPポイント');
             $table->unsignedInteger('effect_duration_days')->nullable()->comment('効果期間（日数）');
-            $table->unsignedInteger('purchase_limit')->nullable()->comment('購入制限回数');
+            $table->unsignedInteger('purchase_limit_count')->nullable()->comment('購入可能回数');
             $table->enum('purchase_limit_reset', ['none', 'daily', 'weekly', 'monthly'])->default('none')->comment('購入制限リセット');
             $table->unsignedBigInteger('app_store_product_id')->nullable()->comment('AppStore商品ID');
             $table->unsignedBigInteger('google_play_product_id')->nullable()->comment('GooglePlay商品ID');

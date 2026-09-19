@@ -25,6 +25,8 @@ final class GachaPrize
         private readonly int $amount,
         private readonly int $rarity,
         private readonly bool $isGuaranteed,
+        /** @var array<string, mixed>|null */
+        private readonly ?array $contentOption = null,
     ) {
         if ($contentType === '') {
             throw new \InvalidArgumentException('景品タイプは必須です');
@@ -51,6 +53,16 @@ final class GachaPrize
     public function getContentMstId(): string
     {
         return $this->contentMstId;
+    }
+
+    /**
+     * 景品オプションを取得
+     *
+     * @return array<string, mixed>|null
+     */
+    public function getContentOption(): ?array
+    {
+        return $this->contentOption;
     }
 
     public function getAmount(): int
@@ -98,6 +110,7 @@ final class GachaPrize
         return [
             'content_type' => $this->contentType,
             'content_mst_id' => $this->contentMstId,
+            'content_option' => $this->contentOption,
             'amount' => $this->amount,
             'rarity' => $this->rarity,
             'is_guaranteed' => $this->isGuaranteed,

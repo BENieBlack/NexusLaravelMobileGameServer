@@ -63,6 +63,7 @@ class ChoiceDrawStrategy implements GachaDrawStrategyInterface
         return new GachaPrize(
             contentType: $candidate->getAttribute('content_type'),
             contentMstId: $candidate->getAttribute('content_mst_id'),
+            contentOption: $candidate->getAttribute('content_option'),
             amount: $candidate->getAttribute('amount'),
             rarity: $bonus->getAttribute('bonus_rarity'),
             isGuaranteed: true

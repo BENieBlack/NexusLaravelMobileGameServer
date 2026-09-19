@@ -32,7 +32,8 @@ class GachaPrizeService
             $resources[] = $this->createResource(
                 $prize->getContentType(),
                 $prize->getContentMstId(),
-                $prize->getAmount()
+                $prize->getAmount(),
+                $prize->getContentOption(),
             );
         }
 
@@ -47,15 +48,32 @@ class GachaPrizeService
      * @param  string  $contentType
      * @param  string  $contentMstId
      * @param  int  $amount
+     * @param  array<string, mixed>|null  $contentOption
      * @return resource
      */
-    private function createResource(string $contentType, string $contentMstId, int $amount): Resource
+    private function createResource(
+        string $contentType,
+        string $contentMstId,
+        int $amount,
+        ?array $contentOption,
+    ): Resource
     {
-        return match ($contentType) {
+        $resource = match ($contentType) {
             'item' => Resource::item($contentMstId, $amount),
-            'unit' => Resource::unit($contentMstId, $amount),
+            'unit' => Resource::unit(
+                $contentMstId,
+                $amount,
+                $contentOption['grade'] ?? null,
+                $contentOption['level'] ?? null,
+            ),
             'equipment' => Resource::equipment($contentMstId, $amount),
             default => throw new \Exception("Unsupported content type: {$contentType}"),
         };
+
+        if ($contentType === 'equipment' && $contentOption !== null) {
+            $resource->setMetadata($contentOption);
+        }
+
+        return $resource;
     }
 }

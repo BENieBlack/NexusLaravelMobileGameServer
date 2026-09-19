@@ -18,7 +18,7 @@ use Tests\TestCase;
  * 購入回数制限のテスト
  *
  * 判定そのものは _BasePurchaseLimitValidator が持っていて別途テストがある。
- * ここはアプリ側の繋ぎ込み — マスターの purchase_limit と
+     * ここはアプリ側の繋ぎ込み — マスターの purchase_limit_count と
  * 履歴の purchase_count / purchase_count_reset_at を正しく渡せているか。
  *
  * 誤ると「上限まで買えない」か「上限を超えて買える」のどちらかになる。
@@ -64,7 +64,7 @@ class PurchaseLimitTest extends TestCase
     #[Test]
     public function 制限が無ければ何回買っても通る(): void
     {
-        $product = $this->makeProduct(purchaseLimit: null);
+        $product = $this->makeProduct(purchaseLimitCount: null);
 
         $this->service->validatePurchaseLimit($product, $this->makeHistory(purchaseCount: 999), 'google_play');
 
@@ -74,7 +74,7 @@ class PurchaseLimitTest extends TestCase
     #[Test]
     public function 初回購入は履歴が無いので通る(): void
     {
-        $product = $this->makeProduct(purchaseLimit: 1);
+        $product = $this->makeProduct(purchaseLimitCount: 1);
 
         $this->service->validatePurchaseLimit($product, null, 'google_play');
 
@@ -88,7 +88,7 @@ class PurchaseLimitTest extends TestCase
     #[Test]
     public function 上限に達していなければ通る(): void
     {
-        $product = $this->makeProduct(purchaseLimit: 3);
+        $product = $this->makeProduct(purchaseLimitCount: 3);
 
         $this->service->validatePurchaseLimit($product, $this->makeHistory(purchaseCount: 2), 'google_play');
 
@@ -98,7 +98,7 @@ class PurchaseLimitTest extends TestCase
     #[Test]
     public function 上限に達したら弾かれる(): void
     {
-        $product = $this->makeProduct(purchaseLimit: 3);
+        $product = $this->makeProduct(purchaseLimitCount: 3);
 
         try {
             $this->service->validatePurchaseLimit($product, $this->makeHistory(purchaseCount: 3), 'google_play');
@@ -113,7 +113,7 @@ class PurchaseLimitTest extends TestCase
     #[Test]
     public function リセットなしは日付が変わっても持ち越す(): void
     {
-        $product = $this->makeProduct(purchaseLimit: 1, purchaseLimitReset: 'none');
+        $product = $this->makeProduct(purchaseLimitCount: 1, purchaseLimitReset: 'none');
         $history = $this->makeHistory(purchaseCount: 1, resetAt: '2026-01-01 00:00:00');
 
         $this->expectException(GameException::class);
@@ -128,7 +128,7 @@ class PurchaseLimitTest extends TestCase
     #[Test]
     public function 日次は日付が変われば買い直せる(): void
     {
-        $product = $this->makeProduct(purchaseLimit: 1, purchaseLimitReset: 'daily');
+        $product = $this->makeProduct(purchaseLimitCount: 1, purchaseLimitReset: 'daily');
 
         // 前日に上限まで買っていても、日付が変わればリセットされる
         $this->service->validatePurchaseLimit(
@@ -143,7 +143,7 @@ class PurchaseLimitTest extends TestCase
     #[Test]
     public function 日次は同じ日なら弾かれる(): void
     {
-        $product = $this->makeProduct(purchaseLimit: 1, purchaseLimitReset: 'daily');
+        $product = $this->makeProduct(purchaseLimitCount: 1, purchaseLimitReset: 'daily');
 
         $this->expectException(GameException::class);
 
@@ -157,7 +157,7 @@ class PurchaseLimitTest extends TestCase
     #[Test]
     public function 週次は週が変われば買い直せる(): void
     {
-        $product = $this->makeProduct(purchaseLimit: 1, purchaseLimitReset: 'weekly');
+        $product = $this->makeProduct(purchaseLimitCount: 1, purchaseLimitReset: 'weekly');
 
         // 2026-03-15 は日曜。前の週の日時ならリセットされる
         $this->service->validatePurchaseLimit(
@@ -172,7 +172,7 @@ class PurchaseLimitTest extends TestCase
     #[Test]
     public function 週次は同じ週なら弾かれる(): void
     {
-        $product = $this->makeProduct(purchaseLimit: 1, purchaseLimitReset: 'weekly');
+        $product = $this->makeProduct(purchaseLimitCount: 1, purchaseLimitReset: 'weekly');
 
         $this->expectException(GameException::class);
 
@@ -186,7 +186,7 @@ class PurchaseLimitTest extends TestCase
     #[Test]
     public function 月次は月が変われば買い直せる(): void
     {
-        $product = $this->makeProduct(purchaseLimit: 1, purchaseLimitReset: 'monthly');
+        $product = $this->makeProduct(purchaseLimitCount: 1, purchaseLimitReset: 'monthly');
 
         $this->service->validatePurchaseLimit(
             $product,
@@ -200,7 +200,7 @@ class PurchaseLimitTest extends TestCase
     #[Test]
     public function 月次は同じ月なら弾かれる(): void
     {
-        $product = $this->makeProduct(purchaseLimit: 1, purchaseLimitReset: 'monthly');
+        $product = $this->makeProduct(purchaseLimitCount: 1, purchaseLimitReset: 'monthly');
 
         $this->expectException(GameException::class);
 
@@ -215,7 +215,7 @@ class PurchaseLimitTest extends TestCase
     public function リセットされた回数は0として案内される(): void
     {
         // リセット済みなら上限に達していないので、そもそも例外にならない
-        $product = $this->makeProduct(purchaseLimit: 2, purchaseLimitReset: 'daily');
+        $product = $this->makeProduct(purchaseLimitCount: 2, purchaseLimitReset: 'daily');
 
         $this->service->validatePurchaseLimit(
             $product,
@@ -242,14 +242,14 @@ class PurchaseLimitTest extends TestCase
         $this->assertNull($this->service->getNewResetDateIfNeeded('none', '2026-01-01 00:00:00'));
     }
 
-    private function makeProduct(?int $purchaseLimit, string $purchaseLimitReset = 'none'): MstInAppPurchase
+    private function makeProduct(?int $purchaseLimitCount, string $purchaseLimitReset = 'none'): MstInAppPurchase
     {
         DB::connection('mst')->table('mst_in_app_purchase')->insert([
             'id' => self::PRODUCT_ID,
             'type' => 'diamond',
             'paid_diamond_amount' => 100,
             'vip_point' => 0,
-            'purchase_limit' => $purchaseLimit,
+            'purchase_limit_count' => $purchaseLimitCount,
             'purchase_limit_reset' => $purchaseLimitReset,
             'is_active' => true,
         ]);

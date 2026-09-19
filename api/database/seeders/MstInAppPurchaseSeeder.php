@@ -67,7 +67,7 @@ class MstInAppPurchaseSeeder extends Seeder
             'type' => 'diamond',
             'paid_diamond_amount' => 100,
             'effect_duration_days' => null, // Diamond商品は効果なし
-            'purchase_limit' => null, // 無制限
+            'purchase_limit_count' => null, // 無制限
             'purchase_limit_reset' => 'none',
             'app_store_product_id' => $appStoreDiamond100->id,
             'google_play_product_id' => $googlePlayDiamond100->id,
@@ -80,7 +80,7 @@ class MstInAppPurchaseSeeder extends Seeder
             'type' => 'diamond',
             'paid_diamond_amount' => 500,
             'effect_duration_days' => null,
-            'purchase_limit' => null,
+            'purchase_limit_count' => null,
             'purchase_limit_reset' => 'none',
             'app_store_product_id' => $appStoreDiamond500->id,
             'google_play_product_id' => $googlePlayDiamond500->id,
@@ -93,7 +93,7 @@ class MstInAppPurchaseSeeder extends Seeder
             'type' => 'diamond',
             'paid_diamond_amount' => 1000,
             'effect_duration_days' => null,
-            'purchase_limit' => null,
+            'purchase_limit_count' => null,
             'purchase_limit_reset' => 'none',
             'app_store_product_id' => $appStoreDiamond1000->id,
             'google_play_product_id' => $googlePlayDiamond1000->id,
@@ -107,7 +107,7 @@ class MstInAppPurchaseSeeder extends Seeder
             'type' => 'pack',
             'paid_diamond_amount' => 300,
             'effect_duration_days' => null, // Pack商品は効果なし
-            'purchase_limit' => 1, // 1回のみ購入可能
+            'purchase_limit_count' => 1, // 1回のみ購入可能
             'purchase_limit_reset' => 'none', // リセットなし
             'app_store_product_id' => $appStoreStarterPack->id,
             'google_play_product_id' => $googlePlayStarterPack->id,
@@ -141,7 +141,7 @@ class MstInAppPurchaseSeeder extends Seeder
             'type' => 'pass',
             'paid_diamond_amount' => 500,
             'effect_duration_days' => 30, // 30日間有効
-            'purchase_limit' => 1, // 1回のみ購入可能
+            'purchase_limit_count' => 1, // 1回のみ購入可能
             'purchase_limit_reset' => 'monthly', // 毎月リセット
             'app_store_product_id' => $appStoreMonthlyPass->id,
             'google_play_product_id' => $googlePlayMonthlyPass->id,

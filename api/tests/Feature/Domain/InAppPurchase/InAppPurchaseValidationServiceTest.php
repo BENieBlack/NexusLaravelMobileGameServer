@@ -236,7 +236,7 @@ class InAppPurchaseValidationServiceTest extends TestCase
             'type' => 'diamond',
             'paid_diamond_amount' => 100,
             'vip_point' => 0,
-            'purchase_limit' => null,
+            'purchase_limit_count' => null,
             'purchase_limit_reset' => 'none',
             'app_store_product_id' => self::APP_STORE_PRODUCT_ID,
             'google_play_product_id' => self::GOOGLE_PLAY_PRODUCT_ID,

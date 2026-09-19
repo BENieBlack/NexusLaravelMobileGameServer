@@ -48,7 +48,7 @@ class InAppPurchaseValidationService
         string $billingPlatform
     ): void {
         // 購入制限がない場合はチェック不要
-        if ($mstInAppPurchase->getPurchaseLimit() === null) {
+        if ($mstInAppPurchase->getPurchaseLimitCount() === null) {
             return;
         }
 
@@ -59,7 +59,7 @@ class InAppPurchaseValidationService
 
         // _BasePurchaseLimitValidatorで制限チェック
         $isExceeded = $this->limitValidator->isLimitExceeded(
-            $mstInAppPurchase->getPurchaseLimit(),
+            $mstInAppPurchase->getPurchaseLimitCount(),
             $purchaseHistory->purchase_count,
             $mstInAppPurchase->getPurchaseLimitReset(),
             $purchaseHistory->getPurchaseCountResetAt()
@@ -76,7 +76,7 @@ class InAppPurchaseValidationService
 
             throw new GameException(
                 GameErrorCode::PURCHASE_LIMIT_EXCEEDED,
-                "Purchase limit exceeded for this product. Limit: {$mstInAppPurchase->getPurchaseLimit()}, Current: {$effectiveCount}"
+                "Purchase limit exceeded for this product. Limit: {$mstInAppPurchase->getPurchaseLimitCount()}, Current: {$effectiveCount}"
             );
         }
     }

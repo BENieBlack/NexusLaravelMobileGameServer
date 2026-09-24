@@ -15,9 +15,9 @@ return new class extends Migration
     public function up(): void
     {
         // ========================================
-        // log_change_unit: ユニット変更ログ
+        // log_change_trx_unit: ユニット変更ログ
         // ========================================
-        Schema::create('log_change_unit', function (Blueprint $table) {
+        Schema::create('log_change_trx_unit', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->unsignedBigInteger('sys_player_id')->comment('プレイヤーID');
             $table->unsignedBigInteger('trx_unit_id')->nullable()->comment('trx_unitテーブルのID');
@@ -46,9 +46,9 @@ return new class extends Migration
         });
 
         // ========================================
-        // log_change_equipment: 装備変更ログ
+        // log_change_trx_equipment: 装備変更ログ
         // ========================================
-        Schema::create('log_change_equipment', function (Blueprint $table) {
+        Schema::create('log_change_trx_equipment', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->unsignedBigInteger('sys_player_id')->comment('プレイヤーID');
             $table->unsignedBigInteger('trx_equipment_id')->nullable()->comment('trx_equipmentテーブルのID');
@@ -77,9 +77,9 @@ return new class extends Migration
         });
 
         // ========================================
-        // log_change_item: アイテム変更ログ
+        // log_change_trx_item: アイテム変更ログ
         // ========================================
-        Schema::create('log_change_item', function (Blueprint $table) {
+        Schema::create('log_change_trx_item', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->unsignedBigInteger('sys_player_id')->comment('プレイヤーID');
             $table->string('mst_item_id')->comment('マスターアイテムID');
@@ -111,8 +111,8 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('log_change_item');
-        Schema::dropIfExists('log_change_equipment');
-        Schema::dropIfExists('log_change_unit');
+        Schema::dropIfExists('log_change_trx_item');
+        Schema::dropIfExists('log_change_trx_equipment');
+        Schema::dropIfExists('log_change_trx_unit');
     }
 };

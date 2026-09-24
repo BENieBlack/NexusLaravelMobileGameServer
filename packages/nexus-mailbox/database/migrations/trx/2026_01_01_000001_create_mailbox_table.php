@@ -2,7 +2,6 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -54,16 +53,9 @@ return new class extends Migration
             $table->index(['sys_player_id', 'is_delete']);
             $table->index(['sys_player_id', 'is_opened', 'is_received']);
             $table->index('mst_mailbox_id');
+            $table->index(['sys_player_id', 'expires_at'], 'idx_expires_at');
+            $table->index(['sys_player_id', 'is_protected', 'is_delete'], 'idx_protected');
         });
-
-        // インデックス追加
-        DB::statement('
-            CREATE INDEX idx_expires_at ON trx_mailbox(sys_player_id, expires_at);
-        ');
-
-        DB::statement('
-            CREATE INDEX idx_protected ON trx_mailbox(sys_player_id, is_protected, is_delete);
-        ');
     }
 
     /**

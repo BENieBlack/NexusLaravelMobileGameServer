@@ -119,6 +119,41 @@ return new class extends Migration
             $table->index('priority');
             $table->index('is_active');
         });
+
+        Schema::connection('tool')->create('tol_dashboard_retention', function (Blueprint $table) {
+            $table->id()->comment('自動採番ID');
+            $table->date('cohort_date')->unique()->comment('コホート日（初回アクセス日）');
+            $table->unsignedInteger('new_users')->default(0)->comment('新規ユーザー数');
+            $table->decimal('d1', 5, 2)->nullable();
+            $table->decimal('d2', 5, 2)->nullable();
+            $table->decimal('d3', 5, 2)->nullable();
+            $table->decimal('d4', 5, 2)->nullable();
+            $table->decimal('d5', 5, 2)->nullable();
+            $table->decimal('d6', 5, 2)->nullable();
+            $table->decimal('d7', 5, 2)->nullable();
+            $table->decimal('d14', 5, 2)->nullable();
+            $table->decimal('d30', 5, 2)->nullable();
+            $table->decimal('d60', 5, 2)->nullable();
+            $table->decimal('d90', 5, 2)->nullable();
+            $table->dateTime('calculated_at')->comment('集計実行日時');
+            $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
+            $table->index('cohort_date');
+            $table->index('calculated_at');
+        });
+
+        Schema::connection('tool')->create('tol_dashboard_access_cache', function (Blueprint $table) {
+            $table->id();
+            $table->date('access_date')->unique()->comment('集計対象日');
+            $table->unsignedInteger('total_count')->default(0)->comment('総アクセス数（全シャード合計）');
+            $table->unsignedInteger('unique_users')->default(0)->comment('ユニークユーザー数');
+            $table->unsignedInteger('error_count')->default(0)->comment('エラー数（status_code >= 400）');
+            $table->dateTime('calculated_at')->comment('集計実行日時');
+            $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
+            $table->index('access_date');
+            $table->index('calculated_at');
+        });
     }
 
     /**
@@ -126,6 +161,8 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::connection('tool')->dropIfExists('tol_dashboard_access_cache');
+        Schema::connection('tool')->dropIfExists('tol_dashboard_retention');
         Schema::connection('tool')->dropIfExists('tol_notice');
         Schema::connection('tool')->dropIfExists('tol_maintenance');
         Schema::connection('tool')->dropIfExists('tol_cache_control');

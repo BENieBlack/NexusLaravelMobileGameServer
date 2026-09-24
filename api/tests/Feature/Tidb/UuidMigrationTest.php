@@ -18,9 +18,9 @@ class UuidMigrationTest extends TestCase
 {
     use RefreshMultipleDatabases;
 
-    private const TRX_MIGRATION = __DIR__.'/../../../../packages/nexus-tidb/database/migrations/trx/2026_01_01_000001_convert_trx_ids_to_uuid.php';
+    private const TRX_MIGRATION = __DIR__.'/../../../../packages/nexus-tidb/database/migrations/trx/2026_01_01_999999_convert_trx_ids_to_uuid.php';
 
-    private const LOG_MIGRATION = __DIR__.'/../../../../packages/nexus-tidb/database/migrations/log/2026_01_01_000001_convert_log_ids_to_uuid.php';
+    private const LOG_MIGRATION = __DIR__.'/../../../../packages/nexus-tidb/database/migrations/log/2026_01_01_999999_convert_log_ids_to_uuid.php';
 
     protected function tearDown(): void
     {

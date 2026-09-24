@@ -17,7 +17,7 @@ interface MailboxRepositoryInterface
     /**
      * プレイヤーIDでメールボックス一覧を取得
      *
-     * @return Collection<Mailbox>
+     * @return Collection<array-key, Mailbox>
      */
     public function selectByPlayerId(
         int $sysPlayerId,

@@ -14,6 +14,7 @@ class SysDeploySeeder extends Seeder
     {
         // べき等性を確保するため、既存データを削除
         DB::connection('sys')->table('sys_deploy')->truncate();
+        DB::connection('sys')->table('sys_deploy_master_table')->truncate();
         DB::connection('sys')->table('sys_deploy_asset')->truncate();
         DB::connection('sys')->table('sys_deploy_master')->truncate();
 
@@ -167,7 +168,7 @@ class SysDeploySeeder extends Seeder
             'target' => 'transaction',
             'strategy' => 'hash',
             'sharding_key' => 'player_id',
-            'node_count' => (int) env('DB_TRX_SHARDS', 3),
+            'node_count' => (int) env('DB_SHARD_COUNT', 3),
             'is_active' => true,
             'description' => 'Transaction data sharding',
             'created_at' => now(),
@@ -175,7 +176,7 @@ class SysDeploySeeder extends Seeder
         ]);
 
         // シャーディングノードを作成
-        $shardCount = (int) env('DB_TRX_SHARDS', 3);
+        $shardCount = (int) env('DB_SHARD_COUNT', 3);
         for ($i = 1; $i <= $shardCount; $i++) {
             DB::connection('sys')->table('sys_sharding_node')->insert([
                 'sys_sharding_id' => $shardingId,

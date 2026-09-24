@@ -22,7 +22,6 @@ class LogEquipmentRepository extends _BaseLogRepository
      *
      * @var array<string>
      */
-    protected array $uniqueKeys = ['id'];
 
     /**
      * 通常ログであることを明示
@@ -56,7 +55,6 @@ class LogEquipmentRepository extends _BaseLogRepository
             'after_level' => $afterLevel,
             'after_level_exp' => $afterLevelExp,
             'system_at' => ClockUtility::now(),
-            'created_at' => ClockUtility::now(),
         ]);
 
         $this->setModel($logEquipment);

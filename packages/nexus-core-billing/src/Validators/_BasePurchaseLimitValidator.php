@@ -2,16 +2,15 @@
 
 namespace NexusBilling\Validators;
 
-use DateTimeInterface;
-use NexusBilling\Constants\PurchaseLimitResetType;
 use Nexus\Core\Utilities\ClockUtility;
+use NexusBilling\Constants\PurchaseLimitResetType;
 
 /**
  * 購入制限チェッカー（汎用ロジック）
- * 
+ *
  * アプリ内課金商品の購入回数制限をチェックする汎用ロジックを提供
  * フレームワーク非依存、全ゲームで再利用可能
- * 
+ *
  * このクラスは判定ロジックのみを提供し、例外は投げません
  * Application層で判定結果に基づいて適切な例外処理を行います
  */
@@ -19,18 +18,18 @@ class _BasePurchaseLimitValidator
 {
     /**
      * 購入制限を超えているかチェック
-     * 
-     * @param int|null $purchaseLimit 購入制限（nullの場合は制限なし）
-     * @param int $currentPurchaseCount 現在の購入回数
-     * @param string $resetType リセット種別（PurchaseLimitResetTypeの定数）
-     * @param DateTimeInterface|null $lastResetAt 最終リセット日時
+     *
+     * @param  int|null  $purchaseLimit  購入制限（nullの場合は制限なし）
+     * @param  int  $currentPurchaseCount  現在の購入回数
+     * @param  string  $resetType  リセット種別（PurchaseLimitResetTypeの定数）
+     * @param  string|null  $lastResetAt  最終リセット日時（Y-m-d H:i:s）
      * @return bool 制限を超えている場合true
      */
     public function isLimitExceeded(
         ?int $purchaseLimit,
         int $currentPurchaseCount,
         string $resetType,
-        ?DateTimeInterface $lastResetAt
+        ?string $lastResetAt
     ): bool {
         // 購入制限がない場合は常にfalse
         if ($purchaseLimit === null) {
@@ -49,18 +48,18 @@ class _BasePurchaseLimitValidator
 
     /**
      * 有効な購入回数を計算
-     * 
+     *
      * リセットが必要な場合は0を返し、不要な場合は現在の購入回数を返す
-     * 
-     * @param int $currentPurchaseCount 現在の購入回数
-     * @param string $resetType リセット種別（PurchaseLimitResetTypeの定数）
-     * @param DateTimeInterface|null $lastResetAt 最終リセット日時
+     *
+     * @param  int  $currentPurchaseCount  現在の購入回数
+     * @param  string  $resetType  リセット種別（PurchaseLimitResetTypeの定数）
+     * @param  string|null  $lastResetAt  最終リセット日時（Y-m-d H:i:s）
      * @return int 有効な購入回数
      */
     public function calculateEffectiveCount(
         int $currentPurchaseCount,
         string $resetType,
-        ?DateTimeInterface $lastResetAt
+        ?string $lastResetAt
     ): int {
         if ($this->shouldResetPurchaseCount($resetType, $lastResetAt)) {
             return 0;
@@ -71,44 +70,43 @@ class _BasePurchaseLimitValidator
 
     /**
      * 購入回数をリセットすべきかチェック
-     * 
-     * @param string $resetType リセット種別（PurchaseLimitResetTypeの定数）
-     * @param DateTimeInterface|null $lastResetAt 最終リセット日時
+     *
+     * @param  string  $resetType  リセット種別（PurchaseLimitResetTypeの定数）
+     * @param  string|null  $lastResetAt  最終リセット日時（Y-m-d H:i:s）
      * @return bool リセットが必要な場合true
      */
     public function shouldResetPurchaseCount(
         string $resetType,
-        ?DateTimeInterface $lastResetAt
+        ?string $lastResetAt
     ): bool {
         // リセットなし、または初回購入の場合はリセット不要
         if ($resetType === PurchaseLimitResetType::NONE || $lastResetAt === null) {
             return false;
         }
 
-        $now = ClockUtility::now();
-        $lastResetAtString = $lastResetAt->format('Y-m-d H:i:s');
+        $lastResetAtString = $lastResetAt;
 
         return match ($resetType) {
-            PurchaseLimitResetType::DAILY => !ClockUtility::isToday($lastResetAtString),
-            PurchaseLimitResetType::WEEKLY => $this->isDifferentWeek($now, $lastResetAtString),
-            PurchaseLimitResetType::MONTHLY => $this->isDifferentMonth($now, $lastResetAtString),
+            PurchaseLimitResetType::DAILY => ! ClockUtility::isToday($lastResetAtString),
+            PurchaseLimitResetType::WEEKLY => $this->isDifferentWeek($lastResetAtString),
+            PurchaseLimitResetType::MONTHLY => $this->isDifferentMonth($lastResetAtString),
             default => false,
         };
     }
 
     /**
      * リセットが必要な場合の新しいリセット日時を取得
-     * 
-     * @param string $resetType リセット種別（PurchaseLimitResetTypeの定数）
-     * @param DateTimeInterface|null $lastResetAt 最終リセット日時
-     * @return DateTimeInterface|null 新しいリセット日時（リセット不要ならnull）
+     *
+     * @param  string  $resetType  リセット種別（PurchaseLimitResetTypeの定数）
+     * @param  string|null  $lastResetAt  最終リセット日時（Y-m-d H:i:s）
+     * @return string|null 新しいリセット日時（リセット不要ならnull）
      */
     public function getNewResetDateIfNeeded(
         string $resetType,
-        ?DateTimeInterface $lastResetAt
-    ): ?DateTimeInterface {
+        ?string $lastResetAt
+    ): ?string {
         if ($this->shouldResetPurchaseCount($resetType, $lastResetAt)) {
-            return ClockUtility::now();
+            return ClockUtility::nowToString();
         }
 
         return null;
@@ -116,18 +114,18 @@ class _BasePurchaseLimitValidator
 
     /**
      * 週が異なるかチェック
-     * 
-     * @param DateTimeInterface $now 現在日時
-     * @param string $lastResetAtString 最終リセット日時文字列
+     *
+     * @param  string  $lastResetAtString  最終リセット日時文字列
      * @return bool 週が異なる場合true
      */
-    private function isDifferentWeek(
-        DateTimeInterface $now,
-        string $lastResetAtString
-    ): bool {
-        $nowYear = ClockUtility::year(ClockUtility::nowToString());
+    private function isDifferentWeek(string $lastResetAtString): bool
+    {
+        // 週番号はISO 8601基準なので、年も週年で比較する。
+        // 暦年で比較すると 2025-12-29 と 2026-01-01（どちらも2026-W01）が
+        // 別の週と判定され、年末年始だけ上限が余分にリセットされる
+        $nowYear = ClockUtility::isoWeekYear(ClockUtility::nowToString());
         $nowWeek = ClockUtility::weekOfYear(ClockUtility::nowToString());
-        $lastYear = ClockUtility::year($lastResetAtString);
+        $lastYear = ClockUtility::isoWeekYear($lastResetAtString);
         $lastWeek = ClockUtility::weekOfYear($lastResetAtString);
 
         return $nowWeek !== $lastWeek || $nowYear !== $lastYear;
@@ -135,15 +133,12 @@ class _BasePurchaseLimitValidator
 
     /**
      * 月が異なるかチェック
-     * 
-     * @param DateTimeInterface $now 現在日時
-     * @param string $lastResetAtString 最終リセット日時文字列
+     *
+     * @param  string  $lastResetAtString  最終リセット日時文字列
      * @return bool 月が異なる場合true
      */
-    private function isDifferentMonth(
-        DateTimeInterface $now,
-        string $lastResetAtString
-    ): bool {
+    private function isDifferentMonth(string $lastResetAtString): bool
+    {
         $nowYear = ClockUtility::year(ClockUtility::nowToString());
         $nowMonth = ClockUtility::month(ClockUtility::nowToString());
         $lastYear = ClockUtility::year($lastResetAtString);

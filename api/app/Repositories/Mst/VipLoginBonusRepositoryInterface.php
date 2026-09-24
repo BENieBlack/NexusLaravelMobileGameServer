@@ -10,6 +10,7 @@ interface VipLoginBonusRepositoryInterface
      * VIPレベルに対応する有効なVIPログインボーナスを取得
      *
      * @param  int  $vipLevel  VIPレベル
+     * @return array<string, mixed>|null
      */
     public function selectActiveByVipLevel(int $vipLevel): ?array;
 
@@ -18,6 +19,7 @@ interface VipLoginBonusRepositoryInterface
      *
      * @param  string  $vipLoginBonusId  VIPログインボーナスID
      * @param  int  $day  日数
+     * @return CustomCollection<array-key, array<string, mixed>>
      */
     public function selectContentsByBonusIdAndDay(string $vipLoginBonusId, int $day): CustomCollection;
 }

@@ -29,9 +29,9 @@ composer require laravel-mobile-rpg/wallet
 パッケージの`WalletManagerInterface`を実装したサービスクラスを作成します。
 
 ```php
-use LaravelWallet\Contracts\WalletManagerInterface;
-use LaravelWallet\DataTransferObjects\CurrencyBalance;
-use LaravelWallet\DataTransferObjects\CurrencyOperationResult;
+use NexusWallet\Contracts\WalletManagerInterface;
+use NexusWallet\DataTransferObjects\CurrencyBalance;
+use NexusWallet\DataTransferObjects\CurrencyOperationResult;
 use Carbon\CarbonImmutable;
 
 class WalletService implements WalletManagerInterface
@@ -71,7 +71,7 @@ class WalletService implements WalletManagerInterface
 ### 2. サービスプロバイダーでバインド
 
 ```php
-use LaravelWallet\Contracts\WalletManagerInterface;
+use NexusWallet\Contracts\WalletManagerInterface;
 use App\Domain\Wallet\Services\WalletService;
 
 class AppServiceProvider extends ServiceProvider
@@ -86,7 +86,7 @@ class AppServiceProvider extends ServiceProvider
 ### 3. 通貨の追加
 
 ```php
-use LaravelWallet\Contracts\WalletManagerInterface;
+use NexusWallet\Contracts\WalletManagerInterface;
 use Carbon\CarbonImmutable;
 
 $walletManager = app(WalletManagerInterface::class);
@@ -151,8 +151,8 @@ echo "削除された数量: {$expired}";
 ## 例外処理
 
 ```php
-use LaravelWallet\Exceptions\InsufficientBalanceException;
-use LaravelWallet\Exceptions\InvalidCurrencyException;
+use NexusWallet\Exceptions\InsufficientBalanceException;
+use NexusWallet\Exceptions\InvalidCurrencyException;
 
 try {
     $result = $walletManager->consumeCurrency($playerId, 'gold', 10000);

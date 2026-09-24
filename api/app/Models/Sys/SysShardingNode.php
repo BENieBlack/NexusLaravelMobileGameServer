@@ -29,6 +29,7 @@ class SysShardingNode extends _BaseSys
      *
      * @var array
      */
+    /** @var list<string> */
     protected $fillable = [
         'sys_sharding_id',
         'node_name',
@@ -46,6 +47,7 @@ class SysShardingNode extends _BaseSys
      *
      * @var array
      */
+    /** @var array<string, string> */
     protected $casts = [
         'sys_sharding_id' => 'integer',
         'node_no' => 'integer',
@@ -67,6 +69,8 @@ class SysShardingNode extends _BaseSys
 
     /**
      * 利用可能なステータス一覧を取得
+     *
+     * @return array<int, string>
      */
     public static function availableStatuses(): array
     {
@@ -208,6 +212,9 @@ class SysShardingNode extends _BaseSys
     /**
      * シャーディング設定とのリレーション
      */
+    /**
+     * @return BelongsTo<SysSharding, $this>
+     */
     public function sharding(): BelongsTo
     {
         return $this->belongsTo(SysSharding::class, 'sys_sharding_id');
@@ -215,6 +222,9 @@ class SysShardingNode extends _BaseSys
 
     /**
      * プレイヤー割り当てとのリレーション
+     */
+    /**
+     * @return HasMany<SysShardingNodePlayer, $this>
      */
     public function playerAssignments(): HasMany
     {
@@ -285,6 +295,8 @@ class SysShardingNode extends _BaseSys
 
     /**
      * データベース接続設定をconfig/database.phpから取得
+     *
+     * @return array<string, mixed>|null
      */
     public function getConnectionConfig(): ?array
     {

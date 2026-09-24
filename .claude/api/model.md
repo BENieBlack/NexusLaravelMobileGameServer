@@ -60,11 +60,22 @@ class SysPlayer extends Model
     protected $casts = [
         'level' => 'integer',
         'exp' => 'integer',
-        'created_at' => 'immutable_datetime',
-        'updated_at' => 'immutable_datetime',
+        // 日時はキャストしない（stringのまま扱う）
     ];
 }
 ```
+
+### 日時の扱い
+
+**日時はDB取得からレスポンスまで一貫して`string`（`Y-m-d H:i:s`）で扱う。**
+
+- `$casts` に `datetime` / `immutable_datetime` を書かない
+- `@property` の型注釈も `string`（null許容なら `?string`）
+- `created_at` / `updated_at` はEloquentが `$casts` と無関係にCarbonへ変換するため、
+  `_BaseModel::getDates()` を空にして無効化している（タイムスタンプの自動設定は有効のまま）
+- 比較は `Y-m-d H:i:s` が固定長で辞書順＝時系列順のため、文字列のまま `<` `>` で行える。
+  加減算やパースが必要なときだけ `ClockUtility`（`isPast()` / `diffInSeconds()` / `parse()` 等）を使う
+- 複合主キーのモデルは `App\Traits\CompositePrimaryKeyTrait` を使う
 
 ### 複合PRIMARY KEY
 
@@ -112,8 +123,7 @@ class LogEquipment extends _BaseLog
     ];
     
     protected $casts = [
-        'system_at' => 'immutable_datetime',
-        // created_at, updated_atは$castsに含めない
+        // 日時はキャストしない（system_at, created_at ともにstringのまま扱う）
     ];
 }
 ```
@@ -189,7 +199,7 @@ class LevelUpResponse implements Responsable
 - [ ] `$table`を明示的に指定  
 - [ ] 複合PRIMARY KEYの場合、`$primaryKey = null`, `$incrementing = false`
 - [ ] `$fillable`で許可するカラムを定義
-- [ ] `$casts`で型キャストを定義（`immutable_datetime`を使用）
+- [ ] `$casts`で型キャストを定義（**日時はキャストしない**。下記「日時の扱い」を参照）
 - [ ] Log Modelは`_BaseLog`を継承
 - [ ] APIレスポンスには`toResponseArray()`を使用
 

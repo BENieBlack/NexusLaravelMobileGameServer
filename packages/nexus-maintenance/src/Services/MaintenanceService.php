@@ -2,14 +2,14 @@
 
 namespace NexusMaintenance\Services;
 
-use NexusMaintenance\Contracts\MaintenanceStorageInterface;
-use NexusMaintenance\ValueObjects\Maintenance;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use NexusMaintenance\Contracts\MaintenanceStorageInterface;
+use NexusMaintenance\ValueObjects\Maintenance;
 
 /**
  * メンテナンスサービス
- * 
+ *
  * メンテナンス状態の管理を担当
  * ストレージ（DynamoDB/TableStore）への読み書きをラップし、
  * キャッシュによる高速化も提供
@@ -26,13 +26,13 @@ class MaintenanceService
 
     /**
      * メンテナンス中かどうかを判定
-     * 
+     *
      * @return bool メンテナンス中の場合true
      */
     public function isUnderMaintenance(): bool
     {
         $sysMaintenance = $this->findMaintenanceInfo();
-        
+
         if ($sysMaintenance === null) {
             return false;
         }
@@ -42,7 +42,7 @@ class MaintenanceService
 
     /**
      * メンテナンス情報を取得
-     * 
+     *
      * @return Maintenance|null メンテナンス情報
      */
     public function findMaintenanceInfo(): ?Maintenance
@@ -68,8 +68,8 @@ class MaintenanceService
 
     /**
      * メンテナンスを開始
-     * 
-     * @param Maintenance $maintenance メンテナンス情報
+     *
+     * @param  Maintenance  $maintenance  メンテナンス情報
      * @return bool 成功時true
      */
     public function startMaintenance(Maintenance $maintenance): bool
@@ -79,7 +79,7 @@ class MaintenanceService
         if ($result) {
             // キャッシュをクリア
             $this->clearCache();
-            
+
             Log::info('Maintenance started', [
                 'start_at' => $maintenance->getStartAt(),
                 'end_at' => $maintenance->getEndAt(),
@@ -92,7 +92,7 @@ class MaintenanceService
 
     /**
      * メンテナンスを終了
-     * 
+     *
      * @return bool 成功時true
      */
     public function endMaintenance(): bool
@@ -102,7 +102,7 @@ class MaintenanceService
         if ($result) {
             // キャッシュをクリア
             $this->clearCache();
-            
+
             Log::info('Maintenance ended');
         }
 
@@ -111,7 +111,7 @@ class MaintenanceService
 
     /**
      * ストレージの接続確認
-     * 
+     *
      * @return bool 接続可能な場合true
      */
     public function healthCheck(): bool

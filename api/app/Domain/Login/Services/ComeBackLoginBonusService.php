@@ -155,15 +155,15 @@ class ComeBackLoginBonusService extends _BaseLoginBonusService
         foreach ($contents as $content) {
             $this->historyRepository->insert([
                 'sys_player_id' => $sysPlayerId,
+                'type' => 'comeback',
                 'mst_login_bonus_id' => $bonusData['id'],
+                'day' => 0,
                 'absent_days' => $bonusData['absent_days'],
                 'received_date' => $receivedDate,
                 'reward_type' => $content->content_type,
-                'reward_id' => $content->content_id,
+                'reward_mst_id' => $content->content_mst_id,
                 'reward_amount' => $content->content_quantity * $content->amount,
                 'is_paid' => $content->is_paid ?? false,
-                'created_at' => now(),
-                'updated_at' => now(),
             ], $connectionName);
         }
     }

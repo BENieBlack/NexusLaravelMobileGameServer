@@ -35,12 +35,21 @@ php artisan vendor:publish --tag=mobile-billing-config
 `.env`ファイルに以下の設定を追加します。
 
 ```env
-# App Store
+# App Store（レガシーのレシート検証）
 APP_STORE_SHARED_SECRET=your_app_store_shared_secret
+
+# App Store Server API（返金確認・サブスク照会）
+APP_STORE_ENVIRONMENT=sandbox          # production / sandbox
+APP_STORE_JWT_KEY_ID=ABCD123456        # 鍵ID（JWTヘッダーのkid）
+APP_STORE_JWT_ISSUER_ID=...            # Issuer ID（iss）
+APP_STORE_JWT_BUNDLE_ID=com.example.yourapp
+APP_STORE_JWT_PRIVATE_KEY=/path/to/AuthKey_ABCD123456.p8   # パス or PEM文字列
+APP_STORE_JWT_TTL=1800                 # 秒（Appleの上限3600）
+APP_STORE_JWT_ROOT_CERTIFICATE=        # 任意。設定すると証明書チェーンも検証する
 
 # Google Play
 GOOGLE_PLAY_PACKAGE_NAME=com.example.yourapp
-GOOGLE_PLAY_SERVICE_ACCOUNT_JSON=/path/to/service-account.json
+GOOGLE_PLAY_SERVICE_ACCOUNT=/path/to/service-account.json   # パス or JSON文字列
 ```
 
 ## 基本的な使い方
@@ -111,15 +120,25 @@ $result = app(BillingFacade::class)->verifyReceipt(
 
 ### サブスクリプション状態確認
 
+> **状態: 照会のみ実装済み。購入フローは未実装。**
+> 詳細は「サブスクリプション対応の残作業」を参照。
+
 ```php
-$status = app(BillingFacade::class)->checkSubscription(
+$subscription = app(BillingFacade::class)->checkSubscription(
     billingPlatform: BillingConst::PLATFORM_APP_STORE,
-    subscriptionId: $subscriptionId
+    subscriptionId: $transactionId,   // App Storeは originalTransactionId
 );
 
-if ($status->isActive) {
-    echo "Subscription is active until: " . $status->expiresAt->toDateTimeString();
-    echo "Auto-renew: " . ($status->autoRenew ? 'Yes' : 'No');
+// Google Playは購入トークンが必須
+$subscription = app(BillingFacade::class)->checkSubscription(
+    billingPlatform: BillingConst::PLATFORM_GOOGLE_PLAY,
+    subscriptionId: $subscriptionId,
+    purchaseToken: $purchaseToken,
+);
+
+if ($subscription->isActive()) {
+    echo '有効期限: '.$subscription->getExpiresAt();   // 'Y-m-d H:i:s' の文字列
+    echo '自動更新: '.($subscription->isAutoRenew() ? 'あり' : 'なし');
 }
 ```
 
@@ -135,6 +154,23 @@ if ($isRefunded) {
     // 返金処理
 }
 ```
+
+## サブスクリプション対応の残作業
+
+現状はプラットフォームへの**状態照会だけ**が実装されている。
+サブスク商品を販売するには以下が必要になる。
+
+| 項目 | 現状 |
+|---|---|
+| 商品マスタの種別 | `mst_in_app_purchase.type` は `Diamond` / `Pack` / `Pass` のみ。`Subscription` の追加にはマイグレーションが必要 |
+| 購入フロー | `BuyDiamondUseCase` / `BuyPackUseCase` / `BuyPassUseCase` のみ。サブスク用のUseCaseが無い |
+| 更新通知の受け口 | App Store Server Notifications V2 / Google RTDN(Pub/Sub) のエンドポイントが無い。更新・解約・課金失敗はこれで受けるのが標準で、照会のポーリングだけでは足りない |
+| 期限・状態の保持 | `trx_in_app_purchase` は購入回数のみで、有効期限や自動更新状態の列が無い |
+| 権利の管理 | パス商品の `trx_in_app_purchase_effect`（`expires_at` / `is_active`）が期間限定の権利をすでに扱っており、これを拡張するのが素直 |
+
+`checkSubscription()` は上記が揃うまで呼び出し元が無い。
+実装済みの認証基盤（App Store Server APIのJWT認証・JWS検証、Google PlayのOAuth）は
+返金確認と共通のため、サブスク対応時にもそのまま使える。
 
 ## 例外処理
 

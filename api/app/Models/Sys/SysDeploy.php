@@ -29,6 +29,7 @@ class SysDeploy extends _BaseSys
      *
      * @var array
      */
+    /** @var list<string> */
     protected $fillable = [
         'deploy_key',
         'start_at',
@@ -42,12 +43,16 @@ class SysDeploy extends _BaseSys
      *
      * @var array
      */
+    /** @var array<string, string> */
     protected $casts = [
         'is_active' => 'boolean',
     ];
 
     /**
      * マスターデプロイとのリレーション
+     */
+    /**
+     * @return BelongsTo<SysDeployMaster, $this>
      */
     public function deployMaster(): BelongsTo
     {
@@ -56,6 +61,9 @@ class SysDeploy extends _BaseSys
 
     /**
      * アセットデプロイとのリレーション
+     */
+    /**
+     * @return BelongsTo<SysDeployAsset, $this>
      */
     public function deployAsset(): BelongsTo
     {
@@ -81,7 +89,7 @@ class SysDeploy extends _BaseSys
     /**
      * start_atを取得
      */
-    public function getStartAt(): ?\DateTime
+    public function getStartAt(): ?string
     {
         return $this->getAttribute('start_at');
     }
@@ -179,8 +187,8 @@ class SysDeploy extends _BaseSys
     /**
      * 現在有効なデプロイを取得（スコープ）
      *
-     * @param  Builder  $query
-     * @return Builder
+     * @param  Builder<self>  $query
+     * @return Builder<self>
      */
     public function scopeActive($query)
     {
@@ -190,8 +198,8 @@ class SysDeploy extends _BaseSys
     /**
      * ダウンロード可能なデプロイを取得（スコープ）
      *
-     * @param  Builder  $query
-     * @return Builder
+     * @param  Builder<self>  $query
+     * @return Builder<self>
      */
     public function scopeDownloadable($query)
     {

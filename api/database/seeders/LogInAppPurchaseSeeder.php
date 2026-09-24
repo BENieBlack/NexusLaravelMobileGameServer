@@ -15,7 +15,7 @@ class LogInAppPurchaseSeeder extends Seeder
         $connection = 'log';
 
         // 既存のデータを削除
-        DB::connection($connection)->table('log_in_app_purchase')->truncate();
+        DB::connection($connection)->table('log_action_in_app_purchase')->truncate();
 
         // log_accessから課金関連のエンドポイントのunique_request_idを取得
         $iapEndpoints = [
@@ -23,7 +23,7 @@ class LogInAppPurchaseSeeder extends Seeder
         ];
 
         $accessLogs = DB::connection('log')
-            ->table('log_access')
+            ->table('log_action_api_access')
             ->whereIn('endpoint', $iapEndpoints)
             ->select('unique_request_id', 'sys_player_id', 'system_at', 'created_at')
             ->get();
@@ -65,15 +65,15 @@ class LogInAppPurchaseSeeder extends Seeder
 
         $platforms = ['apple', 'google'];
         $billingPlatforms = [
-            'apple' => 'AppStore',
-            'google' => 'GooglePlay',
+            'apple' => 'app_store',
+            'google' => 'google_play',
         ];
 
         $statuses = [
-            'Purchased' => 85,  // 85%が購入完了
-            'CheckAvailability' => 10,  // 10%が確認中
-            'Failed' => 3,  // 3%が失敗
-            'Refunded' => 2,  // 2%が返金
+            'purchased' => 85,  // 85%が購入完了
+            'check_availability' => 10,  // 10%が確認中
+            'failed' => 3,  // 3%が失敗
+            'refunded' => 2,  // 2%が返金
         ];
 
         echo "アプリ内課金の仮データを生成中...\n";
@@ -89,7 +89,7 @@ class LogInAppPurchaseSeeder extends Seeder
             // ステータスを確率に基づいて選択
             $rand = rand(1, 100);
             $cumulativePercent = 0;
-            $selectedStatus = 'Purchased';
+            $selectedStatus = 'purchased';
             foreach ($statuses as $status => $percent) {
                 $cumulativePercent += $percent;
                 if ($rand <= $cumulativePercent) {
@@ -129,7 +129,7 @@ class LogInAppPurchaseSeeder extends Seeder
 
             // バッチで挿入（500件ごと）
             if (count($data) >= 500) {
-                DB::connection($connection)->table('log_in_app_purchase')->insert($data);
+                DB::connection($connection)->table('log_action_in_app_purchase')->insert($data);
                 echo '挿入: '.count($data)." 件 (累計: {$logCount} 件)\n";
                 $data = [];
             }
@@ -137,15 +137,15 @@ class LogInAppPurchaseSeeder extends Seeder
 
         // 残りのデータを挿入
         if (! empty($data)) {
-            DB::connection($connection)->table('log_in_app_purchase')->insert($data);
+            DB::connection($connection)->table('log_action_in_app_purchase')->insert($data);
             echo '挿入: '.count($data)." 件 (累計: {$logCount} 件)\n";
         }
 
-        $totalCount = DB::connection($connection)->table('log_in_app_purchase')->count();
+        $totalCount = DB::connection($connection)->table('log_action_in_app_purchase')->count();
 
         // 通貨別の売上集計
         $revenueByStatus = DB::connection($connection)
-            ->table('log_in_app_purchase')
+            ->table('log_action_in_app_purchase')
             ->select('currency_code', 'status', DB::raw('SUM(pay_amount) as total_amount'))
             ->groupBy('currency_code', 'status')
             ->get();

@@ -2,19 +2,22 @@
 
 namespace Nexus\Core\Repositories\Mst;
 
+use Illuminate\Cache\RedisStore;
+use Illuminate\Support\Facades\Cache;
 use Nexus\Core\Models\Mst\_BaseMst;
-use Nexus\Core\Models\Mst\_BaseMstInterface;
 use Nexus\Core\Repositories\_BaseRepository;
 use Nexus\Core\Support\CustomCollection;
-use Illuminate\Support\Facades\Cache;
 
 /**
  * _BaseMstRepository
  *
  * マスターデータのRepository基底クラス
  * キャッシュ機能を含む読み取り専用操作を提供
- * 
- * @template T of _BaseMstInterface
+ *
+ * @template T of _BaseMst
+ *
+ * @extends _BaseRepository<int|string, T>
+ *
  * @implements _BaseMstRepositoryInterface<T>
  */
 abstract class _BaseMstRepository extends _BaseRepository implements _BaseMstRepositoryInterface
@@ -37,7 +40,7 @@ abstract class _BaseMstRepository extends _BaseRepository implements _BaseMstRep
     /**
      * データベースまたはメモリからデータを取得
      * キャッシュ（Redis）から取得、存在しない場合はDBから取得してキャッシュに保存
-     * 
+     *
      * @return CustomCollection<int|string, T>
      */
     public function queryOrMemory(): CustomCollection
@@ -55,14 +58,31 @@ abstract class _BaseMstRepository extends _BaseRepository implements _BaseMstRep
             $cacheKey,
             $this->cacheTtl,
             function () {
-                // 全レコードを取得し、IDをキーにしたコレクションを返す
-                $all = $this->modelClass::all();
-                return $all->keyBy('id')->all(); // 配列として保存
+                // ユニークキーの連結をキーにする。
+                // 'id' 決め打ちにすると、複合主キーで id 列を持たない
+                // マスター（mst_vip_level_reward など）が
+                // 全行同じキーに潰れて1件しか読めなくなる
+                $uniqueKeys = $this->getUniqueKeys();
+                $keyed = [];
+
+                foreach ($this->modelClass::all() as $record) {
+                    $key = [];
+
+                    foreach ($uniqueKeys as $uniqueKey) {
+                        $key[] = $record->{$uniqueKey};
+                    }
+
+                    $keyed[implode(':', $key)] = $record;
+                }
+
+                return $keyed; // 配列として保存
             }
         );
 
         // CustomCollectionとして保存
-        $this->models = new CustomCollection($cached);
+        /** @var CustomCollection<int|string, T> $models */
+        $models = new CustomCollection($cached);
+        $this->models = $models;
 
         return $this->models;
     }
@@ -70,15 +90,15 @@ abstract class _BaseMstRepository extends _BaseRepository implements _BaseMstRep
     /**
      * IDでマスターレコードを取得
      * メモリキャッシュから取得
-     * 
-     * @param int|string $mstRecordId
+     *
+     * @param  int|string  $mstRecordId
      * @return T|null
      */
     public function selectById($mstRecordId)
     {
         // 全データをメモリキャッシュにロード
         $this->queryOrMemory();
-        
+
         // メモリキャッシュから取得
         return $this->findCachedModel($mstRecordId);
     }
@@ -86,27 +106,27 @@ abstract class _BaseMstRepository extends _BaseRepository implements _BaseMstRep
     /**
      * 複数のIDでマスターレコードを取得
      * メモリキャッシュから取得
-     * 
-     * @param array<int|string> $ids
-     * @return CustomCollection<int|string, T>
+     *
+     * @param  array<int|string>  $ids
+     * @return CustomCollection<int, T> values()でキーを詰め直すため0始まりのint
      */
     public function selectListByIds(array $ids): CustomCollection
     {
         // 全データをメモリキャッシュにロード
         $this->queryOrMemory();
-        
+
         // メモリキャッシュから複数取得
         return (new CustomCollection($ids))
-            ->map(fn($id) => $this->findCachedModel($id))
+            ->map(fn ($id) => $this->findCachedModel($id))
             ->filter() // null を除外
             ->values(); // キーをリセット
     }
 
     /**
      * setModel は Mst では使用しない（読み取り専用）
-     * 
-     * @param mixed $model
-     * @return void
+     *
+     * @param  mixed  $model
+     *
      * @throws \BadMethodCallException
      */
     public function setModel($model): void
@@ -116,9 +136,9 @@ abstract class _BaseMstRepository extends _BaseRepository implements _BaseMstRep
 
     /**
      * setModels は Mst では使用しない（読み取り専用）
-     * 
-     * @param CustomCollection<int|string, mixed> $models
-     * @return void
+     *
+     * @param  CustomCollection<int|string, mixed>  $models
+     *
      * @throws \BadMethodCallException
      */
     protected function setModels(CustomCollection $models): void
@@ -129,8 +149,6 @@ abstract class _BaseMstRepository extends _BaseRepository implements _BaseMstRep
     /**
      * キャッシュをクリアする（テスト用）
      * Redisキャッシュとメモリキャッシュの両方をクリアする
-     * 
-     * @return void
      */
     public function clearCache(): void
     {
@@ -141,19 +159,17 @@ abstract class _BaseMstRepository extends _BaseRepository implements _BaseMstRep
         $modelInstance = new $this->modelClass;
         $tableName = $modelInstance->getTable();
         $cacheKey = "{$this->cachePrefix}:{$tableName}:all";
-        
+
         Cache::store($this->cacheDriver)->forget($cacheKey);
     }
 
     /**
      * 全てのMstリポジトリのキャッシュをクリアする（テスト用静的メソッド）
-     * 
-     * @return void
      */
     public static function clearAllCaches(): void
     {
         // Redisキャッシュ全体をクリア（テスト環境のみで使用）
-        /** @var \Illuminate\Cache\RedisStore $store */
+        /** @var RedisStore $store */
         $store = Cache::store('redis');
         $store->flush();
     }

@@ -2,12 +2,10 @@
 
 namespace Nexus\Core\Repositories\Log;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Nexus\Core\Models\Log\_BaseLog;
-use Nexus\Core\Models\Log\_BaseLogInterface;
 use Nexus\Core\Repositories\_BaseRepository;
 use Nexus\Core\Support\CustomCollection;
-use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Database\Eloquent\Model;
 
 /**
  * _BaseLogRepository
@@ -15,23 +13,54 @@ use Illuminate\Database\Eloquent\Model;
  * ログRepositoryの基底クラス
  * ログテーブルはINSERT ONLYのため、setModelメソッドでINSERTのみ実行
  * プレイヤーIDはApiSessionから自動的に取得される
- * 
- * @template T of _BaseLogInterface
+ *
+ * @template T of _BaseLog
+ *
+ * @extends _BaseRepository<int, T>
+ *
  * @implements _BaseLogRepositoryInterface<T>
  */
 abstract class _BaseLogRepository extends _BaseRepository implements _BaseLogRepositoryInterface
 {
     /**
      * データベース接続名（通常は 'log'）
-     *
-     * @var string
      */
     protected string $connection = 'log1';
 
     /**
-     * 課金ログかどうか
+     * 使用するデータベース接続名を返す
      *
-     * @var bool
+     * setConnection() で明示されていればそれを、
+     * 無ければログイン中プレイヤーの割り当てシャードに対応するLogDBを使う。
+     */
+    public function getConnection(): string
+    {
+        if ($this->connectionExplicitlySet) {
+            return $this->connection;
+        }
+
+        return static::resolveShardConnection() ?? $this->connection;
+    }
+
+    /**
+     * ログイン中プレイヤーの割り当てシャードに対応するLogDB接続を返す
+     *
+     * アプリケーション層でオーバーライドして接続名を返す
+     */
+    protected static function resolveShardConnection(): ?string
+    {
+        return null;
+    }
+
+    /**
+     * 課金ログかどうか
+     */
+    /**
+     * 課金関連のログか
+     *
+     * 注意: この値はサブクラスが宣言するだけで、現状どこからも読まれていない。
+     * QueryManagerの課金ログ枠へ入れるには setModel($model, true) のように
+     * 明示的に渡す必要がある。
      */
     protected bool $isPurchaseLog = false;
 
@@ -40,38 +69,38 @@ abstract class _BaseLogRepository extends _BaseRepository implements _BaseLogRep
      *
      * @var string
      */
-    protected string $selectKey = 'sys_player_id';
+    /**
+     * @var list<string> 自分の行を絞り込むカラム名。Repositoryで明示する場合のみ設定する
+     *
+     * 空ならModelの宣言に従う。
+     */
+    protected array $selectKeys = [];
 
     /**
-     * キャッシュされたプレイヤーID（パフォーマンス最適化）
-     * PlayerSessionResolverから取得した値を保持し、毎回app()を呼ばないようにする
-     *
-     * @var int|null
+     * キャッシュがどのプレイヤーのものかを保持する
+     * 別プレイヤーで問い合わせられたらキャッシュを破棄して取り直す
      */
-    private ?int $cachedSysPlayerId = null;
+    private ?int $cachedForSysPlayerId = null;
 
     /**
      * プレイヤーIDを取得（内部用）
      * PlayerSessionResolverから自動的に取得し、インスタンス内でキャッシュする
-     * 
+     *
      * パフォーマンス最適化:
      * - 初回呼び出し時にPlayerSessionResolverから取得してキャッシュ
      * - 2回目以降はキャッシュされた値を返す（app()の呼び出しを回避）
      *
      * @return int プレイヤーID
+     *
      * @throws \RuntimeException プレイヤーIDが取得できない場合
      */
     protected function resolveCachedSysPlayerId(): int
     {
-        // キャッシュがあればそれを返す（高速パス）
-        if ($this->cachedSysPlayerId !== null) {
-            return $this->cachedSysPlayerId;
-        }
-
-        // PlayerSessionResolverから取得してキャッシュ
+        // インスタンスに固定しない。
+        // Repositoryはリクエスト単位で共有されるため、途中でプレイヤーが
+        // 切り替わる経路（selectBySysPlayerId等）で古いIDを返してしまう
         if (static::hasSysPlayerId()) {
-            $this->cachedSysPlayerId = static::getSysPlayerId();
-            return $this->cachedSysPlayerId;
+            return static::getSysPlayerId();
         }
 
         // PlayerSessionResolverが未設定の場合はエラー
@@ -87,29 +116,45 @@ abstract class _BaseLogRepository extends _BaseRepository implements _BaseLogRep
      * プレイヤーIDはPlayerSessionResolverから自動的に取得される
      *
      * @return CustomCollection<int, T>
+     *
      * @throws \RuntimeException プレイヤーIDが取得できない場合
      */
+    /**
+     * {@inheritDoc}
+     *
+     * どのプレイヤー向けのキャッシュだったかも忘れる
+     */
+    public function forgetCachedModels(): void
+    {
+        parent::forgetCachedModels();
+        $this->cachedForSysPlayerId = null;
+    }
+
     public function queryOrMemory(): CustomCollection
     {
-        // メモリキャッシュにデータがあればそれを返す
-        if ($this->models !== null && $this->models->isNotEmpty()) {
+        // プレイヤーIDを先に解決する（キャッシュが誰のものかの判定に使う）
+        $sysPlayerId = $this->resolveCachedSysPlayerId();
+
+        // 同じプレイヤーのキャッシュがあればそれを返す
+        // 0件だった場合もキャッシュとして扱う（毎回問い合わせない）
+        if ($this->models !== null && $this->cachedForSysPlayerId === $sysPlayerId) {
             return $this->models;
         }
 
-        // プレイヤーIDを取得（PlayerSessionResolver優先、なければ$sysPlayerIdフィールド）
-        $sysPlayerId = $this->resolveCachedSysPlayerId();
-
         // キャッシュが空の場合、データベースから取得
-        /** @var _BaseLog $instance */
-        $instance = new $this->modelClass();
+        /** @var T $instance */
+        $instance = new $this->modelClass;
 
         // sys_player_idで検索してIDでkeyByしてキャッシュに保存
-        $records = $instance::on($this->connection)
-            ->where($this->selectKey, $sysPlayerId)
+        $records = $instance::on($this->getConnection())
+            ->where($this->getSelectKeys()[0], $sysPlayerId)
             ->get()
             ->keyBy('id');
 
-        $this->models = new CustomCollection($records->all());
+        /** @var CustomCollection<int, T> $cached ログIDはintのAUTO_INCREMENT */
+        $cached = new CustomCollection($records->all());
+        $this->models = $cached;
+        $this->cachedForSysPlayerId = $sysPlayerId;
 
         return $this->models;
     }
@@ -118,7 +163,7 @@ abstract class _BaseLogRepository extends _BaseRepository implements _BaseLogRep
      * IDでログレコードを取得
      * メモリキャッシュから取得、なければqueryOrMemoryでロードしてから取得
      *
-     * @param int $logRecordId ログID
+     * @param  int  $logRecordId  ログID
      * @return T|null ログレコード（見つからない場合はnull）
      */
     public function selectById(int $logRecordId)
@@ -129,17 +174,16 @@ abstract class _BaseLogRepository extends _BaseRepository implements _BaseLogRep
         }
 
         // キャッシュがない場合、queryOrMemoryでロードしてから取得
-        $this->queryOrMemory();
-        return $this->models?->get($logRecordId);
+        return $this->queryOrMemory()->get($logRecordId);
     }
 
     /**
      * ログモデルをセットし、内部キューに溜め込む
      * ログは常にINSERTのみ（配列に追加、上書きしない）
      *
-     * @param Model $model
-     * @param bool|null $isPurchase 課金関連のログかどうか（nullの場合はプロパティの値を使用）
-     * @return void
+     * @param  T  $model
+     * @param  bool|null  $isPurchase  課金関連のログかどうか（nullの場合はプロパティの値を使用）
+     *
      * @throws BindingResolutionException
      */
     public function setModel($model, ?bool $isPurchase = null): void
@@ -152,7 +196,6 @@ abstract class _BaseLogRepository extends _BaseRepository implements _BaseLogRep
      * プレイヤーIDが設定されているかチェック
      * サブクラスまたはアプリケーションでオーバーライドして実装する
      *
-     * @return bool
      * @throws \RuntimeException
      */
     protected static function hasSysPlayerId(): bool
@@ -164,7 +207,6 @@ abstract class _BaseLogRepository extends _BaseRepository implements _BaseLogRep
      * プレイヤーIDを取得（静的メソッド）
      * サブクラスまたはアプリケーションでオーバーライドして実装する
      *
-     * @return int
      * @throws \RuntimeException
      */
     protected static function getSysPlayerId(): int
@@ -176,12 +218,29 @@ abstract class _BaseLogRepository extends _BaseRepository implements _BaseLogRep
      * プレイヤーIDを設定（静的メソッド）
      * サブクラスまたはアプリケーションでオーバーライドして実装する
      *
-     * @param int $sysPlayerId
-     * @return void
      * @throws \RuntimeException
      */
     protected static function setSysPlayerId(int $sysPlayerId): void
     {
         throw new \RuntimeException('setSysPlayerId() must be implemented by subclass or overridden by application');
+    }
+
+    /**
+     * 絞り込みキーを取得
+     *
+     * Repositoryでの明示があればそれを優先し、無ければModelに聞く。
+     * どちらも未設定なら sys_player_id を使う。
+     *
+     * @return list<string>
+     */
+    protected function getSelectKeys(): array
+    {
+        if ($this->selectKeys !== []) {
+            return $this->selectKeys;
+        }
+
+        $modelKeys = $this->getModelInstance()->getSelectKeys();
+
+        return $modelKeys !== [] ? $modelKeys : ['sys_player_id'];
     }
 }

@@ -11,18 +11,17 @@ namespace NexusResource\DataTransferObjects;
 class Item
 {
     /**
-     * @param int $sysPlayerId プレイヤーID
-     * @param string $mstItemId マスターアイテムID
-     * @param int $freeAmount 無償アイテム数
-     * @param int $paidAmount 有償アイテム数
+     * @param  int  $sysPlayerId  プレイヤーID
+     * @param  string  $mstItemId  マスターアイテムID
+     * @param  int  $freeAmount  無償アイテム数
+     * @param  int  $paidAmount  有償アイテム数
      */
     public function __construct(
         private int $sysPlayerId,
         private string $mstItemId,
         private int $freeAmount,
         private int $paidAmount,
-    ) {
-    }
+    ) {}
 
     /**
      * プレイヤーIDを取得
@@ -83,7 +82,7 @@ class Item
     /**
      * 配列からDTOを生成
      *
-     * @param array $data
+     * @param  array<string, mixed>  $data
      * @return self
      */
     public static function fromArray(array $data): self
@@ -99,7 +98,7 @@ class Item
     /**
      * 配列に変換
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function toArray(): array
     {

@@ -3,7 +3,6 @@
 namespace Tests\Unit\Repositories\Trx;
 
 use App\Models\Trx\TrxUnit;
-use App\Persistence\ApiSession;
 use App\Repositories\Trx\TrxUnitRepository;
 use Nexus\Core\Utilities\ClockUtility;
 use Tests\RefreshMultipleDatabases;
@@ -21,7 +20,7 @@ class TrxUnitRepositoryTest extends TestCase
 
         // ApiSessionを初期化（テスト用のプレイヤーID=1を設定）
         ClockUtility::initialize();
-        ApiSession::setSysPlayerId(1);
+        $this->useSessionPlayer(1);
 
         $this->repository = new TrxUnitRepository;
     }

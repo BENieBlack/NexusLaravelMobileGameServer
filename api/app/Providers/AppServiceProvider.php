@@ -2,13 +2,20 @@
 
 namespace App\Providers;
 
-use App\Domain\Auth\Services\TokenValidator;
+use App\Domain\Album\Handlers\AlbumRecordingDeliveryHandler;
+use App\Domain\Item\Services\ItemGranterAdapter;
+use App\Domain\Item\Support\WalletItemMigrator;
 use App\Domain\Login\Services\ComeBackLoginBonusService;
 use App\Domain\Login\Services\LoginBonusService;
 use App\Domain\Login\Services\VipLoginBonusService;
+use App\Domain\Player\Services\ExperienceGranterAdapter;
 use App\Domain\Player\Services\PlayerLevelServiceAdapter;
+use App\Domain\Player\Services\PlayerLevelUpStaminaHandler;
+use App\Domain\Stamina\Services\StaminaGranterAdapter;
+use App\Exceptions\GameErrorCode;
 use App\Persistence\ApiSession;
 use App\Repositories\Log\LogVipPointRepository;
+use App\Repositories\Mst\AlbumCatalogRepositoryAdapter;
 use App\Repositories\Mst\LoginBonusRepositoryAdapter;
 use App\Repositories\Mst\MstGachaPrizeRepository;
 use App\Repositories\Mst\MstGachaRarityRateRepository;
@@ -19,37 +26,52 @@ use App\Repositories\Mst\MstVipLevelRepository;
 use App\Repositories\Mst\MstVipLevelRewardRepository;
 use App\Repositories\Mst\MstVipLoginBonusRepository;
 use App\Repositories\Mst\PlayerLevelRepositoryAdapter;
+use App\Repositories\Mst\RewardTrackMasterRepository;
 use App\Repositories\Mst\VipLoginBonusRepositoryInterface;
 use App\Repositories\Sys\DeployRepositoryAdapter;
+use App\Repositories\Sys\FriendApplyRepositoryAdapter;
 use App\Repositories\Sys\GuildApplyRepositoryAdapter;
 use App\Repositories\Sys\GuildMemberRepositoryAdapter;
 use App\Repositories\Sys\GuildRepositoryAdapter;
-use App\Repositories\Sys\PlayerDeviceRepositoryAdapter;
 use App\Repositories\Sys\PlayerRepositoryAdapter;
+use App\Repositories\Sys\SysChatMessageRepository;
+use App\Repositories\Sys\SysChatRoomMemberRepository;
+use App\Repositories\Sys\SysChatRoomRepository;
 use App\Repositories\Sys\SysMaintenanceRepository;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
-use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;
+use App\Repositories\Trx\AlbumEntryRepositoryAdapter;
 use App\Repositories\Trx\DiamondRepositoryAdapter;
+use App\Repositories\Trx\EquipmentRepositoryAdapter;
 use App\Repositories\Trx\GachaProgressRepositoryAdapter;
 use App\Repositories\Trx\ItemRepositoryAdapter;
 use App\Repositories\Trx\LoginBonusHistoryRepositoryAdapter;
 use App\Repositories\Trx\MailboxRepositoryAdapter;
 use App\Repositories\Trx\StaminaRepositoryAdapter;
+use App\Repositories\Trx\TrxNotificationRepository;
+use App\Repositories\Trx\TrxRewardTrackLineRepository;
+use App\Repositories\Trx\TrxRewardTrackMilestoneRepository;
+use App\Repositories\Trx\TrxRewardTrackRepository;
 use App\Repositories\Trx\TrxVipLoginBonusHistoryRepository;
+use App\Repositories\Trx\UnitRepositoryAdapter;
 use App\Repositories\Trx\VipLoginBonusHistoryRepositoryInterface;
 use App\Repositories\Trx\WalletBalanceRepositoryAdapter;
 use App\Repositories\Trx\WalletRepositoryAdapter;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
-use LaravelWallet\Repositories\WalletBalanceRepositoryInterface;
-use LaravelWallet\Repositories\WalletRepositoryInterface;
-use NexusAuth\Contracts\DeviceRepositoryInterface;
-use NexusAuth\Contracts\PlayerRepositoryInterface;
+use Nexus\Core\Repositories\PlayerDeviceRepositoryInterface;
+use Nexus\Core\Repositories\PlayerRepositoryInterface as PlayerRepoInterface;
+use NexusAlbum\Repositories\AlbumCatalogRepositoryInterface;
+use NexusAlbum\Repositories\AlbumEntryRepositoryInterface;
+use NexusAlbum\Services\AlbumService;
 use NexusAuth\Contracts\TokenRepositoryInterface;
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Services\TokenService;
-use NexusBilling\Contracts\DiamondRepositoryInterface;
+use NexusAuth\Services\TokenValidator;
+use NexusChat\Contracts\ChatMessageRepositoryInterface;
+use NexusChat\Contracts\ChatRoomMemberRepositoryInterface;
+use NexusChat\Contracts\ChatRoomRepositoryInterface;
+use NexusFriend\Repositories\FriendApplyRepositoryInterface;
 use NexusGacha\Repositories\GachaPrizeRepositoryInterface;
 use NexusGacha\Repositories\GachaProgressRepositoryInterface;
 use NexusGacha\Repositories\GachaRarityRateRepositoryInterface;
@@ -59,22 +81,37 @@ use NexusGacha\Repositories\GachaStepRepositoryInterface;
 use NexusGuild\Repositories\GuildApplyRepositoryInterface;
 use NexusGuild\Repositories\GuildMemberRepositoryInterface;
 use NexusGuild\Repositories\GuildRepositoryInterface;
+use NexusLevel\Contracts\PlayerLevelUpHandlerInterface;
+use NexusLevel\Repositories\PlayerLevelRepositoryInterface;
 use NexusLogin\Repositories\LoginBonusHistoryRepositoryInterface;
 use NexusLogin\Repositories\LoginBonusRepositoryInterface;
 use NexusLogin\Services\LoginBonusOrchestrator;
 use NexusMailbox\Repositories\MailboxRepositoryInterface;
-use NexusPlayer\Repositories\PlayerDeviceRepositoryInterface;
-use NexusPlayer\Repositories\PlayerLevelRepositoryInterface;
-use NexusPlayer\Repositories\PlayerRepositoryInterface as PlayerRepoInterface;
+use NexusNotification\Contracts\NotificationRepositoryInterface;
+use NexusResource\Contracts\DiamondRepositoryInterface;
 use NexusResource\Contracts\ItemRepositoryInterface;
+use NexusResourceDelivery\Contracts\EquipmentRepositoryInterface;
+use NexusResourceDelivery\Contracts\ExperienceGranterInterface;
+use NexusResourceDelivery\Contracts\ItemGranterInterface;
+use NexusResourceDelivery\Contracts\StaminaGranterInterface;
+use NexusResourceDelivery\Contracts\UnitRepositoryInterface;
 use NexusResourceDelivery\Handlers\CurrencyDeliveryHandler;
 use NexusResourceDelivery\Handlers\DiamondDeliveryHandler;
 use NexusResourceDelivery\Handlers\EquipmentDeliveryHandler;
+use NexusResourceDelivery\Handlers\ExperienceDeliveryHandler;
 use NexusResourceDelivery\Handlers\ItemDeliveryHandler;
+use NexusResourceDelivery\Handlers\NaturalResourceDeliveryHandler;
+use NexusResourceDelivery\Handlers\PointsDeliveryHandler;
+use NexusResourceDelivery\Handlers\ResourceDeliveryHandlerInterface;
+use NexusResourceDelivery\Handlers\StaminaDeliveryHandler;
 use NexusResourceDelivery\Handlers\UnitDeliveryHandler;
 use NexusResourceDelivery\Managers\ResourceDeliveryManager;
 use NexusResourceDelivery\Managers\ResourceDeliveryManagerInterface;
 use NexusResourceDelivery\Services\ResourceDeliveryService;
+use NexusRewardTrack\Contracts\RewardTrackMasterRepositoryInterface;
+use NexusRewardTrack\Repositories\RewardTrackLineRepositoryInterface;
+use NexusRewardTrack\Repositories\RewardTrackMilestoneRepositoryInterface;
+use NexusRewardTrack\Repositories\RewardTrackRepositoryInterface;
 use NexusSecurity\Contracts\PlayerSessionInterface;
 use NexusSecurity\Contracts\TokenValidatorInterface;
 use NexusStamina\Repositories\StaminaRepositoryInterface;
@@ -86,6 +123,8 @@ use NexusVip\Repositories\PlayerVipRepositoryInterface;
 use NexusVip\Repositories\VipLevelRepositoryInterface;
 use NexusVip\Repositories\VipLevelRewardRepositoryInterface;
 use NexusVip\Repositories\VipPointLogRepositoryInterface;
+use NexusWallet\Repositories\WalletBalanceRepositoryInterface;
+use NexusWallet\Repositories\WalletRepositoryInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -99,12 +138,16 @@ class AppServiceProvider extends ServiceProvider
         // ==========================================
 
         // Repository interfaces
-        $this->app->bind(PlayerRepositoryInterface::class, SysPlayerRepository::class);
-        $this->app->bind(DeviceRepositoryInterface::class, SysPlayerDeviceRepository::class);
+        $this->app->bind(PlayerDeviceRepositoryInterface::class, SysPlayerDeviceRepository::class);
         $this->app->bind(TokenRepositoryInterface::class, SysPlayerTokenRepository::class);
 
-        // TokenService (singleton)
-        $this->app->singleton(TokenService::class, function ($app) {
+        // TokenService
+        //
+        // singletonではなくscopedを使う。TokenServiceはSys配下のRepositoryを
+        // コンストラクタで受け取って持ち続けるため、singletonにすると
+        // Octaneやキューワーカーでリクエストを跨いでインスタンスが残り、
+        // 別プレイヤーのキャッシュを持ち越してしまう
+        $this->app->scoped(TokenService::class, function ($app) {
             return new TokenService(
                 tokenRepository: $app->make(TokenRepositoryInterface::class),
                 appKey: config('app.key'),
@@ -172,8 +215,10 @@ class AppServiceProvider extends ServiceProvider
 
         // Repository interfaces
         $this->app->bind(PlayerRepoInterface::class, PlayerRepositoryAdapter::class);
-        $this->app->bind(PlayerDeviceRepositoryInterface::class, PlayerDeviceRepositoryAdapter::class);
         $this->app->bind(PlayerLevelRepositoryInterface::class, PlayerLevelRepositoryAdapter::class);
+
+        // レベルアップ時のゲーム固有処理（スタミナ全回復）
+        $this->app->bind(PlayerLevelUpHandlerInterface::class, PlayerLevelUpStaminaHandler::class);
 
         // ==========================================
         // NexusVip Package Bindings
@@ -195,6 +240,25 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(GuildApplyRepositoryInterface::class, GuildApplyRepositoryAdapter::class);
 
         // ==========================================
+        // NexusFriend Package Bindings
+        // ==========================================
+
+        // Repository interfaces
+        $this->app->bind(FriendApplyRepositoryInterface::class, FriendApplyRepositoryAdapter::class);
+
+        // ゲーム内通知
+        $this->app->bind(NotificationRepositoryInterface::class, TrxNotificationRepository::class);
+
+        // チャット（フレンドDM・ギルド・グループ）
+        $this->app->bind(ChatRoomRepositoryInterface::class, SysChatRoomRepository::class);
+        $this->app->bind(ChatMessageRepositoryInterface::class, SysChatMessageRepository::class);
+        $this->app->bind(ChatRoomMemberRepositoryInterface::class, SysChatRoomMemberRepository::class);
+
+        // アルバム（収集記録）
+        $this->app->bind(AlbumEntryRepositoryInterface::class, AlbumEntryRepositoryAdapter::class);
+        $this->app->bind(AlbumCatalogRepositoryInterface::class, AlbumCatalogRepositoryAdapter::class);
+
+        // ==========================================
         // NexusResource Package Bindings
         // ==========================================
 
@@ -209,7 +273,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(DiamondRepositoryInterface::class, DiamondRepositoryAdapter::class);
 
         // ==========================================
-        // NexusWallet (LaravelWallet) Package Bindings
+        // NexusWallet (NexusWallet) Package Bindings
         // ==========================================
 
         // Repository interfaces
@@ -219,6 +283,18 @@ class AppServiceProvider extends ServiceProvider
         // ==========================================
         // ResourceDelivery Package Bindings
         // ==========================================
+
+        // Repository interfaces
+        // ユニット/装備はパッケージ側にDTOを持たないため、Adapterが直接Modelを組み立てる
+        $this->app->bind(UnitRepositoryInterface::class, UnitRepositoryAdapter::class);
+        $this->app->bind(EquipmentRepositoryInterface::class, EquipmentRepositoryAdapter::class);
+        $this->app->bind(ItemGranterInterface::class, ItemGranterAdapter::class);
+
+        // 同じリクエスト内で二重に移さないよう、移行済みの記憶を共有する
+        $this->app->scoped(WalletItemMigrator::class);
+
+        $this->app->bind(StaminaGranterInterface::class, StaminaGranterAdapter::class);
+        $this->app->bind(ExperienceGranterInterface::class, ExperienceGranterAdapter::class);
 
         // ResourceDeliveryManager のバインディング
         // リクエストスコープ: 各リクエストごとに新しいインスタンスを生成
@@ -244,6 +320,46 @@ class AppServiceProvider extends ServiceProvider
 
         // ApiSessionクラス自体もscopedバインドとして登録
         $this->app->scoped(ApiSession::class);
+
+        // ==========================================
+        // NexusRewardTrack Package Bindings
+        // ==========================================
+        $this->app->singleton(RewardTrackMasterRepositoryInterface::class, RewardTrackMasterRepository::class);
+        $this->app->scoped(RewardTrackRepositoryInterface::class, TrxRewardTrackRepository::class);
+        $this->app->scoped(RewardTrackLineRepositoryInterface::class, TrxRewardTrackLineRepository::class);
+        $this->app->scoped(RewardTrackMilestoneRepositoryInterface::class, TrxRewardTrackMilestoneRepository::class);
+
+        $this->registerScopedRepositories();
+    }
+
+    /**
+     * Repositoryをリクエストスコープで共有する
+     *
+     * Trx/Log/SysのRepositoryは取得したモデルをインスタンス内にキャッシュする。
+     * 注入のたびに別インスタンスだと同じSELECTがUseCaseごとに走り、
+     * 書き込みキューもインスタンスごとに分かれてしまうため、
+     * リクエスト（キューならジョブ）単位で1つを共有する。
+     *
+     * singletonではなくscopedを使う。singletonはOctaneやキューワーカーで
+     * リクエストを跨いでインスタンスが残り、別プレイヤーのキャッシュを
+     * 持ち越してしまう。
+     *
+     * Mstは_BaseMstRepositoryが静的にキャッシュするため対象外。
+     */
+    private function registerScopedRepositories(): void
+    {
+        foreach (['Trx', 'Log', 'Sys'] as $group) {
+            foreach (glob(app_path("Repositories/{$group}/*.php")) ?: [] as $file) {
+                $class = "App\\Repositories\\{$group}\\".basename($file, '.php');
+
+                // 抽象基底クラス（_Base*）とインターフェースは解決対象にしない
+                if (str_starts_with(basename($file), '_') || str_ends_with($file, 'Interface.php')) {
+                    continue;
+                }
+
+                $this->app->scoped($class);
+            }
+        }
     }
 
     /**
@@ -267,12 +383,42 @@ class AppServiceProvider extends ServiceProvider
 
         // ResourceDeliveryServiceにHandlerを登録
         $this->app->afterResolving(ResourceDeliveryService::class, function (ResourceDeliveryService $service, $app) {
-            $service->registerHandler($app->make(ItemDeliveryHandler::class));
-            $service->registerHandler($app->make(UnitDeliveryHandler::class));
-            $service->registerHandler($app->make(EquipmentDeliveryHandler::class));
+            // アイテム・ユニット・装備はアルバムの記録対象。
+            // findHandler()は最初に一致した1つしか返さないため、
+            // 並べて登録するのではなく本来のHandlerを包む
+            $recordToAlbum = fn (ResourceDeliveryHandlerInterface $handler) => new AlbumRecordingDeliveryHandler(
+                $handler,
+                $app->make(AlbumService::class),
+            );
+
+            $service->registerHandler($recordToAlbum($app->make(ItemDeliveryHandler::class)));
+            $service->registerHandler($recordToAlbum($app->make(UnitDeliveryHandler::class)));
+            $service->registerHandler($recordToAlbum($app->make(EquipmentDeliveryHandler::class)));
             $service->registerHandler($app->make(DiamondDeliveryHandler::class));
             $service->registerHandler($app->make(CurrencyDeliveryHandler::class));
+            $service->registerHandler($app->make(NaturalResourceDeliveryHandler::class));
+            $service->registerHandler($app->make(PointsDeliveryHandler::class));
+            $service->registerHandler($app->make(StaminaDeliveryHandler::class));
+            $service->registerHandler($app->make(ExperienceDeliveryHandler::class));
         });
+
+        // ==========================================
+        // Slack Error Notification - Ignore Error Codes
+        // ==========================================
+
+        // Slack通知をしないエラーコードを設定する。
+        // ユーザー起因の想定内エラー（認証失敗・入力ミス等）を除外することで
+        // 通知のノイズを減らす。
+        config(['security.slack_ignore_error_codes' => [
+            // 認証関連（ユーザー起因の想定内エラー）
+            GameErrorCode::AUTHENTICATION_FAILED,     // 10001
+            GameErrorCode::PLAYER_NOT_FOUND,          // 10002
+            GameErrorCode::INVALID_TOKEN,             // 10003
+
+            // バリデーション・パラメータエラー
+            GameErrorCode::INVALID_PARAMETER,         // 99001
+            GameErrorCode::VALIDATION_FAILED,         // 99002
+        ]]);
 
         // ==========================================
         // LoginBonusOrchestrator Strategies Registration

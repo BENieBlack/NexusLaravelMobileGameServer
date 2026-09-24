@@ -2,9 +2,11 @@
 
 namespace Nexus\Core\Repositories;
 
+use Illuminate\Database\Eloquent\Model;
+
 /**
  * _BaseRepositoryInterface
- * 
+ *
  * 全てのRepositoryが実装すべき基底インターフェース
  * Unit of Work パターンに基づく共通メソッドを定義
  */
@@ -13,7 +15,7 @@ interface _BaseRepositoryInterface
     /**
      * モデルをキャッシュに保存し、QueryManagerのキューに追加
      *
-     * @param mixed $model
+     * @param  mixed  $model
      * @return void
      */
     public function setModel($model): void;
@@ -21,14 +23,14 @@ interface _BaseRepositoryInterface
     /**
      * 溜め込んだモデルキューを取得（QueryManagerから呼ばれる）
      *
-     * @return array
+     * @return array<array-key, Model>
      */
     public function getQueuedModels(): array;
 
     /**
      * 削除対象のモデルキューを取得（QueryManagerから呼ばれる）
      *
-     * @return array
+     * @return array<array-key, Model>
      */
     public function getQueuedDeleteModels(): array;
 
@@ -49,7 +51,7 @@ interface _BaseRepositoryInterface
     /**
      * データベース接続名を設定
      *
-     * @param string $connection
+     * @param  string  $connection
      * @return void
      */
     public function setConnection(string $connection): void;
@@ -66,7 +68,7 @@ interface _BaseRepositoryInterface
      *
      * 実体はUPDATEなのでmodelQueueに溜め込まれる。
      *
-     * @param mixed $model
+     * @param  mixed  $model
      * @return void
      */
     public function softDeleteModel($model): void;
@@ -76,7 +78,7 @@ interface _BaseRepositoryInterface
      *
      * deleteQueueに溜め込まれ、フラッシュ時にDELETEが実行される。
      *
-     * @param mixed $model
+     * @param  mixed  $model
      * @return void
      */
     public function hardDeleteModel($model): void;

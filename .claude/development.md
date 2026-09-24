@@ -278,18 +278,53 @@ docker exec tool-php php artisan migrate --database=tol --path=database/migratio
    - 機能追加、バグ修正、リファクタリングなどを明確に分ける
    - コミットメッセージは日本語で記述する
 
-2. **GitHubへのPUSH**
+2. **コミット前のセキュリティチェック（必須）**
+
+   コミットを実行する前に、必ず以下のコマンドで機密情報が含まれていないかを確認する。
+   **このチェックはスキップ禁止。確認せずにコミットしてはならない。**
+
+   ```bash
+   # ステージング済みの差分を確認
+   git diff --cached
+   ```
+
+   以下のいずれかが含まれている場合はコミットを中止し、除外または環境変数参照に修正してから再確認する：
+
+   | チェック対象 | 例 |
+   |-------------|-----|
+   | APIトークン・シークレットキー | `xoxb-`, `sk-`, `ghp_` 等で始まる文字列 |
+   | パスワード | `password=xxx`, `passwd=xxx` 等の直書き |
+   | 秘密鍵・証明書 | `-----BEGIN PRIVATE KEY-----` 等 |
+   | 接続文字列 | `mysql://user:pass@host/db` 等の認証情報入り |
+   | `.env` ファイル本体 | `.env`（`.env.example` はOK） |
+   | AWS / GCP / Azure の認証情報 | `AKIA`, `AIza` 等で始まる文字列 |
+
+   機密情報を誤ってコミットした場合は、トークンを即座に無効化・再発行すること。
+
+3. **GitHubへのPUSH**
    - **重要: OpenCodeエージェントは自動的にGitHubにPUSHしません**
    - PUSHはユーザーが手動で行う必要があります
    - コミットまでは自動で行いますが、PUSHは明示的な指示があった場合のみ実行します
    - これは誤ったPUSHを防ぐための安全措置です
 
-3. **ブランチ戦略**
-   - 基本的に`main`ブランチで作業
-   - 大きな機能追加の場合はfeatureブランチを作成することを検討
-   - ブランチ名は日本語でも可（例: `feature/メールボックス機能`）
+4. **ブランチ戦略**
+   - **`main`ブランチには直接コミットしない**
+   - 作業を始める前に`main`から作業ブランチを切る（`git switch -c feature/xxx main`）
+   - ブランチ名には目的の接頭辞をつける: `feature/`, `fix/`, `refactor/`, `docs/`, `chore/`
+   - **ブランチ名は英語で書く**（日本語は使わない）。接頭辞のあとはケバブケース
+     （例: `feature/mailbox`, `fix/login-bonus-timezone`, `refactor/item-service`）
+   - コミットメッセージとPR本文は日本語のままでよい（英語にするのはブランチ名のみ）
+   - 作業ブランチにいるかどうかは、コミット前に`git branch --show-current`で確認する
 
-4. **リモートリポジトリ**
+5. **PR（プルリクエスト）**
+   - `main`への反映は必ずPR経由で行う（`main`へのdirect pushは禁止）
+   - PRの作成: `gh pr create --base main`。タイトル・本文は日本語で記述する
+   - PR本文には「変更内容」「変更理由」「確認方法」を書く
+   - CI（`.github/workflows/ci.yml`）がグリーンになってからマージする
+   - マージ後は不要になった作業ブランチを削除する
+   - **PUSH・PR作成・マージはユーザーの明示的な指示があった場合のみ実行する**（上記2と同じ理由）
+
+6. **リモートリポジトリ**
    - `git remote -v` で確認する
    - SSHエイリアスを使う場合は各自の `~/.ssh/config` で設定する
 
@@ -325,4 +360,51 @@ docker exec tool-php php artisan migrate --database=tol --path=database/migratio
    docker exec api-php php artisan migrate:fresh --database=sys --path=database/migrations/sys
    ```
 
+## テストカバレッジ
 
+### 計測方法
+
+カバレッジドライバは **pcov** を使う。api-phpイメージに同梱済みで、
+`docker/api-php/Dockerfile` で `pcov.directory=/var/www` を設定して常時有効に
+してあるため、`-d pcov.enabled=1` のようなオプションを渡す必要はない。
+Xdebugは入れていない（pcovの方がカバレッジ計測だけなら十分速い）。
+
+`No code coverage driver available` と言われたら、イメージがDockerfileより
+古い。`make up` は `docker compose up -d --build` を実行するので通常は追いつくが、
+手動で `docker compose up -d` していた場合は拡張が入らないままになる。
+コンテナの中で `pecl install` して直すとイメージには残らず、
+次にコンテナが作り直された時点で消えるので、必ずイメージを作り直すこと。
+
+```bash
+# テキストで表示（クラスごとのMethods/Lines）
+make coverage
+
+# HTMLで出力（api/storage/coverage/index.html、gitignore済み）
+make coverage-html
+
+# 一部だけ計測したいとき
+docker compose exec -T api-php ./vendor/bin/phpunit --testsuite=Packages --coverage-text
+```
+
+### 計測対象
+
+`api/phpunit.xml` の `<source><include>` で指定している。
+`app` と各パッケージの `src` を列挙しているので、**パッケージを追加したら
+ここにも追記する**。追記を忘れると、そのパッケージは計測されないまま
+「カバレッジ100%」に見えてしまう。
+
+### 読むときの注意
+
+`--coverage-text` の一覧に **まったく実行されなかったファイルは出てこない**。
+pcovはロードされたファイルしか記録しないためで、「一覧に無い＝0%」と読む。
+「一覧に載っているクラスだけを見て埋まっている」と判断すると、
+手つかずのファイルを丸ごと見落とす。
+
+対象ディレクトリの取りこぼしを確認したいときは、ソースのファイル一覧と
+レポートに出てきたクラス一覧を突き合わせる。
+
+```bash
+# 例: Adapters配下でレポートに出てこないファイル（＝0%）を探す
+docker compose exec -T api-php ./vendor/bin/phpunit --coverage-text=/tmp/cov.txt > /dev/null
+docker compose exec -T api-php grep 'App.Adapters' /tmp/cov.txt
+```

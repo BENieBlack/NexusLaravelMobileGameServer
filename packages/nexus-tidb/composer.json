@@ -1,0 +1,33 @@
+{
+    "name": "nexus/tidb",
+    "description": "TiDB support package for Nexus mobile game",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.4",
+        "nexus/core": "@dev"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.0",
+        "mockery/mockery": "^1.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "NexusTidb\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "NexusTidb\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "NexusTidb\\TidbServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

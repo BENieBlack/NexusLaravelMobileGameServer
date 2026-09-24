@@ -3,7 +3,6 @@
 namespace App\Repositories\Mst;
 
 use App\Models\Mst\MstEquipmentLevel;
-use Illuminate\Support\Facades\Cache;
 use Nexus\Core\Support\CustomCollection;
 
 /**
@@ -24,36 +23,6 @@ class MstEquipmentLevelRepository extends _BaseMstRepository
     protected string $modelClass = MstEquipmentLevel::class;
 
     /**
-     * キャッシュからデータを取得、存在しない場合はDBから取得してキャッシュに保存
-     * レアリティをキーにしてキャッシュ
-     */
-    public function queryOrMemory(): CustomCollection
-    {
-        if (isset($this->models)) {
-            return $this->models;
-        }
-
-        $modelInstance = new $this->modelClass;
-        $tableName = $modelInstance->getTable();
-        $cacheKey = "{$this->cachePrefix}:{$tableName}:all";
-
-        // Laravel Cacheを使ってキャッシュから取得、なければDBから取得してキャッシュに保存
-        $cached = Cache::store($this->cacheDriver)->remember(
-            $cacheKey,
-            $this->cacheTtl,
-            function () use ($modelInstance) {
-                // 全レコードを取得（配列として保存）
-                return $modelInstance::all()->all();
-            }
-        );
-
-        // CustomCollectionとして保持する
-        $this->models = new CustomCollection($cached);
-
-        return $this->models;
-    }
-
-    /**
      * レアリティとレベルで検索
      *
      * @param  string  $rarity  レアリティ
@@ -72,6 +41,7 @@ class MstEquipmentLevelRepository extends _BaseMstRepository
      * 指定レアリティの全レベルデータを取得
      *
      * @param  string  $rarity  レアリティ
+     * @return CustomCollection<array-key, MstEquipmentLevel>
      */
     public function selectAllByRarity(string $rarity): CustomCollection
     {
@@ -84,6 +54,8 @@ class MstEquipmentLevelRepository extends _BaseMstRepository
 
     /**
      * 全レベルデータを取得
+     *
+     * @return CustomCollection<array-key, MstEquipmentLevel>
      */
     public function selectAll(): CustomCollection
     {

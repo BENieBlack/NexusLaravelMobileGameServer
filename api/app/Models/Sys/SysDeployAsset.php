@@ -12,7 +12,7 @@ namespace App\Models\Sys;
  * @property string $s3_bucket
  * @property string $s3_path
  * @property string $status
- * @property int $total_size
+ * @property ?int $total_size
  */
 class SysDeployAsset extends _BaseSys
 {
@@ -26,6 +26,7 @@ class SysDeployAsset extends _BaseSys
      *
      * @var array
      */
+    /** @var list<string> */
     protected $fillable = [
         'deploy_key',
         'hash',
@@ -47,6 +48,7 @@ class SysDeployAsset extends _BaseSys
      *
      * @var array
      */
+    /** @var array<string, string> */
     protected $casts = [
         'deploy_date' => 'date',
         'total_size' => 'integer',
@@ -68,6 +70,8 @@ class SysDeployAsset extends _BaseSys
 
     /**
      * 利用可能なステータス一覧を取得
+     *
+     * @return array<int, string>
      */
     public static function availableStatuses(): array
     {
@@ -115,7 +119,7 @@ class SysDeployAsset extends _BaseSys
     /**
      * deploy_dateを取得
      */
-    public function getDeployDate(): ?\DateTime
+    public function getDeployDate(): ?string
     {
         return $this->getAttribute('deploy_date');
     }
@@ -259,7 +263,7 @@ class SysDeployAsset extends _BaseSys
     /**
      * deployed_atを取得
      */
-    public function getDeployedAt(): ?\DateTime
+    public function getDeployedAt(): ?string
     {
         return $this->getAttribute('deployed_at');
     }

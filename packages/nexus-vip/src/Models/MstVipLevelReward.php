@@ -8,8 +8,8 @@ use Nexus\Core\Models\Mst\_BaseMst;
  * VIPレベルアップ報酬マスターモデル
  *
  * @property int $amount
- * @property string $content_id
- * @property ?array $content_option
+ * @property string $content_mst_id
+ * @property array<string, mixed>|null $content_option
  * @property int $content_quantity
  * @property string $content_type
  * @property bool $is_active
@@ -22,13 +22,14 @@ class MstVipLevelReward extends _BaseMst
 
     public $incrementing = false;
 
-    protected $primaryKey = ['vip_level', 'content_type', 'content_id'];
+    protected $primaryKey = ['vip_level', 'content_type', 'content_mst_id'];
 
+    /** @var list<string> */
     protected $fillable = [
         'deploy_key',
         'vip_level',
         'content_type',
-        'content_id',
+        'content_mst_id',
         'content_option',
         'content_quantity',
         'amount',
@@ -37,6 +38,7 @@ class MstVipLevelReward extends _BaseMst
         'is_active',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'deploy_key' => 'integer',
         'vip_level' => 'integer',
@@ -67,13 +69,15 @@ class MstVipLevelReward extends _BaseMst
     /**
      * コンテンツIDを取得
      */
-    public function getContentId(): string
+    public function getContentMstId(): string
     {
-        return $this->content_id;
+        return $this->content_mst_id;
     }
 
     /**
      * コンテンツオプションを取得
+     *
+     * @return array<string, mixed>|null
      */
     public function getContentOption(): ?array
     {

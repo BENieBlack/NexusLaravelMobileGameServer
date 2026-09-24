@@ -16,13 +16,14 @@ class TrxUnit extends _BaseTrx
     /**
      * SELECTキー（プレイヤーIDでSELECT）
      */
-    protected string $selectKey = 'sys_player_id';
+    /** @var list<string> */
+    protected array $selectKeys = ['sys_player_id'];
 
     /**
      * ユニークキー（ユニットはIDで一意）
      */
-    protected array $uniqueKeys = ['id'];
 
+    /** @var list<string> */
     protected $fillable = [
         'sys_player_id',
         'mst_unit_id',
@@ -34,6 +35,7 @@ class TrxUnit extends _BaseTrx
         'updated_at',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'sys_player_id' => 'integer',
         'grade' => 'integer',
@@ -43,6 +45,9 @@ class TrxUnit extends _BaseTrx
 
     /**
      * trx_playerとのリレーション
+     */
+    /**
+     * @return BelongsTo<TrxPlayer, $this>
      */
     public function trxPlayer(): BelongsTo
     {
@@ -116,7 +121,7 @@ class TrxUnit extends _BaseTrx
     /**
      * マスターユニットIDを設定
      */
-    public function setMstUnitId(int $mstUnitId): void
+    public function setMstUnitId(string $mstUnitId): void
     {
         $this->setAttribute('mst_unit_id', $mstUnitId);
     }

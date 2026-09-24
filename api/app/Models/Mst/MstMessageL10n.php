@@ -1,0 +1,71 @@
+<?php
+
+namespace App\Models\Mst;
+
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+/**
+ * MstMessageL10n Model
+ *
+ * @property int $deploy_key
+ * @property string $mst_message_id
+ * @property string $language
+ * @property string $title
+ * @property string $body
+ * @property string $created_at
+ * @property string $updated_at
+ */
+class MstMessageL10n extends _BaseMst
+{
+    public $table = 'mst_message__l10n';
+
+    public $incrementing = false;
+
+    /** @var list<string> */
+    protected $fillable = [
+        'deploy_key',
+        'mst_message_id',
+        'language',
+        'title',
+        'body',
+    ];
+
+    /**
+     * @var array<string, string>
+     */
+    /** @var array<string, string> */
+    protected $casts = [
+        'deploy_key' => 'integer',
+    ];
+
+    public $timestamps = true;
+
+    /**
+     * 複合主キーを取得
+     *
+     * @return array<int, string>
+     */
+    public function getKeyName(): array
+    {
+        return ['mst_message_id', 'language'];
+    }
+
+    /**
+     * メッセージマスターとのリレーション
+     */
+    /**
+     * @return BelongsTo<MstMessage, $this>
+     */
+    public function message(): BelongsTo
+    {
+        return $this->belongsTo(MstMessage::class, 'mst_message_id', 'id');
+    }
+
+    /**
+     * レスポンス用配列に変換
+     */
+    public function toResponseArray(): array
+    {
+        return parent::toResponseArray();
+    }
+}

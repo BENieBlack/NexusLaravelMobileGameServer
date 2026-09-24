@@ -38,7 +38,7 @@ class ItemServiceTest extends TestCase
     {
         parent::setUp();
         ApiSession::clearForTest();
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         $this->itemService = app(ItemService::class);
         $this->queryManager = app(QueryManager::class);
@@ -145,7 +145,7 @@ class ItemServiceTest extends TestCase
         $this->queryManager->execAllQuery();
 
         ApiSession::clearForTest();
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         // Execute: Consume 30 (should consume from paid first)
         $result = $this->itemService->consumeItem(
@@ -183,7 +183,7 @@ class ItemServiceTest extends TestCase
         $this->queryManager->execAllQuery();
 
         ApiSession::clearForTest();
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         // Execute: Consume 80 (50 from paid + 30 from free)
         $result = $this->itemService->consumeItem(
@@ -221,7 +221,7 @@ class ItemServiceTest extends TestCase
         $this->queryManager->execAllQuery();
 
         ApiSession::clearForTest();
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         // Second add
         $this->itemService->addItem(
@@ -256,7 +256,7 @@ class ItemServiceTest extends TestCase
         $this->queryManager->execAllQuery();
 
         ApiSession::clearForTest();
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         // Execute & Verify
         $this->expectException(\Exception::class);
@@ -295,7 +295,7 @@ class ItemServiceTest extends TestCase
         $this->queryManager->execAllQuery();
 
         ApiSession::clearForTest();
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         // Execute
         $amount = $this->itemService->findItemAmount($this->sysPlayerId, 'item_potion_001');
@@ -324,7 +324,7 @@ class ItemServiceTest extends TestCase
         $this->queryManager->execAllQuery();
 
         ApiSession::clearForTest();
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         // Execute: Consume all paid (50)
         $result = $this->itemService->consumeItem(
@@ -352,7 +352,7 @@ class ItemServiceTest extends TestCase
         $this->queryManager->execAllQuery();
 
         ApiSession::clearForTest();
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         // Execute: Consume 7000 (5000 from paid + 2000 from free)
         $result = $this->itemService->consumeItem(

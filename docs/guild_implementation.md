@@ -236,42 +236,42 @@ Game-specific implementation:
 
 8 Use Cases implementing specific game features:
 
-1. **GuildCreateUseCase** (`UseCases/GuildCreateUseCase.php`)
+1. **CreateUseCase** (`UseCases/CreateUseCase.php`)
    - Creates new guild
    - Automatically assigns creator as master
    - Validates: name format, name uniqueness, player not in guild
 
-2. **GuildApplySendUseCase** (`UseCases/GuildApplySendUseCase.php`)
+2. **ApplySendUseCase** (`UseCases/ApplySendUseCase.php`)
    - Sends application to join guild
    - Validates: guild exists, player not in guild, no existing application, guild capacity
 
-3. **GuildApplyAcceptUseCase** (`UseCases/GuildApplyAcceptUseCase.php`)
+3. **ApplyAcceptUseCase** (`UseCases/ApplyAcceptUseCase.php`)
    - Accepts pending application
    - Adds player as member with role 'member'
    - Validates: application exists, still pending, approver is master/sub_master, guild capacity
    - Uses UnitOfWork for transaction safety
 
-4. **GuildApplyRejectUseCase** (`UseCases/GuildApplyRejectUseCase.php`)
+4. **ApplyRejectUseCase** (`UseCases/ApplyRejectUseCase.php`)
    - Rejects pending application
    - Validates: application exists, still pending, rejector is master/sub_master
 
-5. **GuildLeaveUseCase** (`UseCases/GuildLeaveUseCase.php`)
+5. **LeaveUseCase** (`UseCases/LeaveUseCase.php`)
    - Removes player from guild
    - Validates: player is member, player is not master
 
-6. **GuildListUseCase** (`UseCases/GuildListUseCase.php`)
+6. **ListUseCase** (`UseCases/ListUseCase.php`)
    - Returns paginated guild list
    - Default: 20 guilds per page
 
-7. **GuildDetailUseCase** (`UseCases/GuildDetailUseCase.php`)
+7. **DetailUseCase** (`UseCases/DetailUseCase.php`)
    - Returns detailed guild information
    - Validates: guild exists
 
-8. **GuildMemberListUseCase** (`UseCases/GuildMemberListUseCase.php`)
+8. **MemberListUseCase** (`UseCases/MemberListUseCase.php`)
    - Returns list of guild members
    - Validates: guild exists
 
-9. **GuildApplyListUseCase** (`UseCases/GuildApplyListUseCase.php`)
+9. **ApplyListUseCase** (`UseCases/ApplyListUseCase.php`)
    - Returns list of pending applications
    - Validates: guild exists, requester is master/sub_master
 
@@ -416,8 +416,8 @@ docker exec api-php vendor/bin/phpunit tests/Feature/Guild
 # Run specific test
 docker exec api-php vendor/bin/phpunit tests/Feature/Guild/GuildBasicFlowTest.php
 
-# Run with coverage
-docker exec api-php vendor/bin/phpunit --coverage-html coverage tests/Feature/Guild
+# Run with coverage（全体は make coverage / make coverage-html）
+docker exec api-php vendor/bin/phpunit --coverage-html storage/coverage tests/Feature/Guild
 ```
 
 ## API Usage Examples
@@ -672,15 +672,15 @@ api/app/Domain/Guild/
 │   ├── GuildApplyListResponse.php
 │   └── GuildCreateResponse.php
 └── UseCases/
-    ├── GuildCreateUseCase.php
-    ├── GuildApplySendUseCase.php
-    ├── GuildApplyAcceptUseCase.php
-    ├── GuildApplyRejectUseCase.php
-    ├── GuildLeaveUseCase.php
-    ├── GuildListUseCase.php
-    ├── GuildDetailUseCase.php
-    ├── GuildMemberListUseCase.php
-    └── GuildApplyListUseCase.php
+    ├── CreateUseCase.php
+    ├── ApplySendUseCase.php
+    ├── ApplyAcceptUseCase.php
+    ├── ApplyRejectUseCase.php
+    ├── LeaveUseCase.php
+    ├── ListUseCase.php
+    ├── DetailUseCase.php
+    ├── MemberListUseCase.php
+    └── ApplyListUseCase.php
 
 api/tests/Feature/Guild/
 └── GuildBasicFlowTest.php

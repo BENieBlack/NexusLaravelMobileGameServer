@@ -2,9 +2,7 @@
 
 namespace App\Models\Sys;
 
-use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * SysFriendApply Model
@@ -24,11 +22,15 @@ class SysFriendApply extends _BaseSys
      */
     protected $table = 'sys_friend_apply';
 
+    /** @var list<string> */
+    protected array $selectKeys = ['sender_sys_player_id', 'receiver_sys_player_id'];
+
     /**
      * 複数代入可能な属性
      *
      * @var array
      */
+    /** @var list<string> */
     protected $fillable = [
         'sender_sys_player_id',
         'receiver_sys_player_id',
@@ -40,6 +42,7 @@ class SysFriendApply extends _BaseSys
      *
      * @var array
      */
+    /** @var array<string, string> */
     protected $casts = [
         'sender_sys_player_id' => 'integer',
         'receiver_sys_player_id' => 'integer',
@@ -48,16 +51,19 @@ class SysFriendApply extends _BaseSys
     /**
      * ステータス定数
      */
-    public const STATUS_APPLIED = 'Applied';
+    public const STATUS_APPLIED = 'applied';
 
-    public const STATUS_ACCEPTED = 'Accepted';
+    public const STATUS_ACCEPTED = 'accepted';
 
-    public const STATUS_REJECTED = 'Rejected';
+    public const STATUS_REJECTED = 'rejected';
 
-    public const STATUS_DELETED = 'Deleted';
+    public const STATUS_DELETED = 'deleted';
 
     /**
      * 申請送信者
+     */
+    /**
+     * @return BelongsTo<SysPlayer, $this>
      */
     public function sendPlayer(): BelongsTo
     {
@@ -66,6 +72,9 @@ class SysFriendApply extends _BaseSys
 
     /**
      * 申請受信者
+     */
+    /**
+     * @return BelongsTo<SysPlayer, $this>
      */
     public function receivePlayer(): BelongsTo
     {
@@ -107,17 +116,17 @@ class SysFriendApply extends _BaseSys
     /**
      * 作成日時を取得
      */
-    public function getCreatedAt(): CarbonImmutable
+    public function getCreatedAt(): ?string
     {
-        return ClockUtility::parse((string) $this->created_at);
+        return $this->getDateAttributeString('created_at');
     }
 
     /**
      * 更新日時を取得
      */
-    public function getUpdatedAt(): CarbonImmutable
+    public function getUpdatedAt(): ?string
     {
-        return ClockUtility::parse((string) $this->updated_at);
+        return $this->getDateAttributeString('updated_at');
     }
 
     /**
@@ -146,6 +155,8 @@ class SysFriendApply extends _BaseSys
 
     /**
      * 利用可能なステータス一覧を取得
+     *
+     * @return array<int, string>
      */
     public static function availableStatuses(): array
     {

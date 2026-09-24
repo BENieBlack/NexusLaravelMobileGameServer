@@ -72,7 +72,7 @@ CREATE TABLE mst_vip_login_bonus_content (
     mst_vip_login_bonus_id CHAR(26) NOT NULL COMMENT 'VIPログインボーナスID',
     day INT UNSIGNED NOT NULL COMMENT 'ログイン日数（1〜N）',
     content_type VARCHAR(50) NOT NULL COMMENT 'コンテンツタイプ（item, unit, equipment, diamond, currencyなど）',
-    content_id VARCHAR(100) NOT NULL COMMENT 'コンテンツID',
+    content_mst_id VARCHAR(100) NOT NULL COMMENT 'コンテンツID',
     content_option JSON NULL COMMENT 'コンテンツオプション（JSON形式）',
     content_quantity INT UNSIGNED NOT NULL DEFAULT 1 COMMENT 'コンテンツ数量（基本単位）',
     amount INT UNSIGNED NOT NULL DEFAULT 1 COMMENT '倍率（実際の配布量 = content_quantity × amount）',
@@ -86,7 +86,7 @@ CREATE TABLE mst_vip_login_bonus_content (
 **フィールド説明:**
 - `mst_vip_login_bonus_id`: VIPログインボーナス設定への外部キー
 - `day`: ログイン日数（1〜loop_days）
-- `content_type`, `content_id`, `content_option`, `content_quantity`, `amount`: 統一コンテンツ構造
+- `content_type`, `content_mst_id`, `content_option`, `content_quantity`, `amount`: 統一コンテンツ構造
 
 ### trx_vip_login_bonus_history（VIPログインボーナス受取履歴）
 
@@ -258,13 +258,13 @@ interface VipLoginBonusHistoryRepositoryInterface
 
 // mst_vip_login_bonus_content
 [
-    ['day' => 1, 'content_type' => 'currency', 'content_id' => 'gold', 'content_quantity' => 1000],
-    ['day' => 2, 'content_type' => 'currency', 'content_id' => 'gold', 'content_quantity' => 1000],
-    ['day' => 3, 'content_type' => 'currency', 'content_id' => 'gold', 'content_quantity' => 1000],
-    ['day' => 4, 'content_type' => 'currency', 'content_id' => 'gold', 'content_quantity' => 1500],
-    ['day' => 5, 'content_type' => 'currency', 'content_id' => 'gold', 'content_quantity' => 1500],
-    ['day' => 6, 'content_type' => 'currency', 'content_id' => 'gold', 'content_quantity' => 2000],
-    ['day' => 7, 'content_type' => 'diamond', 'content_id' => 'paid_diamond', 'content_quantity' => 10],
+    ['day' => 1, 'content_type' => 'currency', 'content_mst_id' => 'gold', 'content_quantity' => 1000],
+    ['day' => 2, 'content_type' => 'currency', 'content_mst_id' => 'gold', 'content_quantity' => 1000],
+    ['day' => 3, 'content_type' => 'currency', 'content_mst_id' => 'gold', 'content_quantity' => 1000],
+    ['day' => 4, 'content_type' => 'currency', 'content_mst_id' => 'gold', 'content_quantity' => 1500],
+    ['day' => 5, 'content_type' => 'currency', 'content_mst_id' => 'gold', 'content_quantity' => 1500],
+    ['day' => 6, 'content_type' => 'currency', 'content_mst_id' => 'gold', 'content_quantity' => 2000],
+    ['day' => 7, 'content_type' => 'diamond', 'content_mst_id' => 'paid_diamond', 'content_quantity' => 10],
 ]
 ```
 
@@ -281,13 +281,13 @@ interface VipLoginBonusHistoryRepositoryInterface
 
 // mst_vip_login_bonus_content（VIP0より豪華）
 [
-    ['day' => 1, 'content_type' => 'currency', 'content_id' => 'gold', 'content_quantity' => 2000],
-    ['day' => 2, 'content_type' => 'currency', 'content_id' => 'gold', 'content_quantity' => 2000],
-    ['day' => 3, 'content_type' => 'currency', 'content_id' => 'gold', 'content_quantity' => 2000],
-    ['day' => 4, 'content_type' => 'currency', 'content_id' => 'gold', 'content_quantity' => 3000],
-    ['day' => 5, 'content_type' => 'currency', 'content_id' => 'gold', 'content_quantity' => 3000],
-    ['day' => 6, 'content_type' => 'currency', 'content_id' => 'gold', 'content_quantity' => 4000],
-    ['day' => 7, 'content_type' => 'diamond', 'content_id' => 'paid_diamond', 'content_quantity' => 50],
+    ['day' => 1, 'content_type' => 'currency', 'content_mst_id' => 'gold', 'content_quantity' => 2000],
+    ['day' => 2, 'content_type' => 'currency', 'content_mst_id' => 'gold', 'content_quantity' => 2000],
+    ['day' => 3, 'content_type' => 'currency', 'content_mst_id' => 'gold', 'content_quantity' => 2000],
+    ['day' => 4, 'content_type' => 'currency', 'content_mst_id' => 'gold', 'content_quantity' => 3000],
+    ['day' => 5, 'content_type' => 'currency', 'content_mst_id' => 'gold', 'content_quantity' => 3000],
+    ['day' => 6, 'content_type' => 'currency', 'content_mst_id' => 'gold', 'content_quantity' => 4000],
+    ['day' => 7, 'content_type' => 'diamond', 'content_mst_id' => 'paid_diamond', 'content_quantity' => 50],
 ]
 ```
 

@@ -9,13 +9,14 @@ class MstInAppPurchase extends _BaseMst
 {
     public $table = 'mst_in_app_purchase';
 
+    /** @var list<string> */
     protected $fillable = [
         'deploy_key',
         'type',
         'paid_diamond_amount',
         'vip_point',
         'effect_duration_days',
-        'purchase_limit',
+        'purchase_limit_count',
         'purchase_limit_reset',
         'app_store_product_id',
         'google_play_product_id',
@@ -26,12 +27,13 @@ class MstInAppPurchase extends _BaseMst
     /**
      * @var array<string, string>
      */
+    /** @var array<string, string> */
     protected $casts = [
         'deploy_key' => 'integer',
         'paid_diamond_amount' => 'integer',
         'vip_point' => 'integer',
         'effect_duration_days' => 'integer',
-        'purchase_limit' => 'integer',
+        'purchase_limit_count' => 'integer',
         'sort_desc' => 'integer',
         'is_active' => 'boolean',
     ];
@@ -41,6 +43,9 @@ class MstInAppPurchase extends _BaseMst
     /**
      * AppStore側のプラットフォーム商品
      */
+    /**
+     * @return BelongsTo<MstBillingPlatformProduct, $this>
+     */
     public function appStoreProduct(): BelongsTo
     {
         return $this->belongsTo(MstBillingPlatformProduct::class, 'app_store_product_id');
@@ -48,6 +53,9 @@ class MstInAppPurchase extends _BaseMst
 
     /**
      * GooglePlay側のプラットフォーム商品
+     */
+    /**
+     * @return BelongsTo<MstBillingPlatformProduct, $this>
      */
     public function googlePlayProduct(): BelongsTo
     {
@@ -57,6 +65,9 @@ class MstInAppPurchase extends _BaseMst
     /**
      * 商品コンテンツ（Pack/Pass用）
      */
+    /**
+     * @return HasMany<MstInAppPurchaseContent, $this>
+     */
     public function contents(): HasMany
     {
         return $this->hasMany(MstInAppPurchaseContent::class, 'mst_in_app_purchase_id');
@@ -64,6 +75,9 @@ class MstInAppPurchase extends _BaseMst
 
     /**
      * Pass商品の効果
+     */
+    /**
+     * @return HasMany<MstInAppPurchaseEffect, $this>
      */
     public function effects(): HasMany
     {
@@ -111,11 +125,11 @@ class MstInAppPurchase extends _BaseMst
     }
 
     /**
-     * 購入制限を取得
+     * 購入可能回数を取得
      */
-    public function getPurchaseLimit(): ?int
+    public function getPurchaseLimitCount(): ?int
     {
-        return $this->getAttribute('purchase_limit');
+        return $this->getAttribute('purchase_limit_count');
     }
 
     /**

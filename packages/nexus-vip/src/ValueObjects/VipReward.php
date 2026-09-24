@@ -12,7 +12,7 @@ final class VipReward
 {
     /**
      * @param  string  $contentType  報酬タイプ（diamond, item, unit等）
-     * @param  string  $contentId  報酬ID
+     * @param  string  $contentMstId  報酬ID
      * @param  array<string, mixed>|null  $contentOption  報酬オプション
      * @param  int  $contentQuantity  報酬の基本個数
      * @param  int  $amount  報酬の倍率
@@ -22,7 +22,7 @@ final class VipReward
      */
     public function __construct(
         private readonly string $contentType,
-        private readonly string $contentId,
+        private readonly string $contentMstId,
         private readonly ?array $contentOption,
         private readonly int $contentQuantity,
         private readonly int $amount,
@@ -32,7 +32,7 @@ final class VipReward
             throw new \InvalidArgumentException('報酬タイプは必須です');
         }
 
-        if ($contentId === '') {
+        if ($contentMstId === '') {
             throw new \InvalidArgumentException('報酬IDは必須です');
         }
 
@@ -56,9 +56,9 @@ final class VipReward
     /**
      * コンテンツIDを取得
      */
-    public function getContentId(): string
+    public function getContentMstId(): string
     {
-        return $this->contentId;
+        return $this->contentMstId;
     }
 
     /**
@@ -117,7 +117,7 @@ final class VipReward
     public function equals(self $other): bool
     {
         return $this->contentType === $other->contentType
-            && $this->contentId === $other->contentId
+            && $this->contentMstId === $other->contentMstId
             && $this->contentOption === $other->contentOption
             && $this->contentQuantity === $other->contentQuantity
             && $this->amount === $other->amount
@@ -126,12 +126,14 @@ final class VipReward
 
     /**
      * 配列に変換
+     *
+     * @return array<string, mixed>
      */
     public function toArray(): array
     {
         return [
             'content_type' => $this->contentType,
-            'content_id' => $this->contentId,
+            'content_mst_id' => $this->contentMstId,
             'content_option' => $this->contentOption,
             'content_quantity' => $this->contentQuantity,
             'amount' => $this->amount,

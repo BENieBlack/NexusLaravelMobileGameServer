@@ -1,6 +1,6 @@
 <?php
 
-namespace LaravelWallet\Exceptions;
+namespace NexusWallet\Exceptions;
 
 use Exception;
 
@@ -13,7 +13,7 @@ use Exception;
 class WalletException extends Exception
 {
     public function __construct(
-        string $message = "Wallet operation failed",
+        string $message = 'Wallet operation failed',
         int $code = WalletErrorCode::WALLET_NOT_FOUND,
         ?\Throwable $previous = null
     ) {

@@ -53,6 +53,8 @@ class SysMaintenanceRepository extends _BaseSysRepository implements Maintenance
     /**
      * {@inheritDoc}
      * MaintenanceRepositoryInterface実装
+     *
+     * @return array<string, mixed>|null
      */
     public function selectCurrent(): ?array
     {
@@ -63,22 +65,30 @@ class SysMaintenanceRepository extends _BaseSysRepository implements Maintenance
 
     /**
      * 有効なメンテナンス一覧を取得
+     *
+     * @return CustomCollection<array-key, SysMaintenance>
      */
     public function selectActiveList(): CustomCollection
     {
-        return $this->modelClass::where('is_active', true)
+        $records = $this->modelClass::where('is_active', true)
             ->orderBy('start_at', 'desc')
             ->get();
+
+        return new CustomCollection($records->all());
     }
 
     /**
      * 今後予定されているメンテナンス一覧を取得
+     *
+     * @return CustomCollection<array-key, SysMaintenance>
      */
     public function selectUpcomingList(): CustomCollection
     {
-        return $this->modelClass::where('is_active', true)
+        $records = $this->modelClass::where('is_active', true)
             ->where('start_at', '>', now())
             ->orderBy('start_at', 'asc')
             ->get();
+
+        return new CustomCollection($records->all());
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace LaravelWallet\ValueObjects;
+namespace NexusWallet\ValueObjects;
 
 use Nexus\Core\Traits\JsonSerializableTrait;
 
@@ -91,6 +91,8 @@ final class CurrencyOperationResult
 
     /**
      * 配列に変換
+     *
+     * @return array<string, mixed>
      */
     public function toArray(): array
     {

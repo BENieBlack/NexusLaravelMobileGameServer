@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Domain\InAppPurchase\UseCases\InAppPurchaseBuyDiamondUseCase;
-use App\Domain\InAppPurchase\UseCases\InAppPurchaseBuyPackUseCase;
-use App\Domain\InAppPurchase\UseCases\InAppPurchaseBuyPassUseCase;
+use App\Domain\InAppPurchase\UseCases\BuyDiamondUseCase;
+use App\Domain\InAppPurchase\UseCases\BuyPackUseCase;
+use App\Domain\InAppPurchase\UseCases\BuyPassUseCase;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Http\Requests\InAppPurchase\BuyRequest;
@@ -24,19 +24,12 @@ class InAppPurchaseController extends _BaseController
      */
     public function buy(
         BuyRequest $request,
-        InAppPurchaseBuyDiamondUseCase $buyDiamondUseCase,
-        InAppPurchaseBuyPackUseCase $buyPackUseCase,
-        InAppPurchaseBuyPassUseCase $buyPassUseCase
+        BuyDiamondUseCase $buyDiamondUseCase,
+        BuyPackUseCase $buyPackUseCase,
+        BuyPassUseCase $buyPassUseCase
     ): JsonResponse {
         // 認証情報を取得
-        $sysPlayerId = $request->resolveAuthenticatedPlayerId();
-
-        if (! $sysPlayerId) {
-            throw new GameException(
-                GameErrorCode::AUTHENTICATION_FAILED,
-                'Player ID not found in request'
-            );
-        }
+        $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
         // リクエストパラメータを取得
         $platform = $request->getPlatform();
@@ -57,9 +50,9 @@ class InAppPurchaseController extends _BaseController
 
         // 商品タイプに応じてUseCaseを選択
         return $this->execute(fn () => match ($product->getType()) {
-            'Diamond' => $buyDiamondUseCase->exec($sysPlayerId, $product, $platform, $billingPlatform, $receipt, $transactionId, $productId),
-            'Pack' => $buyPackUseCase->exec($sysPlayerId, $product, $platform, $billingPlatform, $receipt, $transactionId, $productId),
-            'Pass' => $buyPassUseCase->exec($sysPlayerId, $product, $platform, $billingPlatform, $receipt, $transactionId, $productId),
+            'diamond' => $buyDiamondUseCase->exec($sysPlayerId, $product, $platform, $billingPlatform, $receipt, $transactionId, $productId),
+            'pack' => $buyPackUseCase->exec($sysPlayerId, $product, $platform, $billingPlatform, $receipt, $transactionId, $productId),
+            'pass' => $buyPassUseCase->exec($sysPlayerId, $product, $platform, $billingPlatform, $receipt, $transactionId, $productId),
             default => throw new GameException(
                 GameErrorCode::INVALID_PRODUCT_TYPE,
                 'Invalid product type'

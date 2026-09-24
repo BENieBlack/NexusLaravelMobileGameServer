@@ -46,9 +46,9 @@ class GuildRepositoryAdapter implements GuildRepositoryInterface
      *
      * @return array<Guild>
      */
-    public function selectAll(): array
+    public function selectList(int $limit, int $offset): array
     {
-        return GuildAdapter::toDtoArray($this->sysGuildRepository->selectAll());
+        return GuildAdapter::toDtoArray($this->sysGuildRepository->selectList($limit, $offset));
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace Nexus\Core\Repositories;
 
+use Nexus\Core\Models\_BaseModel;
 use Nexus\Core\Support\CustomCollection;
 
 /**
@@ -9,75 +10,72 @@ use Nexus\Core\Support\CustomCollection;
  *
  * 全てのRepositoryの基底クラス
  * モデルのメモリキャッシュとQueryManager登録の共通処理を提供
+ *
+ * キャッシュのキーはサブクラスごとに体系が違う（Mstはid、Trxはユニークキーの
+ * 連結文字列、Logは連番）ため、キーの型もテンプレートで受け取る。
+ *
+ * @template TKey of array-key
+ * @template TModel of object
  */
 abstract class _BaseRepository implements _BaseRepositoryInterface
 {
+    /** @var class-string<TModel> */
     protected string $modelClass;
-
-    /**
-     * ユニークキーの配列
-     * サブクラスでオーバーライドして独自のユニークキーを定義
-     * 例: ['id'], ['sys_player_id', 'mst_item_id']
-     *
-     * @var array<string>
-     */
-    protected array $uniqueKeys = ['id'];
 
     /**
      * メモリキャッシュされたモデルのコレクション
      * データベースから取得したモデルをメモリにキャッシュし、
      * 同一リクエスト内での重複クエリを防ぐ
      *
-     * @var CustomCollection|null
+     * @var CustomCollection<TKey, TModel>|null
      */
     protected ?CustomCollection $models = null;
 
     /**
      * データベース接続名
-     *
-     * @var string
      */
     protected string $connection;
 
     /**
-     * キャッシュの有効期限（秒）
+     * setConnection() で接続を明示指定されたか
      *
-     * @var int
+     * 明示されている場合はシャードの自動解決より優先する
+     */
+    protected bool $connectionExplicitlySet = false;
+
+    /**
+     * キャッシュの有効期限（秒）
      */
     protected int $cacheTtl = 3600;
 
     /**
      * キャッシュキーのプレフィックス
-     *
-     * @var string
      */
     protected string $cachePrefix = 'app';
 
     /**
      * キャッシュドライバー名
-     *
-     * @var string
      */
     protected string $cacheDriver = 'redis';
 
     /**
      * INSERT/UPDATE対象のモデルキュー
      *
-     * @var array
+     * @var array<array-key, TModel>
      */
     protected array $modelQueue = [];
 
     /**
      * DELETE対象のモデルキュー
      *
-     * @var array
+     * @var array<array-key, TModel>
      */
     protected array $deleteQueue = [];
 
     /**
      * 溜め込んだモデルを取得（QueryManagerから呼ばれる）
      *
-     * @return array
+     * @return array<array-key, TModel>
      */
     public function getQueuedModels(): array
     {
@@ -87,7 +85,7 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
     /**
      * 削除対象のモデルを取得（QueryManagerから呼ばれる）
      *
-     * @return array
+     * @return array<array-key, TModel>
      */
     public function getQueuedDeleteModels(): array
     {
@@ -96,8 +94,6 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
 
     /**
      * モデルキューをクリア
-     *
-     * @return void
      */
     public function clearQueue(): void
     {
@@ -106,9 +102,18 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
     }
 
     /**
-     * データベース接続名を取得
+     * メモリキャッシュを破棄する
      *
-     * @return string
+     * バッチのようにシャードを跨いで同じRepositoryを使い回す場合、
+     * 前のシャードで読んだモデルが残っていると混ざるため明示的に捨てる
+     */
+    public function forgetCachedModels(): void
+    {
+        $this->models = null;
+    }
+
+    /**
+     * データベース接続名を取得
      */
     public function getConnection(): string
     {
@@ -117,19 +122,15 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
 
     /**
      * データベース接続名を設定
-     *
-     * @param string $connection
-     * @return void
      */
     public function setConnection(string $connection): void
     {
         $this->connection = $connection;
+        $this->connectionExplicitlySet = true;
     }
 
     /**
      * テーブル名を取得
-     *
-     * @return string
      */
     public function getTableName(): string
     {
@@ -139,8 +140,8 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
     /**
      * キーを指定してモデルを取得
      *
-     * @param string|int $key ユニークキー
-     * @return mixed|null
+     * @param  string|int  $key  ユニークキー
+     * @return TModel|null
      */
     protected function findCachedModel(string|int $key)
     {
@@ -148,20 +149,20 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
             return null;
         }
 
-        return $this->models->get((string)$key);
+        return $this->models->get((string) $key);
     }
 
     /**
      * キャッシュされたモデルを取得
      * キーが指定された場合は、そのキーに一致するモデルのみを返す
      *
-     * @param CustomCollection|null $keys 取得したいモデルのキーのコレクション（nullの場合は全て）
-     * @return CustomCollection
+     * @param  CustomCollection<int, TKey>|null  $keys  取得したいモデルのキーのコレクション（nullの場合は全て）
+     * @return CustomCollection<TKey, TModel>
      */
     protected function findCachedModels(?CustomCollection $keys = null): CustomCollection
     {
         if ($this->models === null) {
-            $this->models = new CustomCollection();
+            $this->models = new CustomCollection;
         }
 
         // キーが指定されていない場合は全てのモデルを返す
@@ -178,23 +179,21 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
      * ユニークキーで管理し、同じキーのモデルは上書きされる
      * サブクラスでオーバーライド可能
      *
-     * @param mixed $model
-     * @return void
+     * @param  TModel  $model
      */
     public function setModel($model): void
     {
         if ($this->models === null) {
-            $this->models = new CustomCollection();
+            $this->models = new CustomCollection;
         }
-        $key = implode(':', array_map(fn($uniqueKey) => $model->{$uniqueKey}, $this->getUniqueKeys()));
+        $key = implode(':', array_map(fn ($uniqueKey) => $model->{$uniqueKey}, $this->getUniqueKeys()));
         $this->models->put($key, $model);
     }
 
     /**
      * 複数のモデルをキャッシュに保存
      *
-     * @param CustomCollection $models
-     * @return void
+     * @param  CustomCollection<TKey, TModel>  $models
      */
     protected function setModels(CustomCollection $models): void
     {
@@ -212,8 +211,7 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
      * is_deleteカラムを持つのはtrx系テーブルのみ。sys系は論理削除できないため
      * hardDeleteModel()を使うこと。
      *
-     * @param mixed $model
-     * @return void
+     * @param  TModel  $model
      */
     public function softDeleteModel($model): void
     {
@@ -226,6 +224,10 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
 
         // 論理削除はUPDATE処理なので、setModelを呼び出してmodelQueueに追加
         $this->setModel($model);
+
+        // 削除済みの行は以降の読み取りに出てはいけないのでキャッシュから外す
+        // （modelQueueには残るのでUPDATEは実行される）
+        $this->forgetCachedModel($model);
     }
 
     /**
@@ -233,21 +235,52 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
      *
      * deleteQueueに溜め込み、フラッシュ時にDELETEが実行される。
      *
-     * @param mixed $model
-     * @return void
+     * @param  TModel  $model
      */
     public function hardDeleteModel($model): void
     {
-        $uniqueKey = implode(':', array_map(fn($key) => $model->getAttribute($key), $this->getUniqueKeys()));
-
+        $uniqueKey = implode(':', array_map(fn ($key) => $model->getAttribute($key), $this->getUniqueKeys()));
         $this->deleteQueue[$uniqueKey] = $model;
+
+        // 削除する行は以降の読み取りに出てはいけないのでキャッシュから外す
+        $this->forgetCachedModel($model);
+    }
+
+    /**
+     * 読み取りキャッシュからモデルを取り除く
+     *
+     * @param  TModel  $model
+     */
+    protected function forgetCachedModel($model): void
+    {
+        if ($this->models === null) {
+            return;
+        }
+
+        // DBから取り直したインスタンスで削除される場合があるため、
+        // 同一性ではなくユニークキーの値で突き合わせる
+        $values = array_map(fn ($key) => $model->getAttribute($key), $this->getUniqueKeys());
+
+        $keysToForget = [];
+
+        foreach ($this->models as $key => $cached) {
+            $cachedValues = array_map(fn ($uniqueKey) => $cached->getAttribute($uniqueKey), $this->getUniqueKeys());
+
+            if ($cachedValues === $values) {
+                $keysToForget[] = $key;
+            }
+        }
+
+        foreach ($keysToForget as $key) {
+            $this->models->forget($key);
+        }
     }
 
     /**
      * データベースまたはメモリからデータを取得
      * サブクラスで実装必須
      *
-     * @return CustomCollection
+     * @return CustomCollection<TKey, TModel>
      */
     abstract public function queryOrMemory(): CustomCollection;
 
@@ -255,7 +288,8 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
      * データベースまたはメモリからデータを取得（CustomCollection版）
      * パフォーマンス最適化されたCustomCollectionを返す
      *
-     * @return CustomCollection
+     * @return CustomCollection<TKey, TModel>
+     *
      * @deprecated Use queryOrMemory() directly as it now returns CustomCollection
      */
     protected function queryOrMemoryCustom(): CustomCollection
@@ -270,6 +304,17 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
      */
     protected function getUniqueKeys(): array
     {
-        return $this->uniqueKeys;
+        // Modelの主キーがそのままユニークキー。
+        // Repository側にも持たせると二重管理になり、
+        // 片方だけ直し忘れると全行が同じキーに潰れる
+        return $this->getModelInstance()->getUniqueKeys();
+    }
+
+    /**
+     * Modelのインスタンスを取得
+     */
+    protected function getModelInstance(): _BaseModel
+    {
+        return new $this->modelClass;
     }
 }

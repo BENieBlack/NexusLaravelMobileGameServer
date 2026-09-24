@@ -2,12 +2,12 @@
 
 namespace App\Repositories\Mst;
 
-use NexusPlayer\Repositories\PlayerLevelRepositoryInterface;
+use NexusLevel\Repositories\PlayerLevelRepositoryInterface;
 
 /**
  * PlayerLevelRepositoryAdapter
  *
- * nexus-playerパッケージのPlayerLevelRepositoryInterfaceを実装し、
+ * nexus-levelパッケージのPlayerLevelRepositoryInterfaceを実装し、
  * Application層のMstPlayerLevelRepositoryをラップする。
  *
  * Repositoryは常にModelを返し、配列への詰め替えはこのアダプタが担う。

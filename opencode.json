@@ -1,0 +1,62 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "openai/gpt-5.6-terra",
+  "small_model": "openai/gpt-5.6-luna",
+  "agent": {
+    "general": {
+      "model": "openai/gpt-5.6-terra",
+      "description": "実装、設計判断、検証など、深い推論を要するサブタスクに使用する。"
+    },
+    "explore": {
+      "model": "openai/gpt-5.6-luna",
+      "description": "コードベース探索、影響範囲調査、軽量な調査タスクに使用する。"
+    }
+  },
+  "instructions": [
+    ".claude/language.md",
+    ".claude/architecture.md",
+    ".claude/coding-standards.md",
+    ".claude/naming-conventions.md",
+    ".claude/database.md",
+    ".claude/api.md",
+    ".claude/development.md",
+    ".claude/api/controller.md",
+    ".claude/api/service.md",
+    ".claude/api/repository.md",
+    ".claude/api/dto.md",
+    ".claude/api/request.md",
+    ".claude/api/response.md",
+    ".claude/api/model.md",
+    ".claude/api/utility.md",
+    ".claude/api/api-session.md",
+    ".claude/api/error.md",
+    ".claude/api/interface.md",
+    ".claude/api/custom-http-status.md",
+    ".claude/database/sys.md",
+    ".claude/database/mst.md",
+    ".claude/database/trx.md",
+    ".claude/database/log.md",
+    ".claude/database/adm.md",
+    ".claude/database/tol.md",
+    ".claude/database/transaction-management.md",
+    ".claude/development/docker.md",
+    ".claude/development/migration.md",
+    ".claude/development/setup.md",
+    ".claude/environment.md",
+    ".claude/implementation-history.md"
+  ],
+  "skills": {
+    "paths": [".claude/skills"]
+  },
+  "mcp": {
+    "slack": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-slack"],
+      "environment": {
+        "SLACK_BOT_TOKEN": "{env:SLACK_BOT_TOKEN}",
+        "SLACK_TEAM_ID": "{env:SLACK_TEAM_ID}"
+      },
+      "enabled": true
+    }
+  }
+}

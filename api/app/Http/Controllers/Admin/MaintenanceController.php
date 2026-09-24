@@ -38,11 +38,11 @@ class MaintenanceController
         }
 
         return response()->json([
-            'maintenance_mode' => $sysMaintenance->isMaintenance,
-            'start_at' => $sysMaintenance->startAt,
-            'end_at' => $sysMaintenance->endAt,
-            'title' => $sysMaintenance->title,
-            'message' => $sysMaintenance->message,
+            'maintenance_mode' => $sysMaintenance->getIsMaintenance(),
+            'start_at' => $sysMaintenance->getStartAt(),
+            'end_at' => $sysMaintenance->getEndAt(),
+            'title' => $sysMaintenance->getTitle(),
+            'message' => $sysMaintenance->getMessage(),
             'is_under_maintenance' => $sysMaintenance->isCurrentlyUnderMaintenance(),
         ]);
     }

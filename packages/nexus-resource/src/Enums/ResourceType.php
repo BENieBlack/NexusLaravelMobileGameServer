@@ -14,34 +14,36 @@ enum ResourceType: string
     case PAID_DIAMOND = 'paid_diamond';     // 有償ダイヤモンド
     case GOLD = 'gold';                     // ゴールド
     case COIN = 'coin';                     // コイン
-    
-    // リソース系
+
+    // 自然資源系（Walletで残高管理する採取リソース）
     case FOOD = 'food';                     // 食料
     case WOOD = 'wood';                     // 木材
     case STONE = 'stone';                   // 石材
     case IRON = 'iron';                     // 鉄
-    case STAMINA = 'stamina';               // スタミナ
-    case EXPERIENCE = 'experience';         // 経験値
-    
+
+    // 独自の管理が要るリソース
+    case STAMINA = 'stamina';               // スタミナ（回復時刻の管理があるためWalletでは扱わない）
+    case EXPERIENCE = 'experience';         // 経験値（先入先出の必要がないためWalletでは扱わない）
+
     // アイテム系
     case ITEM = 'item';                     // 汎用アイテム
     case CONSUMABLE = 'consumable';         // 消耗品
     case MATERIAL = 'material';             // 素材
     case TICKET = 'ticket';                 // チケット
-    
+
     // キャラクター・装備系
     case UNIT = 'unit';                     // ユニット
     case EQUIPMENT = 'equipment';           // 装備
     case WEAPON = 'weapon';                 // 武器
     case ARMOR = 'armor';                   // 防具
     case ACCESSORY = 'accessory';           // アクセサリー
-    
+
     // ポイント系
     case ALLIANCE_POINTS = 'alliance_points'; // アライアンスポイント
     case PVP_POINTS = 'pvp_points';         // PvPポイント
     case EVENT_POINTS = 'event_points';     // イベントポイント
     case ACHIEVEMENT_POINTS = 'achievement_points'; // 達成ポイント
-    
+
     // その他
     case GACHA_TICKET = 'gacha_ticket';     // ガチャチケット
     case VIP_POINTS = 'vip_points';         // VIPポイント
@@ -52,7 +54,7 @@ enum ResourceType: string
      */
     public function label(): string
     {
-        return match($this) {
+        return match ($this) {
             self::DIAMOND => 'ダイヤ',
             self::PAID_DIAMOND => '有償ダイヤ',
             self::GOLD => 'ゴールド',
@@ -87,7 +89,7 @@ enum ResourceType: string
      */
     public function icon(): string
     {
-        return match($this) {
+        return match ($this) {
             self::DIAMOND => '💎',
             self::PAID_DIAMOND => '💠',
             self::GOLD => '🪙',
@@ -131,17 +133,19 @@ enum ResourceType: string
     }
 
     /**
-     * リソースタイプかどうか
+     * 自然資源タイプかどうか
+     *
+     * Walletで残高として管理する採取リソース。
+     * スタミナ（回復時刻の管理がある）と経験値（先入先出が不要）は
+     * 別管理なのでここには含めない。
      */
-    public function isResource(): bool
+    public function isNaturalResource(): bool
     {
         return in_array($this, [
             self::FOOD,
             self::WOOD,
             self::STONE,
             self::IRON,
-            self::STAMINA,
-            self::EXPERIENCE,
         ]);
     }
 

@@ -4,6 +4,7 @@ namespace App\Models\Adm;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Notifications\Notifiable;
 
 /**
@@ -13,7 +14,10 @@ use Illuminate\Notifications\Notifiable;
  */
 class AdmAccount extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    /** @use HasFactory<\Database\Factories\Adm\AdmAccountFactory> */
+    use HasFactory;
+
+    use Notifiable;
 
     /**
      * データベース接続名
@@ -30,6 +34,7 @@ class AdmAccount extends Authenticatable
      *
      * @var array<int, string>
      */
+    /** @var list<string> */
     protected $fillable = [
         'name',
         'email',
@@ -41,6 +46,7 @@ class AdmAccount extends Authenticatable
      *
      * @var array<int, string>
      */
+    /** @var list<string> */
     protected $hidden = [
         'password',
         'remember_token',
@@ -57,5 +63,31 @@ class AdmAccount extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->name === 'admin' && $this->email === 'admin@example.com';
+    }
+
+    public function canAccessPage(string $pageId): bool
+    {
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        return ! $this->roles()
+            ->whereHas('deniedPages', fn ($query) => $query->whereKey($pageId))
+            ->exists();
+    }
+
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            AdmRole::class,
+            'adm_account_role',
+            'adm_account_id',
+            'adm_role_id',
+        );
     }
 }

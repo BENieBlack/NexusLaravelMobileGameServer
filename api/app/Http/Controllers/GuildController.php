@@ -2,17 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Domain\Guild\UseCases\GuildApplyAcceptUseCase;
-use App\Domain\Guild\UseCases\GuildApplyListUseCase;
-use App\Domain\Guild\UseCases\GuildApplyRejectUseCase;
-use App\Domain\Guild\UseCases\GuildApplySendUseCase;
-use App\Domain\Guild\UseCases\GuildCreateUseCase;
-use App\Domain\Guild\UseCases\GuildDetailUseCase;
-use App\Domain\Guild\UseCases\GuildLeaveUseCase;
-use App\Domain\Guild\UseCases\GuildListUseCase;
-use App\Domain\Guild\UseCases\GuildMemberListUseCase;
-use App\Exceptions\GameErrorCode;
-use App\Exceptions\GameException;
+use App\Domain\Guild\UseCases\ApplyAcceptUseCase;
+use App\Domain\Guild\UseCases\ApplyListUseCase;
+use App\Domain\Guild\UseCases\ApplyRejectUseCase;
+use App\Domain\Guild\UseCases\ApplySendUseCase;
+use App\Domain\Guild\UseCases\CreateUseCase;
+use App\Domain\Guild\UseCases\DetailUseCase;
+use App\Domain\Guild\UseCases\LeaveUseCase;
+use App\Domain\Guild\UseCases\ListUseCase;
+use App\Domain\Guild\UseCases\MemberListUseCase;
 use App\Http\Requests\Guild\ApplyAcceptRequest;
 use App\Http\Requests\Guild\ApplyRejectRequest;
 use App\Http\Requests\Guild\ApplySendRequest;
@@ -26,17 +24,20 @@ class GuildController extends _BaseController
     /**
      * ギルド一覧取得API
      */
-    public function list(GuildListUseCase $useCase): JsonResponse
+    public function list(Request $request, ListUseCase $useCase): JsonResponse
     {
-        return $this->execute(fn () => $useCase->exec());
+        $limit = (int) $request->input('limit', 50);
+        $offset = (int) $request->input('offset', 0);
+
+        return $this->execute(fn () => $useCase->exec($limit, $offset));
     }
 
     /**
      * ギルド詳細取得API
      */
-    public function detail(Request $request, GuildDetailUseCase $useCase): JsonResponse
+    public function detail(Request $request, DetailUseCase $useCase): JsonResponse
     {
-        $guildId = (int) $request->input('guild_id');
+        $guildId = (int) $request->input('sys_guild_id');
 
         return $this->execute(fn () => $useCase->exec($guildId));
     }
@@ -44,17 +45,10 @@ class GuildController extends _BaseController
     /**
      * ギルド作成API
      */
-    public function create(CreateRequest $request, GuildCreateUseCase $useCase): JsonResponse
+    public function create(CreateRequest $request, CreateUseCase $useCase): JsonResponse
     {
         // 認証情報を取得
-        $sysPlayerId = $request->resolveAuthenticatedPlayerId();
-
-        if (! $sysPlayerId) {
-            throw new GameException(
-                GameErrorCode::AUTHENTICATION_FAILED,
-                'Player ID not found in request'
-            );
-        }
+        $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
         // リクエストパラメータを取得
         $name = $request->getName();
@@ -66,17 +60,10 @@ class GuildController extends _BaseController
     /**
      * ギルド加入申請送信API
      */
-    public function applySend(ApplySendRequest $request, GuildApplySendUseCase $useCase): JsonResponse
+    public function applySend(ApplySendRequest $request, ApplySendUseCase $useCase): JsonResponse
     {
         // 認証情報を取得
-        $sysPlayerId = $request->resolveAuthenticatedPlayerId();
-
-        if (! $sysPlayerId) {
-            throw new GameException(
-                GameErrorCode::AUTHENTICATION_FAILED,
-                'Player ID not found in request'
-            );
-        }
+        $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
         // リクエストパラメータを取得
         $guildId = $request->getGuildId();
@@ -87,17 +74,10 @@ class GuildController extends _BaseController
     /**
      * ギルド加入申請承認API
      */
-    public function applyAccept(ApplyAcceptRequest $request, GuildApplyAcceptUseCase $useCase): JsonResponse
+    public function applyAccept(ApplyAcceptRequest $request, ApplyAcceptUseCase $useCase): JsonResponse
     {
         // 認証情報を取得
-        $sysPlayerId = $request->resolveAuthenticatedPlayerId();
-
-        if (! $sysPlayerId) {
-            throw new GameException(
-                GameErrorCode::AUTHENTICATION_FAILED,
-                'Player ID not found in request'
-            );
-        }
+        $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
         // リクエストパラメータを取得
         $applyId = $request->getApplyId();
@@ -108,17 +88,10 @@ class GuildController extends _BaseController
     /**
      * ギルド加入申請却下API
      */
-    public function applyReject(ApplyRejectRequest $request, GuildApplyRejectUseCase $useCase): JsonResponse
+    public function applyReject(ApplyRejectRequest $request, ApplyRejectUseCase $useCase): JsonResponse
     {
         // 認証情報を取得
-        $sysPlayerId = $request->resolveAuthenticatedPlayerId();
-
-        if (! $sysPlayerId) {
-            throw new GameException(
-                GameErrorCode::AUTHENTICATION_FAILED,
-                'Player ID not found in request'
-            );
-        }
+        $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
         // リクエストパラメータを取得
         $applyId = $request->getApplyId();
@@ -129,9 +102,9 @@ class GuildController extends _BaseController
     /**
      * ギルド加入申請一覧取得API
      */
-    public function applyList(Request $request, GuildApplyListUseCase $useCase): JsonResponse
+    public function applyList(Request $request, ApplyListUseCase $useCase): JsonResponse
     {
-        $guildId = (int) $request->input('guild_id');
+        $guildId = (int) $request->input('sys_guild_id');
 
         return $this->execute(fn () => $useCase->exec($guildId));
     }
@@ -139,9 +112,9 @@ class GuildController extends _BaseController
     /**
      * ギルドメンバー一覧取得API
      */
-    public function memberList(Request $request, GuildMemberListUseCase $useCase): JsonResponse
+    public function memberList(Request $request, MemberListUseCase $useCase): JsonResponse
     {
-        $guildId = (int) $request->input('guild_id');
+        $guildId = (int) $request->input('sys_guild_id');
 
         return $this->execute(fn () => $useCase->exec($guildId));
     }
@@ -149,20 +122,11 @@ class GuildController extends _BaseController
     /**
      * ギルド脱退API
      */
-    public function leave(LeaveRequest $request, GuildLeaveUseCase $useCase): JsonResponse
+    public function leave(LeaveRequest $request, LeaveUseCase $useCase): JsonResponse
     {
         // 認証情報を取得
-        $sysPlayerId = $request->resolveAuthenticatedPlayerId();
+        $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
-        if (! $sysPlayerId) {
-            throw new GameException(
-                GameErrorCode::AUTHENTICATION_FAILED,
-                'Player ID not found in request'
-            );
-        }
-
-        $useCase->exec($sysPlayerId);
-
-        return $this->successResponse([]);
+        return $this->execute(fn () => $useCase->exec($sysPlayerId));
     }
 }

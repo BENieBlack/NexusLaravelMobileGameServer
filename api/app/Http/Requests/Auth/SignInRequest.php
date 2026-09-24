@@ -42,6 +42,8 @@ class SignInRequest extends _BaseRequest
 
     /**
      * device_infoを取得
+     *
+     * @return array<string, mixed>
      */
     public function getDeviceInfo(): array
     {

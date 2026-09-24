@@ -3,6 +3,7 @@
 namespace App\Http\Responses\Mailbox;
 
 use App\Http\Responses\_BaseResponse;
+use NexusResource\DataTransferObjects\Resource;
 
 /**
  * ReceiveResponse
@@ -11,6 +12,9 @@ use App\Http\Responses\_BaseResponse;
  */
 class ReceiveResponse extends _BaseResponse
 {
+    /**
+     * @param  array<int, \NexusResource\DataTransferObjects\Resource>  $receivedContentArray  受け取った配布物
+     */
     public function __construct(
         private int $trxMailboxId,
         private bool $isReceived,
@@ -22,9 +26,10 @@ class ReceiveResponse extends _BaseResponse
      */
     public function toArray(): array
     {
-        $contentArray = array_map(function ($content) {
+        $contentArray = array_map(function (Resource $content) {
             return [
-                'type' => $content->getType(),
+                // getType()はEnumを返すので、他のレスポンスと揃えて値で返す
+                'type' => $content->getTypeValue(),
                 'id' => $content->getId(),
                 'amount' => $content->getAmount(),
             ];

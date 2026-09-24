@@ -3,7 +3,6 @@
 namespace App\Repositories\Trx;
 
 use App\Models\Trx\TrxGacha;
-use App\Persistence\ApiSession;
 
 /**
  * TrxGachaRepository
@@ -20,27 +19,16 @@ class TrxGachaRepository extends _BaseTrxRepository
     protected string $modelClass = TrxGacha::class;
 
     /**
-     * ユニークキー（sys_player_id, mst_gacha_id の複合キー）
-     *
-     * @var array<string>
-     */
-    protected array $uniqueKeys = ['sys_player_id', 'mst_gacha_id'];
-
-    public function __construct(
-        private readonly ApiSession $apiSession
-    ) {}
-
-    /**
      * プレイヤーと対象ガチャの進行状況を取得
+     *
+     * 生クエリではなくキャッシュ経由で引く。
+     * 直前に insertProgress() で積んだ未フラッシュの行も拾えるようにするため。
      */
     public function selectByPlayerAndGacha(int $sysPlayerId, string $mstGachaId): ?TrxGacha
     {
         /** @var TrxGacha|null */
-        return TrxGacha::query()
-            ->where('sys_player_id', $sysPlayerId)
-            ->where('mst_gacha_id', $mstGachaId)
-            ->where('is_delete', false)
-            ->first();
+        return $this->selectMapBySysPlayerId($sysPlayerId)
+            ->firstWhere('mst_gacha_id', $mstGachaId);
     }
 
     /**

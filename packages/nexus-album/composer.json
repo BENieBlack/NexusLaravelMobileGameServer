@@ -1,0 +1,33 @@
+{
+    "name": "nexus/album",
+    "description": "Album (collection) package for Nexus mobile game",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.4",
+        "nexus/core": "@dev"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.0",
+        "mockery/mockery": "^1.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "NexusAlbum\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "NexusAlbum\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "NexusAlbum\\AlbumServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

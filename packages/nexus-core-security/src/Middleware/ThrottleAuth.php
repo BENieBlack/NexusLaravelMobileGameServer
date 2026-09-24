@@ -27,7 +27,7 @@ class ThrottleAuth
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      * @param  string  $name  制限の名前（ログとキーの区別に使う）
      */
     public function handle(Request $request, Closure $next, string $name = 'auth'): Response
@@ -84,10 +84,15 @@ class ThrottleAuth
 
         $response = $next($request);
 
-        return $response->withHeaders([
-            'X-RateLimit-Limit' => $maxPerIp,
-            'X-RateLimit-Remaining' => RateLimiter::remaining($limits[0]['key'], $maxPerIp),
-        ]);
+        // $next() は BinaryFileResponse など withHeaders() を持たない
+        // Symfony の Response を返すこともあるので、HeaderBag に直接入れる
+        $response->headers->set('X-RateLimit-Limit', (string) $maxPerIp);
+        $response->headers->set(
+            'X-RateLimit-Remaining',
+            (string) RateLimiter::remaining($limits[0]['key'], $maxPerIp)
+        );
+
+        return $response;
     }
 
     /**

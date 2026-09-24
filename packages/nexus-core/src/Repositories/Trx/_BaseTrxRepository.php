@@ -2,13 +2,12 @@
 
 namespace Nexus\Core\Repositories\Trx;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Nexus\Core\Models\Trx\_BaseTrx;
-use Nexus\Core\Models\Trx\_BaseTrxInterface;
 use Nexus\Core\Repositories\_BaseRepository;
 use Nexus\Core\Support\CustomCollection;
-use Nexus\Core\Utilities\ClockUtility;
-use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Support\Facades\DB;
 use NexusPitr\Traits\LogsChanges;
 
 /**
@@ -17,30 +16,68 @@ use NexusPitr\Traits\LogsChanges;
  * Trxデータベース用のRepository基底クラス
  * ユニークキーで管理し、同じキーのモデルは上書き（最終状態を保持）
  * プレイヤーIDはApiSessionから自動的に取得される
- * 
- * @template T of _BaseTrxInterface
+ *
+ * @template T of _BaseTrx
+ *
+ * @extends _BaseRepository<string, T>
+ *
  * @implements _BaseTrxRepositoryInterface<T>
  */
 abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRepositoryInterface
 {
     use LogsChanges;
-    protected string $selectKey = 'sys_player_id';
+
+    /**
+     * @var list<string> 自分の行を絞り込むカラム名。Repositoryで明示する場合のみ設定する
+     *
+     * 空ならModelの宣言に従う。複数指定した場合はORで繋ぐ。
+     */
+    protected array $selectKeys = [];
 
     /**
      * データベース接続名（trx1, trx2など）
      * サブクラスでオーバーライド可能
-     *
-     * @var string
      */
     protected string $connection = 'trx1';
 
     /**
-     * キャッシュされたプレイヤーID（パフォーマンス最適化）
-     * PlayerSessionResolverから取得した値を保持し、毎回app()を呼ばないようにする
+     * 使用するデータベース接続名を返す
      *
-     * @var int|null
+     * setConnection() で明示されていればそれを、
+     * 無ければログイン中プレイヤーの割り当てシャードを使う。
      */
-    private ?int $cachedSysPlayerId = null;
+    public function getConnection(): string
+    {
+        if ($this->connectionExplicitlySet) {
+            return $this->connection;
+        }
+
+        return static::resolveShardConnection() ?? $this->connection;
+    }
+
+    /**
+     * ログイン中プレイヤーの割り当てシャードを返す
+     *
+     * アプリケーション層でオーバーライドして接続名を返す
+     */
+    protected static function resolveShardConnection(): ?string
+    {
+        return null;
+    }
+
+    /**
+     * 論理削除された行を読み取りから除外するか
+     *
+     * is_deleteカラムを持たないテーブル（履歴系など）のRepositoryは
+     * falseにする。
+     */
+    protected bool $excludesSoftDeleted = true;
+
+    /**
+     * キャッシュがどのプレイヤーのものかを保持する
+     * 別プレイヤーで問い合わせられたらキャッシュを破棄して取り直す
+     */
+    private ?int $cachedForSysPlayerId = null;
 
     /**
      * 各モデルの変更前の状態を保持（ログ記録用）
@@ -53,33 +90,28 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
     /**
      * 新規モデル用の一時IDカウンター
      * モデルのIDがnullの場合に一意なキーを生成するために使用
-     *
-     * @var int
      */
     private int $newModelCounter = 0;
 
     /**
      * プレイヤーIDを取得（内部用）
      * PlayerSessionResolverから自動的に取得し、インスタンス内でキャッシュする
-     * 
+     *
      * パフォーマンス最適化:
      * - 初回呼び出し時にPlayerSessionResolverから取得してキャッシュ
      * - 2回目以降はキャッシュされた値を返す（app()の呼び出しを回避）
      *
      * @return int プレイヤーID
+     *
      * @throws \RuntimeException プレイヤーIDが取得できない場合
      */
     protected function resolveCachedSysPlayerId(): int
     {
-        // キャッシュがあればそれを返す（高速パス）
-        if ($this->cachedSysPlayerId !== null) {
-            return $this->cachedSysPlayerId;
-        }
-
-        // PlayerSessionResolverから取得してキャッシュ
+        // インスタンスに固定しない。
+        // Repositoryはリクエスト単位で共有されるため、途中でプレイヤーが
+        // 切り替わる経路（selectBySysPlayerId等）で古いIDを返してしまう
         if (static::hasSysPlayerId()) {
-            $this->cachedSysPlayerId = static::getSysPlayerId();
-            return $this->cachedSysPlayerId;
+            return static::getSysPlayerId();
         }
 
         // PlayerSessionResolverが未設定の場合はエラー
@@ -89,13 +121,40 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
     }
 
     /**
-     * ユニークキーを取得
+     * 絞り込みキーを取得
      *
-     * @return array<string>
+     * Repositoryでの明示があればそれを優先し、無ければModelに聞く。
+     * どちらも未設定なら sys_player_id を使う。
+     *
+     * @return list<string>
      */
-    protected function getUniqueKeys(): array
+    protected function getSelectKeys(): array
     {
-        return $this->uniqueKeys;
+        if ($this->selectKeys !== []) {
+            return $this->selectKeys;
+        }
+
+        $modelKeys = $this->getModelInstance()->getSelectKeys();
+
+        return $modelKeys !== [] ? $modelKeys : ['sys_player_id'];
+    }
+
+    /**
+     * 自分の行を絞り込む条件をクエリに足す
+     *
+     * $selectKeys が複数ある場合はORで繋ぐ。
+     *
+     * @param  Builder<covariant Model>  $query
+     */
+    protected function applySelectScope(Builder $query, int $sysPlayerId): void
+    {
+        $selectKeys = $this->getSelectKeys();
+
+        $query->where(function (Builder $builder) use ($selectKeys, $sysPlayerId) {
+            foreach ($selectKeys as $column) {
+                $builder->orWhere($column, $sysPlayerId);
+            }
+        });
     }
 
     /**
@@ -105,31 +164,54 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
      * プレイヤーIDはPlayerSessionResolverから自動的に取得される
      *
      * @return CustomCollection<string, T>
+     *
      * @throws \RuntimeException プレイヤーIDが取得できない場合
      */
     public function queryOrMemory(): CustomCollection
     {
-        // メモリキャッシュにデータがあればそれを返す
-        if ($this->models !== null && $this->models->isNotEmpty()) {
+        // プレイヤーIDを先に解決する（キャッシュが誰のものかの判定に使う）
+        $sysPlayerId = $this->resolveCachedSysPlayerId();
+
+        // 同じプレイヤーのキャッシュがあればそれを返す
+        // 0件だった場合もキャッシュとして扱う（毎回問い合わせない）
+        if ($this->models !== null && $this->cachedForSysPlayerId === $sysPlayerId) {
             return $this->models;
         }
 
-        // プレイヤーIDを取得（PlayerSessionResolver優先、なければ$sysPlayerIdフィールド）
-        $sysPlayerId = $this->resolveCachedSysPlayerId();
-
         // キャッシュが空の場合、データベースから取得
-        /** @var _BaseTrx $instance */
-        $instance = new $this->modelClass();
-        
-        // sys_player_idで検索してユニークキーでkeyByしてキャッシュに保存
-        $records = $instance::where($this->selectKey, $sysPlayerId)
-            ->get()
-            ->keyBy(function ($record) {
-                // ユニークキーのカラム値を連結してキーを生成
-                return implode(':', array_map(fn($key) => $record->{$key}, $this->getUniqueKeys()));
-            });
+        /** @var T $instance */
+        $instance = new $this->modelClass;
 
-        $this->models = new CustomCollection($records->all());
+        // sys_player_idで検索してユニークキーでkeyByしてキャッシュに保存
+        // Repositoryが向いている接続で引く（setConnection()されていればそちら）
+        $query = $instance::on($this->getConnection())
+            ->where($this->getSelectKeys()[0], $sysPlayerId);
+
+        // 論理削除された行は取得しない
+        if ($this->excludesSoftDeleted) {
+            $query->where('is_delete', false);
+        }
+
+        // ユニークキーのカラム値を連結してキーにする。
+        // Collection::keyBy() は1件ずつクロージャを通すため、
+        // リクエストごとに走るここでは素のforeachで組む
+        $uniqueKeys = $this->getUniqueKeys();
+        $keyed = [];
+
+        foreach ($query->get() as $record) {
+            $key = [];
+
+            foreach ($uniqueKeys as $uniqueKey) {
+                $key[] = $record->{$uniqueKey};
+            }
+
+            $keyed[implode(':', $key)] = $record;
+        }
+
+        /** @var CustomCollection<string, T> $cached キーはユニークキーの連結 */
+        $cached = new CustomCollection($keyed);
+        $this->models = $cached;
+        $this->cachedForSysPlayerId = $sysPlayerId;
 
         return $this->models;
     }
@@ -138,14 +220,13 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
      * データベースまたはメモリからデータを取得（Collection形式）
      * ユニークキーでkeyByされたCollectionを返す
      *
-     * @param int $sysPlayerId
      * @return CustomCollection<string, T>
      */
     public function selectMapBySysPlayerId(int $sysPlayerId): CustomCollection
     {
         // PlayerSessionResolverにプレイヤーIDを設定
         static::setSysPlayerId($sysPlayerId);
-        
+
         // queryOrMemory()でキャッシュから取得（フィルタ不要、全件返す）
         return $this->queryOrMemory();
     }
@@ -154,14 +235,13 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
      * データベースまたはメモリからデータを取得（配列形式）
      * 値のみの配列を返す
      *
-     * @param int $sysPlayerId
      * @return array<T>
      */
     public function selectBySysPlayerId(int $sysPlayerId): array
     {
         // PlayerSessionResolverにプレイヤーIDを設定
         static::setSysPlayerId($sysPlayerId);
-        
+
         // queryOrMemory()でキャッシュから取得して、values()で配列に変換
         return $this->queryOrMemory()->values()->all();
     }
@@ -170,32 +250,27 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
      * モデルをセットし、内部キューに溜め込む
      * ユニークキーで管理し、同じキーは上書き
      *
-     * @param _BaseTrx $model
-     * @return void
+     * @param  _BaseTrx  $model
+     *
      * @throws BindingResolutionException
      */
     public function setModel($model): void
     {
-        // updated_atを自動設定
-        $now = ClockUtility::now();
-        $model->setAttribute('updated_at', $now);
+        // created_at / updated_at はテーブル定義の
+        // DEFAULT CURRENT_TIMESTAMP / ON UPDATE CURRENT_TIMESTAMP に任せる
 
         // ユニークキーを生成
-        $uniqueKey = implode(':', array_map(fn($key) => $model->getAttribute($key), $this->getUniqueKeys()));
-        
-        // 新規モデル（IDがnull）の場合、一時的なユニークキーを生成
-        if ($uniqueKey === '' || $uniqueKey === ':' || strpos($uniqueKey, ':') === 0 || strpos($uniqueKey, ':') === strlen($uniqueKey) - 1) {
-            $uniqueKey = '_new_' . $this->newModelCounter++;
-        }
+        // 新規モデル（IDがnull）の場合は一時的なキーを割り当てる
+        $uniqueKey = $this->buildUniqueKey($model) ?? '_new_'.$this->newModelCounter++;
 
         // 最初にsetModelが呼ばれた時のみ、変更前の状態を保存
-        if (!isset($this->originalStateArray[$uniqueKey])) {
+        if (! isset($this->originalStateArray[$uniqueKey])) {
             $this->originalStateArray[$uniqueKey] = $model->getOriginal();
         }
 
         // CacheRecordTraitのキャッシュに保存
         if ($this->models === null) {
-            $this->models = new CustomCollection();
+            $this->models = new CustomCollection;
         }
         $this->models->put($uniqueKey, $model);
 
@@ -208,8 +283,8 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
      *
      * PITRにはDELETEとして記録する。
      *
-     * @param _BaseTrx $model
-     * @return void
+     * @param  _BaseTrx  $model
+     *
      * @throws BindingResolutionException
      */
     public function hardDeleteModel($model): void
@@ -228,10 +303,9 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
     /**
      * モデル保存後のフック（ログ記録など）
      * サブクラスでオーバーライドして、ログ記録処理を実装
-     * 
-     * @param _BaseTrx $model 保存されたモデル（最終状態）
-     * @param array<string, mixed> $originalState 変更前の状態（初回setModel時の状態）
-     * @return void
+     *
+     * @param  _BaseTrx  $model  保存されたモデル（最終状態）
+     * @param  array<string, mixed>  $originalState  変更前の状態（初回setModel時の状態）
      */
     public function afterSave($model, array $originalState): void
     {
@@ -241,15 +315,14 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
 
     /**
      * PITR変更ログをキューに追加
-     * 
-     * @param _BaseTrx $model 保存されたモデル（最終状態）
-     * @param array<string, mixed> $originalState 変更前の状態
-     * @return void
+     *
+     * @param  _BaseTrx  $model  保存されたモデル（最終状態）
+     * @param  array<string, mixed>  $originalState  変更前の状態
      */
     protected function recordPitrLog($model, array $originalState): void
     {
         $sysPlayerId = $model->getAttribute('sys_player_id');
-        
+
         if (empty($originalState)) {
             // INSERT操作
             $this->queueInsertLog(
@@ -261,8 +334,8 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
             // UPDATE操作（差分がある場合のみ）
             $afterData = $model->getAttributes();
             $diff = array_diff_assoc($afterData, $originalState);
-            
-            if (!empty($diff)) {
+
+            if (! empty($diff)) {
                 $this->queueUpdateLog(
                     sysPlayerId: $sysPlayerId,
                     beforeData: $originalState,
@@ -275,20 +348,23 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
 
     /**
      * 主キーの値を取得
-     * 
-     * @param _BaseTrx $model
+     *
+     * @param  _BaseTrx  $model
      * @return array<string, mixed>
      */
     protected function resolvePrimaryKeyValues($model): array
     {
+        // 複合主キーのモデル（TrxStamina など）は getKeyName() が配列を返す
+        /** @var string|array<int, string> $keyName */
         $keyName = $model->getKeyName();
-        
+
         if (is_array($keyName)) {
             // 複合主キー
             $pk = [];
             foreach ($keyName as $key) {
                 $pk[$key] = $model->getAttribute($key);
             }
+
             return $pk;
         } else {
             // 単一主キー
@@ -307,12 +383,24 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
     }
 
     /**
-     * キューと変更前状態をクリア
+     * {@inheritDoc}
      *
-     * @return void
+     * どのプレイヤー向けのキャッシュだったかも忘れる
+     */
+    public function forgetCachedModels(): void
+    {
+        parent::forgetCachedModels();
+        $this->cachedForSysPlayerId = null;
+    }
+
+    /**
+     * キューと変更前状態をクリア
      */
     public function clearQueue(): void
     {
+        // フラッシュでIDが採番されているので、仮キーを本来のキーへ振り直す
+        $this->rekeyInsertedModels();
+
         parent::clearQueue();
         $this->originalStateArray = [];
         $this->newModelCounter = 0;
@@ -320,10 +408,58 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
     }
 
     /**
+     * ユニークキーを組み立てる
+     *
+     * 値が揃っていない（新規モデルでIDが未採番など）場合はnullを返す。
+     *
+     * @param  _BaseTrx  $model
+     */
+    protected function buildUniqueKey($model): ?string
+    {
+        $values = array_map(fn ($key) => $model->getAttribute($key), $this->getUniqueKeys());
+
+        foreach ($values as $value) {
+            if ($value === null || $value === '') {
+                return null;
+            }
+        }
+
+        return $values === [] ? null : implode(':', $values);
+    }
+
+    /**
+     * INSERT後のモデルをキャッシュ上で正しいキーに置き直す
+     *
+     * 新規モデルは採番前なので仮キー（_new_N）でキャッシュしている。
+     * フラッシュでIDが入るため、そのままだと selectById() で引けない。
+     */
+    private function rekeyInsertedModels(): void
+    {
+        if ($this->models === null) {
+            return;
+        }
+
+        foreach ($this->models as $key => $model) {
+            if (! str_starts_with((string) $key, '_new_')) {
+                continue;
+            }
+
+            $uniqueKey = $this->buildUniqueKey($model);
+
+            // まだ採番されていない場合はそのまま（次のフラッシュで置き直す）
+            if ($uniqueKey === null) {
+                continue;
+            }
+
+            $this->models->forget($key);
+            $this->models->put($uniqueKey, $model);
+        }
+    }
+
+    /**
      * プレイヤーIDが設定されているかチェック
      * サブクラスまたはアプリケーションでオーバーライドして実装する
      *
-     * @return bool
      * @throws \RuntimeException
      */
     protected static function hasSysPlayerId(): bool
@@ -335,7 +471,6 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
      * プレイヤーIDを取得（静的メソッド）
      * サブクラスまたはアプリケーションでオーバーライドして実装する
      *
-     * @return int
      * @throws \RuntimeException
      */
     protected static function getSysPlayerId(): int
@@ -347,8 +482,6 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
      * プレイヤーIDを設定（静的メソッド）
      * サブクラスまたはアプリケーションでオーバーライドして実装する
      *
-     * @param int $sysPlayerId
-     * @return void
      * @throws \RuntimeException
      */
     protected static function setSysPlayerId(int $sysPlayerId): void

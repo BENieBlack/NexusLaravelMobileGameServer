@@ -2,10 +2,10 @@
 
 namespace NexusVip\Services;
 
-use NexusVip\ValueObjects\VipBenefit;
 use NexusVip\Exceptions\VipLevelNotFoundException;
 use NexusVip\Models\MstVipLevel;
 use NexusVip\Repositories\VipLevelRepositoryInterface;
+use NexusVip\ValueObjects\VipBenefit;
 
 /**
  * VIPレベルサービス
@@ -95,7 +95,7 @@ class VipLevelService
     /**
      * 全VIPレベルのリストを取得
      *
-     * @return array<int, array>
+     * @return array<int, array<string, mixed>>
      */
     public function findAllLevels(): array
     {

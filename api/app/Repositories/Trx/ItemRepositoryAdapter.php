@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Trx;
 
+use App\Adapters\Item\ItemAdapter;
 use App\Models\Trx\TrxItem;
 use NexusResource\Contracts\ItemRepositoryInterface;
 use NexusResource\DataTransferObjects\Item;
@@ -31,7 +32,7 @@ class ItemRepositoryAdapter implements ItemRepositoryInterface
             ->where('mst_item_id', $mstItemId)
             ->first();
 
-        return $trxItem ? $this->modelToDto($trxItem) : null;
+        return $trxItem ? ItemAdapter::toDto($trxItem) : null;
     }
 
     /**
@@ -77,19 +78,6 @@ class ItemRepositoryAdapter implements ItemRepositoryInterface
             ->whereIn('mst_item_id', $mstItemIds)
             ->get();
 
-        return $trxItems->map(fn (TrxItem $trxItem) => $this->modelToDto($trxItem))->all();
-    }
-
-    /**
-     * TrxItemモデルをItemに変換
-     */
-    private function modelToDto(TrxItem $trxItem): Item
-    {
-        return new Item(
-            sysPlayerId: $trxItem->getSysPlayerId(),
-            mstItemId: $trxItem->getMstItemId(),
-            freeAmount: $trxItem->getFreeAmount(),
-            paidAmount: $trxItem->getPaidAmount(),
-        );
+        return $trxItems->map(fn (TrxItem $trxItem) => ItemAdapter::toDto($trxItem))->all();
     }
 }

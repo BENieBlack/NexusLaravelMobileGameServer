@@ -29,9 +29,9 @@ class GuildMemberListResponse extends _BaseResponse
         $members = [];
         foreach ($memberDtos as $dto) {
             $members[] = [
-                'member_id' => $dto->getId(),
-                'guild_id' => $dto->getSysGuildId(),
-                'player_id' => $dto->getSysPlayerId(),
+                'sys_guild_member_id' => $dto->getId(),
+                'sys_guild_id' => $dto->getSysGuildId(),
+                'sys_player_id' => $dto->getSysPlayerId(),
                 'role' => $dto->getRole(),
                 'joined_at' => $dto->getJoinedAt(),
             ];

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Nexus\Core\Utilities\ClockUtility;
 use NexusSecurity\Contracts\PlayerSessionInterface;
 use NexusUnitOfWork\Contracts\PlayerSessionResolverInterface;
+use NexusTidb\Support\TidbMode;
 
 /**
  * ApiSession
@@ -17,6 +18,7 @@ use NexusUnitOfWork\Contracts\PlayerSessionResolverInterface;
  * 管理している情報:
  * - sysPlayerId: 認証されたプレイヤーID
  * - now: リクエスト開始時の固定時刻（ClockUtility::now()）
+ * - language: Accept-Languageから解決した言語コード
  *
  * 使用例:
  * - Middleware: ApiSession::setSysPlayerId($sysPlayerId)
@@ -41,6 +43,11 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
      * トランザクションDB接続名のキャッシュ
      */
     private ?string $connectionName = null;
+
+    /**
+     * リクエストの言語コード（Accept-Languageから解決した結果）
+     */
+    private ?string $language = null;
 
     /**
      * コンストラクタ
@@ -134,6 +141,7 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
         $this->sysPlayerId = null;
         $this->now = null;
         $this->connectionName = null;
+        $this->language = null;
     }
 
     /**
@@ -145,12 +153,17 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
      * 2. Redisキャッシュ（TTL: 1時間）
      * 3. DBクエリ（キャッシュミス時のみ）
      *
-     * @return string 接続名（trx1 または trx2）
+     * @return string 接続名（通常はtrx1またはtrx2、TiDBではtrx1）
      *
      * @throws \RuntimeException プレイヤーIDが設定されていない場合、またはシャーディング情報が見つからない場合
      */
     public function resolveConnectionNameValue(): string
     {
+        // TiDBではアプリケーション側のプレイヤー割り当てを行わず、単一接続を使う。
+        if (TidbMode::isEnabled()) {
+            return $this->connectionName = 'trx1';
+        }
+
         // 1. インスタンスキャッシュがあれば返す（リクエストスコープ）
         if ($this->connectionName !== null) {
             return $this->connectionName;
@@ -281,6 +294,54 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
         }
 
         return app(self::class)->hasNowValue();
+    }
+
+    /**
+     * 言語コードを設定（インスタンスメソッド）
+     *
+     * @param  string  $language  言語コード（config('language.supported')のいずれか）
+     */
+    public function setLanguageInstance(string $language): void
+    {
+        $this->language = $language;
+    }
+
+    /**
+     * 言語コードを取得（インスタンスメソッド）
+     *
+     * 未設定なら既定の言語を返す（バッチやCLIなどHTTP経由でない実行を想定）
+     */
+    public function getLanguageValue(): string
+    {
+        return $this->language ?? (string) config('language.default');
+    }
+
+    /**
+     * 静的ヘルパー: 言語コードを設定
+     *
+     * @param  string  $language  言語コード
+     */
+    public static function setLanguage(string $language): void
+    {
+        if (! app()->bound(self::class)) {
+            app()->instance(self::class, new self);
+        }
+
+        app(self::class)->setLanguageInstance($language);
+    }
+
+    /**
+     * 静的ヘルパー: 言語コードを取得
+     *
+     * @return string 言語コード（未設定ならconfig('language.default')）
+     */
+    public static function getLanguage(): string
+    {
+        if (! app()->bound(self::class)) {
+            return (string) config('language.default');
+        }
+
+        return app(self::class)->getLanguageValue();
     }
 
     /**

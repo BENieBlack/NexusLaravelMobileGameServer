@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Domain\Equipment\UseCases\EquipmentLevelUpUseCase;
+use App\Domain\Equipment\UseCases\LevelUpUseCase;
 use App\Http\Requests\Equipment\LevelUpRequest;
 use App\Persistence\ApiSession;
 use Illuminate\Http\JsonResponse;
@@ -15,7 +15,7 @@ use Illuminate\Http\JsonResponse;
 class EquipmentController extends _BaseController
 {
     public function __construct(
-        private readonly EquipmentLevelUpUseCase $equipmentLevelUpUseCase,
+        private readonly LevelUpUseCase $equipmentLevelUpUseCase,
         private readonly ApiSession $apiSession,
     ) {}
 
@@ -35,6 +35,7 @@ class EquipmentController extends _BaseController
             return $this->equipmentLevelUpUseCase->exec(
                 sysPlayerId: $sysPlayerId,
                 trxEquipmentId: $request->getTrxEquipmentId(),
+                mstItemId: $request->getMstItemId(),
                 afterLevel: $request->getAfterLevel(),
             );
         });

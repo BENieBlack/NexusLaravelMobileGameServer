@@ -1,6 +1,6 @@
 <?php
 
-namespace LaravelWallet\Exceptions;
+namespace NexusWallet\Exceptions;
 
 /**
  * WalletErrorCode

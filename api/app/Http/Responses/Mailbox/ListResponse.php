@@ -5,6 +5,9 @@ namespace App\Http\Responses\Mailbox;
 use App\Domain\Mailbox\Constants\ContentType;
 use App\Domain\Mailbox\Services\TemplateEngine;
 use App\Http\Responses\_BaseResponse;
+use App\Models\Mst\MstMailboxContent;
+use App\Models\Trx\TrxMailbox;
+use App\Persistence\ApiSession;
 use Nexus\Core\Support\CustomCollection;
 
 /**
@@ -15,6 +18,7 @@ use Nexus\Core\Support\CustomCollection;
 class ListResponse extends _BaseResponse
 {
     /**
+     * @param  array<int, array<string, mixed>>  $mailboxArray  メール1件ずつの表示内容
      * @param  array<string, int>  $unreadCounts  カテゴリ別未読数
      */
     public function __construct(
@@ -25,6 +29,7 @@ class ListResponse extends _BaseResponse
     /**
      * CustomCollectionからレスポンスを生成
      *
+     * @param  CustomCollection<int, TrxMailbox>  $trxMailboxCollection
      * @param  array<string, int>  $unreadCounts
      */
     public static function fromCollection(
@@ -34,14 +39,19 @@ class ListResponse extends _BaseResponse
         // TemplateEngineをインスタンス化
         $templateEngine = app(TemplateEngine::class);
 
-        $mailboxArray = $trxMailboxCollection->map(function ($trxMailbox) use ($templateEngine) {
+        // 言語はAccept-LanguageからResolveLanguageミドルウェアが決めている
+        $language = ApiSession::getLanguage();
+        $defaultLanguage = (string) config('language.default');
+
+        $mailboxArray = $trxMailboxCollection->map(function (TrxMailbox $trxMailbox) use ($templateEngine, $language, $defaultLanguage) {
             $mstMailbox = $trxMailbox->mstMailbox;
             $mstMessage = $mstMailbox?->message;
 
-            // TODO: 言語設定はリクエストヘッダーから取得する必要がある
-            // 現時点では固定で'ja'を使用
-            $language = 'ja';
-            $i18n = $mstMessage?->i18n()->where('language', $language)->first();
+            // 該当言語の文言が無い場合は既定言語にフォールバックする（空文字を返さない）
+            $l10n = $mstMessage?->l10n()->where('language', $language)->first()
+                ?? ($language === $defaultLanguage
+                    ? null
+                    : $mstMessage?->l10n()->where('language', $defaultLanguage)->first());
 
             // テンプレートレンダリング用のコンテキスト
             $context = [
@@ -54,26 +64,26 @@ class ListResponse extends _BaseResponse
 
             // タイトル・本文をレンダリング
             $title = $templateEngine->render(
-                $i18n?->title ?? '',
+                $l10n->title ?? '',
                 $customParams,
                 $context
             );
 
             $body = $templateEngine->render(
-                $i18n?->body ?? '',
+                $l10n->body ?? '',
                 $customParams,
                 $context
             );
 
             // コンテンツ情報を取得
-            $contentArray = $mstMailbox?->contentCollection->map(function ($content) {
+            $contentArray = $mstMailbox?->contentCollection->map(function (MstMailboxContent $content) {
                 $contentType = ContentType::fromString($content->content_type);
 
                 return [
                     'content_type' => $content->content_type,
                     'content_type_label' => $contentType?->label() ?? $content->content_type,
                     'content_type_icon' => $contentType?->icon() ?? '',
-                    'content_id' => $content->content_id,
+                    'content_mst_id' => $content->content_mst_id,
                     'amount' => $content->amount,
                     'rarity' => $content->rarity,
                     'is_highlight' => $content->is_highlight ?? false,
@@ -94,22 +104,22 @@ class ListResponse extends _BaseResponse
                 'body' => $body,
 
                 // カテゴリ・優先度
-                'category' => $category?->value ?? null,
+                'category' => $category->value ?? null,
                 'category_label' => $category?->label() ?? null,
                 'category_icon' => $category?->icon() ?? null,
-                'priority' => $priority?->value ?? null,
+                'priority' => $priority->value ?? null,
                 'priority_label' => $priority?->label() ?? null,
                 'priority_color' => $priority?->color() ?? null,
                 'priority_icon' => $priority?->icon() ?? null,
 
                 // 送信者情報
-                'sender_type' => $mstMailbox?->sender_type?->value ?? null,
+                'sender_type' => $mstMailbox?->sender_type->value ?? null,
                 'sender_type_label' => $mstMailbox?->sender_type?->label() ?? null,
-                'sender_id' => $mstMailbox?->sender_id ?? null,
+                'sender_id' => $mstMailbox->sender_id ?? null,
                 'sender_name' => $trxMailbox->sender_name ?? null,
 
                 // アイコン
-                'icon_url' => $mstMailbox?->icon_url ?? null,
+                'icon_url' => $mstMailbox->icon_url ?? null,
 
                 // 状態
                 'is_opened' => $trxMailbox->is_opened,
@@ -119,10 +129,10 @@ class ListResponse extends _BaseResponse
                 'is_unread' => $trxMailbox->isUnread(),
 
                 // 日時
-                'expires_at' => $trxMailbox->expires_at?->toIso8601String() ?? null,
-                'read_at' => $trxMailbox->read_at?->toIso8601String() ?? null,
-                'received_at' => $trxMailbox->received_at?->toIso8601String() ?? null,
-                'created_at' => $trxMailbox->created_at->toIso8601String(),
+                'expires_at' => $trxMailbox->getExpiresAt(),
+                'read_at' => $trxMailbox->getReadAt(),
+                'received_at' => $trxMailbox->getReceivedAt(),
+                'created_at' => (string) $trxMailbox->getAttribute('created_at'),
 
                 // 添付物
                 'content_array' => $contentArray,
@@ -135,6 +145,8 @@ class ListResponse extends _BaseResponse
 
     /**
      * レスポンス配列を取得
+     *
+     * @return array<string, mixed>
      */
     public function toArray(): array
     {

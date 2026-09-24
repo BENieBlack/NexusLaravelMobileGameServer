@@ -7,13 +7,13 @@ namespace NexusMailbox\Constants;
  */
 enum Category: string
 {
-    case SYSTEM = 'System';           // システムメッセージ
-    case BATTLE = 'Battle';           // 戦闘レポート
-    case ALLIANCE = 'Alliance';       // アライアンス関連
-    case FRIEND = 'Friend';           // フレンド関連
-    case TRADE = 'Trade';             // 取引関連
-    case REWARD = 'Reward';           // 報酬
-    case PERSONAL = 'Personal';       // 個人メッセージ
+    case SYSTEM = 'system';           // システムメッセージ
+    case BATTLE = 'battle';           // 戦闘レポート
+    case ALLIANCE = 'alliance';       // アライアンス関連
+    case FRIEND = 'friend';           // フレンド関連
+    case TRADE = 'trade';             // 取引関連
+    case REWARD = 'reward';           // 報酬
+    case PERSONAL = 'personal';       // 個人メッセージ
 
     /**
      * ラベルを取得

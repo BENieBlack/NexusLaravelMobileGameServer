@@ -2,7 +2,6 @@
 
 namespace App\Models\Mst;
 
-use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
@@ -11,11 +10,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $deploy_key
  * @property string $mst_mailbox_id
  * @property string $content_type
- * @property string $content_id
+ * @property string $content_mst_id
  * @property int $amount
+ * @property ?string $rarity
+ * @property bool $is_highlight
  * @property int $sort_desc
- * @property CarbonImmutable $created_at
- * @property CarbonImmutable $updated_at
+ * @property string $created_at
+ * @property string $updated_at
  */
 class MstMailboxContent extends _BaseMst
 {
@@ -23,26 +24,30 @@ class MstMailboxContent extends _BaseMst
 
     public $incrementing = false;
 
-    /** @var array<int, string> */
+    /** @var list<string> */
     protected $fillable = [
         'deploy_key',
         'mst_mailbox_id',
         'content_type',
-        'content_id',
+        'content_mst_id',
         'content_option',
         'content_quantity',
         'amount',
+        'rarity',
+        'is_highlight',
         'sort_desc',
     ];
 
     /**
      * @var array<string, string>
      */
+    /** @var array<string, string> */
     protected $casts = [
         'deploy_key' => 'integer',
         'content_option' => 'array',
         'content_quantity' => 'integer',
         'amount' => 'integer',
+        'is_highlight' => 'boolean',
         'sort_desc' => 'integer',
     ];
 
@@ -55,11 +60,14 @@ class MstMailboxContent extends _BaseMst
      */
     public function getKeyName(): array
     {
-        return ['mst_mailbox_id', 'content_type', 'content_id'];
+        return ['mst_mailbox_id', 'content_type', 'content_mst_id'];
     }
 
     /**
      * メールボックスとのリレーション
+     */
+    /**
+     * @return BelongsTo<MstMailbox, $this>
      */
     public function mailbox(): BelongsTo
     {
@@ -77,13 +85,16 @@ class MstMailboxContent extends _BaseMst
     /**
      * コンテンツIDを取得
      */
-    public function getContentId(): string
+    public function getContentMstId(): string
     {
-        return $this->getAttribute('content_id');
+        return $this->getAttribute('content_mst_id');
     }
 
     /**
      * コンテンツオプションを取得
+     */
+    /**
+     * @return array<string, mixed>|null
      */
     public function getContentOption(): ?array
     {

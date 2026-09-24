@@ -5,7 +5,6 @@ namespace App\Repositories\Trx;
 use App\Models\Trx\TrxUnit;
 use App\Persistence\ApiSession;
 use App\Repositories\Log\LogUnitRepository;
-use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * TrxUnitRepository
@@ -138,9 +137,8 @@ class TrxUnitRepository extends _BaseTrxRepository
     }
 
     /**
-     * 新規ユニットを作成
+     * ログイン中のプレイヤーに新規ユニットを作成
      *
-     * @param  int  $sysPlayerId  プレイヤーID
      * @param  string  $mstUnitId  ユニットマスターID
      * @param  int|null  $grade  初期グレード（nullの場合は1）
      * @param  int|null  $level  初期レベル（nullの場合は1）
@@ -151,16 +149,33 @@ class TrxUnitRepository extends _BaseTrxRepository
         ?int $grade = null,
         ?int $level = null
     ): TrxUnit {
-        $sysPlayerId = ApiSession::getSysPlayerId();
+        return $this->insertUnitForPlayer(ApiSession::getSysPlayerId(), $mstUnitId, $grade, $level);
+    }
 
+    /**
+     * 指定したプレイヤーに新規ユニットを作成
+     *
+     * 配送はログインセッションの本人以外（運営からの一斉配布など）にも走るため、
+     * 付与先を明示できる入口を用意している。
+     *
+     * @param  int  $sysPlayerId  付与先プレイヤーID
+     * @param  string  $mstUnitId  ユニットマスターID
+     * @param  int|null  $grade  初期グレード（nullの場合は1）
+     * @param  int|null  $level  初期レベル（nullの場合は1）
+     * @return TrxUnit 作成されたユニット
+     */
+    public function insertUnitForPlayer(
+        int $sysPlayerId,
+        string $mstUnitId,
+        ?int $grade = null,
+        ?int $level = null
+    ): TrxUnit {
         $trxUnit = new TrxUnit([
             'sys_player_id' => $sysPlayerId,
             'mst_unit_id' => $mstUnitId,
             'grade' => $grade ?? 1,
             'level' => $level ?? 1,
             'level_exp' => 0,
-            'created_at' => ClockUtility::now(),
-            'updated_at' => ClockUtility::now(),
         ]);
 
         // setModelでTrxデータをキューイング

@@ -23,6 +23,7 @@ class SysDeployMaster extends _BaseSys
      *
      * @var array
      */
+    /** @var list<string> */
     protected $fillable = [
         'deploy_key',
         'hash',
@@ -39,6 +40,7 @@ class SysDeployMaster extends _BaseSys
      *
      * @var array
      */
+    /** @var array<string, string> */
     protected $casts = [
         'deploy_date' => 'date',
     ];
@@ -58,6 +60,8 @@ class SysDeployMaster extends _BaseSys
 
     /**
      * 利用可能なステータス一覧を取得
+     *
+     * @return array<int, string>
      */
     public static function availableStatuses(): array
     {
@@ -105,7 +109,7 @@ class SysDeployMaster extends _BaseSys
     /**
      * deploy_dateを取得
      */
-    public function getDeployDate(): ?\DateTime
+    public function getDeployDate(): ?string
     {
         return $this->getAttribute('deploy_date');
     }
@@ -169,7 +173,7 @@ class SysDeployMaster extends _BaseSys
     /**
      * deployed_atを取得
      */
-    public function getDeployedAt(): ?\DateTime
+    public function getDeployedAt(): ?string
     {
         return $this->getAttribute('deployed_at');
     }
@@ -245,6 +249,14 @@ class SysDeployMaster extends _BaseSys
     public function hasValidHash(): bool
     {
         return ! empty($this->hash) && strlen($this->hash) === 64;
+    }
+
+    /**
+     * テーブル単位SQLiteの配信情報を取得
+     */
+    public function tables(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(SysDeployMasterTable::class, 'sys_deploy_master_id');
     }
 
     /**

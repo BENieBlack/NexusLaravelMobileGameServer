@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Trx;
 
+use App\Adapters\Mailbox\MailboxAdapter;
 use App\Domain\Mailbox\Constants\Category;
 use App\Domain\Mailbox\Constants\Priority;
 use App\Models\Trx\TrxMailbox;
@@ -49,7 +50,7 @@ class MailboxRepositoryAdapter implements MailboxRepositoryInterface
             $onlyLocked
         );
 
-        return $models->map(fn (TrxMailbox $model) => $this->convertToDto($model));
+        return $models->map(fn (TrxMailbox $model) => MailboxAdapter::toDto($model));
     }
 
     /**
@@ -59,7 +60,7 @@ class MailboxRepositoryAdapter implements MailboxRepositoryInterface
     {
         $model = $this->trxMailboxRepository->selectById($id);
 
-        return $model ? $this->convertToDto($model) : null;
+        return $model ? MailboxAdapter::toDto($model) : null;
     }
 
     /**
@@ -124,22 +125,5 @@ class MailboxRepositoryAdapter implements MailboxRepositoryInterface
     public function countUnreadByCategory(int $sysPlayerId): array
     {
         return $this->trxMailboxRepository->countUnreadByCategory($sysPlayerId);
-    }
-
-    /**
-     * Eloquent ModelをDTOに変換
-     */
-    private function convertToDto(TrxMailbox $model): Mailbox
-    {
-        return new Mailbox(
-            id: $model->getId(),
-            sysPlayerId: $model->getSysPlayerId(),
-            mstMailboxId: $model->getMstMailboxId(),
-            isRead: $model->getIsOpened(),
-            isReceived: $model->getIsReceived(),
-            isLocked: $model->getIsProtected(),
-            expiresAt: $model->getExpiresAt(),
-            createdAt: (string) $model->created_at,
-        );
     }
 }

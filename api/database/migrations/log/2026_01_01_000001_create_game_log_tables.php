@@ -19,9 +19,9 @@ return new class extends Migration
     public function up(): void
     {
         // ========================================
-        // log_access: アクセスログ
+        // log_action_api_access: APIアクセスログ
         // ========================================
-        Schema::create('log_access', function (Blueprint $table) {
+        Schema::create('log_action_api_access', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->string('unique_request_id')->unique()->comment('リクエスト一意ID');
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
@@ -41,9 +41,9 @@ return new class extends Migration
         });
 
         // ========================================
-        // log_player: プレイヤー変更ログ
+        // log_action_player_update: プレイヤー変更ログ
         // ========================================
-        Schema::create('log_player', function (Blueprint $table) {
+        Schema::create('log_action_player_update', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->string('unique_request_id')->unique()->comment('リクエスト一意ID (log_accessと結合)');
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
@@ -60,9 +60,9 @@ return new class extends Migration
         });
 
         // ========================================
-        // log_item: アイテム変更ログ
+        // log_action_item_change: アイテム変更ログ
         // ========================================
-        Schema::create('log_item', function (Blueprint $table) {
+        Schema::create('log_action_item_change', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->string('unique_request_id')->unique()->comment('リクエスト一意ID (log_accessと結合)');
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
@@ -79,13 +79,17 @@ return new class extends Migration
         });
 
         // ========================================
-        // log_gacha: ガチャログ
+        // log_action_gacha_draw: ガチャ実行ログ
         // ========================================
-        Schema::create('log_gacha', function (Blueprint $table) {
+        Schema::create('log_action_gacha_draw', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->string('unique_request_id')->unique()->comment('リクエスト一意ID (log_accessと結合)');
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
             $table->string('mst_gacha_id')->comment('ガチャマスターID');
+            $table->unsignedInteger('draw_count')->comment('実行回数');
+            $table->string('cost_type')->comment('使用したコスト種別');
+            $table->string('cost_mst_id')->nullable()->comment('使用したコストID');
+            $table->unsignedInteger('cost_amount')->comment('使用したコスト量');
             $table->json('result')->nullable()->comment('ガチャ結果');
             $table->dateTime('system_at')->comment('システム日時');
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
@@ -97,9 +101,9 @@ return new class extends Migration
         });
 
         // ========================================
-        // log_unit: ユニット変更ログ
+        // log_action_unit_levelup: ユニットレベルアップログ
         // ========================================
-        Schema::create('log_unit', function (Blueprint $table) {
+        Schema::create('log_action_unit_levelup', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->string('unique_request_id')->unique()->comment('リクエスト一意ID (log_accessと結合)');
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
@@ -122,9 +126,9 @@ return new class extends Migration
         });
 
         // ========================================
-        // log_equipment: 装備変更ログ
+        // log_action_equipment_levelup: 装備レベルアップログ
         // ========================================
-        Schema::create('log_equipment', function (Blueprint $table) {
+        Schema::create('log_action_equipment_levelup', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->string('unique_request_id')->unique()->comment('リクエスト一意ID (log_accessと結合)');
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
@@ -147,9 +151,9 @@ return new class extends Migration
         });
 
         // ========================================
-        // log_in_app_purchase: アプリ内課金ログ
+        // log_action_in_app_purchase: アプリ内課金実行ログ
         // ========================================
-        Schema::create('log_in_app_purchase', function (Blueprint $table) {
+        Schema::create('log_action_in_app_purchase', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->string('unique_request_id')->unique()->comment('リクエスト一意ID (log_accessと結合)');
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
@@ -179,12 +183,12 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('log_equipment');
-        Schema::dropIfExists('log_in_app_purchase');
-        Schema::dropIfExists('log_unit');
-        Schema::dropIfExists('log_gacha');
-        Schema::dropIfExists('log_item');
-        Schema::dropIfExists('log_player');
-        Schema::dropIfExists('log_access');
+        Schema::dropIfExists('log_action_equipment_levelup');
+        Schema::dropIfExists('log_action_in_app_purchase');
+        Schema::dropIfExists('log_action_unit_levelup');
+        Schema::dropIfExists('log_action_gacha_draw');
+        Schema::dropIfExists('log_action_item_change');
+        Schema::dropIfExists('log_action_player_update');
+        Schema::dropIfExists('log_action_api_access');
     }
 };

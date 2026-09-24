@@ -6,7 +6,7 @@ use NexusUnitOfWork\Contracts\QueryManagerInterface;
 
 /**
  * UsesUnitOfWork
- * 
+ *
  * RepositoryクラスでUnit of Workパターンを使用するためのTrait
  * setModel()をオーバーライドしてQueryManagerに自動登録する
  */
@@ -21,9 +21,9 @@ trait UsesUnitOfWork
 
     /**
      * モデルをセットし、QueryManagerに登録する
-     * 
-     * @param mixed $model
-     * @param bool|null $isPurchaseLog 課金ログかどうか（Logリポジトリの場合のみ使用）
+     *
+     * @param  mixed  $model
+     * @param  bool|null  $isPurchaseLog  課金ログかどうか（Logリポジトリの場合のみ使用）
      * @return void
      */
     public function setModel($model, ?bool $isPurchaseLog = null): void
@@ -39,7 +39,7 @@ trait UsesUnitOfWork
      *
      * 実体はUPDATEなのでmodelQueueに積まれる。
      *
-     * @param mixed $model
+     * @param  mixed  $model
      * @return void
      */
     public function softDeleteModel($model): void
@@ -52,7 +52,7 @@ trait UsesUnitOfWork
     /**
      * 物理削除キューに積み、QueryManagerに登録する
      *
-     * @param mixed $model
+     * @param  mixed  $model
      * @return void
      */
     public function hardDeleteModel($model): void
@@ -68,7 +68,7 @@ trait UsesUnitOfWork
      * 登録していないRepositoryのキューはフラッシュ時に収集されないため、
      * キューに積む操作からは必ず呼び出すこと。
      *
-     * @param bool|null $isPurchaseLog 課金ログかどうか（Logリポジトリの場合のみ使用）
+     * @param  bool|null  $isPurchaseLog  課金ログかどうか（Logリポジトリの場合のみ使用）
      * @return void
      */
     protected function registerToQueryManager(?bool $isPurchaseLog = null): void

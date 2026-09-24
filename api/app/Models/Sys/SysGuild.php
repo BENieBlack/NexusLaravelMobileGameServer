@@ -3,7 +3,6 @@
 namespace App\Models\Sys;
 
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Carbon;
 
 /**
  * SysGuild Model
@@ -16,8 +15,8 @@ use Illuminate\Support\Carbon;
  * @property int $level
  * @property int $exp
  * @property int $max_members
- * @property Carbon $created_at
- * @property Carbon $updated_at
+ * @property string $created_at
+ * @property string $updated_at
  */
 class SysGuild extends _BaseSys
 {
@@ -31,6 +30,7 @@ class SysGuild extends _BaseSys
      *
      * @var array<string>
      */
+    /** @var list<string> */
     protected $fillable = [
         'name',
         'description',
@@ -44,6 +44,7 @@ class SysGuild extends _BaseSys
      *
      * @var array<string, string>
      */
+    /** @var array<string, string> */
     protected $casts = [
         'level' => 'integer',
         'exp' => 'integer',
@@ -53,6 +54,9 @@ class SysGuild extends _BaseSys
     /**
      * メンバーとのリレーション
      */
+    /**
+     * @return HasMany<SysGuildMember, $this>
+     */
     public function members(): HasMany
     {
         return $this->hasMany(SysGuildMember::class, 'sys_guild_id');
@@ -60,6 +64,9 @@ class SysGuild extends _BaseSys
 
     /**
      * 申請とのリレーション
+     */
+    /**
+     * @return HasMany<SysGuildApply, $this>
      */
     public function applies(): HasMany
     {

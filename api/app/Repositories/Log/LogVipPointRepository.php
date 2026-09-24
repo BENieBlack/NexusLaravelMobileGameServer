@@ -25,6 +25,8 @@ class LogVipPointRepository extends _BaseLogRepository implements VipPointLogRep
 
     /**
      * VIPポイント変動ログを記録
+     *
+     * @param  array<string, mixed>  $metadata
      */
     public function log(
         string $uniqueRequestId,
@@ -50,7 +52,6 @@ class LogVipPointRepository extends _BaseLogRepository implements VipPointLogRep
             'currency_code' => $metadata['currency_code'] ?? null,
             'mst_in_app_purchase_id' => $metadata['mst_in_app_purchase_id'] ?? null,
             'system_at' => ClockUtility::now(),
-            'created_at' => ClockUtility::now(),
         ]);
 
         // 通常ログとして登録
@@ -59,6 +60,8 @@ class LogVipPointRepository extends _BaseLogRepository implements VipPointLogRep
 
     /**
      * プレイヤーのVIPポイント履歴を取得
+     *
+     * @return array<int, array<string, mixed>>
      */
     public function selectHistory(int $sysPlayerId, int $limit = 100): array
     {
@@ -78,7 +81,7 @@ class LogVipPointRepository extends _BaseLogRepository implements VipPointLogRep
                     'purchase_amount' => $log->getPurchaseAmount(),
                     'currency_code' => $log->getCurrencyCode(),
                     'mst_in_app_purchase_id' => $log->getMstInAppPurchaseId(),
-                    'system_at' => $log->getSystemAt()->format('Y-m-d H:i:s'),
+                    'system_at' => $log->getSystemAt(),
                 ];
             })
             ->values()
@@ -91,19 +94,23 @@ class LogVipPointRepository extends _BaseLogRepository implements VipPointLogRep
     public function selectByUniqueRequestId(string $uniqueRequestId): ?LogVipPoint
     {
         return $this->queryOrMemory()
-            ->where('unique_request_id', $uniqueRequestId)
-            ->first();
+            ->firstWhere('unique_request_id', $uniqueRequestId);
     }
 
     /**
      * 特定期間のVIPポイント変動ログを取得
      *
+     * 日時は 'Y-m-d H:i:s' 形式の文字列で受け取る。
+     * 固定長のため辞書順比較が時系列順比較と一致する。
+     *
+     * @param  string  $startDate  'Y-m-d H:i:s'
+     * @param  string  $endDate  'Y-m-d H:i:s'
      * @return CustomCollection<int, LogVipPoint>
      */
     public function selectByPeriod(
         int $sysPlayerId,
-        \DateTimeImmutable $startDate,
-        \DateTimeImmutable $endDate
+        string $startDate,
+        string $endDate
     ): CustomCollection {
         return $this->queryOrMemory()
             ->where('sys_player_id', $sysPlayerId)

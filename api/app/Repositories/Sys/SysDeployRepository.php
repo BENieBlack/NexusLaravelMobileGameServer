@@ -72,12 +72,16 @@ class SysDeployRepository extends _BaseSysRepository
 
     /**
      * 有効なデプロイ一覧を取得
+     *
+     * @return CustomCollection<array-key, SysDeploy>
      */
     public function selectActiveList(): CustomCollection
     {
-        return $this->modelClass::where('is_active', true)
+        $records = $this->modelClass::where('is_active', true)
             ->orderBy('deploy_key', 'desc')
             ->get();
+
+        return new CustomCollection($records->all());
     }
 
     /**

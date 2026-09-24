@@ -4,92 +4,94 @@ namespace App\Repositories\Trx;
 
 use Illuminate\Support\Facades\DB;
 use NexusLogin\Repositories\LoginBonusHistoryRepositoryInterface;
+use NexusPitr\Logger\ShardMapper;
 
 /**
- * LoginBonusHistoryRepositoryAdapter
- *
- * Query Builderを使用したログインボーナス履歴データへのアクセス実装
+ * ログインボーナスの最新状態をtrxへ、受取履歴をlogへ保存するRepository。
  */
 class LoginBonusHistoryRepositoryAdapter implements LoginBonusHistoryRepositoryInterface
 {
-    /**
-     * {@inheritDoc}
-     */
     public function selectLatestByPlayer(int $sysPlayerId, string $connectionName): ?array
     {
         $result = DB::connection($connectionName)
-            ->table('trx_login_bonus_history')
+            ->table('trx_login_bonus')
             ->where('sys_player_id', $sysPlayerId)
-            ->orderBy('received_date', 'desc')
+            ->where('type', 'daily')
             ->first();
 
         return $result ? (array) $result : null;
     }
 
-    /**
-     * findLatestByPlayerのエイリアス
-     */
     public function selectLatestByPlayerId(int $sysPlayerId, string $connectionName): ?array
     {
         return $this->selectLatestByPlayer($sysPlayerId, $connectionName);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function countUniqueDaysSince(int $sysPlayerId, string $sinceDate, string $connectionName): int
     {
         return DB::connection($connectionName)
-            ->table('trx_login_bonus_history')
+            ->table('trx_login_bonus')
             ->where('sys_player_id', $sysPlayerId)
+            ->where('type', 'daily')
             ->where('received_date', '>=', $sinceDate)
-            ->distinct()
-            ->count('received_date');
+            ->count();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function insert(array $data, string $connectionName): void
     {
-        DB::connection($connectionName)
-            ->table('trx_login_bonus_history')
-            ->insert($data);
+        $state = [
+            'sys_player_id' => $data['sys_player_id'],
+            'type' => $data['type'],
+            'mst_login_bonus_id' => $data['mst_login_bonus_id'],
+            'day' => $data['day'] ?? 0,
+            'absent_days' => $data['absent_days'] ?? null,
+            'received_date' => $data['received_date'],
+            'updated_at' => now(),
+        ];
+
+        DB::connection($connectionName)->table('trx_login_bonus')->updateOrInsert(
+            ['sys_player_id' => $state['sys_player_id'], 'type' => $state['type']],
+            $state + ['created_at' => now()],
+        );
+
+        DB::connection(ShardMapper::resolveLogConnection($connectionName))
+            ->table('log_action_login_bonus_receive')
+            ->insert([
+                'sys_player_id' => $data['sys_player_id'],
+                'type' => $data['type'],
+                'mst_login_bonus_id' => $data['mst_login_bonus_id'],
+                'day' => $data['day'] ?? 0,
+                'absent_days' => $data['absent_days'] ?? null,
+                'received_at' => $data['received_date'],
+                'reward_type' => $data['reward_type'],
+                'reward_mst_id' => $data['reward_mst_id'],
+                'reward_amount' => $data['reward_amount'],
+                'is_paid' => $data['is_paid'] ?? false,
+                'created_at' => now(),
+            ]);
     }
 
-    /**
-     * プレイヤーの最初のカムバックボーナス受取履歴を取得
-     *
-     * @param  int  $sysPlayerId  プレイヤーID
-     * @param  string  $connectionName  シャーディングされたDB接続名
-     * @return array|null 最初のカムバック履歴（なければnull）
-     */
     public function selectFirstComebackByPlayerId(int $sysPlayerId, string $connectionName): ?array
     {
         $result = DB::connection($connectionName)
-            ->table('trx_login_bonus_history')
+            ->table('trx_login_bonus')
             ->where('sys_player_id', $sysPlayerId)
-            ->where('mst_login_bonus_id', 'like', 'comeback%')
-            ->orderBy('received_date', 'asc')
+            ->where('type', 'comeback')
             ->first();
 
         return $result ? (array) $result : null;
     }
 
-    /**
-     * 指定日に特定のボーナスを受け取ったかチェック
-     *
-     * @param  int  $sysPlayerId  プレイヤーID
-     * @param  string  $bonusId  ログインボーナスID
-     * @param  string  $receivedDate  受け取り日時（Y-m-d H:i:s形式）
-     * @param  string  $connectionName  シャーディングされたDB接続名
-     * @return array|null 履歴（なければnull）
-     */
-    public function selectByPlayerAndBonusAndDate(int $sysPlayerId, string $bonusId, string $receivedDate, string $connectionName): ?array
-    {
+    public function selectByPlayerAndBonusAndDate(
+        int $sysPlayerId,
+        string $bonusId,
+        string $receivedDate,
+        string $connectionName
+    ): ?array {
         $result = DB::connection($connectionName)
-            ->table('trx_login_bonus_history')
+            ->table('trx_login_bonus')
             ->where('sys_player_id', $sysPlayerId)
+            ->where('type', 'comeback')
             ->where('mst_login_bonus_id', $bonusId)
             ->where('received_date', $receivedDate)
             ->first();

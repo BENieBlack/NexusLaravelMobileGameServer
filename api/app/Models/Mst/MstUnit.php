@@ -13,29 +13,21 @@ class MstUnit extends _BaseMst
 
     protected $keyType = 'string';
 
+    /** @var list<string> */
     protected $fillable = [
         'deploy_key',
         'id',
         'type',
         'element',
         'rarity',
-        'grade',
-        'hp',
-        'attack',
-        'defense',
-        'speed',
     ];
 
     /**
      * @var array<string, string>
      */
+    /** @var array<string, string> */
     protected $casts = [
         'deploy_key' => 'integer',
-        'grade' => 'integer',
-        'hp' => 'integer',
-        'attack' => 'integer',
-        'defense' => 'integer',
-        'speed' => 'integer',
     ];
 
     public $timestamps = true;

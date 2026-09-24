@@ -22,6 +22,8 @@ return new class extends Migration
             $table->string('name', 100)->nullable()->comment('プレイヤー名（後で設定可能）');
             $table->unsignedInteger('level')->default(1)->comment('プレイヤーレベル');
             $table->unsignedBigInteger('level_exp')->default(0)->comment('レベル経験値（累積）');
+            $table->unsignedInteger('vip_point')->default(0)->comment('累積VIPポイント');
+            $table->decimal('total_paid_amount', 15, 2)->default(0.00)->comment('累積課金額（日本円換算）');
             $table->dateTime('last_login_at')->nullable()->comment('最終ログイン日時（UTC）');
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
@@ -30,6 +32,7 @@ return new class extends Migration
             $table->index('uuid');
             $table->index('my_id');
             $table->index('level');
+            $table->index('vip_point');
             $table->index('last_login_at');
         });
 
@@ -64,6 +67,40 @@ return new class extends Migration
             $table->index('sys_sharding_node_id');
             $table->index('assigned_at');
         });
+
+        Schema::connection('sys')->create('sys_sharding', function (Blueprint $table) {
+            $table->id();
+            $table->string('name')->unique()->comment('シャーディング設定名（例: trx_sharding）');
+            $table->string('target')->comment('シャーディング対象（例: transaction）');
+            $table->enum('strategy', ['hash', 'range', 'consistent'])->default('hash')->comment('シャーディング方式');
+            $table->string('sharding_key')->comment('シャーディングキー（例: player_id）');
+            $table->unsignedInteger('node_count')->comment('ノード数');
+            $table->boolean('is_active')->default(true)->comment('アクティブ状態');
+            $table->text('description')->nullable()->comment('説明');
+            $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
+            $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
+            $table->index('target');
+            $table->index('is_active');
+        });
+
+        Schema::connection('sys')->create('sys_sharding_node', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('sys_sharding_id')->comment('シャーディング設定ID');
+            $table->string('node_name', 50)->comment('ノード名（例: node1, node2）');
+            $table->unsignedTinyInteger('node_no')->comment('ノード番号（trx{node_no}で接続名を構築）');
+            $table->integer('weight')->default(100)->comment('負荷分散用の重み（大きいほど優先）');
+            $table->enum('status', ['active', 'inactive', 'maintenance'])->default('active')->comment('ノードステータス');
+            $table->boolean('is_writable')->default(true)->comment('書き込み可能かどうか');
+            $table->boolean('is_readable')->default(true)->comment('読み込み可能かどうか');
+            $table->integer('max_connections')->default(100)->comment('最大同時接続数');
+            $table->integer('current_player_count')->default(0)->comment('現在割り当てられているプレイヤー数');
+            $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
+            $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
+            $table->index('sys_sharding_id');
+            $table->index('status');
+            $table->unique(['sys_sharding_id', 'node_name'], 'uk_sharding_node_name');
+            $table->unique(['sys_sharding_id', 'node_no'], 'uk_sharding_node_no');
+        });
     }
 
     /**
@@ -71,6 +108,8 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::connection('sys')->dropIfExists('sys_sharding_node');
+        Schema::connection('sys')->dropIfExists('sys_sharding');
         Schema::connection('sys')->dropIfExists('sys_sharding_node_player');
         Schema::connection('sys')->dropIfExists('sys_player_device');
         Schema::connection('sys')->dropIfExists('sys_player');

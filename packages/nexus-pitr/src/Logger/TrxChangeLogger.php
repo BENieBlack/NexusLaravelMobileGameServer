@@ -98,7 +98,7 @@ class TrxChangeLogger
         $batchSize = config('nexus-pitr.batch_size', 1000);
 
         foreach (array_chunk($records, $batchSize) as $batch) {
-            DB::connection($logConnection)->table('log_change')->insert($batch);
+            DB::connection($logConnection)->table('log_change_trx')->insert($batch);
         }
     }
 

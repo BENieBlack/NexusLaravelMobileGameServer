@@ -69,7 +69,7 @@ class TrxChangeLoggerTest extends TestCase
             ->andReturn($connectionMock);
 
         $connectionMock->shouldReceive('table')
-            ->with('log_change')
+            ->with('log_change_trx')
             ->once()
             ->andReturn($tableMock);
 
@@ -140,7 +140,7 @@ class TrxChangeLoggerTest extends TestCase
             ->andReturn($connectionMock1);
 
         $connectionMock1->shouldReceive('table')
-            ->with('log_change')
+            ->with('log_change_trx')
             ->once()
             ->andReturn($tableMock1);
 
@@ -163,7 +163,7 @@ class TrxChangeLoggerTest extends TestCase
             ->andReturn($connectionMock2);
 
         $connectionMock2->shouldReceive('table')
-            ->with('log_change')
+            ->with('log_change_trx')
             ->once()
             ->andReturn($tableMock2);
 
@@ -208,7 +208,7 @@ class TrxChangeLoggerTest extends TestCase
             ->andReturn($connectionMock);
 
         $connectionMock->shouldReceive('table')
-            ->with('log_change')
+            ->with('log_change_trx')
             ->once()
             ->andReturn($tableMock);
 
@@ -256,7 +256,7 @@ class TrxChangeLoggerTest extends TestCase
             ->andReturn($connectionMock);
 
         $connectionMock->shouldReceive('table')
-            ->with('log_change')
+            ->with('log_change_trx')
             ->once()
             ->andReturn($tableMock);
 

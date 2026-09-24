@@ -187,8 +187,8 @@ return new class extends Migration
         Schema::dropIfExists('log_action_in_app_purchase');
         Schema::dropIfExists('log_action_unit_levelup');
         Schema::dropIfExists('log_action_gacha_draw');
-        Schema::dropIfExists('log_item');
-        Schema::dropIfExists('log_player');
-        Schema::dropIfExists('log_access');
+        Schema::dropIfExists('log_action_item_change');
+        Schema::dropIfExists('log_action_player_update');
+        Schema::dropIfExists('log_action_api_access');
     }
 };

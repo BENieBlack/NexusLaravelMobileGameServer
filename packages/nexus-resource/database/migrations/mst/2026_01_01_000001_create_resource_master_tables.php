@@ -26,6 +26,7 @@ return new class extends Migration
             $table->enum('type', ['attack', 'defense', 'support'])->comment('ユニットタイプ');
             $table->enum('element', ['fire', 'water', 'wind', 'earth', 'light', 'dark'])->comment('属性');
             $table->enum('rarity', ['UR', 'SSR', 'SR', 'R', 'UC', 'C'])->comment('レアリティ');
+            $table->boolean('is_album_target')->default(true)->comment('アルバム（図鑑）に載せる対象か');
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
 
@@ -33,6 +34,7 @@ return new class extends Migration
             $table->index('type');
             $table->index('element');
             $table->index('rarity');
+            $table->index('is_album_target');
         });
 
         // ========================================
@@ -64,12 +66,14 @@ return new class extends Migration
             // trueなら trx_item ではなく trx_wallet 系で管理し、
             // 取得単位の有効期限と先入先出の消費ができる
             $table->boolean('is_wallet')->default(false)->comment('Wallet管理フラグ');
+            $table->boolean('is_album_target')->default(true)->comment('アルバム（図鑑）に載せる対象か');
 
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
 
             $table->index('deploy_key');
             $table->index('is_wallet');
+            $table->index('is_album_target');
         });
 
         // ========================================
@@ -102,6 +106,7 @@ return new class extends Migration
             $table->unsignedInteger('hp')->default(0)->comment('HP');
             $table->unsignedInteger('sort_desc')->default(0)->comment('表示順序（降順）');
             $table->boolean('is_active')->default(true)->comment('有効フラグ');
+            $table->boolean('is_album_target')->default(true)->comment('アルバム（図鑑）に載せる対象か');
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
 
@@ -111,6 +116,7 @@ return new class extends Migration
             $table->index('rarity');
             $table->index('is_active');
             $table->index('sort_desc');
+            $table->index('is_album_target');
         });
 
         // ========================================

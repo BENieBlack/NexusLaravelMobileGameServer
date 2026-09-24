@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 /**
@@ -28,8 +29,8 @@ return new class extends Migration
             $table->string('mst_reward_track_id')->comment('mst_reward_trackテーブルのID');
             $table->unsignedInteger('current_progress')->default(0)->comment('現在の進捗値（レベル・ポイント等）');
             $table->boolean('is_delete')->default(false)->comment('論理削除フラグ');
-            $table->dateTime('created_at')->nullable()->comment('作成日時');
-            $table->dateTime('updated_at')->nullable()->comment('更新日時');
+            $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
+            $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
 
             // 1プレイヤー × 1トラックで一意
             $table->unique(['sys_player_id', 'mst_reward_track_id'], 'uq_player_track');
@@ -49,8 +50,8 @@ return new class extends Migration
             $table->unsignedBigInteger('mst_in_app_purchase_id')->comment('購入した課金商品ID（購入履歴トレース用）');
             $table->dateTime('purchased_at')->comment('パス購入日時');
             $table->boolean('is_delete')->default(false)->comment('論理削除フラグ');
-            $table->dateTime('created_at')->nullable()->comment('作成日時');
-            $table->dateTime('updated_at')->nullable()->comment('更新日時');
+            $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
+            $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
 
             // 1プレイヤー × 1ラインで一意（同じラインは重複購入不可）
             $table->unique(['sys_player_id', 'mst_reward_track_line_id'], 'uq_player_line');
@@ -71,8 +72,8 @@ return new class extends Migration
             $table->string('mst_reward_track_line_id')->comment('受け取ったラインのID');
             $table->dateTime('received_at')->comment('受け取り日時');
             $table->boolean('is_delete')->default(false)->comment('論理削除フラグ');
-            $table->dateTime('created_at')->nullable()->comment('作成日時');
-            $table->dateTime('updated_at')->nullable()->comment('更新日時');
+            $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
+            $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
 
             // 1プレイヤー × 1マイルストーン × 1ラインで一意（二重受け取り防止）
             $table->unique(

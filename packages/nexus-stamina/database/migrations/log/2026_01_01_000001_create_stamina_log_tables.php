@@ -15,9 +15,9 @@ return new class extends Migration
     public function up(): void
     {
         // ========================================
-        // log_change_stamina: スタミナ変更ログ
+        // log_change_trx_stamina: スタミナ変更ログ
         // ========================================
-        Schema::create('log_change_stamina', function (Blueprint $table) {
+        Schema::create('log_change_trx_stamina', function (Blueprint $table) {
             $table->id()->comment('ログID');
             $table->unsignedBigInteger('sys_player_id')->comment('プレイヤーID');
             $table->string('stamina_type', 50)->comment('スタミナタイプ (normal, raid, pvp, event)');
@@ -50,6 +50,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('log_change_stamina');
+        Schema::dropIfExists('log_change_trx_stamina');
     }
 };

@@ -25,7 +25,7 @@ abstract class _BaseLogRepository extends _BaseRepository implements _BaseLogRep
     /**
      * データベース接続名（通常は 'log'）
      */
-    protected string $connection = 'log1';
+    protected string $connection = 'trx1';
 
     /**
      * 使用するデータベース接続名を返す

@@ -26,7 +26,7 @@ return new class extends Migration
             return;
         }
 
-        // migrate --database=log2 のように対象が切り替わるため、
+        // migrate --database=trx2 のように対象が切り替わるため、
         // 実行時の既定接続を使う（固定するとシャードを取り違える）
         $connection = $this->getConnection() ?? DB::getDefaultConnection();
 
@@ -69,7 +69,7 @@ return new class extends Migration
     /**
      * TrxDBのidを指す列を割り出す
      *
-     * 対になるTrxDB（log2 なら trx2）で「主キーが id 単独」のテーブルを調べ、
+     * 対になるTrxDB（trx2 なら trx2）で「主キーが id 単独」のテーブルを調べ、
      * その名前 + _id の列をログ側から探す。
      *
      * @return list<array{table: string, column: string, isNullable: bool}>

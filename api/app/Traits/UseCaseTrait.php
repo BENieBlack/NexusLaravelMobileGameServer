@@ -97,7 +97,7 @@ trait UseCaseTrait
     /**
      * アクティブな接続を取得
      *
-     * sys + (trx1, trx2, ...) + (log1, log2, ...)
+     * sys + (trx1, trx2, ...) + (trx1, trx2, ...)
      *
      * @return array<string>
      */

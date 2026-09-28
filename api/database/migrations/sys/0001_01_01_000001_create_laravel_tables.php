@@ -12,20 +12,20 @@ return new class extends Migration
     public function up(): void
     {
         // Cache tables
-        Schema::connection('sys')->create('cache', function (Blueprint $table) {
+        Schema::create('cache', function (Blueprint $table) {
             $table->string('key')->primary();
             $table->mediumText('value');
             $table->integer('expiration');
         });
 
-        Schema::connection('sys')->create('cache_locks', function (Blueprint $table) {
+        Schema::create('cache_locks', function (Blueprint $table) {
             $table->string('key')->primary();
             $table->string('owner');
             $table->integer('expiration');
         });
 
         // Job tables
-        Schema::connection('sys')->create('jobs', function (Blueprint $table) {
+        Schema::create('jobs', function (Blueprint $table) {
             $table->id();
             $table->string('queue')->index();
             $table->longText('payload');
@@ -35,7 +35,7 @@ return new class extends Migration
             $table->unsignedInteger('created_at');
         });
 
-        Schema::connection('sys')->create('job_batches', function (Blueprint $table) {
+        Schema::create('job_batches', function (Blueprint $table) {
             $table->string('id')->primary();
             $table->string('name');
             $table->integer('total_jobs');
@@ -48,7 +48,7 @@ return new class extends Migration
             $table->integer('finished_at')->nullable();
         });
 
-        Schema::connection('sys')->create('failed_jobs', function (Blueprint $table) {
+        Schema::create('failed_jobs', function (Blueprint $table) {
             $table->id();
             $table->string('uuid')->unique();
             $table->text('connection');
@@ -64,10 +64,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection('sys')->dropIfExists('failed_jobs');
-        Schema::connection('sys')->dropIfExists('job_batches');
-        Schema::connection('sys')->dropIfExists('jobs');
-        Schema::connection('sys')->dropIfExists('cache_locks');
-        Schema::connection('sys')->dropIfExists('cache');
+        Schema::dropIfExists('failed_jobs');
+        Schema::dropIfExists('job_batches');
+        Schema::dropIfExists('jobs');
+        Schema::dropIfExists('cache_locks');
+        Schema::dropIfExists('cache');
     }
 };

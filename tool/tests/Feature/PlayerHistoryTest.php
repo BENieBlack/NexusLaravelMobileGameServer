@@ -19,7 +19,7 @@ class PlayerHistoryTest extends TestCase
             ['my_id' => 'PLAYER01'],
             ['uuid' => 'player-uuid', 'name' => 'テストプレイヤー'],
         );
-        DB::connection('log')->statement('CREATE TABLE IF NOT EXISTS log_change_trx_player (id BIGINT PRIMARY KEY, sys_player_id BIGINT, operation_type VARCHAR(20), created_at DATETIME NULL)');
+        DB::connection('trx')->statement('CREATE TABLE IF NOT EXISTS log_change_trx_player (id BIGINT PRIMARY KEY, sys_player_id BIGINT, operation_type VARCHAR(20), created_at DATETIME NULL)');
         $this->actingAs(AdmAccount::updateOrCreate(
             ['email' => 'history@example.com'],
             ['name' => 'history', 'password' => Hash::make('password')],

@@ -15,7 +15,7 @@ return new class extends Migration
         // ========================================
         // mst_vip_level: VIPレベルマスター
         // ========================================
-        Schema::connection('mst')->create('mst_vip_level', function (Blueprint $table) {
+        Schema::create('mst_vip_level', function (Blueprint $table) {
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
             $table->string('id')->primary()->comment('VIPレベルID（vip_0, vip_1, ...）');
             $table->smallInteger('level')->unique()->comment('VIPレベル (0-15)');
@@ -51,7 +51,7 @@ return new class extends Migration
         ];
 
         foreach ($vipLevels as $level) {
-            DB::connection('mst')->table('mst_vip_level')->insert(array_merge($level, [
+            DB::table('mst_vip_level')->insert(array_merge($level, [
                 'created_at' => now(),
                 'updated_at' => now(),
             ]));
@@ -60,7 +60,7 @@ return new class extends Migration
         // ========================================
         // mst_vip_level_reward: VIPレベルアップ報酬マスター
         // ========================================
-        Schema::connection('mst')->create('mst_vip_level_reward', function (Blueprint $table) {
+        Schema::create('mst_vip_level_reward', function (Blueprint $table) {
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
             $table->smallInteger('vip_level')->comment('VIPレベル');
             $table->enum('content_type', ['item', 'unit', 'equipment', 'diamond', 'wallet', 'stamina'])->comment('コンテンツタイプ');
@@ -119,13 +119,13 @@ return new class extends Migration
         ];
 
         foreach ($vipRewards as $reward) {
-            DB::connection('mst')->table('mst_vip_level_reward')->insert(array_merge($reward, [
+            DB::table('mst_vip_level_reward')->insert(array_merge($reward, [
                 'created_at' => now(),
                 'updated_at' => now(),
             ]));
         }
 
-        Schema::connection('mst')->create('mst_vip_login_bonus', function (Blueprint $table) {
+        Schema::create('mst_vip_login_bonus', function (Blueprint $table) {
             $table->string('id', 64)->primary()->comment('VIPログインボーナスID（例: vip_login_lv5）');
             $table->unsignedTinyInteger('vip_level')->comment('対象VIPレベル');
             $table->unsignedInteger('loop_days')->comment('ループ日数（この日数で1日目に戻る）');
@@ -137,7 +137,7 @@ return new class extends Migration
             $table->index(['is_active', 'start_at', 'end_at'], 'idx_active_period');
         });
 
-        Schema::connection('mst')->create('mst_vip_login_bonus_content', function (Blueprint $table) {
+        Schema::create('mst_vip_login_bonus_content', function (Blueprint $table) {
             $table->id();
             $table->string('mst_vip_login_bonus_id', 64)->comment('VIPログインボーナスID');
             $table->unsignedInteger('day')->comment('ログイン日数（1日目、2日目...）');
@@ -160,9 +160,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection('mst')->dropIfExists('mst_vip_login_bonus_content');
-        Schema::connection('mst')->dropIfExists('mst_vip_login_bonus');
-        Schema::connection('mst')->dropIfExists('mst_vip_level_reward');
-        Schema::connection('mst')->dropIfExists('mst_vip_level');
+        Schema::dropIfExists('mst_vip_login_bonus_content');
+        Schema::dropIfExists('mst_vip_login_bonus');
+        Schema::dropIfExists('mst_vip_level_reward');
+        Schema::dropIfExists('mst_vip_level');
     }
 };

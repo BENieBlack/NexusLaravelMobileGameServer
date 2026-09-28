@@ -27,7 +27,7 @@ class CastsMatchSchemaTest extends TestCase
         'Mst' => 'mst',
         'Trx' => 'trx1',
         'Sys' => 'sys',
-        'Log' => 'log1',
+        'Log' => 'trx1',
     ];
 
     /**

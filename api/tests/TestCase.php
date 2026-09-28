@@ -156,7 +156,7 @@ abstract class TestCase extends BaseTestCase
      * ログイン中プレイヤーは存在しない。IDを決め打ちするテストでは同じ状態を
      * ここで用意する。
      *
-     * 既定はノード1（trx1 / log1）。テストが直接 connection('trx1') で
+     * 既定はノード1（trx1 / trx1）。テストが直接 connection('trx1') で
      * フィクスチャを差すため、そこへ揃える。
      */
     protected function useSessionPlayer(int $sysPlayerId, int $nodeNo = 1): void

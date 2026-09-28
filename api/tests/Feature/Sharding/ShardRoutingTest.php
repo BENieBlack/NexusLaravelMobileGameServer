@@ -105,7 +105,7 @@ class ShardRoutingTest extends TestCase
     #[Test]
     public function プレイヤーが居なければ既定の接続を使う(): void
     {
-        // コンソールなどプレイヤーの居ない文脈では trx1 / log1 に落ちる
+        // コンソールなどプレイヤーの居ない文脈では trx1 / trx1 に落ちる
         ApiSession::clearForTest();
         $this->app->forgetScopedInstances();
 

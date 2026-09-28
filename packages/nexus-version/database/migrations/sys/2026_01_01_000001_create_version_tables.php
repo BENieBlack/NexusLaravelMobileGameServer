@@ -15,7 +15,7 @@ return new class extends Migration
         // ========================================
         // sys_deploy_master: マスターデータデプロイ
         // ========================================
-        Schema::connection('sys')->create('sys_deploy_master', function (Blueprint $table) {
+        Schema::create('sys_deploy_master', function (Blueprint $table) {
             $table->id();
             $table->integer('deploy_key')->unique()->comment('デプロイキー（YYYYMMDDN形式）');
             $table->string('hash', 64)->unique()->comment('マスターデータ全体のSHA-256ハッシュ（バージョン識別用）');
@@ -40,7 +40,7 @@ return new class extends Migration
         // ========================================
         // sys_deploy_asset: アセットデプロイ
         // ========================================
-        Schema::connection('sys')->create('sys_deploy_asset', function (Blueprint $table) {
+        Schema::create('sys_deploy_asset', function (Blueprint $table) {
             $table->id();
             $table->integer('deploy_key')->unique()->comment('デプロイキー（YYYYMMDDN形式）');
             $table->string('hash', 64)->unique()->comment('ファイル全体のSHA-256ハッシュ（バージョン識別用）');
@@ -71,7 +71,7 @@ return new class extends Migration
         // ========================================
         // sys_deploy: デプロイ統合テーブル
         // ========================================
-        Schema::connection('sys')->create('sys_deploy', function (Blueprint $table) {
+        Schema::create('sys_deploy', function (Blueprint $table) {
             $table->id()->comment('デプロイID');
             $table->integer('deploy_key')->unique()->comment('デプロイキー（配信バージョン識別用）');
             $table->dateTime('start_at')->comment('DL可能となる日時');
@@ -90,7 +90,7 @@ return new class extends Migration
             $table->index(['is_active', 'start_at']);
         });
 
-        Schema::connection('sys')->create('sys_deploy_master_table', function (Blueprint $table) {
+        Schema::create('sys_deploy_master_table', function (Blueprint $table) {
             $table->unsignedBigInteger('sys_deploy_master_id')->comment('sys_deploy_masterテーブルのID');
             $table->string('table_name', 128)->comment('SQLiteに含まれるテーブルグループ名');
             $table->string('hash', 64)->comment('テーブルグループSQLiteのSHA-256ハッシュ');
@@ -107,9 +107,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection('sys')->dropIfExists('sys_deploy_master_table');
-        Schema::connection('sys')->dropIfExists('sys_deploy');
-        Schema::connection('sys')->dropIfExists('sys_deploy_asset');
-        Schema::connection('sys')->dropIfExists('sys_deploy_master');
+        Schema::dropIfExists('sys_deploy_master_table');
+        Schema::dropIfExists('sys_deploy');
+        Schema::dropIfExists('sys_deploy_asset');
+        Schema::dropIfExists('sys_deploy_master');
     }
 };

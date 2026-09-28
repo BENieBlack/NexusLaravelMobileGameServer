@@ -21,7 +21,7 @@ abstract class _BaseLog extends PersistenceBaseLog implements _BaseLogInterface
     /**
      * ログイン中プレイヤーの割り当てシャードに対応するLogDB接続を返す
      *
-     * ログは対になるTrxシャードと同じ番号のLogDBへ書く（trx2 → log2）
+     * ログは対になるTrxシャードと同じ番号のLogDBへ書く（trx2 → trx2）
      */
     protected static function resolveShardConnection(): ?string
     {

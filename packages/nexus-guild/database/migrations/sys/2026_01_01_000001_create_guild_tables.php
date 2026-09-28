@@ -15,7 +15,7 @@ return new class extends Migration
         // ========================================
         // sys_guild: ギルド情報
         // ========================================
-        Schema::connection('sys')->create('sys_guild', function (Blueprint $table) {
+        Schema::create('sys_guild', function (Blueprint $table) {
             $table->id();
             $table->string('name', 100)->unique()->comment('ギルド名');
             $table->text('description')->nullable()->comment('ギルド説明');
@@ -33,7 +33,7 @@ return new class extends Migration
         // ========================================
         // sys_guild_member: ギルドメンバー
         // ========================================
-        Schema::connection('sys')->create('sys_guild_member', function (Blueprint $table) {
+        Schema::create('sys_guild_member', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('sys_guild_id')->comment('sys_guildテーブルのID');
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
@@ -52,7 +52,7 @@ return new class extends Migration
         // ========================================
         // sys_guild_apply: ギルド加入申請
         // ========================================
-        Schema::connection('sys')->create('sys_guild_apply', function (Blueprint $table) {
+        Schema::create('sys_guild_apply', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('sys_guild_id')->comment('sys_guildテーブルのID');
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
@@ -73,8 +73,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection('sys')->dropIfExists('sys_guild_apply');
-        Schema::connection('sys')->dropIfExists('sys_guild_member');
-        Schema::connection('sys')->dropIfExists('sys_guild');
+        Schema::dropIfExists('sys_guild_apply');
+        Schema::dropIfExists('sys_guild_member');
+        Schema::dropIfExists('sys_guild');
     }
 };

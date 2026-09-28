@@ -73,8 +73,8 @@ class PlayerHistoryController extends Controller
         $count = max(1, (int) env('DB_SHARD_COUNT', 2));
 
         return array_merge(
-            ['log'],
-            array_map(static fn (int $number): string => "log{$number}", range(2, $count)),
+            ['trx'],
+            array_map(static fn (int $number): string => "trx{$number}", range(2, $count)),
         );
     }
 }

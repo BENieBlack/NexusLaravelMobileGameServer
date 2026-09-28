@@ -32,7 +32,7 @@ class TrxChangeLogger
             $trxConn = $dto->getShardConnection();
 
             try {
-                $logConn = ShardMapper::resolveLogConnection($trxConn);
+                $logConn = $trxConn;
             } catch (\InvalidArgumentException $e) {
                 \Log::error('Invalid shard connection in PITR log', [
                     'trx_connection' => $trxConn,

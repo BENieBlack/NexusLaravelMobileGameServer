@@ -15,7 +15,7 @@ return new class extends Migration
         // ========================================
         // sys_friend_apply: フレンド申請
         // ========================================
-        Schema::connection('sys')->create('sys_friend_apply', function (Blueprint $table) {
+        Schema::create('sys_friend_apply', function (Blueprint $table) {
             $table->id()->comment('フレンド申請ID');
             $table->unsignedBigInteger('sender_sys_player_id')->comment('申請送信者のプレイヤーID');
             $table->unsignedBigInteger('receiver_sys_player_id')->comment('申請受信者のプレイヤーID');
@@ -38,6 +38,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection('sys')->dropIfExists('sys_friend_apply');
+        Schema::dropIfExists('sys_friend_apply');
     }
 };

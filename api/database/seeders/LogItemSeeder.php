@@ -13,7 +13,7 @@ class LogItemSeeder extends Seeder
     public function run(): void
     {
         // べき等性を確保するため、既存データを削除
-        DB::connection('log')->table('log_action_item_change')->truncate();
+        DB::connection('trx')->table('log_action_item_change')->truncate();
 
         // log_accessからアイテム関連のエンドポイントのunique_request_idを取得
         $itemEndpoints = [
@@ -23,7 +23,7 @@ class LogItemSeeder extends Seeder
             '/api/mission/complete', // ミッション報酬
         ];
 
-        $accessLogs = DB::connection('log')
+        $accessLogs = DB::connection('trx')
             ->table('log_action_api_access')
             ->whereIn('endpoint', $itemEndpoints)
             ->select('unique_request_id', 'sys_player_id', 'system_at', 'created_at')
@@ -54,7 +54,7 @@ class LogItemSeeder extends Seeder
             $changeAmount = rand(-50, 100);
             $afterAmount = max(0, $beforeAmount + $changeAmount);
 
-            DB::connection('log')->table('log_action_item_change')->insert([
+            DB::connection('trx')->table('log_action_item_change')->insert([
                 'unique_request_id' => $accessLog->unique_request_id,
                 'sys_player_id' => $accessLog->sys_player_id,
                 'mst_item_id' => $mstItemId,

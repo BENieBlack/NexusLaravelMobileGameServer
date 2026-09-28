@@ -25,19 +25,19 @@ class ShardMapperTest extends TestCase
     }
 
     #[Test]
-    public function get_log_connection_returns_log1_for_trx1(): void
+    public function get_log_connection_returns_trx1_for_trx1(): void
     {
         $result = ShardMapper::resolveLogConnection('trx1');
 
-        $this->assertEquals('log1', $result);
+        $this->assertEquals('trx1', $result);
     }
 
     #[Test]
-    public function get_log_connection_returns_log2_for_trx2(): void
+    public function get_log_connection_returns_trx2_for_trx2(): void
     {
         $result = ShardMapper::resolveLogConnection('trx2');
 
-        $this->assertEquals('log2', $result);
+        $this->assertEquals('trx2', $result);
     }
 
     #[Test]
@@ -46,8 +46,8 @@ class ShardMapperTest extends TestCase
         // DB_SHARD_COUNT=4の場合
         putenv('DB_SHARD_COUNT=4');
 
-        $this->assertEquals('log3', ShardMapper::resolveLogConnection('trx3'));
-        $this->assertEquals('log4', ShardMapper::resolveLogConnection('trx4'));
+        $this->assertEquals('trx3', ShardMapper::resolveLogConnection('trx3'));
+        $this->assertEquals('trx4', ShardMapper::resolveLogConnection('trx4'));
 
         // 元に戻す
         putenv('DB_SHARD_COUNT=2');
@@ -72,17 +72,17 @@ class ShardMapperTest extends TestCase
     }
 
     #[Test]
-    public function get_trx_connection_returns_trx1_for_log1(): void
+    public function get_trx_connection_returns_trx1_for_trx1(): void
     {
-        $result = ShardMapper::resolveTrxConnection('log1');
+        $result = ShardMapper::resolveTrxConnection('trx1');
 
         $this->assertEquals('trx1', $result);
     }
 
     #[Test]
-    public function get_trx_connection_returns_trx2_for_log2(): void
+    public function get_trx_connection_returns_trx2_for_trx2(): void
     {
-        $result = ShardMapper::resolveTrxConnection('log2');
+        $result = ShardMapper::resolveTrxConnection('trx2');
 
         $this->assertEquals('trx2', $result);
     }
@@ -93,8 +93,8 @@ class ShardMapperTest extends TestCase
         // DB_SHARD_COUNT=4の場合
         putenv('DB_SHARD_COUNT=4');
 
-        $this->assertEquals('trx3', ShardMapper::resolveTrxConnection('log3'));
-        $this->assertEquals('trx4', ShardMapper::resolveTrxConnection('log4'));
+        $this->assertEquals('trx3', ShardMapper::resolveTrxConnection('trx3'));
+        $this->assertEquals('trx4', ShardMapper::resolveTrxConnection('trx4'));
 
         // 元に戻す
         putenv('DB_SHARD_COUNT=2');
@@ -114,7 +114,7 @@ class ShardMapperTest extends TestCase
     {
         $result = ShardMapper::allLogConnections();
 
-        $this->assertEquals(['log1', 'log2'], $result);
+        $this->assertEquals(['trx1', 'trx2'], $result);
     }
 
     #[Test]
@@ -125,7 +125,7 @@ class ShardMapperTest extends TestCase
 
         $result = ShardMapper::allLogConnections();
 
-        $this->assertEquals(['log1', 'log2', 'log3', 'log4'], $result);
+        $this->assertEquals(['trx1', 'trx2', 'trx3', 'trx4'], $result);
 
         // 元に戻す
         putenv('DB_SHARD_COUNT=2');
@@ -185,8 +185,8 @@ class ShardMapperTest extends TestCase
     #[Test]
     public function is_valid_log_connection_returns_true_for_valid_connections(): void
     {
-        $this->assertTrue(ShardMapper::isValidLogConnection('log1'));
-        $this->assertTrue(ShardMapper::isValidLogConnection('log2'));
+        $this->assertTrue(ShardMapper::isValidLogConnection('trx1'));
+        $this->assertTrue(ShardMapper::isValidLogConnection('trx2'));
     }
 
     #[Test]
@@ -195,8 +195,8 @@ class ShardMapperTest extends TestCase
         // DB_SHARD_COUNT=4の場合
         putenv('DB_SHARD_COUNT=4');
 
-        $this->assertTrue(ShardMapper::isValidLogConnection('log3'));
-        $this->assertTrue(ShardMapper::isValidLogConnection('log4'));
+        $this->assertTrue(ShardMapper::isValidLogConnection('trx3'));
+        $this->assertTrue(ShardMapper::isValidLogConnection('trx4'));
         $this->assertFalse(ShardMapper::isValidLogConnection('log5'));
 
         // 元に戻す
@@ -207,7 +207,7 @@ class ShardMapperTest extends TestCase
     public function is_valid_log_connection_returns_false_for_invalid_connection(): void
     {
         $this->assertFalse(ShardMapper::isValidLogConnection('invalid'));
-        $this->assertFalse(ShardMapper::isValidLogConnection('trx1'));
-        $this->assertFalse(ShardMapper::isValidLogConnection('log99'));
+        $this->assertFalse(ShardMapper::isValidLogConnection('log1'));
+        $this->assertFalse(ShardMapper::isValidLogConnection('trx99'));
     }
 }

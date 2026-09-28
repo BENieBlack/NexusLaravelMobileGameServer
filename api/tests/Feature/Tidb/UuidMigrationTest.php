@@ -64,13 +64,13 @@ class UuidMigrationTest extends TestCase
         TidbMode::fakeForTest(true);
 
         try {
-            $this->runMigration(self::LOG_MIGRATION, 'log1', 'up');
+            $this->runMigration(self::LOG_MIGRATION, 'trx1', 'up');
 
-            $this->assertSame('varchar(36)', $this->columnType('log1', 'log_change_trx_unit', 'id'));
+            $this->assertSame('varchar(36)', $this->columnType('trx1', 'log_change_trx_unit', 'id'));
             // TrxDBのidを控えている列。BIGINTのままだとUUIDが壊れる
-            $this->assertSame('varchar(36)', $this->columnType('log1', 'log_change_trx_unit', 'trx_unit_id'));
+            $this->assertSame('varchar(36)', $this->columnType('trx1', 'log_change_trx_unit', 'trx_unit_id'));
         } finally {
-            $this->runMigration(self::LOG_MIGRATION, 'log1', 'down');
+            $this->runMigration(self::LOG_MIGRATION, 'trx1', 'down');
         }
     }
 
@@ -82,9 +82,9 @@ class UuidMigrationTest extends TestCase
         TidbMode::fakeForTest(true);
 
         try {
-            $this->runMigration(self::LOG_MIGRATION, 'log1', 'up');
+            $this->runMigration(self::LOG_MIGRATION, 'trx1', 'up');
 
-            $remaining = DB::connection('log1')->select(
+            $remaining = DB::connection('trx1')->select(
                 "SELECT TABLE_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
                  WHERE TABLE_SCHEMA = DATABASE() AND COLUMN_NAME LIKE 'trx\\_%\\_id' AND DATA_TYPE = 'bigint'"
             );
@@ -92,10 +92,10 @@ class UuidMigrationTest extends TestCase
             $this->assertSame([], $remaining, 'BIGINTのまま残った参照列がある');
 
             // 代表例として、TrxDBのメールIDを控える列を確認する
-            $this->assertSame('varchar(36)', $this->columnType('log1', 'log_change_trx_mailbox', 'trx_mailbox_id'));
-            $this->assertSame('varchar(36)', $this->columnType('log1', 'log_change_trx_unit', 'trx_unit_id'));
+            $this->assertSame('varchar(36)', $this->columnType('trx1', 'log_change_trx_mailbox', 'trx_mailbox_id'));
+            $this->assertSame('varchar(36)', $this->columnType('trx1', 'log_change_trx_unit', 'trx_unit_id'));
         } finally {
-            $this->runMigration(self::LOG_MIGRATION, 'log1', 'down');
+            $this->runMigration(self::LOG_MIGRATION, 'trx1', 'down');
         }
     }
 
@@ -104,12 +104,12 @@ class UuidMigrationTest extends TestCase
     {
         TidbMode::fakeForTest(true);
 
-        $this->runMigration(self::LOG_MIGRATION, 'log1', 'up');
-        $this->runMigration(self::LOG_MIGRATION, 'log1', 'down');
+        $this->runMigration(self::LOG_MIGRATION, 'trx1', 'up');
+        $this->runMigration(self::LOG_MIGRATION, 'trx1', 'down');
 
-            $this->assertSame('bigint unsigned', $this->columnType('log1', 'log_change_trx_mailbox', 'trx_mailbox_id'));
-            $this->assertSame('YES', $this->isNullable('log1', 'log_change_trx_mailbox', 'trx_mailbox_id'), 'NULL許容が保たれる');
-        $this->assertSame('YES', $this->isNullable('log1', 'log_change_trx_unit', 'trx_unit_id'), 'NULL許容が保たれる');
+            $this->assertSame('bigint unsigned', $this->columnType('trx1', 'log_change_trx_mailbox', 'trx_mailbox_id'));
+            $this->assertSame('YES', $this->isNullable('trx1', 'log_change_trx_mailbox', 'trx_mailbox_id'), 'NULL許容が保たれる');
+        $this->assertSame('YES', $this->isNullable('trx1', 'log_change_trx_unit', 'trx_unit_id'), 'NULL許容が保たれる');
     }
 
     #[Test]
@@ -117,15 +117,15 @@ class UuidMigrationTest extends TestCase
     {
         TidbMode::fakeForTest(true);
 
-        $before = $this->columnComment('log1', 'log_change_trx_unit', 'id');
+        $before = $this->columnComment('trx1', 'log_change_trx_unit', 'id');
         $this->assertNotSame('', $before, '元からコメントがある前提');
 
         try {
-            $this->runMigration(self::LOG_MIGRATION, 'log1', 'up');
+            $this->runMigration(self::LOG_MIGRATION, 'trx1', 'up');
 
-            $this->assertSame($before, $this->columnComment('log1', 'log_change_trx_unit', 'id'));
+            $this->assertSame($before, $this->columnComment('trx1', 'log_change_trx_unit', 'id'));
         } finally {
-            $this->runMigration(self::LOG_MIGRATION, 'log1', 'down');
+            $this->runMigration(self::LOG_MIGRATION, 'trx1', 'down');
         }
     }
 

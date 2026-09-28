@@ -22,7 +22,7 @@ class LogInAppPurchaseSeeder extends Seeder
             '/api/shop/purchase',
         ];
 
-        $accessLogs = DB::connection('log')
+        $accessLogs = DB::connection('trx')
             ->table('log_action_api_access')
             ->whereIn('endpoint', $iapEndpoints)
             ->select('unique_request_id', 'sys_player_id', 'system_at', 'created_at')

@@ -64,7 +64,7 @@ class TrxChangeLoggerTest extends TestCase
         $tableMock = Mockery::mock();
 
         DB::shouldReceive('connection')
-            ->with('log1')
+            ->with('trx1')
             ->once()
             ->andReturn($connectionMock);
 
@@ -130,12 +130,12 @@ class TrxChangeLoggerTest extends TestCase
             apiEndpoint: '/api/test'
         );
 
-        // Mock DB connections for log1
+        // Mock DB connections for trx1
         $connectionMock1 = Mockery::mock();
         $tableMock1 = Mockery::mock();
 
         DB::shouldReceive('connection')
-            ->with('log1')
+            ->with('trx1')
             ->once()
             ->andReturn($connectionMock1);
 
@@ -153,12 +153,12 @@ class TrxChangeLoggerTest extends TestCase
                 return true;
             }));
 
-        // Mock DB connections for log2
+        // Mock DB connections for trx2
         $connectionMock2 = Mockery::mock();
         $tableMock2 = Mockery::mock();
 
         DB::shouldReceive('connection')
-            ->with('log2')
+            ->with('trx2')
             ->once()
             ->andReturn($connectionMock2);
 
@@ -203,7 +203,7 @@ class TrxChangeLoggerTest extends TestCase
         $tableMock = Mockery::mock();
 
         DB::shouldReceive('connection')
-            ->with('log1')
+            ->with('trx1')
             ->once()
             ->andReturn($connectionMock);
 
@@ -251,7 +251,7 @@ class TrxChangeLoggerTest extends TestCase
         $tableMock = Mockery::mock();
 
         DB::shouldReceive('connection')
-            ->with('log1')
+            ->with('trx1')
             ->once()
             ->andReturn($connectionMock);
 

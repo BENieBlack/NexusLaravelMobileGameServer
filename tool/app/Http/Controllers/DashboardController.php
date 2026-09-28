@@ -96,7 +96,7 @@ class DashboardController extends Controller
                 break;
             case 'all':
                 // 最古のデータから取得
-                $oldestRecord = DB::connection('log')
+                $oldestRecord = DB::connection('trx')
                     ->table('log_action_in_app_purchase')
                     ->orderBy('system_at', 'asc')
                     ->first();
@@ -161,7 +161,7 @@ class DashboardController extends Controller
         }
 
         // 通貨コードの取得
-        $currencies = DB::connection('log')
+        $currencies = DB::connection('trx')
             ->table('log_action_in_app_purchase')
             ->where('status', 'Purchased') // 購入完了のみ
             ->where('system_at', '>=', $startTime)
@@ -177,7 +177,7 @@ class DashboardController extends Controller
             // log_in_app_purchaseテーブルから通貨別に集計
             if (in_array($period, ['1month', '6months'])) {
                 // 1ヶ月・半年: 日単位で集計
-                $revenueData = DB::connection('log')
+                $revenueData = DB::connection('trx')
                     ->table('log_action_in_app_purchase')
                     ->selectRaw("
                         DATE_FORMAT(system_at, '%Y-%m-%d 00:00:00') as time_slot,
@@ -193,7 +193,7 @@ class DashboardController extends Controller
                     ->keyBy('time_slot');
             } elseif (in_array($period, ['1year', 'all'])) {
                 // 1年・通年: 月単位で集計
-                $revenueData = DB::connection('log')
+                $revenueData = DB::connection('trx')
                     ->table('log_action_in_app_purchase')
                     ->selectRaw("
                         DATE_FORMAT(system_at, '%Y-%m-01 00:00:00') as time_slot,
@@ -209,7 +209,7 @@ class DashboardController extends Controller
                     ->keyBy('time_slot');
             } elseif ($period === '1day') {
                 // 1日: 30分単位で集計
-                $revenueData = DB::connection('log')
+                $revenueData = DB::connection('trx')
                     ->table('log_action_in_app_purchase')
                     ->selectRaw("
                         CONCAT(
@@ -232,7 +232,7 @@ class DashboardController extends Controller
             } else {
                 // 1週間、2週間: 2時間または4時間単位で集計
                 $hours = $period === '1week' ? 2 : 4;
-                $revenueData = DB::connection('log')
+                $revenueData = DB::connection('trx')
                     ->table('log_action_in_app_purchase')
                     ->selectRaw("
                         CONCAT(

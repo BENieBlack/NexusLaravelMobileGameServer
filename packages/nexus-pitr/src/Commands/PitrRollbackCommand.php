@@ -11,7 +11,7 @@ use NexusPitr\Support\ShardMigrationPaths;
  * PitrRollbackCommand
  *
  * すべてのLogDBシャードに対してマイグレーションロールバックを実行
- * 動的シャーディング対応（DB_SHARD_COUNTに応じてlog1, log2, ...に実行）
+ * 動的シャーディング対応（DB_SHARD_COUNTに応じてtrx1, trx2, ...に実行）
  */
 class PitrRollbackCommand extends Command
 {

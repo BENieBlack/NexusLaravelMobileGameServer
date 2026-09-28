@@ -15,7 +15,7 @@ return new class extends Migration
         // ========================================
         // mst_login_bonus: ログインボーナス設定マスター
         // ========================================
-        Schema::connection('mst')->create('mst_login_bonus', function (Blueprint $table) {
+        Schema::create('mst_login_bonus', function (Blueprint $table) {
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
             $table->string('id')->primary()->comment('ログインボーナスID');
             $table->enum('type', ['daily', 'comeback'])
@@ -54,7 +54,7 @@ return new class extends Migration
         // ========================================
         // mst_login_bonus_content: ログインボーナス報酬内容
         // ========================================
-        Schema::connection('mst')->create('mst_login_bonus_content', function (Blueprint $table) {
+        Schema::create('mst_login_bonus_content', function (Blueprint $table) {
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
             $table->string('mst_login_bonus_id')->comment('ログインボーナスID');
             $table->enum('content_type', ['item', 'unit', 'equipment', 'diamond', 'wallet', 'stamina'])->comment('コンテンツタイプ');
@@ -84,7 +84,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection('mst')->dropIfExists('mst_login_bonus_content');
-        Schema::connection('mst')->dropIfExists('mst_login_bonus');
+        Schema::dropIfExists('mst_login_bonus_content');
+        Schema::dropIfExists('mst_login_bonus');
     }
 };

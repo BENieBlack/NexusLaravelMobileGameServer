@@ -92,13 +92,13 @@ return [
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
 
-        // マスターDB接続
+        // Master DB connection
         'mst' => [
             'driver' => 'mysql',
             'url' => env('DB_MASTER_URL'),
-            'host' => env('DB_MASTER_HOST', '127.0.0.1'),
+            'host' => env('DB_MASTER_HOST', 'db-master'),
             'port' => env('DB_MASTER_PORT', '3306'),
-            'database' => env('DB_MASTER_DATABASE') ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local').'-mst',
+            'database' => env('DB_MASTER_DATABASE') ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local').'-master',
             'username' => env('DB_MASTER_USERNAME', 'root'),
             'password' => env('DB_MASTER_PASSWORD', ''),
             'unix_socket' => env('MASTER_DB_SOCKET', ''),
@@ -113,7 +113,7 @@ return [
         ],
 
         // ========================================
-        // 動的シャーディング: TrxDB
+        // 動的シャーディング: shard DB
         // ========================================
         // DB_SHARD_COUNT環境変数でシャード数を指定（デフォルト: 2）
         // 例: DB_SHARD_COUNT=4 の場合、trx1, trx2, trx3, trx4 を生成
@@ -124,44 +124,14 @@ return [
             for ($i = 1; $i <= $shardCount; $i++) {
                 $connections["trx{$i}"] = [
                     'driver' => 'mysql',
-                    // DB_TRANSACTION_* はシャード共通のベース。ホストとDB名にはシャード番号を付ける
-                    // （DB_TRANSACTION_HOST=db-trx → db-trx1, db-trx2, ...）
+                    // DB_SHARD_* はシャード共通のベース。ホストとDB名にはシャード番号を付ける
+                    // （DB_SHARD_HOST=db-shard → db-shard1, db-shard2, ...）
                     // シャードごとに変える場合のみ DB_TRX{N}_* で上書きする
-                    'host' => env("DB_TRX{$i}_HOST") ?? env('DB_TRANSACTION_HOST', 'db-trx').$i,
-                    'port' => env("DB_TRX{$i}_PORT") ?? env('DB_TRANSACTION_PORT', '3306'),
-                    'database' => env("DB_TRX{$i}_DATABASE") ?: (env('DB_TRANSACTION_DATABASE') ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local').'-trx').$i,
-                    'username' => env("DB_TRX{$i}_USERNAME") ?? env('DB_TRANSACTION_USERNAME', 'root'),
-                    'password' => env("DB_TRX{$i}_PASSWORD") ?? env('DB_TRANSACTION_PASSWORD', 'root'),
-                    'charset' => 'utf8mb4',
-                    'collation' => 'utf8mb4_unicode_ci',
-                    'prefix' => '',
-                    'strict' => true,
-                    'engine' => null,
-                ];
-            }
-
-            return $connections;
-        })(),
-
-        // ========================================
-        // 動的シャーディング: LogDB
-        // ========================================
-        // TrxDBと1:1対応でLogDBシャードを生成
-        // DB_SHARD_COUNT=2 の場合、log1, log2 を生成
-        ...(function () {
-            $shardCount = (int) env('DB_SHARD_COUNT', 2);
-            $connections = [];
-
-            for ($i = 1; $i <= $shardCount; $i++) {
-                $connections["log{$i}"] = [
-                    'driver' => 'mysql',
-                    // DB_LOG_* はシャード共通のベース。ホストとDB名にはシャード番号を付ける
-                    // シャードごとに変える場合のみ DB_LOG{N}_* で上書きする
-                    'host' => env("DB_LOG{$i}_HOST") ?? env('DB_LOG_HOST', 'db-log').$i,
-                    'port' => env("DB_LOG{$i}_PORT") ?? env('DB_LOG_PORT', '3306'),
-                    'database' => env("DB_LOG{$i}_DATABASE") ?: (env('DB_LOG_DATABASE') ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local').'-log').$i,
-                    'username' => env("DB_LOG{$i}_USERNAME") ?? env('DB_LOG_USERNAME', 'root'),
-                    'password' => env("DB_LOG{$i}_PASSWORD") ?? env('DB_LOG_PASSWORD', 'root'),
+                    'host' => env("DB_SHARD{$i}_HOST") ?? env('DB_SHARD_HOST', 'db-shard').$i,
+                    'port' => env("DB_SHARD{$i}_PORT") ?? env('DB_SHARD_PORT', '3306'),
+                    'database' => env("DB_SHARD{$i}_DATABASE") ?: (env('DB_SHARD_DATABASE') ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local').'-shard'),
+                    'username' => env("DB_SHARD{$i}_USERNAME") ?? env('DB_SHARD_USERNAME', 'root'),
+                    'password' => env("DB_SHARD{$i}_PASSWORD") ?? env('DB_SHARD_PASSWORD', 'root'),
                     'charset' => 'utf8mb4',
                     'collation' => 'utf8mb4_unicode_ci',
                     'prefix' => '',
@@ -176,9 +146,9 @@ return [
         // システムDB接続
         'sys' => [
             'driver' => 'mysql',
-            'host' => env('DB_SYSTEM_HOST', 'db-sys'),
+            'host' => env('DB_SYSTEM_HOST', 'db-system'),
             'port' => env('DB_SYSTEM_PORT', '3306'),
-            'database' => env('DB_SYSTEM_DATABASE') ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local').'-sys',
+            'database' => env('DB_SYSTEM_DATABASE') ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local').'-system',
             'username' => env('DB_SYSTEM_USERNAME', 'root'),
             'password' => env('DB_SYSTEM_PASSWORD', 'root'),
             'charset' => 'utf8mb4',
@@ -191,7 +161,7 @@ return [
         // 管理DB接続
         'adm' => [
             'driver' => 'mysql',
-            'host' => env('DB_ADMIN_HOST', 'db-adm'),
+            'host' => env('DB_ADMIN_HOST', 'db-admin'),
             'port' => env('DB_ADMIN_PORT', '3306'),
             'database' => env('DB_ADMIN_DATABASE') ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local').'-adm',
             'username' => env('DB_ADMIN_USERNAME', 'root'),
@@ -206,14 +176,14 @@ return [
         // ========================================
         // テスト用エイリアス接続
         // ========================================
-        // テストコードの互換性のため、trx/logという名前でtrx1/log1を参照
+        // テストコードの互換性のため、trxという名前でtrx1を参照
         'trx' => [
             'driver' => 'mysql',
-            'host' => env('DB_TRX1_HOST') ?? env('DB_TRANSACTION_HOST', 'db-trx').'1',
-            'port' => env('DB_TRX1_PORT') ?? env('DB_TRANSACTION_PORT', '3306'),
-            'database' => env('DB_TRX1_DATABASE') ?: (env('DB_TRANSACTION_DATABASE') ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local').'-trx').'1',
-            'username' => env('DB_TRX1_USERNAME') ?? env('DB_TRANSACTION_USERNAME', 'root'),
-            'password' => env('DB_TRX1_PASSWORD') ?? env('DB_TRANSACTION_PASSWORD', 'root'),
+            'host' => env('DB_SHARD1_HOST') ?? env('DB_SHARD_HOST', 'db-shard').'1',
+            'port' => env('DB_SHARD1_PORT') ?? env('DB_SHARD_PORT', '3306'),
+            'database' => env('DB_SHARD1_DATABASE') ?: (env('DB_SHARD_DATABASE') ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local').'-shard'),
+            'username' => env('DB_SHARD1_USERNAME') ?? env('DB_SHARD_USERNAME', 'root'),
+            'password' => env('DB_SHARD1_PASSWORD') ?? env('DB_SHARD_PASSWORD', 'root'),
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix' => '',
@@ -221,19 +191,6 @@ return [
             'engine' => null,
         ],
 
-        'log' => [
-            'driver' => 'mysql',
-            'host' => env('DB_LOG1_HOST') ?? env('DB_LOG_HOST', 'db-log').'1',
-            'port' => env('DB_LOG1_PORT') ?? env('DB_LOG_PORT', '3306'),
-            'database' => env('DB_LOG1_DATABASE') ?: (env('DB_LOG_DATABASE') ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local').'-log').'1',
-            'username' => env('DB_LOG1_USERNAME') ?? env('DB_LOG_USERNAME', 'root'),
-            'password' => env('DB_LOG1_PASSWORD') ?? env('DB_LOG_PASSWORD', 'root'),
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
-            'prefix' => '',
-            'strict' => true,
-            'engine' => null,
-        ],
     ],
 
     /*

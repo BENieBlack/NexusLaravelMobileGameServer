@@ -128,7 +128,7 @@ class EquipmentLevelUpTest extends TestCase
         $response = $useCase->exec($this->sysPlayerId, $this->trxEquipmentId, self::EXP_ITEM_ID, $afterLevel);
 
         // ログ確認
-        $log = DB::connection('log')
+        $log = DB::connection('trx')
             ->table('log_action_equipment_levelup')
             ->where('sys_player_id', $this->sysPlayerId)
             ->where('trx_equipment_id', $this->trxEquipmentId)

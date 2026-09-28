@@ -20,7 +20,7 @@ return new class extends Migration
         // ========================================
         // mst_billing_platform_product: プラットフォーム課金商品
         // ========================================
-        Schema::connection('mst')->create('mst_billing_platform_product', function (Blueprint $table) {
+        Schema::create('mst_billing_platform_product', function (Blueprint $table) {
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
             $table->id()->comment('商品ID');
             $table->string('platform_product_id', 255)->comment('プラットフォーム商品ID');
@@ -42,7 +42,7 @@ return new class extends Migration
         // ========================================
         // mst_in_app_purchase: アプリ内課金商品
         // ========================================
-        Schema::connection('mst')->create('mst_in_app_purchase', function (Blueprint $table) {
+        Schema::create('mst_in_app_purchase', function (Blueprint $table) {
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
             $table->id()->comment('アプリ内課金商品ID');
             $table->enum('type', ['diamond', 'pack', 'pass'])->comment('課金商品タイプ');
@@ -71,7 +71,7 @@ return new class extends Migration
         // ========================================
         // mst_in_app_purchase__l10n: アプリ内課金商品多言語
         // ========================================
-        Schema::connection('mst')->create('mst_in_app_purchase__l10n', function (Blueprint $table) {
+        Schema::create('mst_in_app_purchase__l10n', function (Blueprint $table) {
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
             $table->unsignedBigInteger('mst_in_app_purchase_id')->comment('アプリ内課金商品ID');
             $table->enum('language', $this->supportedLanguages)->comment('言語コード');
@@ -87,7 +87,7 @@ return new class extends Migration
         // ========================================
         // mst_in_app_purchase_content: アプリ内課金商品コンテンツ
         // ========================================
-        Schema::connection('mst')->create('mst_in_app_purchase_content', function (Blueprint $table) {
+        Schema::create('mst_in_app_purchase_content', function (Blueprint $table) {
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
             $table->unsignedBigInteger('mst_in_app_purchase_id')->comment('アプリ内課金商品ID');
             $table->enum('content_type', ['item', 'unit', 'free_diamond'])->comment('コンテンツタイプ');
@@ -107,7 +107,7 @@ return new class extends Migration
         // ========================================
         // mst_in_app_purchase_effect: アプリ内課金商品効果
         // ========================================
-        Schema::connection('mst')->create('mst_in_app_purchase_effect', function (Blueprint $table) {
+        Schema::create('mst_in_app_purchase_effect', function (Blueprint $table) {
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
             $table->unsignedBigInteger('mst_in_app_purchase_id')->comment('アプリ内課金商品ID');
             $table->enum('effect_type', ['idle_reward_multiplier', 'ad_skip', 'exp_boost', 'gold_boost', 'daily_mission_bonus'])->comment('効果タイプ');
@@ -125,10 +125,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection('mst')->dropIfExists('mst_in_app_purchase_effect');
-        Schema::connection('mst')->dropIfExists('mst_in_app_purchase_content');
-        Schema::connection('mst')->dropIfExists('mst_in_app_purchase__l10n');
-        Schema::connection('mst')->dropIfExists('mst_in_app_purchase');
-        Schema::connection('mst')->dropIfExists('mst_billing_platform_product');
+        Schema::dropIfExists('mst_in_app_purchase_effect');
+        Schema::dropIfExists('mst_in_app_purchase_content');
+        Schema::dropIfExists('mst_in_app_purchase__l10n');
+        Schema::dropIfExists('mst_in_app_purchase');
+        Schema::dropIfExists('mst_billing_platform_product');
     }
 };

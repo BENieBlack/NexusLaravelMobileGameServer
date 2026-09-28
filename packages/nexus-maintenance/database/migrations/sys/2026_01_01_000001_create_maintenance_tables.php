@@ -15,7 +15,7 @@ return new class extends Migration
         // ========================================
         // sys_maintenance: メンテナンス管理
         // ========================================
-        Schema::connection('sys')->create('sys_maintenance', function (Blueprint $table) {
+        Schema::create('sys_maintenance', function (Blueprint $table) {
             $table->id();
             $table->string('title', 255)->comment('メンテナンスタイトル');
             $table->text('message')->comment('メンテナンスメッセージ');
@@ -37,6 +37,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection('sys')->dropIfExists('sys_maintenance');
+        Schema::dropIfExists('sys_maintenance');
     }
 };

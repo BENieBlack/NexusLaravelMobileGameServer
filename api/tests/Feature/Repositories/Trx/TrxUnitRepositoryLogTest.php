@@ -58,7 +58,7 @@ class TrxUnitRepositoryLogTest extends TestCase
 
     protected function tearDown(): void
     {
-        foreach (['log1', 'log2'] as $connection) {
+        foreach (['trx1', 'trx2'] as $connection) {
             DB::connection($connection)->table('log_action_unit_levelup')
                 ->where('sys_player_id', $this->sysPlayerId)->delete();
         }
@@ -160,7 +160,7 @@ class TrxUnitRepositoryLogTest extends TestCase
 
     private function findLog(): ?object
     {
-        foreach (['log1', 'log2'] as $connection) {
+        foreach (['trx1', 'trx2'] as $connection) {
             $log = DB::connection($connection)->table('log_action_unit_levelup')
                 ->where('sys_player_id', $this->sysPlayerId)->first();
 

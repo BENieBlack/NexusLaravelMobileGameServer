@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 /**
  * AccessCacheService
  *
- * log_access（log1/log2/log3 全シャード）を日次集計し、
+ * log_access（trx1/trx2/trx3 全シャード）を日次集計し、
  * tol_dashboard_access_cache にキャッシュする。
  *
  * キャッシュ戦略（RetentionCacheService と同方式）:
@@ -23,7 +23,7 @@ class AccessCacheService
     private const CACHE_DAYS      = 90;  // 最大保持日数
 
     /** 全 log シャード接続名 */
-    private const LOG_CONNECTIONS = ['log', 'log2', 'log3'];
+    private const LOG_CONNECTIONS = ['trx', 'trx2', 'trx3'];
 
     /**
      * 指定期間の日次アクセス集計をキャッシュから返す。

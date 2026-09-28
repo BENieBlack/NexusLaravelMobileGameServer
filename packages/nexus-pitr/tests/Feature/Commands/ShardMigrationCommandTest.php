@@ -106,14 +106,14 @@ class ShardMigrationCommandTest extends TestCase
 
         $this->assertSame(PitrMigrateCommand::SUCCESS, $this->runCommand(PitrMigrateCommand::class, [], $output));
 
-        $this->assertSame(['log1', 'log2'], array_column(array_column($this->calls, 1), '--database'));
+        $this->assertSame(['trx1', 'trx2'], array_column(array_column($this->calls, 1), '--database'));
 
         // logサブディレクトリだけを対象にする
         foreach ($this->calls[0][1]['--path'] as $path) {
             $this->assertStringEndsWith('database/migrations/log', $path);
         }
 
-        $this->assertStringContainsString('Target shards: log1, log2', $output->fetch());
+        $this->assertStringContainsString('Target shards: trx1, trx2', $output->fetch());
     }
 
     #[Test]
@@ -124,7 +124,7 @@ class ShardMigrationCommandTest extends TestCase
             $this->runCommand(PitrRollbackCommand::class, ['--force' => true])
         );
 
-        $this->assertSame(['log1', 'log2'], array_column(array_column($this->calls, 1), '--database'));
+        $this->assertSame(['trx1', 'trx2'], array_column(array_column($this->calls, 1), '--database'));
 
         // パスはpackages/を走査して集めるので、logサブディレクトリだけが並ぶ
         foreach ($this->calls[0][1]['--path'] as $path) {
@@ -141,7 +141,7 @@ class ShardMigrationCommandTest extends TestCase
         $this->assertSame(PitrRollbackCommand::FAILURE, $this->runCommand(PitrRollbackCommand::class, [], $output));
 
         $this->assertCount(1, $this->calls);
-        $this->assertStringContainsString('Rollback failed for log1', $output->fetch());
+        $this->assertStringContainsString('Rollback failed for trx1', $output->fetch());
     }
 
     /**

@@ -20,7 +20,7 @@ return new class extends Migration
         // ========================================
         // mst_message: メッセージマスター
         // ========================================
-        Schema::connection('mst')->create('mst_message', function (Blueprint $table) {
+        Schema::create('mst_message', function (Blueprint $table) {
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
             $table->string('id')->primary()->comment('メッセージID');
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
@@ -32,7 +32,7 @@ return new class extends Migration
         // ========================================
         // mst_message__l10n: メッセージ多言語
         // ========================================
-        Schema::connection('mst')->create('mst_message__l10n', function (Blueprint $table) {
+        Schema::create('mst_message__l10n', function (Blueprint $table) {
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
             $table->string('mst_message_id')->comment('メッセージID');
             $table->enum('language', $this->supportedLanguages)->comment('言語コード');
@@ -48,7 +48,7 @@ return new class extends Migration
         // ========================================
         // mst_mailbox: メールボックスマスター
         // ========================================
-        Schema::connection('mst')->create('mst_mailbox', function (Blueprint $table) {
+        Schema::create('mst_mailbox', function (Blueprint $table) {
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
             $table->string('id')->primary()->comment('メールボックスID');
             $table->string('mst_message_id')->comment('メッセージID');
@@ -99,7 +99,7 @@ return new class extends Migration
         // ========================================
         // mst_mailbox_content: メールボックスコンテンツ
         // ========================================
-        Schema::connection('mst')->create('mst_mailbox_content', function (Blueprint $table) {
+        Schema::create('mst_mailbox_content', function (Blueprint $table) {
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
             $table->string('mst_mailbox_id')->comment('メールボックスID');
             $table->enum('content_type', [
@@ -135,9 +135,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection('mst')->dropIfExists('mst_mailbox_content');
-        Schema::connection('mst')->dropIfExists('mst_mailbox');
-        Schema::connection('mst')->dropIfExists('mst_message__l10n');
-        Schema::connection('mst')->dropIfExists('mst_message');
+        Schema::dropIfExists('mst_mailbox_content');
+        Schema::dropIfExists('mst_mailbox');
+        Schema::dropIfExists('mst_message__l10n');
+        Schema::dropIfExists('mst_message');
     }
 };

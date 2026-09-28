@@ -20,13 +20,13 @@ class ShardMapper
      */
     public static function resolveLogConnection(string $trxConnection): string
     {
-        // 動的シャーディング: trx1 -> log1, trx2 -> log2, ...
+        // ログは対応するtrxシャードと同じDBへ保存する。
         if (preg_match('/^trx(\d+)$/', $trxConnection, $matches)) {
             $shardNumber = (int) $matches[1];
             $maxShards = self::getMaxShardCount();
 
             if ($shardNumber >= 1 && $shardNumber <= $maxShards) {
-                return "log{$shardNumber}";
+                return "trx{$shardNumber}";
             }
         }
 
@@ -43,8 +43,8 @@ class ShardMapper
      */
     public static function resolveTrxConnection(string $logConnection): string
     {
-        // 動的シャーディング: log1 -> trx1, log2 -> trx2, ...
-        if (preg_match('/^log(\d+)$/', $logConnection, $matches)) {
+        // 動的シャーディング: trx1 -> trx1, trx2 -> trx2, ...
+        if (preg_match('/^trx(\d+)$/', $logConnection, $matches)) {
             $shardNumber = (int) $matches[1];
             $maxShards = self::getMaxShardCount();
 
@@ -67,7 +67,7 @@ class ShardMapper
         $connections = [];
 
         for ($i = 1; $i <= $maxShards; $i++) {
-            $connections[] = "log{$i}";
+            $connections[] = "trx{$i}";
         }
 
         return $connections;
@@ -118,7 +118,7 @@ class ShardMapper
     public static function isValidLogConnection(string $logConnection): bool
     {
         // 動的シャーディング
-        if (preg_match('/^log(\d+)$/', $logConnection, $matches)) {
+        if (preg_match('/^trx(\d+)$/', $logConnection, $matches)) {
             $shardNumber = (int) $matches[1];
             $maxShards = self::getMaxShardCount();
 

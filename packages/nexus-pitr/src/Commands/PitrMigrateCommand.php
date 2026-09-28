@@ -11,7 +11,7 @@ use NexusPitr\Support\ShardMigrationPaths;
  * PitrMigrateCommand
  *
  * すべてのLogDBシャードに対してマイグレーションを実行
- * 動的シャーディング対応（DB_SHARD_COUNTに応じてlog1, log2, ...に実行）
+ * 動的シャーディング対応（DB_SHARD_COUNTに応じてtrx1, trx2, ...に実行）
  */
 class PitrMigrateCommand extends Command
 {

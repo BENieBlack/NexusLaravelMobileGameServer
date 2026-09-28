@@ -15,7 +15,7 @@ return new class extends Migration
         // ========================================
         // sys_player: プレイヤー基本情報
         // ========================================
-        Schema::connection('sys')->create('sys_player', function (Blueprint $table) {
+        Schema::create('sys_player', function (Blueprint $table) {
             $table->id();
             $table->string('uuid', 64)->unique()->comment('システム内部識別子（UUIDv4）');
             $table->string('my_id', 8)->unique()->comment('プレイヤーID（8桁英数、フレンド検索・問い合わせ両用）');
@@ -39,7 +39,7 @@ return new class extends Migration
         // ========================================
         // sys_player_device: デバイス情報
         // ========================================
-        Schema::connection('sys')->create('sys_player_device', function (Blueprint $table) {
+        Schema::create('sys_player_device', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
             $table->string('uuid', 255)->unique()->comment('デバイス固有UUID（OSから取得）');
@@ -56,7 +56,7 @@ return new class extends Migration
         // ========================================
         // sys_sharding_node_player: プレイヤーとノードの紐付け
         // ========================================
-        Schema::connection('sys')->create('sys_sharding_node_player', function (Blueprint $table) {
+        Schema::create('sys_sharding_node_player', function (Blueprint $table) {
             $table->unsignedBigInteger('sys_player_id')->primary()->comment('sys_playerテーブルのID');
             $table->unsignedBigInteger('sys_sharding_node_id')->comment('割り当てられたシャーディングノードID');
             $table->dateTime('assigned_at')->useCurrent()->comment('割り当て日時');
@@ -68,7 +68,7 @@ return new class extends Migration
             $table->index('assigned_at');
         });
 
-        Schema::connection('sys')->create('sys_sharding', function (Blueprint $table) {
+        Schema::create('sys_sharding', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique()->comment('シャーディング設定名（例: trx_sharding）');
             $table->string('target')->comment('シャーディング対象（例: transaction）');
@@ -83,7 +83,7 @@ return new class extends Migration
             $table->index('is_active');
         });
 
-        Schema::connection('sys')->create('sys_sharding_node', function (Blueprint $table) {
+        Schema::create('sys_sharding_node', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('sys_sharding_id')->comment('シャーディング設定ID');
             $table->string('node_name', 50)->comment('ノード名（例: node1, node2）');
@@ -108,10 +108,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection('sys')->dropIfExists('sys_sharding_node');
-        Schema::connection('sys')->dropIfExists('sys_sharding');
-        Schema::connection('sys')->dropIfExists('sys_sharding_node_player');
-        Schema::connection('sys')->dropIfExists('sys_player_device');
-        Schema::connection('sys')->dropIfExists('sys_player');
+        Schema::dropIfExists('sys_sharding_node');
+        Schema::dropIfExists('sys_sharding');
+        Schema::dropIfExists('sys_sharding_node_player');
+        Schema::dropIfExists('sys_player_device');
+        Schema::dropIfExists('sys_player');
     }
 };

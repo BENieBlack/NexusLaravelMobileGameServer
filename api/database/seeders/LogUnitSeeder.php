@@ -13,7 +13,7 @@ class LogUnitSeeder extends Seeder
     public function run(): void
     {
         // べき等性を確保するため、既存データを削除
-        DB::connection('log')->table('log_action_unit_levelup')->truncate();
+        DB::connection('trx')->table('log_action_unit_levelup')->truncate();
 
         // log_accessからユニット関連のエンドポイントのunique_request_idを取得
         $unitEndpoints = [
@@ -21,7 +21,7 @@ class LogUnitSeeder extends Seeder
             '/api/battle/result', // バトルでユニット経験値獲得
         ];
 
-        $accessLogs = DB::connection('log')
+        $accessLogs = DB::connection('trx')
             ->table('log_action_api_access')
             ->whereIn('endpoint', $unitEndpoints)
             ->select('unique_request_id', 'sys_player_id', 'system_at', 'created_at')
@@ -78,7 +78,7 @@ class LogUnitSeeder extends Seeder
             $beforeLevel = rand(1, 99);
             $afterLevel = $beforeLevel + rand(1, 5);
 
-            DB::connection('log')->table('log_action_unit_levelup')->insert([
+            DB::connection('trx')->table('log_action_unit_levelup')->insert([
                 'unique_request_id' => $accessLog->unique_request_id,
                 'sys_player_id' => $accessLog->sys_player_id,
                 'trx_unit_id' => $unit['id'],

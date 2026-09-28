@@ -20,7 +20,7 @@ return new class extends Migration
         // ------------------------------------------------
         // mst_reward_track
         // ------------------------------------------------
-        Schema::connection('mst')->create('mst_reward_track', function (Blueprint $table) {
+        Schema::create('mst_reward_track', function (Blueprint $table) {
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
             $table->string('id')->primary()->comment('トラックID（例: track_season_1）');
             $table->string('progress_type')->comment('進捗タイプ (player_level / point / quest_count / login_days)');
@@ -41,7 +41,7 @@ return new class extends Migration
         // 無料ラインは各トラックに必ず1つ存在する（is_free=true）
         // 有料ラインは mst_in_app_purchase と紐づく
         // ------------------------------------------------
-        Schema::connection('mst')->create('mst_reward_track_line', function (Blueprint $table) {
+        Schema::create('mst_reward_track_line', function (Blueprint $table) {
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
             $table->string('id')->primary()->comment('ラインID（例: track_s1_free, track_s1_gold）');
             $table->string('mst_reward_track_id')->comment('mst_reward_trackテーブルのID');
@@ -63,7 +63,7 @@ return new class extends Migration
         // mst_reward_track_milestone
         // required_progress に達したら報酬が解放される
         // ------------------------------------------------
-        Schema::connection('mst')->create('mst_reward_track_milestone', function (Blueprint $table) {
+        Schema::create('mst_reward_track_milestone', function (Blueprint $table) {
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
             $table->string('id')->primary()->comment('マイルストーンID（例: track_s1_lv5）');
             $table->string('mst_reward_track_id')->comment('mst_reward_trackテーブルのID');
@@ -85,7 +85,7 @@ return new class extends Migration
         // マイルストーン × ライン の組み合わせで報酬を定義する
         // 同一マイルストーン・同一ラインに複数コンテンツを持てる
         // ------------------------------------------------
-        Schema::connection('mst')->create('mst_reward_track_content', function (Blueprint $table) {
+        Schema::create('mst_reward_track_content', function (Blueprint $table) {
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
             $table->string('mst_reward_track_milestone_id')->comment('mst_reward_track_milestoneテーブルのID');
             $table->string('mst_reward_track_line_id')->comment('mst_reward_track_lineテーブルのID');
@@ -116,9 +116,9 @@ return new class extends Migration
     public function down(): void
     {
         // 依存関係の逆順で削除
-        Schema::connection('mst')->dropIfExists('mst_reward_track_content');
-        Schema::connection('mst')->dropIfExists('mst_reward_track_milestone');
-        Schema::connection('mst')->dropIfExists('mst_reward_track_line');
-        Schema::connection('mst')->dropIfExists('mst_reward_track');
+        Schema::dropIfExists('mst_reward_track_content');
+        Schema::dropIfExists('mst_reward_track_milestone');
+        Schema::dropIfExists('mst_reward_track_line');
+        Schema::dropIfExists('mst_reward_track');
     }
 };

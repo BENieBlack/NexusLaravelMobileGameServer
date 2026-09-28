@@ -15,7 +15,7 @@ return new class extends Migration
         // ========================================
         // mst_player_level: プレイヤーレベルマスター
         // ========================================
-        Schema::connection('mst')->create('mst_player_level', function (Blueprint $table) {
+        Schema::create('mst_player_level', function (Blueprint $table) {
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
             $table->unsignedInteger('level')->primary()->comment('レベル');
             $table->unsignedBigInteger('required_exp')->comment('このレベルに到達するために必要な累積経験値');
@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection('mst')->dropIfExists('mst_player_level');
+        Schema::dropIfExists('mst_player_level');
     }
 };

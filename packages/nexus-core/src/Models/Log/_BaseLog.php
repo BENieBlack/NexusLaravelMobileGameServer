@@ -28,7 +28,7 @@ abstract class _BaseLog extends _BaseModel implements _BaseLogInterface
      *
      * @var string
      */
-    protected string $fallbackConnection = 'log1';
+    protected string $fallbackConnection = 'trx1';
 
     /**
      * 使用するデータベース接続名を返す

@@ -20,14 +20,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (Schema::connection('sys')->hasTable('sys_player_token')) {
+        if (Schema::hasTable('sys_player_token')) {
             return;
         }
 
         // ========================================
         // sys_player_token: リフレッシュトークン管理
         // ========================================
-        Schema::connection('sys')->create('sys_player_token', function (Blueprint $table) {
+        Schema::create('sys_player_token', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
             $table->unsignedBigInteger('sys_player_device_id')->comment('sys_player_deviceテーブルのID');
@@ -50,6 +50,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection('sys')->dropIfExists('sys_player_token');
+        Schema::dropIfExists('sys_player_token');
     }
 };

@@ -60,7 +60,6 @@ trait RefreshMultipleDatabases
 
         for ($i = 1; $i <= $shardCount; $i++) {
             $connections["trx{$i}"] = null;
-            $connections["log{$i}"] = null;
         }
 
         return $connections;
@@ -216,7 +215,6 @@ trait RefreshMultipleDatabases
 
         for ($i = 1; $i <= $shardCount; $i++) {
             $targets[] = ["trx{$i}", $trxPaths];
-            $targets[] = ["log{$i}", $logPaths];
         }
 
         return $targets;

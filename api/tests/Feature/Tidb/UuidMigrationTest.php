@@ -107,8 +107,8 @@ class UuidMigrationTest extends TestCase
         $this->runMigration(self::LOG_MIGRATION, 'trx1', 'up');
         $this->runMigration(self::LOG_MIGRATION, 'trx1', 'down');
 
-            $this->assertSame('bigint unsigned', $this->columnType('trx1', 'log_change_trx_mailbox', 'trx_mailbox_id'));
-            $this->assertSame('YES', $this->isNullable('trx1', 'log_change_trx_mailbox', 'trx_mailbox_id'), 'NULL許容が保たれる');
+        $this->assertSame('bigint unsigned', $this->columnType('trx1', 'log_change_trx_mailbox', 'trx_mailbox_id'));
+        $this->assertSame('YES', $this->isNullable('trx1', 'log_change_trx_mailbox', 'trx_mailbox_id'), 'NULL許容が保たれる');
         $this->assertSame('YES', $this->isNullable('trx1', 'log_change_trx_unit', 'trx_unit_id'), 'NULL許容が保たれる');
     }
 

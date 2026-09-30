@@ -2,6 +2,8 @@
 
 namespace App\Models\Sys;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
 /**
  * SysDeployMaster Model
  *
@@ -254,7 +256,7 @@ class SysDeployMaster extends _BaseSys
     /**
      * テーブル単位SQLiteの配信情報を取得
      */
-    public function tables(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function tables(): HasMany
     {
         return $this->hasMany(SysDeployMasterTable::class, 'sys_deploy_master_id');
     }

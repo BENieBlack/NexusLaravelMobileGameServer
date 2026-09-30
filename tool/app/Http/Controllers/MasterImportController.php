@@ -33,9 +33,9 @@ class MasterImportController extends Controller
 
     public function __construct(
         private readonly GoogleSpreadsheetService $spreadsheetService,
-        private readonly MasterImportService      $importService,
-        private readonly MasterDataExporter       $exporter,
-        private readonly MasterDeployService      $deployService,
+        private readonly MasterImportService $importService,
+        private readonly MasterDataExporter $exporter,
+        private readonly MasterDeployService $deployService,
     ) {}
 
     /**
@@ -240,7 +240,7 @@ class MasterImportController extends Controller
     private function errorResponse(Throwable $e): JsonResponse
     {
         return response()->json([
-            'status'  => 'error',
+            'status' => 'error',
             'message' => $e->getMessage(),
         ], 422);
     }
@@ -263,22 +263,22 @@ class MasterImportController extends Controller
             $deployResult = $this->deployService->register($exportResult);
 
             return response()->json([
-                'status'  => 'success',
+                'status' => 'success',
                 'message' => $deployResult['is_new']
                     ? "SQLiteを生成し sys_deploy (deploy_key={$deployResult['deploy_key']}) に登録しました。"
                     : "同一ハッシュのデプロイが既に登録されています (deploy_key={$deployResult['deploy_key']})。",
-                'export'  => [
-                    'hash'       => $exportResult['hash'],
-                    'file_size'  => $exportResult['file_size'],
+                'export' => [
+                    'hash' => $exportResult['hash'],
+                    'file_size' => $exportResult['file_size'],
                     'table_count' => $exportResult['table_count'],
                     'file_count' => $exportResult['file_count'],
-                    'tables'     => $exportResult['tables'],
+                    'tables' => $exportResult['tables'],
                 ],
-                'deploy'  => [
-                    'deploy_key'           => $deployResult['deploy_key'],
+                'deploy' => [
+                    'deploy_key' => $deployResult['deploy_key'],
                     'sys_deploy_master_id' => $deployResult['sys_deploy_master_id'],
-                    'sys_deploy_id'        => $deployResult['sys_deploy_id'],
-                    'is_new'               => $deployResult['is_new'],
+                    'sys_deploy_id' => $deployResult['sys_deploy_id'],
+                    'is_new' => $deployResult['is_new'],
                 ],
             ]);
         } catch (Throwable $e) {

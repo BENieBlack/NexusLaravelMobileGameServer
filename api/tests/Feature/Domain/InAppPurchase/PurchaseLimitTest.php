@@ -18,7 +18,7 @@ use Tests\TestCase;
  * 購入回数制限のテスト
  *
  * 判定そのものは _BasePurchaseLimitValidator が持っていて別途テストがある。
-     * ここはアプリ側の繋ぎ込み — マスターの purchase_limit_count と
+ * ここはアプリ側の繋ぎ込み — マスターの purchase_limit_count と
  * 履歴の purchase_count / purchase_count_reset_at を正しく渡せているか。
  *
  * 誤ると「上限まで買えない」か「上限を超えて買える」のどちらかになる。

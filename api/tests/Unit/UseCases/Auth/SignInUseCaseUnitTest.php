@@ -2,15 +2,15 @@
 
 namespace Tests\Unit\UseCases\Auth;
 
-use App\Domain\Auth\UseCases\AuthSignInUseCase;
+use App\Domain\Auth\UseCases\SignInUseCase;
 use App\Exceptions\GameException;
 use App\Http\Responses\Auth\SignInResponse;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;
+use App\Repositories\Sys\SysPlayerDeviceRepository;
+use App\Repositories\Sys\SysPlayerRepository;
 use Mockery;
-use NexusAuth\Contracts\DeviceRepositoryInterface;
-use NexusAuth\Contracts\PlayerRepositoryInterface;
 use NexusAuth\Contracts\TokenRepositoryInterface;
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Services\TokenService;
@@ -19,15 +19,15 @@ use Tests\TestCase;
 
 class SignInUseCaseUnitTest extends TestCase
 {
-    private AuthSignInUseCase $useCase;
+    private SignInUseCase $useCase;
 
     private PlayerAuthService $playerAuthService;
 
     private TokenService $tokenService;
 
-    private PlayerRepositoryInterface $playerRepository;
+    private SysPlayerRepository $playerRepository;
 
-    private DeviceRepositoryInterface $deviceRepository;
+    private SysPlayerDeviceRepository $deviceRepository;
 
     private TokenRepositoryInterface $tokenRepository;
 
@@ -36,8 +36,8 @@ class SignInUseCaseUnitTest extends TestCase
         parent::setUp();
 
         // Mock repositories
-        $this->playerRepository = Mockery::mock(PlayerRepositoryInterface::class);
-        $this->deviceRepository = Mockery::mock(DeviceRepositoryInterface::class);
+        $this->playerRepository = Mockery::mock(SysPlayerRepository::class);
+        $this->deviceRepository = Mockery::mock(SysPlayerDeviceRepository::class);
         $this->tokenRepository = Mockery::mock(TokenRepositoryInterface::class);
 
         // Mock services
@@ -45,7 +45,7 @@ class SignInUseCaseUnitTest extends TestCase
         $this->tokenService = Mockery::mock(TokenService::class);
 
         // Create UseCase with mocked dependencies
-        $this->useCase = new AuthSignInUseCase(
+        $this->useCase = new SignInUseCase(
             $this->playerAuthService,
             $this->tokenService,
             $this->deviceRepository,

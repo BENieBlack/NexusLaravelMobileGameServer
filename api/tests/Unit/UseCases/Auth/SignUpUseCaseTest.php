@@ -2,12 +2,14 @@
 
 namespace Tests\Unit\UseCases\Auth;
 
-use App\Domain\Auth\UseCases\AuthSignUpUseCase;
+use App\Domain\Auth\UseCases\SignUpUseCase;
+use App\Domain\Sharding\Services\ShardAssignmentService;
 use App\Exceptions\BusinessLogicException;
 use App\Http\Responses\Auth\SignUpResponse;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;
+use App\Repositories\Sys\PlayerRepositoryAdapter;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
 use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;
@@ -21,7 +23,7 @@ class SignUpUseCaseTest extends TestCase
 {
     use RefreshMultipleDatabases;
 
-    private AuthSignUpUseCase $useCase;
+    private SignUpUseCase $useCase;
 
     private PlayerAuthService $playerAuthService;
 
@@ -46,7 +48,9 @@ class SignUpUseCaseTest extends TestCase
         parent::setUp();
 
         // Repositories
-        $playerRepository = new SysPlayerRepository(new SysPlayer);
+        // PlayerAuthServiceはDTO境界のインターフェースを受け取るためアダプタで包む
+        $sysPlayerRepository = new SysPlayerRepository(new SysPlayer);
+        $playerRepository = new PlayerRepositoryAdapter($sysPlayerRepository);
         $this->deviceRepository = new SysPlayerDeviceRepository(new SysPlayerDevice);
         $this->tokenRepository = app(SysPlayerTokenRepository::class);
 
@@ -59,12 +63,13 @@ class SignUpUseCaseTest extends TestCase
         $this->tokenService = app(TokenService::class);
 
         // UseCaseを作成
-        $this->useCase = new AuthSignUpUseCase(
+        $this->useCase = new SignUpUseCase(
             $this->playerAuthService,
             $this->tokenService,
             $this->deviceRepository,
-            $this->tokenRepository,
-            $this->deviceRepository
+            $this->deviceRepository,
+            $sysPlayerRepository,
+            new ShardAssignmentService,
         );
 
         // Suppress log output during tests

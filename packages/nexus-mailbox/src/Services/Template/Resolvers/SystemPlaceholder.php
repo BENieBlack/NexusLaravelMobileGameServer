@@ -2,6 +2,7 @@
 
 namespace NexusMailbox\Services\Template\Resolvers;
 
+use Nexus\Core\Utilities\ClockUtility;
 use NexusMailbox\Services\Template\PlaceholderResolverInterface;
 
 /**
@@ -58,10 +59,12 @@ class SystemPlaceholder implements PlaceholderResolverInterface
 
     /**
      * {@inheritDoc}
+     *
+     * @param  array<string, mixed>  $context
      */
     public function resolve(string $key, array $context): ?string
     {
-        $now = new \DateTimeImmutable('now');
+        $now = ClockUtility::now();
 
         return match ($key) {
             'timestamp' => $now->format('Y-m-d H:i:s'),

@@ -8,12 +8,12 @@ use Illuminate\Support\Collection;
  * CustomCollection
  *
  * Laravelの標準Collectionをラップし、パフォーマンス最適化を行うクラス
- * 
+ *
  * 目的：
  * - Collectionのfilter/where/reject等は内部的にインスタンスコピーを生成する
  * - 大量データを扱う場合、このコピーがメモリとパフォーマンスのボトルネックになる
  * - array_filter等のPHP標準関数を使い、インスタンスコピーを避けて直接配列を操作する
- * 
+ *
  * オーバーライド対象メソッド：
  * - filter(): array_filterを使用
  * - where(): array_filterを使用
@@ -22,24 +22,35 @@ use Illuminate\Support\Collection;
  * - reject(): array_filterを使用
  * - first(): foreach早期リターンを使用
  * - firstWhere(): foreach早期リターンを使用
- * 
+ *
+ * new static() でインスタンスを作り直すため、コンストラクタのシグネチャが
+ * サブクラスでも変わらないことを前提にする。
+ *
  * @template TKey of array-key
  * @template TValue
+ *
  * @extends Collection<TKey, TValue>
+ *
+ * @phpstan-consistent-constructor
  */
 class CustomCollection extends Collection
 {
     /**
      * コレクションの各アイテムに対してフィルタを実行
-     * 
-     * @param callable|null $callback
+     *
+     * 注意: コールバックを省略したときの挙動が親クラスと違う。
+     * 親は falsy を全て落とす（0 や '' や false も消える）が、
+     * こちらは null だけを落とす。
+     * 0件と「値が0」を区別したいため意図的にこうしている。
+     *
+     * @param  callable|null  $callback
      * @return static
      */
     public function filter(?callable $callback = null)
     {
         if ($callback === null) {
             // null値を除外
-            $callback = fn($value) => $value !== null;
+            $callback = fn ($value) => $value !== null;
         }
 
         // array_filterを使用してインスタンスコピーを回避
@@ -50,10 +61,10 @@ class CustomCollection extends Collection
 
     /**
      * 指定されたキーと値でフィルタ
-     * 
-     * @param string $key
-     * @param mixed $operator
-     * @param mixed $value
+     *
+     * @param  string  $key
+     * @param  mixed  $operator
+     * @param  mixed  $value
      * @return static
      */
     public function where($key, $operator = null, $value = null)
@@ -86,10 +97,10 @@ class CustomCollection extends Collection
 
     /**
      * 指定されたキーの値が配列内に存在するアイテムでフィルタ
-     * 
-     * @param string $key
-     * @param mixed $values
-     * @param bool $strict
+     *
+     * @param  string  $key
+     * @param  mixed  $values
+     * @param  bool  $strict
      * @return static
      */
     public function whereIn($key, $values, $strict = false)
@@ -98,6 +109,7 @@ class CustomCollection extends Collection
 
         $filtered = array_filter($this->items, function ($item) use ($key, $values, $strict) {
             $retrieved = data_get($item, $key);
+
             return in_array($retrieved, $values, $strict);
         });
 
@@ -106,10 +118,10 @@ class CustomCollection extends Collection
 
     /**
      * 指定されたキーの値が配列内に存在しないアイテムでフィルタ
-     * 
-     * @param string $key
-     * @param mixed $values
-     * @param bool $strict
+     *
+     * @param  string  $key
+     * @param  mixed  $values
+     * @param  bool  $strict
      * @return static
      */
     public function whereNotIn($key, $values, $strict = false)
@@ -118,7 +130,8 @@ class CustomCollection extends Collection
 
         $filtered = array_filter($this->items, function ($item) use ($key, $values, $strict) {
             $retrieved = data_get($item, $key);
-            return !in_array($retrieved, $values, $strict);
+
+            return ! in_array($retrieved, $values, $strict);
         });
 
         return new static($filtered);
@@ -126,19 +139,19 @@ class CustomCollection extends Collection
 
     /**
      * 条件に一致しないアイテムでフィルタ（filterの逆）
-     * 
-     * @param callable|mixed $callback
+     *
+     * @param  callable|mixed  $callback
      * @return static
      */
     public function reject($callback = true)
     {
         // callableでない場合は親クラスの実装を使用
-        if (!is_callable($callback)) {
+        if (! is_callable($callback)) {
             return parent::reject($callback);
         }
 
         $filtered = array_filter($this->items, function ($item, $key) use ($callback) {
-            return !$callback($item, $key);
+            return ! $callback($item, $key);
         }, ARRAY_FILTER_USE_BOTH);
 
         return new static($filtered);
@@ -146,9 +159,9 @@ class CustomCollection extends Collection
 
     /**
      * 最初のアイテムを取得（条件指定可能）
-     * 
-     * @param callable|null $callback
-     * @param mixed $default
+     *
+     * @param  callable|null  $callback
+     * @param  mixed  $default
      * @return mixed
      */
     public function first(?callable $callback = null, $default = null)
@@ -158,6 +171,7 @@ class CustomCollection extends Collection
             foreach ($this->items as $item) {
                 return $item;
             }
+
             return value($default);
         }
 
@@ -173,10 +187,10 @@ class CustomCollection extends Collection
 
     /**
      * 指定されたキーと値に一致する最初のアイテムを取得
-     * 
-     * @param string $key
-     * @param mixed $operator
-     * @param mixed $value
+     *
+     * @param  string  $key
+     * @param  mixed  $operator
+     * @param  mixed  $value
      * @return mixed
      */
     public function firstWhere($key, $operator = null, $value = null)
@@ -214,8 +228,10 @@ class CustomCollection extends Collection
 
     /**
      * コレクションの値のみを含む新しいコレクションを返す
-     * 
-     * @return static
+     *
+     * array_values()を通すのでキーは必ず0始まりのintになる。
+     *
+     * @return static<int, TValue>
      */
     public function values()
     {
@@ -224,8 +240,8 @@ class CustomCollection extends Collection
 
     /**
      * 指定されたキーのみを含むコレクションを返す
-     * 
-     * @param mixed $keys
+     *
+     * @param  mixed  $keys
      * @return static
      */
     public function only($keys)
@@ -244,8 +260,8 @@ class CustomCollection extends Collection
 
     /**
      * 指定されたキーを除いたコレクションを返す
-     * 
-     * @param mixed $keys
+     *
+     * @param  mixed  $keys
      * @return static
      */
     public function except($keys)
@@ -264,9 +280,9 @@ class CustomCollection extends Collection
 
     /**
      * キーでソートした新しいコレクションを返す
-     * 
-     * @param int $options
-     * @param bool $descending
+     *
+     * @param  int  $options
+     * @param  bool  $descending
      * @return static
      */
     public function sortKeys($options = SORT_REGULAR, $descending = false)
@@ -280,9 +296,9 @@ class CustomCollection extends Collection
 
     /**
      * 値でソートした新しいコレクションを返す
-     * 
-     * @param int $options
-     * @param bool $descending
+     *
+     * @param  int  $options
+     * @param  bool  $descending
      * @return static
      */
     public function sort($options = SORT_REGULAR, $descending = false)
@@ -296,10 +312,10 @@ class CustomCollection extends Collection
 
     /**
      * 指定されたキーの値でソートした新しいコレクションを返す
-     * 
-     * @param callable|string $callback
-     * @param int $options
-     * @param bool $descending
+     *
+     * @param  callable|string  $callback
+     * @param  int  $options
+     * @param  bool  $descending
      * @return static
      */
     public function sortBy($callback, $options = SORT_REGULAR, $descending = false)
@@ -325,5 +341,39 @@ class CustomCollection extends Collection
 
         // callableの場合は親クラスの実装を使用
         return parent::sortBy($callback, $options, $descending);
+    }
+
+    /**
+     * 指定したキーの値だけを取り出す
+     *
+     * @param  string|array<int, string>|null  $value
+     * @param  string|null  $key  ドット記法は本家に任せる
+     * @return Collection<array-key, mixed>
+     */
+    public function pluck($value, $key = null)
+    {
+        // ドット記法や配列指定は本家に任せる
+        if (is_string($value) && ! str_contains($value, '.')
+            && ($key === null || ! str_contains($key, '.'))) {
+            return new static(array_column($this->items, $value, $key));
+        }
+
+        return parent::pluck($value, $key);
+    }
+
+    /**
+     * 合計を求める
+     *
+     * @param  callable|string|null  $callback
+     * @return int|float
+     */
+    public function sum($callback = null)
+    {
+        // 単純なキー名なら array_column でまとめて足せる
+        if (is_string($callback) && ! str_contains($callback, '.')) {
+            return array_sum(array_column($this->items, $callback));
+        }
+
+        return parent::sum($callback);
     }
 }

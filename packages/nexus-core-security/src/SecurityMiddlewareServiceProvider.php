@@ -3,6 +3,7 @@
 namespace NexusSecurity;
 
 use Illuminate\Support\ServiceProvider;
+use NexusSecurity\Services\SlackErrorNotifier;
 
 class SecurityMiddlewareServiceProvider extends ServiceProvider
 {
@@ -15,6 +16,9 @@ class SecurityMiddlewareServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(
             __DIR__.'/Config/security.php', 'security'
         );
+
+        // SlackErrorNotifier をシングルトンとして登録
+        $this->app->singleton(SlackErrorNotifier::class);
     }
 
     /**

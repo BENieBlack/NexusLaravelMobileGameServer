@@ -19,7 +19,9 @@ $app = Application::configure(basePath: dirname(__DIR__))
         //
     })->create();
 
-// Load environment variables from project root (/var/www/.env in Docker)
-$app->useEnvironmentPath('/var/www');
+// Load environment variables from project root
+// Docker では /var/www、チェックアウト上ではリポジトリ直下を指す。
+// 絶対パスで書くとCIのようにDocker外で動かしたときに .env が見つからない
+$app->useEnvironmentPath(dirname($app->basePath()));
 
 return $app;

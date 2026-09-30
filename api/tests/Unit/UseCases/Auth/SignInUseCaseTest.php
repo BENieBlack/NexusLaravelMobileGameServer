@@ -2,16 +2,16 @@
 
 namespace Tests\Unit\UseCases\Auth;
 
-use App\Domain\Auth\UseCases\AuthSignInUseCase;
+use App\Domain\Auth\UseCases\SignInUseCase;
 use App\Exceptions\GameException;
 use App\Http\Responses\Auth\SignInResponse;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;
+use App\Repositories\Sys\SysPlayerRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
-use NexusAuth\Contracts\DeviceRepositoryInterface;
-use NexusAuth\Contracts\PlayerRepositoryInterface;
+use Nexus\Core\Repositories\PlayerDeviceRepositoryInterface;
 use NexusAuth\Contracts\TokenRepositoryInterface;
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Services\TokenService;
@@ -22,15 +22,15 @@ class SignInUseCaseTest extends TestCase
 {
     use RefreshMultipleDatabases;
 
-    private AuthSignInUseCase $useCase;
+    private SignInUseCase $useCase;
 
     private PlayerAuthService $playerAuthService;
 
     private TokenService $tokenService;
 
-    private PlayerRepositoryInterface $playerRepository;
+    private SysPlayerRepository $playerRepository;
 
-    private DeviceRepositoryInterface $deviceRepository;
+    private PlayerDeviceRepositoryInterface $deviceRepository;
 
     private TokenRepositoryInterface $tokenRepository;
 
@@ -49,8 +49,8 @@ class SignInUseCaseTest extends TestCase
         parent::setUp();
 
         // Repositoriesを取得
-        $this->playerRepository = app(PlayerRepositoryInterface::class);
-        $this->deviceRepository = app(DeviceRepositoryInterface::class);
+        $this->playerRepository = app(SysPlayerRepository::class);
+        $this->deviceRepository = app(PlayerDeviceRepositoryInterface::class);
         $this->tokenRepository = app(TokenRepositoryInterface::class);
 
         // Servicesを作成
@@ -58,7 +58,7 @@ class SignInUseCaseTest extends TestCase
         $this->tokenService = app(TokenService::class);
 
         // UseCaseを作成
-        $this->useCase = new AuthSignInUseCase(
+        $this->useCase = new SignInUseCase(
             $this->playerAuthService,
             $this->tokenService,
             $this->deviceRepository,

@@ -21,6 +21,8 @@ interface ResourceDeliveryManagerInterface
 
     /**
      * 複数の配送コンテンツを配送前リストにまとめて追加する
+     *
+     * @param  CustomCollection<array-key, ResourceDeliveryContent>  $contents
      */
     public function addContents(CustomCollection $contents): void;
 
@@ -35,7 +37,7 @@ interface ResourceDeliveryManagerInterface
      * 送信完了リストからコンテンツを取得する
      *
      * @param  string  $contentClass  コンテンツクラス名
-     * @return CustomCollection<ResourceDeliveryContent>
+     * @return CustomCollection<array-key, ResourceDeliveryContent>
      */
     public function findSendCompleteContents(string $contentClass): CustomCollection;
 

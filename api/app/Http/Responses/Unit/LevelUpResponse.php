@@ -2,9 +2,7 @@
 
 namespace App\Http\Responses\Unit;
 
-use Illuminate\Contracts\Support\Responsable;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use App\Http\Responses\_BaseResponse;
 
 /**
  * LevelUpResponse
@@ -15,7 +13,7 @@ use Illuminate\Http\Request;
  * - Bool値: is_* / has_* プレフィックス
  * - 変更前後: before_* / after_*
  */
-class LevelUpResponse implements Responsable
+class LevelUpResponse extends _BaseResponse
 {
     public function __construct(
         public readonly bool $isLeveledUp,
@@ -31,12 +29,10 @@ class LevelUpResponse implements Responsable
 
     /**
      * レスポンスを生成
-     *
-     * @param  Request  $request
      */
-    public function toResponse($request): JsonResponse
+    public function toArray(): array
     {
-        return response()->json([
+        return [
             'is_leveled_up' => $this->isLeveledUp,
             'before_level' => $this->beforeLevel,
             'after_level' => $this->afterLevel,
@@ -46,6 +42,6 @@ class LevelUpResponse implements Responsable
             'max_level' => $this->maxLevel,
             'item_used' => $this->itemUsed,
             'exp_gained' => $this->expGained,
-        ]);
+        ];
     }
 }

@@ -19,6 +19,7 @@ class MstGachaRarityRate extends _BaseMst
 
     protected $keyType = 'string';
 
+    /** @var list<string> */
     protected $fillable = [
         'deploy_key',
         'id',
@@ -27,6 +28,7 @@ class MstGachaRarityRate extends _BaseMst
         'rate',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'deploy_key' => 'integer',
         'rarity' => 'integer',

@@ -24,6 +24,7 @@ class MstGachaStepBonus extends _BaseMst
 
     protected $keyType = 'string';
 
+    /** @var list<string> */
     protected $fillable = [
         'deploy_key',
         'id',
@@ -37,6 +38,7 @@ class MstGachaStepBonus extends _BaseMst
         'is_active',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'deploy_key' => 'integer',
         'position' => 'integer',

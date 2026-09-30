@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Domain\Unit\UseCases\UnitLevelUpUseCase;
+use App\Domain\Unit\UseCases\LevelUpUseCase;
 use App\Http\Requests\Unit\LevelUpRequest;
 use App\Persistence\ApiSession;
 use Illuminate\Http\JsonResponse;
@@ -15,7 +15,7 @@ use Illuminate\Http\JsonResponse;
 class UnitController extends _BaseController
 {
     public function __construct(
-        private readonly UnitLevelUpUseCase $unitLevelUpUseCase,
+        private readonly LevelUpUseCase $unitLevelUpUseCase,
         private readonly ApiSession $apiSession,
     ) {}
 

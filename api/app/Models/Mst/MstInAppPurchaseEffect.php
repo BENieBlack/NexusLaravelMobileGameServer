@@ -8,10 +8,12 @@ class MstInAppPurchaseEffect extends _BaseMst
 {
     public $table = 'mst_in_app_purchase_effect';
 
-    protected $primaryKey = null;
+    /** テーブル定義どおりの複合主キー */
+    protected $primaryKey = ['mst_in_app_purchase_id', 'effect_type'];
 
     public $incrementing = false;
 
+    /** @var list<string> */
     protected $fillable = [
         'deploy_key',
         'mst_in_app_purchase_id',
@@ -19,11 +21,14 @@ class MstInAppPurchaseEffect extends _BaseMst
         'value',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'deploy_key' => 'integer',
         'mst_in_app_purchase_id' => 'integer',
-        'effect_type' => 'integer',
-        'value' => 'integer',
+        // effect_type は enum の文字列、value は decimal(10,2)。
+        // integerにすると 'ExpBoost' → '0'、1.50 → 1 に潰れる
+        'effect_type' => 'string',
+        'value' => 'decimal:2',
     ];
 
     public $timestamps = true;
@@ -44,6 +49,9 @@ class MstInAppPurchaseEffect extends _BaseMst
     /**
      * 親のアプリ内課金商品
      */
+    /**
+     * @return BelongsTo<MstInAppPurchase, $this>
+     */
     public function inAppPurchase(): BelongsTo
     {
         return $this->belongsTo(MstInAppPurchase::class, 'mst_in_app_purchase_id');
@@ -60,9 +68,9 @@ class MstInAppPurchaseEffect extends _BaseMst
     /**
      * 効果値を取得
      */
-    public function getValue(): int|float
+    public function getValue(): float
     {
-        return $this->getAttribute('value');
+        return (float) $this->getAttribute('value');
     }
 
     /**

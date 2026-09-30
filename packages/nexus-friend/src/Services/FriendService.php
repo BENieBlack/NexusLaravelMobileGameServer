@@ -4,6 +4,7 @@ namespace NexusFriend\Services;
 
 use NexusFriend\Constants\FriendStatus;
 use NexusFriend\DataTransferObjects\FriendApply;
+use NexusFriend\Exceptions\FriendException;
 use NexusFriend\Repositories\FriendApplyRepositoryInterface;
 
 /**
@@ -25,7 +26,7 @@ class FriendService
      * @param  int  $senderPlayerId  申請者プレイヤーID
      * @param  int  $receiverPlayerId  受信者プレイヤーID
      *
-     * @throws \RuntimeException 既に申請済みまたはフレンド関係がある場合
+     * @throws FriendException 既に申請済みまたはフレンド関係がある場合
      */
     public function validateNoDuplicateApply(int $senderPlayerId, int $receiverPlayerId): void
     {
@@ -36,11 +37,11 @@ class FriendService
         }
 
         if ($existingApply->getStatus() === FriendStatus::APPLIED) {
-            throw new \RuntimeException('Friend request already exists');
+            throw FriendException::alreadyApplied();
         }
 
         if ($existingApply->getStatus() === FriendStatus::ACCEPTED) {
-            throw new \RuntimeException('Already friends');
+            throw FriendException::alreadyFriends();
         }
     }
 
@@ -50,12 +51,12 @@ class FriendService
      * @param  int  $senderPlayerId  申請者プレイヤーID
      * @param  int  $receiverPlayerId  受信者プレイヤーID
      *
-     * @throws \RuntimeException 自分自身への申請の場合
+     * @throws FriendException 自分自身への申請の場合
      */
     public function validateNotSelfApply(int $senderPlayerId, int $receiverPlayerId): void
     {
         if ($senderPlayerId === $receiverPlayerId) {
-            throw new \RuntimeException('Cannot send friend request to yourself');
+            throw FriendException::selfApply();
         }
     }
 
@@ -67,12 +68,12 @@ class FriendService
      * @param  FriendApply  $friendApply  フレンド申請DTO
      * @param  int  $currentPlayerId  現在のプレイヤーID
      *
-     * @throws \RuntimeException 承認権限がない場合
+     * @throws FriendException 承認権限がない場合
      */
     public function validateReceiverAuthorization(FriendApply $friendApply, int $currentPlayerId): void
     {
         if ($friendApply->getReceiverPlayerId() !== $currentPlayerId) {
-            throw new \RuntimeException('Not authorized to accept/reject this request');
+            throw FriendException::notAuthorized();
         }
     }
 
@@ -81,20 +82,20 @@ class FriendService
      *
      * @param  FriendApply  $friendApply  フレンド申請DTO
      *
-     * @throws \RuntimeException 承認できない状態の場合
+     * @throws FriendException 承認できない状態の場合
      */
     public function validateCanAccept(FriendApply $friendApply): void
     {
         if ($friendApply->getStatus() === FriendStatus::ACCEPTED) {
-            throw new \RuntimeException('Friend request already accepted');
+            throw FriendException::alreadyAccepted();
         }
 
         if ($friendApply->getStatus() === FriendStatus::DELETED) {
-            throw new \RuntimeException('Friend request already deleted');
+            throw FriendException::alreadyDeleted();
         }
 
         if ($friendApply->getStatus() === FriendStatus::REJECTED) {
-            throw new \RuntimeException('Friend request already rejected');
+            throw FriendException::alreadyRejected();
         }
     }
 
@@ -103,20 +104,20 @@ class FriendService
      *
      * @param  FriendApply  $friendApply  フレンド申請DTO
      *
-     * @throws \RuntimeException 却下できない状態の場合
+     * @throws FriendException 却下できない状態の場合
      */
     public function validateCanReject(FriendApply $friendApply): void
     {
         if ($friendApply->getStatus() === FriendStatus::ACCEPTED) {
-            throw new \RuntimeException('Friend request already accepted');
+            throw FriendException::alreadyAccepted();
         }
 
         if ($friendApply->getStatus() === FriendStatus::DELETED) {
-            throw new \RuntimeException('Friend request already deleted');
+            throw FriendException::alreadyDeleted();
         }
 
         if ($friendApply->getStatus() === FriendStatus::REJECTED) {
-            throw new \RuntimeException('Friend request already rejected');
+            throw FriendException::alreadyRejected();
         }
     }
 
@@ -140,14 +141,14 @@ class FriendService
      * @param  int  $friendApplyId  フレンド申請ID
      * @param  int  $currentPlayerId  現在のプレイヤーID（受信者）
      *
-     * @throws \RuntimeException 申請が見つからない、または承認できない場合
+     * @throws FriendException 申請が見つからない、または承認できない場合
      */
     public function acceptApply(int $friendApplyId, int $currentPlayerId): FriendApply
     {
         $apply = $this->repository->selectById($friendApplyId);
 
         if ($apply === null) {
-            throw new \RuntimeException('Friend apply not found');
+            throw FriendException::applyNotFound();
         }
 
         $this->validateReceiverAuthorization($apply, $currentPlayerId);
@@ -162,14 +163,14 @@ class FriendService
      * @param  int  $friendApplyId  フレンド申請ID
      * @param  int  $currentPlayerId  現在のプレイヤーID（受信者）
      *
-     * @throws \RuntimeException 申請が見つからない、または却下できない場合
+     * @throws FriendException 申請が見つからない、または却下できない場合
      */
     public function rejectApply(int $friendApplyId, int $currentPlayerId): FriendApply
     {
         $apply = $this->repository->selectById($friendApplyId);
 
         if ($apply === null) {
-            throw new \RuntimeException('Friend apply not found');
+            throw FriendException::applyNotFound();
         }
 
         $this->validateReceiverAuthorization($apply, $currentPlayerId);
@@ -206,7 +207,7 @@ class FriendService
      * @param  int  $playerId  削除実行者のプレイヤーID
      * @param  int  $targetPlayerId  削除対象のプレイヤーID
      *
-     * @throws \RuntimeException フレンド関係が見つからない場合
+     * @throws FriendException フレンド関係が見つからない場合
      */
     public function deleteFriend(int $playerId, int $targetPlayerId): FriendApply
     {
@@ -215,7 +216,7 @@ class FriendService
         $deletedRelation = $this->repository->deleteFriendRelation($playerId, $targetPlayerId);
 
         if ($deletedRelation === null) {
-            throw new \RuntimeException('Friend not found');
+            throw FriendException::friendNotFound();
         }
 
         return $deletedRelation;

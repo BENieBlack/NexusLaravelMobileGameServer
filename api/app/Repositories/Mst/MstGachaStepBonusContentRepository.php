@@ -3,6 +3,7 @@
 namespace App\Repositories\Mst;
 
 use App\Models\Mst\MstGachaStepBonusContent;
+use Illuminate\Database\Eloquent\Model;
 use Nexus\Core\Support\CustomCollection;
 use NexusGacha\Repositories\GachaStepBonusContentRepositoryInterface;
 
@@ -17,18 +18,23 @@ class MstGachaStepBonusContentRepository extends _BaseMstRepository implements G
 
     /**
      * {@inheritDoc}
+     *
+     * @return CustomCollection<array-key, Model> インターフェースに合わせてModelで受ける
      */
     public function selectByBonusId(string $bonusId): CustomCollection
     {
-        return $this->selectListByBonusId($bonusId);
+        /** @var CustomCollection<array-key, Model> $contents インターフェースの型に合わせて広げる */
+        $contents = $this->selectListByBonusId($bonusId);
+
+        return $contents;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function selectById($contentId): mixed
+    public function selectById($contentMstId): mixed
     {
-        return parent::selectById($contentId);
+        return parent::selectById($contentMstId);
     }
 
     /**

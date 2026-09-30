@@ -4,18 +4,25 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-# Change to project root for docker-compose commands
 cd "$PROJECT_ROOT"
 
-# Determine which service to use (api-php or admin-php)
-# Can be overridden by SAIL_SERVICE environment variable or --service flag
+# Compose v2 (docker compose) を優先し、無ければ v1 (docker-compose) にフォールバック
+if docker compose version > /dev/null 2>&1; then
+    COMPOSE=(docker compose)
+elif command -v docker-compose > /dev/null 2>&1; then
+    COMPOSE=(docker-compose)
+else
+    echo "Error: Docker Compose が見つかりません。"
+    exit 1
+fi
+
+# 対象サービス。SAIL_SERVICE か --api / --tool / --service= で切り替える
 SERVICE="${SAIL_SERVICE:-api-php}"
 
-# Parse arguments for --service flag or --admin/--api flags
 ARGS=()
 for arg in "$@"; do
-    if [ "$arg" = "--admin" ]; then
-        SERVICE="admin-php"
+    if [ "$arg" = "--tool" ]; then
+        SERVICE="tool-php"
     elif [ "$arg" = "--api" ]; then
         SERVICE="api-php"
     elif [[ "$arg" == --service=* ]]; then
@@ -27,16 +34,14 @@ done
 
 # Export APP_SERVICE for Laravel Sail to use
 export APP_SERVICE="$SERVICE"
-
-# Set the docker-compose file location
 export COMPOSE_FILE="$PROJECT_ROOT/docker-compose.yml"
 
-# Function to ensure Docker containers are running
+# コンテナが起動していなければ起動する
 ensure_docker_running() {
     echo "Checking Docker containers..."
-    if ! docker-compose ps | grep -q "Up"; then
+    if ! "${COMPOSE[@]}" ps --status running --services 2> /dev/null | grep -q .; then
         echo "Starting Docker containers..."
-        docker-compose up -d
+        "${COMPOSE[@]}" up -d
         echo "Waiting for containers to be ready..."
         sleep 5
     else
@@ -44,47 +49,31 @@ ensure_docker_running() {
     fi
 }
 
-# Custom migrate command that handles all databases
-if [ "${ARGS[0]}" = "migrate" ]; then
-    # Only run on api service
-    if [ "$SERVICE" != "api-php" ]; then
-        echo "Error: migrate command only works with api service (--api)"
-        exit 1
-    fi
-    
-    echo "Running migrations for all API databases (mst, trx, log)..."
-    
-    # Run migrations for each database
-    "$PROJECT_ROOT/api/vendor/bin/sail" artisan migrate --database=mst --path=database/migrations/mst
-    "$PROJECT_ROOT/api/vendor/bin/sail" artisan migrate --database=trx --path=database/migrations/trx
-    "$PROJECT_ROOT/api/vendor/bin/sail" artisan migrate --database=log --path=database/migrations/log
-    
-    exit 0
-fi
-
-# Custom test command for API
-if [ "${ARGS[0]}" = "api" ] && [ "${ARGS[1]}" = "test" ]; then
+# API・Tool のテスト実行
+if [ "${ARGS[0]:-}" = "api" ] && [ "${ARGS[1]:-}" = "test" ]; then
     ensure_docker_running
-    
     echo "Running API tests..."
-    docker-compose exec -T api-php php vendor/bin/phpunit "${ARGS[@]:2}"
-    
+    "${COMPOSE[@]}" exec -T api-php php vendor/bin/phpunit "${ARGS[@]:2}"
     exit $?
 fi
 
-# Custom test command for Tool
-if [ "${ARGS[0]}" = "tool" ] && [ "${ARGS[1]}" = "test" ]; then
+if [ "${ARGS[0]:-}" = "tool" ] && [ "${ARGS[1]:-}" = "test" ]; then
     ensure_docker_running
-    
     echo "Running Tool tests..."
-    docker-compose exec -T tool-php php vendor/bin/phpunit "${ARGS[@]:2}"
-    
+    "${COMPOSE[@]}" exec -T tool-php php vendor/bin/phpunit "${ARGS[@]:2}"
     exit $?
 fi
 
-# Delegate to the appropriate Laravel Sail binary
-if [ "$SERVICE" = "admin-php" ]; then
-    exec "$PROJECT_ROOT/admin/vendor/bin/sail" "${ARGS[@]}"
+# マイグレーションは対象接続とパスの組み合わせが多いため make に集約している
+if [ "${ARGS[0]:-}" = "migrate" ]; then
+    echo "Error: マイグレーションは 'make migrate' を使ってください。"
+    echo "  接続（sys / mst / trx1..N / log1..N）ごとにパスを指定する必要があります。"
+    exit 1
+fi
+
+# Laravel Sail バイナリに委譲
+if [ "$SERVICE" = "tool-php" ]; then
+    exec "$PROJECT_ROOT/tool/vendor/bin/sail" "${ARGS[@]}"
 else
     exec "$PROJECT_ROOT/api/vendor/bin/sail" "${ARGS[@]}"
 fi

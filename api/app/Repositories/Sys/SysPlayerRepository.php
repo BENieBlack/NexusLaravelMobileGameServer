@@ -6,7 +6,6 @@ use App\Models\Sys\SysPlayer;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Str;
 use Nexus\Core\Support\CustomCollection;
-use NexusAuth\Contracts\PlayerRepositoryInterface as AuthPlayerRepositoryInterface;
 use NexusUnitOfWork\Contracts\QueryManagerInterface;
 
 /**
@@ -16,7 +15,7 @@ use NexusUnitOfWork\Contracts\QueryManagerInterface;
  *
  * @extends _BaseSysRepository<SysPlayer>
  */
-class SysPlayerRepository extends _BaseSysRepository implements AuthPlayerRepositoryInterface
+class SysPlayerRepository extends _BaseSysRepository
 {
     protected string $modelClass = SysPlayer::class;
 
@@ -46,90 +45,53 @@ class SysPlayerRepository extends _BaseSysRepository implements AuthPlayerReposi
 
     /**
      * IDでプレイヤーを検索
-     * メモリキャッシュから取得、なければDBから取得
+     *
+     * 自分の行だけがキャッシュと更新キューに載る。
+     * 他人のIDを渡した場合はキャッシュを通さず読むだけで、
+     * 返ったモデルを setModel() に渡してはいけない。
      *
      * @param  int  $sysPlayerId  プレイヤーID
      */
     public function selectById(int $sysPlayerId): ?SysPlayer
     {
-        // メモリキャッシュから取得
-        $sysPlayer = $this->findCachedModel($sysPlayerId);
-
-        if ($sysPlayer !== null) {
-            /** @var SysPlayer */
-            return $sysPlayer;
+        if (! $this->isSessionPlayer($sysPlayerId)) {
+            /** @var SysPlayer|null */
+            return $this->selectWithoutCache()->find($sysPlayerId);
         }
 
-        // DBから取得してメモリキャッシュに保存
-        $sysPlayer = $this->modelClass::find($sysPlayerId);
-
-        if ($sysPlayer !== null) {
-            $this->setModel($sysPlayer);
-        }
-
-        return $sysPlayer;
+        /** @var SysPlayer|null */
+        return $this->queryOrMemory()->get((string) $sysPlayerId);
     }
 
     /**
-     * my_idからプレイヤーを検索
-     * メモリキャッシュから検索、なければDBから取得
+     * my_idからプレイヤーを検索（キャッシュを通さない）
+     *
+     * フレンド申請の相手探しなど、他人を引く用途にしか使われない。
      */
     public function selectByMyId(string $myId): ?SysPlayer
     {
-        // メモリキャッシュから検索
-        $sysPlayer = $this->findCachedModels()->firstWhere('my_id', $myId);
-
-        if ($sysPlayer !== null) {
-            /** @var SysPlayer */
-            return $sysPlayer;
-        }
-
-        // DBから取得してメモリキャッシュに保存
-        $sysPlayer = $this->modelClass::where('my_id', $myId)->first();
-
-        if ($sysPlayer !== null) {
-            $this->setModel($sysPlayer);
-        }
-
-        return $sysPlayer;
+        /** @var SysPlayer|null */
+        return $this->selectWithoutCache()->where('my_id', $myId)->first();
     }
 
     /**
-     * UUIDからプレイヤーを検索
-     * メモリキャッシュから検索、なければDBから取得
+     * UUIDからプレイヤーを検索（キャッシュを通さない）
+     *
+     * サインインの本人確認に使う。この時点ではまだ
+     * ログイン中プレイヤーが確定していない。
      */
     public function selectByUuid(string $uuid): ?SysPlayer
     {
-        // メモリキャッシュから検索
-        $sysPlayer = $this->findCachedModels()->firstWhere('uuid', $uuid);
-
-        if ($sysPlayer !== null) {
-            /** @var SysPlayer */
-            return $sysPlayer;
-        }
-
-        // DBから取得してメモリキャッシュに保存
-        $sysPlayer = $this->modelClass::where('uuid', $uuid)->first();
-
-        if ($sysPlayer !== null) {
-            $this->setModel($sysPlayer);
-        }
-
-        return $sysPlayer;
+        /** @var SysPlayer|null */
+        return $this->selectWithoutCache()->where('uuid', $uuid)->first();
     }
 
     /**
-     * my_idが既に存在するかチェック
+     * my_idが既に存在するかチェック（キャッシュを通さない）
      */
     public function existsByMyId(string $myId): bool
     {
-        // メモリキャッシュから検索
-        if ($this->findCachedModels()->where('my_id', $myId)->isNotEmpty()) {
-            return true;
-        }
-
-        // DBで確認
-        return $this->modelClass::where('my_id', $myId)->exists();
+        return $this->selectWithoutCache()->where('my_id', $myId)->exists();
     }
 
     /**
@@ -148,7 +110,8 @@ class SysPlayerRepository extends _BaseSysRepository implements AuthPlayerReposi
      */
     public function selectByVipPointRange(int $minPoint, ?int $maxPoint = null, int $limit = 100): CustomCollection
     {
-        $query = $this->modelClass::where('vip_point', '>=', $minPoint);
+        // 全プレイヤーが対象のバッチ用。キャッシュにも更新キューにも載せない
+        $query = $this->selectWithoutCache()->where('vip_point', '>=', $minPoint);
 
         if ($maxPoint !== null) {
             $query->where('vip_point', '<=', $maxPoint);
@@ -158,6 +121,9 @@ class SysPlayerRepository extends _BaseSysRepository implements AuthPlayerReposi
             ->limit($limit)
             ->get();
 
-        return new CustomCollection($models->all());
+        /** @var CustomCollection<int, SysPlayer> $collection */
+        $collection = new CustomCollection($models->all());
+
+        return $collection;
     }
 }

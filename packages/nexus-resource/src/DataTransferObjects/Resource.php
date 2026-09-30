@@ -17,11 +17,11 @@ class Resource
     private string $uniqueId;
 
     /**
-     * @param ResourceType $type リソースタイプ
-     * @param string $id マスターID (mst_item_id, mst_unit_id等、通貨系は固定値)
-     * @param int $amount 数量
-     * @param string|null $expireAt 有効期限（Y-m-d H:i:s形式、NULLは無期限）
-     * @param array|null $metadata 追加情報（Unit: grade/level, Equipment: 初期値等）
+     * @param  ResourceType  $type  リソースタイプ
+     * @param  string  $id  マスターID (mst_item_id, mst_unit_id等、通貨系は固定値)
+     * @param  int  $amount  数量
+     * @param  string|null  $expireAt  有効期限（Y-m-d H:i:s形式、NULLは無期限）
+     * @param  array<string, mixed>|null  $metadata  追加情報（Unit: grade/level, Equipment: 初期値等）
      */
     public function __construct(
         private ResourceType $type,
@@ -91,7 +91,7 @@ class Resource
 
     /**
      * 有効期限を取得
-     * 
+     *
      * @return string|null Y-m-d H:i:s形式の日時文字列
      */
     public function getExpireAt(): ?string
@@ -101,6 +101,8 @@ class Resource
 
     /**
      * メタデータを取得
+     *
+     * @return array<string, mixed>|null
      */
     public function getMetadata(): ?array
     {
@@ -109,6 +111,8 @@ class Resource
 
     /**
      * メタデータを設定
+     *
+     * @param  array<string, mixed>|null  $metadata
      */
     public function setMetadata(?array $metadata): void
     {
@@ -126,13 +130,13 @@ class Resource
     /**
      * 配列からResourceを生成
      *
-     * @param array $data
+     * @param  array{type: ResourceType|string, id: string, amount: int, expire_at?: string|null, metadata?: array<string, mixed>|null}  $data
      * @return self
      */
     public static function fromArray(array $data): self
     {
-        $type = $data['type'] instanceof ResourceType 
-            ? $data['type'] 
+        $type = $data['type'] instanceof ResourceType
+            ? $data['type']
             : ResourceType::from($data['type']);
 
         return new self(
@@ -147,12 +151,13 @@ class Resource
     /**
      * 文字列のタイプからResourceを生成
      *
-     * @param string $typeString リソースタイプ文字列 ('item', 'unit', 'diamond', etc.)
-     * @param string $id マスターID
-     * @param int $amount 数量
-     * @param string|null $expireAt 有効期限
-     * @param array|null $metadata 追加情報
+     * @param  string  $typeString  リソースタイプ文字列 ('item', 'unit', 'diamond', etc.)
+     * @param  string  $id  マスターID
+     * @param  int  $amount  数量
+     * @param  string|null  $expireAt  有効期限
+     * @param  array<string, mixed>|null  $metadata  追加情報
      * @return self
+     *
      * @throws \ValueError タイプ文字列が不正な場合
      */
     public static function fromTypeString(
@@ -180,7 +185,7 @@ class Resource
     /**
      * 配列に変換
      *
-     * @return array
+     * @return array{unique_id: string, type: string, id: string, amount: int, expire_at: string|null, metadata: array<string, mixed>|null}
      */
     public function toArray(): array
     {
@@ -509,6 +514,8 @@ class Resource
 
     /**
      * Customリソースを作成
+     *
+     * @param  array<string, mixed>|null  $metadata
      */
     public static function custom(string $customId, int $amount, ?array $metadata = null): self
     {

@@ -32,19 +32,17 @@ class FriendApplyAdapterTest extends TestCase
     }
 
     #[Test]
-    public function test_timestamps_are_formattable(): void
+    public function test_timestamps_are_returned_as_string(): void
     {
         $dto = FriendApplyAdapter::toDto($this->makeApply());
 
-        // ApplyListResponse が ->format() を呼ぶため、その形で使えることを確認する
+        // 日時は文字列のまま扱う（Carbonへのキャストを強制しない）
+        $this->assertIsString($dto->getCreatedAt());
         $this->assertMatchesRegularExpression(
             '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/',
-            $dto->getCreatedAt()->format('Y-m-d H:i:s')
+            $dto->getCreatedAt()
         );
-        $this->assertMatchesRegularExpression(
-            '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/',
-            $dto->getUpdatedAt()->format('Y-m-d H:i:s')
-        );
+        $this->assertIsString($dto->getUpdatedAt());
     }
 
     #[Test]

@@ -25,7 +25,7 @@ class BuyRequest extends _BaseRequest
         return [
             'mst_in_app_purchase_id' => ['required', 'integer', 'min:1'],
             'platform' => ['required', 'string', 'in:Apple,Google'],
-            'billing_platform' => ['required', 'string', 'in:AppStore,GooglePlay,PayPal,Stripe'],
+            'billing_platform' => ['required', 'string', 'in:app_store,google_play,pay_pal,stripe'],
             'receipt' => ['required', 'string'],
             'transaction_id' => ['nullable', 'string'],
             'product_id' => ['required', 'string'],
@@ -108,7 +108,7 @@ class BuyRequest extends _BaseRequest
             'platform.in' => 'platform must be one of: Apple, Google',
             'billing_platform.required' => 'billing_platform is required',
             'billing_platform.string' => 'billing_platform must be a string',
-            'billing_platform.in' => 'billing_platform must be one of: AppStore, GooglePlay, PayPal, Stripe',
+            'billing_platform.in' => 'billing_platform must be one of: app_store, google_play, pay_pal, stripe',
             'receipt.required' => 'receipt is required',
             'receipt.string' => 'receipt must be a string',
             'transaction_id.string' => 'transaction_id must be a string',

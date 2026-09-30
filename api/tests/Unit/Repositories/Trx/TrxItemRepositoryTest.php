@@ -3,7 +3,6 @@
 namespace Tests\Unit\Repositories\Trx;
 
 use App\Models\Trx\TrxItem;
-use App\Persistence\ApiSession;
 use App\Repositories\Trx\TrxItemRepository;
 use Nexus\Core\Utilities\ClockUtility;
 use NexusUnitOfWork\Persistence\QueryManager;
@@ -24,7 +23,7 @@ class TrxItemRepositoryTest extends TestCase
 
         // ApiSessionを初期化（テスト用のプレイヤーID=1を設定）
         ClockUtility::initialize();
-        ApiSession::setSysPlayerId(1);
+        $this->useSessionPlayer(1);
 
         $this->repository = new TrxItemRepository;
         $this->queryManager = new QueryManager;

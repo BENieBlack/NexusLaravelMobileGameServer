@@ -45,7 +45,7 @@ class InAppPurchaseHistoryService
                 'transaction_id' => $transactionId,
                 'total_purchase_count' => 1,
                 'purchase_count' => 1,
-                'purchase_count_reset_at' => $mstInAppPurchase->getPurchaseLimitReset() !== 'None' ? ClockUtility::now() : null,
+                'purchase_count_reset_at' => $mstInAppPurchase->getPurchaseLimitReset() !== 'none' ? ClockUtility::now() : null,
             ]);
             $this->trxInAppPurchaseRepository->setModel($purchaseHistory);
 

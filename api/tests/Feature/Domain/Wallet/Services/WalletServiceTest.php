@@ -5,10 +5,10 @@ namespace Tests\Feature\Domain\Wallet\Services;
 use App\Persistence\ApiSession;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
-use LaravelWallet\Exceptions\InsufficientBalanceException;
-use LaravelWallet\Services\WalletService;
 use Nexus\Core\Utilities\ClockUtility;
 use NexusUnitOfWork\Persistence\QueryManager;
+use NexusWallet\Exceptions\InsufficientBalanceException;
+use NexusWallet\Services\WalletService;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
@@ -41,7 +41,7 @@ class WalletServiceTest extends TestCase
     {
         parent::setUp();
         ApiSession::clearForTest();
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         $this->walletService = app(WalletService::class);
         $this->queryManager = app(QueryManager::class);
@@ -201,7 +201,7 @@ class WalletServiceTest extends TestCase
         $this->queryManager->execAllQuery();
 
         ApiSession::clearForTest();
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         // Execute: Consume 300 (should consume from paid first)
         $result = $this->walletService->consumeCurrency(
@@ -241,7 +241,7 @@ class WalletServiceTest extends TestCase
         $this->queryManager->execAllQuery();
 
         ApiSession::clearForTest();
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         // Execute: Consume 800 (500 from paid + 300 from free)
         $result = $this->walletService->consumeCurrency(
@@ -281,7 +281,7 @@ class WalletServiceTest extends TestCase
         $this->queryManager->execAllQuery();
 
         ApiSession::clearForTest();
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         // Second add
         $result = $this->walletService->addCurrency(
@@ -322,7 +322,7 @@ class WalletServiceTest extends TestCase
         $this->queryManager->execAllQuery();
 
         ApiSession::clearForTest();
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         // Execute & Verify
         $this->expectException(InsufficientBalanceException::class);
@@ -359,7 +359,7 @@ class WalletServiceTest extends TestCase
         $this->queryManager->execAllQuery();
 
         ApiSession::clearForTest();
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         // Execute
         $balance = $this->walletService->findBalance($this->sysPlayerId, 'gold');
@@ -447,7 +447,7 @@ class WalletServiceTest extends TestCase
             ],
         ]);
 
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         // Execute
         $expired = $this->walletService->removeExpiredCurrency(
@@ -522,7 +522,7 @@ class WalletServiceTest extends TestCase
             ],
         ]);
 
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         // Execute: Consume 150 (should consume from near-expire first)
         $this->walletService->consumeCurrency(
@@ -557,7 +557,7 @@ class WalletServiceTest extends TestCase
         $this->queryManager->execAllQuery();
 
         ApiSession::clearForTest();
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         // Execute: Consume all paid (500)
         $this->walletService->consumeCurrency(
@@ -591,7 +591,7 @@ class WalletServiceTest extends TestCase
         $this->queryManager->execAllQuery();
 
         ApiSession::clearForTest();
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         // Execute: Consume 700000 (500000 from paid + 200000 from free)
         $result = $this->walletService->consumeCurrency(
@@ -713,7 +713,7 @@ class WalletServiceTest extends TestCase
             ],
         ]);
 
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         // Execute: Consume 1000 (should consume paid first: 300 + 600 = 900, then free: 100)
         $this->walletService->consumeCurrency(

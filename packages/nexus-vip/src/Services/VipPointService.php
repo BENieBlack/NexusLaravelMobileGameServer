@@ -30,7 +30,7 @@ class VipPointService
      * @param  int  $sysPlayerId  プレイヤーID
      * @param  int  $points  VIPポイント
      * @param  string  $reason  理由（purchase, manual_adjustment, campaign）
-     * @param  array  $metadata  メタデータ
+     * @param  array<string, mixed>  $metadata
      *
      * @throws InvalidVipPointException
      */
@@ -102,6 +102,8 @@ class VipPointService
 
     /**
      * VIPポイント変動ログを記録
+     *
+     * @param  array<string, mixed>  $metadata
      */
     protected function logVipPointChange(
         string $uniqueRequestId,

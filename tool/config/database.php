@@ -16,7 +16,11 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'admin'),
+    // ルートの .env は API と共有しており、DB_CONNECTION=sqlite が入っている
+    // （引数なしの migrate が実DBを書き換えないようにするための既定値）。
+    // その値を既定接続として読むと、接続を明示していないクエリが
+    // 存在しない sqlite ファイルへ向かうため、Tool専用の変数で受ける
+    'default' => env('TOOL_DB_CONNECTION', 'admin'),
 
     /*
     |--------------------------------------------------------------------------
@@ -34,9 +38,9 @@ return [
         'admin' => [
             'driver' => 'mysql',
             'url' => env('DB_ADMIN_URL'),
-            'host' => env('DB_ADMIN_HOST', 'db-adm'),
+            'host' => env('DB_ADMIN_HOST', 'db-admin'),
             'port' => env('DB_ADMIN_PORT', '3306'),
-            'database' => env('DB_ADMIN_DATABASE', 'nexus-local-adm'),
+            'database' => env('DB_ADMIN_DATABASE', 'nexus-local-admin'),
             'username' => env('DB_ADMIN_USERNAME', 'root'),
             'password' => env('DB_ADMIN_PASSWORD', 'root'),
             'unix_socket' => env('DB_SOCKET', ''),
@@ -54,9 +58,9 @@ return [
         'tool' => [
             'driver' => 'mysql',
             'url' => env('DB_URL'),
-            'host' => env('DB_TOOL_HOST', 'db-tol'),
+            'host' => env('DB_TOOL_HOST', 'db-tool'),
             'port' => env('DB_TOOL_PORT', '3306'),
-            'database' => env('DB_TOOL_DATABASE', 'nexus-local-tol'),
+            'database' => env('DB_TOOL_DATABASE', 'nexus-local-tool'),
             'username' => env('DB_TOOL_USERNAME', 'root'),
             'password' => env('DB_TOOL_PASSWORD', 'root'),
             'unix_socket' => env('DB_SOCKET', ''),
@@ -71,14 +75,14 @@ return [
             ]) : [],
         ],
 
-        'log' => [
+        'trx' => [
             'driver' => 'mysql',
             'url' => env('DB_URL'),
-            'host' => env('DB_LOG1_HOST', 'db-log1'),
-            'port' => env('DB_LOG1_PORT', '3306'),
-            'database' => env('DB_LOG1_DATABASE', 'nexus-local-log1'),
-            'username' => env('DB_LOG1_USERNAME', 'root'),
-            'password' => env('DB_LOG1_PASSWORD', 'root'),
+            'host' => env('DB_SHARD1_HOST', 'db-shard1'),
+            'port' => env('DB_SHARD1_PORT', '3306'),
+            'database' => env('DB_SHARD_DATABASE', 'nexus-local-shard'),
+            'username' => env('DB_SHARD1_USERNAME', 'root'),
+            'password' => env('DB_SHARD1_PASSWORD', 'root'),
             'unix_socket' => env('DB_SOCKET', ''),
             'charset' => env('DB_CHARSET', 'utf8mb4'),
             'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
@@ -91,8 +95,86 @@ return [
             ]) : [],
         ],
 
+        'trx2' => [
+            'driver' => 'mysql',
+            'url' => env('DB_URL'),
+            'host' => env('DB_SHARD2_HOST', 'db-shard2'),
+            'port' => env('DB_SHARD2_PORT', '3306'),
+            'database' => env('DB_SHARD_DATABASE', 'nexus-local-shard'),
+            'username' => env('DB_SHARD2_USERNAME', 'root'),
+            'password' => env('DB_SHARD2_PASSWORD', 'root'),
+            'unix_socket' => env('DB_SOCKET', ''),
+            'charset' => env('DB_CHARSET', 'utf8mb4'),
+            'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                (PHP_VERSION_ID >= 80500 ? \Pdo\Mysql::ATTR_SSL_CA : \PDO::MYSQL_ATTR_SSL_CA) => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+
+        'trx3' => [
+            'driver' => 'mysql',
+            'url' => env('DB_URL'),
+            'host' => env('DB_SHARD3_HOST', 'db-shard3'),
+            'port' => env('DB_SHARD3_PORT', '3306'),
+            'database' => env('DB_SHARD_DATABASE', 'nexus-local-shard'),
+            'username' => env('DB_SHARD3_USERNAME', 'root'),
+            'password' => env('DB_SHARD3_PASSWORD', 'root'),
+            'unix_socket' => env('DB_SOCKET', ''),
+            'charset' => env('DB_CHARSET', 'utf8mb4'),
+            'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                (PHP_VERSION_ID >= 80500 ? \Pdo\Mysql::ATTR_SSL_CA : \PDO::MYSQL_ATTR_SSL_CA) => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+
+        'mst' => [
+            'driver' => 'mysql',
+            'url' => env('DB_URL'),
+            'host' => env('DB_MASTER_HOST', 'db-master'),
+            'port' => env('DB_MASTER_PORT', '3306'),
+            'database' => env('DB_MASTER_DATABASE', 'nexus-local-master'),
+            'username' => env('DB_MASTER_USERNAME', 'root'),
+            'password' => env('DB_MASTER_PASSWORD', 'root'),
+            'unix_socket' => env('DB_SOCKET', ''),
+            'charset' => env('DB_CHARSET', 'utf8mb4'),
+            'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                (PHP_VERSION_ID >= 80500 ? \Pdo\Mysql::ATTR_SSL_CA : \PDO::MYSQL_ATTR_SSL_CA) => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+
+        'sys' => [
+            'driver' => 'mysql',
+            'url' => env('DB_URL'),
+            'host' => env('DB_SYS_HOST', 'db-sys'),
+            'port' => env('DB_SYS_PORT', '3306'),
+            'database' => env('DB_SYS_DATABASE', 'nexus-local-sys'),
+            'username' => env('DB_SYS_USERNAME', 'root'),
+            'password' => env('DB_SYS_PASSWORD', 'root'),
+            'unix_socket' => env('DB_SOCKET', ''),
+            'charset' => env('DB_CHARSET', 'utf8mb4'),
+            'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                (PHP_VERSION_ID >= 80500 ? \Pdo\Mysql::ATTR_SSL_CA : \PDO::MYSQL_ATTR_SSL_CA) => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
         'sqlite' => [
-            'driver' => 'sqlite',
             'url' => env('DB_URL'),
             'database' => env('DB_DATABASE', database_path('database.sqlite')),
             'prefix' => '',
@@ -108,7 +190,7 @@ return [
             'url' => env('DB_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE') ?: env('APP_NAME', 'laravel') . '-' . env('APP_ENV', 'local') . '-adm',
+            'database' => env('DB_DATABASE') ?: env('APP_NAME', 'laravel').'-'.env('APP_ENV', 'local').'-adm',
             'username' => env('DB_USERNAME', 'root'),
             'password' => env('DB_PASSWORD', ''),
             'unix_socket' => env('DB_SOCKET', ''),

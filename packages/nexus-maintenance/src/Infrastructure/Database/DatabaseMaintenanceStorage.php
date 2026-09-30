@@ -2,6 +2,7 @@
 
 namespace NexusMaintenance\Infrastructure\Database;
 
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Nexus\Core\Utilities\ClockUtility;
@@ -81,7 +82,7 @@ class DatabaseMaintenanceStorage implements MaintenanceStorageInterface
             DB::connection($this->connection)->transaction(function () use ($maintenance, $now) {
                 $this->query()
                     ->where('is_active', true)
-                    ->update(['is_active' => false, 'updated_at' => $now]);
+                    ->update(['is_active' => false]);
 
                 $this->query()->insert([
                     'title' => $maintenance->getTitle() ?? '',
@@ -89,8 +90,6 @@ class DatabaseMaintenanceStorage implements MaintenanceStorageInterface
                     'start_at' => $maintenance->getStartAt() ?? $now,
                     'end_at' => $maintenance->getEndAt(),
                     'is_active' => $maintenance->getIsMaintenance(),
-                    'created_at' => $now,
-                    'updated_at' => $now,
                 ]);
             });
 
@@ -116,7 +115,6 @@ class DatabaseMaintenanceStorage implements MaintenanceStorageInterface
                 ->where('is_active', true)
                 ->update([
                     'is_active' => false,
-                    'updated_at' => ClockUtility::nowToString(),
                 ]);
 
             return true;
@@ -150,7 +148,7 @@ class DatabaseMaintenanceStorage implements MaintenanceStorageInterface
     /**
      * クエリビルダを取得
      */
-    private function query(): \Illuminate\Database\Query\Builder
+    private function query(): Builder
     {
         return DB::connection($this->connection)->table($this->table);
     }

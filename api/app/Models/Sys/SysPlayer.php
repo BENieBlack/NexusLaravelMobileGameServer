@@ -4,8 +4,8 @@ namespace App\Models\Sys;
 
 use App\Models\Mst\MstPlayerLevel;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Nexus\Core\Contracts\PlayerModelInterface;
 use Nexus\Core\Utilities\ClockUtility;
-use NexusAuth\Contracts\PlayerModelInterface;
 
 /**
  * SysPlayer Model
@@ -13,6 +13,14 @@ use NexusAuth\Contracts\PlayerModelInterface;
  * プレイヤーマスターテーブル
  * プレイヤーの基本情報を管理
  *
+ * @property int $id
+ * @property string $uuid
+ * @property string $my_id
+ * @property string $name
+ * @property int $level
+ * @property int $level_exp
+ * @property int $vip_point
+ * @property string $total_paid_amount
  * @property ?string $created_at
  * @property ?string $last_login_at
  */
@@ -23,11 +31,15 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
      */
     protected $table = 'sys_player';
 
+    /** @var list<string> */
+    protected array $selectKeys = ['id'];
+
     /**
      * 複数代入可能な属性
      *
      * @var array<string>
      */
+    /** @var list<string> */
     protected $fillable = [
         'uuid',
         'my_id',
@@ -44,6 +56,7 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
      *
      * @var array<string, string>
      */
+    /** @var array<string, string> */
     protected $casts = [
         'level' => 'integer',
         'level_exp' => 'integer',
@@ -54,6 +67,9 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
     /**
      * デバイス情報とのリレーション
      */
+    /**
+     * @return HasMany<SysPlayerDevice, $this>
+     */
     public function devices(): HasMany
     {
         return $this->hasMany(SysPlayerDevice::class, 'player_id');
@@ -61,6 +77,9 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
 
     /**
      * トークン情報とのリレーション
+     */
+    /**
+     * @return HasMany<SysPlayerToken, $this>
      */
     public function tokens(): HasMany
     {
@@ -120,7 +139,9 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
      */
     public function getLevel(): int
     {
-        return $this->getAttribute('level');
+        // 採番前のインスタンスでは属性が入っていない。
+        // テーブル定義の既定値に合わせて1を返す
+        return (int) ($this->getAttribute('level') ?? 1);
     }
 
     /**
@@ -128,7 +149,7 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
      */
     public function getLevelExp(): int
     {
-        return $this->getAttribute('level_exp');
+        return (int) ($this->getAttribute('level_exp') ?? 0);
     }
 
     /**
@@ -254,7 +275,9 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
      */
     public function getVipPoint(): int
     {
-        return $this->getAttribute('vip_point');
+        // getTotalPaidAmount() は (float) キャストで null を許容している。
+        // こちらだけ落ちると、採番前のインスタンスへの加算がTypeErrorになる
+        return (int) ($this->getAttribute('vip_point') ?? 0);
     }
 
     /**

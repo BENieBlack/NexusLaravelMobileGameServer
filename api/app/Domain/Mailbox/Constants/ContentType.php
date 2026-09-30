@@ -2,24 +2,52 @@
 
 namespace App\Domain\Mailbox\Constants;
 
+use NexusResource\Enums\ResourceType;
+
 /**
  * メールボックスコンテンツのタイプ定数
  */
 enum ContentType: string
 {
-    case DIAMOND = 'Diamond';               // ダイヤ
-    case PAID_DIAMOND = 'PaidDiamond';      // 有償ダイヤ
-    case ITEM = 'Item';                     // アイテム
-    case UNIT = 'Unit';                     // ユニット
-    case EQUIPMENT = 'Equipment';           // 装備
-    case GOLD = 'Gold';                     // ゴールド
-    case FOOD = 'Food';                     // 食料
-    case WOOD = 'Wood';                     // 木材
-    case STONE = 'Stone';                   // 石材
-    case STAMINA = 'Stamina';               // スタミナ
-    case EXPERIENCE = 'Experience';         // 経験値
-    case ALLIANCE_POINTS = 'AlliancePoints'; // アライアンスポイント
-    case CUSTOM = 'Custom';                 // カスタムリソース
+    case DIAMOND = 'diamond';               // ダイヤ
+    case PAID_DIAMOND = 'paid_diamond';      // 有償ダイヤ
+    case ITEM = 'item';                     // アイテム
+    case UNIT = 'unit';                     // ユニット
+    case EQUIPMENT = 'equipment';           // 装備
+    case GOLD = 'gold';                     // ゴールド
+    case FOOD = 'food';                     // 食料
+    case WOOD = 'wood';                     // 木材
+    case STONE = 'stone';                   // 石材
+    case STAMINA = 'stamina';               // スタミナ
+    case EXPERIENCE = 'experience';         // 経験値
+    case ALLIANCE_POINTS = 'alliance_points'; // アライアンスポイント
+    case CUSTOM = 'custom';                 // カスタムリソース
+
+    /**
+     * 配送側のリソース種別へ変換する
+     *
+     * メールの種別はパスカルケース、配送側はスネークケースで、
+     * PaidDiamond / AlliancePoints のような複数語は小文字化だけでは合わない。
+     * 対応を1箇所に書いて、増やしたときに match が落ちるようにしておく。
+     */
+    public function toResourceType(): ResourceType
+    {
+        return match ($this) {
+            self::DIAMOND => ResourceType::DIAMOND,
+            self::PAID_DIAMOND => ResourceType::PAID_DIAMOND,
+            self::ITEM => ResourceType::ITEM,
+            self::UNIT => ResourceType::UNIT,
+            self::EQUIPMENT => ResourceType::EQUIPMENT,
+            self::GOLD => ResourceType::GOLD,
+            self::FOOD => ResourceType::FOOD,
+            self::WOOD => ResourceType::WOOD,
+            self::STONE => ResourceType::STONE,
+            self::STAMINA => ResourceType::STAMINA,
+            self::EXPERIENCE => ResourceType::EXPERIENCE,
+            self::ALLIANCE_POINTS => ResourceType::ALLIANCE_POINTS,
+            self::CUSTOM => ResourceType::CUSTOM,
+        };
+    }
 
     /**
      * ラベルを取得

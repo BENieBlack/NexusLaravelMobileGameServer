@@ -3,6 +3,7 @@
 namespace App\Repositories\Mst;
 
 use App\Models\Mst\MstGachaPrize;
+use Illuminate\Database\Eloquent\Model;
 use Nexus\Core\Support\CustomCollection;
 use NexusGacha\Repositories\GachaPrizeRepositoryInterface;
 
@@ -17,10 +18,15 @@ class MstGachaPrizeRepository extends _BaseMstRepository implements GachaPrizeRe
 
     /**
      * {@inheritDoc}
+     *
+     * @return CustomCollection<array-key, Model> インターフェースに合わせてModelで受ける
      */
     public function selectByGachaIdAndRarity(string $mstGachaId, int $rarity, bool $pickupOnly): CustomCollection
     {
-        return $this->selectListByGachaIdAndRarity($mstGachaId, $rarity, $pickupOnly);
+        /** @var CustomCollection<array-key, Model> $contents インターフェースの型に合わせて広げる */
+        $contents = $this->selectListByGachaIdAndRarity($mstGachaId, $rarity, $pickupOnly);
+
+        return $contents;
     }
 
     /**

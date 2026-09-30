@@ -34,7 +34,7 @@ nexus-guild/
 - DTO pattern for data abstraction
 - Repository interface for testability
 - Service layer for business logic validation
-- Aligned with nexus-friend, nexus-player structure
+- Aligned with nexus-friend, nexus-core structure
 
 ## Usage
 

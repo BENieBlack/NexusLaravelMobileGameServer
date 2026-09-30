@@ -1,0 +1,25 @@
+{
+    "name": "nexus/reward-track",
+    "description": "RewardTrack（バトルパス型報酬トラック）パッケージ。進捗に応じて報酬が解放され、課金ラインを購入すると追加報酬が受け取れる。",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.4",
+        "illuminate/support": "^12.0",
+        "illuminate/database": "^12.0",
+        "nexus/core": "*",
+        "nexus/resource-delivery": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "NexusRewardTrack\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "NexusRewardTrack\\RewardTrackServiceProvider"
+            ]
+        }
+    }
+}

@@ -6,12 +6,19 @@ use App\Models\Mst\MstVipLoginBonus;
 use App\Models\Mst\MstVipLoginBonusContent;
 use Nexus\Core\Support\CustomCollection;
 
+/**
+ * VIPログインボーナスマスターのRepository
+ *
+ * @extends _BaseMstRepository<MstVipLoginBonus>
+ */
 class MstVipLoginBonusRepository extends _BaseMstRepository implements VipLoginBonusRepositoryInterface
 {
     protected string $modelClass = MstVipLoginBonus::class;
 
     /**
      * {@inheritDoc}
+     *
+     * @return array<string, mixed>|null
      */
     public function selectActiveByVipLevel(int $vipLevel): ?array
     {
@@ -24,6 +31,8 @@ class MstVipLoginBonusRepository extends _BaseMstRepository implements VipLoginB
 
     /**
      * {@inheritDoc}
+     *
+     * @return CustomCollection<array-key, array<string, mixed>> 中身はtoArray()した連想配列
      */
     public function selectContentsByBonusIdAndDay(string $vipLoginBonusId, int $day): CustomCollection
     {

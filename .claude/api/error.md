@@ -47,7 +47,7 @@
 ```json
 HTTP/1.1 999
 {
-  "error_code": 10100,
+  "error_code": 1101,
   "message": "Stamina not enough. Required: 10, Current: 5"
 }
 ```
@@ -57,7 +57,7 @@ HTTP/1.1 999
 ```json
 HTTP/1.1 500
 {
-  "error_code": 19999,
+  "error_code": 99999,
   "message": "Internal server error"
 }
 ```
@@ -102,7 +102,7 @@ Exception (PHP標準)
 - `MasterDataException::inAppPurchase(string $mstInAppPurchaseId)` - 課金商品マスター未検出
 - `MasterDataException::generic(string $type, string|int $id)` - 汎用マスターデータ未検出
 
-**エラーコード:** `10401` (MASTER_DATA_NOT_FOUND), `10200` (PRODUCT_NOT_FOUND)
+**エラーコード:** `401` (MASTER_DATA_NOT_FOUND), `16001` (PRODUCT_NOT_FOUND)
 
 ---
 
@@ -122,7 +122,7 @@ Exception (PHP標準)
 - `TransactionDataException::stamina(int $playerId)` - スタミナデータ未検出
 - `TransactionDataException::generic(string $type, string|int $id)` - 汎用トランザクションデータ未検出
 
-**エラーコード:** `10002` (PLAYER_NOT_FOUND), `10400` (UNIT_NOT_FOUND), `10102` (ITEM_NOT_ENOUGH), 他
+**エラーコード:** `10002` (PLAYER_NOT_FOUND), `12001` (UNIT_NOT_FOUND), `1901` (ITEM_NOT_ENOUGH), 他
 
 ---
 
@@ -137,7 +137,7 @@ Exception (PHP標準)
 - `SystemDataException::config(string $key)` - システム設定未検出
 - `SystemDataException::generic(string $type, string|int $id)` - 汎用システムデータ未検出
 
-**エラーコード:** `10001` (AUTHENTICATION_FAILED), `10003` (INVALID_TOKEN), `19999` (INTERNAL_ERROR)
+**エラーコード:** `10001` (AUTHENTICATION_FAILED), `10003` (INVALID_TOKEN), `99999` (INTERNAL_ERROR)
 
 ---
 
@@ -157,70 +157,166 @@ Exception (PHP標準)
 - `BusinessLogicException::invalidResourceType(string $resourceType)` - リソースタイプ不正
 - `BusinessLogicException::invalidProductType(string $productType)` - 商品タイプ不正
 
-**エラーコード:** `10100`-`10599` (リソース不足、ビジネスロジックエラー)
+**エラーコード:** `1001`/`1101`/`1901`/`1902` (リソース不足), `19004` 等 (各ドメインのビジネスロジックエラー)
 
 ---
 
 ## エラーコード一覧
 
-### 認証関連 (10000-10099)
+エラーコードは層ごとに桁数で分ける。
 
-| コード | 定数名 | 説明 |
-|-------|--------|------|
-| 10001 | `AUTHENTICATION_FAILED` | 認証失敗 |
-| 10002 | `PLAYER_NOT_FOUND` | プレイヤーが見つからない |
-| 10003 | `INVALID_TOKEN` | トークンが無効 |
+| 層 | 桁数 | 定義場所 |
+|---|---|---|
+| インフラ | 3桁以下（1-999） | `App\Exceptions\InfraErrorCode` |
+| パッケージ | 4桁（1000-9999） | 各パッケージの `*ErrorCode`（wallet 1000-1099 / stamina 1100-1199 / resource 1900-1999 …） |
+| アプリケーション | 5桁（10000-99999） | `App\Exceptions\GameErrorCode` |
 
-### リソース不足 (10100-10199)
+### 他レイヤーで定義（インフラ層・パッケージ層）
 
-| コード | 定数名 | 説明 |
-|-------|--------|------|
-| 10100 | `STAMINA_NOT_ENOUGH` | スタミナ不足 |
-| 10101 | `DIAMOND_NOT_ENOUGH` | ダイヤモンド不足 |
-| 10102 | `ITEM_NOT_ENOUGH` | アイテム不足 |
+`GameErrorCode` には別名の定数だけを置き、値はそれぞれの層が持つ。
+`GameErrorCode::STAMINA_NOT_ENOUGH` のように参照して構わないが、値を変えるときは定義元を直す。
 
-### アプリ内課金 (10200-10299)
+| コード | 定数名 | 定義元 |
+|---|---|---|
+| 401 | `MASTER_DATA_NOT_FOUND` | `App\Exceptions\InfraErrorCode` |
+| 1001 | `INSUFFICIENT_CURRENCY` | `NexusWallet\Exceptions\WalletErrorCode::INSUFFICIENT_BALANCE` |
+| 1003 | `WALLET_NOT_FOUND` | `NexusWallet\Exceptions\WalletErrorCode` |
+| 1101 | `STAMINA_NOT_ENOUGH` | `NexusStamina\Exceptions\StaminaErrorCode::INSUFFICIENT_STAMINA` |
+| 1901 | `ITEM_NOT_ENOUGH` | `NexusResource\Exceptions\ResourceErrorCode::INSUFFICIENT_ITEM` |
+| 1902 | `DIAMOND_NOT_ENOUGH` | `NexusResource\Exceptions\ResourceErrorCode::INSUFFICIENT_DIAMOND` |
+| 1903 | `INVALID_ITEM_TYPE` | `NexusResource\Exceptions\ResourceErrorCode` |
+| 1904 | `INVALID_RESOURCE_TYPE` | `NexusResource\Exceptions\ResourceErrorCode` |
 
-| コード | 定数名 | 説明 |
-|-------|--------|------|
-| 10200 | `PRODUCT_NOT_FOUND` | 商品が見つからない |
-| 10201 | `PRODUCT_INACTIVE` | 商品が無効 |
-| 10202 | `PURCHASE_LIMIT_EXCEEDED` | 購入制限超過 |
-| 10203 | `INVALID_PRODUCT_TYPE` | 商品タイプが無効 |
+### 認証関連 (10000-10999)
 
-### データ検証 (10300-10399)
+| コード | 定数名 |
+|---|---|
+| 10001 | `AUTHENTICATION_FAILED` |
+| 10002 | `PLAYER_NOT_FOUND` |
+| 10003 | `INVALID_TOKEN` |
+| 10004 | `DEVICE_ALREADY_EXISTS` |
 
-| コード | 定数名 | 説明 |
-|-------|--------|------|
-| 10300 | `INVALID_PARAMETER` | パラメータが無効 |
-| 10301 | `VALIDATION_FAILED` | バリデーション失敗 |
+### プレイヤー関連 (11000-11999)
 
-### リソース未検出 (10400-10499)
+| コード | 定数名 |
+|---|---|
+| 11001 | `PLAYER_DATA_CORRUPTED` |
+| 11002 | `PLAYER_NAME_INVALID` |
+| 11003 | `PLAYER_LEVEL_MAX_REACHED` |
 
-| コード | 定数名 | 説明 |
-|-------|--------|------|
-| 10400 | `UNIT_NOT_FOUND` | ユニットが見つからない |
-| 10401 | `MASTER_DATA_NOT_FOUND` | マスターデータが見つからない |
-| 10402 | `EQUIPMENT_NOT_FOUND` | 装備が見つからない |
-| 10403 | `WALLET_NOT_FOUND` | ウォレットが見つからない |
+### ユニット関連 (12000-12999)
 
-### ビジネスロジック (10500-10599)
+| コード | 定数名 |
+|---|---|
+| 12001 | `UNIT_NOT_FOUND` |
+| 12002 | `UNIT_MAX_LEVEL_REACHED` |
+| 12003 | `UNIT_EVOLUTION_FAILED` |
 
-| コード | 定数名 | 説明 |
-|-------|--------|------|
-| 10500 | `INSUFFICIENT_CURRENCY` | 通貨不足 |
-| 10501 | `INVALID_ITEM_TYPE` | アイテムタイプが無効 |
-| 10502 | `UNIT_MAX_LEVEL_REACHED` | ユニット最大レベル到達 |
-| 10503 | `INVALID_RESOURCE_TYPE` | リソースタイプが無効 |
+### 装備関連 (13000-13999)
 
-### システムエラー (19900-19999)
+| コード | 定数名 |
+|---|---|
+| 13001 | `EQUIPMENT_NOT_FOUND` |
+| 13002 | `EQUIPMENT_MAX_LEVEL_REACHED` |
+| 13003 | `EQUIPMENT_ENHANCE_FAILED` |
 
-| コード | 定数名 | 説明 |
-|-------|--------|------|
-| 19900 | `NOT_IMPLEMENTED` | 未実装 |
-| 19999 | `INTERNAL_ERROR` | 内部エラー |
+### クエスト関連 (14000-14999)
 
----
+| コード | 定数名 |
+|---|---|
+| 14001 | `QUEST_NOT_FOUND` |
+| 14002 | `QUEST_NOT_AVAILABLE` |
+| 14003 | `QUEST_ALREADY_COMPLETED` |
+
+### バトル関連 (15000-15999)
+
+| コード | 定数名 |
+|---|---|
+| 15001 | `PARTY_FORMATION_INVALID` |
+| 15002 | `BATTLE_RESULT_INVALID` |
+
+### アプリ内課金関連 (16000-16999)
+
+| コード | 定数名 |
+|---|---|
+| 16001 | `PRODUCT_NOT_FOUND` |
+| 16002 | `PRODUCT_INACTIVE` |
+| 16003 | `PURCHASE_LIMIT_EXCEEDED` |
+| 16004 | `INVALID_PRODUCT_TYPE` |
+| 16005 | `PRODUCT_ID_MISMATCH` |
+| 16006 | `RECEIPT_VERIFICATION_FAILED` |
+| 16007 | `PRICE_MISMATCH` |
+
+### フレンド関連 (17000-17999)
+
+| コード | 定数名 |
+|---|---|
+| 17001 | `FRIEND_REQUEST_ALREADY_EXISTS` |
+| 17002 | `FRIEND_ALREADY_EXISTS` |
+| 17003 | `FRIEND_REQUEST_NOT_FOUND` |
+| 17004 | `TARGET_PLAYER_NOT_FOUND` |
+| 17005 | `CANNOT_SEND_FRIEND_REQUEST_TO_SELF` |
+| 17006 | `FRIEND_APPLY_NOT_FOUND` |
+| 17007 | `NOT_AUTHORIZED_TO_ACCEPT` |
+| 17008 | `FRIEND_APPLY_ALREADY_ACCEPTED` |
+| 17009 | `FRIEND_APPLY_ALREADY_DELETED` |
+| 17010 | `CANNOT_DELETE_SELF` |
+| 17011 | `FRIEND_NOT_FOUND` |
+| 17012 | `NOT_AUTHORIZED_TO_REJECT` |
+| 17013 | `FRIEND_APPLY_ALREADY_REJECTED` |
+
+### ギルド関連 (18000-18999)
+
+| コード | 定数名 |
+|---|---|
+| 18001 | `GUILD_NOT_FOUND` |
+| 18002 | `GUILD_NAME_ALREADY_EXISTS` |
+| 18003 | `GUILD_FULL` |
+| 18004 | `PLAYER_ALREADY_IN_GUILD` |
+| 18005 | `PLAYER_NOT_IN_GUILD` |
+| 18006 | `GUILD_APPLY_ALREADY_EXISTS` |
+| 18007 | `GUILD_APPLY_NOT_FOUND` |
+| 18008 | `GUILD_INVALID_STATUS` |
+| 18009 | `GUILD_PERMISSION_DENIED` |
+| 18010 | `GUILD_MASTER_CANNOT_LEAVE` |
+| 18011 | `GUILD_MEMBER_NOT_FOUND` |
+| 18012 | `GUILD_CREATE_FAILED` |
+| 18013 | `GUILD_APPLY_FAILED` |
+| 18014 | `GUILD_APPLY_ACCEPT_FAILED` |
+| 18015 | `GUILD_APPLY_REJECT_FAILED` |
+| 18016 | `GUILD_LEAVE_FAILED` |
+
+### ガチャ関連 (19000-19999)
+
+| コード | 定数名 |
+|---|---|
+| 19001 | `GACHA_NOT_FOUND` |
+| 19002 | `GACHA_INACTIVE` |
+| 19003 | `GACHA_NOT_AVAILABLE` |
+| 19004 | `GACHA_DAILY_LIMIT_EXCEEDED` |
+| 19005 | `GACHA_COST_NOT_FOUND` |
+| 19006 | `GACHA_STEP_NOT_FOUND` |
+| 19007 | `GACHA_CANDIDATE_NOT_FOUND` |
+| 19008 | `GACHA_CANDIDATE_REQUIRED` |
+| 19009 | `GACHA_INVALID_DRAW_COUNT` |
+| 19010 | `GACHA_NO_PRIZES_AVAILABLE` |
+
+### メールボックス関連 (20000-20999)
+
+| コード | 定数名 |
+|---|---|
+| 20001 | `MAILBOX_NOT_FOUND` |
+| 20002 | `MAILBOX_ALREADY_RECEIVED` |
+| 20003 | `MAILBOX_NOT_OPENED` |
+
+### アプリケーション汎用 (99000-99999)
+
+| コード | 定数名 |
+|---|---|
+| 99001 | `INVALID_PARAMETER` |
+| 99002 | `VALIDATION_FAILED` |
+| 99900 | `NOT_IMPLEMENTED` |
+| 99999 | `INTERNAL_ERROR` |
 
 ## 使用例
 
@@ -231,7 +327,7 @@ use App\Exceptions\MasterDataException;
 use App\Exceptions\TransactionDataException;
 use App\Exceptions\BusinessLogicException;
 
-class UnitLevelUpUseCase
+class LevelUpUseCase
 {
     public function handle(int $playerId, int $unitId, string $itemId, int $useCount): array
     {

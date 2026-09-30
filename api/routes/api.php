@@ -1,14 +1,19 @@
 <?php
 
 use App\Http\Controllers\Admin\MaintenanceController as AdminMaintenanceController;
+use App\Http\Controllers\AlbumController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\EquipmentController;
 use App\Http\Controllers\FriendController;
 use App\Http\Controllers\GachaController;
 use App\Http\Controllers\GuildController;
 use App\Http\Controllers\InAppPurchaseController;
+use App\Http\Controllers\ItemController;
 use App\Http\Controllers\MailboxController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PlayerController;
+use App\Http\Controllers\RewardTrackController;
 use App\Http\Controllers\UnitController;
 use Illuminate\Support\Facades\Route;
 
@@ -53,10 +58,13 @@ Route::middleware('maintenance')->group(function () {
         Route::post('/auth/refresh_token', [AuthController::class, 'refreshToken']);
     });
 
-    // Guild list/detail endpoints (public access for browsing)
-    Route::get('/guild/list', [GuildController::class, 'list']);
-    Route::get('/guild/detail', [GuildController::class, 'detail']);
-    Route::get('/guild/member/list', [GuildController::class, 'memberList']);
+    // ギルドの参照系は加入前に見られる必要があるため認証不要で公開する。
+    // ただし繰り返し叩けば他プレイヤーの所属を集められるため、IP単位で制限する
+    Route::middleware('throttle.public:guild_read')->group(function () {
+        Route::get('/guild/list', [GuildController::class, 'list']);
+        Route::get('/guild/detail', [GuildController::class, 'detail']);
+        Route::get('/guild/member/list', [GuildController::class, 'memberList']);
+    });
 
     // Protected endpoints (require access token)
     // idempotencyミドルウェアを追加して重複リクエストを防止
@@ -68,6 +76,9 @@ Route::middleware('maintenance')->group(function () {
 
         // In-App Purchase endpoints
         Route::post('/in_app_purchase/buy', [InAppPurchaseController::class, 'buy']);
+
+        // Item endpoints
+        Route::post('/item/use', [ItemController::class, 'use']);
 
         // Unit endpoints
         Route::post('/unit/level_up', [UnitController::class, 'levelUp']);
@@ -81,6 +92,9 @@ Route::middleware('maintenance')->group(function () {
         Route::post('/friend/apply/reject', [FriendController::class, 'applyReject']);
         Route::get('/friend/apply/list', [FriendController::class, 'applyList']);
         Route::get('/friend/list', [FriendController::class, 'list']);
+
+        // アルバム（収集記録）
+        Route::get('/album/list', [AlbumController::class, 'list']);
         Route::post('/friend/delete', [FriendController::class, 'delete']);
 
         // Guild endpoints
@@ -100,6 +114,41 @@ Route::middleware('maintenance')->group(function () {
 
         // Gacha endpoints
         Route::post('/gacha/draw', [GachaController::class, 'draw']);
+
+        // Notification endpoints
+        Route::get('/notification/list', [NotificationController::class, 'list']);
+        Route::post('/notification/read', [NotificationController::class, 'read']);
+        Route::post('/notification/read_all', [NotificationController::class, 'readAll']);
+
+        // Chat endpoints
+        // フレンドDM
+        Route::post('/chat/friend/room', [ChatController::class, 'friendRoom']);
+        Route::get('/chat/messages', [ChatController::class, 'messages']);
+        Route::post('/chat/message/send', [ChatController::class, 'send']);
+        Route::post('/chat/message/delete', [ChatController::class, 'deleteMessage']);
+        // グループチャット
+        Route::post('/chat/group/create', [ChatController::class, 'createGroup']);
+        Route::post('/chat/group/invite', [ChatController::class, 'invite']);
+        Route::post('/chat/group/kick', [ChatController::class, 'kick']);
+        Route::post('/chat/group/leave', [ChatController::class, 'leaveGroup']);
+        Route::post('/chat/group/role', [ChatController::class, 'changeRole']);
+        Route::get('/chat/group/members', [ChatController::class, 'groupMembers']);
+        // ギルドチャット
+        Route::post('/chat/guild/room', [ChatController::class, 'guildRoom']);
+        // 参加中ルーム一覧
+        Route::get('/chat/rooms', [ChatController::class, 'rooms']);
+
+        // =========================================
+        // RewardTrack（バトルパス型報酬トラック）
+        // =========================================
+        // プレイヤーの進捗と報酬を扱うため auth.token が要る。
+        // receive は配布を伴うので idempotency も外せない
+        Route::prefix('reward-track')->group(function () {
+            // トラックサマリー取得（進捗・所持ライン・受け取り済みマイルストーン）
+            Route::get('/summary', [RewardTrackController::class, 'summary']);
+            // マイルストーンの報酬を受け取る
+            Route::post('/receive', [RewardTrackController::class, 'receive']);
+        });
     });
 
     // Legacy signup endpoint (DEPRECATED - use /auth/signup instead)

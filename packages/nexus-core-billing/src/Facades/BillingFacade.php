@@ -2,18 +2,18 @@
 
 namespace NexusBilling\Facades;
 
+use Exception;
+use Illuminate\Support\Facades\Log;
 use NexusBilling\DataTransferObjects\Receipt;
-use NexusBilling\ValueObjects\Subscription;
 use NexusBilling\DataTransferObjects\Verification;
 use NexusBilling\Exceptions\DuplicatePurchaseException;
 use NexusBilling\Services\BillingPlatformFactory;
 use NexusBilling\Services\IdempotencyService;
-use Exception;
-use Illuminate\Support\Facades\Log;
+use NexusBilling\ValueObjects\Subscription;
 
 /**
  * Billing ファサード
- * 
+ *
  * 外部から呼ばれる統一API
  * プラットフォーム固有の実装を抽象化し、統一的なインターフェースを提供
  */
@@ -26,14 +26,15 @@ class BillingFacade
 
     /**
      * 購入処理（レシート検証）
-     * 
+     *
      * 外部から呼ばれるメインAPI
      * どのプラットフォームでも同じように使える統一インターフェース
-     * 
-     * @param string $billingPlatform 決済プラットフォーム（AppStore, GooglePlay等）
-     * @param Receipt $receipt レシート情報
-     * @param string $uniqueRequestId 一意なリクエストID（重複防止用）
+     *
+     * @param  string  $billingPlatform  決済プラットフォーム（AppStore, GooglePlay等）
+     * @param  Receipt  $receipt  レシート情報
+     * @param  string  $uniqueRequestId  一意なリクエストID（重複防止用）
      * @return Verification 検証結果
+     *
      * @throws DuplicatePurchaseException 重複購入の場合
      * @throws Exception その他のエラー
      */
@@ -88,11 +89,11 @@ class BillingFacade
 
     /**
      * レシート検証のみ（冪等性チェックなし）
-     * 
+     *
      * 冪等性管理が不要な場合や、別の方法で重複チェックを行う場合に使用
-     * 
-     * @param string $billingPlatform 決済プラットフォーム
-     * @param Receipt $receipt レシート情報
+     *
+     * @param  string  $billingPlatform  決済プラットフォーム
+     * @param  Receipt  $receipt  レシート情報
      * @return Verification 検証結果
      */
     public function verifyReceipt(
@@ -100,30 +101,33 @@ class BillingFacade
         Receipt $receipt
     ): Verification {
         $platform = $this->platformFactory->create($billingPlatform);
+
         return $platform->verifyReceipt($receipt);
     }
 
     /**
      * サブスクリプション状態確認
-     * 
-     * @param string $billingPlatform 決済プラットフォーム
-     * @param string $subscriptionId サブスクリプションID
+     *
+     * @param  string  $billingPlatform  決済プラットフォーム
+     * @param  string  $subscriptionId  サブスクリプションID
+     * @param  string|null  $purchaseToken  購入トークン（Google Playで必須）
      * @return Subscription サブスクリプション状態
      */
     public function checkSubscription(
         string $billingPlatform,
-        string $subscriptionId
+        string $subscriptionId,
+        ?string $purchaseToken = null
     ): Subscription {
         $platform = $this->platformFactory->create($billingPlatform);
-        
-        return $platform->fetchSubscriptionStatus($subscriptionId);
+
+        return $platform->fetchSubscriptionStatus($subscriptionId, $purchaseToken);
     }
 
     /**
      * 返金確認
-     * 
-     * @param string $billingPlatform 決済プラットフォーム
-     * @param string $transactionId トランザクションID
+     *
+     * @param  string  $billingPlatform  決済プラットフォーム
+     * @param  string  $transactionId  トランザクションID
      * @return bool 返金されているか
      */
     public function isRefunded(
@@ -131,14 +135,14 @@ class BillingFacade
         string $transactionId
     ): bool {
         $platform = $this->platformFactory->create($billingPlatform);
-        
+
         return $platform->isRefunded($transactionId);
     }
 
     /**
      * プラットフォームがサポートされているかチェック
-     * 
-     * @param string $billingPlatform
+     *
+     * @param  string  $billingPlatform
      * @return bool
      */
     public function isSupportedPlatform(string $billingPlatform): bool

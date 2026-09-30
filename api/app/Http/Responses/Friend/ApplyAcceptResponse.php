@@ -4,6 +4,7 @@ namespace App\Http\Responses\Friend;
 
 use App\Http\Responses\_BaseResponse;
 use App\Models\Sys\SysFriendApply;
+use NexusFriend\DataTransferObjects\FriendApply;
 
 /**
  * ApplyAcceptResponse
@@ -31,8 +32,23 @@ class ApplyAcceptResponse extends _BaseResponse
             senderSysPlayerId: $sysFriendApply->sender_sys_player_id,
             receiverSysPlayerId: $sysFriendApply->receiver_sys_player_id,
             status: $sysFriendApply->status,
-            createdAt: $sysFriendApply->created_at->toDateTimeString(),
-            updatedAt: $sysFriendApply->updated_at->toDateTimeString(),
+            createdAt: $sysFriendApply->getCreatedAt(),
+            updatedAt: $sysFriendApply->getUpdatedAt(),
+        );
+    }
+
+    /**
+     * FriendApply DTOからレスポンスを生成
+     */
+    public static function fromDto(FriendApply $friendApply): self
+    {
+        return new self(
+            sysFriendApplyId: $friendApply->getId(),
+            senderSysPlayerId: $friendApply->getSenderPlayerId(),
+            receiverSysPlayerId: $friendApply->getReceiverPlayerId(),
+            status: $friendApply->getStatus(),
+            createdAt: (string) $friendApply->getCreatedAt(),
+            updatedAt: (string) $friendApply->getUpdatedAt(),
         );
     }
 

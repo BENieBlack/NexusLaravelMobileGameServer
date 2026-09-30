@@ -36,6 +36,41 @@ return new class extends Migration
             $table->longText('payload')->comment('セッションデータ');
             $table->integer('last_activity')->index()->comment('最終アクティビティ');
         });
+
+        Schema::connection('admin')->create('adm_role', function (Blueprint $table) {
+            $table->string('id', 64)->primary()->comment('ロールID');
+            $table->string('name')->unique()->comment('ロール名');
+            $table->dateTime('created_at')->nullable()->comment('作成日時');
+            $table->dateTime('updated_at')->nullable()->comment('更新日時');
+        });
+
+        Schema::connection('admin')->create('adm_page', function (Blueprint $table) {
+            $table->string('id')->primary()->comment('ページID');
+            $table->dateTime('created_at')->nullable()->comment('作成日時');
+            $table->dateTime('updated_at')->nullable()->comment('更新日時');
+        });
+
+        Schema::connection('admin')->create('adm_permission', function (Blueprint $table) {
+            $table->string('adm_role_id', 64)->comment('ロールID');
+            $table->string('adm_page_id')->comment('ページID');
+            $table->dateTime('created_at')->nullable()->comment('作成日時');
+            $table->dateTime('updated_at')->nullable()->comment('更新日時');
+
+            $table->primary(['adm_role_id', 'adm_page_id']);
+            $table->foreign('adm_role_id')->references('id')->on('adm_role')->cascadeOnDelete();
+            $table->foreign('adm_page_id')->references('id')->on('adm_page')->cascadeOnDelete();
+        });
+
+        Schema::connection('admin')->create('adm_account_role', function (Blueprint $table) {
+            $table->unsignedBigInteger('adm_account_id')->comment('アカウントID');
+            $table->string('adm_role_id', 64)->comment('ロールID');
+            $table->dateTime('created_at')->nullable()->comment('作成日時');
+            $table->dateTime('updated_at')->nullable()->comment('更新日時');
+
+            $table->primary(['adm_account_id', 'adm_role_id']);
+            $table->foreign('adm_account_id')->references('id')->on('adm_account')->cascadeOnDelete();
+            $table->foreign('adm_role_id')->references('id')->on('adm_role')->cascadeOnDelete();
+        });
     }
 
     /**
@@ -44,6 +79,10 @@ return new class extends Migration
     public function down(): void
     {
         Schema::connection('admin')->dropIfExists('sessions');
+        Schema::connection('admin')->dropIfExists('adm_account_role');
+        Schema::connection('admin')->dropIfExists('adm_permission');
+        Schema::connection('admin')->dropIfExists('adm_page');
+        Schema::connection('admin')->dropIfExists('adm_role');
         Schema::connection('admin')->dropIfExists('adm_account');
     }
 };

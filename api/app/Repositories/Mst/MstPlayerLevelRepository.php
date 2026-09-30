@@ -3,7 +3,6 @@
 namespace App\Repositories\Mst;
 
 use App\Models\Mst\MstPlayerLevel;
-use Illuminate\Support\Facades\Cache;
 use Nexus\Core\Support\CustomCollection;
 
 /**
@@ -43,36 +42,6 @@ class MstPlayerLevelRepository extends _BaseMstRepository
     protected string $modelClass = MstPlayerLevel::class;
 
     /**
-     * キャッシュからデータを取得、存在しない場合はDBから取得してキャッシュに保存
-     * レベルをキーにしてキャッシュ
-     */
-    public function queryOrMemory(): CustomCollection
-    {
-        if (isset($this->models)) {
-            return $this->models;
-        }
-
-        $modelInstance = new $this->modelClass;
-        $tableName = $modelInstance->getTable();
-        $cacheKey = "{$this->cachePrefix}:{$tableName}:all";
-
-        // Laravel Cacheを使ってキャッシュから取得、なければDBから取得してキャッシュに保存
-        $cached = Cache::store($this->cacheDriver)->remember(
-            $cacheKey,
-            $this->cacheTtl,
-            function () use ($modelInstance) {
-                // 全レコードを取得し、levelをキーにした配列として保存
-                return $modelInstance::all()->keyBy('level')->all();
-            }
-        );
-
-        // CustomCollectionとして保持する
-        $this->models = new CustomCollection($cached);
-
-        return $this->models;
-    }
-
-    /**
      * レベルで検索
      *
      * @param  int  $level  レベル
@@ -86,6 +55,8 @@ class MstPlayerLevelRepository extends _BaseMstRepository
 
     /**
      * 全レベルデータを取得（レベル昇順）
+     *
+     * @return CustomCollection<array-key, MstPlayerLevel>
      */
     public function selectAll(): CustomCollection
     {

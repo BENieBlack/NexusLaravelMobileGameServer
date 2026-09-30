@@ -22,7 +22,7 @@ class ApplyAcceptRequest extends _BaseRequest
     public function rules(): array
     {
         return [
-            'apply_id' => ['required', 'integer', 'min:1'],
+            'sys_guild_apply_id' => ['required', 'integer', 'min:1'],
         ];
     }
 
@@ -31,7 +31,7 @@ class ApplyAcceptRequest extends _BaseRequest
      */
     public function getApplyId(): int
     {
-        return (int) $this->input('apply_id');
+        return (int) $this->input('sys_guild_apply_id');
     }
 
     /**
@@ -66,7 +66,7 @@ class ApplyAcceptRequest extends _BaseRequest
     public function attributes(): array
     {
         return [
-            'apply_id' => 'Apply ID',
+            'sys_guild_apply_id' => 'Apply ID',
         ];
     }
 }

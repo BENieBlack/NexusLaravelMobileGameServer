@@ -44,8 +44,7 @@
 | Domain Service | Package Service | 評価 |
 |---|---|---|
 | `StaminaService` | `nexus-stamina/Services/StaminaService` | ✅ 完璧。DTO ↔ Model変換のラッパー |
-| `WalletService` | LaravelWallet package | ✅ 完璧。Facadeパターン |
-| `GachaDrawService` | `nexus-gacha/Services/GachaDrawService` | ✅ 完璧。配列変換ラッパー |
+| `WalletService` | NexusWallet package | ✅ 完璧。Facadeパターン |
 | `UnitLevelService` | `nexus-level/Services/_BaseLevelService` | ✅ 継承パターン、適切 |
 | `VersionService` | `nexus-version/Services/VersionService` | ✅ 完璧。Wrapperパターン適用済み |
 
@@ -53,149 +52,97 @@
 
 | Domain Service | 評価 | 理由 |
 |---|---|---|
-| `InAppPurchasePurchaseService` | ✅ 適切 | 複数Serviceを組み合わせたワークフロー（UseCaseに近い責務） |
-| `GachaCostService` | ✅ 適切 | DiamondService/ItemServiceへの委譲のみ（オーケストレーション） |
-| `DiamondService` (Facade) | ✅ 適切 | 後方互換性のためのFacade（内部で新Serviceに委譲） |
+| `InAppPurchaseDiamondService` | ✅ 適切 | 複数Serviceを組み合わせたワークフロー（UseCaseに近い責務） |
+| `GachaCostService` | ✅ 適切 | InAppPurchaseDiamondBalanceService/ItemServiceへの委譲のみ（オーケストレーション） |
+
+> `DiamondService`（後方互換用のFacade）は2026-08-20に削除した。委譲するだけで
+> 呼び出し段数を増やしていただけであり、「Domain層にクラスを作る基準」を満たさない。
+> 呼び出し元は `InAppPurchaseDiamondBalanceService` / `InAppPurchaseDiamondService` を直接使う。
 
 ### 🔄 パッケージに移動すべきService
 
-#### ✅ 完了：ItemService / ItemReadService / ItemWriteService
+#### ✅ 完了：ItemService（パッケージ移行）
 
-**移行完了日:** 2026-08-10  
-**コミット:** f4fd003
+**移行完了日:** 2026-08-10（コミット `f4fd003`）
+**Domain層の再統合:** 2026-08-19
 
-**移行後の構造:**
-- パッケージ層: `nexus-resource/src/Services/Item{Read,Write}Service.php` - DTOベースのビジネスロジック
-- Domain層: `api/app/Domain/Item/Services/Item{Read,Write}Service.php` - Wrapperパターン
-- Repository実装: `api/app/Repositories/Trx/ItemRepositoryImpl.php`
-
-**移行したビジネスロジック:**
-- ✅ 有償優先消費ロジック（consumeWithPaidFirst）
-- ✅ 残高チェック（validateSufficientAmount）
-- ✅ 加算/減算のビジネスルール（addItem, consumeItem）
-
-**後方互換性:** ✅ 既存コードは変更不要（Domain層Wrapperで維持）
-
-**推奨構造:**
+**現在の構造:**
 
 ```
-packages/nexus-resource/src/
-  ├── Services/
-  │   ├── ItemService.php              # Facade (DTO使用)
-  │   ├── ItemReadService.php          # 読み取り専用
-  │   └── ItemWriteService.php         # 書き込み専用
-  ├── DTOs/
-  │   └── Item.php                  # すでに存在
-  ├── Repositories/
-  │   └── ItemRepositoryInterface.php  # インターフェース
-  └── Enums/
-      └── ResourceType.php             # すでに存在
+packages/nexus-resource/src/Services/
+  ├── ItemService.php        # アイテム残高（取得・加算・有償優先消費）
+  └── DiamondService.php     # ダイヤ残高（取得・加算・無償→有償消費）
 
 api/app/Domain/Item/Services/
-  ├── ItemService.php                  # ラッパー：DTO → Model変換
-  ├── ItemReadService.php              # ラッパー
-  └── ItemWriteService.php             # ラッパー
+  └── ItemService.php        # ラッパー：パッケージへの委譲 + DTO → TrxItem 変換
 ```
 
-**実装例:**
+**移行したビジネスロジック:**
 
-```php
-// packages/nexus-resource/src/Services/ItemWriteService.php
-namespace NexusResource\Services;
+- ✅ 有償優先消費ロジック（`consumeWithPaidFirst`）
+- ✅ 残高チェック（`validateSufficientAmount`）
+- ✅ 加算/減算のビジネスルール（`addItem` / `consumeItem`）
 
-use NexusResource\DataTransferObjects\Item;
-use NexusResource\Repositories\ItemRepositoryInterface;
+**後方互換性:** ✅ 既存コードは変更不要（Domain層ラッパーで維持）
 
-class ItemWriteService
-{
-    public function __construct(
-        private readonly ItemRepositoryInterface $itemRepository,
-    ) {}
-    
-    /**
-     * アイテムを消費（有償優先）
-     * 
-     * @param int $playerId
-     * @param string $itemId
-     * @param int $amount
-     * @return Item
-     * @throws InsufficientItemException
-     */
-    public function consumeItem(int $playerId, string $itemId, int $amount): Item
-    {
-        $item = $this->itemRepository->findByPlayerAndItem($playerId, $itemId);
-        
-        if (!$item) {
-            throw new ItemNotFoundException($itemId);
-        }
-        
-        // 残高チェック
-        if ($item->getTotalAmount() < $amount) {
-            throw new InsufficientItemException($itemId, $amount, $item->getTotalAmount());
-        }
-        
-        // 有償優先消費
-        [$paidConsumed, $freeConsumed] = $this->consumeWithPaidFirst(
-            $item->getPaidAmount(),
-            $item->getFreeAmount(),
-            $amount
-        );
-        
-        $item = $item->withConsumedAmounts($paidConsumed, $freeConsumed);
-        
-        return $this->itemRepository->save($item);
-    }
-    
-    /**
-     * 有償優先消費ロジック
-     */
-    private function consumeWithPaidFirst(int $paidAmount, int $freeAmount, int $consumeAmount): array
-    {
-        $paidConsumed = min($paidAmount, $consumeAmount);
-        $freeConsumed = $consumeAmount - $paidConsumed;
-        
-        return [$paidConsumed, $freeConsumed];
-    }
-}
+##### Domain層のRead/Write分割は取りやめた
 
-// api/app/Domain/Item/Services/ItemWriteService.php (ラッパー)
-namespace App\Domain\Item\Services;
+当初はDomain層にも `ItemReadService` / `ItemWriteService` を置き、`ItemService` を
+後方互換用のFacadeとして `@deprecated` にしていたが、2026-08-19に `ItemService` へ再統合した。
 
-use NexusResource\Services\ItemWriteService as PackageItemWriteService;
-use App\Models\Trx\TrxItem;
-use App\Repositories\Trx\TrxItemRepository;
+取りやめた理由:
 
-class ItemWriteService
-{
-    public function __construct(
-        private readonly PackageItemWriteService $packageItemWriteService,
-        private readonly TrxItemRepository $trxItemRepository,
-    ) {}
-    
-    /**
-     * アイテムを消費（Eloquent Model返却）
-     */
-    public function consumeItem(int $sysPlayerId, string $mstItemId, int $amount): TrxItem
-    {
-        // パッケージServiceを呼び出し（DTOで処理）
-        $itemDto = $this->packageItemWriteService->consumeItem($sysPlayerId, $mstItemId, $amount);
-        
-        // DTOをEloquent Modelに変換
-        $trxItem = $this->trxItemRepository->findByDto($itemDto);
-        
-        // Repositoryにキューイング
-        $this->trxItemRepository->setModel($trxItem);
-        
-        return $trxItem;
-    }
-}
-```
+1. **誰も使わなかった** — `@deprecated` にしたにもかかわらず、呼び出し元5箇所すべてが
+   `ItemService` を使い続け、`ItemReadService` / `ItemWriteService` の外部参照は0件だった
+2. **分割の前提が無い** — 読み書き分離が効くのは読みと書きでモデルや保存先が異なる場合
+   （リードレプリカ、参照用の非正規化モデル）。Itemは両方とも同じ `ItemRepositoryInterface`・
+   同じ `trx_item`・同じシャードを見るため、分けても得るものがない
+3. **他のドメインに広がらなかった** — Domain層の他22Serviceは分割しておらず、Itemだけが例外だった
+4. **委譲が4段になっていた** — UseCase → ItemService → Item{Read,Write}Service →
+   パッケージService → Repository
 
-**メリット:**
-- ✅ ビジネスロジックがパッケージに集約
-- ✅ CLI/Job/管理画面から同じロジックを再利用可能
-- ✅ DTOベースの純粋なPHPテストが可能
-- ✅ Eloquent Modelへの依存がアプリケーション層のみに限定
+##### パッケージ層のRead/Write分割も取りやめた（2026-08-20）
+
+当初は「他アプリから読み取りだけを使うなら依存を絞れる」としてパッケージ側の分割を残したが、
+`ItemReadService` / `ItemWriteService` はどちらも同じ `ItemRepositoryInterface` を要求するため、
+分けても絞れる依存が無かった。`NexusResource\Services\ItemService` に統合した。
+
+##### Domain層にクラスを作る基準
+
+パッケージ層に処理があるとき、Domain層にクラスを作るのは次のいずれかに当てはまる場合に限る。
+
+| 基準 | 例 |
+|---|---|
+| Eloquent Modelを返す必要がある呼び出し元との変換 | `ItemService::consumeItem`（DTO → TrxItem） |
+| 複数パッケージにまたがるオーケストレーション | `GachaCostService` |
+| アプリ固有の例外への翻訳 | `VersionService`（`SystemDataException`） |
+
+**どれにも当てはまらないなら、Domain層のクラスを作らずUseCaseからパッケージを直接呼ぶ。**
+委譲するだけのクラスは、呼び出し段数を増やすだけで何も足していない。
+
+##### Domain層Serviceの棚卸し結果（2026-08-20）
+
+上記の基準でDomain層の全Serviceを判定した。残す19件と削除した3件の内訳は次のとおり。
+
+| Service | 判定 | 根拠 |
+|---|---|---|
+| `ItemService` | 残す | DTO → `TrxItem` 変換 |
+| `GachaProgressService` | 残す | DTO ↔ `TrxGacha` 変換 |
+| `InAppPurchaseDiamondBalanceService` | 残す | FIFO用 `trx_diamond_balance` 作成（アプリ固有） |
+| `StaminaService` / `VersionService` | 残す | 変換＋アプリ固有例外への翻訳 |
+| `UnitLevelService` / `EquipmentLevelService` / `PlayerLevelService` | 残す | `_BaseLevelService` の継承＋Model変換 |
+| `LoginBonusService` / `ComeBackLoginBonusService` / `VipLoginBonusService` | 残す | `_BaseLoginBonusService` の継承（アプリ固有の判定を実装） |
+| `GachaCostService` / `InAppPurchaseDiamondService` / `InAppPurchasePackService` / `InAppPurchasePassService` / `InAppPurchaseHistoryService` | 残す | 複数Serviceのオーケストレーション |
+| `GachaValidationService` / `InAppPurchaseValidationService` | 残す | マスタ検証とアプリ固有例外への翻訳 |
+| `PlayerService` | 残す | 対応するパッケージ層が無く、Repositoryを直接扱う実装 |
+| ~~`DiamondService`~~ | 削除 | 委譲のみのFacade |
+| ~~`GachaDrawService`~~ | 削除 | パッケージのDTOを配列に変換するだけ |
+| ~~`GachaPrizeService`~~ | 削除 | 配列をパッケージのDTOに戻すだけ |
+
+`GachaDrawService` と `GachaPrizeService` は対になっていて、UseCaseが配列を持つために
+**DTO → 配列 → DTO** と往復変換していた。UseCaseがDTOのまま受け渡し、履歴とレスポンスに
+必要な時点だけ `toArray()` する形に変えて、両方を削除した（変換が1往復ぶん減る）。
+
 
 #### 優先度：中
 
@@ -205,9 +152,27 @@ class ItemWriteService
 **コミット:** f7c9c83
 
 **移行後の構造:**
-- パッケージ層: `nexus-core-billing/src/Services/DiamondBalanceService.php` - DTOベースのビジネスロジック
-- Domain層: `api/app/Domain/InAppPurchase/Services/DiamondBalanceService.php` - Wrapperパターン + FIFO管理追加機能
-- Repository実装: `api/app/Repositories/Trx/DiamondRepositoryImpl.php`
+- パッケージ層: `nexus-resource/src/Services/DiamondService.php` - DTOベースのビジネスロジック
+- Domain層: `api/app/Domain/InAppPurchase/Services/InAppPurchaseDiamondBalanceService.php` - Wrapperパターン + FIFO管理追加機能
+- Repository実装: `api/app/Repositories/Trx/DiamondRepositoryAdapter.php`
+
+##### ダイヤの残高ロジックはnexus-resourceへ移した（2026-08-20）
+
+当初は `nexus-core-billing` に置いていたが、`nexus-resource` へ移設した。
+
+1. **ダイヤは課金専用ではない** — ガチャ消費（`GachaCostService`）・報酬配布（`DiamondDeliveryHandler`）
+   からも増減する。`nexus-resource` の `ResourceType` には元から `DIAMOND` / `PAID_DIAMOND` があった
+2. **月次集計の大元をライブラリ側に置く** — 残高の加減算が1箇所に集まるため、集計・突合の起点が明確になる
+3. **パッケージ→アプリの逆依存が消えた** — `nexus-resource-delivery` の
+   `DiamondDeliveryHandler` / `ItemDeliveryHandler` が `App\Domain\...` をimportしていたが、
+   パッケージ層のServiceを直接使う形になった
+
+移設したもの: `Services/DiamondService`（旧 `DiamondBalanceService`）、
+`Contracts/DiamondRepositoryInterface`、`DataTransferObjects/DiamondBalance`。
+
+**課金固有の処理は `nexus-core-billing` に残す** — レシート検証（`AppStore` / `GooglePlay`）、
+購入制限、冪等性チェック。FIFO用の `trx_diamond_balance` レコード作成（単価・返金計算に使う）は
+Eloquentに依存するためDomain層の `addPaidDiamondWithBalance()` に残している。
 
 **移行したビジネスロジック:**
 - ✅ 無償→有償消費ロジック（consumeFreeThenPaidDiamond）
@@ -272,24 +237,24 @@ Domain層（Model） → DTO ↔ Model変換 + アプリ固有機能
 ### GachaCostService / GachaValidationService
 
 **現状:**
-- `GachaDrawService` / `GachaPrizeService` / `GachaProgressService` はすでに移行済み ✅
+- `GachaProgressService` はDomain層に残存（Model変換あり）、`GachaDrawService` / `GachaPrizeService` は削除済み
 - `GachaCostService` はDomain層に残存
 
 **判定:**
 - ✅ **移行不要** - オーケストレーション層として適切
-- DiamondService/ItemServiceへの委譲のみ（ビジネスロジックなし）
+- InAppPurchaseDiamondBalanceService/ItemServiceへの委譲のみ（ビジネスロジックなし）
 - UseCaseに近い責務
 
 ### InAppPurchase関連Service
 
 **現状:**
-- `DiamondBalanceService` は移行完了 ✅
-- `InAppPurchasePurchaseService` はDomain層に残存
+- `InAppPurchaseDiamondBalanceService`（Domain層ラッパー）は移行完了 ✅
+- `InAppPurchaseDiamondService` はDomain層に残存
 
 **判定:**
 - ✅ **移行不要** - オーケストレーション層として適切
 - 複数Serviceを組み合わせたワークフロー管理（UseCaseに近い責務）
-- ValidationService、DiamondBalanceService、HistoryServiceへの委譲
+- InAppPurchaseValidationService、InAppPurchaseDiamondBalanceService、InAppPurchaseHistoryServiceへの委譲
 
 ### VersionService
 
@@ -318,6 +283,9 @@ Domain層（Model） → DTO ↔ Model変換 + アプリ固有機能
 1. パッケージServiceをDI
 2. DTOをEloquent Modelに変換するロジックのみ残す
 3. ビジネスロジックはすべてパッケージに委譲
+
+変換もオーケストレーションも例外翻訳も無いなら、**このStepを飛ばして
+UseCaseからパッケージを直接呼ぶ**。判断基準は「Domain層にクラスを作る基準」を参照。
 
 ### Step 3: テスト更新
 
@@ -364,28 +332,29 @@ class StaminaService {
 - ✅ パッケージが完全に独立
 - ✅ テストしやすい
 
-### パターン2: Facadeパターン
+### パターン2: オーケストレーション
 
-**用途:** 複数のパッケージServiceを組み合わせる場合
+**用途:** 複数のServiceを順番に呼んで1つの業務フローを完成させる場合
 
 ```php
-// Package Layer
-class DiamondBalanceService { ... }
-class PurchaseService { ... }
-
-// Domain Layer (Facade)
-class DiamondService {
+// Domain Layer
+class InAppPurchaseDiamondService {
     public function __construct(
-        private readonly DiamondBalanceService $balanceService,
-        private readonly PurchaseService $purchaseService,
+        private readonly TrxInAppPurchaseRepository $trxInAppPurchaseRepository,
+        private readonly InAppPurchaseValidationService $validationService,
+        private readonly InAppPurchaseDiamondBalanceService $diamondBalanceService,
+        private readonly InAppPurchaseHistoryService $historyService,
     ) {}
-    
-    public function purchaseDiamond(...) {
-        // 複数Serviceのオーケストレーション
-        return $this->purchaseService->purchaseDiamond(...);
+
+    public function purchaseDiamond(...): array {
+        // 1. 購入制限チェック → 2. ダイヤ加算 → 3. 履歴更新 → 4. 残高返却
     }
 }
 ```
+
+**⚠️ Facadeにしないこと。** 「後方互換のために既存クラス名を残し、中身は新Serviceへ丸投げ」は
+オーケストレーションではない。呼び出し元を新Serviceに向け直して、古いクラスは削除する。
+`ItemService`のRead/Write分割（2026-08-19）と`DiamondService`（2026-08-20）はこれで削除した。
 
 ### パターン3: 継承パターン（限定的に使用）
 

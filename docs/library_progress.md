@@ -41,7 +41,7 @@ LaravelモバイルRPGサーバーのフレームワーク部分を再利用可�
 | ログインボーナス | Domain/Login/Services | nexus-login | 🔄 要統合 |
 | ガチャ | Domain/Gacha/Services | nexus-gacha | 🔄 要統合 |
 | スタミナ | Domain/Stamina/Services | nexus-stamina | ✅ パッケージ優先 |
-| プレイヤー管理 | Domain/Player/Services | nexus-player | 🔄 要統合 |
+| プレイヤー管理 | Domain/Player/Services | nexus-core | 🔄 要統合 |
 | リソース配送 | Domain/Resource/Services | nexus-resource-delivery | ✅ パッケージ優先 |
 
 **完了条件**: すべてのビジネスロジックがパッケージに集約され、api側は薄いアダプタ層のみ
@@ -63,7 +63,6 @@ LaravelモバイルRPGサーバーのフレームワーク部分を再利用可�
 
 **内容**:
 - `ClockUtility`: 固定時刻管理ユーティリティ
-- `RedisUtility`: Redis操作ヘルパー
 
 **名前空間**: `LaravelUtilities\`
 
@@ -447,7 +446,6 @@ packages/
 ├── laravel-utilities/
 │   ├── src/
 │   │   ├── ClockUtility.php
-│   │   └── RedisUtility.php
 │   ├── composer.json
 │   └── README.md
 │

@@ -1,8 +1,8 @@
 <?php
 
-namespace LaravelWallet\Tests\Unit\ValueObjects;
+namespace NexusWallet\Tests\Unit\ValueObjects;
 
-use LaravelWallet\ValueObjects\CurrencyBalance;
+use NexusWallet\ValueObjects\CurrencyBalance;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

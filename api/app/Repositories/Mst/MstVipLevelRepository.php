@@ -21,7 +21,7 @@ class MstVipLevelRepository extends _BaseMstRepository implements VipLevelReposi
      * 全VIPレベルを取得（キャッシュから）
      * required_point昇順でソート
      *
-     * @return CustomCollection<MstVipLevel>
+     * @return CustomCollection<array-key, MstVipLevel>
      */
     public function selectAllLevels(): CustomCollection
     {
@@ -39,9 +39,8 @@ class MstVipLevelRepository extends _BaseMstRepository implements VipLevelReposi
     public function selectByLevel(int $level): ?MstVipLevel
     {
         return $this->queryOrMemory()
-            ->where('level', $level)
             ->where('is_active', true)
-            ->first();
+            ->firstWhere('level', $level);
     }
 
     /**
@@ -86,7 +85,7 @@ class MstVipLevelRepository extends _BaseMstRepository implements VipLevelReposi
     /**
      * 有効な全VIPレベルをlevel昇順で取得
      *
-     * @return CustomCollection<MstVipLevel>
+     * @return CustomCollection<array-key, MstVipLevel>
      */
     public function selectAllActiveOrderByLevel(): CustomCollection
     {

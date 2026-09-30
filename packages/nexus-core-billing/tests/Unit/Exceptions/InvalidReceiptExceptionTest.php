@@ -10,21 +10,21 @@ class InvalidReceiptExceptionTest extends TestCase
 {
     public function test_default_message()
     {
-        $exception = new InvalidReceiptException();
+        $exception = new InvalidReceiptException;
 
-        $this->assertSame("Invalid receipt", $exception->getMessage());
+        $this->assertSame('Invalid receipt', $exception->getMessage());
     }
 
     public function test_custom_message()
     {
-        $exception = new InvalidReceiptException("Receipt signature is invalid");
+        $exception = new InvalidReceiptException('Receipt signature is invalid');
 
-        $this->assertSame("Receipt signature is invalid", $exception->getMessage());
+        $this->assertSame('Receipt signature is invalid', $exception->getMessage());
     }
 
     public function test_exception_extends_receipt_verification_exception()
     {
-        $exception = new InvalidReceiptException();
+        $exception = new InvalidReceiptException;
 
         $this->assertInstanceOf(ReceiptVerificationException::class, $exception);
     }
@@ -32,7 +32,7 @@ class InvalidReceiptExceptionTest extends TestCase
     public function test_exception_code_and_previous()
     {
         $previous = new \Exception('Previous exception');
-        $exception = new InvalidReceiptException("Invalid receipt error", 3001, $previous);
+        $exception = new InvalidReceiptException('Invalid receipt error', 3001, $previous);
 
         $this->assertSame(3001, $exception->getCode());
         $this->assertSame($previous, $exception->getPrevious());

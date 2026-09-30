@@ -10,6 +10,8 @@ use JsonSerializable;
  *
  * アクセストークン、リフレッシュトークン、有効期限をまとめた不変オブジェクト
  * OAuth2標準のトークンレスポンス形式に準拠
+ *
+ * @implements Arrayable<string, mixed>
  */
 final class Token implements Arrayable, JsonSerializable
 {

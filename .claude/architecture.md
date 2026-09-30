@@ -66,7 +66,7 @@ class AuthController extends Controller
 {
     public function version(
         VersionCheckRequest $request,    // ← Presentation Layer
-        VersionCheckUseCase $useCase      // ← Application Layer
+        CheckUseCase $useCase      // ← Application Layer
     ): JsonResponse {
         // Requestから値を取り出してUseCaseに渡す
         $deployVersion = $request->getDeployVersion();
@@ -76,7 +76,7 @@ class AuthController extends Controller
 }
 
 // ✅ Good: UseCaseからServiceへの依存
-class VersionCheckUseCase
+class CheckUseCase
 {
     public function __construct(
         private readonly VersionCheckService $versionCheckService
@@ -345,7 +345,7 @@ class AuthController extends Controller
 {
     public function version(
         VersionCheckRequest $request,
-        VersionCheckUseCase $useCase
+        CheckUseCase $useCase
     ): JsonResponse {
         // Requestから個々の値を取り出してUseCaseに渡す
         $deployVersion = $request->getDeployVersion();
@@ -753,7 +753,7 @@ $service = new VipPointService($config);
 **実装例:**
 
 ```php
-class VersionCheckUseCase extends _BaseUseCase
+class CheckUseCase extends _BaseUseCase
 {
     public function __construct(
         private readonly VersionCheckService $versionCheckService
@@ -800,7 +800,7 @@ class VersionCheckUseCase extends _BaseUseCase
 **実装例:**
 
 ```php
-class UnitLevelUpUseCase implements _BaseUseCaseInterface
+class LevelUpUseCase implements _BaseUseCaseInterface
 {
     /**
      * バリデーション
@@ -873,7 +873,7 @@ class UnitLevelUpUseCase implements _BaseUseCaseInterface
 シンプルな読み取り専用のUseCaseでは、validation()を省略しても構いません。
 
 ```php
-class VersionCheckUseCase implements _BaseUseCaseInterface
+class CheckUseCase implements _BaseUseCaseInterface
 {
     // バリデーション不要（deployVersionはRequestで検証済み）
     public function handle(?int $deployVersion): VersionCheckResponse
@@ -1410,7 +1410,7 @@ readonly class DeliveryContent
 {
     public function __construct(
         public string $contentType,  // 'item', 'unit', 'equipment', 'diamond', 'wallet'
-        public string $contentId,    // mst_item.id, mst_unit.id 等
+        public string $contentMstId,    // mst_item.id, mst_unit.id 等
         public int $amount,          // 配布数量
     ) {}
     
@@ -1477,9 +1477,9 @@ class EquipmentDeliveryHandler implements DeliveryHandlerInterface
     public function handle(int $sysPlayerId, DeliveryContent $content): DeliveryResult
     {
         // 1. マスターデータ検証
-        $mstEquipment = $this->mstEquipmentRepository->selectById($content->contentId);
+        $mstEquipment = $this->mstEquipmentRepository->selectById($content->contentMstId);
         if ($mstEquipment === null) {
-            throw MasterDataException::equipment($content->contentId);
+            throw MasterDataException::equipment($content->contentMstId);
         }
 
         // 2. 装備作成（複数個の場合はループ）
@@ -1487,7 +1487,7 @@ class EquipmentDeliveryHandler implements DeliveryHandlerInterface
         for ($i = 0; $i < $content->amount; $i++) {
             $trxEquipment = $this->trxEquipmentRepository->createEquipment(
                 sysPlayerId: $sysPlayerId,
-                mstEquipmentId: $content->contentId,
+                mstEquipmentId: $content->contentMstId,
                 level: 1,
                 exp: 0
             );
@@ -1497,7 +1497,7 @@ class EquipmentDeliveryHandler implements DeliveryHandlerInterface
         // 3. 結果を返す
         return new DeliveryResult(
             contentType: 'equipment',
-            contentId: $content->contentId,
+            contentMstId: $content->contentMstId,
             amount: $content->amount,
             details: ['created_ids' => $createdIds]
         );
@@ -1521,9 +1521,9 @@ class GachaPrizeService
         $deliveryContents = [];
         foreach ($prizes as $prize) {
             $deliveryContents[] = match ($prize['content_type']) {
-                'item' => DeliveryContent::item($prize['content_id'], $prize['amount']),
-                'unit' => DeliveryContent::unit($prize['content_id'], $prize['amount']),
-                'equipment' => DeliveryContent::equipment($prize['content_id'], $prize['amount']),
+                'item' => DeliveryContent::item($prize['content_mst_id'], $prize['amount']),
+                'unit' => DeliveryContent::unit($prize['content_mst_id'], $prize['amount']),
+                'equipment' => DeliveryContent::equipment($prize['content_mst_id'], $prize['amount']),
                 default => throw BusinessLogicException::unsupportedContentType($prize['content_type']),
             };
         }
@@ -1534,7 +1534,7 @@ class GachaPrizeService
         // 3. 結果を返す
         return array_map(fn($result) => [
             'content_type' => $result->contentType,
-            'content_id' => $result->contentId,
+            'content_mst_id' => $result->contentMstId,
             'amount' => $result->amount,
         ], $results);
     }
@@ -1711,8 +1711,7 @@ class SysDeploy extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
-        'start_at' => 'immutable_datetime',
-        'end_at' => 'immutable_datetime',
+        // 日時はキャストしない（stringのまま扱う）
     ];
 
     // リレーション定義
@@ -1768,9 +1767,9 @@ POST /auth/version
 1. AuthController::version()
    ├── VersionCheckRequest（バリデーション）
    ├── $deployVersion = $request->getDeployVersion()
-   └── VersionCheckUseCase::handle($deployVersion)
+   └── CheckUseCase::handle($deployVersion)
    
-2. VersionCheckUseCase::handle(?int $deployVersion)
+2. CheckUseCase::handle(?int $deployVersion)
    └── VersionCheckService::checkVersion($deployVersion)
    
 3. VersionCheckService::checkVersion(?int $deployVersion)
@@ -2422,7 +2421,7 @@ class UnitLevelService
 
 ```php
 // packages/nexus-wallet/src/Exceptions/InsufficientBalanceException.php
-namespace LaravelWallet\Exceptions;
+namespace NexusWallet\Exceptions;
 
 class InsufficientBalanceException extends WalletException
 {

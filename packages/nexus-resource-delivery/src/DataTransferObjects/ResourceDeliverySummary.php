@@ -13,7 +13,7 @@ use NexusResourceDelivery\Enums\ResourceDeliveryResultReason;
 class ResourceDeliverySummary
 {
     /**
-     * @var CustomCollection<ResourceDeliveryContent>
+     * @var CustomCollection<array-key, ResourceDeliveryContent>
      */
     private CustomCollection $contents;
 
@@ -25,7 +25,7 @@ class ResourceDeliverySummary
     /**
      * 配送済みコンテンツのリストを取得
      *
-     * @return CustomCollection<ResourceDeliveryContent>
+     * @return CustomCollection<array-key, ResourceDeliveryContent>
      */
     public function getContents(): CustomCollection
     {
@@ -34,6 +34,8 @@ class ResourceDeliverySummary
 
     /**
      * 配送済みコンテンツを追加
+     *
+     * @param  CustomCollection<array-key, ResourceDeliveryContent>  $contents
      */
     public function addContents(CustomCollection $contents): void
     {

@@ -11,6 +11,8 @@ use JsonSerializable;
  *
  * すべてのレスポンスクラスの基底クラス
  * 共通のシリアライゼーション処理を提供
+ *
+ * @implements Arrayable<string, mixed>
  */
 abstract class _BaseResponse implements _BaseResponseInterface, Arrayable, JsonSerializable
 {

@@ -12,22 +12,22 @@ class FriendStatus
     /**
      * 申請中
      */
-    public const APPLIED = 'Applied';
+    public const APPLIED = 'applied';
 
     /**
      * 承認済み（フレンド関係成立）
      */
-    public const ACCEPTED = 'Accepted';
+    public const ACCEPTED = 'accepted';
 
     /**
      * 却下済み
      */
-    public const REJECTED = 'Rejected';
+    public const REJECTED = 'rejected';
 
     /**
      * 削除済み（論理削除）
      */
-    public const DELETED = 'Deleted';
+    public const DELETED = 'deleted';
 
     /**
      * すべてのステータス値を取得

@@ -28,7 +28,7 @@ class AuthController extends Controller
 {
     public function version(
         VersionCheckRequest $request,
-        VersionCheckUseCase $useCase
+        CheckUseCase $useCase
     ): JsonResponse {
         $response = $useCase->handle($request);
         return $response->toJsonResponse();
@@ -89,7 +89,7 @@ class AuthController extends Controller
 {
     public function version(
         VersionCheckRequest $request,
-        VersionCheckUseCase $useCase
+        CheckUseCase $useCase
     ): JsonResponse {
         $response = $useCase->handle($request);
         return $response->toJsonResponse();
@@ -250,7 +250,7 @@ class PlayerController extends Controller
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Auth\VersionCheckRequest;
-use App\UseCases\Auth\VersionCheckUseCase;
+use App\UseCases\Auth\CheckUseCase;
 use Illuminate\Http\JsonResponse;
 
 class AuthController extends Controller
@@ -260,7 +260,7 @@ class AuthController extends Controller
      */
     public function version(
         VersionCheckRequest $request,
-        VersionCheckUseCase $useCase
+        CheckUseCase $useCase
     ): JsonResponse {
         $response = $useCase->handle($request);
         return $response->toJsonResponse();

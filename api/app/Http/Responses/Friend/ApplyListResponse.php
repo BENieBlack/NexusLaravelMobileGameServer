@@ -34,8 +34,8 @@ class ApplyListResponse extends _BaseResponse
                 'sender_my_id' => $sysFriendApply->sendPlayer->my_id,
                 'receiver_my_id' => $sysFriendApply->receivePlayer->my_id,
                 'status' => $sysFriendApply->status,
-                'created_at' => $sysFriendApply->created_at->toDateTimeString(),
-                'updated_at' => $sysFriendApply->updated_at->toDateTimeString(),
+                'created_at' => $sysFriendApply->getCreatedAt(),
+                'updated_at' => $sysFriendApply->getUpdatedAt(),
             ];
         })->toArray();
 
@@ -63,8 +63,8 @@ class ApplyListResponse extends _BaseResponse
                     'sender_my_id' => $model->sendPlayer->my_id,
                     'receiver_my_id' => $model->receivePlayer->my_id,
                     'status' => $dto->getStatus(),
-                    'created_at' => $dto->getCreatedAt()->format('Y-m-d H:i:s'),
-                    'updated_at' => $dto->getUpdatedAt()->format('Y-m-d H:i:s'),
+                    'created_at' => $dto->getCreatedAt(),
+                    'updated_at' => $dto->getUpdatedAt(),
                 ];
             }
         }

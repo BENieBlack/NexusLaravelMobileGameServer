@@ -44,7 +44,7 @@ class StaminaServiceTest extends TestCase
 
         $this->levelService
             ->expects($this->once())
-            ->method("findMaxStamina")
+            ->method('findMaxStamina')
             ->with($playerId)
             ->willReturn($maxStamina);
 
@@ -101,7 +101,7 @@ class StaminaServiceTest extends TestCase
 
         $this->levelService
             ->expects($this->once())
-            ->method("findMaxStamina")
+            ->method('findMaxStamina')
             ->with($playerId)
             ->willReturn($maxStamina);
 
@@ -144,7 +144,7 @@ class StaminaServiceTest extends TestCase
 
         $this->levelService
             ->expects($this->once())
-            ->method("findMaxStamina")
+            ->method('findMaxStamina')
             ->with($playerId)
             ->willReturn($maxStamina);
 
@@ -184,7 +184,7 @@ class StaminaServiceTest extends TestCase
 
         $this->levelService
             ->expects($this->once())
-            ->method("findMaxStamina")
+            ->method('findMaxStamina')
             ->with($playerId)
             ->willReturn($maxStamina);
 
@@ -227,7 +227,7 @@ class StaminaServiceTest extends TestCase
 
         $this->levelService
             ->expects($this->once())
-            ->method("findMaxStamina")
+            ->method('findMaxStamina')
             ->with($playerId)
             ->willReturn($maxStamina);
 
@@ -270,7 +270,7 @@ class StaminaServiceTest extends TestCase
 
         $this->levelService
             ->expects($this->once())
-            ->method("findMaxStamina")
+            ->method('findMaxStamina')
             ->with($playerId)
             ->willReturn($maxStamina);
 
@@ -306,7 +306,7 @@ class StaminaServiceTest extends TestCase
 
         $this->levelService
             ->expects($this->once())
-            ->method("findMaxStamina")
+            ->method('findMaxStamina')
             ->with($playerId)
             ->willReturn($maxStamina);
 

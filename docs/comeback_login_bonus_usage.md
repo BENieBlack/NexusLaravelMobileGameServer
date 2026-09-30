@@ -55,7 +55,7 @@ MstLoginBonus::create([
 MstLoginBonusContent::create([
     'mst_login_bonus_id' => 'daily_login_day1',
     'content_type' => 'diamond',
-    'content_id' => 'free',
+    'content_mst_id' => 'free',
     'content_quantity' => 100,
     'amount' => 1,
     'is_paid' => false,
@@ -82,7 +82,7 @@ MstLoginBonus::create([
 MstLoginBonusContent::create([
     'mst_login_bonus_id' => 'comeback_7days',
     'content_type' => 'diamond',
-    'content_id' => 'free',
+    'content_mst_id' => 'free',
     'content_quantity' => 500,
     'amount' => 1,
     'is_paid' => false,
@@ -104,7 +104,7 @@ MstLoginBonus::create([
 MstLoginBonusContent::create([
     'mst_login_bonus_id' => 'comeback_30days',
     'content_type' => 'diamond',
-    'content_id' => 'free',
+    'content_mst_id' => 'free',
     'content_quantity' => 2000,
     'amount' => 1,
     'is_paid' => false,

@@ -35,7 +35,7 @@ class RepositoryApiSessionTest extends TestCase
     #[Test]
     public function query_or_memoryは引数なしで動作する(): void
     {
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
         $repo = new TrxEquipmentRepository;
 
         $equipments = $repo->queryOrMemory();
@@ -44,24 +44,25 @@ class RepositoryApiSessionTest extends TestCase
     }
 
     #[Test]
-    public function ユニークキーがプロパティとして定義されている(): void
+    public function ユニークキーはmodelから解決される(): void
     {
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        // Repositoryで明示しなければModelの宣言（無ければ主キー）に従う。
+        // 二重に持つと片方だけ直し忘れる
+        $this->useSessionPlayer($this->sysPlayerId);
         $repo = new TrxEquipmentRepository;
 
-        $reflection = new \ReflectionClass($repo);
-        $property = $reflection->getProperty('uniqueKeys');
-        $property->setAccessible(true);
-        $uniqueKeys = $property->getValue($repo);
+        $method = new \ReflectionMethod($repo, 'getUniqueKeys');
+        $method->setAccessible(true);
 
-        $this->assertIsArray($uniqueKeys);
-        $this->assertContains('id', $uniqueKeys);
+        $this->assertSame(['id'], $method->invoke($repo));
     }
 
     #[Test]
     public function 異なるsys_player_idで別のリポジトリを作成できる(): void
     {
-        ApiSession::setSysPlayerId(999);
+        // 装備を1件も持たないプレイヤー。IDを決め打ちすると、
+        // 採番がそこへ到達したときに実在プレイヤーの装備を拾う
+        $this->useSessionPlayer($this->nonExistentSysPlayerId());
         $repo = new TrxEquipmentRepository;
 
         $equipments = $repo->queryOrMemory();
@@ -72,7 +73,7 @@ class RepositoryApiSessionTest extends TestCase
     #[Test]
     public function api_sessionを設定して_trx_repositoryで使用できる(): void
     {
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         $trxEquipmentRepo = new TrxEquipmentRepository;
         $equipments = $trxEquipmentRepo->queryOrMemory();
@@ -83,7 +84,7 @@ class RepositoryApiSessionTest extends TestCase
     #[Test]
     public function log_repositoryでも_api_sessionが使用できる(): void
     {
-        ApiSession::setSysPlayerId($this->sysPlayerId);
+        $this->useSessionPlayer($this->sysPlayerId);
 
         $logEquipmentRepo = new LogEquipmentRepository;
         $logs = $logEquipmentRepo->queryOrMemory();

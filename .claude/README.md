@@ -39,7 +39,6 @@
 `.claude/api/`ディレクトリには、各レイヤーの詳細ルールがあります：
 
 - [controller.md](./api/controller.md) - Controllerの実装詳細
-- [usecase.md](./api/usecase.md) - UseCaseの実装詳細
 - [service.md](./api/service.md) - Serviceの実装詳細
 - [repository.md](./api/repository.md) - Repositoryの実装詳細
 - [dto.md](./api/dto.md) - DTOの設計ルール
@@ -61,6 +60,21 @@
 - [log.md](./database/log.md) - logデータベース（ログデータ）
 - [adm.md](./database/adm.md) - admデータベース（管理者情報）
 - [tol.md](./database/tol.md) - tolデータベース（運営ツール用データ）
+
+### 📁 `.opencode/` について
+
+`.opencode` は `.claude` へのシンボリックリンクです（2026-08-20〜）。
+以前は同じ内容を2箇所にコピーしていましたが、17,671行の完全な複製で、
+片方だけ更新される事故が起きるため1つに統合しました。
+**ドキュメントの追加・修正は `.claude/` 側だけ行えば両方に反映されます。**
+
+### 🛠 スキル
+
+`.claude/skills/`ディレクトリには、特定の作業のときだけ読み込まれる手順書があります。
+`/<スキル名>` で明示的に呼び出せるほか、会話の内容に応じて自動で読み込まれます。
+
+- [create-skill](./skills/create-skill/SKILL.md) - スキルの新規作成・改訂・デバッグ
+- [cs-support](./skills/cs-support/SKILL.md) - CS問い合わせの調査・原因特定・Issue化
 
 ## クイックスタート
 
@@ -157,7 +171,7 @@ class DeliveryContentData { }  // 冗長
 
 ```php
 // ✅ Good: 10行以内
-public function version(VersionCheckRequest $request, VersionCheckUseCase $useCase): JsonResponse
+public function version(VersionCheckRequest $request, CheckUseCase $useCase): JsonResponse
 {
     $response = $useCase->handle($request);
     return $response->toJsonResponse();

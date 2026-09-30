@@ -14,8 +14,8 @@
         }
     },
     "require": {
-        "php": "^8.2",
-        "nexus/player": "@dev"
+        "php": "^8.4",
+        "nexus/core": "@dev"
     },
     "require-dev": {
         "phpunit/phpunit": "^10.0",
@@ -24,7 +24,7 @@
     "repositories": [
         {
             "type": "path",
-            "url": "../nexus-player"
+            "url": "../nexus-core"
         }
     ],
     "minimum-stability": "dev",

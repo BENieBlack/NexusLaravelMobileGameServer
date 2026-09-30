@@ -49,7 +49,7 @@ class TrxDiamondRepository extends _BaseTrxRepository
      * プレイヤーIDで全プラットフォームのダイヤモンドを取得
      *
      * @param  int  $sysPlayerId  プレイヤーID
-     * @return CustomCollection<TrxDiamond>
+     * @return CustomCollection<int, TrxDiamond>
      */
     public function selectByPlayerId(int $sysPlayerId): CustomCollection
     {
@@ -65,7 +65,11 @@ class TrxDiamondRepository extends _BaseTrxRepository
             ->where('is_delete', false)
             ->get();
 
-        // マージして返す（重複排除）
-        return $fromMemory->merge($fromDb)->unique('id');
+        // メモリ側はユニークキー（string）、DB側は連番（int）でキーの体系が違う。
+        // そのままmergeすると混ざるので、どちらも値だけに詰め直してから重複を排除する。
+        return $fromMemory->values()
+            ->merge($fromDb->values()->all())
+            ->unique('id')
+            ->values();
     }
 }

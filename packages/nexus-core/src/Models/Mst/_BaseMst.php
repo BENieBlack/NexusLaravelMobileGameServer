@@ -49,6 +49,7 @@ abstract class _BaseMst extends _BaseModel implements _BaseMstInterface
      *
      * @var array
      */
+    /** @var list<string> */
     protected $fillable = [
         'deploy_key',
     ];

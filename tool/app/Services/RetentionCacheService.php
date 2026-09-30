@@ -3,8 +3,8 @@
 namespace App\Services;
 
 use App\Jobs\CalculateRetentionJob;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 /**
  * RetentionCacheService
@@ -20,8 +20,10 @@ use Illuminate\Support\Carbon;
 class RetentionCacheService
 {
     private const CACHE_TTL_HOURS = 24;
-    public const RETENTION_DAYS   = [1, 2, 3, 4, 5, 6, 7, 14, 30, 60, 90];
-    private const COHORT_DAYS     = 30;
+
+    public const RETENTION_DAYS = [1, 2, 3, 4, 5, 6, 7, 14, 30, 60, 90];
+
+    private const COHORT_DAYS = 30;
 
     /**
      * キャッシュ済みの継続率を即返し、未集計分はバックグラウンドジョブに投げる
@@ -30,8 +32,8 @@ class RetentionCacheService
      */
     public function getRetentionStatsWithStatus(): array
     {
-        $today       = Carbon::today()->format('Y-m-d');
-        $fromDate    = Carbon::today()->subDays(self::COHORT_DAYS)->format('Y-m-d');
+        $today = Carbon::today()->format('Y-m-d');
+        $fromDate = Carbon::today()->subDays(self::COHORT_DAYS)->format('Y-m-d');
         $cacheExpiry = Carbon::now()->subHours(self::CACHE_TTL_HOURS);
 
         $cached = DB::connection('tool')
@@ -45,15 +47,15 @@ class RetentionCacheService
             $cohortDates[] = Carbon::today()->subDays($i)->format('Y-m-d');
         }
 
-        $rows          = [];
-        $pendingCount  = 0;
+        $rows = [];
+        $pendingCount = 0;
 
         foreach ($cohortDates as $cohortDate) {
-            $row     = $cached->get($cohortDate);
+            $row = $cached->get($cohortDate);
             $isToday = ($cohortDate === $today);
 
             $needsJob = $isToday
-                || !$row
+                || ! $row
                 || Carbon::parse($row->calculated_at)->lt($cacheExpiry);
 
             if ($needsJob) {
@@ -72,7 +74,7 @@ class RetentionCacheService
         }
 
         return [
-            'rows'           => $rows,
+            'rows' => $rows,
             'is_calculating' => $pendingCount > 0,
         ];
     }
@@ -84,7 +86,7 @@ class RetentionCacheService
      */
     public function getLatestCachedStats(): array
     {
-        $today    = Carbon::today()->format('Y-m-d');
+        $today = Carbon::today()->format('Y-m-d');
         $fromDate = Carbon::today()->subDays(self::COHORT_DAYS)->format('Y-m-d');
 
         $cached = DB::connection('tool')
@@ -108,7 +110,7 @@ class RetentionCacheService
         }
 
         return [
-            'rows'           => $rows,
+            'rows' => $rows,
             'is_calculating' => $pendingJobs > 0,
         ];
     }
@@ -118,7 +120,7 @@ class RetentionCacheService
      */
     public function calculateAndCache(string $cohortDate): ?object
     {
-        $today  = Carbon::today();
+        $today = Carbon::today();
         $cohort = Carbon::parse($cohortDate);
 
         $newUserRows = DB::connection('trx')
@@ -132,8 +134,9 @@ class RetentionCacheService
 
         if ($newUsers === 0) {
             $this->upsert($cohortDate, 0, array_fill_keys(
-                array_map(fn($d) => "d{$d}", self::RETENTION_DAYS), null
+                array_map(fn ($d) => "d{$d}", self::RETENTION_DAYS), null
             ));
+
             return DB::connection('tool')
                 ->table('tol_dashboard_retention')
                 ->where('cohort_date', $cohortDate)->first();
@@ -148,13 +151,14 @@ class RetentionCacheService
             ->distinct()
             ->get()
             ->groupBy('sys_player_id')
-            ->map(fn($rows) => $rows->pluck('visit_date')->flip()->all());
+            ->map(fn ($rows) => $rows->pluck('visit_date')->flip()->all());
 
         $retentionData = [];
         foreach (self::RETENTION_DAYS as $days) {
             $targetDate = $cohort->copy()->addDays($days)->format('Y-m-d');
             if (Carbon::parse($targetDate)->gt($today)) {
                 $retentionData["d{$days}"] = null;
+
                 continue;
             }
             $retained = 0;
@@ -192,6 +196,7 @@ class RetentionCacheService
             $key = "d{$d}";
             $result[$key] = (isset($r[$key]) && $r[$key] !== null) ? (float) $r[$key] : null;
         }
+
         return $result;
     }
 }

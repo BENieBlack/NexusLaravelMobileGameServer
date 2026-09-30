@@ -9,6 +9,7 @@ use App\Http\Responses\Gacha\DrawResponse;
 use App\Repositories\Mst\MstGachaStepRepository;
 use App\Repositories\Trx\TrxGachaHistoryRepository;
 use App\Traits\RequiresAuthenticationTrait;
+use Illuminate\Support\Str;
 use NexusGacha\Services\GachaDrawService;
 use NexusGacha\Services\GachaPrizeService;
 use NexusGacha\Services\GachaProgressService;
@@ -160,7 +161,7 @@ class DrawUseCase extends _BaseUseCase
             'cost_mst_id' => $cost->getAttribute('cost_mst_id'),
             'cost_amount' => $cost->getAttribute('cost_amount'),
             'prizes' => $prizes,
-            'unique_request_id' => request()->header('X-Request-ID', (string) \Illuminate\Support\Str::uuid()),
+            'unique_request_id' => request()->header('X-Request-ID', (string) Str::uuid()),
         ]);
     }
 }

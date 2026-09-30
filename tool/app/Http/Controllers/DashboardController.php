@@ -13,7 +13,7 @@ class DashboardController extends Controller
 {
     public function __construct(
         private readonly RetentionCacheService $retentionService,
-        private readonly AccessCacheService    $accessService,
+        private readonly AccessCacheService $accessService,
     ) {}
 
     /**
@@ -21,22 +21,22 @@ class DashboardController extends Controller
      */
     public function index(Request $request): Response
     {
-        $period        = $request->input('period', '1month');
+        $period = $request->input('period', '1month');
         $revenuePeriod = $request->input('revenuePeriod', '1month');
 
-        $accessResult    = $this->accessService->getAccessStats($period);
+        $accessResult = $this->accessService->getAccessStats($period);
         $retentionResult = $this->retentionService->getRetentionStatsWithStatus();
 
         return Inertia::render('Dashboard', [
-            'accessStats'          => [
+            'accessStats' => [
                 'labels' => $accessResult['labels'],
-                'data'   => $accessResult['data'],
+                'data' => $accessResult['data'],
             ],
-            'accessCalculating'    => $accessResult['is_calculating'],
-            'revenueStats'         => $this->selectRevenueStats($revenuePeriod),
-            'retentionStats'       => $retentionResult['rows'],
+            'accessCalculating' => $accessResult['is_calculating'],
+            'revenueStats' => $this->selectRevenueStats($revenuePeriod),
+            'retentionStats' => $retentionResult['rows'],
             'retentionCalculating' => $retentionResult['is_calculating'],
-            'currentPeriod'        => $period,
+            'currentPeriod' => $period,
             'currentRevenuePeriod' => $revenuePeriod,
         ]);
     }
@@ -47,6 +47,7 @@ class DashboardController extends Controller
     public function accessStatus(Request $request): \Illuminate\Http\JsonResponse
     {
         $period = $request->input('period', '1month');
+
         return response()->json($this->accessService->getLatestStats($period));
     }
 

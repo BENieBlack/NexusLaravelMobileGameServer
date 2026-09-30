@@ -79,7 +79,7 @@ class CheckMasterHashTest extends TestCase
     }
 
     #[Test]
-    public function JSON以外のレスポンスにも更新要求ヘッダーを付ける(): void
+    public function jso_n以外のレスポンスにも更新要求ヘッダーを付ける(): void
     {
         $this->sysDeployRepository
             ->shouldReceive('selectLatestDownloadable')

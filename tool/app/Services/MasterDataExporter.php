@@ -35,7 +35,7 @@ class MasterDataExporter
         }
 
         // 全ファイルを一時ディレクトリへ出力し、マニフェストハッシュ確定後に公開する。
-        $stagingDir = $this->outputDir . '/.tmp_' . uniqid('', true);
+        $stagingDir = $this->outputDir.'/.tmp_'.uniqid('', true);
         mkdir($stagingDir, 0755, true);
 
         $tableNames = array_map(
@@ -54,7 +54,7 @@ class MasterDataExporter
                 array_map(static fn ($result) => $result['hash'], $tableResultArray),
                 JSON_THROW_ON_ERROR
             ));
-            $deploymentDir = $this->outputDir . '/' . $manifestHash;
+            $deploymentDir = $this->outputDir.'/'.$manifestHash;
 
             if (is_dir($deploymentDir)) {
                 File::deleteDirectory($stagingDir);
@@ -65,7 +65,7 @@ class MasterDataExporter
             }
 
             foreach ($tableResultArray as &$tableResult) {
-                $tableResult['public_url'] = '/masterdata/' . $manifestHash . '/' . $tableResult['file_name'];
+                $tableResult['public_url'] = '/masterdata/'.$manifestHash.'/'.$tableResult['file_name'];
             }
             unset($tableResult);
         } catch (\Throwable $exception) {
@@ -85,7 +85,7 @@ class MasterDataExporter
     }
 
     /** @param array<int, string> $tableNameArray
-     *  @return array<string, array<int, string>>
+     * @return array<string, array<int, string>>
      */
     private function groupTables(array $tableNameArray): array
     {
@@ -101,14 +101,14 @@ class MasterDataExporter
     }
 
     /** @param array<int, string> $tableNameArray
-     *  @return array{hash: string, file_name: string, file_size: int, public_url: string}
+     * @return array{hash: string, file_name: string, file_size: int, public_url: string}
      */
     private function exportGroup(string $groupName, array $tableNameArray, string $outputDir): array
     {
-        $tmpPath = $outputDir . '/' . $groupName . '.sqlite';
+        $tmpPath = $outputDir.'/'.$groupName.'.sqlite';
 
         try {
-            $sqlite = new \PDO('sqlite:' . $tmpPath);
+            $sqlite = new \PDO('sqlite:'.$tmpPath);
             $sqlite->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
             $sqlite->beginTransaction();
 
@@ -136,7 +136,7 @@ class MasterDataExporter
 
             $hash = hash_file('sha256', $tmpPath);
             $fileName = "{$groupName}_{$hash}.sqlite";
-            $finalPath = $outputDir . '/' . $fileName;
+            $finalPath = $outputDir.'/'.$fileName;
             rename($tmpPath, $finalPath);
 
             return [
@@ -149,7 +149,7 @@ class MasterDataExporter
             if (file_exists($tmpPath)) {
                 unlink($tmpPath);
             }
-            throw new RuntimeException('SQLiteエクスポートに失敗しました: ' . $exception->getMessage(), 0, $exception);
+            throw new RuntimeException('SQLiteエクスポートに失敗しました: '.$exception->getMessage(), 0, $exception);
         }
     }
 
@@ -194,7 +194,7 @@ class MasterDataExporter
         }
 
         return "CREATE TABLE IF NOT EXISTS `{$tableName}` (\n  "
-            . implode(",\n  ", $columnDefinitionArray)
-            . "\n)";
+            .implode(",\n  ", $columnDefinitionArray)
+            ."\n)";
     }
 }

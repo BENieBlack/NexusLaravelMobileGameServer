@@ -69,14 +69,14 @@ class GoogleSpreadsheetService
         $folderId = $this->getFolderId();
 
         $response = $this->withRetry(fn () => $this->driveService->files->listFiles([
-            'q'       => "'{$folderId}' in parents and mimeType='application/vnd.google-apps.spreadsheet' and trashed=false",
-            'fields'  => 'files(id, name, modifiedTime)',
+            'q' => "'{$folderId}' in parents and mimeType='application/vnd.google-apps.spreadsheet' and trashed=false",
+            'fields' => 'files(id, name, modifiedTime)',
             'orderBy' => 'name',
         ]));
 
         return array_map(fn (DriveFile $file) => [
-            'id'          => $file->getId(),
-            'name'        => $file->getName(),
+            'id' => $file->getId(),
+            'name' => $file->getName(),
             'modified_at' => $file->getModifiedTime(),
         ], $response->getFiles());
     }
@@ -92,7 +92,7 @@ class GoogleSpreadsheetService
 
         return array_map(fn ($sheet) => [
             'sheet_id' => $sheet->getProperties()->getSheetId(),
-            'title'    => $sheet->getProperties()->getTitle(),
+            'title' => $sheet->getProperties()->getTitle(),
         ], $spreadsheet->getSheets());
     }
 
@@ -475,8 +475,9 @@ class GoogleSpreadsheetService
      * 指数バックオフでリトライする。
      *
      * @template T
+     *
      * @param  callable(): T  $call
-     * @param  int            $maxRetries
+     * @param  int  $maxRetries
      * @return T
      */
     private function withRetry(callable $call, int $maxRetries = 3): mixed
@@ -491,7 +492,7 @@ class GoogleSpreadsheetService
                 $code = $e->getCode();
                 $isRetryable = in_array($code, [429, 500, 503], true);
 
-                if (!$isRetryable || $attempt >= $maxRetries) {
+                if (! $isRetryable || $attempt >= $maxRetries) {
                     throw $e;
                 }
 

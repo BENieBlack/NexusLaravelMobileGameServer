@@ -107,7 +107,7 @@ jobs:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: nexus-testing-sys
+          MYSQL_DATABASE: nexus-testing-system
         ports: ['33062:3306']
         options: >-
           --health-cmd="mysqladmin ping -h localhost -uroot -proot"
@@ -116,7 +116,7 @@ jobs:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: nexus-testing-mst
+          MYSQL_DATABASE: nexus-testing-master
         ports: ['33063:3306']
         options: >-
           --health-cmd="mysqladmin ping -h localhost -uroot -proot"
@@ -125,7 +125,7 @@ jobs:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: nexus-testing-trx1
+          MYSQL_DATABASE: nexus-testing-shard
         ports: ['33161:3306']
         options: >-
           --health-cmd="mysqladmin ping -h localhost -uroot -proot"
@@ -134,26 +134,26 @@ jobs:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: nexus-testing-trx2
+          MYSQL_DATABASE: nexus-testing-shard
         ports: ['33162:3306']
         options: >-
           --health-cmd="mysqladmin ping -h localhost -uroot -proot"
           --health-interval=10s --health-timeout=5s --health-retries=10
-      mysql-log1:
+      mysql-shard3:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: nexus-testing-log1
-        ports: ['33261:3306']
+          MYSQL_DATABASE: nexus-testing-shard
+        ports: ['33163:3306']
         options: >-
           --health-cmd="mysqladmin ping -h localhost -uroot -proot"
           --health-interval=10s --health-timeout=5s --health-retries=10
-      mysql-log2:
+      mysql-shard3-log:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: nexus-testing-log2
-        ports: ['33262:3306']
+          MYSQL_DATABASE: nexus-testing-shard
+        ports: ['33263:3306']
         options: >-
           --health-cmd="mysqladmin ping -h localhost -uroot -proot"
           --health-interval=10s --health-timeout=5s --health-retries=10
@@ -166,7 +166,7 @@ jobs:
 
     env:
       # CIのサービスコンテナはlocalhost経由で見えるため、
-      # phpunit.xmlのDocker用ホスト名(db-sys等)を上書きする
+      # phpunit.xmlのDocker用ホスト名を上書きする
       DB_SHARD_COUNT: 2
       DB_SYSTEM_HOST: 127.0.0.1
       DB_SYSTEM_PORT: 33062
@@ -177,9 +177,9 @@ jobs:
       DB_TRX2_HOST: 127.0.0.1
       DB_TRX2_PORT: 33162
       DB_LOG1_HOST: 127.0.0.1
-      DB_LOG1_PORT: 33261
+      DB_LOG1_PORT: 33163
       DB_LOG2_HOST: 127.0.0.1
-      DB_LOG2_PORT: 33262
+      DB_LOG2_PORT: 33263
       REDIS_HOST: 127.0.0.1
       REDIS_PORT: 6379
 

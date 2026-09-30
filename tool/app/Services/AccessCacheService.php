@@ -20,7 +20,8 @@ use Illuminate\Support\Facades\DB;
 class AccessCacheService
 {
     private const CACHE_TTL_HOURS = 24;
-    private const CACHE_DAYS      = 90;  // 最大保持日数
+
+    private const CACHE_DAYS = 90;  // 最大保持日数
 
     /** 全 log シャード接続名 */
     private const LOG_CONNECTIONS = ['trx', 'trx2', 'trx3'];
@@ -35,7 +36,7 @@ class AccessCacheService
     public function getAccessStats(string $period): array
     {
         [$startDate, $format] = $this->resolvePeriod($period);
-        $today       = Carbon::today();
+        $today = Carbon::today();
         $cacheExpiry = Carbon::now()->subHours(self::CACHE_TTL_HOURS);
 
         // キャッシュを一括取得
@@ -46,17 +47,17 @@ class AccessCacheService
             ->keyBy('access_date');
 
         $pendingCount = 0;
-        $current      = $startDate->copy();
-        $labels       = [];
-        $data         = [];
+        $current = $startDate->copy();
+        $labels = [];
+        $data = [];
 
         while ($current->lte($today)) {
-            $dateStr  = $current->format('Y-m-d');
-            $row      = $cached->get($dateStr);
-            $isToday  = $current->isSameDay($today);
+            $dateStr = $current->format('Y-m-d');
+            $row = $cached->get($dateStr);
+            $isToday = $current->isSameDay($today);
 
             $needsJob = $isToday
-                || !$row
+                || ! $row
                 || Carbon::parse($row->calculated_at)->lt($cacheExpiry);
 
             if ($needsJob) {
@@ -65,14 +66,14 @@ class AccessCacheService
             }
 
             $labels[] = $current->format($format);
-            $data[]   = $row ? (int) $row->total_count : 0;
+            $data[] = $row ? (int) $row->total_count : 0;
 
             $current->addDay();
         }
 
         return [
-            'labels'         => $labels,
-            'data'           => $data,
+            'labels' => $labels,
+            'data' => $data,
             'is_calculating' => $pendingCount > 0,
         ];
     }
@@ -97,19 +98,19 @@ class AccessCacheService
             ->count();
 
         $current = $startDate->copy();
-        $labels  = [];
-        $data    = [];
+        $labels = [];
+        $data = [];
 
         while ($current->lte($today)) {
-            $row      = $cached->get($current->format('Y-m-d'));
+            $row = $cached->get($current->format('Y-m-d'));
             $labels[] = $current->format($format);
-            $data[]   = $row ? (int) $row->total_count : 0;
+            $data[] = $row ? (int) $row->total_count : 0;
             $current->addDay();
         }
 
         return [
-            'labels'         => $labels,
-            'data'           => $data,
+            'labels' => $labels,
+            'data' => $data,
             'is_calculating' => $pendingJobs > 0,
         ];
     }
@@ -119,9 +120,9 @@ class AccessCacheService
      */
     public function calculateAndCache(string $dateStr): void
     {
-        $totalCount  = 0;
+        $totalCount = 0;
         $uniqueUsers = [];
-        $errorCount  = 0;
+        $errorCount = 0;
 
         foreach (self::LOG_CONNECTIONS as $conn) {
             try {
@@ -132,8 +133,8 @@ class AccessCacheService
                     ->first();
 
                 if ($rows) {
-                    $totalCount  += (int) $rows->cnt;
-                    $errorCount  += (int) $rows->errs;
+                    $totalCount += (int) $rows->cnt;
+                    $errorCount += (int) $rows->errs;
                     // ユニークユーザーはシャード間で重複する可能性があるため別途集計
                     $ids = DB::connection($conn)
                         ->table('log_action_api_access')
@@ -154,13 +155,13 @@ class AccessCacheService
 
         DB::connection('tool')->table('tol_dashboard_access_cache')->upsert(
             [
-                'access_date'   => $dateStr,
-                'total_count'   => $totalCount,
-                'unique_users'  => count($uniqueUsers),
-                'error_count'   => $errorCount,
+                'access_date' => $dateStr,
+                'total_count' => $totalCount,
+                'unique_users' => count($uniqueUsers),
+                'error_count' => $errorCount,
                 'calculated_at' => $now,
-                'created_at'    => $now,
-                'updated_at'    => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             ['access_date'],
             ['total_count', 'unique_users', 'error_count', 'calculated_at', 'updated_at']
@@ -177,14 +178,14 @@ class AccessCacheService
         $today = Carbon::today();
 
         return match ($period) {
-            '1day'    => [$today->copy()->subDays(1),   'm/d'],
-            '1week'   => [$today->copy()->subDays(6),   'm/d'],
-            '2weeks'  => [$today->copy()->subDays(13),  'm/d'],
-            '1month'  => [$today->copy()->subDays(29),  'm/d'],
+            '1day' => [$today->copy()->subDays(1),   'm/d'],
+            '1week' => [$today->copy()->subDays(6),   'm/d'],
+            '2weeks' => [$today->copy()->subDays(13),  'm/d'],
+            '1month' => [$today->copy()->subDays(29),  'm/d'],
             '6months' => [$today->copy()->subDays(179), 'Y/m/d'],
-            '1year'   => [$today->copy()->subDays(364), 'Y/m/d'],
-            'all'     => [$this->getOldestDate(),       'Y/m/d'],
-            default   => [$today->copy()->subDays(29),  'm/d'],
+            '1year' => [$today->copy()->subDays(364), 'Y/m/d'],
+            'all' => [$this->getOldestDate(),       'Y/m/d'],
+            default => [$today->copy()->subDays(29),  'm/d'],
         };
     }
 
@@ -199,12 +200,13 @@ class AccessCacheService
                 $min = DB::connection($conn)
                     ->table('log_action_api_access')
                     ->min('system_at');
-                if ($min && (!$oldest || $min < $oldest)) {
+                if ($min && (! $oldest || $min < $oldest)) {
                     $oldest = $min;
                 }
             } catch (\Throwable) {
             }
         }
+
         return $oldest ? Carbon::parse($oldest)->startOfDay() : Carbon::today()->subYear();
     }
 }

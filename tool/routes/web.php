@@ -1,11 +1,11 @@
 <?php
 
+use App\Http\Controllers\AdmManagementController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MasterImportController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\PlayerHistoryController;
-use App\Http\Controllers\AdmManagementController;
 use Illuminate\Support\Facades\Route;
 
 // ゲストユーザー用ルート（未ログイン）
@@ -21,7 +21,7 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/dashboard/access-status',    [DashboardController::class, 'accessStatus'])->name('dashboard.access-status');
+    Route::get('/dashboard/access-status', [DashboardController::class, 'accessStatus'])->name('dashboard.access-status');
     Route::get('/dashboard/retention-status', [DashboardController::class, 'retentionStatus'])->name('dashboard.retention-status');
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
@@ -49,12 +49,12 @@ Route::middleware('auth')->group(function () {
 
     // マスターデータインポート
     Route::prefix('master-import')->name('master-import.')->group(function () {
-        Route::get('/',             [MasterImportController::class, 'index'])->name('index');
-        Route::get('/all-sheets',   [MasterImportController::class, 'allSheets'])->name('all-sheets');
+        Route::get('/', [MasterImportController::class, 'index'])->name('index');
+        Route::get('/all-sheets', [MasterImportController::class, 'allSheets'])->name('all-sheets');
         Route::get('/spreadsheets', [MasterImportController::class, 'spreadsheets'])->name('spreadsheets');
-        Route::get('/sheets',       [MasterImportController::class, 'sheets'])->name('sheets');
-        Route::get('/preview',      [MasterImportController::class, 'preview'])->name('preview');
-        Route::post('/execute',     [MasterImportController::class, 'execute'])->name('execute');
-        Route::post('/export',      [MasterImportController::class, 'export'])->name('export');
+        Route::get('/sheets', [MasterImportController::class, 'sheets'])->name('sheets');
+        Route::get('/preview', [MasterImportController::class, 'preview'])->name('preview');
+        Route::post('/execute', [MasterImportController::class, 'execute'])->name('execute');
+        Route::post('/export', [MasterImportController::class, 'export'])->name('export');
     });
 });

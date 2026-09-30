@@ -48,7 +48,7 @@ class AdmManagementController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:admin.adm_account,email,' . $account->id],
+            'email' => ['required', 'email', 'max:255', 'unique:admin.adm_account,email,'.$account->id],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ]);
 
@@ -91,7 +91,7 @@ class AdmManagementController extends Controller
     public function updateRole(Request $request, AdmRole $role): RedirectResponse
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:255', 'unique:admin.adm_role,name,' . $role->id . ',id'],
+            'name' => ['required', 'string', 'max:255', 'unique:admin.adm_role,name,'.$role->id.',id'],
         ]);
 
         $role->update($data);
@@ -128,7 +128,7 @@ class AdmManagementController extends Controller
     public function updatePage(Request $request, AdmPage $page): RedirectResponse
     {
         $data = $request->validate([
-            'id' => ['required', 'string', 'max:191', 'regex:/^[a-zA-Z0-9_.:-]+$/', 'unique:admin.adm_page,id,' . $page->id . ',id'],
+            'id' => ['required', 'string', 'max:191', 'regex:/^[a-zA-Z0-9_.:-]+$/', 'unique:admin.adm_page,id,'.$page->id.',id'],
         ]);
 
         if ($data['id'] !== $page->id) {

@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
-use RuntimeException;
 
 class MasterDeployService
 {
@@ -69,11 +68,11 @@ class MasterDeployService
 
             return [
                 'sys_deploy_master_id' => $existing->id,
-                'sys_deploy_id'        => $deploy?->id,
-                'deploy_key'           => $existing->deploy_key,
-                'hash'                 => $existing->hash,
-                'tables'               => $tableResultArray,
-                'is_new'               => false,
+                'sys_deploy_id' => $deploy?->id,
+                'deploy_key' => $existing->deploy_key,
+                'hash' => $existing->hash,
+                'tables' => $tableResultArray,
+                'is_new' => false,
             ];
         }
 
@@ -88,16 +87,16 @@ class MasterDeployService
 
         // sys_deploy_master に登録
         $deployMasterId = DB::connection('sys')->table('sys_deploy_master')->insertGetId([
-            'deploy_key'  => $deployKey,
-            'hash'        => $exportResult['hash'],
+            'deploy_key' => $deployKey,
+            'hash' => $exportResult['hash'],
             'deploy_date' => $today,
-            'deploy_count'=> $deployCount,
-            'status'      => 'completed',
+            'deploy_count' => $deployCount,
+            'status' => 'completed',
             'deployed_by' => 'master_import',
             'deployed_at' => $now->format('Y-m-d H:i:s'),
             'description' => "マスターインポート: {$exportResult['table_count']}テーブル / {$exportResult['file_size']}bytes",
-            'created_at'  => $now->format('Y-m-d H:i:s'),
-            'updated_at'  => $now->format('Y-m-d H:i:s'),
+            'created_at' => $now->format('Y-m-d H:i:s'),
+            'updated_at' => $now->format('Y-m-d H:i:s'),
         ]);
 
         foreach ($exportResult['tables'] as $tableName => $tableResult) {
@@ -114,16 +113,16 @@ class MasterDeployService
         // sys_deploy_asset にもレコードが必要（sys_deploy が NOT NULL で参照するため）
         // 今回はアセットなしなので最小限のレコードを作成
         $deployAssetId = DB::connection('sys')->table('sys_deploy_asset')->insertGetId([
-            'deploy_key'   => $deployKey,
-            'hash'         => $exportResult['hash'],
-            'deploy_date'  => $today,
+            'deploy_key' => $deployKey,
+            'hash' => $exportResult['hash'],
+            'deploy_date' => $today,
             'deploy_count' => $deployCount,
-            'status'       => 'completed',
-            'deployed_by'  => 'master_import',
-            'deployed_at'  => $now->format('Y-m-d H:i:s'),
-            'description'  => 'マスターデータのみ（アセットなし）',
-            'created_at'   => $now->format('Y-m-d H:i:s'),
-            'updated_at'   => $now->format('Y-m-d H:i:s'),
+            'status' => 'completed',
+            'deployed_by' => 'master_import',
+            'deployed_at' => $now->format('Y-m-d H:i:s'),
+            'description' => 'マスターデータのみ（アセットなし）',
+            'created_at' => $now->format('Y-m-d H:i:s'),
+            'updated_at' => $now->format('Y-m-d H:i:s'),
         ]);
 
         // 既存の is_active を全て false にする
@@ -131,22 +130,22 @@ class MasterDeployService
 
         // sys_deploy に登録（即アクティブ化）
         $deployId = DB::connection('sys')->table('sys_deploy')->insertGetId([
-            'deploy_key'           => $deployKey,
-            'start_at'             => $now->format('Y-m-d H:i:s'),
+            'deploy_key' => $deployKey,
+            'start_at' => $now->format('Y-m-d H:i:s'),
             'sys_deploy_master_id' => $deployMasterId,
-            'sys_deploy_asset_id'  => $deployAssetId,
-            'is_active'            => true,
-            'created_at'           => $now->format('Y-m-d H:i:s'),
-            'updated_at'           => $now->format('Y-m-d H:i:s'),
+            'sys_deploy_asset_id' => $deployAssetId,
+            'is_active' => true,
+            'created_at' => $now->format('Y-m-d H:i:s'),
+            'updated_at' => $now->format('Y-m-d H:i:s'),
         ]);
 
         return [
             'sys_deploy_master_id' => $deployMasterId,
-            'sys_deploy_id'        => $deployId,
-            'deploy_key'           => $deployKey,
-            'hash'                 => $exportResult['hash'],
-            'tables'               => $exportResult['tables'],
-            'is_new'               => true,
+            'sys_deploy_id' => $deployId,
+            'deploy_key' => $deployKey,
+            'hash' => $exportResult['hash'],
+            'tables' => $exportResult['tables'],
+            'is_new' => true,
         ];
     }
 
@@ -157,7 +156,7 @@ class MasterDeployService
     private function generateDeployKey(string $date): int
     {
         $dateInt = (int) str_replace('-', '', $date); // 20260904
-        $count   = DB::connection('sys')
+        $count = DB::connection('sys')
             ->table('sys_deploy_master')
             ->whereDate('deploy_date', $date)
             ->count() + 1;

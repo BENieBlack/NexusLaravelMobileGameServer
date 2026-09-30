@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\Adm\AdmAccount;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
-use App\Models\Adm\AdmAccount;
 use Illuminate\Support\Facades\Hash;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;

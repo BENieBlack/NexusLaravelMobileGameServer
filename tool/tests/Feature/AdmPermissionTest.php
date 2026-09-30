@@ -2,10 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\Adm\AdmAccount;
 use App\Models\Adm\AdmPage;
 use App\Models\Adm\AdmRole;
-use App\Models\Adm\AdmAccount;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;

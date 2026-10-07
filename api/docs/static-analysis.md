@@ -99,9 +99,20 @@ Service層で`->save()`, `->update()`, `->delete()`, `->forceDelete()`を直接�
 - **UseCase層**: クラス名が`UseCase`で終わること
 - **Repository層**: クラス名が`Repository`で終わること
 
-#### 3. レイヤー間の依存関係（今後追加予定）
+#### 3. モジュール境界（`tests/Architecture/ModuleBoundaryTest.php`）
 
-Clean Architectureの原則に従い、依存方向が正しいことを検証。
+`app/Domain/{Context}` と `packages/nexus-*` をモジュールとみなし、境界をまたぐ依存を検出する。
+
+| ルール | 内容 |
+|---|---|
+| Domain → Http 禁止 | UseCaseはDTOを返し、Responseへの変換はControllerで行う |
+| コンテキスト間の直接参照禁止 | `App\Domain\{Other}\...` を参照しない（`Common` は共有領域として許可） |
+| ドメインパッケージのフレームワーク依存禁止 | `Illuminate\Database` / `Illuminate\Support\Facades` / `Illuminate\Http` を参照しない（`nexus-core*` などの技術基盤パッケージは対象外） |
+
+既存の違反はテスト内の許可リスト（ベースライン）に載せている。許可リストはラチェットとして扱い、
+違反を解消したのに許可リストに残っている場合もテストが落ちる。解消したら許可リストから消すこと。
+
+パッケージから `App\` への逆依存は `PackageIndependenceTest.php` で検出している。
 
 ---
 

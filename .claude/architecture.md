@@ -387,20 +387,29 @@ class VersionCheckResponse extends _BaseResponse
 - 複数のServiceの組み合わせ
 - トランザクション管理（Unit of Work パターン）
 - ユースケース単位の処理
-- **Responseオブジェクトの合成**（重要）
+- **結果をDTOで返す**（重要: Responseは返さない）
 
 **コンポーネント:**
 - **UseCase**: 1つのユースケースを表現
 
-#### 重要なルール: Responseの合成はUseCaseの責務
+#### 重要なルール: Responseの合成はControllerの責務
 
-**ServiceはResponseを返してはいけません。Serviceはビジネスロジックとデータのみを扱い、UseCaseがResponseを合成します。**
+**ServiceもUseCaseもResponseを返してはいけません。UseCaseは結果をDTOで返し、ControllerがResponseに変換します。**
+
+UseCaseの戻り値は次のいずれかにする。
+
+- パッケージのDTO、またはその配列（例: `NexusGuild\DataTransferObjects\GuildApply`）
+- Eloquentモデル、またはそのCollection（既存モデルで足りる場合）
+- 複数の値を返す場合は `app/Domain/{Context}/DataTransferObjects/{Name}Result`（`public readonly` のみのクラス）
+- 返す値が無ければ `void`
+
+`app/Domain` から `App\Http` への依存は `tests/Architecture/ModuleBoundaryTest.php` で検出している。
 
 **理由:**
-1. **責務の分離**: ServiceはHTTP層（Presentation Layer）から独立すべき
-2. **再利用性**: Serviceを別のコンテキスト（CLI、Queue等）から呼び出せる
-3. **テスタビリティ**: Serviceのテストでレスポンス構造を気にする必要がない
-4. **アーキテクチャの整合性**: 下位層（Service）が上位層（Response）に依存しない
+1. **責務の分離**: Service・UseCaseはHTTP層（Presentation Layer）から独立すべき
+2. **再利用性**: UseCaseを別のコンテキスト（CLI、Queue、運営ツール等）から呼び出せる
+3. **テスタビリティ**: UseCaseのテストでレスポンス構造（APIのキー名）を気にする必要がない
+4. **アーキテクチャの整合性**: 下位層（Service・UseCase）が上位層（Response）に依存しない
 
 **❌ Bad: ServiceがResponseを返す（アーキテクチャ違反）**
 
@@ -435,7 +444,7 @@ class VersionUseCase
 }
 ```
 
-**✅ Good: ServiceはデータのみをDTOで返し、UseCaseがResponseを合成**
+**✅ Good: ServiceとUseCaseはDTOを返し、ControllerがResponseを合成**
 
 ```php
 // DTO（Domain Layer）
@@ -485,20 +494,22 @@ class VersionCheckService
 // UseCase（Application Layer）
 class VersionUseCase
 {
-    public function handle(?int $deployVersion): VersionResponse
+    public function exec(?int $deployVersion): VersionCheckResult
     {
-        // 1. Serviceからデータ（DTO）を取得
-        $result = $this->versionCheckService->checkVersion($deployVersion);
-        
-        // 2. UseCaseでResponseを合成（この層の責務）
-        if (!$result->needsUpdate) {
-            return VersionResponse::upToDate($result->sysMaintenance);
-        }
-        
-        return VersionResponse::updateAvailable(
-            sysDeploy: $result->sysDeploy,
-            sysMaintenance: $result->sysMaintenance
-        );
+        // DTOを返す（Responseは返さない）
+        return $this->versionCheckService->checkVersion($deployVersion);
+    }
+}
+
+// Controller（Presentation Layer）
+class AuthController extends _BaseController
+{
+    public function version(VersionCheckRequest $request, VersionUseCase $useCase): JsonResponse
+    {
+        $deployVersion = $request->getDeployVersion();
+
+        // ControllerでResponseを合成（この層の責務）
+        return $this->execute(fn () => VersionResponse::fromResult($useCase->exec($deployVersion)));
     }
 }
 ```

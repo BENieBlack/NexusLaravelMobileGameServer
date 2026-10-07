@@ -2,6 +2,7 @@
 
 namespace App\Http\Responses\Equipment;
 
+use App\Domain\Equipment\DataTransferObjects\LevelUpResult;
 use App\Http\Responses\_BaseResponse;
 use App\Models\Trx\TrxEquipment;
 use App\Models\Trx\TrxItem;
@@ -18,6 +19,17 @@ class LevelUpResponse extends _BaseResponse
         public readonly TrxEquipment $trxEquipment,
         public readonly TrxItem $trxItem,
     ) {}
+
+    /**
+     * レベルアップ結果からレスポンスを生成
+     */
+    public static function fromResult(LevelUpResult $result): self
+    {
+        return new self(
+            trxEquipment: $result->trxEquipment,
+            trxItem: $result->trxItem,
+        );
+    }
 
     /**
      * レスポンスを生成

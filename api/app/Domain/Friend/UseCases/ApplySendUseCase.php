@@ -6,8 +6,8 @@ use App\Domain\_BaseUseCase;
 use App\Domain\Friend\Support\FriendExceptionTranslator;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
-use App\Http\Responses\Friend\ApplySendResponse;
 use App\Repositories\Sys\SysPlayerRepository;
+use NexusFriend\DataTransferObjects\FriendApply;
 use NexusFriend\Services\FriendService;
 
 /**
@@ -30,7 +30,7 @@ class ApplySendUseCase extends _BaseUseCase
      *
      * @throws GameException
      */
-    public function exec(int $sysPlayerId, string $targetMyId): ApplySendResponse
+    public function exec(int $sysPlayerId, string $targetMyId): FriendApply
     {
         // トランザクション開始
         return $this->executeWithTransaction(function () use ($sysPlayerId, $targetMyId) {
@@ -51,8 +51,7 @@ class ApplySendUseCase extends _BaseUseCase
                 fn () => $this->friendService->sendApply($sysPlayerId, $receivePlayerId)
             );
 
-            // 3. レスポンスを返す
-            return ApplySendResponse::fromDto($friendApply);
+            return $friendApply;
         });
     }
 }

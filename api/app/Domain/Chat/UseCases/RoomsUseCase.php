@@ -3,7 +3,7 @@
 namespace App\Domain\Chat\UseCases;
 
 use App\Domain\_BaseUseCase;
-use App\Http\Responses\Chat\RoomListResponse;
+use NexusChat\DataTransferObjects\ChatRoom;
 use NexusChat\Services\ChatService;
 
 /**
@@ -17,8 +17,11 @@ class RoomsUseCase extends _BaseUseCase
         private readonly ChatService $chatService,
     ) {}
 
-    public function exec(int $sysPlayerId): RoomListResponse
+    /**
+     * @return array<ChatRoom>
+     */
+    public function exec(int $sysPlayerId): array
     {
-        return new RoomListResponse($this->chatService->getRoomsByPlayer($sysPlayerId));
+        return $this->chatService->getRoomsByPlayer($sysPlayerId);
     }
 }

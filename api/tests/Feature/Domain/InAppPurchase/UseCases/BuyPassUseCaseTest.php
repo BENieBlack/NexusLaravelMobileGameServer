@@ -3,6 +3,7 @@
 namespace Tests\Feature\Domain\InAppPurchase\UseCases;
 
 use App\Domain\InAppPurchase\UseCases\BuyPassUseCase;
+use App\Http\Responses\InAppPurchase\BuyResponse;
 use App\Persistence\ApiSession;
 use Illuminate\Support\Facades\DB;
 use NexusUnitOfWork\Persistence\QueryManager;
@@ -72,7 +73,7 @@ class BuyPassUseCaseTest extends TestCase
         $mstInAppPurchase = $this->createProduct('pass', paidDiamondAmount: 100, effectDurationDays: 30);
         $this->createPassEffect($mstInAppPurchase->getId());
 
-        $response = app(BuyPassUseCase::class)->exec(
+        $result = app(BuyPassUseCase::class)->exec(
             $this->sysPlayerId,
             $mstInAppPurchase,
             'Google',
@@ -84,7 +85,7 @@ class BuyPassUseCaseTest extends TestCase
 
         $this->queryManager->execAllQuery();
 
-        $this->assertSame(100, $response->toArray()['paid_diamond_amount']);
+        $this->assertSame(100, BuyResponse::fromResult($result)->toArray()['paid_diamond_amount']);
 
         $diamond = DB::connection('trx1')->table('trx_diamond')
             ->where('sys_player_id', $this->sysPlayerId)->first();

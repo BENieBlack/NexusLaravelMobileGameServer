@@ -2,6 +2,7 @@
 
 namespace App\Http\Responses\Mailbox;
 
+use App\Domain\Mailbox\DataTransferObjects\ReceiveAllResult;
 use App\Http\Responses\_BaseResponse;
 use NexusResource\DataTransferObjects\Resource;
 use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
@@ -28,6 +29,20 @@ class ReceiveAllResponse extends _BaseResponse
         private array $deliveryContents,
         private ?ResourceDeliverySummary $deliverySummary = null,
     ) {}
+
+    /**
+     * ReceiveAllResultからレスポンスを生成
+     */
+    public static function fromResult(ReceiveAllResult $result): self
+    {
+        return new self(
+            receivedMailboxIds: $result->receivedMailboxIds,
+            totalCount: $result->totalCount,
+            skippedCount: $result->skippedCount,
+            deliveryContents: $result->deliveryContents,
+            deliverySummary: $result->deliverySummary,
+        );
+    }
 
     /**
      * レスポンス配列を取得

@@ -3,6 +3,7 @@
 namespace App\Domain\Equipment\UseCases;
 
 use App\Domain\_BaseUseCase;
+use App\Domain\Equipment\DataTransferObjects\LevelUpResult;
 use App\Domain\Equipment\Services\EquipmentLevelService;
 use App\Domain\Item\Services\ItemService;
 use App\Exceptions\BusinessLogicException;
@@ -10,7 +11,6 @@ use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Exceptions\MasterDataException;
 use App\Exceptions\TransactionDataException;
-use App\Http\Responses\Equipment\LevelUpResponse;
 use App\Repositories\Log\LogEquipmentRepository;
 use App\Repositories\Mst\MstItemRepository;
 use App\Repositories\Trx\TrxEquipmentRepository;
@@ -128,7 +128,7 @@ class LevelUpUseCase extends _BaseUseCase
      *
      * @throws \Exception|\Throwable
      */
-    public function exec(int $sysPlayerId, int $trxEquipmentId, string $mstItemId, int $afterLevel): LevelUpResponse
+    public function exec(int $sysPlayerId, int $trxEquipmentId, string $mstItemId, int $afterLevel): LevelUpResult
     {
         // バリデーション実行
         $this->validation($sysPlayerId, $trxEquipmentId, $mstItemId, $afterLevel);
@@ -180,8 +180,8 @@ class LevelUpUseCase extends _BaseUseCase
                 afterLevelExp: $trxEquipment->getLevelExp(),
             );
 
-            // Responseオブジェクトを生成して返す
-            return new LevelUpResponse(
+            // 結果を生成して返す
+            return new LevelUpResult(
                 trxEquipment: $trxEquipment,
                 trxItem: $trxItem,
             );

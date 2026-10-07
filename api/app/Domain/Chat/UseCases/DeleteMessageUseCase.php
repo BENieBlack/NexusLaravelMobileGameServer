@@ -4,7 +4,6 @@ namespace App\Domain\Chat\UseCases;
 
 use App\Domain\_BaseUseCase;
 use App\Domain\Chat\Support\ChatExceptionTranslator;
-use App\Http\Responses\Chat\ResultResponse;
 use NexusChat\Services\ChatService;
 
 /**
@@ -18,13 +17,11 @@ class DeleteMessageUseCase extends _BaseUseCase
         private readonly ChatService $chatService,
     ) {}
 
-    public function exec(int $sysPlayerId, int $chatMessageId): ResultResponse
+    public function exec(int $sysPlayerId, int $chatMessageId): void
     {
-        return $this->executeWithTransaction(
+        $this->executeWithTransaction(
             fn () => ChatExceptionTranslator::translate(function () use ($sysPlayerId, $chatMessageId) {
                 $this->chatService->deleteMessage($chatMessageId, $sysPlayerId);
-
-                return new ResultResponse;
             })
         );
     }

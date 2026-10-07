@@ -5,7 +5,7 @@ namespace App\Domain\Guild\UseCases;
 use App\Domain\_BaseUseCase;
 use App\Domain\Guild\Support\GuildExceptionTranslator;
 use App\Exceptions\GameException;
-use App\Http\Responses\Guild\GuildApplyRejectResponse;
+use NexusGuild\DataTransferObjects\GuildApply;
 use NexusGuild\Services\GuildService;
 
 /**
@@ -27,7 +27,7 @@ class ApplyRejectUseCase extends _BaseUseCase
      *
      * @throws GameException
      */
-    public function exec(int $sysPlayerId, int $applyId): GuildApplyRejectResponse
+    public function exec(int $sysPlayerId, int $applyId): GuildApply
     {
         // トランザクション開始
         return $this->executeWithTransaction(function () use ($sysPlayerId, $applyId) {
@@ -35,8 +35,7 @@ class ApplyRejectUseCase extends _BaseUseCase
                 // 申請却下（Service経由でバリデーション含む）
                 $apply = $this->guildService->rejectApply($applyId, $sysPlayerId);
 
-                // レスポンスを返す
-                return GuildApplyRejectResponse::fromDto($apply);
+                return $apply;
             });
         });
     }

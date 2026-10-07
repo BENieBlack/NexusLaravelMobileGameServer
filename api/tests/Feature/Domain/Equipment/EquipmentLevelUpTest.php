@@ -69,11 +69,11 @@ class EquipmentLevelUpTest extends TestCase
 
         // UseCaseを実行
         $useCase = app(LevelUpUseCase::class);
-        $response = $useCase->exec($this->sysPlayerId, $this->trxEquipmentId, self::EXP_ITEM_ID, $afterLevel);
+        $result = $useCase->exec($this->sysPlayerId, $this->trxEquipmentId, self::EXP_ITEM_ID, $afterLevel);
 
-        // レスポンス確認
-        $this->assertNotNull($response->trxEquipment);
-        $this->assertSame($afterLevel, $response->trxEquipment->level);
+        // 結果確認
+        $this->assertNotNull($result->trxEquipment);
+        $this->assertSame($afterLevel, $result->trxEquipment->level);
 
         // データベース確認
         $afterEquipment = DB::connection('trx1')
@@ -103,11 +103,11 @@ class EquipmentLevelUpTest extends TestCase
 
         // UseCaseを実行
         $useCase = app(LevelUpUseCase::class);
-        $response = $useCase->exec($this->sysPlayerId, $this->trxEquipmentId, self::EXP_ITEM_ID, $afterLevel);
+        $result = $useCase->exec($this->sysPlayerId, $this->trxEquipmentId, self::EXP_ITEM_ID, $afterLevel);
 
         // アイテム消費確認
-        $this->assertNotNull($response->trxItem);
-        $afterItemAmount = $response->trxItem->getFreeAmount() + $response->trxItem->getPaidAmount();
+        $this->assertNotNull($result->trxItem);
+        $afterItemAmount = $result->trxItem->getFreeAmount() + $result->trxItem->getPaidAmount();
         $this->assertLessThan($beforeItemAmount, $afterItemAmount);
     }
 
@@ -125,7 +125,7 @@ class EquipmentLevelUpTest extends TestCase
 
         // UseCaseを実行
         $useCase = app(LevelUpUseCase::class);
-        $response = $useCase->exec($this->sysPlayerId, $this->trxEquipmentId, self::EXP_ITEM_ID, $afterLevel);
+        $result = $useCase->exec($this->sysPlayerId, $this->trxEquipmentId, self::EXP_ITEM_ID, $afterLevel);
 
         // ログ確認
         $log = DB::connection('trx')

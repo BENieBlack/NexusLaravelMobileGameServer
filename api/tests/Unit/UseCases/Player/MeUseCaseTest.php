@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\UseCases\Player;
 
+use App\Domain\Player\DataTransferObjects\MeResult;
 use App\Domain\Player\UseCases\MeUseCase;
 use App\Exceptions\SystemDataException;
 use App\Http\Responses\Player\MeResponse;
@@ -63,7 +64,7 @@ class MeUseCaseTest extends TestCase
         $response = $this->useCase->exec($sysPlayer->id);
 
         // Assert
-        $this->assertInstanceOf(MeResponse::class, $response);
+        $this->assertInstanceOf(MeResult::class, $response);
         $this->assertEquals($sysPlayer->my_id, $response->myId);
         $this->assertEquals($sysPlayer->name, $response->name);
     }
@@ -200,7 +201,7 @@ class MeUseCaseTest extends TestCase
 
         // Act
         $response = $this->useCase->exec($sysPlayer->id);
-        $array = $response->toArray();
+        $array = MeResponse::fromResult($response)->toArray();
 
         // Assert
         $this->assertIsArray($array);

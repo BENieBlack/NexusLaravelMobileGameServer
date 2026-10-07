@@ -18,11 +18,12 @@ abstract class _BaseController
     /**
      * UseCaseを実行し、レスポンスを返す
      *
-     * UseCaseは必ず _BaseResponseInterface の実装を返すこと。
+     * UseCaseはHTTPを知らず、DTOを返す。Responseへの変換はこのコールバックの中で行い、
+     * 必ず _BaseResponseInterface の実装を返すこと。
      * 戻り値の型を固定することで、レスポンスの形が呼び出し方によって
      * 変わったり、意図しないキーが混入したりするのを防ぐ。
      *
-     * @param  callable(): _BaseResponseInterface  $useCase  UseCaseの実行関数（例: fn() => $useCase->exec($request)）
+     * @param  callable(): _BaseResponseInterface  $useCase  UseCaseの実行とResponseへの変換（例: fn() => XxxResponse::fromDto($useCase->exec($id))）
      */
     protected function execute(callable $useCase): JsonResponse
     {
@@ -32,7 +33,7 @@ abstract class _BaseController
 
             if (! $response instanceof _BaseResponseInterface) {
                 throw new LogicException(sprintf(
-                    'UseCaseは %s を実装したレスポンスを返す必要があります。返り値: %s',
+                    'Controllerは %s を実装したレスポンスを返す必要があります。返り値: %s',
                     _BaseResponseInterface::class,
                     get_debug_type($response)
                 ));

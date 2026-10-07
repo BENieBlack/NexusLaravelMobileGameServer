@@ -2,6 +2,7 @@
 
 namespace App\Http\Responses\Notification;
 
+use App\Domain\Notification\DataTransferObjects\ListResult;
 use App\Http\Responses\_BaseResponse;
 use NexusNotification\DataTransferObjects\Notification;
 
@@ -19,6 +20,14 @@ class ListResponse extends _BaseResponse
         private readonly array $notifications,
         private readonly int $unreadCount,
     ) {}
+
+    public static function fromResult(ListResult $result): self
+    {
+        return new self(
+            notifications: $result->notifications,
+            unreadCount: $result->unreadCount,
+        );
+    }
 
     /**
      * @return array<string, mixed>

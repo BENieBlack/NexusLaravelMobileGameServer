@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Domain\Album\UseCases\ListUseCase;
 use App\Http\Requests\Album\ListRequest;
+use App\Http\Responses\Album\ListResponse;
 use Illuminate\Http\JsonResponse;
 
 class AlbumController extends _BaseController
@@ -17,6 +18,6 @@ class AlbumController extends _BaseController
     {
         $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
-        return $this->execute(fn () => $useCase->exec($sysPlayerId));
+        return $this->execute(fn () => ListResponse::fromResult($useCase->exec($sysPlayerId)));
     }
 }

@@ -2,9 +2,9 @@
 
 namespace Tests\Unit\Domain\Version\UseCases;
 
+use App\Domain\Version\DataTransferObjects\VersionResult;
 use App\Domain\Version\Services\VersionService;
 use App\Domain\Version\UseCases\CheckUseCase;
-use App\Http\Responses\Auth\VersionResponse;
 use App\Models\Sys\SysDeploy;
 use Mockery;
 use Mockery\MockInterface;
@@ -44,7 +44,8 @@ class CheckUseCaseTest extends TestCase
         $result = $this->useCase->exec($deployVersion);
 
         // Assert
-        $this->assertInstanceOf(VersionResponse::class, $result);
+        $this->assertInstanceOf(VersionResult::class, $result);
+        $this->assertFalse($result->needsUpdate);
     }
 
     /**
@@ -67,7 +68,9 @@ class CheckUseCaseTest extends TestCase
         $result = $this->useCase->exec($deployVersion);
 
         // Assert
-        $this->assertInstanceOf(VersionResponse::class, $result);
+        $this->assertInstanceOf(VersionResult::class, $result);
+        $this->assertTrue($result->needsUpdate);
+        $this->assertSame($mockDeploy, $result->sysDeploy);
     }
 
     /**
@@ -88,7 +91,8 @@ class CheckUseCaseTest extends TestCase
         $result = $this->useCase->exec($deployVersion);
 
         // Assert
-        $this->assertInstanceOf(VersionResponse::class, $result);
+        $this->assertInstanceOf(VersionResult::class, $result);
+        $this->assertFalse($result->needsUpdate);
     }
 
     protected function tearDown(): void

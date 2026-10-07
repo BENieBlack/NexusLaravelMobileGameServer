@@ -5,7 +5,7 @@ namespace App\Domain\Chat\UseCases;
 use App\Domain\_BaseUseCase;
 use App\Domain\Chat\Support\ChatExceptionTranslator;
 use App\Domain\Chat\Support\ChatPlayerNameResolver;
-use App\Http\Responses\Chat\MessageResponse;
+use NexusChat\DataTransferObjects\ChatMessage;
 use NexusChat\Services\ChatService;
 
 /**
@@ -20,15 +20,13 @@ class SendMessageUseCase extends _BaseUseCase
         private readonly ChatPlayerNameResolver $nameResolver,
     ) {}
 
-    public function exec(int $sysPlayerId, int $chatRoomId, string $body): MessageResponse
+    public function exec(int $sysPlayerId, int $chatRoomId, string $body): ChatMessage
     {
         $senderName = $this->nameResolver->resolve($sysPlayerId);
 
         return $this->executeWithTransaction(
             fn () => ChatExceptionTranslator::translate(
-                fn () => new MessageResponse(
-                    $this->chatService->sendMessage($chatRoomId, $sysPlayerId, $senderName, $body)
-                )
+                fn () => $this->chatService->sendMessage($chatRoomId, $sysPlayerId, $senderName, $body)
             )
         );
     }

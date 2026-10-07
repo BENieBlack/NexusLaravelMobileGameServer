@@ -5,9 +5,9 @@ namespace App\Domain\Guild\UseCases;
 use App\Domain\_BaseUseCase;
 use App\Domain\Guild\Support\GuildExceptionTranslator;
 use App\Exceptions\GameException;
-use App\Http\Responses\Guild\GuildApplyAcceptResponse;
 use App\Repositories\Sys\SysGuildMemberRepository;
 use NexusGuild\Constants\GuildRole;
+use NexusGuild\DataTransferObjects\GuildApply;
 use NexusGuild\Services\GuildService;
 
 /**
@@ -30,7 +30,7 @@ class ApplyAcceptUseCase extends _BaseUseCase
      *
      * @throws GameException
      */
-    public function exec(int $sysPlayerId, int $applyId): GuildApplyAcceptResponse
+    public function exec(int $sysPlayerId, int $applyId): GuildApply
     {
         // トランザクション開始
         return $this->executeWithTransaction(function () use ($sysPlayerId, $applyId) {
@@ -45,8 +45,7 @@ class ApplyAcceptUseCase extends _BaseUseCase
                     GuildRole::MEMBER
                 );
 
-                // レスポンスを返す
-                return GuildApplyAcceptResponse::fromDto($apply);
+                return $apply;
             });
         });
     }

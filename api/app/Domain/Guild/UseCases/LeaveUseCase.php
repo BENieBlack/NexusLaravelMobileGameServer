@@ -5,7 +5,6 @@ namespace App\Domain\Guild\UseCases;
 use App\Domain\_BaseUseCase;
 use App\Domain\Guild\Support\GuildExceptionTranslator;
 use App\Exceptions\GameException;
-use App\Http\Responses\Guild\GuildLeaveResponse;
 use NexusGuild\Services\GuildService;
 
 /**
@@ -26,16 +25,13 @@ class LeaveUseCase extends _BaseUseCase
      *
      * @throws GameException
      */
-    public function exec(int $sysPlayerId): GuildLeaveResponse
+    public function exec(int $sysPlayerId): void
     {
         // トランザクション開始
-        return $this->executeWithTransaction(function () use ($sysPlayerId) {
-            // 脱退は戻り値を持たないため、応答は翻訳の外で組む
+        $this->executeWithTransaction(function () use ($sysPlayerId) {
             GuildExceptionTranslator::forLeave(function () use ($sysPlayerId) {
                 $this->guildService->leaveGuild($sysPlayerId);
             });
-
-            return new GuildLeaveResponse($sysPlayerId);
         });
     }
 }

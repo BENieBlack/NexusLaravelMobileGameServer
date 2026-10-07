@@ -3,8 +3,8 @@
 namespace App\Domain\Version\UseCases;
 
 use App\Domain\_BaseUseCase;
+use App\Domain\Version\DataTransferObjects\VersionResult;
 use App\Domain\Version\Services\VersionService;
-use App\Http\Responses\Auth\VersionResponse;
 
 /**
  * CheckUseCase
@@ -22,18 +22,18 @@ class CheckUseCase extends _BaseUseCase
      *
      * @param  int|null  $deployVersion  デプロイバージョン
      */
-    public function exec(?int $deployVersion): VersionResponse
+    public function exec(?int $deployVersion): VersionResult
     {
         // Serviceからデータを取得 [sysDeploy, sysMaintenance]
         [$sysDeploy, $sysMaintenance] = $this->versionService->checkVersion($deployVersion);
 
-        // UseCaseでResponseを合成
         // sysDeployがnullの場合は更新不要
         if ($sysDeploy === null) {
-            return VersionResponse::upToDate($sysMaintenance);
+            return new VersionResult(needsUpdate: false, sysMaintenance: $sysMaintenance);
         }
 
-        return VersionResponse::updateAvailable(
+        return new VersionResult(
+            needsUpdate: true,
             sysDeploy: $sysDeploy,
             sysMaintenance: $sysMaintenance
         );

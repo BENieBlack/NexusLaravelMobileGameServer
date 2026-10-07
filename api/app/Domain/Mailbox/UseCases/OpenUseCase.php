@@ -5,7 +5,6 @@ namespace App\Domain\Mailbox\UseCases;
 use App\Domain\_BaseUseCase;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
-use App\Http\Responses\Mailbox\OpenResponse;
 use App\Repositories\Trx\TrxMailboxRepository;
 
 /**
@@ -24,9 +23,9 @@ class OpenUseCase extends _BaseUseCase
      *
      * @throws GameException
      */
-    public function exec(int $sysPlayerId, int $trxMailboxId): OpenResponse
+    public function exec(int $sysPlayerId, int $trxMailboxId): void
     {
-        return $this->executeWithTransaction(function () use ($sysPlayerId, $trxMailboxId) {
+        $this->executeWithTransaction(function () use ($sysPlayerId, $trxMailboxId) {
             // メールボックス取得
             $trxMailbox = $this->trxMailboxRepository->selectById($trxMailboxId);
 
@@ -34,15 +33,13 @@ class OpenUseCase extends _BaseUseCase
                 throw new GameException(GameErrorCode::MAILBOX_NOT_FOUND, 'Mailbox not found');
             }
 
-            // 既に開封済みの場合はそのまま返す（冪等性）
+            // 既に開封済みの場合は何もしない（冪等性）
             if ($trxMailbox->getIsOpened()) {
-                return new OpenResponse($trxMailbox->getId(), true);
+                return;
             }
 
             // 既読にする
             $this->trxMailboxRepository->markAsOpened($trxMailbox);
-
-            return new OpenResponse($trxMailbox->getId(), true);
         });
     }
 }

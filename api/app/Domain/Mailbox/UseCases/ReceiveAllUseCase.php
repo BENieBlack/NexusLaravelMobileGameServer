@@ -5,9 +5,9 @@ namespace App\Domain\Mailbox\UseCases;
 use App\Domain\_BaseUseCase;
 use App\Domain\Mailbox\Constants\Category;
 use App\Domain\Mailbox\Constants\ContentType;
+use App\Domain\Mailbox\DataTransferObjects\ReceiveAllResult;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
-use App\Http\Responses\Mailbox\ReceiveAllResponse;
 use App\Models\Mst\MstMailboxContent;
 use App\Repositories\Trx\TrxMailboxRepository;
 use Nexus\Core\Support\CustomCollection;
@@ -38,7 +38,7 @@ class ReceiveAllUseCase extends _BaseUseCase
         int $sysPlayerId,
         ?array $trxMailboxIds = null,
         ?string $category = null
-    ): ReceiveAllResponse {
+    ): ReceiveAllResult {
         return $this->executeWithTransaction(function () use ($sysPlayerId, $trxMailboxIds, $category) {
             // カテゴリEnum変換
             $categoryEnum = $category !== null ? Category::fromString($category) : null;
@@ -125,7 +125,7 @@ class ReceiveAllUseCase extends _BaseUseCase
                 }
             }
 
-            return new ReceiveAllResponse(
+            return new ReceiveAllResult(
                 receivedMailboxIds: $receivedMailboxIds,
                 totalCount: $totalMailCount,
                 skippedCount: $skippedCount,

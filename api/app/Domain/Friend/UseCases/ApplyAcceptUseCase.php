@@ -5,7 +5,7 @@ namespace App\Domain\Friend\UseCases;
 use App\Domain\_BaseUseCase;
 use App\Domain\Friend\Support\FriendExceptionTranslator;
 use App\Exceptions\GameException;
-use App\Http\Responses\Friend\ApplyAcceptResponse;
+use NexusFriend\DataTransferObjects\FriendApply;
 use NexusFriend\Services\FriendService;
 
 /**
@@ -14,7 +14,7 @@ use NexusFriend\Services\FriendService;
  * フレンド申請承認ユースケース
  *
  * 申請の状態チェックはパッケージのFriendServiceが持つ。
- * ここではエラーコードの翻訳とレスポンスの組み立てだけを行う。
+ * ここではエラーコードの翻訳だけを行う。
  */
 class ApplyAcceptUseCase extends _BaseUseCase
 {
@@ -30,14 +30,14 @@ class ApplyAcceptUseCase extends _BaseUseCase
      *
      * @throws GameException
      */
-    public function exec(int $sysPlayerId, int $sysFriendApplyId): ApplyAcceptResponse
+    public function exec(int $sysPlayerId, int $sysFriendApplyId): FriendApply
     {
         return $this->executeWithTransaction(function () use ($sysPlayerId, $sysFriendApplyId) {
             $friendApply = FriendExceptionTranslator::translate(
                 fn () => $this->friendService->acceptApply($sysFriendApplyId, $sysPlayerId)
             );
 
-            return ApplyAcceptResponse::fromDto($friendApply);
+            return $friendApply;
         });
     }
 }

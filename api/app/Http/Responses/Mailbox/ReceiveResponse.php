@@ -2,6 +2,7 @@
 
 namespace App\Http\Responses\Mailbox;
 
+use App\Domain\Mailbox\DataTransferObjects\ReceiveResult;
 use App\Http\Responses\_BaseResponse;
 use NexusResource\DataTransferObjects\Resource;
 
@@ -20,6 +21,14 @@ class ReceiveResponse extends _BaseResponse
         private bool $isReceived,
         private array $receivedContentArray,
     ) {}
+
+    /**
+     * ReceiveResultからレスポンスを生成
+     */
+    public static function fromResult(ReceiveResult $result): self
+    {
+        return new self($result->trxMailboxId, $result->isReceived, $result->receivedContentArray);
+    }
 
     /**
      * レスポンス配列を取得

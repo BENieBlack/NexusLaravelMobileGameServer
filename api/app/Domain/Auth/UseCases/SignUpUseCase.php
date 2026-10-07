@@ -3,10 +3,10 @@
 namespace App\Domain\Auth\UseCases;
 
 use App\Domain\_BaseUseCase;
+use App\Domain\Auth\DataTransferObjects\SignUpResult;
 use App\Domain\Auth\Traits\BuildsSysPlayerToken;
 use App\Domain\Sharding\Services\ShardAssignmentService;
 use App\Exceptions\BusinessLogicException;
-use App\Http\Responses\Auth\SignUpResponse;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
 use App\Repositories\Sys\SysPlayerRepository;
 use Nexus\Core\Repositories\PlayerDeviceRepositoryInterface;
@@ -46,7 +46,7 @@ class SignUpUseCase extends _BaseUseCase
      *
      * @throws BusinessLogicException|Throwable 既存デバイスIDの場合
      */
-    public function exec(string $deviceId, array $deviceInfo): SignUpResponse
+    public function exec(string $deviceId, array $deviceInfo): SignUpResult
     {
         // トランザクション開始
         return $this->executeWithTransaction(function () use ($deviceId, $deviceInfo) {
@@ -92,8 +92,7 @@ class SignUpUseCase extends _BaseUseCase
             // レスポンスにトークンIDを含めるため、採番を確定させる
             $this->flushQueue();
 
-            // レスポンスを返却（新規作成なので201）
-            return new SignUpResponse(
+            return new SignUpResult(
                 sysPlayer: $sysPlayer,
                 sysPlayerDevice: $sysPlayerDevice,
                 sysPlayerToken: $sysPlayerToken,

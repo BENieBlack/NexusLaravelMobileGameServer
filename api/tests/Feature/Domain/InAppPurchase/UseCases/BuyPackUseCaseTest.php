@@ -5,6 +5,7 @@ namespace Tests\Feature\Domain\InAppPurchase\UseCases;
 use App\Domain\InAppPurchase\UseCases\BuyPackUseCase;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
+use App\Http\Responses\InAppPurchase\BuyResponse;
 use App\Models\Mst\MstInAppPurchase;
 use App\Persistence\ApiSession;
 use Illuminate\Support\Facades\DB;
@@ -76,7 +77,7 @@ class BuyPackUseCaseTest extends TestCase
         $mstInAppPurchase = $this->createProduct('pack');
         $this->createPackContents($mstInAppPurchase->getId());
 
-        $response = app(BuyPackUseCase::class)->exec(
+        $result = app(BuyPackUseCase::class)->exec(
             $this->sysPlayerId,
             $mstInAppPurchase,
             'Google',
@@ -88,7 +89,7 @@ class BuyPackUseCaseTest extends TestCase
 
         $this->queryManager->execAllQuery();
 
-        $this->assertSame(300, $response->toArray()['total_free_diamond_amount']);
+        $this->assertSame(300, BuyResponse::fromResult($result)->toArray()['total_free_diamond_amount']);
 
         $diamond = DB::connection('trx1')->table('trx_diamond')
             ->where('sys_player_id', $this->sysPlayerId)->first();
@@ -112,7 +113,7 @@ class BuyPackUseCaseTest extends TestCase
         $mstInAppPurchase = $this->createProduct('pack');
         $this->createUnitContent($mstInAppPurchase->getId(), amount: 2);
 
-        $response = app(BuyPackUseCase::class)->exec(
+        $result = app(BuyPackUseCase::class)->exec(
             $this->sysPlayerId,
             $mstInAppPurchase,
             'Google',
@@ -133,7 +134,7 @@ class BuyPackUseCaseTest extends TestCase
         $this->assertSame(1, $units[0]->level);
         $this->assertSame(0, (int) $units[0]->level_exp);
 
-        $rewards = $response->toArray()['rewards'];
+        $rewards = BuyResponse::fromResult($result)->toArray()['rewards'];
         $this->assertSame('unit', $rewards[0]['type']);
         $this->assertSame('unit_001', $rewards[0]['mst_unit_id']);
         $this->assertSame(2, $rewards[0]['amount']);
@@ -146,7 +147,7 @@ class BuyPackUseCaseTest extends TestCase
         $this->createPackContents($mstInAppPurchase->getId());
         $this->createUnitContent($mstInAppPurchase->getId());
 
-        $response = app(BuyPackUseCase::class)->exec(
+        $result = app(BuyPackUseCase::class)->exec(
             $this->sysPlayerId,
             $mstInAppPurchase,
             'Google',
@@ -158,8 +159,8 @@ class BuyPackUseCaseTest extends TestCase
 
         $this->queryManager->execAllQuery();
 
-        $this->assertSame(300, $response->toArray()['total_free_diamond_amount']);
-        $this->assertCount(3, $response->toArray()['rewards']);
+        $this->assertSame(300, BuyResponse::fromResult($result)->toArray()['total_free_diamond_amount']);
+        $this->assertCount(3, BuyResponse::fromResult($result)->toArray()['rewards']);
 
         $this->assertSame(300, DB::connection('trx1')->table('trx_diamond')
             ->where('sys_player_id', $this->sysPlayerId)->value('free_amount'));
@@ -174,7 +175,7 @@ class BuyPackUseCaseTest extends TestCase
     {
         $mstInAppPurchase = $this->createProduct('pack');
 
-        $response = app(BuyPackUseCase::class)->exec(
+        $result = app(BuyPackUseCase::class)->exec(
             $this->sysPlayerId,
             $mstInAppPurchase,
             'Google',
@@ -187,8 +188,8 @@ class BuyPackUseCaseTest extends TestCase
         $this->queryManager->execAllQuery();
 
         // 付与が無いときは rewards キーごと出さない
-        $this->assertArrayNotHasKey('rewards', $response->toArray());
-        $this->assertSame(0, $response->toArray()['total_free_diamond_amount']);
+        $this->assertArrayNotHasKey('rewards', BuyResponse::fromResult($result)->toArray());
+        $this->assertSame(0, BuyResponse::fromResult($result)->toArray()['total_free_diamond_amount']);
 
         $this->assertDatabaseHas('trx_in_app_purchase', [
             'sys_player_id' => $this->sysPlayerId,

@@ -3,7 +3,6 @@
 namespace App\Domain\Notification\UseCases;
 
 use App\Domain\_BaseUseCase;
-use App\Http\Responses\Notification\ReadResponse;
 use NexusNotification\Services\NotificationService;
 
 /**
@@ -17,14 +16,15 @@ class ReadAllUseCase extends _BaseUseCase
         private readonly NotificationService $notificationService,
     ) {}
 
-    public function exec(int $sysPlayerId): ReadResponse
+    /**
+     * @return int 既読処理後の未読数
+     */
+    public function exec(int $sysPlayerId): int
     {
         return $this->executeWithTransaction(function () use ($sysPlayerId) {
             $this->notificationService->markAllAsRead($sysPlayerId);
 
-            return new ReadResponse(
-                unreadCount: $this->notificationService->countUnread($sysPlayerId),
-            );
+            return $this->notificationService->countUnread($sysPlayerId);
         });
     }
 }

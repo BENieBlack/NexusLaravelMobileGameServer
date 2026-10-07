@@ -2,6 +2,7 @@
 
 namespace App\Http\Responses\Auth;
 
+use App\Domain\Auth\DataTransferObjects\SignUpResult;
 use App\Http\Responses\_BaseResponse;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
@@ -28,6 +29,19 @@ class SignUpResponse extends _BaseResponse
         public readonly TokenModelInterface $sysPlayerToken,
         public readonly Token $token,
     ) {}
+
+    /**
+     * UseCaseの結果からレスポンスを生成
+     */
+    public static function fromResult(SignUpResult $result): self
+    {
+        return new self(
+            sysPlayer: $result->sysPlayer,
+            sysPlayerDevice: $result->sysPlayerDevice,
+            sysPlayerToken: $result->sysPlayerToken,
+            token: $result->token,
+        );
+    }
 
     /**
      * レスポンスを生成

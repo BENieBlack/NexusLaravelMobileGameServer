@@ -24,6 +24,13 @@ use App\Http\Requests\Chat\RoomMemberRequest;
 use App\Http\Requests\Chat\RoomRequest;
 use App\Http\Requests\Chat\RoomsRequest;
 use App\Http\Requests\Chat\SendMessageRequest;
+use App\Http\Responses\Chat\MemberListResponse;
+use App\Http\Responses\Chat\MemberResponse;
+use App\Http\Responses\Chat\MessageListResponse;
+use App\Http\Responses\Chat\MessageResponse;
+use App\Http\Responses\Chat\ResultResponse;
+use App\Http\Responses\Chat\RoomListResponse;
+use App\Http\Responses\Chat\RoomResponse;
 use Illuminate\Http\JsonResponse;
 
 /**
@@ -45,7 +52,7 @@ class ChatController extends _BaseController
     {
         $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
-        return $this->execute(fn () => $useCase->exec($sysPlayerId, $request->getSysPlayerId()));
+        return $this->execute(fn () => new RoomResponse($useCase->exec($sysPlayerId, $request->getSysPlayerId())));
     }
 
     /**
@@ -57,7 +64,7 @@ class ChatController extends _BaseController
     {
         $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
-        return $this->execute(fn () => $useCase->exec($sysPlayerId));
+        return $this->execute(fn () => new RoomResponse($useCase->exec($sysPlayerId)));
     }
 
     /**
@@ -69,7 +76,7 @@ class ChatController extends _BaseController
     {
         $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
-        return $this->execute(fn () => $useCase->exec($sysPlayerId));
+        return $this->execute(fn () => new RoomListResponse($useCase->exec($sysPlayerId)));
     }
 
     /**
@@ -81,12 +88,12 @@ class ChatController extends _BaseController
     {
         $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
-        return $this->execute(fn () => $useCase->exec(
+        return $this->execute(fn () => new MessageListResponse($useCase->exec(
             $sysPlayerId,
             $request->getSysChatRoomId(),
             $request->getLimit(),
             $request->getCursor(),
-        ));
+        )));
     }
 
     /**
@@ -98,11 +105,11 @@ class ChatController extends _BaseController
     {
         $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
-        return $this->execute(fn () => $useCase->exec(
+        return $this->execute(fn () => new MessageResponse($useCase->exec(
             $sysPlayerId,
             $request->getSysChatRoomId(),
             $request->getBody(),
-        ));
+        )));
     }
 
     /**
@@ -114,7 +121,11 @@ class ChatController extends _BaseController
     {
         $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
-        return $this->execute(fn () => $useCase->exec($sysPlayerId, $request->getSysChatMessageId()));
+        return $this->execute(function () use ($useCase, $sysPlayerId, $request) {
+            $useCase->exec($sysPlayerId, $request->getSysChatMessageId());
+
+            return new ResultResponse;
+        });
     }
 
     /**
@@ -126,7 +137,7 @@ class ChatController extends _BaseController
     {
         $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
-        return $this->execute(fn () => $useCase->exec($sysPlayerId, $request->getName()));
+        return $this->execute(fn () => new RoomResponse($useCase->exec($sysPlayerId, $request->getName())));
     }
 
     /**
@@ -138,11 +149,11 @@ class ChatController extends _BaseController
     {
         $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
-        return $this->execute(fn () => $useCase->exec(
+        return $this->execute(fn () => new MemberResponse($useCase->exec(
             $sysPlayerId,
             $request->getSysChatRoomId(),
             $request->getSysPlayerId(),
-        ));
+        )));
     }
 
     /**
@@ -154,11 +165,15 @@ class ChatController extends _BaseController
     {
         $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
-        return $this->execute(fn () => $useCase->exec(
-            $sysPlayerId,
-            $request->getSysChatRoomId(),
-            $request->getSysPlayerId(),
-        ));
+        return $this->execute(function () use ($useCase, $sysPlayerId, $request) {
+            $useCase->exec(
+                $sysPlayerId,
+                $request->getSysChatRoomId(),
+                $request->getSysPlayerId(),
+            );
+
+            return new ResultResponse;
+        });
     }
 
     /**
@@ -170,7 +185,11 @@ class ChatController extends _BaseController
     {
         $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
-        return $this->execute(fn () => $useCase->exec($sysPlayerId, $request->getSysChatRoomId()));
+        return $this->execute(function () use ($useCase, $sysPlayerId, $request) {
+            $useCase->exec($sysPlayerId, $request->getSysChatRoomId());
+
+            return new ResultResponse;
+        });
     }
 
     /**
@@ -182,12 +201,16 @@ class ChatController extends _BaseController
     {
         $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
-        return $this->execute(fn () => $useCase->exec(
-            $sysPlayerId,
-            $request->getSysChatRoomId(),
-            $request->getSysPlayerId(),
-            $request->getRole(),
-        ));
+        return $this->execute(function () use ($useCase, $sysPlayerId, $request) {
+            $useCase->exec(
+                $sysPlayerId,
+                $request->getSysChatRoomId(),
+                $request->getSysPlayerId(),
+                $request->getRole(),
+            );
+
+            return new ResultResponse;
+        });
     }
 
     /**
@@ -199,6 +222,6 @@ class ChatController extends _BaseController
     {
         $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
-        return $this->execute(fn () => $useCase->exec($sysPlayerId, $request->getSysChatRoomId()));
+        return $this->execute(fn () => new MemberListResponse($useCase->exec($sysPlayerId, $request->getSysChatRoomId())));
     }
 }

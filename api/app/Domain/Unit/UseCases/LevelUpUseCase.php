@@ -4,13 +4,13 @@ namespace App\Domain\Unit\UseCases;
 
 use App\Domain\_BaseUseCase;
 use App\Domain\Item\Services\ItemService;
+use App\Domain\Unit\DataTransferObjects\LevelUpResult;
 use App\Domain\Unit\Services\UnitLevelService;
 use App\Exceptions\BusinessLogicException;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Exceptions\MasterDataException;
 use App\Exceptions\TransactionDataException;
-use App\Http\Responses\Unit\LevelUpResponse;
 use App\Repositories\Mst\MstItemRepository;
 use App\Repositories\Trx\TrxUnitRepository;
 use App\Traits\RequiresAuthenticationTrait;
@@ -102,7 +102,7 @@ class LevelUpUseCase extends _BaseUseCase
      *
      * @throws \Exception
      */
-    public function exec(int $sysPlayerId, int $trxUnitId, string $mstItemId, int $useCount): LevelUpResponse
+    public function exec(int $sysPlayerId, int $trxUnitId, string $mstItemId, int $useCount): LevelUpResult
     {
         // バリデーション実行
         $this->validation($sysPlayerId, $trxUnitId, $mstItemId, $useCount);
@@ -123,8 +123,8 @@ class LevelUpUseCase extends _BaseUseCase
             // addExp()は基底の4キーのみ返すため、レアリティ等を含む詳細版を使う
             $result = $this->unitLevelService->addExpWithDetails($trxUnitId, $totalExp);
 
-            // Responseオブジェクトを生成して返す
-            return new LevelUpResponse(
+            // 結果を生成して返す
+            return new LevelUpResult(
                 isLeveledUp: $result['is_leveled_up'],
                 beforeLevel: $result['before_level'],
                 afterLevel: $result['after_level'],

@@ -3,6 +3,7 @@
 namespace App\Http\Responses\Mailbox;
 
 use App\Domain\Mailbox\Constants\ContentType;
+use App\Domain\Mailbox\DataTransferObjects\ListResult;
 use App\Domain\Mailbox\Services\TemplateEngine;
 use App\Http\Responses\_BaseResponse;
 use App\Models\Mst\MstMailboxContent;
@@ -141,6 +142,14 @@ class ListResponse extends _BaseResponse
         })->toArray();
 
         return new self($mailboxArray, $unreadCounts);
+    }
+
+    /**
+     * ListResultからレスポンスを生成
+     */
+    public static function fromResult(ListResult $result): self
+    {
+        return self::fromCollection($result->trxMailboxCollection, $result->unreadCounts);
     }
 
     /**

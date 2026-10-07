@@ -5,7 +5,7 @@ namespace App\Domain\Guild\UseCases;
 use App\Domain\_BaseUseCase;
 use App\Domain\Guild\Support\GuildExceptionTranslator;
 use App\Exceptions\GameException;
-use App\Http\Responses\Guild\GuildMemberListResponse;
+use NexusGuild\DataTransferObjects\GuildMember;
 use NexusGuild\Services\GuildService;
 
 /**
@@ -23,16 +23,17 @@ class MemberListUseCase extends _BaseUseCase
      * ギルドメンバー一覧取得処理を実行
      *
      * @param  int  $guildId  ギルドID
+     * @return array<GuildMember>
      *
      * @throws GameException
      */
-    public function exec(int $guildId): GuildMemberListResponse
+    public function exec(int $guildId): array
     {
         return GuildExceptionTranslator::forRead(function () use ($guildId) {
             // ギルドメンバー一覧を取得
             $memberDtos = $this->guildService->findMemberList($guildId);
 
-            return GuildMemberListResponse::fromDtoArray($memberDtos);
+            return $memberDtos;
         });
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Responses\InAppPurchase;
 
+use App\Domain\InAppPurchase\DataTransferObjects\BuyResult;
 use App\Http\Responses\_BaseResponse;
 
 class BuyResponse extends _BaseResponse
@@ -18,6 +19,19 @@ class BuyResponse extends _BaseResponse
         public readonly int $totalFreeDiamondAmount,
         public readonly array $rewards = [],
     ) {}
+
+    /**
+     * 購入結果からレスポンスを生成
+     */
+    public static function fromResult(BuyResult $result): self
+    {
+        return new self(
+            paidDiamondAmount: $result->paidDiamondAmount,
+            totalPaidDiamondAmount: $result->totalPaidDiamondAmount,
+            totalFreeDiamondAmount: $result->totalFreeDiamondAmount,
+            rewards: $result->rewards,
+        );
+    }
 
     /**
      * 配列に変換

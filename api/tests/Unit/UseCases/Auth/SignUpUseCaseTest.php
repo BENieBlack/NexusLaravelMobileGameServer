@@ -2,10 +2,10 @@
 
 namespace Tests\Unit\UseCases\Auth;
 
+use App\Domain\Auth\DataTransferObjects\SignUpResult;
 use App\Domain\Auth\UseCases\SignUpUseCase;
 use App\Domain\Sharding\Services\ShardAssignmentService;
 use App\Exceptions\BusinessLogicException;
-use App\Http\Responses\Auth\SignUpResponse;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;
@@ -93,7 +93,7 @@ class SignUpUseCaseTest extends TestCase
         $response = $this->useCase->exec($deviceId, $deviceInfo);
 
         // Assert
-        $this->assertInstanceOf(SignUpResponse::class, $response);
+        $this->assertInstanceOf(SignUpResult::class, $response);
         $this->assertInstanceOf(SysPlayer::class, $response->sysPlayer);
         $this->assertInstanceOf(SysPlayerDevice::class, $response->sysPlayerDevice);
         $this->assertNotNull($response->sysPlayer->id);
@@ -200,7 +200,7 @@ class SignUpUseCaseTest extends TestCase
         $response = $this->useCase->exec($deviceId, $deviceInfo);
 
         // Assert
-        $this->assertInstanceOf(SignUpResponse::class, $response);
+        $this->assertInstanceOf(SignUpResult::class, $response);
         $this->assertNotNull($response->sysPlayer->id);
         $this->assertNotNull($response->sysPlayerDevice->id);
         $this->assertEquals($deviceId, $response->sysPlayerDevice->getUuid());

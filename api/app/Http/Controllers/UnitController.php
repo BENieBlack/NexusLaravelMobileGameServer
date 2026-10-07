@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Domain\Unit\UseCases\LevelUpUseCase;
 use App\Http\Requests\Unit\LevelUpRequest;
+use App\Http\Responses\Unit\LevelUpResponse;
 use App\Persistence\ApiSession;
 use Illuminate\Http\JsonResponse;
 
@@ -31,13 +32,12 @@ class UnitController extends _BaseController
         return $this->execute(function () use ($request) {
             $sysPlayerId = $this->apiSession->getSysPlayerId();
 
-            // UseCaseから直接Responseが返る
-            return $this->unitLevelUpUseCase->exec(
+            return LevelUpResponse::fromResult($this->unitLevelUpUseCase->exec(
                 sysPlayerId: $sysPlayerId,
                 trxUnitId: $request->getTrxUnitId(),
                 mstItemId: $request->getMstItemId(),
                 useCount: $request->getUseCount(),
-            );
+            ));
         });
     }
 }

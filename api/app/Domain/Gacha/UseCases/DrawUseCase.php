@@ -3,9 +3,9 @@
 namespace App\Domain\Gacha\UseCases;
 
 use App\Domain\_BaseUseCase;
+use App\Domain\Gacha\DataTransferObjects\DrawResult;
 use App\Domain\Gacha\Services\GachaCostService;
 use App\Domain\Gacha\Services\GachaValidationService;
-use App\Http\Responses\Gacha\DrawResponse;
 use App\Repositories\Mst\MstGachaStepRepository;
 use App\Repositories\Trx\TrxGachaHistoryRepository;
 use App\Traits\RequiresAuthenticationTrait;
@@ -44,7 +44,7 @@ class DrawUseCase extends _BaseUseCase
         string $mstGachaId,
         int $drawCount,
         ?string $selectedCandidateId = null
-    ): DrawResponse {
+    ): DrawResult {
         // 1. バリデーション
         $mstGacha = $this->validationService->validateGachaMaster($mstGachaId);
         $this->validationService->validateGachaPeriod($mstGacha);
@@ -81,7 +81,7 @@ class DrawUseCase extends _BaseUseCase
             // 6. 景品付与
             $this->prizeService->grantPrizes($sysPlayerId, $prizeDtos);
 
-            // 履歴とレスポンスは配列で扱うため、ここで変換する
+            // 履歴と結果は配列で扱うため、ここで変換する
             $prizes = array_map(fn (GachaPrize $prize) => $prize->toArray(), $prizeDtos);
 
             // 7. 次のステップを計算
@@ -93,7 +93,7 @@ class DrawUseCase extends _BaseUseCase
             // 9. 履歴保存
             $this->persistHistory($sysPlayerId, $mstGachaId, $drawCount, $cost, $prizes);
 
-            // 10. レスポンス生成
+            // 10. 結果生成
             $nextStepInfo = null;
             if ($nextStep && $mstGacha->getHasStepUp()) {
                 $nextStepMaster = $this->stepRepository->selectByGachaIdAndStepNumber($mstGachaId, $nextStep);
@@ -105,7 +105,7 @@ class DrawUseCase extends _BaseUseCase
                 }
             }
 
-            return new DrawResponse(
+            return new DrawResult(
                 prizes: $prizes,
                 currentStep: $nextStep ?? $currentStep,
                 dailyDrawCount: $progress->getDailyDrawCount() + 1,

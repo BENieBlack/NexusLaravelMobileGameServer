@@ -4,7 +4,7 @@ namespace App\Domain\Chat\UseCases;
 
 use App\Domain\_BaseUseCase;
 use App\Domain\Chat\Support\ChatExceptionTranslator;
-use App\Http\Responses\Chat\MemberListResponse;
+use NexusChat\DataTransferObjects\ChatRoomMember;
 use NexusChat\Services\ChatService;
 
 /**
@@ -18,10 +18,13 @@ class GroupMembersUseCase extends _BaseUseCase
         private readonly ChatService $chatService,
     ) {}
 
-    public function exec(int $sysPlayerId, int $chatRoomId): MemberListResponse
+    /**
+     * @return array<ChatRoomMember>
+     */
+    public function exec(int $sysPlayerId, int $chatRoomId): array
     {
         return ChatExceptionTranslator::translate(
-            fn () => new MemberListResponse($this->chatService->getGroupMembers($chatRoomId, $sysPlayerId))
+            fn () => $this->chatService->getGroupMembers($chatRoomId, $sysPlayerId)
         );
     }
 }

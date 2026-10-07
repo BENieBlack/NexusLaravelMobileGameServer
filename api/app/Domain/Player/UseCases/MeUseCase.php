@@ -3,8 +3,8 @@
 namespace App\Domain\Player\UseCases;
 
 use App\Domain\_BaseUseCase;
+use App\Domain\Player\DataTransferObjects\MeResult;
 use App\Exceptions\SystemDataException;
-use App\Http\Responses\Player\MeResponse;
 use App\Repositories\Sys\SysPlayerRepository;
 
 /**
@@ -38,7 +38,7 @@ class MeUseCase extends _BaseUseCase
      *
      * @throws \Exception
      */
-    public function exec(int $sysPlayerId): MeResponse
+    public function exec(int $sysPlayerId): MeResult
     {
         // バリデーション実行
         $this->validation($sysPlayerId);
@@ -46,7 +46,7 @@ class MeUseCase extends _BaseUseCase
         // プレイヤー情報を取得（バリデーション済み）
         $sysPlayer = $this->sysPlayerRepository->selectById($sysPlayerId);
 
-        return new MeResponse(
+        return new MeResult(
             myId: $sysPlayer->getMyId(),
             name: $sysPlayer->getName(),
         );

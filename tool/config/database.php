@@ -158,11 +158,11 @@ return [
         'sys' => [
             'driver' => 'mysql',
             'url' => env('DB_URL'),
-            'host' => env('DB_SYS_HOST', 'db-sys'),
-            'port' => env('DB_SYS_PORT', '3306'),
-            'database' => env('DB_SYS_DATABASE', 'nexus-local-sys'),
-            'username' => env('DB_SYS_USERNAME', 'root'),
-            'password' => env('DB_SYS_PASSWORD', 'root'),
+            'host' => env('DB_SYSTEM_HOST', 'db-system'),
+            'port' => env('DB_SYSTEM_PORT', '3306'),
+            'database' => env('DB_SYSTEM_DATABASE', 'nexus-local-system'),
+            'username' => env('DB_SYSTEM_USERNAME', 'root'),
+            'password' => env('DB_SYSTEM_PASSWORD', 'root'),
             'unix_socket' => env('DB_SOCKET', ''),
             'charset' => env('DB_CHARSET', 'utf8mb4'),
             'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
@@ -256,6 +256,9 @@ return [
         ],
 
     ],
+
+    // TrxDB/LogDB のシャード数（API 側の DB_SHARD_COUNT と同期）
+    'shard_count' => (int) env('DB_SHARD_COUNT', 2),
 
     /*
     |--------------------------------------------------------------------------

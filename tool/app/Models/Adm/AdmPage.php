@@ -17,6 +17,9 @@ class AdmPage extends Model
 
     protected $fillable = ['id'];
 
+    /**
+     * @return BelongsToMany<AdmRole, $this>
+     */
     public function denyingRoles(): BelongsToMany
     {
         return $this->belongsToMany(

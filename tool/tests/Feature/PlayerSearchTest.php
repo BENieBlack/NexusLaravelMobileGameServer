@@ -15,6 +15,7 @@ class PlayerSearchTest extends TestCase
     {
         parent::setUp();
         Artisan::call('migrate:fresh', ['--database' => 'admin', '--path' => 'database/migrations/adm', '--force' => true]);
+        $this->ensureSysPlayerTable();
         $this->actingAs(AdmAccount::updateOrCreate(
             ['email' => 'player-search@example.com'],
             ['name' => 'operator', 'password' => Hash::make('password')],

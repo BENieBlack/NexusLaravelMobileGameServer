@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Guild;
 
+use App\Exceptions\GameErrorCode;
 use App\Models\Sys\SysGuildApply;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;
@@ -68,6 +69,36 @@ class GuildApplyFlowTest extends TestCase
 
         $this->assertDatabaseHas('sys_guild_member', [
             'sys_guild_id' => $guildId,
+            'sys_player_id' => $applicant->id,
+        ], 'sys');
+    }
+
+    #[Test]
+    public function test_apply_accept_rejects_player_already_in_another_guild(): void
+    {
+        // 2つのギルドに申請しておき、片方で承認された後にもう片方でも承認されるケース
+        ['token' => $masterTokenA] = $this->signUpPlayer();
+        ['token' => $masterTokenB] = $this->signUpPlayer();
+        ['player' => $applicant, 'token' => $applicantToken] = $this->signUpPlayer();
+
+        $guildIdA = $this->createGuild($masterTokenA);
+        $guildIdB = $this->createGuild($masterTokenB);
+        $this->sendApply($applicantToken, $guildIdA);
+        $this->sendApply($applicantToken, $guildIdB);
+
+        $applyA = SysGuildApply::where('sys_player_id', $applicant->id)->where('sys_guild_id', $guildIdA)->firstOrFail();
+        $applyB = SysGuildApply::where('sys_player_id', $applicant->id)->where('sys_guild_id', $guildIdB)->firstOrFail();
+
+        $this->withHeaders($this->authHeaders($masterTokenA))
+            ->postJson('/api/guild/apply/accept', ['sys_guild_apply_id' => $applyA->id])
+            ->assertOk();
+
+        $response = $this->withHeaders($this->authHeaders($masterTokenB))
+            ->postJson('/api/guild/apply/accept', ['sys_guild_apply_id' => $applyB->id]);
+
+        $this->assertSame(GameErrorCode::PLAYER_ALREADY_IN_GUILD, $response->json('error_code'));
+        $this->assertDatabaseMissing('sys_guild_member', [
+            'sys_guild_id' => $guildIdB,
             'sys_player_id' => $applicant->id,
         ], 'sys');
     }

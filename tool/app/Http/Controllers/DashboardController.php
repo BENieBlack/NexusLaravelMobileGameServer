@@ -59,6 +59,10 @@ class DashboardController extends Controller
         return response()->json($this->retentionService->getLatestCachedStats());
     }
 
+    /**
+     * @param  string  $period
+     * @return array{labels: list<string>, datasets: list<array{currency: mixed, data: list<float|int>}>}
+     */
     private function selectRevenueStats($period = '1month'): array
     {
         $now = now();

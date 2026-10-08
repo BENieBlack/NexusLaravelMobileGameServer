@@ -17,6 +17,9 @@ class AdmRole extends Model
 
     protected $fillable = ['id', 'name'];
 
+    /**
+     * @return BelongsToMany<AdmPage, $this>
+     */
     public function deniedPages(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -27,6 +30,9 @@ class AdmRole extends Model
         );
     }
 
+    /**
+     * @return BelongsToMany<AdmAccount, $this>
+     */
     public function accounts(): BelongsToMany
     {
         return $this->belongsToMany(

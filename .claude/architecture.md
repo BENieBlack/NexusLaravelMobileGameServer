@@ -1867,6 +1867,24 @@ class DeliveryService
 
 ---
 
+### 3. ドメインイベント（コンテキスト間の連携）
+
+あるコンテキストの出来事に別のコンテキストが反応するときは、直接Serviceを呼ばずにドメインイベントでつなぐ。
+発行側は受け手を知らないので、受け手を増やしても発行側を変えずに済む。
+
+- イベントクラスは発行側のパッケージに置く（例: `NexusLevel\Events\PlayerLeveledUp`）。`public readonly` の値だけを持つ
+- 発行側は `Illuminate\Contracts\Events\Dispatcher` をコンストラクタで受け取り、`dispatch()` する。`event()` ヘルパーやFacadeは使わない（パッケージのテストで差し替えられなくなる）
+- 受け手は受け手側のコンテキストの `app/Domain/{Context}/Listeners/` に置き、`AppServiceProvider::boot()` で `Event::listen()` する
+- 受け手は同期で処理する（`ShouldQueue` にしない）。発行元と同じUnitOfWorkに書き込み、同じトランザクションで確定させるため
+
+```php
+// nexus-level（発行側）
+$this->events?->dispatch(new PlayerLeveledUp($sysPlayerId, $beforeLevel, $afterLevel));
+
+// app/Domain/Stamina/Listeners/RecoverStaminaOnPlayerLevelUp.php（受け手）
+public function handle(PlayerLeveledUp $event): void { ... }
+```
+
 ## まとめ
 
 ### 重要な原則

@@ -10,7 +10,7 @@ use App\Domain\Login\Services\LoginBonusService;
 use App\Domain\Login\Services\VipLoginBonusService;
 use App\Domain\Player\Services\ExperienceGranterAdapter;
 use App\Domain\Player\Services\PlayerLevelServiceAdapter;
-use App\Domain\Player\Services\PlayerLevelUpStaminaHandler;
+use App\Domain\Stamina\Listeners\RecoverStaminaOnPlayerLevelUp;
 use App\Domain\Stamina\Services\StaminaGranterAdapter;
 use App\Exceptions\GameErrorCode;
 use App\Persistence\ApiSession;
@@ -57,6 +57,7 @@ use App\Repositories\Trx\UnitRepositoryAdapter;
 use App\Repositories\Trx\VipLoginBonusHistoryRepositoryInterface;
 use App\Repositories\Trx\WalletBalanceRepositoryAdapter;
 use App\Repositories\Trx\WalletRepositoryAdapter;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Nexus\Core\Repositories\PlayerDeviceRepositoryInterface;
@@ -81,7 +82,7 @@ use NexusGacha\Repositories\GachaStepRepositoryInterface;
 use NexusGuild\Repositories\GuildApplyRepositoryInterface;
 use NexusGuild\Repositories\GuildMemberRepositoryInterface;
 use NexusGuild\Repositories\GuildRepositoryInterface;
-use NexusLevel\Contracts\PlayerLevelUpHandlerInterface;
+use NexusLevel\Events\PlayerLeveledUp;
 use NexusLevel\Repositories\PlayerLevelRepositoryInterface;
 use NexusLogin\Repositories\LoginBonusHistoryRepositoryInterface;
 use NexusLogin\Repositories\LoginBonusRepositoryInterface;
@@ -217,8 +218,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(PlayerRepoInterface::class, PlayerRepositoryAdapter::class);
         $this->app->bind(PlayerLevelRepositoryInterface::class, PlayerLevelRepositoryAdapter::class);
 
-        // レベルアップ時のゲーム固有処理（スタミナ全回復）
-        $this->app->bind(PlayerLevelUpHandlerInterface::class, PlayerLevelUpStaminaHandler::class);
+        // レベルアップ時のゲーム固有処理は PlayerLeveledUp の受け手として boot() で登録する
 
         // ==========================================
         // NexusVip Package Bindings
@@ -369,6 +369,9 @@ class AppServiceProvider extends ServiceProvider
     {
         // Set default string length for database
         Schema::defaultStringLength(191);
+
+        // ドメインイベントの受け手（同期・同一UnitOfWork内で処理する）
+        Event::listen(PlayerLeveledUp::class, RecoverStaminaOnPlayerLevelUp::class);
 
         // Load migrations from subdirectories
         $this->loadMigrationsFrom([

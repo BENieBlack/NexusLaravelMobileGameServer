@@ -40,7 +40,6 @@ class ModuleBoundaryTest extends TestCase
         'app/Domain/InAppPurchase/Services/InAppPurchasePackService.php -> Item',
         'app/Domain/Player/Services/ExperienceGranterAdapter.php -> Equipment',
         'app/Domain/Player/Services/ExperienceGranterAdapter.php -> Unit',
-        'app/Domain/Player/Services/PlayerLevelUpStaminaHandler.php -> Stamina',
         'app/Domain/Unit/UseCases/LevelUpUseCase.php -> Item',
     ];
 

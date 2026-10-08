@@ -95,19 +95,21 @@ class HomeUseCaseTest extends TestCase
      */
     private function createLoginBonusMasterData(): void
     {
+        // 日次ボーナスは1件で、日ごとの報酬は content の day で持つ
+        $bonusId = 'daily_login';
+
+        MstLoginBonus::create([
+            'id' => $bonusId,
+            'type' => 'daily',
+            'loop_days' => 7,
+            'is_active' => true,
+        ]);
+
         for ($day = 1; $day <= 7; $day++) {
-            $bonusId = "login_bonus_day_{$day}";
-
-            MstLoginBonus::create([
-                'id' => $bonusId,
-                'day' => $day,
-                'loop_days' => 7,
-                'is_active' => true,
-            ]);
-
             // アイテム報酬
             MstLoginBonusContent::create([
                 'mst_login_bonus_id' => $bonusId,
+                'day' => $day,
                 'content_type' => 'item',
                 'content_mst_id' => 'item_potion_001',
                 'amount' => $day * 10,
@@ -119,6 +121,7 @@ class HomeUseCaseTest extends TestCase
             if ($day === 7) {
                 MstLoginBonusContent::create([
                     'mst_login_bonus_id' => $bonusId,
+                    'day' => $day,
                     'content_type' => 'diamond',
                     'content_mst_id' => 'diamond',
                     'amount' => 100,
@@ -167,7 +170,7 @@ class HomeUseCaseTest extends TestCase
             ->first();
 
         $this->assertNotNull($history);
-        $this->assertSame('login_bonus_day_1', $history->mst_login_bonus_id);
+        $this->assertSame('daily_login', $history->mst_login_bonus_id);
     }
 
     #[Test]

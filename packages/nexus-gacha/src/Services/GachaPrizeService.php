@@ -56,8 +56,7 @@ class GachaPrizeService
         string $contentMstId,
         int $amount,
         ?array $contentOption,
-    ): Resource
-    {
+    ): Resource {
         $resource = match ($contentType) {
             'item' => Resource::item($contentMstId, $amount),
             'unit' => Resource::unit(

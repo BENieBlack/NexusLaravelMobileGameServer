@@ -213,8 +213,10 @@ trait RefreshMultipleDatabases
         $logPaths = $this->migrationPaths('log');
         $shardCount = (int) env('DB_SHARD_COUNT', 2);
 
+        // trx と log は同じシャードDBに同居している。migrate:fresh はDB内の全テーブルを
+        // 落とすため、別々に流すと後の方が先に作ったテーブルを消す。1回にまとめて流す
         for ($i = 1; $i <= $shardCount; $i++) {
-            $targets[] = ["trx{$i}", $trxPaths];
+            $targets[] = ["trx{$i}", array_merge($trxPaths, $logPaths)];
         }
 
         return $targets;

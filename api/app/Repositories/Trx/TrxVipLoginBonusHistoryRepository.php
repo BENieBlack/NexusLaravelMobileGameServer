@@ -8,6 +8,8 @@ use NexusPitr\Logger\ShardMapper;
 
 /**
  * VIPログインボーナスの最新状態をtrxへ、受取履歴をlogへ保存するRepository。
+ *
+ * @extends _BaseTrxRepository<TrxVipLoginBonusHistory>
  */
 class TrxVipLoginBonusHistoryRepository extends _BaseTrxRepository implements VipLoginBonusHistoryRepositoryInterface
 {

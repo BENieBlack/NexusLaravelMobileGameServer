@@ -227,7 +227,7 @@ class BuyPackUseCaseTest extends TestCase
     #[Test]
     public function 購入回数の上限に達すると次から買えない(): void
     {
-        $mstInAppPurchase = $this->createProduct('pack', purchaseLimit: 1);
+        $mstInAppPurchase = $this->createProduct('pack', purchaseLimitCount: 1);
         $this->createPackContents($mstInAppPurchase->getId());
 
         $this->buy($mstInAppPurchase, 'GPA.PACK-2001');
@@ -249,7 +249,7 @@ class BuyPackUseCaseTest extends TestCase
     #[Test]
     public function 日次の上限は日付が変われば買い直せる(): void
     {
-        $mstInAppPurchase = $this->createProduct('pack', purchaseLimit: 1, purchaseLimitReset: 'daily');
+        $mstInAppPurchase = $this->createProduct('pack', purchaseLimitCount: 1, purchaseLimitReset: 'daily');
         $this->createPackContents($mstInAppPurchase->getId());
 
         ClockUtility::setNow('2026-03-15 12:00:00');

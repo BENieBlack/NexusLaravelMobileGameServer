@@ -112,6 +112,7 @@ class GachaPrizeTest extends TestCase
             [
                 'content_type' => 'Unit',
                 'content_mst_id' => 'unit_ssr_001',
+                'content_option' => null,
                 'amount' => 2,
                 'rarity' => 5,
                 'is_guaranteed' => true,

@@ -136,21 +136,22 @@ class LoginBonusIntegrationTest extends TestCase
      */
     private function createLoginBonusMasterData(): void
     {
+        // 日次ボーナスは1件で、日ごとの報酬は content の day で持つ
+        $bonusId = 'daily_login';
+
+        DB::connection('mst')->table('mst_login_bonus')->insert([
+            'id' => $bonusId,
+            'type' => 'daily',
+            'loop_days' => 7,
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
         for ($day = 1; $day <= 7; $day++) {
-            $bonusId = "login_bonus_day_{$day}";
-
-            DB::connection('mst')->table('mst_login_bonus')->insert([
-                'id' => $bonusId,
-                'type' => 'daily',
-                'day' => $day,
-                'loop_days' => 7,
-                'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-
             DB::connection('mst')->table('mst_login_bonus_content')->insert([
                 'mst_login_bonus_id' => $bonusId,
+                'day' => $day,
                 'content_type' => 'diamond',
                 'content_mst_id' => 'free_diamond',
                 'amount' => $day * 100,
@@ -208,7 +209,6 @@ class LoginBonusIntegrationTest extends TestCase
         DB::connection('mst')->table('mst_login_bonus')->insert([
             'id' => $bonusId,
             'type' => 'comeback',
-            'day' => 0,
             'loop_days' => 0,
             'required_absent_days' => 7,
             'valid_days' => 14,

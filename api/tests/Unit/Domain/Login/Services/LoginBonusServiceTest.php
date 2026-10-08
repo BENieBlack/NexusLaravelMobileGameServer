@@ -9,6 +9,7 @@ use App\Persistence\ApiSession;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use Nexus\Core\Utilities\ClockUtility;
+use NexusPitr\Logger\ShardMapper;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
@@ -119,6 +120,8 @@ class LoginBonusServiceTest extends TestCase
     {
         // テストデータをクリア
         DB::connection('trx1')->table('trx_login_bonus')->delete();
+        DB::connection(ShardMapper::resolveLogConnection('trx1'))->table('log_action_login_bonus_receive')
+            ->where('sys_player_id', $this->sysPlayerId)->delete();
         DB::connection('mst')->table('mst_login_bonus_content')->delete();
         DB::connection('mst')->table('mst_login_bonus')->delete();
         DB::connection('sys')->table('sys_sharding_node_player')->where('sys_player_id', $this->sysPlayerId)->delete();
@@ -181,7 +184,7 @@ class LoginBonusServiceTest extends TestCase
         $history = DB::connection('trx1')
             ->table('trx_login_bonus')
             ->where('sys_player_id', $this->sysPlayerId)
-            ->where('received_date', 'LIKE', '2026-04-20')
+            ->whereDate('received_date', '2026-04-20')
             ->first();
 
         $this->assertNotNull($history);
@@ -389,10 +392,11 @@ class LoginBonusServiceTest extends TestCase
         );
 
         // 履歴を確認（アイテムとダイヤの2件）
-        $histories = DB::connection('trx1')
-            ->table('trx_login_bonus')
+        // trx_login_bonus はタイプごとに1行の状態テーブル。報酬ごとの記録は受取ログに残る
+        $histories = DB::connection(ShardMapper::resolveLogConnection('trx1'))
+            ->table('log_action_login_bonus_receive')
             ->where('sys_player_id', $this->sysPlayerId)
-            ->where('received_date', $currentDay->toDateString())
+            ->whereDate('received_at', $currentDay->toDateString())
             ->get();
 
         $this->assertCount(2, $histories);

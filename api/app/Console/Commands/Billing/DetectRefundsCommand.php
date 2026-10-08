@@ -9,6 +9,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Nexus\Core\Utilities\ClockUtility;
 use NexusBilling\Facades\BillingFacade;
+use NexusPitr\Logger\ShardMapper;
 use Throwable;
 
 /**
@@ -102,18 +103,13 @@ class DetectRefundsCommand extends Command
     /**
      * 走査対象のログDB接続を返す
      *
+     * ログはtrxと同じシャードDBに同居しているため、接続名の対応はShardMapperに任せる
+     *
      * @return list<string>
      */
     private function logConnections(): array
     {
-        $shardCount = (int) config('database.pitr.shard_count', 2);
-        $connections = [];
-
-        for ($i = 1; $i <= $shardCount; $i++) {
-            $connections[] = "log{$i}";
-        }
-
-        return $connections;
+        return array_values(ShardMapper::allLogConnections());
     }
 
     /**

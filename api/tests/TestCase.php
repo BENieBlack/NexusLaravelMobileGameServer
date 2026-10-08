@@ -12,6 +12,7 @@ use Nexus\Core\Models\_BaseModel;
 use Nexus\Core\Models\Mst\_BaseMst;
 use Nexus\Core\Utilities\ClockUtility;
 use NexusMaintenance\Contracts\MaintenanceStorageInterface;
+use NexusPitr\Logger\ShardMapper;
 use NexusSecurity\Middleware\VerifyClientSignature;
 use NexusUnitOfWork\Contracts\QueryManagerInterface;
 use Tests\Support\InMemoryMaintenanceStorage;
@@ -137,10 +138,12 @@ abstract class TestCase extends BaseTestCase
 
     /**
      * プレイヤーが割り当てられているLogDB接続名を返す
+     *
+     * ログはtrxと同じシャードDBに同居している。対応は本番と同じShardMapperで求める
      */
     protected function playerLogConnection(int $sysPlayerId): string
     {
-        return 'log'.substr($this->playerConnection($sysPlayerId), 3);
+        return ShardMapper::resolveLogConnection($this->playerConnection($sysPlayerId));
     }
 
     protected function authHeaders(string $accessToken): array

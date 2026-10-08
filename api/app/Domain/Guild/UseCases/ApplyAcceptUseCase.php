@@ -5,8 +5,6 @@ namespace App\Domain\Guild\UseCases;
 use App\Domain\_BaseUseCase;
 use App\Domain\Guild\Support\GuildExceptionTranslator;
 use App\Exceptions\GameException;
-use App\Repositories\Sys\SysGuildMemberRepository;
-use NexusGuild\Constants\GuildRole;
 use NexusGuild\DataTransferObjects\GuildApply;
 use NexusGuild\Services\GuildService;
 
@@ -18,7 +16,6 @@ use NexusGuild\Services\GuildService;
 class ApplyAcceptUseCase extends _BaseUseCase
 {
     public function __construct(
-        private readonly SysGuildMemberRepository $sysGuildMemberRepository,
         private readonly GuildService $guildService,
     ) {}
 
@@ -35,17 +32,8 @@ class ApplyAcceptUseCase extends _BaseUseCase
         // トランザクション開始
         return $this->executeWithTransaction(function () use ($sysPlayerId, $applyId) {
             return GuildExceptionTranslator::forApplyAccept(function () use ($sysPlayerId, $applyId) {
-                // 申請承認（Service経由でバリデーション含む）
-                $apply = $this->guildService->acceptApply($applyId, $sysPlayerId);
-
-                // メンバーとして追加
-                $this->sysGuildMemberRepository->insertMember(
-                    $apply->getSysGuildId(),
-                    $apply->getSysPlayerId(),
-                    GuildRole::MEMBER
-                );
-
-                return $apply;
+                // 申請承認とメンバー追加（Service経由でバリデーション含む）
+                return $this->guildService->acceptApply($applyId, $sysPlayerId);
             });
         });
     }

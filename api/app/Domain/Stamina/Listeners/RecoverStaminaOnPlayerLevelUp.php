@@ -1,25 +1,27 @@
 <?php
 
-namespace App\Domain\Player\Services;
+namespace App\Domain\Stamina\Listeners;
 
 use App\Domain\Stamina\Constants\StaminaConst;
 use App\Models\Trx\TrxStamina;
 use App\Repositories\Mst\MstPlayerLevelRepository;
 use App\Repositories\Trx\TrxStaminaRepository;
 use Nexus\Core\Utilities\ClockUtility;
-use NexusLevel\Contracts\PlayerLevelUpHandlerInterface;
+use NexusLevel\Events\PlayerLeveledUp;
 
 /**
- * PlayerLevelUpStaminaHandler
+ * RecoverStaminaOnPlayerLevelUp
  *
  * レベルアップ時にスタミナを全回復するゲーム固有処理。
  *
  * レベルアップ自体の計算は NexusLevel\Services\PlayerLevelService が担い、
- * その報酬にあたるこの処理だけをApplication層に置く。
+ * その結果を PlayerLeveledUp イベントで受け取る。
  * （パッケージ側にスタミナ操作を持たせると nexus-level と nexus-stamina が
  * 相互に依存してしまうため）
+ *
+ * レベルアップと同じUnitOfWorkに書き込むため、同期で受ける（ShouldQueueにしない）。
  */
-class PlayerLevelUpStaminaHandler implements PlayerLevelUpHandlerInterface
+class RecoverStaminaOnPlayerLevelUp
 {
     /**
      * スタミナ回復間隔（秒）
@@ -37,13 +39,14 @@ class PlayerLevelUpStaminaHandler implements PlayerLevelUpHandlerInterface
     ) {}
 
     /**
-     * {@inheritDoc}
-     *
      * 自然回復計算を行った後、新しい最大スタミナ分を加算する。
      * 結果として最大スタミナを超過することができる（レベルアップ報酬のため）。
      */
-    public function handle(int $sysPlayerId, int $beforeLevel, int $afterLevel): void
+    public function handle(PlayerLeveledUp $event): void
     {
+        $sysPlayerId = $event->sysPlayerId;
+        $afterLevel = $event->afterLevel;
+
         $newMaxStamina = $this->mstPlayerLevelRepository->findMaxStaminaForLevel($afterLevel)
             ?? self::DEFAULT_MAX_STAMINA;
 

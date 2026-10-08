@@ -3063,9 +3063,10 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-level",
-                "reference": "80eb3f47d743595a05110b8b50aa50ff21153b76"
+                "reference": "0a5a7e61a43f85c64167231b54dcf19644f02c66"
             },
             "require": {
+                "illuminate/contracts": "^10.0|^11.0|^12.0",
                 "nexus/core": "@dev",
                 "php": "^8.4"
             },

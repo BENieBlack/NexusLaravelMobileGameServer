@@ -2,7 +2,9 @@
 
 namespace NexusGacha\Tests\Unit\Services;
 
-use Nexus\Core\Support\CustomCollection;
+use NexusGacha\DataTransferObjects\PrizeCandidate;
+use NexusGacha\DataTransferObjects\RarityRate;
+use NexusGacha\DataTransferObjects\StepBonus;
 use NexusGacha\Exceptions\GachaDrawException;
 use NexusGacha\Repositories\GachaPrizeRepositoryInterface;
 use NexusGacha\Repositories\GachaRarityRateRepositoryInterface;
@@ -51,11 +53,11 @@ class GachaDrawServiceTest extends TestCase
 
         // 通常抽選が常にレアリティ1の景品を返すようにしておく
         $this->rarityRateRepository->method('selectByGachaId')
-            ->willReturn(new CustomCollection([$this->rarityRate(1, 100)]));
+            ->willReturn([$this->rarityRate(1, 100)]);
         $this->prizeRepository->method('selectByGachaIdAndRarity')
-            ->willReturnCallback(fn (string $gachaId, int $rarity) => new CustomCollection([
+            ->willReturnCallback(fn (string $gachaId, int $rarity) => [
                 $this->prize('Item', "item_rarity_{$rarity}", 1, 100),
-            ]));
+            ]);
 
         $this->service = new GachaDrawService(
             $this->rarityRateRepository,
@@ -92,7 +94,7 @@ class GachaDrawServiceTest extends TestCase
     #[Test]
     public function ステップアップでなければステップを引きに行かない(): void
     {
-        $this->stepRepository->expects($this->never())->method('selectByGachaIdAndNumber');
+        $this->stepRepository->expects($this->never())->method('selectStepIdByGachaIdAndNumber');
 
         $this->service->draw(self::GACHA_ID, drawCount: 1, hasStepUp: false, currentStep: 3);
     }
@@ -110,7 +112,7 @@ class GachaDrawServiceTest extends TestCase
     #[Test]
     public function ステップが見つからなければ通常抽選だけになる(): void
     {
-        $this->stepRepository->method('selectByGachaIdAndNumber')->willReturn(null);
+        $this->stepRepository->method('selectStepIdByGachaIdAndNumber')->willReturn(null);
         $this->stepBonusRepository->expects($this->never())->method('selectByStepId');
 
         $prizes = $this->service->draw(self::GACHA_ID, drawCount: 5, hasStepUp: true, currentStep: 99);
@@ -222,28 +224,15 @@ class GachaDrawServiceTest extends TestCase
     /**
      * ステップとそのボーナス景品を用意する
      *
-     * @param  list<object>  $bonuses
+     * @param  list<StepBonus>  $bonuses
      */
     private function givenStepBonuses(array $bonuses): void
     {
-        $this->stepRepository->method('selectByGachaIdAndNumber')
-            ->willReturn($this->step('step_001'));
+        $this->stepRepository->method('selectStepIdByGachaIdAndNumber')
+            ->willReturn('step_001');
         $this->stepBonusRepository->method('selectByStepId')
             ->with('step_001')
-            ->willReturn(new CustomCollection($bonuses));
-    }
-
-    private function step(string $id): object
-    {
-        return new class($id)
-        {
-            public function __construct(private string $id) {}
-
-            public function getAttribute(string $key): mixed
-            {
-                return $key === 'id' ? $this->id : null;
-            }
-        };
+            ->willReturn($bonuses);
     }
 
     private function stepBonus(
@@ -251,69 +240,31 @@ class GachaDrawServiceTest extends TestCase
         ?int $bonusRarity,
         int $bonusCount = 1,
         string $selectionType = 'none',
-    ): object {
-        return new class($position, $bonusRarity, $bonusCount, $selectionType)
-        {
-            public function __construct(
-                public int $position,
-                private ?int $bonusRarity,
-                private int $bonusCount,
-                private string $selectionType,
-            ) {}
-
-            public function getAttribute(string $key): mixed
-            {
-                return match ($key) {
-                    'position' => $this->position,
-                    'bonus_rarity' => $this->bonusRarity,
-                    'bonus_count' => $this->bonusCount,
-                    'selection_type' => $this->selectionType,
-                    'is_pickup_only' => false,
-                    default => null,
-                };
-            }
-        };
+    ): StepBonus {
+        return new StepBonus(
+            id: "bonus_{$position}",
+            position: $position,
+            bonusCount: $bonusCount,
+            selectionType: $selectionType,
+            bonusRarity: $bonusRarity,
+            isPickupOnly: false,
+        );
     }
 
-    private function prize(string $contentType, string $contentMstId, int $amount, int $weight): object
+    private function prize(string $contentType, string $contentMstId, int $amount, int $weight): PrizeCandidate
     {
-        return new class($contentType, $contentMstId, $amount, $weight)
-        {
-            public function __construct(
-                private string $contentType,
-                private string $contentMstId,
-                private int $amount,
-                private int $weight,
-            ) {}
-
-            public function getAttribute(string $key): mixed
-            {
-                return match ($key) {
-                    'content_type' => $this->contentType,
-                    'content_mst_id' => $this->contentMstId,
-                    'amount' => $this->amount,
-                    'weight' => $this->weight,
-                    default => null,
-                };
-            }
-        };
+        return new PrizeCandidate(
+            contentType: $contentType,
+            contentMstId: $contentMstId,
+            contentOption: null,
+            amount: $amount,
+            weight: $weight,
+        );
     }
 
-    private function rarityRate(int $rarity, int $rate): object
+    private function rarityRate(int $rarity, int $rate): RarityRate
     {
-        return new class($rarity, $rate)
-        {
-            public function __construct(private int $rarity, private int $rate) {}
-
-            public function getAttribute(string $key): mixed
-            {
-                return match ($key) {
-                    'rarity' => $this->rarity,
-                    'rate' => $this->rate,
-                    default => null,
-                };
-            }
-        };
+        return new RarityRate(rarity: $rarity, rate: $rate);
     }
 }
 
@@ -330,7 +281,7 @@ class FixedPrizeStrategy implements GachaDrawStrategyInterface
     }
 
     public function draw(
-        mixed $bonus,
+        StepBonus $bonus,
         ?string $selectedCandidateId,
         string $mstGachaId,
         GachaDrawContext $context

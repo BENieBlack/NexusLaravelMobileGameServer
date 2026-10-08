@@ -36,6 +36,9 @@ class GachaDrawException extends \Exception
     /** 重み付きランダム抽選で候補が空 */
     public const CODE_EMPTY_ITEMS = 1007;
 
+    /** 確定枠（random / choice）にレアリティが設定されていない */
+    public const CODE_MISSING_BONUS_RARITY = 1008;
+
     /**
      * コンストラクタ
      *

@@ -2,8 +2,7 @@
 
 namespace NexusGacha\Repositories;
 
-use Illuminate\Database\Eloquent\Model;
-use Nexus\Core\Support\CustomCollection;
+use NexusGacha\DataTransferObjects\StepBonus;
 
 /**
  * GachaStepBonusRepositoryInterface
@@ -13,10 +12,9 @@ use Nexus\Core\Support\CustomCollection;
 interface GachaStepBonusRepositoryInterface
 {
     /**
-     * ステップIDでステップボーナスリストを取得
+     * ステップIDでステップボーナスリストを取得（position順）
      *
-     * @param  string  $stepId
-     * @return CustomCollection<array-key, Model>
+     * @return list<StepBonus>
      */
-    public function selectByStepId(string $stepId): CustomCollection;
+    public function selectByStepId(string $stepId): array;
 }

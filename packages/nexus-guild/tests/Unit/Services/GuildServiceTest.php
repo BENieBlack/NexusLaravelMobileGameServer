@@ -166,6 +166,49 @@ class GuildServiceTest extends TestCase
     }
 
     #[Test]
+    public function 承認すると申請者が一般メンバーとして加わる(): void
+    {
+        $this->givenPendingApply(GuildRole::MASTER);
+
+        $this->service->acceptApply(self::APPLY_ID, self::MASTER_ID);
+
+        $this->assertSame(
+            [['guildId' => self::GUILD_ID, 'playerId' => self::APPLICANT_ID, 'role' => GuildRole::MEMBER]],
+            $this->memberRepository->inserted
+        );
+    }
+
+    #[Test]
+    public function 申請者が既に別のギルドに入っていたら承認できない(): void
+    {
+        // 申請後に別のギルドへ加入しているケース。二重所属にしない
+        $this->givenPendingApply(GuildRole::MASTER);
+        $this->memberRepository->byPlayerId = $this->member(self::APPLICANT_ID);
+
+        try {
+            $this->service->acceptApply(self::APPLY_ID, self::MASTER_ID);
+            $this->fail('二重所属になる承認が通ってしまった');
+        } catch (GuildException $e) {
+            $this->assertSame(GuildException::CODE_ALREADY_IN_GUILD, $e->getCode());
+        }
+
+        $this->assertSame([], $this->memberRepository->inserted);
+    }
+
+    #[Test]
+    public function 承認できなかったときはメンバーを加えない(): void
+    {
+        $this->givenPendingApply(GuildRole::MEMBER);
+
+        try {
+            $this->service->acceptApply(self::APPLY_ID, self::MEMBER_ID);
+        } catch (GuildException) {
+        }
+
+        $this->assertSame([], $this->memberRepository->inserted);
+    }
+
+    #[Test]
     public function サブマスターも申請を承認できる(): void
     {
         $this->givenPendingApply(GuildRole::SUB_MASTER);
@@ -674,6 +717,9 @@ class FakeGuildMemberRepository implements GuildMemberRepositoryInterface
     /** @var list<GuildMember> */
     public array $deleted = [];
 
+    /** @var list<array{guildId: int, playerId: int, role: string}> */
+    public array $inserted = [];
+
     /** @var list<int> */
     public array $deletedPlayerIds = [];
 
@@ -704,6 +750,8 @@ class FakeGuildMemberRepository implements GuildMemberRepositoryInterface
 
     public function insert(int $guildId, int $playerId, string $role): GuildMember
     {
+        $this->inserted[] = ['guildId' => $guildId, 'playerId' => $playerId, 'role' => $role];
+
         return new GuildMember(
             id: 1,
             sysGuildId: $guildId,

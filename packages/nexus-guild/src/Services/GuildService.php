@@ -200,7 +200,10 @@ class GuildService
     }
 
     /**
-     * ギルド加入申請を承認
+     * ギルド加入申請を承認し、申請者をメンバーに加える
+     *
+     * 承認と加入は分けられない。承認だけして加入させない状態や、
+     * 定員・所属チェックを経ずに加入させる経路を作らないよう、ここで一括で行う。
      *
      * @param  int  $applyId  申請ID
      * @param  int  $currentPlayerId  現在のプレイヤーID（承認者）
@@ -232,7 +235,13 @@ class GuildService
         }
         $this->validateGuildNotFull($guild);
 
-        return $this->applyRepository->accept($apply);
+        // 申請後に別のギルドへ入っていることがある。DBの一意制約はギルド単位なので、ここで止める
+        $this->validatePlayerNotInGuild($apply->getSysPlayerId());
+
+        $accepted = $this->applyRepository->accept($apply);
+        $this->memberRepository->insert($apply->getSysGuildId(), $apply->getSysPlayerId(), GuildRole::MEMBER);
+
+        return $accepted;
     }
 
     /**

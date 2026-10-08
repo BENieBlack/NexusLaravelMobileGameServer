@@ -70,8 +70,7 @@ class UuidPrimaryKeyInsertTest extends TestCase
     #[Test]
     public function tidb利用時はuuidがそのまま行のidになる(): void
     {
-        $this->makeIdColumnString();
-        TidbMode::fakeForTest(true);
+        $this->enableTidb();
 
         $repository = app(TrxMailboxRepository::class);
         $mailbox = new TrxMailbox([
@@ -99,8 +98,7 @@ class UuidPrimaryKeyInsertTest extends TestCase
     #[Test]
     public function tidb利用時は複数件でもuuidが衝突しない(): void
     {
-        $this->makeIdColumnString();
-        TidbMode::fakeForTest(true);
+        $this->enableTidb();
 
         $repository = app(TrxMailboxRepository::class);
         $expectedIds = [];
@@ -160,6 +158,19 @@ class UuidPrimaryKeyInsertTest extends TestCase
         $method = new \ReflectionMethod($repository, 'setModel');
         $method->setAccessible(true);
         $method->invoke($repository, $mailbox);
+    }
+
+    /**
+     * TiDBモードにして、書き込み先の trx_mailbox.id をUUIDが入る型に作り替える
+     *
+     * TiDBではプレイヤーの割り当てに関係なく単一接続（trx1）へ書く。
+     * プレイヤーの割り当て先で列を作り替えると、trx2 に割り当てられたときに書き込み先とずれる
+     */
+    private function enableTidb(): void
+    {
+        TidbMode::fakeForTest(true);
+        $this->connection = ApiSession::resolveConnectionName('trx');
+        $this->makeIdColumnString();
     }
 
     /**

@@ -77,7 +77,9 @@ migrate-fresh: up ## マイグレーションをリセットして再実行（tr
 	$(call migrate_group,migrate:fresh,sys,sys)
 	$(call migrate_group,migrate:fresh,mst,mst)
 	$(DOCKER_COMPOSE) exec -T api-php php artisan trx:migrate --fresh --force
-	$(DOCKER_COMPOSE) exec -T api-php php artisan pitr:migrate --fresh --force
+	# trx と log は同じシャードDBに同居している。log まで --fresh にすると
+	# 直前に作った trx のテーブルを落とすため、log は空のDBへ通常の migrate で足す
+	$(DOCKER_COMPOSE) exec -T api-php php artisan pitr:migrate --force
 
 seed: up ## シーダーを実行
 	$(DOCKER_COMPOSE) exec -T api-php php artisan db:seed --force

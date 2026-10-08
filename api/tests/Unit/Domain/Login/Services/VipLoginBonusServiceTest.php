@@ -195,9 +195,9 @@ class VipLoginBonusServiceTest extends TestCase
         $this->assertSame(2500, $result[0]->getAmount(), 'VIP5はVIP0より多くのゴールドを受け取るべき');
 
         // 履歴で1日目として記録されていることを確認
+        // trx_vip_login_bonus はプレイヤーごとに1行の状態テーブル
         $history = DB::connection('trx1')->table('trx_vip_login_bonus')
             ->where('sys_player_id', $this->sysPlayerId)
-            ->orderBy('id', 'desc')
             ->first();
 
         $this->assertSame(1, (int) $history->day, '初回は1日目のボーナスを受け取るべき');

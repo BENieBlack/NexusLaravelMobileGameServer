@@ -21,10 +21,11 @@ class MasterDeployService
      * }  $exportResult
      * @return array{
      *   sys_deploy_master_id: int,
-     *   sys_deploy_id: int,
+     *   sys_deploy_id: int|null,
      *   deploy_key: int,
      *   hash: string,
      *   tables: array<string, array{hash: string, file_name: string, file_size: int, public_url: string}>,
+     *   is_new: bool,
      * }
      */
     public function register(array $exportResult): array
@@ -45,13 +46,14 @@ class MasterDeployService
                 ->where('sys_deploy_master_id', $existing->id)
                 ->orderByDesc('id')
                 ->first();
-            $tableResultArray = DB::connection('sys')
+            $tableRows = DB::connection('sys')
                 ->table('sys_deploy_master_table')
                 ->where('sys_deploy_master_id', $existing->id)
-                ->get()
-                ->keyBy('table_name');
+                ->get();
 
-            foreach ($tableResultArray as $tableName => $table) {
+            $tableResultArray = [];
+            foreach ($tableRows as $table) {
+                $tableName = (string) $table->table_name;
                 $publicUrl = "/masterdata/{$existing->hash}/{$table->file_name}";
                 DB::connection('sys')
                     ->table('sys_deploy_master_table')
@@ -59,18 +61,18 @@ class MasterDeployService
                     ->where('table_name', $tableName)
                     ->update(['public_url' => $publicUrl]);
                 $tableResultArray[$tableName] = [
-                    'hash' => $table->hash,
-                    'file_name' => $table->file_name,
-                    'file_size' => $table->file_size,
+                    'hash' => (string) $table->hash,
+                    'file_name' => (string) $table->file_name,
+                    'file_size' => (int) $table->file_size,
                     'public_url' => $publicUrl,
                 ];
             }
 
             return [
-                'sys_deploy_master_id' => $existing->id,
-                'sys_deploy_id' => $deploy?->id,
-                'deploy_key' => $existing->deploy_key,
-                'hash' => $existing->hash,
+                'sys_deploy_master_id' => (int) $existing->id,
+                'sys_deploy_id' => $deploy !== null ? (int) $deploy->id : null,
+                'deploy_key' => (int) $existing->deploy_key,
+                'hash' => (string) $existing->hash,
                 'tables' => $tableResultArray,
                 'is_new' => false,
             ];

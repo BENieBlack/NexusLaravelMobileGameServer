@@ -68,9 +68,12 @@ class PlayerHistoryController extends Controller
         ]);
     }
 
+    /**
+     * @return list<string>
+     */
     private function logConnections(): array
     {
-        $count = max(1, (int) env('DB_SHARD_COUNT', 2));
+        $count = max(1, (int) config('database.shard_count', 2));
 
         return array_merge(
             ['trx'],

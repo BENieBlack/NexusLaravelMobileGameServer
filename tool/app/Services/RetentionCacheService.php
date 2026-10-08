@@ -28,7 +28,7 @@ class RetentionCacheService
     /**
      * キャッシュ済みの継続率を即返し、未集計分はバックグラウンドジョブに投げる
      *
-     * @return array{ rows: array, is_calculating: bool }
+     * @return array{ rows: list<array<string, mixed>>, is_calculating: bool }
      */
     public function getRetentionStatsWithStatus(): array
     {
@@ -61,15 +61,11 @@ class RetentionCacheService
             if ($needsJob) {
                 CalculateRetentionJob::dispatch($cohortDate)->onQueue('default');
                 $pendingCount++;
+            }
 
-                // 古いキャッシュがあれば暫定表示に使う
-                if ($row && (int) $row->new_users > 0) {
-                    $rows[] = $this->toArray($row);
-                }
-            } else {
-                if ($row && (int) $row->new_users > 0) {
-                    $rows[] = $this->toArray($row);
-                }
+            // 再集計待ちでも古いキャッシュがあれば暫定表示に使う
+            if ($row && (int) $row->new_users > 0) {
+                $rows[] = $this->toArray($row);
             }
         }
 
@@ -82,7 +78,7 @@ class RetentionCacheService
     /**
      * 最新キャッシュデータを返す（ポーリング用）
      *
-     * @return array{ rows: array, is_calculating: bool }
+     * @return array{ rows: list<array<string, mixed>>, is_calculating: bool }
      */
     public function getLatestCachedStats(): array
     {
@@ -177,6 +173,9 @@ class RetentionCacheService
             ->where('cohort_date', $cohortDate)->first();
     }
 
+    /**
+     * @param  array<string, float|null>  $retentionData
+     */
     private function upsert(string $cohortDate, int $newUsers, array $retentionData): void
     {
         $now = now()->format('Y-m-d H:i:s');
@@ -188,13 +187,16 @@ class RetentionCacheService
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function toArray(mixed $row): array
     {
         $r = is_object($row) ? (array) $row : $row;
         $result = ['cohort_date' => $r['cohort_date'], 'new_users' => (int) $r['new_users']];
         foreach (self::RETENTION_DAYS as $d) {
             $key = "d{$d}";
-            $result[$key] = (isset($r[$key]) && $r[$key] !== null) ? (float) $r[$key] : null;
+            $result[$key] = isset($r[$key]) ? (float) $r[$key] : null;
         }
 
         return $result;

@@ -15,6 +15,7 @@ class PlayerHistoryTest extends TestCase
     {
         parent::setUp();
         Artisan::call('migrate:fresh', ['--database' => 'admin', '--path' => 'database/migrations/adm', '--force' => true]);
+        $this->ensureSysPlayerTable();
         DB::connection('sys')->table('sys_player')->updateOrInsert(
             ['my_id' => 'PLAYER01'],
             ['uuid' => 'player-uuid', 'name' => 'テストプレイヤー'],

@@ -56,6 +56,35 @@ jobs:
     name: ツール（tool）
     runs-on: ubuntu-latest
 
+    # tool のテストは admin / sys / trx の接続を使う。
+    # 本番では別々のDBだが、テストでは1台のMySQLに3つのデータベースを作って足りる
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: nexus-testing-admin
+        ports: ['33070:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -uroot -proot"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+
+    env:
+      DB_ADMIN_HOST: 127.0.0.1
+      DB_ADMIN_PORT: 33070
+      DB_ADMIN_DATABASE: nexus-testing-admin
+      DB_SYSTEM_HOST: 127.0.0.1
+      DB_SYSTEM_PORT: 33070
+      DB_SYSTEM_DATABASE: nexus-testing-system
+      # .env.example の DB_SHARD_COUNT=3 に合わせ、3シャードとも同じデータベースへ向ける
+      DB_SHARD1_HOST: 127.0.0.1
+      DB_SHARD1_PORT: 33070
+      DB_SHARD2_HOST: 127.0.0.1
+      DB_SHARD2_PORT: 33070
+      DB_SHARD3_HOST: 127.0.0.1
+      DB_SHARD3_PORT: 33070
+      DB_SHARD_DATABASE: nexus-testing-shard
+
     steps:
       - uses: actions/checkout@v4
 
@@ -92,6 +121,11 @@ jobs:
       - name: 静的解析
         working-directory: tool
         run: ./vendor/bin/phpstan analyse --memory-limit=1G --no-progress
+
+      - name: テスト用データベースの作成
+        run: >-
+          mysql -h 127.0.0.1 -P 33070 -uroot -proot
+          -e "CREATE DATABASE IF NOT EXISTS \`nexus-testing-system\`; CREATE DATABASE IF NOT EXISTS \`nexus-testing-shard\`;"
 
       - name: テスト
         working-directory: tool

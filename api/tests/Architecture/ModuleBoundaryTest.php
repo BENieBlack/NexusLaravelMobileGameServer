@@ -50,13 +50,6 @@ class ModuleBoundaryTest extends TestCase
      * @var list<string>
      */
     private const PACKAGE_FRAMEWORK_BASELINE = [
-        'packages/nexus-gacha/src/Repositories/GachaPrizeRepositoryInterface.php',
-        'packages/nexus-gacha/src/Repositories/GachaRarityRateRepositoryInterface.php',
-        'packages/nexus-gacha/src/Repositories/GachaStepBonusContentRepositoryInterface.php',
-        'packages/nexus-gacha/src/Repositories/GachaStepBonusRepositoryInterface.php',
-        'packages/nexus-gacha/src/Strategies/NoneDrawStrategy.php',
-        'packages/nexus-gacha/src/Strategies/RandomDrawStrategy.php',
-        'packages/nexus-resource-delivery/src/Services/ResourceDeliveryService.php',
     ];
 
     /**

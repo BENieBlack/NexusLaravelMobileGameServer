@@ -2,7 +2,6 @@
 
 namespace NexusResourceDelivery\Services;
 
-use Illuminate\Support\Facades\Log;
 use Nexus\Core\Support\CustomCollection;
 use NexusResource\DataTransferObjects\Resource;
 use NexusResource\Enums\ResourceType;
@@ -12,6 +11,8 @@ use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryPolicy;
 use NexusResourceDelivery\DataTransferObjects\ResourceDeliverySummary;
 use NexusResourceDelivery\Handlers\ResourceDeliveryHandlerInterface;
 use NexusResourceDelivery\Managers\ResourceDeliveryManagerInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
  * ResourceDeliveryService
@@ -41,6 +42,7 @@ class ResourceDeliveryService
 
     public function __construct(
         private readonly ResourceDeliveryManagerInterface $deliveryManager,
+        private readonly LoggerInterface $logger = new NullLogger,
     ) {}
 
     /**
@@ -121,7 +123,7 @@ class ResourceDeliveryService
                 resourceDeliveryPolicy: $resourceDeliveryPolicy,
             );
         } catch (\Throwable $e) {
-            Log::error('ResourceDeliveryService::deliver failed', [
+            $this->logger->error('ResourceDeliveryService::deliver failed', [
                 'player_id' => $sysPlayerId,
                 'error' => $e->getMessage(),
             ]);
@@ -194,7 +196,7 @@ class ResourceDeliveryService
             $handler = $this->findHandler($type);
 
             if ($handler === null) {
-                Log::warning('ResourceDeliveryService: Handler not found', [
+                $this->logger->warning('ResourceDeliveryService: Handler not found', [
                     'type' => $type,
                     'count' => $contents->count(),
                 ]);
@@ -208,7 +210,7 @@ class ResourceDeliveryService
                     $handler->handle($sysPlayerId, $content);
                     $content->markAsSendComplete();
                 } catch (\Throwable $e) {
-                    Log::error('ResourceDeliveryService: Handler failed', [
+                    $this->logger->error('ResourceDeliveryService: Handler failed', [
                         'type' => $type,
                         'content' => $content->toArray(),
                         'error' => $e->getMessage(),

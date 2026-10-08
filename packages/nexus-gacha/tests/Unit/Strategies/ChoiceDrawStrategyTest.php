@@ -2,6 +2,8 @@
 
 namespace NexusGacha\Tests\Unit\Strategies;
 
+use NexusGacha\DataTransferObjects\BonusContent;
+use NexusGacha\DataTransferObjects\StepBonus;
 use NexusGacha\Exceptions\GachaDrawException;
 use NexusGacha\Repositories\GachaPrizeRepositoryInterface;
 use NexusGacha\Repositories\GachaRarityRateRepositoryInterface;
@@ -81,7 +83,7 @@ class ChoiceDrawStrategyTest extends TestCase
         // findByIdでnullを返す
         $this->bonusContentRepository
             ->expects($this->once())
-            ->method('selectById')
+            ->method('selectContentById')
             ->with('candidate_001')
             ->willReturn(null);
 
@@ -101,7 +103,7 @@ class ChoiceDrawStrategyTest extends TestCase
 
         $this->bonusContentRepository
             ->expects($this->once())
-            ->method('selectById')
+            ->method('selectContentById')
             ->with('candidate_001')
             ->willReturn($candidate);
 
@@ -115,7 +117,7 @@ class ChoiceDrawStrategyTest extends TestCase
 
         $this->bonusContentRepository
             ->expects($this->once())
-            ->method('selectById')
+            ->method('selectContentById')
             ->with('candidate_001')
             ->willReturn($candidate);
 
@@ -131,54 +133,31 @@ class ChoiceDrawStrategyTest extends TestCase
     /**
      * ボーナスのモックを作成
      */
-    private function createBonusMock(string $selectionType, int $bonusRarity, bool $isPickupOnly, ?string $bonusId = null): object
+    private function createBonusMock(string $selectionType, int $bonusRarity, bool $isPickupOnly, ?string $bonusId = null): StepBonus
     {
-        return new class($selectionType, $bonusRarity, $isPickupOnly, $bonusId)
-        {
-            public function __construct(
-                private string $selectionType,
-                private int $bonusRarity,
-                private bool $isPickupOnly,
-                private ?string $bonusId
-            ) {}
-
-            public function getAttribute(string $key): mixed
-            {
-                return match ($key) {
-                    'selection_type' => $this->selectionType,
-                    'bonus_rarity' => $this->bonusRarity,
-                    'is_pickup_only' => $this->isPickupOnly,
-                    'id' => $this->bonusId,
-                    default => null,
-                };
-            }
-        };
+        return new StepBonus(
+            id: $bonusId ?? 'bonus_001',
+            position: 1,
+            bonusCount: 1,
+            selectionType: $selectionType,
+            bonusRarity: $bonusRarity,
+            isPickupOnly: $isPickupOnly,
+        );
     }
 
     /**
      * 候補のモックを作成
      */
-    private function createCandidateMock(string $bonusId, string $contentType, string $contentMstId, int $amount): object
+    private function createCandidateMock(string $bonusId, string $contentType, string $contentMstId, int $amount): BonusContent
     {
-        return new class($bonusId, $contentType, $contentMstId, $amount)
-        {
-            public function __construct(
-                private string $bonusId,
-                private string $contentType,
-                private string $contentMstId,
-                private int $amount
-            ) {}
-
-            public function getAttribute(string $key): mixed
-            {
-                return match ($key) {
-                    'mst_gacha_step_bonus_id' => $this->bonusId,
-                    'content_type' => $this->contentType,
-                    'content_mst_id' => $this->contentMstId,
-                    'amount' => $this->amount,
-                    default => null,
-                };
-            }
-        };
+        return new BonusContent(
+            id: "content_{$contentMstId}",
+            stepBonusId: $bonusId,
+            contentType: $contentType,
+            contentMstId: $contentMstId,
+            contentOption: null,
+            amount: $amount,
+            weight: 1,
+        );
     }
 }

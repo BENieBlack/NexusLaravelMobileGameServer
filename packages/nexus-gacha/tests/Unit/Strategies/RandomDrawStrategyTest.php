@@ -2,7 +2,8 @@
 
 namespace NexusGacha\Tests\Unit\Strategies;
 
-use Nexus\Core\Support\CustomCollection;
+use NexusGacha\DataTransferObjects\BonusContent;
+use NexusGacha\DataTransferObjects\StepBonus;
 use NexusGacha\Exceptions\GachaDrawException;
 use NexusGacha\Repositories\GachaPrizeRepositoryInterface;
 use NexusGacha\Repositories\GachaRarityRateRepositoryInterface;
@@ -73,7 +74,7 @@ class RandomDrawStrategyTest extends TestCase
             ->expects($this->once())
             ->method('selectByBonusId')
             ->with('bonus_001')
-            ->willReturn(new CustomCollection([]));
+            ->willReturn([]);
 
         $this->strategy->draw($bonus, null, 'gacha_001', $this->context);
     }
@@ -83,11 +84,11 @@ class RandomDrawStrategyTest extends TestCase
         $bonus = $this->createBonusMock('random', 5, false, 'bonus_001');
 
         // 3つの候補を作成
-        $candidates = new CustomCollection([
+        $candidates = [
             $this->createCandidateMock('Item', 'item_001', 100, 50),
             $this->createCandidateMock('Unit', 'unit_ssr_001', 1, 30),
             $this->createCandidateMock('Currency', 'gold', 10000, 20),
-        ]);
+        ];
 
         $this->bonusContentRepository
             ->expects($this->once())
@@ -109,10 +110,10 @@ class RandomDrawStrategyTest extends TestCase
         $bonus = $this->createBonusMock('random', 5, false, 'bonus_001');
 
         // 重み付き候補（weight=100のアイテムのみ）
-        $candidates = new CustomCollection([
+        $candidates = [
             $this->createCandidateMock('Item', 'guaranteed_item', 999, 100),
             $this->createCandidateMock('Item', 'rare_item', 1, 0), // weight=0なので選ばれない
-        ]);
+        ];
 
         $this->bonusContentRepository
             ->expects($this->once())
@@ -130,54 +131,31 @@ class RandomDrawStrategyTest extends TestCase
     /**
      * ボーナスのモックを作成
      */
-    private function createBonusMock(string $selectionType, int $bonusRarity, bool $isPickupOnly, ?string $bonusId = null): object
+    private function createBonusMock(string $selectionType, int $bonusRarity, bool $isPickupOnly, ?string $bonusId = null): StepBonus
     {
-        return new class($selectionType, $bonusRarity, $isPickupOnly, $bonusId)
-        {
-            public function __construct(
-                private string $selectionType,
-                private int $bonusRarity,
-                private bool $isPickupOnly,
-                private ?string $bonusId
-            ) {}
-
-            public function getAttribute(string $key): mixed
-            {
-                return match ($key) {
-                    'selection_type' => $this->selectionType,
-                    'bonus_rarity' => $this->bonusRarity,
-                    'is_pickup_only' => $this->isPickupOnly,
-                    'id' => $this->bonusId,
-                    default => null,
-                };
-            }
-        };
+        return new StepBonus(
+            id: $bonusId ?? 'bonus_001',
+            position: 1,
+            bonusCount: 1,
+            selectionType: $selectionType,
+            bonusRarity: $bonusRarity,
+            isPickupOnly: $isPickupOnly,
+        );
     }
 
     /**
      * 候補のモックを作成
      */
-    private function createCandidateMock(string $contentType, string $contentMstId, int $amount, int $weight): object
+    private function createCandidateMock(string $contentType, string $contentMstId, int $amount, int $weight): BonusContent
     {
-        return new class($contentType, $contentMstId, $amount, $weight)
-        {
-            public function __construct(
-                private string $contentType,
-                private string $contentMstId,
-                private int $amount,
-                private int $weight
-            ) {}
-
-            public function getAttribute(string $key): mixed
-            {
-                return match ($key) {
-                    'content_type' => $this->contentType,
-                    'content_mst_id' => $this->contentMstId,
-                    'amount' => $this->amount,
-                    'weight' => $this->weight,
-                    default => null,
-                };
-            }
-        };
+        return new BonusContent(
+            id: "content_{$contentMstId}",
+            stepBonusId: 'bonus_001',
+            contentType: $contentType,
+            contentMstId: $contentMstId,
+            contentOption: null,
+            amount: $amount,
+            weight: $weight,
+        );
     }
 }

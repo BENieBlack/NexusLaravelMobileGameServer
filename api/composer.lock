@@ -3408,14 +3408,15 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-resource-delivery",
-                "reference": "90594c9c2d2ecd2cfe2033b2889c0e9d1146e633"
+                "reference": "461685a687cca6e75aff44b0ecd118d99fcf5c59"
             },
             "require": {
                 "illuminate/database": "^10.0|^11.0|^12.0",
                 "illuminate/support": "^10.0|^11.0|^12.0",
                 "nexus/core": "@dev",
                 "nexus/resource": "*",
-                "php": "^8.4"
+                "php": "^8.4",
+                "psr/log": "^1.1|^2.0|^3.0"
             },
             "require-dev": {
                 "mockery/mockery": "^1.6",

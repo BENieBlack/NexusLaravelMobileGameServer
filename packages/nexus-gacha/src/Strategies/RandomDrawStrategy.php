@@ -2,7 +2,8 @@
 
 namespace NexusGacha\Strategies;
 
-use Illuminate\Database\Eloquent\Model;
+use NexusGacha\DataTransferObjects\BonusContent;
+use NexusGacha\DataTransferObjects\StepBonus;
 use NexusGacha\Exceptions\GachaDrawException;
 use NexusGacha\ValueObjects\GachaPrize;
 
@@ -36,32 +37,35 @@ class RandomDrawStrategy implements GachaDrawStrategyInterface
      *                            - CODE_EMPTY_ITEMS: 重み付き抽選で候補が空
      */
     public function draw(
-        mixed $bonus,
+        StepBonus $bonus,
         ?string $selectedCandidateId,
         string $mstGachaId,
         GachaDrawContext $context
     ): GachaPrize {
         // 1. 候補コンテンツを取得
-        $candidates = $context->bonusContentRepository->selectByBonusId($bonus->getAttribute('id'));
+        $candidates = $context->bonusContentRepository->selectByBonusId($bonus->getId());
 
         // 2. 候補が存在するか検証
-        if ($candidates->isEmpty()) {
+        if ($candidates === []) {
             throw new GachaDrawException(
-                "No candidates found for random selection (bonus_id: {$bonus->getAttribute('id')})",
+                "No candidates found for random selection (bonus_id: {$bonus->getId()})",
                 GachaDrawException::CODE_NO_CANDIDATES
             );
         }
 
         // 3. 重み付きランダム抽選
-        $candidate = $this->weightedRandom($candidates->all(), 'weight');
+        $candidate = $this->weightedRandom($candidates);
 
         // 4. 景品DTOを生成
         return new GachaPrize(
-            contentType: $candidate->getAttribute('content_type'),
-            contentMstId: $candidate->getAttribute('content_mst_id'),
-            contentOption: $candidate->getAttribute('content_option'),
-            amount: $candidate->getAttribute('amount'),
-            rarity: $bonus->getAttribute('bonus_rarity'),
+            contentType: $candidate->getContentType(),
+            contentMstId: $candidate->getContentMstId(),
+            contentOption: $candidate->getContentOption(),
+            amount: $candidate->getAmount(),
+            rarity: $bonus->getBonusRarity() ?? throw new GachaDrawException(
+                "Bonus rarity is required for {$bonus->getSelectionType()} type (bonus_id: {$bonus->getId()})",
+                GachaDrawException::CODE_MISSING_BONUS_RARITY
+            ),
             isGuaranteed: true
         );
     }
@@ -69,13 +73,12 @@ class RandomDrawStrategy implements GachaDrawStrategyInterface
     /**
      * 重み付きランダム抽選
      *
-     * @param  array<array-key, Model>  $items  候補アイテム配列
-     * @param  string  $weightKey  重みを取得するための属性キー
-     * @return mixed 抽選されたアイテム
+     * @param  list<BonusContent>  $items  候補アイテム配列
+     * @return BonusContent 抽選されたアイテム
      *
      * @throws GachaDrawException 候補が空の場合
      */
-    private function weightedRandom(array $items, string $weightKey): mixed
+    private function weightedRandom(array $items): BonusContent
     {
         if (empty($items)) {
             throw new GachaDrawException(
@@ -85,7 +88,7 @@ class RandomDrawStrategy implements GachaDrawStrategyInterface
         }
 
         // 総重みを計算
-        $totalWeight = array_sum(array_map(fn ($item) => $item->getAttribute($weightKey), $items));
+        $totalWeight = array_sum(array_map(fn (BonusContent $item) => $item->getWeight(), $items));
 
         // ランダム値を生成（1 ～ totalWeight）
         $rand = rand(1, $totalWeight);
@@ -93,7 +96,7 @@ class RandomDrawStrategy implements GachaDrawStrategyInterface
         // 累積重みで抽選
         $accumulated = 0;
         foreach ($items as $item) {
-            $accumulated += $item->getAttribute($weightKey);
+            $accumulated += $item->getWeight();
             if ($rand <= $accumulated) {
                 return $item;
             }

@@ -2,7 +2,9 @@
 
 namespace NexusGacha\Strategies;
 
-use Illuminate\Database\Eloquent\Model;
+use NexusGacha\DataTransferObjects\PrizeCandidate;
+use NexusGacha\DataTransferObjects\RarityRate;
+use NexusGacha\DataTransferObjects\StepBonus;
 use NexusGacha\Exceptions\GachaDrawException;
 use NexusGacha\ValueObjects\GachaPrize;
 
@@ -37,13 +39,13 @@ class NoneDrawStrategy implements GachaDrawStrategyInterface
      *                            - CODE_NO_PRIZES: 景品データが見つからない
      */
     public function draw(
-        mixed $bonus,
+        StepBonus $bonus,
         ?string $selectedCandidateId,
         string $mstGachaId,
         GachaDrawContext $context
     ): GachaPrize {
-        $bonusRarity = $bonus->getAttribute('bonus_rarity');
-        $isPickupOnly = $bonus->getAttribute('is_pickup_only');
+        $bonusRarity = $bonus->getBonusRarity();
+        $isPickupOnly = $bonus->isPickupOnly();
 
         // 1. レアリティが指定されている場合は確定抽選
         if ($bonusRarity) {
@@ -85,7 +87,7 @@ class NoneDrawStrategy implements GachaDrawStrategyInterface
     {
         $rarityRates = $context->rarityRateRepository->selectByGachaId($mstGachaId);
 
-        if ($rarityRates->isEmpty()) {
+        if ($rarityRates === []) {
             throw new GachaDrawException(
                 "No rarity rates found for gacha: {$mstGachaId}",
                 GachaDrawException::CODE_NO_RARITY_RATES
@@ -93,15 +95,15 @@ class NoneDrawStrategy implements GachaDrawStrategyInterface
         }
 
         // 総確率を計算
-        $totalRate = $rarityRates->sum('rate');
+        $totalRate = array_sum(array_map(fn (RarityRate $rarityRate) => $rarityRate->getRate(), $rarityRates));
         $rand = rand(1, $totalRate);
 
         // 累積確率で抽選
         $accumulated = 0;
         foreach ($rarityRates as $rarityRate) {
-            $accumulated += $rarityRate->getAttribute('rate');
+            $accumulated += $rarityRate->getRate();
             if ($rand <= $accumulated) {
-                return $rarityRate->getAttribute('rarity');
+                return $rarityRate->getRarity();
             }
         }
 
@@ -131,11 +133,11 @@ class NoneDrawStrategy implements GachaDrawStrategyInterface
         $prizes = $context->prizeRepository->selectByGachaIdAndRarity($mstGachaId, $rarity, $pickupOnly);
 
         // ピックアップのみで景品がない場合は通常景品から
-        if ($prizes->isEmpty() && $pickupOnly) {
+        if ($prizes === [] && $pickupOnly) {
             $prizes = $context->prizeRepository->selectByGachaIdAndRarity($mstGachaId, $rarity, false);
         }
 
-        if ($prizes->isEmpty()) {
+        if ($prizes === []) {
             throw new GachaDrawException(
                 'No prizes available for selection',
                 GachaDrawException::CODE_NO_PRIZES
@@ -143,13 +145,13 @@ class NoneDrawStrategy implements GachaDrawStrategyInterface
         }
 
         // 重み付きランダム抽選
-        $prize = $this->weightedRandom($prizes->all(), 'weight');
+        $prize = $this->weightedRandom($prizes);
 
         return new GachaPrize(
-            contentType: $prize->getAttribute('content_type'),
-            contentMstId: $prize->getAttribute('content_mst_id'),
-            contentOption: $prize->getAttribute('content_option'),
-            amount: $prize->getAttribute('amount'),
+            contentType: $prize->getContentType(),
+            contentMstId: $prize->getContentMstId(),
+            contentOption: $prize->getContentOption(),
+            amount: $prize->getAmount(),
             rarity: $rarity,
             isGuaranteed: $isGuaranteed
         );
@@ -158,13 +160,12 @@ class NoneDrawStrategy implements GachaDrawStrategyInterface
     /**
      * 重み付きランダム抽選
      *
-     * @param  array<array-key, Model>  $items  候補アイテム配列
-     * @param  string  $weightKey  重みを取得するための属性キー
-     * @return mixed 抽選されたアイテム
+     * @param  list<PrizeCandidate>  $items  候補アイテム配列
+     * @return PrizeCandidate 抽選されたアイテム
      *
      * @throws GachaDrawException 候補が空の場合
      */
-    private function weightedRandom(array $items, string $weightKey): mixed
+    private function weightedRandom(array $items): PrizeCandidate
     {
         if (empty($items)) {
             throw new GachaDrawException(
@@ -173,12 +174,12 @@ class NoneDrawStrategy implements GachaDrawStrategyInterface
             );
         }
 
-        $totalWeight = array_sum(array_map(fn ($item) => $item->getAttribute($weightKey), $items));
+        $totalWeight = array_sum(array_map(fn (PrizeCandidate $item) => $item->getWeight(), $items));
         $rand = rand(1, $totalWeight);
 
         $accumulated = 0;
         foreach ($items as $item) {
-            $accumulated += $item->getAttribute($weightKey);
+            $accumulated += $item->getWeight();
             if ($rand <= $accumulated) {
                 return $item;
             }

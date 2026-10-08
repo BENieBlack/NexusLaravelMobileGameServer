@@ -2,6 +2,7 @@
 
 namespace NexusGacha\Services;
 
+use NexusGacha\DataTransferObjects\StepBonus;
 use NexusGacha\Exceptions\GachaDrawException;
 use NexusGacha\Repositories\GachaPrizeRepositoryInterface;
 use NexusGacha\Repositories\GachaRarityRateRepositoryInterface;
@@ -84,12 +85,10 @@ class GachaDrawService
         // ステップアップガチャの場合、ステップ情報を取得
         $stepBonusList = [];
         if ($hasStepUp) {
-            $step = $this->stepRepository->selectByGachaIdAndNumber($mstGachaId, $currentStep);
-            if ($step) {
+            $stepId = $this->stepRepository->selectStepIdByGachaIdAndNumber($mstGachaId, $currentStep);
+            if ($stepId !== null) {
                 // ステップのボーナス景品リストを取得
-                $stepBonusList = $this->stepBonusRepository
-                    ->selectByStepId($step->getAttribute('id'))
-                    ->all();
+                $stepBonusList = $this->stepBonusRepository->selectByStepId($stepId);
             }
         }
 
@@ -98,9 +97,9 @@ class GachaDrawService
             $position = $i + 1;
 
             // この位置にボーナス景品があるかチェック
-            $bonus = collect($stepBonusList)->firstWhere('position', $position);
+            $bonus = $this->findBonusAt($stepBonusList, $position);
 
-            if ($bonus) {
+            if ($bonus !== null) {
                 // ボーナス景品を抽選
                 $prize = $this->drawBonus($bonus, $selectedCandidateId, $mstGachaId);
             } else {
@@ -112,9 +111,9 @@ class GachaDrawService
         }
 
         // position=0（ランダム位置）のボーナス景品を処理
-        $randomBonusList = collect($stepBonusList)->where('position', 0)->values();
+        $randomBonusList = array_filter($stepBonusList, fn (StepBonus $bonus) => $bonus->getPosition() === 0);
         foreach ($randomBonusList as $bonus) {
-            for ($i = 0; $i < $bonus->getAttribute('bonus_count'); $i++) {
+            for ($i = 0; $i < $bonus->getBonusCount(); $i++) {
                 $prize = $this->drawBonus($bonus, $selectedCandidateId, $mstGachaId);
                 // ランダムな位置に挿入
                 $randomPosition = rand(0, count($prizes) - 1);
@@ -123,6 +122,22 @@ class GachaDrawService
         }
 
         return $prizes;
+    }
+
+    /**
+     * 指定位置のボーナス枠を探す
+     *
+     * @param  list<StepBonus>  $stepBonusList
+     */
+    private function findBonusAt(array $stepBonusList, int $position): ?StepBonus
+    {
+        foreach ($stepBonusList as $bonus) {
+            if ($bonus->getPosition() === $position) {
+                return $bonus;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -139,18 +154,14 @@ class GachaDrawService
         $noneStrategy = new NoneDrawStrategy;
 
         // bonus_rarityとis_pickup_onlyを持たないダミーボーナスを作成
-        $dummyBonus = new class
-        {
-            public function getAttribute(string $key): mixed
-            {
-                return match ($key) {
-                    'bonus_rarity' => null,
-                    'is_pickup_only' => false,
-                    'selection_type' => 'none',
-                    default => null,
-                };
-            }
-        };
+        $dummyBonus = new StepBonus(
+            id: '',
+            position: 0,
+            bonusCount: 0,
+            selectionType: 'none',
+            bonusRarity: null,
+            isPickupOnly: false,
+        );
 
         return $noneStrategy->draw($dummyBonus, null, $mstGachaId, $this->context);
     }
@@ -158,16 +169,16 @@ class GachaDrawService
     /**
      * ボーナス景品抽選
      *
-     * @param  mixed  $bonus  ボーナス情報
+     * @param  StepBonus  $bonus  ボーナス情報
      * @param  string|null  $selectedCandidateId  ユーザーが選択したコンテンツID
      * @param  string  $mstGachaId  ガチャID
      * @return GachaPrize 抽選結果
      *
      * @throws GachaDrawException 抽選に失敗した場合
      */
-    private function drawBonus($bonus, ?string $selectedCandidateId, string $mstGachaId): GachaPrize
+    private function drawBonus(StepBonus $bonus, ?string $selectedCandidateId, string $mstGachaId): GachaPrize
     {
-        $selectionType = $bonus->getAttribute('selection_type');
+        $selectionType = $bonus->getSelectionType();
 
         // 対応するStrategyを検索
         foreach ($this->strategies as $strategy) {

@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\Repositories\Mst;
 
-use App\Models\Mst\MstGachaStepBonus;
 use App\Models\Mst\MstGachaStepBonusContent;
 use App\Repositories\Mst\MstGachaStepBonusContentRepository;
 use App\Repositories\Mst\MstGachaStepBonusRepository;
 use Illuminate\Support\Facades\DB;
+use NexusGacha\DataTransferObjects\StepBonus;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
@@ -58,7 +58,7 @@ class MstGachaStepBonusRepositoryTest extends TestCase
         $bonuses = $this->bonusRepository->selectByStepId('step_1');
 
         $this->assertCount(1, $bonuses);
-        $this->assertSame('bonus_1', $bonuses->first()->getAttribute('id'));
+        $this->assertSame('bonus_1', $bonuses[0]->getId());
     }
 
     #[Test]
@@ -71,8 +71,7 @@ class MstGachaStepBonusRepositoryTest extends TestCase
 
         $this->assertSame(
             ['bonus_1', 'bonus_2', 'bonus_3'],
-            $this->bonusRepository->selectByStepId('step_1')
-                ->map(fn (MstGachaStepBonus $bonus) => $bonus->getAttribute('id'))->all()
+            array_map(fn (StepBonus $bonus) => $bonus->getId(), $this->bonusRepository->selectByStepId('step_1'))
         );
     }
 
@@ -85,7 +84,7 @@ class MstGachaStepBonusRepositoryTest extends TestCase
         $bonuses = $this->bonusRepository->selectByStepId('step_1');
 
         $this->assertCount(1, $bonuses);
-        $this->assertSame('bonus_on', $bonuses->first()->getAttribute('id'));
+        $this->assertSame('bonus_on', $bonuses[0]->getId());
     }
 
     #[Test]
@@ -107,7 +106,8 @@ class MstGachaStepBonusRepositoryTest extends TestCase
         $contents = $this->contentRepository->selectByBonusId('bonus_1');
 
         $this->assertCount(1, $contents);
-        $this->assertSame('content_1', $contents->first()->getAttribute('id'));
+        $this->assertSame('content_1', $contents[0]->getId());
+        $this->assertSame('bonus_1', $contents[0]->getStepBonusId());
     }
 
     #[Test]
@@ -157,6 +157,19 @@ class MstGachaStepBonusRepositoryTest extends TestCase
     public function 存在しないidはnullを返す(): void
     {
         $this->assertNull($this->contentRepository->selectById('no_such_content'));
+    }
+
+    #[Test]
+    public function 中身はidで_dt_oとしても引ける(): void
+    {
+        $this->makeContent('content_1', bonusId: 'bonus_1', sortOrder: 1, contentMstId: 'item_potion');
+
+        $content = $this->contentRepository->selectContentById('content_1');
+
+        $this->assertNotNull($content);
+        $this->assertSame('bonus_1', $content->getStepBonusId());
+        $this->assertSame('item_potion', $content->getContentMstId());
+        $this->assertNull($this->contentRepository->selectContentById('no_such_content'));
     }
 
     #[Test]

@@ -10,11 +10,9 @@ namespace NexusGacha\Repositories;
 interface GachaStepRepositoryInterface
 {
     /**
-     * ガチャIDとステップ番号でステップ情報を取得
+     * ガチャIDとステップ番号でステップIDを取得
      *
-     * @param  string  $mstGachaId
-     * @param  int  $stepNumber
-     * @return mixed|null
+     * @return string|null ステップが無ければnull
      */
-    public function selectByGachaIdAndNumber(string $mstGachaId, int $stepNumber): mixed;
+    public function selectStepIdByGachaIdAndNumber(string $mstGachaId, int $stepNumber): ?string;
 }

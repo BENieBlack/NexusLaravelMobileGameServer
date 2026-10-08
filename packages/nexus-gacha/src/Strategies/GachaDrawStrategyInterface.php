@@ -2,6 +2,7 @@
 
 namespace NexusGacha\Strategies;
 
+use NexusGacha\DataTransferObjects\StepBonus;
 use NexusGacha\Exceptions\GachaDrawException;
 use NexusGacha\ValueObjects\GachaPrize;
 
@@ -30,7 +31,7 @@ interface GachaDrawStrategyInterface
     /**
      * ボーナス景品を抽選
      *
-     * @param  mixed  $bonus  ボーナス情報（MstGachaStepBonusモデル）
+     * @param  StepBonus  $bonus  ボーナス枠
      * @param  string|null  $selectedCandidateId  ユーザーが選択したコンテンツID（choice型の場合）
      * @param  string  $mstGachaId  ガチャID
      * @param  GachaDrawContext  $context  抽選に必要な依存オブジェクト
@@ -39,7 +40,7 @@ interface GachaDrawStrategyInterface
      * @throws GachaDrawException 抽選に失敗した場合
      */
     public function draw(
-        mixed $bonus,
+        StepBonus $bonus,
         ?string $selectedCandidateId,
         string $mstGachaId,
         GachaDrawContext $context

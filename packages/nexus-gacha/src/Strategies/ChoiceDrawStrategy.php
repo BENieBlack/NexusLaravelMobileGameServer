@@ -2,6 +2,7 @@
 
 namespace NexusGacha\Strategies;
 
+use NexusGacha\DataTransferObjects\StepBonus;
 use NexusGacha\Exceptions\GachaDrawException;
 use NexusGacha\ValueObjects\GachaPrize;
 
@@ -35,7 +36,7 @@ class ChoiceDrawStrategy implements GachaDrawStrategyInterface
      *                            - CODE_INVALID_CANDIDATE: 指定されたIDが無効（存在しない、またはボーナスIDと不一致）
      */
     public function draw(
-        mixed $bonus,
+        StepBonus $bonus,
         ?string $selectedCandidateId,
         string $mstGachaId,
         GachaDrawContext $context
@@ -49,10 +50,10 @@ class ChoiceDrawStrategy implements GachaDrawStrategyInterface
         }
 
         // 2. 選択されたコンテンツの取得
-        $candidate = $context->bonusContentRepository->selectById($selectedCandidateId);
+        $candidate = $context->bonusContentRepository->selectContentById($selectedCandidateId);
 
         // 3. コンテンツの妥当性検証
-        if (! $candidate || $candidate->getAttribute('mst_gacha_step_bonus_id') !== $bonus->getAttribute('id')) {
+        if ($candidate === null || $candidate->getStepBonusId() !== $bonus->getId()) {
             throw new GachaDrawException(
                 "Invalid candidate ID: {$selectedCandidateId}",
                 GachaDrawException::CODE_INVALID_CANDIDATE
@@ -61,11 +62,14 @@ class ChoiceDrawStrategy implements GachaDrawStrategyInterface
 
         // 4. 景品DTOを生成
         return new GachaPrize(
-            contentType: $candidate->getAttribute('content_type'),
-            contentMstId: $candidate->getAttribute('content_mst_id'),
-            contentOption: $candidate->getAttribute('content_option'),
-            amount: $candidate->getAttribute('amount'),
-            rarity: $bonus->getAttribute('bonus_rarity'),
+            contentType: $candidate->getContentType(),
+            contentMstId: $candidate->getContentMstId(),
+            contentOption: $candidate->getContentOption(),
+            amount: $candidate->getAmount(),
+            rarity: $bonus->getBonusRarity() ?? throw new GachaDrawException(
+                "Bonus rarity is required for {$bonus->getSelectionType()} type (bonus_id: {$bonus->getId()})",
+                GachaDrawException::CODE_MISSING_BONUS_RARITY
+            ),
             isGuaranteed: true
         );
     }

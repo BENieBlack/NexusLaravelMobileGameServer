@@ -2,9 +2,11 @@
 
 namespace NexusLevel\Services;
 
+use Illuminate\Contracts\Events\Dispatcher;
 use Nexus\Core\DataTransferObjects\Player;
 use Nexus\Core\Repositories\PlayerRepositoryInterface;
 use NexusLevel\Contracts\PlayerLevelUpHandlerInterface;
+use NexusLevel\Events\PlayerLeveledUp;
 use NexusLevel\Repositories\PlayerLevelRepositoryInterface;
 
 /**
@@ -30,6 +32,7 @@ class PlayerLevelService extends _BaseLevelService
         private readonly PlayerRepositoryInterface $playerRepository,
         private readonly PlayerLevelRepositoryInterface $levelRepository,
         private readonly ?PlayerLevelUpHandlerInterface $levelUpHandler = null,
+        private readonly ?Dispatcher $events = null,
     ) {}
 
     /**
@@ -196,6 +199,9 @@ class PlayerLevelService extends _BaseLevelService
     {
         /** @var Player $entity */
         $this->levelUpHandler?->handle($entity->getId(), $beforeLevel, $afterLevel);
+
+        // 受け手を複数持てるよう、ドメインイベントとしても配信する
+        $this->events?->dispatch(new PlayerLeveledUp($entity->getId(), $beforeLevel, $afterLevel));
     }
 
     // ========================================

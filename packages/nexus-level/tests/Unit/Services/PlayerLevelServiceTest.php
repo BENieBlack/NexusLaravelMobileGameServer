@@ -2,10 +2,12 @@
 
 namespace NexusLevel\Tests\Unit\Services;
 
+use Illuminate\Contracts\Events\Dispatcher;
 use Nexus\Core\Contracts\PlayerModelInterface;
 use Nexus\Core\DataTransferObjects\Player;
 use Nexus\Core\Repositories\PlayerRepositoryInterface;
 use NexusLevel\Contracts\PlayerLevelUpHandlerInterface;
+use NexusLevel\Events\PlayerLeveledUp;
 use NexusLevel\Repositories\PlayerLevelRepositoryInterface;
 use NexusLevel\Services\PlayerLevelService;
 use PHPUnit\Framework\Attributes\Test;
@@ -139,6 +141,34 @@ class PlayerLevelServiceTest extends TestCase
 
         $this->assertTrue($result['is_leveled_up']);
         $this->assertSame([[self::PLAYER_ID, 2, 100]], $players->persisted);
+    }
+
+    #[Test]
+    public function レベルアップするとイベントが配信される(): void
+    {
+        $events = $this->createMock(Dispatcher::class);
+        $events->expects($this->once())
+            ->method('dispatch')
+            ->with($this->callback(fn (PlayerLeveledUp $event) => $event->sysPlayerId === self::PLAYER_ID
+                && $event->beforeLevel === 1
+                && $event->afterLevel === 3));
+
+        $players = $this->makePlayerRepository(level: 1, levelExp: 0);
+        $service = new PlayerLevelService($players, new FakePlayerLevelRepository(self::LEVELS), null, $events);
+
+        $service->addExp(self::PLAYER_ID, 300);
+    }
+
+    #[Test]
+    public function レベルが上がらなければイベントは配信されない(): void
+    {
+        $events = $this->createMock(Dispatcher::class);
+        $events->expects($this->never())->method('dispatch');
+
+        $players = $this->makePlayerRepository(level: 1, levelExp: 0);
+        $service = new PlayerLevelService($players, new FakePlayerLevelRepository(self::LEVELS), null, $events);
+
+        $service->addExp(self::PLAYER_ID, 50);
     }
 
     #[Test]

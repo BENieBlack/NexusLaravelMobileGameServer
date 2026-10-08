@@ -255,6 +255,8 @@ class SysDeployMaster extends _BaseSys
 
     /**
      * テーブル単位SQLiteの配信情報を取得
+     *
+     * @return HasMany<SysDeployMasterTable, $this>
      */
     public function tables(): HasMany
     {

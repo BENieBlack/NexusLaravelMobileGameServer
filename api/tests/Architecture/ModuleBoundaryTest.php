@@ -33,14 +33,6 @@ class ModuleBoundaryTest extends TestCase
      * @var list<string>
      */
     private const CROSS_CONTEXT_BASELINE = [
-        'app/Domain/Auth/UseCases/SignUpUseCase.php -> Sharding',
-        'app/Domain/Equipment/UseCases/LevelUpUseCase.php -> Item',
-        'app/Domain/Gacha/Services/GachaCostService.php -> InAppPurchase',
-        'app/Domain/Gacha/Services/GachaCostService.php -> Item',
-        'app/Domain/InAppPurchase/Services/InAppPurchasePackService.php -> Item',
-        'app/Domain/Player/Services/ExperienceGranterAdapter.php -> Equipment',
-        'app/Domain/Player/Services/ExperienceGranterAdapter.php -> Unit',
-        'app/Domain/Unit/UseCases/LevelUpUseCase.php -> Item',
     ];
 
     /**
@@ -112,7 +104,8 @@ class ModuleBoundaryTest extends TestCase
             foreach ($this->phpFiles($contextDir) as $file) {
                 $code = $this->stripComments((string) file_get_contents($file));
 
-                preg_match_all('/App\\\\Domain\\\\([A-Za-z]+)\\\\/', $code, $matches);
+                // 他モジュールの公開API（App\Domain\{Other}\Contracts\...）は参照してよい
+                preg_match_all('/App\\\\Domain\\\\([A-Za-z]+)\\\\(?!Contracts\\\\)/', $code, $matches);
 
                 $referenced = array_unique($matches[1]);
                 sort($referenced);
@@ -130,7 +123,7 @@ class ModuleBoundaryTest extends TestCase
             $violations,
             self::CROSS_CONTEXT_BASELINE,
             '他コンテキストの内部クラス（App\\Domain\\{Other}\\...）を直接参照しないでください。'
-            .'パッケージ側の契約（Contracts / RepositoryInterface）を経由してください。'
+            .'相手のモジュールの公開API（App\\Domain\\{Other}\\Contracts\\）か、パッケージ側の契約を経由してください。'
         );
     }
 

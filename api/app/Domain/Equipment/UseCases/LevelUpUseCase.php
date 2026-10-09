@@ -5,7 +5,7 @@ namespace App\Domain\Equipment\UseCases;
 use App\Domain\_BaseUseCase;
 use App\Domain\Equipment\DataTransferObjects\LevelUpResult;
 use App\Domain\Equipment\Services\EquipmentLevelService;
-use App\Domain\Item\Services\ItemService;
+use App\Domain\Item\Contracts\ItemInventoryInterface;
 use App\Exceptions\BusinessLogicException;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
@@ -39,7 +39,7 @@ class LevelUpUseCase extends _BaseUseCase
 
     public function __construct(
         private readonly EquipmentLevelService $equipmentLevelService,
-        private readonly ItemService $itemService,
+        private readonly ItemInventoryInterface $itemService,
         private readonly MstItemRepository $mstItemRepository,
         private readonly TrxEquipmentRepository $trxEquipmentRepository,
         private readonly LogEquipmentRepository $logEquipmentRepository,

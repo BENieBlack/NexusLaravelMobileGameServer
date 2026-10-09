@@ -5,7 +5,7 @@ namespace App\Domain\Auth\UseCases;
 use App\Domain\_BaseUseCase;
 use App\Domain\Auth\DataTransferObjects\SignUpResult;
 use App\Domain\Auth\Traits\BuildsSysPlayerToken;
-use App\Domain\Sharding\Services\ShardAssignmentService;
+use App\Domain\Sharding\Contracts\ShardAssignerInterface;
 use App\Exceptions\BusinessLogicException;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
 use App\Repositories\Sys\SysPlayerRepository;
@@ -32,7 +32,7 @@ class SignUpUseCase extends _BaseUseCase
         private readonly PlayerDeviceRepositoryInterface $deviceRepository,
         private readonly SysPlayerDeviceRepository $sysPlayerDeviceRepository,
         private readonly SysPlayerRepository $sysPlayerRepository,
-        private readonly ShardAssignmentService $shardAssignmentService,
+        private readonly ShardAssignerInterface $shardAssignmentService,
     ) {}
 
     /**

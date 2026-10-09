@@ -1867,7 +1867,25 @@ class DeliveryService
 
 ---
 
-### 3. ドメインイベント（コンテキスト間の連携）
+### 3. モジュールの公開API（コンテキスト間の同期呼び出し）
+
+他のコンテキストの処理をその場で呼ぶ必要があるとき（結果や「足りない」例外が要るとき）は、
+相手のモジュールが `app/Domain/{Context}/Contracts/` に置いたインターフェースだけを使う。
+内部の `Services/` などを直接参照しない（`tests/Architecture/ModuleBoundaryTest.php` で検出する）。
+
+| 公開API | 実装 | 使う側 |
+|---|---|---|
+| `Item\Contracts\ItemInventoryInterface` | `ItemService` | 装備・ユニットの強化、ガチャのコスト、課金パック |
+| `InAppPurchase\Contracts\DiamondBalanceInterface` | `InAppPurchaseDiamondBalanceService` | ガチャのコスト |
+| `Sharding\Contracts\ShardAssignerInterface` | `ShardAssignmentService` | サインアップ |
+| `Equipment\Contracts\EquipmentExperienceInterface` | `EquipmentLevelService` | 経験値の配布 |
+| `Unit\Contracts\UnitExperienceInterface` | `UnitLevelService` | 経験値の配布 |
+
+- 公開APIには、他のモジュールが実際に使うメソッドだけを載せる
+- 実装との対応は `AppServiceProvider` で `bind` する
+- 結果を待たずに「起きたこと」を伝えるだけなら、次のドメインイベントを使う
+
+### 4. ドメインイベント（コンテキスト間の連携）
 
 あるコンテキストの出来事に別のコンテキストが反応するときは、直接Serviceを呼ばずにドメインイベントでつなぐ。
 発行側は受け手を知らないので、受け手を増やしても発行側を変えずに済む。

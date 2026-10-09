@@ -106,7 +106,7 @@ Service層で`->save()`, `->update()`, `->delete()`, `->forceDelete()`を直接�
 | ルール | 内容 |
 |---|---|
 | Domain → Http 禁止 | UseCaseはDTOを返し、Responseへの変換はControllerで行う |
-| コンテキスト間の直接参照禁止 | `App\Domain\{Other}\...` を参照しない（`Common` は共有領域として許可） |
+| コンテキスト間の直接参照禁止 | `App\Domain\{Other}\...` を参照しない。相手の公開API `App\Domain\{Other}\Contracts\` は許可（`Common` は共有領域として許可） |
 | ドメインパッケージのフレームワーク依存禁止 | `Illuminate\Database` / `Illuminate\Support\Facades` / `Illuminate\Http` を参照しない（`nexus-core*` などの技術基盤パッケージは対象外） |
 
 既存の違反はテスト内の許可リスト（ベースライン）に載せている。許可リストはラチェットとして扱い、

@@ -2,6 +2,7 @@
 
 namespace App\Domain\Item\Services;
 
+use App\Domain\Item\Contracts\ItemInventoryInterface;
 use App\Domain\Item\Support\WalletItemMigrator;
 use App\Models\Trx\TrxItem;
 use App\Repositories\Mst\MstItemRepository;
@@ -25,7 +26,7 @@ use NexusWallet\Services\WalletService;
  * Note: ビジネスロジックはパッケージ層（NexusResource\Services\ItemService /
  * NexusWallet\Services\WalletService）に存在する。
  */
-class ItemService
+class ItemService implements ItemInventoryInterface
 {
     public function __construct(
         private readonly PackageItemService $packageItemService,

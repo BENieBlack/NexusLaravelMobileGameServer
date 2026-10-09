@@ -3,15 +3,25 @@
 namespace App\Providers;
 
 use App\Domain\Album\Handlers\AlbumRecordingDeliveryHandler;
+use App\Domain\Equipment\Contracts\EquipmentExperienceInterface;
+use App\Domain\Equipment\Services\EquipmentLevelService;
+use App\Domain\InAppPurchase\Contracts\DiamondBalanceInterface;
+use App\Domain\InAppPurchase\Services\InAppPurchaseDiamondBalanceService;
+use App\Domain\Item\Contracts\ItemInventoryInterface;
 use App\Domain\Item\Services\ItemGranterAdapter;
+use App\Domain\Item\Services\ItemService;
 use App\Domain\Item\Support\WalletItemMigrator;
 use App\Domain\Login\Services\ComeBackLoginBonusService;
 use App\Domain\Login\Services\LoginBonusService;
 use App\Domain\Login\Services\VipLoginBonusService;
 use App\Domain\Player\Services\ExperienceGranterAdapter;
 use App\Domain\Player\Services\PlayerLevelServiceAdapter;
+use App\Domain\Sharding\Contracts\ShardAssignerInterface;
+use App\Domain\Sharding\Services\ShardAssignmentService;
 use App\Domain\Stamina\Listeners\RecoverStaminaOnPlayerLevelUp;
 use App\Domain\Stamina\Services\StaminaGranterAdapter;
+use App\Domain\Unit\Contracts\UnitExperienceInterface;
+use App\Domain\Unit\Services\UnitLevelService;
 use App\Exceptions\GameErrorCode;
 use App\Persistence\ApiSession;
 use App\Repositories\Log\LogVipPointRepository;
@@ -219,6 +229,14 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(PlayerLevelRepositoryInterface::class, PlayerLevelRepositoryAdapter::class);
 
         // レベルアップ時のゲーム固有処理は PlayerLeveledUp の受け手として boot() で登録する
+
+        // モジュールの公開API（app/Domain/{Context}/Contracts）
+        // 他のモジュールは内部のServiceではなく、これらのインターフェースだけを参照する
+        $this->app->bind(ItemInventoryInterface::class, ItemService::class);
+        $this->app->bind(DiamondBalanceInterface::class, InAppPurchaseDiamondBalanceService::class);
+        $this->app->bind(ShardAssignerInterface::class, ShardAssignmentService::class);
+        $this->app->bind(EquipmentExperienceInterface::class, EquipmentLevelService::class);
+        $this->app->bind(UnitExperienceInterface::class, UnitLevelService::class);
 
         // ==========================================
         // NexusVip Package Bindings

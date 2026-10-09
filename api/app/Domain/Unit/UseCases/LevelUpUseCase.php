@@ -3,7 +3,7 @@
 namespace App\Domain\Unit\UseCases;
 
 use App\Domain\_BaseUseCase;
-use App\Domain\Item\Services\ItemService;
+use App\Domain\Item\Contracts\ItemInventoryInterface;
 use App\Domain\Unit\DataTransferObjects\LevelUpResult;
 use App\Domain\Unit\Services\UnitLevelService;
 use App\Exceptions\BusinessLogicException;
@@ -35,7 +35,7 @@ class LevelUpUseCase extends _BaseUseCase
 
     public function __construct(
         private readonly UnitLevelService $unitLevelService,
-        private readonly ItemService $itemService,
+        private readonly ItemInventoryInterface $itemService,
         private readonly TrxUnitRepository $trxUnitRepository,
         private readonly MstItemRepository $mstItemRepository,
     ) {}

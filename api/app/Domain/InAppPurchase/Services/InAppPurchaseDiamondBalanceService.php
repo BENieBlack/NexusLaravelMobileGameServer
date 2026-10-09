@@ -2,6 +2,7 @@
 
 namespace App\Domain\InAppPurchase\Services;
 
+use App\Domain\InAppPurchase\Contracts\DiamondBalanceInterface;
 use App\Models\Trx\TrxDiamondBalance;
 use App\Repositories\Trx\TrxDiamondBalanceRepository;
 use NexusResource\Services\DiamondService as PackageDiamondService;
@@ -21,7 +22,7 @@ use NexusResource\Services\DiamondService as PackageDiamondService;
  *
  * Note: コアのビジネスロジックはパッケージ層（NexusResource\Services\DiamondService）に存在
  */
-class InAppPurchaseDiamondBalanceService
+class InAppPurchaseDiamondBalanceService implements DiamondBalanceInterface
 {
     public function __construct(
         private readonly PackageDiamondService $packageDiamondService,

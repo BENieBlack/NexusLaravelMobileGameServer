@@ -8,6 +8,7 @@ use App\Repositories\Mst\_BaseMstRepository;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Mockery\MockInterface;
 use Nexus\Core\Models\_BaseModel;
 use Nexus\Core\Models\Mst\_BaseMst;
 use Nexus\Core\Utilities\ClockUtility;
@@ -43,6 +44,39 @@ abstract class TestCase extends BaseTestCase
 
         // Clockをリセット（各テストで独立した時刻を使用）
         ClockUtility::reset();
+
+        $this->beforeApplicationDestroyed(fn () => $this->releaseDatabaseConnections());
+    }
+
+    /**
+     * テストで使った接続のトランザクションを巻き戻し、接続を閉じる
+     *
+     * 失敗したテストが開いたままのトランザクションを残すと、PDOが解放されるまで
+     * MySQLのメタデータロックを握り続ける。後続テストのTRUNCATEやDDLがその解放を
+     * 無期限に待ち、テスト全体が止まる（CIで6時間止まった原因）。
+     * テストの成否に関わらず、ここで確実に解放する。
+     */
+    private function releaseDatabaseConnections(): void
+    {
+        $database = $this->app['db'];
+
+        // DBファサードをモックに差し替えたテストでは、実接続を持たない
+        if ($database instanceof MockInterface) {
+            return;
+        }
+
+        foreach ($database->getConnections() as $connection) {
+            // 未接続（遅延接続のクロージャ）や切断済みの接続はトランザクションを持たない
+            if (! $connection->getRawPdo() instanceof \PDO) {
+                continue;
+            }
+
+            if ($connection->transactionLevel() > 0) {
+                $connection->rollBack(0);
+            }
+
+            $connection->disconnect();
+        }
     }
 
     /**

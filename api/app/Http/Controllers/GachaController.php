@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Domain\Gacha\UseCases\DrawUseCase;
 use App\Http\Requests\Gacha\DrawRequest;
+use App\Http\Responses\Gacha\DrawResponse;
 use App\Persistence\ApiSession;
 use Illuminate\Http\JsonResponse;
 
@@ -31,12 +32,12 @@ class GachaController extends _BaseController
         return $this->execute(function () use ($request) {
             $sysPlayerId = $this->apiSession->getSysPlayerId();
 
-            return $this->drawUseCase->exec(
+            return DrawResponse::fromResult($this->drawUseCase->exec(
                 sysPlayerId: $sysPlayerId,
                 mstGachaId: $request->getMstGachaId(),
                 drawCount: $request->getDrawCount(),
                 selectedCandidateId: $request->getSelectedCandidateId(),
-            );
+            ));
         });
     }
 }

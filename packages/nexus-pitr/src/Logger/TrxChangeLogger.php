@@ -32,7 +32,9 @@ class TrxChangeLogger
             $trxConn = $dto->getShardConnection();
 
             try {
-                $logConn = $trxConn;
+                // 現在はtrxとlogが同じシャードDBに同居しているため同じ接続名が返るが、
+                // 対応表はShardMapperに一本化しておく（不正な接続名はここで弾く）
+                $logConn = ShardMapper::resolveLogConnection($trxConn);
             } catch (\InvalidArgumentException $e) {
                 \Log::error('Invalid shard connection in PITR log', [
                     'trx_connection' => $trxConn,

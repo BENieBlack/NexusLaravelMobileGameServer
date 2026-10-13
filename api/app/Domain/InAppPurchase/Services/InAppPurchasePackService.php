@@ -3,7 +3,7 @@
 namespace App\Domain\InAppPurchase\Services;
 
 use App\Domain\InAppPurchase\Constants\InAppPurchaseConst;
-use App\Domain\Item\Services\ItemService;
+use App\Domain\Item\Contracts\ItemInventoryInterface;
 use App\Models\Mst\MstInAppPurchase;
 use App\Models\Trx\TrxInAppPurchase;
 use App\Repositories\Trx\TrxUnitRepository;
@@ -18,7 +18,7 @@ class InAppPurchasePackService
 {
     public function __construct(
         private readonly InAppPurchaseDiamondBalanceService $diamondBalanceService,
-        private readonly ItemService $itemService,
+        private readonly ItemInventoryInterface $itemService,
         private readonly TrxUnitRepository $trxUnitRepository,
         private readonly InAppPurchaseValidationService $validationService,
         private readonly InAppPurchaseHistoryService $purchaseHistoryService,

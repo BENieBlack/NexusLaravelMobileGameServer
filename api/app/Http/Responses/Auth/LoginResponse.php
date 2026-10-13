@@ -2,6 +2,7 @@
 
 namespace App\Http\Responses\Auth;
 
+use App\Domain\Login\DataTransferObjects\LoginResult;
 use App\Http\Responses\_BaseResponse;
 use App\Models\Sys\SysPlayer;
 use App\Models\Trx\TrxItem;
@@ -31,6 +32,20 @@ class LoginResponse extends _BaseResponse
         public readonly array $trxWallets,
         public readonly array $loginBonusContents,
     ) {}
+
+    /**
+     * UseCaseの結果からレスポンスを生成
+     */
+    public static function fromResult(LoginResult $result): self
+    {
+        return new self(
+            sysPlayer: $result->sysPlayer,
+            trxUnits: $result->trxUnits,
+            trxItems: $result->trxItems,
+            trxWallets: $result->trxWallets,
+            loginBonusContents: $result->loginBonusContents,
+        );
+    }
 
     /**
      * 配列に変換

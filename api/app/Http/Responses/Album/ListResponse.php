@@ -2,6 +2,7 @@
 
 namespace App\Http\Responses\Album;
 
+use App\Domain\Album\DataTransferObjects\ListResult;
 use App\Http\Responses\_BaseResponse;
 use NexusAlbum\DataTransferObjects\AlbumEntry;
 use NexusAlbum\ValueObjects\AlbumProgress;
@@ -23,6 +24,17 @@ class ListResponse extends _BaseResponse
         private readonly array $albumEntries,
         private readonly array $albumProgressList,
     ) {}
+
+    /**
+     * UseCaseの結果からレスポンスを生成
+     */
+    public static function fromResult(ListResult $result): self
+    {
+        return new self(
+            albumEntries: $result->albumEntries,
+            albumProgressList: $result->albumProgressList,
+        );
+    }
 
     /**
      * レスポンス配列を取得

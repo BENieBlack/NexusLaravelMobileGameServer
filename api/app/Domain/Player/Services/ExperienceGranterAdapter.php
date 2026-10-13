@@ -2,8 +2,8 @@
 
 namespace App\Domain\Player\Services;
 
-use App\Domain\Equipment\Services\EquipmentLevelService;
-use App\Domain\Unit\Services\UnitLevelService;
+use App\Domain\Equipment\Contracts\EquipmentExperienceInterface;
+use App\Domain\Unit\Contracts\UnitExperienceInterface;
 use App\Repositories\Trx\TrxEquipmentRepository;
 use App\Repositories\Trx\TrxUnitRepository;
 use NexusLevel\Services\PlayerLevelService;
@@ -24,8 +24,8 @@ class ExperienceGranterAdapter implements ExperienceGranterInterface
 {
     public function __construct(
         private readonly PlayerLevelService $playerLevelService,
-        private readonly UnitLevelService $unitLevelService,
-        private readonly EquipmentLevelService $equipmentLevelService,
+        private readonly UnitExperienceInterface $unitLevelService,
+        private readonly EquipmentExperienceInterface $equipmentLevelService,
         private readonly TrxUnitRepository $trxUnitRepository,
         private readonly TrxEquipmentRepository $trxEquipmentRepository,
     ) {}

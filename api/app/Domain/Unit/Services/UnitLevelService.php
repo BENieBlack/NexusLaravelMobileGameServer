@@ -2,6 +2,7 @@
 
 namespace App\Domain\Unit\Services;
 
+use App\Domain\Unit\Contracts\UnitExperienceInterface;
 use App\Exceptions\MasterDataException;
 use App\Exceptions\TransactionDataException;
 use App\Models\Trx\TrxUnit;
@@ -22,7 +23,7 @@ use NexusLevel\Services\_BaseLevelService;
  * - 最大レベル到達後は経験値が増えてもレベルアップしない
  * - ユニットのグレードは変更しない（別途グレードアップ処理が必要）
  */
-class UnitLevelService extends _BaseLevelService
+class UnitLevelService extends _BaseLevelService implements UnitExperienceInterface
 {
     /**
      * コンストラクタ

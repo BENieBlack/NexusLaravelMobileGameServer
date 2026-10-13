@@ -5,7 +5,6 @@ namespace App\Domain\Mailbox\UseCases;
 use App\Domain\_BaseUseCase;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
-use App\Http\Responses\Mailbox\LockResponse;
 use App\Repositories\Trx\TrxMailboxRepository;
 
 /**
@@ -24,9 +23,9 @@ class LockUseCase extends _BaseUseCase
      *
      * @throws GameException
      */
-    public function exec(int $sysPlayerId, int $trxMailboxId, bool $isLocked): LockResponse
+    public function exec(int $sysPlayerId, int $trxMailboxId, bool $isLocked): void
     {
-        return $this->executeWithTransaction(function () use ($sysPlayerId, $trxMailboxId, $isLocked) {
+        $this->executeWithTransaction(function () use ($sysPlayerId, $trxMailboxId, $isLocked) {
             // メールボックス取得
             $trxMailbox = $this->trxMailboxRepository->selectById($trxMailboxId);
 
@@ -41,12 +40,6 @@ class LockUseCase extends _BaseUseCase
 
             // ロック状態を切り替え
             $this->trxMailboxRepository->toggleProtection($trxMailbox, $isLocked);
-
-            return new LockResponse(
-                trxMailboxId: $trxMailbox->getId(),
-                isLocked: $isLocked,
-                success: true
-            );
         });
     }
 }

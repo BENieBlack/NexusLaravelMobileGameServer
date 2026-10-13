@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Http\Responses\Mailbox;
 
+use App\Domain\Mailbox\DataTransferObjects\ReceiveAllResult;
 use App\Http\Responses\Mailbox\ReceiveAllResponse;
 use Nexus\Core\Support\CustomCollection;
 use NexusResource\DataTransferObjects\Resource;
@@ -42,6 +43,27 @@ class ReceiveAllResponseTest extends TestCase
             ],
             $array['delivery_contents'],
         );
+    }
+
+    #[Test]
+    public function test_from_result_builds_same_array_as_constructor(): void
+    {
+        $deliveryContents = [Resource::item('item_potion', 3)];
+
+        $expected = new ReceiveAllResponse(
+            receivedMailboxIds: [1, 2],
+            totalCount: 2,
+            skippedCount: 1,
+            deliveryContents: $deliveryContents,
+        );
+        $actual = ReceiveAllResponse::fromResult(new ReceiveAllResult(
+            receivedMailboxIds: [1, 2],
+            totalCount: 2,
+            skippedCount: 1,
+            deliveryContents: $deliveryContents,
+        ));
+
+        $this->assertSame($expected->toArray(), $actual->toArray());
     }
 
     #[Test]

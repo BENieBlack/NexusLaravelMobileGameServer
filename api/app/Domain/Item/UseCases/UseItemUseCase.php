@@ -3,12 +3,12 @@
 namespace App\Domain\Item\UseCases;
 
 use App\Domain\_BaseUseCase;
+use App\Domain\Item\DataTransferObjects\UseItemResult;
 use App\Domain\Item\Services\ItemService;
 use App\Exceptions\BusinessLogicException;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Exceptions\MasterDataException;
-use App\Http\Responses\Item\UseResponse;
 use App\Repositories\Mst\MstItemRepository;
 use NexusResource\Enums\ItemEffectType;
 use NexusResourceDelivery\Contracts\ExperienceGranterInterface;
@@ -91,7 +91,7 @@ class UseItemUseCase extends _BaseUseCase
      *
      * @throws \Exception
      */
-    public function exec(int $sysPlayerId, string $mstItemId, int $useCount): UseResponse
+    public function exec(int $sysPlayerId, string $mstItemId, int $useCount): UseItemResult
     {
         $this->validation($sysPlayerId, $mstItemId, $useCount);
 
@@ -122,7 +122,7 @@ class UseItemUseCase extends _BaseUseCase
                 ),
             };
 
-            return new UseResponse(
+            return new UseItemResult(
                 mstItemId: $mstItemId,
                 effect: $effectType->value,
                 itemUsed: $useCount,

@@ -3,8 +3,9 @@
 namespace App\Domain\Friend\UseCases;
 
 use App\Domain\_BaseUseCase;
-use App\Http\Responses\Friend\ApplyListResponse;
+use App\Models\Sys\SysFriendApply;
 use App\Repositories\Sys\SysFriendApplyRepository;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * ApplyListUseCase
@@ -24,16 +25,14 @@ class ApplyListUseCase extends _BaseUseCase
      * statusがAppliedのものを取得
      *
      * @param  int  $sysPlayerId  プレイヤーID
+     * @return Collection<int, SysFriendApply>
      */
-    public function exec(int $sysPlayerId): ApplyListResponse
+    public function exec(int $sysPlayerId): Collection
     {
         // トランザクション開始
         return $this->executeWithTransaction(function () use ($sysPlayerId) {
             // 自分が関連するフレンド申請一覧を取得
-            $sysFriendApplyCollection = $this->sysFriendApplyRepository->selectAppliesByPlayerId($sysPlayerId);
-
-            // レスポンスを返す
-            return ApplyListResponse::fromCollection($sysFriendApplyCollection);
+            return $this->sysFriendApplyRepository->selectAppliesByPlayerId($sysPlayerId);
         });
     }
 }

@@ -3,8 +3,8 @@
 namespace App\Repositories\Mst;
 
 use App\Models\Mst\MstGachaStepBonusContent;
-use Illuminate\Database\Eloquent\Model;
 use Nexus\Core\Support\CustomCollection;
+use NexusGacha\DataTransferObjects\BonusContent;
 use NexusGacha\Repositories\GachaStepBonusContentRepositoryInterface;
 
 /**
@@ -18,23 +18,36 @@ class MstGachaStepBonusContentRepository extends _BaseMstRepository implements G
 
     /**
      * {@inheritDoc}
-     *
-     * @return CustomCollection<array-key, Model> インターフェースに合わせてModelで受ける
      */
-    public function selectByBonusId(string $bonusId): CustomCollection
+    public function selectByBonusId(string $bonusId): array
     {
-        /** @var CustomCollection<array-key, Model> $contents インターフェースの型に合わせて広げる */
-        $contents = $this->selectListByBonusId($bonusId);
-
-        return $contents;
+        return $this->selectListByBonusId($bonusId)
+            ->map(fn (MstGachaStepBonusContent $content) => $this->toBonusContent($content))
+            ->values()
+            ->all();
     }
 
     /**
      * {@inheritDoc}
      */
-    public function selectById($contentMstId): mixed
+    public function selectContentById(string $contentMstId): ?BonusContent
     {
-        return parent::selectById($contentMstId);
+        $content = parent::selectById($contentMstId);
+
+        return $content instanceof MstGachaStepBonusContent ? $this->toBonusContent($content) : null;
+    }
+
+    private function toBonusContent(MstGachaStepBonusContent $content): BonusContent
+    {
+        return new BonusContent(
+            id: $content->id,
+            stepBonusId: $content->getMstGachaStepBonusId(),
+            contentType: $content->getContentType(),
+            contentMstId: $content->getContentMstId(),
+            contentOption: $content->getContentOption(),
+            amount: $content->getAmount(),
+            weight: $content->getWeight(),
+        );
     }
 
     /**

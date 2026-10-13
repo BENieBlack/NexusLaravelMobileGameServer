@@ -3,7 +3,7 @@
 namespace App\Domain\Guild\UseCases;
 
 use App\Domain\_BaseUseCase;
-use App\Http\Responses\Guild\GuildListResponse;
+use NexusGuild\DataTransferObjects\Guild;
 use NexusGuild\Services\GuildService;
 
 /**
@@ -29,14 +29,15 @@ class ListUseCase extends _BaseUseCase
      *
      * @param  int  $limit  取得件数（MAX_LIMITで頭打ち）
      * @param  int  $offset  読み飛ばす件数
+     * @return array<Guild>
      */
-    public function exec(int $limit = self::MAX_LIMIT, int $offset = 0): GuildListResponse
+    public function exec(int $limit = self::MAX_LIMIT, int $offset = 0): array
     {
         $guildDtos = $this->guildService->findGuildList(
             max(1, min($limit, self::MAX_LIMIT)),
             max(0, $offset),
         );
 
-        return GuildListResponse::fromDtoArray($guildDtos);
+        return $guildDtos;
     }
 }

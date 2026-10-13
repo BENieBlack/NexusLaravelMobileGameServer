@@ -2,9 +2,9 @@
 
 namespace Tests\Unit\UseCases\Auth;
 
+use App\Domain\Auth\DataTransferObjects\SignInResult;
 use App\Domain\Auth\UseCases\SignInUseCase;
 use App\Exceptions\GameException;
-use App\Http\Responses\Auth\SignInResponse;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;
@@ -128,7 +128,7 @@ class SignInUseCaseUnitTest extends TestCase
         $response = $this->useCase->exec($deviceId, $deviceInfo);
 
         // Assert
-        $this->assertInstanceOf(SignInResponse::class, $response);
+        $this->assertInstanceOf(SignInResult::class, $response);
         $this->assertEquals($mockPlayer, $response->sysPlayer);
         $this->assertEquals($mockDevice, $response->sysPlayerDevice);
         $this->assertEquals($mockToken, $response->sysPlayerToken);
@@ -249,7 +249,7 @@ class SignInUseCaseUnitTest extends TestCase
         $response = $this->useCase->exec($deviceId, $deviceInfo);
 
         // Assert - Mock expectations are verified automatically by Mockery
-        $this->assertInstanceOf(SignInResponse::class, $response);
+        $this->assertInstanceOf(SignInResult::class, $response);
     }
 
     /**
@@ -298,6 +298,6 @@ class SignInUseCaseUnitTest extends TestCase
         $response = $this->useCase->exec($deviceId, $deviceInfo);
 
         // Assert - Mock expectations are verified automatically
-        $this->assertInstanceOf(SignInResponse::class, $response);
+        $this->assertInstanceOf(SignInResult::class, $response);
     }
 }

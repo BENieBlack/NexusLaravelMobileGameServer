@@ -2,6 +2,7 @@
 
 namespace App\Http\Responses\Player;
 
+use App\Domain\Player\DataTransferObjects\MeResult;
 use App\Http\Responses\_BaseResponse;
 
 /**
@@ -16,6 +17,17 @@ class MeResponse extends _BaseResponse
         public readonly string $myId,
         public readonly ?string $name,
     ) {}
+
+    /**
+     * UseCaseの結果からレスポンスを生成
+     */
+    public static function fromResult(MeResult $result): self
+    {
+        return new self(
+            myId: $result->myId,
+            name: $result->name,
+        );
+    }
 
     /**
      * 配列に変換

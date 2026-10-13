@@ -2,8 +2,7 @@
 
 namespace NexusGacha\Repositories;
 
-use Illuminate\Database\Eloquent\Model;
-use Nexus\Core\Support\CustomCollection;
+use NexusGacha\DataTransferObjects\PrizeCandidate;
 
 /**
  * GachaPrizeRepositoryInterface
@@ -15,10 +14,7 @@ interface GachaPrizeRepositoryInterface
     /**
      * ガチャIDとレアリティで景品リストを取得
      *
-     * @param  string  $mstGachaId
-     * @param  int  $rarity
-     * @param  bool  $pickupOnly
-     * @return CustomCollection<array-key, Model>
+     * @return list<PrizeCandidate>
      */
-    public function selectByGachaIdAndRarity(string $mstGachaId, int $rarity, bool $pickupOnly): CustomCollection;
+    public function selectByGachaIdAndRarity(string $mstGachaId, int $rarity, bool $pickupOnly): array;
 }

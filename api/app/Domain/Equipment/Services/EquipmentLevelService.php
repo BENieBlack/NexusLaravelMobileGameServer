@@ -2,6 +2,7 @@
 
 namespace App\Domain\Equipment\Services;
 
+use App\Domain\Equipment\Contracts\EquipmentExperienceInterface;
 use App\Exceptions\MasterDataException;
 use App\Exceptions\TransactionDataException;
 use App\Models\Trx\TrxEquipment;
@@ -22,7 +23,7 @@ use NexusLevel\Services\_BaseLevelService;
  * - 最大レベル到達後は経験値が増えてもレベルアップしない
  * - 装備のグレードは変更しない（別途グレードアップ処理が必要）
  */
-class EquipmentLevelService extends _BaseLevelService
+class EquipmentLevelService extends _BaseLevelService implements EquipmentExperienceInterface
 {
     /**
      * コンストラクタ

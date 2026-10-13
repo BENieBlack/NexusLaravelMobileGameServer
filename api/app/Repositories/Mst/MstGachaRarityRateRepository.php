@@ -3,8 +3,8 @@
 namespace App\Repositories\Mst;
 
 use App\Models\Mst\MstGachaRarityRate;
-use Illuminate\Database\Eloquent\Model;
 use Nexus\Core\Support\CustomCollection;
+use NexusGacha\DataTransferObjects\RarityRate;
 use NexusGacha\Repositories\GachaRarityRateRepositoryInterface;
 
 /**
@@ -18,15 +18,16 @@ class MstGachaRarityRateRepository extends _BaseMstRepository implements GachaRa
 
     /**
      * {@inheritDoc}
-     *
-     * @return CustomCollection<array-key, Model> インターフェースに合わせてModelで受ける
      */
-    public function selectByGachaId(string $mstGachaId): CustomCollection
+    public function selectByGachaId(string $mstGachaId): array
     {
-        /** @var CustomCollection<array-key, Model> $contents インターフェースの型に合わせて広げる */
-        $contents = $this->selectListByGachaId($mstGachaId);
-
-        return $contents;
+        return $this->selectListByGachaId($mstGachaId)
+            ->map(fn (MstGachaRarityRate $rate) => new RarityRate(
+                rarity: $rate->rarity,
+                rate: $rate->rate,
+            ))
+            ->values()
+            ->all();
     }
 
     /**

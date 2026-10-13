@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Http\Responses\Item;
 
+use App\Domain\Item\DataTransferObjects\UseItemResult;
 use App\Http\Responses\Item\UseResponse;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -32,6 +33,22 @@ class UseResponseTest extends TestCase
             'item_used' => 2,
             'applied_value' => 300,
         ], $response->toArray());
+    }
+
+    #[Test]
+    public function ユースケースの結果から同じ形で作れる(): void
+    {
+        $result = new UseItemResult(
+            mstItemId: 'item_potion_001',
+            effect: 'HealHP',
+            itemUsed: 2,
+            appliedValue: 300,
+        );
+
+        $this->assertSame(
+            (new UseResponse('item_potion_001', 'HealHP', 2, 300))->toArray(),
+            UseResponse::fromResult($result)->toArray(),
+        );
     }
 
     #[Test]

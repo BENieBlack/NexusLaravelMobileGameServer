@@ -30,7 +30,7 @@ class MstLoginBonusContent extends _BaseMst
     /**
      * 複合主キー
      */
-    protected $primaryKey = ['mst_login_bonus_id', 'content_type', 'content_mst_id'];
+    protected $primaryKey = ['mst_login_bonus_id', 'day', 'content_type', 'content_mst_id'];
 
     protected $keyType = 'string';
 

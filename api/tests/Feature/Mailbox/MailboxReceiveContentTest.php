@@ -4,6 +4,7 @@ namespace Tests\Feature\Mailbox;
 
 use App\Domain\Mailbox\UseCases\ReceiveAllUseCase;
 use App\Domain\Mailbox\UseCases\ReceiveUseCase;
+use App\Http\Responses\Mailbox\ReceiveAllResponse;
 use App\Models\Trx\TrxMailbox;
 use App\Persistence\ApiSession;
 use Illuminate\Support\Facades\DB;
@@ -131,7 +132,7 @@ class MailboxReceiveContentTest extends TestCase
         $first = $this->makeMailbox();
         $second = $this->makeMailbox();
 
-        $response = app(ReceiveAllUseCase::class)->exec($this->sysPlayerId)->toArray();
+        $response = ReceiveAllResponse::fromResult(app(ReceiveAllUseCase::class)->exec($this->sysPlayerId))->toArray();
         $this->flush();
 
         $this->assertSame(2, $response['total_count']);
@@ -151,7 +152,7 @@ class MailboxReceiveContentTest extends TestCase
         $received = $this->makeMailbox(isReceived: true);
         $fresh = $this->makeMailbox();
 
-        $response = app(ReceiveAllUseCase::class)->exec($this->sysPlayerId, [$received->id, $fresh->id])->toArray();
+        $response = ReceiveAllResponse::fromResult(app(ReceiveAllUseCase::class)->exec($this->sysPlayerId, [$received->id, $fresh->id]))->toArray();
         $this->flush();
 
         $this->assertSame(1, $response['total_count']);
@@ -170,7 +171,7 @@ class MailboxReceiveContentTest extends TestCase
         $othersMailbox = $this->makeMailbox(sysPlayerId: $other->id);
         ApiSession::setSysPlayerId($this->sysPlayerId);
 
-        $response = app(ReceiveAllUseCase::class)->exec($this->sysPlayerId, [$mine->id, $othersMailbox->id])->toArray();
+        $response = ReceiveAllResponse::fromResult(app(ReceiveAllUseCase::class)->exec($this->sysPlayerId, [$mine->id, $othersMailbox->id]))->toArray();
         $this->flush();
 
         $this->assertSame([$mine->id], $response['received_mailbox_ids']);
@@ -182,7 +183,7 @@ class MailboxReceiveContentTest extends TestCase
     {
         $mailbox = $this->makeMailbox();
 
-        $response = app(ReceiveAllUseCase::class)->exec($this->sysPlayerId)->toArray();
+        $response = ReceiveAllResponse::fromResult(app(ReceiveAllUseCase::class)->exec($this->sysPlayerId))->toArray();
         $this->flush();
 
         $this->assertSame(1, $response['total_count']);

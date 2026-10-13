@@ -21,6 +21,8 @@ class AccessCacheService
 {
     private const CACHE_TTL_HOURS = 24;
 
+    // 古いキャッシュの削除処理が未実装のため現状は未参照
+    // @phpstan-ignore classConstant.unused
     private const CACHE_DAYS = 90;  // 最大保持日数
 
     /** 全 log シャード接続名 */
@@ -31,7 +33,7 @@ class AccessCacheService
      * 未集計分はジョブに投げる。
      *
      * @param  string  $period  'all' | '1month' | '6months' | '1year' | '2weeks' | '1week' | '1day'
-     * @return array{ labels: array, data: array, is_calculating: bool }
+     * @return array{ labels: list<string>, data: list<int>, is_calculating: bool }
      */
     public function getAccessStats(string $period): array
     {
@@ -80,6 +82,8 @@ class AccessCacheService
 
     /**
      * 最新キャッシュを返す（ポーリング用）
+     *
+     * @return array{ labels: list<string>, data: list<int>, is_calculating: bool }
      */
     public function getLatestStats(string $period): array
     {

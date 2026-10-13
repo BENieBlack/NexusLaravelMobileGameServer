@@ -2,8 +2,10 @@
 
 namespace NexusVip\Tests\Unit\Services;
 
+use Illuminate\Contracts\Events\Dispatcher;
 use Mockery;
 use NexusVip\DataTransferObjects\PlayerVip;
+use NexusVip\Events\VipLevelUpEvent;
 use NexusVip\Exceptions\InvalidVipPointException;
 use NexusVip\Repositories\PlayerVipRepositoryInterface;
 use NexusVip\Repositories\VipPointLogRepositoryInterface;
@@ -115,6 +117,57 @@ class VipPointServiceTest extends TestCase
         // Assert
         $this->assertSame(100, $result->getVipPoint());
         $this->assertSame($sysPlayerId, $result->getSysPlayerId());
+    }
+
+    #[Test]
+    public function レベルアップすると報酬付きのイベントが配信される(): void
+    {
+        $events = Mockery::mock(Dispatcher::class);
+        $events->shouldReceive('dispatch')
+            ->once()
+            ->with(Mockery::on(fn ($event) => $event instanceof VipLevelUpEvent
+                && $event->sysPlayerId === 1
+                && $event->beforeLevel === 0
+                && $event->afterLevel === 2
+                // 複数レベル上がったときは各レベルの報酬をまとめて載せる
+                && $event->rewards === [['content_mst_id' => 'lv1'], ['content_mst_id' => 'lv2']]));
+
+        $service = $this->makeServiceWithEvents($events, enableLevelUpEvent: true);
+        $this->givenLevelChange(beforeLevel: 0, afterLevel: 2);
+        $this->vipRewardService->shouldReceive('buildRewardsArray')->with(1)->andReturn([['content_mst_id' => 'lv1']]);
+        $this->vipRewardService->shouldReceive('buildRewardsArray')->with(2)->andReturn([['content_mst_id' => 'lv2']]);
+
+        $result = $service->addPoints(1, 300, 'purchase');
+
+        $this->assertSame(300, $result->getVipPoint());
+    }
+
+    #[Test]
+    public function イベントが無効ならレベルアップしても配信されない(): void
+    {
+        $events = Mockery::mock(Dispatcher::class);
+        $events->shouldNotReceive('dispatch');
+
+        $service = $this->makeServiceWithEvents($events, enableLevelUpEvent: false);
+        $this->givenLevelChange(beforeLevel: 0, afterLevel: 2);
+
+        $result = $service->addPoints(1, 300, 'purchase');
+
+        $this->assertSame(300, $result->getVipPoint());
+    }
+
+    #[Test]
+    public function レベルが上がらなければ配信されない(): void
+    {
+        $events = Mockery::mock(Dispatcher::class);
+        $events->shouldNotReceive('dispatch');
+
+        $service = $this->makeServiceWithEvents($events, enableLevelUpEvent: true);
+        $this->givenLevelChange(beforeLevel: 1, afterLevel: 1);
+
+        $result = $service->addPoints(1, 300, 'purchase');
+
+        $this->assertSame(300, $result->getVipPoint());
     }
 
     /**
@@ -254,5 +307,33 @@ class VipPointServiceTest extends TestCase
 
         // Assert
         $this->assertNull($result);
+    }
+
+    private function makeServiceWithEvents(Dispatcher $events, bool $enableLevelUpEvent): VipPointService
+    {
+        return new VipPointService(
+            $this->playerVipRepository,
+            $this->vipPointLogRepository,
+            $this->vipLevelService,
+            $this->vipRewardService,
+            new VipConfig(
+                enablePointLog: false,
+                enableLevelUpEvent: $enableLevelUpEvent,
+                staminaBonusEnabled: true,
+                shopDiscountEnabled: true,
+                gachaDiscountEnabled: true,
+                dailyDiamondEnabled: true,
+            ),
+            $events,
+        );
+    }
+
+    private function givenLevelChange(int $beforeLevel, int $afterLevel): void
+    {
+        $this->playerVipRepository->shouldReceive('selectVipInfoById')
+            ->andReturn(new PlayerVip(sysPlayerId: 1, vipPoint: 0, totalPaidAmount: 0.0));
+        $this->playerVipRepository->shouldReceive('persistVipInfo');
+        $this->vipLevelService->shouldReceive('calculateLevel')->with(0)->andReturn($beforeLevel);
+        $this->vipLevelService->shouldReceive('calculateLevel')->with(300)->andReturn($afterLevel);
     }
 }

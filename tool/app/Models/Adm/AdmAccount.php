@@ -81,6 +81,9 @@ class AdmAccount extends Authenticatable
             ->exists();
     }
 
+    /**
+     * @return BelongsToMany<AdmRole, $this>
+     */
     public function roles(): BelongsToMany
     {
         return $this->belongsToMany(

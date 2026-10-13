@@ -35,6 +35,12 @@ class PlayerController extends Controller
         return view('players.list', compact('query', 'players'));
     }
 
+    /**
+     * プレイヤー詳細のTrxタブ用。タブ（message/unit/purchase）が画面に未実装のため現状は未参照
+     *
+     * @return array<string, \Illuminate\Support\Collection<int, \stdClass>>
+     */
+    // @phpstan-ignore method.unused
     private function loadTab(int $playerId, string $tab): array
     {
         $tables = [
@@ -65,9 +71,12 @@ class PlayerController extends Controller
         return $records;
     }
 
+    /**
+     * @return list<string>
+     */
     private function trxConnections(): array
     {
-        $count = max(1, (int) env('DB_SHARD_COUNT', 2));
+        $count = max(1, (int) config('database.shard_count', 2));
 
         return array_map(static fn (int $number): string => "trx{$number}", range(1, $count));
     }

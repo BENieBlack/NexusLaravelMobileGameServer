@@ -90,7 +90,7 @@ class ShardRoutingTest extends TestCase
     }
 
     #[Test]
-    public function ログは対になるlogシャードを向く(): void
+    public function ログは対になるtrxシャードと同じdbを向く(): void
     {
         ['player' => $player] = $this->signUpPlayer();
         $expectedLog = $this->playerLogConnection($player->id);

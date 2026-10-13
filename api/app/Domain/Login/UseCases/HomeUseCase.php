@@ -3,9 +3,9 @@
 namespace App\Domain\Login\UseCases;
 
 use App\Domain\_BaseUseCase;
+use App\Domain\Login\DataTransferObjects\LoginResult;
 use App\Domain\Login\Services\LoginBonusService;
 use App\Exceptions\SystemDataException;
-use App\Http\Responses\Auth\LoginResponse;
 use App\Persistence\ApiSession;
 use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Trx\TrxItemRepository;
@@ -49,7 +49,7 @@ class HomeUseCase extends _BaseUseCase
      *
      * @throws \Exception
      */
-    public function exec(int $sysPlayerId): LoginResponse
+    public function exec(int $sysPlayerId): LoginResult
     {
         // バリデーション実行
         $this->validation($sysPlayerId);
@@ -80,7 +80,7 @@ class HomeUseCase extends _BaseUseCase
             $trxItems = $this->trxItemRepository->queryOrMemory();
             $trxWallets = $this->trxWalletRepository->queryOrMemory();
 
-            return new LoginResponse(
+            return new LoginResult(
                 sysPlayer: $sysPlayer,
                 trxUnits: $trxUnits->values()->all(),
                 trxItems: $trxItems->values()->all(),

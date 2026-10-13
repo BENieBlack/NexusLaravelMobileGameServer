@@ -2,6 +2,7 @@
 
 namespace NexusVip;
 
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\ServiceProvider;
 use NexusVip\Repositories\PlayerVipRepositoryInterface;
 use NexusVip\Repositories\VipLevelRepositoryInterface;
@@ -74,7 +75,8 @@ class VipServiceProvider extends ServiceProvider
                 $app->make(VipPointLogRepositoryInterface::class),
                 $app->make(VipLevelService::class),
                 $app->make(VipRewardService::class),
-                $app->make(VipConfig::class)
+                $app->make(VipConfig::class),
+                $app->make(Dispatcher::class)
             );
         });
 

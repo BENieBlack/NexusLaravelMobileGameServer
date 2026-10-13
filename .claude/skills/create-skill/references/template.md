@@ -74,30 +74,30 @@ git log --oneline --grep="^fix:" | head -30
 ```markdown
 ---
 name: trx-migration
-description: trx（トランザクション）系のマイグレーションを作成・修正するときに使う。シャード全台に適用する
-  $connections の書き方と、--path の渡し方の落とし穴を案内する。「trxのマイグレーションを作って」
-  「シャードにテーブルを追加」「マイグレーションが片方のシャードにしか流れない」などで発動する。
-  mst/sys/log のマイグレーションには使わない。
+description: trx（トランザクション）系のマイグレーションを作成・修正するときに使う。全シャードに流す
+  trx:migrate の使い方と、--fresh や --path の落とし穴を案内する。「trxのマイグレーションを作って」
+  「シャードにテーブルを追加」「マイグレーションを直したのに反映されない」などで発動する。
+  mst/sys のマイグレーションには使わない。
 ---
 
 # trx系マイグレーションの作成
 
 ## 使う場面
 
-`api/database/migrations/trx/` 配下のマイグレーションを触るとき。
-mst/sys/log は単一DBなのでこのスキルは不要。
+`packages/*/database/migrations/trx/` 配下のマイグレーションを触るとき。
+mst/sys は単一DBなのでこのスキルは不要。
 
 ## 手順
 
-1. `api/database/migrations/trx/` に `YYYY_MM_DD_NNNNNN_<説明>.php` を作る
-2. クラスに `$connections = ['trx1', 'trx2']` を必ず書く
-3. `DB_SHARD_COUNT` を確認する。シャードを増やしている場合は配列も合わせる
-4. 実行して両シャードに反映されたか確認する
+1. 機能を持つパッケージの `packages/<パッケージ>/database/migrations/trx/` に `YYYY_MM_DD_NNNNNN_<説明>.php` を作る
+2. `Schema::create('テーブル名', ...)` と書き、接続名は書かない（同じファイルを全シャードに流すため）
+3. `make migrate`（中で `php artisan trx:migrate`）で `DB_SHARD_COUNT` 分の全シャードに流す
+4. 全シャードに反映されたか確認する
 
 ## 落とし穴
 
-- **`$connections` の書き忘れ** — 既定接続にしか流れず、trx2だけスキーマが古くなる。
-  不整合は運用中に初めて表面化するので気付くのが遅れる
+- **引数なしの `php artisan migrate`** — 既定接続が sqlite なので、シャードには何も流れない
+- **既存ファイルを書き換えて `trx:migrate` だけ流す** — 実行済み扱いで反映されない。`make migrate-fresh`（`trx:migrate --fresh`）で作り直す
 - **`--path` に絶対パスを渡す** — `--realpath` を付けない限り `base_path()` からの相対解決になり、
   存在しないパス扱いで**エラーも出さずに無視される**（コミット `7f4c1db`）
 ```

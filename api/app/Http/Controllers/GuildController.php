@@ -16,6 +16,15 @@ use App\Http\Requests\Guild\ApplyRejectRequest;
 use App\Http\Requests\Guild\ApplySendRequest;
 use App\Http\Requests\Guild\CreateRequest;
 use App\Http\Requests\Guild\LeaveRequest;
+use App\Http\Responses\Guild\GuildApplyAcceptResponse;
+use App\Http\Responses\Guild\GuildApplyListResponse;
+use App\Http\Responses\Guild\GuildApplyRejectResponse;
+use App\Http\Responses\Guild\GuildApplySendResponse;
+use App\Http\Responses\Guild\GuildCreateResponse;
+use App\Http\Responses\Guild\GuildDetailResponse;
+use App\Http\Responses\Guild\GuildLeaveResponse;
+use App\Http\Responses\Guild\GuildListResponse;
+use App\Http\Responses\Guild\GuildMemberListResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -29,7 +38,7 @@ class GuildController extends _BaseController
         $limit = (int) $request->input('limit', 50);
         $offset = (int) $request->input('offset', 0);
 
-        return $this->execute(fn () => $useCase->exec($limit, $offset));
+        return $this->execute(fn () => GuildListResponse::fromDtoArray($useCase->exec($limit, $offset)));
     }
 
     /**
@@ -39,7 +48,7 @@ class GuildController extends _BaseController
     {
         $guildId = (int) $request->input('sys_guild_id');
 
-        return $this->execute(fn () => $useCase->exec($guildId));
+        return $this->execute(fn () => GuildDetailResponse::fromDto($useCase->exec($guildId)));
     }
 
     /**
@@ -54,7 +63,7 @@ class GuildController extends _BaseController
         $name = $request->getName();
         $description = $request->getDescription();
 
-        return $this->execute(fn () => $useCase->exec($sysPlayerId, $name, $description));
+        return $this->execute(fn () => GuildCreateResponse::fromDto($useCase->exec($sysPlayerId, $name, $description)));
     }
 
     /**
@@ -68,7 +77,7 @@ class GuildController extends _BaseController
         // リクエストパラメータを取得
         $guildId = $request->getGuildId();
 
-        return $this->execute(fn () => $useCase->exec($sysPlayerId, $guildId));
+        return $this->execute(fn () => GuildApplySendResponse::fromDto($useCase->exec($sysPlayerId, $guildId)));
     }
 
     /**
@@ -82,7 +91,7 @@ class GuildController extends _BaseController
         // リクエストパラメータを取得
         $applyId = $request->getApplyId();
 
-        return $this->execute(fn () => $useCase->exec($sysPlayerId, $applyId));
+        return $this->execute(fn () => GuildApplyAcceptResponse::fromDto($useCase->exec($sysPlayerId, $applyId)));
     }
 
     /**
@@ -96,7 +105,7 @@ class GuildController extends _BaseController
         // リクエストパラメータを取得
         $applyId = $request->getApplyId();
 
-        return $this->execute(fn () => $useCase->exec($sysPlayerId, $applyId));
+        return $this->execute(fn () => GuildApplyRejectResponse::fromDto($useCase->exec($sysPlayerId, $applyId)));
     }
 
     /**
@@ -106,7 +115,7 @@ class GuildController extends _BaseController
     {
         $guildId = (int) $request->input('sys_guild_id');
 
-        return $this->execute(fn () => $useCase->exec($guildId));
+        return $this->execute(fn () => GuildApplyListResponse::fromDtoArray($useCase->exec($guildId)));
     }
 
     /**
@@ -116,7 +125,7 @@ class GuildController extends _BaseController
     {
         $guildId = (int) $request->input('sys_guild_id');
 
-        return $this->execute(fn () => $useCase->exec($guildId));
+        return $this->execute(fn () => GuildMemberListResponse::fromDtoArray($useCase->exec($guildId)));
     }
 
     /**
@@ -127,6 +136,10 @@ class GuildController extends _BaseController
         // 認証情報を取得
         $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
-        return $this->execute(fn () => $useCase->exec($sysPlayerId));
+        return $this->execute(function () use ($useCase, $sysPlayerId) {
+            $useCase->exec($sysPlayerId);
+
+            return new GuildLeaveResponse($sysPlayerId);
+        });
     }
 }

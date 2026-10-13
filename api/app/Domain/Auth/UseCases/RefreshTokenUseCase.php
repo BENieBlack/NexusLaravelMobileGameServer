@@ -6,12 +6,12 @@ use App\Domain\_BaseUseCase;
 use App\Domain\Auth\Traits\BuildsSysPlayerToken;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
-use App\Http\Responses\Auth\RefreshTokenResponse;
 use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;
 use App\Repositories\Sys\SysPlayerRepository;
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Services\TokenService;
+use NexusAuth\ValueObjects\Token;
 
 /**
  * RefreshTokenUseCase
@@ -36,7 +36,7 @@ class RefreshTokenUseCase extends _BaseUseCase
      *
      * @throws \Exception|\Throwable
      */
-    public function exec(string $refreshToken): RefreshTokenResponse
+    public function exec(string $refreshToken): Token
     {
         // トランザクション開始
         return $this->executeWithTransaction(function () use ($refreshToken) {
@@ -81,9 +81,7 @@ class RefreshTokenUseCase extends _BaseUseCase
             // 最終ログイン日時を更新
             $this->playerAuthService->updateLastLogin($device->getUuid());
 
-            return new RefreshTokenResponse(
-                token: $token,
-            );
+            return $token;
         });
     }
 }

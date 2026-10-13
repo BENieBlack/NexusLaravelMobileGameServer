@@ -2,8 +2,7 @@
 
 namespace NexusGacha\Repositories;
 
-use Illuminate\Database\Eloquent\Model;
-use Nexus\Core\Support\CustomCollection;
+use NexusGacha\DataTransferObjects\BonusContent;
 
 /**
  * GachaStepBonusContentRepositoryInterface
@@ -15,16 +14,12 @@ interface GachaStepBonusContentRepositoryInterface
     /**
      * ボーナスIDでコンテンツリストを取得
      *
-     * @param  string  $bonusId
-     * @return CustomCollection<array-key, Model>
+     * @return list<BonusContent>
      */
-    public function selectByBonusId(string $bonusId): CustomCollection;
+    public function selectByBonusId(string $bonusId): array;
 
     /**
      * コンテンツIDでコンテンツを取得
-     *
-     * @param  string  $contentMstId
-     * @return mixed|null
      */
-    public function selectById(string $contentMstId): mixed;
+    public function selectContentById(string $contentMstId): ?BonusContent;
 }

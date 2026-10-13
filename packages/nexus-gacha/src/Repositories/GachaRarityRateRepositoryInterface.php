@@ -2,8 +2,7 @@
 
 namespace NexusGacha\Repositories;
 
-use Illuminate\Database\Eloquent\Model;
-use Nexus\Core\Support\CustomCollection;
+use NexusGacha\DataTransferObjects\RarityRate;
 
 /**
  * GachaRarityRateRepositoryInterface
@@ -15,8 +14,7 @@ interface GachaRarityRateRepositoryInterface
     /**
      * ガチャIDでレアリティ確率リストを取得
      *
-     * @param  string  $mstGachaId
-     * @return CustomCollection<array-key, Model>
+     * @return list<RarityRate>
      */
-    public function selectByGachaId(string $mstGachaId): CustomCollection;
+    public function selectByGachaId(string $mstGachaId): array;
 }

@@ -3,8 +3,7 @@
 namespace App\Repositories\Mst;
 
 use App\Models\Mst\MstGachaStepBonus;
-use Illuminate\Database\Eloquent\Model;
-use Nexus\Core\Support\CustomCollection;
+use NexusGacha\DataTransferObjects\StepBonus;
 use NexusGacha\Repositories\GachaStepBonusRepositoryInterface;
 
 /**
@@ -18,20 +17,24 @@ class MstGachaStepBonusRepository extends _BaseMstRepository implements GachaSte
 
     /**
      * {@inheritDoc}
-     *
-     * @return CustomCollection<array-key, Model> インターフェースに合わせてModelで受ける
      */
-    public function selectByStepId(string $stepId): CustomCollection
+    public function selectByStepId(string $stepId): array
     {
         $this->queryOrMemory();
 
-        /** @var CustomCollection<array-key, Model> $bonuses インターフェースの型に合わせて広げる */
-        $bonuses = $this->models
+        return $this->models
             ->where('mst_gacha_step_id', $stepId)
             ->where('is_active', true)
             ->sortBy('position')
-            ->values();
-
-        return $bonuses;
+            ->map(fn (MstGachaStepBonus $bonus) => new StepBonus(
+                id: $bonus->id,
+                position: $bonus->position,
+                bonusCount: $bonus->getBonusCount(),
+                selectionType: $bonus->getSelectionType(),
+                bonusRarity: $bonus->getBonusRarity(),
+                isPickupOnly: $bonus->isPickupOnly(),
+            ))
+            ->values()
+            ->all();
     }
 }

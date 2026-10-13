@@ -2,6 +2,7 @@
 
 namespace NexusVip\Services;
 
+use Illuminate\Contracts\Events\Dispatcher;
 use NexusVip\DataTransferObjects\PlayerVip;
 use NexusVip\Events\VipLevelUpEvent;
 use NexusVip\Exceptions\InvalidVipPointException;
@@ -22,6 +23,7 @@ class VipPointService
         protected VipLevelService $vipLevelService,
         protected VipRewardService $vipRewardService,
         protected VipConfig $config,
+        protected ?Dispatcher $events = null,
     ) {}
 
     /**
@@ -94,7 +96,8 @@ class VipPointService
                 $allRewards = array_merge($allRewards, $levelRewards);
             }
 
-            event(new VipLevelUpEvent($sysPlayerId, $beforeLevel, $afterLevel, $allRewards));
+            // 受け手（報酬の配布など）はタイトル側が登録する。同じUnitOfWorkで同期に処理される
+            $this->events?->dispatch(new VipLevelUpEvent($sysPlayerId, $beforeLevel, $afterLevel, $allRewards));
         }
 
         return $playerVip;

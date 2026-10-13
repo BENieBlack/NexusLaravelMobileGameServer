@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Domain\Item\UseCases\UseItemUseCase;
 use App\Http\Requests\Item\UseRequest;
+use App\Http\Responses\Item\UseResponse;
 use App\Persistence\ApiSession;
 use Illuminate\Http\JsonResponse;
 
@@ -31,11 +32,11 @@ class ItemController extends _BaseController
     public function use(UseRequest $request): JsonResponse
     {
         return $this->execute(function () use ($request) {
-            return $this->useItemUseCase->exec(
+            return UseResponse::fromResult($this->useItemUseCase->exec(
                 sysPlayerId: $this->apiSession->getSysPlayerId(),
                 mstItemId: $request->getMstItemId(),
                 useCount: $request->getUseCount(),
-            );
+            ));
         });
     }
 }

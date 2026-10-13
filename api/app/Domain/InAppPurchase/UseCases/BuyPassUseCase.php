@@ -2,10 +2,10 @@
 
 namespace App\Domain\InAppPurchase\UseCases;
 
+use App\Domain\InAppPurchase\DataTransferObjects\BuyResult;
 use App\Domain\InAppPurchase\Services\InAppPurchaseDiamondService;
 use App\Domain\InAppPurchase\Services\InAppPurchasePassService;
 use App\Domain\InAppPurchase\Services\InAppPurchaseValidationService;
-use App\Http\Responses\InAppPurchase\BuyResponse;
 use App\Models\Mst\MstInAppPurchase;
 use App\Repositories\Log\LogInAppPurchaseRepository;
 use NexusBilling\DataTransferObjects\Verification;
@@ -44,7 +44,7 @@ class BuyPassUseCase extends _BaseBuyUseCase
         string $platform,
         string $billingPlatform,
         Verification $verification
-    ): BuyResponse {
+    ): BuyResult {
         // 返金計算に使う購入価格。Google Playはレシート検証結果、
         // App Storeはマスターの設定値から取る
         $unitPrice = $this->resolvePurchasePrice($verification, $mstInAppPurchase, $billingPlatform);
@@ -72,7 +72,7 @@ class BuyPassUseCase extends _BaseBuyUseCase
         // 2. パス効果を適用
         $this->passService->applyPassEffects($sysPlayerId, $mstInAppPurchase);
 
-        return new BuyResponse(
+        return new BuyResult(
             paidDiamondAmount: $paidDiamondAmount,
             totalPaidDiamondAmount: $totalPaidDiamondAmount,
             totalFreeDiamondAmount: $totalFreeDiamondAmount,

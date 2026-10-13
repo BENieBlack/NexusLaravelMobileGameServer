@@ -69,17 +69,17 @@ gh issue list --repo BENieBlack/NexusLaravelMobileGameServer \
 **プレイヤー個別の調査では最初にこれをやる。** trx系・log系はシャーディングされており、間違ったシャードを見ると「データが無い」という誤った結論になります。
 
 ```sql
--- sys DB
+-- sys DB（db-system / nexus-local-system）
 SELECT p.sys_player_id, n.node_no, n.node_name, n.status
 FROM sys_sharding_node_player p
 JOIN sys_sharding_node n ON n.id = p.sys_sharding_node_id
 WHERE p.sys_player_id = <プレイヤーID>;
 ```
 
-`node_no` が `trx<N>` / `log<N>` に対応します。以降のクエリは必ずそのシャードに対して投げること。
+`node_no` が接続名 `trx<N>`（コンテナ `db-shard<N>`）に対応します。`log_*` も同じシャードのDBに入っています。以降のクエリは必ずそのシャードに対して投げること。
 
 ```bash
-docker exec db-trx1 mysql -uroot -proot -e "SELECT ... FROM \`nexus-local-trx1\`.trx_item WHERE ..."
+docker exec db-shard<N> mysql -uroot -proot nexus-local-shard -e "SELECT ... FROM trx_item WHERE ..."
 ```
 
 ### 4. 症状から調査先を決める
@@ -93,7 +93,7 @@ docker exec db-trx1 mysql -uroot -proot -e "SELECT ... FROM \`nexus-local-trx1\`
 
 確定の条件:
 
-- 実データかログで裏が取れている（`log_trx_*` に該当する変更履歴があるか等）
+- 実データかログで裏が取れている（`log_change_trx_*` に該当する変更履歴があるか等）
 - または、コードを読んで**その条件なら必ずそうなる**と示せる
 - 再現手順が書ける
 
@@ -133,6 +133,6 @@ Issueとは別に、CS担当がそのまま使える文面を出力する。技�
 
 - **シャード特定を飛ばす** — trx1を見て「データが無い」と結論するのが最頻出の誤り。手順3を必ず通す
 - **類似案件検索を飛ばす** — 既知の不具合を1から調べ直すことになる。手順2は調査より前
-- **`log_*` と `log_trx_*` の混同** — `log_gacha` 等はゲーム内行動ログ、`log_trx_*` はPITR用の変更履歴。「消えた」系は後者を見る
-- **ゲーム内の日付をカレンダーの日付で考える** — 日跨ぎ判定は `DAY_START_TIME`（未設定時 `00:00:00`）基準。`ClockUtility::getGameDayStart()` を通した値で判断する
+- **`log_action_*` と `log_change_trx_*` の混同** — `log_action_gacha_draw` 等はゲーム内行動ログ、`log_change_trx_*` はPITR用の変更履歴。「消えた」系は後者を見る
+- **ゲーム内の日付をカレンダーの日付で考える** — 日跨ぎ判定は `DAY_START_TIME`（未設定時 `00:00:00`）基準。`ClockUtility::calcGameDayStart()` を通した値で判断する
 - **Issueに個人情報を書く** — 公開リポジトリ。手順6の前に必ず見直す

@@ -2,6 +2,7 @@
 
 namespace App\Domain\Sharding\Services;
 
+use App\Domain\Sharding\Contracts\ShardAssignerInterface;
 use App\Models\Sys\SysSharding;
 use Illuminate\Support\Facades\DB;
 use Nexus\Core\Utilities\ClockUtility;
@@ -18,7 +19,7 @@ use Nexus\Core\Utilities\ClockUtility;
  * 割り当ては一度決めたら動かさない。sys_sharding.strategy は
  * 「初回にどのノードを選ぶか」だけに使う。
  */
-class ShardAssignmentService
+class ShardAssignmentService implements ShardAssignerInterface
 {
     /**
      * シャーディング定義の名前（trx_* 用）

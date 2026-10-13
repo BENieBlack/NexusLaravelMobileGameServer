@@ -18,9 +18,9 @@ class MstGachaStepRepository extends _BaseMstRepository implements GachaStepRepo
     /**
      * {@inheritDoc}
      */
-    public function selectByGachaIdAndNumber(string $mstGachaId, int $stepNumber): mixed
+    public function selectStepIdByGachaIdAndNumber(string $mstGachaId, int $stepNumber): ?string
     {
-        return $this->selectByGachaIdAndStepNumber($mstGachaId, $stepNumber);
+        return $this->selectByGachaIdAndStepNumber($mstGachaId, $stepNumber)?->id;
     }
 
     /**

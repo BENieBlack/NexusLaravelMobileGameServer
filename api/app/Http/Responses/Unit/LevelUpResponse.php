@@ -2,6 +2,7 @@
 
 namespace App\Http\Responses\Unit;
 
+use App\Domain\Unit\DataTransferObjects\LevelUpResult;
 use App\Http\Responses\_BaseResponse;
 
 /**
@@ -26,6 +27,24 @@ class LevelUpResponse extends _BaseResponse
         public readonly int $itemUsed,
         public readonly int $expGained,
     ) {}
+
+    /**
+     * レベルアップ結果からレスポンスを生成
+     */
+    public static function fromResult(LevelUpResult $result): self
+    {
+        return new self(
+            isLeveledUp: $result->isLeveledUp,
+            beforeLevel: $result->beforeLevel,
+            afterLevel: $result->afterLevel,
+            totalExp: $result->totalExp,
+            expToNext: $result->expToNext,
+            rarity: $result->rarity,
+            maxLevel: $result->maxLevel,
+            itemUsed: $result->itemUsed,
+            expGained: $result->expGained,
+        );
+    }
 
     /**
      * レスポンスを生成

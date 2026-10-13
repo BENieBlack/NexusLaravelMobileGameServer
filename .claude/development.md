@@ -1,410 +1,110 @@
+# 開発環境・テスト・静的解析
 
-## 開発環境構築
+ローカル環境を立ち上げるとき、テストや静的解析を回すとき、環境まわりで詰まったときに読む。
+DB 接続・マイグレーションの置き場所は [database.md](./database.md)、運営ツール固有の話は [tool.md](./tool.md)。
 
-### 環境構築の自動化
+## コンテナとポート
 
-このプロジェクトでは、`./command/setup.sh`スクリプトを使用して環境構築を完全に自動化しています。
+定義は `docker-compose.yml`。
 
-#### 初回セットアップ
+| コンテナ | ホスト側ポート | 役割 |
+|---|---|---|
+| api-php | - | API（PHP 8.4）。`./api` を `/var/www/html`、`./packages` を `/var/www/packages` にマウント |
+| api-web | 8090 | API の nginx |
+| tool-php | - | 運営ツール（PHP） |
+| tool-web | 8091 | 運営ツールの nginx |
+| db-admin | 63060 | `{APP_NAME}-{APP_ENV}-admin` |
+| db-tool | 63061 | `{APP_NAME}-{APP_ENV}-tool` |
+| db-system | 63062 | `-system` と `nexus-testing-system` |
+| db-master | 63063 | `-master` と `nexus-testing-master` |
+| db-shard1〜3 | 63161〜63163 | `-shard` と `nexus-testing-shard`（DB名は全シャード共通） |
+| redis | 63790 | キャッシュ（`CACHE_STORE=redis`）。冪等キーやシャード割当のキャッシュもここに入る |
+
+- MySQL の root パスワードは `MYSQL_ROOT_PASSWORD`（既定 `root`）。DB はコンテナ初回起動時に `docker/mysql/init/` のスクリプトが `DB_NAMES` から作る
+- 環境変数はリポジトリ直下の `.env` 1つを api と tool が共有する（`.env.example` から作る）。コンテナには読み取り専用でマウントされる
+- シャード数は `DB_SHARD_COUNT`（`.env.example` は 3）。テストは `phpunit.xml` で 2 に固定している
+
+## 初回セットアップ
+
+`./command/setup.sh`（`make install`）は現状使えない（「よくある詰まりどころ」参照）。手で次を実行する。
 
 ```bash
-./command/setup.sh
+cp .env.example .env          # APP_KEY を設定する（例: base64:$(openssl rand -base64 32)）
+make up
+docker compose exec -T api-php composer install
+docker compose exec -T tool-php composer install
+make migrate
+docker compose exec -T tool-php php artisan migrate --path=database/migrations/adm --database=admin --force
+docker compose exec -T tool-php php artisan migrate --path=database/migrations/tol --database=tool --force
+make seed
+docker compose exec -T tool-php php artisan db:seed --class=AdminAccountSeeder --force
 ```
 
-このコマンド1つで以下が自動実行されます：
+`.env` はコンテナを起動する前に書き終えておく（後述）。
 
-1. **Dockerコンテナの起動**
-   - 既存のコンテナとボリュームを完全に削除（クリーンインストール）
-   - 全コンテナを新規起動
-   
-2. **データベースの初期化**
-   - 全7つのデータベースを作成（sys, mst, log, trx1, trx2, adm, tol）
-   - 各データベースに`migrations`テーブルを作成
+## make コマンド
 
-3. **APIプロジェクトのセットアップ**
-   - Composerパッケージのインストール
-   - NPMパッケージのインストール
-   - Viteビルドの実行
-   - 全データベース（sys, mst, log, trx1, trx2）へのマイグレーション実行
+`Makefile` を参照。主なもの:
 
-4. **Toolプロジェクトのセットアップ**
-   - Composerパッケージのインストール
-   - NPMパッケージのインストール
-   - Viteビルドの実行
-   - 全データベース（adm, tol）へのマイグレーション実行
+| コマンド | 内容 |
+|---|---|
+| `make up` / `make down` | 起動（`--build` 付き）/ 停止 |
+| `make check` | CI と同じ検査（`pint-test` → `phpstan` → `test` → `tool-check`）。PR 前に回す |
+| `make test` | api の全テスト（Unit / Feature / Architecture / Packages） |
+| `make test-unit` / `make test-feature` | そのスイートだけ |
+| `make test-fresh` | `migrate-fresh` と `seed` の後に全テスト |
+| `make tool-check` | tool の pint --test・phpstan・phpunit |
+| `make pint` / `make pint-test` / `make pint-dirty` | 整形 / 検証のみ / 変更ファイルだけ整形（api と packages） |
+| `make phpstan` | api + packages の静的解析 |
+| `make migrate` / `make migrate-fresh` | sys・mst・trx・log のマイグレーション / 作り直し（tool のDBは含まない） |
+| `make seed` | api のシーダー |
+| `make coverage` / `make coverage-html` | カバレッジ（テキスト / `api/storage/coverage/index.html`） |
+| `make shell` / `make tinker` / `make logs` | api-php のシェル / tinker / ログ |
+| `make clean` | ボリュームごと削除し、`api/vendor` も消す |
 
-#### セットアップ完了後の確認
+`./command/sail` は Laravel Sail のラッパー。対象は既定で api-php、`--tool` / `--api` / `--service=名前` か `SAIL_SERVICE` で切り替える。`./command/sail migrate` はエラーで `make migrate` を案内する。
+
+## テストの実行
+
+- api 側の `api/phpunit.xml` に4スイートがある: `Unit`, `Feature`, `Architecture`（規約違反を検出するテスト）, `Packages`（`../packages/*/tests`）。パッケージのテストも api-php から回す
+- 部分実行:
 
 ```bash
-# Dockerコンテナの状態確認
-docker ps
-
-# データベース接続確認（例: sys データベース）
-docker exec db-sys mysql -u root -proot nexus-local-sys -e "SHOW TABLES;"
-
-# アプリケーションアクセス
-# API: http://localhost:8090
-# Tool: http://localhost:8091
+docker compose exec -T api-php php artisan test --filter=FriendFlowTest
+docker compose exec -T api-php php artisan test --testsuite=Architecture
+./command/sail api test --filter=FriendFlowTest     # 引数はそのまま phpunit に渡る
+./command/sail tool test                             # tool の phpunit
 ```
 
-#### トラブルシューティング
+- テストは `nexus-testing-*` の DB を使う。マイグレーションはテスト自身が流す（`api/tests/RefreshMultipleDatabases.php`）。マイグレーションファイルの指紋が変わったときだけ `migrate:fresh` し、指紋は `api/storage/framework/testing/.migrated` に保存される
+- テストの時刻は `ClockUtility::setNow()` で固定し、`Tests\TestCase::setUp()` が毎回リセットする。日跨ぎの境界は `phpunit.xml` で `DAY_START_TIME=00:00:00` に固定している
 
-**セットアップが失敗した場合**
+## カバレッジ
 
-```bash
-# コンテナとボリュームを完全に削除
-docker-compose down --volumes --remove-orphans
-
-# 再度セットアップを実行
-./command/setup.sh
-```
-
-**特定のデータベースのみリセットしたい場合**
+- ドライバは pcov。`docker/api-php/Dockerfile` で `pcov.directory=/var/www` を設定済みで、オプションは要らない。Xdebug は入れていない
+- 計測対象は `api/phpunit.xml` の `<source><include>`。パッケージを追加したらここにも足す。足さないとそのパッケージは計測されない
+- `--coverage-text` の一覧には一度も読み込まれなかったファイルが出てこない。一覧に無い＝0%と読む。取りこぼしはソースのファイル一覧とレポートを突き合わせて探す
 
 ```bash
-# 例: sys データベースのマイグレーションをやり直す
-docker exec api-php php artisan migrate:fresh --database=sys --path=database/migrations/sys
-```
-
-### Docker構成
-
-#### コンテナ一覧
-
-- **api-nginx** - APIのWebサーバー（ポート: 8080）
-- **api-php** - APIのPHPアプリケーション
-- **tool-nginx** - 運営ツールのWebサーバー（ポート: 80）
-- **tool-php** - 運営ツールのPHPアプリケーション
-- **db-adm** - 管理者アカウントデータベース（ポート: 63060）
-  - 管理者アカウント・権限管理
-- **db-tol** - 運営ツールデータベース（ポート: 63061）
-  - マスター状況、アセット、バナー、キャッシュ制御等
-- **db-sys** - システム管理データベース（ポート: 63062）
-  - シャーディング管理、デプロイ管理、プレイヤーマスター
-- **db-mst** - ゲームマスターデータベース（ポート: 63063）
-  - アイテム、キャラクター、スキルなどのマスターデータ
-- **db-log** - ログデータベース（ポート: 63261）
-  - APIログ、ガチャログ、課金ログなど
-- **db-trx1** - トランザクションデータベース1（ポート: 63161）
-  - プレイヤーのトランザクションデータ（シャード1）
-- **db-trx2** - トランザクションデータベース2（ポート: 63162）
-  - プレイヤーのトランザクションデータ（シャード2）
-- **redis** - Redisキャッシュサーバー
-
-#### データベース接続情報
-
-| データベース | ホスト | ポート | データベース名 | ユーザー名 | パスワード |
-|------------|--------|--------|---------------|-----------|-----------|
-| admin | db-adm | 3306 (63060) | nexus-local-adm | root | root |
-| tool | db-tol | 3306 (63061) | nexus-local-tol | root | root |
-| sys | db-sys | 3306 (63062) | nexus-local-sys | root | root |
-| mst | db-mst | 3306 (63063) | nexus-local-mst | root | root |
-| log | db-log | 3306 (63261) | nexus-local-log | root | root |
-| trx1 | db-trx1 | 3306 (63161) | nexus-local-trx1 | root | root |
-| trx2 | db-trx2 | 3306 (63162) | nexus-local-trx2 | root | root |
-
-※括弧内はホストマシンからアクセスする際のポート番号
-
-## コマンドラインツール
-
-### ./command/sail の使い方
-
-`./command/sail`は、Laravel Sailのラッパースクリプトで、APIとAdminの両方のサービスで使用できます。
-
-#### 基本的な使い方
-
-```bash
-# デフォルト（api-phpサービスで実行）
-./command/sail artisan --version
-
-# APIサービスを明示的に指定
-./command/sail --api artisan --version
-
-# Adminサービスを指定
-./command/sail --admin artisan --version
-
-# 環境変数で指定
-SAIL_SERVICE=admin-php ./command/sail artisan route:list
-```
-
-#### よく使うコマンド
-
-```bash
-# Docker Composeコマンド
-./command/sail up        # アプリケーションを起動
-./command/sail up -d     # バックグラウンドで起動
-./command/sail stop      # アプリケーションを停止
-./command/sail restart   # アプリケーションを再起動
-./command/sail ps        # コンテナの状態を表示
-
-# Artisanコマンド（API）
-./command/sail artisan migrate --database=sys --path=database/migrations/sys
-./command/sail artisan migrate --database=mst --path=database/migrations/mst
-./command/sail artisan db:seed
-./command/sail artisan tinker
-
-# Artisanコマンド（Tool）
-./command/sail --tool artisan migrate --database=adm --path=database/migrations/adm
-./command/sail --tool artisan migrate --database=tol --path=database/migrations/tol
-./command/sail --tool artisan route:list
-
-# PHPコマンド
-./command/sail php -v
-./command/sail --tool php artisan inspire
-
-# Composerコマンド
-./command/sail composer require package-name
-./command/sail --tool composer update
-
-# テスト実行
-./command/sail test
-./command/sail --tool test
-
-# シェルアクセス
-./command/sail shell           # sailユーザーでシェル起動
-./command/sail root-shell      # rootユーザーでシェル起動
-./command/sail --tool shell    # toolコンテナでシェル起動
-```
-
-#### マイグレーション専用コマンド
-
-APIの全データベース（sys, mst, log, trx1, trx2）に対してマイグレーションを一括実行します：
-
-```bash
-./command/sail migrate
-```
-
-このコマンドは以下を実行します：
-- `database/migrations/sys`のマイグレーションをsysデータベースに実行
-- `database/migrations/mst`のマイグレーションをmstデータベースに実行
-- `database/migrations/log`のマイグレーションをlogデータベースに実行
-- `database/migrations/trx`のマイグレーションをtrx1およびtrx2データベースに実行
-
-注意: このコマンドはAPIサービスでのみ使用可能です。
-
-#### 個別データベースのマイグレーション
-
-特定のデータベースにのみマイグレーションを実行したい場合：
-
-```bash
-# APIプロジェクト
-docker exec api-php php artisan migrate --database=sys --path=database/migrations/sys
-docker exec api-php php artisan migrate --database=mst --path=database/migrations/mst
-docker exec api-php php artisan migrate --database=log --path=database/migrations/log
-docker exec api-php php artisan migrate --database=trx1 --path=database/migrations/trx
-docker exec api-php php artisan migrate --database=trx2 --path=database/migrations/trx
-
-# Toolプロジェクト
-docker exec tool-php php artisan migrate --database=adm --path=database/migrations/adm
-docker exec tool-php php artisan migrate --database=tol --path=database/migrations/tol
-```
-
-**重要**: trxマイグレーションは、内部的に`$connections`配列でtrx1とtrx2の両方に対してテーブルを作成します。そのため、trx1に対して実行すれば、trx2にも同じテーブルが作成されます。
-
-#### サービスの指定方法
-
-1. **フラグで指定** (推奨)
-   ```bash
-   ./command/sail --api artisan list
-   ./command/sail --tool artisan list
-   ```
-
-2. **環境変数で指定**
-   ```bash
-   SAIL_SERVICE=api-php ./command/sail artisan list
-   SAIL_SERVICE=tool-php ./command/sail artisan list
-   ```
-
-3. **デフォルト動作**
-   - サービスを指定しない場合は`api-php`がデフォルトで使用されます
-
-## 環境構築のルール
-
-### setup.shの役割と制約
-
-1. **完全なクリーンインストール**
-   - `setup.sh`は既存のDockerボリュームを完全に削除してから環境を構築します
-   - データの保持が必要な場合は、`setup.sh`を使用せず、個別にマイグレーションを実行してください
-
-2. **実行タイミング**
-   - プロジェクトの初回セットアップ時
-   - 環境を完全にリセットしたい時
-   - **本番環境では絶対に実行しないでください**
-
-3. **setup.shが行わないこと**
-   - シーダーの実行（必要に応じて手動で実行してください）
-   - テストデータの投入
-   - 環境変数の設定（.envファイルは事前に用意してください）
-
-### マイグレーションのルール
-
-1. **trxマイグレーションの特殊性**
-   - `api/database/migrations/trx`配下のマイグレーションは、内部的にtrx1とtrx2の両方に適用されます
-   - `$connections = ['trx1', 'trx2']`配列を使用してシャード対応しています
-   - **trx1に実行すれば十分**で、trx2にも自動的に反映されます
-
-2. **Laravelデフォルトテーブル**
-   - すべてのデータベースに`cache`, `cache_locks`, `jobs`, `job_batches`, `failed_jobs`テーブルが必要です
-   - これらはマイグレーションファイルで作成されます（`0001_01_01_000001_create_cache_table.php`など）
-   - `users`テーブルは作成せず、各プロジェクト固有のアカウントテーブル（例: `adm_account`）を使用します
-
-3. **マイグレーションファイルの配置**
-   ```
-   api/database/migrations/
-   ├── sys/          # sysデータベース用
-   ├── mst/          # mstデータベース用
-   ├── log/          # logデータベース用
-   └── trx/          # trx1, trx2データベース用（両方に適用）
-   
-   tool/database/migrations/
-   ├── adm/          # adminデータベース用
-   └── tol/          # toolデータベース用
-   ```
-
-### データベース命名規則
-
-1. **データベース名**
-   - フォーマット: `{APP_NAME}-{APP_ENV}-{接頭辞}`
-   - 例: `nexus-local-sys`, `nexus-local-mst`, `nexus-local-trx1`
-
-2. **テーブル名**
-   - 必ず接頭辞をつける: `sys_`, `mst_`, `log_`, `trx_`, `adm_`, `tol_`
-   - 単数形を使用（複数形にしない）
-   - 詳細は`.claude/database.md`を参照
-
-### Git操作のルール
-
-1. **コミットのタイミング**
-   - 意味のある単位でこまめにコミットする
-   - 機能追加、バグ修正、リファクタリングなどを明確に分ける
-   - コミットメッセージは日本語で記述する
-
-2. **コミット前のセキュリティチェック（必須）**
-
-   コミットを実行する前に、必ず以下のコマンドで機密情報が含まれていないかを確認する。
-   **このチェックはスキップ禁止。確認せずにコミットしてはならない。**
-
-   ```bash
-   # ステージング済みの差分を確認
-   git diff --cached
-   ```
-
-   以下のいずれかが含まれている場合はコミットを中止し、除外または環境変数参照に修正してから再確認する：
-
-   | チェック対象 | 例 |
-   |-------------|-----|
-   | APIトークン・シークレットキー | `xoxb-`, `sk-`, `ghp_` 等で始まる文字列 |
-   | パスワード | `password=xxx`, `passwd=xxx` 等の直書き |
-   | 秘密鍵・証明書 | `-----BEGIN PRIVATE KEY-----` 等 |
-   | 接続文字列 | `mysql://user:pass@host/db` 等の認証情報入り |
-   | `.env` ファイル本体 | `.env`（`.env.example` はOK） |
-   | AWS / GCP / Azure の認証情報 | `AKIA`, `AIza` 等で始まる文字列 |
-
-   機密情報を誤ってコミットした場合は、トークンを即座に無効化・再発行すること。
-
-3. **GitHubへのPUSH**
-   - **重要: OpenCodeエージェントは自動的にGitHubにPUSHしません**
-   - PUSHはユーザーが手動で行う必要があります
-   - コミットまでは自動で行いますが、PUSHは明示的な指示があった場合のみ実行します
-   - これは誤ったPUSHを防ぐための安全措置です
-
-4. **ブランチ戦略**
-   - **`main`ブランチには直接コミットしない**
-   - 作業を始める前に`main`から作業ブランチを切る（`git switch -c feature/xxx main`）
-   - ブランチ名には目的の接頭辞をつける: `feature/`, `fix/`, `refactor/`, `docs/`, `chore/`
-   - **ブランチ名は英語で書く**（日本語は使わない）。接頭辞のあとはケバブケース
-     （例: `feature/mailbox`, `fix/login-bonus-timezone`, `refactor/item-service`）
-   - コミットメッセージとPR本文は日本語のままでよい（英語にするのはブランチ名のみ）
-   - 作業ブランチにいるかどうかは、コミット前に`git branch --show-current`で確認する
-
-5. **PR（プルリクエスト）**
-   - `main`への反映は必ずPR経由で行う（`main`へのdirect pushは禁止）
-   - PRの作成: `gh pr create --base main`。タイトル・本文は日本語で記述する
-   - PR本文には「変更内容」「変更理由」「確認方法」を書く
-   - CI（`.github/workflows/ci.yml`）がグリーンになってからマージする
-   - マージ後は不要になった作業ブランチを削除する
-   - **PUSH・PR作成・マージはユーザーの明示的な指示があった場合のみ実行する**（上記2と同じ理由）
-
-6. **リモートリポジトリ**
-   - `git remote -v` で確認する
-   - SSHエイリアスを使う場合は各自の `~/.ssh/config` で設定する
-
-### 開発フロー
-
-1. **新しいマイグレーションを作成する場合**
-   ```bash
-   # 適切なディレクトリに作成
-   docker exec api-php php artisan make:migration create_mst_new_table --path=database/migrations/mst
-   
-   # マイグレーション実行
-   docker exec api-php php artisan migrate --database=mst --path=database/migrations/mst
-   ```
-
-2. **trxテーブルを追加する場合**
-   ```bash
-   # trxディレクトリにマイグレーション作成
-   docker exec api-php php artisan make:migration create_trx_new_table --path=database/migrations/trx
-   
-   # マイグレーションファイルに$connections配列を追加
-   # protected $connections = ['trx1', 'trx2'];
-   
-   # trx1に対して実行（trx2にも自動適用される）
-   docker exec api-php php artisan migrate --database=trx1 --path=database/migrations/trx
-   ```
-
-3. **マイグレーションのロールバック**
-   ```bash
-   # 個別データベース
-   docker exec api-php php artisan migrate:rollback --database=sys --path=database/migrations/sys
-   
-   # 完全にリセット
-   docker exec api-php php artisan migrate:fresh --database=sys --path=database/migrations/sys
-   ```
-
-## テストカバレッジ
-
-### 計測方法
-
-カバレッジドライバは **pcov** を使う。api-phpイメージに同梱済みで、
-`docker/api-php/Dockerfile` で `pcov.directory=/var/www` を設定して常時有効に
-してあるため、`-d pcov.enabled=1` のようなオプションを渡す必要はない。
-Xdebugは入れていない（pcovの方がカバレッジ計測だけなら十分速い）。
-
-`No code coverage driver available` と言われたら、イメージがDockerfileより
-古い。`make up` は `docker compose up -d --build` を実行するので通常は追いつくが、
-手動で `docker compose up -d` していた場合は拡張が入らないままになる。
-コンテナの中で `pecl install` して直すとイメージには残らず、
-次にコンテナが作り直された時点で消えるので、必ずイメージを作り直すこと。
-
-```bash
-# テキストで表示（クラスごとのMethods/Lines）
-make coverage
-
-# HTMLで出力（api/storage/coverage/index.html、gitignore済み）
-make coverage-html
-
-# 一部だけ計測したいとき
 docker compose exec -T api-php ./vendor/bin/phpunit --testsuite=Packages --coverage-text
-```
-
-### 計測対象
-
-`api/phpunit.xml` の `<source><include>` で指定している。
-`app` と各パッケージの `src` を列挙しているので、**パッケージを追加したら
-ここにも追記する**。追記を忘れると、そのパッケージは計測されないまま
-「カバレッジ100%」に見えてしまう。
-
-### 読むときの注意
-
-`--coverage-text` の一覧に **まったく実行されなかったファイルは出てこない**。
-pcovはロードされたファイルしか記録しないためで、「一覧に無い＝0%」と読む。
-「一覧に載っているクラスだけを見て埋まっている」と判断すると、
-手つかずのファイルを丸ごと見落とす。
-
-対象ディレクトリの取りこぼしを確認したいときは、ソースのファイル一覧と
-レポートに出てきたクラス一覧を突き合わせる。
-
-```bash
-# 例: Adapters配下でレポートに出てこないファイル（＝0%）を探す
 docker compose exec -T api-php ./vendor/bin/phpunit --coverage-text=/tmp/cov.txt > /dev/null
 docker compose exec -T api-php grep 'App.Adapters' /tmp/cov.txt
 ```
+
+- CI は `php artisan test --coverage --min=85`。下限は実測のすぐ下に置く
+
+## 静的解析とフォーマット
+
+- PHPStan は level 6（`api/phpstan.neon`）。対象は `app` と各パッケージの `src`。パッケージを追加したら `paths` にも足す。独自ルール `App\PHPStan\Rules\NoDirectEloquentSaveInServiceRule`（`api/phpstan/Rules/`）が有効
+- Pint の設定は `api/pint.json`（preset laravel）。packages にも同じ設定を当てる
+- tool は別アプリで、`tool/phpstan.neon`（level 6）と tool の Pint を `make tool-check` で回す
+- CI（`.github/workflows/ci.yml`）は3ジョブ: 静的解析・フォーマット / tool / テスト（api + packages）
+
+## よくある詰まりどころ
+
+- **引数なしの `php artisan migrate` を打った**: 既定接続は sqlite（`.env` の `DB_CONNECTION=sqlite`）で、実DBには何も入らない。`make migrate` を使う
+- **マイグレーションを書き換えたのに反映されない**: リリース前は既存のマイグレーションファイルを直接編集する運用で、`make migrate` は適用済みとして飛ばす。`make migrate-fresh` → `make seed` で作り直す（データは消える）。テストDBは指紋の変化で自動的に作り直される
+- **`No code coverage driver available`**: イメージが Dockerfile より古い。`make up`（`--build` 付き）で作り直す。コンテナ内で `pecl install` してもイメージには残らない
+- **`.env` を書き換えたのに反映されない**: `.env` は単一ファイルの bind マウントで、起動時のファイル実体に固定される。ファイルを置き換える保存方法だとコンテナは古い内容を読み続けるので、`make down` → `make up`。`config:cache` 済みなら `config:clear` も要る
+- **tool のテストでローカルの管理者アカウントが消えた**: `tool/phpunit.xml` が `DB_ADMIN_DATABASE=nexus-local-admin` を指定し、テストが `admin` 接続に `migrate:fresh` を流す。`make tool-check` の後は `AdminAccountSeeder` を流し直す（初回セットアップの最後の行）
+- **`./command/setup.sh` が途中で止まる**: 旧コンテナ名（db-sys, db-trx1 など）を前提にしており、コンテナを `down --volumes` で消した後の存在確認で失敗する。使わずに「初回セットアップ」の手順で進める。`api/tests/setup-test-db.sh` も同じく旧構成のままで使えない

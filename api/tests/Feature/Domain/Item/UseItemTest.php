@@ -64,11 +64,11 @@ class UseItemTest extends TestCase
     public function プレイヤー経験値アイテムを使うと効果量分の経験値が入る(): void
     {
         // value=100 のアイテムを3個 → 300exp
-        $response = $this->useCase->exec($this->sysPlayerId, self::PLAYER_EXP_ITEM_ID, 3);
+        $result = $this->useCase->exec($this->sysPlayerId, self::PLAYER_EXP_ITEM_ID, 3);
 
-        $this->assertSame('player_exp', $response->effect);
-        $this->assertSame(3, $response->itemUsed);
-        $this->assertSame(300, $response->appliedValue);
+        $this->assertSame('player_exp', $result->effect);
+        $this->assertSame(3, $result->itemUsed);
+        $this->assertSame(300, $result->appliedValue);
 
         $player = DB::connection('sys')->table('sys_player')->where('id', $this->sysPlayerId)->first();
         $this->assertSame(300, (int) $player->level_exp);
@@ -92,10 +92,10 @@ class UseItemTest extends TestCase
     #[Test]
     public function スタミナ回復アイテムを使うと効果量分回復する(): void
     {
-        $response = $this->useCase->exec($this->sysPlayerId, self::STAMINA_ITEM_ID, 2);
+        $result = $this->useCase->exec($this->sysPlayerId, self::STAMINA_ITEM_ID, 2);
 
-        $this->assertSame('stamina_recover', $response->effect);
-        $this->assertSame(60, $response->appliedValue);
+        $this->assertSame('stamina_recover', $result->effect);
+        $this->assertSame(60, $result->appliedValue);
 
         $stamina = DB::connection('trx1')->table('trx_stamina')
             ->where('sys_player_id', $this->sysPlayerId)

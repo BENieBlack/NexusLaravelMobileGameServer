@@ -2,13 +2,13 @@
 
 namespace Tests\Feature\Domain\Unit;
 
+use App\Domain\Unit\DataTransferObjects\LevelUpResult;
 use App\Domain\Unit\Services\UnitLevelService;
 use App\Domain\Unit\UseCases\LevelUpUseCase;
 use App\Exceptions\BusinessLogicException;
 use App\Exceptions\GameException;
 use App\Exceptions\MasterDataException;
 use App\Exceptions\TransactionDataException;
-use App\Http\Responses\Unit\LevelUpResponse;
 use App\Persistence\ApiSession;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\Attributes\Test;
@@ -73,16 +73,16 @@ class UnitLevelUpTest extends TestCase
     public function アイテムを使ってレベルが上がる(): void
     {
         // level 5（累積600）から、100expのアイテムを3個 = 300exp → 累積900 → level 6
-        $response = $this->levelUp(useCount: 3);
+        $result = $this->levelUp(useCount: 3);
 
-        $this->assertTrue($response->isLeveledUp);
-        $this->assertSame(5, $response->beforeLevel);
-        $this->assertSame(6, $response->afterLevel);
-        $this->assertSame(900, $response->totalExp);
-        $this->assertSame('SR', $response->rarity);
-        $this->assertSame(10, $response->maxLevel);
-        $this->assertSame(3, $response->itemUsed);
-        $this->assertSame(300, $response->expGained);
+        $this->assertTrue($result->isLeveledUp);
+        $this->assertSame(5, $result->beforeLevel);
+        $this->assertSame(6, $result->afterLevel);
+        $this->assertSame(900, $result->totalExp);
+        $this->assertSame('SR', $result->rarity);
+        $this->assertSame(10, $result->maxLevel);
+        $this->assertSame(3, $result->itemUsed);
+        $this->assertSame(300, $result->expGained);
 
         $this->assertSame(6, $this->findUnit()->level);
         $this->assertSame(900, (int) $this->findUnit()->level_exp);
@@ -102,25 +102,25 @@ class UnitLevelUpTest extends TestCase
     public function 経験値が足りなければレベルは据え置きで経験値だけ増える(): void
     {
         // level 5（累積600）に100exp足しても level 6（800）には届かない
-        $response = $this->levelUp(useCount: 1);
+        $result = $this->levelUp(useCount: 1);
 
-        $this->assertFalse($response->isLeveledUp);
-        $this->assertSame(5, $response->beforeLevel);
-        $this->assertSame(5, $response->afterLevel);
-        $this->assertSame(700, $response->totalExp);
-        $this->assertSame(100, $response->expToNext, '次のレベルまで残り100');
+        $this->assertFalse($result->isLeveledUp);
+        $this->assertSame(5, $result->beforeLevel);
+        $this->assertSame(5, $result->afterLevel);
+        $this->assertSame(700, $result->totalExp);
+        $this->assertSame(100, $result->expToNext, '次のレベルまで残り100');
     }
 
     #[Test]
     public function 最大レベルを超える経験値でも最大レベルで止まる(): void
     {
         // 100exp × 50個 = 5000exp。level 10（2000）を大きく超える
-        $response = $this->levelUp(useCount: 50);
+        $result = $this->levelUp(useCount: 50);
 
-        $this->assertSame(10, $response->afterLevel);
-        $this->assertSame(5600, $response->totalExp, '経験値そのものは加算される');
+        $this->assertSame(10, $result->afterLevel);
+        $this->assertSame(5600, $result->totalExp, '経験値そのものは加算される');
         $this->assertSame(5600, (int) $this->findUnit()->level_exp);
-        $this->assertNull($response->expToNext, '最大レベルなので次は無い');
+        $this->assertNull($result->expToNext, '最大レベルなので次は無い');
     }
 
     // ========================================
@@ -254,7 +254,7 @@ class UnitLevelUpTest extends TestCase
         $this->assertNull(app(UnitLevelService::class)->calcExpToNextLevel('UR', 1, 0));
     }
 
-    private function levelUp(int $useCount): LevelUpResponse
+    private function levelUp(int $useCount): LevelUpResult
     {
         return app(LevelUpUseCase::class)->exec(
             $this->sysPlayerId,

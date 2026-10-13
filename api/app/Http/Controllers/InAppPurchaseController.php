@@ -8,6 +8,7 @@ use App\Domain\InAppPurchase\UseCases\BuyPassUseCase;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Http\Requests\InAppPurchase\BuyRequest;
+use App\Http\Responses\InAppPurchase\BuyResponse;
 use App\Repositories\Mst\MstInAppPurchaseRepository;
 use Illuminate\Http\JsonResponse;
 
@@ -49,7 +50,7 @@ class InAppPurchaseController extends _BaseController
         }
 
         // 商品タイプに応じてUseCaseを選択
-        return $this->execute(fn () => match ($product->getType()) {
+        return $this->execute(fn () => BuyResponse::fromResult(match ($product->getType()) {
             'diamond' => $buyDiamondUseCase->exec($sysPlayerId, $product, $platform, $billingPlatform, $receipt, $transactionId, $productId),
             'pack' => $buyPackUseCase->exec($sysPlayerId, $product, $platform, $billingPlatform, $receipt, $transactionId, $productId),
             'pass' => $buyPassUseCase->exec($sysPlayerId, $product, $platform, $billingPlatform, $receipt, $transactionId, $productId),
@@ -57,6 +58,6 @@ class InAppPurchaseController extends _BaseController
                 GameErrorCode::INVALID_PRODUCT_TYPE,
                 'Invalid product type'
             ),
-        });
+        }));
     }
 }

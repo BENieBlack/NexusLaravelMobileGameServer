@@ -3,10 +3,10 @@
 namespace App\Domain\InAppPurchase\UseCases;
 
 use App\Domain\_BaseUseCase;
+use App\Domain\InAppPurchase\DataTransferObjects\BuyResult;
 use App\Domain\InAppPurchase\Services\InAppPurchaseValidationService;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
-use App\Http\Responses\InAppPurchase\BuyResponse;
 use App\Models\Log\LogInAppPurchase;
 use App\Models\Mst\MstInAppPurchase;
 use App\Repositories\Log\LogInAppPurchaseRepository;
@@ -61,7 +61,7 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
         string $receipt,
         ?string $transactionId,
         string $productId
-    ): BuyResponse {
+    ): BuyResult {
         // 1. レシートデータを作成
         $receiptData = $this->createReceiptData(
             $sysPlayerId,
@@ -108,7 +108,7 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
                 $uniqueRequestId
             ) {
                 // 6-1. 商品タイプ固有の購入処理（サブクラス実装）
-                $response = $this->executePurchase(
+                $result = $this->executePurchase(
                     $sysPlayerId,
                     $mstInAppPurchase,
                     $platform,
@@ -135,7 +135,7 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
                     $uniqueRequestId
                 );
 
-                return $response;
+                return $result;
             });
         } catch (Throwable $e) {
             // 失敗もCS調査で追えるように記録する。
@@ -477,5 +477,5 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
         string $platform,
         string $billingPlatform,
         Verification $verification
-    ): BuyResponse;
+    ): BuyResult;
 }

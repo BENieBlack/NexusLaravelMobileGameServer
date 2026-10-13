@@ -2,7 +2,9 @@
 
 namespace NexusGacha\Tests\Unit\Strategies;
 
-use Nexus\Core\Support\CustomCollection;
+use NexusGacha\DataTransferObjects\PrizeCandidate;
+use NexusGacha\DataTransferObjects\RarityRate;
+use NexusGacha\DataTransferObjects\StepBonus;
 use NexusGacha\Exceptions\GachaDrawException;
 use NexusGacha\Repositories\GachaPrizeRepositoryInterface;
 use NexusGacha\Repositories\GachaRarityRateRepositoryInterface;
@@ -66,9 +68,9 @@ class NoneDrawStrategyTest extends TestCase
         $bonus = $this->createBonusMock('none', 5, false);
 
         // レアリティ5の景品を準備
-        $prizes = new CustomCollection([
+        $prizes = [
             $this->createPrizeMock('Unit', 'unit_ssr_001', 1, 100),
-        ]);
+        ];
 
         $this->prizeRepository
             ->expects($this->once())
@@ -95,11 +97,11 @@ class NoneDrawStrategyTest extends TestCase
         $bonus = $this->createBonusMock('none', null, false);
 
         // レアリティ確率を準備
-        $rarityRates = new CustomCollection([
+        $rarityRates = [
             $this->createRarityRateMock(1, 70),
             $this->createRarityRateMock(2, 20),
             $this->createRarityRateMock(3, 10),
-        ]);
+        ];
 
         $this->rarityRateRepository
             ->expects($this->once())
@@ -108,9 +110,9 @@ class NoneDrawStrategyTest extends TestCase
             ->willReturn($rarityRates);
 
         // 抽選されたレアリティの景品を準備
-        $prizes = new CustomCollection([
+        $prizes = [
             $this->createPrizeMock('Item', 'item_001', 10, 100),
-        ]);
+        ];
 
         $this->prizeRepository
             ->expects($this->once())
@@ -130,9 +132,9 @@ class NoneDrawStrategyTest extends TestCase
         // is_pickup_only=trueの場合、ピックアップ景品のみを抽選
         $bonus = $this->createBonusMock('none', 5, true);
 
-        $prizes = new CustomCollection([
+        $prizes = [
             $this->createPrizeMock('Unit', 'pickup_unit', 1, 100),
-        ]);
+        ];
 
         $this->prizeRepository
             ->expects($this->once())
@@ -157,12 +159,12 @@ class NoneDrawStrategyTest extends TestCase
             ->method('selectByGachaIdAndRarity')
             ->willReturnCallback(function ($gachaId, $rarity, $pickupOnly) {
                 if ($pickupOnly) {
-                    return new CustomCollection([]); // ピックアップなし
+                    return []; // ピックアップなし
                 }
 
-                return new CustomCollection([
+                return [
                     $this->createPrizeMock('Item', 'normal_item', 10, 100),
-                ]);
+                ];
             });
 
         $result = $this->strategy->draw($bonus, null, 'gacha_001', $this->context);
@@ -183,7 +185,7 @@ class NoneDrawStrategyTest extends TestCase
             ->expects($this->once())
             ->method('selectByGachaIdAndRarity')
             ->with('gacha_001', 5, false)
-            ->willReturn(new CustomCollection([]));
+            ->willReturn([]);
 
         $this->strategy->draw($bonus, null, 'gacha_001', $this->context);
     }
@@ -194,10 +196,10 @@ class NoneDrawStrategyTest extends TestCase
         $bonus = $this->createBonusMock('none', null, false);
 
         // レアリティ1が100%、レアリティ2が0%
-        $rarityRates = new CustomCollection([
+        $rarityRates = [
             $this->createRarityRateMock(1, 100),
             $this->createRarityRateMock(2, 0),
-        ]);
+        ];
 
         $this->rarityRateRepository
             ->expects($this->once())
@@ -205,9 +207,9 @@ class NoneDrawStrategyTest extends TestCase
             ->with('gacha_001')
             ->willReturn($rarityRates);
 
-        $prizes = new CustomCollection([
+        $prizes = [
             $this->createPrizeMock('Item', 'common_item', 10, 100),
-        ]);
+        ];
 
         // レアリティ1で抽選されるはず
         $this->prizeRepository
@@ -224,75 +226,37 @@ class NoneDrawStrategyTest extends TestCase
     /**
      * ボーナスのモックを作成
      */
-    private function createBonusMock(string $selectionType, ?int $bonusRarity, bool $isPickupOnly): object
+    private function createBonusMock(string $selectionType, ?int $bonusRarity, bool $isPickupOnly): StepBonus
     {
-        return new class($selectionType, $bonusRarity, $isPickupOnly)
-        {
-            public function __construct(
-                private string $selectionType,
-                private ?int $bonusRarity,
-                private bool $isPickupOnly
-            ) {}
-
-            public function getAttribute(string $key): mixed
-            {
-                return match ($key) {
-                    'selection_type' => $this->selectionType,
-                    'bonus_rarity' => $this->bonusRarity,
-                    'is_pickup_only' => $this->isPickupOnly,
-                    default => null,
-                };
-            }
-        };
+        return new StepBonus(
+            id: 'bonus_001',
+            position: 1,
+            bonusCount: 1,
+            selectionType: $selectionType,
+            bonusRarity: $bonusRarity,
+            isPickupOnly: $isPickupOnly,
+        );
     }
 
     /**
      * 景品のモックを作成
      */
-    private function createPrizeMock(string $contentType, string $contentMstId, int $amount, int $weight): object
+    private function createPrizeMock(string $contentType, string $contentMstId, int $amount, int $weight): PrizeCandidate
     {
-        return new class($contentType, $contentMstId, $amount, $weight)
-        {
-            public function __construct(
-                private string $contentType,
-                private string $contentMstId,
-                private int $amount,
-                private int $weight
-            ) {}
-
-            public function getAttribute(string $key): mixed
-            {
-                return match ($key) {
-                    'content_type' => $this->contentType,
-                    'content_mst_id' => $this->contentMstId,
-                    'amount' => $this->amount,
-                    'weight' => $this->weight,
-                    default => null,
-                };
-            }
-        };
+        return new PrizeCandidate(
+            contentType: $contentType,
+            contentMstId: $contentMstId,
+            contentOption: null,
+            amount: $amount,
+            weight: $weight,
+        );
     }
 
     /**
      * レアリティ確率のモックを作成
      */
-    private function createRarityRateMock(int $rarity, int $rate): object
+    private function createRarityRateMock(int $rarity, int $rate): RarityRate
     {
-        return new class($rarity, $rate)
-        {
-            public function __construct(
-                private int $rarity,
-                private int $rate
-            ) {}
-
-            public function getAttribute(string $key): mixed
-            {
-                return match ($key) {
-                    'rarity' => $this->rarity,
-                    'rate' => $this->rate,
-                    default => null,
-                };
-            }
-        };
+        return new RarityRate(rarity: $rarity, rate: $rate);
     }
 }

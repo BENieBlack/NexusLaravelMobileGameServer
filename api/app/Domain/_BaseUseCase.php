@@ -21,11 +21,11 @@ use App\Traits\UseCaseTrait;
  * ```php
  * class SomeUseCase extends _BaseUseCase
  * {
- *     public function exec($param): Response
+ *     public function exec($param): SomeResult
  *     {
  *         return $this->executeWithTransaction(function () use ($param) {
  *             // ビジネスロジック
- *             return new Response(...);
+ *             return new SomeResult(...);
  *         });
  *     }
  *
@@ -39,8 +39,10 @@ use App\Traits\UseCaseTrait;
  *
  * ## 設計ガイドライン
  *
- * ### handle()メソッド
+ * ### exec()メソッド
  * - 各UseCaseで独自のシグネチャを定義
+ * - 戻り値はDTO（パッケージのDTO、または Domain/{Context}/DataTransferObjects/）にする。
+ *   App\Http に依存しないこと。Responseへの変換はControllerで行う
  * - トランザクション管理が必要な場合は`executeWithTransaction()`を使用
  * - 読み取り専用の処理はトランザクション不要
  *

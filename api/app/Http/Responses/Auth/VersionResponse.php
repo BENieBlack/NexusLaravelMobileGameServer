@@ -2,6 +2,7 @@
 
 namespace App\Http\Responses\Auth;
 
+use App\Domain\Version\DataTransferObjects\VersionResult;
 use App\Http\Responses\_BaseResponse;
 use App\Models\Sys\SysDeploy;
 use App\Models\Sys\SysMaintenance;
@@ -18,6 +19,18 @@ class VersionResponse extends _BaseResponse
         public readonly ?SysDeploy $sysDeploy = null,
         public readonly ?SysMaintenance $sysMaintenance = null,
     ) {}
+
+    /**
+     * UseCaseの結果からレスポンスを生成
+     */
+    public static function fromResult(VersionResult $result): self
+    {
+        return new self(
+            needsUpdate: $result->needsUpdate,
+            sysDeploy: $result->sysDeploy,
+            sysMaintenance: $result->sysMaintenance,
+        );
+    }
 
     /**
      * 配列に変換

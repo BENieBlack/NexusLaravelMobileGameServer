@@ -9,7 +9,9 @@ use App\Models\Trx\TrxUnit;
 use App\Repositories\Mst\MstUnitLevelRepository;
 use App\Repositories\Mst\MstUnitRepository;
 use App\Repositories\Trx\TrxUnitRepository;
+use Illuminate\Contracts\Events\Dispatcher;
 use NexusLevel\Services\_BaseLevelService;
+use NexusResource\Events\UnitLeveledUp;
 
 /**
  * UnitLevelService
@@ -32,6 +34,7 @@ class UnitLevelService extends _BaseLevelService implements UnitExperienceInterf
         private readonly MstUnitLevelRepository $mstUnitLevelRepository,
         private readonly MstUnitRepository $mstUnitRepository,
         private readonly TrxUnitRepository $trxUnitRepository,
+        private readonly Dispatcher $events,
     ) {}
 
     /**
@@ -216,5 +219,21 @@ class UnitLevelService extends _BaseLevelService implements UnitExperienceInterf
         $this->trxUnitRepository->setModel($entity);
     }
 
-    // onLevelUp()はオーバーライドしない（ユニットにはレベルアップ時の追加処理がない）
+    /**
+     * {@inheritDoc}
+     *
+     * レベルアップに反応する処理（ミッションの進捗など）は UnitLeveledUp の受け手に任せる。
+     * 受け手は同じUnitOfWorkで同期に処理される。
+     */
+    protected function onLevelUp(object $entity, int $beforeLevel, int $afterLevel): void
+    {
+        /** @var TrxUnit $entity */
+        $this->events->dispatch(new UnitLeveledUp(
+            sysPlayerId: $entity->getSysPlayerId(),
+            trxUnitId: $entity->getId(),
+            mstUnitId: $entity->getMstUnitId(),
+            beforeLevel: $beforeLevel,
+            afterLevel: $afterLevel,
+        ));
+    }
 }

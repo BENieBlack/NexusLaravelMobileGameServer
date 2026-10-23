@@ -1,0 +1,35 @@
+{
+    "name": "nexus/mission",
+    "description": "ミッションパッケージ。ゲーム内の出来事（トリガー）を数えて進捗を進め、目標に達したら報酬を受け取れる。条件にタグや属性を指定でき、1つの出来事で複数のミッションを同時に進められる。",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.4",
+        "nexus/core": "@dev",
+        "nexus/resource": "@dev",
+        "nexus/resource-delivery": "@dev"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.0",
+        "mockery/mockery": "^1.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "NexusMission\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "NexusMission\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "NexusMission\\MissionServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

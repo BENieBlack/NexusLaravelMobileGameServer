@@ -30,10 +30,12 @@ class PlayerSearchTest extends TestCase
             ['uuid' => 'player-uuid', 'name' => 'テストプレイヤー', 'created_at' => now(), 'updated_at' => now()],
         );
 
+        $player = DB::connection('sys')->table('sys_player')->where('my_id', 'PLAYER01')->first();
+
         $this->get(route('player.list', ['q' => 'PLAYER01']))
             ->assertOk()
             ->assertSee('テストプレイヤー')
-            ->assertSee(route('player.index', ['player_id' => 1]));
+            ->assertSee(route('player.index', ['player_id' => $player->id]));
 
         $this->get(route('player.list', ['q' => 'player-uuid']))
             ->assertOk()

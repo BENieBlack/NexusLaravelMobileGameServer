@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Broadcasting\ReverbNotificationDispatcher;
 use App\Domain\Album\Handlers\AlbumRecordingDeliveryHandler;
 use App\Domain\Equipment\Contracts\EquipmentExperienceInterface;
 use App\Domain\Equipment\Services\EquipmentLevelService;
@@ -108,6 +109,7 @@ use NexusMailbox\Repositories\MailboxRepositoryInterface;
 use NexusMission\Contracts\MissionMasterRepositoryInterface;
 use NexusMission\Repositories\MissionReceiptRepositoryInterface;
 use NexusMission\Repositories\ProgressRepositoryInterface;
+use NexusNotification\Contracts\NotificationDispatcherInterface;
 use NexusNotification\Contracts\NotificationRepositoryInterface;
 use NexusResource\Contracts\DiamondRepositoryInterface;
 use NexusResource\Contracts\ItemRepositoryInterface;
@@ -278,6 +280,7 @@ class AppServiceProvider extends ServiceProvider
 
         // ゲーム内通知
         $this->app->bind(NotificationRepositoryInterface::class, TrxNotificationRepository::class);
+        $this->app->bind(NotificationDispatcherInterface::class, ReverbNotificationDispatcher::class);
 
         // チャット（フレンドDM・ギルド・グループ）
         $this->app->bind(ChatRoomRepositoryInterface::class, SysChatRoomRepository::class);

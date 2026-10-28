@@ -51,6 +51,7 @@ docker compose exec -T tool-php php artisan db:seed --class=AdminAccountSeeder -
 | `make up` / `make down` | 起動（`--build` 付き）/ 停止 |
 | `make check` | CI と同じ検査（`pint-test` → `phpstan` → `test` → `tool-check`）。PR 前に回す |
 | `make test` | api の全テスト（Unit / Feature / Architecture / Packages） |
+| `make check-quiet` / `make test-quiet` | `check` / `test` と同じ検査。全文は `.make-logs/*.log` に書き、画面には成功の1行か、失敗の詳細と集計だけを出す。エージェントはこちらを使う |
 | `make test-unit` / `make test-feature` | そのスイートだけ |
 | `make test-fresh` | `migrate-fresh` と `seed` の後に全テスト |
 | `make tool-check` | tool の pint --test・phpstan・phpunit |

@@ -11,6 +11,7 @@ use App\Http\Controllers\GuildController;
 use App\Http\Controllers\InAppPurchaseController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\MailboxController;
+use App\Http\Controllers\AgreementController;
 use App\Http\Controllers\MissionController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PlayerController;
@@ -116,6 +117,10 @@ Route::middleware('maintenance')->group(function () {
         // Mission endpoints
         Route::get('/mission/list', [MissionController::class, 'list']);
         Route::post('/mission/receive', [MissionController::class, 'receive']);
+
+        // Agreement endpoints
+        Route::get('/agreement/pending', [AgreementController::class, 'pending']);
+        Route::post('/agreement/consent', [AgreementController::class, 'consent']);
 
         // Gacha endpoints
         Route::post('/gacha/draw', [GachaController::class, 'draw']);

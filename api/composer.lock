@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "42ac31b30e78a9a3d4aa4f996430c339",
+    "content-hash": "47ae582afd339a525502188569f37329",
     "packages": [
         {
             "name": "brick/math",
@@ -2607,6 +2607,56 @@
                 "source": "https://github.com/nette/utils/tree/v4.1.5"
             },
             "time": "2026-07-17T23:02:45+00:00"
+        },
+        {
+            "name": "nexus/agreement",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/nexus-agreement",
+                "reference": "c75469e35e9fa5693a0cf6b76074dc887c9a2ba0"
+            },
+            "require": {
+                "illuminate/database": "^12.0",
+                "illuminate/support": "^12.0",
+                "nexus/core": "*",
+                "php": "^8.4"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.6",
+                "phpunit/phpunit": "^11.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "NexusAgreement\\AgreementServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "NexusAgreement\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "NexusAgreement\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nexus Team",
+                    "email": "team@nexus.example.com"
+                }
+            ],
+            "description": "利用規約・同意管理パッケージ",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "nexus/album",
@@ -11355,6 +11405,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "nexus/agreement": 20,
         "nexus/album": 20,
         "nexus/chat": 20,
         "nexus/core": 20,

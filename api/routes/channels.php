@@ -2,6 +2,7 @@
 
 use App\Persistence\ApiSession;
 use Illuminate\Support\Facades\Broadcast;
+use NexusGuild\Repositories\GuildMemberRepositoryInterface;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,4 +26,30 @@ Broadcast::channel('notification.{sysPlayerId}', function ($user, string $sysPla
     }
 
     return ApiSession::getSysPlayerId() === (int) $sysPlayerId;
+});
+
+// ギルドチャンネル: presence-guild.{guildId}
+// ギルドメンバーのみ接続可能。プレゼンスチャンネルのためユーザー情報の配列を返す
+Broadcast::channel('guild.{guildId}', function ($user, int $guildId): array|false {
+    // ApiSession からプレイヤーIDを取得する（$user が null でも ApiSession から取得する）
+    if (! ApiSession::hasSysPlayerId()) {
+        return false;
+    }
+
+    $sysPlayerId = ApiSession::getSysPlayerId();
+
+    // ギルドメンバーか確認する
+    /** @var GuildMemberRepositoryInterface $guildMemberRepository */
+    $guildMemberRepository = app(GuildMemberRepositoryInterface::class);
+    $guildMember = $guildMemberRepository->selectByGuildAndPlayer($guildId, $sysPlayerId);
+
+    if ($guildMember === null) {
+        return false;
+    }
+
+    // プレゼンスチャンネルはユーザー情報の配列を返す必要がある
+    return [
+        'id'   => $guildMember->getSysPlayerId(),
+        'name' => (string) $guildMember->getSysPlayerId(),
+    ];
 });

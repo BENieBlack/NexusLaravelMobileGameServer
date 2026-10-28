@@ -18,10 +18,15 @@ enum NotificationType: string
     case FRIEND_APPLY_RECEIVED = 'friend_apply_received';
     case FRIEND_APPLY_ACCEPTED = 'friend_apply_accepted';
 
-    // ギルド系
+    // ギルド系（個人通知）
     case GUILD_APPLY_RECEIVED = 'guild_apply_received';
     case GUILD_APPLY_ACCEPTED = 'guild_apply_accepted';
     case GUILD_APPLY_REJECTED = 'guild_apply_rejected';
+
+    // ギルド全員宛（presence-guild チャンネルに流す）
+    case GUILD_MEMBER_JOINED = 'guild_member_joined';
+    case GUILD_MEMBER_LEFT   = 'guild_member_left';
+    case GUILD_LEVEL_UP      = 'guild_level_up';
 
     // メールボックス系
     case MAILBOX_RECEIVED = 'mailbox_received';

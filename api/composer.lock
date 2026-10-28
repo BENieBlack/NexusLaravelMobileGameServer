@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8c3d0444fec20ab000ce200dc47d5dd6",
+    "content-hash": "42ac31b30e78a9a3d4aa4f996430c339",
     "packages": [
         {
             "name": "brick/math",
@@ -3255,6 +3255,50 @@
             }
         },
         {
+            "name": "nexus/mission",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/nexus-mission",
+                "reference": "fb2ffb8078097c740ae7496ebfad4c537ef58a43"
+            },
+            "require": {
+                "nexus/core": "@dev",
+                "nexus/resource": "@dev",
+                "nexus/resource-delivery": "@dev",
+                "php": "^8.4"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.6",
+                "phpunit/phpunit": "^10.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "NexusMission\\MissionServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "NexusMission\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "NexusMission\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "ミッションパッケージ。ゲーム内の出来事（トリガー）を数えて進捗を進め、目標に達したら報酬を受け取れる。条件にタグや属性を指定でき、1つの出来事で複数のミッションを同時に進められる。",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "nexus/notification",
             "version": "dev-main",
             "dist": {
@@ -3524,6 +3568,48 @@
                 "MIT"
             ],
             "description": "Nexus Stamina Package - スタミナ管理パッケージ",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "nexus/tag",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/nexus-tag",
+                "reference": "36a50aacff01ef50b032c1dc487bb81ff2195f9f"
+            },
+            "require": {
+                "nexus/core": "@dev",
+                "php": "^8.4"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.6",
+                "phpunit/phpunit": "^10.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "NexusTag\\TagServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "NexusTag\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "NexusTag\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "汎用タグパッケージ。ユニット・アイテム・装備などのマスターに多対多でタグ（作品・種別・属性など）を付け、ミッションや図鑑、ガチャなどの機能から使い回す。",
             "transport-options": {
                 "relative": true
             }
@@ -7232,12 +7318,12 @@
             "version": "v5.7.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/vlucas/phpdotenv.git",
+                "url": "https://github.com/phpdotenv/phpdotenv.git",
                 "reference": "301c07936b16d88628b126b01d082ba153cf4c40"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vlucas/phpdotenv/zipball/301c07936b16d88628b126b01d082ba153cf4c40",
+                "url": "https://api.github.com/repos/phpdotenv/phpdotenv/zipball/301c07936b16d88628b126b01d082ba153cf4c40",
                 "reference": "301c07936b16d88628b126b01d082ba153cf4c40",
                 "shasum": ""
             },
@@ -11283,12 +11369,14 @@
         "nexus/login": 20,
         "nexus/mailbox": 20,
         "nexus/maintenance": 20,
+        "nexus/mission": 20,
         "nexus/notification": 20,
         "nexus/pitr": 20,
         "nexus/resource": 20,
         "nexus/resource-delivery": 20,
         "nexus/reward-track": 20,
         "nexus/stamina": 20,
+        "nexus/tag": 20,
         "nexus/tidb": 20,
         "nexus/version": 20,
         "nexus/vip": 20,

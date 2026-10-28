@@ -22,12 +22,14 @@ parameters:
         - ../packages/nexus-login/src
         - ../packages/nexus-mailbox/src
         - ../packages/nexus-maintenance/src
+        - ../packages/nexus-mission/src
         - ../packages/nexus-notification/src
         - ../packages/nexus-pitr/src
         - ../packages/nexus-resource/src
         - ../packages/nexus-reward-track/src
         - ../packages/nexus-resource-delivery/src
         - ../packages/nexus-stamina/src
+        - ../packages/nexus-tag/src
         - ../packages/nexus-tidb/src
         - ../packages/nexus-version/src
         - ../packages/nexus-vip/src

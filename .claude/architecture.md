@@ -140,7 +140,7 @@ $this->events?->dispatch(new PlayerLeveledUp($sysPlayerId, $beforeLevel, $afterL
 public function handle(PlayerLeveledUp $event): void { ... }
 ```
 
-現在の発行元は `PlayerLeveledUp`（nexus-level）と `VipLevelUpEvent`（nexus-vip）。
+現在の発行元は `PlayerLeveledUp`（nexus-level）、`VipLevelUpEvent`（nexus-vip）、`UnitLeveledUp`（nexus-resource。`UnitLevelService::onLevelUp()` が発行し、`Mission\Listeners\RecordMissionProgressOnUnitLevelUp` がミッションの進捗として数える）。
 
 ## 6. パッケージとアプリの境界
 
@@ -208,7 +208,7 @@ api/app/Providers/AppServiceProvider                                 ← bind(�
 |---|---|
 | 1-999 | `App\Exceptions\InfraErrorCode`（DB 100番台、Redis 200番台、暗号 300番台、データ整合性 400番台…、不明 999） |
 | 1000-9999 | 各パッケージの `*ErrorCode`（現在あるのは `WalletErrorCode` 1000番台、`StaminaErrorCode` 1100番台、`ResourceErrorCode` 1900番台） |
-| 10000-99999 | `App\Exceptions\GameErrorCode`。コンテキストごとに1000単位（Auth 10000、Player 11000、Unit 12000 … RewardTrack 22000、汎用 99000）。割り当ては同クラスの冒頭コメント |
+| 10000-99999 | `App\Exceptions\GameErrorCode`。コンテキストごとに1000単位（Auth 10000、Player 11000、Unit 12000 … RewardTrack 22000、Mission 23000、汎用 99000）。割り当ては同クラスの冒頭コメント |
 
 ### レスポンスへの変換
 
@@ -228,7 +228,7 @@ return GuildExceptionTranslator::forApplySend(function () use ($sysPlayerId, $gu
 });
 ```
 
-現在の Translator: Guild, Friend, Chat, RewardTrack。
+現在の Translator: Guild, Friend, Chat, RewardTrack, Mission。
 
 ## 10. アーキテクチャテスト
 

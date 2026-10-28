@@ -1,4 +1,27 @@
 services:
+  api-reverb:
+    build:
+      context: ./docker/api-php
+      dockerfile: Dockerfile
+    container_name: api-reverb
+    working_dir: /var/www/html
+    # Laravel Reverb WebSocket サーバー
+    command: ["php", "artisan", "reverb:start", "--host=0.0.0.0", "--port=8080"]
+    volumes:
+      - ./api:/var/www/html
+      - ./packages:/var/www/packages
+      - ./.env:/var/www/.env:ro
+      - ./.claude:/var/www/.claude:ro
+    environment:
+      - CLIENT_SECRET=${CLIENT_SECRET}
+      - DB_SHARD_COUNT=${DB_SHARD_COUNT:-2}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
+    networks:
+      - local-network
+
   api-php:
     build:
       context: ./docker/api-php

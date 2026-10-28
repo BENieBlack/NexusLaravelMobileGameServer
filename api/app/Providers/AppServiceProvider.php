@@ -50,6 +50,7 @@ use App\Repositories\Sys\PlayerRepositoryAdapter;
 use App\Repositories\Sys\SysChatMessageRepository;
 use App\Repositories\Sys\SysChatRoomMemberRepository;
 use App\Repositories\Sys\SysChatRoomRepository;
+use App\Repositories\Sys\AgreementRepository;
 use App\Repositories\Sys\SysMaintenanceRepository;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;
@@ -61,6 +62,7 @@ use App\Repositories\Trx\ItemRepositoryAdapter;
 use App\Repositories\Trx\LoginBonusHistoryRepositoryAdapter;
 use App\Repositories\Trx\MailboxRepositoryAdapter;
 use App\Repositories\Trx\MissionReceiptRepositoryAdapter;
+use NexusAgreement\Repositories\AgreementRepositoryInterface;
 use App\Repositories\Trx\ProgressRepositoryAdapter;
 use App\Repositories\Trx\StaminaRepositoryAdapter;
 use App\Repositories\Trx\TrxNotificationRepository;
@@ -293,6 +295,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(MissionMasterRepositoryInterface::class, MissionMasterRepositoryAdapter::class);
         $this->app->bind(ProgressRepositoryInterface::class, ProgressRepositoryAdapter::class);
         $this->app->bind(MissionReceiptRepositoryInterface::class, MissionReceiptRepositoryAdapter::class);
+
+        // 利用規約
+        $this->app->bind(AgreementRepositoryInterface::class, AgreementRepository::class);
 
         // ==========================================
         // NexusResource Package Bindings

@@ -112,6 +112,10 @@
         {
             "type": "path",
             "url": "../packages/nexus-mission"
+        },
+        {
+            "type": "path",
+            "url": "../packages/nexus-agreement"
         }
     ],
     "require": {
@@ -120,32 +124,33 @@
         "firebase/php-jwt": "^6.10",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
+        "nexus/agreement": "@dev",
+        "nexus/album": "@dev",
+        "nexus/chat": "@dev",
         "nexus/core": "@dev",
-        "nexus/core-security": "@dev",
-        "nexus/core-unit-of-work": "@dev",
         "nexus/core-auth": "@dev",
         "nexus/core-billing": "@dev",
-        "nexus/wallet": "@dev",
+        "nexus/core-security": "@dev",
+        "nexus/core-unit-of-work": "@dev",
+        "nexus/friend": "@dev",
+        "nexus/gacha": "@dev",
+        "nexus/guild": "@dev",
+        "nexus/level": "@dev",
+        "nexus/login": "@dev",
+        "nexus/mailbox": "@dev",
         "nexus/maintenance": "@dev",
+        "nexus/mission": "@dev",
+        "nexus/notification": "@dev",
+        "nexus/pitr": "@dev",
         "nexus/resource": "@dev",
         "nexus/resource-delivery": "@dev",
-        "nexus/login": "@dev",
-        "nexus/version": "@dev",
-        "nexus/stamina": "@dev",
-        "nexus/gacha": "@dev",
-        "nexus/mailbox": "@dev",
-        "nexus/vip": "@dev",
-        "nexus/level": "@dev",
-        "nexus/friend": "@dev",
-        "nexus/album": "@dev",
-        "nexus/tidb": "@dev",
-        "nexus/guild": "@dev",
-        "nexus/pitr": "@dev",
-        "nexus/notification": "@dev",
-        "nexus/chat": "@dev",
         "nexus/reward-track": "@dev",
+        "nexus/stamina": "@dev",
         "nexus/tag": "@dev",
-        "nexus/mission": "@dev"
+        "nexus/tidb": "@dev",
+        "nexus/version": "@dev",
+        "nexus/vip": "@dev",
+        "nexus/wallet": "@dev"
     },
     "require-dev": {
         "aliyun/aliyun-tablestore-sdk-php": "^6.0",
@@ -188,6 +193,7 @@
             "NexusVersion\\": "../packages/nexus-version/src/",
             "NexusVip\\": "../packages/nexus-vip/src/",
             "NexusWallet\\": "../packages/nexus-wallet/src/",
+            "NexusAgreement\\": "../packages/nexus-agreement/src/",
             "Nexus\\Core\\": "../packages/nexus-core/src/"
         }
     },

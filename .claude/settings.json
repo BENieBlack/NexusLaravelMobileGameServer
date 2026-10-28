@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(./api/vendor/**)",
+      "Read(./tool/vendor/**)",
+      "Read(./packages/*/vendor/**)",
+      "Read(./api/node_modules/**)",
+      "Read(./tool/node_modules/**)",
+      "Read(./.claude/node_modules/**)",
+      "Read(./api/storage/logs/**)",
+      "Read(./api/storage/coverage/**)"
+    ]
+  }
+}

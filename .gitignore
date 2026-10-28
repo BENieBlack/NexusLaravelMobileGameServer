@@ -33,3 +33,6 @@ Homestead.json
 auth.json
 packages/*/vendor/
 packages/*/composer.lock
+
+# make test-quiet / check-quiet のログ
+.make-logs/

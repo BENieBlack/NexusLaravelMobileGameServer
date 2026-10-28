@@ -6,6 +6,7 @@ use NexusNotification\Constants\NotificationType;
 use NexusNotification\Contracts\NotificationDispatcherInterface;
 use NexusNotification\Contracts\NotificationRepositoryInterface;
 use NexusNotification\DataTransferObjects\Notification;
+use NexusNotification\Events\GuildNotificationBroadcast;
 use NexusNotification\Events\NotificationCreated;
 
 /**
@@ -116,5 +117,41 @@ class NotificationService
     public function countUnread(int $playerId): int
     {
         return $this->repository->countUnread($playerId);
+    }
+
+    /**
+     * ギルド全員へ通知を送信する
+     *
+     * DBには保存せず、presence-guild チャンネルへブロードキャストするのみ。
+     * NotificationDispatcherInterface は個人通知用のため使用しない。
+     *
+     * @param  int  $guildId  送信先ギルドID
+     * @param  NotificationType  $type  通知種別（GUILD_MEMBER_JOINED 等）
+     * @param  string  $title  通知タイトル
+     * @param  string  $body  通知本文
+     * @param  array<string, mixed>  $payload  追加データ
+     */
+    public function notifyGuild(
+        int $guildId,
+        NotificationType $type,
+        string $title,
+        string $body,
+        array $payload = [],
+    ): void {
+        // ギルド全員向けなので playerId は 0 とし、DBには保存しない
+        $notification = new Notification(
+            id: 0,
+            playerId: 0,
+            type: $type,
+            title: $title,
+            body: $body,
+            payload: $payload,
+            isRead: false,
+            readAt: null,
+            createdAt: now()->format('Y-m-d H:i:s'),
+        );
+
+        // presence-guild.{guild_id} チャンネルへブロードキャスト
+        event(new GuildNotificationBroadcast($guildId, $notification));
     }
 }

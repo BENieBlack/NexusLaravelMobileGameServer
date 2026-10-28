@@ -100,6 +100,20 @@ docker compose exec -T api-php grep 'App.Adapters' /tmp/cov.txt
 - tool は別アプリで、`tool/phpstan.neon`（level 6）と tool の Pint を `make tool-check` で回す
 - CI（`.github/workflows/ci.yml`）は3ジョブ: 静的解析・フォーマット / tool / テスト（api + packages）
 
+## ブランチと PR
+
+- main へ直接コミットしない。`feature/` `fix/` `refactor/` `chore/` + 英語ケバブケースのブランチを main から切る。関係の無い修正は別ブランチに分ける
+- PR の本文は `.github/pull_request_template.md` の見出しをそのまま使い、各欄を埋める。空欄やコメント（`<!-- -->`）を残さない
+
+| 見出し | 書くこと |
+|---|---|
+| `## Summary` | 何のための変更か、なぜ必要か。不具合の修正なら原因も |
+| `## Changes` | 変更内容の箇条書き。追加・変更したパッケージ、テーブル、エンドポイント、イベント、エラーコード、ドキュメントなど。やっていないこと・後回しにしたことも書く |
+| `## Tests` | 実行したコマンドと結果（例: `make check` → 2078 passed）。追加したテスト。落ちたテストがあれば、原因と今回の変更との関係 |
+| `## Checklist` | 当てはまる項目にチェックを付ける。当てはまらない項目はチェックせず残す |
+
+- 本文はコミットメッセージの本文を元にしてよいが、テンプレートの見出しに振り分けて書く
+
 ## よくある詰まりどころ
 
 - **引数なしの `php artisan migrate` を打った**: 既定接続は sqlite（`.env` の `DB_CONNECTION=sqlite`）で、実DBには何も入らない。`make migrate` を使う

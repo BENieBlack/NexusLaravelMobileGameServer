@@ -30,12 +30,14 @@ class PlayerHistoryTest extends TestCase
     #[Test]
     public function プレイヤー履歴画面でログタブを切り替えられる(): void
     {
-        $this->get(route('player.log', ['player_id' => 1]))
+        $player = DB::connection('sys')->table('sys_player')->where('my_id', 'PLAYER01')->first();
+
+        $this->get(route('player.log', ['player_id' => $player->id]))
             ->assertOk()
             ->assertSee('プレイヤー履歴')
             ->assertSee('log_change_trx_player');
 
-        $this->get(route('player.log', ['player_id' => 1, 'tab' => 'change_player']))
+        $this->get(route('player.log', ['player_id' => $player->id, 'tab' => 'change_player']))
             ->assertOk()
             ->assertSee('log_change_trx_player');
     }

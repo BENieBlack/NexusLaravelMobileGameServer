@@ -7,7 +7,7 @@
 ## 進め方
 
 - 応答・コメント・コミットメッセージ・ドキュメントは日本語。識別子は英語。
-- main へ直接コミットしない。作業ブランチ（`feature/` `fix/` `refactor/` `chore/` + 英語ケバブケース）を切って PR でマージする。PR は `.github/pull_request_template.md` に沿って書く。
+- main へ直接コミットしない。作業ブランチ（`feature/` `fix/` `refactor/` `chore/` + 英語ケバブケース）を切って PR でマージする。PR は `.github/pull_request_template.md` の各欄に変更内容を記載する（書き方は `.claude/development.md` の「ブランチと PR」）。
 - 仕上げに `make check`（CIと同じ: pint → PHPStan → 全テスト → tool の検査）を通す。
 
 ## コマンド（Docker上で動かす。ホストで php / artisan を直接叩かない）
@@ -72,6 +72,6 @@
 | `.claude/naming-conventions.md` | クラス・変数・メソッドの名前を決めるとき |
 | `.claude/database.md` | テーブルやマイグレーションを追加・変更するとき、シャーディングやログテーブルを扱うとき |
 | `.claude/api.md` | エンドポイントを追加・変更するとき、レスポンス形式やマスターデータ配信を扱うとき |
-| `.claude/development.md` | 環境構築、テスト・カバレッジ・静的解析の詳細、環境が動かないとき |
+| `.claude/development.md` | 環境構築、テスト・カバレッジ・静的解析の詳細、PR を書くとき、環境が動かないとき |
 | `.claude/tool.md` | 運営ツール（`tool/`）を触るとき |
 | `.claude/skills/` | CS問い合わせの調査（cs-support）、スキルの作成（create-skill） |

@@ -5,9 +5,9 @@ namespace NexusAgreement\Models;
 use Nexus\Core\Models\Trx\_BaseTrx;
 
 /**
- * TrxAgreementConsent Model
+ * TrxAgreement Model
  *
- * プレイヤーの利用規約同意記録テーブル（trx_agreement_consent）
+ * プレイヤーの利用規約同意記録テーブル（trx_agreement）
  * insert only — 同意記録は不変の監査ログとして扱う
  * updated_at カラムなし
  *
@@ -16,14 +16,14 @@ use Nexus\Core\Models\Trx\_BaseTrx;
  * @property string $consented_at
  * @property ?string $created_at
  */
-class TrxAgreementConsent extends _BaseTrx
+class TrxAgreement extends _BaseTrx
 {
     /**
      * updated_at カラムなし（insert only）
      */
     public const UPDATED_AT = null;
 
-    protected $table = 'trx_agreement_consent';
+    protected $table = 'trx_agreement';
 
     /** @var list<string> */
     protected array $selectKeys = ['sys_player_id'];

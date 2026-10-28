@@ -11,7 +11,7 @@ use Illuminate\Support\ServiceProvider;
  *
  * 提供機能:
  * - DataTransferObjects: PendingAgreement
- * - Models: SysAgreement / TrxAgreementConsent
+ * - Models: SysAgreement / TrxAgreement
  * - Repositories: AgreementRepositoryInterface
  * - Services: AgreementService
  *

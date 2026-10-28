@@ -34,6 +34,7 @@ use NexusWallet\Exceptions\WalletErrorCode;
  * - 20000-20999: メールボックス関連エラー (Mailbox)
  * - 21000-21999: チャット関連エラー (Chat)
  * - 22000-22999: リワードトラック関連エラー (RewardTrack)
+ * - 23000-23999: ミッション関連エラー (Mission)
  * - 99000-99999: アプリケーション汎用エラー
  *
  * インフラ層エラーコード（3桁以下）はInfraErrorCodeで定義：
@@ -280,6 +281,17 @@ class GameErrorCode
     const REWARD_TRACK_PROGRESS_NOT_ENOUGH = 22009;
 
     const REWARD_TRACK_ALREADY_RECEIVED = 22010;
+
+    // ========================================
+    // ミッション関連エラー (23000-23999)
+    // ========================================
+    const MISSION_NOT_FOUND = 23001;
+
+    const MISSION_NOT_OPEN = 23002;
+
+    const MISSION_NOT_COMPLETED = 23003;
+
+    const MISSION_ALREADY_RECEIVED = 23004;
 
     // ========================================
     // アプリケーション汎用エラー (99000-99999)

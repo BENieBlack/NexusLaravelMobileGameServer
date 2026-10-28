@@ -1,0 +1,33 @@
+{
+    "name": "nexus/tag",
+    "description": "汎用タグパッケージ。ユニット・アイテム・装備などのマスターに多対多でタグ（作品・種別・属性など）を付け、ミッションや図鑑、ガチャなどの機能から使い回す。",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.4",
+        "nexus/core": "@dev"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.0",
+        "mockery/mockery": "^1.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "NexusTag\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "NexusTag\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "NexusTag\\TagServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

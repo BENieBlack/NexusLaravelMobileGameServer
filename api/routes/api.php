@@ -11,6 +11,7 @@ use App\Http\Controllers\GuildController;
 use App\Http\Controllers\InAppPurchaseController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\MailboxController;
+use App\Http\Controllers\MissionController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\RewardTrackController;
@@ -111,6 +112,10 @@ Route::middleware('maintenance')->group(function () {
         Route::post('/mailbox/receive', [MailboxController::class, 'receive']);
         Route::post('/mailbox/receive_all', [MailboxController::class, 'receiveAll']);
         Route::post('/mailbox/lock', [MailboxController::class, 'lock']);
+
+        // Mission endpoints
+        Route::get('/mission/list', [MissionController::class, 'list']);
+        Route::post('/mission/receive', [MissionController::class, 'receive']);
 
         // Gacha endpoints
         Route::post('/gacha/draw', [GachaController::class, 'draw']);

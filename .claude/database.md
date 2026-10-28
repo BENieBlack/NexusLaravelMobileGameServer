@@ -228,6 +228,8 @@ API（api/）の接続は `api/config/database.php`、Tool（tool/）の接続�
 | nexus-mailbox | `mst_message`（`__l10n` あり）, `mst_mailbox`, `mst_mailbox_content` |
 | nexus-reward-track | `mst_reward_track`, `mst_reward_track_line`, `mst_reward_track_milestone`, `mst_reward_track_content` |
 | nexus-vip | `mst_vip_level`, `mst_vip_level_reward`, `mst_vip_login_bonus`, `mst_vip_login_bonus_content` |
+| nexus-tag | `mst_tag`（`__l10n` あり）, `mst_tag_content`（タグとユニット・アイテム等の多対多） |
+| nexus-mission | `mst_mission`（`__l10n` あり）, `mst_mission_content` |
 
 ### trx（各シャード）
 
@@ -245,6 +247,7 @@ API（api/）の接続は `api/config/database.php`、Tool（tool/）の接続�
 | nexus-notification | `trx_notification` |
 | nexus-reward-track | `trx_reward_track`, `trx_reward_track_line`, `trx_reward_track_milestone` |
 | nexus-vip | `trx_vip_login_bonus` |
+| nexus-mission | `trx_progress`（出来事×タグの通算カウンタ）, `trx_mission`（受け取り記録） |
 
 ### log（各シャード、trx と同じDB）
 

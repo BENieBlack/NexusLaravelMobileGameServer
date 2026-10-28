@@ -124,6 +124,6 @@
 一覧は `api/routes/api.php` を見る。分類は次のとおり。
 
 - 認証不要: `auth`（sign_up / sign_in / refresh_token / version）、`maintenance/status`、`guild` の参照系
-- ログイン後: `auth`（version / login）、`player`、`in_app_purchase`、`item`、`unit`、`equipment`、`friend`、`album`、`guild`、`mailbox`、`gacha`、`notification`、`chat`、`reward-track`
+- ログイン後: `auth`（version / login）、`player`、`in_app_purchase`、`item`、`unit`、`equipment`、`friend`、`album`、`guild`、`mailbox`、`gacha`、`notification`、`chat`、`reward-track`、`mission`
 - 管理用: `admin/maintenance/*`（`auth.admin`）
 - 非推奨: `POST /signup`（`/auth/sign_up` と同じ処理）

@@ -14,6 +14,7 @@ use App\Domain\Item\Support\WalletItemMigrator;
 use App\Domain\Login\Services\ComeBackLoginBonusService;
 use App\Domain\Login\Services\LoginBonusService;
 use App\Domain\Login\Services\VipLoginBonusService;
+use App\Domain\Mission\Listeners\RecordMissionProgressOnUnitLevelUp;
 use App\Domain\Player\Services\ExperienceGranterAdapter;
 use App\Domain\Player\Services\PlayerLevelServiceAdapter;
 use App\Domain\Sharding\Contracts\ShardAssignerInterface;
@@ -27,6 +28,7 @@ use App\Persistence\ApiSession;
 use App\Repositories\Log\LogVipPointRepository;
 use App\Repositories\Mst\AlbumCatalogRepositoryAdapter;
 use App\Repositories\Mst\LoginBonusRepositoryAdapter;
+use App\Repositories\Mst\MissionMasterRepositoryAdapter;
 use App\Repositories\Mst\MstGachaPrizeRepository;
 use App\Repositories\Mst\MstGachaRarityRateRepository;
 use App\Repositories\Mst\MstGachaStepBonusContentRepository;
@@ -37,6 +39,7 @@ use App\Repositories\Mst\MstVipLevelRewardRepository;
 use App\Repositories\Mst\MstVipLoginBonusRepository;
 use App\Repositories\Mst\PlayerLevelRepositoryAdapter;
 use App\Repositories\Mst\RewardTrackMasterRepository;
+use App\Repositories\Mst\TagRepositoryAdapter;
 use App\Repositories\Mst\VipLoginBonusRepositoryInterface;
 use App\Repositories\Sys\DeployRepositoryAdapter;
 use App\Repositories\Sys\FriendApplyRepositoryAdapter;
@@ -57,6 +60,8 @@ use App\Repositories\Trx\GachaProgressRepositoryAdapter;
 use App\Repositories\Trx\ItemRepositoryAdapter;
 use App\Repositories\Trx\LoginBonusHistoryRepositoryAdapter;
 use App\Repositories\Trx\MailboxRepositoryAdapter;
+use App\Repositories\Trx\MissionReceiptRepositoryAdapter;
+use App\Repositories\Trx\ProgressRepositoryAdapter;
 use App\Repositories\Trx\StaminaRepositoryAdapter;
 use App\Repositories\Trx\TrxNotificationRepository;
 use App\Repositories\Trx\TrxRewardTrackLineRepository;
@@ -98,9 +103,13 @@ use NexusLogin\Repositories\LoginBonusHistoryRepositoryInterface;
 use NexusLogin\Repositories\LoginBonusRepositoryInterface;
 use NexusLogin\Services\LoginBonusOrchestrator;
 use NexusMailbox\Repositories\MailboxRepositoryInterface;
+use NexusMission\Contracts\MissionMasterRepositoryInterface;
+use NexusMission\Repositories\MissionReceiptRepositoryInterface;
+use NexusMission\Repositories\ProgressRepositoryInterface;
 use NexusNotification\Contracts\NotificationRepositoryInterface;
 use NexusResource\Contracts\DiamondRepositoryInterface;
 use NexusResource\Contracts\ItemRepositoryInterface;
+use NexusResource\Events\UnitLeveledUp;
 use NexusResourceDelivery\Contracts\EquipmentRepositoryInterface;
 use NexusResourceDelivery\Contracts\ExperienceGranterInterface;
 use NexusResourceDelivery\Contracts\ItemGranterInterface;
@@ -127,6 +136,7 @@ use NexusSecurity\Contracts\PlayerSessionInterface;
 use NexusSecurity\Contracts\TokenValidatorInterface;
 use NexusStamina\Repositories\StaminaRepositoryInterface;
 use NexusStamina\Services\PlayerLevelServiceInterface;
+use NexusTag\Repositories\TagRepositoryInterface;
 use NexusUnitOfWork\Contracts\PlayerSessionResolverInterface;
 use NexusVersion\Repositories\DeployRepositoryInterface;
 use NexusVersion\Repositories\MaintenanceRepositoryInterface;
@@ -276,6 +286,14 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(AlbumEntryRepositoryInterface::class, AlbumEntryRepositoryAdapter::class);
         $this->app->bind(AlbumCatalogRepositoryInterface::class, AlbumCatalogRepositoryAdapter::class);
 
+        // タグ（ミッション・図鑑・ガチャなどで使い回す）
+        $this->app->bind(TagRepositoryInterface::class, TagRepositoryAdapter::class);
+
+        // ミッション
+        $this->app->bind(MissionMasterRepositoryInterface::class, MissionMasterRepositoryAdapter::class);
+        $this->app->bind(ProgressRepositoryInterface::class, ProgressRepositoryAdapter::class);
+        $this->app->bind(MissionReceiptRepositoryInterface::class, MissionReceiptRepositoryAdapter::class);
+
         // ==========================================
         // NexusResource Package Bindings
         // ==========================================
@@ -390,6 +408,7 @@ class AppServiceProvider extends ServiceProvider
 
         // ドメインイベントの受け手（同期・同一UnitOfWork内で処理する）
         Event::listen(PlayerLeveledUp::class, RecoverStaminaOnPlayerLevelUp::class);
+        Event::listen(UnitLeveledUp::class, RecordMissionProgressOnUnitLevelUp::class);
 
         // Load migrations from subdirectories
         $this->loadMigrationsFrom([

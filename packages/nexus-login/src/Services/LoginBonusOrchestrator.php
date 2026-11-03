@@ -56,12 +56,10 @@ class LoginBonusOrchestrator
                 $rewards = $strategy->process($sysPlayerId, $lastLoginAt);
 
                 // クラス名から戦略の種類を判定
+                // VIP と通常はどちらも daily に入るため、上書きせずに追加する
                 $className = get_class($strategy);
-                if (str_contains($className, 'ComeBackLoginBonusService')) {
-                    $results['comeback'] = $rewards;
-                } else {
-                    $results['daily'] = $rewards;
-                }
+                $key = str_contains($className, 'ComeBackLoginBonusService') ? 'comeback' : 'daily';
+                $results[$key] = [...$results[$key], ...$rewards];
             }
         }
 

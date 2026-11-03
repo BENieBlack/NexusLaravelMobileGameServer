@@ -8,6 +8,7 @@ use App\Models\Sys\SysPlayer;
 use Carbon\CarbonImmutable;
 use Database\Seeders\SysShardingSeeder;
 use Illuminate\Support\Facades\DB;
+use NexusVip\Services\VipLevelService;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
@@ -53,12 +54,15 @@ class HomeUseCaseTest extends TestCase
         // テストデータをクリア
         foreach (['trx1', 'trx2'] as $connection) {
             DB::connection($connection)->table('trx_login_bonus')->delete();
+            DB::connection($connection)->table('trx_vip_login_bonus')->delete();
             DB::connection($connection)->table('trx_unit')->delete();
             DB::connection($connection)->table('trx_item')->delete();
             DB::connection($connection)->table('trx_wallet')->delete();
         }
         DB::connection('mst')->table('mst_login_bonus_content')->delete();
         DB::connection('mst')->table('mst_login_bonus')->delete();
+        DB::connection('mst')->table('mst_vip_login_bonus_content')->where('mst_vip_login_bonus_id', 'test_vip_login')->delete();
+        DB::connection('mst')->table('mst_vip_login_bonus')->where('id', 'test_vip_login')->delete();
 
         parent::tearDown();
     }
@@ -356,6 +360,98 @@ class HomeUseCaseTest extends TestCase
 
         // ログインボーナスが空
         $this->assertEmpty($data['login_bonus_list']);
+    }
+
+    #[Test]
+    public function test_vipログインボーナスも通常と同じログインで配布される(): void
+    {
+        // 現在のVIPレベル向けのVIPログインボーナスを用意する（既存の同レベルのマスターは無効にする）
+        $vipLevel = app(VipLevelService::class)->calculateLevel($this->testPlayer->getVipPoint());
+        DB::connection('mst')->table('mst_vip_login_bonus')->where('vip_level', $vipLevel)->update(['is_active' => false]);
+        DB::connection('mst')->table('mst_vip_login_bonus')->insert([
+            'id' => 'test_vip_login',
+            'vip_level' => $vipLevel,
+            'loop_days' => 7,
+            'is_active' => true,
+        ]);
+        DB::connection('mst')->table('mst_vip_login_bonus_content')->insert([
+            'mst_vip_login_bonus_id' => 'test_vip_login',
+            'day' => 1,
+            'content_type' => 'diamond',
+            'content_mst_id' => 'diamond',
+            'content_quantity' => 5,
+            'amount' => 1,
+        ]);
+        $this->refreshMstCache();
+        $this->testPlayer->update(['last_login_at' => null]);
+
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer '.$this->accessToken,
+        ])->postJson('/api/auth/login');
+
+        $response->assertOk();
+        $loginBonusList = collect($response->json('login_bonus_list'));
+
+        // 通常（アイテム10個）とVIP（ダイヤ5個）の両方が返る
+        $this->assertCount(2, $loginBonusList);
+        $this->assertSame(10, $loginBonusList->firstWhere('type', 'item')['amount']);
+        $this->assertSame(5, $loginBonusList->firstWhere('type', 'diamond')['amount']);
+
+        $vipHistory = DB::connection($this->playerConnection($this->testPlayer->id))
+            ->table('trx_vip_login_bonus')
+            ->where('sys_player_id', $this->testPlayer->id)
+            ->first();
+        $this->assertNotNull($vipHistory);
+        $this->assertSame('test_vip_login', $vipHistory->mst_vip_login_bonus_id);
+    }
+
+    #[Test]
+    public function test_休眠明けのログインでカムバックボーナスが配布される(): void
+    {
+        MstLoginBonus::create([
+            'id' => 'comeback_7',
+            'type' => 'comeback',
+            'loop_days' => 0,
+            'required_absent_days' => 7,
+            'valid_days' => 14,
+            'priority' => 100,
+            'is_active' => true,
+        ]);
+        MstLoginBonusContent::create([
+            'mst_login_bonus_id' => 'comeback_7',
+            'day' => 0,
+            'content_type' => 'diamond',
+            'content_mst_id' => 'diamond',
+            'amount' => 300,
+            'is_paid' => false,
+            'sort_order' => 1,
+        ]);
+        $this->refreshMstCache();
+
+        $now = CarbonImmutable::parse('2026-04-20 10:00:00', 'UTC');
+        $this->travelTo($now);
+        $this->testPlayer->update(['last_login_at' => $now->subDays(8)->format('Y-m-d H:i:s')]);
+
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer '.$this->accessToken,
+        ])->postJson('/api/auth/login');
+
+        $response->assertOk();
+        $loginBonusList = collect($response->json('login_bonus_list'));
+
+        // カムバック（ダイヤ300個）が通常のボーナスと一緒に返る
+        $this->assertSame(300, $loginBonusList->firstWhere('type', 'diamond')['amount']);
+        $this->assertNotNull($loginBonusList->firstWhere('type', 'item'));
+
+        $comebackHistory = DB::connection($this->playerConnection($this->testPlayer->id))
+            ->table('trx_login_bonus')
+            ->where('sys_player_id', $this->testPlayer->id)
+            ->where('type', 'comeback')
+            ->first();
+        $this->assertNotNull($comebackHistory);
+        $this->assertSame('comeback_7', $comebackHistory->mst_login_bonus_id);
+
+        $this->travelBack();
     }
 
     #[Test]

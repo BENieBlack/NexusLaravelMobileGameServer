@@ -196,8 +196,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(VipLoginBonusRepositoryInterface::class, MstVipLoginBonusRepository::class);
         $this->app->bind(VipLoginBonusHistoryRepositoryInterface::class, TrxVipLoginBonusRepository::class);
 
-        // LoginBonusOrchestrator (singleton)
-        $this->app->singleton(LoginBonusOrchestrator::class);
+        // LoginBonusOrchestrator（リクエストスコープ）
+        // 登録する戦略が scoped の QueryManager を使う Repository を持つため、singleton にしない
+        $this->app->scoped(LoginBonusOrchestrator::class);
 
         // ==========================================
         // NexusVersion Package Bindings

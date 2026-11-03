@@ -5,6 +5,7 @@ namespace App\Repositories\Sys;
 use App\Models\Sys\SysGuildMember;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * SysGuildMemberRepository
@@ -141,7 +142,7 @@ class SysGuildMemberRepository extends _BaseSysRepository
         $member->setSysGuildId($guildId);
         $member->setSysPlayerId($playerId);
         $member->setRole($role);
-        $member->setJoinedAt(now()->format('Y-m-d H:i:s'));
+        $member->setJoinedAt(ClockUtility::now()->format('Y-m-d H:i:s'));
         $member->exists = false;
         $this->setModel($member);
 

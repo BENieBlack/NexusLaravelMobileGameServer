@@ -93,6 +93,28 @@ class ModuleBoundaryTest extends TestCase
     }
 
     #[Test]
+    public function test_domain_does_not_read_the_http_request(): void
+    {
+        $violations = [];
+
+        foreach ($this->phpFiles($this->appRoot().'/Domain') as $file) {
+            $code = $this->stripComments((string) file_get_contents($file));
+
+            // use 文を書かずに済む request() ヘルパーは、名前空間の検査では見つからない
+            if (preg_match('/(?<![\w>:$])request\(/', $code) === 1) {
+                $violations[] = $this->relativePath($file);
+            }
+        }
+
+        $this->assertSame(
+            [],
+            $violations,
+            'app/Domain で request() を呼ばないでください。'
+            .'ヘッダーなどリクエストの値は Controller で取り出し、UseCase の引数で渡してください。'
+        );
+    }
+
+    #[Test]
     public function test_domain_contexts_do_not_reach_into_each_other(): void
     {
         $violations = [];

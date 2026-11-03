@@ -181,7 +181,7 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
      */
     public function revoke(): void
     {
-        $this->revoked_at = now();
+        $this->revoked_at = ClockUtility::now();
     }
 
     /**
@@ -191,7 +191,7 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
     {
         return static::where('refresh_token_hash', $tokenHash)
             ->whereNull('revoked_at')
-            ->where('expires_at', '>', now())
+            ->where('expires_at', '>', ClockUtility::now())
             ->first();
     }
 
@@ -204,7 +204,7 @@ class SysPlayerToken extends _BaseSys implements TokenModelInterface
     public function scopeValid($query)
     {
         return $query->whereNull('revoked_at')
-            ->where('expires_at', '>', now());
+            ->where('expires_at', '>', ClockUtility::now());
     }
 
     /**

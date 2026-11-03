@@ -2,8 +2,6 @@
 
 namespace Tests\Feature\Broadcasting;
 
-use App\Models\Sys\SysGuild;
-use App\Models\Sys\SysGuildMember;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;
@@ -35,6 +33,18 @@ class GuildChannelAuthTest extends TestCase
     {
         parent::setUp();
 
+        // phpunit.xml は BROADCAST_CONNECTION=null で、null は認証を判定せず常に200を返す。
+        // 認証の可否を確かめるため、このテストだけ reverb（Pusher 方式）に切り替える。
+        // 署名はローカルで作るので Reverb サーバーは要らない。
+        // チャンネル定義は起動時の接続に登録されているため、切り替えた接続に登録し直す
+        config([
+            'broadcasting.default' => 'reverb',
+            'broadcasting.connections.reverb.key' => 'test-key',
+            'broadcasting.connections.reverb.secret' => 'test-secret',
+            'broadcasting.connections.reverb.app_id' => 'test-app',
+        ]);
+        require base_path('routes/channels.php');
+
         ['player' => $player, 'token' => $token] = $this->signUpPlayer();
         $this->sysPlayerId = $player->getId();
         $this->token = $token;
@@ -59,8 +69,8 @@ class GuildChannelAuthTest extends TestCase
 
         $response = $this->withHeaders($this->authHeaders($this->token))
             ->postJson('/broadcasting/auth', [
-                'socket_id'    => '123.456',
-                'channel_name' => 'presence-guild.' . $this->guildId,
+                'socket_id' => '123.456',
+                'channel_name' => 'presence-guild.'.$this->guildId,
             ]);
 
         $response->assertOk();
@@ -75,19 +85,19 @@ class GuildChannelAuthTest extends TestCase
 
         $response = $this->withHeaders($this->authHeaders($this->token))
             ->postJson('/broadcasting/auth', [
-                'socket_id'    => '123.456',
-                'channel_name' => 'presence-guild.' . $this->guildId,
+                'socket_id' => '123.456',
+                'channel_name' => 'presence-guild.'.$this->guildId,
             ]);
 
         $response->assertForbidden();
     }
 
     #[Test]
-    public function 存在しないギルドIDはチャンネル認証が拒否される(): void
+    public function 存在しないギルド_i_dはチャンネル認証が拒否される(): void
     {
         $response = $this->withHeaders($this->authHeaders($this->token))
             ->postJson('/broadcasting/auth', [
-                'socket_id'    => '123.456',
+                'socket_id' => '123.456',
                 'channel_name' => 'presence-guild.99999999',
             ]);
 
@@ -100,8 +110,8 @@ class GuildChannelAuthTest extends TestCase
         $this->guildId = $this->createGuildWithMember($this->sysPlayerId);
 
         $response = $this->postJson('/broadcasting/auth', [
-            'socket_id'    => '123.456',
-            'channel_name' => 'presence-guild.' . $this->guildId,
+            'socket_id' => '123.456',
+            'channel_name' => 'presence-guild.'.$this->guildId,
         ]);
 
         // auth.token ミドルウェアが弾く
@@ -116,13 +126,13 @@ class GuildChannelAuthTest extends TestCase
     private function createGuild(): int
     {
         return (int) DB::connection('sys')->table('sys_guild')->insertGetId([
-            'name'        => 'テストギルド',
+            'name' => 'テストギルド',
             'description' => null,
-            'level'       => 1,
-            'exp'         => 0,
+            'level' => 1,
+            'exp' => 0,
             'max_members' => 30,
-            'created_at'  => now(),
-            'updated_at'  => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
     }
 
@@ -132,12 +142,12 @@ class GuildChannelAuthTest extends TestCase
         $guildId = $this->createGuild();
 
         DB::connection('sys')->table('sys_guild_member')->insert([
-            'sys_guild_id'  => $guildId,
+            'sys_guild_id' => $guildId,
             'sys_player_id' => $sysPlayerId,
-            'role'          => 'master',
-            'joined_at'     => now(),
-            'created_at'    => now(),
-            'updated_at'    => now(),
+            'role' => 'master',
+            'joined_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         return $guildId;

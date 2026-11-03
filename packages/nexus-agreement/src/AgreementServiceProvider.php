@@ -10,12 +10,12 @@ use Illuminate\Support\ServiceProvider;
  * 利用規約パッケージのサービスプロバイダー
  *
  * 提供機能:
- * - DataTransferObjects: PendingAgreement
- * - Models: SysAgreement / TrxAgreement
+ * - DataTransferObjects: Agreement / PendingAgreement
  * - Repositories: AgreementRepositoryInterface
  * - Services: AgreementService
  *
- * Repositoryの実装はアプリケーション側で束縛する。
+ * Model と Repository の実装はアプリケーション側に置き、
+ * AgreementRepositoryInterface を AgreementRepositoryAdapter で束縛する。
  */
 class AgreementServiceProvider extends ServiceProvider
 {

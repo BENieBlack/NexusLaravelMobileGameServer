@@ -3,6 +3,7 @@
 namespace Tests\Feature\Repositories\Mst;
 
 use App\Models\Mst\MstLoginBonus;
+use App\Persistence\ApiSession;
 use App\Repositories\Mst\LoginBonusRepositoryAdapter;
 use Illuminate\Support\Facades\DB;
 use Nexus\Core\Utilities\ClockUtility;
@@ -46,6 +47,10 @@ class LoginBonusRepositoryAdapterTest extends TestCase
         ['player' => $other] = $this->signUpPlayer();
         $this->otherPlayerId = $other->id;
 
+        // 受け取り状態はログイン中プレイヤーの trx から引く
+        ApiSession::clearForTest();
+        ApiSession::setSysPlayerId($this->sysPlayerId);
+
         $this->repository = app(LoginBonusRepositoryAdapter::class);
         $this->cleanUp();
     }
@@ -54,6 +59,7 @@ class LoginBonusRepositoryAdapterTest extends TestCase
     {
         $this->cleanUp();
         ClockUtility::reset();
+        ApiSession::clearForTest();
 
         parent::tearDown();
     }
@@ -188,6 +194,22 @@ class LoginBonusRepositoryAdapterTest extends TestCase
     }
 
     #[Test]
+    public function idを指定して有効な復帰ボーナスだけを引ける(): void
+    {
+        // 進行中の期間を続けるときは休眠日数の条件を見ない
+        $this->makeComeback('comeback_7', requiredAbsentDays: 7);
+        $this->makeComeback('inactive', requiredAbsentDays: 7, isActive: false);
+        $this->makeComeback('ended', requiredAbsentDays: 7, endAt: '2026-03-15 11:59:59');
+        $this->makeDaily('daily_login', day: 1);
+
+        $this->assertSame('comeback_7', $this->repository->selectActiveComebackBonusById('comeback_7')['id']);
+        $this->assertNull($this->repository->selectActiveComebackBonusById('inactive'));
+        $this->assertNull($this->repository->selectActiveComebackBonusById('ended'));
+        $this->assertNull($this->repository->selectActiveComebackBonusById('daily_login'), '通常ボーナスは引かない');
+        $this->assertNull($this->repository->selectActiveComebackBonusById('missing'));
+    }
+
+    #[Test]
     public function 無効な復帰ボーナスは配らない(): void
     {
         $this->makeComeback('comeback_7', requiredAbsentDays: 7, isActive: false);
@@ -243,8 +265,7 @@ class LoginBonusRepositoryAdapterTest extends TestCase
         return $this->repository->hasReceivedComebackBonusRecently(
             $this->sysPlayerId,
             $bonusId,
-            $validDays,
-            $this->playerConnection($this->sysPlayerId)
+            $validDays
         );
     }
 

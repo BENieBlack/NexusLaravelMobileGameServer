@@ -2,72 +2,79 @@
 
 namespace NexusLogin\Repositories;
 
+use NexusLogin\DataTransferObjects\LoginBonusHistory;
+
 /**
  * LoginBonusHistoryRepositoryInterface
  *
- * ログインボーナス履歴データへのアクセスを抽象化
+ * ログインボーナスの受け取り状態（trx_login_bonus）と受取ログ（log_action_login_bonus_receive）への
+ * アクセスを抽象化する。対象はログイン中のプレイヤーのシャード（実装側が解決する）
  */
 interface LoginBonusHistoryRepositoryInterface
 {
     /**
-     * プレイヤーの最新のログインボーナス履歴を取得
+     * プレイヤーの通常ログインボーナスの最新の受け取り状態を取得
      *
      * @param  int  $sysPlayerId  プレイヤーID
-     * @param  string  $connectionName  DB接続名
-     * @return array<string, mixed>|null 履歴データの連想配列、存在しない場合はnull
+     * @return LoginBonusHistory|null まだ受け取っていなければnull
      */
-    public function selectLatestByPlayer(int $sysPlayerId, string $connectionName): ?array;
+    public function selectLatestByPlayer(int $sysPlayerId): ?LoginBonusHistory;
 
     /**
-     * 指定日時以降のユニークな受取日数をカウント
+     * 指定日時以降に通常ログインボーナスを受け取った件数をカウント
+     *
+     * trx_login_bonus はタイプごとに1行なので 0 か 1 になる
      *
      * @param  int  $sysPlayerId  プレイヤーID
      * @param  string  $sinceDate  開始日時（Y-m-d H:i:s）
-     * @param  string  $connectionName  DB接続名
-     * @return int ユニークな受取日数
      */
-    public function countUniqueDaysSince(int $sysPlayerId, string $sinceDate, string $connectionName): int;
+    public function countUniqueDaysSince(int $sysPlayerId, string $sinceDate): int;
 
     /**
-     * ログインボーナス履歴を記録
+     * 受け取った報酬1件分を記録する
      *
-     * @param  array<string, mixed>  $data  履歴データ
-     * @param  string  $connectionName  DB接続名
-     * @return void
+     * 最新の受け取り状態（タイプごとに1行）を書き換え、受取ログを1行追加する
+     *
+     * @param  string  $type  ログインボーナスのタイプ（daily / comeback）
+     * @param  string  $receivedDate  受け取り日時（Y-m-d H:i:s形式）
      */
-    public function insert(array $data, string $connectionName): void;
+    public function insertReceive(
+        int $sysPlayerId,
+        string $type,
+        string $mstLoginBonusId,
+        int $day,
+        ?int $absentDays,
+        string $receivedDate,
+        string $rewardType,
+        string $rewardMstId,
+        int $rewardAmount,
+        bool $isPaid,
+    ): void;
 
     /**
-     * プレイヤーの最新履歴を取得
+     * プレイヤーの通常ログインボーナスの最新の受け取り状態を取得
      *
      * @param  int  $sysPlayerId  プレイヤーID
-     * @param  string  $connectionName  シャーディングされたDB接続名
-     * @return array<string, mixed>|null 履歴データ
      */
-    public function selectLatestByPlayerId(int $sysPlayerId, string $connectionName): ?array;
+    public function selectLatestByPlayerId(int $sysPlayerId): ?LoginBonusHistory;
 
     /**
-     * プレイヤーの最初のカムバックボーナス履歴を取得
+     * プレイヤーのカムバックボーナスの受け取り状態を取得
      *
      * @param  int  $sysPlayerId  プレイヤーID
-     * @param  string  $connectionName  シャーディングされたDB接続名
-     * @return array<string, mixed>|null 履歴データ
      */
-    public function selectFirstComebackByPlayerId(int $sysPlayerId, string $connectionName): ?array;
+    public function selectFirstComebackByPlayerId(int $sysPlayerId): ?LoginBonusHistory;
 
     /**
-     * プレイヤー・ボーナス・受取日で履歴を取得
+     * プレイヤーのカムバックボーナスの受け取り状態が、指定したボーナスIDと受取日のものなら返す
      *
      * @param  int  $sysPlayerId  プレイヤーID
      * @param  string  $bonusId  ログインボーナスID
-     * @param  string  $receivedDate  受取日
-     * @param  string  $connectionName  シャーディングされたDB接続名
-     * @return array<string, mixed>|null 履歴データ
+     * @param  string  $receivedDate  受取日（Y-m-d H:i:s形式）
      */
     public function selectByPlayerAndBonusAndDate(
         int $sysPlayerId,
         string $bonusId,
         string $receivedDate,
-        string $connectionName
-    ): ?array;
+    ): ?LoginBonusHistory;
 }

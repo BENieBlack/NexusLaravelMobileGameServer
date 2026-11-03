@@ -6,8 +6,10 @@ use App\Domain\Login\Services\VipLoginBonusService;
 use App\Models\Mst\MstVipLoginBonus;
 use App\Models\Mst\MstVipLoginBonusContent;
 use App\Persistence\ApiSession;
+use App\Repositories\Trx\TrxVipLoginBonusRepository;
 use Illuminate\Support\Facades\DB;
 use Nexus\Core\Utilities\ClockUtility;
+use NexusUnitOfWork\Contracts\QueryManagerInterface;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
@@ -117,6 +119,8 @@ class VipLoginBonusServiceTest extends TestCase
         // TRUNCATEはMySQLで暗黙コミットを起こし、テストのトランザクションを
         // 確定させてしまうためDELETEを使う
         DB::connection('trx1')->table('trx_vip_login_bonus')->delete();
+        DB::connection('trx1')->table('log_action_vip_login_bonus_receive')
+            ->where('sys_player_id', $this->sysPlayerId)->delete();
         DB::connection('mst')->table('mst_vip_login_bonus_content')->delete();
         DB::connection('mst')->table('mst_vip_login_bonus')->delete();
         DB::connection('sys')->table('sys_sharding_node_player')->where('sys_player_id', $this->sysPlayerId)->delete();
@@ -184,7 +188,7 @@ class VipLoginBonusServiceTest extends TestCase
         $lastLoginAt = null;
 
         // Act
-        $result = $this->vipLoginBonusService->process($this->sysPlayerId, $lastLoginAt, 'trx1');
+        $result = $this->vipLoginBonusService->process($this->sysPlayerId, $lastLoginAt);
 
         $this->flushQueue();
 
@@ -201,6 +205,39 @@ class VipLoginBonusServiceTest extends TestCase
             ->first();
 
         $this->assertSame(1, (int) $history->day, '初回は1日目のボーナスを受け取るべき');
+
+        // 受け取った報酬は log に1件ずつ残る（log はプレイヤーと同じシャードDB）。
+        // log はトランザクションの外で書くため flush() では流れない。UseCase の後と同じく execAllLogs() で書く
+        app(QueryManagerInterface::class)->execAllLogs();
+        $logs = DB::connection('trx1')->table('log_action_vip_login_bonus_receive')
+            ->where('sys_player_id', $this->sysPlayerId)
+            ->get();
+
+        $this->assertCount(1, $logs);
+        $this->assertSame('vip_login_lv5', $logs[0]->mst_vip_login_bonus_id);
+        $this->assertSame(5, (int) $logs[0]->vip_level);
+        $this->assertSame(2500, (int) $logs[0]->reward_amount);
+        $this->assertSame($history->received_at, $logs[0]->received_at);
+    }
+
+    #[Test]
+    public function ボーナスidと受け取り日時が最新の状態と一致するときだけ取得できる(): void
+    {
+        $this->vipLoginBonusService->process($this->sysPlayerId, null);
+        $this->flushQueue();
+
+        $receivedAt = (string) DB::connection('trx1')->table('trx_vip_login_bonus')
+            ->where('sys_player_id', $this->sysPlayerId)
+            ->value('received_at');
+
+        $repository = app(TrxVipLoginBonusRepository::class);
+
+        $this->assertSame(
+            1,
+            $repository->selectByPlayerAndBonusAndDate($this->sysPlayerId, 'vip_login_lv0', $receivedAt)?->getDay(),
+        );
+        $this->assertNull($repository->selectByPlayerAndBonusAndDate($this->sysPlayerId, 'vip_login_lv5', $receivedAt));
+        $this->assertNull($repository->selectByPlayerAndBonusAndDate($this->sysPlayerId, 'vip_login_lv0', '2000-01-01 00:00:00'));
     }
 
     #[Test]
@@ -211,7 +248,7 @@ class VipLoginBonusServiceTest extends TestCase
         $lastLoginAt = $currentTime->format('Y-m-d H:i:s');
 
         // 1回目の受け取り
-        $this->vipLoginBonusService->process($this->sysPlayerId, null, 'trx1');
+        $this->vipLoginBonusService->process($this->sysPlayerId, null);
 
         // Act: 同じ日に再度受け取ろうとする
         $isEligible = $this->vipLoginBonusService->isEligible($this->sysPlayerId, $lastLoginAt);
@@ -240,8 +277,7 @@ class VipLoginBonusServiceTest extends TestCase
         // Act: 8日目にログイン（1日目に戻るべき）
         $result = $this->vipLoginBonusService->process(
             $this->sysPlayerId,
-            ClockUtility::now()->subDay()->format('Y-m-d H:i:s'),
-            'trx1'
+            ClockUtility::now()->subDay()->format('Y-m-d H:i:s')
         );
 
         $this->flushQueue();
@@ -299,8 +335,7 @@ class VipLoginBonusServiceTest extends TestCase
         // Act: 4日目にログイン
         $result = $this->vipLoginBonusService->process(
             $this->sysPlayerId,
-            ClockUtility::now()->subDay()->format('Y-m-d H:i:s'),
-            'trx1'
+            ClockUtility::now()->subDay()->format('Y-m-d H:i:s')
         );
 
         $this->flushQueue();

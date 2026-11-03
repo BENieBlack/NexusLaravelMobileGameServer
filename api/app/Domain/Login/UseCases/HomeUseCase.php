@@ -4,26 +4,26 @@ namespace App\Domain\Login\UseCases;
 
 use App\Domain\_BaseUseCase;
 use App\Domain\Login\DataTransferObjects\LoginResult;
-use App\Domain\Login\Services\LoginBonusService;
 use App\Exceptions\SystemDataException;
 use App\Persistence\ApiSession;
 use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Trx\TrxItemRepository;
 use App\Repositories\Trx\TrxUnitRepository;
 use App\Repositories\Trx\TrxWalletRepository;
+use NexusLogin\Services\LoginBonusOrchestrator;
 
 /**
  * HomeUseCase
  *
  * ホーム画面データ取得のユースケース
- * - UTC0時を境界として今日初回ログインであればログインボーナスを配布
+ * - 日跨ぎ後の初回ログインであれば、カムバック・VIP・通常のログインボーナスを配布
  * - trx_unit、trx_item、trx_walletなどのユーザー情報を返す
  */
 class HomeUseCase extends _BaseUseCase
 {
     public function __construct(
         private readonly SysPlayerRepository $sysPlayerRepository,
-        private readonly LoginBonusService $loginBonusService,
+        private readonly LoginBonusOrchestrator $loginBonusOrchestrator,
         private readonly TrxUnitRepository $trxUnitRepository,
         private readonly TrxItemRepository $trxItemRepository,
         private readonly TrxWalletRepository $trxWalletRepository,
@@ -58,16 +58,15 @@ class HomeUseCase extends _BaseUseCase
             // プレイヤー情報を取得（バリデーション済み）
             $sysPlayer = $this->sysPlayerRepository->selectById($sysPlayerId);
 
-            // ログインボーナスをチェック・配布
-            // 履歴はプレイヤーのシャードに記録するため、接続名を渡す
+            // 登録済みの全ログインボーナス（カムバック・VIP・通常）をチェック・配布
+            // （履歴の書き込み先のシャードは ApiSession が解決する）
             //
             // 注意: 日跨ぎの判定に「更新前の」last_login_at を使う。
             // 下の updateLastLoginAt() より前に呼ぶ必要があり、
             // 最終ログインの更新をミドルウェア等に移すとボーナスが出なくなる。
-            $loginBonusContents = $this->loginBonusService->process(
+            $loginBonusContents = $this->loginBonusOrchestrator->executeAllMerged(
                 $sysPlayerId,
                 $sysPlayer->getLastLoginAt(),
-                ApiSession::resolveConnectionName('trx')
             );
 
             // 最終ログイン日時を更新

@@ -28,37 +28,32 @@ composer require nexus/login
 
 ### 基本的な使い方
 
+戦略（`_BaseLoginBonusService` を継承した各ログインボーナス）を `LoginBonusOrchestrator` に登録し、
+UseCase のトランザクションの中で呼ぶ。履歴の書き込み先のシャードは、アプリ側の Repository が
+ログイン中のプレイヤーから解決するため、接続名は渡さない。
+
 ```php
-use NexusLogin\Services\LoginBonusService;
-use NexusResourceDelivery\Services\ResourceDeliveryService;
+use NexusLogin\Services\LoginBonusOrchestrator;
 
-$loginBonusService = new LoginBonusService($resourceDeliveryService);
-
-// ログインボーナスをチェックして配布
-$rewards = $loginBonusService->checkAndGrantLoginBonus(
+// 優先度の高い順に判定・配布し、配った報酬をまとめて返す
+$rewards = $orchestrator->executeAllMerged(
     sysPlayerId: 12345,
     lastLoginAt: '2024-07-16 10:00:00',
-    connectionName: 'trx1'
 );
 
-// 配布された報酬を確認
 foreach ($rewards as $resource) {
-    echo "Type: {$resource->getType()}, ID: {$resource->getId()}, Amount: {$resource->getAmount()}\n";
+    echo "Type: {$resource->getType()->value}, ID: {$resource->getId()}, Amount: {$resource->getAmount()}\n";
 }
 ```
 
 ### テスト用の時刻指定
 
 ```php
-use Carbon\CarbonImmutable;
+use Nexus\Core\Utilities\ClockUtility;
 
-$now = CarbonImmutable::parse('2024-07-17 00:00:00');
-$rewards = $loginBonusService->checkAndGrantLoginBonus(
-    sysPlayerId: 12345,
-    lastLoginAt: '2024-07-16 10:00:00',
-    connectionName: 'trx1',
-    now: $now
-);
+ClockUtility::setNow('2024-07-17 00:00:00');
+$rewards = $orchestrator->executeAllMerged(sysPlayerId: 12345, lastLoginAt: '2024-07-16 10:00:00');
+ClockUtility::reset();
 ```
 
 ## Database Schema

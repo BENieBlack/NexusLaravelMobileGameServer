@@ -2,6 +2,7 @@
 
 namespace App\Domain\Login\Services;
 
+use App\Models\Mst\MstLoginBonus;
 use Nexus\Core\Support\CustomCollection;
 use Nexus\Core\Utilities\ClockUtility;
 use NexusLogin\Repositories\LoginBonusHistoryRepositoryInterface;
@@ -80,48 +81,32 @@ class LoginBonusService extends _BaseLoginBonusService
         int $sysPlayerId,
         array $bonusData,
         int $currentDay,
-        CustomCollection $contents,
-        string $connectionName
+        CustomCollection $contents
     ): void {
         $receivedDate = $this->calcGameDayStart()->format('Y-m-d H:i:s');
 
         foreach ($contents as $content) {
-            $this->historyRepository->insert([
-                'sys_player_id' => $sysPlayerId,
-                'type' => 'daily',
-                'mst_login_bonus_id' => $bonusData['id'],
-                'day' => $currentDay,
-                'absent_days' => null,
-                'received_date' => $receivedDate,
-                'reward_type' => $content->content_type,
-                'reward_mst_id' => $content->content_mst_id,
-                'reward_amount' => $content->content_quantity * $content->amount,
-                'is_paid' => $content->is_paid ?? false,
-            ], $connectionName);
+            $this->historyRepository->insertReceive(
+                sysPlayerId: $sysPlayerId,
+                type: MstLoginBonus::TYPE_DAILY,
+                mstLoginBonusId: $bonusData['id'],
+                day: $currentDay,
+                absentDays: null,
+                receivedDate: $receivedDate,
+                rewardType: $content->content_type,
+                rewardMstId: $content->content_mst_id,
+                rewardAmount: $content->content_quantity * $content->amount,
+                isPaid: $content->is_paid ?? false,
+            );
         }
     }
 
     /**
      * {@inheritDoc}
      */
-    protected function findLastReceivedDay(int $sysPlayerId, string $connectionName): ?int
+    protected function findLastReceivedDay(int $sysPlayerId): ?int
     {
-        $lastHistory = $this->historyRepository->selectLatestByPlayerId($sysPlayerId, $connectionName);
-        if ($lastHistory === null) {
-            return null;
-        }
-
-        if (isset($lastHistory['day'])) {
-            return (int) $lastHistory['day'];
-        }
-
-        // ログインボーナスIDから日数を取得（例: login_bonus_day_3 -> 3）
-        $bonusId = $lastHistory['mst_login_bonus_id'] ?? '';
-        if (preg_match('/_day_(\d+)$/', $bonusId, $matches)) {
-            return (int) $matches[1];
-        }
-
-        return null;
+        return $this->historyRepository->selectLatestByPlayerId($sysPlayerId)?->getDay();
     }
 
     /**

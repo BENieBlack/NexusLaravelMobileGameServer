@@ -15,10 +15,9 @@ interface LoginBonusStrategyInterface
      *
      * @param  int  $sysPlayerId  プレイヤーID
      * @param  string|null  $lastLoginAt  最終ログイン日時（UTC、文字列形式）
-     * @param  string  $connectionName  シャーディングされたDB接続名
      * @return array<\NexusResource\DataTransferObjects\Resource> 配布した報酬
      */
-    public function process(int $sysPlayerId, ?string $lastLoginAt, string $connectionName): array;
+    public function process(int $sysPlayerId, ?string $lastLoginAt): array;
 
     /**
      * この戦略が適用可能かチェック

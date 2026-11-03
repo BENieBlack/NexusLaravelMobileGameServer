@@ -36,6 +36,7 @@ use NexusWallet\Exceptions\WalletErrorCode;
  * - 22000-22999: リワードトラック関連エラー (RewardTrack)
  * - 23000-23999: ミッション関連エラー (Mission)
  * - 24000-24999: 利用規約関連エラー (Agreement)
+ * - 25000-25999: 交換所関連エラー (Trade)
  * - 99000-99999: アプリケーション汎用エラー
  *
  * インフラ層エラーコード（3桁以下）はInfraErrorCodeで定義：
@@ -322,6 +323,21 @@ class GameErrorCode
     const AGREEMENT_NOT_FOUND = 24001;
 
     const AGREEMENT_ALREADY_CONSENTED = 24002;
+
+    // ========================================
+    // 交換所関連エラー (25000-25999)
+    // コストが足りないときは DIAMOND_NOT_ENOUGH / ITEM_NOT_ENOUGH を返す
+    // ========================================
+    const TRADE_PRODUCT_NOT_FOUND = 25001;
+
+    // 商品か、商品を置いている交換所が交換期間外
+    const TRADE_PRODUCT_NOT_OPEN = 25002;
+
+    // 今の周期での交換回数の上限を超える
+    const TRADE_LIMIT_EXCEEDED = 25003;
+
+    // マスターのコスト設定が不正（未知の cost_type、item なのに cost_mst_id が無い）
+    const TRADE_COST_INVALID = 25004;
 
     // ========================================
     // アプリケーション汎用エラー (99000-99999)

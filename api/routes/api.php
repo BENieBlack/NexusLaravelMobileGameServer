@@ -17,6 +17,7 @@ use App\Http\Controllers\MissionController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\RewardTrackController;
+use App\Http\Controllers\TradeController;
 use App\Http\Controllers\UnitController;
 use Illuminate\Support\Facades\Route;
 
@@ -124,6 +125,10 @@ Route::middleware('maintenance')->group(function () {
         // Mission endpoints
         Route::get('/mission/list', [MissionController::class, 'list']);
         Route::post('/mission/receive', [MissionController::class, 'receive']);
+
+        // 交換所（ダイヤ・コイン・アイテムを消費して、アイテム・ユニット・装備などと交換する）
+        Route::get('/trade/list', [TradeController::class, 'list']);
+        Route::post('/trade/exchange', [TradeController::class, 'exchange']);
 
         // Agreement endpoints
         Route::get('/agreement/pending', [AgreementController::class, 'pending']);

@@ -2,6 +2,7 @@
 
 namespace App\Domain\Login\Services;
 
+use App\Repositories\Log\LogVipLoginBonusReceiveRepository;
 use App\Repositories\Mst\VipLoginBonusRepositoryInterface;
 use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Trx\VipLoginBonusHistoryRepositoryInterface;
@@ -29,6 +30,7 @@ class VipLoginBonusService extends _BaseLoginBonusService
         ResourceDeliveryService $resourceDeliveryService,
         private readonly VipLoginBonusRepositoryInterface $vipBonusRepository,
         private readonly VipLoginBonusHistoryRepositoryInterface $vipHistoryRepository,
+        private readonly LogVipLoginBonusReceiveRepository $logVipLoginBonusReceiveRepository,
         private readonly SysPlayerRepository $playerRepository,
         private readonly VipLevelService $vipLevelService,
     ) {
@@ -109,37 +111,40 @@ class VipLoginBonusService extends _BaseLoginBonusService
         int $sysPlayerId,
         array $bonusData,
         int $currentDay,
-        CustomCollection $contents,
-        string $connectionName
+        CustomCollection $contents
     ): void {
         $receivedAt = $this->calcGameDayStart()->format('Y-m-d H:i:s');
 
-        $rewards = $contents->map(fn ($content) => [
-            'type' => $content->content_type,
-            'id' => $content->content_mst_id,
-            'amount' => $content->content_quantity * $content->amount,
-            'is_paid' => $content->is_paid ?? false,
-        ])->all();
-
         // 最新状態はtrx、受取履歴はlogへ記録
-        $this->vipHistoryRepository->insert([
-            'sys_player_id' => $sysPlayerId,
-            'mst_vip_login_bonus_id' => $bonusData['id'],
-            'day' => $currentDay,
-            'vip_level' => $bonusData['current_vip_level'],
-            'received_at' => $receivedAt,
-            'rewards' => $rewards,
-        ], $connectionName);
+        $this->vipHistoryRepository->upsertLatest(
+            sysPlayerId: $sysPlayerId,
+            mstVipLoginBonusId: $bonusData['id'],
+            day: $currentDay,
+            vipLevel: $bonusData['current_vip_level'],
+            receivedAt: $receivedAt,
+        );
+
+        foreach ($contents as $content) {
+            $this->logVipLoginBonusReceiveRepository->insertReceive(
+                sysPlayerId: $sysPlayerId,
+                mstVipLoginBonusId: $bonusData['id'],
+                day: $currentDay,
+                vipLevel: $bonusData['current_vip_level'],
+                receivedAt: $receivedAt,
+                rewardType: $content->content_type,
+                rewardMstId: $content->content_mst_id,
+                rewardAmount: $content->content_quantity * $content->amount,
+                isPaid: $content->is_paid ?? false,
+            );
+        }
     }
 
     /**
      * {@inheritDoc}
      */
-    protected function findLastReceivedDay(int $sysPlayerId, string $connectionName): ?int
+    protected function findLastReceivedDay(int $sysPlayerId): ?int
     {
-        $lastHistory = $this->vipHistoryRepository->selectLatestByPlayerId($sysPlayerId, $connectionName);
-
-        return $lastHistory['day'] ?? null;
+        return $this->vipHistoryRepository->selectLatestByPlayerId($sysPlayerId)?->getDay();
     }
 
     /**

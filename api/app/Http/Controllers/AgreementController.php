@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Domain\Agreement\Support\AgreementExceptionTranslator;
+use App\Domain\Agreement\UseCases\ConsentUseCase;
+use App\Domain\Agreement\UseCases\PendingUseCase;
 use App\Http\Requests\Agreement\ConsentRequest;
 use App\Http\Responses\Agreement\ConsentResponse;
 use App\Http\Responses\Agreement\PendingResponse;
 use App\Persistence\ApiSession;
 use Illuminate\Http\JsonResponse;
-use NexusAgreement\Services\AgreementService;
 
 /**
  * AgreementController
@@ -18,7 +18,8 @@ use NexusAgreement\Services\AgreementService;
 class AgreementController extends _BaseController
 {
     public function __construct(
-        private readonly AgreementService $agreementService,
+        private readonly PendingUseCase $pendingUseCase,
+        private readonly ConsentUseCase $consentUseCase,
         private readonly ApiSession $apiSession,
     ) {}
 
@@ -30,7 +31,7 @@ class AgreementController extends _BaseController
     public function pending(): JsonResponse
     {
         return $this->execute(fn () => PendingResponse::fromCollection(
-            $this->agreementService->getPendingAgreements($this->apiSession->getSysPlayerId())
+            $this->pendingUseCase->exec($this->apiSession->getSysPlayerId())
         ));
     }
 
@@ -42,11 +43,9 @@ class AgreementController extends _BaseController
     public function consent(ConsentRequest $request): JsonResponse
     {
         return $this->execute(function () use ($request) {
-            AgreementExceptionTranslator::translate(
-                fn () => $this->agreementService->consent(
-                    sysPlayerId: $this->apiSession->getSysPlayerId(),
-                    sysAgreementId: $request->getSysAgreementId(),
-                )
+            $this->consentUseCase->exec(
+                sysPlayerId: $this->apiSession->getSysPlayerId(),
+                sysAgreementId: $request->getSysAgreementId(),
             );
 
             return new ConsentResponse;

@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -19,8 +20,9 @@ return new class extends Migration
             $table->string('mst_vip_login_bonus_id', 64)->comment('VIPログインボーナスID');
             $table->unsignedInteger('day')->comment('受け取った日数（1日目、2日目...）');
             $table->unsignedTinyInteger('vip_level')->comment('受け取り時のVIPレベル');
-            $table->timestamp('received_at')->comment('受け取り日時（UTC）');
-            $table->timestamps();
+            $table->dateTime('received_at')->comment('受け取り日時（UTC）');
+            $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
+            $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
 
             $table->primary('sys_player_id', 'pk_vip_login_bonus');
             $table->index('mst_vip_login_bonus_id');

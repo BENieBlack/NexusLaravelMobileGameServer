@@ -20,7 +20,7 @@ use Tests\TestCase;
 class ReverbNotificationDispatcherTest extends TestCase
 {
     #[Test]
-    public function dispatch_はNotificationDispatcherInterfaceを実装している(): void
+    public function dispatch_は_notification_dispatcher_interfaceを実装している(): void
     {
         $dispatcher = new ReverbNotificationDispatcher;
 

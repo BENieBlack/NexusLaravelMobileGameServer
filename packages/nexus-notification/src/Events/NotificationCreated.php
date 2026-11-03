@@ -27,7 +27,7 @@ class NotificationCreated implements ShouldBroadcast
      */
     public function broadcastOn(): array
     {
-        return [new PrivateChannel('notification.' . $this->notification->getPlayerId())];
+        return [new PrivateChannel('notification.'.$this->notification->getPlayerId())];
     }
 
     /**
@@ -46,11 +46,11 @@ class NotificationCreated implements ShouldBroadcast
     public function broadcastWith(): array
     {
         return [
-            'id'         => $this->notification->getId(),
-            'type'       => $this->notification->getType()->value,
-            'title'      => $this->notification->getTitle(),
-            'body'       => $this->notification->getBody(),
-            'payload'    => $this->notification->getPayload(),
+            'id' => $this->notification->getId(),
+            'type' => $this->notification->getType()->value,
+            'title' => $this->notification->getTitle(),
+            'body' => $this->notification->getBody(),
+            'payload' => $this->notification->getPayload(),
             'created_at' => $this->notification->getCreatedAt(),
         ];
     }

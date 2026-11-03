@@ -3,6 +3,7 @@
 namespace NexusNotification\Tests\Unit\Services;
 
 use Illuminate\Container\Container;
+use Illuminate\Contracts\Broadcasting\Factory as BroadcastFactory;
 use Illuminate\Events\Dispatcher;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
@@ -30,6 +31,9 @@ class NotificationServiceTest extends TestCase
     /** @var list<NotificationCreated> 発火したイベント */
     private array $dispatchedEvents = [];
 
+    /** @var list<object> ブロードキャストに積まれたイベント */
+    private array $broadcastedEvents = [];
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -44,6 +48,16 @@ class NotificationServiceTest extends TestCase
             $this->dispatchedEvents[] = $event;
         });
         $container->instance('events', $dispatcher);
+
+        // NotificationCreated は ShouldBroadcast なので、発火するとイベントディスパッチャが
+        // BroadcastFactory::queue() を呼ぶ。積まれたイベントを記録するだけの偽物を差し込む
+        $this->broadcastedEvents = [];
+        $broadcastFactory = Mockery::mock(BroadcastFactory::class);
+        $broadcastFactory->shouldReceive('queue')->andReturnUsing(function (object $event): void {
+            $this->broadcastedEvents[] = $event;
+        });
+        $container->instance(BroadcastFactory::class, $broadcastFactory);
+
         Container::setInstance($container);
 
         $this->repository = Mockery::mock(NotificationRepositoryInterface::class);
@@ -94,6 +108,23 @@ class NotificationServiceTest extends TestCase
 
         $this->assertCount(1, $this->dispatchedEvents);
         $this->assertSame($notification, $this->dispatchedEvents[0]->notification);
+    }
+
+    #[Test]
+    public function 通知を作るとブロードキャストに積まれる(): void
+    {
+        $notification = $this->makeNotification();
+        $this->repository->shouldReceive('insert')->andReturn($notification);
+
+        (new NotificationService($this->repository))->notify(
+            playerId: 1,
+            type: NotificationType::MAILBOX_RECEIVED,
+            title: 'メールが届きました',
+            body: '受け取ってください',
+        );
+
+        $this->assertCount(1, $this->broadcastedEvents);
+        $this->assertInstanceOf(NotificationCreated::class, $this->broadcastedEvents[0]);
     }
 
     #[Test]

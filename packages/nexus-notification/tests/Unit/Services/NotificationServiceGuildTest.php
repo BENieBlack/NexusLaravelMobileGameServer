@@ -2,7 +2,6 @@
 
 namespace NexusNotification\Tests\Unit\Services;
 
-use Illuminate\Broadcasting\BroadcastManager;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Broadcasting\Factory as BroadcastFactory;
 use Illuminate\Events\Dispatcher;
@@ -64,7 +63,7 @@ class NotificationServiceGuildTest extends TestCase
     }
 
     #[Test]
-    public function notifyGuild_はGuildNotificationBroadcastイベントを発火する(): void
+    public function notify_guild_は_guild_notification_broadcastイベントを発火する(): void
     {
         $service = new NotificationService($this->repository);
 
@@ -79,7 +78,7 @@ class NotificationServiceGuildTest extends TestCase
     }
 
     #[Test]
-    public function notifyGuild_イベントのguildIdが正しい(): void
+    public function notify_guild_イベントのguild_idが正しい(): void
     {
         $service = new NotificationService($this->repository);
 
@@ -94,7 +93,7 @@ class NotificationServiceGuildTest extends TestCase
     }
 
     #[Test]
-    public function notifyGuild_イベントのnotificationTypeが正しい(): void
+    public function notify_guild_イベントのnotification_typeが正しい(): void
     {
         $service = new NotificationService($this->repository);
 
@@ -110,7 +109,7 @@ class NotificationServiceGuildTest extends TestCase
     }
 
     #[Test]
-    public function notifyGuild_イベントのtitleとbodyが正しい(): void
+    public function notify_guild_イベントのtitleとbodyが正しい(): void
     {
         $service = new NotificationService($this->repository);
 
@@ -127,7 +126,7 @@ class NotificationServiceGuildTest extends TestCase
     }
 
     #[Test]
-    public function notifyGuild_payloadを渡せる(): void
+    public function notify_guild_payloadを渡せる(): void
     {
         $service = new NotificationService($this->repository);
 
@@ -143,7 +142,7 @@ class NotificationServiceGuildTest extends TestCase
     }
 
     #[Test]
-    public function notifyGuild_DBには保存しない(): void
+    public function notify_guild_d_bには保存しない(): void
     {
         // repository の insert が呼ばれないことを確認する
         $this->repository->shouldNotReceive('insert');

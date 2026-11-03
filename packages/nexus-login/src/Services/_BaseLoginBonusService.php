@@ -71,15 +71,13 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
      * @param  array<string, mixed>  $bonusData  ログインボーナスデータ
      * @param  int  $currentDay  現在の受け取り日数
      * @param  CustomCollection<int, mixed>  $contents  報酬内容
-     * @param  string  $connectionName  シャーディングされたDB接続名
      * @return void
      */
     abstract protected function recordHistory(
         int $sysPlayerId,
         array $bonusData,
         int $currentDay,
-        CustomCollection $contents,
-        string $connectionName
+        CustomCollection $contents
     ): void;
 
     /**
@@ -117,13 +115,12 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
      *
      * @param  int  $sysPlayerId  プレイヤーID
      * @param  string|null  $lastLoginAt  最終ログイン日時
-     * @param  string  $connectionName  シャーディングされたDB接続名
      * @return int 現在の受け取り日数（1から開始）
      */
-    protected function calculateCurrentDay(int $sysPlayerId, ?string $lastLoginAt, string $connectionName): int
+    protected function calculateCurrentDay(int $sysPlayerId, ?string $lastLoginAt): int
     {
         // サブクラスで findLastReceivedDay() を実装することを想定
-        $lastReceivedDay = $this->findLastReceivedDay($sysPlayerId, $connectionName);
+        $lastReceivedDay = $this->findLastReceivedDay($sysPlayerId);
 
         if ($lastReceivedDay === null) {
             // 初回 = 1日目
@@ -150,10 +147,9 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
      * サブクラスでオーバーライド可能
      *
      * @param  int  $sysPlayerId  プレイヤーID
-     * @param  string  $connectionName  シャーディングされたDB接続名
      * @return int|null 前回受け取った日数、初回の場合はnull
      */
-    protected function findLastReceivedDay(int $sysPlayerId, string $connectionName): ?int
+    protected function findLastReceivedDay(int $sysPlayerId): ?int
     {
         // デフォルト実装: サブクラスでオーバーライドすることを想定
         return null;
@@ -176,14 +172,14 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
     /**
      * {@inheritDoc}
      */
-    final public function process(int $sysPlayerId, ?string $lastLoginAt, string $connectionName): array
+    final public function process(int $sysPlayerId, ?string $lastLoginAt): array
     {
         if (! $this->isEligible($sysPlayerId, $lastLoginAt)) {
             return [];
         }
 
         // 現在の受け取り日数を計算
-        $currentDay = $this->calculateCurrentDay($sysPlayerId, $lastLoginAt, $connectionName);
+        $currentDay = $this->calculateCurrentDay($sysPlayerId, $lastLoginAt);
 
         // ログインボーナスデータを取得
         $bonusData = $this->findLoginBonusData($sysPlayerId, $currentDay, $lastLoginAt);
@@ -193,15 +189,15 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
         }
 
         // 配布前のフック
-        if (! $this->beforeGrant($sysPlayerId, $bonusData, $currentDay, $connectionName)) {
+        if (! $this->beforeGrant($sysPlayerId, $bonusData, $currentDay)) {
             return [];
         }
 
         // 報酬を配布
-        $rewards = $this->grantBonus($sysPlayerId, $bonusData, $currentDay, $connectionName);
+        $rewards = $this->grantBonus($sysPlayerId, $bonusData, $currentDay);
 
         // 配布後のフック
-        $this->afterGrant($sysPlayerId, $bonusData, $currentDay, $rewards, $connectionName);
+        $this->afterGrant($sysPlayerId, $bonusData, $currentDay, $rewards);
 
         return $rewards;
     }
@@ -212,10 +208,9 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
      * @param  int  $sysPlayerId  プレイヤーID
      * @param  array<string, mixed>  $bonusData  ログインボーナスデータ
      * @param  int  $currentDay  現在の受け取り日数
-     * @param  string  $connectionName  シャーディングされたDB接続名
      * @return bool 配布を続行する場合true、中止する場合false
      */
-    protected function beforeGrant(int $sysPlayerId, array $bonusData, int $currentDay, string $connectionName): bool
+    protected function beforeGrant(int $sysPlayerId, array $bonusData, int $currentDay): bool
     {
         return true;
     }
@@ -227,10 +222,9 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
      * @param  array<string, mixed>  $bonusData  ログインボーナスデータ
      * @param  int  $currentDay  現在の受け取り日数
      * @param  array<int, mixed>  $rewards  配布した報酬
-     * @param  string  $connectionName  シャーディングされたDB接続名
      * @return void
      */
-    protected function afterGrant(int $sysPlayerId, array $bonusData, int $currentDay, array $rewards, string $connectionName): void
+    protected function afterGrant(int $sysPlayerId, array $bonusData, int $currentDay, array $rewards): void
     {
         // デフォルトは何もしない
     }
@@ -241,10 +235,9 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
      * @param  int  $sysPlayerId  プレイヤーID
      * @param  array<string, mixed>  $bonusData  ログインボーナスデータ
      * @param  int  $currentDay  現在の受け取り日数
-     * @param  string  $connectionName  シャーディングされたDB接続名
      * @return array<resource> 配布した報酬
      */
-    protected function grantBonus(int $sysPlayerId, array $bonusData, int $currentDay, string $connectionName): array
+    protected function grantBonus(int $sysPlayerId, array $bonusData, int $currentDay): array
     {
         // 報酬内容を取得
         $contents = $this->findBonusContents($bonusData, $currentDay);
@@ -263,7 +256,7 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
         $this->resourceDeliveryService->deliver($sysPlayerId);
 
         // 履歴を記録
-        $this->recordHistory($sysPlayerId, $bonusData, $currentDay, $contents, $connectionName);
+        $this->recordHistory($sysPlayerId, $bonusData, $currentDay, $contents);
 
         return $resources;
     }

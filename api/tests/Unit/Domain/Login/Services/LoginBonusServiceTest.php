@@ -10,6 +10,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use Nexus\Core\Utilities\ClockUtility;
 use NexusPitr\Logger\ShardMapper;
+use NexusUnitOfWork\Contracts\QueryManagerInterface;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
@@ -170,8 +171,7 @@ class LoginBonusServiceTest extends TestCase
         // 初回ログイン（lastLoginAt = null）
         $result = $this->loginBonusService->process(
             $this->sysPlayerId,
-            null,
-            'trx1'
+            null
         );
 
         // 1日目の報酬が配布されることを確認
@@ -181,6 +181,7 @@ class LoginBonusServiceTest extends TestCase
         $this->assertSame(10, $result[0]->getAmount());
 
         // 履歴が記録されていることを確認
+        $this->flushWrites();
         $history = DB::connection('trx1')
             ->table('trx_login_bonus')
             ->where('sys_player_id', $this->sysPlayerId)
@@ -200,8 +201,7 @@ class LoginBonusServiceTest extends TestCase
         // 1回目のログイン
         $result1 = $this->loginBonusService->process(
             $this->sysPlayerId,
-            null,
-            'trx1'
+            null
         );
         $this->assertCount(1, $result1);
 
@@ -210,8 +210,7 @@ class LoginBonusServiceTest extends TestCase
         ClockUtility::setNow($today->setTime(15, 0, 0)); // 同日の午後
         $result2 = $this->loginBonusService->process(
             $this->sysPlayerId,
-            $lastLoginAt,
-            'trx1'
+            $lastLoginAt
         );
 
         // 配布されないことを確認
@@ -229,8 +228,7 @@ class LoginBonusServiceTest extends TestCase
         // 1日目
         $this->loginBonusService->process(
             $this->sysPlayerId,
-            null,
-            'trx1'
+            null
         );
 
         // 2日目（翌日）
@@ -240,8 +238,7 @@ class LoginBonusServiceTest extends TestCase
 
         $result = $this->loginBonusService->process(
             $this->sysPlayerId,
-            $lastLoginAt,
-            'trx1'
+            $lastLoginAt
         );
 
         // 2日目の報酬が配布されることを確認
@@ -312,8 +309,7 @@ class LoginBonusServiceTest extends TestCase
             $lastLoginAt = $i === 1 ? null : $currentDay->subDay()->toDateTimeString();
             $this->loginBonusService->process(
                 $this->sysPlayerId,
-                $lastLoginAt,
-                'trx1'
+                $lastLoginAt
             );
             $currentDay = $currentDay->addDay();
         }
@@ -323,8 +319,7 @@ class LoginBonusServiceTest extends TestCase
         $lastLoginAt = $currentDay->subDay()->toDateTimeString();
         $result = $this->loginBonusService->process(
             $this->sysPlayerId,
-            $lastLoginAt,
-            'trx1'
+            $lastLoginAt
         );
 
         // 7日目は2つの報酬（アイテム + ダイヤ）
@@ -387,12 +382,12 @@ class LoginBonusServiceTest extends TestCase
         // ログイン
         $this->loginBonusService->process(
             $this->sysPlayerId,
-            null,
-            'trx1'
+            null
         );
 
         // 履歴を確認（アイテムとダイヤの2件）
         // trx_login_bonus はタイプごとに1行の状態テーブル。報酬ごとの記録は受取ログに残る
+        $this->flushWrites();
         $histories = DB::connection(ShardMapper::resolveLogConnection('trx1'))
             ->table('log_action_login_bonus_receive')
             ->where('sys_player_id', $this->sysPlayerId)
@@ -427,8 +422,7 @@ class LoginBonusServiceTest extends TestCase
             $lastLoginAt = $i === 1 ? null : $currentDay->subDay()->toDateTimeString();
             $this->loginBonusService->process(
                 $this->sysPlayerId,
-                $lastLoginAt,
-                'trx1'
+                $lastLoginAt
             );
             $currentDay = $currentDay->addDay();
         }
@@ -438,8 +432,7 @@ class LoginBonusServiceTest extends TestCase
         $lastLoginAt = $currentDay->subDay()->toDateTimeString();
         $result = $this->loginBonusService->process(
             $this->sysPlayerId,
-            $lastLoginAt,
-            'trx1'
+            $lastLoginAt
         );
 
         // 1日目の報酬と同じになる
@@ -448,6 +441,7 @@ class LoginBonusServiceTest extends TestCase
         $this->assertSame(10, $result[0]->getAmount()); // 1日目の報酬（10個）
 
         // 履歴を確認
+        $this->flushWrites();
         $history = DB::connection('trx1')
             ->table('trx_login_bonus')
             ->where('sys_player_id', $this->sysPlayerId)
@@ -472,8 +466,7 @@ class LoginBonusServiceTest extends TestCase
             $lastLoginAt = $i === 1 ? null : $currentDay->subDay()->toDateTimeString();
             $this->loginBonusService->process(
                 $this->sysPlayerId,
-                $lastLoginAt,
-                'trx1'
+                $lastLoginAt
             );
             $currentDay = $currentDay->addDay();
         }
@@ -485,8 +478,7 @@ class LoginBonusServiceTest extends TestCase
 
         $result = $this->loginBonusService->process(
             $this->sysPlayerId,
-            $lastLoginAt,
-            'trx1'
+            $lastLoginAt
         );
 
         // 休眠してもリセットされず、前回受け取り分（3日目）の次＝4日目が配布される
@@ -507,18 +499,18 @@ class LoginBonusServiceTest extends TestCase
 
         $day1 = CarbonImmutable::parse('2026-04-20 10:00:00', 'UTC');
         ClockUtility::setNow($day1);
-        $this->assertCount(1, $this->loginBonusService->process($this->sysPlayerId, null, 'trx1'));
+        $this->assertCount(1, $this->loginBonusService->process($this->sysPlayerId, null));
 
         // 翌日の朝でも9時前は同じゲーム内日なので配布されない
         ClockUtility::setNow(CarbonImmutable::parse('2026-04-21 08:00:00', 'UTC'));
         $this->assertCount(
             0,
-            $this->loginBonusService->process($this->sysPlayerId, $day1->toDateTimeString(), 'trx1')
+            $this->loginBonusService->process($this->sysPlayerId, $day1->toDateTimeString())
         );
 
         // 9時を過ぎたら翌日として2日目の報酬が出る
         ClockUtility::setNow(CarbonImmutable::parse('2026-04-21 09:00:01', 'UTC'));
-        $result = $this->loginBonusService->process($this->sysPlayerId, $day1->toDateTimeString(), 'trx1');
+        $result = $this->loginBonusService->process($this->sysPlayerId, $day1->toDateTimeString());
 
         $this->assertCount(1, $result);
         $this->assertSame(20, $result[0]->getAmount());
@@ -534,8 +526,7 @@ class LoginBonusServiceTest extends TestCase
         ClockUtility::setNow($day1Evening);
         $result1 = $this->loginBonusService->process(
             $this->sysPlayerId,
-            null,
-            'trx1'
+            null
         );
         $this->assertCount(1, $result1);
 
@@ -546,8 +537,7 @@ class LoginBonusServiceTest extends TestCase
 
         $result2 = $this->loginBonusService->process(
             $this->sysPlayerId,
-            $lastLoginAt,
-            'trx1'
+            $lastLoginAt
         );
 
         // 翌日として判定され、2日目の報酬が配布される
@@ -572,8 +562,7 @@ class LoginBonusServiceTest extends TestCase
 
         $result = $this->loginBonusService->process(
             $this->sysPlayerId,
-            null,
-            'trx1'
+            null
         );
 
         // 何も配布されない
@@ -598,13 +587,23 @@ class LoginBonusServiceTest extends TestCase
 
         $result = $this->loginBonusService->process(
             $this->sysPlayerId,
-            null,
-            'trx1'
+            null
         );
 
         // 何も配布されない
         $this->assertEmpty($result);
 
         ClockUtility::reset();
+    }
+
+    /**
+     * キューに積んだ書き込みを流す
+     *
+     * UseCase の終わりと同じく、trx は flush()、log はその後の execAllLogs() で書く
+     */
+    private function flushWrites(): void
+    {
+        $this->flushQueue();
+        app(QueryManagerInterface::class)->execAllLogs();
     }
 }

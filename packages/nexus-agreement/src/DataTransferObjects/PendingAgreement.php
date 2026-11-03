@@ -2,8 +2,6 @@
 
 namespace NexusAgreement\DataTransferObjects;
 
-use Carbon\CarbonImmutable;
-
 /**
  * PendingAgreement
  *
@@ -16,7 +14,7 @@ readonly class PendingAgreement
         private string $version,
         private string $title,
         private string $url,
-        private CarbonImmutable $publishedAt,
+        private string $publishedAt,
     ) {}
 
     public function getSysAgreementId(): int
@@ -39,7 +37,10 @@ readonly class PendingAgreement
         return $this->url;
     }
 
-    public function getPublishedAt(): CarbonImmutable
+    /**
+     * 公開日時（Y-m-d H:i:s形式）
+     */
+    public function getPublishedAt(): string
     {
         return $this->publishedAt;
     }

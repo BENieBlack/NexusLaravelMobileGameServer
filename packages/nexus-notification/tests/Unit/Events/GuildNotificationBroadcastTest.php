@@ -20,7 +20,7 @@ use PHPUnit\Framework\TestCase;
 class GuildNotificationBroadcastTest extends TestCase
 {
     #[Test]
-    public function ShouldBroadcastを実装している(): void
+    public function should_broadcastを実装している(): void
     {
         $event = new GuildNotificationBroadcast(1, $this->makeNotification());
 
@@ -28,7 +28,7 @@ class GuildNotificationBroadcastTest extends TestCase
     }
 
     #[Test]
-    public function broadcastOn_はギルドIDを含むPresenceChannelを返す(): void
+    public function broadcast_on_はギルド_i_dを含む_presence_channelを返す(): void
     {
         $event = new GuildNotificationBroadcast(guildId: 42, notification: $this->makeNotification());
 
@@ -41,7 +41,7 @@ class GuildNotificationBroadcastTest extends TestCase
     }
 
     #[Test]
-    public function broadcastAs_はguild_notificationを返す(): void
+    public function broadcast_as_はguild_notificationを返す(): void
     {
         $event = new GuildNotificationBroadcast(1, $this->makeNotification());
 
@@ -49,7 +49,7 @@ class GuildNotificationBroadcastTest extends TestCase
     }
 
     #[Test]
-    public function broadcastWith_は通知の全フィールドを含む(): void
+    public function broadcast_with_は通知の全フィールドを含む(): void
     {
         $notification = $this->makeNotification();
         $event = new GuildNotificationBroadcast(1, $notification);
@@ -71,7 +71,7 @@ class GuildNotificationBroadcastTest extends TestCase
     }
 
     #[Test]
-    public function broadcastWith_typeはenumのvalueである文字列(): void
+    public function broadcast_with_typeはenumのvalueである文字列(): void
     {
         // NotificationType::GUILD_MEMBER_JOINED → "guild_member_joined" が返ることを固定する
         $notification = $this->makeNotification(type: NotificationType::GUILD_MEMBER_JOINED);

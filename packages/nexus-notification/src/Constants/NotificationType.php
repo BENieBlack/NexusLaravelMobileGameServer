@@ -25,8 +25,8 @@ enum NotificationType: string
 
     // ギルド全員宛（presence-guild チャンネルに流す）
     case GUILD_MEMBER_JOINED = 'guild_member_joined';
-    case GUILD_MEMBER_LEFT   = 'guild_member_left';
-    case GUILD_LEVEL_UP      = 'guild_level_up';
+    case GUILD_MEMBER_LEFT = 'guild_member_left';
+    case GUILD_LEVEL_UP = 'guild_level_up';
 
     // メールボックス系
     case MAILBOX_RECEIVED = 'mailbox_received';

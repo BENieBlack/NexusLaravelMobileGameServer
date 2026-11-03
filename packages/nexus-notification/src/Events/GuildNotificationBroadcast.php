@@ -29,7 +29,7 @@ class GuildNotificationBroadcast implements ShouldBroadcast
      */
     public function broadcastOn(): array
     {
-        return [new PresenceChannel('guild.' . $this->guildId)];
+        return [new PresenceChannel('guild.'.$this->guildId)];
     }
 
     /**
@@ -48,11 +48,11 @@ class GuildNotificationBroadcast implements ShouldBroadcast
     public function broadcastWith(): array
     {
         return [
-            'id'         => $this->notification->getId(),
-            'type'       => $this->notification->getType()->value,
-            'title'      => $this->notification->getTitle(),
-            'body'       => $this->notification->getBody(),
-            'payload'    => $this->notification->getPayload(),
+            'id' => $this->notification->getId(),
+            'type' => $this->notification->getType()->value,
+            'title' => $this->notification->getTitle(),
+            'body' => $this->notification->getBody(),
+            'payload' => $this->notification->getPayload(),
             'created_at' => $this->notification->getCreatedAt(),
         ];
     }

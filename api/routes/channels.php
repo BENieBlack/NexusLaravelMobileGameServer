@@ -49,7 +49,7 @@ Broadcast::channel('guild.{guildId}', function ($user, int $guildId): array|fals
 
     // プレゼンスチャンネルはユーザー情報の配列を返す必要がある
     return [
-        'id'   => $guildMember->getSysPlayerId(),
+        'id' => $guildMember->getSysPlayerId(),
         'name' => (string) $guildMember->getSysPlayerId(),
     ];
 });

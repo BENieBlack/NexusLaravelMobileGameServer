@@ -1,15 +1,15 @@
 <?php
 
-namespace NexusAgreement\Models;
+namespace App\Models\Trx;
 
-use Nexus\Core\Models\Trx\_BaseTrx;
+use App\Traits\CompositePrimaryKeyTrait;
 
 /**
  * TrxAgreement Model
  *
  * プレイヤーの利用規約同意記録テーブル（trx_agreement）
  * insert only — 同意記録は不変の監査ログとして扱う
- * updated_at カラムなし
+ * updated_at / is_delete カラムなし（読み取りの論理削除除外は TrxAgreementRepository で切る）
  *
  * @property int $sys_player_id
  * @property int $sys_agreement_id
@@ -18,6 +18,8 @@ use Nexus\Core\Models\Trx\_BaseTrx;
  */
 class TrxAgreement extends _BaseTrx
 {
+    use CompositePrimaryKeyTrait;
+
     /**
      * updated_at カラムなし（insert only）
      */
@@ -48,11 +50,6 @@ class TrxAgreement extends _BaseTrx
         'sys_agreement_id' => 'integer',
     ];
 
-    /**
-     * is_delete カラムなし（insert only のため論理削除不要）
-     */
-    protected bool $excludesSoftDeleted = false;
-
     public function getSysPlayerId(): int
     {
         return (int) $this->getAttribute('sys_player_id');
@@ -73,9 +70,12 @@ class TrxAgreement extends _BaseTrx
         $this->setAttribute('sys_agreement_id', $sysAgreementId);
     }
 
+    /**
+     * 同意日時（Y-m-d H:i:s形式）
+     */
     public function getConsentedAt(): string
     {
-        return (string) $this->getAttribute('consented_at');
+        return (string) $this->getDateAttributeString('consented_at');
     }
 
     public function setConsentedAt(string $consentedAt): void

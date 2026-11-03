@@ -243,7 +243,7 @@ class LoginBonusIntegrationTest extends TestCase
         $lastLoginAt = null;
 
         // Act: ログインボーナスを一括受け取り
-        $results = $this->orchestrator->executeAllMerged($this->sysPlayerId, $lastLoginAt, $this->connectionName);
+        $results = $this->orchestrator->executeAllMerged($this->sysPlayerId, $lastLoginAt);
 
         // Assert: 少なくとも通常ログインボーナスは受け取れる
         $this->assertGreaterThanOrEqual(1, count($results), '少なくとも1つのボーナスを受け取れるべき');
@@ -253,7 +253,7 @@ class LoginBonusIntegrationTest extends TestCase
     public function vi_pレベルアップ後は新しい_vi_pレベルのボーナスを受け取る(): void
     {
         // Arrange: VIP0で1日受け取る
-        $firstResult = $this->orchestrator->executeAllMerged($this->sysPlayerId, null, $this->connectionName);
+        $firstResult = $this->orchestrator->executeAllMerged($this->sysPlayerId, null);
 
         // VIP5にレベルアップ
         DB::connection('sys')->table('sys_player')
@@ -264,7 +264,7 @@ class LoginBonusIntegrationTest extends TestCase
         $lastLoginAt = now()->subDay()->format('Y-m-d H:i:s');
 
         // Act: 2日目のボーナスを受け取る
-        $secondResult = $this->orchestrator->executeAllMerged($this->sysPlayerId, $lastLoginAt, $this->connectionName);
+        $secondResult = $this->orchestrator->executeAllMerged($this->sysPlayerId, $lastLoginAt);
 
         // Assert: 何らかのボーナスを受け取っているか確認
         $this->assertGreaterThan(0, count($secondResult), 'ボーナスを受け取るべき');
@@ -284,7 +284,7 @@ class LoginBonusIntegrationTest extends TestCase
         $lastLoginAt = now()->subDays(8)->format('Y-m-d H:i:s');
 
         // Act: ログインボーナスを一括受け取り
-        $results = $this->orchestrator->executeAllMerged($this->sysPlayerId, $lastLoginAt, $this->connectionName);
+        $results = $this->orchestrator->executeAllMerged($this->sysPlayerId, $lastLoginAt);
 
         // Assert: 複数のボーナスを受け取る
         $this->assertGreaterThanOrEqual(1, count($results), '少なくとも1つのボーナスを受け取れるべき');
@@ -300,7 +300,7 @@ class LoginBonusIntegrationTest extends TestCase
             } else {
                 $lastLoginAt = null;
             }
-            $this->orchestrator->executeAllMerged($this->sysPlayerId, $lastLoginAt, $this->connectionName);
+            $this->orchestrator->executeAllMerged($this->sysPlayerId, $lastLoginAt);
 
             // 時間を進める（次の日へ）
             sleep(1);
@@ -314,7 +314,7 @@ class LoginBonusIntegrationTest extends TestCase
         $lastLoginAt = now()->subDay()->format('Y-m-d H:i:s');
 
         // Act: 4日目のボーナスを受け取る
-        $results = $this->orchestrator->executeAllMerged($this->sysPlayerId, $lastLoginAt, $this->connectionName);
+        $results = $this->orchestrator->executeAllMerged($this->sysPlayerId, $lastLoginAt);
 
         // Assert: ボーナスを受け取れることを確認
         $this->assertGreaterThan(0, count($results), '4日目のボーナスを受け取るべき');

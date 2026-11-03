@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\MaintenanceController as AdminMaintenanceController;
+use App\Http\Controllers\AgreementController;
 use App\Http\Controllers\AlbumController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ChatController;
@@ -11,7 +12,6 @@ use App\Http\Controllers\GuildController;
 use App\Http\Controllers\InAppPurchaseController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\MailboxController;
-use App\Http\Controllers\AgreementController;
 use App\Http\Controllers\MissionController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PlayerController;

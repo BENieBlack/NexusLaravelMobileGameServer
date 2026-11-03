@@ -2,7 +2,7 @@
 
 namespace App\Domain\Login\Services;
 
-use Carbon\CarbonImmutable;
+use App\Models\Mst\MstLoginBonus;
 use Nexus\Core\Support\CustomCollection;
 use Nexus\Core\Utilities\ClockUtility;
 use NexusLogin\Repositories\LoginBonusHistoryRepositoryInterface;
@@ -17,14 +17,14 @@ use NexusResourceDelivery\Services\ResourceDeliveryService;
  * _BaseLoginBonusServiceを継承し、差分のみオーバーライド
  *
  * 特性（通常ログインボーナスとの差分）:
- * - N日以上ログインしていないユーザーがログインすると発火
- * - 設定期間で終了する（ループしない） ← shouldLoop()をオーバーライド
+ * - N日以上ログインしていないユーザーがログインすると期間が始まる
+ * - 期間中は毎日受け取れる。休眠日数の条件は期間の初日だけ見る
+ * - 設定期間（valid_days）で終了する（ループしない） ← shouldLoop()をオーバーライド
  * - 1日ログインしないとその日の分はスキップされる ← shouldSkipOnAbsence()をオーバーライド
+ * - 期間の開始日は保存せず、trx_login_bonus の受取日と日数から逆算する
  */
 class ComeBackLoginBonusService extends _BaseLoginBonusService
 {
-    private ?string $currentConnectionName = null;
-
     public function __construct(
         ResourceDeliveryService $resourceDeliveryService,
         private readonly LoginBonusRepositoryInterface $bonusRepository,
@@ -35,19 +35,14 @@ class ComeBackLoginBonusService extends _BaseLoginBonusService
 
     /**
      * {@inheritDoc}
+     *
+     * 休眠明けで新しい期間が始まるか、進行中の期間があり、今日まだ受け取っていなければ対象
      */
     public function isEligible(int $sysPlayerId, ?string $lastLoginAt): bool
     {
-        if ($lastLoginAt === null) {
-            return false; // 初回ログインは対象外
-        }
+        $period = $this->resolvePeriod($sysPlayerId, $lastLoginAt);
 
-        $absentDays = $this->calculateAbsentDays($lastLoginAt);
-
-        // 有効なカムバックボーナス設定があるかチェック
-        $bonus = $this->bonusRepository->selectEligibleComebackBonus($absentDays);
-
-        return $bonus !== null;
+        return $period !== null && ! $this->hasReceivedToday($sysPlayerId, $period['bonus']['id']);
     }
 
     /**
@@ -73,28 +68,11 @@ class ComeBackLoginBonusService extends _BaseLoginBonusService
     /**
      * {@inheritDoc}
      *
-     * カムバック開始日からの経過日数を計算（スキップあり）
+     * カムバック期間の何日目か（ログインしなかった日も数える）
      */
-    protected function calculateCurrentDay(int $sysPlayerId, ?string $lastLoginAt, string $connectionName): int
+    protected function calculateCurrentDay(int $sysPlayerId, ?string $lastLoginAt): int
     {
-        // connectionNameを保存（findLoginBonusDataで使用）
-        $this->currentConnectionName = $connectionName;
-
-        // カムバックボーナス初回受け取り日を取得
-        $firstComebackHistory = $this->historyRepository->selectFirstComebackByPlayerId($sysPlayerId, $connectionName);
-
-        if ($firstComebackHistory === null) {
-            // 初回カムバック = 1日目
-            return 1;
-        }
-
-        $firstReceivedDate = CarbonImmutable::parse($firstComebackHistory['received_date']);
-        $currentGameDayStart = $this->calcGameDayStart();
-
-        // カムバック開始日からの経過日数（スキップあり）
-        $daysSinceStart = $firstReceivedDate->diffInDays($currentGameDayStart, false) + 1;
-
-        return max(1, $daysSinceStart);
+        return $this->resolvePeriod($sysPlayerId, $lastLoginAt)['day'] ?? 1;
     }
 
     /**
@@ -102,29 +80,18 @@ class ComeBackLoginBonusService extends _BaseLoginBonusService
      */
     protected function findLoginBonusData(int $sysPlayerId, int $currentDay, ?string $lastLoginAt): ?array
     {
-        $absentDays = $this->calculateAbsentDays($lastLoginAt);
+        $period = $this->resolvePeriod($sysPlayerId, $lastLoginAt);
 
-        // 優先度順でカムバックボーナスを取得
-        $bonus = $this->bonusRepository->selectEligibleComebackBonus($absentDays);
-
-        if ($bonus === null) {
-            return null;
-        }
-
-        // 有効期間チェック
-        if (isset($bonus['valid_days']) && $currentDay > $bonus['valid_days']) {
+        if ($period === null) {
             return null;
         }
 
         // 今日すでに受け取り済みかチェック
-        if ($this->hasReceivedToday($sysPlayerId, $bonus['id'], $this->currentConnectionName)) {
+        if ($this->hasReceivedToday($sysPlayerId, $period['bonus']['id'])) {
             return null;
         }
 
-        // absent_daysを追加
-        $bonus['absent_days'] = $absentDays;
-
-        return $bonus;
+        return [...$period['bonus'], 'absent_days' => $period['absent_days']];
     }
 
     /**
@@ -147,25 +114,68 @@ class ComeBackLoginBonusService extends _BaseLoginBonusService
         int $sysPlayerId,
         array $bonusData,
         int $currentDay,
-        CustomCollection $contents,
-        string $connectionName
+        CustomCollection $contents
     ): void {
         $receivedDate = $this->calcGameDayStart()->format('Y-m-d H:i:s');
 
         foreach ($contents as $content) {
-            $this->historyRepository->insert([
-                'sys_player_id' => $sysPlayerId,
-                'type' => 'comeback',
-                'mst_login_bonus_id' => $bonusData['id'],
-                'day' => 0,
-                'absent_days' => $bonusData['absent_days'],
-                'received_date' => $receivedDate,
-                'reward_type' => $content->content_type,
-                'reward_mst_id' => $content->content_mst_id,
-                'reward_amount' => $content->content_quantity * $content->amount,
-                'is_paid' => $content->is_paid ?? false,
-            ], $connectionName);
+            $this->historyRepository->insertReceive(
+                sysPlayerId: $sysPlayerId,
+                type: MstLoginBonus::TYPE_COMEBACK,
+                mstLoginBonusId: $bonusData['id'],
+                // 期間の何日目かを残し、次回は受取日から期間の開始日を逆算する
+                day: $currentDay,
+                absentDays: $bonusData['absent_days'],
+                receivedDate: $receivedDate,
+                rewardType: $content->content_type,
+                rewardMstId: $content->content_mst_id,
+                rewardAmount: $content->content_quantity * $content->amount,
+                isPaid: $content->is_paid ?? false,
+            );
         }
+    }
+
+    /**
+     * 今回のログインで配布するカムバック期間を求める
+     *
+     * - 休眠日数がボーナスの条件を満たせば、新しい期間の1日目
+     * - そうでなければ、前回受け取ったボーナスの期間の続き（開始日からの経過日数）
+     * - 期間が無い、ボーナスが無効、有効日数を過ぎた場合はnull
+     *
+     * @return array{bonus: array<string, mixed>, day: int, absent_days: int}|null
+     */
+    private function resolvePeriod(int $sysPlayerId, ?string $lastLoginAt): ?array
+    {
+        if ($lastLoginAt !== null) {
+            $absentDays = $this->calculateAbsentDays($lastLoginAt);
+            $bonus = $this->bonusRepository->selectEligibleComebackBonus($absentDays);
+
+            if ($bonus !== null) {
+                return ['bonus' => $bonus, 'day' => 1, 'absent_days' => $absentDays];
+            }
+        }
+
+        $history = $this->historyRepository->selectFirstComebackByPlayerId($sysPlayerId);
+
+        if ($history === null) {
+            return null;
+        }
+
+        $bonus = $this->bonusRepository->selectActiveComebackBonusById($history->getMstLoginBonusId());
+
+        if ($bonus === null) {
+            return null;
+        }
+
+        // 期間の開始日 = 前回の受取日 - (前回の日数 - 1)
+        $periodStart = ClockUtility::parse($history->getReceivedDate())->subDays(max(1, $history->getDay()) - 1);
+        $day = (int) $periodStart->diffInDays($this->calcGameDayStart(), false) + 1;
+
+        if (isset($bonus['valid_days']) && $day > $bonus['valid_days']) {
+            return null;
+        }
+
+        return ['bonus' => $bonus, 'day' => max(1, $day), 'absent_days' => $history->getAbsentDays() ?? 0];
     }
 
     /**
@@ -177,7 +187,7 @@ class ComeBackLoginBonusService extends _BaseLoginBonusService
             return 0;
         }
 
-        $lastLogin = CarbonImmutable::parse($lastLoginAt);
+        $lastLogin = ClockUtility::parse($lastLoginAt);
         $now = ClockUtility::now();
 
         return (int) $lastLogin->diffInDays($now, false);
@@ -186,7 +196,7 @@ class ComeBackLoginBonusService extends _BaseLoginBonusService
     /**
      * 今日すでに受け取り済みかチェック
      */
-    private function hasReceivedToday(int $sysPlayerId, string $bonusId, string $connectionName): bool
+    private function hasReceivedToday(int $sysPlayerId, string $bonusId): bool
     {
         $receivedDate = $this->calcGameDayStart()->format('Y-m-d H:i:s');
 
@@ -194,7 +204,6 @@ class ComeBackLoginBonusService extends _BaseLoginBonusService
             $sysPlayerId,
             $bonusId,
             $receivedDate,
-            $connectionName
         );
 
         return $history !== null;

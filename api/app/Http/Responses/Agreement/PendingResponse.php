@@ -41,7 +41,7 @@ class PendingResponse extends _BaseResponse
                     'version' => $dto->getVersion(),
                     'title' => $dto->getTitle(),
                     'url' => $dto->getUrl(),
-                    'published_at' => $dto->getPublishedAt()->toIso8601String(),
+                    'published_at' => $dto->getPublishedAt(),
                 ])
                 ->all(),
         ];

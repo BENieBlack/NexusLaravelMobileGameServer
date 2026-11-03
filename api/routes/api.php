@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Admin\MaintenanceController as AdminMaintenanceController;
 use App\Http\Controllers\AgreementController;
 use App\Http\Controllers\AlbumController;
@@ -58,6 +59,12 @@ Route::middleware('maintenance')->group(function () {
 
     Route::middleware('throttle.auth:refresh_token')->group(function () {
         Route::post('/auth/refresh_token', [AuthController::class, 'refreshToken']);
+    });
+
+    // データ引き継ぎ（新端末から呼ぶため認証不要）。コードやIDトークンの総当たりを防ぐため制限する
+    Route::middleware('throttle.auth:account_transfer')->group(function () {
+        Route::post('/account/transfer_code/transfer', [AccountController::class, 'transferByCode']);
+        Route::post('/account/external/transfer', [AccountController::class, 'transferByExternalAccount']);
     });
 
     // ギルドの参照系は加入前に見られる必要があるため認証不要で公開する。
@@ -121,6 +128,12 @@ Route::middleware('maintenance')->group(function () {
         // Agreement endpoints
         Route::get('/agreement/pending', [AgreementController::class, 'pending']);
         Route::post('/agreement/consent', [AgreementController::class, 'consent']);
+
+        // データ引き継ぎ（旧端末での準備）
+        Route::post('/account/transfer_code/issue', [AccountController::class, 'issueTransferCode']);
+        Route::get('/account/external/list', [AccountController::class, 'externalAccountList']);
+        Route::post('/account/external/link', [AccountController::class, 'linkExternalAccount']);
+        Route::post('/account/external/unlink', [AccountController::class, 'unlinkExternalAccount']);
 
         // Gacha endpoints
         Route::post('/gacha/draw', [GachaController::class, 'draw']);

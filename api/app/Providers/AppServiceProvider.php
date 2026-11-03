@@ -74,6 +74,7 @@ use App\Repositories\Trx\UnitRepositoryAdapter;
 use App\Repositories\Trx\VipLoginBonusHistoryRepositoryInterface;
 use App\Repositories\Trx\WalletBalanceRepositoryAdapter;
 use App\Repositories\Trx\WalletRepositoryAdapter;
+use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
@@ -83,7 +84,9 @@ use NexusAgreement\Repositories\AgreementRepositoryInterface;
 use NexusAlbum\Repositories\AlbumCatalogRepositoryInterface;
 use NexusAlbum\Repositories\AlbumEntryRepositoryInterface;
 use NexusAlbum\Services\AlbumService;
+use NexusAuth\Contracts\ExternalIdTokenVerifierInterface;
 use NexusAuth\Contracts\TokenRepositoryInterface;
+use NexusAuth\Services\JwksIdTokenVerifier;
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Services\TokenService;
 use NexusAuth\Services\TokenValidator;
@@ -183,6 +186,15 @@ class AppServiceProvider extends ServiceProvider
 
         // PlayerAuthService
         $this->app->bind(PlayerAuthService::class);
+
+        // 外部アカウント（Apple / Google）のIDトークン検証（データ引き継ぎ）
+        // 持つのはHTTPクライアントとキャッシュだけで、リクエストをまたいで残しても問題ない
+        $this->app->singleton(ExternalIdTokenVerifierInterface::class, fn ($app) => new JwksIdTokenVerifier(
+            http: $app->make(HttpFactory::class),
+            cache: $app->make('cache.store'),
+            providers: config('account_transfer.external_providers'),
+            cacheSeconds: (int) config('account_transfer.jwks_cache_seconds'),
+        ));
 
         // ==========================================
         // NexusLogin Package Bindings

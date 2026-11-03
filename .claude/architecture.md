@@ -131,6 +131,7 @@ Traits/                   UseCaseTrait, CompositePrimaryKeyTrait, RequiresAuthen
 - 発行側は `Illuminate\Contracts\Events\Dispatcher` をコンストラクタで受け取り `dispatch()` する。`event()` ヘルパーやFacadeは使わない（パッケージのテストで差し替えられなくなる）
 - 受け手は受け手側コンテキストの `app/Domain/{Context}/Listeners/` に置き、`AppServiceProvider::boot()` で `Event::listen()` する
 - 受け手は同期で処理する（`ShouldQueue` にしない）。発行元と同じUnitOfWorkに書き込み、同じトランザクションで確定させるため
+- 例外は**ログイン中プレイヤー以外の行を書く**受け手（通知の受け手など）。相手のシャードは発行元のトランザクションに含まれないため、受け手は同期で受けて、書き込みは `afterCommit()` を付けたキューのジョブへ渡す（`app/Domain/Notification/Listeners/` → `app/Domain/Notification/Jobs/`）。ロールバックされた操作の通知は送られない。相手のシャードは `ApiSession::resolveConnectionNameForPlayer()` で引く
 
 ```php
 // packages/nexus-level/src/Services/PlayerLevelService.php（発行側）
@@ -140,7 +141,7 @@ $this->events?->dispatch(new PlayerLeveledUp($sysPlayerId, $beforeLevel, $afterL
 public function handle(PlayerLeveledUp $event): void { ... }
 ```
 
-現在の発行元は `PlayerLeveledUp`（nexus-level）、`VipLevelUpEvent`（nexus-vip）、`UnitLeveledUp`（nexus-resource。`UnitLevelService::onLevelUp()` が発行し、`Mission\Listeners\RecordMissionProgressOnUnitLevelUp` がミッションの進捗として数える）。
+現在の発行元は `PlayerLeveledUp`（nexus-level）、`VipLevelUpEvent`（nexus-vip）、`UnitLeveledUp`（nexus-resource。`UnitLevelService::onLevelUp()` が発行し、`Mission\Listeners\RecordMissionProgressOnUnitLevelUp` がミッションの進捗として数える）、`FriendApplySent` / `FriendApplyAccepted`（nexus-friend）、`GuildApplySent` / `GuildApplyAccepted` / `GuildApplyRejected` / `GuildMemberLeft`（nexus-guild）。フレンド・ギルドのイベントは `Notification\Listeners\NotifyOn*` が相手への通知にする。
 
 ## 6. パッケージとアプリの境界
 

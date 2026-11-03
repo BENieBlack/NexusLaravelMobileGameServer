@@ -2,8 +2,11 @@
 
 namespace NexusFriend\Tests\Unit\Services;
 
+use Illuminate\Events\Dispatcher;
 use NexusFriend\Constants\FriendStatus;
 use NexusFriend\DataTransferObjects\FriendApply;
+use NexusFriend\Events\FriendApplyAccepted;
+use NexusFriend\Events\FriendApplySent;
 use NexusFriend\Repositories\FriendApplyRepositoryInterface;
 use NexusFriend\Services\FriendService;
 use PHPUnit\Framework\Attributes\Test;
@@ -35,6 +38,38 @@ class FriendServiceTest extends TestCase
         $this->assertSame(self::RECEIVER, $apply->getReceiverPlayerId());
         $this->assertSame(FriendStatus::APPLIED, $apply->getStatus());
         $this->assertSame([[self::SENDER, self::RECEIVER]], $repository->inserted);
+    }
+
+    #[Test]
+    public function 申請を送ると受信者を載せたイベントを発行する(): void
+    {
+        $dispatched = [];
+        $events = new Dispatcher;
+        $events->listen('*', function (string $name, array $payload) use (&$dispatched): void {
+            $dispatched[] = $payload[0];
+        });
+        $service = new FriendService(new FakeFriendApplyRepository, $events);
+
+        $apply = $service->sendApply(self::SENDER, self::RECEIVER);
+
+        $this->assertEquals([new FriendApplySent($apply->getId(), self::SENDER, self::RECEIVER)], $dispatched);
+    }
+
+    #[Test]
+    public function 承認すると申請者を載せたイベントを発行する(): void
+    {
+        $dispatched = [];
+        $events = new Dispatcher;
+        $events->listen('*', function (string $name, array $payload) use (&$dispatched): void {
+            $dispatched[] = $payload[0];
+        });
+        $repository = new FakeFriendApplyRepository;
+        $repository->byId = $this->makeApply();
+        $service = new FriendService($repository, $events);
+
+        $accepted = $service->acceptApply(10, self::RECEIVER);
+
+        $this->assertEquals([new FriendApplyAccepted($accepted->getId(), self::SENDER, self::RECEIVER)], $dispatched);
     }
 
     #[Test]

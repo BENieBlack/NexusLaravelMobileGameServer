@@ -188,7 +188,7 @@ class VipLoginBonusServiceTest extends TestCase
         $lastLoginAt = null;
 
         // Act
-        $result = $this->vipLoginBonusService->process($this->sysPlayerId, $lastLoginAt, 'trx1');
+        $result = $this->vipLoginBonusService->process($this->sysPlayerId, $lastLoginAt);
 
         $this->flushQueue();
 
@@ -223,7 +223,7 @@ class VipLoginBonusServiceTest extends TestCase
     #[Test]
     public function ボーナスidと受け取り日時が最新の状態と一致するときだけ取得できる(): void
     {
-        $this->vipLoginBonusService->process($this->sysPlayerId, null, 'trx1');
+        $this->vipLoginBonusService->process($this->sysPlayerId, null);
         $this->flushQueue();
 
         $receivedAt = (string) DB::connection('trx1')->table('trx_vip_login_bonus')
@@ -248,7 +248,7 @@ class VipLoginBonusServiceTest extends TestCase
         $lastLoginAt = $currentTime->format('Y-m-d H:i:s');
 
         // 1回目の受け取り
-        $this->vipLoginBonusService->process($this->sysPlayerId, null, 'trx1');
+        $this->vipLoginBonusService->process($this->sysPlayerId, null);
 
         // Act: 同じ日に再度受け取ろうとする
         $isEligible = $this->vipLoginBonusService->isEligible($this->sysPlayerId, $lastLoginAt);
@@ -277,8 +277,7 @@ class VipLoginBonusServiceTest extends TestCase
         // Act: 8日目にログイン（1日目に戻るべき）
         $result = $this->vipLoginBonusService->process(
             $this->sysPlayerId,
-            ClockUtility::now()->subDay()->format('Y-m-d H:i:s'),
-            'trx1'
+            ClockUtility::now()->subDay()->format('Y-m-d H:i:s')
         );
 
         $this->flushQueue();
@@ -336,8 +335,7 @@ class VipLoginBonusServiceTest extends TestCase
         // Act: 4日目にログイン
         $result = $this->vipLoginBonusService->process(
             $this->sysPlayerId,
-            ClockUtility::now()->subDay()->format('Y-m-d H:i:s'),
-            'trx1'
+            ClockUtility::now()->subDay()->format('Y-m-d H:i:s')
         );
 
         $this->flushQueue();

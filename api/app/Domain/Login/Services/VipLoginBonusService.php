@@ -111,10 +111,8 @@ class VipLoginBonusService extends _BaseLoginBonusService
         int $sysPlayerId,
         array $bonusData,
         int $currentDay,
-        CustomCollection $contents,
-        string $connectionName
+        CustomCollection $contents
     ): void {
-        // 書き込み先のシャードは ApiSession が解決するため $connectionName は使わない
         $receivedAt = $this->calcGameDayStart()->format('Y-m-d H:i:s');
 
         // 最新状態はtrx、受取履歴はlogへ記録
@@ -144,9 +142,8 @@ class VipLoginBonusService extends _BaseLoginBonusService
     /**
      * {@inheritDoc}
      */
-    protected function findLastReceivedDay(int $sysPlayerId, string $connectionName): ?int
+    protected function findLastReceivedDay(int $sysPlayerId): ?int
     {
-        // 読み取り先のシャードは ApiSession が解決するため $connectionName は使わない
         return $this->vipHistoryRepository->selectLatestByPlayerId($sysPlayerId)?->getDay();
     }
 

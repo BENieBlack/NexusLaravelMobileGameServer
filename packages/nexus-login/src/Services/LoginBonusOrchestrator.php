@@ -39,10 +39,9 @@ class LoginBonusOrchestrator
      *
      * @param  int  $sysPlayerId  プレイヤーID
      * @param  string|null  $lastLoginAt  最終ログイン日時（UTC、文字列形式）
-     * @param  string  $connectionName  シャーディングされたDB接続名
      * @return array{daily: array<resource>, comeback: array<resource>} 配布した報酬
      */
-    public function executeAll(int $sysPlayerId, ?string $lastLoginAt, string $connectionName): array
+    public function executeAll(int $sysPlayerId, ?string $lastLoginAt): array
     {
         $results = [
             'daily' => [],
@@ -54,7 +53,7 @@ class LoginBonusOrchestrator
             $strategy = $item['strategy'];
 
             if ($strategy->isEligible($sysPlayerId, $lastLoginAt)) {
-                $rewards = $strategy->process($sysPlayerId, $lastLoginAt, $connectionName);
+                $rewards = $strategy->process($sysPlayerId, $lastLoginAt);
 
                 // クラス名から戦略の種類を判定
                 $className = get_class($strategy);
@@ -74,12 +73,11 @@ class LoginBonusOrchestrator
      *
      * @param  int  $sysPlayerId  プレイヤーID
      * @param  string|null  $lastLoginAt  最終ログイン日時（UTC、文字列形式）
-     * @param  string  $connectionName  シャーディングされたDB接続名
      * @return array<resource> 配布した全報酬
      */
-    public function executeAllMerged(int $sysPlayerId, ?string $lastLoginAt, string $connectionName): array
+    public function executeAllMerged(int $sysPlayerId, ?string $lastLoginAt): array
     {
-        $results = $this->executeAll($sysPlayerId, $lastLoginAt, $connectionName);
+        $results = $this->executeAll($sysPlayerId, $lastLoginAt);
 
         return array_merge($results['daily'], $results['comeback']);
     }

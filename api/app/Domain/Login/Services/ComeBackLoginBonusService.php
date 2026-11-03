@@ -2,7 +2,7 @@
 
 namespace App\Domain\Login\Services;
 
-use Carbon\CarbonImmutable;
+use App\Models\Mst\MstLoginBonus;
 use Nexus\Core\Support\CustomCollection;
 use Nexus\Core\Utilities\ClockUtility;
 use NexusLogin\Repositories\LoginBonusHistoryRepositoryInterface;
@@ -23,8 +23,6 @@ use NexusResourceDelivery\Services\ResourceDeliveryService;
  */
 class ComeBackLoginBonusService extends _BaseLoginBonusService
 {
-    private ?string $currentConnectionName = null;
-
     public function __construct(
         ResourceDeliveryService $resourceDeliveryService,
         private readonly LoginBonusRepositoryInterface $bonusRepository,
@@ -75,20 +73,17 @@ class ComeBackLoginBonusService extends _BaseLoginBonusService
      *
      * カムバック開始日からの経過日数を計算（スキップあり）
      */
-    protected function calculateCurrentDay(int $sysPlayerId, ?string $lastLoginAt, string $connectionName): int
+    protected function calculateCurrentDay(int $sysPlayerId, ?string $lastLoginAt): int
     {
-        // connectionNameを保存（findLoginBonusDataで使用）
-        $this->currentConnectionName = $connectionName;
-
         // カムバックボーナス初回受け取り日を取得
-        $firstComebackHistory = $this->historyRepository->selectFirstComebackByPlayerId($sysPlayerId, $connectionName);
+        $firstComebackHistory = $this->historyRepository->selectFirstComebackByPlayerId($sysPlayerId);
 
         if ($firstComebackHistory === null) {
             // 初回カムバック = 1日目
             return 1;
         }
 
-        $firstReceivedDate = CarbonImmutable::parse($firstComebackHistory['received_date']);
+        $firstReceivedDate = ClockUtility::parse($firstComebackHistory->getReceivedDate());
         $currentGameDayStart = $this->calcGameDayStart();
 
         // カムバック開始日からの経過日数（スキップあり）
@@ -117,7 +112,7 @@ class ComeBackLoginBonusService extends _BaseLoginBonusService
         }
 
         // 今日すでに受け取り済みかチェック
-        if ($this->hasReceivedToday($sysPlayerId, $bonus['id'], $this->currentConnectionName)) {
+        if ($this->hasReceivedToday($sysPlayerId, $bonus['id'])) {
             return null;
         }
 
@@ -147,24 +142,23 @@ class ComeBackLoginBonusService extends _BaseLoginBonusService
         int $sysPlayerId,
         array $bonusData,
         int $currentDay,
-        CustomCollection $contents,
-        string $connectionName
+        CustomCollection $contents
     ): void {
         $receivedDate = $this->calcGameDayStart()->format('Y-m-d H:i:s');
 
         foreach ($contents as $content) {
-            $this->historyRepository->insert([
-                'sys_player_id' => $sysPlayerId,
-                'type' => 'comeback',
-                'mst_login_bonus_id' => $bonusData['id'],
-                'day' => 0,
-                'absent_days' => $bonusData['absent_days'],
-                'received_date' => $receivedDate,
-                'reward_type' => $content->content_type,
-                'reward_mst_id' => $content->content_mst_id,
-                'reward_amount' => $content->content_quantity * $content->amount,
-                'is_paid' => $content->is_paid ?? false,
-            ], $connectionName);
+            $this->historyRepository->insertReceive(
+                sysPlayerId: $sysPlayerId,
+                type: MstLoginBonus::TYPE_COMEBACK,
+                mstLoginBonusId: $bonusData['id'],
+                day: 0,
+                absentDays: $bonusData['absent_days'],
+                receivedDate: $receivedDate,
+                rewardType: $content->content_type,
+                rewardMstId: $content->content_mst_id,
+                rewardAmount: $content->content_quantity * $content->amount,
+                isPaid: $content->is_paid ?? false,
+            );
         }
     }
 
@@ -177,7 +171,7 @@ class ComeBackLoginBonusService extends _BaseLoginBonusService
             return 0;
         }
 
-        $lastLogin = CarbonImmutable::parse($lastLoginAt);
+        $lastLogin = ClockUtility::parse($lastLoginAt);
         $now = ClockUtility::now();
 
         return (int) $lastLogin->diffInDays($now, false);
@@ -186,7 +180,7 @@ class ComeBackLoginBonusService extends _BaseLoginBonusService
     /**
      * 今日すでに受け取り済みかチェック
      */
-    private function hasReceivedToday(int $sysPlayerId, string $bonusId, string $connectionName): bool
+    private function hasReceivedToday(int $sysPlayerId, string $bonusId): bool
     {
         $receivedDate = $this->calcGameDayStart()->format('Y-m-d H:i:s');
 
@@ -194,7 +188,6 @@ class ComeBackLoginBonusService extends _BaseLoginBonusService
             $sysPlayerId,
             $bonusId,
             $receivedDate,
-            $connectionName
         );
 
         return $history !== null;

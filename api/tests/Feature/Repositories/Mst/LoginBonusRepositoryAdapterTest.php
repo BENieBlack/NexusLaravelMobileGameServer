@@ -3,6 +3,7 @@
 namespace Tests\Feature\Repositories\Mst;
 
 use App\Models\Mst\MstLoginBonus;
+use App\Persistence\ApiSession;
 use App\Repositories\Mst\LoginBonusRepositoryAdapter;
 use Illuminate\Support\Facades\DB;
 use Nexus\Core\Utilities\ClockUtility;
@@ -46,6 +47,10 @@ class LoginBonusRepositoryAdapterTest extends TestCase
         ['player' => $other] = $this->signUpPlayer();
         $this->otherPlayerId = $other->id;
 
+        // 受け取り状態はログイン中プレイヤーの trx から引く
+        ApiSession::clearForTest();
+        ApiSession::setSysPlayerId($this->sysPlayerId);
+
         $this->repository = app(LoginBonusRepositoryAdapter::class);
         $this->cleanUp();
     }
@@ -54,6 +59,7 @@ class LoginBonusRepositoryAdapterTest extends TestCase
     {
         $this->cleanUp();
         ClockUtility::reset();
+        ApiSession::clearForTest();
 
         parent::tearDown();
     }
@@ -243,8 +249,7 @@ class LoginBonusRepositoryAdapterTest extends TestCase
         return $this->repository->hasReceivedComebackBonusRecently(
             $this->sysPlayerId,
             $bonusId,
-            $validDays,
-            $this->playerConnection($this->sysPlayerId)
+            $validDays
         );
     }
 

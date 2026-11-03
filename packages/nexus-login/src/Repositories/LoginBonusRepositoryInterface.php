@@ -46,14 +46,12 @@ interface LoginBonusRepositoryInterface
      * @param  int  $sysPlayerId  プレイヤーID
      * @param  string  $comebackBonusId  カムバックボーナスID
      * @param  int  $validDays  有効期間（日数）
-     * @param  string  $connectionName  シャーディングされたDB接続名
      * @return bool 受け取り済みならtrue
      */
     public function hasReceivedComebackBonusRecently(
         int $sysPlayerId,
         string $comebackBonusId,
-        int $validDays,
-        string $connectionName
+        int $validDays
     ): bool;
 
     /**

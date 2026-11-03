@@ -58,8 +58,7 @@ class HomeUseCase extends _BaseUseCase
             // プレイヤー情報を取得（バリデーション済み）
             $sysPlayer = $this->sysPlayerRepository->selectById($sysPlayerId);
 
-            // ログインボーナスをチェック・配布
-            // 履歴はプレイヤーのシャードに記録するため、接続名を渡す
+            // ログインボーナスをチェック・配布（履歴の書き込み先のシャードは ApiSession が解決する）
             //
             // 注意: 日跨ぎの判定に「更新前の」last_login_at を使う。
             // 下の updateLastLoginAt() より前に呼ぶ必要があり、
@@ -67,7 +66,6 @@ class HomeUseCase extends _BaseUseCase
             $loginBonusContents = $this->loginBonusService->process(
                 $sysPlayerId,
                 $sysPlayer->getLastLoginAt(),
-                ApiSession::resolveConnectionName('trx')
             );
 
             // 最終ログイン日時を更新

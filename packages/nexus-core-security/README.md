@@ -278,8 +278,8 @@ All configuration can be found in `config/security.php` after publishing.
 
 ## Requirements
 
-- PHP 8.2 or higher
-- Laravel 11.0 or 12.0
+- PHP 8.4 or higher
+- Laravel 11, 12, or 13
 - Redis (for caching)
 
 ## License

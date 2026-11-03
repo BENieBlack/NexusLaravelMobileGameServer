@@ -23,7 +23,7 @@ jobs:
       - name: PHPのセットアップ
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
+          php-version: '8.5'
           extensions: pdo_mysql, redis, bcmath, zip
           coverage: none
 
@@ -92,7 +92,7 @@ jobs:
       - name: PHPのセットアップ
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
+          php-version: '8.5'
           extensions: pdo_mysql, redis, bcmath, zip
           coverage: none
 
@@ -226,7 +226,7 @@ jobs:
       - name: PHPのセットアップ
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
+          php-version: '8.5'
           extensions: pdo_mysql, redis, bcmath, zip
           # カバレッジ計測。pcov.directoryを絞らないとpackagesが計測対象から外れる
           coverage: pcov

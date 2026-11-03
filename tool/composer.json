@@ -6,11 +6,11 @@
     "keywords": ["laravel", "framework"],
     "license": "MIT",
     "require": {
-        "php": "^8.4",
+        "php": "^8.5",
         "google/apiclient": "^2.17",
         "inertiajs/inertia-laravel": "^2.0",
-        "laravel/framework": "^12.0",
-        "laravel/tinker": "^2.10.1"
+        "laravel/framework": "^13.0",
+        "laravel/tinker": "^3.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -84,7 +84,7 @@
             "php-http/discovery": true
         },
         "platform": {
-            "php": "8.4"
+            "php": "8.5"
         }
     },
     "minimum-stability": "stable",

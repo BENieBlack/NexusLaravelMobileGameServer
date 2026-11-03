@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
@@ -38,7 +39,7 @@ class PlayerController extends Controller
     /**
      * プレイヤー詳細のTrxタブ用。タブ（message/unit/purchase）が画面に未実装のため現状は未参照
      *
-     * @return array<string, \Illuminate\Support\Collection<int, \stdClass>>
+     * @return array<string, Collection<int, \stdClass>>
      */
     // @phpstan-ignore method.unused
     private function loadTab(int $playerId, string $tab): array

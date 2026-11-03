@@ -2,6 +2,7 @@
 
 namespace App\Models\Adm;
 
+use Database\Factories\Adm\AdmAccountFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -14,7 +15,7 @@ use Illuminate\Notifications\Notifiable;
  */
 class AdmAccount extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\Adm\AdmAccountFactory> */
+    /** @use HasFactory<AdmAccountFactory> */
     use HasFactory;
 
     use Notifiable;

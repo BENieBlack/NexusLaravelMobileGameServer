@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Services\AccessCacheService;
 use App\Services\RetentionCacheService;
+use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -44,7 +46,7 @@ class DashboardController extends Controller
     /**
      * アクセス統計の最新キャッシュをJSON返却（ポーリング用）
      */
-    public function accessStatus(Request $request): \Illuminate\Http\JsonResponse
+    public function accessStatus(Request $request): JsonResponse
     {
         $period = $request->input('period', '1month');
 
@@ -54,7 +56,7 @@ class DashboardController extends Controller
     /**
      * 継続率の最新キャッシュをJSON返却（ポーリング用）
      */
-    public function retentionStatus(): \Illuminate\Http\JsonResponse
+    public function retentionStatus(): JsonResponse
     {
         return response()->json($this->retentionService->getLatestCachedStats());
     }
@@ -105,7 +107,7 @@ class DashboardController extends Controller
                     ->table('log_action_in_app_purchase')
                     ->orderBy('system_at', 'asc')
                     ->first();
-                $startTime = $oldestRecord ? \Carbon\Carbon::parse($oldestRecord->system_at) : $now->copy()->subYear();
+                $startTime = $oldestRecord ? Carbon::parse($oldestRecord->system_at) : $now->copy()->subYear();
                 $interval = 43200; // 1ヶ月（30日）
                 $format = 'Y/m';
                 $groupBy = 'month';

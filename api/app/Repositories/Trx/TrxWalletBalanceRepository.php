@@ -55,9 +55,9 @@ class TrxWalletBalanceRepository extends _BaseTrxRepository
             ->where('sys_player_id', $sysPlayerId)
             ->where('mst_item_id', $mstItemId)
             ->where('current_amount', '>', 0)
-            ->orderBy('is_paid', 'DESC')
+            ->orderBy('is_paid', 'desc')
             ->orderByRaw('expire_at IS NULL, expire_at ASC')
-            ->orderBy('id', 'ASC')
+            ->orderBy('id', 'asc')
             ->get();
 
         // CustomCollectionに変換

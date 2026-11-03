@@ -314,7 +314,7 @@ class CustomCollection extends Collection
      * 指定されたキーの値でソートした新しいコレクションを返す
      *
      * @param  callable|string  $callback
-     * @param  int  $options
+     * @param  int-mask-of<SORT_REGULAR|SORT_NUMERIC|SORT_STRING|SORT_LOCALE_STRING|SORT_NATURAL|SORT_FLAG_CASE>  $options
      * @param  bool  $descending
      * @return static
      */

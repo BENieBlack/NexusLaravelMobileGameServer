@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Adm\AdmAccount;
 use App\Models\Adm\AdmPage;
 use App\Models\Adm\AdmRole;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\Artisan;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -42,7 +43,7 @@ class AdmPermissionTest extends TestCase
 
         $role->deniedPages()->attach($page->id);
 
-        $this->expectException(\Illuminate\Database\UniqueConstraintViolationException::class);
+        $this->expectException(UniqueConstraintViolationException::class);
         $role->deniedPages()->attach($page->id);
     }
 

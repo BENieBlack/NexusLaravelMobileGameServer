@@ -97,7 +97,7 @@ $service->validateReceiverAuthorization($applyDto, $currentPlayerId);
 
 ## Dependencies
 
-- PHP 8.3+
+- PHP 8.4+
 - nexus/core-utilities
 
 ## Testing

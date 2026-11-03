@@ -20,7 +20,7 @@ use PHPUnit\Framework\TestCase;
 class NotificationCreatedBroadcastTest extends TestCase
 {
     #[Test]
-    public function ShouldBroadcastを実装している(): void
+    public function should_broadcastを実装している(): void
     {
         $event = new NotificationCreated($this->makeNotification());
 
@@ -28,7 +28,7 @@ class NotificationCreatedBroadcastTest extends TestCase
     }
 
     #[Test]
-    public function broadcastOn_はプレイヤーIDを含むプライベートチャンネルを返す(): void
+    public function broadcast_on_はプレイヤー_i_dを含むプライベートチャンネルを返す(): void
     {
         $notification = $this->makeNotification(playerId: 42);
         $event = new NotificationCreated($notification);
@@ -42,7 +42,7 @@ class NotificationCreatedBroadcastTest extends TestCase
     }
 
     #[Test]
-    public function broadcastAs_はnotification_createdを返す(): void
+    public function broadcast_as_はnotification_createdを返す(): void
     {
         $event = new NotificationCreated($this->makeNotification());
 
@@ -50,7 +50,7 @@ class NotificationCreatedBroadcastTest extends TestCase
     }
 
     #[Test]
-    public function broadcastWith_は通知の全フィールドを含む(): void
+    public function broadcast_with_は通知の全フィールドを含む(): void
     {
         $notification = $this->makeNotification();
         $event = new NotificationCreated($notification);
@@ -72,7 +72,7 @@ class NotificationCreatedBroadcastTest extends TestCase
     }
 
     #[Test]
-    public function broadcastWith_typeはenumのvalueである文字列(): void
+    public function broadcast_with_typeはenumのvalueである文字列(): void
     {
         // NotificationType::MISSION_COMPLETED → "mission_completed" が返ることを固定する
         $notification = $this->makeNotification(type: NotificationType::MISSION_COMPLETED);

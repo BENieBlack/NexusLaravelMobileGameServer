@@ -81,6 +81,7 @@ class AgreementRepository extends _BaseSysRepository implements AgreementReposit
         if (static::hasSysPlayerId()) {
             return ApiSession::resolveConnectionName('trx');
         }
+
         return 'trx1';
     }
 }

@@ -80,7 +80,6 @@ class AgreementEndpointTest extends TestCase
             'sys_agreement_id' => $agreementId,
             'consented_at' => now(),
             'created_at' => now(),
-            'updated_at' => now(),
         ]);
 
         $response = $this->getJson('/api/agreement/pending', $this->authHeaders($this->token));
@@ -148,7 +147,7 @@ class AgreementEndpointTest extends TestCase
     }
 
     #[Test]
-    public function 同意レスポンスは空のJSONオブジェクト(): void
+    public function 同意レスポンスは空の_jso_nオブジェクト(): void
     {
         $agreementId = $this->makeAgreement(version: '1.0', title: '利用規約v1.0', isRequired: true, publishedAt: '2020-01-01 00:00:00');
 
@@ -163,7 +162,7 @@ class AgreementEndpointTest extends TestCase
     }
 
     #[Test]
-    public function 存在しない規約IDには同意できない(): void
+    public function 存在しない規約_i_dには同意できない(): void
     {
         $nonExistentId = $this->nonExistentId('sys_agreement', 'sys');
 

@@ -110,7 +110,7 @@ class AgreementServiceTest extends TestCase
     }
 
     #[Test]
-    public function 存在しない規約IDには同意できない(): void
+    public function 存在しない規約_i_dには同意できない(): void
     {
         // 公開済み必須規約には ID=999 は存在しない
         $this->repository->shouldReceive('findRequiredPublishedSince')->once()->andReturn(
@@ -125,7 +125,7 @@ class AgreementServiceTest extends TestCase
     }
 
     #[Test]
-    public function 既に同意済みの規約への同意はAgreementException(): void
+    public function 既に同意済みの規約への同意は_agreement_exception(): void
     {
         $agreement = $this->makeSysAgreement(id: 1);
 

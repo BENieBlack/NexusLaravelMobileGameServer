@@ -3,6 +3,7 @@
 use App\Exceptions\GameException;
 use App\Http\Middleware\CheckMaintenance;
 use App\Http\Middleware\CheckMasterHash;
+use App\Http\Middleware\ResolveBroadcastUser;
 use App\Http\Middleware\ResolveLanguage;
 use App\Http\Middleware\VerifyAdminToken;
 use Illuminate\Foundation\Application;
@@ -22,9 +23,13 @@ $app = Application::configure(basePath: dirname(__DIR__))
         web: __DIR__.'/../routes/web.php',
         api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
-        channels: __DIR__.'/../routes/channels.php',
         health: '/up',
     )
+    // /broadcasting/auth はプレイヤーのアクセストークンで認証する。
+    // withRouting(channels:) だと web ミドルウェアで登録され、auth.token が掛からない
+    ->withBroadcasting(__DIR__.'/../routes/channels.php', [
+        'middleware' => ['auth.token', ResolveBroadcastUser::class],
+    ])
     ->withMiddleware(function (Middleware $middleware): void {
         // 全APIリクエストでAccept-Languageから言語を解決する
         $middleware->api(prepend: [

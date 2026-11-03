@@ -5,6 +5,7 @@ namespace NexusAgreement\Repositories;
 use Carbon\CarbonImmutable;
 use DateTimeInterface;
 use Nexus\Core\Support\CustomCollection;
+use NexusAgreement\Models\SysAgreement;
 
 /**
  * AgreementRepositoryInterface
@@ -16,7 +17,7 @@ interface AgreementRepositoryInterface
     /**
      * 必須規約のうち指定日時以前に公開されたものを全件取得する（sysDB）
      *
-     * @return CustomCollection<int, \NexusAgreement\Models\SysAgreement>
+     * @return CustomCollection<int, SysAgreement>
      */
     public function findRequiredPublishedSince(DateTimeInterface $since): CustomCollection;
 

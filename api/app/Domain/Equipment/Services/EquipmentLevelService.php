@@ -3,6 +3,8 @@
 namespace App\Domain\Equipment\Services;
 
 use App\Domain\Equipment\Contracts\EquipmentExperienceInterface;
+use App\Exceptions\GameErrorCode;
+use App\Exceptions\GameException;
 use App\Exceptions\MasterDataException;
 use App\Exceptions\TransactionDataException;
 use App\Models\Trx\TrxEquipment;
@@ -122,7 +124,10 @@ class EquipmentLevelService extends _BaseLevelService implements EquipmentExperi
 
         if ($targetRequiredExp === null) {
             // 目標レベルが存在しない（最大レベルを超えている）
-            throw new \Exception("Target level {$targetLevel} does not exist for rarity {$rarity}");
+            throw new GameException(
+                GameErrorCode::EQUIPMENT_MAX_LEVEL_REACHED,
+                "Target level {$targetLevel} does not exist for rarity {$rarity}"
+            );
         }
 
         // 現在の経験値との差分を計算

@@ -5,6 +5,7 @@ namespace Tests\Feature\Domain\Equipment;
 use App\Domain\Equipment\Services\EquipmentLevelService;
 use App\Domain\Equipment\UseCases\LevelUpUseCase;
 use App\Exceptions\BusinessLogicException;
+use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Exceptions\MasterDataException;
 use App\Exceptions\TransactionDataException;
@@ -235,10 +236,14 @@ class EquipmentLevelUpValidationTest extends TestCase
     #[Test]
     public function 定義の無いレベルは必要経験値を出せない(): void
     {
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Target level 99 does not exist for rarity SR');
-
-        app(EquipmentLevelService::class)->calculateRequiredExp($this->trxEquipmentId, 99);
+        // 最大レベルを超えた指定はプレイヤーの操作で起きるため、業務エラー（299）にする
+        try {
+            app(EquipmentLevelService::class)->calculateRequiredExp($this->trxEquipmentId, 99);
+            $this->fail('GameException が出るべき');
+        } catch (GameException $e) {
+            $this->assertSame(GameErrorCode::EQUIPMENT_MAX_LEVEL_REACHED, $e->getErrorCode());
+            $this->assertSame('Target level 99 does not exist for rarity SR', $e->getMessage());
+        }
     }
 
     #[Test]

@@ -73,6 +73,28 @@ class GameErrorCode
 
     const DEVICE_ALREADY_EXISTS = 10004;
 
+    // データ引き継ぎ
+    // 引き継ぎコードが存在しないか、パスワードが違う（どちらかは明かさない）
+    const TRANSFER_CODE_INVALID = 10005;
+
+    const TRANSFER_CODE_EXPIRED = 10006;
+
+    // パスワードを続けて間違えたため、一定時間受け付けない
+    const TRANSFER_CODE_LOCKED = 10007;
+
+    const EXTERNAL_ID_TOKEN_INVALID = 10008;
+
+    // 未対応、またはサーバーで設定されていない外部アカウントの種類
+    const EXTERNAL_PROVIDER_UNAVAILABLE = 10009;
+
+    // その外部アカウントは別のプレイヤーに紐付いている
+    const EXTERNAL_ACCOUNT_LINKED_TO_OTHER_PLAYER = 10010;
+
+    // 同じ種類の別の外部アカウントを既に紐付けている
+    const EXTERNAL_PROVIDER_ALREADY_LINKED = 10011;
+
+    const EXTERNAL_ACCOUNT_NOT_LINKED = 10012;
+
     // ========================================
     // プレイヤー関連エラー (11000-11999)
     // ========================================

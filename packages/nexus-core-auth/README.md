@@ -12,6 +12,7 @@ nexus-authは、モバイルゲームで一般的なデバイスベース認証�
 - JWT風アクセストークン生成・検証
 - リフレッシュトークンによるトークンローテーション
 - プレイヤー・デバイス管理の抽象化
+- 外部アカウント（Apple / Google）のIDトークン検証（`JwksIdTokenVerifier`。データ引き継ぎで使う）
 - Laravel/Eloquentから独立したインターフェース設計
 
 ## インストール
@@ -34,6 +35,7 @@ composer require nexus/auth
 
 - `TokenModelInterface` - トークンモデル
 - `TokenRepositoryInterface` - トークンリポジトリ
+- `ExternalIdTokenVerifierInterface` - 外部アカウントのIDトークン検証。実装は `JwksIdTokenVerifier`（JWKS を公開している IdP 向け。種類ごとに `jwks_uri` / `issuers` / `audiences` を渡す）
 
 プレイヤーとデバイスの契約は nexus-core が持つ（このパッケージはそれに依存する）:
 

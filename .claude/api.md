@@ -20,7 +20,7 @@
 | メンテ除外以外のすべて | `maintenance` | メンテ中は 503。除外ルート・除外IPは `api/config/maintenance.php` |
 | ログイン後のAPI | `auth.token` + `idempotency` | アクセストークン検証と二重送信防止 |
 | `/auth/sign_up` | `client.signature` + `throttle.signup` | クライアント署名検証とレート制限 |
-| `/auth/sign_in`, `/auth/refresh_token` | `throttle.auth:{名前}` | 認証試行のレート制限 |
+| `/auth/sign_in`, `/auth/refresh_token`, `/account/transfer_code/transfer`, `/account/external/transfer` | `throttle.auth:{名前}` | 認証試行のレート制限（引き継ぎコードはコードごとにも数える） |
 | ギルドの参照系（認証不要） | `throttle.public:guild_read` | IP単位のレート制限 |
 | `/admin/maintenance/*` | `auth.admin` | `ADMIN_TOKEN` の Bearer 認証と任意のIP制限 |
 
@@ -119,11 +119,24 @@
 
 マスターデータは運営ツールが mst DB からテーブルグループ単位の SQLite を書き出し、`sys_deploy_master` / `sys_deploy_master_table` / `sys_deploy` に登録する（`tool/app/Services/MasterDataExporter.php`, `MasterDeployService.php`）。手順は [tool.md](./tool.md) を参照。`url` は tool の `public/masterdata/` 配下を指す相対パス。
 
+## データ引き継ぎ
+
+機種変更で同じアカウントを新端末に移す。本人確認の方法は2つで、どちらも成功すると `/auth/sign_in` と同じ形（`sys_player`, `sys_player_device`, `sys_player_token`, `token`）を返す。
+
+| 方法 | 旧端末（ログイン後） | 新端末（認証不要） |
+|---|---|---|
+| 引き継ぎコード | `POST /account/transfer_code/issue`（`password`）→ `transfer_code`, `expires_at` | `POST /account/transfer_code/transfer`（`transfer_code`, `password`, `device_id`, `device_info`） |
+| 外部アカウント | `POST /account/external/link`（`provider`, `id_token`）。一覧は `GET /account/external/list`、解除は `POST /account/external/unlink` | `POST /account/external/transfer`（`provider`, `id_token`, `device_id`, `device_info`） |
+
+- 引き継ぐと、そのプレイヤーの他の端末と発行済みトークンは消える（旧端末は sign_in できなくなる）。新端末で別のプレイヤーが遊んでいたら、端末はこのプレイヤーに付け替わる
+- 引き継ぎコードはプレイヤーごとに1つ。発行し直すと前のコードは使えず、使ったコードも消える。有効期限・ロックの回数と時間は `api/config/account_transfer.php`
+- `provider` は `apple` / `google`。IDトークンは `NexusAuth\Services\JwksIdTokenVerifier` が公開鍵セット（JWKS）で検証する。発行先（`APPLE_CLIENT_IDS` / `GOOGLE_CLIENT_IDS`）が空の種類は使えない（`EXTERNAL_PROVIDER_UNAVAILABLE`）
+
 ## エンドポイントの分類
 
 一覧は `api/routes/api.php` を見る。分類は次のとおり。
 
-- 認証不要: `auth`（sign_up / sign_in / refresh_token / version）、`maintenance/status`、`guild` の参照系
-- ログイン後: `auth`（version / login）、`player`、`in_app_purchase`、`item`、`unit`、`equipment`、`friend`、`album`、`guild`、`mailbox`、`gacha`、`notification`、`chat`、`reward-track`、`mission`
+- 認証不要: `auth`（sign_up / sign_in / refresh_token / version）、`account` の引き継ぎ（transfer_code/transfer / external/transfer）、`maintenance/status`、`guild` の参照系
+- ログイン後: `auth`（version / login）、`account`（引き継ぎコードの発行、外部アカウントの一覧・紐付け・解除）、`player`、`in_app_purchase`、`item`、`unit`、`equipment`、`friend`、`album`、`guild`、`mailbox`、`gacha`、`notification`、`chat`、`reward-track`、`mission`
 - 管理用: `admin/maintenance/*`（`auth.admin`）
 - 非推奨: `POST /signup`（`/auth/sign_up` と同じ処理）

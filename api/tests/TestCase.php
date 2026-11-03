@@ -52,6 +52,10 @@ abstract class TestCase extends BaseTestCase
         // Clockをリセット（各テストで独立した時刻を使用）
         ClockUtility::reset();
 
+        // Sys Repository のキャッシュ（メンテナンス情報など）は CACHE_STORE に関わらず redis に入る。
+        // 前のテストが載せた値を読まないよう、テスト専用のDB番号（phpunit.xml の REDIS_CACHE_DB）を空にする
+        Cache::store('redis')->flush();
+
         // 接続を閉じる前に消す（トランザクションで包むテストでは巻き戻しと同じ結果になる）
         $this->beforeApplicationDestroyed(fn () => $this->deleteSignedUpPlayers());
         $this->beforeApplicationDestroyed(fn () => $this->releaseDatabaseConnections());

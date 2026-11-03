@@ -55,10 +55,10 @@ class NotificationEndpointTest extends TestCase
         $response = $this->getJson('/api/notification/list', $this->authHeaders($this->token));
 
         $response->assertOk();
-        $this->assertCount(2, $response->json('notifications'));
+        $this->assertCount(2, $response->json('notification_list'));
         $this->assertSame(1, $response->json('unread_count'));
         // 新しいものから返す
-        $this->assertSame('mailbox_received', $response->json('notifications.0.type'));
+        $this->assertSame('mailbox_received', $response->json('notification_list.0.type'));
     }
 
     #[Test]
@@ -70,8 +70,8 @@ class NotificationEndpointTest extends TestCase
         $response = $this->getJson('/api/notification/list?only_unread=1', $this->authHeaders($this->token));
 
         $response->assertOk();
-        $this->assertCount(1, $response->json('notifications'));
-        $this->assertSame('friend_apply_received', $response->json('notifications.0.type'));
+        $this->assertCount(1, $response->json('notification_list'));
+        $this->assertSame('friend_apply_received', $response->json('notification_list.0.type'));
     }
 
     #[Test]
@@ -82,7 +82,7 @@ class NotificationEndpointTest extends TestCase
         $response = $this->getJson('/api/notification/list', $this->authHeaders($this->token));
 
         $response->assertOk();
-        $this->assertSame(['sys_friend_apply_id' => 9], $response->json('notifications.0.payload'));
+        $this->assertSame(['sys_friend_apply_id' => 9], $response->json('notification_list.0.payload'));
     }
 
     #[Test]

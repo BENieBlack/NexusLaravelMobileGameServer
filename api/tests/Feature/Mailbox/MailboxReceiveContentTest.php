@@ -137,7 +137,7 @@ class MailboxReceiveContentTest extends TestCase
 
         $this->assertSame(2, $response['total_count']);
         $this->assertSame(0, $response['skipped_count']);
-        $this->assertEqualsCanonicalizing([$first->id, $second->id], $response['received_mailbox_ids']);
+        $this->assertEqualsCanonicalizing([$first->id, $second->id], $response['received_trx_mailbox_id_list']);
         $this->assertSame(200, $this->findWalletAmount('gold'), '2通ぶん合算される');
 
         foreach ([$first, $second] as $mailbox) {
@@ -157,7 +157,7 @@ class MailboxReceiveContentTest extends TestCase
 
         $this->assertSame(1, $response['total_count']);
         $this->assertSame(1, $response['skipped_count']);
-        $this->assertSame([$fresh->id], $response['received_mailbox_ids']);
+        $this->assertSame([$fresh->id], $response['received_trx_mailbox_id_list']);
         $this->assertSame(100, $this->findWalletAmount('gold'), '二重には配らない');
     }
 
@@ -174,7 +174,7 @@ class MailboxReceiveContentTest extends TestCase
         $response = ReceiveAllResponse::fromResult(app(ReceiveAllUseCase::class)->exec($this->sysPlayerId, [$mine->id, $othersMailbox->id]))->toArray();
         $this->flush();
 
-        $this->assertSame([$mine->id], $response['received_mailbox_ids']);
+        $this->assertSame([$mine->id], $response['received_trx_mailbox_id_list']);
         $this->assertFalse((bool) $this->findMailbox($othersMailbox->id, $other->id)->is_received);
     }
 
@@ -187,7 +187,7 @@ class MailboxReceiveContentTest extends TestCase
         $this->flush();
 
         $this->assertSame(1, $response['total_count']);
-        $this->assertArrayNotHasKey('delivery_contents', $response);
+        $this->assertArrayNotHasKey('delivery_content_list', $response);
         $this->assertTrue((bool) $this->findMailbox($mailbox->id)->is_received);
     }
 

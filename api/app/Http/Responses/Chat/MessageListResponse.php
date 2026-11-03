@@ -20,7 +20,7 @@ class MessageListResponse extends _BaseResponse
     public function toArray(): array
     {
         return [
-            'messages' => array_map(
+            'chat_message_list' => array_map(
                 fn (ChatMessage $message): array => RoomPresenter::messageToArray($message),
                 $this->messages
             ),

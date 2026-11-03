@@ -299,12 +299,12 @@ class GachaDrawTest extends TestCase
         $response->assertStatus(200);
 
         $data = $response->json();
-        $this->assertArrayHasKey('prizes', $data);
-        $this->assertCount(1, $data['prizes']);
+        $this->assertArrayHasKey('prize_list', $data);
+        $this->assertCount(1, $data['prize_list']);
 
         // prizeが有効なcontent_typeを持っていることを確認
-        $this->assertArrayHasKey('content_type', $data['prizes'][0]);
-        $this->assertContains($data['prizes'][0]['content_type'], ['item', 'unit', 'equipment']);
+        $this->assertArrayHasKey('content_type', $data['prize_list'][0]);
+        $this->assertContains($data['prize_list'][0]['content_type'], ['item', 'unit', 'equipment']);
 
         // データベース確認：何かしらのコンテンツが配布されている
         $itemCount = TrxItem::where('sys_player_id', $this->testPlayerId)->count();

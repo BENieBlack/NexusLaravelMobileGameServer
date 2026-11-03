@@ -30,7 +30,7 @@ class AuthSignUpTest extends TestCase
         $deviceId = 'test-device-'.Str::uuid();
 
         // Act: Call the sign-up endpoint
-        $response = $this->postJson('/api/signup', [
+        $response = $this->postJson('/api/auth/sign_up', [
             'device_id' => $deviceId,
             'device_info' => [
                 'os' => 'iOS',

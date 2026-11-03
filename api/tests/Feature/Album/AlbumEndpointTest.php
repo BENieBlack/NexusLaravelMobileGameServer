@@ -76,9 +76,9 @@ class AlbumEndpointTest extends TestCase
             ->getJson('/api/album/list');
 
         $response->assertOk();
-        $this->assertSame([], $response->json('album_entry_array'));
+        $this->assertSame([], $response->json('album_entry_list'));
 
-        $progressByType = $this->indexProgressByType($response->json('progress_array'));
+        $progressByType = $this->indexProgressByType($response->json('progress_list'));
 
         $this->assertSame(0, $progressByType['unit']['unlocked_count']);
         $this->assertSame(2, $progressByType['unit']['total_count'], 'アルバム対象のユニット数');
@@ -94,9 +94,9 @@ class AlbumEndpointTest extends TestCase
             ->getJson('/api/album/list');
 
         $response->assertOk();
-        $response->assertJsonPath('album_entry_array.0.content_type', 'unit');
-        $response->assertJsonPath('album_entry_array.0.content_mst_id', 'unit_knight_001');
-        $response->assertJsonPath('album_entry_array.0.unlocked_at', '2026-08-28 12:00:00');
+        $response->assertJsonPath('album_entry_list.0.content_type', 'unit');
+        $response->assertJsonPath('album_entry_list.0.content_mst_id', 'unit_knight_001');
+        $response->assertJsonPath('album_entry_list.0.unlocked_at', '2026-08-28 12:00:00');
     }
 
     #[Test]
@@ -151,7 +151,7 @@ class AlbumEndpointTest extends TestCase
         $response = $this->withHeaders($this->authHeaders($this->accessToken))
             ->getJson('/api/album/list');
 
-        $progressByType = $this->indexProgressByType($response->json('progress_array'));
+        $progressByType = $this->indexProgressByType($response->json('progress_list'));
 
         $this->assertSame(1, $progressByType['unit']['unlocked_count']);
         $this->assertSame(2, $progressByType['unit']['total_count']);
@@ -170,7 +170,7 @@ class AlbumEndpointTest extends TestCase
         $response = $this->withHeaders($this->authHeaders($this->accessToken))
             ->getJson('/api/album/list');
 
-        $progressByType = $this->indexProgressByType($response->json('progress_array'));
+        $progressByType = $this->indexProgressByType($response->json('progress_list'));
 
         $this->assertTrue($progressByType['unit']['is_complete']);
         $this->assertSame(1.0, (float) $progressByType['unit']['rate']);

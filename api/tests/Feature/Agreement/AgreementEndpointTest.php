@@ -3,6 +3,7 @@
 namespace Tests\Feature\Agreement;
 
 use Illuminate\Support\Facades\DB;
+use Nexus\Core\Utilities\ClockUtility;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
@@ -66,6 +67,7 @@ class AgreementEndpointTest extends TestCase
         $response->assertOk();
         $this->assertNotEmpty($response->json('agreement_list'));
         $this->assertSame('利用規約v1.0', $response->json('agreement_list.0.title'));
+        $this->assertSame('2020-01-01 00:00:00', $response->json('agreement_list.0.published_at'));
     }
 
     #[Test]
@@ -78,8 +80,8 @@ class AgreementEndpointTest extends TestCase
         DB::connection($connection)->table('trx_agreement')->insert([
             'sys_player_id' => $this->sysPlayerId,
             'sys_agreement_id' => $agreementId,
-            'consented_at' => now(),
-            'created_at' => now(),
+            'consented_at' => ClockUtility::nowToString(),
+            'created_at' => ClockUtility::nowToString(),
         ]);
 
         $response = $this->getJson('/api/agreement/pending', $this->authHeaders($this->token));
@@ -222,8 +224,8 @@ class AgreementEndpointTest extends TestCase
             'url' => $url,
             'is_required' => $isRequired,
             'published_at' => $publishedAt,
-            'created_at' => now(),
-            'updated_at' => now(),
+            'created_at' => ClockUtility::nowToString(),
+            'updated_at' => ClockUtility::nowToString(),
         ]);
 
         $this->insertedAgreementIds[] = $id;

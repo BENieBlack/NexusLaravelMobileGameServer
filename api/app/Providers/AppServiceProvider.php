@@ -42,7 +42,7 @@ use App\Repositories\Mst\PlayerLevelRepositoryAdapter;
 use App\Repositories\Mst\RewardTrackMasterRepository;
 use App\Repositories\Mst\TagRepositoryAdapter;
 use App\Repositories\Mst\VipLoginBonusRepositoryInterface;
-use App\Repositories\Sys\AgreementRepository;
+use App\Repositories\Sys\AgreementRepositoryAdapter;
 use App\Repositories\Sys\DeployRepositoryAdapter;
 use App\Repositories\Sys\FriendApplyRepositoryAdapter;
 use App\Repositories\Sys\GuildApplyRepositoryAdapter;
@@ -300,7 +300,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(MissionReceiptRepositoryInterface::class, MissionReceiptRepositoryAdapter::class);
 
         // 利用規約
-        $this->app->bind(AgreementRepositoryInterface::class, AgreementRepository::class);
+        $this->app->bind(AgreementRepositoryInterface::class, AgreementRepositoryAdapter::class);
 
         // ==========================================
         // NexusResource Package Bindings

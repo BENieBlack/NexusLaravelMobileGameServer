@@ -4,9 +4,9 @@ namespace NexusAgreement\Services;
 
 use Nexus\Core\Support\CustomCollection;
 use Nexus\Core\Utilities\ClockUtility;
+use NexusAgreement\DataTransferObjects\Agreement;
 use NexusAgreement\DataTransferObjects\PendingAgreement;
 use NexusAgreement\Exceptions\AgreementException;
-use NexusAgreement\Models\SysAgreement;
 use NexusAgreement\Repositories\AgreementRepositoryInterface;
 
 /**
@@ -27,21 +27,24 @@ class AgreementService
      */
     public function getPendingAgreements(int $sysPlayerId): CustomCollection
     {
-        $now = ClockUtility::now();
+        $requiredAgreements = $this->repository->selectRequiredPublishedUntil(ClockUtility::nowToString());
+        $consentedIds = $this->repository->selectConsentedAgreementIds($sysPlayerId);
 
-        $requiredAgreements = $this->repository->findRequiredPublishedSince($now);
-        $consentedIds = $this->repository->findConsentedIds($sysPlayerId);
-
-        /** @var CustomCollection<int, PendingAgreement> */
-        return $requiredAgreements
-            ->filter(fn (SysAgreement $agreement) => ! in_array($agreement->getId(), $consentedIds, true))
-            ->map(fn (SysAgreement $agreement) => new PendingAgreement(
+        $pendingAgreements = array_map(
+            fn (Agreement $agreement) => new PendingAgreement(
                 sysAgreementId: $agreement->getId(),
                 version: $agreement->getVersion(),
                 title: $agreement->getTitle(),
                 url: $agreement->getUrl(),
-                publishedAt: ClockUtility::parse($agreement->getPublishedAt()),
-            ));
+                publishedAt: $agreement->getPublishedAt(),
+            ),
+            array_values(array_filter(
+                $requiredAgreements,
+                fn (Agreement $agreement) => ! in_array($agreement->getId(), $consentedIds, true),
+            )),
+        );
+
+        return new CustomCollection($pendingAgreements);
     }
 
     /**
@@ -52,21 +55,23 @@ class AgreementService
      */
     public function consent(int $sysPlayerId, int $sysAgreementId): void
     {
-        $now = ClockUtility::now();
+        $now = ClockUtility::nowToString();
 
         // 規約の存在確認（公開済みの必須規約のみ対象）
-        $requiredAgreements = $this->repository->findRequiredPublishedSince($now);
-        $agreement = $requiredAgreements->first(
-            fn (SysAgreement $a) => $a->getId() === $sysAgreementId
-        );
+        $exists = false;
+        foreach ($this->repository->selectRequiredPublishedUntil($now) as $agreement) {
+            if ($agreement->getId() === $sysAgreementId) {
+                $exists = true;
+                break;
+            }
+        }
 
-        if ($agreement === null) {
+        if (! $exists) {
             throw AgreementException::agreementNotFound($sysAgreementId);
         }
 
         // 既同意チェック
-        $consentedIds = $this->repository->findConsentedIds($sysPlayerId);
-        if (in_array($sysAgreementId, $consentedIds, true)) {
+        if (in_array($sysAgreementId, $this->repository->selectConsentedAgreementIds($sysPlayerId), true)) {
             throw AgreementException::alreadyConsented($sysAgreementId);
         }
 

@@ -3,12 +3,12 @@
 namespace App\Models\Trx;
 
 /**
- * TrxVipLoginBonusHistory
+ * TrxVipLoginBonus
  *
  * VIPログインボーナスの最新の受け取り状態（プレイヤーごとに1行）
  *
  * 受け取りの履歴は log_action_vip_login_bonus_receive（LogVipLoginBonusReceive）に残す。
- * is_delete カラムなし（読み取りの論理削除除外は TrxVipLoginBonusHistoryRepository で切る）
+ * is_delete カラムなし（読み取りの論理削除除外は TrxVipLoginBonusRepository で切る）
  *
  * @property int $sys_player_id プレイヤーID
  * @property string $mst_vip_login_bonus_id VIPログインボーナスID
@@ -18,7 +18,7 @@ namespace App\Models\Trx;
  * @property string $created_at
  * @property string $updated_at
  */
-class TrxVipLoginBonusHistory extends _BaseTrx
+class TrxVipLoginBonus extends _BaseTrx
 {
     protected $table = 'trx_vip_login_bonus';
 

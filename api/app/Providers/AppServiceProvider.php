@@ -69,7 +69,7 @@ use App\Repositories\Trx\TrxNotificationRepository;
 use App\Repositories\Trx\TrxRewardTrackLineRepository;
 use App\Repositories\Trx\TrxRewardTrackMilestoneRepository;
 use App\Repositories\Trx\TrxRewardTrackRepository;
-use App\Repositories\Trx\TrxVipLoginBonusHistoryRepository;
+use App\Repositories\Trx\TrxVipLoginBonusRepository;
 use App\Repositories\Trx\UnitRepositoryAdapter;
 use App\Repositories\Trx\VipLoginBonusHistoryRepositoryInterface;
 use App\Repositories\Trx\WalletBalanceRepositoryAdapter;
@@ -194,7 +194,7 @@ class AppServiceProvider extends ServiceProvider
 
         // VIPログインボーナス用Repository
         $this->app->bind(VipLoginBonusRepositoryInterface::class, MstVipLoginBonusRepository::class);
-        $this->app->bind(VipLoginBonusHistoryRepositoryInterface::class, TrxVipLoginBonusHistoryRepository::class);
+        $this->app->bind(VipLoginBonusHistoryRepositoryInterface::class, TrxVipLoginBonusRepository::class);
 
         // LoginBonusOrchestrator (singleton)
         $this->app->singleton(LoginBonusOrchestrator::class);

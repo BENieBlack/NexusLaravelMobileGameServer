@@ -2,23 +2,23 @@
 
 namespace App\Repositories\Trx;
 
-use App\Models\Trx\TrxVipLoginBonusHistory;
+use App\Models\Trx\TrxVipLoginBonus;
 
 /**
  * VIPログインボーナスの最新の受け取り状態（trx_vip_login_bonus）を扱うRepository。
  *
  * 受け取りの履歴は LogVipLoginBonusReceiveRepository が log に残す。
  *
- * @extends _BaseTrxRepository<TrxVipLoginBonusHistory>
+ * @extends _BaseTrxRepository<TrxVipLoginBonus>
  */
-class TrxVipLoginBonusHistoryRepository extends _BaseTrxRepository implements VipLoginBonusHistoryRepositoryInterface
+class TrxVipLoginBonusRepository extends _BaseTrxRepository implements VipLoginBonusHistoryRepositoryInterface
 {
     /**
      * プレイヤーごとに1行を上書きするため is_delete カラムを持たない
      */
     protected bool $excludesSoftDeleted = false;
 
-    protected string $modelClass = TrxVipLoginBonusHistory::class;
+    protected string $modelClass = TrxVipLoginBonus::class;
 
     /**
      * {@inheritDoc}
@@ -31,11 +31,11 @@ class TrxVipLoginBonusHistoryRepository extends _BaseTrxRepository implements Vi
         int $day,
         int $vipLevel,
         string $receivedAt,
-    ): TrxVipLoginBonusHistory {
+    ): TrxVipLoginBonus {
         $trxVipLoginBonus = $this->selectLatestByPlayerId($sysPlayerId);
 
         if ($trxVipLoginBonus === null) {
-            $trxVipLoginBonus = new TrxVipLoginBonusHistory(['sys_player_id' => $sysPlayerId]);
+            $trxVipLoginBonus = new TrxVipLoginBonus(['sys_player_id' => $sysPlayerId]);
             $trxVipLoginBonus->exists = false;
         }
 
@@ -52,9 +52,9 @@ class TrxVipLoginBonusHistoryRepository extends _BaseTrxRepository implements Vi
     /**
      * {@inheritDoc}
      */
-    public function selectLatestByPlayerId(int $sysPlayerId): ?TrxVipLoginBonusHistory
+    public function selectLatestByPlayerId(int $sysPlayerId): ?TrxVipLoginBonus
     {
-        /** @var TrxVipLoginBonusHistory|null */
+        /** @var TrxVipLoginBonus|null */
         return $this->queryOrMemory()->firstWhere('sys_player_id', $sysPlayerId);
     }
 
@@ -65,7 +65,7 @@ class TrxVipLoginBonusHistoryRepository extends _BaseTrxRepository implements Vi
         int $sysPlayerId,
         string $mstVipLoginBonusId,
         string $receivedAt,
-    ): ?TrxVipLoginBonusHistory {
+    ): ?TrxVipLoginBonus {
         $trxVipLoginBonus = $this->selectLatestByPlayerId($sysPlayerId);
 
         if ($trxVipLoginBonus === null

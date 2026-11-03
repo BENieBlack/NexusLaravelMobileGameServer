@@ -6,7 +6,7 @@ use App\Domain\Login\Services\VipLoginBonusService;
 use App\Models\Mst\MstVipLoginBonus;
 use App\Models\Mst\MstVipLoginBonusContent;
 use App\Persistence\ApiSession;
-use App\Repositories\Trx\TrxVipLoginBonusHistoryRepository;
+use App\Repositories\Trx\TrxVipLoginBonusRepository;
 use Illuminate\Support\Facades\DB;
 use Nexus\Core\Utilities\ClockUtility;
 use NexusUnitOfWork\Contracts\QueryManagerInterface;
@@ -230,7 +230,7 @@ class VipLoginBonusServiceTest extends TestCase
             ->where('sys_player_id', $this->sysPlayerId)
             ->value('received_at');
 
-        $repository = app(TrxVipLoginBonusHistoryRepository::class);
+        $repository = app(TrxVipLoginBonusRepository::class);
 
         $this->assertSame(
             1,

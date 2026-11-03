@@ -2,7 +2,7 @@
 
 namespace App\Repositories\Trx;
 
-use App\Models\Trx\TrxVipLoginBonusHistory;
+use App\Models\Trx\TrxVipLoginBonus;
 
 /**
  * VIPログインボーナスの最新の受け取り状態（trx_vip_login_bonus）へのアクセス
@@ -22,12 +22,12 @@ interface VipLoginBonusHistoryRepositoryInterface
         int $day,
         int $vipLevel,
         string $receivedAt,
-    ): TrxVipLoginBonusHistory;
+    ): TrxVipLoginBonus;
 
     /**
      * プレイヤーの最新の受け取り状態を取得する（まだ受け取っていなければnull）
      */
-    public function selectLatestByPlayerId(int $sysPlayerId): ?TrxVipLoginBonusHistory;
+    public function selectLatestByPlayerId(int $sysPlayerId): ?TrxVipLoginBonus;
 
     /**
      * プレイヤーの最新の受け取り状態が、指定したボーナスIDと受け取り日時のものなら返す
@@ -38,5 +38,5 @@ interface VipLoginBonusHistoryRepositoryInterface
         int $sysPlayerId,
         string $mstVipLoginBonusId,
         string $receivedAt,
-    ): ?TrxVipLoginBonusHistory;
+    ): ?TrxVipLoginBonus;
 }

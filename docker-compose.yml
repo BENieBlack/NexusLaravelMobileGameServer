@@ -42,7 +42,7 @@ services:
       - local-network
 
   api-web:
-    image: nginx:latest
+    image: nginx:1.31
     container_name: api-web
     ports:
       - "8090:80"
@@ -68,7 +68,7 @@ services:
       - local-network
 
   tool-web:
-    image: nginx:latest
+    image: nginx:1.31
     container_name: tool-web
     ports:
       - "8091:80"
@@ -81,7 +81,7 @@ services:
       - local-network
 
   db-admin:
-    image: mysql:latest
+    image: mysql:26.7
     container_name: db-admin
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
@@ -95,7 +95,7 @@ services:
       - local-network
 
   db-tool:
-    image: mysql:latest
+    image: mysql:26.7
     container_name: db-tool
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
@@ -109,7 +109,7 @@ services:
       - local-network
 
   db-system:
-    image: mysql:latest
+    image: mysql:26.7
     container_name: db-system
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
@@ -123,7 +123,7 @@ services:
       - local-network
 
   db-master:
-    image: mysql:latest
+    image: mysql:26.7
     container_name: db-master
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
@@ -137,7 +137,7 @@ services:
       - local-network
 
   db-shard1:
-    image: mysql:latest
+    image: mysql:26.7
     container_name: db-shard1
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
@@ -151,7 +151,7 @@ services:
       - local-network
 
   db-shard2:
-    image: mysql:latest
+    image: mysql:26.7
     container_name: db-shard2
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
@@ -165,7 +165,7 @@ services:
       - local-network
 
   db-shard3:
-    image: mysql:latest
+    image: mysql:26.7
     container_name: db-shard3
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}

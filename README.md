@@ -28,7 +28,7 @@ Nexus/
 | Docker / Docker Compose | ✅ | Compose v2（`docker compose`）を推奨。v1も可 |
 | Node.js | 任意 | Tool管理画面のアセットビルド用。APIの開発には不要 |
 
-**ホストにPHP・Composerは不要です。** コンテナ内のPHP 8.4を使います。
+**ホストにPHP・Composerは不要です。** コンテナ内のPHP 8.5を使います。
 
 ## クイックスタート
 

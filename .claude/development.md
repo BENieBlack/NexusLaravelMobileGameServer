@@ -9,7 +9,7 @@ DB 接続・マイグレーションの置き場所は [database.md](./database.
 
 | コンテナ | ホスト側ポート | 役割 |
 |---|---|---|
-| api-php | - | API（PHP 8.4）。`./api` を `/var/www/html`、`./packages` を `/var/www/packages` にマウント |
+| api-php | - | API（PHP 8.5）。`./api` を `/var/www/html`、`./packages` を `/var/www/packages` にマウント |
 | api-web | 8090 | API の nginx |
 | tool-php | - | 運営ツール（PHP） |
 | tool-web | 8091 | 運営ツールの nginx |

@@ -5,6 +5,7 @@ namespace App\Services;
 use Google\Client;
 use Google\Service\Drive;
 use Google\Service\Drive\DriveFile;
+use Google\Service\Exception;
 use Google\Service\Sheets;
 use Google\Service\Sheets\ValueRange;
 use RuntimeException;
@@ -488,7 +489,7 @@ class GoogleSpreadsheetService
         while ($attempt <= $maxRetries) {
             try {
                 return $call();
-            } catch (\Google\Service\Exception $e) {
+            } catch (Exception $e) {
                 $code = $e->getCode();
                 $isRetryable = in_array($code, [429, 500, 503], true);
 

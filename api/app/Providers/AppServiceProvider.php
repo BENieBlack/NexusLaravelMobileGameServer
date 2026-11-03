@@ -22,11 +22,13 @@ use App\Domain\Sharding\Contracts\ShardAssignerInterface;
 use App\Domain\Sharding\Services\ShardAssignmentService;
 use App\Domain\Stamina\Listeners\RecoverStaminaOnPlayerLevelUp;
 use App\Domain\Stamina\Services\StaminaGranterAdapter;
+use App\Domain\Trade\Services\TradeCostPayerAdapter;
 use App\Domain\Unit\Contracts\UnitExperienceInterface;
 use App\Domain\Unit\Services\UnitLevelService;
 use App\Exceptions\GameErrorCode;
 use App\Persistence\ApiSession;
 use App\Repositories\Log\LogVipPointRepository;
+use App\Repositories\Log\TradeLogRepositoryAdapter;
 use App\Repositories\Mst\AlbumCatalogRepositoryAdapter;
 use App\Repositories\Mst\LoginBonusRepositoryAdapter;
 use App\Repositories\Mst\MissionMasterRepositoryAdapter;
@@ -41,6 +43,7 @@ use App\Repositories\Mst\MstVipLoginBonusRepository;
 use App\Repositories\Mst\PlayerLevelRepositoryAdapter;
 use App\Repositories\Mst\RewardTrackMasterRepository;
 use App\Repositories\Mst\TagRepositoryAdapter;
+use App\Repositories\Mst\TradeMasterRepositoryAdapter;
 use App\Repositories\Mst\VipLoginBonusRepositoryInterface;
 use App\Repositories\Sys\AgreementRepositoryAdapter;
 use App\Repositories\Sys\DeployRepositoryAdapter;
@@ -65,6 +68,7 @@ use App\Repositories\Trx\MailboxRepositoryAdapter;
 use App\Repositories\Trx\MissionReceiptRepositoryAdapter;
 use App\Repositories\Trx\ProgressRepositoryAdapter;
 use App\Repositories\Trx\StaminaRepositoryAdapter;
+use App\Repositories\Trx\TradeProductCountRepositoryAdapter;
 use App\Repositories\Trx\TrxNotificationRepository;
 use App\Repositories\Trx\TrxRewardTrackLineRepository;
 use App\Repositories\Trx\TrxRewardTrackMilestoneRepository;
@@ -144,6 +148,10 @@ use NexusSecurity\Contracts\TokenValidatorInterface;
 use NexusStamina\Repositories\StaminaRepositoryInterface;
 use NexusStamina\Services\PlayerLevelServiceInterface;
 use NexusTag\Repositories\TagRepositoryInterface;
+use NexusTrade\Contracts\TradeCostPayerInterface;
+use NexusTrade\Contracts\TradeMasterRepositoryInterface;
+use NexusTrade\Repositories\TradeLogRepositoryInterface;
+use NexusTrade\Repositories\TradeProductCountRepositoryInterface;
 use NexusUnitOfWork\Contracts\PlayerSessionResolverInterface;
 use NexusVersion\Repositories\DeployRepositoryInterface;
 use NexusVersion\Repositories\MaintenanceRepositoryInterface;
@@ -311,6 +319,12 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(MissionMasterRepositoryInterface::class, MissionMasterRepositoryAdapter::class);
         $this->app->bind(ProgressRepositoryInterface::class, ProgressRepositoryAdapter::class);
         $this->app->bind(MissionReceiptRepositoryInterface::class, MissionReceiptRepositoryAdapter::class);
+
+        // 交換所
+        $this->app->bind(TradeMasterRepositoryInterface::class, TradeMasterRepositoryAdapter::class);
+        $this->app->bind(TradeProductCountRepositoryInterface::class, TradeProductCountRepositoryAdapter::class);
+        $this->app->bind(TradeLogRepositoryInterface::class, TradeLogRepositoryAdapter::class);
+        $this->app->bind(TradeCostPayerInterface::class, TradeCostPayerAdapter::class);
 
         // 利用規約
         $this->app->bind(AgreementRepositoryInterface::class, AgreementRepositoryAdapter::class);

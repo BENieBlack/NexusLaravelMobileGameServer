@@ -27,6 +27,7 @@
     <source>
         <include>
             <directory>app</directory>
+            <directory>../packages/nexus-agreement/src</directory>
             <directory>../packages/nexus-album/src</directory>
             <directory>../packages/nexus-chat/src</directory>
             <directory>../packages/nexus-core/src</directory>

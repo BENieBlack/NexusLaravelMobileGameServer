@@ -455,6 +455,72 @@ class HomeUseCaseTest extends TestCase
     }
 
     #[Test]
+    public function test_カムバック期間中は翌日以降も配布され有効日数を過ぎると終わる(): void
+    {
+        MstLoginBonus::create([
+            'id' => 'comeback_7',
+            'type' => 'comeback',
+            'loop_days' => 0,
+            'required_absent_days' => 7,
+            'valid_days' => 5,
+            'priority' => 100,
+            'is_active' => true,
+        ]);
+        MstLoginBonusContent::create([
+            'mst_login_bonus_id' => 'comeback_7',
+            'day' => 0,
+            'content_type' => 'diamond',
+            'content_mst_id' => 'diamond',
+            'amount' => 300,
+            'is_paid' => false,
+            'sort_order' => 1,
+        ]);
+        $this->refreshMstCache();
+
+        $day1 = CarbonImmutable::parse('2026-04-20 10:00:00', 'UTC');
+        $this->testPlayer->update(['last_login_at' => $day1->subDays(8)->format('Y-m-d H:i:s')]);
+
+        // 1日目・2日目・(3日目は休む)・4日目は受け取れる。期間の何日目かを記録する
+        foreach ([1, 2, 4] as $day) {
+            $this->travelTo($day1->addDays($day - 1));
+
+            $response = $this->withHeaders([
+                'Authorization' => 'Bearer '.$this->accessToken,
+            ])->postJson('/api/auth/login');
+
+            $response->assertOk();
+            $comeback = collect($response->json('login_bonus_list'))->firstWhere('type', 'diamond');
+            $this->assertNotNull($comeback, "{$day}日目はカムバックボーナスを受け取れるべき");
+            $this->assertSame(300, $comeback['amount']);
+
+            $comebackHistory = DB::connection($this->playerConnection($this->testPlayer->id))
+                ->table('trx_login_bonus')
+                ->where('sys_player_id', $this->testPlayer->id)
+                ->where('type', 'comeback')
+                ->first();
+            $this->assertSame($day, (int) $comebackHistory->day);
+            $this->assertSame(8, (int) $comebackHistory->absent_days); // 期間の初日の休眠日数を引き継ぐ
+        }
+
+        // 同じ日の2回目のログインでは受け取れない
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer '.$this->accessToken,
+        ])->postJson('/api/auth/login');
+        $this->assertNull(collect($response->json('login_bonus_list'))->firstWhere('type', 'diamond'));
+
+        // 6日目は有効日数（5日）を過ぎているので受け取れない
+        $this->travelTo($day1->addDays(5));
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer '.$this->accessToken,
+        ])->postJson('/api/auth/login');
+
+        $response->assertOk();
+        $this->assertNull(collect($response->json('login_bonus_list'))->firstWhere('type', 'diamond'));
+
+        $this->travelBack();
+    }
+
+    #[Test]
     public function test_last_login_atが更新される(): void
     {
         $beforeLoginAt = $this->testPlayer->last_login_at;

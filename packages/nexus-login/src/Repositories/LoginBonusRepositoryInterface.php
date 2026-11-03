@@ -41,6 +41,16 @@ interface LoginBonusRepositoryInterface
     public function selectEligibleComebackBonus(int $absentDays): ?array;
 
     /**
+     * IDを指定して、現在有効なカムバックボーナスを取得
+     *
+     * 進行中のカムバック期間を続けるときに使う（休眠日数の条件は見ない）
+     *
+     * @param  string  $loginBonusId  ログインボーナスID
+     * @return array<string, mixed>|null カムバックボーナスデータ、無効・期間外・存在しない場合はnull
+     */
+    public function selectActiveComebackBonusById(string $loginBonusId): ?array;
+
+    /**
      * プレイヤーが特定のカムバックボーナスを最近受け取ったかチェック
      *
      * @param  int  $sysPlayerId  プレイヤーID

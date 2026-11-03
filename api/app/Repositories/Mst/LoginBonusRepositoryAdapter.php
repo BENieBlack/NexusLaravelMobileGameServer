@@ -97,6 +97,29 @@ class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
 
     /**
      * {@inheritDoc}
+     */
+    public function selectActiveComebackBonusById(string $loginBonusId): ?array
+    {
+        $now = ClockUtility::now();
+
+        $bonus = MstLoginBonus::comebackType()
+            ->active()
+            ->whereKey($loginBonusId)
+            ->where(function ($query) use ($now) {
+                $query->whereNull('start_at')
+                    ->orWhere('start_at', '<=', $now);
+            })
+            ->where(function ($query) use ($now) {
+                $query->whereNull('end_at')
+                    ->orWhere('end_at', '>=', $now);
+            })
+            ->first();
+
+        return $bonus ? $bonus->toArray() : null;
+    }
+
+    /**
+     * {@inheritDoc}
      *
      * 受け取り状態は trx_login_bonus（プレイヤー×タイプごとに1行）にあるため TrxLoginBonusRepository で引く
      */

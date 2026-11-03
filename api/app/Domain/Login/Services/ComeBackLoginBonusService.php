@@ -17,9 +17,11 @@ use NexusResourceDelivery\Services\ResourceDeliveryService;
  * _BaseLoginBonusServiceを継承し、差分のみオーバーライド
  *
  * 特性（通常ログインボーナスとの差分）:
- * - N日以上ログインしていないユーザーがログインすると発火
- * - 設定期間で終了する（ループしない） ← shouldLoop()をオーバーライド
+ * - N日以上ログインしていないユーザーがログインすると期間が始まる
+ * - 期間中は毎日受け取れる。休眠日数の条件は期間の初日だけ見る
+ * - 設定期間（valid_days）で終了する（ループしない） ← shouldLoop()をオーバーライド
  * - 1日ログインしないとその日の分はスキップされる ← shouldSkipOnAbsence()をオーバーライド
+ * - 期間の開始日は保存せず、trx_login_bonus の受取日と日数から逆算する
  */
 class ComeBackLoginBonusService extends _BaseLoginBonusService
 {
@@ -33,19 +35,14 @@ class ComeBackLoginBonusService extends _BaseLoginBonusService
 
     /**
      * {@inheritDoc}
+     *
+     * 休眠明けで新しい期間が始まるか、進行中の期間があり、今日まだ受け取っていなければ対象
      */
     public function isEligible(int $sysPlayerId, ?string $lastLoginAt): bool
     {
-        if ($lastLoginAt === null) {
-            return false; // 初回ログインは対象外
-        }
+        $period = $this->resolvePeriod($sysPlayerId, $lastLoginAt);
 
-        $absentDays = $this->calculateAbsentDays($lastLoginAt);
-
-        // 有効なカムバックボーナス設定があるかチェック
-        $bonus = $this->bonusRepository->selectEligibleComebackBonus($absentDays);
-
-        return $bonus !== null;
+        return $period !== null && ! $this->hasReceivedToday($sysPlayerId, $period['bonus']['id']);
     }
 
     /**
@@ -71,25 +68,11 @@ class ComeBackLoginBonusService extends _BaseLoginBonusService
     /**
      * {@inheritDoc}
      *
-     * カムバック開始日からの経過日数を計算（スキップあり）
+     * カムバック期間の何日目か（ログインしなかった日も数える）
      */
     protected function calculateCurrentDay(int $sysPlayerId, ?string $lastLoginAt): int
     {
-        // カムバックボーナス初回受け取り日を取得
-        $firstComebackHistory = $this->historyRepository->selectFirstComebackByPlayerId($sysPlayerId);
-
-        if ($firstComebackHistory === null) {
-            // 初回カムバック = 1日目
-            return 1;
-        }
-
-        $firstReceivedDate = ClockUtility::parse($firstComebackHistory->getReceivedDate());
-        $currentGameDayStart = $this->calcGameDayStart();
-
-        // カムバック開始日からの経過日数（スキップあり）
-        $daysSinceStart = $firstReceivedDate->diffInDays($currentGameDayStart, false) + 1;
-
-        return max(1, $daysSinceStart);
+        return $this->resolvePeriod($sysPlayerId, $lastLoginAt)['day'] ?? 1;
     }
 
     /**
@@ -97,29 +80,18 @@ class ComeBackLoginBonusService extends _BaseLoginBonusService
      */
     protected function findLoginBonusData(int $sysPlayerId, int $currentDay, ?string $lastLoginAt): ?array
     {
-        $absentDays = $this->calculateAbsentDays($lastLoginAt);
+        $period = $this->resolvePeriod($sysPlayerId, $lastLoginAt);
 
-        // 優先度順でカムバックボーナスを取得
-        $bonus = $this->bonusRepository->selectEligibleComebackBonus($absentDays);
-
-        if ($bonus === null) {
-            return null;
-        }
-
-        // 有効期間チェック
-        if (isset($bonus['valid_days']) && $currentDay > $bonus['valid_days']) {
+        if ($period === null) {
             return null;
         }
 
         // 今日すでに受け取り済みかチェック
-        if ($this->hasReceivedToday($sysPlayerId, $bonus['id'])) {
+        if ($this->hasReceivedToday($sysPlayerId, $period['bonus']['id'])) {
             return null;
         }
 
-        // absent_daysを追加
-        $bonus['absent_days'] = $absentDays;
-
-        return $bonus;
+        return [...$period['bonus'], 'absent_days' => $period['absent_days']];
     }
 
     /**
@@ -151,7 +123,8 @@ class ComeBackLoginBonusService extends _BaseLoginBonusService
                 sysPlayerId: $sysPlayerId,
                 type: MstLoginBonus::TYPE_COMEBACK,
                 mstLoginBonusId: $bonusData['id'],
-                day: 0,
+                // 期間の何日目かを残し、次回は受取日から期間の開始日を逆算する
+                day: $currentDay,
                 absentDays: $bonusData['absent_days'],
                 receivedDate: $receivedDate,
                 rewardType: $content->content_type,
@@ -160,6 +133,49 @@ class ComeBackLoginBonusService extends _BaseLoginBonusService
                 isPaid: $content->is_paid ?? false,
             );
         }
+    }
+
+    /**
+     * 今回のログインで配布するカムバック期間を求める
+     *
+     * - 休眠日数がボーナスの条件を満たせば、新しい期間の1日目
+     * - そうでなければ、前回受け取ったボーナスの期間の続き（開始日からの経過日数）
+     * - 期間が無い、ボーナスが無効、有効日数を過ぎた場合はnull
+     *
+     * @return array{bonus: array<string, mixed>, day: int, absent_days: int}|null
+     */
+    private function resolvePeriod(int $sysPlayerId, ?string $lastLoginAt): ?array
+    {
+        if ($lastLoginAt !== null) {
+            $absentDays = $this->calculateAbsentDays($lastLoginAt);
+            $bonus = $this->bonusRepository->selectEligibleComebackBonus($absentDays);
+
+            if ($bonus !== null) {
+                return ['bonus' => $bonus, 'day' => 1, 'absent_days' => $absentDays];
+            }
+        }
+
+        $history = $this->historyRepository->selectFirstComebackByPlayerId($sysPlayerId);
+
+        if ($history === null) {
+            return null;
+        }
+
+        $bonus = $this->bonusRepository->selectActiveComebackBonusById($history->getMstLoginBonusId());
+
+        if ($bonus === null) {
+            return null;
+        }
+
+        // 期間の開始日 = 前回の受取日 - (前回の日数 - 1)
+        $periodStart = ClockUtility::parse($history->getReceivedDate())->subDays(max(1, $history->getDay()) - 1);
+        $day = (int) $periodStart->diffInDays($this->calcGameDayStart(), false) + 1;
+
+        if (isset($bonus['valid_days']) && $day > $bonus['valid_days']) {
+            return null;
+        }
+
+        return ['bonus' => $bonus, 'day' => max(1, $day), 'absent_days' => $history->getAbsentDays() ?? 0];
     }
 
     /**

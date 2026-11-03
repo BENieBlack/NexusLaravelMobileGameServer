@@ -194,6 +194,22 @@ class LoginBonusRepositoryAdapterTest extends TestCase
     }
 
     #[Test]
+    public function idを指定して有効な復帰ボーナスだけを引ける(): void
+    {
+        // 進行中の期間を続けるときは休眠日数の条件を見ない
+        $this->makeComeback('comeback_7', requiredAbsentDays: 7);
+        $this->makeComeback('inactive', requiredAbsentDays: 7, isActive: false);
+        $this->makeComeback('ended', requiredAbsentDays: 7, endAt: '2026-03-15 11:59:59');
+        $this->makeDaily('daily_login', day: 1);
+
+        $this->assertSame('comeback_7', $this->repository->selectActiveComebackBonusById('comeback_7')['id']);
+        $this->assertNull($this->repository->selectActiveComebackBonusById('inactive'));
+        $this->assertNull($this->repository->selectActiveComebackBonusById('ended'));
+        $this->assertNull($this->repository->selectActiveComebackBonusById('daily_login'), '通常ボーナスは引かない');
+        $this->assertNull($this->repository->selectActiveComebackBonusById('missing'));
+    }
+
+    #[Test]
     public function 無効な復帰ボーナスは配らない(): void
     {
         $this->makeComeback('comeback_7', requiredAbsentDays: 7, isActive: false);

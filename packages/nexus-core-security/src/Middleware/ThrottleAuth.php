@@ -102,7 +102,8 @@ class ThrottleAuth
      */
     private function credentialKey(Request $request): ?string
     {
-        $value = $request->input('device_id') ?? $request->input('refresh_token');
+        // 引き継ぎコードは端末を変えて総当たりされるため、端末よりコードで数える
+        $value = $request->input('transfer_code') ?? $request->input('device_id') ?? $request->input('refresh_token');
 
         if (! is_string($value) || $value === '') {
             return null;

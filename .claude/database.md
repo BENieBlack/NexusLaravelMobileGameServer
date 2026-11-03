@@ -230,6 +230,7 @@ API（api/）の接続は `api/config/database.php`、Tool（tool/）の接続�
 | nexus-vip | `mst_vip_level`, `mst_vip_level_reward`, `mst_vip_login_bonus`, `mst_vip_login_bonus_content` |
 | nexus-tag | `mst_tag`（`__l10n` あり）, `mst_tag_content`（タグとユニット・アイテム等の多対多） |
 | nexus-mission | `mst_mission`（`__l10n` あり）, `mst_mission_content` |
+| nexus-trade | `mst_trade`（交換所。`__l10n` あり）, `mst_trade_product`（商品。消費種別・消費個数・交換回数の上限。`__l10n` あり）, `mst_trade_product_content`（交換で手に入るもの） |
 
 ### trx（各シャード）
 
@@ -248,11 +249,12 @@ API（api/）の接続は `api/config/database.php`、Tool（tool/）の接続�
 | nexus-reward-track | `trx_reward_track`, `trx_reward_track_line`, `trx_reward_track_milestone` |
 | nexus-vip | `trx_vip_login_bonus` |
 | nexus-mission | `trx_progress`（出来事×タグの通算カウンタ）, `trx_mission`（受け取り記録） |
+| nexus-trade | `trx_trade_product`（商品ごとの交換回数） |
 
 ### log（各シャード、trx と同じDB）
 
 - api: `log_action_api_access`, `log_action_player_update`, `log_action_item_change`, `log_action_gacha_draw`, `log_action_unit_levelup`, `log_action_equipment_levelup`, `log_action_in_app_purchase`
-- nexus-login: `log_action_login_bonus_receive`／nexus-vip: `log_action_vip_login_bonus_receive`, `log_action_vip_point_change`
+- nexus-login: `log_action_login_bonus_receive`／nexus-vip: `log_action_vip_login_bonus_receive`, `log_action_vip_point_change`／nexus-trade: `log_action_trade`
 - nexus-pitr: `log_change_trx`, `log_pitr_recovery`, `log_pitr_verification`
 - `log_change_trx_<trxテーブル名>`: 元の trx テーブルを持つパッケージ（core: player, player_sns／resource: unit, equipment, item／core-billing: in_app_purchase, in_app_purchase_effect, diamond, diamond_balance／wallet: wallet, wallet_balance／stamina／gacha／mailbox）
 

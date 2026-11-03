@@ -18,6 +18,13 @@ interface DiamondBalanceInterface
     public function addDiamond(int $sysPlayerId, string $platform, int $amount, bool $isPaid = false): void;
 
     /**
+     * 全プラットフォームを合わせたダイヤの所持数を返す
+     *
+     * @param  bool  $isPaidOnly  有償ダイヤだけを数えるか（falseの場合は無償と有償の合計）
+     */
+    public function findDiamondAmount(int $sysPlayerId, bool $isPaidOnly = false): int;
+
+    /**
      * ダイヤを消費する
      *
      * @param  bool  $isPaidOnly  有償ダイヤのみを消費するか（falseの場合は無償→有償の順）

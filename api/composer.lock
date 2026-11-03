@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b8c5f32943e1d8ee90a6ca836dc0e686",
+    "content-hash": "16e54e07a3a25c36b4cbab00fc102acc",
     "packages": [
         {
             "name": "brick/math",
@@ -3958,6 +3958,49 @@
                 "MIT"
             ],
             "description": "TiDB support package for Nexus mobile game",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "nexus/trade",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/nexus-trade",
+                "reference": "2f37a3b39876892d586a47a66a8240a920f113af"
+            },
+            "require": {
+                "nexus/core": "@dev",
+                "nexus/resource-delivery": "@dev",
+                "php": "^8.4"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.6",
+                "phpunit/phpunit": "^10.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "NexusTrade\\TradeServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "NexusTrade\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "NexusTrade\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "交換パッケージ。ショップに並べた商品を、ゲーム内通貨やアイテムを支払って商品を交換する。商品ごとに販売期間と交換回数の上限を持ち、上限は日・週・月ごとに戻せる。",
             "transport-options": {
                 "relative": true
             }
@@ -12337,6 +12380,7 @@
         "nexus/stamina": 20,
         "nexus/tag": 20,
         "nexus/tidb": 20,
+        "nexus/trade": 20,
         "nexus/version": 20,
         "nexus/vip": 20,
         "nexus/wallet": 20

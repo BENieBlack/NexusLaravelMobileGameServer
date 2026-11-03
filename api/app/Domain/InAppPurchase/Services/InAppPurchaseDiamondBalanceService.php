@@ -90,6 +90,14 @@ class InAppPurchaseDiamondBalanceService implements DiamondBalanceInterface
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public function findDiamondAmount(int $sysPlayerId, bool $isPaidOnly = false): int
+    {
+        return $this->packageDiamondService->findTotalAmount($sysPlayerId, $isPaidOnly);
+    }
+
+    /**
      * ダイヤモンドを消費（無償 → 有償の順で消費、または有償のみ）
      *
      * @param  int  $sysPlayerId  プレイヤーID

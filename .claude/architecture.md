@@ -113,8 +113,8 @@ Traits/                   UseCaseTrait, CompositePrimaryKeyTrait, RequiresAuthen
 
 | 公開API | 実装 | 使う側 |
 |---|---|---|
-| `Item\Contracts\ItemInventoryInterface` | `ItemService` | 装備・ユニットの強化、ガチャのコスト、課金パック |
-| `InAppPurchase\Contracts\DiamondBalanceInterface` | `InAppPurchaseDiamondBalanceService` | ガチャのコスト |
+| `Item\Contracts\ItemInventoryInterface` | `ItemService` | 装備・ユニットの強化、ガチャ・交換所のコスト、課金パック |
+| `InAppPurchase\Contracts\DiamondBalanceInterface` | `InAppPurchaseDiamondBalanceService` | ガチャ・交換所のコスト |
 | `Sharding\Contracts\ShardAssignerInterface` | `ShardAssignmentService` | サインアップ |
 | `Equipment\Contracts\EquipmentExperienceInterface` | `EquipmentLevelService` | 経験値の配布 |
 | `Unit\Contracts\UnitExperienceInterface` | `UnitLevelService` | 経験値の配布 |
@@ -228,7 +228,7 @@ return GuildExceptionTranslator::forApplySend(function () use ($sysPlayerId, $gu
 });
 ```
 
-現在の Translator: Guild, Friend, Chat, RewardTrack, Mission。
+現在の Translator: Guild, Friend, Chat, RewardTrack, Mission, Trade。
 
 ## 10. アーキテクチャテスト
 

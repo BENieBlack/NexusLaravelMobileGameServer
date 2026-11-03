@@ -116,6 +116,10 @@
         {
             "type": "path",
             "url": "../packages/nexus-agreement"
+        },
+        {
+            "type": "path",
+            "url": "../packages/nexus-trade"
         }
     ],
     "require": {
@@ -141,6 +145,7 @@
         "nexus/mailbox": "@dev",
         "nexus/maintenance": "@dev",
         "nexus/mission": "@dev",
+        "nexus/trade": "@dev",
         "nexus/notification": "@dev",
         "nexus/pitr": "@dev",
         "nexus/resource": "@dev",

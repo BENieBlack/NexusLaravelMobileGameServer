@@ -23,6 +23,7 @@ parameters:
         - ../packages/nexus-mailbox/src
         - ../packages/nexus-maintenance/src
         - ../packages/nexus-mission/src
+        - ../packages/nexus-trade/src
         - ../packages/nexus-notification/src
         - ../packages/nexus-pitr/src
         - ../packages/nexus-resource/src

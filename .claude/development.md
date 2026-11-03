@@ -51,7 +51,7 @@ docker compose exec -T tool-php php artisan db:seed --class=AdminAccountSeeder -
 | `make up` / `make down` | 起動（`--build` 付き）/ 停止 |
 | `make check` | CI と同じ検査（`pint-test` → `phpstan` → `test` → `tool-check`）。PR 前に回す |
 | `make test` | api の全テスト（Unit / Feature / Architecture / Packages） |
-| `make check-quiet` / `make test-quiet` | `check` / `test` と同じ検査。全文は `.make-logs/*.log` に書き、画面には成功の1行か、失敗の詳細と集計だけを出す。エージェントはこちらを使う |
+| `make check-quiet` / `make test-quiet` | `check` / `test` と同じ検査。全文は `.make-logs/*.log` に書き、画面には成功の1行か、失敗の詳細と集計だけを出す。`F=Xxx` で `--filter` に渡せる。エージェントはこちらを使う |
 | `make test-unit` / `make test-feature` | そのスイートだけ |
 | `make test-fresh` | `migrate-fresh` と `seed` の後に全テスト |
 | `make tool-check` | tool の pint --test・phpstan・phpunit |
@@ -98,6 +98,7 @@ docker compose exec -T api-php grep 'App.Adapters' /tmp/cov.txt
 
 - PHPStan は level 6（`api/phpstan.neon`）。対象は `app` と各パッケージの `src`。パッケージを追加したら `paths` にも足す。独自ルール `App\PHPStan\Rules\NoDirectEloquentSaveInServiceRule`（`api/phpstan/Rules/`）が有効
 - Pint の設定は `api/pint.json`（preset laravel）。packages にも同じ設定を当てる
+- Claude Code で PHP ファイルを Edit / Write すると、`.claude/hooks/pint-edited-file.sh`（`.claude/settings.json` の PostToolUse）がそのファイルだけを Pint で整形する。api-php / tool-php が起動していなければ何もしない。jq が要る
 - tool は別アプリで、`tool/phpstan.neon`（level 6）と tool の Pint を `make tool-check` で回す
 - CI（`.github/workflows/ci.yml`）は3ジョブ: 静的解析・フォーマット / tool / テスト（api + packages）
 

@@ -59,11 +59,12 @@ test-feature: up ## 統合テストのみ実行（Docker環境）
 
 # 失敗したときは、最初の失敗の区切り線（────）から末尾の集計までを出す。
 # 区切り線が無い失敗（致命的エラーなど）はログの末尾を出す
-test-quiet: ## 全テスト。全文はログに書き、失敗と集計だけを表示（エージェント向け）
+# F=Xxx で --filter に渡して一部だけ回せる（例: make test-quiet F=MissionEndpointTest）
+test-quiet: ## 全テスト（F=Xxx で絞り込み）。全文はログに書き、失敗と集計だけを表示（エージェント向け）
 	$(call run_quiet,up,$(DOCKER_COMPOSE) up -d --build,5)
 	$(call run_quiet,config-clear,$(DOCKER_COMPOSE) exec -T api-php php artisan config:clear)
 	@mkdir -p $(QUIET_LOG_DIR)
-	@$(DOCKER_COMPOSE) exec -T api-php php artisan test > $(QUIET_LOG_DIR)/test.log 2>&1; status=$$?; \
+	@$(DOCKER_COMPOSE) exec -T api-php php artisan test $(if $(F),--filter='$(F)') > $(QUIET_LOG_DIR)/test.log 2>&1; status=$$?; \
 	if [ $$status -eq 0 ]; then grep -E '^ *(Tests|Duration):' $(QUIET_LOG_DIR)/test.log; \
 	elif grep -q '────' $(QUIET_LOG_DIR)/test.log; then awk '/────/{f=1} f' $(QUIET_LOG_DIR)/test.log | head -n 300; \
 	else tail -n 80 $(QUIET_LOG_DIR)/test.log; fi; \
@@ -89,7 +90,7 @@ check-quiet: ## checkと同じ検査。結果だけを表示（エージェン�
 	$(call run_quiet,up,$(DOCKER_COMPOSE) up -d --build,5)
 	$(call run_quiet,pint-test,$(DOCKER_COMPOSE) exec -T api-php sh -c './vendor/bin/pint --test && ./vendor/bin/pint --test ../packages')
 	$(call run_quiet,phpstan,$(DOCKER_COMPOSE) exec -T api-php ./vendor/bin/phpstan analyse --memory-limit=2G --no-progress)
-	@$(MAKE) --no-print-directory test-quiet
+	@$(MAKE) --no-print-directory test-quiet F=
 	$(call run_quiet,tool-check,$(MAKE) --no-print-directory tool-check)
 
 # tool は api とは別のLaravelアプリで、composerの依存も分かれている。

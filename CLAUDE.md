@@ -8,7 +8,7 @@
 
 - 応答・コメント・コミットメッセージ・ドキュメントは日本語。識別子は英語。
 - main へ直接コミットしない。作業ブランチ（`feature/` `fix/` `refactor/` `chore/` + 英語ケバブケース）を切って PR でマージする。PR は `.github/pull_request_template.md` の各欄に変更内容を記載する（書き方は `.claude/development.md` の「ブランチと PR」）。
-- 仕上げに `make check`（CIと同じ: pint → PHPStan → 全テスト → tool の検査）を通す。エージェントは結果だけを表示する `make check-quiet` / `make test-quiet` を使い、全文は `.make-logs/` を必要な部分だけ読む。
+- 仕上げに `make check`（CIと同じ: pint → PHPStan → 全テスト → tool の検査）を通す。エージェントは結果だけを表示する `make check-quiet` / `make test-quiet` を使い、全文は `.make-logs/` を必要な部分だけ読む。検査の実行は `test-runner`、場所探しは `code-locator`（どちらも `.claude/agents/`、haiku）に任せてよい。
 
 ## コマンド（Docker上で動かす。ホストで php / artisan を直接叩かない）
 
@@ -17,7 +17,7 @@
 | 起動 / 停止 | `make up` / `make down`（API :8090、Tool :8091） |
 | CIと同じ検査 | `make check`（結果だけ: `make check-quiet`） |
 | テスト | `make test`（api + packages。結果だけ: `make test-quiet`）、`make test-unit`、`make test-feature`、`make tool-check`（tool） |
-| 一部だけ | `docker compose exec -T api-php php artisan test --filter=Xxx` |
+| 一部だけ | `make test-quiet F=Xxx`（`--filter` に渡す） |
 | 整形 / 静的解析 | `make pint`（api と packages）、`make phpstan`（level 6） |
 | マイグレーション | `make migrate`、`make migrate-fresh && make seed` |
 

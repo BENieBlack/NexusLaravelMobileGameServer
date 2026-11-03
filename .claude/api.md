@@ -132,11 +132,20 @@
 - 引き継ぎコードはプレイヤーごとに1つ。発行し直すと前のコードは使えず、使ったコードも消える。有効期限・ロックの回数と時間は `api/config/account_transfer.php`
 - `provider` は `apple` / `google`。IDトークンは `NexusAuth\Services\JwksIdTokenVerifier` が公開鍵セット（JWKS）で検証する。発行先（`APPLE_CLIENT_IDS` / `GOOGLE_CLIENT_IDS`）が空の種類は使えない（`EXTERNAL_PROVIDER_UNAVAILABLE`）
 
+## 交換所
+
+ダイヤ・コイン・アイテムを消費して、アイテム・ユニット・装備などと交換する（`packages/nexus-trade`、`App\Domain\Trade`）。課金（`in_app_purchase`）で現金をダイヤに替え、ダイヤをガチャや交換所で使う。
+
+- `GET /trade/list` … 開催中の交換所（`mst_trade`）にある、交換期間内の商品（`mst_trade_product`）を `trade_product_list` で返す。各商品は消費種別・消費個数・上限・今の周期での交換回数・残り回数・手に入るもの
+- `POST /trade/exchange`（`mst_trade_product_id`, `quantity`）… 消費個数 × `quantity` を消費し、手に入るもの × `quantity` を配る。結果は `trade_product`
+- 消費種別（`cost_type`）: `diamond`（無償→有償の順）/ `paid_diamond`（有償のみ）/ `item` / `wallet`（コイン・ゴールドなど。`cost_mst_id` に `mst_item.id`）。足りなければ `DIAMOND_NOT_ENOUGH` / `ITEM_NOT_ENOUGH`
+- 交換回数の上限（`trade_limit`）は `reset_type`（`none` / `daily` / `weekly` / `monthly`）の周期で数え直す。境界はゲーム内日付（`day_start_time`）、週は ISO 8601
+
 ## エンドポイントの分類
 
 一覧は `api/routes/api.php` を見る。分類は次のとおり。
 
 - 認証不要: `auth`（sign_up / sign_in / refresh_token / version）、`account` の引き継ぎ（transfer_code/transfer / external/transfer）、`maintenance/status`、`guild` の参照系
-- ログイン後: `auth`（version / login）、`account`（引き継ぎコードの発行、外部アカウントの一覧・紐付け・解除）、`player`、`in_app_purchase`、`item`、`unit`、`equipment`、`friend`、`album`、`guild`、`mailbox`、`gacha`、`notification`、`chat`、`reward-track`、`mission`
+- ログイン後: `auth`（version / login）、`account`（引き継ぎコードの発行、外部アカウントの一覧・紐付け・解除）、`player`、`in_app_purchase`、`item`、`unit`、`equipment`、`friend`、`album`、`guild`、`mailbox`、`gacha`、`notification`、`chat`、`reward-track`、`mission`、`trade`
 - 管理用: `admin/maintenance/*`（`auth.admin`）
 - 非推奨: `POST /signup`（`/auth/sign_up` と同じ処理）

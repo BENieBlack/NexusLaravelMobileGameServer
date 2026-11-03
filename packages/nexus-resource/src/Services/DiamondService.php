@@ -93,6 +93,22 @@ class DiamondService
     }
 
     /**
+     * 全プラットフォームを合わせたダイヤモンドの所持数
+     *
+     * @param  bool  $isPaidOnly  有償ダイヤだけを数えるか（falseなら無償と有償の合計）
+     */
+    public function findTotalAmount(int $sysPlayerId, bool $isPaidOnly = false): int
+    {
+        $total = 0;
+
+        foreach ($this->diamondRepository->selectAllByPlayerId($sysPlayerId) as $diamondDto) {
+            $total += $diamondDto->getPaidAmount() + ($isPaidOnly ? 0 : $diamondDto->getFreeAmount());
+        }
+
+        return $total;
+    }
+
+    /**
      * ダイヤモンドを消費（無償 → 有償の順で消費、または有償のみ）
      *
      * @param  int  $sysPlayerId  プレイヤーID

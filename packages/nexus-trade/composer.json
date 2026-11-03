@@ -1,0 +1,34 @@
+{
+    "name": "nexus/trade",
+    "description": "交換パッケージ。交換所に並べた商品を、ゲーム内通貨やアイテムと交換する。商品ごとに交換期間と交換回数の上限を持ち、上限は日・週・月ごとに戻せる。",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.4",
+        "nexus/core": "@dev",
+        "nexus/resource-delivery": "@dev"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.0",
+        "mockery/mockery": "^1.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "NexusTrade\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "NexusTrade\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "NexusTrade\\TradeServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

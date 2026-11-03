@@ -66,6 +66,14 @@ API（api/）の接続は `api/config/database.php`、Tool（tool/）の接続�
 - Tool側（adm/tol）は `Schema::connection('admin')` / `Schema::connection('tool')` を書く。
 - 1ファイルに1パッケージ・1グループ分のテーブルをまとめる。見本: `packages/nexus-resource/database/migrations/{mst,trx,log}/`、`packages/nexus-core/database/migrations/sys/`。
 
+### 既存ファイルを書き換えてよい期間
+
+今は**共有の検証環境を作るまで**の期間で、既存のマイグレーションファイルを直接書き換えてよい（列の追加・型の変更・テーブルの追加も既存の `create_{機能}_tables.php` に書く）。
+
+- 書き換えた変更は通常の `make migrate` では反映されない。手元では `make migrate-fresh` → `make seed` で作り直す。テストDBは指紋の変化で自動的に作り直される
+- **共有の検証環境（ステージングなど、作り直せないデータを持つ環境）を作る時点で凍結する**。凍結後は既存のファイルを書き換えず、変更は新しいファイル（`2026_MM_DD_HHMMSS_add_xxx_to_yyy.php` など）で足す。消せないデータがある環境では `migrate-fresh` が使えないため
+- 凍結したら、この節と CLAUDE.md を「既存のマイグレーションは書き換えない」に改め、凍結した日付をここに書く
+
 ### 実行
 
 | コマンド | 内容 |
@@ -76,7 +84,7 @@ API（api/）の接続は `api/config/database.php`、Tool（tool/）の接続�
 
 - **引数なしの `php artisan migrate` は使わない**。既定接続が sqlite なので、意図しないDBに流れる。
 - **`pitr:migrate --fresh` は使わない**。trx と log は同じDBにあるので、log 側で fresh すると直前に作った trx のテーブルまで消える。全部作り直すときは `make migrate-fresh`。
-- 既存のマイグレーションファイルを書き換えたときは通常の migrate では反映されない。`make migrate-fresh` で作り直す。
+- 既存のマイグレーションファイルを書き換えたときは通常の migrate では反映されない。`make migrate-fresh` → `make seed` で作り直す（上の「既存ファイルを書き換えてよい期間」）。
 - Tool の adm/tol は `make migrate` に含まれない。tool-php コンテナで `php artisan migrate --path=database/migrations/adm --database=admin` と `--path=database/migrations/tol --database=tool` を実行する（[tool.md](./tool.md)）。
 
 ## 4. テーブル命名

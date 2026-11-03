@@ -4,6 +4,7 @@ namespace App\Repositories\Mst;
 
 use App\Models\Mst\MstLoginBonus;
 use App\Models\Mst\MstLoginBonusContent;
+use App\Repositories\Trx\TrxLoginBonusRepository;
 use Nexus\Core\Utilities\ClockUtility;
 use NexusLogin\Repositories\LoginBonusRepositoryInterface;
 
@@ -14,7 +15,9 @@ use NexusLogin\Repositories\LoginBonusRepositoryInterface;
  */
 class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
 {
-    public function __construct() {}
+    public function __construct(
+        private readonly TrxLoginBonusRepository $trxLoginBonusRepository,
+    ) {}
 
     /**
      * {@inheritDoc}
@@ -95,23 +98,43 @@ class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
     /**
      * {@inheritDoc}
      */
+    public function selectActiveComebackBonusById(string $loginBonusId): ?array
+    {
+        $now = ClockUtility::now();
+
+        $bonus = MstLoginBonus::comebackType()
+            ->active()
+            ->whereKey($loginBonusId)
+            ->where(function ($query) use ($now) {
+                $query->whereNull('start_at')
+                    ->orWhere('start_at', '<=', $now);
+            })
+            ->where(function ($query) use ($now) {
+                $query->whereNull('end_at')
+                    ->orWhere('end_at', '>=', $now);
+            })
+            ->first();
+
+        return $bonus ? $bonus->toArray() : null;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * 受け取り状態は trx_login_bonus（プレイヤー×タイプごとに1行）にあるため TrxLoginBonusRepository で引く
+     */
     public function hasReceivedComebackBonusRecently(
         int $sysPlayerId,
         string $comebackBonusId,
-        int $validDays,
-        string $connectionName
+        int $validDays
     ): bool {
         $validFrom = ClockUtility::now()->subDays($validDays)->format('Y-m-d H:i:s');
 
-        $history = \DB::connection($connectionName)
-            ->table('trx_login_bonus')
-            ->where('sys_player_id', $sysPlayerId)
-            ->where('type', 'comeback')
-            ->where('mst_login_bonus_id', $comebackBonusId)
-            ->where('received_date', '>=', $validFrom)
-            ->exists();
+        $trxLoginBonus = $this->trxLoginBonusRepository->selectByType($sysPlayerId, MstLoginBonus::TYPE_COMEBACK);
 
-        return $history;
+        return $trxLoginBonus !== null
+            && $trxLoginBonus->getMstLoginBonusId() === $comebackBonusId
+            && $trxLoginBonus->getReceivedDate() >= $validFrom;
     }
 
     /**

@@ -2,100 +2,121 @@
 
 namespace App\Repositories\Trx;
 
-use Illuminate\Support\Facades\DB;
+use App\Adapters\Login\LoginBonusHistoryAdapter;
+use App\Models\Mst\MstLoginBonus;
+use App\Repositories\Log\LogLoginBonusReceiveRepository;
+use NexusLogin\DataTransferObjects\LoginBonusHistory;
 use NexusLogin\Repositories\LoginBonusHistoryRepositoryInterface;
-use NexusPitr\Logger\ShardMapper;
 
 /**
- * ログインボーナスの最新状態をtrxへ、受取履歴をlogへ保存するRepository。
+ * LoginBonusHistoryRepositoryAdapter
+ *
+ * TrxLoginBonusRepository / LogLoginBonusReceiveRepository（Model）と
+ * LoginBonusHistoryRepositoryInterface（DTO）の橋渡し。
+ * 最新状態は trx、受取履歴は log へ書く
  */
 class LoginBonusHistoryRepositoryAdapter implements LoginBonusHistoryRepositoryInterface
 {
-    public function selectLatestByPlayer(int $sysPlayerId, string $connectionName): ?array
-    {
-        $result = DB::connection($connectionName)
-            ->table('trx_login_bonus')
-            ->where('sys_player_id', $sysPlayerId)
-            ->where('type', 'daily')
-            ->first();
+    public function __construct(
+        private readonly TrxLoginBonusRepository $trxLoginBonusRepository,
+        private readonly LogLoginBonusReceiveRepository $logLoginBonusReceiveRepository,
+    ) {}
 
-        return $result ? (array) $result : null;
+    /**
+     * {@inheritDoc}
+     */
+    public function selectLatestByPlayer(int $sysPlayerId): ?LoginBonusHistory
+    {
+        return $this->selectByType($sysPlayerId, MstLoginBonus::TYPE_DAILY);
     }
 
-    public function selectLatestByPlayerId(int $sysPlayerId, string $connectionName): ?array
+    /**
+     * {@inheritDoc}
+     */
+    public function selectLatestByPlayerId(int $sysPlayerId): ?LoginBonusHistory
     {
-        return $this->selectLatestByPlayer($sysPlayerId, $connectionName);
+        return $this->selectLatestByPlayer($sysPlayerId);
     }
 
-    public function countUniqueDaysSince(int $sysPlayerId, string $sinceDate, string $connectionName): int
+    /**
+     * {@inheritDoc}
+     */
+    public function countUniqueDaysSince(int $sysPlayerId, string $sinceDate): int
     {
-        return DB::connection($connectionName)
-            ->table('trx_login_bonus')
-            ->where('sys_player_id', $sysPlayerId)
-            ->where('type', 'daily')
-            ->where('received_date', '>=', $sinceDate)
-            ->count();
+        $loginBonusHistory = $this->selectLatestByPlayer($sysPlayerId);
+
+        return $loginBonusHistory !== null && $loginBonusHistory->getReceivedDate() >= $sinceDate ? 1 : 0;
     }
 
-    public function insert(array $data, string $connectionName): void
-    {
-        $state = [
-            'sys_player_id' => $data['sys_player_id'],
-            'type' => $data['type'],
-            'mst_login_bonus_id' => $data['mst_login_bonus_id'],
-            'day' => $data['day'] ?? 0,
-            'absent_days' => $data['absent_days'] ?? null,
-            'received_date' => $data['received_date'],
-            'updated_at' => now(),
-        ];
-
-        DB::connection($connectionName)->table('trx_login_bonus')->updateOrInsert(
-            ['sys_player_id' => $state['sys_player_id'], 'type' => $state['type']],
-            $state + ['created_at' => now()],
+    /**
+     * {@inheritDoc}
+     */
+    public function insertReceive(
+        int $sysPlayerId,
+        string $type,
+        string $mstLoginBonusId,
+        int $day,
+        ?int $absentDays,
+        string $receivedDate,
+        string $rewardType,
+        string $rewardMstId,
+        int $rewardAmount,
+        bool $isPaid,
+    ): void {
+        $this->trxLoginBonusRepository->upsertLatest(
+            sysPlayerId: $sysPlayerId,
+            type: $type,
+            mstLoginBonusId: $mstLoginBonusId,
+            day: $day,
+            absentDays: $absentDays,
+            receivedDate: $receivedDate,
         );
 
-        DB::connection(ShardMapper::resolveLogConnection($connectionName))
-            ->table('log_action_login_bonus_receive')
-            ->insert([
-                'sys_player_id' => $data['sys_player_id'],
-                'type' => $data['type'],
-                'mst_login_bonus_id' => $data['mst_login_bonus_id'],
-                'day' => $data['day'] ?? 0,
-                'absent_days' => $data['absent_days'] ?? null,
-                'received_at' => $data['received_date'],
-                'reward_type' => $data['reward_type'],
-                'reward_mst_id' => $data['reward_mst_id'],
-                'reward_amount' => $data['reward_amount'],
-                'is_paid' => $data['is_paid'] ?? false,
-                'created_at' => now(),
-            ]);
+        $this->logLoginBonusReceiveRepository->insertReceive(
+            sysPlayerId: $sysPlayerId,
+            type: $type,
+            mstLoginBonusId: $mstLoginBonusId,
+            day: $day,
+            absentDays: $absentDays,
+            receivedAt: $receivedDate,
+            rewardType: $rewardType,
+            rewardMstId: $rewardMstId,
+            rewardAmount: $rewardAmount,
+            isPaid: $isPaid,
+        );
     }
 
-    public function selectFirstComebackByPlayerId(int $sysPlayerId, string $connectionName): ?array
+    /**
+     * {@inheritDoc}
+     */
+    public function selectFirstComebackByPlayerId(int $sysPlayerId): ?LoginBonusHistory
     {
-        $result = DB::connection($connectionName)
-            ->table('trx_login_bonus')
-            ->where('sys_player_id', $sysPlayerId)
-            ->where('type', 'comeback')
-            ->first();
-
-        return $result ? (array) $result : null;
+        return $this->selectByType($sysPlayerId, MstLoginBonus::TYPE_COMEBACK);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function selectByPlayerAndBonusAndDate(
         int $sysPlayerId,
         string $bonusId,
         string $receivedDate,
-        string $connectionName
-    ): ?array {
-        $result = DB::connection($connectionName)
-            ->table('trx_login_bonus')
-            ->where('sys_player_id', $sysPlayerId)
-            ->where('type', 'comeback')
-            ->where('mst_login_bonus_id', $bonusId)
-            ->where('received_date', $receivedDate)
-            ->first();
+    ): ?LoginBonusHistory {
+        $loginBonusHistory = $this->selectByType($sysPlayerId, MstLoginBonus::TYPE_COMEBACK);
 
-        return $result ? (array) $result : null;
+        if ($loginBonusHistory === null
+            || $loginBonusHistory->getMstLoginBonusId() !== $bonusId
+            || $loginBonusHistory->getReceivedDate() !== $receivedDate) {
+            return null;
+        }
+
+        return $loginBonusHistory;
+    }
+
+    private function selectByType(int $sysPlayerId, string $type): ?LoginBonusHistory
+    {
+        $trxLoginBonus = $this->trxLoginBonusRepository->selectByType($sysPlayerId, $type);
+
+        return $trxLoginBonus === null ? null : LoginBonusHistoryAdapter::toDto($trxLoginBonus);
     }
 }

@@ -1,8 +1,6 @@
 <?php
 
-namespace NexusAgreement\Models;
-
-use Nexus\Core\Models\Sys\_BaseSys;
+namespace App\Models\Sys;
 
 /**
  * SysAgreement Model
@@ -40,9 +38,6 @@ class SysAgreement extends _BaseSys
         'is_required' => 'boolean',
     ];
 
-    /** @var list<string> */
-    protected $dates = ['published_at'];
-
     public function getId(): int
     {
         return (int) $this->getAttribute('id');
@@ -68,9 +63,12 @@ class SysAgreement extends _BaseSys
         return (bool) $this->getAttribute('is_required');
     }
 
+    /**
+     * 公開日時（Y-m-d H:i:s形式）
+     */
     public function getPublishedAt(): string
     {
-        return (string) $this->getAttribute('published_at');
+        return (string) $this->getDateAttributeString('published_at');
     }
 
     /**

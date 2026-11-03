@@ -2,32 +2,41 @@
 
 namespace App\Repositories\Trx;
 
+use App\Models\Trx\TrxVipLoginBonus;
+
+/**
+ * VIPログインボーナスの最新の受け取り状態（trx_vip_login_bonus）へのアクセス
+ *
+ * 対象はログイン中のプレイヤーのシャード（ApiSession が解決する）
+ */
 interface VipLoginBonusHistoryRepositoryInterface
 {
     /**
-     * VIPログインボーナス履歴を作成
+     * 最新の受け取り状態を書き換える（無ければ作る）
      *
-     * @param  array<string, mixed>  $data
-     * @return array<string, mixed>
+     * @param  string  $receivedAt  受け取り日時（Y-m-d H:i:s形式）
      */
-    public function insert(array $data, string $connectionName): array;
+    public function upsertLatest(
+        int $sysPlayerId,
+        string $mstVipLoginBonusId,
+        int $day,
+        int $vipLevel,
+        string $receivedAt,
+    ): TrxVipLoginBonus;
 
     /**
-     * プレイヤーの最新VIPログインボーナス履歴を取得
-     *
-     * @return array<string, mixed>|null
+     * プレイヤーの最新の受け取り状態を取得する（まだ受け取っていなければnull）
      */
-    public function selectLatestByPlayerId(int $sysPlayerId, string $connectionName): ?array;
+    public function selectLatestByPlayerId(int $sysPlayerId): ?TrxVipLoginBonus;
 
     /**
-     * プレイヤーとVIPログインボーナスIDと日付から履歴を取得
+     * プレイヤーの最新の受け取り状態が、指定したボーナスIDと受け取り日時のものなら返す
      *
-     * @return array<string, mixed>|null
+     * @param  string  $receivedAt  受け取り日時（Y-m-d H:i:s形式）
      */
     public function selectByPlayerAndBonusAndDate(
         int $sysPlayerId,
-        string $vipLoginBonusId,
-        string $receivedDate,
-        string $connectionName
-    ): ?array;
+        string $mstVipLoginBonusId,
+        string $receivedAt,
+    ): ?TrxVipLoginBonus;
 }

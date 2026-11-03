@@ -42,6 +42,7 @@ use App\Repositories\Mst\PlayerLevelRepositoryAdapter;
 use App\Repositories\Mst\RewardTrackMasterRepository;
 use App\Repositories\Mst\TagRepositoryAdapter;
 use App\Repositories\Mst\VipLoginBonusRepositoryInterface;
+use App\Repositories\Sys\AgreementRepositoryAdapter;
 use App\Repositories\Sys\DeployRepositoryAdapter;
 use App\Repositories\Sys\FriendApplyRepositoryAdapter;
 use App\Repositories\Sys\GuildApplyRepositoryAdapter;
@@ -51,7 +52,6 @@ use App\Repositories\Sys\PlayerRepositoryAdapter;
 use App\Repositories\Sys\SysChatMessageRepository;
 use App\Repositories\Sys\SysChatRoomMemberRepository;
 use App\Repositories\Sys\SysChatRoomRepository;
-use App\Repositories\Sys\AgreementRepository;
 use App\Repositories\Sys\SysMaintenanceRepository;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;
@@ -63,14 +63,13 @@ use App\Repositories\Trx\ItemRepositoryAdapter;
 use App\Repositories\Trx\LoginBonusHistoryRepositoryAdapter;
 use App\Repositories\Trx\MailboxRepositoryAdapter;
 use App\Repositories\Trx\MissionReceiptRepositoryAdapter;
-use NexusAgreement\Repositories\AgreementRepositoryInterface;
 use App\Repositories\Trx\ProgressRepositoryAdapter;
 use App\Repositories\Trx\StaminaRepositoryAdapter;
 use App\Repositories\Trx\TrxNotificationRepository;
 use App\Repositories\Trx\TrxRewardTrackLineRepository;
 use App\Repositories\Trx\TrxRewardTrackMilestoneRepository;
 use App\Repositories\Trx\TrxRewardTrackRepository;
-use App\Repositories\Trx\TrxVipLoginBonusHistoryRepository;
+use App\Repositories\Trx\TrxVipLoginBonusRepository;
 use App\Repositories\Trx\UnitRepositoryAdapter;
 use App\Repositories\Trx\VipLoginBonusHistoryRepositoryInterface;
 use App\Repositories\Trx\WalletBalanceRepositoryAdapter;
@@ -80,6 +79,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Nexus\Core\Repositories\PlayerDeviceRepositoryInterface;
 use Nexus\Core\Repositories\PlayerRepositoryInterface as PlayerRepoInterface;
+use NexusAgreement\Repositories\AgreementRepositoryInterface;
 use NexusAlbum\Repositories\AlbumCatalogRepositoryInterface;
 use NexusAlbum\Repositories\AlbumEntryRepositoryInterface;
 use NexusAlbum\Services\AlbumService;
@@ -194,10 +194,11 @@ class AppServiceProvider extends ServiceProvider
 
         // VIPログインボーナス用Repository
         $this->app->bind(VipLoginBonusRepositoryInterface::class, MstVipLoginBonusRepository::class);
-        $this->app->bind(VipLoginBonusHistoryRepositoryInterface::class, TrxVipLoginBonusHistoryRepository::class);
+        $this->app->bind(VipLoginBonusHistoryRepositoryInterface::class, TrxVipLoginBonusRepository::class);
 
-        // LoginBonusOrchestrator (singleton)
-        $this->app->singleton(LoginBonusOrchestrator::class);
+        // LoginBonusOrchestrator（リクエストスコープ）
+        // 登録する戦略が scoped の QueryManager を使う Repository を持つため、singleton にしない
+        $this->app->scoped(LoginBonusOrchestrator::class);
 
         // ==========================================
         // NexusVersion Package Bindings
@@ -300,7 +301,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(MissionReceiptRepositoryInterface::class, MissionReceiptRepositoryAdapter::class);
 
         // 利用規約
-        $this->app->bind(AgreementRepositoryInterface::class, AgreementRepository::class);
+        $this->app->bind(AgreementRepositoryInterface::class, AgreementRepositoryAdapter::class);
 
         // ==========================================
         // NexusResource Package Bindings

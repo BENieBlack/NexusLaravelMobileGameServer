@@ -20,7 +20,7 @@ API（api/）の接続は `api/config/database.php`、Tool（tool/）の接続�
 - ホスト名は `DB_SHARD_HOST`（既定 `db-shard`）にシャード番号を付けたもの。シャード個別に変えるときだけ `DB_SHARD{N}_HOST` などで上書きする。
 - **log 専用のDB・接続は無い**。`log_*` は対応する `trxN` と同じDBに入る（`packages/nexus-pitr/src/Logger/ShardMapper.php::resolveLogConnection()` が `trxN` → `trxN` を返す）。
 - 既定接続（`DB_CONNECTION`）は sqlite のまま。どのDBへのクエリも接続名を明示する。
-- TiDB モード（`DB_IS_TIDB=true`）ではシャード割り当てをせず常に `trx1` を使い、trx/log の単一主キー `id` を UUID に変換する（`packages/nexus-tidb`）。
+- TiDB モード（`DB_IS_TIDB=true`）ではシャード割り当てをせず常に `trx1` を使い、trx/log の単一主キー `id` を UUID に変換する（`packages/nexus-tidb`）。主キーの型と書き込みの偏りは11節。
 
 ### sys と trx の使い分け
 
@@ -91,7 +91,7 @@ API（api/）の接続は `api/config/database.php`、Tool（tool/）の接続�
 
 ### ID と主キー
 
-- sys / trx / log / adm / tol: `$table->id()`（BIGINT UNSIGNED AUTO_INCREMENT）。
+- sys / trx / log / adm / tol: `$table->id()`（BIGINT UNSIGNED AUTO_INCREMENT）。TiDB モードでは trx/log の `id` だけが UUID（VARCHAR）に変わり、sys / adm / tol と `sys_player_id` は連番のまま（11節）。
 - mst: **文字列の `id`**（`$table->string('id')->primary()`、例 `unit_knight_001`）。参照側の `mst_xxx_id` も string にする。
 - 複合主キーで一意になる trx/mst テーブルは `id` を持たなくてよい（`trx_item` = `sys_player_id, mst_item_id`、`mst_unit_level` = `rarity, level`）。Model 側は `$primaryKey` を配列にして `api/app/Traits/CompositePrimaryKeyTrait.php` を使う。
 - 主キー・ユニークキーに名前を付けるときは `pk_xxx` / `uk_xxx`。
@@ -263,3 +263,46 @@ API（api/）の接続は `api/config/database.php`、Tool（tool/）の接続�
 ### tol（Tool、`tool/database/migrations/tol/2026_01_01_000001_create_game_tables.php`）
 
 `tol_master_status`, `tol_asset_status`, `tol_banner`, `tol_cache_control`, `tol_maintenance`, `tol_notice`, `tol_dashboard_retention`, `tol_dashboard_access_cache`
+
+## 11. TiDB モードの主キーと書き込みの偏り
+
+TiDB モード（`DB_IS_TIDB=true`）で本番を動かすときに、テーブル設計で気にすること。変換の実体は `packages/nexus-tidb`。
+
+### 主キーの型
+
+| テーブル | MySQL | TiDB モード |
+|---|---|---|
+| sys / adm / tol の `id` | BIGINT UNSIGNED AUTO_INCREMENT | 同じ（変換しない） |
+| trx / log の `id`（`id` だけが主キー） | BIGINT UNSIGNED AUTO_INCREMENT | VARCHAR の UUID。AUTO_INCREMENT ではなく、値は `NexusTidb\Traits\UuidPrimaryKey` が作る |
+| trx / log の `{trxテーブル名}_id`（例 `trx_unit_id`） | BIGINT UNSIGNED | 参照先に合わせて UUID |
+| `sys_player_id`（どのテーブルでも） | BIGINT UNSIGNED | 同じ。参照先の `sys_player` が trx DB に無いので変換されない |
+| 複合主キー（`trx_item` など）、`sys_player_id` が主キー（`trx_player` など） | そのまま | 同じ |
+| mst の `id` | 文字列 | 同じ |
+
+- 変換は `convert_{trx,log}_ids_to_uuid.php` が最後に流れて行う。参照カラムは列名（`{参照先テーブル名}_id`）から見つけるので、命名規約（5節）から外れると変換が漏れる
+- `sys_player.id` は TiDB モードでも連番。プレイヤーの採番方法は MySQL と同じ
+
+### 連番の主キーで何が起きるか
+
+TiDB はデータを主キーの範囲（リージョン）ごとに分けて置く。連番のキーは新しい行が常に末尾の同じリージョンに入るため、そこに書き込みが集中する（ホットスポット）。また TiDB の AUTO_INCREMENT は一意だが単調増加を保証しないので、`id` の大小を作成順として使わない。
+
+複合主キーで行を主キー順に並べて置く（クラスタ化インデックス）場合、このリポジトリのテーブルは次のようになる。クラスタ化するかは `tidb_enable_clustered_index` とテーブル定義で決まり、既定値は TiDB のバージョンで違うので、使うバージョンで確かめる。
+
+- **読み取りには有利**: `trx_item`（`sys_player_id, mst_item_id`）は同じプレイヤーの行が隣り合うので、`queryOrMemory()` の全件読みは1回の範囲読みで済む
+- **既存プレイヤーの更新は分散する**: プレイヤーIDが範囲全体に散っているため
+- **新規プレイヤーの書き込みは末尾に集中する**: 先頭の `sys_player_id` が連番なので、新しいプレイヤーの行は常に末尾のリージョンに入る。新規プレイヤーは初期配布や序盤で書き込みが多く、リリース直後や広告で登録が急増すると詰まりやすい
+
+`id` を UUID にしたテーブル（`trx_unit` など）も、これだけでは解決しない。行そのものは散らばるが、プレイヤーの行を引くための `sys_player_id` のインデックスが連番順に並ぶので同じ偏りが出る。さらにプレイヤーの行が複数のリージョンに散るため、全件読みはインデックスを引いてから行を1件ずつ取りに行くことになり、複合主キーのテーブルより遅い。
+
+### 対処の候補
+
+| 案 | 効果 | 代わりに起きること |
+|---|---|---|
+| `sys_player.id` を `AUTO_RANDOM` にする | `sys_player_id` が先頭のすべての主キー・インデックスで偏りが消える。最も根本的 | IDが大きく作成順でない値になる。IDの大小を作成順として使っている箇所の見直しが要る。プレイヤーに見せるIDは `my_id` なので画面には影響しない |
+| `SPLIT TABLE` でリージョンを事前に分ける | 立ち上がりの集中を和らげる | 一時しのぎで、運用で面倒を見続ける |
+| 主キーを `NONCLUSTERED` にして `SHARD_ROW_ID_BITS` を付ける | 行そのものは分散する | 主キーのインデックスは連番順のままで偏りが残り、読み取りも遅くなる |
+
+- 現状はどれも入れていない。TiDB モードを本番で使うと決めたら、まず `sys_player.id` の採番を見直す
+- 新しい trx テーブルは、プレイヤーの全行を読む用途なら `id` を足さず `sys_player_id` を先頭にした複合主キーにするほうが TiDB でも読み取りが速い（5節の「複合主キーで一意になる trx テーブルは `id` を持たなくてよい」）
+- sys の新しいテーブルは書き込み頻度で判断する。プレイヤーごとにたまにしか書かないもの（引き継ぎコードや設定など）は連番の `id` のままでよい
+

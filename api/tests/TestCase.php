@@ -20,6 +20,13 @@ use Tests\Support\InMemoryMaintenanceStorage;
 
 abstract class TestCase extends BaseTestCase
 {
+    /**
+     * signUpPlayer() で作ったプレイヤー（テストの終わりに消す）
+     *
+     * @var list<int>
+     */
+    private array $signedUpPlayerIds = [];
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -45,6 +52,8 @@ abstract class TestCase extends BaseTestCase
         // Clockをリセット（各テストで独立した時刻を使用）
         ClockUtility::reset();
 
+        // 接続を閉じる前に消す（トランザクションで包むテストでは巻き戻しと同じ結果になる）
+        $this->beforeApplicationDestroyed(fn () => $this->deleteSignedUpPlayers());
         $this->beforeApplicationDestroyed(fn () => $this->releaseDatabaseConnections());
     }
 
@@ -77,6 +86,29 @@ abstract class TestCase extends BaseTestCase
 
             $connection->disconnect();
         }
+    }
+
+    /**
+     * signUpPlayer() で作ったプレイヤーの sys の行を消す
+     *
+     * UseCase を通すテストはトランザクションで包まないため、サインアップした行がDBに残る。
+     * 残ると、IDや「割り当ての無いプレイヤー」の数に頼る他のテストが実行順によって落ちる。
+     * trx の行はシャードとテストごとに違うため、各テストが自分で消す。
+     */
+    private function deleteSignedUpPlayers(): void
+    {
+        if ($this->signedUpPlayerIds === [] || $this->app['db'] instanceof MockInterface) {
+            return;
+        }
+
+        $sys = DB::connection('sys');
+
+        foreach (['sys_player_device', 'sys_player_token', 'sys_sharding_node_player'] as $table) {
+            $sys->table($table)->whereIn('sys_player_id', $this->signedUpPlayerIds)->delete();
+        }
+        $sys->table('sys_player')->whereIn('id', $this->signedUpPlayerIds)->delete();
+
+        $this->signedUpPlayerIds = [];
     }
 
     /**
@@ -123,6 +155,7 @@ abstract class TestCase extends BaseTestCase
      *
      * 認証情報はリクエスト入力ではなくアクセストークンから解決されるため、
      * エンドポイントを通しで叩くテストでは実際にサインアップする必要がある。
+     * 作ったプレイヤーの sys の行はテストの終わりに消す。
      *
      * @return array{player: SysPlayer, token: string}
      */
@@ -139,8 +172,11 @@ abstract class TestCase extends BaseTestCase
         ]);
         $response->assertOk();
 
+        $player = SysPlayer::where('my_id', $response->json('sys_player.my_id'))->firstOrFail();
+        $this->signedUpPlayerIds[] = $player->id;
+
         return [
-            'player' => SysPlayer::where('my_id', $response->json('sys_player.my_id'))->firstOrFail(),
+            'player' => $player,
             'token' => $response->json('token.access_token'),
         ];
     }

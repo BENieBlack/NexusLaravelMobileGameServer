@@ -124,7 +124,8 @@ docker compose stop
 make migrate
 
 # API - リセットして再実行（sys/mst/trx/log をすべて作り直す）
-# 既存のマイグレーションを書き換えたときはこちら
+# 既存のマイグレーションを書き換えたときはこちら。
+# 初期データも消えるので、続けて make seed を流す（無いとサインアップが error_code 605 で失敗する）
 make migrate-fresh
 
 # API - 初期データを投入

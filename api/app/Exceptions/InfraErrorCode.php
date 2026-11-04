@@ -200,6 +200,13 @@ class InfraErrorCode
      */
     public const UNSUPPORTED_VERSION = 604;
 
+    /**
+     * シャーディングの設定が無い（sys_sharding / sys_sharding_node が空、または書き込めるノードが無い）
+     *
+     * 初期データ（SysShardingSeeder）の投入漏れで起きる。サインアップができなくなる
+     */
+    public const SHARDING_NOT_CONFIGURED = 605;
+
     // ========================================
     // 汎用システムエラー (700-999)
     // ========================================

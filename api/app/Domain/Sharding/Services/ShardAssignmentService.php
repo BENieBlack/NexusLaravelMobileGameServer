@@ -3,6 +3,7 @@
 namespace App\Domain\Sharding\Services;
 
 use App\Domain\Sharding\Contracts\ShardAssignerInterface;
+use App\Exceptions\InfraErrorCode;
 use App\Models\Sys\SysSharding;
 use Illuminate\Support\Facades\DB;
 use Nexus\Core\Utilities\ClockUtility;
@@ -124,7 +125,7 @@ class ShardAssignmentService implements ShardAssignerInterface
      *
      * @return object ノード行（id, node_no を持つ）
      *
-     * @throws \RuntimeException 書き込み可能なアクティブノードが無い場合
+     * @throws \RuntimeException シャーディングの定義か書き込み可能なアクティブノードが無い場合（InfraErrorCode::SHARDING_NOT_CONFIGURED）
      */
     private function chooseNode(int $sysPlayerId): object
     {
@@ -135,7 +136,8 @@ class ShardAssignmentService implements ShardAssignerInterface
 
         if ($sharding === null) {
             throw new \RuntimeException(
-                'Active sharding definition not found: '.self::SHARDING_NAME
+                'Active sharding definition not found: '.self::SHARDING_NAME.'（初期データは make seed で入る）',
+                InfraErrorCode::SHARDING_NOT_CONFIGURED
             );
         }
 
@@ -159,7 +161,8 @@ class ShardAssignmentService implements ShardAssignerInterface
 
         if ($nodes === []) {
             throw new \RuntimeException(
-                'No writable sharding node available for: '.self::SHARDING_NAME
+                'No writable sharding node available for: '.self::SHARDING_NAME.'（初期データは make seed で入る）',
+                InfraErrorCode::SHARDING_NOT_CONFIGURED
             );
         }
 

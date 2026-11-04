@@ -9,6 +9,8 @@ use App\Models\Mst\MstGachaCost;
 use App\Repositories\Mst\MstGachaCostRepository;
 use App\Repositories\Mst\MstGachaRepository;
 use Nexus\Core\Utilities\ClockUtility;
+use NexusEvent\Constants\EventContentType;
+use NexusEvent\Services\EventPeriodResolver;
 
 /**
  * GachaValidationService
@@ -20,6 +22,7 @@ class GachaValidationService
     public function __construct(
         private readonly MstGachaRepository $mstGachaRepository,
         private readonly MstGachaCostRepository $mstGachaCostRepository,
+        private readonly EventPeriodResolver $eventPeriodResolver,
     ) {}
 
     /**
@@ -55,8 +58,11 @@ class GachaValidationService
      */
     public function validateGachaPeriod(MstGacha $mstGacha): void
     {
+        // イベントに入っているガチャは、自身の期間ではなくイベントの期間（プレイ期間）で判定する
+        $eventPeriod = $this->eventPeriodResolver->resolve(EventContentType::GACHA, (string) $mstGacha->getKey());
+
         // 開始判定: まだ開始していない（NOW < start_at）
-        $startAt = $mstGacha->getStartAt();
+        $startAt = $eventPeriod?->getStartAt() ?? $mstGacha->getStartAt();
         if ($startAt && ! ClockUtility::greaterThanOrEqual($startAt)) {
             throw new GameException(
                 GameErrorCode::GACHA_NOT_AVAILABLE,
@@ -65,7 +71,7 @@ class GachaValidationService
         }
 
         // 終了判定: すでに終了している（NOW > end_at）
-        $endAt = $mstGacha->getEndAt();
+        $endAt = $eventPeriod?->getEndAt() ?? $mstGacha->getEndAt();
         if ($endAt && ! ClockUtility::lessThanOrEqual($endAt)) {
             throw new GameException(
                 GameErrorCode::GACHA_NOT_AVAILABLE,

@@ -4,6 +4,7 @@ namespace App\Models\Sys;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * SysDeploy Model
@@ -172,7 +173,7 @@ class SysDeploy extends _BaseSys
      */
     public function isStarted(): bool
     {
-        return $this->start_at <= now();
+        return $this->start_at <= ClockUtility::now();
     }
 
     /**
@@ -204,7 +205,7 @@ class SysDeploy extends _BaseSys
     public function scopeDownloadable($query)
     {
         return $query->where('is_active', true)
-            ->where('start_at', '<=', now());
+            ->where('start_at', '<=', ClockUtility::now());
     }
 
     /**

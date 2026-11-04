@@ -4,9 +4,9 @@ namespace App\Console\Commands\Mailbox;
 
 use App\Models\Trx\TrxMailbox;
 use App\Repositories\Trx\TrxMailboxRepository;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection;
+use Nexus\Core\Utilities\ClockUtility;
 use NexusUnitOfWork\Contracts\QueryManagerInterface;
 
 /**
@@ -57,7 +57,7 @@ class DeleteExpiredCommand extends Command
         $limit = (int) $this->option('limit');
 
         $this->info('期限切れメール削除バッチを開始します');
-        $this->info('実行時刻: '.Carbon::now()->toDateTimeString());
+        $this->info('実行時刻: '.ClockUtility::now()->toDateTimeString());
 
         if ($isDryRun) {
             $this->warn('[DRY RUN モード] 実際には削除しません');
@@ -186,7 +186,7 @@ class DeleteExpiredCommand extends Command
                 ->where('is_delete', false)
                 ->where('is_protected', false)
                 ->whereNotNull('expires_at')
-                ->where('expires_at', '<=', Carbon::now())
+                ->where('expires_at', '<=', ClockUtility::now())
                 ->limit($remaining);
 
             if ($playerId !== null) {

@@ -5,6 +5,7 @@ namespace App\Repositories\Sys;
 use App\Models\Sys\SysDeploy;
 use Illuminate\Support\Facades\Cache;
 use Nexus\Core\Support\CustomCollection;
+use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * SysDeployRepository
@@ -31,7 +32,7 @@ class SysDeployRepository extends _BaseSysRepository
             function () {
                 $sysDeploy = $this->modelClass::with(['deployMaster', 'deployAsset'])
                     ->where('is_active', true)
-                    ->where('start_at', '<=', now())
+                    ->where('start_at', '<=', ClockUtility::now())
                     ->orderBy('deploy_key', 'desc')
                     ->first();
 

@@ -138,7 +138,7 @@ class SysMaintenance extends _BaseSys
      */
     public function isInProgress(): bool
     {
-        $now = now();
+        $now = ClockUtility::now();
         $hasStarted = $this->start_at <= $now;
         $hasNotEnded = $this->end_at === null || $this->end_at > $now;
 
@@ -164,7 +164,7 @@ class SysMaintenance extends _BaseSys
      */
     public function scopeInProgress($query)
     {
-        $now = now();
+        $now = ClockUtility::now();
 
         return $query->where('is_active', true)
             ->where('start_at', '<=', $now)

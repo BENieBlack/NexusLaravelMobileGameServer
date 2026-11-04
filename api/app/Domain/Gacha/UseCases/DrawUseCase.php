@@ -37,14 +37,19 @@ class DrawUseCase extends _BaseUseCase
     /**
      * ガチャ実行
      *
+     * @param  string|null  $uniqueRequestId  履歴をリクエスト単位で追うためのID（X-Unique-Request-Identifier）。無ければ振る
+     *
      * @throws \Exception
      */
     public function exec(
         int $sysPlayerId,
         string $mstGachaId,
         int $drawCount,
-        ?string $selectedCandidateId = null
+        ?string $selectedCandidateId = null,
+        ?string $uniqueRequestId = null,
     ): DrawResult {
+        $uniqueRequestId ??= (string) Str::uuid();
+
         // 1. バリデーション
         $mstGacha = $this->validationService->validateGachaMaster($mstGachaId);
         $this->validationService->validateGachaPeriod($mstGacha);
@@ -56,7 +61,8 @@ class DrawUseCase extends _BaseUseCase
             $drawCount,
             $selectedCandidateId,
             $mstGacha,
-            $cost
+            $cost,
+            $uniqueRequestId
         ) {
             // 2. 進行状況取得とリセットチェック
             $progress = $this->progressService->findOrInsertProgress($sysPlayerId, $mstGachaId);
@@ -91,7 +97,7 @@ class DrawUseCase extends _BaseUseCase
             $this->progressService->updateProgress($progress, $drawCount, $nextStep);
 
             // 9. 履歴保存
-            $this->persistHistory($sysPlayerId, $mstGachaId, $drawCount, $cost, $prizes);
+            $this->persistHistory($sysPlayerId, $mstGachaId, $drawCount, $cost, $prizes, $uniqueRequestId);
 
             // 10. 結果生成
             $nextStepInfo = null;
@@ -151,7 +157,7 @@ class DrawUseCase extends _BaseUseCase
      * @param  mixed  $cost
      * @param  array<int, array<string, mixed>>  $prizes
      */
-    private function persistHistory(int $sysPlayerId, string $mstGachaId, int $drawCount, $cost, array $prizes): void
+    private function persistHistory(int $sysPlayerId, string $mstGachaId, int $drawCount, $cost, array $prizes, string $uniqueRequestId): void
     {
         $this->historyRepository->insert([
             'sys_player_id' => $sysPlayerId,
@@ -161,7 +167,7 @@ class DrawUseCase extends _BaseUseCase
             'cost_mst_id' => $cost->getAttribute('cost_mst_id'),
             'cost_amount' => $cost->getAttribute('cost_amount'),
             'prizes' => $prizes,
-            'unique_request_id' => request()->header('X-Request-ID', (string) Str::uuid()),
+            'unique_request_id' => $uniqueRequestId,
         ]);
     }
 }

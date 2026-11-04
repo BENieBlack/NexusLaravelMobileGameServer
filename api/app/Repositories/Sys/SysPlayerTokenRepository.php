@@ -4,6 +4,7 @@ namespace App\Repositories\Sys;
 
 use App\Models\Sys\SysPlayerToken;
 use Nexus\Core\Support\CustomCollection;
+use Nexus\Core\Utilities\ClockUtility;
 use NexusAuth\Contracts\TokenRepositoryInterface;
 
 /**
@@ -49,7 +50,7 @@ class SysPlayerTokenRepository extends _BaseSysRepository implements TokenReposi
         return $this->selectWithoutCache()
             ->where('refresh_token_hash', $tokenHash)
             ->whereNull('revoked_at')
-            ->where('expires_at', '>', now())
+            ->where('expires_at', '>', ClockUtility::now())
             ->first();
     }
 
@@ -77,7 +78,7 @@ class SysPlayerTokenRepository extends _BaseSysRepository implements TokenReposi
             $this->selectWithoutCache()
                 ->where('sys_player_id', $sysPlayerId)
                 ->whereNull('revoked_at')
-                ->where('expires_at', '>', now())
+                ->where('expires_at', '>', ClockUtility::now())
                 ->get()
                 ->all()
         );
@@ -102,7 +103,7 @@ class SysPlayerTokenRepository extends _BaseSysRepository implements TokenReposi
 
         // 各トークンを個別に更新してメモリキャッシュを更新
         foreach ($sysPlayerTokenCollection as $sysPlayerToken) {
-            $sysPlayerToken->setRevokedAt(now());
+            $sysPlayerToken->setRevokedAt(ClockUtility::now());
 
             // UPDATEをキューに積む
             $this->setModel($sysPlayerToken);

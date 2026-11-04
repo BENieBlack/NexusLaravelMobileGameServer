@@ -3,7 +3,6 @@
 namespace App\Models\Trx;
 
 use App\Models\Mst\MstMailbox;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Nexus\Core\Utilities\ClockUtility;
 
@@ -262,24 +261,30 @@ class TrxMailbox extends _BaseTrx
 
     /**
      * 有効期限を設定
+     *
+     * @param  string|null  $expiresAt  Y-m-d H:i:s形式
      */
-    public function setExpiresAt(?Carbon $expiresAt): void
+    public function setExpiresAt(?string $expiresAt): void
     {
         $this->setAttribute('expires_at', $expiresAt);
     }
 
     /**
      * 既読日時を設定
+     *
+     * @param  string|null  $readAt  Y-m-d H:i:s形式
      */
-    public function setReadAt(?Carbon $readAt): void
+    public function setReadAt(?string $readAt): void
     {
         $this->setAttribute('read_at', $readAt);
     }
 
     /**
      * 受取日時を設定
+     *
+     * @param  string|null  $receivedAt  Y-m-d H:i:s形式
      */
-    public function setReceivedAt(?Carbon $receivedAt): void
+    public function setReceivedAt(?string $receivedAt): void
     {
         $this->setAttribute('received_at', $receivedAt);
     }

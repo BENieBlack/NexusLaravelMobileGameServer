@@ -48,7 +48,7 @@ class GuildMemberListResponse extends _BaseResponse
     public function toArray(): array
     {
         return [
-            'members' => $this->members,
+            'guild_member_list' => $this->members,
         ];
     }
 }

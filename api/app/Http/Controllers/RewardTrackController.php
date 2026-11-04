@@ -20,7 +20,7 @@ class RewardTrackController extends _BaseController
     /**
      * トラックサマリーを取得する
      *
-     * GET /reward-track/summary
+     * GET /reward_track/summary
      */
     public function summary(GetSummaryRequest $request, GetSummaryUseCase $useCase): JsonResponse
     {
@@ -34,7 +34,7 @@ class RewardTrackController extends _BaseController
     /**
      * マイルストーンの報酬を受け取る
      *
-     * POST /reward-track/receive
+     * POST /reward_track/receive
      */
     public function receive(ReceiveMilestoneRequest $request, ReceiveMilestoneUseCase $useCase): JsonResponse
     {

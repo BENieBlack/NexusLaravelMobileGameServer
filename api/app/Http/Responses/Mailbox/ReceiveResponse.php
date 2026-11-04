@@ -47,7 +47,7 @@ class ReceiveResponse extends _BaseResponse
         return [
             'trx_mailbox_id' => $this->trxMailboxId,
             'is_received' => $this->isReceived,
-            'received_content' => $contentArray,
+            'received_content_list' => $contentArray,
         ];
     }
 }

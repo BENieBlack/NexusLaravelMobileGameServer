@@ -342,7 +342,7 @@ class WalkthroughTest extends TestCase
 
         $response->assertOk();
 
-        $mailboxArray = $response->json('mailbox_array');
+        $mailboxArray = $response->json('mailbox_list');
 
         $this->assertIsArray($mailboxArray);
         $this->assertNotEmpty($mailboxArray);
@@ -352,7 +352,7 @@ class WalkthroughTest extends TestCase
         $this->assertSame('Welcome!', $mail['title']);
         $this->assertFalse($mail['is_opened']);
         $this->assertFalse($mail['is_received']);
-        $this->assertArrayHasKey('content_array', $mail);
+        $this->assertArrayHasKey('content_list', $mail);
     }
 
     /**
@@ -391,8 +391,8 @@ class WalkthroughTest extends TestCase
 
         $this->assertSame($this->mailId, $result['trx_mailbox_id']);
         $this->assertTrue($result['is_received']);
-        $this->assertArrayHasKey('received_content', $result);
-        $this->assertNotEmpty($result['received_content']);
+        $this->assertArrayHasKey('received_content_list', $result);
+        $this->assertNotEmpty($result['received_content_list']);
 
         // アイテムが付与されたことを確認
         $itemCount = DB::connection($this->playerConnection($this->playerId))
@@ -464,10 +464,10 @@ class WalkthroughTest extends TestCase
         // ガチャAPIは _BaseResponse::toJsonResponse() でトップレベルに返す（dataラッパー無し）
         $data = $response->json();
 
-        $this->assertArrayHasKey('prizes', $data);
-        $this->assertCount(1, $data['prizes']);
+        $this->assertArrayHasKey('prize_list', $data);
+        $this->assertCount(1, $data['prize_list']);
 
-        $result = $data['prizes'][0];
+        $result = $data['prize_list'][0];
         $this->assertArrayHasKey('content_type', $result);
         $this->assertArrayHasKey('content_mst_id', $result);
 

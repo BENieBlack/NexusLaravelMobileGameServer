@@ -12,6 +12,7 @@ use PHPUnit\Framework\TestCase;
  *
  * `*_id` はどのテーブルのどのカラムを指すか名前から分かるようにする。
  * `apply_id` のような曖昧な名前を検出する。
+ * 配列を返すキーは `_list` で終わらせ、成否は HTTP ステータスで伝えるので `success` を返さない。
  */
 class ResponseKeyNamingTest extends TestCase
 {
@@ -37,6 +38,14 @@ class ResponseKeyNamingTest extends TestCase
         // JWTのペイロードなどAPI契約以外で使う名前
         'authenticated_player_id',
         'unique_request_id',
+    ];
+
+    /**
+     * 連想配列（キーで引くオブジェクト）として返すため、_list を付けないキー
+     */
+    private const OBJECT_KEYS = [
+        // テーブル名 => ハッシュ・URL の対応表
+        'tables',
     ];
 
     #[Test]
@@ -85,14 +94,69 @@ class ResponseKeyNamingTest extends TestCase
         );
     }
 
+    #[Test]
+    public function test_array_keys_end_with_list(): void
+    {
+        $violations = [];
+
+        foreach ($this->targetFiles('Responses') as $file) {
+            $content = file_get_contents($file);
+
+            // 値が配列を作る式（array_map / array_values / コレクションの map・values・all、
+            // または *Array / *List / *Ids という名前の変数）になっているキーを拾う
+            $pattern = "/'([a-z][a-z0-9_]*)' => (?:array_map\\(|array_values\\(|\\$[a-zA-Z]*(?:Array|List|Ids)\\b|[^,\\n]*->(?:map|values|all)\\()/";
+            if (! preg_match_all($pattern, $content, $matches)) {
+                continue;
+            }
+
+            foreach (array_unique($matches[1]) as $key) {
+                if (str_ends_with($key, '_list') || in_array($key, self::OBJECT_KEYS, true)) {
+                    continue;
+                }
+
+                $violations[] = $this->relativePath($file).": '{$key}'";
+            }
+        }
+
+        sort($violations);
+
+        $this->assertSame(
+            [],
+            $violations,
+            "配列を返すキーは _list で終わらせてください:\n".
+            implode("\n", $violations)."\n".
+            "例: 'prizes' → 'prize_list'、'mailbox_array' → 'mailbox_list'\n".
+            'キーで引く連想配列として返す場合は OBJECT_KEYS に追加してください。'
+        );
+    }
+
+    #[Test]
+    public function test_responses_do_not_return_success_flag(): void
+    {
+        $violations = [];
+
+        foreach ($this->targetFiles('Responses') as $file) {
+            if (preg_match("/'(success|[a-z_]*_array)' =>/", file_get_contents($file), $m)) {
+                $violations[] = $this->relativePath($file).": '{$m[1]}'";
+            }
+        }
+
+        $this->assertSame(
+            [],
+            $violations,
+            "success は返さず、失敗は GameException（HTTP 299）で伝えてください。_array は _list にしてください:\n".
+            implode("\n", $violations)
+        );
+    }
+
     /**
      * @return list<string>
      */
-    private function targetFiles(): array
+    private function targetFiles(string ...$dirs): array
     {
         $files = [];
 
-        foreach (['Responses', 'Requests'] as $dir) {
+        foreach ($dirs === [] ? ['Responses', 'Requests'] : $dirs as $dir) {
             $base = realpath(__DIR__.'/../../app/Http/'.$dir);
             if ($base === false) {
                 continue;

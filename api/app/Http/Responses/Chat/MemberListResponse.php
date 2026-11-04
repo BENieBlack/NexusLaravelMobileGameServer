@@ -20,7 +20,7 @@ class MemberListResponse extends _BaseResponse
     public function toArray(): array
     {
         return [
-            'members' => array_map(
+            'chat_room_member_list' => array_map(
                 fn (ChatRoomMember $member): array => RoomPresenter::memberToArray($member),
                 $this->members
             ),

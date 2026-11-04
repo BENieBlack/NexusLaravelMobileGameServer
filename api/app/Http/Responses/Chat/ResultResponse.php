@@ -16,6 +16,6 @@ class ResultResponse extends _BaseResponse
      */
     public function toArray(): array
     {
-        return ['success' => true];
+        return [];
     }
 }

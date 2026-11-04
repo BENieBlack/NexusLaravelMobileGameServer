@@ -136,7 +136,7 @@ class ListResponse extends _BaseResponse
                 'created_at' => (string) $trxMailbox->getAttribute('created_at'),
 
                 // 添付物
-                'content_array' => $contentArray,
+                'content_list' => $contentArray,
                 'has_content' => count($contentArray) > 0,
             ];
         })->toArray();
@@ -160,7 +160,7 @@ class ListResponse extends _BaseResponse
     public function toArray(): array
     {
         return [
-            'mailbox_array' => $this->mailboxArray,
+            'mailbox_list' => $this->mailboxArray,
             'unread_counts' => $this->unreadCounts,
             'total_unread' => array_sum($this->unreadCounts),
         ];

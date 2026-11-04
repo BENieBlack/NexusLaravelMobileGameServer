@@ -131,7 +131,7 @@ class MailboxEndpointTest extends TestCase
             ->getJson('/api/mailbox/list');
 
         $response->assertOk();
-        $response->assertJsonPath('mailbox_array.0.trx_mailbox_id', $mailbox->id);
+        $response->assertJsonPath('mailbox_list.0.trx_mailbox_id', $mailbox->id);
     }
 
     #[Test]
@@ -146,9 +146,9 @@ class MailboxEndpointTest extends TestCase
             ->getJson('/api/mailbox/list');
 
         $response->assertOk();
-        $this->assertIsString($response->json('mailbox_array.0.expires_at'));
-        $this->assertNull($response->json('mailbox_array.0.read_at'));
-        $this->assertNull($response->json('mailbox_array.0.received_at'));
+        $this->assertIsString($response->json('mailbox_list.0.expires_at'));
+        $this->assertNull($response->json('mailbox_list.0.read_at'));
+        $this->assertNull($response->json('mailbox_list.0.received_at'));
     }
 
     #[Test]
@@ -182,7 +182,7 @@ class MailboxEndpointTest extends TestCase
         $this->withHeaders($this->authHeaders($token))
             ->getJson('/api/mailbox/list')
             ->assertOk()
-            ->assertJsonPath('mailbox_array', [])
+            ->assertJsonPath('mailbox_list', [])
             ->assertJsonPath('total_unread', 0);
     }
 

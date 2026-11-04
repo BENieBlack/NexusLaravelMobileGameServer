@@ -2,11 +2,16 @@
 
 namespace NexusGuild\Tests\Unit\Services;
 
+use Illuminate\Events\Dispatcher;
 use NexusGuild\Constants\GuildApplyStatus;
 use NexusGuild\Constants\GuildRole;
 use NexusGuild\DataTransferObjects\Guild;
 use NexusGuild\DataTransferObjects\GuildApply;
 use NexusGuild\DataTransferObjects\GuildMember;
+use NexusGuild\Events\GuildApplyAccepted;
+use NexusGuild\Events\GuildApplyRejected;
+use NexusGuild\Events\GuildApplySent;
+use NexusGuild\Events\GuildMemberLeft;
 use NexusGuild\Exceptions\GuildException;
 use NexusGuild\Repositories\GuildApplyRepositoryInterface;
 use NexusGuild\Repositories\GuildMemberRepositoryInterface;
@@ -44,16 +49,26 @@ class GuildServiceTest extends TestCase
 
     private GuildService $service;
 
+    /** @var list<object> 発行されたドメインイベント */
+    private array $dispatched = [];
+
     protected function setUp(): void
     {
         $this->guildRepository = new FakeGuildRepository;
         $this->applyRepository = new FakeGuildApplyRepository;
         $this->memberRepository = new FakeGuildMemberRepository;
 
+        $this->dispatched = [];
+        $events = new Dispatcher;
+        $events->listen('*', function (string $name, array $payload): void {
+            $this->dispatched[] = $payload[0];
+        });
+
         $this->service = new GuildService(
             $this->guildRepository,
             $this->applyRepository,
             $this->memberRepository,
+            $events,
         );
     }
 
@@ -491,6 +506,74 @@ class GuildServiceTest extends TestCase
 
         $this->expectException(GuildException::class);
         $this->service->validateGuildNotFull($this->guild(currentMembers: 31, maxMembers: 30));
+    }
+
+    // ========================================
+    // ドメインイベント（通知の発火元）
+    // ========================================
+
+    #[Test]
+    public function 加入申請を送るとマスターとサブマスターを載せたイベントを発行する(): void
+    {
+        $this->guildRepository->byId = $this->guild();
+        $this->memberRepository->byGuildId = [
+            $this->member(self::MASTER_ID, GuildRole::MASTER),
+            $this->member(5, GuildRole::SUB_MASTER),
+            $this->member(self::MEMBER_ID),
+        ];
+
+        $this->service->sendApply(self::GUILD_ID, self::APPLICANT_ID);
+
+        $this->assertCount(1, $this->dispatched);
+        $event = $this->dispatched[0];
+        $this->assertInstanceOf(GuildApplySent::class, $event);
+        $this->assertSame(self::GUILD_ID, $event->sysGuildId);
+        $this->assertSame(self::APPLICANT_ID, $event->applicantSysPlayerId);
+        $this->assertSame([self::MASTER_ID, 5], $event->officerSysPlayerIds);
+    }
+
+    #[Test]
+    public function 承認すると申請者を載せたイベントを発行する(): void
+    {
+        $this->givenPendingApply(GuildRole::MASTER);
+
+        $this->service->acceptApply(self::APPLY_ID, self::MASTER_ID);
+
+        $this->assertEquals([new GuildApplyAccepted(self::APPLY_ID, self::GUILD_ID, self::APPLICANT_ID)], $this->dispatched);
+    }
+
+    #[Test]
+    public function 却下すると申請者を載せたイベントを発行する(): void
+    {
+        $this->givenPendingApply(GuildRole::MASTER);
+
+        $this->service->rejectApply(self::APPLY_ID, self::MASTER_ID);
+
+        $this->assertEquals([new GuildApplyRejected(self::APPLY_ID, self::GUILD_ID, self::APPLICANT_ID)], $this->dispatched);
+    }
+
+    #[Test]
+    public function 脱退するとイベントを発行する(): void
+    {
+        $this->memberRepository->byPlayerId = $this->member(self::MEMBER_ID);
+
+        $this->service->leaveGuild(self::MEMBER_ID);
+
+        $this->assertEquals([new GuildMemberLeft(self::GUILD_ID, self::MEMBER_ID)], $this->dispatched);
+    }
+
+    #[Test]
+    public function 失敗した操作ではイベントを発行しない(): void
+    {
+        $this->memberRepository->byPlayerId = $this->member(self::MASTER_ID, GuildRole::MASTER);
+
+        try {
+            $this->service->leaveGuild(self::MASTER_ID);
+            $this->fail('マスターの脱退は失敗するはず');
+        } catch (GuildException) {
+        }
+
+        $this->assertSame([], $this->dispatched);
     }
 
     /**

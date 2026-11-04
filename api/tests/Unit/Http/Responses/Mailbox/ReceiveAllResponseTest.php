@@ -41,7 +41,7 @@ class ReceiveAllResponseTest extends TestCase
                 ['type' => 'item', 'id' => 'item_potion', 'amount' => 3],
                 ['type' => 'diamond', 'id' => 'diamond', 'amount' => 100],
             ],
-            $array['delivery_contents'],
+            $array['delivery_content_list'],
         );
     }
 
@@ -76,7 +76,7 @@ class ReceiveAllResponseTest extends TestCase
             deliveryContents: [],
         );
 
-        $this->assertArrayNotHasKey('delivery_contents', $response->toArray());
+        $this->assertArrayNotHasKey('delivery_content_list', $response->toArray());
     }
 
     #[Test]
@@ -94,9 +94,10 @@ class ReceiveAllResponseTest extends TestCase
 
         $array = $response->toArray();
 
-        $this->assertSame([1, 2], $array['received_mailbox_ids']);
+        $this->assertSame([1, 2], $array['received_trx_mailbox_id_list']);
         $this->assertSame(2, $array['total_count']);
-        $this->assertTrue($array['success']);
+        // 成否は HTTP ステータスで伝えるので success は返さない
+        $this->assertArrayNotHasKey('success', $array);
     }
 
     #[Test]
@@ -114,8 +115,8 @@ class ReceiveAllResponseTest extends TestCase
 
         $this->assertArrayHasKey('delivery_summary', $array);
         $this->assertSame(1, $array['delivery_summary']['total_count']);
-        $this->assertCount(1, $array['delivery_summary']['results']);
-        $this->assertArrayHasKey('resource', $array['delivery_summary']['results'][0]);
+        $this->assertCount(1, $array['delivery_summary']['result_list']);
+        $this->assertArrayHasKey('resource', $array['delivery_summary']['result_list'][0]);
     }
 
     #[Test]
@@ -132,7 +133,7 @@ class ReceiveAllResponseTest extends TestCase
         $array = $response->toArray();
 
         $this->assertArrayNotHasKey('delivery_summary', $array);
-        $this->assertFalse($array['success']);
+        $this->assertSame(0, $array['total_count']);
     }
 
     private function makeSummary(): ResourceDeliverySummary

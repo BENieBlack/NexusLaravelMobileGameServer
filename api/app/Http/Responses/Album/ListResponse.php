@@ -44,11 +44,11 @@ class ListResponse extends _BaseResponse
     public function toArray(): array
     {
         return [
-            'album_entry_array' => array_map(
+            'album_entry_list' => array_map(
                 fn (AlbumEntry $albumEntry) => $albumEntry->toArray(),
                 $this->albumEntries,
             ),
-            'progress_array' => array_map(
+            'progress_list' => array_map(
                 fn (AlbumProgress $albumProgress) => $albumProgress->toArray(),
                 $this->albumProgressList,
             ),

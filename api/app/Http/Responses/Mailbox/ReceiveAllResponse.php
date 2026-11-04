@@ -50,15 +50,14 @@ class ReceiveAllResponse extends _BaseResponse
     public function toArray(): array
     {
         $response = [
-            'received_mailbox_ids' => $this->receivedMailboxIds,
+            'received_trx_mailbox_id_list' => $this->receivedMailboxIds,
             'total_count' => $this->totalCount,
             'skipped_count' => $this->skippedCount,
-            'success' => $this->totalCount > 0,
         ];
 
         // 配送内容を追加
         if (count($this->deliveryContents) > 0) {
-            $response['delivery_contents'] = array_map(function (Resource $content) {
+            $response['delivery_content_list'] = array_map(function (Resource $content) {
                 return [
                     'type' => $content->getTypeValue(),
                     'id' => $content->getId(),
@@ -71,7 +70,7 @@ class ReceiveAllResponse extends _BaseResponse
         if ($this->deliverySummary !== null) {
             $response['delivery_summary'] = [
                 'total_count' => $this->deliverySummary->getTotalCount(),
-                'results' => $this->deliverySummary->getContents()
+                'result_list' => $this->deliverySummary->getContents()
                     ->map(fn (ResourceDeliveryContent $content) => $content->toArray())
                     ->values()
                     ->all(),

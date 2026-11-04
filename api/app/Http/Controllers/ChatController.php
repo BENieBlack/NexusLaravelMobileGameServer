@@ -70,7 +70,7 @@ class ChatController extends _BaseController
     /**
      * 参加中のルーム一覧
      *
-     * GET /chat/rooms
+     * GET /chat/room/list
      */
     public function rooms(RoomsRequest $request, RoomsUseCase $useCase): JsonResponse
     {
@@ -82,7 +82,7 @@ class ChatController extends _BaseController
     /**
      * メッセージ履歴の取得
      *
-     * GET /chat/messages
+     * GET /chat/message/list
      */
     public function messages(MessagesRequest $request, MessagesUseCase $useCase): JsonResponse
     {
@@ -216,7 +216,7 @@ class ChatController extends _BaseController
     /**
      * グループチャットのメンバー一覧
      *
-     * GET /chat/group/members
+     * GET /chat/group/member/list
      */
     public function groupMembers(RoomRequest $request, GroupMembersUseCase $useCase): JsonResponse
     {

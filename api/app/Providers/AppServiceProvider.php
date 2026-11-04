@@ -16,6 +16,12 @@ use App\Domain\Login\Services\ComeBackLoginBonusService;
 use App\Domain\Login\Services\LoginBonusService;
 use App\Domain\Login\Services\VipLoginBonusService;
 use App\Domain\Mission\Listeners\RecordMissionProgressOnUnitLevelUp;
+use App\Domain\Notification\Listeners\NotifyOnFriendApplyAccepted;
+use App\Domain\Notification\Listeners\NotifyOnFriendApplySent;
+use App\Domain\Notification\Listeners\NotifyOnGuildApplyAccepted;
+use App\Domain\Notification\Listeners\NotifyOnGuildApplyRejected;
+use App\Domain\Notification\Listeners\NotifyOnGuildApplySent;
+use App\Domain\Notification\Listeners\NotifyOnGuildMemberLeft;
 use App\Domain\Player\Services\ExperienceGranterAdapter;
 use App\Domain\Player\Services\PlayerLevelServiceAdapter;
 use App\Domain\Sharding\Contracts\ShardAssignerInterface;
@@ -97,6 +103,8 @@ use NexusAuth\Services\TokenValidator;
 use NexusChat\Contracts\ChatMessageRepositoryInterface;
 use NexusChat\Contracts\ChatRoomMemberRepositoryInterface;
 use NexusChat\Contracts\ChatRoomRepositoryInterface;
+use NexusFriend\Events\FriendApplyAccepted;
+use NexusFriend\Events\FriendApplySent;
 use NexusFriend\Repositories\FriendApplyRepositoryInterface;
 use NexusGacha\Repositories\GachaPrizeRepositoryInterface;
 use NexusGacha\Repositories\GachaProgressRepositoryInterface;
@@ -104,6 +112,10 @@ use NexusGacha\Repositories\GachaRarityRateRepositoryInterface;
 use NexusGacha\Repositories\GachaStepBonusContentRepositoryInterface;
 use NexusGacha\Repositories\GachaStepBonusRepositoryInterface;
 use NexusGacha\Repositories\GachaStepRepositoryInterface;
+use NexusGuild\Events\GuildApplyAccepted;
+use NexusGuild\Events\GuildApplyRejected;
+use NexusGuild\Events\GuildApplySent;
+use NexusGuild\Events\GuildMemberLeft;
 use NexusGuild\Repositories\GuildApplyRepositoryInterface;
 use NexusGuild\Repositories\GuildMemberRepositoryInterface;
 use NexusGuild\Repositories\GuildRepositoryInterface;
@@ -444,6 +456,15 @@ class AppServiceProvider extends ServiceProvider
         // ドメインイベントの受け手（同期・同一UnitOfWork内で処理する）
         Event::listen(PlayerLeveledUp::class, RecoverStaminaOnPlayerLevelUp::class);
         Event::listen(UnitLeveledUp::class, RecordMissionProgressOnUnitLevelUp::class);
+
+        // 通知の受け手。受け手は別のシャードにいることがあるため、
+        // リスナー自体は同期で受け、書き込みはコミット後に動くキューのジョブへ渡す
+        Event::listen(FriendApplySent::class, NotifyOnFriendApplySent::class);
+        Event::listen(FriendApplyAccepted::class, NotifyOnFriendApplyAccepted::class);
+        Event::listen(GuildApplySent::class, NotifyOnGuildApplySent::class);
+        Event::listen(GuildApplyAccepted::class, NotifyOnGuildApplyAccepted::class);
+        Event::listen(GuildApplyRejected::class, NotifyOnGuildApplyRejected::class);
+        Event::listen(GuildMemberLeft::class, NotifyOnGuildMemberLeft::class);
 
         // Load migrations from subdirectories
         $this->loadMigrationsFrom([

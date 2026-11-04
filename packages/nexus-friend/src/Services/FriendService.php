@@ -2,8 +2,11 @@
 
 namespace NexusFriend\Services;
 
+use Illuminate\Contracts\Events\Dispatcher;
 use NexusFriend\Constants\FriendStatus;
 use NexusFriend\DataTransferObjects\FriendApply;
+use NexusFriend\Events\FriendApplyAccepted;
+use NexusFriend\Events\FriendApplySent;
 use NexusFriend\Exceptions\FriendException;
 use NexusFriend\Repositories\FriendApplyRepositoryInterface;
 
@@ -16,6 +19,7 @@ class FriendService
 {
     public function __construct(
         private readonly FriendApplyRepositoryInterface $repository,
+        private readonly ?Dispatcher $events = null,
     ) {}
 
     /**
@@ -132,7 +136,11 @@ class FriendService
         $this->validateNotSelfApply($senderPlayerId, $receiverPlayerId);
         $this->validateNoDuplicateApply($senderPlayerId, $receiverPlayerId);
 
-        return $this->repository->insert($senderPlayerId, $receiverPlayerId);
+        $apply = $this->repository->insert($senderPlayerId, $receiverPlayerId);
+
+        $this->events?->dispatch(new FriendApplySent($apply->getId(), $senderPlayerId, $receiverPlayerId));
+
+        return $apply;
     }
 
     /**
@@ -154,7 +162,15 @@ class FriendService
         $this->validateReceiverAuthorization($apply, $currentPlayerId);
         $this->validateCanAccept($apply);
 
-        return $this->repository->accept($apply);
+        $accepted = $this->repository->accept($apply);
+
+        $this->events?->dispatch(new FriendApplyAccepted(
+            $accepted->getId(),
+            $accepted->getSenderPlayerId(),
+            $accepted->getReceiverPlayerId(),
+        ));
+
+        return $accepted;
     }
 
     /**

@@ -56,7 +56,7 @@ class ListResponse extends _BaseResponse
     public function toArray(): array
     {
         return [
-            'friends' => $this->friends,
+            'friend_list' => $this->friends,
         ];
     }
 }

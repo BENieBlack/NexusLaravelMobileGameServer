@@ -48,7 +48,7 @@ class GuildApplyListResponse extends _BaseResponse
     public function toArray(): array
     {
         return [
-            'applies' => $this->applies,
+            'guild_apply_list' => $this->applies,
         ];
     }
 }

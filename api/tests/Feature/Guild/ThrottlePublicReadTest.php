@@ -40,7 +40,7 @@ class ThrottlePublicReadTest extends TestCase
         $response = $this->getJson('/api/guild/list');
 
         $response->assertStatus(200);
-        $response->assertJsonStructure(['guilds']);
+        $response->assertJsonStructure(['guild_list']);
     }
 
     #[Test]

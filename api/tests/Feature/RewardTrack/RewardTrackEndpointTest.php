@@ -73,7 +73,7 @@ class RewardTrackEndpointTest extends TestCase
     public function 進捗が無くてもサマリーを取得できる(): void
     {
         $response = $this->getJson(
-            '/api/reward-track/summary?mst_reward_track_id='.self::TRACK_ID,
+            '/api/reward_track/summary?mst_reward_track_id='.self::TRACK_ID,
             $this->authHeaders($this->token)
         );
 
@@ -90,17 +90,17 @@ class RewardTrackEndpointTest extends TestCase
         $this->makeProgress(15);
 
         $response = $this->getJson(
-            '/api/reward-track/summary?mst_reward_track_id='.self::TRACK_ID,
+            '/api/reward_track/summary?mst_reward_track_id='.self::TRACK_ID,
             $this->authHeaders($this->token)
         );
 
         $response->assertOk();
         $this->assertSame(15, $response->json('current_progress'));
-        $this->assertCount(2, $response->json('milestones'));
-        $this->assertSame(self::MILESTONE_10, $response->json('milestones.0.id'));
+        $this->assertCount(2, $response->json('milestone_list'));
+        $this->assertSame(self::MILESTONE_10, $response->json('milestone_list.0.id'));
         // マイルストーンにはライン別の報酬がぶら下がる
-        $this->assertArrayHasKey(self::FREE_LINE_ID, $response->json('milestones.0.contents'));
-        $this->assertArrayHasKey(self::PAID_LINE_ID, $response->json('milestones.0.contents'));
+        $this->assertArrayHasKey(self::FREE_LINE_ID, $response->json('milestone_list.0.contents'));
+        $this->assertArrayHasKey(self::PAID_LINE_ID, $response->json('milestone_list.0.contents'));
     }
 
     #[Test]
@@ -109,7 +109,7 @@ class RewardTrackEndpointTest extends TestCase
         $this->makeOwnedLine(self::PAID_LINE_ID);
 
         $response = $this->getJson(
-            '/api/reward-track/summary?mst_reward_track_id='.self::TRACK_ID,
+            '/api/reward_track/summary?mst_reward_track_id='.self::TRACK_ID,
             $this->authHeaders($this->token)
         );
 
@@ -124,7 +124,7 @@ class RewardTrackEndpointTest extends TestCase
         $this->receive(self::MILESTONE_10, self::FREE_LINE_ID)->assertOk();
 
         $response = $this->getJson(
-            '/api/reward-track/summary?mst_reward_track_id='.self::TRACK_ID,
+            '/api/reward_track/summary?mst_reward_track_id='.self::TRACK_ID,
             $this->authHeaders($this->token)
         );
 
@@ -136,7 +136,7 @@ class RewardTrackEndpointTest extends TestCase
     public function 存在しないトラックのサマリーは業務エラーで返る(): void
     {
         $response = $this->getJson(
-            '/api/reward-track/summary?mst_reward_track_id=not_exist',
+            '/api/reward_track/summary?mst_reward_track_id=not_exist',
             $this->authHeaders($this->token)
         );
 
@@ -147,7 +147,7 @@ class RewardTrackEndpointTest extends TestCase
     #[Test]
     public function 認証なしではサマリーを取得できない(): void
     {
-        $this->getJson('/api/reward-track/summary?mst_reward_track_id='.self::TRACK_ID)
+        $this->getJson('/api/reward_track/summary?mst_reward_track_id='.self::TRACK_ID)
             ->assertUnauthorized();
     }
 
@@ -226,7 +226,7 @@ class RewardTrackEndpointTest extends TestCase
     #[Test]
     public function 認証なしでは受け取れない(): void
     {
-        $this->postJson('/api/reward-track/receive', [
+        $this->postJson('/api/reward_track/receive', [
             'mst_reward_track_milestone_id' => self::MILESTONE_10,
             'mst_reward_track_line_id' => self::FREE_LINE_ID,
         ])->assertUnauthorized();
@@ -237,7 +237,7 @@ class RewardTrackEndpointTest extends TestCase
     #[Test]
     public function 必須パラメータが無いリクエストは弾く(): void
     {
-        $this->postJson('/api/reward-track/receive', [], $this->authHeaders($this->token))
+        $this->postJson('/api/reward_track/receive', [], $this->authHeaders($this->token))
             ->assertUnprocessable();
     }
 
@@ -247,7 +247,7 @@ class RewardTrackEndpointTest extends TestCase
 
     private function receive(string $milestoneId, string $lineId): TestResponse
     {
-        return $this->postJson('/api/reward-track/receive', [
+        return $this->postJson('/api/reward_track/receive', [
             'mst_reward_track_milestone_id' => $milestoneId,
             'mst_reward_track_line_id' => $lineId,
         ], $this->authHeaders($this->token));

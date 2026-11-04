@@ -2,6 +2,8 @@
 
 namespace NexusNotification\Services;
 
+use Illuminate\Contracts\Events\Dispatcher;
+use Nexus\Core\Utilities\ClockUtility;
 use NexusNotification\Constants\NotificationType;
 use NexusNotification\Contracts\NotificationDispatcherInterface;
 use NexusNotification\Contracts\NotificationRepositoryInterface;
@@ -32,6 +34,7 @@ class NotificationService
     public function __construct(
         private readonly NotificationRepositoryInterface $repository,
         private readonly ?NotificationDispatcherInterface $dispatcher = null,
+        private readonly ?Dispatcher $events = null,
     ) {}
 
     /**
@@ -63,9 +66,9 @@ class NotificationService
         // リアルタイム配送（Reverbなど）が設定されていれば配送する
         $this->dispatcher?->dispatch($notification);
 
-        // ドメインイベント発火（Laravelのイベントシステムへ委譲）
-        // Application層がListenerを登録して追加処理（FCMプッシュ等）を行う
-        event(new NotificationCreated($notification));
+        // NotificationCreated は ShouldBroadcast なので、Reverb へのブロードキャストもここで積まれる。
+        // Application層がListenerを登録して追加処理（FCMプッシュ等）を行うこともできる
+        $this->events?->dispatch(new NotificationCreated($notification));
 
         return $notification;
     }
@@ -148,10 +151,10 @@ class NotificationService
             payload: $payload,
             isRead: false,
             readAt: null,
-            createdAt: now()->format('Y-m-d H:i:s'),
+            createdAt: ClockUtility::nowToString(),
         );
 
         // presence-guild.{guild_id} チャンネルへブロードキャスト
-        event(new GuildNotificationBroadcast($guildId, $notification));
+        $this->events?->dispatch(new GuildNotificationBroadcast($guildId, $notification));
     }
 }

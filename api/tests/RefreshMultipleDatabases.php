@@ -3,6 +3,7 @@
 namespace Tests;
 
 use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Foundation\Testing\DatabaseTransactionsManager;
 
 trait RefreshMultipleDatabases
 {
@@ -272,10 +273,18 @@ trait RefreshMultipleDatabases
     public function beginDatabaseTransaction(): void
     {
         $database = $this->app->make('db');
+        $connectionNames = array_keys($this->connectionsToMigrate());
+
+        // テストを包むトランザクションを数えない管理クラスに差し替える。
+        // 差し替えないと、コード側のトランザクションをコミットしても外側が残るため、
+        // afterCommit のジョブ（通知など）がいつまでも動かない（RefreshDatabase と同じ処理）
+        $transactionsManager = new DatabaseTransactionsManager($connectionNames);
+        $this->app->instance('db.transactions', $transactionsManager);
 
         // Start transaction for all connections
-        foreach (array_keys($this->connectionsToMigrate()) as $connectionName) {
+        foreach ($connectionNames as $connectionName) {
             $connection = $database->connection($connectionName);
+            $connection->setTransactionManager($transactionsManager);
             $dispatcher = $connection->getEventDispatcher();
             $connection->unsetEventDispatcher();
             $connection->beginTransaction();

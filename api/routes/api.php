@@ -151,7 +151,7 @@ Route::middleware('maintenance')->group(function () {
         // Chat endpoints
         // フレンドDM
         Route::post('/chat/friend/room', [ChatController::class, 'friendRoom']);
-        Route::get('/chat/messages', [ChatController::class, 'messages']);
+        Route::get('/chat/message/list', [ChatController::class, 'messages']);
         Route::post('/chat/message/send', [ChatController::class, 'send']);
         Route::post('/chat/message/delete', [ChatController::class, 'deleteMessage']);
         // グループチャット
@@ -160,18 +160,18 @@ Route::middleware('maintenance')->group(function () {
         Route::post('/chat/group/kick', [ChatController::class, 'kick']);
         Route::post('/chat/group/leave', [ChatController::class, 'leaveGroup']);
         Route::post('/chat/group/role', [ChatController::class, 'changeRole']);
-        Route::get('/chat/group/members', [ChatController::class, 'groupMembers']);
+        Route::get('/chat/group/member/list', [ChatController::class, 'groupMembers']);
         // ギルドチャット
         Route::post('/chat/guild/room', [ChatController::class, 'guildRoom']);
         // 参加中ルーム一覧
-        Route::get('/chat/rooms', [ChatController::class, 'rooms']);
+        Route::get('/chat/room/list', [ChatController::class, 'rooms']);
 
         // =========================================
         // RewardTrack（バトルパス型報酬トラック）
         // =========================================
         // プレイヤーの進捗と報酬を扱うため auth.token が要る。
         // receive は配布を伴うので idempotency も外せない
-        Route::prefix('reward-track')->group(function () {
+        Route::prefix('reward_track')->group(function () {
             // トラックサマリー取得（進捗・所持ライン・受け取り済みマイルストーン）
             Route::get('/summary', [RewardTrackController::class, 'summary']);
             // マイルストーンの報酬を受け取る
@@ -179,12 +179,4 @@ Route::middleware('maintenance')->group(function () {
         });
     });
 
-    // Legacy signup endpoint (DEPRECATED - use /auth/signup instead)
-    // このエンドポイントは後方互換性のために残されています
-    // 新規実装では /auth/signup を使用してください
-    // 将来のバージョンで削除される予定です
-    Route::middleware(['client.signature', 'throttle.signup'])->group(function () {
-        // DEPRECATED: 2026-08-01 - Use /auth/signup instead
-        Route::post('/signup', [AuthController::class, 'signUp']);
-    });
 });

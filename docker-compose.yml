@@ -22,6 +22,28 @@ services:
     networks:
       - local-network
 
+  # キューのワーカー。通知の保存（SendNotificationJob）と Reverb へのブロードキャストを処理する
+  api-queue:
+    build:
+      context: ./docker/api-php
+      dockerfile: Dockerfile
+    container_name: api-queue
+    working_dir: /var/www/html
+    command: ["php", "artisan", "queue:work", "--tries=3", "--backoff=5"]
+    volumes:
+      - ./api:/var/www/html
+      - ./packages:/var/www/packages
+      - ./.env:/var/www/.env:ro
+    environment:
+      - CLIENT_SECRET=${CLIENT_SECRET}
+      - DB_SHARD_COUNT=${DB_SHARD_COUNT:-2}
+    depends_on:
+      - redis
+      - api-reverb
+    restart: unless-stopped
+    networks:
+      - local-network
+
   api-php:
     build:
       context: ./docker/api-php

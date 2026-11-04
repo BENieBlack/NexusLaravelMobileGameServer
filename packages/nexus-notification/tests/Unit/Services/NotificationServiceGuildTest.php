@@ -26,6 +26,8 @@ class NotificationServiceGuildTest extends TestCase
 
     private NotificationRepositoryInterface $repository;
 
+    private Dispatcher $events;
+
     /** @var list<GuildNotificationBroadcast> 発火したギルドブロードキャストイベント */
     private array $dispatchedEvents = [];
 
@@ -33,7 +35,8 @@ class NotificationServiceGuildTest extends TestCase
     {
         parent::setUp();
 
-        // event() ヘルパを最小限のコンテナで動かす
+        // イベントは NotificationService が受け取った Dispatcher へ発行される。
+        // Laravelアプリを立ち上げないので、最小限のコンテナで本物の Dispatcher を作る
         $this->dispatchedEvents = [];
         $container = new Container;
         $dispatcher = new Dispatcher($container);
@@ -41,23 +44,21 @@ class NotificationServiceGuildTest extends TestCase
             $this->dispatchedEvents[] = $event;
         });
         $container->instance('events', $dispatcher);
+        $this->events = $dispatcher;
 
         // GuildNotificationBroadcast は ShouldBroadcast を実装しているため、
-        // event() 発火時に Broadcasting\Factory の解決が走る。
+        // 発行時に Broadcasting\Factory の解決が走る。
         // テストではブロードキャスト自体は不要なので何もしないスタブを差し込む。
         $broadcastManager = Mockery::mock(BroadcastFactory::class);
         $broadcastManager->shouldReceive('queue')->andReturnNull();
         $container->instance(BroadcastFactory::class, $broadcastManager);
         $container->instance('broadcast', $broadcastManager);
 
-        Container::setInstance($container);
-
         $this->repository = Mockery::mock(NotificationRepositoryInterface::class);
     }
 
     protected function tearDown(): void
     {
-        Container::setInstance(null);
         Mockery::close();
         parent::tearDown();
     }
@@ -65,7 +66,7 @@ class NotificationServiceGuildTest extends TestCase
     #[Test]
     public function notify_guild_は_guild_notification_broadcastイベントを発火する(): void
     {
-        $service = new NotificationService($this->repository);
+        $service = new NotificationService($this->repository, null, $this->events);
 
         $service->notifyGuild(
             guildId: 1,
@@ -80,7 +81,7 @@ class NotificationServiceGuildTest extends TestCase
     #[Test]
     public function notify_guild_イベントのguild_idが正しい(): void
     {
-        $service = new NotificationService($this->repository);
+        $service = new NotificationService($this->repository, null, $this->events);
 
         $service->notifyGuild(
             guildId: 42,
@@ -95,7 +96,7 @@ class NotificationServiceGuildTest extends TestCase
     #[Test]
     public function notify_guild_イベントのnotification_typeが正しい(): void
     {
-        $service = new NotificationService($this->repository);
+        $service = new NotificationService($this->repository, null, $this->events);
 
         $service->notifyGuild(
             guildId: 1,
@@ -111,7 +112,7 @@ class NotificationServiceGuildTest extends TestCase
     #[Test]
     public function notify_guild_イベントのtitleとbodyが正しい(): void
     {
-        $service = new NotificationService($this->repository);
+        $service = new NotificationService($this->repository, null, $this->events);
 
         $service->notifyGuild(
             guildId: 1,
@@ -128,7 +129,7 @@ class NotificationServiceGuildTest extends TestCase
     #[Test]
     public function notify_guild_payloadを渡せる(): void
     {
-        $service = new NotificationService($this->repository);
+        $service = new NotificationService($this->repository, null, $this->events);
 
         $service->notifyGuild(
             guildId: 1,
@@ -147,7 +148,7 @@ class NotificationServiceGuildTest extends TestCase
         // repository の insert が呼ばれないことを確認する
         $this->repository->shouldNotReceive('insert');
 
-        (new NotificationService($this->repository))->notifyGuild(
+        (new NotificationService($this->repository, null, $this->events))->notifyGuild(
             guildId: 1,
             type: NotificationType::GUILD_MEMBER_JOINED,
             title: 'メンバーが加入しました',

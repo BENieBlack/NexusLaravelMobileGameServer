@@ -80,7 +80,7 @@ class ApplyListResponse extends _BaseResponse
     public function toArray(): array
     {
         return [
-            'applies' => $this->applies,
+            'friend_apply_list' => $this->applies,
         ];
     }
 }

@@ -58,6 +58,7 @@
 - キーはスネークケース
 - モデルのデータはテーブル名をキーにする（`sys_player`, `trx_unit_list`）。モデルの配列化は `toResponseArray()` を使う（[coding-standards.md](./coding-standards.md) 参照）
 - 配列のキーには `_list` を付ける（`trx_item_list`, `login_bonus_list`, `owned_line_id_list`）。`api/app/Http/Responses/Auth/LoginResponse.php` が見本
+- 成否を表す `success` は返さない。失敗は `GameException`（HTTP 299）で伝える。`_list` と `success` は `api/tests/Architecture/ResponseKeyNamingTest.php` が検査する。キーで引く連想配列（`tables` など）は同テストの `OBJECT_KEYS` に足す
 - `CheckMasterHash` は 200 のレスポンスにだけ `X-Master-Update-Required: true` を付ける。ボディは変えない
 
 ## エラーの形式
@@ -146,6 +147,5 @@
 一覧は `api/routes/api.php` を見る。分類は次のとおり。
 
 - 認証不要: `auth`（sign_up / sign_in / refresh_token / version）、`account` の引き継ぎ（transfer_code/transfer / external/transfer）、`maintenance/status`、`guild` の参照系
-- ログイン後: `auth`（version / login）、`account`（引き継ぎコードの発行、外部アカウントの一覧・紐付け・解除）、`player`、`in_app_purchase`、`item`、`unit`、`equipment`、`friend`、`album`、`guild`、`mailbox`、`gacha`、`notification`、`chat`、`reward-track`、`mission`、`trade`
+- ログイン後: `auth`（version / login）、`account`（引き継ぎコードの発行、外部アカウントの一覧・紐付け・解除）、`player`、`in_app_purchase`、`item`、`unit`、`equipment`、`friend`、`album`、`guild`、`mailbox`、`gacha`、`notification`、`chat`、`reward_track`、`mission`、`trade`
 - 管理用: `admin/maintenance/*`（`auth.admin`）
-- 非推奨: `POST /signup`（`/auth/sign_up` と同じ処理）

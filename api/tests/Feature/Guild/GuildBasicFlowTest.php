@@ -182,7 +182,7 @@ class GuildBasicFlowTest extends TestCase
 
         $response->assertOk();
         $response->assertJsonStructure([
-            'guilds' => [
+            'guild_list' => [
                 '*' => [
                     'sys_guild_id',
                     'name',
@@ -196,7 +196,7 @@ class GuildBasicFlowTest extends TestCase
             ],
         ]);
 
-        $guilds = $response->json('guilds');
+        $guilds = $response->json('guild_list');
         $this->assertCount(3, $guilds);
     }
 
@@ -312,7 +312,7 @@ class GuildBasicFlowTest extends TestCase
 
         $response->assertOk();
         $response->assertJsonStructure([
-            'members' => [
+            'guild_member_list' => [
                 '*' => [
                     'sys_guild_member_id',
                     'sys_guild_id',
@@ -323,7 +323,7 @@ class GuildBasicFlowTest extends TestCase
             ],
         ]);
 
-        $members = $response->json('members');
+        $members = $response->json('guild_member_list');
         $this->assertCount(3, $members);
 
         // 役職を確認

@@ -2,11 +2,16 @@
 
 namespace NexusGuild\Services;
 
+use Illuminate\Contracts\Events\Dispatcher;
 use NexusGuild\Constants\GuildApplyStatus;
 use NexusGuild\Constants\GuildRole;
 use NexusGuild\DataTransferObjects\Guild;
 use NexusGuild\DataTransferObjects\GuildApply;
 use NexusGuild\DataTransferObjects\GuildMember;
+use NexusGuild\Events\GuildApplyAccepted;
+use NexusGuild\Events\GuildApplyRejected;
+use NexusGuild\Events\GuildApplySent;
+use NexusGuild\Events\GuildMemberLeft;
 use NexusGuild\Exceptions\GuildException;
 use NexusGuild\Repositories\GuildApplyRepositoryInterface;
 use NexusGuild\Repositories\GuildMemberRepositoryInterface;
@@ -23,6 +28,7 @@ class GuildService
         private readonly GuildRepositoryInterface $guildRepository,
         private readonly GuildApplyRepositoryInterface $applyRepository,
         private readonly GuildMemberRepositoryInterface $memberRepository,
+        private readonly ?Dispatcher $events = null,
     ) {}
 
     /**
@@ -196,7 +202,20 @@ class GuildService
         $this->validateNoDuplicateApply($guildId, $playerId);
         $this->validateGuildNotFull($guild);
 
-        return $this->applyRepository->insert($guildId, $playerId);
+        $apply = $this->applyRepository->insert($guildId, $playerId);
+
+        if ($this->events !== null) {
+            $officerIds = [];
+            foreach ($this->memberRepository->selectByGuildId($guildId) as $member) {
+                if (in_array($member->getRole(), [GuildRole::MASTER, GuildRole::SUB_MASTER], true)) {
+                    $officerIds[] = $member->getSysPlayerId();
+                }
+            }
+
+            $this->events->dispatch(new GuildApplySent($apply->getId(), $guildId, $playerId, $officerIds));
+        }
+
+        return $apply;
     }
 
     /**
@@ -241,6 +260,8 @@ class GuildService
         $accepted = $this->applyRepository->accept($apply);
         $this->memberRepository->insert($apply->getSysGuildId(), $apply->getSysPlayerId(), GuildRole::MEMBER);
 
+        $this->events?->dispatch(new GuildApplyAccepted($accepted->getId(), $accepted->getSysGuildId(), $accepted->getSysPlayerId()));
+
         return $accepted;
     }
 
@@ -270,7 +291,11 @@ class GuildService
         $this->validateMasterOrSubMasterPermission($rejecterMember, 'reject guild apply');
         $this->validateCanReject($apply);
 
-        return $this->applyRepository->reject($apply);
+        $rejected = $this->applyRepository->reject($apply);
+
+        $this->events?->dispatch(new GuildApplyRejected($rejected->getId(), $rejected->getSysGuildId(), $rejected->getSysPlayerId()));
+
+        return $rejected;
     }
 
     /**
@@ -291,6 +316,8 @@ class GuildService
 
         $this->memberRepository->delete($member);
         $this->applyRepository->deleteByPlayerId($playerId);
+
+        $this->events?->dispatch(new GuildMemberLeft($member->getSysGuildId(), $playerId));
     }
 
     /**

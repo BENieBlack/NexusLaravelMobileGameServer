@@ -14,7 +14,6 @@ class LockResponse extends _BaseResponse
     public function __construct(
         private int $trxMailboxId,
         private bool $isLocked,
-        private bool $success,
     ) {}
 
     /**
@@ -25,7 +24,6 @@ class LockResponse extends _BaseResponse
         return [
             'trx_mailbox_id' => $this->trxMailboxId,
             'is_locked' => $this->isLocked,
-            'success' => $this->success,
         ];
     }
 }

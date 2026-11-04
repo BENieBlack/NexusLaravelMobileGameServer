@@ -12,20 +12,18 @@ use App\Http\Responses\_BaseResponse;
 class DeleteResponse extends _BaseResponse
 {
     public function __construct(
-        public readonly bool $success,
         public readonly string $deletedMyId,
         public readonly string $message,
     ) {}
 
     /**
-     * 成功レスポンスを生成
+     * 削除の結果からレスポンスを生成
      *
      * @param  string  $deletedMyId  削除されたフレンドのmy_id
      */
-    public static function success(string $deletedMyId): self
+    public static function fromDeletedMyId(string $deletedMyId): self
     {
         return new self(
-            success: true,
             deletedMyId: $deletedMyId,
             message: 'Friend deleted successfully',
         );
@@ -39,7 +37,6 @@ class DeleteResponse extends _BaseResponse
     public function toArray(): array
     {
         return [
-            'success' => $this->success,
             'deleted_my_id' => $this->deletedMyId,
             'message' => $this->message,
         ];

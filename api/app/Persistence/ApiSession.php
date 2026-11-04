@@ -159,28 +159,40 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
      */
     public function resolveConnectionNameValue(): string
     {
-        // TiDBではアプリケーション側のプレイヤー割り当てを行わず、単一接続を使う。
-        if (TidbMode::isEnabled()) {
-            return $this->connectionName = 'trx1';
-        }
-
         // 1. インスタンスキャッシュがあれば返す（リクエストスコープ）
         if ($this->connectionName !== null) {
             return $this->connectionName;
         }
 
-        $sysPlayerId = $this->getPlayerId();
-        $cacheKey = "shard:player:{$sysPlayerId}";
+        return $this->connectionName = self::resolveConnectionNameForPlayer($this->getPlayerId());
+    }
 
-        // 2. Redisキャッシュから取得を試みる
-        $cachedConnection = \Cache::get($cacheKey);
-        if ($cachedConnection !== null) {
-            $this->connectionName = $cachedConnection;
-
-            return $this->connectionName;
+    /**
+     * 指定したプレイヤーのトランザクションDB接続名を取得
+     *
+     * ログイン中プレイヤー以外（通知の受け手など）の行を書くときに使う。
+     * Redisキャッシュ（TTL: 1時間）→ DB の順に引く。
+     *
+     * @return string 接続名（通常はtrx1またはtrx2、TiDBではtrx1）
+     *
+     * @throws \RuntimeException シャーディング情報が見つからない場合
+     */
+    public static function resolveConnectionNameForPlayer(int $sysPlayerId): string
+    {
+        // TiDBではアプリケーション側のプレイヤー割り当てを行わず、単一接続を使う。
+        if (TidbMode::isEnabled()) {
+            return 'trx1';
         }
 
-        // 3. キャッシュミス: DBから取得
+        $cacheKey = "shard:player:{$sysPlayerId}";
+
+        // Redisキャッシュから取得を試みる
+        $cachedConnection = \Cache::get($cacheKey);
+        if ($cachedConnection !== null) {
+            return $cachedConnection;
+        }
+
+        // キャッシュミス: DBから取得
         // プレイヤーのシャーディングノード情報を取得
         $shardingNodePlayer = DB::connection('sys')
             ->table('sys_sharding_node_player')
@@ -207,12 +219,12 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
         }
 
         // node_noに基づいて接続名を決定（node_no: 1 → trx1, node_no: 2 → trx2）
-        $this->connectionName = 'trx'.$shardingNode->node_no;
+        $connectionName = 'trx'.$shardingNode->node_no;
 
         // Redisにキャッシュ（TTL: 1時間、シャード割り当ては頻繁に変わらない想定）
-        \Cache::put($cacheKey, $this->connectionName, 3600);
+        \Cache::put($cacheKey, $connectionName, 3600);
 
-        return $this->connectionName;
+        return $connectionName;
     }
 
     /**

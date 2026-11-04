@@ -28,6 +28,8 @@ class NotificationServiceTest extends TestCase
 
     private NotificationRepositoryInterface $repository;
 
+    private Dispatcher $events;
+
     /** @var list<NotificationCreated> 発火したイベント */
     private array $dispatchedEvents = [];
 
@@ -38,9 +40,8 @@ class NotificationServiceTest extends TestCase
     {
         parent::setUp();
 
-        // NotificationService は event() ヘルパを直接呼ぶ。
-        // Laravelアプリを立ち上げないユニットテストでは 'events' が解決できないため、
-        // 最小限のコンテナを差し込む
+        // イベントは NotificationService が受け取った Dispatcher へ発行される。
+        // Laravelアプリを立ち上げないので、最小限のコンテナで本物の Dispatcher を作る
         $this->dispatchedEvents = [];
         $container = new Container;
         $dispatcher = new Dispatcher($container);
@@ -48,6 +49,7 @@ class NotificationServiceTest extends TestCase
             $this->dispatchedEvents[] = $event;
         });
         $container->instance('events', $dispatcher);
+        $this->events = $dispatcher;
 
         // NotificationCreated は ShouldBroadcast なので、発火するとイベントディスパッチャが
         // BroadcastFactory::queue() を呼ぶ。積まれたイベントを記録するだけの偽物を差し込む
@@ -58,14 +60,11 @@ class NotificationServiceTest extends TestCase
         });
         $container->instance(BroadcastFactory::class, $broadcastFactory);
 
-        Container::setInstance($container);
-
         $this->repository = Mockery::mock(NotificationRepositoryInterface::class);
     }
 
     protected function tearDown(): void
     {
-        Container::setInstance(null);
         Mockery::close();
         parent::tearDown();
     }
@@ -80,7 +79,7 @@ class NotificationServiceTest extends TestCase
             ->once()
             ->andReturn($notification);
 
-        $service = new NotificationService($this->repository);
+        $service = new NotificationService($this->repository, null, $this->events);
 
         $result = $service->notify(
             playerId: 1,
@@ -99,7 +98,7 @@ class NotificationServiceTest extends TestCase
         $notification = $this->makeNotification();
         $this->repository->shouldReceive('insert')->andReturn($notification);
 
-        (new NotificationService($this->repository))->notify(
+        (new NotificationService($this->repository, null, $this->events))->notify(
             playerId: 1,
             type: NotificationType::MAILBOX_RECEIVED,
             title: 'メールが届きました',
@@ -116,7 +115,7 @@ class NotificationServiceTest extends TestCase
         $notification = $this->makeNotification();
         $this->repository->shouldReceive('insert')->andReturn($notification);
 
-        (new NotificationService($this->repository))->notify(
+        (new NotificationService($this->repository, null, $this->events))->notify(
             playerId: 1,
             type: NotificationType::MAILBOX_RECEIVED,
             title: 'メールが届きました',
@@ -136,7 +135,7 @@ class NotificationServiceTest extends TestCase
         $dispatcher = Mockery::mock(NotificationDispatcherInterface::class);
         $dispatcher->shouldReceive('dispatch')->with($notification)->once();
 
-        (new NotificationService($this->repository, $dispatcher))->notify(
+        (new NotificationService($this->repository, $dispatcher, $this->events))->notify(
             playerId: 1,
             type: NotificationType::MISSION_COMPLETED,
             title: 'ミッション達成',
@@ -151,7 +150,7 @@ class NotificationServiceTest extends TestCase
         $notification = $this->makeNotification();
         $this->repository->shouldReceive('insert')->andReturn($notification);
 
-        $result = (new NotificationService($this->repository))->notify(
+        $result = (new NotificationService($this->repository, null, $this->events))->notify(
             playerId: 1,
             type: NotificationType::SYSTEM_ANNOUNCEMENT,
             title: 'お知らせ',
@@ -167,7 +166,7 @@ class NotificationServiceTest extends TestCase
         $notifications = [$this->makeNotification()];
         $this->repository->shouldReceive('selectByPlayerId')->with(1, false)->andReturn($notifications);
 
-        $service = new NotificationService($this->repository);
+        $service = new NotificationService($this->repository, null, $this->events);
 
         $this->assertSame($notifications, $service->findByPlayer(1));
     }
@@ -178,7 +177,7 @@ class NotificationServiceTest extends TestCase
         $notifications = [$this->makeNotification()];
         $this->repository->shouldReceive('selectByPlayerId')->with(1, true)->andReturn($notifications);
 
-        $service = new NotificationService($this->repository);
+        $service = new NotificationService($this->repository, null, $this->events);
 
         $this->assertSame($notifications, $service->findByPlayer(1, true));
     }
@@ -189,7 +188,7 @@ class NotificationServiceTest extends TestCase
         $this->repository->shouldReceive('selectById')->with(5)->andReturn($this->makeNotification(id: 5, playerId: 1));
         $this->repository->shouldReceive('markAsRead')->with(5)->once();
 
-        (new NotificationService($this->repository))->markAsRead(5, 1);
+        (new NotificationService($this->repository, null, $this->events))->markAsRead(5, 1);
     }
 
     #[Test]
@@ -199,7 +198,7 @@ class NotificationServiceTest extends TestCase
         $this->repository->shouldReceive('selectById')->andReturn($this->makeNotification(playerId: 999));
         $this->repository->shouldNotReceive('markAsRead');
 
-        (new NotificationService($this->repository))->markAsRead(5, 1);
+        (new NotificationService($this->repository, null, $this->events))->markAsRead(5, 1);
 
         $this->assertTrue(true);
     }
@@ -210,7 +209,7 @@ class NotificationServiceTest extends TestCase
         $this->repository->shouldReceive('selectById')->andReturn(null);
         $this->repository->shouldNotReceive('markAsRead');
 
-        (new NotificationService($this->repository))->markAsRead(5, 1);
+        (new NotificationService($this->repository, null, $this->events))->markAsRead(5, 1);
 
         $this->assertTrue(true);
     }
@@ -220,7 +219,7 @@ class NotificationServiceTest extends TestCase
     {
         $this->repository->shouldReceive('markAllAsRead')->with(1)->once();
 
-        (new NotificationService($this->repository))->markAllAsRead(1);
+        (new NotificationService($this->repository, null, $this->events))->markAllAsRead(1);
     }
 
     #[Test]
@@ -228,7 +227,7 @@ class NotificationServiceTest extends TestCase
     {
         $this->repository->shouldReceive('countUnread')->with(1)->andReturn(3);
 
-        $this->assertSame(3, (new NotificationService($this->repository))->countUnread(1));
+        $this->assertSame(3, (new NotificationService($this->repository, null, $this->events))->countUnread(1));
     }
 
     private function makeNotification(int $id = 1, int $playerId = 1): Notification

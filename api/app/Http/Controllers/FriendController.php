@@ -112,6 +112,6 @@ class FriendController extends _BaseController
         // リクエストパラメータを取得
         $targetMyId = $request->getMyId();
 
-        return $this->execute(fn () => DeleteResponse::success($useCase->exec($sysPlayerId, $targetMyId)));
+        return $this->execute(fn () => DeleteResponse::fromDeletedMyId($useCase->exec($sysPlayerId, $targetMyId)));
     }
 }

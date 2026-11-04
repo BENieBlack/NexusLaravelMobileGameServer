@@ -5,6 +5,7 @@ namespace App\Repositories\Sys;
 use App\Models\Sys\SysMaintenance;
 use Illuminate\Support\Facades\Cache;
 use Nexus\Core\Support\CustomCollection;
+use Nexus\Core\Utilities\ClockUtility;
 use NexusVersion\Repositories\MaintenanceRepositoryInterface;
 
 /**
@@ -30,7 +31,7 @@ class SysMaintenanceRepository extends _BaseSysRepository implements Maintenance
             $cacheKey,
             $this->cacheTtl,
             function () {
-                $now = now();
+                $now = ClockUtility::now();
                 $sysMaintenance = $this->modelClass::where('is_active', true)
                     ->where('start_at', '<=', $now)
                     ->where(function ($q) use ($now) {
@@ -85,7 +86,7 @@ class SysMaintenanceRepository extends _BaseSysRepository implements Maintenance
     public function selectUpcomingList(): CustomCollection
     {
         $records = $this->modelClass::where('is_active', true)
-            ->where('start_at', '>', now())
+            ->where('start_at', '>', ClockUtility::now())
             ->orderBy('start_at', 'asc')
             ->get();
 

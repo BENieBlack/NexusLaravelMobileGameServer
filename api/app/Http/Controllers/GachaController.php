@@ -37,6 +37,7 @@ class GachaController extends _BaseController
                 mstGachaId: $request->getMstGachaId(),
                 drawCount: $request->getDrawCount(),
                 selectedCandidateId: $request->getSelectedCandidateId(),
+                uniqueRequestId: $request->getUniqueRequestIdentifier(),
             ));
         });
     }

@@ -4,6 +4,7 @@ namespace App\Repositories\Trx;
 
 use App\Persistence\ApiSession;
 use Illuminate\Support\Facades\DB;
+use Nexus\Core\Utilities\ClockUtility;
 use NexusPitr\Logger\ShardMapper;
 
 /**
@@ -29,9 +30,9 @@ class TrxGachaHistoryRepository
                 'cost_mst_id' => $data['cost_mst_id'],
                 'cost_amount' => $data['cost_amount'],
                 'result' => json_encode($data['prizes'], JSON_UNESCAPED_UNICODE),
-                'system_at' => now(),
-                'created_at' => now(),
-                'updated_at' => now(),
+                'system_at' => ClockUtility::now(),
+                'created_at' => ClockUtility::now(),
+                'updated_at' => ClockUtility::now(),
             ]);
     }
 }

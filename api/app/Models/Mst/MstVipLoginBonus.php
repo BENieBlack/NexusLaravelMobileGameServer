@@ -5,6 +5,7 @@ namespace App\Models\Mst;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Nexus\Core\Models\Mst\_BaseMst;
+use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * MstVipLoginBonus
@@ -68,7 +69,7 @@ class MstVipLoginBonus extends _BaseMst
      */
     public function scopeActive(Builder $query): Builder
     {
-        $now = now();
+        $now = ClockUtility::now();
 
         return $query->where('is_active', true)
             ->where(function ($q) use ($now) {

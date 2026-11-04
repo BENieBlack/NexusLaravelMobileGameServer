@@ -5,6 +5,7 @@ namespace App\Repositories\Sys;
 use App\Models\Sys\SysPlayerDevice;
 use Nexus\Core\Repositories\PlayerDeviceRepositoryInterface;
 use Nexus\Core\Support\CustomCollection;
+use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * SysPlayerDeviceRepository
@@ -80,7 +81,7 @@ class SysPlayerDeviceRepository extends _BaseSysRepository implements PlayerDevi
             'sys_player_id' => $sysPlayerId,
             'uuid' => $uuid,
             'device_info' => $deviceInfo,
-            'last_login_at' => now(),
+            'last_login_at' => ClockUtility::now(),
         ]);
         $sysPlayerDevice->exists = false;
         $this->setModel($sysPlayerDevice);

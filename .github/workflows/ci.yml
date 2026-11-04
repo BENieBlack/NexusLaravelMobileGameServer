@@ -167,7 +167,7 @@ jobs:
     # 通常は3分程度。ロック待ちなどで止まったときに、何時間も走らせないための上限
     timeout-minutes: 20
 
-    # trx/logはシャーディングしているため、シャード数ぶんのDBを立てる
+    # trx/log はシャーディングしているため、シャード数（2）ぶんのDBを立てる
     services:
       mysql-sys:
         image: mysql:26.7
@@ -205,24 +205,6 @@ jobs:
         options: >-
           --health-cmd="mysqladmin ping -h localhost -uroot -proot"
           --health-interval=10s --health-timeout=5s --health-retries=10
-      mysql-shard3:
-        image: mysql:26.7
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: nexus-testing-shard
-        ports: ['33163:3306']
-        options: >-
-          --health-cmd="mysqladmin ping -h localhost -uroot -proot"
-          --health-interval=10s --health-timeout=5s --health-retries=10
-      mysql-shard3-log:
-        image: mysql:26.7
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: nexus-testing-shard
-        ports: ['33263:3306']
-        options: >-
-          --health-cmd="mysqladmin ping -h localhost -uroot -proot"
-          --health-interval=10s --health-timeout=5s --health-retries=10
       redis:
         image: redis:8.4
         ports: ['6379:6379']
@@ -238,14 +220,12 @@ jobs:
       DB_SYSTEM_PORT: 33062
       DB_MASTER_HOST: 127.0.0.1
       DB_MASTER_PORT: 33063
-      DB_TRX1_HOST: 127.0.0.1
-      DB_TRX1_PORT: 33161
-      DB_TRX2_HOST: 127.0.0.1
-      DB_TRX2_PORT: 33162
-      DB_LOG1_HOST: 127.0.0.1
-      DB_LOG1_PORT: 33163
-      DB_LOG2_HOST: 127.0.0.1
-      DB_LOG2_PORT: 33263
+      # api の config/database.php は trx{N} のホストを DB_SHARD{N}_HOST から読む。
+      # log_* は trx と同じシャードに入るので、ログ専用の接続は無い
+      DB_SHARD1_HOST: 127.0.0.1
+      DB_SHARD1_PORT: 33161
+      DB_SHARD2_HOST: 127.0.0.1
+      DB_SHARD2_PORT: 33162
       REDIS_HOST: 127.0.0.1
       REDIS_PORT: 6379
 

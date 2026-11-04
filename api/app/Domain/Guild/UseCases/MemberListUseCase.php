@@ -28,11 +28,13 @@ class MemberListUseCase extends _BaseUseCase
      */
     public function handle(int $guildId): MemberListResponse
     {
-        return MemberListResponse::fromResult(GuildExceptionTranslator::forRead(function () use ($guildId) {
+        $guildMembers = GuildExceptionTranslator::forRead(function () use ($guildId) {
             // ギルドメンバー一覧を取得
             $memberDtos = $this->guildService->findMemberList($guildId);
 
             return $memberDtos;
-        }));
+        });
+
+        return MemberListResponse::from($guildMembers);
     }
 }

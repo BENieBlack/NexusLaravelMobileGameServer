@@ -24,7 +24,7 @@ class ApplyListResponse extends _BaseResponse
      *
      * @param  array<GuildApply>  $guildApplies
      */
-    public static function fromResult(array $guildApplies): self
+    public static function from(array $guildApplies): self
     {
         $applies = [];
         foreach ($guildApplies as $dto) {

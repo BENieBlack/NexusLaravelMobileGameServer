@@ -21,7 +21,7 @@ class DeleteResponse extends _BaseResponse
      *
      * @param  string  $deletedMyId  削除されたフレンドのmy_id
      */
-    public static function fromResult(string $deletedMyId): self
+    public static function from(string $deletedMyId): self
     {
         return new self(
             deletedMyId: $deletedMyId,

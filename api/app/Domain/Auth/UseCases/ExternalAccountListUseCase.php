@@ -19,6 +19,6 @@ class ExternalAccountListUseCase extends _BaseUseCase
 
     public function handle(int $sysPlayerId): ExternalAccountListResponse
     {
-        return ExternalAccountListResponse::fromResult($this->sysPlayerExternalAccountRepository->selectListByPlayerId($sysPlayerId));
+        return ExternalAccountListResponse::from($this->sysPlayerExternalAccountRepository->selectListByPlayerId($sysPlayerId));
     }
 }

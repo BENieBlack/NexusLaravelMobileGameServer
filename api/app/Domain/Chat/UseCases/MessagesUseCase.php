@@ -20,8 +20,10 @@ class MessagesUseCase extends _BaseUseCase
 
     public function handle(int $sysPlayerId, int $chatRoomId, int $limit, ?int $cursor): MessagesResponse
     {
-        return MessagesResponse::fromResult(ChatExceptionTranslator::translate(
+        $chatMessages = ChatExceptionTranslator::translate(
             fn () => $this->chatService->getMessages($chatRoomId, $sysPlayerId, $limit, $cursor)
-        ));
+        );
+
+        return MessagesResponse::from($chatMessages);
     }
 }

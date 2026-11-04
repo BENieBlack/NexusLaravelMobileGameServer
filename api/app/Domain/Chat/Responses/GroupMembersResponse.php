@@ -24,7 +24,7 @@ class GroupMembersResponse extends _BaseResponse
      *
      * @param  array<ChatRoomMember>  $chatRoomMembers
      */
-    public static function fromResult(array $chatRoomMembers): self
+    public static function from(array $chatRoomMembers): self
     {
         return new self($chatRoomMembers);
     }

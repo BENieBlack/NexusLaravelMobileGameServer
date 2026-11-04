@@ -8,7 +8,7 @@ Controller / Request / UseCase / Service / Repository / Model / Response / DTO /
 - `api/app/Http/Controllers/{Context}Controller.php`、`_BaseController` を継承する。
 - アクションは `$this->execute(fn () => $useCase->handle(...))` を返すだけにする。`execute()` は UseCase が返した Response（`App\Domain\_BaseResponse`）を JSON（HTTP 200）にする。それ以外を返すと `LogicException`、例外は `handleException()` がエラーレスポンスにする。Controller で try/catch しない。
 - UseCase の入口は `handle()`。Request オブジェクトは渡さず、Request の getter で取り出した値を渡す。
-- Controller では Response を作らない（`XxxResponse::fromResult()` や `new XxxResponse` を書かない）。
+- Controller では Response を作らない（`XxxResponse::from()` や `new XxxResponse` を書かない）。
 - プレイヤーIDは `ApiSession::getSysPlayerId()`（UnitController）か `$this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId())`（FriendController, ChatController）で取る。現状は両方ある。
 
 例: `api/app/Http/Controllers/UnitController.php`
@@ -98,8 +98,15 @@ public function handle(int $sysPlayerId, int $trxUnitId, string $mstItemId, int 
 
 - UseCase ごとに1つ作る: `api/app/Domain/{Context}/Responses/{Action}Response.php`（例: `Chat/UseCases/SendMessageUseCase` → `Chat/Responses/SendMessageResponse`）。`App\Domain\_BaseResponse` を継承する。UseCase の `handle()` がこれを返す。
 - HTTP には依存しない。JSON への変換は `_BaseController::execute()` が `toArray()` から行う。
-- 複数の UseCase で共用しない。返す形が同じなら、親を継承した子を UseCase ごとに置く（`Auth/TransferByCodeResponse extends SignInResponse`、`Chat/FriendRoomResponse extends RoomResponse`）。親は `final public function __construct` と `fromResult(): static` にする。`handle()` を親クラスから受け継ぐ UseCase は親の Response を返す（Buy 系 → `InAppPurchase/BuyResponse`）。
-- UseCase では、整形済みの値が揃っていれば `new XxxResponse(...)`、パッケージのDTO・モデル・コレクションから変換するなら `XxxResponse::fromResult(...)` で作る。生成メソッドは `fromResult()` だけで、引数名は中身に合わせ（`FriendApply $friendApply`）、表示に要る値があれば引数を足してよい（`Friend/ListResponse::fromResult($sysFriendApplyCollection, $sysPlayerId)`）。
+- 複数の UseCase で共用しない。返す形が同じなら、親を継承した子を UseCase ごとに置く（`Auth/TransferByCodeResponse extends SignInResponse`、`Chat/FriendRoomResponse extends RoomResponse`）。親は `final public function __construct` と `from(): static` にする。`handle()` を親クラスから受け継ぐ UseCase は親の Response を返す（Buy 系 → `InAppPurchase/BuyResponse`）。
+- UseCase では、整形済みの値が揃っていれば `new XxxResponse(...)`、パッケージのDTO・モデル・コレクションから変換するなら `XxxResponse::from(...)` で作る。生成メソッドは `from()` だけで、引数名は中身に合わせ（`FriendApply $friendApply`）、表示に要る値があれば引数を足してよい（`Friend/ListResponse::from($sysFriendApplyCollection, $sysPlayerId)`）。
+- `executeWithTransaction()` の結果は一度変数に受けてから Response にする。`return XxxResponse::from($this->executeWithTransaction(...))` のように入れ子にしない。
+
+```php
+$guildApply = $this->executeWithTransaction(fn () => $this->guildService->sendApply($guildId, $sysPlayerId));
+
+return ApplySendResponse::from($guildApply);
+```
 - 以上は `api/tests/Architecture/ResponsePerActionTest.php` が検査する。
 - `toArray()` に snake_case のキーを手で書く。`Responsable` / `toResponse()` や Reflection による自動変換は無い。
 - モデルを含めるときは `toResponseArray()` を呼ぶ（`api/app/Domain/Login/Responses/HomeResponse.php`）。

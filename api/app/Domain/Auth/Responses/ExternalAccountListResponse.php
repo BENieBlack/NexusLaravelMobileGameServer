@@ -23,7 +23,7 @@ class ExternalAccountListResponse extends _BaseResponse
     /**
      * @param  CustomCollection<int, SysPlayerExternalAccount>  $sysPlayerExternalAccounts
      */
-    public static function fromResult(CustomCollection $sysPlayerExternalAccounts): static
+    public static function from(CustomCollection $sysPlayerExternalAccounts): static
     {
         return new static(array_values($sysPlayerExternalAccounts->all()));
     }

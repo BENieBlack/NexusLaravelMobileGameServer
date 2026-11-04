@@ -22,7 +22,7 @@ abstract class RoomResponse extends _BaseResponse
     /**
      * UseCaseの結果からレスポンスを生成
      */
-    public static function fromResult(ChatRoom $chatRoom): static
+    public static function from(ChatRoom $chatRoom): static
     {
         return new static($chatRoom);
     }

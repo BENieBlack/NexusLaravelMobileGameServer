@@ -20,8 +20,10 @@ class GroupMembersUseCase extends _BaseUseCase
 
     public function handle(int $sysPlayerId, int $chatRoomId): GroupMembersResponse
     {
-        return GroupMembersResponse::fromResult(ChatExceptionTranslator::translate(
+        $chatRoomMembers = ChatExceptionTranslator::translate(
             fn () => $this->chatService->getGroupMembers($chatRoomId, $sysPlayerId)
-        ));
+        );
+
+        return GroupMembersResponse::from($chatRoomMembers);
     }
 }

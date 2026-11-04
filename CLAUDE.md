@@ -42,7 +42,7 @@
 **レイヤー**
 - Controller は `_BaseController` を継承し、`$this->execute(fn () => $useCase->handle(...))` の形にする。Response は作らず、UseCase の結果を返すだけ。Request からは値を取り出して渡し、Request オブジェクトを UseCase に渡さない。
 - UseCase は `App\Domain\{Context}\UseCases\*UseCase`。`_BaseUseCase` を継承し、入口は `handle()`。`handle()` は自分専用の Response（`App\Domain\{Context}\Responses\{Action}Response`、`App\Domain\_BaseResponse` を継承）を、API の形に整形した状態で返す。
-- Response は UseCase ごとに1つで、共用しない（形が同じなら継承して分ける）。変換が要るときだけ `fromResult()` を置き、引数は中身に合わせた名前にする。
+- Response は UseCase ごとに1つで、共用しない（形が同じなら継承して分ける）。パッケージのDTO・モデル・コレクションから変換するときだけ `from()` を置き、引数は中身に合わせた名前にする（`ApplySendResponse::from($guildApply)`）。
 - 他のコンテキストは `App\Domain\{Other}\Contracts\` のインターフェースだけを使う。`app/Domain` から `App\Http` を参照しない。
 - 起きたことを他のコンテキストに伝えるときはドメインイベントを使う。`Dispatcher` をコンストラクタで受け取って発行し、受け手は `app/Domain/{Context}/Listeners/` に置く。
 - `packages/` から `App\` を参照しない。パッケージは Contract を定義し、api 側が `*RepositoryAdapter` で実装する。

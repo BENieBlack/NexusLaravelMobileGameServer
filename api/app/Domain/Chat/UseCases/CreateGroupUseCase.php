@@ -24,10 +24,12 @@ class CreateGroupUseCase extends _BaseUseCase
     {
         $ownerName = $this->nameResolver->resolve($sysPlayerId);
 
-        return CreateGroupResponse::fromResult($this->executeWithTransaction(
+        $chatRoom = $this->executeWithTransaction(
             fn () => ChatExceptionTranslator::translate(
                 fn () => $this->chatService->createGroupRoom($name, $sysPlayerId, $ownerName)
             )
-        ));
+        );
+
+        return CreateGroupResponse::from($chatRoom);
     }
 }

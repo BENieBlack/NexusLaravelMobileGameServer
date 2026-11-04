@@ -33,7 +33,7 @@ class SignInResponse extends _BaseResponse
     /**
      * UseCaseの結果からレスポンスを生成
      */
-    public static function fromResult(SignInResult $signInResult): static
+    public static function from(SignInResult $signInResult): static
     {
         return new static(
             sysPlayer: $signInResult->sysPlayer,

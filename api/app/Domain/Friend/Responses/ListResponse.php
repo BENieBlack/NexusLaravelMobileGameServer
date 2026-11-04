@@ -29,7 +29,7 @@ class ListResponse extends _BaseResponse
      * @param  CustomCollection<int, SysFriendApply>  $sysFriendApplyCollection
      * @param  int  $sysPlayerId  現在のプレイヤーのsys_player_id
      */
-    public static function fromResult(CustomCollection $sysFriendApplyCollection, int $sysPlayerId): self
+    public static function from(CustomCollection $sysFriendApplyCollection, int $sysPlayerId): self
     {
         $friendArray = $sysFriendApplyCollection->map(function (SysFriendApply $sysFriendApply) use ($sysPlayerId) {
             // 自分がsenderの場合はreceiverのmy_idを、receiverの場合はsenderのmy_idを返す

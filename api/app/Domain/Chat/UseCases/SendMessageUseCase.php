@@ -24,10 +24,12 @@ class SendMessageUseCase extends _BaseUseCase
     {
         $senderName = $this->nameResolver->resolve($sysPlayerId);
 
-        return SendMessageResponse::fromResult($this->executeWithTransaction(
+        $chatMessage = $this->executeWithTransaction(
             fn () => ChatExceptionTranslator::translate(
                 fn () => $this->chatService->sendMessage($chatRoomId, $sysPlayerId, $senderName, $body)
             )
-        ));
+        );
+
+        return SendMessageResponse::from($chatMessage);
     }
 }

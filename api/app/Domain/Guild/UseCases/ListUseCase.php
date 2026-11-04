@@ -37,6 +37,6 @@ class ListUseCase extends _BaseUseCase
             max(0, $offset),
         );
 
-        return ListResponse::fromResult($guildDtos);
+        return ListResponse::from($guildDtos);
     }
 }

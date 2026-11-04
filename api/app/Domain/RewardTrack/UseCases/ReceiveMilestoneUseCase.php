@@ -19,7 +19,7 @@ class ReceiveMilestoneUseCase extends _BaseUseCase
         $sysPlayerId = ApiSession::getSysPlayerId();
         $connectionName = ApiSession::resolveConnectionName();
 
-        return ReceiveMilestoneResponse::fromResult($this->executeWithTransaction(
+        $milestone = $this->executeWithTransaction(
             fn () => RewardTrackExceptionTranslator::translate(
                 fn () => $this->rewardTrackService->receiveMilestone(
                     $sysPlayerId,
@@ -28,6 +28,8 @@ class ReceiveMilestoneUseCase extends _BaseUseCase
                     $connectionName
                 )
             )
-        ));
+        );
+
+        return ReceiveMilestoneResponse::from($milestone);
     }
 }

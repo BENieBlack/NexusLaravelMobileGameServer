@@ -24,7 +24,7 @@ class MessagesResponse extends _BaseResponse
      *
      * @param  array<ChatMessage>  $chatMessages
      */
-    public static function fromResult(array $chatMessages): self
+    public static function from(array $chatMessages): self
     {
         return new self($chatMessages);
     }

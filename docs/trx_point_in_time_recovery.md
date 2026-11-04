@@ -1,5 +1,10 @@
 # TrxDB Point-In-Time Recovery (PITR) 設計書
 
+> **⚠️ 過去の設計資料です（2026-11-03 注記）**
+> 現在のコードと食い違う箇所があります: ログ専用DB（`log` / `log1`〜）は廃止され、`log_*` は `trxN` に同居する。
+> 現行の仕組みは [CLAUDE.md](../CLAUDE.md) と `.claude/`（[database.md](../.claude/database.md)・[architecture.md](../.claude/architecture.md)）を参照してください。
+
+
 ## 概要
 
 TrxDBが故障した際に、MySQLスナップショット（ポイントインタイムリカバリー）とLogDBの変更履歴を組み合わせて、データを完全復旧する仕組みを提供します。

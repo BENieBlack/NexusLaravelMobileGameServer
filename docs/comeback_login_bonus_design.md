@@ -1,5 +1,10 @@
 # カムバックログインボーナスシステム設計
 
+> **⚠️ 過去の設計資料です（2026-11-03 注記）**
+> 現在のコードと食い違う箇所があります: 接続名（`$connectionName`）を受け渡す API と `trx_login_bonus_history` は廃止された。カムバック期間の日数は `trx_login_bonus.day` と受取日から求める。
+> 現行の仕組みは [CLAUDE.md](../CLAUDE.md) と `.claude/`（[database.md](../.claude/database.md)・[architecture.md](../.claude/architecture.md)）を参照してください。
+
+
 ## 概要
 
 カムバックログインボーナスは、一定期間ログインしていなかったプレイヤーが復帰した際に特別な報酬を付与する機能です。

@@ -1,5 +1,10 @@
 # Laravel Mobile RPG Server - ライブラリ化プロジェクト進捗レポート
 
+> **⚠️ 過去の設計資料です（2026-11-03 注記）**
+> 現在のコードと食い違う箇所があります: ログ専用DBの接続（`log`）は廃止され、`log_*` は `trxN` に同居する。
+> 現行の仕組みは [CLAUDE.md](../CLAUDE.md) と `.claude/`（[database.md](../.claude/database.md)・[architecture.md](../.claude/architecture.md)）を参照してください。
+
+
 生成日: 2026-08-03（更新）
 
 ## プロジェクト概要

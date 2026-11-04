@@ -41,6 +41,11 @@ jobs:
           key: composer-dl-api-${{ hashFiles('api/composer.lock') }}
           restore-keys: composer-dl-api-
 
+      # composer install の package:discover が routes/channels.php を読み、Reverb の設定（REVERB_APP_KEY など）を
+      # 要求する。.env が無いと null で落ちるので、install より前に用意する
+      - name: .envの準備
+        run: cp .env.example .env
+
       - name: 依存関係のインストール
         working-directory: api
         run: composer install --no-interaction --prefer-dist --no-progress
@@ -270,12 +275,14 @@ jobs:
           key: composer-dl-api-${{ hashFiles('api/composer.lock') }}
           restore-keys: composer-dl-api-
 
+      # composer install の package:discover が routes/channels.php を読み、Reverb の設定（REVERB_APP_KEY など）を
+      # 要求する。.env が無いと null で落ちるので、install より前に用意する
+      - name: .envの準備
+        run: cp .env.example .env
+
       - name: 依存関係のインストール
         working-directory: api
         run: composer install --no-interaction --prefer-dist --no-progress
-
-      - name: .envの準備
-        run: cp .env.example .env
 
       - name: アプリケーションキーの生成
         working-directory: api

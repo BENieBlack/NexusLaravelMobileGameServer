@@ -7,6 +7,7 @@
 ## 進め方
 
 - 応答・コメント・コミットメッセージ・ドキュメントは日本語。識別子は英語。
+- コミットメッセージと PR に AI の共同作者表記（`Co-Authored-By: Claude ...` などの trailer、`Generated with Claude Code` などの署名、セッションのリンク）を付けない。GitHub に Claude のアイコンが表示されるため。Claude Code は `.claude/settings.json` の `attribution` で無効にしてある。
 - main へ直接コミットしない。作業ブランチ（`feature/` `fix/` `refactor/` `chore/` + 英語ケバブケース）を切って PR でマージする。PR は `.github/pull_request_template.md` の各欄に変更内容を記載する（書き方は `.claude/development.md` の「ブランチと PR」）。
 - 仕上げに `make check`（CIと同じ: 依存の脆弱性 → pint → PHPStan → 全テスト → tool の検査）を通す。エージェントは結果だけを表示する `make check-quiet` / `make test-quiet` を使い、全文は `.make-logs/` を必要な部分だけ読む。
 

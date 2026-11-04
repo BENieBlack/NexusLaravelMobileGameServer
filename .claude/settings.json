@@ -10,5 +10,10 @@
       "Read(./api/storage/logs/**)",
       "Read(./api/storage/coverage/**)"
     ]
+  },
+  "attribution": {
+    "commit": "",
+    "pr": "",
+    "sessionUrl": false
   }
 }

@@ -20,7 +20,7 @@ class InviteUseCase extends _BaseUseCase
         private readonly ChatPlayerNameResolver $nameResolver,
     ) {}
 
-    public function exec(int $sysPlayerId, int $chatRoomId, int $targetSysPlayerId): ChatRoomMember
+    public function handle(int $sysPlayerId, int $chatRoomId, int $targetSysPlayerId): ChatRoomMember
     {
         $targetName = $this->nameResolver->resolve($targetSysPlayerId);
 

@@ -4,7 +4,7 @@ namespace App\Http\Responses\Friend;
 
 use App\Http\Responses\_BaseResponse;
 use App\Models\Sys\SysFriendApply;
-use Illuminate\Database\Eloquent\Collection;
+use Nexus\Core\Support\CustomCollection;
 
 /**
  * ListResponse
@@ -26,10 +26,10 @@ class ListResponse extends _BaseResponse
      *
      * 相手プレイヤーのmy_idのみを返す（自分がsenderかreceiverかに応じて判定）
      *
-     * @param  Collection<int, SysFriendApply>  $sysFriendApplyCollection
+     * @param  CustomCollection<int, SysFriendApply>  $sysFriendApplyCollection
      * @param  int  $sysPlayerId  現在のプレイヤーのsys_player_id
      */
-    public static function fromCollection(Collection $sysFriendApplyCollection, int $sysPlayerId): self
+    public static function fromResult(CustomCollection $sysFriendApplyCollection, int $sysPlayerId): self
     {
         $friendArray = $sysFriendApplyCollection->map(function (SysFriendApply $sysFriendApply) use ($sysPlayerId) {
             // 自分がsenderの場合はreceiverのmy_idを、receiverの場合はsenderのmy_idを返す

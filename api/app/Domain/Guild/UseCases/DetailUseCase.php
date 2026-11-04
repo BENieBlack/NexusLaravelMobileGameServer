@@ -27,7 +27,7 @@ class DetailUseCase extends _BaseUseCase
      *
      * @throws GameException
      */
-    public function exec(int $guildId): Guild
+    public function handle(int $guildId): Guild
     {
         // RepositoryはModelを返すため、DTOへの変換はここで行う
         $guild = $this->sysGuildRepository->selectById($guildId);

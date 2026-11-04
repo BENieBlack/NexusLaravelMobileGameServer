@@ -21,6 +21,6 @@ class PlayerController extends _BaseController
     {
         $sysPlayerId = $this->apiSession->getSysPlayerId();
 
-        return $this->execute(fn () => MeResponse::fromResult($useCase->exec($sysPlayerId)));
+        return $this->execute(fn () => MeResponse::fromResult($useCase->handle($sysPlayerId)));
     }
 }

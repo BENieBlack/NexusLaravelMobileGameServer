@@ -28,7 +28,7 @@ class ExchangeUseCase extends _BaseUseCase
      *
      * @throws GameException 存在しない・交換期間外・上限を超える・コストが足りない場合
      */
-    public function exec(int $sysPlayerId, string $mstTradeProductId, int $quantity, ?string $uniqueRequestId): TradeProductStatus
+    public function handle(int $sysPlayerId, string $mstTradeProductId, int $quantity, ?string $uniqueRequestId): TradeProductStatus
     {
         if ($uniqueRequestId !== null) {
             $this->logTradeRepository->setUniqueRequestId($uniqueRequestId);

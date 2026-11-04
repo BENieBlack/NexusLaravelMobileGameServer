@@ -16,16 +16,16 @@ class ExternalAccountListResponse extends _BaseResponse
     /**
      * @param  list<SysPlayerExternalAccount>  $sysPlayerExternalAccounts
      */
-    public function __construct(
+    final public function __construct(
         public readonly array $sysPlayerExternalAccounts,
     ) {}
 
     /**
      * @param  CustomCollection<int, SysPlayerExternalAccount>  $sysPlayerExternalAccounts
      */
-    public static function fromCollection(CustomCollection $sysPlayerExternalAccounts): self
+    public static function fromResult(CustomCollection $sysPlayerExternalAccounts): static
     {
-        return new self(array_values($sysPlayerExternalAccounts->all()));
+        return new static(array_values($sysPlayerExternalAccounts->all()));
     }
 
     public function toArray(): array

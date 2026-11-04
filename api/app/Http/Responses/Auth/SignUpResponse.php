@@ -33,13 +33,13 @@ class SignUpResponse extends _BaseResponse
     /**
      * UseCaseの結果からレスポンスを生成
      */
-    public static function fromResult(SignUpResult $result): self
+    public static function fromResult(SignUpResult $signUpResult): self
     {
         return new self(
-            sysPlayer: $result->sysPlayer,
-            sysPlayerDevice: $result->sysPlayerDevice,
-            sysPlayerToken: $result->sysPlayerToken,
-            token: $result->token,
+            sysPlayer: $signUpResult->sysPlayer,
+            sysPlayerDevice: $signUpResult->sysPlayerDevice,
+            sysPlayerToken: $signUpResult->sysPlayerToken,
+            token: $signUpResult->token,
         );
     }
 

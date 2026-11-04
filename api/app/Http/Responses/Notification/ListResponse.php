@@ -21,11 +21,11 @@ class ListResponse extends _BaseResponse
         private readonly int $unreadCount,
     ) {}
 
-    public static function fromResult(ListResult $result): self
+    public static function fromResult(ListResult $listResult): self
     {
         return new self(
-            notifications: $result->notifications,
-            unreadCount: $result->unreadCount,
+            notifications: $listResult->notifications,
+            unreadCount: $listResult->unreadCount,
         );
     }
 

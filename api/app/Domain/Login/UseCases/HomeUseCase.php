@@ -49,7 +49,7 @@ class HomeUseCase extends _BaseUseCase
      *
      * @throws \Exception
      */
-    public function exec(int $sysPlayerId): LoginResult
+    public function handle(int $sysPlayerId): LoginResult
     {
         // バリデーション実行
         $this->validation($sysPlayerId);

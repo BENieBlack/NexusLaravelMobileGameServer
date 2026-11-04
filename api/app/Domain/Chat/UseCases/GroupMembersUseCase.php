@@ -21,7 +21,7 @@ class GroupMembersUseCase extends _BaseUseCase
     /**
      * @return array<ChatRoomMember>
      */
-    public function exec(int $sysPlayerId, int $chatRoomId): array
+    public function handle(int $sysPlayerId, int $chatRoomId): array
     {
         return ChatExceptionTranslator::translate(
             fn () => $this->chatService->getGroupMembers($chatRoomId, $sysPlayerId)

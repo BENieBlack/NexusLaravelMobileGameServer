@@ -21,7 +21,7 @@ class FriendRoomUseCase extends _BaseUseCase
         private readonly ChatService $chatService,
     ) {}
 
-    public function exec(int $sysPlayerId, int $targetSysPlayerId): ChatRoom
+    public function handle(int $sysPlayerId, int $targetSysPlayerId): ChatRoom
     {
         return $this->executeWithTransaction(
             fn () => ChatExceptionTranslator::translate(

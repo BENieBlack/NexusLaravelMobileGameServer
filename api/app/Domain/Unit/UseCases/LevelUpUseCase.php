@@ -102,7 +102,7 @@ class LevelUpUseCase extends _BaseUseCase
      *
      * @throws \Exception
      */
-    public function exec(int $sysPlayerId, int $trxUnitId, string $mstItemId, int $useCount): LevelUpResult
+    public function handle(int $sysPlayerId, int $trxUnitId, string $mstItemId, int $useCount): LevelUpResult
     {
         // バリデーション実行
         $this->validation($sysPlayerId, $trxUnitId, $mstItemId, $useCount);

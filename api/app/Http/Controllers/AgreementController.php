@@ -30,8 +30,8 @@ class AgreementController extends _BaseController
      */
     public function pending(): JsonResponse
     {
-        return $this->execute(fn () => PendingResponse::fromCollection(
-            $this->pendingUseCase->exec($this->apiSession->getSysPlayerId())
+        return $this->execute(fn () => PendingResponse::fromResult(
+            $this->pendingUseCase->handle($this->apiSession->getSysPlayerId())
         ));
     }
 
@@ -43,7 +43,7 @@ class AgreementController extends _BaseController
     public function consent(ConsentRequest $request): JsonResponse
     {
         return $this->execute(function () use ($request) {
-            $this->consentUseCase->exec(
+            $this->consentUseCase->handle(
                 sysPlayerId: $this->apiSession->getSysPlayerId(),
                 sysAgreementId: $request->getSysAgreementId(),
             );

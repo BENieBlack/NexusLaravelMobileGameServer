@@ -32,7 +32,7 @@ class UnitController extends _BaseController
         return $this->execute(function () use ($request) {
             $sysPlayerId = $this->apiSession->getSysPlayerId();
 
-            return LevelUpResponse::fromResult($this->unitLevelUpUseCase->exec(
+            return LevelUpResponse::fromResult($this->unitLevelUpUseCase->handle(
                 sysPlayerId: $sysPlayerId,
                 trxUnitId: $request->getTrxUnitId(),
                 mstItemId: $request->getMstItemId(),

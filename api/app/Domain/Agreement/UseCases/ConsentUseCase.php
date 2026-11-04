@@ -24,7 +24,7 @@ class ConsentUseCase extends _BaseUseCase
      *
      * @throws GameException 規約が存在しない・同意済みの場合
      */
-    public function exec(int $sysPlayerId, int $sysAgreementId): void
+    public function handle(int $sysPlayerId, int $sysAgreementId): void
     {
         $this->executeWithTransaction(
             fn () => AgreementExceptionTranslator::translate(

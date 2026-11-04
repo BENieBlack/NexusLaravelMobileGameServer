@@ -5,7 +5,12 @@ namespace App\Http\Responses\Chat;
 use App\Http\Responses\_BaseResponse;
 use NexusChat\DataTransferObjects\ChatMessage;
 
-class MessageListResponse extends _BaseResponse
+/**
+ * MessagesResponse
+ *
+ * メッセージ履歴APIのレスポンス
+ */
+class MessagesResponse extends _BaseResponse
 {
     /**
      * @param  array<ChatMessage>  $messages
@@ -13,6 +18,16 @@ class MessageListResponse extends _BaseResponse
     public function __construct(
         private readonly array $messages,
     ) {}
+
+    /**
+     * UseCaseの結果からレスポンスを生成
+     *
+     * @param  array<ChatMessage>  $chatMessages
+     */
+    public static function fromResult(array $chatMessages): self
+    {
+        return new self($chatMessages);
+    }
 
     /**
      * @return array<string, mixed>

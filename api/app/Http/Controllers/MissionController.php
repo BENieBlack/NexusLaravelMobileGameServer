@@ -31,8 +31,8 @@ class MissionController extends _BaseController
      */
     public function list(ListRequest $request): JsonResponse
     {
-        return $this->execute(fn () => ListResponse::fromDtoArray(
-            $this->listUseCase->exec($this->apiSession->getSysPlayerId())
+        return $this->execute(fn () => ListResponse::fromResult(
+            $this->listUseCase->handle($this->apiSession->getSysPlayerId())
         ));
     }
 
@@ -43,7 +43,7 @@ class MissionController extends _BaseController
      */
     public function receive(ReceiveRequest $request): JsonResponse
     {
-        return $this->execute(fn () => ReceiveResponse::fromDto($this->receiveUseCase->exec(
+        return $this->execute(fn () => ReceiveResponse::fromResult($this->receiveUseCase->handle(
             sysPlayerId: $this->apiSession->getSysPlayerId(),
             mstMissionId: $request->getMstMissionId(),
         )));

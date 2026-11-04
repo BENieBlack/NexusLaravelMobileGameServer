@@ -27,7 +27,7 @@ class MemberListUseCase extends _BaseUseCase
      *
      * @throws GameException
      */
-    public function exec(int $guildId): array
+    public function handle(int $guildId): array
     {
         return GuildExceptionTranslator::forRead(function () use ($guildId) {
             // ギルドメンバー一覧を取得

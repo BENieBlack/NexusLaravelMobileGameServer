@@ -28,7 +28,7 @@ class CreateUseCase extends _BaseUseCase
      *
      * @throws GameException
      */
-    public function exec(int $sysPlayerId, string $name, string $description): Guild
+    public function handle(int $sysPlayerId, string $name, string $description): Guild
     {
         // トランザクション開始
         return $this->executeWithTransaction(function () use ($sysPlayerId, $name, $description) {

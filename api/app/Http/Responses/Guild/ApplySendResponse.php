@@ -6,31 +6,31 @@ use App\Http\Responses\_BaseResponse;
 use NexusGuild\DataTransferObjects\GuildApply;
 
 /**
- * GuildApplyRejectResponse
+ * ApplySendResponse
  *
- * ギルド加入申請却下APIのレスポンス
+ * ギルド加入申請送信APIのレスポンス
  */
-class GuildApplyRejectResponse extends _BaseResponse
+class ApplySendResponse extends _BaseResponse
 {
     public function __construct(
         public readonly int $applyId,
         public readonly int $guildId,
         public readonly int $playerId,
         public readonly string $status,
-        public readonly string $updatedAt,
+        public readonly string $createdAt,
     ) {}
 
     /**
      * GuildApplyからレスポンスを生成
      */
-    public static function fromDto(GuildApply $guildApply): self
+    public static function fromResult(GuildApply $guildApply): self
     {
         return new self(
             applyId: $guildApply->getId(),
             guildId: $guildApply->getSysGuildId(),
             playerId: $guildApply->getSysPlayerId(),
             status: $guildApply->getStatus(),
-            updatedAt: $guildApply->getUpdatedAt(),
+            createdAt: $guildApply->getCreatedAt(),
         );
     }
 
@@ -46,7 +46,7 @@ class GuildApplyRejectResponse extends _BaseResponse
             'sys_guild_id' => $this->guildId,
             'sys_player_id' => $this->playerId,
             'status' => $this->status,
-            'updated_at' => $this->updatedAt,
+            'created_at' => $this->createdAt,
         ];
     }
 }

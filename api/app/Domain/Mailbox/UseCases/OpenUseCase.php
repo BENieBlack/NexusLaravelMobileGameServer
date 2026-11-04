@@ -23,7 +23,7 @@ class OpenUseCase extends _BaseUseCase
      *
      * @throws GameException
      */
-    public function exec(int $sysPlayerId, int $trxMailboxId): void
+    public function handle(int $sysPlayerId, int $trxMailboxId): void
     {
         $this->executeWithTransaction(function () use ($sysPlayerId, $trxMailboxId) {
             // メールボックス取得

@@ -6,11 +6,11 @@ use App\Http\Responses\_BaseResponse;
 use NexusGuild\DataTransferObjects\GuildMember;
 
 /**
- * GuildMemberListResponse
+ * MemberListResponse
  *
  * ギルドメンバー一覧取得APIのレスポンス
  */
-class GuildMemberListResponse extends _BaseResponse
+class MemberListResponse extends _BaseResponse
 {
     /**
      * @param  array<array<string, mixed>>  $members
@@ -22,12 +22,12 @@ class GuildMemberListResponse extends _BaseResponse
     /**
      * GuildMember配列からレスポンスを生成
      *
-     * @param  array<GuildMember>  $memberDtos
+     * @param  array<GuildMember>  $guildMembers
      */
-    public static function fromDtoArray(array $memberDtos): self
+    public static function fromResult(array $guildMembers): self
     {
         $members = [];
-        foreach ($memberDtos as $dto) {
+        foreach ($guildMembers as $dto) {
             $members[] = [
                 'sys_guild_member_id' => $dto->getId(),
                 'sys_guild_id' => $dto->getSysGuildId(),

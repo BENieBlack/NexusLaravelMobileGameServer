@@ -20,7 +20,7 @@ class SendMessageUseCase extends _BaseUseCase
         private readonly ChatPlayerNameResolver $nameResolver,
     ) {}
 
-    public function exec(int $sysPlayerId, int $chatRoomId, string $body): ChatMessage
+    public function handle(int $sysPlayerId, int $chatRoomId, string $body): ChatMessage
     {
         $senderName = $this->nameResolver->resolve($sysPlayerId);
 

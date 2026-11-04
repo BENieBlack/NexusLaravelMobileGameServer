@@ -5,11 +5,11 @@ namespace App\Http\Responses\Guild;
 use App\Http\Responses\_BaseResponse;
 
 /**
- * GuildLeaveResponse
+ * LeaveResponse
  *
  * ギルド脱退APIのレスポンス
  */
-class GuildLeaveResponse extends _BaseResponse
+class LeaveResponse extends _BaseResponse
 {
     public function __construct(
         private readonly int $sysPlayerId,

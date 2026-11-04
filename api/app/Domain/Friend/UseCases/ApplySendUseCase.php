@@ -30,7 +30,7 @@ class ApplySendUseCase extends _BaseUseCase
      *
      * @throws GameException
      */
-    public function exec(int $sysPlayerId, string $targetMyId): FriendApply
+    public function handle(int $sysPlayerId, string $targetMyId): FriendApply
     {
         // トランザクション開始
         return $this->executeWithTransaction(function () use ($sysPlayerId, $targetMyId) {

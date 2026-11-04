@@ -20,7 +20,7 @@ class ListUseCase extends _BaseUseCase
     /**
      * @return array<int, TradeProductStatus>
      */
-    public function exec(int $sysPlayerId): array
+    public function handle(int $sysPlayerId): array
     {
         return $this->tradeService->findStatuses($sysPlayerId);
     }

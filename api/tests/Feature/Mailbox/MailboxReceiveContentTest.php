@@ -68,7 +68,7 @@ class MailboxReceiveContentTest extends TestCase
         $this->makeContent('Gold', 'gold', contentQuantity: 1, amount: 500);
         $mailbox = $this->makeMailbox();
 
-        app(ReceiveUseCase::class)->exec($this->sysPlayerId, $mailbox->id);
+        app(ReceiveUseCase::class)->handle($this->sysPlayerId, $mailbox->id);
         $this->flush();
 
         $this->assertSame(500, $this->findWalletAmount('gold'));
@@ -82,7 +82,7 @@ class MailboxReceiveContentTest extends TestCase
         $this->makeContent('alliance_points', 'alliance_points', contentQuantity: 1, amount: 30);
         $mailbox = $this->makeMailbox();
 
-        app(ReceiveUseCase::class)->exec($this->sysPlayerId, $mailbox->id);
+        app(ReceiveUseCase::class)->handle($this->sysPlayerId, $mailbox->id);
         $this->flush();
 
         $this->assertSame(30, $this->findWalletAmount('alliance_points'));
@@ -95,7 +95,7 @@ class MailboxReceiveContentTest extends TestCase
         $this->makeContent('Gold', 'gold', contentQuantity: 10, amount: 3);
         $mailbox = $this->makeMailbox();
 
-        app(ReceiveUseCase::class)->exec($this->sysPlayerId, $mailbox->id);
+        app(ReceiveUseCase::class)->handle($this->sysPlayerId, $mailbox->id);
         $this->flush();
 
         $this->assertSame(30, $this->findWalletAmount('gold'));
@@ -107,7 +107,7 @@ class MailboxReceiveContentTest extends TestCase
         $this->makeContent('alliance_points', 'alliance_points', contentQuantity: 1, amount: 30);
         $this->makeMailbox();
 
-        app(ReceiveAllUseCase::class)->exec($this->sysPlayerId);
+        app(ReceiveAllUseCase::class)->handle($this->sysPlayerId);
         $this->flush();
 
         $this->assertSame(30, $this->findWalletAmount('alliance_points'));
@@ -119,7 +119,7 @@ class MailboxReceiveContentTest extends TestCase
         $this->makeContent('Gold', 'gold', contentQuantity: 10, amount: 3);
         $this->makeMailbox();
 
-        app(ReceiveAllUseCase::class)->exec($this->sysPlayerId);
+        app(ReceiveAllUseCase::class)->handle($this->sysPlayerId);
         $this->flush();
 
         $this->assertSame(30, $this->findWalletAmount('gold'));
@@ -132,7 +132,7 @@ class MailboxReceiveContentTest extends TestCase
         $first = $this->makeMailbox();
         $second = $this->makeMailbox();
 
-        $response = ReceiveAllResponse::fromResult(app(ReceiveAllUseCase::class)->exec($this->sysPlayerId))->toArray();
+        $response = ReceiveAllResponse::fromResult(app(ReceiveAllUseCase::class)->handle($this->sysPlayerId))->toArray();
         $this->flush();
 
         $this->assertSame(2, $response['total_count']);
@@ -152,7 +152,7 @@ class MailboxReceiveContentTest extends TestCase
         $received = $this->makeMailbox(isReceived: true);
         $fresh = $this->makeMailbox();
 
-        $response = ReceiveAllResponse::fromResult(app(ReceiveAllUseCase::class)->exec($this->sysPlayerId, [$received->id, $fresh->id]))->toArray();
+        $response = ReceiveAllResponse::fromResult(app(ReceiveAllUseCase::class)->handle($this->sysPlayerId, [$received->id, $fresh->id]))->toArray();
         $this->flush();
 
         $this->assertSame(1, $response['total_count']);
@@ -171,7 +171,7 @@ class MailboxReceiveContentTest extends TestCase
         $othersMailbox = $this->makeMailbox(sysPlayerId: $other->id);
         ApiSession::setSysPlayerId($this->sysPlayerId);
 
-        $response = ReceiveAllResponse::fromResult(app(ReceiveAllUseCase::class)->exec($this->sysPlayerId, [$mine->id, $othersMailbox->id]))->toArray();
+        $response = ReceiveAllResponse::fromResult(app(ReceiveAllUseCase::class)->handle($this->sysPlayerId, [$mine->id, $othersMailbox->id]))->toArray();
         $this->flush();
 
         $this->assertSame([$mine->id], $response['received_trx_mailbox_id_list']);
@@ -183,7 +183,7 @@ class MailboxReceiveContentTest extends TestCase
     {
         $mailbox = $this->makeMailbox();
 
-        $response = ReceiveAllResponse::fromResult(app(ReceiveAllUseCase::class)->exec($this->sysPlayerId))->toArray();
+        $response = ReceiveAllResponse::fromResult(app(ReceiveAllUseCase::class)->handle($this->sysPlayerId))->toArray();
         $this->flush();
 
         $this->assertSame(1, $response['total_count']);

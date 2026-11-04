@@ -20,7 +20,7 @@ class CreateGroupUseCase extends _BaseUseCase
         private readonly ChatPlayerNameResolver $nameResolver,
     ) {}
 
-    public function exec(int $sysPlayerId, string $name): ChatRoom
+    public function handle(int $sysPlayerId, string $name): ChatRoom
     {
         $ownerName = $this->nameResolver->resolve($sysPlayerId);
 

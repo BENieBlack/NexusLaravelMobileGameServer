@@ -25,9 +25,9 @@ class ReceiveResponse extends _BaseResponse
     /**
      * ReceiveResultからレスポンスを生成
      */
-    public static function fromResult(ReceiveResult $result): self
+    public static function fromResult(ReceiveResult $receiveResult): self
     {
-        return new self($result->trxMailboxId, $result->isReceived, $result->receivedContentArray);
+        return new self($receiveResult->trxMailboxId, $receiveResult->isReceived, $receiveResult->receivedContentArray);
     }
 
     /**

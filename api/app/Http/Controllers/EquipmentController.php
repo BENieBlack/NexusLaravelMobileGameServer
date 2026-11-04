@@ -32,7 +32,7 @@ class EquipmentController extends _BaseController
         return $this->execute(function () use ($request) {
             $sysPlayerId = $this->apiSession->getSysPlayerId();
 
-            return LevelUpResponse::fromResult($this->equipmentLevelUpUseCase->exec(
+            return LevelUpResponse::fromResult($this->equipmentLevelUpUseCase->handle(
                 sysPlayerId: $sysPlayerId,
                 trxEquipmentId: $request->getTrxEquipmentId(),
                 mstItemId: $request->getMstItemId(),

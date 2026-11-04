@@ -21,7 +21,7 @@ class MessagesUseCase extends _BaseUseCase
     /**
      * @return array<ChatMessage>
      */
-    public function exec(int $sysPlayerId, int $chatRoomId, int $limit, ?int $cursor): array
+    public function handle(int $sysPlayerId, int $chatRoomId, int $limit, ?int $cursor): array
     {
         return ChatExceptionTranslator::translate(
             fn () => $this->chatService->getMessages($chatRoomId, $sysPlayerId, $limit, $cursor)

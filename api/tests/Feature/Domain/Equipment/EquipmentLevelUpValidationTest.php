@@ -72,7 +72,7 @@ class EquipmentLevelUpValidationTest extends TestCase
     {
         $this->expectException(TransactionDataException::class);
 
-        app(LevelUpUseCase::class)->exec($this->sysPlayerId, 999999, self::EXP_ITEM_ID, 10);
+        app(LevelUpUseCase::class)->handle($this->sysPlayerId, 999999, self::EXP_ITEM_ID, 10);
     }
 
     #[Test]
@@ -83,7 +83,7 @@ class EquipmentLevelUpValidationTest extends TestCase
         $before = $this->findItemAmount(self::EXP_ITEM_ID);
 
         try {
-            app(LevelUpUseCase::class)->exec($this->sysPlayerId, $this->otherTrxEquipmentId, self::EXP_ITEM_ID, 10);
+            app(LevelUpUseCase::class)->handle($this->sysPlayerId, $this->otherTrxEquipmentId, self::EXP_ITEM_ID, 10);
             $this->fail('他人の装備にレベルアップできてしまった');
         } catch (GameException) {
             // 期待どおり
@@ -100,7 +100,7 @@ class EquipmentLevelUpValidationTest extends TestCase
 
         foreach ([4, 5] as $targetLevel) {
             try {
-                app(LevelUpUseCase::class)->exec($this->sysPlayerId, $this->trxEquipmentId, self::EXP_ITEM_ID, $targetLevel);
+                app(LevelUpUseCase::class)->handle($this->sysPlayerId, $this->trxEquipmentId, self::EXP_ITEM_ID, $targetLevel);
                 $this->fail("レベル{$targetLevel}を目標にできてしまった");
             } catch (GameException $e) {
                 $this->assertStringContainsString('Target level must be greater than current level', $e->getMessage());
@@ -115,7 +115,7 @@ class EquipmentLevelUpValidationTest extends TestCase
     {
         $this->expectException(MasterDataException::class);
 
-        app(LevelUpUseCase::class)->exec($this->sysPlayerId, $this->trxEquipmentId, 'no_such_item', 10);
+        app(LevelUpUseCase::class)->handle($this->sysPlayerId, $this->trxEquipmentId, 'no_such_item', 10);
     }
 
     #[Test]
@@ -126,7 +126,7 @@ class EquipmentLevelUpValidationTest extends TestCase
         $before = $this->findItemAmount(self::WRONG_ITEM_ID);
 
         try {
-            app(LevelUpUseCase::class)->exec($this->sysPlayerId, $this->trxEquipmentId, self::WRONG_ITEM_ID, 10);
+            app(LevelUpUseCase::class)->handle($this->sysPlayerId, $this->trxEquipmentId, self::WRONG_ITEM_ID, 10);
             $this->fail('効果種別が違うアイテムで育ってしまった');
         } catch (BusinessLogicException $e) {
             $this->assertStringContainsString('equipment_exp', $e->getMessage());
@@ -141,7 +141,7 @@ class EquipmentLevelUpValidationTest extends TestCase
     {
         // ゼロ除算になる前に落とす
         try {
-            app(LevelUpUseCase::class)->exec($this->sysPlayerId, $this->trxEquipmentId, self::ZERO_EXP_ITEM_ID, 10);
+            app(LevelUpUseCase::class)->handle($this->sysPlayerId, $this->trxEquipmentId, self::ZERO_EXP_ITEM_ID, 10);
             $this->fail('経験値0のアイテムが通ってしまった');
         } catch (GameException $e) {
             $this->assertStringContainsString('Invalid exp value for item', $e->getMessage());
@@ -160,7 +160,7 @@ class EquipmentLevelUpValidationTest extends TestCase
             ->update(['free_amount' => 13]);
 
         try {
-            app(LevelUpUseCase::class)->exec($this->sysPlayerId, $this->trxEquipmentId, self::EXP_ITEM_ID, 10);
+            app(LevelUpUseCase::class)->handle($this->sysPlayerId, $this->trxEquipmentId, self::EXP_ITEM_ID, 10);
             $this->fail('個数が足りないのに通ってしまった');
         } catch (BusinessLogicException $e) {
             $this->assertStringContainsString(self::EXP_ITEM_ID, $e->getMessage());
@@ -178,7 +178,7 @@ class EquipmentLevelUpValidationTest extends TestCase
             ->where('mst_item_id', self::EXP_ITEM_ID)
             ->update(['free_amount' => 14]);
 
-        app(LevelUpUseCase::class)->exec($this->sysPlayerId, $this->trxEquipmentId, self::EXP_ITEM_ID, 10);
+        app(LevelUpUseCase::class)->handle($this->sysPlayerId, $this->trxEquipmentId, self::EXP_ITEM_ID, 10);
 
         $this->assertSame(10, $this->findEquipment()->level);
     }

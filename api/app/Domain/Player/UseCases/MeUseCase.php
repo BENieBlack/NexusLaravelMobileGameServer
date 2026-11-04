@@ -38,7 +38,7 @@ class MeUseCase extends _BaseUseCase
      *
      * @throws \Exception
      */
-    public function exec(int $sysPlayerId): MeResult
+    public function handle(int $sysPlayerId): MeResult
     {
         // バリデーション実行
         $this->validation($sysPlayerId);

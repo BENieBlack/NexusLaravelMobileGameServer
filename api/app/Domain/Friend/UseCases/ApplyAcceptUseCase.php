@@ -30,7 +30,7 @@ class ApplyAcceptUseCase extends _BaseUseCase
      *
      * @throws GameException
      */
-    public function exec(int $sysPlayerId, int $sysFriendApplyId): FriendApply
+    public function handle(int $sysPlayerId, int $sysFriendApplyId): FriendApply
     {
         return $this->executeWithTransaction(function () use ($sysPlayerId, $sysFriendApplyId) {
             $friendApply = FriendExceptionTranslator::translate(

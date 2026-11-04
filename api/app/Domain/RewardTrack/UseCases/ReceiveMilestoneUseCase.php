@@ -2,16 +2,14 @@
 
 namespace App\Domain\RewardTrack\UseCases;
 
+use App\Domain\_BaseUseCase;
 use App\Domain\RewardTrack\Support\RewardTrackExceptionTranslator;
 use App\Persistence\ApiSession;
-use App\Traits\UseCaseTrait;
 use NexusRewardTrack\DataTransferObjects\RewardTrackMilestone;
 use NexusRewardTrack\Services\RewardTrackService;
 
-class ReceiveMilestoneUseCase
+class ReceiveMilestoneUseCase extends _BaseUseCase
 {
-    use UseCaseTrait;
-
     public function __construct(
         private readonly RewardTrackService $rewardTrackService,
     ) {}

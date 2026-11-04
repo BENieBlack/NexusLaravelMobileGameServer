@@ -25,7 +25,7 @@ class GuildRoomUseCase extends _BaseUseCase
         private readonly SysGuildMemberRepository $sysGuildMemberRepository,
     ) {}
 
-    public function exec(int $sysPlayerId): ChatRoom
+    public function handle(int $sysPlayerId): ChatRoom
     {
         $member = $this->sysGuildMemberRepository->selectByPlayerId($sysPlayerId);
 

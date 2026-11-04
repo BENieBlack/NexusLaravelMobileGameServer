@@ -30,7 +30,7 @@ class ApplyRejectUseCase extends _BaseUseCase
      *
      * @throws GameException
      */
-    public function exec(int $sysPlayerId, int $sysFriendApplyId): FriendApply
+    public function handle(int $sysPlayerId, int $sysFriendApplyId): FriendApply
     {
         return $this->executeWithTransaction(function () use ($sysPlayerId, $sysFriendApplyId) {
             // 却下の権限エラーは承認とコードが分かれている

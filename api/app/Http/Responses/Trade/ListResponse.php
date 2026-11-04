@@ -25,7 +25,7 @@ class ListResponse extends _BaseResponse
     /**
      * @param  array<int, TradeProductStatus>  $tradeProductStatuses
      */
-    public static function fromDtoArray(array $tradeProductStatuses): self
+    public static function fromResult(array $tradeProductStatuses): self
     {
         return new self($tradeProductStatuses);
     }

@@ -11,9 +11,17 @@ use App\Http\Responses\_BaseResponse;
  */
 class ReadResponse extends _BaseResponse
 {
-    public function __construct(
+    final public function __construct(
         private readonly int $unreadCount,
     ) {}
+
+    /**
+     * UseCaseの結果（既読にした後の未読数）からレスポンスを生成
+     */
+    public static function fromResult(int $unreadCount): static
+    {
+        return new static($unreadCount);
+    }
 
     /**
      * @return array<string, mixed>

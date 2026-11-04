@@ -73,7 +73,7 @@ class BuyPassUseCaseTest extends TestCase
         $mstInAppPurchase = $this->createProduct('pass', paidDiamondAmount: 100, effectDurationDays: 30);
         $this->createPassEffect($mstInAppPurchase->getId());
 
-        $result = app(BuyPassUseCase::class)->exec(
+        $result = app(BuyPassUseCase::class)->handle(
             $this->sysPlayerId,
             $mstInAppPurchase,
             'Google',

@@ -23,13 +23,13 @@ class BuyResponse extends _BaseResponse
     /**
      * 購入結果からレスポンスを生成
      */
-    public static function fromResult(BuyResult $result): self
+    public static function fromResult(BuyResult $buyResult): self
     {
         return new self(
-            paidDiamondAmount: $result->paidDiamondAmount,
-            totalPaidDiamondAmount: $result->totalPaidDiamondAmount,
-            totalFreeDiamondAmount: $result->totalFreeDiamondAmount,
-            rewards: $result->rewards,
+            paidDiamondAmount: $buyResult->paidDiamondAmount,
+            totalPaidDiamondAmount: $buyResult->totalPaidDiamondAmount,
+            totalFreeDiamondAmount: $buyResult->totalFreeDiamondAmount,
+            rewards: $buyResult->rewards,
         );
     }
 

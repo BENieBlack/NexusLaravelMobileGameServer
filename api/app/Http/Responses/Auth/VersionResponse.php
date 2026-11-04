@@ -23,12 +23,12 @@ class VersionResponse extends _BaseResponse
     /**
      * UseCaseの結果からレスポンスを生成
      */
-    public static function fromResult(VersionResult $result): self
+    public static function fromResult(VersionResult $versionResult): self
     {
         return new self(
-            needsUpdate: $result->needsUpdate,
-            sysDeploy: $result->sysDeploy,
-            sysMaintenance: $result->sysMaintenance,
+            needsUpdate: $versionResult->needsUpdate,
+            sysDeploy: $versionResult->sysDeploy,
+            sysMaintenance: $versionResult->sysMaintenance,
         );
     }
 
@@ -77,27 +77,5 @@ class VersionResponse extends _BaseResponse
         }
 
         return $data;
-    }
-
-    /**
-     * 更新不要のレスポンスを生成
-     */
-    public static function upToDate(?SysMaintenance $sysMaintenance = null): self
-    {
-        return new self(needsUpdate: false, sysMaintenance: $sysMaintenance);
-    }
-
-    /**
-     * 更新必要のレスポンスを生成
-     */
-    public static function updateAvailable(
-        SysDeploy $sysDeploy,
-        ?SysMaintenance $sysMaintenance = null
-    ): self {
-        return new self(
-            needsUpdate: true,
-            sysDeploy: $sysDeploy,
-            sysMaintenance: $sysMaintenance
-        );
     }
 }

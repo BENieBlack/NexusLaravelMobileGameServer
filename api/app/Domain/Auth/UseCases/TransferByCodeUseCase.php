@@ -28,7 +28,7 @@ class TransferByCodeUseCase extends _BaseUseCase
      *
      * @throws GameException コードが無い・パスワードが違う・期限切れ・ロック中の場合
      */
-    public function exec(string $transferCode, string $password, string $deviceId, array $deviceInfo): SignInResult
+    public function handle(string $transferCode, string $password, string $deviceId, array $deviceInfo): SignInResult
     {
         $result = $this->executeWithTransaction(function () use ($transferCode, $password, $deviceId, $deviceInfo) {
             $sysPlayerTransferCode = $this->sysPlayerTransferCodeRepository->selectByTransferCode(strtoupper($transferCode));

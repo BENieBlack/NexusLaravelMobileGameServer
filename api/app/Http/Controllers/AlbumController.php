@@ -18,6 +18,6 @@ class AlbumController extends _BaseController
     {
         $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
-        return $this->execute(fn () => ListResponse::fromResult($useCase->exec($sysPlayerId)));
+        return $this->execute(fn () => ListResponse::fromResult($useCase->handle($sysPlayerId)));
     }
 }

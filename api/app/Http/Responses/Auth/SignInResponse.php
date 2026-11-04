@@ -23,7 +23,7 @@ class SignInResponse extends _BaseResponse
      * @param  TokenModelInterface  $sysPlayerToken  トークン情報
      * @param  Token  $token  トークン情報DTO
      */
-    public function __construct(
+    final public function __construct(
         public readonly SysPlayer $sysPlayer,
         public readonly SysPlayerDevice $sysPlayerDevice,
         public readonly TokenModelInterface $sysPlayerToken,
@@ -33,13 +33,13 @@ class SignInResponse extends _BaseResponse
     /**
      * UseCaseの結果からレスポンスを生成
      */
-    public static function fromResult(SignInResult $result): self
+    public static function fromResult(SignInResult $signInResult): static
     {
-        return new self(
-            sysPlayer: $result->sysPlayer,
-            sysPlayerDevice: $result->sysPlayerDevice,
-            sysPlayerToken: $result->sysPlayerToken,
-            token: $result->token,
+        return new static(
+            sysPlayer: $signInResult->sysPlayer,
+            sysPlayerDevice: $signInResult->sysPlayerDevice,
+            sysPlayerToken: $signInResult->sysPlayerToken,
+            token: $signInResult->token,
         );
     }
 

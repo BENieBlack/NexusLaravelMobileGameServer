@@ -17,7 +17,7 @@ class ListUseCase extends _BaseUseCase
         private readonly NotificationService $notificationService,
     ) {}
 
-    public function exec(int $sysPlayerId, bool $onlyUnread = false): ListResult
+    public function handle(int $sysPlayerId, bool $onlyUnread = false): ListResult
     {
         return new ListResult(
             notifications: $this->notificationService->findByPlayer($sysPlayerId, $onlyUnread),

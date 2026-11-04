@@ -33,7 +33,7 @@ QueryManager      NexusUnitOfWork\Persistence\QueryManager（コミット直前�
 ```
 
 1. `auth.token`（`NexusSecurity\Middleware\VerifyAccessToken`）がトークンを検証し、`ApiSession` にプレイヤーIDを載せる（8節）
-2. Controller は `_BaseController::execute()` のコールバック内で、Request から値を取り出して UseCase の `exec()` にスカラーで渡し、戻り値を `LevelUpResponse::fromResult()` で Response にする
+2. Controller は `_BaseController::execute()` のコールバック内で、Request から値を取り出して UseCase の `handle()` にスカラーで渡し、戻り値をアクション専用の `LevelUpResponse::fromResult()` で Response にする
 3. UseCase は `validation()` で事前チェックしてから `executeWithTransaction()` 内で Service を呼ぶ。戻り値は `Domain/Unit/DataTransferObjects/LevelUpResult`
 4. Service は Repository の `selectById()` で読み、`setModel()` で変更をキューに積む
 5. callback が返ると QueryManager がキューを一括実行し、全接続をコミットする（7節）
@@ -60,7 +60,7 @@ Console/Commands/         artisan コマンド
 Domain/
   _BaseUseCase.php
   {Context}/
-    UseCases/             *UseCase（入口は exec()）
+    UseCases/             *UseCase（入口は handle()）
     Services/             *Service、パッケージ契約を実装する *Adapter（ItemGranterAdapter など）
     Contracts/            他コンテキストへの公開API（4節）
     DataTransferObjects/  UseCase の戻り値 *Result など

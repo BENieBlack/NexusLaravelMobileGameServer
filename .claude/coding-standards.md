@@ -7,7 +7,7 @@ Controller / Request / UseCase / Service / Repository / Model / Response / DTO /
 
 - `api/app/Http/Controllers/{Context}Controller.php`、`_BaseController` を継承する。
 - アクションは `$this->execute(callable)` に「UseCase実行 → Response変換」を渡して返すだけにする。`execute()` はコールバックが `_BaseResponseInterface` 以外を返すと `LogicException`、例外は `handleException()` がエラーレスポンスにする。Controller で try/catch しない。
-- UseCase の入口は `exec()`。Request オブジェクトは渡さず、Request の getter で取り出した値を渡す。
+- UseCase の入口は `handle()`。Request オブジェクトは渡さず、Request の getter で取り出した値を渡す。
 - UseCase の戻り値（Result / DTO）は Controller で `XxxResponse::fromResult()` などに変換する。UseCase に Response を作らせない。
 - プレイヤーIDは `ApiSession::getSysPlayerId()`（UnitController）か `$this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId())`（FriendController, ChatController）で取る。現状は両方ある。
 
@@ -19,7 +19,7 @@ public function levelUp(LevelUpRequest $request): JsonResponse
     return $this->execute(function () use ($request) {
         $sysPlayerId = $this->apiSession->getSysPlayerId();
 
-        return LevelUpResponse::fromResult($this->unitLevelUpUseCase->exec(
+        return LevelUpResponse::fromResult($this->unitLevelUpUseCase->handle(
             sysPlayerId: $sysPlayerId,
             trxUnitId: $request->getTrxUnitId(),
             mstItemId: $request->getMstItemId(),
@@ -41,8 +41,8 @@ public function levelUp(LevelUpRequest $request): JsonResponse
 ## UseCase
 
 - `api/app/Domain/{Context}/UseCases/{Action}UseCase.php`、`App\Domain\_BaseUseCase` を継承する。
-- 入口は `exec()`。引数はスカラーかDTOで、シグネチャは UseCase ごとに決める。
-- 事前検証は同じ引数の `validation()` に書き、`exec()` の先頭で呼ぶ（存在確認・所有確認・所持数など）。
+- 入口は `handle()`。引数はスカラーかDTOで、シグネチャは UseCase ごとに決める。
+- 事前検証は同じ引数の `validation()` に書き、`handle()` の先頭で呼ぶ（存在確認・所有確認・所持数など）。
 - 書き込みがある処理は `executeWithTransaction(fn () => ...)` の中で行う。読み取りだけなら不要。INSERT直後に採番IDを参照するときだけ `flushQueue()` を呼ぶ。
 - 戻り値は `Domain/{Context}/DataTransferObjects/*Result`、パッケージのDTO、Eloquentモデル、void のいずれか。`App\Http` を参照しない（ModuleBoundaryTest）。
 - 他コンテキストの機能は `App\Domain\{Other}\Contracts\` のインターフェースで受ける（LevelUpUseCase は `ItemInventoryInterface`）。
@@ -100,8 +100,11 @@ public function exec(int $sysPlayerId, int $trxUnitId, string $mstItemId, int $u
 
 ## Response
 
-- `api/app/Http/Responses/{Context}/{Action}Response.php`、`_BaseResponse` を継承する。
-- コンストラクタ引数を `public readonly` で持ち、変換用の static ファクトリを置く: Result からは `fromResult()`、パッケージDTOからは `fromDto()`、配列・コレクションからは `fromDtoArray()` / `fromCollection()`。変換が要らないものは Controller で `new XxxResponse(...)` してよい（ChatController）。
+- アクションごとに1つ作る: `api/app/Http/Responses/{Controller名}/{メソッド名}Response.php`（例: `ChatController::send` → `Chat/SendResponse`）。`_BaseResponse` を継承する。
+- 複数のアクションで共用しない。返す形が同じなら、親を継承した子をアクションごとに置く（`Account/TransferByCodeResponse extends Auth\SignInResponse`、`Chat/FriendRoomResponse extends RoomResponse`）。親は `final public function __construct` と `fromResult(): static` にする。
+- 生成メソッドは `fromResult()` だけ。UseCase の `handle()` の戻り値を受け取る。引数名は中身に合わせ（`FriendApply $friendApply`、`LevelUpResult $levelUpResult`）、表示に要る値があれば引数を足してよい（`Friend/ListResponse::fromResult($sysFriendApplyCollection, $sysPlayerId)`）。
+- `handle()` が void のアクションだけ、Controller で `new XxxResponse(...)` する（`Mailbox/LockResponse`）。
+- 以上は `api/tests/Architecture/ResponsePerActionTest.php` が検査する。
 - `toArray()` に snake_case のキーを手で書く。`toJsonResponse()` は基底（HTTP 200）。`Responsable` / `toResponse()` や Reflection による自動変換は無い。
 - モデルを含めるときは `toResponseArray()` を呼ぶ（`api/app/Http/Responses/Auth/LoginResponse.php`）。
 - エラーは Response で返さない。例外を投げれば `_BaseController` が `Nexus\Core\ValueObjects\ErrorResponse` にする。
@@ -109,9 +112,9 @@ public function exec(int $sysPlayerId, int $trxUnitId, string $mstItemId, int $u
 例: `api/app/Http/Responses/Unit/LevelUpResponse.php`
 
 ```php
-public static function fromResult(LevelUpResult $result): self
+public static function fromResult(LevelUpResult $levelUpResult): self
 {
-    return new self(isLeveledUp: $result->isLeveledUp, beforeLevel: $result->beforeLevel, /* ... */);
+    return new self(isLeveledUp: $levelUpResult->isLeveledUp, beforeLevel: $levelUpResult->beforeLevel, /* ... */);
 }
 
 public function toArray(): array

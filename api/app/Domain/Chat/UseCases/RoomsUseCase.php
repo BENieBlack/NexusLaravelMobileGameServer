@@ -20,7 +20,7 @@ class RoomsUseCase extends _BaseUseCase
     /**
      * @return array<ChatRoom>
      */
-    public function exec(int $sysPlayerId): array
+    public function handle(int $sysPlayerId): array
     {
         return $this->chatService->getRoomsByPlayer($sysPlayerId);
     }

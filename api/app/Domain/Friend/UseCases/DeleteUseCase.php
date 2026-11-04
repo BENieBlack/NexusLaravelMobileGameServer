@@ -30,7 +30,7 @@ class DeleteUseCase extends _BaseUseCase
      *
      * @throws GameException
      */
-    public function exec(int $sysPlayerId, string $targetMyId): string
+    public function handle(int $sysPlayerId, string $targetMyId): string
     {
         // トランザクション開始
         return $this->executeWithTransaction(function () use ($sysPlayerId, $targetMyId) {

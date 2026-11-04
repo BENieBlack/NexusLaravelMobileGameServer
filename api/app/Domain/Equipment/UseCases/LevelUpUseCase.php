@@ -128,7 +128,7 @@ class LevelUpUseCase extends _BaseUseCase
      *
      * @throws \Exception|\Throwable
      */
-    public function exec(int $sysPlayerId, int $trxEquipmentId, string $mstItemId, int $afterLevel): LevelUpResult
+    public function handle(int $sysPlayerId, int $trxEquipmentId, string $mstItemId, int $afterLevel): LevelUpResult
     {
         // バリデーション実行
         $this->validation($sysPlayerId, $trxEquipmentId, $mstItemId, $afterLevel);

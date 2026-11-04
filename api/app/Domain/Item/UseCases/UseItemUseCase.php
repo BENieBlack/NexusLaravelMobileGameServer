@@ -91,7 +91,7 @@ class UseItemUseCase extends _BaseUseCase
      *
      * @throws \Exception
      */
-    public function exec(int $sysPlayerId, string $mstItemId, int $useCount): UseItemResult
+    public function handle(int $sysPlayerId, string $mstItemId, int $useCount): UseItemResult
     {
         $this->validation($sysPlayerId, $mstItemId, $useCount);
 

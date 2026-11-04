@@ -45,7 +45,7 @@ class SignInUseCase extends _BaseUseCase
      * @throws GameException デバイスIDが存在しない場合
      * @throws Exception|Throwable
      */
-    public function exec(string $deviceId, array $deviceInfo): SignInResult
+    public function handle(string $deviceId, array $deviceInfo): SignInResult
     {
         // トランザクション開始
         return $this->executeWithTransaction(function () use ($deviceId) {

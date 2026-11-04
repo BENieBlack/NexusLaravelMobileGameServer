@@ -27,7 +27,7 @@ class ApplyRejectUseCase extends _BaseUseCase
      *
      * @throws GameException
      */
-    public function exec(int $sysPlayerId, int $applyId): GuildApply
+    public function handle(int $sysPlayerId, int $applyId): GuildApply
     {
         // トランザクション開始
         return $this->executeWithTransaction(function () use ($sysPlayerId, $applyId) {

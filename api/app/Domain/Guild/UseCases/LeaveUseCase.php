@@ -25,7 +25,7 @@ class LeaveUseCase extends _BaseUseCase
      *
      * @throws GameException
      */
-    public function exec(int $sysPlayerId): void
+    public function handle(int $sysPlayerId): void
     {
         // トランザクション開始
         $this->executeWithTransaction(function () use ($sysPlayerId) {

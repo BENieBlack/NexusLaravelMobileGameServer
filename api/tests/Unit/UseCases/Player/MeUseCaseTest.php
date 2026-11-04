@@ -61,7 +61,7 @@ class MeUseCaseTest extends TestCase
         $sysPlayer = $this->createPlayer();
 
         // Act
-        $response = $this->useCase->exec($sysPlayer->id);
+        $response = $this->useCase->handle($sysPlayer->id);
 
         // Assert
         $this->assertInstanceOf(MeResult::class, $response);
@@ -78,7 +78,7 @@ class MeUseCaseTest extends TestCase
         $sysPlayer = $this->createPlayer();
 
         // Act
-        $response = $this->useCase->exec($sysPlayer->id);
+        $response = $this->useCase->handle($sysPlayer->id);
 
         // Assert
         $this->assertNotEmpty($response->myId);
@@ -97,7 +97,7 @@ class MeUseCaseTest extends TestCase
         // Assert & Act
         $this->expectException(SystemDataException::class);
 
-        $this->useCase->exec($nonExistentPlayerId);
+        $this->useCase->handle($nonExistentPlayerId);
     }
 
     /**
@@ -136,7 +136,7 @@ class MeUseCaseTest extends TestCase
         $sysPlayer = $this->createPlayer();
 
         // Act
-        $response = $this->useCase->exec($sysPlayer->id);
+        $response = $this->useCase->handle($sysPlayer->id);
 
         // Assert - 新規プレイヤーの名前はランダムに生成される（8文字）
         $this->assertNotNull($response->name);
@@ -157,7 +157,7 @@ class MeUseCaseTest extends TestCase
         $sysPlayer->save();
 
         // Act
-        $response = $this->useCase->exec($sysPlayer->id);
+        $response = $this->useCase->handle($sysPlayer->id);
 
         // Assert
         $this->assertEquals('Test Player Name', $response->name);
@@ -174,9 +174,9 @@ class MeUseCaseTest extends TestCase
         $sysPlayer3 = $this->createPlayer();
 
         // Act
-        $response1 = $this->useCase->exec($sysPlayer1->id);
-        $response2 = $this->useCase->exec($sysPlayer2->id);
-        $response3 = $this->useCase->exec($sysPlayer3->id);
+        $response1 = $this->useCase->handle($sysPlayer1->id);
+        $response2 = $this->useCase->handle($sysPlayer2->id);
+        $response3 = $this->useCase->handle($sysPlayer3->id);
 
         // Assert - すべて異なるmy_idを持つ
         $this->assertNotEquals($response1->myId, $response2->myId);
@@ -200,7 +200,7 @@ class MeUseCaseTest extends TestCase
         $sysPlayer->save();
 
         // Act
-        $response = $this->useCase->exec($sysPlayer->id);
+        $response = $this->useCase->handle($sysPlayer->id);
         $array = MeResponse::fromResult($response)->toArray();
 
         // Assert

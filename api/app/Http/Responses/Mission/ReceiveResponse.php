@@ -21,7 +21,7 @@ class ReceiveResponse extends _BaseResponse
     /**
      * UseCaseの結果からレスポンスを生成
      */
-    public static function fromDto(MissionStatus $missionStatus): self
+    public static function fromResult(MissionStatus $missionStatus): self
     {
         return new self($missionStatus);
     }

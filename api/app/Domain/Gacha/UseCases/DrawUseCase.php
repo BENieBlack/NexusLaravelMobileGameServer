@@ -41,7 +41,7 @@ class DrawUseCase extends _BaseUseCase
      *
      * @throws \Exception
      */
-    public function exec(
+    public function handle(
         int $sysPlayerId,
         string $mstGachaId,
         int $drawCount,

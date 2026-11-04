@@ -98,7 +98,7 @@ class BuyDiamondUseCaseTest extends TestCase
             ]),
         ]);
 
-        $result = app(BuyDiamondUseCase::class)->exec(
+        $result = app(BuyDiamondUseCase::class)->handle(
             $this->sysPlayerId,
             $mstInAppPurchase,
             'Google',
@@ -186,7 +186,7 @@ class BuyDiamondUseCaseTest extends TestCase
             ]),
         ]);
 
-        app(BuyDiamondUseCase::class)->exec(
+        app(BuyDiamondUseCase::class)->handle(
             $this->sysPlayerId,
             $mstInAppPurchase,
             'Apple',
@@ -227,7 +227,7 @@ class BuyDiamondUseCaseTest extends TestCase
         ]);
 
         try {
-            app(BuyDiamondUseCase::class)->exec(
+            app(BuyDiamondUseCase::class)->handle(
                 $this->sysPlayerId,
                 $mstInAppPurchase,
                 'Google',
@@ -274,7 +274,7 @@ class BuyDiamondUseCaseTest extends TestCase
         ]);
 
         try {
-            app(BuyDiamondUseCase::class)->exec(
+            app(BuyDiamondUseCase::class)->handle(
                 $this->sysPlayerId,
                 $mstInAppPurchase,
                 'Google',

@@ -4,8 +4,7 @@ namespace App\Http\Responses\Friend;
 
 use App\Http\Responses\_BaseResponse;
 use App\Models\Sys\SysFriendApply;
-use Illuminate\Database\Eloquent\Collection;
-use NexusFriend\DataTransferObjects\FriendApply;
+use Nexus\Core\Support\CustomCollection;
 
 /**
  * ApplyListResponse
@@ -24,9 +23,9 @@ class ApplyListResponse extends _BaseResponse
     /**
      * SysFriendApplyのCollectionからレスポンスを生成
      *
-     * @param  Collection<int, SysFriendApply>  $sysFriendApplyCollection
+     * @param  CustomCollection<int, SysFriendApply>  $sysFriendApplyCollection
      */
-    public static function fromCollection(Collection $sysFriendApplyCollection): self
+    public static function fromResult(CustomCollection $sysFriendApplyCollection): self
     {
         $applyArray = $sysFriendApplyCollection->map(function (SysFriendApply $sysFriendApply) {
             return [
@@ -38,36 +37,6 @@ class ApplyListResponse extends _BaseResponse
                 'updated_at' => $sysFriendApply->getUpdatedAt(),
             ];
         })->toArray();
-
-        return new self(applies: $applyArray);
-    }
-
-    /**
-     * FriendApply配列からレスポンスを生成
-     *
-     * 注意: この実装は暫定的なもので、現在はModelのリレーション情報に依存しています
-     * 将来的にはDTOに必要な情報を含めるべきです
-     *
-     * @param  array<FriendApply>  $dtos
-     */
-    public static function fromDtoArray(array $dtos): self
-    {
-        $applyArray = [];
-        foreach ($dtos as $dto) {
-            // DTOからModelを取得してリレーション情報を使用（暫定対応）
-            $model = SysFriendApply::with(['sendPlayer', 'receivePlayer'])->find($dto->getId());
-
-            if ($model) {
-                $applyArray[] = [
-                    'sys_friend_apply_id' => $dto->getId(),
-                    'sender_my_id' => $model->sendPlayer->my_id,
-                    'receiver_my_id' => $model->receivePlayer->my_id,
-                    'status' => $dto->getStatus(),
-                    'created_at' => $dto->getCreatedAt(),
-                    'updated_at' => $dto->getUpdatedAt(),
-                ];
-            }
-        }
 
         return new self(applies: $applyArray);
     }

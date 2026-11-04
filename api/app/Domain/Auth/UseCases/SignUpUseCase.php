@@ -46,7 +46,7 @@ class SignUpUseCase extends _BaseUseCase
      *
      * @throws BusinessLogicException|Throwable 既存デバイスIDの場合
      */
-    public function exec(string $deviceId, array $deviceInfo): SignUpResult
+    public function handle(string $deviceId, array $deviceInfo): SignUpResult
     {
         // トランザクション開始
         return $this->executeWithTransaction(function () use ($deviceId, $deviceInfo) {

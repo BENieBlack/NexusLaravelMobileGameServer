@@ -6,7 +6,7 @@ use App\Domain\RewardTrack\UseCases\GetSummaryUseCase;
 use App\Domain\RewardTrack\UseCases\ReceiveMilestoneUseCase;
 use App\Http\Requests\RewardTrack\GetSummaryRequest;
 use App\Http\Requests\RewardTrack\ReceiveMilestoneRequest;
-use App\Http\Responses\RewardTrack\ReceiveMilestoneResponse;
+use App\Http\Responses\RewardTrack\ReceiveResponse;
 use App\Http\Responses\RewardTrack\SummaryResponse;
 use Illuminate\Http\JsonResponse;
 
@@ -24,11 +24,7 @@ class RewardTrackController extends _BaseController
      */
     public function summary(GetSummaryRequest $request, GetSummaryUseCase $useCase): JsonResponse
     {
-        return $this->execute(function () use ($request, $useCase) {
-            $summary = $useCase->handle($request->getMstRewardTrackId());
-
-            return new SummaryResponse($summary);
-        });
+        return $this->execute(fn () => SummaryResponse::fromResult($useCase->handle($request->getMstRewardTrackId())));
     }
 
     /**
@@ -38,13 +34,9 @@ class RewardTrackController extends _BaseController
      */
     public function receive(ReceiveMilestoneRequest $request, ReceiveMilestoneUseCase $useCase): JsonResponse
     {
-        return $this->execute(function () use ($request, $useCase) {
-            $milestone = $useCase->handle(
-                $request->getMstRewardTrackMilestoneId(),
-                $request->getMstRewardTrackLineId()
-            );
-
-            return new ReceiveMilestoneResponse($milestone);
-        });
+        return $this->execute(fn () => ReceiveResponse::fromResult($useCase->handle(
+            $request->getMstRewardTrackMilestoneId(),
+            $request->getMstRewardTrackLineId(),
+        )));
     }
 }

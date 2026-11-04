@@ -21,7 +21,7 @@ class ExternalAccountListUseCase extends _BaseUseCase
     /**
      * @return CustomCollection<int, SysPlayerExternalAccount>
      */
-    public function exec(int $sysPlayerId): CustomCollection
+    public function handle(int $sysPlayerId): CustomCollection
     {
         return $this->sysPlayerExternalAccountRepository->selectListByPlayerId($sysPlayerId);
     }

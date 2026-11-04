@@ -31,7 +31,7 @@ class ListUseCase extends _BaseUseCase
      * @param  int  $offset  読み飛ばす件数
      * @return array<Guild>
      */
-    public function exec(int $limit = self::MAX_LIMIT, int $offset = 0): array
+    public function handle(int $limit = self::MAX_LIMIT, int $offset = 0): array
     {
         $guildDtos = $this->guildService->findGuildList(
             max(1, min($limit, self::MAX_LIMIT)),

@@ -23,11 +23,11 @@ class LevelUpResponse extends _BaseResponse
     /**
      * レベルアップ結果からレスポンスを生成
      */
-    public static function fromResult(LevelUpResult $result): self
+    public static function fromResult(LevelUpResult $levelUpResult): self
     {
         return new self(
-            trxEquipment: $result->trxEquipment,
-            trxItem: $result->trxItem,
+            trxEquipment: $levelUpResult->trxEquipment,
+            trxItem: $levelUpResult->trxItem,
         );
     }
 

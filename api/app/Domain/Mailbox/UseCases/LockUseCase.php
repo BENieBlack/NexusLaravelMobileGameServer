@@ -23,7 +23,7 @@ class LockUseCase extends _BaseUseCase
      *
      * @throws GameException
      */
-    public function exec(int $sysPlayerId, int $trxMailboxId, bool $isLocked): void
+    public function handle(int $sysPlayerId, int $trxMailboxId, bool $isLocked): void
     {
         $this->executeWithTransaction(function () use ($sysPlayerId, $trxMailboxId, $isLocked) {
             // メールボックス取得

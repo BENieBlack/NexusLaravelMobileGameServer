@@ -22,7 +22,7 @@ class PendingUseCase extends _BaseUseCase
      * @param  int  $sysPlayerId  sys_player.id（プレイヤーID）
      * @return CustomCollection<int, PendingAgreement>
      */
-    public function exec(int $sysPlayerId): CustomCollection
+    public function handle(int $sysPlayerId): CustomCollection
     {
         return $this->agreementService->getPendingAgreements($sysPlayerId);
     }

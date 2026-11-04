@@ -26,7 +26,7 @@ class ReceiveUseCase extends _BaseUseCase
      *
      * @throws GameException 存在しない・期間外・未達成・受け取り済みの場合
      */
-    public function exec(int $sysPlayerId, string $mstMissionId): MissionStatus
+    public function handle(int $sysPlayerId, string $mstMissionId): MissionStatus
     {
         return $this->executeWithTransaction(
             fn () => MissionExceptionTranslator::translate(

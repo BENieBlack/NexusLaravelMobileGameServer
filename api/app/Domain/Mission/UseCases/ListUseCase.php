@@ -23,7 +23,7 @@ class ListUseCase extends _BaseUseCase
      * @param  int  $sysPlayerId  sys_player.id（プレイヤーID）
      * @return array<int, MissionStatus>
      */
-    public function exec(int $sysPlayerId): array
+    public function handle(int $sysPlayerId): array
     {
         return $this->missionService->findStatuses($sysPlayerId);
     }

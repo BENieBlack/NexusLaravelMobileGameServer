@@ -36,14 +36,14 @@ class LoginResponse extends _BaseResponse
     /**
      * UseCaseの結果からレスポンスを生成
      */
-    public static function fromResult(LoginResult $result): self
+    public static function fromResult(LoginResult $loginResult): self
     {
         return new self(
-            sysPlayer: $result->sysPlayer,
-            trxUnits: $result->trxUnits,
-            trxItems: $result->trxItems,
-            trxWallets: $result->trxWallets,
-            loginBonusContents: $result->loginBonusContents,
+            sysPlayer: $loginResult->sysPlayer,
+            trxUnits: $loginResult->trxUnits,
+            trxItems: $loginResult->trxItems,
+            trxWallets: $loginResult->trxWallets,
+            loginBonusContents: $loginResult->loginBonusContents,
         );
     }
 

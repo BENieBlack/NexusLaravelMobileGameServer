@@ -5,11 +5,11 @@ namespace App\Http\Responses\Chat;
 use App\Http\Responses\_BaseResponse;
 
 /**
- * ResultResponse
+ * ChangeRoleResponse
  *
- * 退室・キック・削除など、返す値が無い操作の結果
+ * グループチャットのロール変更APIのレスポンス。返す値は無い
  */
-class ResultResponse extends _BaseResponse
+class ChangeRoleResponse extends _BaseResponse
 {
     /**
      * @return array<string, mixed>

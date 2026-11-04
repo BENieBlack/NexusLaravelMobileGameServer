@@ -21,11 +21,11 @@ class MeResponse extends _BaseResponse
     /**
      * UseCaseの結果からレスポンスを生成
      */
-    public static function fromResult(MeResult $result): self
+    public static function fromResult(MeResult $meResult): self
     {
         return new self(
-            myId: $result->myId,
-            name: $result->name,
+            myId: $meResult->myId,
+            name: $meResult->name,
         );
     }
 

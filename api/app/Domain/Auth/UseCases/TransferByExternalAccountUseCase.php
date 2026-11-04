@@ -31,7 +31,7 @@ class TransferByExternalAccountUseCase extends _BaseUseCase
      *
      * @throws GameException トークンが不正、または紐付いたプレイヤーがいない場合
      */
-    public function exec(string $provider, string $idToken, string $deviceId, array $deviceInfo): SignInResult
+    public function handle(string $provider, string $idToken, string $deviceId, array $deviceInfo): SignInResult
     {
         // 外部への問い合わせを含むため、トランザクションの外で検証する
         $providerUserId = ExternalIdTokenExceptionTranslator::translate(

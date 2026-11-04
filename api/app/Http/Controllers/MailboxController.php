@@ -36,7 +36,7 @@ class MailboxController extends _BaseController
      */
     public function list(ListRequest $request, ListUseCase $useCase): JsonResponse
     {
-        return $this->execute(fn () => ListResponse::fromResult($useCase->exec(
+        return $this->execute(fn () => ListResponse::fromResult($useCase->handle(
             $this->apiSession->getSysPlayerId(),
             $request->getCategory(),
             $request->getPriority(),
@@ -53,7 +53,7 @@ class MailboxController extends _BaseController
         return $this->execute(function () use ($request, $useCase) {
             $trxMailboxId = $request->getTrxMailboxId();
 
-            $useCase->exec($this->apiSession->getSysPlayerId(), $trxMailboxId);
+            $useCase->handle($this->apiSession->getSysPlayerId(), $trxMailboxId);
 
             return new OpenResponse($trxMailboxId, true);
         });
@@ -64,7 +64,7 @@ class MailboxController extends _BaseController
      */
     public function receive(ReceiveRequest $request, ReceiveUseCase $useCase): JsonResponse
     {
-        return $this->execute(fn () => ReceiveResponse::fromResult($useCase->exec(
+        return $this->execute(fn () => ReceiveResponse::fromResult($useCase->handle(
             $this->apiSession->getSysPlayerId(),
             $request->getTrxMailboxId()
         )));
@@ -75,7 +75,7 @@ class MailboxController extends _BaseController
      */
     public function receiveAll(ReceiveAllRequest $request, ReceiveAllUseCase $useCase): JsonResponse
     {
-        return $this->execute(fn () => ReceiveAllResponse::fromResult($useCase->exec(
+        return $this->execute(fn () => ReceiveAllResponse::fromResult($useCase->handle(
             $this->apiSession->getSysPlayerId(),
             $request->getTrxMailboxIds(),
             $request->getCategory()
@@ -91,7 +91,7 @@ class MailboxController extends _BaseController
             $trxMailboxId = $request->getTrxMailboxId();
             $isLocked = $request->getIsLocked();
 
-            $useCase->exec($this->apiSession->getSysPlayerId(), $trxMailboxId, $isLocked);
+            $useCase->handle($this->apiSession->getSysPlayerId(), $trxMailboxId, $isLocked);
 
             return new LockResponse(
                 trxMailboxId: $trxMailboxId,

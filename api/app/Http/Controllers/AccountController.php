@@ -15,7 +15,10 @@ use App\Http\Requests\Account\TransferByExternalAccountRequest;
 use App\Http\Requests\Account\UnlinkExternalAccountRequest;
 use App\Http\Responses\Account\ExternalAccountListResponse;
 use App\Http\Responses\Account\IssueTransferCodeResponse;
-use App\Http\Responses\Auth\SignInResponse;
+use App\Http\Responses\Account\LinkExternalAccountResponse;
+use App\Http\Responses\Account\TransferByCodeResponse;
+use App\Http\Responses\Account\TransferByExternalAccountResponse;
+use App\Http\Responses\Account\UnlinkExternalAccountResponse;
 use App\Persistence\ApiSession;
 use Illuminate\Http\JsonResponse;
 
@@ -38,7 +41,7 @@ class AccountController extends _BaseController
      */
     public function issueTransferCode(IssueTransferCodeRequest $request, IssueTransferCodeUseCase $useCase): JsonResponse
     {
-        return $this->execute(fn () => IssueTransferCodeResponse::fromResult($useCase->exec(
+        return $this->execute(fn () => IssueTransferCodeResponse::fromResult($useCase->handle(
             sysPlayerId: ApiSession::getSysPlayerId(),
             password: $request->getPassword(),
         )));
@@ -51,7 +54,7 @@ class AccountController extends _BaseController
      */
     public function transferByCode(TransferByCodeRequest $request, TransferByCodeUseCase $useCase): JsonResponse
     {
-        return $this->execute(fn () => SignInResponse::fromResult($useCase->exec(
+        return $this->execute(fn () => TransferByCodeResponse::fromResult($useCase->handle(
             transferCode: $request->getTransferCode(),
             password: $request->getPassword(),
             deviceId: $request->getDeviceId(),
@@ -66,8 +69,8 @@ class AccountController extends _BaseController
      */
     public function externalAccountList(ExternalAccountListUseCase $useCase): JsonResponse
     {
-        return $this->execute(fn () => ExternalAccountListResponse::fromCollection(
-            $useCase->exec(ApiSession::getSysPlayerId())
+        return $this->execute(fn () => ExternalAccountListResponse::fromResult(
+            $useCase->handle(ApiSession::getSysPlayerId())
         ));
     }
 
@@ -78,7 +81,7 @@ class AccountController extends _BaseController
      */
     public function linkExternalAccount(LinkExternalAccountRequest $request, LinkExternalAccountUseCase $useCase): JsonResponse
     {
-        return $this->execute(fn () => ExternalAccountListResponse::fromCollection($useCase->exec(
+        return $this->execute(fn () => LinkExternalAccountResponse::fromResult($useCase->handle(
             sysPlayerId: ApiSession::getSysPlayerId(),
             provider: $request->getProvider(),
             idToken: $request->getIdToken(),
@@ -92,7 +95,7 @@ class AccountController extends _BaseController
      */
     public function unlinkExternalAccount(UnlinkExternalAccountRequest $request, UnlinkExternalAccountUseCase $useCase): JsonResponse
     {
-        return $this->execute(fn () => ExternalAccountListResponse::fromCollection($useCase->exec(
+        return $this->execute(fn () => UnlinkExternalAccountResponse::fromResult($useCase->handle(
             sysPlayerId: ApiSession::getSysPlayerId(),
             provider: $request->getProvider(),
         )));
@@ -107,7 +110,7 @@ class AccountController extends _BaseController
         TransferByExternalAccountRequest $request,
         TransferByExternalAccountUseCase $useCase,
     ): JsonResponse {
-        return $this->execute(fn () => SignInResponse::fromResult($useCase->exec(
+        return $this->execute(fn () => TransferByExternalAccountResponse::fromResult($useCase->handle(
             provider: $request->getProvider(),
             idToken: $request->getIdToken(),
             deviceId: $request->getDeviceId(),

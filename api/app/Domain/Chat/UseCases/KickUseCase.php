@@ -17,7 +17,7 @@ class KickUseCase extends _BaseUseCase
         private readonly ChatService $chatService,
     ) {}
 
-    public function exec(int $sysPlayerId, int $chatRoomId, int $targetSysPlayerId): void
+    public function handle(int $sysPlayerId, int $chatRoomId, int $targetSysPlayerId): void
     {
         $this->executeWithTransaction(
             fn () => ChatExceptionTranslator::translate(function () use ($sysPlayerId, $chatRoomId, $targetSysPlayerId) {

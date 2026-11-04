@@ -26,7 +26,7 @@ class UnlinkExternalAccountUseCase extends _BaseUseCase
      *
      * @throws GameException 紐付いていない場合
      */
-    public function exec(int $sysPlayerId, string $provider): CustomCollection
+    public function handle(int $sysPlayerId, string $provider): CustomCollection
     {
         return $this->executeWithTransaction(function () use ($sysPlayerId, $provider) {
             $linked = $this->sysPlayerExternalAccountRepository->selectByPlayerIdAndProvider($sysPlayerId, $provider);

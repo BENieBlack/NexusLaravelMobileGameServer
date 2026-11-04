@@ -21,6 +21,14 @@ class RefreshTokenResponse extends _BaseResponse
     ) {}
 
     /**
+     * UseCaseの結果（新しいトークン）からレスポンスを生成
+     */
+    public static function fromResult(Token $token): self
+    {
+        return new self($token);
+    }
+
+    /**
      * レスポンスを生成
      */
     public function toArray(): array

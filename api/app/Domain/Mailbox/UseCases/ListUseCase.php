@@ -27,7 +27,7 @@ class ListUseCase extends _BaseUseCase
      * @param  bool  $onlyUnread  未読のみ
      * @param  bool  $onlyLocked  ロックのみ
      */
-    public function exec(
+    public function handle(
         int $sysPlayerId,
         ?string $category = null,
         ?string $priority = null,

@@ -22,7 +22,7 @@ class CheckUseCase extends _BaseUseCase
      *
      * @param  int|null  $deployVersion  デプロイバージョン
      */
-    public function exec(?int $deployVersion): VersionResult
+    public function handle(?int $deployVersion): VersionResult
     {
         // Serviceからデータを取得 [sysDeploy, sysMaintenance]
         [$sysDeploy, $sysMaintenance] = $this->versionService->checkVersion($deployVersion);

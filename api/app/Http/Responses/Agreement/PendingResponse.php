@@ -23,7 +23,7 @@ class PendingResponse extends _BaseResponse
     /**
      * @param  CustomCollection<int, PendingAgreement>  $pendingAgreements
      */
-    public static function fromCollection(CustomCollection $pendingAgreements): self
+    public static function fromResult(CustomCollection $pendingAgreements): self
     {
         return new self($pendingAgreements);
     }

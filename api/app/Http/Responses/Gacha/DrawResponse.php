@@ -32,15 +32,15 @@ class DrawResponse extends _BaseResponse
     /**
      * ガチャ実行結果からレスポンスを生成
      */
-    public static function fromResult(DrawResult $result): self
+    public static function fromResult(DrawResult $drawResult): self
     {
         return new self(
-            prizes: $result->prizes,
-            currentStep: $result->currentStep,
-            dailyDrawCount: $result->dailyDrawCount,
-            totalDrawCount: $result->totalDrawCount,
-            hasNextStep: $result->hasNextStep,
-            nextStepInfo: $result->nextStepInfo,
+            prizes: $drawResult->prizes,
+            currentStep: $drawResult->currentStep,
+            dailyDrawCount: $drawResult->dailyDrawCount,
+            totalDrawCount: $drawResult->totalDrawCount,
+            hasNextStep: $drawResult->hasNextStep,
+            nextStepInfo: $drawResult->nextStepInfo,
         );
     }
 

@@ -30,7 +30,7 @@ class LinkExternalAccountUseCase extends _BaseUseCase
      *
      * @throws GameException トークンが不正、または紐付けられない場合
      */
-    public function exec(int $sysPlayerId, string $provider, string $idToken): CustomCollection
+    public function handle(int $sysPlayerId, string $provider, string $idToken): CustomCollection
     {
         // 外部への問い合わせを含むため、トランザクションの外で検証する
         $providerUserId = ExternalIdTokenExceptionTranslator::translate(

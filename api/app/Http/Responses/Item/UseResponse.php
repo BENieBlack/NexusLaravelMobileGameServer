@@ -22,13 +22,13 @@ class UseResponse extends _BaseResponse
     /**
      * UseItemResultからレスポンスを生成
      */
-    public static function fromResult(UseItemResult $result): self
+    public static function fromResult(UseItemResult $useItemResult): self
     {
         return new self(
-            mstItemId: $result->mstItemId,
-            effect: $result->effect,
-            itemUsed: $result->itemUsed,
-            appliedValue: $result->appliedValue,
+            mstItemId: $useItemResult->mstItemId,
+            effect: $useItemResult->effect,
+            itemUsed: $useItemResult->itemUsed,
+            appliedValue: $useItemResult->appliedValue,
         );
     }
 

@@ -36,7 +36,7 @@ class RefreshTokenUseCase extends _BaseUseCase
      *
      * @throws \Exception|\Throwable
      */
-    public function exec(string $refreshToken): Token
+    public function handle(string $refreshToken): Token
     {
         // トランザクション開始
         return $this->executeWithTransaction(function () use ($refreshToken) {

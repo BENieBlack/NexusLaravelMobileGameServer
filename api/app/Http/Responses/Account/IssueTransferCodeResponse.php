@@ -17,11 +17,11 @@ class IssueTransferCodeResponse extends _BaseResponse
         public readonly string $expiresAt,
     ) {}
 
-    public static function fromResult(IssueTransferCodeResult $result): self
+    public static function fromResult(IssueTransferCodeResult $issueTransferCodeResult): self
     {
         return new self(
-            transferCode: $result->transferCode,
-            expiresAt: $result->expiresAt,
+            transferCode: $issueTransferCodeResult->transferCode,
+            expiresAt: $issueTransferCodeResult->expiresAt,
         );
     }
 

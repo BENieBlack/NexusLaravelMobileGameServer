@@ -5,7 +5,7 @@ namespace App\Domain\Friend\UseCases;
 use App\Domain\_BaseUseCase;
 use App\Models\Sys\SysFriendApply;
 use App\Repositories\Sys\SysFriendApplyRepository;
-use Illuminate\Database\Eloquent\Collection;
+use Nexus\Core\Support\CustomCollection;
 
 /**
  * ApplyListUseCase
@@ -25,9 +25,9 @@ class ApplyListUseCase extends _BaseUseCase
      * statusがAppliedのものを取得
      *
      * @param  int  $sysPlayerId  プレイヤーID
-     * @return Collection<int, SysFriendApply>
+     * @return CustomCollection<int, SysFriendApply>
      */
-    public function exec(int $sysPlayerId): Collection
+    public function handle(int $sysPlayerId): CustomCollection
     {
         // トランザクション開始
         return $this->executeWithTransaction(function () use ($sysPlayerId) {

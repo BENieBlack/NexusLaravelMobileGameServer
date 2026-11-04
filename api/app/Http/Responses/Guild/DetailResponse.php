@@ -6,11 +6,11 @@ use App\Http\Responses\_BaseResponse;
 use NexusGuild\DataTransferObjects\Guild;
 
 /**
- * GuildCreateResponse
+ * DetailResponse
  *
- * ギルド作成APIのレスポンス
+ * ギルド詳細取得APIのレスポンス
  */
-class GuildCreateResponse extends _BaseResponse
+class DetailResponse extends _BaseResponse
 {
     public function __construct(
         public readonly int $guildId,
@@ -21,12 +21,13 @@ class GuildCreateResponse extends _BaseResponse
         public readonly int $maxMembers,
         public readonly int $currentMembers,
         public readonly string $createdAt,
+        public readonly string $updatedAt,
     ) {}
 
     /**
      * Guildからレスポンスを生成
      */
-    public static function fromDto(Guild $guild): self
+    public static function fromResult(Guild $guild): self
     {
         return new self(
             guildId: $guild->getId(),
@@ -37,6 +38,7 @@ class GuildCreateResponse extends _BaseResponse
             maxMembers: $guild->getMaxMembers(),
             currentMembers: $guild->getCurrentMembers(),
             createdAt: $guild->getCreatedAt(),
+            updatedAt: $guild->getUpdatedAt(),
         );
     }
 
@@ -56,6 +58,7 @@ class GuildCreateResponse extends _BaseResponse
             'max_members' => $this->maxMembers,
             'current_members' => $this->currentMembers,
             'created_at' => $this->createdAt,
+            'updated_at' => $this->updatedAt,
         ];
     }
 }

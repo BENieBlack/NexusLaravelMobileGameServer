@@ -22,7 +22,7 @@ class ReadUseCase extends _BaseUseCase
     /**
      * @return int 既読処理後の未読数
      */
-    public function exec(int $sysPlayerId, int $trxNotificationId): int
+    public function handle(int $sysPlayerId, int $trxNotificationId): int
     {
         return $this->executeWithTransaction(function () use ($sysPlayerId, $trxNotificationId) {
             $this->notificationService->markAsRead($trxNotificationId, $sysPlayerId);

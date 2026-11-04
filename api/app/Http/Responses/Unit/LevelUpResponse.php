@@ -31,18 +31,18 @@ class LevelUpResponse extends _BaseResponse
     /**
      * レベルアップ結果からレスポンスを生成
      */
-    public static function fromResult(LevelUpResult $result): self
+    public static function fromResult(LevelUpResult $levelUpResult): self
     {
         return new self(
-            isLeveledUp: $result->isLeveledUp,
-            beforeLevel: $result->beforeLevel,
-            afterLevel: $result->afterLevel,
-            totalExp: $result->totalExp,
-            expToNext: $result->expToNext,
-            rarity: $result->rarity,
-            maxLevel: $result->maxLevel,
-            itemUsed: $result->itemUsed,
-            expGained: $result->expGained,
+            isLeveledUp: $levelUpResult->isLeveledUp,
+            beforeLevel: $levelUpResult->beforeLevel,
+            afterLevel: $levelUpResult->afterLevel,
+            totalExp: $levelUpResult->totalExp,
+            expToNext: $levelUpResult->expToNext,
+            rarity: $levelUpResult->rarity,
+            maxLevel: $levelUpResult->maxLevel,
+            itemUsed: $levelUpResult->itemUsed,
+            expGained: $levelUpResult->expGained,
         );
     }
 

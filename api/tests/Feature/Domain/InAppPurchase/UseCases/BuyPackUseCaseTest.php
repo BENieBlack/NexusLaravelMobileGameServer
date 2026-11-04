@@ -77,7 +77,7 @@ class BuyPackUseCaseTest extends TestCase
         $mstInAppPurchase = $this->createProduct('pack');
         $this->createPackContents($mstInAppPurchase->getId());
 
-        $result = app(BuyPackUseCase::class)->exec(
+        $result = app(BuyPackUseCase::class)->handle(
             $this->sysPlayerId,
             $mstInAppPurchase,
             'Google',
@@ -113,7 +113,7 @@ class BuyPackUseCaseTest extends TestCase
         $mstInAppPurchase = $this->createProduct('pack');
         $this->createUnitContent($mstInAppPurchase->getId(), amount: 2);
 
-        $result = app(BuyPackUseCase::class)->exec(
+        $result = app(BuyPackUseCase::class)->handle(
             $this->sysPlayerId,
             $mstInAppPurchase,
             'Google',
@@ -147,7 +147,7 @@ class BuyPackUseCaseTest extends TestCase
         $this->createPackContents($mstInAppPurchase->getId());
         $this->createUnitContent($mstInAppPurchase->getId());
 
-        $result = app(BuyPackUseCase::class)->exec(
+        $result = app(BuyPackUseCase::class)->handle(
             $this->sysPlayerId,
             $mstInAppPurchase,
             'Google',
@@ -175,7 +175,7 @@ class BuyPackUseCaseTest extends TestCase
     {
         $mstInAppPurchase = $this->createProduct('pack');
 
-        $result = app(BuyPackUseCase::class)->exec(
+        $result = app(BuyPackUseCase::class)->handle(
             $this->sysPlayerId,
             $mstInAppPurchase,
             'Google',
@@ -204,7 +204,7 @@ class BuyPackUseCaseTest extends TestCase
         $this->createPackContents($mstInAppPurchase->getId());
 
         foreach (['GPA.PACK-1001', 'GPA.PACK-1002'] as $orderId) {
-            app(BuyPackUseCase::class)->exec(
+            app(BuyPackUseCase::class)->handle(
                 $this->sysPlayerId,
                 $mstInAppPurchase,
                 'Google',
@@ -270,7 +270,7 @@ class BuyPackUseCaseTest extends TestCase
      */
     private function buy(MstInAppPurchase $mstInAppPurchase, string $orderId): void
     {
-        app(BuyPackUseCase::class)->exec(
+        app(BuyPackUseCase::class)->handle(
             $this->sysPlayerId,
             $mstInAppPurchase,
             'Google',

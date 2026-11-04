@@ -6,11 +6,11 @@ use App\Http\Responses\_BaseResponse;
 use NexusGuild\DataTransferObjects\GuildApply;
 
 /**
- * GuildApplyListResponse
+ * ApplyListResponse
  *
  * ギルド加入申請一覧取得APIのレスポンス
  */
-class GuildApplyListResponse extends _BaseResponse
+class ApplyListResponse extends _BaseResponse
 {
     /**
      * @param  array<array<string, mixed>>  $applies
@@ -22,12 +22,12 @@ class GuildApplyListResponse extends _BaseResponse
     /**
      * GuildApply配列からレスポンスを生成
      *
-     * @param  array<GuildApply>  $applyDtos
+     * @param  array<GuildApply>  $guildApplies
      */
-    public static function fromDtoArray(array $applyDtos): self
+    public static function fromResult(array $guildApplies): self
     {
         $applies = [];
-        foreach ($applyDtos as $dto) {
+        foreach ($guildApplies as $dto) {
             $applies[] = [
                 'sys_guild_apply_id' => $dto->getId(),
                 'sys_guild_id' => $dto->getSysGuildId(),

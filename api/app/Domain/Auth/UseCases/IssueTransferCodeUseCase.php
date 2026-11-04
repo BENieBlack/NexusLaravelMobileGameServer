@@ -34,7 +34,7 @@ class IssueTransferCodeUseCase extends _BaseUseCase
     /**
      * @param  string  $password  新端末で入力させるパスワード（ハッシュにして保存する）
      */
-    public function exec(int $sysPlayerId, string $password): IssueTransferCodeResult
+    public function handle(int $sysPlayerId, string $password): IssueTransferCodeResult
     {
         return $this->executeWithTransaction(function () use ($sysPlayerId, $password) {
             $expiresAt = ApiSession::getNow()

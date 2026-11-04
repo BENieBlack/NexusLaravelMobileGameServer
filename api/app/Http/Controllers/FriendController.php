@@ -37,7 +37,7 @@ class FriendController extends _BaseController
         // リクエストパラメータを取得
         $targetMyId = $request->getMyId();
 
-        return $this->execute(fn () => ApplySendResponse::fromDto($useCase->exec($sysPlayerId, $targetMyId)));
+        return $this->execute(fn () => ApplySendResponse::fromResult($useCase->handle($sysPlayerId, $targetMyId)));
     }
 
     /**
@@ -53,7 +53,7 @@ class FriendController extends _BaseController
         // リクエストパラメータを取得
         $sysFriendApplyId = $request->getSysFriendApplyId();
 
-        return $this->execute(fn () => ApplyAcceptResponse::fromDto($useCase->exec($sysPlayerId, $sysFriendApplyId)));
+        return $this->execute(fn () => ApplyAcceptResponse::fromResult($useCase->handle($sysPlayerId, $sysFriendApplyId)));
     }
 
     /**
@@ -69,7 +69,7 @@ class FriendController extends _BaseController
         // リクエストパラメータを取得
         $sysFriendApplyId = $request->getSysFriendApplyId();
 
-        return $this->execute(fn () => ApplyRejectResponse::fromDto($useCase->exec($sysPlayerId, $sysFriendApplyId)));
+        return $this->execute(fn () => ApplyRejectResponse::fromResult($useCase->handle($sysPlayerId, $sysFriendApplyId)));
     }
 
     /**
@@ -82,7 +82,7 @@ class FriendController extends _BaseController
         // 認証情報を取得
         $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
-        return $this->execute(fn () => ApplyListResponse::fromCollection($useCase->exec($sysPlayerId)));
+        return $this->execute(fn () => ApplyListResponse::fromResult($useCase->handle($sysPlayerId)));
     }
 
     /**
@@ -96,7 +96,7 @@ class FriendController extends _BaseController
         $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
         // 自分のsys_player_idも渡して、相手のmy_idを取得できるようにする
-        return $this->execute(fn () => ListResponse::fromCollection($useCase->exec($sysPlayerId), $sysPlayerId));
+        return $this->execute(fn () => ListResponse::fromResult($useCase->handle($sysPlayerId), $sysPlayerId));
     }
 
     /**
@@ -112,6 +112,6 @@ class FriendController extends _BaseController
         // リクエストパラメータを取得
         $targetMyId = $request->getMyId();
 
-        return $this->execute(fn () => DeleteResponse::fromDeletedMyId($useCase->exec($sysPlayerId, $targetMyId)));
+        return $this->execute(fn () => DeleteResponse::fromResult($useCase->handle($sysPlayerId, $targetMyId)));
     }
 }

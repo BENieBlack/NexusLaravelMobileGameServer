@@ -53,7 +53,7 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
      *
      * @throws GameException
      */
-    public function exec(
+    public function handle(
         int $sysPlayerId,
         MstInAppPurchase $mstInAppPurchase,
         string $platform,

@@ -28,11 +28,11 @@ class ListResponse extends _BaseResponse
     /**
      * UseCaseの結果からレスポンスを生成
      */
-    public static function fromResult(ListResult $result): self
+    public static function fromResult(ListResult $listResult): self
     {
         return new self(
-            albumEntries: $result->albumEntries,
-            albumProgressList: $result->albumProgressList,
+            albumEntries: $listResult->albumEntries,
+            albumProgressList: $listResult->albumProgressList,
         );
     }
 

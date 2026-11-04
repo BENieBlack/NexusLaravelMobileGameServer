@@ -23,7 +23,7 @@ abstract class _BaseController
      * 戻り値の型を固定することで、レスポンスの形が呼び出し方によって
      * 変わったり、意図しないキーが混入したりするのを防ぐ。
      *
-     * @param  callable(): _BaseResponseInterface  $useCase  UseCaseの実行とResponseへの変換（例: fn() => XxxResponse::fromDto($useCase->exec($id))）
+     * @param  callable(): _BaseResponseInterface  $useCase  UseCaseの実行とResponseへの変換（例: fn() => XxxResponse::fromResult($useCase->handle($id))）
      */
     protected function execute(callable $useCase): JsonResponse
     {

@@ -17,7 +17,7 @@ class DeleteMessageUseCase extends _BaseUseCase
         private readonly ChatService $chatService,
     ) {}
 
-    public function exec(int $sysPlayerId, int $chatMessageId): void
+    public function handle(int $sysPlayerId, int $chatMessageId): void
     {
         $this->executeWithTransaction(
             fn () => ChatExceptionTranslator::translate(function () use ($sysPlayerId, $chatMessageId) {

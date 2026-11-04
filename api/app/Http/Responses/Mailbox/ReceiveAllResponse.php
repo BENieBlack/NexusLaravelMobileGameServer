@@ -33,14 +33,14 @@ class ReceiveAllResponse extends _BaseResponse
     /**
      * ReceiveAllResultからレスポンスを生成
      */
-    public static function fromResult(ReceiveAllResult $result): self
+    public static function fromResult(ReceiveAllResult $receiveAllResult): self
     {
         return new self(
-            receivedMailboxIds: $result->receivedMailboxIds,
-            totalCount: $result->totalCount,
-            skippedCount: $result->skippedCount,
-            deliveryContents: $result->deliveryContents,
-            deliverySummary: $result->deliverySummary,
+            receivedMailboxIds: $receiveAllResult->receivedMailboxIds,
+            totalCount: $receiveAllResult->totalCount,
+            skippedCount: $receiveAllResult->skippedCount,
+            deliveryContents: $receiveAllResult->deliveryContents,
+            deliverySummary: $receiveAllResult->deliverySummary,
         );
     }
 

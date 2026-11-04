@@ -33,7 +33,7 @@ class ListResponse extends _BaseResponse
      * @param  CustomCollection<int, TrxMailbox>  $trxMailboxCollection
      * @param  array<string, int>  $unreadCounts
      */
-    public static function fromCollection(
+    private static function fromCollection(
         CustomCollection $trxMailboxCollection,
         array $unreadCounts = []
     ): self {
@@ -147,9 +147,9 @@ class ListResponse extends _BaseResponse
     /**
      * ListResultからレスポンスを生成
      */
-    public static function fromResult(ListResult $result): self
+    public static function fromResult(ListResult $listResult): self
     {
-        return self::fromCollection($result->trxMailboxCollection, $result->unreadCounts);
+        return self::fromCollection($listResult->trxMailboxCollection, $listResult->unreadCounts);
     }
 
     /**

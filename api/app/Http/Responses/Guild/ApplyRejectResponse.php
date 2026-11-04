@@ -6,11 +6,11 @@ use App\Http\Responses\_BaseResponse;
 use NexusGuild\DataTransferObjects\GuildApply;
 
 /**
- * GuildApplyAcceptResponse
+ * ApplyRejectResponse
  *
- * ギルド加入申請承認APIのレスポンス
+ * ギルド加入申請却下APIのレスポンス
  */
-class GuildApplyAcceptResponse extends _BaseResponse
+class ApplyRejectResponse extends _BaseResponse
 {
     public function __construct(
         public readonly int $applyId,
@@ -23,7 +23,7 @@ class GuildApplyAcceptResponse extends _BaseResponse
     /**
      * GuildApplyからレスポンスを生成
      */
-    public static function fromDto(GuildApply $guildApply): self
+    public static function fromResult(GuildApply $guildApply): self
     {
         return new self(
             applyId: $guildApply->getId(),

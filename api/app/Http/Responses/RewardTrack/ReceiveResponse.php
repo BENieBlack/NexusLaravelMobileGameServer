@@ -5,11 +5,19 @@ namespace App\Http\Responses\RewardTrack;
 use App\Http\Responses\_BaseResponse;
 use NexusRewardTrack\DataTransferObjects\RewardTrackMilestone;
 
-class ReceiveMilestoneResponse extends _BaseResponse
+class ReceiveResponse extends _BaseResponse
 {
     public function __construct(
         private readonly RewardTrackMilestone $milestone,
     ) {}
+
+    /**
+     * UseCaseの結果（受け取ったマイルストーン）からレスポンスを生成
+     */
+    public static function fromResult(RewardTrackMilestone $milestone): self
+    {
+        return new self($milestone);
+    }
 
     /**
      * @return array<string, mixed>

@@ -5,7 +5,12 @@ namespace App\Http\Responses\Chat;
 use App\Http\Responses\_BaseResponse;
 use NexusChat\DataTransferObjects\ChatRoomMember;
 
-class MemberListResponse extends _BaseResponse
+/**
+ * GroupMembersResponse
+ *
+ * グループチャットのメンバー一覧APIのレスポンス
+ */
+class GroupMembersResponse extends _BaseResponse
 {
     /**
      * @param  array<ChatRoomMember>  $members
@@ -13,6 +18,16 @@ class MemberListResponse extends _BaseResponse
     public function __construct(
         private readonly array $members,
     ) {}
+
+    /**
+     * UseCaseの結果からレスポンスを生成
+     *
+     * @param  array<ChatRoomMember>  $chatRoomMembers
+     */
+    public static function fromResult(array $chatRoomMembers): self
+    {
+        return new self($chatRoomMembers);
+    }
 
     /**
      * @return array<string, mixed>

@@ -33,8 +33,8 @@ class TradeController extends _BaseController
      */
     public function list(ListRequest $request): JsonResponse
     {
-        return $this->execute(fn () => ListResponse::fromDtoArray(
-            $this->listUseCase->exec($this->apiSession->getSysPlayerId())
+        return $this->execute(fn () => ListResponse::fromResult(
+            $this->listUseCase->handle($this->apiSession->getSysPlayerId())
         ));
     }
 
@@ -45,7 +45,7 @@ class TradeController extends _BaseController
      */
     public function exchange(ExchangeRequest $request): JsonResponse
     {
-        return $this->execute(fn () => ExchangeResponse::fromDto($this->exchangeUseCase->exec(
+        return $this->execute(fn () => ExchangeResponse::fromResult($this->exchangeUseCase->handle(
             sysPlayerId: $this->apiSession->getSysPlayerId(),
             mstTradeProductId: $request->getMstTradeProductId(),
             quantity: $request->getQuantity(),

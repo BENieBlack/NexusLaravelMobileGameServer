@@ -88,7 +88,7 @@
              CIのjob envが実環境変数として優先され、環境ごとに前提が変わってしまう。
              <env> は $_ENV / putenv にしか効かず、Laravel の env() は $_SERVER を
              先に見るため、<server> も併せて指定しないと値がずれる。
-             trx3 / log3 の接続情報は残してあるので、増やしたい場合はここを変える -->
+             shard3 の接続情報は残してあるので、増やしたい場合はここを変える -->
         <env name="DB_SHARD_COUNT" value="2" force="true"/>
         <server name="DB_SHARD_COUNT" value="2" force="true"/>
 
@@ -106,53 +106,28 @@
         <env name="DB_MASTER_USERNAME" value="root"/>
         <env name="DB_MASTER_PASSWORD" value="root"/>
 
-        <!-- Log DB Testing (generic) -->
-        <env name="DB_LOG_HOST" value="db-shard1"/>
-        <env name="DB_LOG_PORT" value="3306"/>
-        <env name="DB_LOG_DATABASE" value="nexus-testing-shard"/>
-        <env name="DB_LOG_USERNAME" value="root"/>
-        <env name="DB_LOG_PASSWORD" value="root"/>
+        <!-- Shard DB Testing（trx_* と log_* が同じDBに入る）。
+             config/database.php は trx{N} の接続を DB_SHARD{N}_* から読む -->
 
-        <!-- Log DB Testing - Node 1 -->
-        <env name="DB_LOG1_HOST" value="db-shard1"/>
-        <env name="DB_LOG1_PORT" value="3306"/>
-        <env name="DB_LOG1_DATABASE" value="nexus-testing-shard"/>
-        <env name="DB_LOG1_USERNAME" value="root"/>
-        <env name="DB_LOG1_PASSWORD" value="root"/>
+        <!-- Shard DB Testing - Node 1 -->
+        <env name="DB_SHARD1_HOST" value="db-shard1"/>
+        <env name="DB_SHARD1_PORT" value="3306"/>
+        <env name="DB_SHARD1_DATABASE" value="nexus-testing-shard"/>
+        <env name="DB_SHARD1_USERNAME" value="root"/>
+        <env name="DB_SHARD1_PASSWORD" value="root"/>
 
-        <!-- Log DB Testing - Node 2 -->
-        <env name="DB_LOG2_HOST" value="db-shard2"/>
-        <env name="DB_LOG2_PORT" value="3306"/>
-        <env name="DB_LOG2_DATABASE" value="nexus-testing-shard"/>
-        <env name="DB_LOG2_USERNAME" value="root"/>
-        <env name="DB_LOG2_PASSWORD" value="root"/>
+        <!-- Shard DB Testing - Node 2 -->
+        <env name="DB_SHARD2_HOST" value="db-shard2"/>
+        <env name="DB_SHARD2_PORT" value="3306"/>
+        <env name="DB_SHARD2_DATABASE" value="nexus-testing-shard"/>
+        <env name="DB_SHARD2_USERNAME" value="root"/>
+        <env name="DB_SHARD2_PASSWORD" value="root"/>
 
-        <!-- Log DB Testing - Node 3 -->
-        <env name="DB_LOG3_HOST" value="db-shard3"/>
-        <env name="DB_LOG3_PORT" value="3306"/>
-        <env name="DB_LOG3_DATABASE" value="nexus-testing-shard"/>
-        <env name="DB_LOG3_USERNAME" value="root"/>
-        <env name="DB_LOG3_PASSWORD" value="root"/>
-
-        <!-- Transaction DB Testing - Node 1 -->
-        <env name="DB_TRX1_HOST" value="db-shard1"/>
-        <env name="DB_TRX1_PORT" value="3306"/>
-        <env name="DB_TRX1_DATABASE" value="nexus-testing-shard"/>
-        <env name="DB_TRX1_USERNAME" value="root"/>
-        <env name="DB_TRX1_PASSWORD" value="root"/>
-
-        <!-- Transaction DB Testing - Node 2 -->
-        <env name="DB_TRX2_HOST" value="db-shard2"/>
-        <env name="DB_TRX2_PORT" value="3306"/>
-        <env name="DB_TRX2_DATABASE" value="nexus-testing-shard"/>
-        <env name="DB_TRX2_USERNAME" value="root"/>
-        <env name="DB_TRX2_PASSWORD" value="root"/>
-
-        <!-- Transaction DB Testing - Node 3 -->
-        <env name="DB_TRX3_HOST" value="db-shard3"/>
-        <env name="DB_TRX3_PORT" value="3306"/>
-        <env name="DB_TRX3_DATABASE" value="nexus-testing-shard"/>
-        <env name="DB_TRX3_USERNAME" value="root"/>
-        <env name="DB_TRX3_PASSWORD" value="root"/>
+        <!-- Shard DB Testing - Node 3 -->
+        <env name="DB_SHARD3_HOST" value="db-shard3"/>
+        <env name="DB_SHARD3_PORT" value="3306"/>
+        <env name="DB_SHARD3_DATABASE" value="nexus-testing-shard"/>
+        <env name="DB_SHARD3_USERNAME" value="root"/>
+        <env name="DB_SHARD3_PASSWORD" value="root"/>
     </php>
 </phpunit>

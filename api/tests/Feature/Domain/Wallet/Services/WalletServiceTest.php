@@ -758,4 +758,103 @@ class WalletServiceTest extends TestCase
         $this->assertFalse((bool) $balances[3]->is_paid);
         $this->assertSame(200, $balances[3]->current_amount);
     }
+
+    /**
+     * 現在値（total_amount）は期限切れの行を含んだままになるので、
+     * 残高は「現在値 - 期限切れの分」で数える。
+     * 200 は有効、300 は期限切れの無償残高を用意する。
+     */
+    private function prepareExpiredAndValidBalances(string $currencyId): void
+    {
+        DB::connection('trx1')->table('trx_wallet')->insert([
+            'sys_player_id' => $this->sysPlayerId,
+            'mst_item_id' => $currencyId,
+            'free_amount' => 500,
+            'paid_amount' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        DB::connection('trx1')->table('trx_wallet_balance')->insert([
+            [
+                'sys_player_id' => $this->sysPlayerId,
+                'mst_item_id' => $currencyId,
+                'current_amount' => 300,
+                'initial_amount' => 300,
+                'expire_at' => CarbonImmutable::now()->subDay(),
+                'is_paid' => false,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'sys_player_id' => $this->sysPlayerId,
+                'mst_item_id' => $currencyId,
+                'current_amount' => 200,
+                'initial_amount' => 200,
+                'expire_at' => CarbonImmutable::now()->addDays(7),
+                'is_paid' => false,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+
+        ApiSession::clearForTest();
+        $this->useSessionPlayer($this->sysPlayerId);
+    }
+
+    #[Test]
+    public function 残高の取得は期限切れの分を含めず何も書き込まない(): void
+    {
+        $this->prepareExpiredAndValidBalances('event_coin');
+
+        $balance = $this->walletService->findBalance($this->sysPlayerId, 'event_coin');
+        $this->queryManager->execAllQuery();
+
+        $this->assertSame(200, $balance->getTotalAmount());
+
+        // 読み取りだけなので、現在値も期限切れの行もそのまま
+        $wallet = DB::connection('trx1')->table('trx_wallet')
+            ->where('sys_player_id', $this->sysPlayerId)->where('mst_item_id', 'event_coin')->first();
+        $this->assertSame(500, $wallet->free_amount);
+        $this->assertSame(300, DB::connection('trx1')->table('trx_wallet_balance')
+            ->where('sys_player_id', $this->sysPlayerId)->where('mst_item_id', 'event_coin')
+            ->orderBy('id')->value('current_amount'));
+    }
+
+    #[Test]
+    public function 期限切れの分は消費できず残高不足になる(): void
+    {
+        $this->prepareExpiredAndValidBalances('event_coin');
+
+        try {
+            $this->walletService->consumeCurrency($this->sysPlayerId, 'event_coin', 300);
+            $this->fail('期限切れの300は消費できないので、InsufficientBalanceException になるはず');
+        } catch (InsufficientBalanceException $e) {
+            // 有効な 200 しか無い
+            $this->assertStringContainsString('200', $e->getMessage());
+        }
+    }
+
+    #[Test]
+    public function 消費すると期限切れの行を片付け有効な残高から引く(): void
+    {
+        $this->prepareExpiredAndValidBalances('event_coin');
+
+        $result = $this->walletService->consumeCurrency($this->sysPlayerId, 'event_coin', 150);
+        $this->queryManager->execAllQuery();
+
+        $this->assertSame(150, $result->getFreeAmount());
+        $this->assertSame(50, $result->getCurrentBalance());
+
+        // 現在値は期限切れの300も引かれて 50 になる
+        $wallet = DB::connection('trx1')->table('trx_wallet')
+            ->where('sys_player_id', $this->sysPlayerId)->where('mst_item_id', 'event_coin')->first();
+        $this->assertSame(50, $wallet->free_amount);
+
+        // 期限切れの行は0、有効な行は 200 - 150 = 50
+        $balances = DB::connection('trx1')->table('trx_wallet_balance')
+            ->where('sys_player_id', $this->sysPlayerId)->where('mst_item_id', 'event_coin')
+            ->orderBy('id')->pluck('current_amount')->all();
+        $this->assertSame([0, 50], $balances);
+    }
 }

@@ -23,7 +23,7 @@ class VipLoginBonusServiceTest extends TestCase
 {
     use RefreshMultipleDatabases;
 
-    private int $sysPlayerId = 1;
+    private int $sysPlayerId;
 
     private VipLoginBonusService $vipLoginBonusService;
 
@@ -90,8 +90,8 @@ class VipLoginBonusServiceTest extends TestCase
         }
 
         // sys_playerを作成（VIPレベルはvip_pointから算出されるため保持しない）
-        DB::connection('sys')->table('sys_player')->insert([
-            'id' => $this->sysPlayerId,
+        // 他のテストが残した行と衝突しないよう、IDは採番に任せる
+        $this->sysPlayerId = DB::connection('sys')->table('sys_player')->insertGetId([
             'uuid' => 'test-uuid-'.uniqid(),
             'my_id' => 'TEST0001',
             'name' => 'Test Player',

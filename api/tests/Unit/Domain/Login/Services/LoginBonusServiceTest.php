@@ -24,7 +24,7 @@ class LoginBonusServiceTest extends TestCase
 {
     use RefreshMultipleDatabases;
 
-    private int $sysPlayerId = 1;
+    private int $sysPlayerId;
 
     private LoginBonusService $loginBonusService;
 
@@ -95,8 +95,8 @@ class LoginBonusServiceTest extends TestCase
         }
 
         // sys_playerを作成
-        DB::connection('sys')->table('sys_player')->insert([
-            'id' => $this->sysPlayerId,
+        // 他のテストが残した行と衝突しないよう、IDは採番に任せる
+        $this->sysPlayerId = DB::connection('sys')->table('sys_player')->insertGetId([
             'uuid' => 'test-uuid-'.uniqid(),
             'my_id' => 'TEST0001',
             'name' => 'Test Player',

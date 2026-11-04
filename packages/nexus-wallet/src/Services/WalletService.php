@@ -2,6 +2,7 @@
 
 namespace NexusWallet\Services;
 
+use Nexus\Core\Utilities\ClockUtility;
 use NexusWallet\Exceptions\InsufficientBalanceException;
 use NexusWallet\Repositories\WalletBalanceRepositoryInterface;
 use NexusWallet\Repositories\WalletRepositoryInterface;
@@ -24,6 +25,9 @@ class WalletService
     /**
      * 通貨残高を取得
      *
+     * 有効期限が切れた残高は含めない。期限切れの行の削除は、書き込みの経路（消費）で行う。
+     * 読み取りだけの経路でも呼ばれるので、ここでは何も書き込まず、現在値から期限切れの分を引くだけにする。
+     *
      * @param  int  $playerId  プレイヤーID
      * @param  string  $currencyId  通貨アイテムID
      * @return CurrencyBalance 残高情報
@@ -36,10 +40,14 @@ class WalletService
             return CurrencyBalance::zero();
         }
 
+        $expired = $this->summarizeBalances(
+            $this->walletBalanceRepository->selectAllExpiredByCurrencyId($playerId, $currencyId, ClockUtility::nowToString())
+        );
+
         // 合計値はCurrencyBalanceが内訳から算出するため渡さない
         return new CurrencyBalance(
-            freeAmount: $wallet->free_amount,
-            paidAmount: $wallet->paid_amount,
+            freeAmount: max(0, $wallet->free_amount - $expired['free']),
+            paidAmount: max(0, $wallet->paid_amount - $expired['paid']),
         );
     }
 
@@ -101,23 +109,36 @@ class WalletService
         string $currencyId,
         int $amount
     ): CurrencyOperationResult {
-        // 1. 現在値を取得
+        // 1. 現在値を取得し、期限切れの分を除いた残高で判定する
+        //    （現在値 total_amount は期限切れの行を含んだままなので、そのまま使うと期限切れの分も消費できてしまう）
         $wallet = $this->walletRepository->selectByCurrencyId($playerId, $currencyId);
+        $expiredBalances = iterator_to_array(
+            $this->walletBalanceRepository->selectAllExpiredByCurrencyId($playerId, $currencyId, ClockUtility::nowToString()),
+            false
+        );
+        $expired = $this->summarizeBalances($expiredBalances);
 
-        if ($wallet === null || $wallet->total_amount < $amount) {
-            $available = $wallet->total_amount ?? 0;
-            throw new InsufficientBalanceException($currencyId, $amount, $available);
+        $availableFree = max(0, ($wallet->free_amount ?? 0) - $expired['free']);
+        $availablePaid = max(0, ($wallet->paid_amount ?? 0) - $expired['paid']);
+
+        if ($wallet === null || $availableFree + $availablePaid < $amount) {
+            throw new InsufficientBalanceException($currencyId, $amount, $availableFree + $availablePaid);
         }
 
-        // 2. FIFO順で残高を取得（有償優先 → 有効期限が近いものから → ID順）
-        $balances = $this->walletBalanceRepository->selectAllByCurrencyIdFifoOrder($playerId, $currencyId);
+        // 2. 期限切れの行を削除する（書き込みの経路なので、ここで片付ける）
+        $this->removeExpiredBalances($expiredBalances);
 
-        // 3. FIFO順で消費
+        // 3. FIFO順で残高を取得（有償優先 → 有効期限が近いものから → ID順）。期限切れの行は除く
+        $balances = $this->excludeExpired(
+            $this->walletBalanceRepository->selectAllByCurrencyIdFifoOrder($playerId, $currencyId)
+        );
+
+        // 4. FIFO順で消費
         $consumedAmounts = $this->consumeFromBalances($balances, $amount);
 
-        // 4. 現在値を減算
-        $newFreeAmount = $wallet->free_amount - $consumedAmounts['free'];
-        $newPaidAmount = $wallet->paid_amount - $consumedAmounts['paid'];
+        // 5. 現在値を減算（期限切れの分を除いた値から引く）
+        $newFreeAmount = $availableFree - $consumedAmounts['free'];
+        $newPaidAmount = $availablePaid - $consumedAmounts['paid'];
         $this->walletRepository->persist($playerId, $currencyId, $newFreeAmount, $newPaidAmount);
 
         return new CurrencyOperationResult(
@@ -176,6 +197,43 @@ class WalletService
     // ========================================
     // Private Methods
     // ========================================
+
+    /**
+     * バランスの数量を無償/有償に分けて合計する
+     *
+     * @param  iterable<object>  $balances  バランスコレクション
+     * @return array{free: int, paid: int}
+     */
+    private function summarizeBalances(iterable $balances): array
+    {
+        $free = 0;
+        $paid = 0;
+
+        foreach ($balances as $balance) {
+            if ($balance->is_paid) {
+                $paid += $balance->current_amount;
+            } else {
+                $free += $balance->current_amount;
+            }
+        }
+
+        return ['free' => $free, 'paid' => $paid];
+    }
+
+    /**
+     * 有効期限が切れたバランスを除く
+     *
+     * @param  iterable<object>  $balances  バランスコレクション（expire_at を持つ）
+     * @return iterable<object>
+     */
+    private function excludeExpired(iterable $balances): iterable
+    {
+        foreach ($balances as $balance) {
+            if (! ClockUtility::isPast($balance->expire_at)) {
+                yield $balance;
+            }
+        }
+    }
 
     /**
      * バランスから通貨を消費（FIFO）

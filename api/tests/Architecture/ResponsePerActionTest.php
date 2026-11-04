@@ -20,7 +20,8 @@ use ReflectionNamedType;
  * - 1つの Response を複数の UseCase で共用しない（形が同じなら継承して分ける）。
  *   handle() を親クラスから受け継ぐ UseCase は、親の Response を返す
  * - Controller は Response を作らず、handle() の結果を返すだけにする
- * - Response が外に見せる生成メソッドは fromResult() だけ
+ * - executeWithTransaction() の結果は変数に受けてから Response にする
+ * - Response が外に見せる生成メソッドは from() だけ（変換が要らなければコンストラクタ）
  */
 class ResponsePerActionTest extends TestCase
 {
@@ -121,7 +122,7 @@ class ResponsePerActionTest extends TestCase
                 if (! $staticMethod->isPublic() || $staticMethod->getDeclaringClass()->getName() !== $class->getName()) {
                     continue;
                 }
-                if ($staticMethod->getName() !== 'fromResult') {
+                if ($staticMethod->getName() !== 'from') {
                     $violations[] = $class->getShortName().'::'.$staticMethod->getName().'()';
                 }
             }
@@ -129,7 +130,22 @@ class ResponsePerActionTest extends TestCase
 
         sort($violations);
 
-        $this->assertSame([], $violations, "Response の生成メソッドは fromResult() に統一してください:\n".implode("\n", $violations));
+        $this->assertSame([], $violations, "Response の生成メソッドは from() に統一してください:\n".implode("\n", $violations));
+    }
+
+    #[Test]
+    public function use_cases_do_not_nest_transaction_in_response(): void
+    {
+        $violations = [];
+
+        foreach (glob(__DIR__.'/../../app/Domain/*/UseCases/*.php') ?: [] as $file) {
+            // トランザクションの結果は変数に受けてから Response にする（入れ子は読みにくい）
+            if (preg_match('/\w+Response::from\(\s*\$this->executeWithTransaction\(/', (string) file_get_contents($file))) {
+                $violations[] = basename($file);
+            }
+        }
+
+        $this->assertSame([], $violations, "executeWithTransaction() の結果は変数に受けてから Response::from() に渡してください:\n".implode("\n", $violations));
     }
 
     #[Test]

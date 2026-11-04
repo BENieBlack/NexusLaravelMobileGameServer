@@ -35,7 +35,7 @@ class LinkExternalAccountUseCase extends _BaseUseCase
             fn () => $this->externalIdTokenVerifier->verify($provider, $idToken)
         );
 
-        return LinkExternalAccountResponse::fromResult($this->executeWithTransaction(function () use ($sysPlayerId, $provider, $providerUserId) {
+        $sysPlayerExternalAccounts = $this->executeWithTransaction(function () use ($sysPlayerId, $provider, $providerUserId) {
             $linked = $this->sysPlayerExternalAccountRepository->selectByProviderUserId($provider, $providerUserId);
 
             if ($linked !== null && $linked->getSysPlayerId() !== $sysPlayerId) {
@@ -58,6 +58,8 @@ class LinkExternalAccountUseCase extends _BaseUseCase
             }
 
             return $this->sysPlayerExternalAccountRepository->selectListByPlayerId($sysPlayerId);
-        }));
+        });
+
+        return LinkExternalAccountResponse::from($sysPlayerExternalAccounts);
     }
 }

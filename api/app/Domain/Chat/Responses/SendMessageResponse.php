@@ -19,7 +19,7 @@ class SendMessageResponse extends _BaseResponse
     /**
      * UseCaseの結果からレスポンスを生成
      */
-    public static function fromResult(ChatMessage $chatMessage): self
+    public static function from(ChatMessage $chatMessage): self
     {
         return new self($chatMessage);
     }

@@ -32,13 +32,15 @@ class ApplyRejectUseCase extends _BaseUseCase
      */
     public function handle(int $sysPlayerId, int $sysFriendApplyId): ApplyRejectResponse
     {
-        return ApplyRejectResponse::fromResult($this->executeWithTransaction(function () use ($sysPlayerId, $sysFriendApplyId) {
+        $friendApply = $this->executeWithTransaction(function () use ($sysPlayerId, $sysFriendApplyId) {
             // 却下の権限エラーは承認とコードが分かれている
             $friendApply = FriendExceptionTranslator::translateForReject(
                 fn () => $this->friendService->rejectApply($sysFriendApplyId, $sysPlayerId)
             );
 
             return $friendApply;
-        }));
+        });
+
+        return ApplyRejectResponse::from($friendApply);
     }
 }

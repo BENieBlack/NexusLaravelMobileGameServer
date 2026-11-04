@@ -39,7 +39,7 @@ class RefreshTokenUseCase extends _BaseUseCase
     public function handle(string $refreshToken): RefreshTokenResponse
     {
         // トランザクション開始
-        return RefreshTokenResponse::fromResult($this->executeWithTransaction(function () use ($refreshToken) {
+        $token = $this->executeWithTransaction(function () use ($refreshToken) {
             // リフレッシュトークンを検証（NexusAuth\Services\TokenService使用）
             $oldToken = $this->tokenService->validateRefreshToken($refreshToken);
 
@@ -82,6 +82,8 @@ class RefreshTokenUseCase extends _BaseUseCase
             $this->playerAuthService->updateLastLogin($device->getUuid());
 
             return $token;
-        }));
+        });
+
+        return RefreshTokenResponse::from($token);
     }
 }

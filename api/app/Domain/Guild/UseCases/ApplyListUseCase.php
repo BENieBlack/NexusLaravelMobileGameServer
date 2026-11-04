@@ -28,11 +28,13 @@ class ApplyListUseCase extends _BaseUseCase
      */
     public function handle(int $guildId): ApplyListResponse
     {
-        return ApplyListResponse::fromResult(GuildExceptionTranslator::forRead(function () use ($guildId) {
+        $guildApplies = GuildExceptionTranslator::forRead(function () use ($guildId) {
             // ギルド加入申請一覧を取得
             $applyDtos = $this->guildService->findApplyList($guildId);
 
             return $applyDtos;
-        }));
+        });
+
+        return ApplyListResponse::from($guildApplies);
     }
 }

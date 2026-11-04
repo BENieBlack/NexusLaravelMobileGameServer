@@ -30,11 +30,13 @@ class ApplyAcceptUseCase extends _BaseUseCase
     public function handle(int $sysPlayerId, int $applyId): ApplyAcceptResponse
     {
         // トランザクション開始
-        return ApplyAcceptResponse::fromResult($this->executeWithTransaction(function () use ($sysPlayerId, $applyId) {
+        $guildApply = $this->executeWithTransaction(function () use ($sysPlayerId, $applyId) {
             return GuildExceptionTranslator::forApplyAccept(function () use ($sysPlayerId, $applyId) {
                 // 申請承認とメンバー追加（Service経由でバリデーション含む）
                 return $this->guildService->acceptApply($applyId, $sysPlayerId);
             });
-        }));
+        });
+
+        return ApplyAcceptResponse::from($guildApply);
     }
 }

@@ -82,7 +82,15 @@ class FriendFlowTest extends TestCase
 
         $this->withHeaders($this->authHeaders($receiverToken))
             ->postJson('/api/friend/apply/accept', ['sys_friend_apply_id' => $apply->id])
-            ->assertOk();
+            ->assertOk()
+            ->assertJsonStructure([
+                'sys_friend_apply_id',
+                'sender_sys_player_id',
+                'receiver_sys_player_id',
+                'status',
+                'created_at',
+                'updated_at',
+            ]);
 
         $this->assertDatabaseHas('sys_friend_apply', [
             'id' => $apply->id,
@@ -104,7 +112,15 @@ class FriendFlowTest extends TestCase
 
         $this->withHeaders($this->authHeaders($receiverToken))
             ->postJson('/api/friend/apply/reject', ['sys_friend_apply_id' => $apply->id])
-            ->assertOk();
+            ->assertOk()
+            ->assertJsonStructure([
+                'sys_friend_apply_id',
+                'sender_sys_player_id',
+                'receiver_sys_player_id',
+                'status',
+                'created_at',
+                'updated_at',
+            ]);
 
         $this->assertDatabaseHas('sys_friend_apply', [
             'id' => $apply->id,
@@ -130,7 +146,10 @@ class FriendFlowTest extends TestCase
 
         $this->withHeaders($this->authHeaders($senderToken))
             ->getJson('/api/friend/list')
-            ->assertOk();
+            ->assertOk()
+            ->assertJsonStructure([
+                'friend_list',
+            ]);
     }
 
     #[Test]
@@ -151,7 +170,11 @@ class FriendFlowTest extends TestCase
 
         $this->withHeaders($this->authHeaders($senderToken))
             ->postJson('/api/friend/delete', ['my_id' => $receiver->my_id])
-            ->assertOk();
+            ->assertOk()
+            ->assertJsonStructure([
+                'deleted_my_id',
+                'message',
+            ]);
 
         // sys_friend_apply に is_delete カラムは無いため物理削除される
         $this->assertDatabaseMissing('sys_friend_apply', [

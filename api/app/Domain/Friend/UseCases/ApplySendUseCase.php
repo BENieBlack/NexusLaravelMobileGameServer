@@ -33,7 +33,7 @@ class ApplySendUseCase extends _BaseUseCase
     public function handle(int $sysPlayerId, string $targetMyId): ApplySendResponse
     {
         // トランザクション開始
-        return ApplySendResponse::fromResult($this->executeWithTransaction(function () use ($sysPlayerId, $targetMyId) {
+        $friendApply = $this->executeWithTransaction(function () use ($sysPlayerId, $targetMyId) {
             // 1. 申請先のプレイヤーをmy_idで検索
             $targetPlayer = $this->sysPlayerRepository->selectByMyId($targetMyId);
 
@@ -52,6 +52,8 @@ class ApplySendUseCase extends _BaseUseCase
             );
 
             return $friendApply;
-        }));
+        });
+
+        return ApplySendResponse::from($friendApply);
     }
 }

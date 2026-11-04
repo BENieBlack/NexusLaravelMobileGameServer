@@ -27,7 +27,7 @@ class ListResponse extends _BaseResponse
      *
      * @param  array<int, MissionStatus>  $missionStatuses
      */
-    public static function fromResult(array $missionStatuses): self
+    public static function from(array $missionStatuses): self
     {
         return new self($missionStatuses);
     }

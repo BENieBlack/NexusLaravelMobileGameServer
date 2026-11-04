@@ -24,7 +24,7 @@ class RoomsResponse extends _BaseResponse
      *
      * @param  array<ChatRoom>  $chatRooms
      */
-    public static function fromResult(array $chatRooms): self
+    public static function from(array $chatRooms): self
     {
         return new self($chatRooms);
     }

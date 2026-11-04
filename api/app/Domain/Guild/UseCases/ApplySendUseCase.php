@@ -30,13 +30,15 @@ class ApplySendUseCase extends _BaseUseCase
     public function handle(int $sysPlayerId, int $guildId): ApplySendResponse
     {
         // トランザクション開始
-        return ApplySendResponse::fromResult($this->executeWithTransaction(function () use ($sysPlayerId, $guildId) {
+        $guildApply = $this->executeWithTransaction(function () use ($sysPlayerId, $guildId) {
             return GuildExceptionTranslator::forApplySend(function () use ($sysPlayerId, $guildId) {
                 // 申請送信（Service経由でバリデーション含む）
                 $apply = $this->guildService->sendApply($guildId, $sysPlayerId);
 
                 return $apply;
             });
-        }));
+        });
+
+        return ApplySendResponse::from($guildApply);
     }
 }

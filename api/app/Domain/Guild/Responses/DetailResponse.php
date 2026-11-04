@@ -27,7 +27,7 @@ class DetailResponse extends _BaseResponse
     /**
      * Guildからレスポンスを生成
      */
-    public static function fromResult(Guild $guild): self
+    public static function from(Guild $guild): self
     {
         return new self(
             guildId: $guild->getId(),

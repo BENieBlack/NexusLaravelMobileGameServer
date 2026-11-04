@@ -79,6 +79,6 @@ class TransferByCodeUseCase extends _BaseUseCase
             throw new GameException(GameErrorCode::TRANSFER_CODE_INVALID, 'Transfer code or password is invalid');
         }
 
-        return TransferByCodeResponse::fromResult($result);
+        return TransferByCodeResponse::from($result);
     }
 }

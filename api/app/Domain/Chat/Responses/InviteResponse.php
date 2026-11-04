@@ -19,7 +19,7 @@ class InviteResponse extends _BaseResponse
     /**
      * UseCaseの結果からレスポンスを生成
      */
-    public static function fromResult(ChatRoomMember $chatRoomMember): self
+    public static function from(ChatRoomMember $chatRoomMember): self
     {
         return new self($chatRoomMember);
     }

@@ -33,7 +33,7 @@ class DeleteUseCase extends _BaseUseCase
     public function handle(int $sysPlayerId, string $targetMyId): DeleteResponse
     {
         // トランザクション開始
-        return DeleteResponse::fromResult($this->executeWithTransaction(function () use ($sysPlayerId, $targetMyId) {
+        $deletedMyId = $this->executeWithTransaction(function () use ($sysPlayerId, $targetMyId) {
             // 1. 削除対象のプレイヤーをmy_idで検索
             $targetPlayer = $this->sysPlayerRepository->selectByMyId($targetMyId);
 
@@ -52,6 +52,8 @@ class DeleteUseCase extends _BaseUseCase
             );
 
             return $targetPlayer->getMyId();
-        }));
+        });
+
+        return DeleteResponse::from($deletedMyId);
     }
 }

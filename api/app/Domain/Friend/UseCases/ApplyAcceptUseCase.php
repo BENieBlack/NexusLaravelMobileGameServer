@@ -32,12 +32,14 @@ class ApplyAcceptUseCase extends _BaseUseCase
      */
     public function handle(int $sysPlayerId, int $sysFriendApplyId): ApplyAcceptResponse
     {
-        return ApplyAcceptResponse::fromResult($this->executeWithTransaction(function () use ($sysPlayerId, $sysFriendApplyId) {
+        $friendApply = $this->executeWithTransaction(function () use ($sysPlayerId, $sysFriendApplyId) {
             $friendApply = FriendExceptionTranslator::translate(
                 fn () => $this->friendService->acceptApply($sysFriendApplyId, $sysPlayerId)
             );
 
             return $friendApply;
-        }));
+        });
+
+        return ApplyAcceptResponse::from($friendApply);
     }
 }

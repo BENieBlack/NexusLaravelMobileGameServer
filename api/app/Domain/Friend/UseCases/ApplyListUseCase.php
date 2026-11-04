@@ -28,9 +28,11 @@ class ApplyListUseCase extends _BaseUseCase
     public function handle(int $sysPlayerId): ApplyListResponse
     {
         // トランザクション開始
-        return ApplyListResponse::fromResult($this->executeWithTransaction(function () use ($sysPlayerId) {
+        $sysFriendApplyCollection = $this->executeWithTransaction(function () use ($sysPlayerId) {
             // 自分が関連するフレンド申請一覧を取得
             return $this->sysFriendApplyRepository->selectAppliesByPlayerId($sysPlayerId);
-        }));
+        });
+
+        return ApplyListResponse::from($sysFriendApplyCollection);
     }
 }

@@ -19,8 +19,10 @@ class GetSummaryUseCase extends _BaseUseCase
         $sysPlayerId = ApiSession::getSysPlayerId();
         $connectionName = ApiSession::resolveConnectionName();
 
-        return GetSummaryResponse::fromResult(RewardTrackExceptionTranslator::translate(
+        $summary = RewardTrackExceptionTranslator::translate(
             fn () => $this->rewardTrackService->getSummary($sysPlayerId, $trackId, $connectionName)
-        ));
+        );
+
+        return GetSummaryResponse::from($summary);
     }
 }

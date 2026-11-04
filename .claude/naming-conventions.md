@@ -69,7 +69,7 @@
 | Service | 取得・計算 | `findXxx()`（`findUnitLevel()`, `findItemAmount()`）、検証は `validateXxx()` |
 | Model | カラムの読み書き | `getXxx()` / `setXxx()`（bool 列も `getIsDelete()`） |
 | UseCase | 入口・事前検証 | `handle()` / `validation()` |
-| Response | 生成 | コンストラクタ、変換が要るときは `fromResult()` |
+| Response | 生成 | コンストラクタ、変換が要るときは `from()` |
 | Adapter（変換） | Model→DTO | `toDto()` / `toDtoArray()` |
 | ExceptionTranslator | 例外の変換 | `translate()` |
 

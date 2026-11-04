@@ -20,7 +20,7 @@ class FriendResponseTest extends TestCase
     #[Test]
     public function 申請送信の応答をdtoから作れる(): void
     {
-        $array = ApplySendResponse::fromResult($this->makeDto())->toArray();
+        $array = ApplySendResponse::from($this->makeDto())->toArray();
 
         $this->assertSame([
             'sys_friend_apply_id' => 11,
@@ -35,7 +35,7 @@ class FriendResponseTest extends TestCase
     public function 承認の応答は更新日時も返す(): void
     {
         // いつ承認されたかをクライアントが表示する
-        $array = ApplyAcceptResponse::fromResult($this->makeDto(SysFriendApply::STATUS_ACCEPTED))->toArray();
+        $array = ApplyAcceptResponse::from($this->makeDto(SysFriendApply::STATUS_ACCEPTED))->toArray();
 
         $this->assertSame(SysFriendApply::STATUS_ACCEPTED, $array['status']);
         $this->assertSame('2026-03-15 12:30:00', $array['updated_at']);
@@ -44,7 +44,7 @@ class FriendResponseTest extends TestCase
     #[Test]
     public function 却下の応答は却下済みの状態を返す(): void
     {
-        $array = ApplyRejectResponse::fromResult($this->makeDto(SysFriendApply::STATUS_REJECTED))->toArray();
+        $array = ApplyRejectResponse::from($this->makeDto(SysFriendApply::STATUS_REJECTED))->toArray();
 
         $this->assertSame(11, $array['sys_friend_apply_id']);
         $this->assertSame(SysFriendApply::STATUS_REJECTED, $array['status']);
@@ -55,9 +55,9 @@ class FriendResponseTest extends TestCase
     {
         // どのテーブルのIDか分からない 'id' は返さない
         foreach ([
-            ApplySendResponse::fromResult($this->makeDto())->toArray(),
-            ApplyAcceptResponse::fromResult($this->makeDto())->toArray(),
-            ApplyRejectResponse::fromResult($this->makeDto())->toArray(),
+            ApplySendResponse::from($this->makeDto())->toArray(),
+            ApplyAcceptResponse::from($this->makeDto())->toArray(),
+            ApplyRejectResponse::from($this->makeDto())->toArray(),
         ] as $array) {
             $this->assertArrayHasKey('sys_friend_apply_id', $array);
             $this->assertArrayNotHasKey('id', $array);

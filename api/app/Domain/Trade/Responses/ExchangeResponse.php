@@ -18,7 +18,7 @@ class ExchangeResponse extends _BaseResponse
         private readonly TradeProductStatus $tradeProductStatus,
     ) {}
 
-    public static function fromResult(TradeProductStatus $tradeProductStatus): self
+    public static function from(TradeProductStatus $tradeProductStatus): self
     {
         return new self($tradeProductStatus);
     }

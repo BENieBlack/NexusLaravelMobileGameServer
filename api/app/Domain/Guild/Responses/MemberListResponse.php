@@ -24,7 +24,7 @@ class MemberListResponse extends _BaseResponse
      *
      * @param  array<GuildMember>  $guildMembers
      */
-    public static function fromResult(array $guildMembers): self
+    public static function from(array $guildMembers): self
     {
         $members = [];
         foreach ($guildMembers as $dto) {

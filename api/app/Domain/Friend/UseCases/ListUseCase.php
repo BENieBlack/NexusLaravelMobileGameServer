@@ -29,9 +29,11 @@ class ListUseCase extends _BaseUseCase
     public function handle(int $sysPlayerId): ListResponse
     {
         // トランザクション開始
-        return ListResponse::fromResult($this->executeWithTransaction(function () use ($sysPlayerId) {
+        $sysFriendApplyCollection = $this->executeWithTransaction(function () use ($sysPlayerId) {
             // 自分が関連する承認済みフレンド一覧を取得
             return $this->sysFriendApplyRepository->selectAcceptedFriendsByPlayerId($sysPlayerId);
-        }), $sysPlayerId);
+        });
+
+        return ListResponse::from($sysFriendApplyCollection, $sysPlayerId);
     }
 }

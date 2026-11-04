@@ -504,6 +504,17 @@ class WalkthroughTest extends TestCase
 
         $response->assertOk();
         // LevelUpResponseはトップレベルにスネークケースで返す
+        $response->assertJsonStructure([
+            'is_leveled_up',
+            'before_level',
+            'after_level',
+            'total_exp',
+            'exp_to_next',
+            'rarity',
+            'max_level',
+            'item_used',
+            'exp_gained',
+        ]);
         $data = $response->json();
 
         // Verify response structure (level up may or may not happen depending on exp requirements)
@@ -543,8 +554,9 @@ class WalkthroughTest extends TestCase
         ]);
 
         $response->assertOk();
+        $response->assertJsonStructure(['trx_equipment', 'trx_item']);
 
-        // LevelUpResponse は Responsable なので data でラップされない
+        // LevelUpResponse は data でラップせずトップレベルに返す
         $data = $response->json();
 
         $this->assertSame(2, $data['trx_equipment']['level']);

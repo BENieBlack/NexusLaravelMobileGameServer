@@ -18,7 +18,7 @@ class GetSummaryResponse extends _BaseResponse
      *
      * @param  array<string, mixed>  $summary
      */
-    public static function fromResult(array $summary): self
+    public static function from(array $summary): self
     {
         return new self($summary);
     }

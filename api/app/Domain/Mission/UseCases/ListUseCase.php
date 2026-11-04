@@ -24,6 +24,6 @@ class ListUseCase extends _BaseUseCase
      */
     public function handle(int $sysPlayerId): ListResponse
     {
-        return ListResponse::fromResult($this->missionService->findStatuses($sysPlayerId));
+        return ListResponse::from($this->missionService->findStatuses($sysPlayerId));
     }
 }

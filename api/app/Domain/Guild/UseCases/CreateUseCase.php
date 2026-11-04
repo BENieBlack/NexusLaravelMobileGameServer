@@ -31,13 +31,15 @@ class CreateUseCase extends _BaseUseCase
     public function handle(int $sysPlayerId, string $name, string $description): CreateResponse
     {
         // トランザクション開始
-        return CreateResponse::fromResult($this->executeWithTransaction(function () use ($sysPlayerId, $name, $description) {
+        $guild = $this->executeWithTransaction(function () use ($sysPlayerId, $name, $description) {
             return GuildExceptionTranslator::forCreate(function () use ($sysPlayerId, $name, $description) {
                 // ギルド作成（Service経由でバリデーション含む）
                 $guild = $this->guildService->createGuild($name, $description, $sysPlayerId);
 
                 return $guild;
             });
-        }));
+        });
+
+        return CreateResponse::from($guild);
     }
 }

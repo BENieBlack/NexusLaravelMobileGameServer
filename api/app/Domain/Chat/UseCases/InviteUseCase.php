@@ -24,10 +24,12 @@ class InviteUseCase extends _BaseUseCase
     {
         $targetName = $this->nameResolver->resolve($targetSysPlayerId);
 
-        return InviteResponse::fromResult($this->executeWithTransaction(
+        $chatRoomMember = $this->executeWithTransaction(
             fn () => ChatExceptionTranslator::translate(
                 fn () => $this->chatService->inviteToGroup($chatRoomId, $sysPlayerId, $targetSysPlayerId, $targetName)
             )
-        ));
+        );
+
+        return InviteResponse::from($chatRoomMember);
     }
 }

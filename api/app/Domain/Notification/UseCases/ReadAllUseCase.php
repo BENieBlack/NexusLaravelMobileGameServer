@@ -19,10 +19,12 @@ class ReadAllUseCase extends _BaseUseCase
 
     public function handle(int $sysPlayerId): ReadAllResponse
     {
-        return ReadAllResponse::fromResult($this->executeWithTransaction(function () use ($sysPlayerId) {
+        $unreadCount = $this->executeWithTransaction(function () use ($sysPlayerId) {
             $this->notificationService->markAllAsRead($sysPlayerId);
 
             return $this->notificationService->countUnread($sysPlayerId);
-        }));
+        });
+
+        return ReadAllResponse::from($unreadCount);
     }
 }

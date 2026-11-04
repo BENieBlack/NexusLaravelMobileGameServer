@@ -23,10 +23,12 @@ class FriendRoomUseCase extends _BaseUseCase
 
     public function handle(int $sysPlayerId, int $targetSysPlayerId): FriendRoomResponse
     {
-        return FriendRoomResponse::fromResult($this->executeWithTransaction(
+        $chatRoom = $this->executeWithTransaction(
             fn () => ChatExceptionTranslator::translate(
                 fn () => $this->chatService->findOrCreateFriendRoom($sysPlayerId, $targetSysPlayerId)
             )
-        ));
+        );
+
+        return FriendRoomResponse::from($chatRoom);
     }
 }

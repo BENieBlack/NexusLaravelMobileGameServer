@@ -38,7 +38,7 @@ class TransferByExternalAccountUseCase extends _BaseUseCase
             fn () => $this->externalIdTokenVerifier->verify($provider, $idToken)
         );
 
-        return TransferByExternalAccountResponse::fromResult($this->executeWithTransaction(function () use ($provider, $providerUserId, $deviceId, $deviceInfo) {
+        $signInResult = $this->executeWithTransaction(function () use ($provider, $providerUserId, $deviceId, $deviceInfo) {
             $linked = $this->sysPlayerExternalAccountRepository->selectByProviderUserId($provider, $providerUserId);
 
             if ($linked === null) {
@@ -54,6 +54,8 @@ class TransferByExternalAccountUseCase extends _BaseUseCase
             $this->flushQueue();
 
             return $signInResult;
-        }));
+        });
+
+        return TransferByExternalAccountResponse::from($signInResult);
     }
 }

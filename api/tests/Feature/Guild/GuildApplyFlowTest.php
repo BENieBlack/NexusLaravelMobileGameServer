@@ -49,6 +49,7 @@ class GuildApplyFlowTest extends TestCase
             ->getJson('/api/guild/apply/list?sys_guild_id='.$guildId);
 
         $response->assertOk();
+        $response->assertJsonStructure(['guild_apply_list']);
         $this->assertNotEmpty($response->json());
     }
 
@@ -116,7 +117,14 @@ class GuildApplyFlowTest extends TestCase
 
         $this->withHeaders($this->authHeaders($masterToken))
             ->postJson('/api/guild/apply/reject', ['sys_guild_apply_id' => $apply->id])
-            ->assertOk();
+            ->assertOk()
+            ->assertJsonStructure([
+                'sys_guild_apply_id',
+                'sys_guild_id',
+                'sys_player_id',
+                'status',
+                'updated_at',
+            ]);
 
         $this->assertDatabaseMissing('sys_guild_member', [
             'sys_guild_id' => $guildId,
@@ -140,7 +148,10 @@ class GuildApplyFlowTest extends TestCase
 
         $this->withHeaders($this->authHeaders($applicantToken))
             ->postJson('/api/guild/leave', [])
-            ->assertOk();
+            ->assertOk()
+            ->assertJsonStructure([
+                'sys_player_id',
+            ]);
 
         $this->assertDatabaseMissing('sys_guild_member', [
             'sys_guild_id' => $guildId,

@@ -25,7 +25,7 @@ class ApplyListResponse extends _BaseResponse
      *
      * @param  CustomCollection<int, SysFriendApply>  $sysFriendApplyCollection
      */
-    public static function fromResult(CustomCollection $sysFriendApplyCollection): self
+    public static function from(CustomCollection $sysFriendApplyCollection): self
     {
         $applyArray = $sysFriendApplyCollection->map(function (SysFriendApply $sysFriendApply) {
             return [

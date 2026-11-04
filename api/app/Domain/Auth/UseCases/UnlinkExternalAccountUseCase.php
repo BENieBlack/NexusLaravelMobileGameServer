@@ -26,7 +26,7 @@ class UnlinkExternalAccountUseCase extends _BaseUseCase
      */
     public function handle(int $sysPlayerId, string $provider): UnlinkExternalAccountResponse
     {
-        return UnlinkExternalAccountResponse::fromResult($this->executeWithTransaction(function () use ($sysPlayerId, $provider) {
+        $sysPlayerExternalAccounts = $this->executeWithTransaction(function () use ($sysPlayerId, $provider) {
             $linked = $this->sysPlayerExternalAccountRepository->selectByPlayerIdAndProvider($sysPlayerId, $provider);
 
             if ($linked === null) {
@@ -36,6 +36,8 @@ class UnlinkExternalAccountUseCase extends _BaseUseCase
             $this->sysPlayerExternalAccountRepository->deleteExternalAccount($linked);
 
             return $this->sysPlayerExternalAccountRepository->selectListByPlayerId($sysPlayerId);
-        }));
+        });
+
+        return UnlinkExternalAccountResponse::from($sysPlayerExternalAccounts);
     }
 }

@@ -22,6 +22,6 @@ class PendingUseCase extends _BaseUseCase
      */
     public function handle(int $sysPlayerId): PendingResponse
     {
-        return PendingResponse::fromResult($this->agreementService->getPendingAgreements($sysPlayerId));
+        return PendingResponse::from($this->agreementService->getPendingAgreements($sysPlayerId));
     }
 }

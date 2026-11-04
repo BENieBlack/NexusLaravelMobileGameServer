@@ -36,10 +36,12 @@ class GuildRoomUseCase extends _BaseUseCase
             );
         }
 
-        return GuildRoomResponse::fromResult($this->executeWithTransaction(
+        $chatRoom = $this->executeWithTransaction(
             fn () => ChatExceptionTranslator::translate(
                 fn () => $this->chatService->findOrCreateGuildRoom($member->getSysGuildId())
             )
-        ));
+        );
+
+        return GuildRoomResponse::from($chatRoom);
     }
 }

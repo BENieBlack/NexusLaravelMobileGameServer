@@ -32,7 +32,7 @@ class ListResponse extends _BaseResponse
      * @param  CustomCollection<int, TrxMailbox>  $trxMailboxCollection
      * @param  array<string, int>  $unreadCounts
      */
-    public static function fromResult(
+    public static function from(
         CustomCollection $trxMailboxCollection,
         array $unreadCounts = []
     ): self {

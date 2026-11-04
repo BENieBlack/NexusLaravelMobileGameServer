@@ -143,6 +143,40 @@ W1 を直せば、`exchange_end_at` を過ぎたものは消える。
 
 **リセットの対象は、そのアイテムの全残高**（そのイベントの外から得たものも含む）。イベント専用のアイテムとして扱うことが前提。
 
+### 4.4 mst_event_item の詳細
+
+| 列 | 型 | 内容 |
+| --- | --- | --- |
+| `deploy_key` | integer | デプロイキー（mst 共通。index） |
+| `mst_event_id` | string | `mst_event` のID |
+| `mst_item_id` | string | `mst_item` のID。`is_wallet = true` のもの。index（`ItemService` が、アイテムからイベントを引くため） |
+| `item_role` | enum | `point`（イベントポイント。ランキングの得点の元）/ `ticket`（ガチャチケット）/ `collection`（収集アイテム）。mst なので ENUM でよい |
+| `sort_order` | integer | クライアントでの表示順（既定 0） |
+| `created_at` / `updated_at` | dateTime | 規約どおり |
+
+- 主キーは `(mst_event_id, mst_item_id)`（名前は `pk_event_item`）。同じアイテムを複数のイベントに登録してよい（使い回し）。イベントの期間は重ならないので、リセットは衝突しない
+- **`point` は1イベントに最大1つ**（取り込み時に検査する）。ランキングの得点の元が1つに決まるため
+- `ticket` / `collection` は、1イベントに何個でも登録できる。ロジックは持たず、リセットと有効期限の対象になるだけ
+
+`ItemService` が、プレイヤーがアイテム `X` に触れたとき（付与・消費・取得）に、次の順で動く。
+
+1. `mst_event_item` から、`X` を持つイベントのうち、**今が `start_at` から `exchange_end_at` の間にあるイベント** `E` を探す（イベントの期間は重ならないので、あっても1つ）
+2. 無ければ、`X` は今はどのイベントにも属さない（通常の Wallet アイテムとして扱う。付与の期間は下の「付与できる期間」）
+3. あれば、`trx_event` に `(プレイヤー, E)` の行があるか見る。無ければ、`E` の**全ての** `mst_event_item` の残高を0にして、行を作る（`X` だけでなく `E` のアイテム全部。印はイベント単位なので、一部だけ残らない）
+4. 付与なら、有効期限を `E` の `exchange_end_at` に差し替える
+
+例（`event_a`: 11/10〜11/17（end_at）、11/20（exchange_end_at））:
+
+| mst_event_id | mst_item_id | item_role |
+| --- | --- | --- |
+| `event_a` | `item_event_point` | `point` |
+| `event_a` | `item_event_gacha_ticket` | `ticket` |
+| `event_a` | `item_event_shard` | `collection` |
+
+次のイベント `event_b`（12/01〜）が同じ `item_event_point` を使うなら、`event_b` にも同じアイテムで行を足す。`event_b` が始まって最初に触れたとき、前のイベントの残りは0になる。
+
+**付与できる期間（確認中）**: `start_at` から `exchange_end_at` までは付与できる（交換期間中のミッション報酬などで配られるため）。それ以外の時刻に、イベントのアイテムを付与しようとしたときの扱いは、決める必要がある。この案は、**業務エラーにする**（`EVENT_ITEM_NOT_AVAILABLE`）。報酬の配布の途中で落ちることになるので、報酬の設定側（マスター取り込み時）でも、期間外に配られないように検査したい。
+
 ---
 
 ## 5. フェーズ1：束ねる + 期間 + アイテム
@@ -163,8 +197,8 @@ mst_event_content
   PK (mst_event_id, content_type, content_mst_id)
 
 mst_event_item
-  deploy_key, mst_event_id, mst_item_id, item_role
-  PK (mst_event_id, mst_item_id)
+  deploy_key, mst_event_id, mst_item_id, item_role, sort_order, created_at, updated_at
+  PK (mst_event_id, mst_item_id)   詳細は 4.4
 
 trx_event                   （プレイヤーのシャード。イベントごとのリセット済みの印）
   sys_player_id, mst_event_id, entered_at, is_delete, created_at, updated_at
@@ -225,7 +259,10 @@ log_action_event_reset      （プレイヤーと同じシャード）
 
 確定・報酬・一覧は2種類で共通。どちらも「大きいほど上位」（小さいほど上位のタイムアタックなどは範囲外）。
 
-**1つのランキングで種類を混ぜない**。同じ `mst_ranking_id` に両方を呼ぶと順位表が壊れるため、最初に記録したときの種類を `sys_ranking_state`（`mst_ranking_id`, `score_type`）に残し、別の種類で呼ばれたら `RankingException` を投げる（提案。マスターにカラムは増えないが、テーブルが1つ増える）。
+**1つのランキングで種類を混ぜない**のは、ドメイン側の責務にする。同じ `mst_ranking_id` に `recordTotal` と `recordHighScore` を混ぜて呼ぶと順位表が壊れるが、これはプログラムの誤りで、テストで検出できる。種類を DB に持つ案（`sys_ranking_state`）は、次の理由でやめた。
+
+- 種類が必要なのは、得点を記録するときだけ。確定・報酬・一覧は、種類を使わない
+- 最初の記録で行を作ると、複数のプレイヤーが同時に初回を記録して重複キーになる。書き込みは UnitOfWork のバッチ INSERT にまとまるため、1件の重複でコミット全体が失敗する
 
 ### 7.2 テーブル
 
@@ -242,20 +279,15 @@ mst_ranking_reward
   + 報酬の中身（nexus-trade の mst_trade_product_content と同じ形）
   PK (mst_ranking_id, rank_from)
 
-trx_ranking_score       （プレイヤーのシャード。得点の正本）
-  sys_player_id, mst_ranking_id, score, last_scored_at, is_delete, created_at, updated_at
+trx_ranking_score       （プレイヤーのシャード。得点の正本。報酬を配った印も持つ）
+  sys_player_id, mst_ranking_id, score, last_scored_at, rewarded_at, is_delete, created_at, updated_at
   PK (sys_player_id, mst_ranking_id)
 
-sys_ranking_state       （全プレイヤー共通。種類を混ぜないための印）
-  mst_ranking_id (PK), score_type (total / highscore), created_at
-
-sys_ranking_settlement  （全プレイヤー共通）
-  mst_ranking_id (PK), status (pending / running / done), settled_at, ...
-
-sys_ranking_result      （全プレイヤー共通）
-  mst_ranking_id, sys_player_id, rank, score, rewarded_at
-  PK (mst_ranking_id, sys_player_id)
+sys_ranking_settlement  （全プレイヤー共通。確定の進み具合）
+sys_ranking_result      （全プレイヤー共通。確定した順位）
 ```
+
+sys の2テーブルの列・キー・流れは 7.6。
 
 ### 7.3 得点と順位
 
@@ -268,7 +300,7 @@ sys_ranking_result      （全プレイヤー共通）
 
 - `end_at` を過ぎたら、`ranking:settle` の Artisan コマンド（スケジューラが毎分起動）が確定する
 - 確定は `sys_ranking_settlement` の `status` で、再実行しても二重に動かないようにする（`pending` → `running` → `done`。`running` のまま止まったら、続きから）
-- 順位表は Redis から上位を一定数ずつ読み、`sys_ranking_result` に保存する。報酬はメールボックスで配る。**配る前に `sys_ranking_result.rewarded_at` を見て、配布済みを飛ばす**
+- 順位表は Redis から一定数ずつ読み、`sys_ranking_result` に保存する。報酬はメールボックスで配る。**配ったかどうかの印は、プレイヤーのシャードの `trx_ranking_score.rewarded_at` に置く**（メールボックスの INSERT と同じシャードのトランザクションで更新するので、途中で止まっても二重に配らず、配り漏れもしない。sys に印を置くと、sys とシャードの2つのDBにまたがってしまい、原子的に更新できない）
 - 一覧 API は、`display_limit` までの上位と、自分の順位・得点を返す。プレイヤー名は `sys_player` から引く
 
 ### 7.5 範囲外
@@ -277,6 +309,45 @@ sys_ranking_result      （全プレイヤー共通）
 - 日次・週次のランキング（得点は、ランキングの期間の通しだけ。必要になれば、`mst_ranking` を期間ごとに複数登録すれば足りる）
 - 小さいほど上位になるランキング
 - 不正の検出
+
+### 7.6 sys テーブルの詳細
+
+sys の2テーブルは、規約（`.claude/database.md`）どおり `id` を持つ（複合主キーだけで済ませてよいのは trx / mst）。ENUM は使わず、`string` にして取りうる値をコメントに書く。値はスネークケース。
+
+#### sys_ranking_settlement（確定の進み具合。ランキングごとに1行）
+
+| 列 | 型 | 内容 |
+| --- | --- | --- |
+| `id` | bigint unsigned PK | 連番 |
+| `mst_ranking_id` | string | `mst_ranking` のID。`uk_ranking_settlement_ranking` で一意 |
+| `status` | string | `pending`（確定待ち）/ `running`（確定中）/ `done`（確定済み）。index |
+| `saved_rank` | unsigned int | `sys_ranking_result` に保存し終えた最後の順位。止まったとき、ここから続ける。初期値 0 |
+| `participant_count` | unsigned int, null | 確定時の参加人数 |
+| `started_at` / `finished_at` | dateTime, null | 確定の開始・完了 |
+| `created_at` / `updated_at` | dateTime | 規約どおり |
+
+流れ:
+1. `ranking:settle`（毎分）が、`end_at` を過ぎていて行が無い `mst_ranking` に、`pending` の行を作る
+2. ランキングごとにロック（`Cache::lock("ranking-settle:{id}")`）を取り、`running` にして、Redis の順位表を `saved_rank` の続きから一定数ずつ読み、`sys_ranking_result` に保存して `saved_rank` を進める
+3. 保存し終えたら `done` にする。続けて報酬を配る（7.4）
+- 複数のサーバーが同時に起動しても、ロックが取れた1つだけが動く。行の作成は、ロックを取った後に行うので、重複しない
+- `running` のまま止まったら、次の起動が `saved_rank` から続ける。保存済みの順位を書き直しても同じ値になるので、二重にはならない
+
+#### sys_ranking_result（確定した順位。ランキング × プレイヤーで1行）
+
+| 列 | 型 | 内容 |
+| --- | --- | --- |
+| `id` | bigint unsigned PK | 連番 |
+| `mst_ranking_id` | string | `mst_ranking` のID |
+| `sys_player_id` | unsigned bigint | `sys_player` のID |
+| `rank` | unsigned int | 確定した順位（1が最上位） |
+| `score` | unsigned bigint | 確定した得点 |
+| `created_at` / `updated_at` | dateTime | 規約どおり |
+
+- キー: `uk_ranking_result_player`（`mst_ranking_id`, `sys_player_id`）で一意。`index(mst_ranking_id, rank)` で、順位順の一覧と、`saved_rank` の続きの読み出しに使う
+- 報酬を配った印（`rewarded_at`）は、ここには持たない。`trx_ranking_score.rewarded_at` に置く（7.4）
+- 読み出しは、必ず `mst_ranking_id` で絞る。`NoFullTableSelectOnSysTest` が、sys テーブルの全件取得（`Model::all()` など）を禁止している
+- 件数は、参加人数と同じだけ増える。sys は単一のDBなので、保存期間（何か月分を残すか）を決めておく。古い結果は削除してよい（確定後の結果は、報酬を配り終えていれば、一覧の表示にしか使わない）
 
 ---
 
@@ -289,6 +360,15 @@ sys_ranking_result      （全プレイヤー共通）
 | 3 | ミッションの受け取り期限（3.2） | `exchange_end_at`。進捗の加算は `end_at` まで |
 | 4 | ランキングの順位の確定時刻 | `end_at` |
 | 5 | ランキングの範囲（7.5） | 個人だけ。得点の更新は `total`（累計）と `highscore`（最大値）の2種類をパッケージに実装し、どちらを使うかはドメイン側が決める。日次・週次は範囲外 |
+
+### 確認中
+
+| # | 内容 | この案 |
+| ---: | --- | --- |
+| 6 | イベントのアイテムを、`start_at` から `exchange_end_at` の外で付与しようとしたときの扱い（4.4） | 業務エラー（`EVENT_ITEM_NOT_AVAILABLE`） |
+| 7 | `sys_ranking_result` を、全参加者分持つか（7.6）。持つ場合の保存期間 | 全参加者分。保存期間は運用で決める（確定後の結果は、報酬を配り終えれば表示にしか使わない） |
+
+---
 
 ## 9. 影響を受ける既存のコード
 

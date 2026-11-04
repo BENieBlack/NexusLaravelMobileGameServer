@@ -94,7 +94,7 @@ docker compose exec -T api-php ./vendor/bin/phpunit --coverage-text=/tmp/cov.txt
 docker compose exec -T api-php grep 'App.Adapters' /tmp/cov.txt
 ```
 
-- CI は `php artisan test --coverage --min=85`。下限は実測のすぐ下に置く
+- CI は `php artisan test --coverage --min=90`。下限は実測のすぐ下に置く
 
 ## 静的解析とフォーマット
 

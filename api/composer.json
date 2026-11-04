@@ -125,7 +125,7 @@
     "require": {
         "php": "^8.5",
         "doctrine/dbal": "^4.4",
-        "firebase/php-jwt": "^6.10",
+        "firebase/php-jwt": "^7.0",
         "laravel/framework": "^13.0",
         "laravel/reverb": "^1.0",
         "laravel/tinker": "^3.0",

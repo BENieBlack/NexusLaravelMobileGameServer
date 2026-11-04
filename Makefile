@@ -1,4 +1,4 @@
-.PHONY: help up down ps logs test test-fresh test-unit test-feature test-quiet coverage coverage-html phpstan check check-quiet migrate migrate-fresh seed shell tinker clean install pint pint-dirty pint-test tool-check
+.PHONY: help up down ps logs test test-fresh test-unit test-feature test-quiet coverage coverage-html phpstan check check-quiet migrate migrate-fresh seed shell tinker clean install pint pint-dirty pint-test tool-check audit
 
 # Compose v2 (docker compose) を優先し、無ければ v1 (docker-compose) にフォールバック
 DOCKER_COMPOSE := $(shell docker compose version > /dev/null 2>&1 && echo "docker compose" || echo "docker-compose")
@@ -82,15 +82,21 @@ phpstan: up ## PHPStan静的解析を実行（Docker環境）
 
 # CIと同じ検査をローカルで回す。
 # 一部だけを見ていると、ローカルで通してもCIで落ちる
-check: pint-test phpstan test tool-check ## CIと同じ検査（フォーマット・静的解析・全テスト）
+check: audit pint-test phpstan test tool-check ## CIと同じ検査（脆弱性・フォーマット・静的解析・全テスト）
 
 # check と同じ検査を、結果だけ表示で回す
 check-quiet: ## checkと同じ検査。結果だけを表示（エージェント向け）
 	$(call run_quiet,up,$(DOCKER_COMPOSE) up -d --build,5)
+	$(call run_quiet,audit,$(MAKE) --no-print-directory audit)
 	$(call run_quiet,pint-test,$(DOCKER_COMPOSE) exec -T api-php sh -c './vendor/bin/pint --test && ./vendor/bin/pint --test ../packages')
 	$(call run_quiet,phpstan,$(DOCKER_COMPOSE) exec -T api-php ./vendor/bin/phpstan analyse --memory-limit=2G --no-progress)
 	@$(MAKE) --no-print-directory test-quiet
 	$(call run_quiet,tool-check,$(MAKE) --no-print-directory tool-check)
+
+# 依存パッケージの既知の脆弱性を検査する（api と tool は composer の依存が別）
+audit: up ## 依存パッケージの脆弱性を検査（CIと同じ）
+	$(DOCKER_COMPOSE) exec -T api-php composer audit --no-interaction
+	$(DOCKER_COMPOSE) exec -T tool-php composer audit --no-interaction
 
 # tool は api とは別のLaravelアプリで、composerの依存も分かれている。
 # api-php コンテナからは見えないため、tool-php で回す

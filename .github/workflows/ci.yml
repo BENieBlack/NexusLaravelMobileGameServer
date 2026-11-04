@@ -27,12 +27,19 @@ jobs:
           extensions: pdo_mysql, redis, bcmath, zip
           coverage: none
 
+      # vendor ではなく Composer のダウンロードキャッシュを持つ。vendor を前方一致で復元すると、
+      # 別の lock 時代の vendor から composer install がパッケージを削除し、その途中で
+      # Laravel の prePackageUninstall スクリプトが消えたファイルを読んで落ちる
+      - name: Composerのダウンロードキャッシュの場所
+        id: composer-cache
+        run: echo "dir=$(composer config --global cache-files-dir)" >> "$GITHUB_OUTPUT"
+
       - name: Composerキャッシュの復元
         uses: actions/cache@v6
         with:
-          path: api/vendor
-          key: composer-${{ hashFiles('api/composer.lock') }}
-          restore-keys: composer-
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-dl-api-${{ hashFiles('api/composer.lock') }}
+          restore-keys: composer-dl-api-
 
       - name: 依存関係のインストール
         working-directory: api
@@ -102,12 +109,19 @@ jobs:
           extensions: pdo_mysql, redis, bcmath, zip
           coverage: none
 
+      # vendor ではなく Composer のダウンロードキャッシュを持つ。vendor を前方一致で復元すると、
+      # 別の lock 時代の vendor から composer install がパッケージを削除し、その途中で
+      # Laravel の prePackageUninstall スクリプトが消えたファイルを読んで落ちる
+      - name: Composerのダウンロードキャッシュの場所
+        id: composer-cache
+        run: echo "dir=$(composer config --global cache-files-dir)" >> "$GITHUB_OUTPUT"
+
       - name: Composerキャッシュの復元
         uses: actions/cache@v6
         with:
-          path: tool/vendor
-          key: composer-tool-${{ hashFiles('tool/composer.lock') }}
-          restore-keys: composer-tool-
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-dl-tool-${{ hashFiles('tool/composer.lock') }}
+          restore-keys: composer-dl-tool-
 
       - name: 依存関係のインストール
         working-directory: tool
@@ -242,12 +256,19 @@ jobs:
           coverage: pcov
           ini-values: pcov.directory=${{ github.workspace }}, memory_limit=512M
 
+      # vendor ではなく Composer のダウンロードキャッシュを持つ。vendor を前方一致で復元すると、
+      # 別の lock 時代の vendor から composer install がパッケージを削除し、その途中で
+      # Laravel の prePackageUninstall スクリプトが消えたファイルを読んで落ちる
+      - name: Composerのダウンロードキャッシュの場所
+        id: composer-cache
+        run: echo "dir=$(composer config --global cache-files-dir)" >> "$GITHUB_OUTPUT"
+
       - name: Composerキャッシュの復元
         uses: actions/cache@v6
         with:
-          path: api/vendor
-          key: composer-${{ hashFiles('api/composer.lock') }}
-          restore-keys: composer-
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-dl-api-${{ hashFiles('api/composer.lock') }}
+          restore-keys: composer-dl-api-
 
       - name: 依存関係のインストール
         working-directory: api

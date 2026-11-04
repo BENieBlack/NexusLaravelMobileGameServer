@@ -274,4 +274,4 @@ jobs:
       # 実測から離れた値にすると、下がってもCIが通ってしまい検知にならない
       - name: テスト（api + packages）
         working-directory: api
-        run: php artisan test --coverage --min=85
+        run: php artisan test --coverage --min=90

@@ -38,6 +38,12 @@ jobs:
         working-directory: api
         run: composer install --no-interaction --prefer-dist --no-progress
 
+      # 既知の脆弱性がある依存を入れたままにしない。新しい勧告が出るとコードを変えなくても落ちるので、
+      # 落ちたら composer update で上げる（2026-11-03 の評価 N3）
+      - name: 依存パッケージの脆弱性の検査
+        working-directory: api
+        run: composer audit --no-interaction
+
       # 引数なしのpintはカレントディレクトリしか見ない。
       # packages/ はコード行数の約4割を占めるため、明示的に渡す
       - name: コードフォーマットの検証
@@ -106,6 +112,10 @@ jobs:
       - name: 依存関係のインストール
         working-directory: tool
         run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: 依存パッケージの脆弱性の検査
+        working-directory: tool
+        run: composer audit --no-interaction
 
       # tool は環境変数をリポジトリ直下の .env から読む
       - name: .envの準備

@@ -1,0 +1,39 @@
+# 依存パッケージの更新PRを自動で作る（2026-11-03 の評価 N3）
+#
+# - composer は api と tool で依存が分かれているため、それぞれを見る
+#   （packages/* は api から path リポジトリで読むので、api の更新に含まれる）
+# - 小さな更新はまとめて1つのPRにし、PRの数を抑える。メジャー更新は個別に出る
+version: 2
+updates:
+  - package-ecosystem: composer
+    directory: /api
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: composer
+    directory: /tool
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+
+  - package-ecosystem: docker
+    directory: /docker/api-php
+    schedule:
+      interval: monthly
+
+  - package-ecosystem: docker
+    directory: /docker/tool-php
+    schedule:
+      interval: monthly

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4aecacc060674fa7b8ca36e3fdcd7bff",
+    "content-hash": "3212b9b15ae5e9f6206552574c66f04b",
     "packages": [
         {
             "name": "brick/math",
@@ -844,24 +844,26 @@
         },
         {
             "name": "firebase/php-jwt",
-            "version": "v6.11.1",
+            "version": "v7.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/php-jwt.git",
-                "reference": "d1e91ecf8c598d073d0995afa8cd5c75c6e19e66"
+                "reference": "0501f5729b9e2448516674aff07c7d1727869b8e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/php-jwt/zipball/d1e91ecf8c598d073d0995afa8cd5c75c6e19e66",
-                "reference": "d1e91ecf8c598d073d0995afa8cd5c75c6e19e66",
+                "url": "https://api.github.com/repos/googleapis/php-jwt/zipball/0501f5729b9e2448516674aff07c7d1727869b8e",
+                "reference": "0501f5729b9e2448516674aff07c7d1727869b8e",
                 "shasum": ""
             },
             "require": {
                 "php": "^8.0"
             },
             "require-dev": {
-                "guzzlehttp/guzzle": "^7.4",
-                "phpspec/prophecy-phpunit": "^2.0",
+                "guzzlehttp/guzzle": "^7.4||^8.0",
+                "phpfastcache/phpfastcache": "^9.2",
+                "phpseclib/phpseclib": "~3.0",
+                "phpspec/prophecy-phpunit": "^2.2",
                 "phpunit/phpunit": "^9.5",
                 "psr/cache": "^2.0||^3.0",
                 "psr/http-client": "^1.0",
@@ -869,9 +871,18 @@
             },
             "suggest": {
                 "ext-sodium": "Support EdDSA (Ed25519) signatures",
-                "paragonie/sodium_compat": "Support EdDSA (Ed25519) signatures when libsodium is not present"
+                "paragonie/sodium_compat": "Support EdDSA (Ed25519) signatures when libsodium is not present",
+                "phpseclib/phpseclib": "Support PS256 (RSASSA-PSS) signatures"
             },
             "type": "library",
+            "extra": {
+                "component": {
+                    "id": "jwt",
+                    "path": "Jwt",
+                    "entry": "README.md",
+                    "target": "googleapis/php-jwt.git"
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "Firebase\\JWT\\": "src"
@@ -894,16 +905,16 @@
                 }
             ],
             "description": "A simple library to encode and decode JSON Web Tokens (JWT) in PHP. Should conform to the current spec.",
-            "homepage": "https://github.com/firebase/php-jwt",
+            "homepage": "https://github.com/googleapis/php-jwt",
             "keywords": [
                 "jwt",
                 "php"
             ],
             "support": {
                 "issues": "https://github.com/googleapis/php-jwt/issues",
-                "source": "https://github.com/googleapis/php-jwt/tree/v6.11.1"
+                "source": "https://github.com/googleapis/php-jwt/tree/v7.2.1"
             },
-            "time": "2025-04-09T20:32:01+00:00"
+            "time": "2026-09-28T17:51:46+00:00"
         },
         {
             "name": "fruitcake/php-cors",
@@ -3076,10 +3087,10 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-core-auth",
-                "reference": "e7e8f079b894fb63d3200a87bccfb87413bfc548"
+                "reference": "913e9d4e8c7a15b58885cf880d3fa21ea3eea8c5"
             },
             "require": {
-                "firebase/php-jwt": "^6.10",
+                "firebase/php-jwt": "^7.0",
                 "illuminate/database": "^10.0|^11.0|^12.0|^13.0",
                 "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
                 "nexus/core": "@dev",
@@ -3122,10 +3133,10 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-core-billing",
-                "reference": "17ad7a52603907fe4d8fc726ebcf7cd3c06e5b6c"
+                "reference": "cae299d8cd1a6f29bfb9f29a334428ad39983e98"
             },
             "require": {
-                "firebase/php-jwt": "^6.10",
+                "firebase/php-jwt": "^7.0",
                 "guzzlehttp/guzzle": "^7.0",
                 "illuminate/cache": "^10.0|^11.0|^12.0|^13.0",
                 "illuminate/http": "^10.0|^11.0|^12.0|^13.0",

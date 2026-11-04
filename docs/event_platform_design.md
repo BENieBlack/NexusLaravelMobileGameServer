@@ -204,6 +204,16 @@ trx_event                   （プレイヤーのシャード。イベントご�
   sys_player_id, mst_event_id, entered_at, is_delete, created_at, updated_at
   PK (sys_player_id, mst_event_id)
 
+trx_event_score             （プレイヤーのシャード。イベントごとの得点。ランキングの有無にかかわらず持つ）
+  sys_player_id, mst_event_id,
+  total_score           累計の得点（unsigned bigint、既定 0）
+  high_score            ハイスコア（unsigned bigint、既定 0）
+  high_score_detail     ハイスコアの付属情報（json、null 可。クリアパーティなど。ハイスコアが更新されたときに置き換える）
+  total_scored_at       累計が最後に増えた日時（null 可）
+  high_scored_at        現在のハイスコアに達した日時（null 可）
+  is_delete, created_at, updated_at
+  PK (sys_player_id, mst_event_id)
+
 log_action_event_reset      （プレイヤーと同じシャード）
   sys_player_id, mst_event_id, mst_item_id, discarded_free_amount, discarded_paid_amount, created_at
 ```
@@ -215,7 +225,8 @@ log_action_event_reset      （プレイヤーと同じシャード）
 - `packages/nexus-event`
   - `EventService`: 開催中のイベントの検索、段階（開催前 / 開催中 / 交換期間中 / 終了）の判定
   - `EventPeriodResolver`: 3.4 の規則（コンテンツ → 採用するイベント → 差し替える期間）
-  - `EventMasterRepositoryInterface`、`EventEntryRepositoryInterface`、`EventLogRepositoryInterface`
+  - `EventScoreService`: イベントの得点を記録する（5.4）
+  - `EventMasterRepositoryInterface`、`EventEntryRepositoryInterface`、`EventScoreRepositoryInterface`、`EventLogRepositoryInterface`
   - ガチャやミッションのパッケージは参照しない（`content_type` は文字列のデータ）
 - `api/app/Domain/Event`: `ListUseCase`、`EventItemEntryService`（4.3）、`Contracts\EventItemEntryInterface`
 - api 側の Adapter が、`*RepositoryAdapter` で `nexus-event` の契約を実装する。5機能のマスター読み取りの Adapter は `EventPeriodResolver` を使う
@@ -229,6 +240,18 @@ log_action_event_reset      （プレイヤーと同じシャード）
 4. `mst_event_item`、付与時の有効期限、開始時のリセット
 5. マスター取り込み時の検査（3.5）
 6. `GET /api/event/list`
+7. `trx_event_score` と `EventScoreService`（5.4）
+
+### 5.4 イベントの得点（ランキングの有無にかかわらず持つ）
+
+イベントの得点は、**ランキングが無いイベントでも**、累計とハイスコアの両方を `trx_event_score` に持つ。ランキングは、この得点を順位に変換する、あってもなくてもよい層。
+
+- `EventScoreService::recordScore($mstEventId, $sysPlayerId, $value, $detail = null)`: 1回の呼び出しで、**累計とハイスコアの両方を更新する**
+  - 累計: `total_score += $value`、`total_scored_at` を現在時刻にする
+  - ハイスコア: `$value > high_score` のときだけ、`high_score = $value`、`high_score_detail = $detail`、`high_scored_at` を現在時刻にする。同じ値や低い値では更新しない（付属情報も、最高のときのものが残る）
+- 何を得点として記録するかは、ドメインが決める（ステージのスコア、イベントポイントの獲得量など。イベントポイントを得点にするなら、獲得したときのリスナーが `recordScore` を呼ぶ）
+- 記録できる期間は、イベントの `start_at` から `end_at` まで（プレイ期間。3.1）
+- 得点を更新したら、`EventScoreUpdated` のドメインイベントを出す。ランキングを使うイベントでは、api のリスナーがこれを受けて、順位表に登録する（7.3）
 
 ---
 
@@ -248,21 +271,23 @@ log_action_event_reset      （プレイヤーと同じシャード）
 
 ### 7.1 方針
 
-ランキングはイベントに限らない汎用のパッケージにする。イベントとの結び付きは、`mst_event_content`（`content_type = ranking`）と、得点を記録する側（api）で行い、パッケージは「得点を記録する・順位を引く・確定する・報酬を配る」だけを持つ。
+`nexus-ranking` は、**順位表（Redis）・確定・報酬・一覧だけ**を持つ汎用のパッケージにする。得点そのものは持たず、ランキングは「プレイヤーごとの得点を1つ受け取って、順位に変える」。
 
-得点の更新の規則は2種類を、パッケージに実装しておく。**どちらを使うかは、ドメイン側のコードが決める**（マスターにカラムは持たない）。
+- 得点は、イベントの `trx_event_score`（5.4）が、ランキングの有無にかかわらず常に持つ（累計とハイスコアの両方）
+- ランキングを使うイベントだけ、**どちらの得点を順位にするかを、ドメインのコードが選んで**、パッケージに渡す（マスターにカラムは持たない）
+- 順位表に登録するのは、ランキングを使うときだけ。ランキングが無いイベントでは、Redis を使わない
+- イベントとの結び付きは、`mst_event_content`（`content_type = ranking`）で表す。パッケージはイベントを知らない
 
-| 種類 | 更新の規則 | 記録の呼び出し | Redis |
-| --- | --- | --- | --- |
-| `total`（累計） | 加算する（`score += 増分`） | `recordTotal($rankingId, $playerId, $delta)` | `ZINCRBY` |
-| `highscore`（最大値） | 大きいときだけ置き換える（`score = max(現在値, 新しい値)`） | `recordHighScore($rankingId, $playerId, $value)` | `ZADD GT` |
+| 渡す得点 | 元 | 同点のときの順位 |
+| --- | --- | --- |
+| 累計 | `trx_event_score.total_score` | `total_scored_at` が早い方が上位 |
+| ハイスコア | `trx_event_score.high_score` | `high_scored_at` が早い方が上位 |
 
-確定・報酬・一覧は2種類で共通。どちらも「大きいほど上位」（小さいほど上位のタイムアタックなどは範囲外）。
+どちらも「大きいほど上位」（小さいほど上位のタイムアタックなどは範囲外）。
 
-**1つのランキングで種類を混ぜない**のは、ドメイン側の責務にする。同じ `mst_ranking_id` に `recordTotal` と `recordHighScore` を混ぜて呼ぶと順位表が壊れるが、これはプログラムの誤りで、テストで検出できる。種類を DB に持つ案（`sys_ranking_state`）は、次の理由でやめた。
+**前の案からの変更**: `nexus-ranking` が `recordTotal` / `recordHighScore` を持つ案をやめた。累計とハイスコアの更新は `EventScoreService` が一度に行い、ランキングは選んだ方の値を受け取るだけにした。ランキングが無いイベントでも得点を残せ、同じ得点から累計とハイスコアの2種類のランキングを作ることもできる。
 
-- 種類が必要なのは、得点を記録するときだけ。確定・報酬・一覧は、種類を使わない
-- 最初の記録で行を作ると、複数のプレイヤーが同時に初回を記録して重複キーになる。書き込みは UnitOfWork のバッチ INSERT にまとまるため、1件の重複でコミット全体が失敗する
+**どちらの得点を使うか**は、api のコード（`EventRankingScoreSource` のようなクラス、または設定の対応表。`mst_ranking_id` → `total` / `highscore`）で持つ。
 
 ### 7.2 テーブル
 
@@ -279,28 +304,31 @@ mst_ranking_reward
   + 報酬の中身（nexus-trade の mst_trade_product_content と同じ形）
   PK (mst_ranking_id, rank_from)
 
-trx_ranking_score       （プレイヤーのシャード。得点の正本。報酬を配った印も持つ）
-  sys_player_id, mst_ranking_id, score, last_scored_at, rewarded_at, is_delete, created_at, updated_at
+trx_ranking             （プレイヤーのシャード。報酬を受けた印と、そのときの順位・得点）
+  sys_player_id, mst_ranking_id, final_rank, final_score, rewarded_at, is_delete, created_at, updated_at
   PK (sys_player_id, mst_ranking_id)
 
 sys_ranking_settlement  （全プレイヤー共通。確定の進み具合）
 sys_ranking_result      （全プレイヤー共通。確定した順位）
 ```
 
-sys の2テーブルの列・キー・流れは 7.6。
+- 得点は `trx_event_score`（5.1）にあり、ランキング側には持たない
+- `trx_ranking` は、**報酬を配るとき**に、メールボックスの INSERT と同じシャードのトランザクションで作る。報酬の対象外の順位のプレイヤーには作らない
+- sys の2テーブルの列・キー・流れは 7.6
 
-### 7.3 得点と順位
+### 7.3 順位表への登録
 
-- 得点は `trx_ranking_score` に、プレイヤーのシャードのトランザクションで加算する（正本）
-- ライブの順位表は Redis の sorted set（`ranking:{mst_ranking_id}`）に持つ。加算のたびに更新する。Redis を失っても、`trx_ranking_score` から作り直せる
-- 同点は、**先にその得点に達した人が上位**。`last_scored_at` が早い方を上にする（`highscore` は、得点が上がったときだけ `last_scored_at` を更新する）。sorted set の値への埋め込み方（精度の範囲内に収める）は実装時に決める
-- イベントとの結び付き: `item_role = point` のアイテムを**獲得したとき**（消費しても得点は減らない）、`EventPointEarned` のドメインイベントを出し、api のリスナーが、そのイベントの `ranking` に得点を加算する
+- ライブの順位表は Redis の sorted set（`ranking:{mst_ranking_id}`）に持つ。**ランキングを使うイベントだけ**に作る
+- `EventScoreUpdated` を受けた api のリスナーが、そのイベントの `mst_event_content` から `content_type = ranking` のランキングを引き、各ランキングについて、ドメインが選んだ得点（累計かハイスコア）の**現在値を絶対値で `ZADD` する**（加算ではなく上書き）。正本は `trx_event_score` なので、`ZINCRBY` のような差分更新をしない。Redis とのずれが積み重ならず、同じ更新を2回登録しても結果が同じになる
+- 同点は、**先にその得点に達した人が上位**。`total_scored_at` / `high_scored_at` が早い方を上にする。sorted set の値への埋め込み方（精度の範囲内に収める）は実装時に決める
+- Redis を失ったとき、またはイベントの途中でランキングを足したときは、`ranking:rebuild {mst_ranking_id}` で、各シャードの `trx_event_score` から作り直す
+- ランキングを使うイベントでも、ランキングに載るのは、1回でも得点を記録したプレイヤーだけ
 
 ### 7.4 確定と報酬
 
 - `end_at` を過ぎたら、`ranking:settle` の Artisan コマンド（スケジューラが毎分起動）が確定する
 - 確定は `sys_ranking_settlement` の `status` で、再実行しても二重に動かないようにする（`pending` → `running` → `done`。`running` のまま止まったら、続きから）
-- 順位表は Redis から一定数ずつ読み、`sys_ranking_result` に保存する。報酬はメールボックスで配る。**配ったかどうかの印は、プレイヤーのシャードの `trx_ranking_score.rewarded_at` に置く**（メールボックスの INSERT と同じシャードのトランザクションで更新するので、途中で止まっても二重に配らず、配り漏れもしない。sys に印を置くと、sys とシャードの2つのDBにまたがってしまい、原子的に更新できない）
+- 順位表は Redis から一定数ずつ読み、`sys_ranking_result` に保存する。報酬はメールボックスで配る。**配ったかどうかの印は、プレイヤーのシャードの `trx_ranking.rewarded_at` に置く**（`trx_ranking` の行は、メールボックスの INSERT と同じシャードのトランザクションで作るので、途中で止まっても二重に配らず、配り漏れもしない。sys に印を置くと、sys とシャードの2つのDBにまたがってしまい、原子的に更新できない）
 - 一覧 API は、`display_limit` までの上位と、自分の順位・得点を返す。プレイヤー名は `sys_player` から引く
 
 ### 7.5 範囲外
@@ -308,6 +336,7 @@ sys の2テーブルの列・キー・流れは 7.6。
 - ギルド対抗などの集団のランキング（個人だけ）
 - 日次・週次のランキング（得点は、ランキングの期間の通しだけ。必要になれば、`mst_ranking` を期間ごとに複数登録すれば足りる）
 - 小さいほど上位になるランキング
+- イベントに属さない常設のランキング（得点の置き場が無い。10）
 - 不正の検出
 
 ### 7.6 sys テーブルの詳細
@@ -345,7 +374,7 @@ sys の2テーブルは、規約（`.claude/database.md`）どおり `id` を持
 | `created_at` / `updated_at` | dateTime | 規約どおり |
 
 - キー: `uk_ranking_result_player`（`mst_ranking_id`, `sys_player_id`）で一意。`index(mst_ranking_id, rank)` で、順位順の一覧と、`saved_rank` の続きの読み出しに使う
-- 報酬を配った印（`rewarded_at`）は、ここには持たない。`trx_ranking_score.rewarded_at` に置く（7.4）
+- 報酬を配った印（`rewarded_at`）は、ここには持たない。`trx_ranking.rewarded_at` に置く（7.4）
 - 読み出しは、必ず `mst_ranking_id` で絞る。`NoFullTableSelectOnSysTest` が、sys テーブルの全件取得（`Model::all()` など）を禁止している
 - 件数は、参加人数と同じだけ増える。sys は単一のDBなので、保存期間（何か月分を残すか）を決めておく。古い結果は削除してよい（確定後の結果は、報酬を配り終えていれば、一覧の表示にしか使わない）
 
@@ -359,14 +388,17 @@ sys の2テーブルは、規約（`.claude/database.md`）どおり `id` を持
 | 2 | リセットが捨てる範囲（4.3） | そのアイテムの全残高を0にしてよい |
 | 3 | ミッションの受け取り期限（3.2） | `exchange_end_at`。進捗の加算は `end_at` まで |
 | 4 | ランキングの順位の確定時刻 | `end_at` |
-| 5 | ランキングの範囲（7.5） | 個人だけ。得点の更新は `total`（累計）と `highscore`（最大値）の2種類をパッケージに実装し、どちらを使うかはドメイン側が決める。日次・週次は範囲外 |
+| 5 | ランキングの範囲（7.5） | 個人だけ。日次・週次は範囲外 |
+| 6 | 得点の持ち方（5.4、7.1） | ランキングの有無にかかわらず、累計とハイスコアの両方を `trx_event_score` に持つ（クリアパーティなどの付属情報つき）。Redis に登録するのは、ランキングを使うときだけ。どちらの得点を順位にするかは、ドメインのコードが選ぶ |
+| 7 | テーブル名 | `trx_event_score`（得点）、`trx_ranking`（報酬を受けた印）。`trx_player_event` は `trx_event` |
 
 ### 確認中
 
 | # | 内容 | この案 |
 | ---: | --- | --- |
-| 6 | イベントのアイテムを、`start_at` から `exchange_end_at` の外で付与しようとしたときの扱い（4.4） | 業務エラー（`EVENT_ITEM_NOT_AVAILABLE`） |
-| 7 | `sys_ranking_result` を、全参加者分持つか（7.6）。持つ場合の保存期間 | 全参加者分。保存期間は運用で決める（確定後の結果は、報酬を配り終えれば表示にしか使わない） |
+| 8 | イベントのアイテムを、`start_at` から `exchange_end_at` の外で付与しようとしたときの扱い（4.4） | 業務エラー（`EVENT_ITEM_NOT_AVAILABLE`） |
+| 9 | `sys_ranking_result` を、全参加者分持つか（7.6）。持つ場合の保存期間 | 全参加者分。保存期間は運用で決める（確定後の結果は、報酬を配り終えれば表示にしか使わない） |
+| 10 | ランキングは、イベントに属するものだけ（`mst_event_content` の `content_type = ranking`）でよいか。イベントに属さない常設のランキングは、得点の置き場が無いので範囲外になる | イベントに属するものだけ。常設のランキングが必要になったら、得点の置き場（`trx_event_score` に相当するもの）を足す |
 
 ---
 
@@ -379,4 +411,5 @@ sys の2テーブルは、規約（`.claude/database.md`）どおり `id` を持
 | ガチャ（`MstGachaRepository`。`GachaValidationService` が使う）、ミッション・交換所のマスター読み取りの Adapter、`LoginBonusRepositoryAdapter`、`RewardTrackMasterRepository` | マスター読み取りで `EventPeriodResolver` を使う。ガチャは package の DTO ではなく api のモデルを返すので、モデルの `start_at` / `end_at` をメモリ上で差し替える。SQL で期間を絞る2か所は PHP の判定に直す |
 | `nexus-mission` | フェーズ2：`scope` の追加（`trx_progress`、`trx_mission`、`ProgressRepositoryInterface`） |
 | 運営ツール | マスター取り込み時の検査（3.5） |
+| `nexus-event` の `EventScoreService`、api のリスナー | 得点の記録（`trx_event_score`）と、ランキングを使うイベントでの順位表への登録（`EventScoreUpdated`） |
 | `.claude/*.md`、`CLAUDE.md` | 新しいテーブル・API・パッケージの追記。`PackageRegistrationTest` のため、`nexus-event` と `nexus-ranking` を api の `composer.json`・`phpstan.neon`・`phpunit.xml` に登録 |

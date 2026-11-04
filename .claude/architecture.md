@@ -238,6 +238,7 @@ return GuildExceptionTranslator::forApplySend(function () use ($sysPlayerId, $gu
 |---|---|
 | `ModuleBoundaryTest` | コンテキスト間は `Contracts\` 経由のみ、Domain→Http 禁止、ドメインパッケージから Eloquent/Facade/Http 禁止（4節） |
 | `PackageIndependenceTest` | `packages/*/src` から `App\` を参照しない |
+| `PackageRegistrationTest` | `packages/*` が api の `composer.json`（path リポジトリと require）・`phpstan.neon`・`phpunit.xml`（カバレッジ）の全てに登録されている |
 | `ConverterLocationTest` | `*RepositoryAdapter` に変換メソッドを書かない。`app/Adapters` 配下は `toDto()` を持つ |
 | `ServiceLayerTest` | Service での `save()` 直呼び禁止。Service / UseCase / Repository のクラス名サフィックス |
 | `NoDirectEloquentWriteTest` | `app/` と `packages/` の本番コードで `$model->save()` / `delete()` / `forceDelete()` を呼ばない |

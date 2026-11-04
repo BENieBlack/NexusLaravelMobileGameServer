@@ -28,7 +28,7 @@ jobs:
           coverage: none
 
       - name: Composerキャッシュの復元
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: api/vendor
           key: composer-${{ hashFiles('api/composer.lock') }}
@@ -103,7 +103,7 @@ jobs:
           coverage: none
 
       - name: Composerキャッシュの復元
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: tool/vendor
           key: composer-tool-${{ hashFiles('tool/composer.lock') }}
@@ -243,7 +243,7 @@ jobs:
           ini-values: pcov.directory=${{ github.workspace }}, memory_limit=512M
 
       - name: Composerキャッシュの復元
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: api/vendor
           key: composer-${{ hashFiles('api/composer.lock') }}

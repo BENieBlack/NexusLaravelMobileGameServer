@@ -3,11 +3,10 @@
 namespace App\Domain\Auth\UseCases;
 
 use App\Domain\_BaseUseCase;
+use App\Domain\Auth\Responses\UnlinkExternalAccountResponse;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
-use App\Models\Sys\SysPlayerExternalAccount;
 use App\Repositories\Sys\SysPlayerExternalAccountRepository;
-use Nexus\Core\Support\CustomCollection;
 
 /**
  * UnlinkExternalAccountUseCase
@@ -22,13 +21,12 @@ class UnlinkExternalAccountUseCase extends _BaseUseCase
 
     /**
      * @param  string  $provider  apple / google
-     * @return CustomCollection<int, SysPlayerExternalAccount> 解除後の一覧
      *
      * @throws GameException 紐付いていない場合
      */
-    public function exec(int $sysPlayerId, string $provider): CustomCollection
+    public function handle(int $sysPlayerId, string $provider): UnlinkExternalAccountResponse
     {
-        return $this->executeWithTransaction(function () use ($sysPlayerId, $provider) {
+        return UnlinkExternalAccountResponse::fromResult($this->executeWithTransaction(function () use ($sysPlayerId, $provider) {
             $linked = $this->sysPlayerExternalAccountRepository->selectByPlayerIdAndProvider($sysPlayerId, $provider);
 
             if ($linked === null) {
@@ -38,6 +36,6 @@ class UnlinkExternalAccountUseCase extends _BaseUseCase
             $this->sysPlayerExternalAccountRepository->deleteExternalAccount($linked);
 
             return $this->sysPlayerExternalAccountRepository->selectListByPlayerId($sysPlayerId);
-        });
+        }));
     }
 }

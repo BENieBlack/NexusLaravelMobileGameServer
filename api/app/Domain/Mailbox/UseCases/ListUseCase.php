@@ -5,7 +5,7 @@ namespace App\Domain\Mailbox\UseCases;
 use App\Domain\_BaseUseCase;
 use App\Domain\Mailbox\Constants\Category;
 use App\Domain\Mailbox\Constants\Priority;
-use App\Domain\Mailbox\DataTransferObjects\ListResult;
+use App\Domain\Mailbox\Responses\ListResponse;
 use App\Repositories\Trx\TrxMailboxRepository;
 
 /**
@@ -27,13 +27,13 @@ class ListUseCase extends _BaseUseCase
      * @param  bool  $onlyUnread  未読のみ
      * @param  bool  $onlyLocked  ロックのみ
      */
-    public function exec(
+    public function handle(
         int $sysPlayerId,
         ?string $category = null,
         ?string $priority = null,
         bool $onlyUnread = false,
         bool $onlyLocked = false
-    ): ListResult {
+    ): ListResponse {
         // Enumに変換
         $categoryEnum = $category !== null ? Category::fromString($category) : null;
         $priorityEnum = $priority !== null ? Priority::fromString($priority) : null;
@@ -50,6 +50,6 @@ class ListUseCase extends _BaseUseCase
         // カテゴリ別未読数を取得
         $unreadCounts = $this->trxMailboxRepository->countUnreadByCategory($sysPlayerId);
 
-        return new ListResult($trxMailboxCollection, $unreadCounts);
+        return ListResponse::fromResult($trxMailboxCollection, $unreadCounts);
     }
 }

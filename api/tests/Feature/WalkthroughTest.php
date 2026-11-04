@@ -461,7 +461,7 @@ class WalkthroughTest extends TestCase
         ]);
 
         $response->assertOk();
-        // ガチャAPIは _BaseResponse::toJsonResponse() でトップレベルに返す（dataラッパー無し）
+        // ガチャAPIは _BaseController::execute() でトップレベルに返す（dataラッパー無し）
         $data = $response->json();
 
         $this->assertArrayHasKey('prize_list', $data);

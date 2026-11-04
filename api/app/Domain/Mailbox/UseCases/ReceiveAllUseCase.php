@@ -5,7 +5,7 @@ namespace App\Domain\Mailbox\UseCases;
 use App\Domain\_BaseUseCase;
 use App\Domain\Mailbox\Constants\Category;
 use App\Domain\Mailbox\Constants\ContentType;
-use App\Domain\Mailbox\DataTransferObjects\ReceiveAllResult;
+use App\Domain\Mailbox\Responses\ReceiveAllResponse;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Models\Mst\MstMailboxContent;
@@ -34,11 +34,11 @@ class ReceiveAllUseCase extends _BaseUseCase
      *
      * @throws GameException
      */
-    public function exec(
+    public function handle(
         int $sysPlayerId,
         ?array $trxMailboxIds = null,
         ?string $category = null
-    ): ReceiveAllResult {
+    ): ReceiveAllResponse {
         return $this->executeWithTransaction(function () use ($sysPlayerId, $trxMailboxIds, $category) {
             // カテゴリEnum変換
             $categoryEnum = $category !== null ? Category::fromString($category) : null;
@@ -125,7 +125,7 @@ class ReceiveAllUseCase extends _BaseUseCase
                 }
             }
 
-            return new ReceiveAllResult(
+            return new ReceiveAllResponse(
                 receivedMailboxIds: $receivedMailboxIds,
                 totalCount: $totalMailCount,
                 skippedCount: $skippedCount,

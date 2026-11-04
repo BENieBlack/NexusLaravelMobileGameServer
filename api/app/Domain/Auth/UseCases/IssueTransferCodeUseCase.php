@@ -3,7 +3,7 @@
 namespace App\Domain\Auth\UseCases;
 
 use App\Domain\_BaseUseCase;
-use App\Domain\Auth\DataTransferObjects\IssueTransferCodeResult;
+use App\Domain\Auth\Responses\IssueTransferCodeResponse;
 use App\Persistence\ApiSession;
 use App\Repositories\Sys\SysPlayerTransferCodeRepository;
 use RuntimeException;
@@ -34,7 +34,7 @@ class IssueTransferCodeUseCase extends _BaseUseCase
     /**
      * @param  string  $password  新端末で入力させるパスワード（ハッシュにして保存する）
      */
-    public function exec(int $sysPlayerId, string $password): IssueTransferCodeResult
+    public function handle(int $sysPlayerId, string $password): IssueTransferCodeResponse
     {
         return $this->executeWithTransaction(function () use ($sysPlayerId, $password) {
             $expiresAt = ApiSession::getNow()
@@ -48,7 +48,7 @@ class IssueTransferCodeUseCase extends _BaseUseCase
                 expiresAt: $expiresAt,
             );
 
-            return new IssueTransferCodeResult(
+            return new IssueTransferCodeResponse(
                 transferCode: $sysPlayerTransferCode->getTransferCode(),
                 expiresAt: $sysPlayerTransferCode->getExpiresAt(),
             );

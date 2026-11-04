@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Domain\_BaseResponse;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Exceptions\InfraErrorCode;
-use App\Http\Responses\_BaseResponseInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use LogicException;
@@ -18,12 +18,12 @@ abstract class _BaseController
     /**
      * UseCaseを実行し、レスポンスを返す
      *
-     * UseCaseはHTTPを知らず、DTOを返す。Responseへの変換はこのコールバックの中で行い、
-     * 必ず _BaseResponseInterface の実装を返すこと。
+     * UseCase の handle() はアクションごとの Response（App\Domain\_BaseResponse）を返す。
+     * Controller はそれをそのまま返し、ここで JSON（HTTP 200）にする。
      * 戻り値の型を固定することで、レスポンスの形が呼び出し方によって
      * 変わったり、意図しないキーが混入したりするのを防ぐ。
      *
-     * @param  callable(): _BaseResponseInterface  $useCase  UseCaseの実行とResponseへの変換（例: fn() => XxxResponse::fromDto($useCase->exec($id))）
+     * @param  callable(): _BaseResponse  $useCase  UseCaseの実行（例: fn () => $useCase->handle($id)）
      */
     protected function execute(callable $useCase): JsonResponse
     {
@@ -31,15 +31,15 @@ abstract class _BaseController
             /** @var mixed $response */
             $response = $useCase();
 
-            if (! $response instanceof _BaseResponseInterface) {
+            if (! $response instanceof _BaseResponse) {
                 throw new LogicException(sprintf(
-                    'Controllerは %s を実装したレスポンスを返す必要があります。返り値: %s',
-                    _BaseResponseInterface::class,
+                    'Controllerは %s を継承したレスポンスを返す必要があります。返り値: %s',
+                    _BaseResponse::class,
                     get_debug_type($response)
                 ));
             }
 
-            return $response->toJsonResponse();
+            return response()->json($response->toArray());
 
         } catch (Throwable $e) {
             return $this->handleException($e);

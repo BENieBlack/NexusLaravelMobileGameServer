@@ -3,7 +3,7 @@
 namespace App\Domain\Auth\UseCases;
 
 use App\Domain\_BaseUseCase;
-use App\Domain\Auth\DataTransferObjects\SignInResult;
+use App\Domain\Auth\Responses\TransferByCodeResponse;
 use App\Domain\Auth\Services\AccountTransferService;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
@@ -28,7 +28,7 @@ class TransferByCodeUseCase extends _BaseUseCase
      *
      * @throws GameException コードが無い・パスワードが違う・期限切れ・ロック中の場合
      */
-    public function exec(string $transferCode, string $password, string $deviceId, array $deviceInfo): SignInResult
+    public function handle(string $transferCode, string $password, string $deviceId, array $deviceInfo): TransferByCodeResponse
     {
         $result = $this->executeWithTransaction(function () use ($transferCode, $password, $deviceId, $deviceInfo) {
             $sysPlayerTransferCode = $this->sysPlayerTransferCodeRepository->selectByTransferCode(strtoupper($transferCode));
@@ -79,6 +79,6 @@ class TransferByCodeUseCase extends _BaseUseCase
             throw new GameException(GameErrorCode::TRANSFER_CODE_INVALID, 'Transfer code or password is invalid');
         }
 
-        return $result;
+        return TransferByCodeResponse::fromResult($result);
     }
 }

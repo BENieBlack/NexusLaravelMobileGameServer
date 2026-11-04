@@ -3,8 +3,8 @@
 namespace App\Domain\Mission\UseCases;
 
 use App\Domain\_BaseUseCase;
+use App\Domain\Mission\Responses\ListResponse;
 use NexusMission\Services\MissionService;
-use NexusMission\ValueObjects\MissionStatus;
 
 /**
  * ListUseCase
@@ -21,10 +21,9 @@ class ListUseCase extends _BaseUseCase
      * 期間内のミッションの進捗・受け取り状況・報酬を取得する
      *
      * @param  int  $sysPlayerId  sys_player.id（プレイヤーID）
-     * @return array<int, MissionStatus>
      */
-    public function exec(int $sysPlayerId): array
+    public function handle(int $sysPlayerId): ListResponse
     {
-        return $this->missionService->findStatuses($sysPlayerId);
+        return ListResponse::fromResult($this->missionService->findStatuses($sysPlayerId));
     }
 }

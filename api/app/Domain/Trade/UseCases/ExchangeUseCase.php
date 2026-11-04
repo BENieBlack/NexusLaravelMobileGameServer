@@ -3,11 +3,11 @@
 namespace App\Domain\Trade\UseCases;
 
 use App\Domain\_BaseUseCase;
+use App\Domain\Trade\Responses\ExchangeResponse;
 use App\Domain\Trade\Support\TradeExceptionTranslator;
 use App\Exceptions\GameException;
 use App\Repositories\Log\LogTradeRepository;
 use NexusTrade\Services\TradeService;
-use NexusTrade\ValueObjects\TradeProductStatus;
 
 /**
  * ExchangeUseCase
@@ -24,20 +24,19 @@ class ExchangeUseCase extends _BaseUseCase
     /**
      * @param  int  $quantity  交換する個数
      * @param  string|null  $uniqueRequestId  ログをリクエスト単位で追うためのID（X-Unique-Request-Identifier）
-     * @return TradeProductStatus 交換した後の状態（手に入れたものを含む）
      *
      * @throws GameException 存在しない・交換期間外・上限を超える・コストが足りない場合
      */
-    public function exec(int $sysPlayerId, string $mstTradeProductId, int $quantity, ?string $uniqueRequestId): TradeProductStatus
+    public function handle(int $sysPlayerId, string $mstTradeProductId, int $quantity, ?string $uniqueRequestId): ExchangeResponse
     {
         if ($uniqueRequestId !== null) {
             $this->logTradeRepository->setUniqueRequestId($uniqueRequestId);
         }
 
-        return $this->executeWithTransaction(
+        return ExchangeResponse::fromResult($this->executeWithTransaction(
             fn () => TradeExceptionTranslator::translate(
                 fn () => $this->tradeService->trade($sysPlayerId, $mstTradeProductId, $quantity)
             )
-        );
+        ));
     }
 }

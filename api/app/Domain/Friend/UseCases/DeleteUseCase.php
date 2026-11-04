@@ -3,6 +3,7 @@
 namespace App\Domain\Friend\UseCases;
 
 use App\Domain\_BaseUseCase;
+use App\Domain\Friend\Responses\DeleteResponse;
 use App\Domain\Friend\Support\FriendExceptionTranslator;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
@@ -26,14 +27,13 @@ class DeleteUseCase extends _BaseUseCase
      *
      * @param  int  $sysPlayerId  削除実行者のプレイヤーID
      * @param  string  $targetMyId  削除対象のフレンドのmy_id
-     * @return string 削除したフレンドのmy_id
      *
      * @throws GameException
      */
-    public function exec(int $sysPlayerId, string $targetMyId): string
+    public function handle(int $sysPlayerId, string $targetMyId): DeleteResponse
     {
         // トランザクション開始
-        return $this->executeWithTransaction(function () use ($sysPlayerId, $targetMyId) {
+        return DeleteResponse::fromResult($this->executeWithTransaction(function () use ($sysPlayerId, $targetMyId) {
             // 1. 削除対象のプレイヤーをmy_idで検索
             $targetPlayer = $this->sysPlayerRepository->selectByMyId($targetMyId);
 
@@ -52,6 +52,6 @@ class DeleteUseCase extends _BaseUseCase
             );
 
             return $targetPlayer->getMyId();
-        });
+        }));
     }
 }

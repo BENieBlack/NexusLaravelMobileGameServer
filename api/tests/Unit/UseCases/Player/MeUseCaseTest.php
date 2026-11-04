@@ -2,10 +2,9 @@
 
 namespace Tests\Unit\UseCases\Player;
 
-use App\Domain\Player\DataTransferObjects\MeResult;
+use App\Domain\Player\Responses\MeResponse;
 use App\Domain\Player\UseCases\MeUseCase;
 use App\Exceptions\SystemDataException;
-use App\Http\Responses\Player\MeResponse;
 use App\Models\Sys\SysPlayer;
 use App\Repositories\Sys\SysPlayerRepository;
 use Illuminate\Support\Facades\Log;
@@ -61,10 +60,10 @@ class MeUseCaseTest extends TestCase
         $sysPlayer = $this->createPlayer();
 
         // Act
-        $response = $this->useCase->exec($sysPlayer->id);
+        $response = $this->useCase->handle($sysPlayer->id);
 
         // Assert
-        $this->assertInstanceOf(MeResult::class, $response);
+        $this->assertInstanceOf(MeResponse::class, $response);
         $this->assertEquals($sysPlayer->my_id, $response->myId);
         $this->assertEquals($sysPlayer->name, $response->name);
     }
@@ -78,7 +77,7 @@ class MeUseCaseTest extends TestCase
         $sysPlayer = $this->createPlayer();
 
         // Act
-        $response = $this->useCase->exec($sysPlayer->id);
+        $response = $this->useCase->handle($sysPlayer->id);
 
         // Assert
         $this->assertNotEmpty($response->myId);
@@ -97,7 +96,7 @@ class MeUseCaseTest extends TestCase
         // Assert & Act
         $this->expectException(SystemDataException::class);
 
-        $this->useCase->exec($nonExistentPlayerId);
+        $this->useCase->handle($nonExistentPlayerId);
     }
 
     /**
@@ -136,7 +135,7 @@ class MeUseCaseTest extends TestCase
         $sysPlayer = $this->createPlayer();
 
         // Act
-        $response = $this->useCase->exec($sysPlayer->id);
+        $response = $this->useCase->handle($sysPlayer->id);
 
         // Assert - 新規プレイヤーの名前はランダムに生成される（8文字）
         $this->assertNotNull($response->name);
@@ -157,7 +156,7 @@ class MeUseCaseTest extends TestCase
         $sysPlayer->save();
 
         // Act
-        $response = $this->useCase->exec($sysPlayer->id);
+        $response = $this->useCase->handle($sysPlayer->id);
 
         // Assert
         $this->assertEquals('Test Player Name', $response->name);
@@ -174,9 +173,9 @@ class MeUseCaseTest extends TestCase
         $sysPlayer3 = $this->createPlayer();
 
         // Act
-        $response1 = $this->useCase->exec($sysPlayer1->id);
-        $response2 = $this->useCase->exec($sysPlayer2->id);
-        $response3 = $this->useCase->exec($sysPlayer3->id);
+        $response1 = $this->useCase->handle($sysPlayer1->id);
+        $response2 = $this->useCase->handle($sysPlayer2->id);
+        $response3 = $this->useCase->handle($sysPlayer3->id);
 
         // Assert - すべて異なるmy_idを持つ
         $this->assertNotEquals($response1->myId, $response2->myId);
@@ -200,8 +199,8 @@ class MeUseCaseTest extends TestCase
         $sysPlayer->save();
 
         // Act
-        $response = $this->useCase->exec($sysPlayer->id);
-        $array = MeResponse::fromResult($response)->toArray();
+        $response = $this->useCase->handle($sysPlayer->id);
+        $array = $response->toArray();
 
         // Assert
         $this->assertIsArray($array);

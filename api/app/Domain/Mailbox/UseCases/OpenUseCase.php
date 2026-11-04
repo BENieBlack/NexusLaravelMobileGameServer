@@ -3,6 +3,7 @@
 namespace App\Domain\Mailbox\UseCases;
 
 use App\Domain\_BaseUseCase;
+use App\Domain\Mailbox\Responses\OpenResponse;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Repositories\Trx\TrxMailboxRepository;
@@ -23,7 +24,7 @@ class OpenUseCase extends _BaseUseCase
      *
      * @throws GameException
      */
-    public function exec(int $sysPlayerId, int $trxMailboxId): void
+    public function handle(int $sysPlayerId, int $trxMailboxId): OpenResponse
     {
         $this->executeWithTransaction(function () use ($sysPlayerId, $trxMailboxId) {
             // メールボックス取得
@@ -41,5 +42,7 @@ class OpenUseCase extends _BaseUseCase
             // 既読にする
             $this->trxMailboxRepository->markAsOpened($trxMailbox);
         });
+
+        return new OpenResponse(trxMailboxId: $trxMailboxId, isOpened: true);
     }
 }

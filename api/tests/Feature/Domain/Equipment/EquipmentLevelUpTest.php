@@ -69,7 +69,7 @@ class EquipmentLevelUpTest extends TestCase
 
         // UseCaseを実行
         $useCase = app(LevelUpUseCase::class);
-        $result = $useCase->exec($this->sysPlayerId, $this->trxEquipmentId, self::EXP_ITEM_ID, $afterLevel);
+        $result = $useCase->handle($this->sysPlayerId, $this->trxEquipmentId, self::EXP_ITEM_ID, $afterLevel);
 
         // 結果確認
         $this->assertNotNull($result->trxEquipment);
@@ -103,7 +103,7 @@ class EquipmentLevelUpTest extends TestCase
 
         // UseCaseを実行
         $useCase = app(LevelUpUseCase::class);
-        $result = $useCase->exec($this->sysPlayerId, $this->trxEquipmentId, self::EXP_ITEM_ID, $afterLevel);
+        $result = $useCase->handle($this->sysPlayerId, $this->trxEquipmentId, self::EXP_ITEM_ID, $afterLevel);
 
         // アイテム消費確認
         $this->assertNotNull($result->trxItem);
@@ -125,7 +125,7 @@ class EquipmentLevelUpTest extends TestCase
 
         // UseCaseを実行
         $useCase = app(LevelUpUseCase::class);
-        $result = $useCase->exec($this->sysPlayerId, $this->trxEquipmentId, self::EXP_ITEM_ID, $afterLevel);
+        $result = $useCase->handle($this->sysPlayerId, $this->trxEquipmentId, self::EXP_ITEM_ID, $afterLevel);
 
         // ログ確認
         $log = DB::connection('trx')

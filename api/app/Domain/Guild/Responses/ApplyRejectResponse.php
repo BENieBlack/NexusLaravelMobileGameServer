@@ -1,0 +1,52 @@
+<?php
+
+namespace App\Domain\Guild\Responses;
+
+use App\Domain\_BaseResponse;
+use NexusGuild\DataTransferObjects\GuildApply;
+
+/**
+ * ApplyRejectResponse
+ *
+ * ギルド加入申請却下APIのレスポンス
+ */
+class ApplyRejectResponse extends _BaseResponse
+{
+    public function __construct(
+        public readonly int $applyId,
+        public readonly int $guildId,
+        public readonly int $playerId,
+        public readonly string $status,
+        public readonly string $updatedAt,
+    ) {}
+
+    /**
+     * GuildApplyからレスポンスを生成
+     */
+    public static function fromResult(GuildApply $guildApply): self
+    {
+        return new self(
+            applyId: $guildApply->getId(),
+            guildId: $guildApply->getSysGuildId(),
+            playerId: $guildApply->getSysPlayerId(),
+            status: $guildApply->getStatus(),
+            updatedAt: $guildApply->getUpdatedAt(),
+        );
+    }
+
+    /**
+     * 配列に変換
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return [
+            'sys_guild_apply_id' => $this->applyId,
+            'sys_guild_id' => $this->guildId,
+            'sys_player_id' => $this->playerId,
+            'status' => $this->status,
+            'updated_at' => $this->updatedAt,
+        ];
+    }
+}

@@ -2,7 +2,7 @@
 
 namespace App\Domain\InAppPurchase\UseCases;
 
-use App\Domain\InAppPurchase\DataTransferObjects\BuyResult;
+use App\Domain\InAppPurchase\Responses\BuyResponse;
 use App\Domain\InAppPurchase\Services\InAppPurchaseDiamondService;
 use App\Domain\InAppPurchase\Services\InAppPurchaseValidationService;
 use App\Models\Mst\MstInAppPurchase;
@@ -40,7 +40,7 @@ class BuyDiamondUseCase extends _BaseBuyUseCase
         string $platform,
         string $billingPlatform,
         Verification $verification
-    ): BuyResult {
+    ): BuyResponse {
         // 返金計算に使う購入価格。Google Playはレシート検証結果、
         // App Storeはマスターの設定値から取る
         $unitPrice = $this->resolvePurchasePrice($verification, $mstInAppPurchase, $billingPlatform);
@@ -55,7 +55,7 @@ class BuyDiamondUseCase extends _BaseBuyUseCase
             $verification->getTransactionId()
         );
 
-        return new BuyResult(
+        return new BuyResponse(
             paidDiamondAmount: $result['paid_diamond_amount'],
             totalPaidDiamondAmount: $result['total_paid_diamond_amount'],
             totalFreeDiamondAmount: $result['total_free_diamond_amount'],

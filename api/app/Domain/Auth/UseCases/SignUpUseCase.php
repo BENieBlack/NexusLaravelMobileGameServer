@@ -3,7 +3,7 @@
 namespace App\Domain\Auth\UseCases;
 
 use App\Domain\_BaseUseCase;
-use App\Domain\Auth\DataTransferObjects\SignUpResult;
+use App\Domain\Auth\Responses\SignUpResponse;
 use App\Domain\Auth\Traits\BuildsSysPlayerToken;
 use App\Domain\Sharding\Contracts\ShardAssignerInterface;
 use App\Exceptions\BusinessLogicException;
@@ -46,7 +46,7 @@ class SignUpUseCase extends _BaseUseCase
      *
      * @throws BusinessLogicException|Throwable 既存デバイスIDの場合
      */
-    public function exec(string $deviceId, array $deviceInfo): SignUpResult
+    public function handle(string $deviceId, array $deviceInfo): SignUpResponse
     {
         // トランザクション開始
         return $this->executeWithTransaction(function () use ($deviceId, $deviceInfo) {
@@ -92,7 +92,7 @@ class SignUpUseCase extends _BaseUseCase
             // レスポンスにトークンIDを含めるため、採番を確定させる
             $this->flushQueue();
 
-            return new SignUpResult(
+            return new SignUpResponse(
                 sysPlayer: $sysPlayer,
                 sysPlayerDevice: $sysPlayerDevice,
                 sysPlayerToken: $sysPlayerToken,

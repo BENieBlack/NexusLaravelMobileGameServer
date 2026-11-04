@@ -4,10 +4,10 @@ namespace App\Domain\Guild\UseCases;
 
 use App\Adapters\Guild\GuildAdapter;
 use App\Domain\_BaseUseCase;
+use App\Domain\Guild\Responses\DetailResponse;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Repositories\Sys\SysGuildRepository;
-use NexusGuild\DataTransferObjects\Guild;
 
 /**
  * DetailUseCase
@@ -27,7 +27,7 @@ class DetailUseCase extends _BaseUseCase
      *
      * @throws GameException
      */
-    public function exec(int $guildId): Guild
+    public function handle(int $guildId): DetailResponse
     {
         // RepositoryはModelを返すため、DTOへの変換はここで行う
         $guild = $this->sysGuildRepository->selectById($guildId);
@@ -39,6 +39,6 @@ class DetailUseCase extends _BaseUseCase
             );
         }
 
-        return GuildAdapter::toDto($guild);
+        return DetailResponse::fromResult(GuildAdapter::toDto($guild));
     }
 }

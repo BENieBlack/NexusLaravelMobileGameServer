@@ -29,6 +29,24 @@ class AssignPlayersCommandTest extends TestCase
         // コマンドが自分でコミットするため自動ラップしない
     }
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // 他のテストが割り当ての無いプレイヤーを残すと、人数の検証が実行順によって落ちる。
+        // 残した側を突き止められるよう、残っていた行を出して止める
+        $leftovers = DB::connection('sys')->table('sys_player as p')
+            ->leftJoin('sys_sharding_node_player as a', 'a.sys_player_id', '=', 'p.id')
+            ->whereNull('a.sys_player_id')
+            ->get(['p.id', 'p.uuid', 'p.name', 'p.created_at']);
+
+        $this->assertCount(
+            0,
+            $leftovers,
+            "先に動いたテストが割り当ての無いプレイヤーを残している:\n".$leftovers->toJson(JSON_UNESCAPED_UNICODE)
+        );
+    }
+
     protected function tearDown(): void
     {
         $this->cleanUp();

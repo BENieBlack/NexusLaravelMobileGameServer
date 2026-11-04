@@ -2,7 +2,10 @@
 #
 # - composer は api と tool で依存が分かれているため、それぞれを見る
 #   （packages/* は api から path リポジトリで読むので、api の更新に含まれる）
-# - 小さな更新はまとめて1つのPRにし、PRの数を抑える。メジャー更新は個別に出る
+# - composer はメジャー更新も含めて、ディレクトリごとに1つのPRへまとめる。
+#   PRを分けると、どれも同じ composer.lock を書き換える。別々にマージすると後のPRの lock が
+#   先のPRの更新を含まず、composer.json と食い違って composer install が落ちる
+#   （#130 と #131 で起きた）。1つのPRなら lock は常に1回の更新で作られる
 version: 2
 updates:
   - package-ecosystem: composer
@@ -11,8 +14,9 @@ updates:
       interval: weekly
     open-pull-requests-limit: 5
     groups:
-      minor-and-patch:
-        update-types: [minor, patch]
+      all:
+        patterns: ['*']
+        update-types: [major, minor, patch]
 
   - package-ecosystem: composer
     directory: /tool
@@ -20,8 +24,9 @@ updates:
       interval: weekly
     open-pull-requests-limit: 5
     groups:
-      minor-and-patch:
-        update-types: [minor, patch]
+      all:
+        patterns: ['*']
+        update-types: [major, minor, patch]
 
   - package-ecosystem: github-actions
     directory: /

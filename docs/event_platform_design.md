@@ -2,7 +2,7 @@
 
 | 項目 | 内容 |
 | --- | --- |
-| 状態 | 設計中（実装前）。決定事項は「8. 決めたこと」。決定1の範囲だけ確認中 |
+| 状態 | 設計中（実装前）。決定事項は「8. 決めたこと」 |
 | 作成日 | 2026-11-05 |
 | 前提のコミット | `85027792` (main) |
 | 範囲 | フェーズ1（束ねる + 期間 + Walletアイテム）、フェーズ2（イベント期間中だけ数えるミッション）、フェーズ3（`nexus-ranking`） |
@@ -86,15 +86,18 @@ EventPeriodResolver::resolve(content_type, content_mst_id, now)
 - SQL で期間を絞っている2か所（`LoginBonusRepositoryAdapter`、`RewardTrackMasterRepository`）は、期間の条件を SQL から外し、差し替えた後に PHP で判定する形に直す。イベントの期間は SQL の `where` では表せないため
 - 「どのイベントを採用するか」は、`EventPeriodResolver` だけが決める（3.4）
 
-### 3.4 同じコンテンツが複数のイベントに入っているとき（使い回し）
+### 3.4 イベントの期間は重ならない／同じコンテンツを複数のイベントで使い回す
 
-同じ `content_type` + `content_mst_id` が複数のイベントに登録されていてよい。現在時刻に対して、次の順で1つ選ぶ。
+**全てのイベントの期間（`start_at` から `exchange_end_at`）は重ならない。同時に開催中（交換期間中を含む）のイベントは、常に最大1つ**。次のイベントは、前のイベントの `exchange_end_at` より後にしか始められない（`start_at > 前の exchange_end_at`。同時刻も不可）。
 
-1. 開催中または交換期間中のイベント（`start_at <= now <= exchange_end_at`）
+同じ `content_type` + `content_mst_id` は、複数のイベントに登録してよい（使い回し）。イベントの期間が重ならないので、現在時刻に対して採用するイベントは、次の順で1つに決まる。
+
+1. 開催中または交換期間中のイベント（`start_at <= now <= exchange_end_at`）。重ならないので、あっても1つ
 2. 無ければ、次に始まるイベント（`start_at` が最も近い未来）
 3. 無ければ、直近に終わったイベント（`exchange_end_at` が最も新しい過去）
 
-**同じコンテンツを含む2つのイベントの期間（`start_at` から `exchange_end_at`）が重なることは禁止する**（マスター取り込み時に検査する。3.5）。重なりを許すと、選ぶイベントが時刻によって揺れ、クライアントとサーバーで判断がずれる。
+- イベントの数は少なく、開催中は最大1つなので、`EventPeriodResolver` はリクエストごとに `mst_event` / `mst_event_content` を1回だけ読んで使い回せる（コンテンツごとに SQL を発行しない）
+- 常設のコンテンツ（期間限定でないもの）は `mst_event_content` に入れない。入れると、イベントの期間の外では使えなくなる
 
 ### 3.5 マスター取り込み時の検査
 
@@ -102,9 +105,8 @@ EventPeriodResolver::resolve(content_type, content_mst_id, now)
 
 - `start_at <= end_at <= exchange_end_at`
 - `content_type` が上の表の値で、`content_mst_id` が実在する
-- 同じコンテンツを含む2つのイベントの期間が重なっていない
+- 全てのイベントの期間が重なっていない（`start_at > 前のイベントの exchange_end_at`）
 - `mst_event_item` の `mst_item_id` が実在し、`is_wallet = true`
-- 同じ `mst_item_id` を持つ2つのイベントの期間が重なっていない（リセットが衝突するため。4.3）
 
 ### 3.6 クライアントも同じ規則で解決する
 
@@ -137,7 +139,7 @@ W1 を直せば、`exchange_end_at` を過ぎたものは消える。
 - リセットは、そのイベントの `mst_event_item` の各アイテムについて、期限切れを除いた残高を全て消費して0にする。捨てた数量は `log_action_event_reset` に残す
 - 印の作成とリセットは、同じトランザクションで行う（再実行しても、二重にリセットしない）
 - 触れたときとは、`ItemService` の付与・消費・取得、`GET /api/event/list`、イベントのポイントを配る処理。入口が `ItemService` に集まっているので、ここに `EventItemEntryInterface::ensureEntered(sys_player_id, mst_item_id)` を呼ぶ。`CurrencyDeliveryHandler` / `PointsDeliveryHandler` は `mst_item` を経由しないため、イベントのアイテムをこれらで配らない運用にする
-- 同じアイテムを持つ2つのイベントの期間は重ならない（3.5）。重なるとリセットが衝突する
+- イベントの期間は重ならない（3.4）ので、同じアイテムを使うイベントのリセットが衝突しない。前のイベントの残りは、`exchange_end_at` で有効期限が切れるか、次のイベントで最初に触れたときのリセットで消える
 
 **リセットの対象は、そのアイテムの全残高**（そのイベントの外から得たものも含む）。イベント専用のアイテムとして扱うことが前提。
 
@@ -202,7 +204,7 @@ log_action_event_reset      （プレイヤーと同じシャード）
 
 - `trx_progress` と `trx_mission` に `scope` を足す。値は `lifetime` か `event:{mst_event_id}`。主キーは `(sys_player_id, scope, trigger_type, sub_target_id)` と `(sys_player_id, scope, mst_mission_id)` にする。**リリース前なので、既存のマイグレーションを書き換える**（CLAUDE.md の運用）
 - ミッションがイベントに入っているか（`mst_event_content` の `content_type = mission`）で、どちらの進捗を読むかが決まる。ミッションのマスターに `mst_event_id` は足さない（使い回しのため。同じミッションが別のイベントに入るときは、イベントごとの `scope` で別々に数え、受け取りも別になる）
-- 出来事が起きたら、`lifetime` と、**プレイ期間中（`start_at <= now <= end_at`）のイベントで、その `trigger_type` のミッションを持つもの**の `scope` を進める
+- 出来事が起きたら、`lifetime` と、**プレイ期間中（`start_at <= now <= end_at`）のイベント（最大1つ）が、その `trigger_type` のミッションを持つなら、そのイベント**の `scope` を進める
 - 進捗の加算は `end_at` まで、報酬の受け取りは `exchange_end_at` まで
 - 後から足したイベントは、足した時点から数える（通算のように過去にさかのぼれない）。通算の「どのミッションがあるかに関係なく数える」とは、ここが違う
 
@@ -213,6 +215,17 @@ log_action_event_reset      （プレイヤーと同じシャード）
 ### 7.1 方針
 
 ランキングはイベントに限らない汎用のパッケージにする。イベントとの結び付きは、`mst_event_content`（`content_type = ranking`）と、得点を記録する側（api）で行い、パッケージは「得点を記録する・順位を引く・確定する・報酬を配る」だけを持つ。
+
+得点の更新の規則は2種類を、パッケージに実装しておく。**どちらを使うかは、ドメイン側のコードが決める**（マスターにカラムは持たない）。
+
+| 種類 | 更新の規則 | 記録の呼び出し | Redis |
+| --- | --- | --- | --- |
+| `total`（累計） | 加算する（`score += 増分`） | `recordTotal($rankingId, $playerId, $delta)` | `ZINCRBY` |
+| `highscore`（最大値） | 大きいときだけ置き換える（`score = max(現在値, 新しい値)`） | `recordHighScore($rankingId, $playerId, $value)` | `ZADD GT` |
+
+確定・報酬・一覧は2種類で共通。どちらも「大きいほど上位」（小さいほど上位のタイムアタックなどは範囲外）。
+
+**1つのランキングで種類を混ぜない**。同じ `mst_ranking_id` に両方を呼ぶと順位表が壊れるため、最初に記録したときの種類を `sys_ranking_state`（`mst_ranking_id`, `score_type`）に残し、別の種類で呼ばれたら `RankingException` を投げる（提案。マスターにカラムは増えないが、テーブルが1つ増える）。
 
 ### 7.2 テーブル
 
@@ -233,6 +246,9 @@ trx_ranking_score       （プレイヤーのシャード。得点の正本）
   sys_player_id, mst_ranking_id, score, last_scored_at, is_delete, created_at, updated_at
   PK (sys_player_id, mst_ranking_id)
 
+sys_ranking_state       （全プレイヤー共通。種類を混ぜないための印）
+  mst_ranking_id (PK), score_type (total / highscore), created_at
+
 sys_ranking_settlement  （全プレイヤー共通）
   mst_ranking_id (PK), status (pending / running / done), settled_at, ...
 
@@ -245,7 +261,7 @@ sys_ranking_result      （全プレイヤー共通）
 
 - 得点は `trx_ranking_score` に、プレイヤーのシャードのトランザクションで加算する（正本）
 - ライブの順位表は Redis の sorted set（`ranking:{mst_ranking_id}`）に持つ。加算のたびに更新する。Redis を失っても、`trx_ranking_score` から作り直せる
-- 同点は、**先にその得点に達した人が上位**。`last_scored_at` が早い方を上にする。sorted set の値への埋め込み方（精度の範囲内に収める）は実装時に決める
+- 同点は、**先にその得点に達した人が上位**。`last_scored_at` が早い方を上にする（`highscore` は、得点が上がったときだけ `last_scored_at` を更新する）。sorted set の値への埋め込み方（精度の範囲内に収める）は実装時に決める
 - イベントとの結び付き: `item_role = point` のアイテムを**獲得したとき**（消費しても得点は減らない）、`EventPointEarned` のドメインイベントを出し、api のリスナーが、そのイベントの `ranking` に得点を加算する
 
 ### 7.4 確定と報酬
@@ -258,7 +274,8 @@ sys_ranking_result      （全プレイヤー共通）
 ### 7.5 範囲外
 
 - ギルド対抗などの集団のランキング（個人だけ）
-- 日次・週次のランキング（得点はイベント期間の累計だけ。必要になれば、`mst_ranking` を期間ごとに複数登録すれば足りる）
+- 日次・週次のランキング（得点は、ランキングの期間の通しだけ。必要になれば、`mst_ranking` を期間ごとに複数登録すれば足りる）
+- 小さいほど上位になるランキング
 - 不正の検出
 
 ---
@@ -267,11 +284,11 @@ sys_ranking_result      （全プレイヤー共通）
 
 | # | 内容 | 決定 |
 | ---: | --- | --- |
-| 1 | イベントの期間の重なり（3.4、3.5） | 重なるのは禁止。**範囲は確認中**（A: 同じコンテンツ・同じアイテムを持つイベント同士だけ禁止 / B: 全てのイベントで禁止）。この設計書は A で書いている |
+| 1 | イベントの期間の重なり（3.4、3.5） | **全てのイベントで禁止**。同時に開催中のイベントは最大1つ。次のイベントは前の `exchange_end_at` より後に始める |
 | 2 | リセットが捨てる範囲（4.3） | そのアイテムの全残高を0にしてよい |
 | 3 | ミッションの受け取り期限（3.2） | `exchange_end_at`。進捗の加算は `end_at` まで |
 | 4 | ランキングの順位の確定時刻 | `end_at` |
-| 5 | ランキングの範囲（7.5） | 個人だけ。得点はイベント期間の累計（獲得したポイントの合計）。日次・週次は範囲外 |
+| 5 | ランキングの範囲（7.5） | 個人だけ。得点の更新は `total`（累計）と `highscore`（最大値）の2種類をパッケージに実装し、どちらを使うかはドメイン側が決める。日次・週次は範囲外 |
 
 ## 9. 影響を受ける既存のコード
 

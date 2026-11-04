@@ -65,7 +65,7 @@ start_at ─────────────── end_at ──────
 | `reward_track` | `start_at` | `end_at` | 進捗の加算の締め |
 | `trade` | `start_at` | **`exchange_end_at`** | 交換所は交換期間まで使える |
 | `mission` | `start_at` | `exchange_end_at` | 進捗の加算は `end_at` まで、報酬の受け取りは `exchange_end_at` まで（フェーズ2で扱う） |
-| `ranking` | `start_at` | `end_at` | 順位の確定は `end_at` の後（フェーズ3） |
+| `ranking` | `start_at` | `end_at` | 順位は `end_at` で動かなくなる。報酬の受け取りは `exchange_end_at` まで（フェーズ3） |
 
 ### 3.3 上書きの実装：マスターを読む境界で解決する
 
@@ -268,7 +268,7 @@ log_action_event_reset      （プレイヤーと同じシャード）
 
 ### 7.1 方針
 
-`nexus-ranking` は、**順位表（Redis）・確定・報酬・一覧だけ**を持つ汎用のパッケージにする。得点そのものは持たず、ランキングは「プレイヤーごとの得点を1つ受け取って、順位に変える」。
+`nexus-ranking` は、**順位表（Redis）・報酬の受け取り・一覧だけ**を持つ汎用のパッケージにする。バッチや確定の処理は持たない（7.4）。得点そのものは持たず、ランキングは「プレイヤーごとの得点を1つ受け取って、順位に変える」。
 
 - 得点は、イベントの `trx_event_score`（5.4）が、ランキングの有無にかかわらず常に持つ（累計とハイスコアの両方）
 - ランキングを使うイベントだけ、**どちらの得点を順位にするかを、ドメインのコードが選んで**、パッケージに渡す（マスターにカラムは持たない）
@@ -301,97 +301,71 @@ mst_ranking_reward
   + 報酬の中身（nexus-trade の mst_trade_product_content と同じ形）
   PK (mst_ranking_id, rank_from)
 
-trx_ranking             （プレイヤーのシャード。報酬を受けた印と、そのときの順位・得点）
+trx_ranking             （プレイヤーのシャード。報酬を受け取った印と、そのときの順位・得点）
   sys_player_id, mst_ranking_id, final_rank, final_score, rewarded_at, is_delete, created_at, updated_at
   PK (sys_player_id, mst_ranking_id)
 
-sys_ranking_settlement  （全プレイヤー共通。確定の進み具合）
-sys_ranking_result      （全プレイヤー共通。確定した順位）
 ```
 
 - 得点は `trx_event_score`（5.1）にあり、ランキング側には持たない
-- `trx_ranking` は、**報酬を配るとき**に、メールボックスの INSERT と同じシャードのトランザクションで作る。報酬の対象外の順位のプレイヤーには作らない
-- sys の2テーブルの列・キー・流れは 7.6
+- `trx_ranking` は、**プレイヤーが報酬を受け取るとき**に、メールボックスの INSERT と同じシャードのトランザクションで作る。報酬の対象外の順位のプレイヤーには作らない
+- ランキングのために sys のテーブルは持たない（確定の処理が無いため。7.4）
 
 ### 7.3 順位表への登録
 
 - ライブの順位表は Redis の sorted set（`ranking:{mst_ranking_id}`）に持つ。**ランキングを使うイベントだけ**に作る
-- `EventScoreUpdated` を受けた api のリスナーが、そのイベントの `mst_event_content` から `content_type = ranking` のランキングを引き、各ランキングについて、ドメインが選んだ得点（累計かハイスコア）の**現在値を絶対値で `ZADD` する**（加算ではなく上書き）。正本は `trx_event_score` なので、`ZINCRBY` のような差分更新をしない。Redis とのずれが積み重ならず、同じ更新を2回登録しても結果が同じになる
+- `EventScoreUpdated` を受けた api のリスナーが、そのイベントの `mst_event_content` から `content_type = ranking` のランキングを引き、各ランキングについて、ドメインが選んだ得点（累計かハイスコア）の**現在値を絶対値で `ZADD GT` する**（加算ではなく上書き。`GT` は、今より大きいときだけ更新する）。正本は `trx_event_score` なので、`ZINCRBY` のような差分更新をしない。Redis とのずれが積み重ならず、同じ更新を2回登録しても、再構築と同時に動いても、古い値で上書きしない（得点は増える一方で、同点の判定に使う時刻を含めた値も、得点が上がれば大きくなる）
 - 同点は、**先にその得点に達した人が上位**。`total_scored_at` / `high_scored_at` が早い方を上にする。sorted set の値への埋め込み方（精度の範囲内に収める）は実装時に決める
-- Redis を失ったとき、またはイベントの途中でランキングを足したときは、`ranking:rebuild {mst_ranking_id}` で、各シャードの `trx_event_score` から作り直す
+- 順位表の寿命: 最初に登録するときに、`EXPIREAT ranking:{id}` を、イベントの `exchange_end_at` の7日後にする（受け取りの期限の後、念のために残す）
+- Redis を失ったとき、またはイベントの途中でランキングを足したときは、`ranking:rebuild {mst_ranking_id}` で、各シャードの `trx_event_score` から作り直す。**定期実行はしない手動の運用コマンド**で、得点は `ZADD GT` で入れるので、イベントの進行中に流しても安全
 - ランキングを使うイベントでも、ランキングに載るのは、1回でも得点を記録したプレイヤーだけ
 
-### 7.4 確定と報酬
+### 7.4 終了後と報酬の受け取り（バッチは持たない）
 
-- `end_at` を過ぎたら、`ranking:settle` の Artisan コマンド（スケジューラが毎分起動）が確定する
-- 確定は `sys_ranking_settlement` の `status` で、再実行しても二重に動かないようにする（`pending` → `saving` → `rewarding` → `done`。止まったら、`saved_rank` / `rewarded_rank` の続きから。7.6）
-- 順位表は Redis から一定数ずつ読み、`sys_ranking_result` に保存する。報酬はメールボックスで配る。**配ったかどうかの印は、プレイヤーのシャードの `trx_ranking.rewarded_at` に置く**（`trx_ranking` の行は、メールボックスの INSERT と同じシャードのトランザクションで作るので、途中で止まっても二重に配らず、配り漏れもしない。sys に印を置くと、sys とシャードの2つのDBにまたがってしまい、原子的に更新できない）
-- 一覧 API は、`display_limit` までの上位と、自分の順位・得点を返す。プレイヤー名は `sys_player` から引く
+- `end_at` を過ぎると、`EventScoreService` は得点を受け付けない（5.4）ので、順位表は動かなくなる。**確定の処理も、バッチも、スケジューラも無い**。一覧は Redis をそのまま読む
+- 順位が最終になるのは、**`end_at` + 猶予（60秒。設定値）**。猶予は、`end_at` の直前に始まったリクエストの `ZADD` が終わるのを待つため。`end_at` から猶予の終わりまでの間は、一覧は `phase = finalizing` を返し、報酬は受け取れない
+- 報酬は、**プレイヤーが `POST /api/ranking/reward/receive` を呼んだときに、そのプレイヤー分だけ発行する**（ミッションの報酬と同じ受け取り方式）。クライアントは、ホーム画面やイベント画面で、終了したランキングについて自動で呼ぶ
+- 受け取れる期限は、イベントの **`exchange_end_at`**（3.2 のミッションと同じ）
+- **配ったかどうかの印は `trx_ranking`**（プレイヤーのシャード）。メールボックスへの INSERT と `trx_ranking` の作成が、同じシャードの1つのトランザクションなので、二重に配らず、配り漏れもしない。sys とシャードの2つのDBにまたがる更新が無い
+- 受け取らないままのプレイヤーには、報酬は届かない。期限を過ぎたら、順位表は `exchange_end_at` の7日後に消える
 
 ### 7.5 範囲外
 
 - ギルド対抗などの集団のランキング（個人だけ）
 - 日次・週次のランキング（得点は、ランキングの期間の通しだけ。必要になれば、`mst_ranking` を期間ごとに複数登録すれば足りる）
 - 小さいほど上位になるランキング
-- イベントに属さない常設のランキング（得点の置き場が無い。10）
+- イベントに属さない常設のランキング（得点の置き場が無い。11）
 - 不正の検出
 
-### 7.6 sys テーブルの詳細
+### 7.6 API と受け取りの詳細
 
-sys の2テーブルは、規約（`.claude/database.md`）どおり `id` を持つ（複合主キーだけで済ませてよいのは trx / mst）。ENUM は使わず、`string` にして取りうる値をコメントに書く。値はスネークケース。
+#### `GET /api/ranking/info`（`mst_ranking_id`）
 
-#### sys_ranking_settlement（確定の進み具合。ランキングごとに1行）
+| キー | 内容 |
+| --- | --- |
+| `mst_ranking_id` | 指定したランキング |
+| `phase` | `playing`（`end_at` まで）/ `finalizing`（`end_at` から猶予の終わりまで）/ `final`（猶予の後） |
+| `ranking_list` | 上位 `display_limit` 人。要素は `rank`、`my_id`、`name`、`score`（`my_id` で他のプレイヤーを指す。`.claude/api.md`） |
+| `my_rank` / `my_score` | 自分の順位・得点。参加していなければ `null` |
+| `is_reward_received` | 受け取り済みか（`trx_ranking` の有無） |
 
-| 列 | 型 | 内容 |
-| --- | --- | --- |
-| `id` | bigint unsigned PK | 連番 |
-| `mst_ranking_id` | string | `mst_ranking` のID。`uk_ranking_settlement_ranking` で一意 |
-| `status` | string | `pending`（確定待ち）/ `saving`（順位を保存中）/ `rewarding`（報酬を配布中）/ `done`（完了）。index |
-| `participant_count` | unsigned int, null | 参加人数（`saving` に入るときの順位表の人数） |
-| `saved_rank` | unsigned int | `sys_ranking_result` に保存し終えた最後の順位。初期値 0 |
-| `rewarded_rank` | unsigned int | 報酬を配り終えた最後の順位。初期値 0 |
-| `started_at` | dateTime, null | `saving` に入った日時 |
-| `saved_at` | dateTime, null | 順位の保存を終えた日時（`rewarding` に入った日時） |
-| `finished_at` | dateTime, null | `done` になった日時 |
-| `created_at` / `updated_at` | dateTime | 規約どおり |
+- 順位表は `ZREVRANGE`、自分の順位は `ZREVRANK`、プレイヤー名は `sys_player` から引く（`display_limit` 人分だけ）
+- 順位表が無い（Redis を失った）ときは、`RANKING_NOT_READY` を返す。`ranking:rebuild`（7.3）で戻す
 
-状態の遷移:
+#### `POST /api/ranking/reward/receive`（`mst_ranking_id`）
 
-```
-pending ──→ saving ──→ rewarding ──→ done
-  行を作る    順位を保存    報酬を配布     完了
-              (saved_rank)  (rewarded_rank)
-```
+1. `phase` が `final` で、今が `exchange_end_at` 以前か確かめる（有効な期間は、`EventPeriodResolver`（3.3）が返すイベントの期間）
+2. Redis から順位（`ZREVRANK` + 1）と得点を取る。参加していなければ `RANKING_NOT_PARTICIPATED`
+3. `mst_ranking_reward` から、順位に当たる報酬を引く
+4. `executeWithTransaction()` の中で、`trx_ranking` が既にあれば `RANKING_REWARD_ALREADY_RECEIVED`。無ければ、報酬をメールボックスに入れ、`trx_ranking`（`final_rank`、`final_score`、`rewarded_at`）を作る
+5. 報酬の対象外の順位なら、報酬は空（`reward_list: []`）で成功にし、`trx_ranking` は作らない
 
-流れ（`ranking:settle`。毎分起動）:
-1. **対象を決める**: ランキングの有効な `end_at` を過ぎていて、`sys_ranking_settlement` に行が無いものを探し、`pending` の行を作る。**有効な `end_at`** は、ランキングがイベントに入っていれば、`EventPeriodResolver`（3.3）が返すイベントの `end_at`（`mst_ranking.end_at` ではない）
-2. **ロック**: ランキングごとに `Cache::lock("ranking-settle:{mst_ranking_id}")` を取る。行の作成も、ロックを取ってから行う（複数のサーバーが同時に起動しても、重複した行ができない）
-3. **`saving`**: `participant_count` に Redis の順位表の人数を入れ、順位の高い方から一定数ずつ読んで、`sys_ranking_result` に書き（`uk` で上書き）、`saved_rank` を進める。読み終えたら `saved_at` を入れて `rewarding` にする
-4. **`rewarding`**: `sys_ranking_result` を、`rewarded_rank` の次の順位から、**報酬のある最大の順位（`mst_ranking_reward` の `rank_to` の最大）まで**、一定数ずつ読む。プレイヤーごとに、シャードのトランザクションで、メールボックスへの INSERT と `trx_ranking` の行の作成を行う（`trx_ranking` が既にあれば飛ばす。7.4）。1まとまり終えるたびに `rewarded_rank` を進める
-5. 報酬のある最大の順位を過ぎたら `done` にして `finished_at` を入れる
+- 同時に2回呼ばれても、`trx_ranking` の主キー `(sys_player_id, mst_ranking_id)` が重複して、コミット全体（メールの INSERT を含む）が失敗するので、二重には配られない。通常の再送は `X-Unique-Request-Identifier`（冪等キー）で、同じレスポンスを返す
+- レスポンスは `mst_ranking_id`、`rank`、`score`、`reward_list`
 
-止まったときの再開:
-- `saving` で止まったら、次の起動が `saved_rank` の次から続ける。保存済みの順位を書き直しても同じ値になる
-- `rewarding` で止まったら、`rewarded_rank` の次から続ける。1まとまりの途中で止まっても、配り済みのプレイヤーは `trx_ranking` の行があるので、二重に配らない
-- ロックの有効期限が切れて2つが同時に動いても、どちらの書き込みも同じ値になり、報酬は `trx_ranking` で二重にならない
+#### 新しいエラーコード（`GameErrorCode` に追加）
 
-順位表（Redis）は、`done` になるまで消さない。消してよいのは `done` の後（一覧は `sys_ranking_result` から返せる）。
-
-#### sys_ranking_result（確定した順位。ランキング × プレイヤーで1行）
-
-| 列 | 型 | 内容 |
-| --- | --- | --- |
-| `id` | bigint unsigned PK | 連番 |
-| `mst_ranking_id` | string | `mst_ranking` のID |
-| `sys_player_id` | unsigned bigint | `sys_player` のID |
-| `rank` | unsigned int | 確定した順位（1が最上位） |
-| `score` | unsigned bigint | 確定した得点 |
-| `created_at` / `updated_at` | dateTime | 規約どおり |
-
-- キー: `uk_ranking_result_player`（`mst_ranking_id`, `sys_player_id`）で一意。`index(mst_ranking_id, rank)` で、順位順の一覧と、`saved_rank` の続きの読み出しに使う
-- 報酬を配った印（`rewarded_at`）は、ここには持たない。`trx_ranking.rewarded_at` に置く（7.4）
-- 読み出しは、必ず `mst_ranking_id` で絞る。`NoFullTableSelectOnSysTest` が、sys テーブルの全件取得（`Model::all()` など）を禁止している
-- 件数は、参加人数と同じだけ増える。sys は単一のDBなので、保存期間（何か月分を残すか）を決めておく。古い結果は削除してよい（確定後の結果は、報酬を配り終えていれば、一覧の表示にしか使わない）
+`RANKING_NOT_FOUND`、`RANKING_NOT_READY`、`RANKING_NOT_FINISHED`（`phase` が `final` でない）、`RANKING_RECEIVE_EXPIRED`（`exchange_end_at` の後）、`RANKING_NOT_PARTICIPATED`、`RANKING_REWARD_ALREADY_RECEIVED`
 
 ---
 
@@ -402,18 +376,19 @@ pending ──→ saving ──→ rewarding ──→ done
 | 1 | イベントの期間の重なり（3.4、3.5） | **全てのイベントで禁止**。同時に開催中のイベントは最大1つ。次のイベントは前の `exchange_end_at` より後に始める |
 | 2 | リセットが捨てる範囲（4.3） | そのアイテムの全残高を0にしてよい |
 | 3 | ミッションの受け取り期限（3.2） | `exchange_end_at`。進捗の加算は `end_at` まで |
-| 4 | ランキングの順位の確定時刻 | `end_at` |
+| 4 | ランキングの順位が動かなくなる時刻 | `end_at`（確定の処理は持たない。7.4） |
 | 5 | ランキングの範囲（7.5） | 個人だけ。日次・週次は範囲外 |
 | 6 | 得点の持ち方（5.4、7.1） | ランキングの有無にかかわらず、累計とハイスコアの両方を `trx_event_score` に持つ（クリアパーティなどの付属情報つき）。Redis に登録するのは、ランキングを使うときだけ。どちらの得点を順位にするかは、ドメインのコードが選ぶ |
-| 7 | テーブル名 | `trx_event_score`（得点）、`trx_ranking`（報酬を受けた印）。`trx_player_event` は `trx_event` |
+| 7 | ランキング報酬の配り方（7.4） | **受け取り方式**。確定のバッチを持たない。`sys_ranking_settlement` / `sys_ranking_result` / `ranking:settle` / スケジューラは作らない |
+| 8 | テーブル名 | `trx_event_score`（得点）、`trx_ranking`（報酬を受けた印）。`trx_player_event` は `trx_event` |
 
 ### 確認中
 
 | # | 内容 | この案 |
 | ---: | --- | --- |
-| 8 | イベントのアイテムを、`start_at` から `exchange_end_at` の外で付与しようとしたときの扱い（4.4） | 業務エラー（`EVENT_ITEM_NOT_AVAILABLE`） |
-| 9 | `sys_ranking_result` を、全参加者分持つか（7.6）。持つ場合の保存期間 | 全参加者分。保存期間は運用で決める（確定後の結果は、報酬を配り終えれば表示にしか使わない） |
-| 10 | ランキングは、イベントに属するものだけ（`mst_event_content` の `content_type = ranking`）でよいか。イベントに属さない常設のランキングは、得点の置き場が無いので範囲外になる | イベントに属するものだけ。常設のランキングが必要になったら、得点の置き場（`trx_event_score` に相当するもの）を足す |
+| 9 | イベントのアイテムを、`start_at` から `exchange_end_at` の外で付与しようとしたときの扱い（4.4） | 業務エラー（`EVENT_ITEM_NOT_AVAILABLE`） |
+| 10 | ランキング報酬の受け取り期限と、順位が最終になるまでの猶予（7.4） | 期限は `exchange_end_at`、猶予は60秒 |
+| 11 | ランキングは、イベントに属するものだけ（`mst_event_content` の `content_type = ranking`）でよいか。イベントに属さない常設のランキングは、得点の置き場が無いので範囲外になる | イベントに属するものだけ。常設のランキングが必要になったら、得点の置き場（`trx_event_score` に相当するもの）を足す |
 
 ---
 

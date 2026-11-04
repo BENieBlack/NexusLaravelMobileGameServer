@@ -25,7 +25,17 @@
         <env name="CACHE_STORE" value="array"/>
         <env name="DB_CONNECTION" value="sqlite"/>
         <env name="DB_DATABASE" value=":memory:"/>
-        <env name="DB_ADMIN_DATABASE" value="nexus-local-admin"/>
+        <!--
+            テストは専用のデータベースを使う。admin は migrate:fresh で作り直すため、
+            開発用（nexus-local-admin）を指すと開発環境のアカウントが消える。
+            sys / trx は api のテスト用（nexus-testing-system / -shard）と分ける。
+            共用すると、ここで作ったプレイヤーが api の AssignPlayersCommandTest などを落とす。
+            CI はジョブの環境変数で指定しており、そちらが優先される。
+            ローカルのデータベースは make tool-check（tool-test-db）が作る。
+        -->
+        <env name="DB_ADMIN_DATABASE" value="nexus-testing-admin"/>
+        <env name="DB_SYSTEM_DATABASE" value="nexus-testing-tool-system"/>
+        <env name="DB_SHARD_DATABASE" value="nexus-testing-tool-shard"/>
         <!--
             シャード数は .env（.env.example は 3）に左右されないよう固定する。
             force を付けないと既存の環境変数が優先され、環境によって trx3 まで見に行く。

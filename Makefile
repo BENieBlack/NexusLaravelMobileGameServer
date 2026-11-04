@@ -1,4 +1,4 @@
-.PHONY: help up down ps logs test test-fresh test-unit test-feature test-quiet coverage coverage-html phpstan check check-quiet migrate migrate-fresh seed shell tinker clean install pint pint-dirty pint-test tool-check audit
+.PHONY: help up down ps logs test test-fresh test-unit test-feature test-quiet coverage coverage-html phpstan check check-quiet migrate migrate-fresh seed shell tinker clean install pint pint-dirty pint-test tool-check tool-test-db audit
 
 # Compose v2 (docker compose) を優先し、無ければ v1 (docker-compose) にフォールバック
 DOCKER_COMPOSE := $(shell docker compose version > /dev/null 2>&1 && echo "docker compose" || echo "docker-compose")
@@ -100,10 +100,17 @@ audit: up ## 依存パッケージの脆弱性を検査（CIと同じ）
 
 # tool は api とは別のLaravelアプリで、composerの依存も分かれている。
 # api-php コンテナからは見えないため、tool-php で回す
-tool-check: up ## toolの検査（フォーマット・静的解析・テスト）
+tool-check: up tool-test-db ## toolの検査（フォーマット・静的解析・テスト）
 	$(DOCKER_COMPOSE) exec -T tool-php ./vendor/bin/pint --test
 	$(DOCKER_COMPOSE) exec -T tool-php ./vendor/bin/phpstan analyse --memory-limit=1G --no-progress
 	$(DOCKER_COMPOSE) exec -T tool-php ./vendor/bin/phpunit
+
+# tool のテスト用データベースを作る（tool/phpunit.xml が参照する）。
+# docker-compose.yml の DB_NAMES はボリュームの初回作成時しか効かないため、既存の環境ではここで作る
+tool-test-db: up
+	@for target in db-admin:nexus-testing-admin db-system:nexus-testing-tool-system db-shard1:nexus-testing-tool-shard db-shard2:nexus-testing-tool-shard; do \
+		$(DOCKER_COMPOSE) exec -T $${target%%:*} sh -c "MYSQL_PWD=\"\$$MYSQL_ROOT_PASSWORD\" mysql -uroot -e 'CREATE DATABASE IF NOT EXISTS \`$${target#*:}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci'" || exit 1; \
+	done
 
 migrate: up ## マイグレーションを実行
 	$(call migrate_group,migrate,sys,sys)

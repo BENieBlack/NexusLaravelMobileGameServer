@@ -18,7 +18,7 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: PHPのセットアップ
         uses: shivammathur/setup-php@v2
@@ -93,7 +93,7 @@ jobs:
       DB_SHARD_DATABASE: nexus-testing-shard
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: PHPのセットアップ
         uses: shivammathur/setup-php@v2
@@ -231,7 +231,7 @@ jobs:
       REDIS_PORT: 6379
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: PHPのセットアップ
         uses: shivammathur/setup-php@v2

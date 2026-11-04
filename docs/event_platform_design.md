@@ -324,7 +324,7 @@ sys_ranking_result      （全プレイヤー共通。確定した順位）
 ### 7.4 確定と報酬
 
 - `end_at` を過ぎたら、`ranking:settle` の Artisan コマンド（スケジューラが毎分起動）が確定する
-- 確定は `sys_ranking_settlement` の `status` で、再実行しても二重に動かないようにする（`pending` → `running` → `done`。`running` のまま止まったら、続きから）
+- 確定は `sys_ranking_settlement` の `status` で、再実行しても二重に動かないようにする（`pending` → `saving` → `rewarding` → `done`。止まったら、`saved_rank` / `rewarded_rank` の続きから。7.6）
 - 順位表は Redis から一定数ずつ読み、`sys_ranking_result` に保存する。報酬はメールボックスで配る。**配ったかどうかの印は、プレイヤーのシャードの `trx_ranking.rewarded_at` に置く**（`trx_ranking` の行は、メールボックスの INSERT と同じシャードのトランザクションで作るので、途中で止まっても二重に配らず、配り漏れもしない。sys に印を置くと、sys とシャードの2つのDBにまたがってしまい、原子的に更新できない）
 - 一覧 API は、`display_limit` までの上位と、自分の順位・得点を返す。プレイヤー名は `sys_player` から引く
 
@@ -346,18 +346,36 @@ sys の2テーブルは、規約（`.claude/database.md`）どおり `id` を持
 | --- | --- | --- |
 | `id` | bigint unsigned PK | 連番 |
 | `mst_ranking_id` | string | `mst_ranking` のID。`uk_ranking_settlement_ranking` で一意 |
-| `status` | string | `pending`（確定待ち）/ `running`（確定中）/ `done`（確定済み）。index |
-| `saved_rank` | unsigned int | `sys_ranking_result` に保存し終えた最後の順位。止まったとき、ここから続ける。初期値 0 |
-| `participant_count` | unsigned int, null | 確定時の参加人数 |
-| `started_at` / `finished_at` | dateTime, null | 確定の開始・完了 |
+| `status` | string | `pending`（確定待ち）/ `saving`（順位を保存中）/ `rewarding`（報酬を配布中）/ `done`（完了）。index |
+| `participant_count` | unsigned int, null | 参加人数（`saving` に入るときの順位表の人数） |
+| `saved_rank` | unsigned int | `sys_ranking_result` に保存し終えた最後の順位。初期値 0 |
+| `rewarded_rank` | unsigned int | 報酬を配り終えた最後の順位。初期値 0 |
+| `started_at` | dateTime, null | `saving` に入った日時 |
+| `saved_at` | dateTime, null | 順位の保存を終えた日時（`rewarding` に入った日時） |
+| `finished_at` | dateTime, null | `done` になった日時 |
 | `created_at` / `updated_at` | dateTime | 規約どおり |
 
-流れ:
-1. `ranking:settle`（毎分）が、`end_at` を過ぎていて行が無い `mst_ranking` に、`pending` の行を作る
-2. ランキングごとにロック（`Cache::lock("ranking-settle:{id}")`）を取り、`running` にして、Redis の順位表を `saved_rank` の続きから一定数ずつ読み、`sys_ranking_result` に保存して `saved_rank` を進める
-3. 保存し終えたら `done` にする。続けて報酬を配る（7.4）
-- 複数のサーバーが同時に起動しても、ロックが取れた1つだけが動く。行の作成は、ロックを取った後に行うので、重複しない
-- `running` のまま止まったら、次の起動が `saved_rank` から続ける。保存済みの順位を書き直しても同じ値になるので、二重にはならない
+状態の遷移:
+
+```
+pending ──→ saving ──→ rewarding ──→ done
+  行を作る    順位を保存    報酬を配布     完了
+              (saved_rank)  (rewarded_rank)
+```
+
+流れ（`ranking:settle`。毎分起動）:
+1. **対象を決める**: ランキングの有効な `end_at` を過ぎていて、`sys_ranking_settlement` に行が無いものを探し、`pending` の行を作る。**有効な `end_at`** は、ランキングがイベントに入っていれば、`EventPeriodResolver`（3.3）が返すイベントの `end_at`（`mst_ranking.end_at` ではない）
+2. **ロック**: ランキングごとに `Cache::lock("ranking-settle:{mst_ranking_id}")` を取る。行の作成も、ロックを取ってから行う（複数のサーバーが同時に起動しても、重複した行ができない）
+3. **`saving`**: `participant_count` に Redis の順位表の人数を入れ、順位の高い方から一定数ずつ読んで、`sys_ranking_result` に書き（`uk` で上書き）、`saved_rank` を進める。読み終えたら `saved_at` を入れて `rewarding` にする
+4. **`rewarding`**: `sys_ranking_result` を、`rewarded_rank` の次の順位から、**報酬のある最大の順位（`mst_ranking_reward` の `rank_to` の最大）まで**、一定数ずつ読む。プレイヤーごとに、シャードのトランザクションで、メールボックスへの INSERT と `trx_ranking` の行の作成を行う（`trx_ranking` が既にあれば飛ばす。7.4）。1まとまり終えるたびに `rewarded_rank` を進める
+5. 報酬のある最大の順位を過ぎたら `done` にして `finished_at` を入れる
+
+止まったときの再開:
+- `saving` で止まったら、次の起動が `saved_rank` の次から続ける。保存済みの順位を書き直しても同じ値になる
+- `rewarding` で止まったら、`rewarded_rank` の次から続ける。1まとまりの途中で止まっても、配り済みのプレイヤーは `trx_ranking` の行があるので、二重に配らない
+- ロックの有効期限が切れて2つが同時に動いても、どちらの書き込みも同じ値になり、報酬は `trx_ranking` で二重にならない
+
+順位表（Redis）は、`done` になるまで消さない。消してよいのは `done` の後（一覧は `sys_ranking_result` から返せる）。
 
 #### sys_ranking_result（確定した順位。ランキング × プレイヤーで1行）
 

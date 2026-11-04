@@ -39,6 +39,6 @@ class DetailUseCase extends _BaseUseCase
             );
         }
 
-        return DetailResponse::fromResult(GuildAdapter::toDto($guild));
+        return DetailResponse::from(GuildAdapter::toDto($guild));
     }
 }

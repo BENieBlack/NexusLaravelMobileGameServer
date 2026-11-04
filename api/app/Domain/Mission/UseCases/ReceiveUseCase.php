@@ -27,10 +27,12 @@ class ReceiveUseCase extends _BaseUseCase
      */
     public function handle(int $sysPlayerId, string $mstMissionId): ReceiveResponse
     {
-        return ReceiveResponse::fromResult($this->executeWithTransaction(
+        $missionStatus = $this->executeWithTransaction(
             fn () => MissionExceptionTranslator::translate(
                 fn () => $this->missionService->receive($sysPlayerId, $mstMissionId)
             )
-        ));
+        );
+
+        return ReceiveResponse::from($missionStatus);
     }
 }

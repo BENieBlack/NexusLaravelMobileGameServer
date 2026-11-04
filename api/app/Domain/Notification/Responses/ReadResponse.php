@@ -18,7 +18,7 @@ class ReadResponse extends _BaseResponse
     /**
      * UseCaseの結果（既読にした後の未読数）からレスポンスを生成
      */
-    public static function fromResult(int $unreadCount): static
+    public static function from(int $unreadCount): static
     {
         return new static($unreadCount);
     }

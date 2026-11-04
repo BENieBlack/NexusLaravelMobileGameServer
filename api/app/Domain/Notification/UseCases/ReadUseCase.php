@@ -22,10 +22,12 @@ class ReadUseCase extends _BaseUseCase
 
     public function handle(int $sysPlayerId, int $trxNotificationId): ReadResponse
     {
-        return ReadResponse::fromResult($this->executeWithTransaction(function () use ($sysPlayerId, $trxNotificationId) {
+        $unreadCount = $this->executeWithTransaction(function () use ($sysPlayerId, $trxNotificationId) {
             $this->notificationService->markAsRead($trxNotificationId, $sysPlayerId);
 
             return $this->notificationService->countUnread($sysPlayerId);
-        }));
+        });
+
+        return ReadResponse::from($unreadCount);
     }
 }

@@ -23,7 +23,7 @@ class ApplyAcceptResponse extends _BaseResponse
     /**
      * GuildApplyからレスポンスを生成
      */
-    public static function fromResult(GuildApply $guildApply): self
+    public static function from(GuildApply $guildApply): self
     {
         return new self(
             applyId: $guildApply->getId(),

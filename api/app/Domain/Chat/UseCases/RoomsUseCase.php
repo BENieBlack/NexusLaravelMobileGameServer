@@ -19,6 +19,6 @@ class RoomsUseCase extends _BaseUseCase
 
     public function handle(int $sysPlayerId): RoomsResponse
     {
-        return RoomsResponse::fromResult($this->chatService->getRoomsByPlayer($sysPlayerId));
+        return RoomsResponse::from($this->chatService->getRoomsByPlayer($sysPlayerId));
     }
 }

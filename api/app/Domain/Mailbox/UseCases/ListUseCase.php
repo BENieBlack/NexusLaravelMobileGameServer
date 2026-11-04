@@ -50,6 +50,6 @@ class ListUseCase extends _BaseUseCase
         // カテゴリ別未読数を取得
         $unreadCounts = $this->trxMailboxRepository->countUnreadByCategory($sysPlayerId);
 
-        return ListResponse::fromResult($trxMailboxCollection, $unreadCounts);
+        return ListResponse::from($trxMailboxCollection, $unreadCounts);
     }
 }

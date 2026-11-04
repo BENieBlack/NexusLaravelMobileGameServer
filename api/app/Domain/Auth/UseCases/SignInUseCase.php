@@ -49,7 +49,7 @@ class SignInUseCase extends _BaseUseCase
     public function handle(string $deviceId, array $deviceInfo): SignInResponse
     {
         // トランザクション開始
-        return SignInResponse::fromResult($this->executeWithTransaction(function () use ($deviceId) {
+        $signInResult = $this->executeWithTransaction(function () use ($deviceId) {
             // デバイスを取得
             $sysPlayerDevice = $this->deviceRepository->selectByDeviceId($deviceId);
 
@@ -97,6 +97,8 @@ class SignInUseCase extends _BaseUseCase
                 sysPlayerToken: $sysPlayerToken,
                 token: $token,
             );
-        }));
+        });
+
+        return SignInResponse::from($signInResult);
     }
 }

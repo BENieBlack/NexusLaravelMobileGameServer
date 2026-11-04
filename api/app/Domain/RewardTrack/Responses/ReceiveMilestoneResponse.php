@@ -14,7 +14,7 @@ class ReceiveMilestoneResponse extends _BaseResponse
     /**
      * UseCaseの結果（受け取ったマイルストーン）からレスポンスを生成
      */
-    public static function fromResult(RewardTrackMilestone $milestone): self
+    public static function from(RewardTrackMilestone $milestone): self
     {
         return new self($milestone);
     }

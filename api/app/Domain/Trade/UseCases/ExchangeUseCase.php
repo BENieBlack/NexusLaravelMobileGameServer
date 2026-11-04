@@ -33,10 +33,12 @@ class ExchangeUseCase extends _BaseUseCase
             $this->logTradeRepository->setUniqueRequestId($uniqueRequestId);
         }
 
-        return ExchangeResponse::fromResult($this->executeWithTransaction(
+        $tradeProductStatus = $this->executeWithTransaction(
             fn () => TradeExceptionTranslator::translate(
                 fn () => $this->tradeService->trade($sysPlayerId, $mstTradeProductId, $quantity)
             )
-        ));
+        );
+
+        return ExchangeResponse::from($tradeProductStatus);
     }
 }

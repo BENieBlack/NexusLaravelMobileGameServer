@@ -23,7 +23,7 @@ class ApplySendResponse extends _BaseResponse
     /**
      * FriendApply DTOからレスポンスを生成
      */
-    public static function fromResult(FriendApply $friendApply): self
+    public static function from(FriendApply $friendApply): self
     {
         return new self(
             sysFriendApplyId: $friendApply->getId(),

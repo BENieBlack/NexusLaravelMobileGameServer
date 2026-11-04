@@ -14,13 +14,17 @@ class TrxUnitRepositoryTest extends TestCase
 
     protected TrxUnitRepository $repository;
 
+    /** このテストのプレイヤー。他のテストが残した行と衝突しない、空いているIDを使う */
+    protected int $sysPlayerId;
+
     protected function setUp(): void
     {
         parent::setUp();
 
-        // ApiSessionを初期化（テスト用のプレイヤーID=1を設定）
+        // ApiSessionを初期化（テスト用のプレイヤーを設定）
         ClockUtility::initialize();
-        $this->useSessionPlayer(1);
+        $this->sysPlayerId = $this->nonExistentSysPlayerId();
+        $this->useSessionPlayer($this->sysPlayerId);
 
         $this->repository = new TrxUnitRepository;
     }
@@ -32,7 +36,7 @@ class TrxUnitRepositoryTest extends TestCase
     {
         // Arrange
         $trxUnit = new TrxUnit([
-            'sys_player_id' => 1,
+            'sys_player_id' => $this->sysPlayerId,
             'mst_unit_id' => 'unit_001',
             'grade' => 1,
             'level' => 1,
@@ -46,7 +50,7 @@ class TrxUnitRepositoryTest extends TestCase
 
         // Assert
         $this->assertCount(1, $queuedModels);
-        $this->assertEquals(1, $queuedModels[0]->sys_player_id);
+        $this->assertEquals($this->sysPlayerId, $queuedModels[0]->sys_player_id);
         $this->assertEquals('unit_001', $queuedModels[0]->mst_unit_id);
         $this->assertEquals(1, $queuedModels[0]->grade);
         $this->assertFalse($queuedModels[0]->exists);
@@ -59,7 +63,7 @@ class TrxUnitRepositoryTest extends TestCase
     {
         // Arrange
         $trxUnit = TrxUnit::create([
-            'sys_player_id' => 1,
+            'sys_player_id' => $this->sysPlayerId,
             'mst_unit_id' => 'unit_002',
             'grade' => 1,
             'level' => 1,
@@ -87,7 +91,7 @@ class TrxUnitRepositoryTest extends TestCase
     public function test_query_or_memory_returns_units_for_player(): void
     {
         // Arrange
-        $sysPlayerId = 1;
+        $sysPlayerId = $this->sysPlayerId;
         TrxUnit::create([
             'sys_player_id' => $sysPlayerId,
             'mst_unit_id' => 'unit_001',
@@ -105,7 +109,7 @@ class TrxUnitRepositoryTest extends TestCase
         ]);
 
         TrxUnit::create([
-            'sys_player_id' => 2, // Different player
+            'sys_player_id' => $this->sysPlayerId + 1, // Different player
             'mst_unit_id' => 'unit_003',
             'grade' => 1,
             'level' => 1,
@@ -127,7 +131,7 @@ class TrxUnitRepositoryTest extends TestCase
     {
         // Arrange
         $trxUnit = TrxUnit::create([
-            'sys_player_id' => 1,
+            'sys_player_id' => $this->sysPlayerId,
             'mst_unit_id' => 'unit_004',
             'grade' => 3,
             'level' => 10,
@@ -176,7 +180,7 @@ class TrxUnitRepositoryTest extends TestCase
 
         // Assert
         $this->assertNotNull($trxUnit);
-        $this->assertEquals(1, $trxUnit->sys_player_id);
+        $this->assertEquals($this->sysPlayerId, $trxUnit->sys_player_id);
         $this->assertEquals('unit_005', $trxUnit->mst_unit_id);
         $this->assertEquals(2, $trxUnit->grade);
         $this->assertEquals(5, $trxUnit->level);
@@ -209,7 +213,7 @@ class TrxUnitRepositoryTest extends TestCase
     {
         // Arrange
         $trxUnit = TrxUnit::create([
-            'sys_player_id' => 1,
+            'sys_player_id' => $this->sysPlayerId,
             'mst_unit_id' => 'unit_007',
             'grade' => 1,
             'level' => 1,
@@ -238,7 +242,7 @@ class TrxUnitRepositoryTest extends TestCase
     {
         // Arrange
         $trxUnit = TrxUnit::create([
-            'sys_player_id' => 1,
+            'sys_player_id' => $this->sysPlayerId,
             'mst_unit_id' => 'unit_008',
             'grade' => 1,
             'level' => 1,
@@ -267,7 +271,7 @@ class TrxUnitRepositoryTest extends TestCase
     {
         // Arrange
         $trxUnit = TrxUnit::create([
-            'sys_player_id' => 1,
+            'sys_player_id' => $this->sysPlayerId,
             'mst_unit_id' => 'unit_009',
             'grade' => 1,
             'level' => 10,
@@ -295,7 +299,7 @@ class TrxUnitRepositoryTest extends TestCase
     {
         // Arrange
         $trxUnit1 = new TrxUnit([
-            'sys_player_id' => 1,
+            'sys_player_id' => $this->sysPlayerId,
             'mst_unit_id' => 'unit_010',
             'grade' => 1,
             'level' => 1,
@@ -304,7 +308,7 @@ class TrxUnitRepositoryTest extends TestCase
         $trxUnit1->exists = false;
 
         $trxUnit2 = new TrxUnit([
-            'sys_player_id' => 1,
+            'sys_player_id' => $this->sysPlayerId,
             'mst_unit_id' => 'unit_011',
             'grade' => 1,
             'level' => 1,
@@ -354,7 +358,7 @@ class TrxUnitRepositoryTest extends TestCase
     {
         // Arrange
         $trxUnit = TrxUnit::create([
-            'sys_player_id' => 1,
+            'sys_player_id' => $this->sysPlayerId,
             'mst_unit_id' => 'unit_012',
             'grade' => 1,
             'level' => 1,
@@ -378,7 +382,7 @@ class TrxUnitRepositoryTest extends TestCase
     {
         // Arrange
         $trxUnit = new TrxUnit([
-            'sys_player_id' => 1,
+            'sys_player_id' => $this->sysPlayerId,
             'mst_unit_id' => 'unit_flush_001',
             'grade' => 3,
             'level' => 7,
@@ -392,7 +396,7 @@ class TrxUnitRepositoryTest extends TestCase
 
         // Assert
         $this->assertDatabaseHas('trx_unit', [
-            'sys_player_id' => 1,
+            'sys_player_id' => $this->sysPlayerId,
             'mst_unit_id' => 'unit_flush_001',
             'grade' => 3,
             'level' => 7,

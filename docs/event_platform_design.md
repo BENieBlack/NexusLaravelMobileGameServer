@@ -65,7 +65,7 @@ start_at ─────────────── end_at ──────
 | `reward_track` | `start_at` | `end_at` | 進捗の加算の締め |
 | `trade` | `start_at` | **`exchange_end_at`** | 交換所は交換期間まで使える |
 | `mission` | `start_at` | `exchange_end_at` | 進捗の加算は `end_at` まで、報酬の受け取りは `exchange_end_at` まで（フェーズ2で扱う） |
-| `ranking` | `start_at` | `end_at` | 順位は `end_at` で動かなくなる。報酬の受け取りは `exchange_end_at` まで（フェーズ3） |
+| `ranking` | `start_at` | `end_at` | 順位は `end_at` で動かなくなる。報酬の受け取りは `exchange_end_at` まで（ランキングの `exchange_end_at` も、イベントの `exchange_end_at` で上書きする。フェーズ3） |
 
 ### 3.3 上書きの実装：マスターを読む境界で解決する
 
@@ -172,7 +172,26 @@ W1 を直せば、`exchange_end_at` を過ぎたものは消える。
 
 次のイベント `event_b`（12/01〜）が同じ `item_event_point` を使うなら、`event_b` にも同じアイテムで行を足す。`event_b` が始まって最初に触れたとき、前のイベントの残りは0になる。
 
-**付与できる期間（確認中）**: `start_at` から `exchange_end_at` までは付与できる（交換期間中のミッション報酬などで配られるため）。それ以外の時刻に、イベントのアイテムを付与しようとしたときの扱いは、決める必要がある。この案は、**業務エラーにする**（`EVENT_ITEM_NOT_AVAILABLE`）。報酬の配布の途中で落ちることになるので、報酬の設定側（マスター取り込み時）でも、期間外に配られないように検査したい。
+**付与できる期間**: `start_at` から `exchange_end_at` までは付与できる（交換期間中のミッション報酬などで配られるため）。それ以外の時刻に付与しようとしたときは、**業務エラー（`EVENT_ITEM_NOT_AVAILABLE`）にする。ただし、そのアイテムを配ろうとした受け取り元の操作は、完了させる**（4.5）。
+
+### 4.5 期間外の付与：エラーを返しつつ、同じ受け取りが再び起きないようにする
+
+イベントのアイテムを期間外に付与しようとしたとき、**エラーは返すが、受け取り元の操作は完了させる**。たとえば、バトル終了 API の報酬にイベントのアイテムが含まれていて期間外だったとき、エラーを返したうえで、バトル中セッションの削除や、他の報酬の付与は済ませる。そうしないと、クライアントが同じバトル終了を再送しても、同じエラーが返り続け、セッションが残ったままになる。
+
+トランザクションの中で例外を投げると全接続がロールバックされる（`.claude/architecture.md` 7節）ので、**エラーはコミットの後に投げる**。
+
+1. `ItemService::addItem()` が、期間外のイベントのアイテムを見つけたら、**例外を投げず、そのアイテムの付与だけを飛ばす**
+2. 飛ばしたことを `log_action_event_item_rejected` に残す（トランザクションの一部としてコミットされる）
+3. `EventItemNotAvailableException`（`GameException` 系、`GameErrorCode::EVENT_ITEM_NOT_AVAILABLE`）を、リクエストスコープの `DeferredGameErrors` に登録する
+4. `executeWithTransaction()` が**全接続をコミットした後**に、`DeferredGameErrors` に登録されたエラーがあれば、最初の1件を投げる（`UseCaseTrait` に足す）
+5. `_BaseController::execute()` が、いつもどおり HTTP 299 の `{error_code, message}` に変換する
+
+結果:
+- セッションの削除、他の報酬の付与、ミッションの受け取り済みの記録などは、コミットされる。クライアントが再送しても、同じ受け取りは起きない
+- 冪等キャッシュは HTTP 2xx（299を含む）を保存するので、同じ `X-Unique-Request-Identifier` の再送には、同じエラーが返り、処理は再実行されない
+- 飛ばしたイベントのアイテムは、救済しない。`log_action_event_item_rejected`（`sys_player_id`, `mst_item_id`, `free_amount`, `paid_amount`, `reason`（`out_of_period`）, `mst_event_id`（`3.4` の規則で採用されるイベント。無ければ null）, `created_at`）が、CS の調査の手がかりになる
+- **クライアントは、このエラーを受けても、操作は完了している**ものとして、画面の状態（所持品、セッション）を取り直す必要がある（`.claude/api.md` に書く）
+- 付与の入り口は `ItemService::addItem()` だけなので、バトル終了、ミッション、ガチャなど、どの受け取り元でも同じ仕組みが働く
 
 ---
 
@@ -210,6 +229,9 @@ trx_event_score             （プレイヤーのシャード。イベントご�
   high_scored_at        現在のハイスコアに達した日時（null 可）
   is_delete, created_at, updated_at
   PK (sys_player_id, mst_event_id)
+
+log_action_event_item_rejected （プレイヤーと同じシャード。期間外で付与を飛ばした記録。4.5）
+  sys_player_id, mst_item_id, free_amount, paid_amount, reason, mst_event_id (null 可), created_at
 
 log_action_event_reset      （プレイヤーと同じシャード）
   sys_player_id, mst_event_id, mst_item_id, discarded_free_amount, discarded_paid_amount, created_at
@@ -268,7 +290,7 @@ log_action_event_reset      （プレイヤーと同じシャード）
 
 ### 7.1 方針
 
-`nexus-ranking` は、**順位表（Redis）・報酬の受け取り・一覧だけ**を持つ汎用のパッケージにする。バッチや確定の処理は持たない（7.4）。得点そのものは持たず、ランキングは「プレイヤーごとの得点を1つ受け取って、順位に変える」。
+`nexus-ranking` は、**順位表（Redis）・報酬の受け取り・一覧だけ**を持つ汎用のパッケージにする。バッチや確定の処理は持たない（7.4）。イベントに属さない**常設のランキングも想定している**（現在は無い。7.7）。得点そのものは持たず、ランキングは「プレイヤーごとの得点を1つ受け取って、順位に変える」。
 
 - 得点は、イベントの `trx_event_score`（5.4）が、ランキングの有無にかかわらず常に持つ（累計とハイスコアの両方）
 - ランキングを使うイベントだけ、**どちらの得点を順位にするかを、ドメインのコードが選んで**、パッケージに渡す（マスターにカラムは持たない）
@@ -290,7 +312,8 @@ log_action_event_reset      （プレイヤーと同じシャード）
 
 ```
 mst_ranking
-  deploy_key, id (string PK), start_at, end_at,
+  deploy_key, id (string PK),
+  start_at, end_at (null 可), exchange_end_at (null 可)   イベントに入っていればイベントの期間で上書きされる（3.2）。null は終わりなし / end_at と同じ（7.7）
   display_limit         一覧に出す上位の人数
   sort_order, created_at, updated_at
 
@@ -317,7 +340,7 @@ trx_ranking             （プレイヤーのシャード。報酬を受け取�
 - `EventScoreUpdated` を受けた api のリスナーが、そのイベントの `mst_event_content` から `content_type = ranking` のランキングを引き、各ランキングについて、ドメインが選んだ得点（累計かハイスコア）の**現在値を絶対値で `ZADD GT` する**（加算ではなく上書き。`GT` は、今より大きいときだけ更新する）。正本は `trx_event_score` なので、`ZINCRBY` のような差分更新をしない。Redis とのずれが積み重ならず、同じ更新を2回登録しても、再構築と同時に動いても、古い値で上書きしない（得点は増える一方で、同点の判定に使う時刻を含めた値も、得点が上がれば大きくなる）
 - 同点は、**先にその得点に達した人が上位**。`total_scored_at` / `high_scored_at` が早い方を上にする。sorted set の値への埋め込み方（精度の範囲内に収める）は実装時に決める
 - 順位表の寿命: 最初に登録するときに、`EXPIREAT ranking:{id}` を、イベントの `exchange_end_at` の7日後にする（受け取りの期限の後、念のために残す）
-- Redis を失ったとき、またはイベントの途中でランキングを足したときは、`ranking:rebuild {mst_ranking_id}` で、各シャードの `trx_event_score` から作り直す。**定期実行はしない手動の運用コマンド**で、得点は `ZADD GT` で入れるので、イベントの進行中に流しても安全
+- Redis を失ったとき、またはイベントの途中でランキングを足したときは、`ranking:rebuild {mst_ranking_id}` で、各シャードの得点から作り直す（得点の取り出しは、ランキングごとの `RankingScoreSourceInterface` の実装が行う。イベントのランキングは `trx_event_score`。7.7）。**定期実行はしない手動の運用コマンド**で、得点は `ZADD GT` で入れるので、イベントの進行中に流しても安全
 - ランキングを使うイベントでも、ランキングに載るのは、1回でも得点を記録したプレイヤーだけ
 
 ### 7.4 終了後と報酬の受け取り（バッチは持たない）
@@ -334,7 +357,7 @@ trx_ranking             （プレイヤーのシャード。報酬を受け取�
 - ギルド対抗などの集団のランキング（個人だけ）
 - 日次・週次のランキング（得点は、ランキングの期間の通しだけ。必要になれば、`mst_ranking` を期間ごとに複数登録すれば足りる）
 - 小さいほど上位になるランキング
-- イベントに属さない常設のランキング（得点の置き場が無い。11）
+- 常設のランキング（今は作らない。構造は想定してある。7.7）
 - 不正の検出
 
 ### 7.6 API と受け取りの詳細
@@ -367,6 +390,21 @@ trx_ranking             （プレイヤーのシャード。報酬を受け取�
 
 `RANKING_NOT_FOUND`、`RANKING_NOT_READY`、`RANKING_NOT_FINISHED`（`phase` が `final` でない）、`RANKING_RECEIVE_EXPIRED`（`exchange_end_at` の後）、`RANKING_NOT_PARTICIPATED`、`RANKING_REWARD_ALREADY_RECEIVED`
 
+### 7.7 常設のランキングの想定（今は作らない）
+
+イベントに属さない常設のランキングは、現在は無いが、後から足せるようにしておく。`nexus-ranking` はイベントを知らないので、パッケージの変更は要らない。足すときに必要なものは次のとおり。
+
+| 要るもの | 内容 |
+| --- | --- |
+| 得点の置き場 | 得点を持つドメインが、自分のテーブルで持つ（イベントなら `trx_event_score`）。`nexus-ranking` は得点を持たない |
+| 期間 | `mst_ranking` が自分の `start_at` / `end_at` / `exchange_end_at` を持つ。イベントに入っていれば、3.2 のとおりイベントの期間で上書きされる。イベントに入っていなければ、自分の期間のまま使う（`EventPeriodResolver` の既定の動き。3.3） |
+| 順位表への登録 | 得点を更新するドメインが、`RankingBoard::register()` を直接呼ぶ（イベントのランキングは、`EventScoreUpdated` のリスナーが呼ぶ） |
+| 再構築 | そのランキングの `RankingScoreSourceInterface` の実装を足す（`ranking:rebuild` が、これを通して得点を読む） |
+| 報酬 | 受け取りの期限は、`mst_ranking.exchange_end_at`（null なら `end_at`）。ランキングの期間の終わりごとに、受け取りができる |
+
+- `mst_ranking` の `end_at` と `exchange_end_at` は、**null 可**にしておく（終わりのない常設のランキング）。`end_at` が null のランキングは、順位は更新され続け、報酬は受け取れない（`phase` は常に `playing`）
+- 期間が季節ごとに区切られる常設のランキング（シーズン制）は、シーズンごとに `mst_ranking` を1行ずつ足す（`mst_ranking_id` が別なので、順位表も別になる）
+
 ---
 
 ## 8. 決めたこと（2026-11-05）
@@ -380,15 +418,10 @@ trx_ranking             （プレイヤーのシャード。報酬を受け取�
 | 5 | ランキングの範囲（7.5） | 個人だけ。日次・週次は範囲外 |
 | 6 | 得点の持ち方（5.4、7.1） | ランキングの有無にかかわらず、累計とハイスコアの両方を `trx_event_score` に持つ（クリアパーティなどの付属情報つき）。Redis に登録するのは、ランキングを使うときだけ。どちらの得点を順位にするかは、ドメインのコードが選ぶ |
 | 7 | ランキング報酬の配り方（7.4） | **受け取り方式**。確定のバッチを持たない。`sys_ranking_settlement` / `sys_ranking_result` / `ranking:settle` / スケジューラは作らない |
-| 8 | テーブル名 | `trx_event_score`（得点）、`trx_ranking`（報酬を受けた印）。`trx_player_event` は `trx_event` |
-
-### 確認中
-
-| # | 内容 | この案 |
-| ---: | --- | --- |
-| 9 | イベントのアイテムを、`start_at` から `exchange_end_at` の外で付与しようとしたときの扱い（4.4） | 業務エラー（`EVENT_ITEM_NOT_AVAILABLE`） |
+| 8 | テーブル名 | `trx_event_score`（得点）、`trx_ranking`（報酬を受け取った印）。`trx_player_event` は `trx_event` |
+| 9 | イベントのアイテムを期間外に付与しようとしたとき（4.4、4.5） | 業務エラー（`EVENT_ITEM_NOT_AVAILABLE`）。ただし受け取り元の操作は完了させ、同じ受け取りが再び起きないようにする。エラーは**コミットの後**に投げる |
 | 10 | ランキング報酬の受け取り期限と、順位が最終になるまでの猶予（7.4） | 期限は `exchange_end_at`、猶予は60秒 |
-| 11 | ランキングは、イベントに属するものだけ（`mst_event_content` の `content_type = ranking`）でよいか。イベントに属さない常設のランキングは、得点の置き場が無いので範囲外になる | イベントに属するものだけ。常設のランキングが必要になったら、得点の置き場（`trx_event_score` に相当するもの）を足す |
+| 11 | 常設のランキング（7.7） | 現在は無いが、想定しておく。`nexus-ranking` はイベントを知らず、`mst_ranking` が自分の期間を持つ（null 可）。作るのは必要になってから |
 
 ---
 
@@ -397,7 +430,9 @@ trx_ranking             （プレイヤーのシャード。報酬を受け取�
 | 場所 | 変更 |
 | --- | --- |
 | `nexus-wallet` の `WalletService` | W1：残高の取得・消費で期限切れを除く |
-| api の `ItemService` | `addItem` / `consumeItem` / `findItemAmount` が `walletItemMigrator->migrate()` を呼んでいる位置に、`ensureEntered` を呼ぶ。`addItem` は `$expireAt` を受け取るので、イベントのアイテムなら `exchange_end_at` に差し替える |
+| api の `ItemService` | `addItem` / `consumeItem` / `findItemAmount` が `walletItemMigrator->migrate()` を呼んでいる位置に、`ensureEntered` を呼ぶ。`addItem` は `$expireAt` を受け取るので、イベントのアイテムなら `exchange_end_at` に差し替える。期間外のイベントのアイテムは、付与を飛ばして `log_action_event_item_rejected` に残し、`DeferredGameErrors` に登録する（4.5） |
+| `App\Traits\UseCaseTrait::executeWithTransaction()`、新しい `DeferredGameErrors`（`scoped`） | 全接続のコミットの後に、登録されたエラーの最初の1件を投げる（4.5）。登録が無ければ、今までと同じ動き |
+| `GameErrorCode`、`.claude/api.md` | `EVENT_ITEM_NOT_AVAILABLE`、`RANKING_*` の追加。「このエラーでも操作は完了している。クライアントは状態を取り直す」ことを `api.md` に書く |
 | ガチャ（`MstGachaRepository`。`GachaValidationService` が使う）、ミッション・交換所のマスター読み取りの Adapter、`LoginBonusRepositoryAdapter`、`RewardTrackMasterRepository` | マスター読み取りで `EventPeriodResolver` を使う。ガチャは package の DTO ではなく api のモデルを返すので、モデルの `start_at` / `end_at` をメモリ上で差し替える。SQL で期間を絞る2か所は PHP の判定に直す |
 | `nexus-mission` | フェーズ2：`scope` の追加（`trx_progress`、`trx_mission`、`ProgressRepositoryInterface`） |
 | 運営ツール | マスター取り込み時の検査（3.5） |

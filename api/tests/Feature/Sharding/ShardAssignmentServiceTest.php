@@ -3,6 +3,7 @@
 namespace Tests\Feature\Sharding;
 
 use App\Domain\Sharding\Services\ShardAssignmentService;
+use App\Exceptions\InfraErrorCode;
 use App\Models\Sys\SysSharding;
 use App\Models\Sys\SysShardingNode;
 use Illuminate\Support\Facades\DB;
@@ -190,6 +191,7 @@ class ShardAssignmentServiceTest extends TestCase
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Active sharding definition not found');
+        $this->expectExceptionCode(InfraErrorCode::SHARDING_NOT_CONFIGURED);
 
         $this->service->assign($this->sysPlayerId);
     }
@@ -202,6 +204,7 @@ class ShardAssignmentServiceTest extends TestCase
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Active sharding definition not found');
+        $this->expectExceptionCode(InfraErrorCode::SHARDING_NOT_CONFIGURED);
 
         $this->service->assign($this->sysPlayerId);
     }
@@ -214,6 +217,7 @@ class ShardAssignmentServiceTest extends TestCase
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('No writable sharding node available');
+        $this->expectExceptionCode(InfraErrorCode::SHARDING_NOT_CONFIGURED);
 
         $this->service->assign($this->sysPlayerId);
     }
@@ -228,6 +232,7 @@ class ShardAssignmentServiceTest extends TestCase
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('No writable sharding node available');
+        $this->expectExceptionCode(InfraErrorCode::SHARDING_NOT_CONFIGURED);
 
         $this->service->assign($this->sysPlayerId);
     }

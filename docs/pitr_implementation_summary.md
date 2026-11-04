@@ -1,5 +1,10 @@
 # PITR実装完了サマリー
 
+> **⚠️ 過去の設計資料です（2026-11-03 注記）**
+> 現在のコードと食い違う箇所があります: TrxDB と LogDB の 1:1 対応は廃止され、`log_*` は `trxN` に同居する。
+> 現行の仕組みは [CLAUDE.md](../CLAUDE.md) と `.claude/`（[database.md](../.claude/database.md)・[architecture.md](../.claude/architecture.md)）を参照してください。
+
+
 ## 実装完了日
 2026年8月9日
 

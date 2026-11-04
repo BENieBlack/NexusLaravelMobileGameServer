@@ -1,0 +1,33 @@
+{
+    "name": "nexus/event",
+    "description": "イベント基盤パッケージ。期間限定の開催を1つの単位（イベント）として扱い、束ねたコンテンツの期間をイベントの期間で上書きする。",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.4",
+        "nexus/core": "@dev"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.0",
+        "mockery/mockery": "^1.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "NexusEvent\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "NexusEvent\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "NexusEvent\\EventServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

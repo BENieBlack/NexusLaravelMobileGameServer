@@ -36,6 +36,7 @@ use App\Persistence\ApiSession;
 use App\Repositories\Log\LogVipPointRepository;
 use App\Repositories\Log\TradeLogRepositoryAdapter;
 use App\Repositories\Mst\AlbumCatalogRepositoryAdapter;
+use App\Repositories\Mst\EventMasterRepositoryAdapter;
 use App\Repositories\Mst\LoginBonusRepositoryAdapter;
 use App\Repositories\Mst\MissionMasterRepositoryAdapter;
 use App\Repositories\Mst\MstGachaPrizeRepository;
@@ -103,6 +104,8 @@ use NexusAuth\Services\TokenValidator;
 use NexusChat\Contracts\ChatMessageRepositoryInterface;
 use NexusChat\Contracts\ChatRoomMemberRepositoryInterface;
 use NexusChat\Contracts\ChatRoomRepositoryInterface;
+use NexusEvent\Contracts\EventMasterRepositoryInterface;
+use NexusEvent\Services\EventPeriodResolver;
 use NexusFriend\Events\FriendApplyAccepted;
 use NexusFriend\Events\FriendApplySent;
 use NexusFriend\Repositories\FriendApplyRepositoryInterface;
@@ -331,6 +334,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(MissionMasterRepositoryInterface::class, MissionMasterRepositoryAdapter::class);
         $this->app->bind(ProgressRepositoryInterface::class, ProgressRepositoryAdapter::class);
         $this->app->bind(MissionReceiptRepositoryInterface::class, MissionReceiptRepositoryAdapter::class);
+
+        // イベント基盤。マスターはリクエストごとに1回だけ読み、メモリに持つ
+        $this->app->bind(EventMasterRepositoryInterface::class, EventMasterRepositoryAdapter::class);
+        $this->app->scoped(EventPeriodResolver::class);
 
         // 交換所
         $this->app->bind(TradeMasterRepositoryInterface::class, TradeMasterRepositoryAdapter::class);

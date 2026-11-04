@@ -239,6 +239,7 @@ API（api/）の接続は `api/config/database.php`、Tool（tool/）の接続�
 | nexus-tag | `mst_tag`（`__l10n` あり）, `mst_tag_content`（タグとユニット・アイテム等の多対多） |
 | nexus-mission | `mst_mission`（`__l10n` あり）, `mst_mission_content` |
 | nexus-trade | `mst_trade`（交換所。`__l10n` あり）, `mst_trade_product`（商品。消費種別・消費個数・交換回数の上限。`__l10n` あり）, `mst_trade_product_content`（交換で手に入るもの） |
+| nexus-event | `mst_event`（イベント。期間の正本で、`start_at` / `end_at` / `exchange_end_at` を持つ。`__l10n` あり）, `mst_event_content`（イベントに束ねるコンテンツ。同じコンテンツを複数のイベントに入れてよい） |
 
 ### trx（各シャード）
 

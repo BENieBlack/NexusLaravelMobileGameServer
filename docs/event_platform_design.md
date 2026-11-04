@@ -135,7 +135,7 @@ W1 を直せば、`exchange_end_at` を過ぎたものは消える。
 
 同じアイテムを次のイベントでも使うため、前のイベントの残りが次に混ざらないようにする。**リセットは、プレイヤーごとに、そのイベントのアイテムに最初に触れたときに行う**（全プレイヤーを開始時刻に一斉に処理することはできない。プレイヤーはシャードに分かれている）。
 
-- `trx_player_event`（`sys_player_id`, `mst_event_id`, `entered_at`）を「リセット済み」の印にする。行が無く、かつイベントが開始している（`start_at <= now`）なら、リセットして行を作る
+- `trx_event`（`sys_player_id`, `mst_event_id`, `entered_at`）を「リセット済み」の印にする。行が無く、かつイベントが開始している（`start_at <= now`）なら、リセットして行を作る
 - リセットは、そのイベントの `mst_event_item` の各アイテムについて、期限切れを除いた残高を全て消費して0にする。捨てた数量は `log_action_event_reset` に残す
 - 印の作成とリセットは、同じトランザクションで行う（再実行しても、二重にリセットしない）
 - 触れたときとは、`ItemService` の付与・消費・取得、`GET /api/event/list`、イベントのポイントを配る処理。入口が `ItemService` に集まっているので、ここに `EventItemEntryInterface::ensureEntered(sys_player_id, mst_item_id)` を呼ぶ。`CurrencyDeliveryHandler` / `PointsDeliveryHandler` は `mst_item` を経由しないため、イベントのアイテムをこれらで配らない運用にする
@@ -166,7 +166,7 @@ mst_event_item
   deploy_key, mst_event_id, mst_item_id, item_role
   PK (mst_event_id, mst_item_id)
 
-trx_player_event            （プレイヤーのシャード）
+trx_event                   （プレイヤーのシャード。イベントごとのリセット済みの印）
   sys_player_id, mst_event_id, entered_at, is_delete, created_at, updated_at
   PK (sys_player_id, mst_event_id)
 
@@ -181,7 +181,7 @@ log_action_event_reset      （プレイヤーと同じシャード）
 - `packages/nexus-event`
   - `EventService`: 開催中のイベントの検索、段階（開催前 / 開催中 / 交換期間中 / 終了）の判定
   - `EventPeriodResolver`: 3.4 の規則（コンテンツ → 採用するイベント → 差し替える期間）
-  - `EventMasterRepositoryInterface`、`PlayerEventRepositoryInterface`、`EventLogRepositoryInterface`
+  - `EventMasterRepositoryInterface`、`EventEntryRepositoryInterface`、`EventLogRepositoryInterface`
   - ガチャやミッションのパッケージは参照しない（`content_type` は文字列のデータ）
 - `api/app/Domain/Event`: `ListUseCase`、`EventItemEntryService`（4.3）、`Contracts\EventItemEntryInterface`
 - api 側の Adapter が、`*RepositoryAdapter` で `nexus-event` の契約を実装する。5機能のマスター読み取りの Adapter は `EventPeriodResolver` を使う

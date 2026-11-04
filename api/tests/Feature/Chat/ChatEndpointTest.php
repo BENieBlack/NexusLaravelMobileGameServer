@@ -363,7 +363,7 @@ class ChatEndpointTest extends TestCase
             '/api/chat/group/leave',
             ['sys_chat_room_id' => $roomId],
             $this->authHeaders($this->otherToken)
-        )->assertOk();
+        )->assertOk()->assertExactJson([]);
 
         $this->assertSame(1, $this->findRoom($roomId)->member_count);
     }

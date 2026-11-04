@@ -121,7 +121,9 @@ class RewardTrackEndpointTest extends TestCase
     public function 受け取り済みはサマリーに残る(): void
     {
         $this->makeProgress(15);
-        $this->receive(self::MILESTONE_10, self::FREE_LINE_ID)->assertOk();
+        $this->receive(self::MILESTONE_10, self::FREE_LINE_ID)
+            ->assertOk()
+            ->assertJsonStructure(['mst_reward_track_milestone_id', 'mst_reward_track_line_id', 'received_at']);
 
         $response = $this->getJson(
             '/api/reward_track/summary?mst_reward_track_id='.self::TRACK_ID,

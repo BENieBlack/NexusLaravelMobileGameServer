@@ -6,8 +6,6 @@ use App\Domain\Mission\UseCases\ListUseCase;
 use App\Domain\Mission\UseCases\ReceiveUseCase;
 use App\Http\Requests\Mission\ListRequest;
 use App\Http\Requests\Mission\ReceiveRequest;
-use App\Http\Responses\Mission\ListResponse;
-use App\Http\Responses\Mission\ReceiveResponse;
 use App\Persistence\ApiSession;
 use Illuminate\Http\JsonResponse;
 
@@ -31,9 +29,7 @@ class MissionController extends _BaseController
      */
     public function list(ListRequest $request): JsonResponse
     {
-        return $this->execute(fn () => ListResponse::fromResult(
-            $this->listUseCase->handle($this->apiSession->getSysPlayerId())
-        ));
+        return $this->execute(fn () => $this->listUseCase->handle($this->apiSession->getSysPlayerId()));
     }
 
     /**
@@ -43,9 +39,9 @@ class MissionController extends _BaseController
      */
     public function receive(ReceiveRequest $request): JsonResponse
     {
-        return $this->execute(fn () => ReceiveResponse::fromResult($this->receiveUseCase->handle(
+        return $this->execute(fn () => $this->receiveUseCase->handle(
             sysPlayerId: $this->apiSession->getSysPlayerId(),
             mstMissionId: $request->getMstMissionId(),
-        )));
+        ));
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Domain\Version\UseCases;
 
-use App\Domain\Version\DataTransferObjects\VersionResult;
+use App\Domain\Version\Responses\CheckResponse;
 use App\Domain\Version\Services\VersionService;
 use App\Domain\Version\UseCases\CheckUseCase;
 use App\Models\Sys\SysDeploy;
@@ -44,7 +44,7 @@ class CheckUseCaseTest extends TestCase
         $result = $this->useCase->handle($deployVersion);
 
         // Assert
-        $this->assertInstanceOf(VersionResult::class, $result);
+        $this->assertInstanceOf(CheckResponse::class, $result);
         $this->assertFalse($result->needsUpdate);
     }
 
@@ -68,7 +68,7 @@ class CheckUseCaseTest extends TestCase
         $result = $this->useCase->handle($deployVersion);
 
         // Assert
-        $this->assertInstanceOf(VersionResult::class, $result);
+        $this->assertInstanceOf(CheckResponse::class, $result);
         $this->assertTrue($result->needsUpdate);
         $this->assertSame($mockDeploy, $result->sysDeploy);
     }
@@ -91,7 +91,7 @@ class CheckUseCaseTest extends TestCase
         $result = $this->useCase->handle($deployVersion);
 
         // Assert
-        $this->assertInstanceOf(VersionResult::class, $result);
+        $this->assertInstanceOf(CheckResponse::class, $result);
         $this->assertFalse($result->needsUpdate);
     }
 

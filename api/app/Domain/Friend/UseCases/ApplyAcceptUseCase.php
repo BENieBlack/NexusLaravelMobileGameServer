@@ -3,9 +3,9 @@
 namespace App\Domain\Friend\UseCases;
 
 use App\Domain\_BaseUseCase;
+use App\Domain\Friend\Responses\ApplyAcceptResponse;
 use App\Domain\Friend\Support\FriendExceptionTranslator;
 use App\Exceptions\GameException;
-use NexusFriend\DataTransferObjects\FriendApply;
 use NexusFriend\Services\FriendService;
 
 /**
@@ -30,14 +30,14 @@ class ApplyAcceptUseCase extends _BaseUseCase
      *
      * @throws GameException
      */
-    public function handle(int $sysPlayerId, int $sysFriendApplyId): FriendApply
+    public function handle(int $sysPlayerId, int $sysFriendApplyId): ApplyAcceptResponse
     {
-        return $this->executeWithTransaction(function () use ($sysPlayerId, $sysFriendApplyId) {
+        return ApplyAcceptResponse::fromResult($this->executeWithTransaction(function () use ($sysPlayerId, $sysFriendApplyId) {
             $friendApply = FriendExceptionTranslator::translate(
                 fn () => $this->friendService->acceptApply($sysFriendApplyId, $sysPlayerId)
             );
 
             return $friendApply;
-        });
+        }));
     }
 }

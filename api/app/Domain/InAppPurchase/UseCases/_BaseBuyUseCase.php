@@ -3,7 +3,7 @@
 namespace App\Domain\InAppPurchase\UseCases;
 
 use App\Domain\_BaseUseCase;
-use App\Domain\InAppPurchase\DataTransferObjects\BuyResult;
+use App\Domain\InAppPurchase\Responses\BuyResponse;
 use App\Domain\InAppPurchase\Services\InAppPurchaseValidationService;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
@@ -61,7 +61,7 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
         string $receipt,
         ?string $transactionId,
         string $productId
-    ): BuyResult {
+    ): BuyResponse {
         // 1. レシートデータを作成
         $receiptData = $this->createReceiptData(
             $sysPlayerId,
@@ -477,5 +477,5 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
         string $platform,
         string $billingPlatform,
         Verification $verification
-    ): BuyResult;
+    ): BuyResponse;
 }

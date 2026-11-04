@@ -3,8 +3,8 @@
 namespace App\Domain\Trade\UseCases;
 
 use App\Domain\_BaseUseCase;
+use App\Domain\Trade\Responses\ListResponse;
 use NexusTrade\Services\TradeService;
-use NexusTrade\ValueObjects\TradeProductStatus;
 
 /**
  * ListUseCase
@@ -17,11 +17,8 @@ class ListUseCase extends _BaseUseCase
         private readonly TradeService $tradeService,
     ) {}
 
-    /**
-     * @return array<int, TradeProductStatus>
-     */
-    public function handle(int $sysPlayerId): array
+    public function handle(int $sysPlayerId): ListResponse
     {
-        return $this->tradeService->findStatuses($sysPlayerId);
+        return ListResponse::fromResult($this->tradeService->findStatuses($sysPlayerId));
     }
 }

@@ -6,8 +6,6 @@ use App\Domain\Trade\UseCases\ExchangeUseCase;
 use App\Domain\Trade\UseCases\ListUseCase;
 use App\Http\Requests\Trade\ExchangeRequest;
 use App\Http\Requests\Trade\ListRequest;
-use App\Http\Responses\Trade\ExchangeResponse;
-use App\Http\Responses\Trade\ListResponse;
 use App\Persistence\ApiSession;
 use Illuminate\Http\JsonResponse;
 
@@ -33,9 +31,7 @@ class TradeController extends _BaseController
      */
     public function list(ListRequest $request): JsonResponse
     {
-        return $this->execute(fn () => ListResponse::fromResult(
-            $this->listUseCase->handle($this->apiSession->getSysPlayerId())
-        ));
+        return $this->execute(fn () => $this->listUseCase->handle($this->apiSession->getSysPlayerId()));
     }
 
     /**
@@ -45,11 +41,11 @@ class TradeController extends _BaseController
      */
     public function exchange(ExchangeRequest $request): JsonResponse
     {
-        return $this->execute(fn () => ExchangeResponse::fromResult($this->exchangeUseCase->handle(
+        return $this->execute(fn () => $this->exchangeUseCase->handle(
             sysPlayerId: $this->apiSession->getSysPlayerId(),
             mstTradeProductId: $request->getMstTradeProductId(),
             quantity: $request->getQuantity(),
             uniqueRequestId: $request->getUniqueRequestIdentifier(),
-        )));
+        ));
     }
 }

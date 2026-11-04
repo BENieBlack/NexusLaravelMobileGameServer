@@ -3,9 +3,9 @@
 namespace App\Domain\Chat\UseCases;
 
 use App\Domain\_BaseUseCase;
+use App\Domain\Chat\Responses\CreateGroupResponse;
 use App\Domain\Chat\Support\ChatExceptionTranslator;
 use App\Domain\Chat\Support\ChatPlayerNameResolver;
-use NexusChat\DataTransferObjects\ChatRoom;
 use NexusChat\Services\ChatService;
 
 /**
@@ -20,14 +20,14 @@ class CreateGroupUseCase extends _BaseUseCase
         private readonly ChatPlayerNameResolver $nameResolver,
     ) {}
 
-    public function handle(int $sysPlayerId, string $name): ChatRoom
+    public function handle(int $sysPlayerId, string $name): CreateGroupResponse
     {
         $ownerName = $this->nameResolver->resolve($sysPlayerId);
 
-        return $this->executeWithTransaction(
+        return CreateGroupResponse::fromResult($this->executeWithTransaction(
             fn () => ChatExceptionTranslator::translate(
                 fn () => $this->chatService->createGroupRoom($name, $sysPlayerId, $ownerName)
             )
-        );
+        ));
     }
 }

@@ -22,7 +22,7 @@
 ## bool と変更前後
 
 - bool のカラム・キー・変数は `is_` / `has_` / `needs_` で始める: `is_leveled_up`, `is_delete`, `has_step_up`, `needs_update` / `$isLeveledUp`。Model の getter は `getIsDelete()`（`api/app/Models/Trx/TrxUnit.php`）。
-- 変更前後の値は `before_*` / `after_*` の対にする。`old_` / `new_` / `previous_` は使わない。例: `before_level` / `after_level`（`api/app/Http/Responses/Unit/LevelUpResponse.php`、log テーブルの列も同じ）。
+- 変更前後の値は `before_*` / `after_*` の対にする。`old_` / `new_` / `previous_` は使わない。例: `before_level` / `after_level`（`api/app/Domain/Unit/Responses/LevelUpResponse.php`、log テーブルの列も同じ）。
 
 ## クラス名と置き場所
 
@@ -30,11 +30,11 @@
 |---|---|---|---|
 | Controller | `api/app/Http/Controllers/` | `{Context}Controller` | `UnitController` |
 | Request | `api/app/Http/Requests/{Context}/` | `{Action}Request` | `Unit/LevelUpRequest` |
-| Response | `api/app/Http/Responses/{Controller名}/` | `{メソッド名}Response`（アクションごとに1つ） | `Unit/LevelUpResponse`, `Chat/SendResponse` |
+| Response | `api/app/Domain/{Context}/Responses/` | `{Action}Response`（UseCase ごとに1つ） | `Unit/LevelUpResponse`, `Chat/SendMessageResponse` |
 | UseCase | `Domain/{Context}/UseCases/` | `{Action}UseCase` | `Gacha/DrawUseCase`, `InAppPurchase/BuyDiamondUseCase` |
 | Service | `Domain/{Context}/Services/` | `{Context}{役割}Service` | `GachaCostService`, `InAppPurchaseDiamondService` |
 | パッケージ契約の実装 | `Domain/{Context}/Services/` | `{契約名}Adapter` | `ItemGranterAdapter` |
-| UseCase の戻り値 | `Domain/{Context}/DataTransferObjects/` | `{Name}Result` | `LevelUpResult` |
+| Service と UseCase の間の値 | `Domain/{Context}/DataTransferObjects/` | `{Name}Result` | `SignInResult` |
 | パッケージDTO | `packages/*/src/DataTransferObjects/` | サフィックスなし | `Guild`, `FriendApply` |
 | Model→DTO 変換 | `api/app/Adapters/{Context}/` | `{Dto}Adapter` | `GuildAdapter` |
 | 公開API | `Domain/{Context}/Contracts/` | `{Name}Interface` | `ItemInventoryInterface` |
@@ -69,7 +69,7 @@
 | Service | 取得・計算 | `findXxx()`（`findUnitLevel()`, `findItemAmount()`）、検証は `validateXxx()` |
 | Model | カラムの読み書き | `getXxx()` / `setXxx()`（bool 列も `getIsDelete()`） |
 | UseCase | 入口・事前検証 | `handle()` / `validation()` |
-| Response | 生成 | `fromResult()` のみ（void のアクションはコンストラクタ） |
+| Response | 生成 | コンストラクタ、変換が要るときは `fromResult()` |
 | Adapter（変換） | Model→DTO | `toDto()` / `toDtoArray()` |
 | ExceptionTranslator | 例外の変換 | `translate()` |
 

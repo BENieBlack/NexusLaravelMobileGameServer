@@ -3,9 +3,9 @@
 namespace App\Domain\Chat\UseCases;
 
 use App\Domain\_BaseUseCase;
+use App\Domain\Chat\Responses\InviteResponse;
 use App\Domain\Chat\Support\ChatExceptionTranslator;
 use App\Domain\Chat\Support\ChatPlayerNameResolver;
-use NexusChat\DataTransferObjects\ChatRoomMember;
 use NexusChat\Services\ChatService;
 
 /**
@@ -20,14 +20,14 @@ class InviteUseCase extends _BaseUseCase
         private readonly ChatPlayerNameResolver $nameResolver,
     ) {}
 
-    public function handle(int $sysPlayerId, int $chatRoomId, int $targetSysPlayerId): ChatRoomMember
+    public function handle(int $sysPlayerId, int $chatRoomId, int $targetSysPlayerId): InviteResponse
     {
         $targetName = $this->nameResolver->resolve($targetSysPlayerId);
 
-        return $this->executeWithTransaction(
+        return InviteResponse::fromResult($this->executeWithTransaction(
             fn () => ChatExceptionTranslator::translate(
                 fn () => $this->chatService->inviteToGroup($chatRoomId, $sysPlayerId, $targetSysPlayerId, $targetName)
             )
-        );
+        ));
     }
 }

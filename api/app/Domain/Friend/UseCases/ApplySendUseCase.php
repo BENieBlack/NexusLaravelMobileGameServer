@@ -3,11 +3,11 @@
 namespace App\Domain\Friend\UseCases;
 
 use App\Domain\_BaseUseCase;
+use App\Domain\Friend\Responses\ApplySendResponse;
 use App\Domain\Friend\Support\FriendExceptionTranslator;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Repositories\Sys\SysPlayerRepository;
-use NexusFriend\DataTransferObjects\FriendApply;
 use NexusFriend\Services\FriendService;
 
 /**
@@ -30,10 +30,10 @@ class ApplySendUseCase extends _BaseUseCase
      *
      * @throws GameException
      */
-    public function handle(int $sysPlayerId, string $targetMyId): FriendApply
+    public function handle(int $sysPlayerId, string $targetMyId): ApplySendResponse
     {
         // トランザクション開始
-        return $this->executeWithTransaction(function () use ($sysPlayerId, $targetMyId) {
+        return ApplySendResponse::fromResult($this->executeWithTransaction(function () use ($sysPlayerId, $targetMyId) {
             // 1. 申請先のプレイヤーをmy_idで検索
             $targetPlayer = $this->sysPlayerRepository->selectByMyId($targetMyId);
 
@@ -52,6 +52,6 @@ class ApplySendUseCase extends _BaseUseCase
             );
 
             return $friendApply;
-        });
+        }));
     }
 }

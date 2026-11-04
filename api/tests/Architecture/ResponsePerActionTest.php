@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Architecture;
 
+use App\Domain\_BaseResponse;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
@@ -11,74 +12,98 @@ use ReflectionMethod;
 use ReflectionNamedType;
 
 /**
- * アーキテクチャテスト: アクションごとの Response と UseCase の入口
+ * アーキテクチャテスト: UseCase ごとの Response
  *
- * - Controller の各アクションは専用の `App\Http\Responses\{Controller名}\{メソッド名}Response` を返す。
- *   複数のアクションで1つの Response を共用しない（形が同じなら継承して分ける）
- * - Response は UseCase の戻り値から `fromResult()` で作る。
- *   UseCase の handle() が void のときだけ `new` で作ってよい
- * - Response が外に見せる生成メソッドは fromResult() だけ
  * - UseCase の入口は handle()
+ * - handle() は自分の Response（App\Domain\{Context}\Responses\{UseCase名}Response）を返す。
+ *   Response は UseCase の結果の時点で API の形に整形済みにする
+ * - 1つの Response を複数の UseCase で共用しない（形が同じなら継承して分ける）。
+ *   handle() を親クラスから受け継ぐ UseCase は、親の Response を返す
+ * - Controller は Response を作らず、handle() の結果を返すだけにする
+ * - Response が外に見せる生成メソッドは fromResult() だけ
  */
 class ResponsePerActionTest extends TestCase
 {
-    /**
-     * JSON を直接返す運営向けの Controller は対象外
-     */
-    private const EXCLUDED_CONTROLLER_DIRS = ['Admin'];
-
     #[Test]
-    public function each_action_returns_its_own_response(): void
+    public function use_case_entry_is_handle(): void
     {
         $violations = [];
 
-        foreach ($this->actions() as [$controller, $method, $body]) {
-            $context = $this->contextOf($controller);
-            $expected = 'App\\Http\\Responses\\'.$context.'\\'.ucfirst($method->getName()).'Response';
-            $used = $this->responsesUsedIn($controller, $body);
-
-            if ($used !== [$expected]) {
-                $violations[] = sprintf(
-                    '%s::%s() は %s を返すこと（現在: %s）',
-                    $controller->getShortName(),
-                    $method->getName(),
-                    $this->shortName($expected),
-                    $used === [] ? 'なし' : implode(', ', array_map($this->shortName(...), $used)),
-                );
+        foreach ($this->useCases() as $useCase) {
+            if (! $useCase->hasMethod('handle') || ! $useCase->getMethod('handle')->isPublic()) {
+                $violations[] = $useCase->getName().' に public handle() が無い';
+            }
+            foreach (['exec', 'execute', 'run', '__invoke'] as $other) {
+                if ($useCase->hasMethod($other)) {
+                    $violations[] = $useCase->getName()."::{$other}() は handle() にする";
+                }
             }
         }
 
-        $this->assertSame([], $violations, "アクションごとに専用の Response を返してください:\n".implode("\n", $violations));
+        $this->assertSame([], $violations, "UseCase の入口は handle() に統一してください:\n".implode("\n", $violations));
     }
 
     #[Test]
-    public function responses_are_built_from_use_case_results(): void
+    public function handle_returns_its_own_response(): void
     {
         $violations = [];
+        $owners = [];
 
-        foreach ($this->actions() as [$controller, $method, $body]) {
-            if (! preg_match('/\bnew\s+([A-Z]\w*Response)\b/', $body, $m)) {
+        foreach ($this->useCases() as $useCase) {
+            if (! $useCase->hasMethod('handle')) {
                 continue;
             }
 
-            $nonVoid = array_filter(
-                $this->useCasesUsedIn($controller, $method, $body),
-                fn (string $useCase): bool => $this->handleReturnType($useCase) !== 'void',
-            );
+            $handle = $useCase->getMethod('handle');
+            $declaring = $handle->getDeclaringClass();
+            $expected = $this->expectedResponse($declaring);
+            $type = $handle->getReturnType();
+            $actual = $type instanceof ReflectionNamedType ? $type->getName() : (string) $type;
 
-            if ($nonVoid !== []) {
-                $violations[] = sprintf(
-                    '%s::%s() は new %s ではなく %s::fromResult() で作ること（%s は値を返す）',
-                    $controller->getShortName(),
-                    $method->getName(),
-                    $m[1],
-                    $m[1],
-                    implode(', ', array_map($this->shortName(...), $nonVoid)),
-                );
+            if ($actual !== $expected) {
+                $violations[] = sprintf('%s::handle() は %s を返すこと（現在: %s）', $declaring->getShortName(), $expected, $actual);
+
+                continue;
+            }
+            if (! is_subclass_of($actual, _BaseResponse::class)) {
+                $violations[] = $actual.' は '._BaseResponse::class.' を継承すること';
+            }
+
+            // handle() を宣言したクラスごとに1つ。継承した handle() は親の Response を使う
+            $owners[$actual][$declaring->getName()] = true;
+        }
+
+        foreach ($owners as $response => $declarers) {
+            if (count($declarers) > 1) {
+                $violations[] = $response.' を複数の UseCase が返している: '.implode(', ', array_keys($declarers));
             }
         }
 
-        $this->assertSame([], $violations, "UseCase の戻り値がある場合は fromResult() で Response を作ってください:\n".implode("\n", $violations));
+        $this->assertSame([], $violations, "UseCase の handle() は自分専用の Response を返してください:\n".implode("\n", $violations));
+    }
+
+    #[Test]
+    public function controllers_do_not_build_responses(): void
+    {
+        $violations = [];
+        $base = (string) realpath(__DIR__.'/../../app/Http/Controllers');
+
+        foreach (glob($base.'/*Controller.php') ?: [] as $file) {
+            if (str_starts_with(basename($file), '_')) {
+                continue;
+            }
+            $code = (string) file_get_contents($file);
+            if (preg_match_all('/\b(?:new\s+(\w+Response)\b|(\w+Response)::)/', $code, $matches, PREG_SET_ORDER)) {
+                foreach ($matches as $m) {
+                    $name = $m[1] !== '' ? $m[1] : $m[2];
+                    if (! in_array($name, ['JsonResponse', 'ErrorResponse'], true)) {
+                        $violations[] = basename($file).': '.$name;
+                    }
+                }
+            }
+        }
+
+        $this->assertSame([], array_values(array_unique($violations)), "Controller では Response を作らず、UseCase の handle() の結果を返してください:\n".implode("\n", $violations));
     }
 
     #[Test]
@@ -86,8 +111,8 @@ class ResponsePerActionTest extends TestCase
     {
         $violations = [];
 
-        foreach ($this->classesIn('Http/Responses', 'App\\Http\\Responses') as $class) {
-            if (! str_ends_with($class->getShortName(), 'Response') || str_starts_with($class->getShortName(), '_')) {
+        foreach ($this->classesIn('Domain', 'App\\Domain') as $class) {
+            if (! $class->isSubclassOf(_BaseResponse::class)) {
                 continue;
             }
 
@@ -108,151 +133,46 @@ class ResponsePerActionTest extends TestCase
     }
 
     #[Test]
-    public function use_case_entry_is_handle(): void
+    public function responses_live_in_domain_responses(): void
     {
         $violations = [];
 
         foreach ($this->classesIn('Domain', 'App\\Domain') as $class) {
-            if (! str_ends_with($class->getShortName(), 'UseCase') || $class->isAbstract()) {
+            if (! $class->isSubclassOf(_BaseResponse::class)) {
                 continue;
             }
-            if (! $class->hasMethod('handle') || ! $class->getMethod('handle')->isPublic()) {
-                $violations[] = $class->getName().' に public handle() が無い';
-            }
-            foreach (['exec', 'execute', 'run', '__invoke'] as $other) {
-                if ($class->hasMethod($other)) {
-                    $violations[] = $class->getName()."::{$other}() は handle() にする";
-                }
+            if (! preg_match('/^App\\\\Domain\\\\\w+\\\\Responses$/', $class->getNamespaceName())) {
+                $violations[] = $class->getName();
             }
         }
 
-        $this->assertSame([], $violations, "UseCase の入口は handle() に統一してください:\n".implode("\n", $violations));
+        $this->assertSame([], $violations, "Response は App\\Domain\\{Context}\\Responses に置いてください:\n".implode("\n", $violations));
     }
 
     /**
-     * @return list<array{0: ReflectionClass<object>, 1: ReflectionMethod, 2: string}>
-     */
-    private function actions(): array
-    {
-        $actions = [];
-
-        foreach ($this->classesIn('Http/Controllers', 'App\\Http\\Controllers') as $controller) {
-            if (str_starts_with($controller->getShortName(), '_') || $controller->isAbstract()) {
-                continue;
-            }
-            if (in_array($this->subDirOf($controller), self::EXCLUDED_CONTROLLER_DIRS, true)) {
-                continue;
-            }
-
-            $lines = file((string) $controller->getFileName());
-            foreach ($controller->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
-                if ($method->getDeclaringClass()->getName() !== $controller->getName() || $method->isConstructor()) {
-                    continue;
-                }
-                $body = implode('', array_slice($lines, $method->getStartLine() - 1, $method->getEndLine() - $method->getStartLine() + 1));
-                $actions[] = [$controller, $method, $body];
-            }
-        }
-
-        return $actions;
-    }
-
-    /**
-     * アクションの本体に出てくる Response クラス（完全修飾名）
+     * handle() を宣言したクラスに対応する Response（_BaseBuyUseCase → BuyResponse）
      *
-     * @param  ReflectionClass<object>  $controller
-     * @return list<string>
+     * @param  ReflectionClass<object>  $declaring
      */
-    private function responsesUsedIn(ReflectionClass $controller, string $body): array
+    private function expectedResponse(ReflectionClass $declaring): string
     {
-        $imports = $this->importsOf($controller);
-        preg_match_all('/\b([A-Z]\w*Response)\b/', $body, $matches);
+        $context = explode('\\', $declaring->getNamespaceName())[2];
+        $action = preg_replace('/^_Base/', '', substr($declaring->getShortName(), 0, -strlen('UseCase')));
 
-        $used = [];
-        foreach (array_unique($matches[1]) as $short) {
-            if ($short === 'JsonResponse') {
-                continue;
-            }
-            $used[] = $imports[$short] ?? $short;
-        }
-
-        return $used;
+        return 'App\\Domain\\'.$context.'\\Responses\\'.$action.'Response';
     }
 
     /**
-     * アクションが呼ぶ UseCase（引数で受けるものと、コンストラクタで受けてプロパティに持つもの）
-     *
-     * @param  ReflectionClass<object>  $controller
-     * @return list<string>
+     * @return list<ReflectionClass<object>>
      */
-    private function useCasesUsedIn(ReflectionClass $controller, ReflectionMethod $method, string $body): array
+    private function useCases(): array
     {
-        $useCases = [];
-
-        foreach ($method->getParameters() as $parameter) {
-            $type = $parameter->getType();
-            if ($type instanceof ReflectionNamedType && str_ends_with($type->getName(), 'UseCase')) {
-                $useCases[] = $type->getName();
-            }
-        }
-
-        preg_match_all('/\$this->(\w+UseCase)\b/', $body, $matches);
-        foreach (array_unique($matches[1]) as $property) {
-            $type = $controller->hasProperty($property) ? $controller->getProperty($property)->getType() : null;
-            if ($type instanceof ReflectionNamedType) {
-                $useCases[] = $type->getName();
-            }
-        }
-
-        return array_values(array_unique($useCases));
-    }
-
-    private function handleReturnType(string $useCase): string
-    {
-        $class = new ReflectionClass($useCase);
-        $type = $class->hasMethod('handle') ? $class->getMethod('handle')->getReturnType() : null;
-
-        return $type instanceof ReflectionNamedType ? $type->getName() : 'mixed';
-    }
-
-    /**
-     * @param  ReflectionClass<object>  $class
-     * @return array<string, string> 短い名前 => 完全修飾名
-     */
-    private function importsOf(ReflectionClass $class): array
-    {
-        preg_match_all('/^use ([\w\\\\]+?)(?: as (\w+))?;/m', (string) file_get_contents((string) $class->getFileName()), $matches, PREG_SET_ORDER);
-
-        $imports = [];
-        foreach ($matches as $m) {
-            $short = $m[2] ?? substr((string) strrchr('\\'.$m[1], '\\'), 1);
-            $imports[$short] = $m[1];
-        }
-
-        return $imports;
-    }
-
-    /**
-     * @param  ReflectionClass<object>  $controller
-     */
-    private function contextOf(ReflectionClass $controller): string
-    {
-        return substr($controller->getShortName(), 0, -strlen('Controller'));
-    }
-
-    /**
-     * @param  ReflectionClass<object>  $controller
-     */
-    private function subDirOf(ReflectionClass $controller): string
-    {
-        $relative = substr($controller->getNamespaceName(), strlen('App\\Http\\Controllers'));
-
-        return ltrim($relative, '\\');
-    }
-
-    private function shortName(string $class): string
-    {
-        return substr((string) strrchr('\\'.$class, '\\'), 1);
+        return array_values(array_filter(
+            $this->classesIn('Domain', 'App\\Domain'),
+            fn (ReflectionClass $class): bool => str_ends_with($class->getShortName(), 'UseCase')
+                && ! $class->isAbstract()
+                && str_ends_with($class->getNamespaceName(), '\\UseCases'),
+        ));
     }
 
     /**

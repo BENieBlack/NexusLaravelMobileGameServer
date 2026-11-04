@@ -4,7 +4,7 @@ namespace App\Domain\Unit\UseCases;
 
 use App\Domain\_BaseUseCase;
 use App\Domain\Item\Contracts\ItemInventoryInterface;
-use App\Domain\Unit\DataTransferObjects\LevelUpResult;
+use App\Domain\Unit\Responses\LevelUpResponse;
 use App\Domain\Unit\Services\UnitLevelService;
 use App\Exceptions\BusinessLogicException;
 use App\Exceptions\GameErrorCode;
@@ -102,7 +102,7 @@ class LevelUpUseCase extends _BaseUseCase
      *
      * @throws \Exception
      */
-    public function handle(int $sysPlayerId, int $trxUnitId, string $mstItemId, int $useCount): LevelUpResult
+    public function handle(int $sysPlayerId, int $trxUnitId, string $mstItemId, int $useCount): LevelUpResponse
     {
         // バリデーション実行
         $this->validation($sysPlayerId, $trxUnitId, $mstItemId, $useCount);
@@ -124,7 +124,7 @@ class LevelUpUseCase extends _BaseUseCase
             $result = $this->unitLevelService->addExpWithDetails($trxUnitId, $totalExp);
 
             // 結果を生成して返す
-            return new LevelUpResult(
+            return new LevelUpResponse(
                 isLeveledUp: $result['is_leveled_up'],
                 beforeLevel: $result['before_level'],
                 afterLevel: $result['after_level'],

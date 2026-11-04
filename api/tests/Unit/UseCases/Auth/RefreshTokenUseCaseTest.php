@@ -109,7 +109,7 @@ class RefreshTokenUseCaseTest extends TestCase
         sleep(1);
 
         // Act
-        $refreshedToken = $this->useCase->handle($oldDtoToken->getRefreshToken());
+        $refreshedToken = $this->useCase->handle($oldDtoToken->getRefreshToken())->token;
 
         // Assert
         $this->assertInstanceOf(Token::class, $refreshedToken);
@@ -130,7 +130,7 @@ class RefreshTokenUseCaseTest extends TestCase
         sleep(1);
 
         // Act
-        $refreshedToken = $this->useCase->handle($oldDtoToken->getRefreshToken());
+        $refreshedToken = $this->useCase->handle($oldDtoToken->getRefreshToken())->token;
 
         // Assert - 新しいトークンは古いトークンと異なる
         $this->assertNotEquals($oldDtoToken->getRefreshToken(), $refreshedToken->getRefreshToken());
@@ -152,7 +152,7 @@ class RefreshTokenUseCaseTest extends TestCase
         sleep(1);
 
         // Act
-        $refreshedToken = $this->useCase->handle($oldDtoToken->getRefreshToken());
+        $refreshedToken = $this->useCase->handle($oldDtoToken->getRefreshToken())->token;
 
         // Assert - 古いトークンはDBから削除されている
         $tokenHash = hash('sha256', $oldDtoToken->getRefreshToken());
@@ -230,17 +230,17 @@ class RefreshTokenUseCaseTest extends TestCase
         sleep(1);
 
         // Act - 1回目のリフレッシュ
-        $refreshedToken1 = $this->useCase->handle($tokenDto1->getRefreshToken());
+        $refreshedToken1 = $this->useCase->handle($tokenDto1->getRefreshToken())->token;
 
         sleep(1);
 
         // Act - 2回目のリフレッシュ（1回目で得たトークンを使用）
-        $refreshedToken2 = $this->useCase->handle($refreshedToken1->getRefreshToken());
+        $refreshedToken2 = $this->useCase->handle($refreshedToken1->getRefreshToken())->token;
 
         sleep(1);
 
         // Act - 3回目のリフレッシュ（2回目で得たトークンを使用）
-        $refreshedToken3 = $this->useCase->handle($refreshedToken2->getRefreshToken());
+        $refreshedToken3 = $this->useCase->handle($refreshedToken2->getRefreshToken())->token;
 
         // Assert - すべて異なるトークンが返される
         $this->assertNotEquals($tokenDto1->getRefreshToken(), $refreshedToken1->getRefreshToken());
@@ -306,7 +306,7 @@ class RefreshTokenUseCaseTest extends TestCase
         sleep(1);
 
         // Act - トークンをリフレッシュ
-        $refreshedToken = $this->useCase->handle($oldDtoToken->getRefreshToken());
+        $refreshedToken = $this->useCase->handle($oldDtoToken->getRefreshToken())->token;
 
         // Assert - 古いトークンはDBから削除されている
         $oldTokenHash = hash('sha256', $oldDtoToken->getRefreshToken());

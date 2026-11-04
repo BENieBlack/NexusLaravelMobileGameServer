@@ -12,11 +12,6 @@ use App\Http\Requests\Mailbox\LockRequest;
 use App\Http\Requests\Mailbox\OpenRequest;
 use App\Http\Requests\Mailbox\ReceiveAllRequest;
 use App\Http\Requests\Mailbox\ReceiveRequest;
-use App\Http\Responses\Mailbox\ListResponse;
-use App\Http\Responses\Mailbox\LockResponse;
-use App\Http\Responses\Mailbox\OpenResponse;
-use App\Http\Responses\Mailbox\ReceiveAllResponse;
-use App\Http\Responses\Mailbox\ReceiveResponse;
 use App\Persistence\ApiSession;
 use Illuminate\Http\JsonResponse;
 
@@ -36,13 +31,13 @@ class MailboxController extends _BaseController
      */
     public function list(ListRequest $request, ListUseCase $useCase): JsonResponse
     {
-        return $this->execute(fn () => ListResponse::fromResult($useCase->handle(
+        return $this->execute(fn () => $useCase->handle(
             $this->apiSession->getSysPlayerId(),
             $request->getCategory(),
             $request->getPriority(),
             $request->getOnlyUnread(),
             $request->getOnlyLocked()
-        )));
+        ));
     }
 
     /**
@@ -53,9 +48,7 @@ class MailboxController extends _BaseController
         return $this->execute(function () use ($request, $useCase) {
             $trxMailboxId = $request->getTrxMailboxId();
 
-            $useCase->handle($this->apiSession->getSysPlayerId(), $trxMailboxId);
-
-            return new OpenResponse($trxMailboxId, true);
+            return $useCase->handle($this->apiSession->getSysPlayerId(), $trxMailboxId);
         });
     }
 
@@ -64,10 +57,10 @@ class MailboxController extends _BaseController
      */
     public function receive(ReceiveRequest $request, ReceiveUseCase $useCase): JsonResponse
     {
-        return $this->execute(fn () => ReceiveResponse::fromResult($useCase->handle(
+        return $this->execute(fn () => $useCase->handle(
             $this->apiSession->getSysPlayerId(),
             $request->getTrxMailboxId()
-        )));
+        ));
     }
 
     /**
@@ -75,11 +68,11 @@ class MailboxController extends _BaseController
      */
     public function receiveAll(ReceiveAllRequest $request, ReceiveAllUseCase $useCase): JsonResponse
     {
-        return $this->execute(fn () => ReceiveAllResponse::fromResult($useCase->handle(
+        return $this->execute(fn () => $useCase->handle(
             $this->apiSession->getSysPlayerId(),
             $request->getTrxMailboxIds(),
             $request->getCategory()
-        )));
+        ));
     }
 
     /**
@@ -91,12 +84,7 @@ class MailboxController extends _BaseController
             $trxMailboxId = $request->getTrxMailboxId();
             $isLocked = $request->getIsLocked();
 
-            $useCase->handle($this->apiSession->getSysPlayerId(), $trxMailboxId, $isLocked);
-
-            return new LockResponse(
-                trxMailboxId: $trxMailboxId,
-                isLocked: $isLocked,
-            );
+            return $useCase->handle($this->apiSession->getSysPlayerId(), $trxMailboxId, $isLocked);
         });
     }
 }

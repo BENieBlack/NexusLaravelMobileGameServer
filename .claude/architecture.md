@@ -33,8 +33,8 @@ QueryManager      NexusUnitOfWork\Persistence\QueryManager（コミット直前�
 ```
 
 1. `auth.token`（`NexusSecurity\Middleware\VerifyAccessToken`）がトークンを検証し、`ApiSession` にプレイヤーIDを載せる（8節）
-2. Controller は `_BaseController::execute()` のコールバック内で、Request から値を取り出して UseCase の `handle()` にスカラーで渡し、戻り値をアクション専用の `LevelUpResponse::fromResult()` で Response にする
-3. UseCase は `validation()` で事前チェックしてから `executeWithTransaction()` 内で Service を呼ぶ。戻り値は `Domain/Unit/DataTransferObjects/LevelUpResult`
+2. Controller は `_BaseController::execute()` のコールバック内で、Request から値を取り出して UseCase の `handle()` にスカラーで渡し、その結果をそのまま返す。`handle()` は自分専用の Response（`App\Domain\Unit\Responses\LevelUpResponse` など）を API の形に整形して返し、`execute()` が JSON にする
+3. UseCase は `validation()` で事前チェックしてから `executeWithTransaction()` 内で Service を呼ぶ。戻り値は `Domain/Unit/Responses/LevelUpResponse`
 4. Service は Repository の `selectById()` で読み、`setModel()` で変更をキューに積む
 5. callback が返ると QueryManager がキューを一括実行し、全接続をコミットする（7節）
 6. 例外は `execute()` が捕まえてエラーレスポンスにする（9節）
@@ -48,7 +48,7 @@ ServiceもUseCaseもResponseを返さない。UseCaseの戻り値は次のいず
 - 複数の値を返す場合は `app/Domain/{Context}/DataTransferObjects/{Name}Result`
 - 返す値が無ければ `void`
 
-`app/Domain` から `App\Http` を参照すると `ModuleBoundaryTest` が落ちる。`execute()` はコールバックが `_BaseResponseInterface` 以外を返すと `LogicException` にする。
+`app/Domain` から `App\Http` を参照すると `ModuleBoundaryTest` が落ちる。`execute()` はコールバックが `App\Domain\_BaseResponse` 以外を返すと `LogicException` にする。
 
 ## 3. ディレクトリ構成
 
@@ -63,7 +63,8 @@ Domain/
     UseCases/             *UseCase（入口は handle()）
     Services/             *Service、パッケージ契約を実装する *Adapter（ItemGranterAdapter など）
     Contracts/            他コンテキストへの公開API（4節）
-    DataTransferObjects/  UseCase の戻り値 *Result など
+    Responses/            UseCase ごとの *Response（handle() の戻り値。App\Domain\_BaseResponse を継承）
+    DataTransferObjects/  Service と UseCase の間で受け渡す値（SignInResult など）
     Constants/            *Const
     Listeners/            ドメインイベントの受け手（5節）
     Support/              *ExceptionTranslator など、コンテキスト内の補助
@@ -74,7 +75,6 @@ Http/
   Controllers/            _BaseController を継承
   Middleware/             CheckMaintenance, CheckMasterHash, ResolveLanguage, VerifyAdminToken
   Requests/{Context}/     _BaseRequest を継承
-  Responses/{Context}/    _BaseResponse を継承
 Models/{Mst,Sys,Trx,Log}/ Eloquent モデル（基底は nexus-core の _BaseMst 等）
 Persistence/ApiSession.php
 Providers/AppServiceProvider.php   パッケージ契約・公開APIのバインド、イベント登録

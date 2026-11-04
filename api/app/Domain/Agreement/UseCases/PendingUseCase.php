@@ -3,8 +3,7 @@
 namespace App\Domain\Agreement\UseCases;
 
 use App\Domain\_BaseUseCase;
-use Nexus\Core\Support\CustomCollection;
-use NexusAgreement\DataTransferObjects\PendingAgreement;
+use App\Domain\Agreement\Responses\PendingResponse;
 use NexusAgreement\Services\AgreementService;
 
 /**
@@ -20,10 +19,9 @@ class PendingUseCase extends _BaseUseCase
 
     /**
      * @param  int  $sysPlayerId  sys_player.id（プレイヤーID）
-     * @return CustomCollection<int, PendingAgreement>
      */
-    public function handle(int $sysPlayerId): CustomCollection
+    public function handle(int $sysPlayerId): PendingResponse
     {
-        return $this->agreementService->getPendingAgreements($sysPlayerId);
+        return PendingResponse::fromResult($this->agreementService->getPendingAgreements($sysPlayerId));
     }
 }

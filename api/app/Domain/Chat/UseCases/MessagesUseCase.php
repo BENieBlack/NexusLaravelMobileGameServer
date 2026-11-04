@@ -3,8 +3,8 @@
 namespace App\Domain\Chat\UseCases;
 
 use App\Domain\_BaseUseCase;
+use App\Domain\Chat\Responses\MessagesResponse;
 use App\Domain\Chat\Support\ChatExceptionTranslator;
-use NexusChat\DataTransferObjects\ChatMessage;
 use NexusChat\Services\ChatService;
 
 /**
@@ -18,13 +18,10 @@ class MessagesUseCase extends _BaseUseCase
         private readonly ChatService $chatService,
     ) {}
 
-    /**
-     * @return array<ChatMessage>
-     */
-    public function handle(int $sysPlayerId, int $chatRoomId, int $limit, ?int $cursor): array
+    public function handle(int $sysPlayerId, int $chatRoomId, int $limit, ?int $cursor): MessagesResponse
     {
-        return ChatExceptionTranslator::translate(
+        return MessagesResponse::fromResult(ChatExceptionTranslator::translate(
             fn () => $this->chatService->getMessages($chatRoomId, $sysPlayerId, $limit, $cursor)
-        );
+        ));
     }
 }

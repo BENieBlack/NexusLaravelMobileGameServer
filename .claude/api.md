@@ -57,7 +57,7 @@
 - 成功は HTTP 200 で、Response クラスの `toArray()` をそのまま返す。`data` や `success` で包まない
 - キーはスネークケース
 - モデルのデータはテーブル名をキーにする（`sys_player`, `trx_unit_list`）。モデルの配列化は `toResponseArray()` を使う（[coding-standards.md](./coding-standards.md) 参照）
-- 配列のキーには `_list` を付ける（`trx_item_list`, `login_bonus_list`, `owned_line_id_list`）。`api/app/Http/Responses/Auth/LoginResponse.php` が見本
+- 配列のキーには `_list` を付ける（`trx_item_list`, `login_bonus_list`, `owned_line_id_list`）。`api/app/Domain/Login/Responses/HomeResponse.php` が見本
 - 成否を表す `success` は返さない。失敗は `GameException`（HTTP 299）で伝える。`_list` と `success` は `api/tests/Architecture/ResponseKeyNamingTest.php` が検査する。キーで引く連想配列（`tables` など）は同テストの `OBJECT_KEYS` に足す
 - `CheckMasterHash` は 200 のレスポンスにだけ `X-Master-Update-Required: true` を付ける。ボディは変えない
 
@@ -92,7 +92,7 @@
 
 ### VersionResponse
 
-`api/app/Http/Responses/Auth/VersionResponse.php`。
+`api/app/Domain/Version/Responses/CheckResponse.php`。
 
 ```json
 {

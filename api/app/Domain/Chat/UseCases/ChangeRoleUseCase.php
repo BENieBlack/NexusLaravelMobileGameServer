@@ -3,6 +3,7 @@
 namespace App\Domain\Chat\UseCases;
 
 use App\Domain\_BaseUseCase;
+use App\Domain\Chat\Responses\ChangeRoleResponse;
 use App\Domain\Chat\Support\ChatExceptionTranslator;
 use NexusChat\Constants\ChatRoomRole;
 use NexusChat\Services\ChatService;
@@ -18,12 +19,14 @@ class ChangeRoleUseCase extends _BaseUseCase
         private readonly ChatService $chatService,
     ) {}
 
-    public function handle(int $sysPlayerId, int $chatRoomId, int $targetSysPlayerId, ChatRoomRole $role): void
+    public function handle(int $sysPlayerId, int $chatRoomId, int $targetSysPlayerId, ChatRoomRole $role): ChangeRoleResponse
     {
         $this->executeWithTransaction(
             fn () => ChatExceptionTranslator::translate(function () use ($sysPlayerId, $chatRoomId, $targetSysPlayerId, $role) {
                 $this->chatService->changeRole($chatRoomId, $sysPlayerId, $targetSysPlayerId, $role);
             })
         );
+
+        return new ChangeRoleResponse;
     }
 }

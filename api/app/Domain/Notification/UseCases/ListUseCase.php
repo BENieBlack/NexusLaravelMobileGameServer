@@ -3,7 +3,7 @@
 namespace App\Domain\Notification\UseCases;
 
 use App\Domain\_BaseUseCase;
-use App\Domain\Notification\DataTransferObjects\ListResult;
+use App\Domain\Notification\Responses\ListResponse;
 use NexusNotification\Services\NotificationService;
 
 /**
@@ -17,9 +17,9 @@ class ListUseCase extends _BaseUseCase
         private readonly NotificationService $notificationService,
     ) {}
 
-    public function handle(int $sysPlayerId, bool $onlyUnread = false): ListResult
+    public function handle(int $sysPlayerId, bool $onlyUnread = false): ListResponse
     {
-        return new ListResult(
+        return new ListResponse(
             notifications: $this->notificationService->findByPlayer($sysPlayerId, $onlyUnread),
             unreadCount: $this->notificationService->countUnread($sysPlayerId),
         );

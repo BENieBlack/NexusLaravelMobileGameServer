@@ -24,18 +24,6 @@ use App\Http\Requests\Chat\RoomMemberRequest;
 use App\Http\Requests\Chat\RoomRequest;
 use App\Http\Requests\Chat\RoomsRequest;
 use App\Http\Requests\Chat\SendMessageRequest;
-use App\Http\Responses\Chat\ChangeRoleResponse;
-use App\Http\Responses\Chat\CreateGroupResponse;
-use App\Http\Responses\Chat\DeleteMessageResponse;
-use App\Http\Responses\Chat\FriendRoomResponse;
-use App\Http\Responses\Chat\GroupMembersResponse;
-use App\Http\Responses\Chat\GuildRoomResponse;
-use App\Http\Responses\Chat\InviteResponse;
-use App\Http\Responses\Chat\KickResponse;
-use App\Http\Responses\Chat\LeaveGroupResponse;
-use App\Http\Responses\Chat\MessagesResponse;
-use App\Http\Responses\Chat\RoomsResponse;
-use App\Http\Responses\Chat\SendResponse;
 use Illuminate\Http\JsonResponse;
 
 /**
@@ -57,7 +45,7 @@ class ChatController extends _BaseController
     {
         $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
-        return $this->execute(fn () => FriendRoomResponse::fromResult($useCase->handle($sysPlayerId, $request->getSysPlayerId())));
+        return $this->execute(fn () => $useCase->handle($sysPlayerId, $request->getSysPlayerId()));
     }
 
     /**
@@ -69,7 +57,7 @@ class ChatController extends _BaseController
     {
         $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
-        return $this->execute(fn () => GuildRoomResponse::fromResult($useCase->handle($sysPlayerId)));
+        return $this->execute(fn () => $useCase->handle($sysPlayerId));
     }
 
     /**
@@ -81,7 +69,7 @@ class ChatController extends _BaseController
     {
         $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
-        return $this->execute(fn () => RoomsResponse::fromResult($useCase->handle($sysPlayerId)));
+        return $this->execute(fn () => $useCase->handle($sysPlayerId));
     }
 
     /**
@@ -93,12 +81,12 @@ class ChatController extends _BaseController
     {
         $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
-        return $this->execute(fn () => MessagesResponse::fromResult($useCase->handle(
+        return $this->execute(fn () => $useCase->handle(
             $sysPlayerId,
             $request->getSysChatRoomId(),
             $request->getLimit(),
             $request->getCursor(),
-        )));
+        ));
     }
 
     /**
@@ -110,11 +98,11 @@ class ChatController extends _BaseController
     {
         $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
-        return $this->execute(fn () => SendResponse::fromResult($useCase->handle(
+        return $this->execute(fn () => $useCase->handle(
             $sysPlayerId,
             $request->getSysChatRoomId(),
             $request->getBody(),
-        )));
+        ));
     }
 
     /**
@@ -127,9 +115,7 @@ class ChatController extends _BaseController
         $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
         return $this->execute(function () use ($useCase, $sysPlayerId, $request) {
-            $useCase->handle($sysPlayerId, $request->getSysChatMessageId());
-
-            return new DeleteMessageResponse;
+            return $useCase->handle($sysPlayerId, $request->getSysChatMessageId());
         });
     }
 
@@ -142,7 +128,7 @@ class ChatController extends _BaseController
     {
         $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
-        return $this->execute(fn () => CreateGroupResponse::fromResult($useCase->handle($sysPlayerId, $request->getName())));
+        return $this->execute(fn () => $useCase->handle($sysPlayerId, $request->getName()));
     }
 
     /**
@@ -154,11 +140,11 @@ class ChatController extends _BaseController
     {
         $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
-        return $this->execute(fn () => InviteResponse::fromResult($useCase->handle(
+        return $this->execute(fn () => $useCase->handle(
             $sysPlayerId,
             $request->getSysChatRoomId(),
             $request->getSysPlayerId(),
-        )));
+        ));
     }
 
     /**
@@ -171,13 +157,11 @@ class ChatController extends _BaseController
         $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
         return $this->execute(function () use ($useCase, $sysPlayerId, $request) {
-            $useCase->handle(
+            return $useCase->handle(
                 $sysPlayerId,
                 $request->getSysChatRoomId(),
                 $request->getSysPlayerId(),
             );
-
-            return new KickResponse;
         });
     }
 
@@ -191,9 +175,7 @@ class ChatController extends _BaseController
         $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
         return $this->execute(function () use ($useCase, $sysPlayerId, $request) {
-            $useCase->handle($sysPlayerId, $request->getSysChatRoomId());
-
-            return new LeaveGroupResponse;
+            return $useCase->handle($sysPlayerId, $request->getSysChatRoomId());
         });
     }
 
@@ -207,14 +189,12 @@ class ChatController extends _BaseController
         $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
         return $this->execute(function () use ($useCase, $sysPlayerId, $request) {
-            $useCase->handle(
+            return $useCase->handle(
                 $sysPlayerId,
                 $request->getSysChatRoomId(),
                 $request->getSysPlayerId(),
                 $request->getRole(),
             );
-
-            return new ChangeRoleResponse;
         });
     }
 
@@ -227,6 +207,6 @@ class ChatController extends _BaseController
     {
         $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
-        return $this->execute(fn () => GroupMembersResponse::fromResult($useCase->handle($sysPlayerId, $request->getSysChatRoomId())));
+        return $this->execute(fn () => $useCase->handle($sysPlayerId, $request->getSysChatRoomId()));
     }
 }

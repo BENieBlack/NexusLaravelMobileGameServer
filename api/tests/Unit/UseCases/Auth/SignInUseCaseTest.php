@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\UseCases\Auth;
 
-use App\Domain\Auth\DataTransferObjects\SignInResult;
+use App\Domain\Auth\Responses\SignInResponse;
 use App\Domain\Auth\UseCases\SignInUseCase;
 use App\Exceptions\GameException;
 use App\Models\Sys\SysPlayer;
@@ -104,7 +104,7 @@ class SignInUseCaseTest extends TestCase
         $response = $this->useCase->handle($deviceId, $deviceInfo);
 
         // Assert
-        $this->assertInstanceOf(SignInResult::class, $response);
+        $this->assertInstanceOf(SignInResponse::class, $response);
         $this->assertInstanceOf(SysPlayer::class, $response->sysPlayer);
         $this->assertInstanceOf(SysPlayerDevice::class, $response->sysPlayerDevice);
 

@@ -40,9 +40,9 @@
 ## 毎回守る規約
 
 **レイヤー**
-- Controller は `_BaseController` を継承し、`$this->execute(fn () => XxxResponse::fromResult($useCase->handle(...)))` の形にする。Request からは値を取り出して渡し、Request オブジェクトを UseCase に渡さない。
-- Response はアクションごとに1つ（`Http/Responses/{Controller名}/{メソッド名}Response`）。複数のアクションで共用しない（形が同じなら継承して分ける）。生成メソッドは `fromResult()` だけで、引数は中身に合わせた名前にする。UseCase が void のときだけ `new` で作る。
-- UseCase は `App\Domain\{Context}\UseCases\*UseCase`。`_BaseUseCase` を継承し、入口は `handle()`。Response は返さず、DTO・モデル・`DataTransferObjects/*Result` を返す。
+- Controller は `_BaseController` を継承し、`$this->execute(fn () => $useCase->handle(...))` の形にする。Response は作らず、UseCase の結果を返すだけ。Request からは値を取り出して渡し、Request オブジェクトを UseCase に渡さない。
+- UseCase は `App\Domain\{Context}\UseCases\*UseCase`。`_BaseUseCase` を継承し、入口は `handle()`。`handle()` は自分専用の Response（`App\Domain\{Context}\Responses\{Action}Response`、`App\Domain\_BaseResponse` を継承）を、API の形に整形した状態で返す。
+- Response は UseCase ごとに1つで、共用しない（形が同じなら継承して分ける）。変換が要るときだけ `fromResult()` を置き、引数は中身に合わせた名前にする。
 - 他のコンテキストは `App\Domain\{Other}\Contracts\` のインターフェースだけを使う。`app/Domain` から `App\Http` を参照しない。
 - 起きたことを他のコンテキストに伝えるときはドメインイベントを使う。`Dispatcher` をコンストラクタで受け取って発行し、受け手は `app/Domain/{Context}/Listeners/` に置く。
 - `packages/` から `App\` を参照しない。パッケージは Contract を定義し、api 側が `*RepositoryAdapter` で実装する。

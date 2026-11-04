@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Domain\Unit;
 
-use App\Domain\Unit\DataTransferObjects\LevelUpResult;
+use App\Domain\Unit\Responses\LevelUpResponse;
 use App\Domain\Unit\Services\UnitLevelService;
 use App\Domain\Unit\UseCases\LevelUpUseCase;
 use App\Exceptions\BusinessLogicException;
@@ -254,7 +254,7 @@ class UnitLevelUpTest extends TestCase
         $this->assertNull(app(UnitLevelService::class)->calcExpToNextLevel('UR', 1, 0));
     }
 
-    private function levelUp(int $useCount): LevelUpResult
+    private function levelUp(int $useCount): LevelUpResponse
     {
         return app(LevelUpUseCase::class)->handle(
             $this->sysPlayerId,

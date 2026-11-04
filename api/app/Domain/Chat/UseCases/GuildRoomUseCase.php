@@ -3,11 +3,11 @@
 namespace App\Domain\Chat\UseCases;
 
 use App\Domain\_BaseUseCase;
+use App\Domain\Chat\Responses\GuildRoomResponse;
 use App\Domain\Chat\Support\ChatExceptionTranslator;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Repositories\Sys\SysGuildMemberRepository;
-use NexusChat\DataTransferObjects\ChatRoom;
 use NexusChat\Services\ChatService;
 
 /**
@@ -25,7 +25,7 @@ class GuildRoomUseCase extends _BaseUseCase
         private readonly SysGuildMemberRepository $sysGuildMemberRepository,
     ) {}
 
-    public function handle(int $sysPlayerId): ChatRoom
+    public function handle(int $sysPlayerId): GuildRoomResponse
     {
         $member = $this->sysGuildMemberRepository->selectByPlayerId($sysPlayerId);
 
@@ -36,10 +36,10 @@ class GuildRoomUseCase extends _BaseUseCase
             );
         }
 
-        return $this->executeWithTransaction(
+        return GuildRoomResponse::fromResult($this->executeWithTransaction(
             fn () => ChatExceptionTranslator::translate(
                 fn () => $this->chatService->findOrCreateGuildRoom($member->getSysGuildId())
             )
-        );
+        ));
     }
 }

@@ -12,11 +12,6 @@ use App\Http\Requests\Auth\RefreshTokenRequest;
 use App\Http\Requests\Auth\SignInRequest;
 use App\Http\Requests\Auth\SignUpRequest;
 use App\Http\Requests\Auth\VersionRequest;
-use App\Http\Responses\Auth\LoginResponse;
-use App\Http\Responses\Auth\RefreshTokenResponse;
-use App\Http\Responses\Auth\SignInResponse;
-use App\Http\Responses\Auth\SignUpResponse;
-use App\Http\Responses\Auth\VersionResponse;
 use App\Persistence\ApiSession;
 use Illuminate\Http\JsonResponse;
 
@@ -30,7 +25,7 @@ class AuthController extends _BaseController
         $deviceId = $request->getDeviceId();
         $deviceInfo = $request->getDeviceInfo();
 
-        return $this->execute(fn () => SignInResponse::fromResult($useCase->handle($deviceId, $deviceInfo)));
+        return $this->execute(fn () => $useCase->handle($deviceId, $deviceInfo));
     }
 
     /**
@@ -47,7 +42,7 @@ class AuthController extends _BaseController
 
         \Log::info('AuthController::signUp executing use case');
 
-        return $this->execute(fn () => SignUpResponse::fromResult($useCase->handle($deviceId, $deviceInfo)));
+        return $this->execute(fn () => $useCase->handle($deviceId, $deviceInfo));
     }
 
     /**
@@ -57,7 +52,7 @@ class AuthController extends _BaseController
     {
         $refreshToken = $request->getRefreshToken();
 
-        return $this->execute(fn () => RefreshTokenResponse::fromResult($useCase->handle($refreshToken)));
+        return $this->execute(fn () => $useCase->handle($refreshToken));
     }
 
     /**
@@ -67,7 +62,7 @@ class AuthController extends _BaseController
     {
         $deployVersion = $request->resolveDeployVersion();
 
-        return $this->execute(fn () => VersionResponse::fromResult($useCase->handle($deployVersion)));
+        return $this->execute(fn () => $useCase->handle($deployVersion));
     }
 
     /**
@@ -77,6 +72,6 @@ class AuthController extends _BaseController
     {
         $sysPlayerId = ApiSession::getSysPlayerId();
 
-        return $this->execute(fn () => LoginResponse::fromResult($useCase->handle($sysPlayerId)));
+        return $this->execute(fn () => $useCase->handle($sysPlayerId));
     }
 }

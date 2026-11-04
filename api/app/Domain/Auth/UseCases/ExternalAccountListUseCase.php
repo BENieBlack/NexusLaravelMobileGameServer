@@ -3,9 +3,8 @@
 namespace App\Domain\Auth\UseCases;
 
 use App\Domain\_BaseUseCase;
-use App\Models\Sys\SysPlayerExternalAccount;
+use App\Domain\Auth\Responses\ExternalAccountListResponse;
 use App\Repositories\Sys\SysPlayerExternalAccountRepository;
-use Nexus\Core\Support\CustomCollection;
 
 /**
  * ExternalAccountListUseCase
@@ -18,11 +17,8 @@ class ExternalAccountListUseCase extends _BaseUseCase
         private readonly SysPlayerExternalAccountRepository $sysPlayerExternalAccountRepository,
     ) {}
 
-    /**
-     * @return CustomCollection<int, SysPlayerExternalAccount>
-     */
-    public function handle(int $sysPlayerId): CustomCollection
+    public function handle(int $sysPlayerId): ExternalAccountListResponse
     {
-        return $this->sysPlayerExternalAccountRepository->selectListByPlayerId($sysPlayerId);
+        return ExternalAccountListResponse::fromResult($this->sysPlayerExternalAccountRepository->selectListByPlayerId($sysPlayerId));
     }
 }

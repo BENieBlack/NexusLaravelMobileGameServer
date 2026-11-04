@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Domain\Agreement\UseCases\ConsentUseCase;
 use App\Domain\Agreement\UseCases\PendingUseCase;
 use App\Http\Requests\Agreement\ConsentRequest;
-use App\Http\Responses\Agreement\ConsentResponse;
-use App\Http\Responses\Agreement\PendingResponse;
 use App\Persistence\ApiSession;
 use Illuminate\Http\JsonResponse;
 
@@ -30,9 +28,7 @@ class AgreementController extends _BaseController
      */
     public function pending(): JsonResponse
     {
-        return $this->execute(fn () => PendingResponse::fromResult(
-            $this->pendingUseCase->handle($this->apiSession->getSysPlayerId())
-        ));
+        return $this->execute(fn () => $this->pendingUseCase->handle($this->apiSession->getSysPlayerId()));
     }
 
     /**
@@ -43,12 +39,10 @@ class AgreementController extends _BaseController
     public function consent(ConsentRequest $request): JsonResponse
     {
         return $this->execute(function () use ($request) {
-            $this->consentUseCase->handle(
+            return $this->consentUseCase->handle(
                 sysPlayerId: $this->apiSession->getSysPlayerId(),
                 sysAgreementId: $request->getSysAgreementId(),
             );
-
-            return new ConsentResponse;
         });
     }
 }

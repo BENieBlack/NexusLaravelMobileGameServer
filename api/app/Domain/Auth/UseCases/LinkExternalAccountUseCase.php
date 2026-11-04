@@ -3,12 +3,11 @@
 namespace App\Domain\Auth\UseCases;
 
 use App\Domain\_BaseUseCase;
+use App\Domain\Auth\Responses\LinkExternalAccountResponse;
 use App\Domain\Auth\Support\ExternalIdTokenExceptionTranslator;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
-use App\Models\Sys\SysPlayerExternalAccount;
 use App\Repositories\Sys\SysPlayerExternalAccountRepository;
-use Nexus\Core\Support\CustomCollection;
 use NexusAuth\Contracts\ExternalIdTokenVerifierInterface;
 
 /**
@@ -26,18 +25,17 @@ class LinkExternalAccountUseCase extends _BaseUseCase
     /**
      * @param  string  $provider  apple / google
      * @param  string  $idToken  外部アカウントでサインインして得たIDトークン
-     * @return CustomCollection<int, SysPlayerExternalAccount> 紐付け後の一覧
      *
      * @throws GameException トークンが不正、または紐付けられない場合
      */
-    public function handle(int $sysPlayerId, string $provider, string $idToken): CustomCollection
+    public function handle(int $sysPlayerId, string $provider, string $idToken): LinkExternalAccountResponse
     {
         // 外部への問い合わせを含むため、トランザクションの外で検証する
         $providerUserId = ExternalIdTokenExceptionTranslator::translate(
             fn () => $this->externalIdTokenVerifier->verify($provider, $idToken)
         );
 
-        return $this->executeWithTransaction(function () use ($sysPlayerId, $provider, $providerUserId) {
+        return LinkExternalAccountResponse::fromResult($this->executeWithTransaction(function () use ($sysPlayerId, $provider, $providerUserId) {
             $linked = $this->sysPlayerExternalAccountRepository->selectByProviderUserId($provider, $providerUserId);
 
             if ($linked !== null && $linked->getSysPlayerId() !== $sysPlayerId) {
@@ -60,6 +58,6 @@ class LinkExternalAccountUseCase extends _BaseUseCase
             }
 
             return $this->sysPlayerExternalAccountRepository->selectListByPlayerId($sysPlayerId);
-        });
+        }));
     }
 }

@@ -3,7 +3,7 @@
 namespace App\Domain\Gacha\UseCases;
 
 use App\Domain\_BaseUseCase;
-use App\Domain\Gacha\DataTransferObjects\DrawResult;
+use App\Domain\Gacha\Responses\DrawResponse;
 use App\Domain\Gacha\Services\GachaCostService;
 use App\Domain\Gacha\Services\GachaValidationService;
 use App\Repositories\Mst\MstGachaStepRepository;
@@ -47,7 +47,7 @@ class DrawUseCase extends _BaseUseCase
         int $drawCount,
         ?string $selectedCandidateId = null,
         ?string $uniqueRequestId = null,
-    ): DrawResult {
+    ): DrawResponse {
         $uniqueRequestId ??= (string) Str::uuid();
 
         // 1. バリデーション
@@ -111,7 +111,7 @@ class DrawUseCase extends _BaseUseCase
                 }
             }
 
-            return new DrawResult(
+            return new DrawResponse(
                 prizes: $prizes,
                 currentStep: $nextStep ?? $currentStep,
                 dailyDrawCount: $progress->getDailyDrawCount() + 1,

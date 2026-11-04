@@ -3,9 +3,9 @@
 namespace App\Domain\RewardTrack\UseCases;
 
 use App\Domain\_BaseUseCase;
+use App\Domain\RewardTrack\Responses\ReceiveMilestoneResponse;
 use App\Domain\RewardTrack\Support\RewardTrackExceptionTranslator;
 use App\Persistence\ApiSession;
-use NexusRewardTrack\DataTransferObjects\RewardTrackMilestone;
 use NexusRewardTrack\Services\RewardTrackService;
 
 class ReceiveMilestoneUseCase extends _BaseUseCase
@@ -14,12 +14,12 @@ class ReceiveMilestoneUseCase extends _BaseUseCase
         private readonly RewardTrackService $rewardTrackService,
     ) {}
 
-    public function handle(string $milestoneId, string $lineId): RewardTrackMilestone
+    public function handle(string $milestoneId, string $lineId): ReceiveMilestoneResponse
     {
         $sysPlayerId = ApiSession::getSysPlayerId();
         $connectionName = ApiSession::resolveConnectionName();
 
-        return $this->executeWithTransaction(
+        return ReceiveMilestoneResponse::fromResult($this->executeWithTransaction(
             fn () => RewardTrackExceptionTranslator::translate(
                 fn () => $this->rewardTrackService->receiveMilestone(
                     $sysPlayerId,
@@ -28,6 +28,6 @@ class ReceiveMilestoneUseCase extends _BaseUseCase
                     $connectionName
                 )
             )
-        );
+        ));
     }
 }

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Domain\Equipment\UseCases\LevelUpUseCase;
 use App\Http\Requests\Equipment\LevelUpRequest;
-use App\Http\Responses\Equipment\LevelUpResponse;
 use App\Persistence\ApiSession;
 use Illuminate\Http\JsonResponse;
 
@@ -32,12 +31,12 @@ class EquipmentController extends _BaseController
         return $this->execute(function () use ($request) {
             $sysPlayerId = $this->apiSession->getSysPlayerId();
 
-            return LevelUpResponse::fromResult($this->equipmentLevelUpUseCase->handle(
+            return $this->equipmentLevelUpUseCase->handle(
                 sysPlayerId: $sysPlayerId,
                 trxEquipmentId: $request->getTrxEquipmentId(),
                 mstItemId: $request->getMstItemId(),
                 afterLevel: $request->getAfterLevel(),
-            ));
+            );
         });
     }
 }

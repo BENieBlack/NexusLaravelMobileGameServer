@@ -3,6 +3,7 @@
 namespace App\Domain\Guild\UseCases;
 
 use App\Domain\_BaseUseCase;
+use App\Domain\Guild\Responses\LeaveResponse;
 use App\Domain\Guild\Support\GuildExceptionTranslator;
 use App\Exceptions\GameException;
 use NexusGuild\Services\GuildService;
@@ -25,7 +26,7 @@ class LeaveUseCase extends _BaseUseCase
      *
      * @throws GameException
      */
-    public function handle(int $sysPlayerId): void
+    public function handle(int $sysPlayerId): LeaveResponse
     {
         // トランザクション開始
         $this->executeWithTransaction(function () use ($sysPlayerId) {
@@ -33,5 +34,7 @@ class LeaveUseCase extends _BaseUseCase
                 $this->guildService->leaveGuild($sysPlayerId);
             });
         });
+
+        return new LeaveResponse($sysPlayerId);
     }
 }

@@ -6,9 +6,9 @@ Controller / Request / UseCase / Service / Repository / Model / Response / DTO /
 ## Controller
 
 - `api/app/Http/Controllers/{Context}Controller.php`、`_BaseController` を継承する。
-- アクションは `$this->execute(callable)` に「UseCase実行 → Response変換」を渡して返すだけにする。`execute()` はコールバックが `_BaseResponseInterface` 以外を返すと `LogicException`、例外は `handleException()` がエラーレスポンスにする。Controller で try/catch しない。
+- アクションは `$this->execute(fn () => $useCase->handle(...))` を返すだけにする。`execute()` は UseCase が返した Response（`App\Domain\_BaseResponse`）を JSON（HTTP 200）にする。それ以外を返すと `LogicException`、例外は `handleException()` がエラーレスポンスにする。Controller で try/catch しない。
 - UseCase の入口は `handle()`。Request オブジェクトは渡さず、Request の getter で取り出した値を渡す。
-- UseCase の戻り値（Result / DTO）は Controller で `XxxResponse::fromResult()` などに変換する。UseCase に Response を作らせない。
+- Controller では Response を作らない（`XxxResponse::fromResult()` や `new XxxResponse` を書かない）。
 - プレイヤーIDは `ApiSession::getSysPlayerId()`（UnitController）か `$this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId())`（FriendController, ChatController）で取る。現状は両方ある。
 
 例: `api/app/Http/Controllers/UnitController.php`
@@ -16,16 +16,12 @@ Controller / Request / UseCase / Service / Repository / Model / Response / DTO /
 ```php
 public function levelUp(LevelUpRequest $request): JsonResponse
 {
-    return $this->execute(function () use ($request) {
-        $sysPlayerId = $this->apiSession->getSysPlayerId();
-
-        return LevelUpResponse::fromResult($this->unitLevelUpUseCase->handle(
-            sysPlayerId: $sysPlayerId,
-            trxUnitId: $request->getTrxUnitId(),
-            mstItemId: $request->getMstItemId(),
-            useCount: $request->getUseCount(),
-        ));
-    });
+    return $this->execute(fn () => $this->unitLevelUpUseCase->handle(
+        sysPlayerId: $this->apiSession->getSysPlayerId(),
+        trxUnitId: $request->getTrxUnitId(),
+        mstItemId: $request->getMstItemId(),
+        useCount: $request->getUseCount(),
+    ));
 }
 ```
 
@@ -44,19 +40,19 @@ public function levelUp(LevelUpRequest $request): JsonResponse
 - 入口は `handle()`。引数はスカラーかDTOで、シグネチャは UseCase ごとに決める。
 - 事前検証は同じ引数の `validation()` に書き、`handle()` の先頭で呼ぶ（存在確認・所有確認・所持数など）。
 - 書き込みがある処理は `executeWithTransaction(fn () => ...)` の中で行う。読み取りだけなら不要。INSERT直後に採番IDを参照するときだけ `flushQueue()` を呼ぶ。
-- 戻り値は `Domain/{Context}/DataTransferObjects/*Result`、パッケージのDTO、Eloquentモデル、void のいずれか。`App\Http` を参照しない（ModuleBoundaryTest）。
+- 戻り値は自分専用の Response（`Domain/{Context}/Responses/{Action}Response`）。値を返さない操作も空の Response を返す。`App\Http` を参照しない（ModuleBoundaryTest）。
 - 他コンテキストの機能は `App\Domain\{Other}\Contracts\` のインターフェースで受ける（LevelUpUseCase は `ItemInventoryInterface`）。
 
 例: `api/app/Domain/Unit/UseCases/LevelUpUseCase.php`
 
 ```php
-public function exec(int $sysPlayerId, int $trxUnitId, string $mstItemId, int $useCount): LevelUpResult
+public function handle(int $sysPlayerId, int $trxUnitId, string $mstItemId, int $useCount): LevelUpResponse
 {
     $this->validation($sysPlayerId, $trxUnitId, $mstItemId, $useCount);
 
     return $this->executeWithTransaction(function () use ($sysPlayerId, $trxUnitId, $mstItemId, $useCount) {
         // Service / Repository を呼ぶ
-        return new LevelUpResult(/* ... */);
+        return new LevelUpResponse(/* ... */);
     });
 }
 ```
@@ -100,22 +96,23 @@ public function exec(int $sysPlayerId, int $trxUnitId, string $mstItemId, int $u
 
 ## Response
 
-- アクションごとに1つ作る: `api/app/Http/Responses/{Controller名}/{メソッド名}Response.php`（例: `ChatController::send` → `Chat/SendResponse`）。`_BaseResponse` を継承する。
-- 複数のアクションで共用しない。返す形が同じなら、親を継承した子をアクションごとに置く（`Account/TransferByCodeResponse extends Auth\SignInResponse`、`Chat/FriendRoomResponse extends RoomResponse`）。親は `final public function __construct` と `fromResult(): static` にする。
-- 生成メソッドは `fromResult()` だけ。UseCase の `handle()` の戻り値を受け取る。引数名は中身に合わせ（`FriendApply $friendApply`、`LevelUpResult $levelUpResult`）、表示に要る値があれば引数を足してよい（`Friend/ListResponse::fromResult($sysFriendApplyCollection, $sysPlayerId)`）。
-- `handle()` が void のアクションだけ、Controller で `new XxxResponse(...)` する（`Mailbox/LockResponse`）。
+- UseCase ごとに1つ作る: `api/app/Domain/{Context}/Responses/{Action}Response.php`（例: `Chat/UseCases/SendMessageUseCase` → `Chat/Responses/SendMessageResponse`）。`App\Domain\_BaseResponse` を継承する。UseCase の `handle()` がこれを返す。
+- HTTP には依存しない。JSON への変換は `_BaseController::execute()` が `toArray()` から行う。
+- 複数の UseCase で共用しない。返す形が同じなら、親を継承した子を UseCase ごとに置く（`Auth/TransferByCodeResponse extends SignInResponse`、`Chat/FriendRoomResponse extends RoomResponse`）。親は `final public function __construct` と `fromResult(): static` にする。`handle()` を親クラスから受け継ぐ UseCase は親の Response を返す（Buy 系 → `InAppPurchase/BuyResponse`）。
+- UseCase では、整形済みの値が揃っていれば `new XxxResponse(...)`、パッケージのDTO・モデル・コレクションから変換するなら `XxxResponse::fromResult(...)` で作る。生成メソッドは `fromResult()` だけで、引数名は中身に合わせ（`FriendApply $friendApply`）、表示に要る値があれば引数を足してよい（`Friend/ListResponse::fromResult($sysFriendApplyCollection, $sysPlayerId)`）。
 - 以上は `api/tests/Architecture/ResponsePerActionTest.php` が検査する。
-- `toArray()` に snake_case のキーを手で書く。`toJsonResponse()` は基底（HTTP 200）。`Responsable` / `toResponse()` や Reflection による自動変換は無い。
-- モデルを含めるときは `toResponseArray()` を呼ぶ（`api/app/Http/Responses/Auth/LoginResponse.php`）。
+- `toArray()` に snake_case のキーを手で書く。`Responsable` / `toResponse()` や Reflection による自動変換は無い。
+- モデルを含めるときは `toResponseArray()` を呼ぶ（`api/app/Domain/Login/Responses/HomeResponse.php`）。
 - エラーは Response で返さない。例外を投げれば `_BaseController` が `Nexus\Core\ValueObjects\ErrorResponse` にする。
 
-例: `api/app/Http/Responses/Unit/LevelUpResponse.php`
+例: `api/app/Domain/Unit/Responses/LevelUpResponse.php`（`LevelUpUseCase` が `new LevelUpResponse(...)` で返す）
 
 ```php
-public static function fromResult(LevelUpResult $levelUpResult): self
-{
-    return new self(isLeveledUp: $levelUpResult->isLeveledUp, beforeLevel: $levelUpResult->beforeLevel, /* ... */);
-}
+public function __construct(
+    public readonly bool $isLeveledUp,
+    public readonly int $beforeLevel,
+    /* ... */
+) {}
 
 public function toArray(): array
 {
@@ -125,7 +122,7 @@ public function toArray(): array
 
 ## DTO / Result
 
-- UseCase の戻り値は `api/app/Domain/{Context}/DataTransferObjects/{Name}Result.php`。`public readonly` のコンストラクタプロモーションだけで、メソッドを持たない（`api/app/Domain/Unit/DataTransferObjects/LevelUpResult.php`）。
+- UseCase の戻り値は Response（上の節）。`Domain/{Context}/DataTransferObjects/` には、Service と UseCase の間で受け渡す値だけを置く（`api/app/Domain/Auth/DataTransferObjects/SignInResult.php`）。`public readonly` のコンストラクタプロモーションだけで、メソッドを持たない。
 - パッケージのDTOは `packages/*/src/DataTransferObjects/` に置き、サフィックスを付けない（DataTransferObjectNamingTest）。`private readonly` + `getXxx()` で書く（`packages/nexus-guild/src/DataTransferObjects/Guild.php`）。
 - Model からパッケージDTOへの変換は `App\Adapters\{Context}\{Dto}Adapter::toDto()` / `toDtoArray()`。
 

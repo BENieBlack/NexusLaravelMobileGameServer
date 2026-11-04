@@ -3,7 +3,7 @@
 namespace App\Domain\Equipment\UseCases;
 
 use App\Domain\_BaseUseCase;
-use App\Domain\Equipment\DataTransferObjects\LevelUpResult;
+use App\Domain\Equipment\Responses\LevelUpResponse;
 use App\Domain\Equipment\Services\EquipmentLevelService;
 use App\Domain\Item\Contracts\ItemInventoryInterface;
 use App\Exceptions\BusinessLogicException;
@@ -128,7 +128,7 @@ class LevelUpUseCase extends _BaseUseCase
      *
      * @throws \Exception|\Throwable
      */
-    public function handle(int $sysPlayerId, int $trxEquipmentId, string $mstItemId, int $afterLevel): LevelUpResult
+    public function handle(int $sysPlayerId, int $trxEquipmentId, string $mstItemId, int $afterLevel): LevelUpResponse
     {
         // バリデーション実行
         $this->validation($sysPlayerId, $trxEquipmentId, $mstItemId, $afterLevel);
@@ -181,7 +181,7 @@ class LevelUpUseCase extends _BaseUseCase
             );
 
             // 結果を生成して返す
-            return new LevelUpResult(
+            return new LevelUpResponse(
                 trxEquipment: $trxEquipment,
                 trxItem: $trxItem,
             );

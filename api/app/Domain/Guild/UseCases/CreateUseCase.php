@@ -3,9 +3,9 @@
 namespace App\Domain\Guild\UseCases;
 
 use App\Domain\_BaseUseCase;
+use App\Domain\Guild\Responses\CreateResponse;
 use App\Domain\Guild\Support\GuildExceptionTranslator;
 use App\Exceptions\GameException;
-use NexusGuild\DataTransferObjects\Guild;
 use NexusGuild\Services\GuildService;
 
 /**
@@ -28,16 +28,16 @@ class CreateUseCase extends _BaseUseCase
      *
      * @throws GameException
      */
-    public function handle(int $sysPlayerId, string $name, string $description): Guild
+    public function handle(int $sysPlayerId, string $name, string $description): CreateResponse
     {
         // トランザクション開始
-        return $this->executeWithTransaction(function () use ($sysPlayerId, $name, $description) {
+        return CreateResponse::fromResult($this->executeWithTransaction(function () use ($sysPlayerId, $name, $description) {
             return GuildExceptionTranslator::forCreate(function () use ($sysPlayerId, $name, $description) {
                 // ギルド作成（Service経由でバリデーション含む）
                 $guild = $this->guildService->createGuild($name, $description, $sysPlayerId);
 
                 return $guild;
             });
-        });
+        }));
     }
 }

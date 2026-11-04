@@ -8,9 +8,6 @@ use App\Domain\Notification\UseCases\ReadUseCase;
 use App\Http\Requests\Notification\ListRequest;
 use App\Http\Requests\Notification\ReadAllRequest;
 use App\Http\Requests\Notification\ReadRequest;
-use App\Http\Responses\Notification\ListResponse;
-use App\Http\Responses\Notification\ReadAllResponse;
-use App\Http\Responses\Notification\ReadResponse;
 use Illuminate\Http\JsonResponse;
 
 /**
@@ -29,7 +26,7 @@ class NotificationController extends _BaseController
     {
         $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
-        return $this->execute(fn () => ListResponse::fromResult($useCase->handle($sysPlayerId, $request->onlyUnread())));
+        return $this->execute(fn () => $useCase->handle($sysPlayerId, $request->onlyUnread()));
     }
 
     /**
@@ -41,9 +38,7 @@ class NotificationController extends _BaseController
     {
         $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
-        return $this->execute(fn () => ReadResponse::fromResult(
-            $useCase->handle($sysPlayerId, $request->getTrxNotificationId()),
-        ));
+        return $this->execute(fn () => $useCase->handle($sysPlayerId, $request->getTrxNotificationId()));
     }
 
     /**
@@ -55,8 +50,6 @@ class NotificationController extends _BaseController
     {
         $sysPlayerId = $this->requireAuthenticatedPlayerId($request->resolveAuthenticatedPlayerId());
 
-        return $this->execute(fn () => ReadAllResponse::fromResult(
-            $useCase->handle($sysPlayerId),
-        ));
+        return $this->execute(fn () => $useCase->handle($sysPlayerId));
     }
 }

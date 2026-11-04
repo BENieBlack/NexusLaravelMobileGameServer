@@ -2,7 +2,7 @@
 
 namespace App\Domain\InAppPurchase\UseCases;
 
-use App\Domain\InAppPurchase\DataTransferObjects\BuyResult;
+use App\Domain\InAppPurchase\Responses\BuyResponse;
 use App\Domain\InAppPurchase\Services\InAppPurchasePackService;
 use App\Domain\InAppPurchase\Services\InAppPurchaseValidationService;
 use App\Models\Mst\MstInAppPurchase;
@@ -40,7 +40,7 @@ class BuyPackUseCase extends _BaseBuyUseCase
         string $platform,
         string $billingPlatform,
         Verification $verification
-    ): BuyResult {
+    ): BuyResponse {
         // トランザクションは _BaseBuyUseCase が張っている（VIP付与・課金ログと同一）
         $result = $this->packService->purchasePack(
             $sysPlayerId,
@@ -50,7 +50,7 @@ class BuyPackUseCase extends _BaseBuyUseCase
             $verification->getTransactionId()
         );
 
-        return new BuyResult(
+        return new BuyResponse(
             paidDiamondAmount: 0,
             totalPaidDiamondAmount: 0,
             totalFreeDiamondAmount: $result['total_free_diamond_amount'],

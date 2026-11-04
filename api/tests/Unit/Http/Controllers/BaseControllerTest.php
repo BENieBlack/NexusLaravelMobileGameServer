@@ -2,11 +2,11 @@
 
 namespace Tests\Unit\Http\Controllers;
 
+use App\Domain\_BaseResponse;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Exceptions\InfraErrorCode;
 use App\Http\Controllers\_BaseController;
-use App\Http\Responses\_BaseResponse;
 use Illuminate\Http\JsonResponse;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;

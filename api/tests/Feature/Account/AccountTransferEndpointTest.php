@@ -70,11 +70,10 @@ class AccountTransferEndpointTest extends TestCase
 
     protected function tearDown(): void
     {
-        // サインアップで作ったプレイヤーも消す。残すとIDを決め打ちする他のテストとぶつかる
-        foreach (['sys_player_transfer_code', 'sys_player_external_account', 'sys_player_device', 'sys_player_token', 'sys_sharding_node_player'] as $table) {
+        // サインアップで作ったプレイヤーの sys の行は TestCase が消す
+        foreach (['sys_player_transfer_code', 'sys_player_external_account'] as $table) {
             DB::connection('sys')->table($table)->whereIn('sys_player_id', $this->sysPlayerIds)->delete();
         }
-        DB::connection('sys')->table('sys_player')->whereIn('id', $this->sysPlayerIds)->delete();
 
         ClockUtility::reset();
 

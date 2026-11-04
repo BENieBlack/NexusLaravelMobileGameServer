@@ -8,7 +8,7 @@
     "require": {
         "php": "^8.5",
         "google/apiclient": "^2.17",
-        "inertiajs/inertia-laravel": "^2.0",
+        "inertiajs/inertia-laravel": "^3.6",
         "laravel/framework": "^13.0",
         "laravel/tinker": "^3.0"
     },

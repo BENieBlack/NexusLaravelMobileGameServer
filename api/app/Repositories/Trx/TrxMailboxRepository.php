@@ -6,8 +6,8 @@ use App\Domain\Mailbox\Constants\Category;
 use App\Domain\Mailbox\Constants\Priority;
 use App\Models\Mst\MstMailbox;
 use App\Models\Trx\TrxMailbox;
-use Carbon\Carbon;
 use Nexus\Core\Support\CustomCollection;
+use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * TrxMailboxRepository
@@ -44,7 +44,7 @@ class TrxMailboxRepository extends _BaseTrxRepository
         // 有効期限切れを除外
         $query->where(function ($q) {
             $q->whereNull('expires_at')
-                ->orWhere('expires_at', '>', Carbon::now());
+                ->orWhere('expires_at', '>', ClockUtility::now());
         });
 
         // カテゴリ・優先度はマスター側の値。
@@ -110,7 +110,7 @@ class TrxMailboxRepository extends _BaseTrxRepository
             ->whereNull('read_at')
             ->where(function ($q) {
                 $q->whereNull('expires_at')
-                    ->orWhere('expires_at', '>', Carbon::now());
+                    ->orWhere('expires_at', '>', ClockUtility::now());
             })
             ->get();
 
@@ -154,7 +154,7 @@ class TrxMailboxRepository extends _BaseTrxRepository
     {
         $trxMailbox->setIsOpened(true);
         if ($trxMailbox->getReadAt() === null) {
-            $trxMailbox->setReadAt(Carbon::now());
+            $trxMailbox->setReadAt(ClockUtility::nowToString());
         }
         $this->setModel($trxMailbox);
     }
@@ -165,7 +165,7 @@ class TrxMailboxRepository extends _BaseTrxRepository
     public function markAsReceived(TrxMailbox $trxMailbox): void
     {
         $trxMailbox->setIsReceived(true);
-        $trxMailbox->setReceivedAt(Carbon::now());
+        $trxMailbox->setReceivedAt(ClockUtility::nowToString());
         $this->setModel($trxMailbox);
     }
 
@@ -190,7 +190,7 @@ class TrxMailboxRepository extends _BaseTrxRepository
             ->where('is_delete', false)
             ->where('is_protected', false)
             ->whereNotNull('expires_at')
-            ->where('expires_at', '<=', Carbon::now())
+            ->where('expires_at', '<=', ClockUtility::now())
             ->get();
 
         return new CustomCollection($records->all());

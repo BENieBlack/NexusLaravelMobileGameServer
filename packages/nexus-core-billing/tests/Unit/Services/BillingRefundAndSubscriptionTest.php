@@ -2,6 +2,7 @@
 
 namespace NexusBilling\Tests\Unit\Services;
 
+use Nexus\Core\Utilities\ClockUtility;
 use NexusBilling\ApiClients\AppStoreApiClient;
 use NexusBilling\ApiClients\GooglePlayApiClient;
 use NexusBilling\Constants\BillingConst;
@@ -124,6 +125,29 @@ class BillingRefundAndSubscriptionTest extends TestCase
         $this->assertTrue($subscription->isActive());
         $this->assertTrue($subscription->isAutoRenew());
         $this->assertSame(BillingConst::SUBSCRIPTION_STATE_ACTIVE, $subscription->getState());
+    }
+
+    #[Test]
+    public function app_storeの有効期限が無いサブスクリプションは現在時刻を期限にする(): void
+    {
+        ClockUtility::setNow('2026-11-04 12:34:56');
+
+        $serverApiClient = $this->createMock(AppStoreApiClient::class);
+        $serverApiClient->method('fetchSubscriptionStatuses')->willReturn([
+            'data' => [[
+                'lastTransactions' => [[
+                    'status' => 1, // Active
+                    'signedTransactionInfo' => 'signed-transaction',
+                ]],
+            ]],
+        ]);
+        $serverApiClient->method('decodeSignedPayload')->willReturn([]);
+
+        $service = new AppStoreBillingService($serverApiClient);
+
+        $subscription = $service->fetchSubscriptionStatus('1000000000000001');
+
+        $this->assertSame('2026-11-04 12:34:56', $subscription->getExpiresAt());
     }
 
     #[Test]

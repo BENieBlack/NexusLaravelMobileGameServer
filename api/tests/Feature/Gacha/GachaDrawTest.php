@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Gacha;
 
+use App\Exceptions\GameErrorCode;
 use App\Models\Mst\MstGacha;
 use App\Models\Mst\MstGachaCost;
 use App\Models\Mst\MstGachaPrize;
@@ -313,5 +314,28 @@ class GachaDrawTest extends TestCase
 
         $totalCount = $itemCount + $unitCount + $equipmentCount;
         $this->assertEquals(1, $totalCount, 'Should have 1 item distributed');
+    }
+
+    /**
+     * Test: ダイヤが足りなければ消費する前に業務エラー（299）を返し、何も変えない
+     */
+    public function test_gacha_draw_without_enough_diamond_returns_business_error(): void
+    {
+        TrxDiamond::where('sys_player_id', $this->testPlayerId)->update(['free_amount' => 50]);
+
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer '.$this->testAccessToken,
+        ])->postJson('/api/gacha/draw', [
+            'mst_gacha_id' => $this->testGachaId,
+            'draw_count' => 1, // 100ダイヤ必要
+        ]);
+
+        $response->assertStatus(299);
+        $this->assertSame(GameErrorCode::DIAMOND_NOT_ENOUGH, $response->json('error_code'));
+
+        $this->assertSame(50, (int) TrxDiamond::where('sys_player_id', $this->testPlayerId)->value('free_amount'));
+        $this->assertSame(0, TrxItem::where('sys_player_id', $this->testPlayerId)->count()
+            + TrxUnit::where('sys_player_id', $this->testPlayerId)->count()
+            + TrxEquipment::where('sys_player_id', $this->testPlayerId)->count());
     }
 }

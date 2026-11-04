@@ -4,6 +4,7 @@ namespace NexusBilling\Services;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Log;
+use Nexus\Core\Utilities\ClockUtility;
 use NexusBilling\ApiClients\AppStoreApiClient;
 use NexusBilling\Constants\BillingConst;
 use NexusBilling\Contracts\BillingPlatformInterface;
@@ -126,7 +127,7 @@ class AppStoreBillingService implements BillingPlatformInterface
             isActive: in_array($status, [self::STATUS_ACTIVE, self::STATUS_GRACE_PERIOD], true),
             expiresAt: $expiresDateMs !== null
                 ? CarbonImmutable::createFromTimestampMs((int) $expiresDateMs)->format('Y-m-d H:i:s')
-                : CarbonImmutable::now()->format('Y-m-d H:i:s'),
+                : ClockUtility::nowToString(),
             autoRenew: (int) ($renewalInfo['autoRenewStatus'] ?? 0) === 1,
             state: $this->mapSubscriptionState($status),
         );

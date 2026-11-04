@@ -15,11 +15,11 @@ DB 接続・マイグレーションの置き場所は [database.md](./database.
 | api-queue | - | キューのワーカー（`queue:work`、Redis）。通知の保存と Reverb へのブロードキャストを処理する。止まっていると通知が届かない |
 | tool-php | - | 運営ツール（PHP） |
 | tool-web | 8091 | 運営ツールの nginx |
-| db-admin | 63060 | `{APP_NAME}-{APP_ENV}-admin` |
+| db-admin | 63060 | `{APP_NAME}-{APP_ENV}-admin` と `nexus-testing-admin`（tool のテスト用） |
 | db-tool | 63061 | `{APP_NAME}-{APP_ENV}-tool` |
-| db-system | 63062 | `-system` と `nexus-testing-system` |
+| db-system | 63062 | `-system` と `nexus-testing-system`、`nexus-testing-tool-system`（tool のテスト用） |
 | db-master | 63063 | `-master` と `nexus-testing-master` |
-| db-shard1〜3 | 63161〜63163 | `-shard` と `nexus-testing-shard`（DB名は全シャード共通） |
+| db-shard1〜3 | 63161〜63163 | `-shard` と `nexus-testing-shard`（DB名は全シャード共通）。shard1・2 には `nexus-testing-tool-shard`（tool のテスト用）も |
 | redis | 63790 | キャッシュ（`CACHE_STORE=redis`）。冪等キーやシャード割当のキャッシュもここに入る |
 
 - MySQL の root パスワードは `MYSQL_ROOT_PASSWORD`（既定 `root`）。DB はコンテナ初回起動時に `docker/mysql/init/` のスクリプトが `DB_NAMES` から作る
@@ -56,7 +56,7 @@ docker compose exec -T tool-php php artisan db:seed --class=AdminAccountSeeder -
 | `make check-quiet` / `make test-quiet` | `check` / `test` と同じ検査。全文は `.make-logs/*.log` に書き、画面には成功の1行か、失敗の詳細と集計だけを出す。エージェントはこちらを使う |
 | `make test-unit` / `make test-feature` | そのスイートだけ |
 | `make test-fresh` | `migrate-fresh` と `seed` の後に全テスト |
-| `make tool-check` | tool の pint --test・phpstan・phpunit |
+| `make tool-check` | tool の pint --test・phpstan・phpunit。tool のテスト用DBが無ければ先に作る（`make tool-test-db`） |
 | `make pint` / `make pint-test` / `make pint-dirty` | 整形 / 検証のみ / 変更ファイルだけ整形（api と packages） |
 | `make phpstan` | api + packages の静的解析 |
 | `make migrate` / `make migrate-fresh` | sys・mst・trx・log のマイグレーション / 作り直し（tool のDBは含まない） |
@@ -124,5 +124,5 @@ docker compose exec -T api-php grep 'App.Adapters' /tmp/cov.txt
 - **`No code coverage driver available`**: イメージが Dockerfile より古い。`make up`（`--build` 付き）で作り直す。コンテナ内で `pecl install` してもイメージには残らない
 - **通知が届かない**: `api-queue` が動いているか（`docker compose ps`）、`.env` が `QUEUE_CONNECTION=redis` / `REVERB_HOST=api-reverb` になっているかを見る（`.env.example` 参照）。ジョブの処理状況は `docker compose logs api-queue`
 - **`.env` を書き換えたのに反映されない**: `.env` は単一ファイルの bind マウントで、起動時のファイル実体に固定される。ファイルを置き換える保存方法だとコンテナは古い内容を読み続けるので、`make down` → `make up`。`config:cache` 済みなら `config:clear` も要る
-- **tool のテストでローカルの管理者アカウントが消えた**: `tool/phpunit.xml` が `DB_ADMIN_DATABASE=nexus-local-admin` を指定し、テストが `admin` 接続に `migrate:fresh` を流す。`make tool-check` の後は `AdminAccountSeeder` を流し直す（初回セットアップの最後の行）
+- **ローカルの管理者アカウントが無い**: 以前の `tool/phpunit.xml` は開発用の `nexus-local-admin` に `migrate:fresh` を流していた。今は tool のテストは専用の `nexus-testing-*` を使うので消えないが、それ以前に消えた環境では `AdminAccountSeeder` を流し直す（初回セットアップの最後の行）
 - **`./command/setup.sh` が途中で止まる**: 旧コンテナ名（db-sys, db-trx1 など）を前提にしており、コンテナを `down --volumes` で消した後の存在確認で失敗する。使わずに「初回セットアップ」の手順で進める。`api/tests/setup-test-db.sh` も同じく旧構成のままで使えない

@@ -107,7 +107,7 @@ services:
     container_name: db-admin
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
-      DB_NAMES: "${APP_NAME:-nexus}-${APP_ENV:-local}-admin"
+      DB_NAMES: "${APP_NAME:-nexus}-${APP_ENV:-local}-admin ${APP_NAME:-nexus}-testing-admin"
     ports:
       - "63060:3306"
     volumes:
@@ -135,7 +135,7 @@ services:
     container_name: db-system
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
-      DB_NAMES: "${APP_NAME:-nexus}-${APP_ENV:-local}-system ${APP_NAME:-nexus}-testing-system"
+      DB_NAMES: "${APP_NAME:-nexus}-${APP_ENV:-local}-system ${APP_NAME:-nexus}-testing-system ${APP_NAME:-nexus}-testing-tool-system"
     ports:
       - "63062:3306"
     volumes:
@@ -163,7 +163,7 @@ services:
     container_name: db-shard1
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
-      DB_NAMES: "${APP_NAME:-nexus}-${APP_ENV:-local}-shard ${APP_NAME:-nexus}-testing-shard"
+      DB_NAMES: "${APP_NAME:-nexus}-${APP_ENV:-local}-shard ${APP_NAME:-nexus}-testing-shard ${APP_NAME:-nexus}-testing-tool-shard"
     ports:
       - "63161:3306"
     volumes:
@@ -177,7 +177,7 @@ services:
     container_name: db-shard2
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
-      DB_NAMES: "${APP_NAME:-nexus}-${APP_ENV:-local}-shard ${APP_NAME:-nexus}-testing-shard"
+      DB_NAMES: "${APP_NAME:-nexus}-${APP_ENV:-local}-shard ${APP_NAME:-nexus}-testing-shard ${APP_NAME:-nexus}-testing-tool-shard"
     ports:
       - "63162:3306"
     volumes:

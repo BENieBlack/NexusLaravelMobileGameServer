@@ -2,12 +2,12 @@
 
 namespace Nexus\Core\Models;
 
-use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Nexus\Core\Exceptions\DirectWriteNotAllowedException;
+use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * _BaseModel
@@ -374,7 +374,7 @@ abstract class _BaseModel extends Model implements _BaseModelInterface
         foreach ($this->getDates() as $dateField) {
             if (isset($array[$dateField]) && is_string($array[$dateField])) {
                 try {
-                    $carbon = Carbon::parse($array[$dateField]);
+                    $carbon = ClockUtility::parse($array[$dateField]);
                     $array[$dateField] = $carbon->toIso8601String();
                 } catch (\Exception $e) {
                     // パース失敗時は元の値をそのまま使用

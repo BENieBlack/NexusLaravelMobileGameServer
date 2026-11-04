@@ -74,12 +74,6 @@ class TradeEndpointTest extends TestCase
                 ->where('sys_player_id', $this->sysPlayerId)->delete();
         }
 
-        // サインアップで作ったプレイヤーも消す。残すとIDを決め打ちする他のテストとぶつかる
-        foreach (['sys_player_device', 'sys_player_token', 'sys_sharding_node_player'] as $table) {
-            DB::connection('sys')->table($table)->where('sys_player_id', $this->sysPlayerId)->delete();
-        }
-        DB::connection('sys')->table('sys_player')->where('id', $this->sysPlayerId)->delete();
-
         $this->cleanUpMaster();
         $this->refreshMstCache();
         ApiSession::clearForTest();

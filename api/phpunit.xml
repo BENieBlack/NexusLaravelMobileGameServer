@@ -78,6 +78,9 @@
         <env name="NIGHTWATCH_ENABLED" value="false"/>
         <env name="REDIS_HOST" value="redis"/>
         <env name="REDIS_PORT" value="6379"/>
+        <!-- 開発環境（DB 0/1）と分ける。TestCase がテストごとにキャッシュ用のDBを空にする -->
+        <env name="REDIS_DB" value="14"/>
+        <env name="REDIS_CACHE_DB" value="15"/>
 
         <!-- Sharding Configuration for Testing -->
         <!-- テストは2シャード前提。

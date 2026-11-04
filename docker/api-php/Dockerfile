@@ -3,7 +3,7 @@ FROM php:8.5-fpm
 RUN apt-get update && apt-get install -y \
     libzip-dev \
     unzip \
-    && docker-php-ext-install zip pdo pdo_mysql
+    && docker-php-ext-install zip pdo pdo_mysql pcntl
 
 RUN pecl install redis && docker-php-ext-enable redis
 

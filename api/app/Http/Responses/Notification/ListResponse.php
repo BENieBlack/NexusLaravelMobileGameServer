@@ -35,7 +35,7 @@ class ListResponse extends _BaseResponse
     public function toArray(): array
     {
         return [
-            'notifications' => array_map(
+            'notification_list' => array_map(
                 fn (Notification $notification): array => [
                     'trx_notification_id' => $notification->getId(),
                     'type' => $notification->getType()->value,

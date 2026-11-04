@@ -14,11 +14,16 @@ use NexusNotification\DataTransferObjects\Notification;
  *
  * trx_notification の永続化。nexus-notification のインターフェースを直接実装する。
  *
- * インターフェースが接続名を受け取らないため、シャードはログイン中プレイヤーの
- * 割り当てから解決する。通知は必ず本人の行しか触らないため、これで足りる。
+ * 通知は別のプレイヤー（フレンド申請の相手など）へ送るため、プレイヤーIDを受け取る
+ * メソッドはそのプレイヤーの割り当てシャードへ向ける。ログイン中プレイヤーのシャードへ
+ * 書くと、受け手が別のシャードにいるときに一覧へ出てこない。
+ * IDだけを受け取る selectById() / markAsRead() は本人の操作なので、ログイン中プレイヤーの
+ * シャードを使う。
  *
- * insert() は採番したIDを載せたDTOを返す必要がある（リアルタイム配送が
- * そのIDを使う）ため、UnitOfWorkのキューではなく直接INSERTする。
+ * insert() は送り手のトランザクションのコミット後にキューのジョブ
+ * （App\Domain\Notification\Jobs\SendNotificationJob）から呼ばれる。
+ * 受け手のシャードは送り手のトランザクションに含まれず、採番したIDを載せたDTOを
+ * 返す必要もある（リアルタイム配送がそのIDを使う）ため、UnitOfWorkのキューではなく直接INSERTする。
  */
 class TrxNotificationRepository implements NotificationRepositoryInterface
 {
@@ -29,7 +34,7 @@ class TrxNotificationRepository implements NotificationRepositoryInterface
      */
     public function selectByPlayerId(int $playerId, bool $onlyUnread = false): array
     {
-        $query = DB::connection($this->connection())
+        $query = DB::connection($this->connectionFor($playerId))
             ->table(self::TABLE)
             ->where('sys_player_id', $playerId);
 
@@ -68,7 +73,7 @@ class TrxNotificationRepository implements NotificationRepositoryInterface
     ): Notification {
         $now = ClockUtility::nowToString();
 
-        $id = DB::connection($this->connection())->table(self::TABLE)->insertGetId([
+        $id = DB::connection($this->connectionFor($playerId))->table(self::TABLE)->insertGetId([
             'sys_player_id' => $playerId,
             'type' => $type,
             'title' => $title,
@@ -118,7 +123,7 @@ class TrxNotificationRepository implements NotificationRepositoryInterface
     {
         $now = ClockUtility::nowToString();
 
-        DB::connection($this->connection())
+        DB::connection($this->connectionFor($playerId))
             ->table(self::TABLE)
             ->where('sys_player_id', $playerId)
             ->where('is_read', false)
@@ -134,7 +139,7 @@ class TrxNotificationRepository implements NotificationRepositoryInterface
      */
     public function countUnread(int $playerId): int
     {
-        return DB::connection($this->connection())
+        return DB::connection($this->connectionFor($playerId))
             ->table(self::TABLE)
             ->where('sys_player_id', $playerId)
             ->where('is_read', false)
@@ -144,6 +149,11 @@ class TrxNotificationRepository implements NotificationRepositoryInterface
     private function connection(): string
     {
         return ApiSession::resolveConnectionName('trx');
+    }
+
+    private function connectionFor(int $playerId): string
+    {
+        return ApiSession::resolveConnectionNameForPlayer($playerId);
     }
 
     /**

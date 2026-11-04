@@ -50,7 +50,7 @@ class DrawResponse extends _BaseResponse
     public function toArray(): array
     {
         return [
-            'prizes' => $this->prizes,
+            'prize_list' => $this->prizes,
             'current_step' => $this->currentStep,
             'daily_draw_count' => $this->dailyDrawCount,
             'total_draw_count' => $this->totalDrawCount,

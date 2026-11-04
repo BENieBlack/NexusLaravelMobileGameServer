@@ -3286,9 +3286,10 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-friend",
-                "reference": "7291e326d0edc7341ec46dffc7f0c261d27808d7"
+                "reference": "1def2e1377efc294414af94d5a785b16de7bfaf7"
             },
             "require": {
+                "illuminate/contracts": "^10.0|^11.0|^12.0|^13.0",
                 "nexus/core": "@dev",
                 "php": "^8.4"
             },
@@ -3363,9 +3364,10 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-guild",
-                "reference": "9c2ebb114a6e159dfad0007ec0e660eda21d9f48"
+                "reference": "02ada1a7a13420a17b57d2b03946efbb5338744a"
             },
             "require": {
+                "illuminate/contracts": "^10.0|^11.0|^12.0|^13.0",
                 "nexus/core": "@dev",
                 "php": "^8.4"
             },
@@ -3639,9 +3641,10 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-notification",
-                "reference": "e4051bb4354455f87d25706c2bbf53ce2f641405"
+                "reference": "cf967c4661f914af280cf4c961f011ea90b1878e"
             },
             "require": {
+                "illuminate/contracts": "^10.0|^11.0|^12.0|^13.0",
                 "nexus/core": "@dev",
                 "php": "^8.4"
             },

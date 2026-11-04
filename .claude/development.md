@@ -11,6 +11,8 @@ DB 接続・マイグレーションの置き場所は [database.md](./database.
 |---|---|---|
 | api-php | - | API（PHP 8.5）。`./api` を `/var/www/html`、`./packages` を `/var/www/packages` にマウント |
 | api-web | 8090 | API の nginx |
+| api-reverb | 8080 | WebSocket（Laravel Reverb）。通知をクライアントへ流す |
+| api-queue | - | キューのワーカー（`queue:work`、Redis）。通知の保存と Reverb へのブロードキャストを処理する。止まっていると通知が届かない |
 | tool-php | - | 運営ツール（PHP） |
 | tool-web | 8091 | 運営ツールの nginx |
 | db-admin | 63060 | `{APP_NAME}-{APP_ENV}-admin` |
@@ -120,6 +122,7 @@ docker compose exec -T api-php grep 'App.Adapters' /tmp/cov.txt
 - **引数なしの `php artisan migrate` を打った**: 既定接続は sqlite（`.env` の `DB_CONNECTION=sqlite`）で、実DBには何も入らない。`make migrate` を使う
 - **マイグレーションを書き換えたのに反映されない**: リリース前は既存のマイグレーションファイルを直接編集する運用で、`make migrate` は適用済みとして飛ばす。`make migrate-fresh` → `make seed` で作り直す（データは消える）。テストDBは指紋の変化で自動的に作り直される
 - **`No code coverage driver available`**: イメージが Dockerfile より古い。`make up`（`--build` 付き）で作り直す。コンテナ内で `pecl install` してもイメージには残らない
+- **通知が届かない**: `api-queue` が動いているか（`docker compose ps`）、`.env` が `QUEUE_CONNECTION=redis` / `REVERB_HOST=api-reverb` になっているかを見る（`.env.example` 参照）。ジョブの処理状況は `docker compose logs api-queue`
 - **`.env` を書き換えたのに反映されない**: `.env` は単一ファイルの bind マウントで、起動時のファイル実体に固定される。ファイルを置き換える保存方法だとコンテナは古い内容を読み続けるので、`make down` → `make up`。`config:cache` 済みなら `config:clear` も要る
 - **tool のテストでローカルの管理者アカウントが消えた**: `tool/phpunit.xml` が `DB_ADMIN_DATABASE=nexus-local-admin` を指定し、テストが `admin` 接続に `migrate:fresh` を流す。`make tool-check` の後は `AdminAccountSeeder` を流し直す（初回セットアップの最後の行）
 - **`./command/setup.sh` が途中で止まる**: 旧コンテナ名（db-sys, db-trx1 など）を前提にしており、コンテナを `down --volumes` で消した後の存在確認で失敗する。使わずに「初回セットアップ」の手順で進める。`api/tests/setup-test-db.sh` も同じく旧構成のままで使えない

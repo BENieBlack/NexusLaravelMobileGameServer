@@ -51,7 +51,7 @@ class GuildListResponse extends _BaseResponse
     public function toArray(): array
     {
         return [
-            'guilds' => $this->guilds,
+            'guild_list' => $this->guilds,
         ];
     }
 }

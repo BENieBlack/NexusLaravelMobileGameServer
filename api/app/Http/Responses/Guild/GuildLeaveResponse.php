@@ -24,7 +24,6 @@ class GuildLeaveResponse extends _BaseResponse
     {
         return [
             'sys_player_id' => $this->sysPlayerId,
-            'success' => true,
         ];
     }
 }

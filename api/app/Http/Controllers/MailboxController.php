@@ -96,7 +96,6 @@ class MailboxController extends _BaseController
             return new LockResponse(
                 trxMailboxId: $trxMailboxId,
                 isLocked: $isLocked,
-                success: true
             );
         });
     }

@@ -124,7 +124,6 @@ EventPeriodResolver::resolve(content_type, content_mst_id, now)
 | --- | --- |
 | `mst_event_id` | `mst_event.id` |
 | `mst_item_id` | `mst_item.id`（`is_wallet = true` のもの） |
-| `item_role` | `point`（イベントポイント。ランキングの得点の元）、`ticket`（ガチャチケット）、`collection`（収集アイテム）。ロジックを持つのは `point` だけで、他は表示用 |
 
 ### 4.2 付与するときの有効期限
 
@@ -150,14 +149,12 @@ W1 を直せば、`exchange_end_at` を過ぎたものは消える。
 | `deploy_key` | integer | デプロイキー（mst 共通。index） |
 | `mst_event_id` | string | `mst_event` のID |
 | `mst_item_id` | string | `mst_item` のID。`is_wallet = true` のもの。index（`ItemService` が、アイテムからイベントを引くため） |
-| `item_role` | enum | `point`（イベントポイント。ランキングの得点の元）/ `ticket`（ガチャチケット）/ `collection`（収集アイテム）。mst なので ENUM でよい |
-| `sort_order` | integer | クライアントでの表示順（既定 0） |
 | `created_at` / `updated_at` | dateTime | 規約どおり |
 
 - 主キーは `(mst_event_id, mst_item_id)`（名前は `pk_event_item`）。同じアイテムを複数のイベントに登録してよい（使い回し）。イベントの期間は重ならないので、リセットは衝突しない
-- **`point` は1イベントに最大1つ**（取り込み時に検査する）。ランキングの得点の元が1つに決まるため
-- `ticket` / `collection` は、1イベントに何個でも登録できる。ロジックは持たず、リセットと有効期限の対象になるだけ
-
+- 登録するアイテムの数に制限は無い（ガチャチケット、収集アイテム、ポイントなど）。**登録されていること自体が「このイベントのアイテム」という意味**で、リセットと有効期限の対象になる
+- アイテムの役割（チケットか収集アイテムか）は、サーバーでは使わないので持たない。表示の都合で必要になったら、クライアントに必要な列を足す
+- `mst_event` に `mst_item_id` を1列持たせる形にしないのは、1つのイベントが複数のアイテムを持つため（チケットと収集アイテムなど）。1列だと、アイテムが2つ以上のイベントを表せず、リセットと有効期限の対象を1つにしか指定できない
 `ItemService` が、プレイヤーがアイテム `X` に触れたとき（付与・消費・取得）に、次の順で動く。
 
 1. `mst_event_item` から、`X` を持つイベントのうち、**今が `start_at` から `exchange_end_at` の間にあるイベント** `E` を探す（イベントの期間は重ならないので、あっても1つ）
@@ -167,11 +164,11 @@ W1 を直せば、`exchange_end_at` を過ぎたものは消える。
 
 例（`event_a`: 11/10〜11/17（end_at）、11/20（exchange_end_at））:
 
-| mst_event_id | mst_item_id | item_role |
-| --- | --- | --- |
-| `event_a` | `item_event_point` | `point` |
-| `event_a` | `item_event_gacha_ticket` | `ticket` |
-| `event_a` | `item_event_shard` | `collection` |
+| mst_event_id | mst_item_id |
+| --- | --- |
+| `event_a` | `item_event_point` |
+| `event_a` | `item_event_gacha_ticket` |
+| `event_a` | `item_event_shard` |
 
 次のイベント `event_b`（12/01〜）が同じ `item_event_point` を使うなら、`event_b` にも同じアイテムで行を足す。`event_b` が始まって最初に触れたとき、前のイベントの残りは0になる。
 
@@ -197,7 +194,7 @@ mst_event_content
   PK (mst_event_id, content_type, content_mst_id)
 
 mst_event_item
-  deploy_key, mst_event_id, mst_item_id, item_role, sort_order, created_at, updated_at
+  deploy_key, mst_event_id, mst_item_id, created_at, updated_at
   PK (mst_event_id, mst_item_id)   詳細は 4.4
 
 trx_event                   （プレイヤーのシャード。イベントごとのリセット済みの印）
@@ -218,7 +215,7 @@ log_action_event_reset      （プレイヤーと同じシャード）
   sys_player_id, mst_event_id, mst_item_id, discarded_free_amount, discarded_paid_amount, created_at
 ```
 
-最初の案の `close_at` と `point_mst_item_id` は、`exchange_end_at` と `mst_event_item` に置き換えた。
+最初の案の `close_at` と `point_mst_item_id` は、`exchange_end_at` と `mst_event_item`（役割を持たない、アイテムの一覧）に置き換えた。
 
 ### 5.2 パッケージと層
 

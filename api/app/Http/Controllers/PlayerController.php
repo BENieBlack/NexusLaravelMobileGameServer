@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Domain\Player\UseCases\MeUseCase;
 use App\Http\Requests\Player\MeRequest;
-use App\Http\Responses\Player\MeResponse;
 use App\Persistence\ApiSession;
 use Illuminate\Http\JsonResponse;
 
@@ -21,6 +20,6 @@ class PlayerController extends _BaseController
     {
         $sysPlayerId = $this->apiSession->getSysPlayerId();
 
-        return $this->execute(fn () => MeResponse::fromResult($useCase->exec($sysPlayerId)));
+        return $this->execute(fn () => $useCase->handle($sysPlayerId));
     }
 }

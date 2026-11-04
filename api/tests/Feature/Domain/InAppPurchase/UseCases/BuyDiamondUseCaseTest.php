@@ -3,7 +3,6 @@
 namespace Tests\Feature\Domain\InAppPurchase\UseCases;
 
 use App\Domain\InAppPurchase\UseCases\BuyDiamondUseCase;
-use App\Http\Responses\InAppPurchase\BuyResponse;
 use App\Models\Mst\MstInAppPurchase;
 use App\Persistence\ApiSession;
 use Illuminate\Support\Facades\DB;
@@ -98,7 +97,7 @@ class BuyDiamondUseCaseTest extends TestCase
             ]),
         ]);
 
-        $result = app(BuyDiamondUseCase::class)->exec(
+        $result = app(BuyDiamondUseCase::class)->handle(
             $this->sysPlayerId,
             $mstInAppPurchase,
             'Google',
@@ -110,7 +109,7 @@ class BuyDiamondUseCaseTest extends TestCase
 
         $this->queryManager->execAllQuery();
 
-        $this->assertSame(self::PAID_DIAMOND_AMOUNT, BuyResponse::fromResult($result)->toArray()['paid_diamond_amount']);
+        $this->assertSame(self::PAID_DIAMOND_AMOUNT, $result->toArray()['paid_diamond_amount']);
 
         // 有償ダイヤが付与されている
         $diamond = DB::connection('trx1')->table('trx_diamond')
@@ -186,7 +185,7 @@ class BuyDiamondUseCaseTest extends TestCase
             ]),
         ]);
 
-        app(BuyDiamondUseCase::class)->exec(
+        app(BuyDiamondUseCase::class)->handle(
             $this->sysPlayerId,
             $mstInAppPurchase,
             'Apple',
@@ -227,7 +226,7 @@ class BuyDiamondUseCaseTest extends TestCase
         ]);
 
         try {
-            app(BuyDiamondUseCase::class)->exec(
+            app(BuyDiamondUseCase::class)->handle(
                 $this->sysPlayerId,
                 $mstInAppPurchase,
                 'Google',
@@ -274,7 +273,7 @@ class BuyDiamondUseCaseTest extends TestCase
         ]);
 
         try {
-            app(BuyDiamondUseCase::class)->exec(
+            app(BuyDiamondUseCase::class)->handle(
                 $this->sysPlayerId,
                 $mstInAppPurchase,
                 'Google',

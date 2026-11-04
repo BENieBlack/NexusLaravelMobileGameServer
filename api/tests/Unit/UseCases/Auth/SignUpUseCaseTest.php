@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\UseCases\Auth;
 
-use App\Domain\Auth\DataTransferObjects\SignUpResult;
+use App\Domain\Auth\Responses\SignUpResponse;
 use App\Domain\Auth\UseCases\SignUpUseCase;
 use App\Domain\Sharding\Services\ShardAssignmentService;
 use App\Exceptions\BusinessLogicException;
@@ -90,10 +90,10 @@ class SignUpUseCaseTest extends TestCase
         ];
 
         // Act
-        $response = $this->useCase->exec($deviceId, $deviceInfo);
+        $response = $this->useCase->handle($deviceId, $deviceInfo);
 
         // Assert
-        $this->assertInstanceOf(SignUpResult::class, $response);
+        $this->assertInstanceOf(SignUpResponse::class, $response);
         $this->assertInstanceOf(SysPlayer::class, $response->sysPlayer);
         $this->assertInstanceOf(SysPlayerDevice::class, $response->sysPlayerDevice);
         $this->assertNotNull($response->sysPlayer->id);
@@ -127,7 +127,7 @@ class SignUpUseCaseTest extends TestCase
         $deviceInfo = ['model' => 'Test Device'];
 
         // Act
-        $response = $this->useCase->exec($deviceId, $deviceInfo);
+        $response = $this->useCase->handle($deviceId, $deviceInfo);
 
         // Assert - Tokenが正しく生成されている
         $this->assertNotEmpty($response->token->getAccessToken());
@@ -152,14 +152,14 @@ class SignUpUseCaseTest extends TestCase
         $deviceInfo = ['model' => 'Test Device'];
 
         // 既存のプレイヤーとデバイスを作成（UseCaseを通して作成）
-        $this->useCase->exec($deviceId, $deviceInfo);
+        $this->useCase->handle($deviceId, $deviceInfo);
 
         // Assert & Act
         $this->expectException(BusinessLogicException::class);
         $this->expectExceptionMessage("Device ID already registered: {$deviceId}");
 
         // 同じデバイスIDでサインアップを試みる
-        $this->useCase->exec($deviceId, $deviceInfo);
+        $this->useCase->handle($deviceId, $deviceInfo);
     }
 
     /**
@@ -173,8 +173,8 @@ class SignUpUseCaseTest extends TestCase
         $deviceInfo = ['model' => 'Test Device'];
 
         // Act
-        $response1 = $this->useCase->exec($deviceId1, $deviceInfo);
-        $response2 = $this->useCase->exec($deviceId2, $deviceInfo);
+        $response1 = $this->useCase->handle($deviceId1, $deviceInfo);
+        $response2 = $this->useCase->handle($deviceId2, $deviceInfo);
 
         // Assert - 異なるプレイヤーが作成されている
         $this->assertNotEquals($response1->sysPlayer->id, $response2->sysPlayer->id);
@@ -197,10 +197,10 @@ class SignUpUseCaseTest extends TestCase
         $deviceInfo = [];
 
         // Act
-        $response = $this->useCase->exec($deviceId, $deviceInfo);
+        $response = $this->useCase->handle($deviceId, $deviceInfo);
 
         // Assert
-        $this->assertInstanceOf(SignUpResult::class, $response);
+        $this->assertInstanceOf(SignUpResponse::class, $response);
         $this->assertNotNull($response->sysPlayer->id);
         $this->assertNotNull($response->sysPlayerDevice->id);
         $this->assertEquals($deviceId, $response->sysPlayerDevice->getUuid());
@@ -219,7 +219,7 @@ class SignUpUseCaseTest extends TestCase
         $deviceInfo = ['model' => 'Test'];
 
         // Act
-        $response = $this->useCase->exec($deviceId, $deviceInfo);
+        $response = $this->useCase->handle($deviceId, $deviceInfo);
 
         // Assert - my_idが8文字の英数字であることを確認
         $this->assertNotNull($response->sysPlayer->getMyId());
@@ -237,7 +237,7 @@ class SignUpUseCaseTest extends TestCase
         $deviceInfo = ['model' => 'Test'];
 
         // 最初のサインアップを成功させる
-        $this->useCase->exec($deviceId, $deviceInfo);
+        $this->useCase->handle($deviceId, $deviceInfo);
 
         // データベースに保存されていることを確認
         $this->assertDatabaseHas('sys_player_device', [
@@ -246,7 +246,7 @@ class SignUpUseCaseTest extends TestCase
 
         // Act & Assert - 同じデバイスIDで再度サインアップを試みる（エラーになる）
         try {
-            $this->useCase->exec($deviceId, $deviceInfo);
+            $this->useCase->handle($deviceId, $deviceInfo);
             $this->fail('Expected BusinessLogicException was not thrown');
         } catch (BusinessLogicException $e) {
             // 例外が発生することを確認

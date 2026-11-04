@@ -4,7 +4,7 @@ namespace App\Repositories\Sys;
 
 use App\Models\Sys\SysFriendApply;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
+use Nexus\Core\Support\CustomCollection;
 
 /**
  * SysFriendApplyRepository
@@ -57,30 +57,36 @@ class SysFriendApplyRepository extends _BaseSysRepository
      * プレイヤーIDで受信したフレンド申請一覧を取得
      *
      * @param  int  $playerId  プレイヤーID
-     * @return Collection<int, SysFriendApply>
+     * @return CustomCollection<int, SysFriendApply>
      */
-    public function selectReceivedApplies(int $playerId): Collection
+    public function selectReceivedApplies(int $playerId): CustomCollection
     {
-        return $this->selectWithoutCache()
-            ->where('receiver_sys_player_id', $playerId)
-            ->where('status', SysFriendApply::STATUS_APPLIED)
-            ->orderBy('created_at', 'desc')
-            ->get();
+        return new CustomCollection(
+            $this->selectWithoutCache()
+                ->where('receiver_sys_player_id', $playerId)
+                ->where('status', SysFriendApply::STATUS_APPLIED)
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->all()
+        );
     }
 
     /**
      * プレイヤーIDで送信したフレンド申請一覧を取得
      *
      * @param  int  $playerId  プレイヤーID
-     * @return Collection<int, SysFriendApply>
+     * @return CustomCollection<int, SysFriendApply>
      */
-    public function selectSentApplies(int $playerId): Collection
+    public function selectSentApplies(int $playerId): CustomCollection
     {
-        return $this->selectWithoutCache()
-            ->where('sender_sys_player_id', $playerId)
-            ->where('status', SysFriendApply::STATUS_APPLIED)
-            ->orderBy('created_at', 'desc')
-            ->get();
+        return new CustomCollection(
+            $this->selectWithoutCache()
+                ->where('sender_sys_player_id', $playerId)
+                ->where('status', SysFriendApply::STATUS_APPLIED)
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->all()
+        );
     }
 
     /**
@@ -93,19 +99,22 @@ class SysFriendApplyRepository extends _BaseSysRepository
      * 相手の行は自分スコープの外なので更新してはいけない。
      *
      * @param  int  $playerId  プレイヤーID
-     * @return Collection<int, SysFriendApply>
+     * @return CustomCollection<int, SysFriendApply>
      */
-    public function selectAppliesByPlayerId(int $playerId): Collection
+    public function selectAppliesByPlayerId(int $playerId): CustomCollection
     {
-        return $this->selectWithoutCache()
-            ->with(['sendPlayer', 'receivePlayer'])
-            ->where(function ($query) use ($playerId) {
-                $query->where('sender_sys_player_id', $playerId)
-                    ->orWhere('receiver_sys_player_id', $playerId);
-            })
-            ->where('status', SysFriendApply::STATUS_APPLIED)
-            ->orderBy('created_at', 'desc')
-            ->get();
+        return new CustomCollection(
+            $this->selectWithoutCache()
+                ->with(['sendPlayer', 'receivePlayer'])
+                ->where(function ($query) use ($playerId) {
+                    $query->where('sender_sys_player_id', $playerId)
+                        ->orWhere('receiver_sys_player_id', $playerId);
+                })
+                ->where('status', SysFriendApply::STATUS_APPLIED)
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->all()
+        );
     }
 
     /**
@@ -114,19 +123,22 @@ class SysFriendApplyRepository extends _BaseSysRepository
      * statusがAcceptedのものを取得
      *
      * @param  int  $playerId  プレイヤーID
-     * @return Collection<int, SysFriendApply>
+     * @return CustomCollection<int, SysFriendApply>
      */
-    public function selectAcceptedFriendsByPlayerId(int $playerId): Collection
+    public function selectAcceptedFriendsByPlayerId(int $playerId): CustomCollection
     {
-        return $this->selectWithoutCache()
-            ->with(['sendPlayer', 'receivePlayer'])
-            ->where(function ($query) use ($playerId) {
-                $query->where('sender_sys_player_id', $playerId)
-                    ->orWhere('receiver_sys_player_id', $playerId);
-            })
-            ->where('status', SysFriendApply::STATUS_ACCEPTED)
-            ->orderBy('created_at', 'desc')
-            ->get();
+        return new CustomCollection(
+            $this->selectWithoutCache()
+                ->with(['sendPlayer', 'receivePlayer'])
+                ->where(function ($query) use ($playerId) {
+                    $query->where('sender_sys_player_id', $playerId)
+                        ->orWhere('receiver_sys_player_id', $playerId);
+                })
+                ->where('status', SysFriendApply::STATUS_ACCEPTED)
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->all()
+        );
     }
 
     /**

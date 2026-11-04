@@ -64,7 +64,7 @@ class UseItemTest extends TestCase
     public function プレイヤー経験値アイテムを使うと効果量分の経験値が入る(): void
     {
         // value=100 のアイテムを3個 → 300exp
-        $result = $this->useCase->exec($this->sysPlayerId, self::PLAYER_EXP_ITEM_ID, 3);
+        $result = $this->useCase->handle($this->sysPlayerId, self::PLAYER_EXP_ITEM_ID, 3);
 
         $this->assertSame('player_exp', $result->effect);
         $this->assertSame(3, $result->itemUsed);
@@ -79,7 +79,7 @@ class UseItemTest extends TestCase
     #[Test]
     public function 使った分だけアイテムが減る(): void
     {
-        $this->useCase->exec($this->sysPlayerId, self::PLAYER_EXP_ITEM_ID, 3);
+        $this->useCase->handle($this->sysPlayerId, self::PLAYER_EXP_ITEM_ID, 3);
 
         $item = DB::connection('trx1')->table('trx_item')
             ->where('sys_player_id', $this->sysPlayerId)
@@ -92,7 +92,7 @@ class UseItemTest extends TestCase
     #[Test]
     public function スタミナ回復アイテムを使うと効果量分回復する(): void
     {
-        $result = $this->useCase->exec($this->sysPlayerId, self::STAMINA_ITEM_ID, 2);
+        $result = $this->useCase->handle($this->sysPlayerId, self::STAMINA_ITEM_ID, 2);
 
         $this->assertSame('stamina_recover', $result->effect);
         $this->assertSame(60, $result->appliedValue);
@@ -113,7 +113,7 @@ class UseItemTest extends TestCase
         $this->expectException(GameException::class);
         $this->expectExceptionMessage('Invalid item type');
 
-        $this->useCase->exec($this->sysPlayerId, self::UNIT_EXP_ITEM_ID, 1);
+        $this->useCase->handle($this->sysPlayerId, self::UNIT_EXP_ITEM_ID, 1);
     }
 
     #[Test]
@@ -121,7 +121,7 @@ class UseItemTest extends TestCase
     {
         $this->expectException(GameException::class);
 
-        $this->useCase->exec($this->sysPlayerId, self::PLAYER_EXP_ITEM_ID, 999);
+        $this->useCase->handle($this->sysPlayerId, self::PLAYER_EXP_ITEM_ID, 999);
     }
 
     #[Test]
@@ -129,7 +129,7 @@ class UseItemTest extends TestCase
     {
         $this->expectException(GameException::class);
 
-        $this->useCase->exec($this->sysPlayerId, 'no_such_item', 1);
+        $this->useCase->handle($this->sysPlayerId, 'no_such_item', 1);
     }
 
     private function insertTestData(): void

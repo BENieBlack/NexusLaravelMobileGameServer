@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Domain\Unit;
 
-use App\Domain\Unit\DataTransferObjects\LevelUpResult;
+use App\Domain\Unit\Responses\LevelUpResponse;
 use App\Domain\Unit\Services\UnitLevelService;
 use App\Domain\Unit\UseCases\LevelUpUseCase;
 use App\Exceptions\BusinessLogicException;
@@ -136,7 +136,7 @@ class UnitLevelUpTest extends TestCase
         $before = $this->findItemAmount(self::EXP_ITEM_ID);
 
         try {
-            app(LevelUpUseCase::class)->exec($this->sysPlayerId, $this->otherTrxUnitId, self::EXP_ITEM_ID, 1);
+            app(LevelUpUseCase::class)->handle($this->sysPlayerId, $this->otherTrxUnitId, self::EXP_ITEM_ID, 1);
             $this->fail('他人のユニットにレベルアップできてしまった');
         } catch (GameException $e) {
             $this->assertSame("Unit not found: {$this->otherTrxUnitId}", $e->getMessage());
@@ -154,7 +154,7 @@ class UnitLevelUpTest extends TestCase
         $this->expectException(TransactionDataException::class);
 
         try {
-            app(LevelUpUseCase::class)->exec($this->sysPlayerId, 999999, self::EXP_ITEM_ID, 1);
+            app(LevelUpUseCase::class)->handle($this->sysPlayerId, 999999, self::EXP_ITEM_ID, 1);
         } finally {
             $this->assertSame($before, $this->findItemAmount(self::EXP_ITEM_ID));
         }
@@ -165,7 +165,7 @@ class UnitLevelUpTest extends TestCase
     {
         $this->expectException(MasterDataException::class);
 
-        app(LevelUpUseCase::class)->exec($this->sysPlayerId, $this->trxUnitId, 'no_such_item', 1);
+        app(LevelUpUseCase::class)->handle($this->sysPlayerId, $this->trxUnitId, 'no_such_item', 1);
     }
 
     #[Test]
@@ -176,7 +176,7 @@ class UnitLevelUpTest extends TestCase
         $before = $this->findItemAmount(self::WRONG_ITEM_ID);
 
         try {
-            app(LevelUpUseCase::class)->exec($this->sysPlayerId, $this->trxUnitId, self::WRONG_ITEM_ID, 1);
+            app(LevelUpUseCase::class)->handle($this->sysPlayerId, $this->trxUnitId, self::WRONG_ITEM_ID, 1);
             $this->fail('効果種別が違うアイテムで育ってしまった');
         } catch (BusinessLogicException $e) {
             $this->assertStringContainsString('unit_exp', $e->getMessage());
@@ -192,7 +192,7 @@ class UnitLevelUpTest extends TestCase
         $before = $this->findItemAmount(self::EXP_ITEM_ID);
 
         try {
-            app(LevelUpUseCase::class)->exec($this->sysPlayerId, $this->trxUnitId, self::EXP_ITEM_ID, $before + 1);
+            app(LevelUpUseCase::class)->handle($this->sysPlayerId, $this->trxUnitId, self::EXP_ITEM_ID, $before + 1);
             $this->fail('所持数を超えて使えてしまった');
         } catch (BusinessLogicException $e) {
             $this->assertStringContainsString(self::EXP_ITEM_ID, $e->getMessage());
@@ -254,9 +254,9 @@ class UnitLevelUpTest extends TestCase
         $this->assertNull(app(UnitLevelService::class)->calcExpToNextLevel('UR', 1, 0));
     }
 
-    private function levelUp(int $useCount): LevelUpResult
+    private function levelUp(int $useCount): LevelUpResponse
     {
-        return app(LevelUpUseCase::class)->exec(
+        return app(LevelUpUseCase::class)->handle(
             $this->sysPlayerId,
             $this->trxUnitId,
             self::EXP_ITEM_ID,

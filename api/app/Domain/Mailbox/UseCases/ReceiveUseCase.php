@@ -4,7 +4,7 @@ namespace App\Domain\Mailbox\UseCases;
 
 use App\Domain\_BaseUseCase;
 use App\Domain\Mailbox\Constants\ContentType;
-use App\Domain\Mailbox\DataTransferObjects\ReceiveResult;
+use App\Domain\Mailbox\Responses\ReceiveResponse;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Models\Mst\MstMailboxContent;
@@ -30,7 +30,7 @@ class ReceiveUseCase extends _BaseUseCase
      *
      * @throws GameException
      */
-    public function exec(int $sysPlayerId, int $trxMailboxId): ReceiveResult
+    public function handle(int $sysPlayerId, int $trxMailboxId): ReceiveResponse
     {
         return $this->executeWithTransaction(function () use ($sysPlayerId, $trxMailboxId) {
             // メールボックス取得
@@ -67,7 +67,7 @@ class ReceiveUseCase extends _BaseUseCase
             // 受取済みにする
             $this->trxMailboxRepository->markAsReceived($trxMailbox);
 
-            return new ReceiveResult($trxMailbox->getId(), true, $resources);
+            return new ReceiveResponse($trxMailbox->getId(), true, $resources);
         });
     }
 

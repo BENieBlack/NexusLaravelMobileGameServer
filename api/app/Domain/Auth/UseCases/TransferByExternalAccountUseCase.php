@@ -3,7 +3,7 @@
 namespace App\Domain\Auth\UseCases;
 
 use App\Domain\_BaseUseCase;
-use App\Domain\Auth\DataTransferObjects\SignInResult;
+use App\Domain\Auth\Responses\TransferByExternalAccountResponse;
 use App\Domain\Auth\Services\AccountTransferService;
 use App\Domain\Auth\Support\ExternalIdTokenExceptionTranslator;
 use App\Exceptions\GameErrorCode;
@@ -31,14 +31,14 @@ class TransferByExternalAccountUseCase extends _BaseUseCase
      *
      * @throws GameException トークンが不正、または紐付いたプレイヤーがいない場合
      */
-    public function exec(string $provider, string $idToken, string $deviceId, array $deviceInfo): SignInResult
+    public function handle(string $provider, string $idToken, string $deviceId, array $deviceInfo): TransferByExternalAccountResponse
     {
         // 外部への問い合わせを含むため、トランザクションの外で検証する
         $providerUserId = ExternalIdTokenExceptionTranslator::translate(
             fn () => $this->externalIdTokenVerifier->verify($provider, $idToken)
         );
 
-        return $this->executeWithTransaction(function () use ($provider, $providerUserId, $deviceId, $deviceInfo) {
+        return TransferByExternalAccountResponse::fromResult($this->executeWithTransaction(function () use ($provider, $providerUserId, $deviceId, $deviceInfo) {
             $linked = $this->sysPlayerExternalAccountRepository->selectByProviderUserId($provider, $providerUserId);
 
             if ($linked === null) {
@@ -54,6 +54,6 @@ class TransferByExternalAccountUseCase extends _BaseUseCase
             $this->flushQueue();
 
             return $signInResult;
-        });
+        }));
     }
 }

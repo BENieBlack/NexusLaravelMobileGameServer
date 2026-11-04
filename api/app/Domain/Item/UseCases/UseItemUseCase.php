@@ -3,7 +3,7 @@
 namespace App\Domain\Item\UseCases;
 
 use App\Domain\_BaseUseCase;
-use App\Domain\Item\DataTransferObjects\UseItemResult;
+use App\Domain\Item\Responses\UseItemResponse;
 use App\Domain\Item\Services\ItemService;
 use App\Exceptions\BusinessLogicException;
 use App\Exceptions\GameErrorCode;
@@ -91,7 +91,7 @@ class UseItemUseCase extends _BaseUseCase
      *
      * @throws \Exception
      */
-    public function exec(int $sysPlayerId, string $mstItemId, int $useCount): UseItemResult
+    public function handle(int $sysPlayerId, string $mstItemId, int $useCount): UseItemResponse
     {
         $this->validation($sysPlayerId, $mstItemId, $useCount);
 
@@ -122,7 +122,7 @@ class UseItemUseCase extends _BaseUseCase
                 ),
             };
 
-            return new UseItemResult(
+            return new UseItemResponse(
                 mstItemId: $mstItemId,
                 effect: $effectType->value,
                 itemUsed: $useCount,

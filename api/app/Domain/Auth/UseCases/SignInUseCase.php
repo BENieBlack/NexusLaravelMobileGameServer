@@ -4,6 +4,7 @@ namespace App\Domain\Auth\UseCases;
 
 use App\Domain\_BaseUseCase;
 use App\Domain\Auth\DataTransferObjects\SignInResult;
+use App\Domain\Auth\Responses\SignInResponse;
 use App\Domain\Auth\Traits\BuildsSysPlayerToken;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
@@ -45,10 +46,10 @@ class SignInUseCase extends _BaseUseCase
      * @throws GameException デバイスIDが存在しない場合
      * @throws Exception|Throwable
      */
-    public function exec(string $deviceId, array $deviceInfo): SignInResult
+    public function handle(string $deviceId, array $deviceInfo): SignInResponse
     {
         // トランザクション開始
-        return $this->executeWithTransaction(function () use ($deviceId) {
+        return SignInResponse::fromResult($this->executeWithTransaction(function () use ($deviceId) {
             // デバイスを取得
             $sysPlayerDevice = $this->deviceRepository->selectByDeviceId($deviceId);
 
@@ -96,6 +97,6 @@ class SignInUseCase extends _BaseUseCase
                 sysPlayerToken: $sysPlayerToken,
                 token: $token,
             );
-        });
+        }));
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\UseCases\Auth;
 
-use App\Domain\Auth\DataTransferObjects\SignInResult;
+use App\Domain\Auth\Responses\SignInResponse;
 use App\Domain\Auth\UseCases\SignInUseCase;
 use App\Exceptions\GameException;
 use App\Models\Sys\SysPlayer;
@@ -101,10 +101,10 @@ class SignInUseCaseTest extends TestCase
         [$sysPlayer, $sysPlayerDevice] = $this->createPlayerAndDevice($deviceId, $deviceInfo);
 
         // Act
-        $response = $this->useCase->exec($deviceId, $deviceInfo);
+        $response = $this->useCase->handle($deviceId, $deviceInfo);
 
         // Assert
-        $this->assertInstanceOf(SignInResult::class, $response);
+        $this->assertInstanceOf(SignInResponse::class, $response);
         $this->assertInstanceOf(SysPlayer::class, $response->sysPlayer);
         $this->assertInstanceOf(SysPlayerDevice::class, $response->sysPlayerDevice);
 
@@ -126,7 +126,7 @@ class SignInUseCaseTest extends TestCase
         $this->createPlayerAndDevice($deviceId, $deviceInfo);
 
         // Act
-        $response = $this->useCase->exec($deviceId, $deviceInfo);
+        $response = $this->useCase->handle($deviceId, $deviceInfo);
 
         // Assert - 新しいトークンが生成されている
         $this->assertNotEmpty($response->token->getAccessToken());
@@ -151,7 +151,7 @@ class SignInUseCaseTest extends TestCase
         $this->expectException(GameException::class);
         $this->expectExceptionMessage("Device ID not found: {$nonExistentDeviceId}");
 
-        $this->useCase->exec($nonExistentDeviceId, $deviceInfo);
+        $this->useCase->handle($nonExistentDeviceId, $deviceInfo);
     }
 
     /**
@@ -166,11 +166,11 @@ class SignInUseCaseTest extends TestCase
         [$sysPlayer, $sysPlayerDevice] = $this->createPlayerAndDevice($deviceId, $deviceInfo);
 
         // 2回サインインして古いトークンを作成
-        $response1 = $this->useCase->exec($deviceId, $deviceInfo);
-        $response2 = $this->useCase->exec($deviceId, $deviceInfo);
+        $response1 = $this->useCase->handle($deviceId, $deviceInfo);
+        $response2 = $this->useCase->handle($deviceId, $deviceInfo);
 
         // Act - 3回目のサインインを実行
-        $response3 = $this->useCase->exec($deviceId, $deviceInfo);
+        $response3 = $this->useCase->handle($deviceId, $deviceInfo);
 
         // Assert - プレイヤーのトークンは最新の1つのみ
         $allTokens = SysPlayerToken::where('sys_player_id', $sysPlayer->getId())->get();
@@ -195,7 +195,7 @@ class SignInUseCaseTest extends TestCase
         sleep(1);
 
         // Act
-        $response = $this->useCase->exec($deviceId, $deviceInfo);
+        $response = $this->useCase->handle($deviceId, $deviceInfo);
 
         // Assert - last_login_atが更新されている
         $updatedDevice = $this->deviceRepository->selectByDeviceId($deviceId);
@@ -225,9 +225,9 @@ class SignInUseCaseTest extends TestCase
         $this->createPlayerAndDevice($deviceId, $deviceInfo);
 
         // Act - 複数回サインイン
-        $response1 = $this->useCase->exec($deviceId, $deviceInfo);
-        $response2 = $this->useCase->exec($deviceId, $deviceInfo);
-        $response3 = $this->useCase->exec($deviceId, $deviceInfo);
+        $response1 = $this->useCase->handle($deviceId, $deviceInfo);
+        $response2 = $this->useCase->handle($deviceId, $deviceInfo);
+        $response3 = $this->useCase->handle($deviceId, $deviceInfo);
 
         // Assert - すべて同じプレイヤーとデバイス
         $this->assertEquals($response1->sysPlayer->getId(), $response2->sysPlayer->getId());
@@ -261,7 +261,7 @@ class SignInUseCaseTest extends TestCase
 
         // Act - 異なるデバイス情報でサインイン
         $newDeviceInfo = ['model' => 'New Device'];
-        $response = $this->useCase->exec($deviceId, $newDeviceInfo);
+        $response = $this->useCase->handle($deviceId, $newDeviceInfo);
 
         // Assert - プレイヤー情報は変わらない
         $this->assertEquals($originalPlayerId, $response->sysPlayer->getId());

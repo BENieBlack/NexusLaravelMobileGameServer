@@ -3,7 +3,7 @@
 namespace App\Domain\Album\UseCases;
 
 use App\Domain\_BaseUseCase;
-use App\Domain\Album\DataTransferObjects\ListResult;
+use App\Domain\Album\Responses\ListResponse;
 use NexusAlbum\Services\AlbumService;
 
 /**
@@ -22,10 +22,10 @@ class ListUseCase extends _BaseUseCase
      *
      * @param  int  $sysPlayerId  プレイヤーID
      */
-    public function exec(int $sysPlayerId): ListResult
+    public function handle(int $sysPlayerId): ListResponse
     {
         return $this->executeWithTransaction(function () use ($sysPlayerId) {
-            return new ListResult(
+            return new ListResponse(
                 albumEntries: $this->albumService->findEntries($sysPlayerId),
                 albumProgressList: $this->albumService->findProgress($sysPlayerId),
             );

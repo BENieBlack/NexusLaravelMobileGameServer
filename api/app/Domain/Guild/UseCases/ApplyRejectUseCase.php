@@ -3,9 +3,9 @@
 namespace App\Domain\Guild\UseCases;
 
 use App\Domain\_BaseUseCase;
+use App\Domain\Guild\Responses\ApplyRejectResponse;
 use App\Domain\Guild\Support\GuildExceptionTranslator;
 use App\Exceptions\GameException;
-use NexusGuild\DataTransferObjects\GuildApply;
 use NexusGuild\Services\GuildService;
 
 /**
@@ -27,16 +27,16 @@ class ApplyRejectUseCase extends _BaseUseCase
      *
      * @throws GameException
      */
-    public function exec(int $sysPlayerId, int $applyId): GuildApply
+    public function handle(int $sysPlayerId, int $applyId): ApplyRejectResponse
     {
         // トランザクション開始
-        return $this->executeWithTransaction(function () use ($sysPlayerId, $applyId) {
+        return ApplyRejectResponse::fromResult($this->executeWithTransaction(function () use ($sysPlayerId, $applyId) {
             return GuildExceptionTranslator::forApplyReject(function () use ($sysPlayerId, $applyId) {
                 // 申請却下（Service経由でバリデーション含む）
                 $apply = $this->guildService->rejectApply($applyId, $sysPlayerId);
 
                 return $apply;
             });
-        });
+        }));
     }
 }

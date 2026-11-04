@@ -3,8 +3,8 @@
 namespace App\Domain\Chat\UseCases;
 
 use App\Domain\_BaseUseCase;
+use App\Domain\Chat\Responses\FriendRoomResponse;
 use App\Domain\Chat\Support\ChatExceptionTranslator;
-use NexusChat\DataTransferObjects\ChatRoom;
 use NexusChat\Services\ChatService;
 
 /**
@@ -21,12 +21,12 @@ class FriendRoomUseCase extends _BaseUseCase
         private readonly ChatService $chatService,
     ) {}
 
-    public function exec(int $sysPlayerId, int $targetSysPlayerId): ChatRoom
+    public function handle(int $sysPlayerId, int $targetSysPlayerId): FriendRoomResponse
     {
-        return $this->executeWithTransaction(
+        return FriendRoomResponse::fromResult($this->executeWithTransaction(
             fn () => ChatExceptionTranslator::translate(
                 fn () => $this->chatService->findOrCreateFriendRoom($sysPlayerId, $targetSysPlayerId)
             )
-        );
+        ));
     }
 }

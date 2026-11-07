@@ -1,4 +1,4 @@
-.PHONY: help up down ps logs test test-fresh test-unit test-feature test-quiet coverage coverage-html phpstan check check-quiet migrate migrate-fresh seed shell tinker clean install pint pint-dirty pint-test tool-check tool-test-db audit
+.PHONY: help packages-standalone up down ps logs test test-fresh test-unit test-feature test-quiet coverage coverage-html phpstan check check-quiet migrate migrate-fresh seed shell tinker clean install pint pint-dirty pint-test tool-check tool-test-db audit
 
 # Compose v2 (docker compose) を優先し、無ければ v1 (docker-compose) にフォールバック
 DOCKER_COMPOSE := $(shell docker compose version > /dev/null 2>&1 && echo "docker compose" || echo "docker-compose")
@@ -80,9 +80,14 @@ coverage-html: up ## カバレッジをHTMLで出力（api/storage/coverage/inde
 phpstan: up ## PHPStan静的解析を実行（Docker環境）
 	$(DOCKER_COMPOSE) exec -T api-php ./vendor/bin/phpstan analyse --memory-limit=2G
 
+# パッケージを1つずつ単体で入れて、全クラスが読み込めるか確かめる（composer.json の宣言漏れの検出）。
+# 引数でパッケージを絞れる: make packages-standalone PKG="nexus-vip nexus-mission"
+packages-standalone: up ## パッケージ単体の検査（宣言漏れ）
+	$(DOCKER_COMPOSE) exec -T -e NEXUS_ROOT=/var/www api-php bash -s -- $(PKG) < scripts/check-packages-standalone.sh
+
 # CIと同じ検査をローカルで回す。
 # 一部だけを見ていると、ローカルで通してもCIで落ちる
-check: audit pint-test phpstan test tool-check ## CIと同じ検査（脆弱性・フォーマット・静的解析・全テスト）
+check: audit pint-test phpstan packages-standalone test tool-check ## CIと同じ検査（脆弱性・フォーマット・静的解析・全テスト）
 
 # check と同じ検査を、結果だけ表示で回す
 check-quiet: ## checkと同じ検査。結果だけを表示（エージェント向け）
@@ -90,6 +95,7 @@ check-quiet: ## checkと同じ検査。結果だけを表示（エージェン�
 	$(call run_quiet,audit,$(MAKE) --no-print-directory audit)
 	$(call run_quiet,pint-test,$(DOCKER_COMPOSE) exec -T api-php sh -c './vendor/bin/pint --test && ./vendor/bin/pint --test ../packages')
 	$(call run_quiet,phpstan,$(DOCKER_COMPOSE) exec -T api-php ./vendor/bin/phpstan analyse --memory-limit=2G --no-progress)
+	$(call run_quiet,packages-standalone,$(MAKE) --no-print-directory packages-standalone)
 	@$(MAKE) --no-print-directory test-quiet
 	$(call run_quiet,tool-check,$(MAKE) --no-print-directory tool-check)
 

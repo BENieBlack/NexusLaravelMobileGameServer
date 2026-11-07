@@ -68,6 +68,8 @@ public function handle(int $sysPlayerId, int $trxUnitId, string $mstItemId, int 
 
 ## Repository
 
+- リレーション（`$trxMailbox->mstMailbox` など）を使うときは、Repository で `with()` して先にまとめて読む。複数件の一覧でリレーションを遅延読み込みすると1件ごとに SELECT が走る（N+1）ので、本番以外では `Model::preventLazyLoading()`（`AppServiceProvider`）が例外にする。リレーション経由の `->where()->first()` を、ループの中で呼ばない。
+
 - `api/app/Repositories/{Sys,Mst,Trx,Log}/`、基底は同じディレクトリの `_BaseXxxRepository`（中身は `packages/nexus-core/src/Repositories/`）。`$modelClass` を指定する。
 - 読み取りは `select*`。モデルの集合は `Nexus\Core\Support\CustomCollection` で返す。
 - Trx は `queryOrMemory()` がログイン中プレイヤーの行を一度だけ読んでメモリに持ち、以降はそこから引く（`selectById()` は `queryOrMemory()` → `findCachedModel()`）。

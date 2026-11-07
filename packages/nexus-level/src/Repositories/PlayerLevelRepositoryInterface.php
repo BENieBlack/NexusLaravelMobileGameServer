@@ -2,6 +2,8 @@
 
 namespace NexusLevel\Repositories;
 
+use NexusLevel\DataTransferObjects\PlayerLevelMaster;
+
 /**
  * PlayerLevelRepositoryInterface
  *
@@ -11,10 +13,8 @@ interface PlayerLevelRepositoryInterface
 {
     /**
      * レベルからレベルデータを取得
-     *
-     * @return array{level: int, required_exp: int, max_stamina: int}|null
      */
-    public function selectByLevel(int $level): ?array;
+    public function selectByLevel(int $level): ?PlayerLevelMaster;
 
     /**
      * 累積経験値からレベルを計算

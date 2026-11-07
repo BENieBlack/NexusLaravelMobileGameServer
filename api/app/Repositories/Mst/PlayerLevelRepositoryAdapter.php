@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Mst;
 
+use NexusLevel\DataTransferObjects\PlayerLevelMaster;
 use NexusLevel\Repositories\PlayerLevelRepositoryInterface;
 
 /**
@@ -21,7 +22,7 @@ class PlayerLevelRepositoryAdapter implements PlayerLevelRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function selectByLevel(int $level): ?array
+    public function selectByLevel(int $level): ?PlayerLevelMaster
     {
         $mstPlayerLevel = $this->mstPlayerLevelRepository->selectByLevel($level);
 
@@ -29,11 +30,11 @@ class PlayerLevelRepositoryAdapter implements PlayerLevelRepositoryInterface
             return null;
         }
 
-        return [
-            'level' => $mstPlayerLevel->getLevel(),
-            'required_exp' => $mstPlayerLevel->getRequiredExp(),
-            'max_stamina' => $mstPlayerLevel->getMaxStamina(),
-        ];
+        return new PlayerLevelMaster(
+            level: $mstPlayerLevel->getLevel(),
+            requiredExp: $mstPlayerLevel->getRequiredExp(),
+            maxStamina: $mstPlayerLevel->getMaxStamina(),
+        );
     }
 
     /**

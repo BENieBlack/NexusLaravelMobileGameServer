@@ -63,6 +63,14 @@ class AuthSignUpTest extends TestCase
 
         $response->assertOk();
         $this->assertArrayNotHasKey('refresh_token_hash', $response->json('sys_player_token'));
+
+        // 内部のID・UUID・DBの日時は返さない（toResponseArray() が除く）
+        $this->assertArrayNotHasKey('id', $response->json('sys_player'));
+        $this->assertArrayNotHasKey('uuid', $response->json('sys_player'));
+        $this->assertArrayNotHasKey('uuid', $response->json('sys_player_device'));
+        $this->assertArrayNotHasKey('sys_player_id', $response->json('sys_player_device'));
+        $this->assertArrayHasKey('sys_player_device_id', $response->json('sys_player_device'));
+        $this->assertArrayHasKey('sys_player_token_id', $response->json('sys_player_token'));
         // トークン本体は token に入っている
         $this->assertNotEmpty($response->json('token.refresh_token'));
     }
@@ -74,7 +82,7 @@ class AuthSignUpTest extends TestCase
         $response = $this->postJson('/api/auth/sign_up', ['device_id' => $deviceId]);
 
         $response->assertOk();
-        $response->assertJsonStructure(['sys_player' => ['id', 'my_id'], 'token' => ['access_token']]);
+        $response->assertJsonStructure(['sys_player' => ['my_id'], 'token' => ['access_token']]);
 
         // device_info は空として保存される
         $deviceInfo = DB::connection('sys')->table('sys_player_device')->where('uuid', $deviceId)->value('device_info');

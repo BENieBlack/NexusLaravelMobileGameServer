@@ -189,8 +189,8 @@ class BuyEndpointTest extends TestCase
 
         $response->assertOk();
 
-        $uuid = $response->json('sys_player.uuid');
-        $player = DB::connection('sys')->table('sys_player')->where('uuid', $uuid)->first();
+        $myId = $response->json('sys_player.my_id');
+        $player = DB::connection('sys')->table('sys_player')->where('my_id', $myId)->first();
 
         return [$response->json('token.access_token'), (int) $player->id];
     }

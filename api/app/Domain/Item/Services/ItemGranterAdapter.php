@@ -2,7 +2,7 @@
 
 namespace App\Domain\Item\Services;
 
-use NexusResourceDelivery\Contracts\ItemGranterInterface;
+use Nexus\Core\ResourceDelivery\Contracts\ItemGranterInterface;
 
 /**
  * ItemGranterAdapter

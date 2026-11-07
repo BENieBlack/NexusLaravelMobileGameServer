@@ -2,6 +2,8 @@
 
 namespace NexusMission\Services;
 
+use Nexus\Core\ResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
+use Nexus\Core\ResourceDelivery\Services\ResourceDeliveryService;
 use Nexus\Core\Utilities\ClockUtility;
 use NexusMission\Contracts\MissionMasterRepositoryInterface;
 use NexusMission\DataTransferObjects\Mission;
@@ -13,8 +15,6 @@ use NexusMission\Repositories\MissionReceiptRepositoryInterface;
 use NexusMission\Repositories\ProgressRepositoryInterface;
 use NexusMission\ValueObjects\MissionStatus;
 use NexusMission\ValueObjects\MissionTrigger;
-use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
-use NexusResourceDelivery\Services\ResourceDeliveryService;
 
 /**
  * MissionService

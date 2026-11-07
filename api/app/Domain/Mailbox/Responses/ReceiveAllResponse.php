@@ -3,9 +3,9 @@
 namespace App\Domain\Mailbox\Responses;
 
 use App\Domain\_BaseResponse;
-use NexusResource\DataTransferObjects\Resource;
-use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
-use NexusResourceDelivery\DataTransferObjects\ResourceDeliverySummary;
+use Nexus\Core\Resource\DataTransferObjects\Resource;
+use Nexus\Core\ResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
+use Nexus\Core\ResourceDelivery\DataTransferObjects\ResourceDeliverySummary;
 
 /**
  * ReceiveAllResponse
@@ -18,7 +18,7 @@ class ReceiveAllResponse extends _BaseResponse
      * @param  array<int>  $receivedMailboxIds  受取完了したメールID配列
      * @param  int  $totalCount  受取完了したメール数
      * @param  int  $skippedCount  スキップされたメール数
-     * @param  array<int, \NexusResource\DataTransferObjects\Resource>  $deliveryContents  配送されたアイテム情報
+     * @param  array<int, \Nexus\Core\Resource\DataTransferObjects\Resource>  $deliveryContents  配送されたアイテム情報
      * @param  ResourceDeliverySummary|null  $deliverySummary  配送サマリー
      */
     public function __construct(

@@ -64,7 +64,7 @@ API（api/）の接続は `api/config/database.php`、Tool（tool/）の接続�
 
 - API側（sys/mst/trx/log）は `Schema::create('テーブル名', ...)` と書き、**接続名を書かない**。流すときに `--database` で接続を指定するため（trx は同じファイルを全シャードに流す）。
 - Tool側（adm/tol）は `Schema::connection('admin')` / `Schema::connection('tool')` を書く。
-- 1ファイルに1パッケージ・1グループ分のテーブルをまとめる。見本: `packages/nexus-resource/database/migrations/{mst,trx,log}/`、`packages/nexus-core/database/migrations/sys/`。
+- 1ファイルに1パッケージ・1グループ分のテーブルをまとめる。見本: `packages/nexus-core/database/migrations/{mst,trx,log}/`（リソース）、`packages/nexus-core/database/migrations/sys/`。
 
 ### 既存ファイルを書き換えてよい期間
 
@@ -152,7 +152,7 @@ API（api/）の接続は `api/config/database.php`、Tool（tool/）の接続�
 - 主キーは名前付き複合主キー `(<親テーブル名>_id, language)`（例 `$table->primary(['mst_unit_id', 'language'], 'pk_unit_language')`）。
 - 親テーブル側には翻訳する列を持たない。
 - 対応言語は `api/config/language.php` の `supported`（既定 `ja`）。リクエストの言語は `ResolveLanguage` ミドルウェアが解決し、`ApiSession::getLanguage()` で取れる。マイグレーションの `language` ENUM は同じ一覧を `$supportedLanguages` に持っているので、言語を足すときは両方直す。
-- 実例: `packages/nexus-resource/database/migrations/mst/2026_01_01_000001_create_resource_tables.php` の `mst_unit__l10n` / `mst_item__l10n` / `mst_equipment__l10n`。
+- 実例: `packages/nexus-core/database/migrations/mst/2026_01_01_000001_create_resource_tables.php` の `mst_unit__l10n` / `mst_item__l10n` / `mst_equipment__l10n`。
 
 ## 7. deploy_key とマスター
 
@@ -204,7 +204,7 @@ API（api/）の接続は `api/config/database.php`、Tool（tool/）の接続�
 
 - `platform` は端末側（`apple` / `google`）、`billing_platform` は決済先（`app_store` / `google_play` / `pay_pal` / `stripe`）。同じ端末でも決済先が違えば別の残高レコードになる。
 - 有償ダイヤの加算と残高レコード作成は `api/app/Domain/InAppPurchase/Services/InAppPurchaseDiamondBalanceService.php::addPaidDiamondWithBalance()`。
-- 消費は `packages/nexus-resource/src/Services/DiamondService.php::consumeDiamond()`（無償 → 有償の順。`$isPaidOnly = true` で有償のみ）。
+- 消費は `packages/nexus-core/src/Resource/Services/DiamondService.php::consumeDiamond()`（無償 → 有償の順。`$isPaidOnly = true` で有償のみ）。
 - ダイヤ以外の通貨の加算・消費・期限切れ処理は `packages/nexus-wallet/src/Services/WalletService.php`（有償優先 → 期限の近い順 → ID順）。
 - 残高レコードは削除せず、`current_amount` を減らして履歴を残す。
 
@@ -228,7 +228,7 @@ API（api/）の接続は `api/config/database.php`、Tool（tool/）の接続�
 
 | パッケージ | テーブル |
 |---|---|
-| nexus-resource | `mst_unit`, `mst_item`, `mst_equipment`（各 `__l10n` あり）, `mst_unit_level`, `mst_equipment_level` |
+| nexus-core（`Resource`） | `mst_unit`, `mst_item`, `mst_equipment`（各 `__l10n` あり）, `mst_unit_level`, `mst_equipment_level` |
 | nexus-level | `mst_player_level` |
 | nexus-core-billing | `mst_billing_platform_product`, `mst_in_app_purchase`（`__l10n` あり）, `mst_in_app_purchase_content`, `mst_in_app_purchase_effect` |
 | nexus-gacha | `mst_gacha`（`__l10n` あり）, `mst_gacha_cost`, `mst_gacha_rarity_rate`, `mst_gacha_prize`, `mst_gacha_step`, `mst_gacha_step_bonus`, `mst_gacha_step_bonus_content` |
@@ -246,7 +246,7 @@ API（api/）の接続は `api/config/database.php`、Tool（tool/）の接続�
 | パッケージ | テーブル |
 |---|---|
 | nexus-core | `trx_player`, `trx_player_sns` |
-| nexus-resource | `trx_unit`, `trx_equipment`, `trx_item` |
+| nexus-core（`Resource`） | `trx_unit`, `trx_equipment`, `trx_item` |
 | nexus-core-billing | `trx_diamond`, `trx_diamond_balance`, `trx_in_app_purchase`, `trx_in_app_purchase_effect` |
 | nexus-wallet | `trx_wallet`, `trx_wallet_balance` |
 | nexus-stamina | `trx_stamina` |

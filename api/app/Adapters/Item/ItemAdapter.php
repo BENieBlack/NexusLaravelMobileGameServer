@@ -3,7 +3,7 @@
 namespace App\Adapters\Item;
 
 use App\Models\Trx\TrxItem;
-use NexusResource\DataTransferObjects\Item;
+use Nexus\Core\Resource\DataTransferObjects\Item;
 
 /**
  * ItemAdapter

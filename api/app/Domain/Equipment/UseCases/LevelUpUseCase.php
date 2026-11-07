@@ -16,7 +16,7 @@ use App\Repositories\Mst\MstItemRepository;
 use App\Repositories\Trx\TrxEquipmentRepository;
 use App\Traits\RequiresAuthenticationTrait;
 use Illuminate\Support\Str;
-use NexusResource\Enums\ItemEffectType;
+use Nexus\Core\Resource\Enums\ItemEffectType;
 
 /**
  * LevelUpUseCase

@@ -6,8 +6,8 @@ use App\Domain\Equipment\Contracts\EquipmentExperienceInterface;
 use App\Domain\Unit\Contracts\UnitExperienceInterface;
 use App\Repositories\Trx\TrxEquipmentRepository;
 use App\Repositories\Trx\TrxUnitRepository;
+use Nexus\Core\ResourceDelivery\Contracts\ExperienceGranterInterface;
 use NexusLevel\Services\PlayerLevelService;
-use NexusResourceDelivery\Contracts\ExperienceGranterInterface;
 
 /**
  * ExperienceGranterAdapter

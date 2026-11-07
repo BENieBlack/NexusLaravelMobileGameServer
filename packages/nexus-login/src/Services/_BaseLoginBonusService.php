@@ -3,11 +3,11 @@
 namespace NexusLogin\Services;
 
 use Carbon\CarbonImmutable;
+use Nexus\Core\Resource\DataTransferObjects\Resource;
+use Nexus\Core\ResourceDelivery\Services\ResourceDeliveryService;
 use Nexus\Core\Support\CustomCollection;
 use Nexus\Core\Utilities\ClockUtility;
 use NexusLogin\Contracts\LoginBonusStrategyInterface;
-use NexusResource\DataTransferObjects\Resource;
-use NexusResourceDelivery\Services\ResourceDeliveryService;
 
 /**
  * _BaseLoginBonusService

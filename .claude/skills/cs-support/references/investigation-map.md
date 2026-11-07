@@ -77,7 +77,7 @@ DB名は `nexus-{APP_ENV}-{接尾辞}`（ローカルは sys が `nexus-local-sy
 |---|---|
 | テーブル | `trx<N>.trx_item` / `trx_unit` / `trx_equipment` |
 | ログ | `trx<N>.log_change_trx_item` / `log_change_trx_unit` / `log_change_trx_equipment`、`log_action_item_change` / `log_action_unit_levelup` / `log_action_equipment_levelup` |
-| 実装 | `packages/nexus-resource/`、`api/app/Domain/Item/` `Unit/` `Equipment/` |
+| 実装 | `packages/nexus-core/src/Resource/`、`api/app/Domain/Item/` `Unit/` `Equipment/` |
 | 復旧 | `docs/trx_point_in_time_recovery.md` / `packages/nexus-pitr/` |
 
 **必ず確認する点**

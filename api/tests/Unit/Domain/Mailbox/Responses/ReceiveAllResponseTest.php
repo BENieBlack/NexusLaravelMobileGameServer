@@ -3,11 +3,11 @@
 namespace Tests\Unit\Domain\Mailbox\Responses;
 
 use App\Domain\Mailbox\Responses\ReceiveAllResponse;
+use Nexus\Core\Resource\DataTransferObjects\Resource;
+use Nexus\Core\Resource\Enums\ResourceType;
+use Nexus\Core\ResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
+use Nexus\Core\ResourceDelivery\DataTransferObjects\ResourceDeliverySummary;
 use Nexus\Core\Support\CustomCollection;
-use NexusResource\DataTransferObjects\Resource;
-use NexusResource\Enums\ResourceType;
-use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
-use NexusResourceDelivery\DataTransferObjects\ResourceDeliverySummary;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

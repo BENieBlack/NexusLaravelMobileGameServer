@@ -2,9 +2,9 @@
 
 namespace NexusGacha\Services;
 
+use Nexus\Core\Resource\DataTransferObjects\Resource;
+use Nexus\Core\ResourceDelivery\Services\ResourceDeliveryService;
 use NexusGacha\ValueObjects\GachaPrize;
-use NexusResource\DataTransferObjects\Resource;
-use NexusResourceDelivery\Services\ResourceDeliveryService;
 
 /**
  * GachaPrizeService

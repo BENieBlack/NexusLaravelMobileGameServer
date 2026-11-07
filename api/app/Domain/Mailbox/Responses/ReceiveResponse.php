@@ -3,7 +3,7 @@
 namespace App\Domain\Mailbox\Responses;
 
 use App\Domain\_BaseResponse;
-use NexusResource\DataTransferObjects\Resource;
+use Nexus\Core\Resource\DataTransferObjects\Resource;
 
 /**
  * ReceiveResponse
@@ -13,7 +13,7 @@ use NexusResource\DataTransferObjects\Resource;
 class ReceiveResponse extends _BaseResponse
 {
     /**
-     * @param  array<int, \NexusResource\DataTransferObjects\Resource>  $receivedContentArray  受け取った配布物
+     * @param  array<int, \Nexus\Core\Resource\DataTransferObjects\Resource>  $receivedContentArray  受け取った配布物
      */
     public function __construct(
         private int $trxMailboxId,

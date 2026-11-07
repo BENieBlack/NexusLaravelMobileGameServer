@@ -2,7 +2,7 @@
 
 namespace App\Repositories\Trx;
 
-use NexusResourceDelivery\Contracts\UnitRepositoryInterface;
+use Nexus\Core\ResourceDelivery\Contracts\UnitRepositoryInterface;
 
 /**
  * UnitRepositoryAdapter

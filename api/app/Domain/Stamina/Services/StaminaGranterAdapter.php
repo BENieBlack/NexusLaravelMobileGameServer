@@ -3,7 +3,7 @@
 namespace App\Domain\Stamina\Services;
 
 use App\Domain\Stamina\Constants\StaminaConst;
-use NexusResourceDelivery\Contracts\StaminaGranterInterface;
+use Nexus\Core\ResourceDelivery\Contracts\StaminaGranterInterface;
 
 /**
  * StaminaGranterAdapter

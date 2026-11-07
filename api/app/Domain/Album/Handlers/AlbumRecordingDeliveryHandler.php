@@ -2,11 +2,11 @@
 
 namespace App\Domain\Album\Handlers;
 
+use Nexus\Core\Resource\Enums\ResourceType;
+use Nexus\Core\ResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
+use Nexus\Core\ResourceDelivery\Handlers\ResourceDeliveryHandlerInterface;
 use NexusAlbum\Enums\AlbumContentType;
 use NexusAlbum\Services\AlbumService;
-use NexusResource\Enums\ResourceType;
-use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
-use NexusResourceDelivery\Handlers\ResourceDeliveryHandlerInterface;
 
 /**
  * AlbumRecordingDeliveryHandler

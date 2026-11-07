@@ -15,27 +15,27 @@ class MissionReceiptAdapter
     /**
      * Model から DTO に変換
      */
-    public static function toDto(TrxMission $model): MissionReceipt
+    public static function toDto(TrxMission $trxMission): MissionReceipt
     {
         return new MissionReceipt(
-            sysPlayerId: $model->getSysPlayerId(),
-            mstMissionId: $model->getMstMissionId(),
-            receivedAt: $model->getReceivedAt(),
+            sysPlayerId: $trxMission->getSysPlayerId(),
+            mstMissionId: $trxMission->getMstMissionId(),
+            receivedAt: $trxMission->getReceivedAt(),
         );
     }
 
     /**
      * Model配列 から DTO配列 に変換
      *
-     * @param  iterable<TrxMission>  $models
+     * @param  iterable<TrxMission>  $trxMissions
      * @return array<int, MissionReceipt>
      */
-    public static function toDtoArray(iterable $models): array
+    public static function toDtoArray(iterable $trxMissions): array
     {
         $dtos = [];
 
-        foreach ($models as $model) {
-            $dtos[] = self::toDto($model);
+        foreach ($trxMissions as $trxMission) {
+            $dtos[] = self::toDto($trxMission);
         }
 
         return $dtos;

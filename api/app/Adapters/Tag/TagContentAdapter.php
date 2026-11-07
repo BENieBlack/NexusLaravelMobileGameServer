@@ -15,27 +15,27 @@ class TagContentAdapter
     /**
      * Model から DTO に変換
      */
-    public static function toDto(MstTagContent $model): TagContent
+    public static function toDto(MstTagContent $mstTagContent): TagContent
     {
         return new TagContent(
-            mstTagId: $model->getMstTagId(),
-            contentType: $model->getContentType(),
-            contentMstId: $model->getContentMstId(),
+            mstTagId: $mstTagContent->getMstTagId(),
+            contentType: $mstTagContent->getContentType(),
+            contentMstId: $mstTagContent->getContentMstId(),
         );
     }
 
     /**
      * Model配列 から DTO配列 に変換
      *
-     * @param  iterable<MstTagContent>  $models
+     * @param  iterable<MstTagContent>  $mstTagContents
      * @return array<int, TagContent>
      */
-    public static function toDtoArray(iterable $models): array
+    public static function toDtoArray(iterable $mstTagContents): array
     {
         $dtos = [];
 
-        foreach ($models as $model) {
-            $dtos[] = self::toDto($model);
+        foreach ($mstTagContents as $mstTagContent) {
+            $dtos[] = self::toDto($mstTagContent);
         }
 
         return $dtos;

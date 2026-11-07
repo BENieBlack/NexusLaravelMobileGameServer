@@ -16,28 +16,28 @@ class AlbumEntryAdapter
     /**
      * Model から DTO に変換
      */
-    public static function toDto(TrxAlbum $model): AlbumEntry
+    public static function toDto(TrxAlbum $trxAlbum): AlbumEntry
     {
         return new AlbumEntry(
-            sysPlayerId: $model->getSysPlayerId(),
-            contentType: AlbumContentType::from($model->getContentType()),
-            contentMstId: $model->getContentMstId(),
-            unlockedAt: (string) $model->getUnlockedAt(),
+            sysPlayerId: $trxAlbum->getSysPlayerId(),
+            contentType: AlbumContentType::from($trxAlbum->getContentType()),
+            contentMstId: $trxAlbum->getContentMstId(),
+            unlockedAt: (string) $trxAlbum->getUnlockedAt(),
         );
     }
 
     /**
      * Model配列 から DTO配列 に変換
      *
-     * @param  iterable<TrxAlbum>  $models
+     * @param  iterable<TrxAlbum>  $trxAlbums
      * @return array<int, AlbumEntry>
      */
-    public static function toDtoArray(iterable $models): array
+    public static function toDtoArray(iterable $trxAlbums): array
     {
         $dtos = [];
 
-        foreach ($models as $model) {
-            $dtos[] = self::toDto($model);
+        foreach ($trxAlbums as $trxAlbum) {
+            $dtos[] = self::toDto($trxAlbum);
         }
 
         return $dtos;

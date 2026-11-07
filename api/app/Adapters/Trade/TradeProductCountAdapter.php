@@ -15,28 +15,28 @@ class TradeProductCountAdapter
     /**
      * Model から DTO に変換
      */
-    public static function toDto(TrxTradeProduct $model): TradeProductCount
+    public static function toDto(TrxTradeProduct $trxTradeProduct): TradeProductCount
     {
         return new TradeProductCount(
-            sysPlayerId: $model->getSysPlayerId(),
-            mstTradeProductId: $model->getMstTradeProductId(),
-            tradeCount: $model->getTradeCount(),
-            lastTradedAt: $model->getLastTradedAt(),
+            sysPlayerId: $trxTradeProduct->getSysPlayerId(),
+            mstTradeProductId: $trxTradeProduct->getMstTradeProductId(),
+            tradeCount: $trxTradeProduct->getTradeCount(),
+            lastTradedAt: $trxTradeProduct->getLastTradedAt(),
         );
     }
 
     /**
      * Model配列 から DTO配列 に変換
      *
-     * @param  iterable<TrxTradeProduct>  $models
+     * @param  iterable<TrxTradeProduct>  $trxTradeProducts
      * @return array<int, TradeProductCount>
      */
-    public static function toDtoArray(iterable $models): array
+    public static function toDtoArray(iterable $trxTradeProducts): array
     {
         $dtos = [];
 
-        foreach ($models as $model) {
-            $dtos[] = self::toDto($model);
+        foreach ($trxTradeProducts as $trxTradeProduct) {
+            $dtos[] = self::toDto($trxTradeProduct);
         }
 
         return $dtos;

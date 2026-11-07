@@ -26,9 +26,9 @@ class GuildMemberRepositoryAdapter implements GuildMemberRepositoryInterface
      */
     public function selectById(int $memberId): ?GuildMember
     {
-        $model = $this->sysGuildMemberRepository->selectById($memberId);
+        $sysGuildMember = $this->sysGuildMemberRepository->selectById($memberId);
 
-        return $model ? GuildMemberAdapter::toDto($model) : null;
+        return $sysGuildMember ? GuildMemberAdapter::toDto($sysGuildMember) : null;
     }
 
     /**
@@ -36,9 +36,9 @@ class GuildMemberRepositoryAdapter implements GuildMemberRepositoryInterface
      */
     public function selectByGuildAndPlayer(int $guildId, int $playerId): ?GuildMember
     {
-        $model = $this->sysGuildMemberRepository->selectByGuildAndPlayer($guildId, $playerId);
+        $sysGuildMember = $this->sysGuildMemberRepository->selectByGuildAndPlayer($guildId, $playerId);
 
-        return $model ? GuildMemberAdapter::toDto($model) : null;
+        return $sysGuildMember ? GuildMemberAdapter::toDto($sysGuildMember) : null;
     }
 
     /**
@@ -46,9 +46,9 @@ class GuildMemberRepositoryAdapter implements GuildMemberRepositoryInterface
      */
     public function selectByPlayerId(int $playerId): ?GuildMember
     {
-        $model = $this->sysGuildMemberRepository->selectByPlayerId($playerId);
+        $sysGuildMember = $this->sysGuildMemberRepository->selectByPlayerId($playerId);
 
-        return $model ? GuildMemberAdapter::toDto($model) : null;
+        return $sysGuildMember ? GuildMemberAdapter::toDto($sysGuildMember) : null;
     }
 
     /**
@@ -76,9 +76,9 @@ class GuildMemberRepositoryAdapter implements GuildMemberRepositoryInterface
      */
     public function insert(int $guildId, int $playerId, string $role): GuildMember
     {
-        $model = $this->sysGuildMemberRepository->insertMember($guildId, $playerId, $role);
+        $sysGuildMember = $this->sysGuildMemberRepository->insertMember($guildId, $playerId, $role);
 
-        return GuildMemberAdapter::toDto($model);
+        return GuildMemberAdapter::toDto($sysGuildMember);
     }
 
     /**
@@ -86,16 +86,16 @@ class GuildMemberRepositoryAdapter implements GuildMemberRepositoryInterface
      */
     public function updateRole(GuildMember $member, string $role): GuildMember
     {
-        $model = $this->sysGuildMemberRepository->selectById($member->getId());
+        $sysGuildMember = $this->sysGuildMemberRepository->selectById($member->getId());
 
-        if ($model === null) {
+        if ($sysGuildMember === null) {
             throw new \RuntimeException('Guild member not found');
         }
 
-        $model->setRole($role);
-        $this->sysGuildMemberRepository->setModel($model);
+        $sysGuildMember->setRole($role);
+        $this->sysGuildMemberRepository->setModel($sysGuildMember);
 
-        return GuildMemberAdapter::toDto($model);
+        return GuildMemberAdapter::toDto($sysGuildMember);
     }
 
     /**
@@ -103,10 +103,10 @@ class GuildMemberRepositoryAdapter implements GuildMemberRepositoryInterface
      */
     public function delete(GuildMember $member): void
     {
-        $model = $this->sysGuildMemberRepository->selectById($member->getId());
+        $sysGuildMember = $this->sysGuildMemberRepository->selectById($member->getId());
 
-        if ($model !== null) {
-            $this->sysGuildMemberRepository->hardDeleteModel($model);
+        if ($sysGuildMember !== null) {
+            $this->sysGuildMemberRepository->hardDeleteModel($sysGuildMember);
         }
     }
 
@@ -115,10 +115,10 @@ class GuildMemberRepositoryAdapter implements GuildMemberRepositoryInterface
      */
     public function deleteByPlayerId(int $playerId): void
     {
-        $models = SysGuildMember::where('sys_player_id', $playerId)->get();
+        $sysGuildMembers = SysGuildMember::where('sys_player_id', $playerId)->get();
 
-        foreach ($models as $model) {
-            $this->sysGuildMemberRepository->hardDeleteModel($model);
+        foreach ($sysGuildMembers as $sysGuildMember) {
+            $this->sysGuildMemberRepository->hardDeleteModel($sysGuildMember);
         }
     }
 }

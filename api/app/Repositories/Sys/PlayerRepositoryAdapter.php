@@ -40,9 +40,9 @@ class PlayerRepositoryAdapter implements PlayerRepoInterface, PlayerVipRepositor
      */
     public function selectById(int $id): ?Player
     {
-        $model = $this->sysPlayerRepository->selectById($id);
+        $sysPlayer = $this->sysPlayerRepository->selectById($id);
 
-        return $model ? PlayerAdapter::toDto($model) : null;
+        return $sysPlayer ? PlayerAdapter::toDto($sysPlayer) : null;
     }
 
     /**
@@ -50,9 +50,9 @@ class PlayerRepositoryAdapter implements PlayerRepoInterface, PlayerVipRepositor
      */
     public function selectByMyId(string $myId): ?Player
     {
-        $model = $this->sysPlayerRepository->selectByMyId($myId);
+        $sysPlayer = $this->sysPlayerRepository->selectByMyId($myId);
 
-        return $model ? PlayerAdapter::toDto($model) : null;
+        return $sysPlayer ? PlayerAdapter::toDto($sysPlayer) : null;
     }
 
     /**
@@ -60,9 +60,9 @@ class PlayerRepositoryAdapter implements PlayerRepoInterface, PlayerVipRepositor
      */
     public function selectByUuid(string $uuid): ?Player
     {
-        $model = $this->sysPlayerRepository->selectByUuid($uuid);
+        $sysPlayer = $this->sysPlayerRepository->selectByUuid($uuid);
 
-        return $model ? PlayerAdapter::toDto($model) : null;
+        return $sysPlayer ? PlayerAdapter::toDto($sysPlayer) : null;
     }
 
     /**
@@ -70,17 +70,17 @@ class PlayerRepositoryAdapter implements PlayerRepoInterface, PlayerVipRepositor
      */
     public function persist(Player $player): void
     {
-        $model = $this->sysPlayerRepository->selectById($player->getId());
+        $sysPlayer = $this->sysPlayerRepository->selectById($player->getId());
 
-        if ($model === null) {
+        if ($sysPlayer === null) {
             return;
         }
 
-        $model->setName($player->getName());
-        $model->setLevel($player->getLevel());
-        $model->setLevelExp($player->getLevelExp());
+        $sysPlayer->setName($player->getName());
+        $sysPlayer->setLevel($player->getLevel());
+        $sysPlayer->setLevelExp($player->getLevelExp());
 
-        $this->sysPlayerRepository->setModel($model);
+        $this->sysPlayerRepository->setModel($sysPlayer);
     }
 
     /**
@@ -88,9 +88,9 @@ class PlayerRepositoryAdapter implements PlayerRepoInterface, PlayerVipRepositor
      */
     public function selectVipInfoById(int $sysPlayerId): ?PlayerVip
     {
-        $model = $this->sysPlayerRepository->selectById($sysPlayerId);
+        $sysPlayer = $this->sysPlayerRepository->selectById($sysPlayerId);
 
-        return $model ? PlayerVipAdapter::toDto($model) : null;
+        return $sysPlayer ? PlayerVipAdapter::toDto($sysPlayer) : null;
     }
 
     /**
@@ -98,16 +98,16 @@ class PlayerRepositoryAdapter implements PlayerRepoInterface, PlayerVipRepositor
      */
     public function persistVipInfo(PlayerVip $playerVip): void
     {
-        $model = $this->sysPlayerRepository->selectById($playerVip->getSysPlayerId());
+        $sysPlayer = $this->sysPlayerRepository->selectById($playerVip->getSysPlayerId());
 
-        if ($model === null) {
+        if ($sysPlayer === null) {
             return;
         }
 
-        $model->setVipPoint($playerVip->getVipPoint());
-        $model->setTotalPaidAmount($playerVip->getTotalPaidAmount());
+        $sysPlayer->setVipPoint($playerVip->getVipPoint());
+        $sysPlayer->setTotalPaidAmount($playerVip->getTotalPaidAmount());
 
-        $this->sysPlayerRepository->setModel($model);
+        $this->sysPlayerRepository->setModel($sysPlayer);
     }
 
     /**
@@ -115,9 +115,9 @@ class PlayerRepositoryAdapter implements PlayerRepoInterface, PlayerVipRepositor
      */
     public function selectByPointRange(int $minPoint, ?int $maxPoint = null, int $limit = 100): array
     {
-        $models = $this->sysPlayerRepository->selectByVipPointRange($minPoint, $maxPoint, $limit);
+        $sysPlayers = $this->sysPlayerRepository->selectByVipPointRange($minPoint, $maxPoint, $limit);
 
-        return $models->map(fn (SysPlayer $model) => PlayerVipAdapter::toDto($model))->all();
+        return $sysPlayers->map(fn (SysPlayer $sysPlayer) => PlayerVipAdapter::toDto($sysPlayer))->all();
     }
 
     /**

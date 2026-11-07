@@ -27,9 +27,9 @@ class GuildApplyRepositoryAdapter implements GuildApplyRepositoryInterface
      */
     public function selectById(int $applyId): ?GuildApply
     {
-        $model = $this->sysGuildApplyRepository->selectById($applyId);
+        $sysGuildApply = $this->sysGuildApplyRepository->selectById($applyId);
 
-        return $model ? GuildApplyAdapter::toDto($model) : null;
+        return $sysGuildApply ? GuildApplyAdapter::toDto($sysGuildApply) : null;
     }
 
     /**
@@ -37,9 +37,9 @@ class GuildApplyRepositoryAdapter implements GuildApplyRepositoryInterface
      */
     public function selectByGuildAndPlayer(int $guildId, int $playerId): ?GuildApply
     {
-        $model = $this->sysGuildApplyRepository->selectByGuildAndPlayer($guildId, $playerId);
+        $sysGuildApply = $this->sysGuildApplyRepository->selectByGuildAndPlayer($guildId, $playerId);
 
-        return $model ? GuildApplyAdapter::toDto($model) : null;
+        return $sysGuildApply ? GuildApplyAdapter::toDto($sysGuildApply) : null;
     }
 
     /**
@@ -71,9 +71,9 @@ class GuildApplyRepositoryAdapter implements GuildApplyRepositoryInterface
      */
     public function insert(int $guildId, int $playerId): GuildApply
     {
-        $model = $this->sysGuildApplyRepository->insertApply($guildId, $playerId);
+        $sysGuildApply = $this->sysGuildApplyRepository->insertApply($guildId, $playerId);
 
-        return GuildApplyAdapter::toDto($model);
+        return GuildApplyAdapter::toDto($sysGuildApply);
     }
 
     /**
@@ -81,12 +81,12 @@ class GuildApplyRepositoryAdapter implements GuildApplyRepositoryInterface
      */
     public function accept(GuildApply $guildApply): GuildApply
     {
-        $model = $this->requireModel($guildApply->getId());
+        $sysGuildApply = $this->requireModel($guildApply->getId());
 
-        $model->setStatus(GuildApplyStatus::ACCEPTED);
-        $this->sysGuildApplyRepository->setModel($model);
+        $sysGuildApply->setStatus(GuildApplyStatus::ACCEPTED);
+        $this->sysGuildApplyRepository->setModel($sysGuildApply);
 
-        return GuildApplyAdapter::toDto($model);
+        return GuildApplyAdapter::toDto($sysGuildApply);
     }
 
     /**
@@ -94,12 +94,12 @@ class GuildApplyRepositoryAdapter implements GuildApplyRepositoryInterface
      */
     public function reject(GuildApply $guildApply): GuildApply
     {
-        $model = $this->requireModel($guildApply->getId());
+        $sysGuildApply = $this->requireModel($guildApply->getId());
 
-        $model->setStatus(GuildApplyStatus::REJECTED);
-        $this->sysGuildApplyRepository->setModel($model);
+        $sysGuildApply->setStatus(GuildApplyStatus::REJECTED);
+        $this->sysGuildApplyRepository->setModel($sysGuildApply);
 
-        return GuildApplyAdapter::toDto($model);
+        return GuildApplyAdapter::toDto($sysGuildApply);
     }
 
     /**
@@ -107,10 +107,10 @@ class GuildApplyRepositoryAdapter implements GuildApplyRepositoryInterface
      */
     public function deleteByPlayerId(int $playerId): void
     {
-        $models = SysGuildApply::where('sys_player_id', $playerId)->get();
+        $sysGuildApplys = SysGuildApply::where('sys_player_id', $playerId)->get();
 
-        foreach ($models as $model) {
-            $this->sysGuildApplyRepository->hardDeleteModel($model);
+        foreach ($sysGuildApplys as $sysGuildApply) {
+            $this->sysGuildApplyRepository->hardDeleteModel($sysGuildApply);
         }
     }
 
@@ -119,12 +119,12 @@ class GuildApplyRepositoryAdapter implements GuildApplyRepositoryInterface
      */
     private function requireModel(int $applyId): SysGuildApply
     {
-        $model = $this->sysGuildApplyRepository->selectById($applyId);
+        $sysGuildApply = $this->sysGuildApplyRepository->selectById($applyId);
 
-        if ($model === null) {
+        if ($sysGuildApply === null) {
             throw new \RuntimeException('Guild apply not found');
         }
 
-        return $model;
+        return $sysGuildApply;
     }
 }

@@ -42,7 +42,7 @@ class MailboxRepositoryAdapter implements MailboxRepositoryInterface
         $categoryEnum = $category ? Category::fromString($category->value) : null;
         $priorityEnum = $priority ? Priority::fromString($priority->value) : null;
 
-        $models = $this->trxMailboxRepository->selectByPlayerId(
+        $trxMailboxs = $this->trxMailboxRepository->selectByPlayerId(
             $sysPlayerId,
             $categoryEnum,
             $priorityEnum,
@@ -50,7 +50,7 @@ class MailboxRepositoryAdapter implements MailboxRepositoryInterface
             $onlyLocked
         );
 
-        return $models->map(fn (TrxMailbox $model) => MailboxAdapter::toDto($model));
+        return $trxMailboxs->map(fn (TrxMailbox $trxMailbox) => MailboxAdapter::toDto($trxMailbox));
     }
 
     /**
@@ -58,9 +58,9 @@ class MailboxRepositoryAdapter implements MailboxRepositoryInterface
      */
     public function selectById(int $id): ?Mailbox
     {
-        $model = $this->trxMailboxRepository->selectById($id);
+        $trxMailbox = $this->trxMailboxRepository->selectById($id);
 
-        return $model ? MailboxAdapter::toDto($model) : null;
+        return $trxMailbox ? MailboxAdapter::toDto($trxMailbox) : null;
     }
 
     /**
@@ -68,17 +68,17 @@ class MailboxRepositoryAdapter implements MailboxRepositoryInterface
      */
     public function persist(Mailbox $mailbox): void
     {
-        $model = $this->trxMailboxRepository->selectById($mailbox->getId());
+        $trxMailbox = $this->trxMailboxRepository->selectById($mailbox->getId());
 
-        if ($model === null) {
+        if ($trxMailbox === null) {
             return;
         }
 
-        $model->setIsOpened($mailbox->isRead());
-        $model->setIsReceived($mailbox->isReceived());
-        $model->setIsProtected($mailbox->isLocked());
+        $trxMailbox->setIsOpened($mailbox->isRead());
+        $trxMailbox->setIsReceived($mailbox->isReceived());
+        $trxMailbox->setIsProtected($mailbox->isLocked());
 
-        $this->trxMailboxRepository->setModel($model);
+        $this->trxMailboxRepository->setModel($trxMailbox);
     }
 
     /**
@@ -86,10 +86,10 @@ class MailboxRepositoryAdapter implements MailboxRepositoryInterface
      */
     public function markAsRead(Mailbox $mailbox): void
     {
-        $model = $this->trxMailboxRepository->selectById($mailbox->getId());
+        $trxMailbox = $this->trxMailboxRepository->selectById($mailbox->getId());
 
-        if ($model !== null) {
-            $this->trxMailboxRepository->markAsOpened($model);
+        if ($trxMailbox !== null) {
+            $this->trxMailboxRepository->markAsOpened($trxMailbox);
         }
     }
 
@@ -98,10 +98,10 @@ class MailboxRepositoryAdapter implements MailboxRepositoryInterface
      */
     public function markDtoAsReceived(Mailbox $mailbox): void
     {
-        $model = $this->trxMailboxRepository->selectById($mailbox->getId());
+        $trxMailbox = $this->trxMailboxRepository->selectById($mailbox->getId());
 
-        if ($model !== null) {
-            $this->trxMailboxRepository->markAsReceived($model);
+        if ($trxMailbox !== null) {
+            $this->trxMailboxRepository->markAsReceived($trxMailbox);
         }
     }
 
@@ -110,10 +110,10 @@ class MailboxRepositoryAdapter implements MailboxRepositoryInterface
      */
     public function updateLockStatus(Mailbox $mailbox, bool $isLocked): void
     {
-        $model = $this->trxMailboxRepository->selectById($mailbox->getId());
+        $trxMailbox = $this->trxMailboxRepository->selectById($mailbox->getId());
 
-        if ($model !== null) {
-            $this->trxMailboxRepository->toggleProtection($model, $isLocked);
+        if ($trxMailbox !== null) {
+            $this->trxMailboxRepository->toggleProtection($trxMailbox, $isLocked);
         }
     }
 

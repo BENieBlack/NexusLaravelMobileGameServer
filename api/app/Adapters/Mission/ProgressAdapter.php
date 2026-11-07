@@ -15,28 +15,28 @@ class ProgressAdapter
     /**
      * Model から DTO に変換
      */
-    public static function toDto(TrxProgress $model): Progress
+    public static function toDto(TrxProgress $trxProgress): Progress
     {
         return new Progress(
-            sysPlayerId: $model->getSysPlayerId(),
-            triggerType: $model->getTriggerType(),
-            subTargetId: $model->getSubTargetId(),
-            progressValue: $model->getProgressValue(),
+            sysPlayerId: $trxProgress->getSysPlayerId(),
+            triggerType: $trxProgress->getTriggerType(),
+            subTargetId: $trxProgress->getSubTargetId(),
+            progressValue: $trxProgress->getProgressValue(),
         );
     }
 
     /**
      * Model配列 から DTO配列 に変換
      *
-     * @param  iterable<TrxProgress>  $models
+     * @param  iterable<TrxProgress>  $trxProgresss
      * @return array<int, Progress>
      */
-    public static function toDtoArray(iterable $models): array
+    public static function toDtoArray(iterable $trxProgresss): array
     {
         $dtos = [];
 
-        foreach ($models as $model) {
-            $dtos[] = self::toDto($model);
+        foreach ($trxProgresss as $trxProgress) {
+            $dtos[] = self::toDto($trxProgress);
         }
 
         return $dtos;

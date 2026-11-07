@@ -15,30 +15,30 @@ class AgreementAdapter
     /**
      * Model から DTO に変換
      */
-    public static function toDto(SysAgreement $model): Agreement
+    public static function toDto(SysAgreement $sysAgreement): Agreement
     {
         return new Agreement(
-            id: $model->getId(),
-            version: $model->getVersion(),
-            title: $model->getTitle(),
-            url: $model->getUrl(),
-            isRequired: $model->getIsRequired(),
-            publishedAt: $model->getPublishedAt(),
+            id: $sysAgreement->getId(),
+            version: $sysAgreement->getVersion(),
+            title: $sysAgreement->getTitle(),
+            url: $sysAgreement->getUrl(),
+            isRequired: $sysAgreement->getIsRequired(),
+            publishedAt: $sysAgreement->getPublishedAt(),
         );
     }
 
     /**
      * Model配列 から DTO配列 に変換
      *
-     * @param  iterable<SysAgreement>  $models
+     * @param  iterable<SysAgreement>  $sysAgreements
      * @return array<int, Agreement>
      */
-    public static function toDtoArray(iterable $models): array
+    public static function toDtoArray(iterable $sysAgreements): array
     {
         $dtos = [];
 
-        foreach ($models as $model) {
-            $dtos[] = self::toDto($model);
+        foreach ($sysAgreements as $sysAgreement) {
+            $dtos[] = self::toDto($sysAgreement);
         }
 
         return $dtos;

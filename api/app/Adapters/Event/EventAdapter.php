@@ -15,29 +15,29 @@ class EventAdapter
     /**
      * Model から DTO に変換
      */
-    public static function toDto(MstEvent $model): Event
+    public static function toDto(MstEvent $mstEvent): Event
     {
         return new Event(
-            id: $model->getId(),
-            startAt: $model->getStartAt(),
-            endAt: $model->getEndAt(),
-            exchangeEndAt: $model->getExchangeEndAt(),
-            sortOrder: $model->getSortOrder(),
+            id: $mstEvent->getId(),
+            startAt: $mstEvent->getStartAt(),
+            endAt: $mstEvent->getEndAt(),
+            exchangeEndAt: $mstEvent->getExchangeEndAt(),
+            sortOrder: $mstEvent->getSortOrder(),
         );
     }
 
     /**
      * Model配列 から DTO配列 に変換
      *
-     * @param  iterable<MstEvent>  $models
+     * @param  iterable<MstEvent>  $mstEvents
      * @return array<int, Event>
      */
-    public static function toDtoArray(iterable $models): array
+    public static function toDtoArray(iterable $mstEvents): array
     {
         $dtos = [];
 
-        foreach ($models as $model) {
-            $dtos[] = self::toDto($model);
+        foreach ($mstEvents as $mstEvent) {
+            $dtos[] = self::toDto($mstEvent);
         }
 
         return $dtos;

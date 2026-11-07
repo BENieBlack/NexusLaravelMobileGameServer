@@ -15,27 +15,27 @@ class ItemAdapter
     /**
      * Model から DTO に変換
      */
-    public static function toDto(TrxItem $model): Item
+    public static function toDto(TrxItem $trxItem): Item
     {
         return new Item(
-            sysPlayerId: $model->getSysPlayerId(),
-            mstItemId: $model->getMstItemId(),
-            freeAmount: $model->getFreeAmount(),
-            paidAmount: $model->getPaidAmount(),
+            sysPlayerId: $trxItem->getSysPlayerId(),
+            mstItemId: $trxItem->getMstItemId(),
+            freeAmount: $trxItem->getFreeAmount(),
+            paidAmount: $trxItem->getPaidAmount(),
         );
     }
 
     /**
      * Model配列 から DTO配列 に変換
      *
-     * @param  iterable<TrxItem>  $models
+     * @param  iterable<TrxItem>  $trxItems
      * @return array<Item>
      */
-    public static function toDtoArray(iterable $models): array
+    public static function toDtoArray(iterable $trxItems): array
     {
         $dtos = [];
-        foreach ($models as $model) {
-            $dtos[] = self::toDto($model);
+        foreach ($trxItems as $trxItem) {
+            $dtos[] = self::toDto($trxItem);
         }
 
         return $dtos;

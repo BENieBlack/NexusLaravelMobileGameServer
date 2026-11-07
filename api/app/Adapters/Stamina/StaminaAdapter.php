@@ -15,28 +15,28 @@ class StaminaAdapter
     /**
      * Model から DTO に変換
      */
-    public static function toDto(TrxStamina $model): Stamina
+    public static function toDto(TrxStamina $trxStamina): Stamina
     {
         return new Stamina(
-            sysPlayerId: $model->sys_player_id,
-            type: $model->type,
-            currentStamina: $model->current_stamina,
-            recoveryRateMultiplier: $model->recovery_rate_multiplier,
-            lastRecoveryAt: $model->last_recovery_at
+            sysPlayerId: $trxStamina->sys_player_id,
+            type: $trxStamina->type,
+            currentStamina: $trxStamina->current_stamina,
+            recoveryRateMultiplier: $trxStamina->recovery_rate_multiplier,
+            lastRecoveryAt: $trxStamina->last_recovery_at
         );
     }
 
     /**
      * Model配列 から DTO配列 に変換
      *
-     * @param  iterable<TrxStamina>  $models
+     * @param  iterable<TrxStamina>  $trxStaminas
      * @return array<Stamina>
      */
-    public static function toDtoArray(iterable $models): array
+    public static function toDtoArray(iterable $trxStaminas): array
     {
         $dtos = [];
-        foreach ($models as $model) {
-            $dtos[] = self::toDto($model);
+        foreach ($trxStaminas as $trxStamina) {
+            $dtos[] = self::toDto($trxStamina);
         }
 
         return $dtos;

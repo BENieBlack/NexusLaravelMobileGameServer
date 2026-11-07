@@ -15,31 +15,31 @@ class MissionAdapter
     /**
      * Model から DTO に変換
      */
-    public static function toDto(MstMission $model): Mission
+    public static function toDto(MstMission $mstMission): Mission
     {
         return new Mission(
-            id: $model->getId(),
-            triggerType: $model->getTriggerType(),
-            mstTagId: $model->getMstTagId(),
-            targetValue: $model->getTargetValue(),
-            startAt: $model->getStartAt(),
-            endAt: $model->getEndAt(),
-            sortOrder: $model->getSortOrder(),
+            id: $mstMission->getId(),
+            triggerType: $mstMission->getTriggerType(),
+            mstTagId: $mstMission->getMstTagId(),
+            targetValue: $mstMission->getTargetValue(),
+            startAt: $mstMission->getStartAt(),
+            endAt: $mstMission->getEndAt(),
+            sortOrder: $mstMission->getSortOrder(),
         );
     }
 
     /**
      * Model配列 から DTO配列 に変換
      *
-     * @param  iterable<MstMission>  $models
+     * @param  iterable<MstMission>  $mstMissions
      * @return array<int, Mission>
      */
-    public static function toDtoArray(iterable $models): array
+    public static function toDtoArray(iterable $mstMissions): array
     {
         $dtos = [];
 
-        foreach ($models as $model) {
-            $dtos[] = self::toDto($model);
+        foreach ($mstMissions as $mstMission) {
+            $dtos[] = self::toDto($mstMission);
         }
 
         return $dtos;

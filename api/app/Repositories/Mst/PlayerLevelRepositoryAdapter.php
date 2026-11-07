@@ -23,16 +23,16 @@ class PlayerLevelRepositoryAdapter implements PlayerLevelRepositoryInterface
      */
     public function selectByLevel(int $level): ?array
     {
-        $model = $this->mstPlayerLevelRepository->selectByLevel($level);
+        $mstPlayerLevel = $this->mstPlayerLevelRepository->selectByLevel($level);
 
-        if ($model === null) {
+        if ($mstPlayerLevel === null) {
             return null;
         }
 
         return [
-            'level' => $model->getLevel(),
-            'required_exp' => $model->getRequiredExp(),
-            'max_stamina' => $model->getMaxStamina(),
+            'level' => $mstPlayerLevel->getLevel(),
+            'required_exp' => $mstPlayerLevel->getRequiredExp(),
+            'max_stamina' => $mstPlayerLevel->getMaxStamina(),
         ];
     }
 

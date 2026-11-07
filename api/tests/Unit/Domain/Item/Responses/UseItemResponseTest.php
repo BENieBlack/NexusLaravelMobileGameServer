@@ -3,6 +3,7 @@
 namespace Tests\Unit\Domain\Item\Responses;
 
 use App\Domain\Item\Responses\UseItemResponse;
+use Nexus\Core\UnitOfWork\UpdatedResources;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -24,6 +25,7 @@ class UseItemResponseTest extends TestCase
             effect: 'HealHP',
             itemUsed: 2,
             appliedValue: 300,
+            updatedResources: new UpdatedResources,
         );
 
         $this->assertSame([
@@ -31,13 +33,14 @@ class UseItemResponseTest extends TestCase
             'effect' => 'HealHP',
             'item_used' => 2,
             'applied_value' => 300,
+            'updated_resources' => [],
         ], $response->toArray());
     }
 
     #[Test]
     public function jsonへの変換も同じ形になる(): void
     {
-        $response = new UseItemResponse('item_potion_001', 'HealHP', 1, 100);
+        $response = new UseItemResponse('item_potion_001', 'HealHP', 1, 100, new UpdatedResources);
 
         $this->assertSame($response->toArray(), $response->jsonSerialize());
     }
@@ -46,7 +49,7 @@ class UseItemResponseTest extends TestCase
     public function 効果が無い使用も表現できる(): void
     {
         // 効果値0はエラーではなく「使ったが変化しなかった」を表す
-        $response = new UseItemResponse('item_key_001', 'None', 1, 0);
+        $response = new UseItemResponse('item_key_001', 'None', 1, 0, new UpdatedResources);
 
         $this->assertSame(0, $response->toArray()['applied_value']);
         $this->assertSame('None', $response->toArray()['effect']);

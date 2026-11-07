@@ -3,6 +3,7 @@
 namespace App\Domain\Unit\Responses;
 
 use App\Domain\_BaseResponse;
+use Nexus\Core\UnitOfWork\UpdatedResources;
 
 /**
  * LevelUpResponse
@@ -25,6 +26,7 @@ class LevelUpResponse extends _BaseResponse
         public readonly int $maxLevel,
         public readonly int $itemUsed,
         public readonly int $expGained,
+        public readonly UpdatedResources $updatedResources,
     ) {}
 
     /**
@@ -42,6 +44,8 @@ class LevelUpResponse extends _BaseResponse
             'max_level' => $this->maxLevel,
             'item_used' => $this->itemUsed,
             'exp_gained' => $this->expGained,
+            // この処理で更新された trx（trx_unit_list、trx_item_list など）
+            'updated_resources' => $this->updatedResources->toResponseArray(),
         ];
     }
 }

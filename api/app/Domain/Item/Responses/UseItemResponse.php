@@ -3,6 +3,7 @@
 namespace App\Domain\Item\Responses;
 
 use App\Domain\_BaseResponse;
+use Nexus\Core\UnitOfWork\UpdatedResources;
 
 /**
  * UseItemResponse
@@ -16,6 +17,7 @@ class UseItemResponse extends _BaseResponse
         public readonly string $effect,
         public readonly int $itemUsed,
         public readonly int $appliedValue,
+        public readonly UpdatedResources $updatedResources,
     ) {}
 
     /**
@@ -28,6 +30,8 @@ class UseItemResponse extends _BaseResponse
             'effect' => $this->effect,
             'item_used' => $this->itemUsed,
             'applied_value' => $this->appliedValue,
+            // この処理で更新された trx（trx_item_list、trx_stamina_list、sys_player など）
+            'updated_resources' => $this->updatedResources->toResponseArray(),
         ];
     }
 }

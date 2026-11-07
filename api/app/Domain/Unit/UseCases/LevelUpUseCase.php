@@ -111,7 +111,8 @@ class LevelUpUseCase extends _BaseUseCase
         // バリデーション実行（検証したアイテムマスターが返る）
         $mstItem = $this->validation($sysPlayerId, $trxUnitId, $mstItemId, $useCount);
 
-        return $this->executeWithTransaction(function () use ($sysPlayerId, $trxUnitId, $mstItemId, $useCount, $mstItem) {
+        /** @var array{isLeveledUp: bool, beforeLevel: int, afterLevel: int, totalExp: int, expToNext: int|null, rarity: string, maxLevel: int, itemUsed: int, expGained: int} $result */
+        $result = $this->executeWithTransaction(function () use ($sysPlayerId, $trxUnitId, $mstItemId, $useCount, $mstItem) {
 
             // アイテムを消費
             $this->itemInventory->consumeItem($sysPlayerId, $mstItemId, $useCount);
@@ -123,20 +124,22 @@ class LevelUpUseCase extends _BaseUseCase
             $totalExp = (int) ($expPerItem * $useCount);
 
             // addExp()は基底の4キーのみ返すため、レアリティ等を含む詳細版を使う
-            $result = $this->unitLevelService->addExpWithDetails($trxUnitId, $totalExp);
+            $details = $this->unitLevelService->addExpWithDetails($trxUnitId, $totalExp);
 
-            // 結果を生成して返す
-            return new LevelUpResponse(
-                isLeveledUp: $result['is_leveled_up'],
-                beforeLevel: $result['before_level'],
-                afterLevel: $result['after_level'],
-                totalExp: $result['total_exp'],
-                expToNext: $result['exp_to_next'],
-                rarity: $result['rarity'],
-                maxLevel: $result['max_level'],
-                itemUsed: $useCount,
-                expGained: $totalExp,
-            );
+            return [
+                'isLeveledUp' => $details['is_leveled_up'],
+                'beforeLevel' => $details['before_level'],
+                'afterLevel' => $details['after_level'],
+                'totalExp' => $details['total_exp'],
+                'expToNext' => $details['exp_to_next'],
+                'rarity' => $details['rarity'],
+                'maxLevel' => $details['max_level'],
+                'itemUsed' => $useCount,
+                'expGained' => $totalExp,
+            ];
         });
+
+        // コミット後に、この処理で更新した trx（ユニット・アイテムなど）を取り出して返す
+        return new LevelUpResponse(...$result, updatedResources: $this->pullUpdatedResources());
     }
 }

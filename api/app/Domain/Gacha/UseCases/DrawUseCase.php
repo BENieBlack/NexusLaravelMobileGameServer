@@ -56,7 +56,8 @@ class DrawUseCase extends _BaseUseCase
         $this->validationService->validateGachaPeriod($mstGacha);
         $cost = $this->validationService->validateGachaCost($mstGachaId, $drawCount);
 
-        return $this->executeWithTransaction(function () use (
+        /** @var array{prizes: array<int, array<string, mixed>>, currentStep: int, dailyDrawCount: int, totalDrawCount: int, hasNextStep: bool, nextStepInfo: array{step_number: int, draw_count: int}|null} $result */
+        $result = $this->executeWithTransaction(function () use (
             $sysPlayerId,
             $mstGachaId,
             $drawCount,
@@ -112,15 +113,18 @@ class DrawUseCase extends _BaseUseCase
                 }
             }
 
-            return new DrawResponse(
-                prizes: $prizes,
-                currentStep: $nextStep ?? $currentStep,
-                dailyDrawCount: $progress->getDailyDrawCount() + 1,
-                totalDrawCount: $progress->getTotalDrawCount() + $drawCount,
-                hasNextStep: $nextStepInfo !== null,
-                nextStepInfo: $nextStepInfo,
-            );
+            return [
+                'prizes' => $prizes,
+                'currentStep' => $nextStep ?? $currentStep,
+                'dailyDrawCount' => $progress->getDailyDrawCount() + 1,
+                'totalDrawCount' => $progress->getTotalDrawCount() + $drawCount,
+                'hasNextStep' => $nextStepInfo !== null,
+                'nextStepInfo' => $nextStepInfo,
+            ];
         });
+
+        // コミット後に、この処理で更新した trx（ダイヤ・アイテム・ユニットなど）を取り出して返す
+        return new DrawResponse(...$result, updatedResources: $this->pullUpdatedResources());
     }
 
     /**

@@ -26,9 +26,9 @@ class GuildRepositoryAdapter implements GuildRepositoryInterface
      */
     public function selectById(int $guildId): ?Guild
     {
-        $model = $this->sysGuildRepository->selectById($guildId);
+        $sysGuild = $this->sysGuildRepository->selectById($guildId);
 
-        return $model ? GuildAdapter::toDto($model) : null;
+        return $sysGuild ? GuildAdapter::toDto($sysGuild) : null;
     }
 
     /**
@@ -36,9 +36,9 @@ class GuildRepositoryAdapter implements GuildRepositoryInterface
      */
     public function selectByName(string $name): ?Guild
     {
-        $model = $this->sysGuildRepository->selectByName($name);
+        $sysGuild = $this->sysGuildRepository->selectByName($name);
 
-        return $model ? GuildAdapter::toDto($model) : null;
+        return $sysGuild ? GuildAdapter::toDto($sysGuild) : null;
     }
 
     /**
@@ -56,9 +56,9 @@ class GuildRepositoryAdapter implements GuildRepositoryInterface
      */
     public function insert(string $name, string $description, int $masterPlayerId): Guild
     {
-        $model = $this->sysGuildRepository->insertGuild($name, $description, $masterPlayerId);
+        $sysGuild = $this->sysGuildRepository->insertGuild($name, $description, $masterPlayerId);
 
-        return GuildAdapter::toDto($model);
+        return GuildAdapter::toDto($sysGuild);
     }
 
     /**
@@ -68,27 +68,27 @@ class GuildRepositoryAdapter implements GuildRepositoryInterface
      */
     public function update(Guild $guild, array $data): Guild
     {
-        $model = $this->requireModel($guild->getId());
+        $sysGuild = $this->requireModel($guild->getId());
 
         if (isset($data['name'])) {
-            $model->setName($data['name']);
+            $sysGuild->setName($data['name']);
         }
         if (isset($data['description'])) {
-            $model->setDescription($data['description']);
+            $sysGuild->setDescription($data['description']);
         }
         if (isset($data['level'])) {
-            $model->setLevel($data['level']);
+            $sysGuild->setLevel($data['level']);
         }
         if (isset($data['exp'])) {
-            $model->setExp($data['exp']);
+            $sysGuild->setExp($data['exp']);
         }
         if (isset($data['max_members'])) {
-            $model->setMaxMembers($data['max_members']);
+            $sysGuild->setMaxMembers($data['max_members']);
         }
 
-        $this->sysGuildRepository->setModel($model);
+        $this->sysGuildRepository->setModel($sysGuild);
 
-        return GuildAdapter::toDto($model);
+        return GuildAdapter::toDto($sysGuild);
     }
 
     /**
@@ -96,10 +96,10 @@ class GuildRepositoryAdapter implements GuildRepositoryInterface
      */
     public function delete(Guild $guild): void
     {
-        $model = $this->sysGuildRepository->selectById($guild->getId());
+        $sysGuild = $this->sysGuildRepository->selectById($guild->getId());
 
-        if ($model !== null) {
-            $this->sysGuildRepository->hardDeleteModel($model);
+        if ($sysGuild !== null) {
+            $this->sysGuildRepository->hardDeleteModel($sysGuild);
         }
     }
 
@@ -108,12 +108,12 @@ class GuildRepositoryAdapter implements GuildRepositoryInterface
      */
     public function addExp(Guild $guild, int $exp): Guild
     {
-        $model = $this->requireModel($guild->getId());
+        $sysGuild = $this->requireModel($guild->getId());
 
-        $model->setExp($model->getExp() + $exp);
-        $this->sysGuildRepository->setModel($model);
+        $sysGuild->setExp($sysGuild->getExp() + $exp);
+        $this->sysGuildRepository->setModel($sysGuild);
 
-        return GuildAdapter::toDto($model);
+        return GuildAdapter::toDto($sysGuild);
     }
 
     /**
@@ -121,13 +121,13 @@ class GuildRepositoryAdapter implements GuildRepositoryInterface
      */
     public function updateLevel(Guild $guild, int $level, int $exp): Guild
     {
-        $model = $this->requireModel($guild->getId());
+        $sysGuild = $this->requireModel($guild->getId());
 
-        $model->setLevel($level);
-        $model->setExp($exp);
-        $this->sysGuildRepository->setModel($model);
+        $sysGuild->setLevel($level);
+        $sysGuild->setExp($exp);
+        $this->sysGuildRepository->setModel($sysGuild);
 
-        return GuildAdapter::toDto($model);
+        return GuildAdapter::toDto($sysGuild);
     }
 
     /**
@@ -135,12 +135,12 @@ class GuildRepositoryAdapter implements GuildRepositoryInterface
      */
     private function requireModel(int $guildId): SysGuild
     {
-        $model = $this->sysGuildRepository->selectById($guildId);
+        $sysGuild = $this->sysGuildRepository->selectById($guildId);
 
-        if ($model === null) {
+        if ($sysGuild === null) {
             throw new \RuntimeException('Guild not found');
         }
 
-        return $model;
+        return $sysGuild;
     }
 }

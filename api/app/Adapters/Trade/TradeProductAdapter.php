@@ -15,34 +15,34 @@ class TradeProductAdapter
     /**
      * Model から DTO に変換
      */
-    public static function toDto(MstTradeProduct $model): TradeProduct
+    public static function toDto(MstTradeProduct $mstTradeProduct): TradeProduct
     {
         return new TradeProduct(
-            id: $model->getId(),
-            mstTradeId: $model->getMstTradeId(),
-            costType: $model->getCostType(),
-            costMstId: $model->getCostMstId(),
-            costAmount: $model->getCostAmount(),
-            tradeLimit: $model->getTradeLimit(),
-            resetType: $model->getResetType(),
-            startAt: $model->getStartAt(),
-            endAt: $model->getEndAt(),
-            sortOrder: $model->getSortOrder(),
+            id: $mstTradeProduct->getId(),
+            mstTradeId: $mstTradeProduct->getMstTradeId(),
+            costType: $mstTradeProduct->getCostType(),
+            costMstId: $mstTradeProduct->getCostMstId(),
+            costAmount: $mstTradeProduct->getCostAmount(),
+            tradeLimit: $mstTradeProduct->getTradeLimit(),
+            resetType: $mstTradeProduct->getResetType(),
+            startAt: $mstTradeProduct->getStartAt(),
+            endAt: $mstTradeProduct->getEndAt(),
+            sortOrder: $mstTradeProduct->getSortOrder(),
         );
     }
 
     /**
      * Model配列 から DTO配列 に変換
      *
-     * @param  iterable<MstTradeProduct>  $models
+     * @param  iterable<MstTradeProduct>  $mstTradeProducts
      * @return array<int, TradeProduct>
      */
-    public static function toDtoArray(iterable $models): array
+    public static function toDtoArray(iterable $mstTradeProducts): array
     {
         $dtos = [];
 
-        foreach ($models as $model) {
-            $dtos[] = self::toDto($model);
+        foreach ($mstTradeProducts as $mstTradeProduct) {
+            $dtos[] = self::toDto($mstTradeProduct);
         }
 
         return $dtos;

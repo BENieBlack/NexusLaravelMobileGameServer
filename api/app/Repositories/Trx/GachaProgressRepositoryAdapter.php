@@ -27,9 +27,9 @@ class GachaProgressRepositoryAdapter implements GachaProgressRepositoryInterface
      */
     public function selectByPlayerAndGacha(int $sysPlayerId, string $mstGachaId): ?GachaProgress
     {
-        $model = $this->trxGachaRepository->selectByPlayerAndGacha($sysPlayerId, $mstGachaId);
+        $trxGacha = $this->trxGachaRepository->selectByPlayerAndGacha($sysPlayerId, $mstGachaId);
 
-        return $model ? GachaProgressAdapter::toDto($model) : null;
+        return $trxGacha ? GachaProgressAdapter::toDto($trxGacha) : null;
     }
 
     /**
@@ -37,22 +37,22 @@ class GachaProgressRepositoryAdapter implements GachaProgressRepositoryInterface
      */
     public function persist(GachaProgress $gachaProgress): void
     {
-        $model = $this->trxGachaRepository->selectByPlayerAndGacha(
+        $trxGacha = $this->trxGachaRepository->selectByPlayerAndGacha(
             $gachaProgress->getSysPlayerId(),
             $gachaProgress->getMstGachaId()
         );
 
-        if ($model === null) {
+        if ($trxGacha === null) {
             return;
         }
 
-        $model->current_step = $gachaProgress->getCurrentStep();
-        $model->daily_draw_count = $gachaProgress->getDailyDrawCount();
-        $model->daily_reset_at = $gachaProgress->getDailyResetAt();
-        $model->total_draw_count = $gachaProgress->getTotalDrawCount();
-        $model->total_reset_at = $gachaProgress->getTotalResetAt();
+        $trxGacha->current_step = $gachaProgress->getCurrentStep();
+        $trxGacha->daily_draw_count = $gachaProgress->getDailyDrawCount();
+        $trxGacha->daily_reset_at = $gachaProgress->getDailyResetAt();
+        $trxGacha->total_draw_count = $gachaProgress->getTotalDrawCount();
+        $trxGacha->total_reset_at = $gachaProgress->getTotalResetAt();
 
-        $this->trxGachaRepository->setModel($model);
+        $this->trxGachaRepository->setModel($trxGacha);
     }
 
     /**

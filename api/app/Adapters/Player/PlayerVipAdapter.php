@@ -15,26 +15,26 @@ class PlayerVipAdapter
     /**
      * Model から DTO に変換
      */
-    public static function toDto(SysPlayer $model): PlayerVip
+    public static function toDto(SysPlayer $sysPlayer): PlayerVip
     {
         return new PlayerVip(
-            sysPlayerId: $model->getId(),
-            vipPoint: $model->getVipPoint(),
-            totalPaidAmount: $model->getTotalPaidAmount()
+            sysPlayerId: $sysPlayer->getId(),
+            vipPoint: $sysPlayer->getVipPoint(),
+            totalPaidAmount: $sysPlayer->getTotalPaidAmount()
         );
     }
 
     /**
      * Model配列 から DTO配列 に変換
      *
-     * @param  iterable<SysPlayer>  $models
+     * @param  iterable<SysPlayer>  $sysPlayers
      * @return array<PlayerVip>
      */
-    public static function toDtoArray(iterable $models): array
+    public static function toDtoArray(iterable $sysPlayers): array
     {
         $dtos = [];
-        foreach ($models as $model) {
-            $dtos[] = self::toDto($model);
+        foreach ($sysPlayers as $sysPlayer) {
+            $dtos[] = self::toDto($sysPlayer);
         }
 
         return $dtos;

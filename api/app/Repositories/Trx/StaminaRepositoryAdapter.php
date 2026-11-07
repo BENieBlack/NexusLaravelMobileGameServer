@@ -27,9 +27,9 @@ class StaminaRepositoryAdapter implements StaminaRepositoryInterface
      */
     public function selectByPlayerAndType(int $sysPlayerId, string $type): ?Stamina
     {
-        $model = $this->trxStaminaRepository->selectByPlayerAndType($sysPlayerId, $type);
+        $trxStamina = $this->trxStaminaRepository->selectByPlayerAndType($sysPlayerId, $type);
 
-        return $model ? StaminaAdapter::toDto($model) : null;
+        return $trxStamina ? StaminaAdapter::toDto($trxStamina) : null;
     }
 
     /**
@@ -37,20 +37,20 @@ class StaminaRepositoryAdapter implements StaminaRepositoryInterface
      */
     public function persist(Stamina $stamina): void
     {
-        $model = $this->trxStaminaRepository->selectByPlayerAndType(
+        $trxStamina = $this->trxStaminaRepository->selectByPlayerAndType(
             $stamina->getSysPlayerId(),
             $stamina->getType()
         );
 
-        if ($model === null) {
+        if ($trxStamina === null) {
             return;
         }
 
-        $model->current_stamina = $stamina->getCurrentStamina();
-        $model->recovery_rate_multiplier = $stamina->getRecoveryRateMultiplier();
-        $model->last_recovery_at = $stamina->getLastRecoveryAt();
+        $trxStamina->current_stamina = $stamina->getCurrentStamina();
+        $trxStamina->recovery_rate_multiplier = $stamina->getRecoveryRateMultiplier();
+        $trxStamina->last_recovery_at = $stamina->getLastRecoveryAt();
 
-        $this->trxStaminaRepository->setModel($model);
+        $this->trxStaminaRepository->setModel($trxStamina);
     }
 
     /**

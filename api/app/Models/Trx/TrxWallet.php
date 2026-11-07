@@ -4,6 +4,7 @@ namespace App\Models\Trx;
 
 use App\Traits\CompositePrimaryKeyTrait;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Nexus\Core\UnitOfWork\Contracts\ReturnedAsUpdatedResource;
 
 /**
  * TrxWallet Model
@@ -23,7 +24,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $free_amount
  * @property int $paid_amount
  */
-class TrxWallet extends _BaseTrx
+class TrxWallet extends _BaseTrx implements ReturnedAsUpdatedResource
 {
     use CompositePrimaryKeyTrait;
 

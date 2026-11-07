@@ -4,6 +4,7 @@ namespace App\Models\Trx;
 
 use App\Traits\CompositePrimaryKeyTrait;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Nexus\Core\UnitOfWork\Contracts\ReturnedAsUpdatedResource;
 
 /**
  * TrxItem Model
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * プレイヤーが所持するアイテムを管理するモデル
  * PRIMARY KEY: (sys_player_id, mst_item_id)
  */
-class TrxItem extends _BaseTrx
+class TrxItem extends _BaseTrx implements ReturnedAsUpdatedResource
 {
     use CompositePrimaryKeyTrait;
 

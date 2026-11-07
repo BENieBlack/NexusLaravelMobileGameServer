@@ -3,6 +3,7 @@
 namespace App\Models\Trx;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Nexus\Core\UnitOfWork\Contracts\ReturnedAsUpdatedResource;
 
 /**
  * TrxEquipment Model
@@ -18,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $created_at
  * @property string $updated_at
  */
-class TrxEquipment extends _BaseTrx
+class TrxEquipment extends _BaseTrx implements ReturnedAsUpdatedResource
 {
     protected $table = 'trx_equipment';
 

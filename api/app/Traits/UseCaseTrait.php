@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 use Nexus\Core\Pitr\Logger\ShardMapper;
 use Nexus\Core\UnitOfWork\Contracts\QueryManagerInterface;
+use Nexus\Core\UnitOfWork\UpdatedResources;
 use Throwable;
 
 trait UseCaseTrait
@@ -76,10 +77,24 @@ trait UseCaseTrait
                 }
             }
 
+            // ロールバックした分は、レスポンスに返さない
+            $queryManager->discardUpdatedResources();
+
             throw $e;
         }
 
         return $result;
+    }
+
+    /**
+     * この処理で INSERT / UPDATE した trx のモデルを取り出す
+     *
+     * executeWithTransaction() がコミットした後に呼ぶ（取り出すと空に戻る）。
+     * クライアントに、何が変わったか（trx_unit_list、trx_item_list など）を返すために使う。
+     */
+    protected function pullUpdatedResources(): UpdatedResources
+    {
+        return app()->make(QueryManagerInterface::class)->pullUpdatedResources();
     }
 
     /**

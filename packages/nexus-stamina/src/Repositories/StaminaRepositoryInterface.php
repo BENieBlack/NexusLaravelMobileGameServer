@@ -19,6 +19,13 @@ interface StaminaRepositoryInterface
     public function selectByPlayerAndType(int $sysPlayerId, string $type): ?Stamina;
 
     /**
+     * プレイヤーの全タイプのスタミナを取得
+     *
+     * @return list<Stamina>
+     */
+    public function selectAllByPlayer(int $sysPlayerId): array;
+
+    /**
      * スタミナデータを保存
      */
     public function persist(Stamina $stamina): void;

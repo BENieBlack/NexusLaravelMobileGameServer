@@ -3,6 +3,7 @@
 namespace Nexus\Core\UnitOfWork\Contracts;
 
 use Nexus\Core\Repositories\_BaseRepositoryInterface;
+use Nexus\Core\UnitOfWork\UpdatedResources;
 
 /**
  * QueryManagerInterface
@@ -34,6 +35,18 @@ interface QueryManagerInterface
      * @return void
      */
     public function execAllLogs(): void;
+
+    /**
+     * ここまでに INSERT / UPDATE した trx のモデルを取り出す（取り出すと空に戻る）
+     *
+     * コミット後に呼ぶ。クライアントに、何が変わったかを返すために使う。
+     */
+    public function pullUpdatedResources(): UpdatedResources;
+
+    /**
+     * 控えた更新を捨てる（ロールバックしたとき）
+     */
+    public function discardUpdatedResources(): void;
 
     /**
      * すべてのリポジトリをクリア

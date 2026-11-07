@@ -72,8 +72,9 @@ class EquipmentLevelUpTest extends TestCase
         $result = $useCase->handle($this->sysPlayerId, $this->trxEquipmentId, self::EXP_ITEM_ID, $afterLevel);
 
         // 結果確認
-        $this->assertNotNull($result->trxEquipment);
-        $this->assertSame($afterLevel, $result->trxEquipment->level);
+        $trxEquipments = $result->updatedResources->getByTable('trx_equipment');
+        $this->assertCount(1, $trxEquipments);
+        $this->assertSame($afterLevel, $trxEquipments[0]->getLevel());
 
         // データベース確認
         $afterEquipment = DB::connection('trx1')
@@ -106,9 +107,36 @@ class EquipmentLevelUpTest extends TestCase
         $result = $useCase->handle($this->sysPlayerId, $this->trxEquipmentId, self::EXP_ITEM_ID, $afterLevel);
 
         // アイテム消費確認
-        $this->assertNotNull($result->trxItem);
-        $afterItemAmount = $result->trxItem->getFreeAmount() + $result->trxItem->getPaidAmount();
+        $trxItems = $result->updatedResources->getByTable('trx_item');
+        $this->assertCount(1, $trxItems);
+        $afterItemAmount = $trxItems[0]->getFreeAmount() + $trxItems[0]->getPaidAmount();
         $this->assertLessThan($beforeItemAmount, $afterItemAmount);
+    }
+
+    #[Test]
+    public function レベルアップのレスポンスには更新されたtrxだけが入る(): void
+    {
+        $this->useSessionPlayer($this->sysPlayerId);
+
+        $result = app(LevelUpUseCase::class)
+            ->handle($this->sysPlayerId, $this->trxEquipmentId, self::EXP_ITEM_ID, 7);
+
+        $updated = $result->toArray()['updated_resources'];
+
+        // 更新した装備とアイテムだけが入る（ログや、触っていないテーブルは入らない）
+        $this->assertEqualsCanonicalizing(['trx_equipment_list', 'trx_item_list'], array_keys($updated));
+        $this->assertCount(1, $updated['trx_equipment_list']);
+        $this->assertCount(1, $updated['trx_item_list']);
+
+        // 更新後の値が入っている
+        $this->assertSame(7, $updated['trx_equipment_list'][0]['level']);
+        $this->assertSame(
+            $result->updatedResources->getByTable('trx_item')[0]->getFreeAmount(),
+            $updated['trx_item_list'][0]['free_amount']
+        );
+        // これまでの trx_equipment / trx_item は、updated_resources に一本化した（重複して返さない）
+        $this->assertArrayNotHasKey('trx_equipment', $result->toArray());
+        $this->assertArrayNotHasKey('trx_item', $result->toArray());
     }
 
     #[Test]

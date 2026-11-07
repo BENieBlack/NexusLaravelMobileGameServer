@@ -3,6 +3,7 @@
 namespace App\Domain\Unit\Responses;
 
 use App\Domain\_BaseResponse;
+use App\Traits\HasUpdatedResources;
 
 /**
  * LevelUpResponse
@@ -15,6 +16,8 @@ use App\Domain\_BaseResponse;
  */
 class LevelUpResponse extends _BaseResponse
 {
+    use HasUpdatedResources;
+
     public function __construct(
         public readonly bool $isLeveledUp,
         public readonly int $beforeLevel,
@@ -42,6 +45,8 @@ class LevelUpResponse extends _BaseResponse
             'max_level' => $this->maxLevel,
             'item_used' => $this->itemUsed,
             'exp_gained' => $this->expGained,
+            // この処理で更新された trx（trx_unit_list、trx_item_list など）
+            'updated_resources' => $this->getUpdatedResources()->toResponseArray(),
         ];
     }
 }

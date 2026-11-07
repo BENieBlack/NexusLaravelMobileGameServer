@@ -31,6 +31,7 @@ class UseItemResponseTest extends TestCase
             'effect' => 'HealHP',
             'item_used' => 2,
             'applied_value' => 300,
+            'updated_resources' => [],
         ], $response->toArray());
     }
 

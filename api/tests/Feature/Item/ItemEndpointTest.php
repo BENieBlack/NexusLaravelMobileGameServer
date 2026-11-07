@@ -72,12 +72,18 @@ class ItemEndpointTest extends TestCase
         $response = $this->useItem(self::STAMINA_ITEM_ID, 2);
 
         $response->assertOk();
-        $response->assertExactJson([
+        $response->assertJson([
             'mst_item_id' => self::STAMINA_ITEM_ID,
             'effect' => 'stamina_recover',
             'item_used' => 2,
             'applied_value' => 60,
         ]);
+
+        // 減ったアイテムが、更新された trx として返る（10個 - 2個）
+        $trxItems = $response->json('updated_resources.trx_item_list');
+        $this->assertCount(1, $trxItems);
+        $this->assertSame(self::STAMINA_ITEM_ID, $trxItems[0]['mst_item_id']);
+        $this->assertSame(8, $trxItems[0]['free_amount']);
     }
 
     #[Test]

@@ -99,6 +99,7 @@ class UseItemUseCase extends _BaseUseCase
     {
         $mstItem = $this->validation($sysPlayerId, $mstItemId, $useCount);
 
+        // コミット後に、この処理で更新した trx（アイテム・スタミナ・プレイヤーなど）を取り出して返す
         return $this->executeWithTransaction(function () use ($sysPlayerId, $mstItemId, $useCount, $mstItem) {
             $effectType = ItemEffectType::from($mstItem->getEffect());
 
@@ -131,6 +132,6 @@ class UseItemUseCase extends _BaseUseCase
                 itemUsed: $useCount,
                 appliedValue: $appliedValue,
             );
-        });
+        })->withUpdatedResources($this->pullUpdatedResources());
     }
 }

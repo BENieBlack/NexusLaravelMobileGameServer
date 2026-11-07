@@ -138,7 +138,8 @@ class LevelUpUseCase extends _BaseUseCase
         // バリデーション実行（検証した装備とアイテムマスターが返る）
         ['trxEquipment' => $trxEquipmentBefore, 'mstItem' => $mstItem] = $this->validation($sysPlayerId, $trxEquipmentId, $mstItemId, $afterLevel);
 
-        $this->executeWithTransaction(function () use ($sysPlayerId, $trxEquipmentId, $mstItemId, $afterLevel, $trxEquipmentBefore, $mstItem) {
+        // コミット後に、この処理で更新した trx（装備・アイテム）を取り出して返す
+        return $this->executeWithTransaction(function () use ($sysPlayerId, $trxEquipmentId, $mstItemId, $afterLevel, $trxEquipmentBefore, $mstItem) {
             // ユニークリクエストIDを生成
             $uniqueRequestId = Str::uuid()->toString();
 
@@ -181,9 +182,7 @@ class LevelUpUseCase extends _BaseUseCase
                 afterLevelExp: $trxEquipment->getLevelExp(),
             );
 
-        });
-
-        // コミット後に、この処理で更新した trx（装備・アイテム）を取り出して返す
-        return new LevelUpResponse($this->pullUpdatedResources());
+            return new LevelUpResponse;
+        })->withUpdatedResources($this->pullUpdatedResources());
     }
 }

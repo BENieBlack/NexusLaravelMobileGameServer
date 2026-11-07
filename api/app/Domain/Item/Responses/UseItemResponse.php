@@ -3,6 +3,7 @@
 namespace App\Domain\Item\Responses;
 
 use App\Domain\_BaseResponse;
+use App\Traits\HasUpdatedResources;
 
 /**
  * UseItemResponse
@@ -11,6 +12,8 @@ use App\Domain\_BaseResponse;
  */
 class UseItemResponse extends _BaseResponse
 {
+    use HasUpdatedResources;
+
     public function __construct(
         public readonly string $mstItemId,
         public readonly string $effect,
@@ -28,6 +31,8 @@ class UseItemResponse extends _BaseResponse
             'effect' => $this->effect,
             'item_used' => $this->itemUsed,
             'applied_value' => $this->appliedValue,
+            // この処理で更新された trx（trx_item_list、trx_stamina_list、sys_player など）
+            'updated_resources' => $this->getUpdatedResources()->toResponseArray(),
         ];
     }
 }

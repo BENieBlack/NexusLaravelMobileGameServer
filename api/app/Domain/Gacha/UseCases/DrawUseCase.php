@@ -56,6 +56,7 @@ class DrawUseCase extends _BaseUseCase
         $this->validationService->validateGachaPeriod($mstGacha);
         $cost = $this->validationService->validateGachaCost($mstGachaId, $drawCount);
 
+        // コミット後に、この処理で更新した trx（ダイヤ・アイテム・ユニットなど）を取り出して返す
         return $this->executeWithTransaction(function () use (
             $sysPlayerId,
             $mstGachaId,
@@ -120,7 +121,7 @@ class DrawUseCase extends _BaseUseCase
                 hasNextStep: $nextStepInfo !== null,
                 nextStepInfo: $nextStepInfo,
             );
-        });
+        })->withUpdatedResources($this->pullUpdatedResources());
     }
 
     /**

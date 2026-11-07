@@ -37,7 +37,6 @@ class PackageLayerTest extends TestCase
         'nexus-core-security' => self::FOUNDATION,
         'nexus-core-auth' => self::FOUNDATION,
         'nexus-tidb' => self::FOUNDATION,
-        'nexus-wallet' => self::FOUNDATION,
 
         'nexus-notification' => self::PLATFORM,
         'nexus-mailbox' => self::PLATFORM,
@@ -60,6 +59,7 @@ class PackageLayerTest extends TestCase
         'nexus-trade' => self::FEATURE,
         'nexus-version' => self::FEATURE,
         'nexus-vip' => self::FEATURE,
+        'nexus-wallet' => self::FEATURE,
     ];
 
     /** @var array<string, list<string>> 層 → 依存してよい層 */

@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
  * 永続化などApplication層に依存する処理はパッケージ側でインターフェースを
  * 定義し、api/app 側でAdapterを実装してコンテナでバインドする。
  *
- * 例: NexusResourceDelivery\Contracts\UnitRepositoryInterface
+ * 例: Nexus\Core\ResourceDelivery\Contracts\UnitRepositoryInterface
  *     ← App\Repositories\Trx\UnitRepositoryAdapter
  */
 class PackageIndependenceTest extends TestCase

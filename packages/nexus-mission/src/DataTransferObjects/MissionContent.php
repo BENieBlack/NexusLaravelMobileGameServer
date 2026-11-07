@@ -23,7 +23,7 @@ class MissionContent
     }
 
     /**
-     * 報酬の種別（NexusResource\Enums\ResourceType の値）
+     * 報酬の種別（Nexus\Core\Resource\Enums\ResourceType の値）
      */
     public function getContentType(): string
     {

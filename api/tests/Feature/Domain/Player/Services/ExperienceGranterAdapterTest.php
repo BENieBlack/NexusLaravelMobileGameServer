@@ -4,7 +4,7 @@ namespace Tests\Feature\Domain\Player\Services;
 
 use App\Persistence\ApiSession;
 use Illuminate\Support\Facades\DB;
-use NexusResourceDelivery\Contracts\ExperienceGranterInterface;
+use Nexus\Core\ResourceDelivery\Contracts\ExperienceGranterInterface;
 use NexusUnitOfWork\Persistence\QueryManager;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;

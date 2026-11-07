@@ -2,7 +2,7 @@
 
 namespace App\Exceptions;
 
-use NexusResource\Exceptions\ResourceErrorCode;
+use Nexus\Core\Resource\Exceptions\ResourceErrorCode;
 use NexusStamina\Exceptions\StaminaErrorCode;
 use NexusWallet\Exceptions\WalletErrorCode;
 

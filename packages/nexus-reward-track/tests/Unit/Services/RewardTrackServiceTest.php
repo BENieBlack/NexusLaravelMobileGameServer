@@ -4,7 +4,7 @@ namespace NexusRewardTrack\Tests\Unit\Services;
 
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
-use NexusResourceDelivery\Services\ResourceDeliveryService;
+use Nexus\Core\ResourceDelivery\Services\ResourceDeliveryService;
 use NexusRewardTrack\Contracts\RewardTrackMasterRepositoryInterface;
 use NexusRewardTrack\DataTransferObjects\RewardTrack;
 use NexusRewardTrack\DataTransferObjects\RewardTrackLine;

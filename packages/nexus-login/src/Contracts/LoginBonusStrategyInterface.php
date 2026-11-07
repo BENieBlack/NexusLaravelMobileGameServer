@@ -15,7 +15,7 @@ interface LoginBonusStrategyInterface
      *
      * @param  int  $sysPlayerId  プレイヤーID
      * @param  string|null  $lastLoginAt  最終ログイン日時（UTC、文字列形式）
-     * @return array<\NexusResource\DataTransferObjects\Resource> 配布した報酬
+     * @return array<\Nexus\Core\Resource\DataTransferObjects\Resource> 配布した報酬
      */
     public function process(int $sysPlayerId, ?string $lastLoginAt): array;
 

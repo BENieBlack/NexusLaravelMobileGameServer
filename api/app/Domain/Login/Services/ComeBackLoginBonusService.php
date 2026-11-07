@@ -3,12 +3,12 @@
 namespace App\Domain\Login\Services;
 
 use App\Models\Mst\MstLoginBonus;
+use Nexus\Core\ResourceDelivery\Services\ResourceDeliveryService;
 use Nexus\Core\Support\CustomCollection;
 use Nexus\Core\Utilities\ClockUtility;
 use NexusLogin\Repositories\LoginBonusHistoryRepositoryInterface;
 use NexusLogin\Repositories\LoginBonusRepositoryInterface;
 use NexusLogin\Services\_BaseLoginBonusService;
-use NexusResourceDelivery\Services\ResourceDeliveryService;
 
 /**
  * ComeBackLoginBonusService (Domain層)

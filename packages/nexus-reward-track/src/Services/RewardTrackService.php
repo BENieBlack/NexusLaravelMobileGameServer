@@ -2,9 +2,9 @@
 
 namespace NexusRewardTrack\Services;
 
+use Nexus\Core\ResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
+use Nexus\Core\ResourceDelivery\Services\ResourceDeliveryService;
 use Nexus\Core\Utilities\ClockUtility;
-use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
-use NexusResourceDelivery\Services\ResourceDeliveryService;
 use NexusRewardTrack\Contracts\RewardTrackMasterRepositoryInterface;
 use NexusRewardTrack\DataTransferObjects\RewardTrack;
 use NexusRewardTrack\DataTransferObjects\RewardTrackLine;

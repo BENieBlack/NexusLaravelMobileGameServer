@@ -3,8 +3,8 @@
 namespace Tests\Unit\Domain\Mailbox\Constants;
 
 use App\Domain\Mailbox\Constants\ContentType;
-use NexusResource\Enums\ResourceType;
-use NexusResourceDelivery\Services\ResourceDeliveryService;
+use Nexus\Core\Resource\Enums\ResourceType;
+use Nexus\Core\ResourceDelivery\Services\ResourceDeliveryService;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

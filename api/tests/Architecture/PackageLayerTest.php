@@ -39,10 +39,6 @@ class PackageLayerTest extends TestCase
         'nexus-core-auth' => self::FOUNDATION,
         'nexus-pitr' => self::FOUNDATION,
         'nexus-tidb' => self::FOUNDATION,
-        // 報酬（リソース）を配る仕組みは、ほぼ全ての機能が使うので、土台に含める。
-        // nexus-resource-delivery が WalletService を直接使うため、nexus-wallet も同じ層に置く
-        'nexus-resource' => self::FOUNDATION,
-        'nexus-resource-delivery' => self::FOUNDATION,
         'nexus-wallet' => self::FOUNDATION,
 
         'nexus-notification' => self::PLATFORM,

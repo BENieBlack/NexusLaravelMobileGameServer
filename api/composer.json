@@ -39,14 +39,6 @@
         },
         {
             "type": "path",
-            "url": "../packages/nexus-resource"
-        },
-        {
-            "type": "path",
-            "url": "../packages/nexus-resource-delivery"
-        },
-        {
-            "type": "path",
             "url": "../packages/nexus-login"
         },
         {
@@ -153,8 +145,6 @@
         "nexus/trade": "@dev",
         "nexus/notification": "@dev",
         "nexus/pitr": "@dev",
-        "nexus/resource": "@dev",
-        "nexus/resource-delivery": "@dev",
         "nexus/reward-track": "@dev",
         "nexus/stamina": "@dev",
         "nexus/tag": "@dev",
@@ -196,8 +186,6 @@
             "NexusNotification\\": "../packages/nexus-notification/src/",
             "NexusChat\\": "../packages/nexus-chat/src/",
             "NexusRewardTrack\\": "../packages/nexus-reward-track/src/",
-            "NexusResourceDelivery\\": "../packages/nexus-resource-delivery/src/",
-            "NexusResource\\": "../packages/nexus-resource/src/",
             "NexusSecurity\\": "../packages/nexus-core-security/src/",
             "NexusStamina\\": "../packages/nexus-stamina/src/",
             "NexusUnitOfWork\\": "../packages/nexus-core-unit-of-work/src/",

@@ -6,10 +6,10 @@ use App\Repositories\Log\LogVipLoginBonusReceiveRepository;
 use App\Repositories\Mst\VipLoginBonusRepositoryInterface;
 use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Trx\VipLoginBonusHistoryRepositoryInterface;
+use Nexus\Core\ResourceDelivery\Services\ResourceDeliveryService;
 use Nexus\Core\Support\CustomCollection;
 use Nexus\Core\Utilities\ClockUtility;
 use NexusLogin\Services\_BaseLoginBonusService;
-use NexusResourceDelivery\Services\ResourceDeliveryService;
 use NexusVip\Services\VipLevelService;
 
 /**

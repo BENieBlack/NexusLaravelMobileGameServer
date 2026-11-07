@@ -3,10 +3,10 @@
 namespace App\Domain\Mission\Listeners;
 
 use App\Domain\Mission\Constants\MissionTriggerType;
+use Nexus\Core\Resource\Enums\ResourceType;
+use Nexus\Core\Resource\Events\UnitLeveledUp;
 use NexusMission\Services\MissionService;
 use NexusMission\ValueObjects\MissionTrigger;
-use NexusResource\Enums\ResourceType;
-use NexusResource\Events\UnitLeveledUp;
 use NexusTag\Services\TagService;
 
 /**

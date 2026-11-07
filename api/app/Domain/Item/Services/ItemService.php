@@ -6,7 +6,7 @@ use App\Domain\Item\Contracts\ItemInventoryInterface;
 use App\Domain\Item\Support\WalletItemMigrator;
 use App\Models\Trx\TrxItem;
 use App\Repositories\Mst\MstItemRepository;
-use NexusResource\Services\ItemService as PackageItemService;
+use Nexus\Core\Resource\Services\ItemService as PackageItemService;
 use NexusWallet\Services\WalletService;
 
 /**
@@ -23,7 +23,7 @@ use NexusWallet\Services\WalletService;
  * WalletItemMigrator が触られた時点で Wallet へ移す。
  * そのため切り替えにメンテナンスは要らない。
  *
- * Note: ビジネスロジックはパッケージ層（NexusResource\Services\ItemService /
+ * Note: ビジネスロジックはパッケージ層（Nexus\Core\Resource\Services\ItemService /
  * NexusWallet\Services\WalletService）に存在する。
  */
 class ItemService implements ItemInventoryInterface

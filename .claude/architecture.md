@@ -98,7 +98,7 @@ Traits/                   UseCaseTrait, CompositePrimaryKeyTrait, RequiresAuthen
 | `nexus-core-auth` / `nexus-core-billing` | トークン発行・検証 / App Store・Google Play の課金連携 |
 | `nexus-pitr` | trx の変更ログ（PITR）、`ShardMapper`、`pitr:migrate` |
 | `nexus-tidb` | TiDBモードの切り替え（`TidbMode`） |
-| `nexus-resource-delivery` | 報酬配布。`ResourceDeliveryService` に `ResourceDeliveryHandlerInterface` 実装を登録する |
+| `nexus-core` の `ResourceDelivery`（`Nexus\Core\ResourceDelivery\`） | 報酬配布。`ResourceDeliveryService` に `ResourceDeliveryHandlerInterface` 実装を登録する。通貨の付与は `CurrencyGranterInterface`（実装は nexus-wallet） |
 
 ## 4. モジュール境界と公開API
 
@@ -141,7 +141,7 @@ $this->events?->dispatch(new PlayerLeveledUp($sysPlayerId, $beforeLevel, $afterL
 public function handle(PlayerLeveledUp $event): void { ... }
 ```
 
-現在の発行元は `PlayerLeveledUp`（nexus-level）、`VipLevelUpEvent`（nexus-vip）、`UnitLeveledUp`（nexus-resource。`UnitLevelService::onLevelUp()` が発行し、`Mission\Listeners\RecordMissionProgressOnUnitLevelUp` がミッションの進捗として数える）、`FriendApplySent` / `FriendApplyAccepted`（nexus-friend）、`GuildApplySent` / `GuildApplyAccepted` / `GuildApplyRejected` / `GuildMemberLeft`（nexus-guild）。フレンド・ギルドのイベントは `Notification\Listeners\NotifyOn*` が相手への通知にする。
+現在の発行元は `PlayerLeveledUp`（nexus-level）、`VipLevelUpEvent`（nexus-vip）、`UnitLeveledUp`（nexus-core の `Resource`。`UnitLevelService::onLevelUp()` が発行し、`Mission\Listeners\RecordMissionProgressOnUnitLevelUp` がミッションの進捗として数える）、`FriendApplySent` / `FriendApplyAccepted`（nexus-friend）、`GuildApplySent` / `GuildApplyAccepted` / `GuildApplyRejected` / `GuildMemberLeft`（nexus-guild）。フレンド・ギルドのイベントは `Notification\Listeners\NotifyOn*` が相手への通知にする。
 
 ## 6. パッケージとアプリの境界
 
@@ -155,7 +155,7 @@ api/app/Providers/AppServiceProvider                                 ← bind(�
 ```
 
 - 契約の置き場所はパッケージにより `Repositories/*RepositoryInterface` か `Contracts/*Interface`
-- Repository 以外の契約（`NexusResourceDelivery\Contracts\ItemGranterInterface` など）の実装は `app/Domain/{Context}/Services/*Adapter` に置く
+- Repository 以外の契約（`Nexus\Core\ResourceDelivery\Contracts\ItemGranterInterface` など）の実装は `app/Domain/{Context}/Services/*Adapter` に置く
 - `*RepositoryAdapter` の中に private/protected の変換メソッド（`*toDto*` / `Convert*`）を書かず、`App\Adapters` に委譲する（`ConverterLocationTest`）。`App\Adapters` 配下のクラスは `public static function toDto(` を持つ
 - パッケージ例外はゲーム固有のエラーコードを知らない。api 側で変換する（9節）
 
@@ -165,13 +165,13 @@ api/app/Providers/AppServiceProvider                                 ← bind(�
 
 | 層 | パッケージ | 依存してよいもの |
 |---|---|---|
-| foundation（土台） | nexus-core、nexus-core-unit-of-work、nexus-core-security、nexus-core-auth、nexus-pitr、nexus-tidb、nexus-resource、nexus-resource-delivery、nexus-wallet | foundation |
+| foundation（土台） | nexus-core（リソース `Resource` と報酬配布 `ResourceDelivery` を含む）、nexus-core-unit-of-work、nexus-core-security、nexus-core-auth、nexus-pitr、nexus-tidb、nexus-wallet | foundation |
 | platform（ゲーム共通の部品） | nexus-notification、nexus-mailbox | foundation、platform（循環なし） |
 | feature（機能） | 上記以外（gacha、trade、mission、login、reward-track、chat、event、friend、guild、vip など） | foundation、platform。**feature 同士は依存しない** |
 
 - アプリが `nexus-core`（foundation）に依存するのは前提。着脱の対象は、foundation 以外
 - feature は、他の feature が壊れずに外せる。feature 同士でやり取りが要るときは、消費する側のパッケージに契約（インターフェース）を定義し、api/app の Adapter で実装する（`TradeCostPayerInterface` が見本）。起きたことの通知は、ドメインイベント（5節）
-- 報酬（リソース）を配る仕組み（nexus-resource、nexus-resource-delivery）は、ほぼ全ての機能が使うので foundation に含める。`nexus-resource-delivery` が `WalletService` を直接使うため、nexus-wallet も foundation に置く
+- 報酬（リソース）を配る仕組みは、ほぼ全ての機能が使うので、`nexus-core` に含める（`Nexus\Core\Resource\`、`Nexus\Core\ResourceDelivery\`）。通貨の付与は、`nexus-core` が契約 `CurrencyGranterInterface` を定義し、`nexus-wallet` が実装する（`nexus-core` が `nexus-wallet` に依存すると循環し、`nexus-wallet` を外すと `nexus-core` が壊れるため）
 - platform は、feature が使う共通の部品（通知、メールボックス）。一緒に入れる前提で、feature が依存してよい
 - 使っているパッケージは、必ず `composer.json` の `require` に宣言する（`"nexus/<名前>": "@dev"`）。単体で入れたときに動くようにするため。宣言のずれと循環は `PackageLayerTest` が検出する
 - 新しいパッケージを足したら、`PackageLayerTest` の `LAYERS` に層を書く

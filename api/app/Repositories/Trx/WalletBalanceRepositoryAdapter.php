@@ -4,6 +4,7 @@ namespace App\Repositories\Trx;
 
 use App\Models\Trx\TrxWalletBalance;
 use Nexus\Core\Utilities\ClockUtility;
+use NexusWallet\DataTransferObjects\WalletBalanceEntry;
 use NexusWallet\Repositories\WalletBalanceRepositoryInterface;
 
 /**
@@ -25,20 +26,14 @@ class WalletBalanceRepositoryAdapter implements WalletBalanceRepositoryInterface
      *
      * @param  int  $playerId  プレイヤーID
      * @param  string  $currencyId  通貨アイテムID
-     * @return iterable<object> { id: int, is_paid: bool, current_amount: int, initial_amount: int, expire_at: ?string }
+     * @return iterable<WalletBalanceEntry>
      */
     public function selectAllByCurrencyIdFifoOrder(int $playerId, string $currencyId): iterable
     {
         $balances = $this->trxWalletBalanceRepository->selectAllBalancesByMstItemId($currencyId);
 
         foreach ($balances as $balance) {
-            yield (object) [
-                'id' => $balance->getId(),
-                'is_paid' => $balance->getIsPaid(),
-                'current_amount' => $balance->getCurrentAmount(),
-                'initial_amount' => $balance->getInitialAmount(),
-                'expire_at' => $balance->getExpireAt(),
-            ];
+            yield $this->toEntry($balance);
         }
     }
 
@@ -48,7 +43,7 @@ class WalletBalanceRepositoryAdapter implements WalletBalanceRepositoryInterface
      * @param  int  $playerId  プレイヤーID
      * @param  string  $currencyId  通貨アイテムID
      * @param  string  $currentTime  現在時刻 (Y-m-d H:i:s)
-     * @return iterable<object> { id: int, is_paid: bool, current_amount: int }
+     * @return iterable<WalletBalanceEntry>
      */
     public function selectAllExpiredByCurrencyId(int $playerId, string $currencyId, string $currentTime): iterable
     {
@@ -59,11 +54,7 @@ class WalletBalanceRepositoryAdapter implements WalletBalanceRepositoryInterface
         );
 
         foreach ($balances as $balance) {
-            yield (object) [
-                'id' => $balance->getId(),
-                'is_paid' => $balance->getIsPaid(),
-                'current_amount' => $balance->getCurrentAmount(),
-            ];
+            yield $this->toEntry($balance);
         }
     }
 
@@ -119,5 +110,16 @@ class WalletBalanceRepositoryAdapter implements WalletBalanceRepositoryInterface
             $balance->setCurrentAmount(0);
             $this->trxWalletBalanceRepository->setModel($balance);
         }
+    }
+
+    private function toEntry(TrxWalletBalance $trxWalletBalance): WalletBalanceEntry
+    {
+        return new WalletBalanceEntry(
+            id: $trxWalletBalance->getId(),
+            isPaid: $trxWalletBalance->getIsPaid(),
+            currentAmount: $trxWalletBalance->getCurrentAmount(),
+            initialAmount: $trxWalletBalance->getInitialAmount(),
+            expireAt: $trxWalletBalance->getExpireAt(),
+        );
     }
 }

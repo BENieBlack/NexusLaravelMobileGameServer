@@ -2,6 +2,8 @@
 
 namespace NexusWallet\Repositories;
 
+use NexusWallet\DataTransferObjects\WalletAmount;
+
 /**
  * Wallet Repository Interface
  *
@@ -14,9 +16,9 @@ interface WalletRepositoryInterface
      *
      * @param  int  $playerId  プレイヤーID
      * @param  string  $currencyId  通貨アイテムID
-     * @return object{free_amount: int, paid_amount: int, total_amount: int}|null
+     * @return WalletAmount|null
      */
-    public function selectByCurrencyId(int $playerId, string $currencyId): ?object;
+    public function selectByCurrencyId(int $playerId, string $currencyId): ?WalletAmount;
 
     /**
      * 通貨現在値を保存（INSERT or UPDATE）

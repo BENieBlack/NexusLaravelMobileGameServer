@@ -139,7 +139,7 @@ class UnitLevelService extends _BaseLevelService implements UnitExperienceInterf
             return null;
         }
 
-        return max(0, $nextLevelData->required_exp - $currentExp);
+        return max(0, $nextLevelData->getRequiredExp() - $currentExp);
     }
 
     // ========================================

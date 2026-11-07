@@ -71,7 +71,7 @@ class LogVipPointRepository extends _BaseLogRepository implements VipPointLogRep
             ->take($limit)
             ->map(function (LogVipPoint $log) {
                 return [
-                    'id' => $log->id,
+                    'id' => $log->getId(),
                     'before_vip_level' => $log->getBeforeVipLevel(),
                     'after_vip_level' => $log->getAfterVipLevel(),
                     'before_vip_point' => $log->getBeforeVipPoint(),

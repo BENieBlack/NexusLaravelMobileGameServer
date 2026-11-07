@@ -167,4 +167,20 @@ class TrxStamina extends _BaseTrx
     {
         return parent::toResponseArray();
     }
+
+    /**
+     * sys_player_id を取得
+     */
+    public function getSysPlayerId(): int
+    {
+        return $this->getAttribute('sys_player_id');
+    }
+
+    /**
+     * last_recovery_at を取得
+     */
+    public function getLastRecoveryAt(): string
+    {
+        return $this->getAttribute('last_recovery_at');
+    }
 }

@@ -61,7 +61,7 @@ class InAppPurchaseValidationService
         // _BasePurchaseLimitValidatorで制限チェック
         $isExceeded = $this->limitValidator->isLimitExceeded(
             $mstInAppPurchase->getPurchaseLimitCount(),
-            $trxInAppPurchase->purchase_count,
+            $trxInAppPurchase->getPurchaseCount(),
             $mstInAppPurchase->getPurchaseLimitReset() ?? PurchaseLimitResetType::NONE,
             $trxInAppPurchase->getPurchaseCountResetAt()
         );
@@ -70,7 +70,7 @@ class InAppPurchaseValidationService
         if ($isExceeded) {
             // 有効なカウント数を計算（リセット判定後）
             $effectiveCount = $this->limitValidator->calculateEffectiveCount(
-                $trxInAppPurchase->purchase_count,
+                $trxInAppPurchase->getPurchaseCount(),
                 $mstInAppPurchase->getPurchaseLimitReset() ?? PurchaseLimitResetType::NONE,
                 $trxInAppPurchase->getPurchaseCountResetAt()
             );
@@ -126,7 +126,7 @@ class InAppPurchaseValidationService
         $platformProduct = $this->getPlatformProduct($mstInAppPurchase, $billingPlatform);
 
         // マスターデータに価格が設定されていない場合は警告のみ
-        if ($platformProduct === null || $platformProduct->price_amount_micros === null) {
+        if ($platformProduct === null || $platformProduct->getPriceAmountMicros() === null) {
             Log::warning('Price validation skipped: No expected price in master data', [
                 'billing_platform' => $billingPlatform,
                 'product_id' => $verification->getProductId(),
@@ -138,13 +138,13 @@ class InAppPurchaseValidationService
         }
 
         // 価格照合
-        if ($verification->getPriceAmountMicros() !== $platformProduct->price_amount_micros) {
+        if ($verification->getPriceAmountMicros() !== $platformProduct->getPriceAmountMicros()) {
             Log::error('Price mismatch detected', [
                 'billing_platform' => $billingPlatform,
                 'product_id' => $verification->getProductId(),
-                'expected_price_micros' => $platformProduct->price_amount_micros,
+                'expected_price_micros' => $platformProduct->getPriceAmountMicros(),
                 'actual_price_micros' => $verification->getPriceAmountMicros(),
-                'expected_currency' => $platformProduct->price_currency_code,
+                'expected_currency' => $platformProduct->getPriceCurrencyCode(),
                 'actual_currency' => $verification->getPriceCurrencyCode(),
             ]);
 
@@ -155,12 +155,12 @@ class InAppPurchaseValidationService
         }
 
         // 通貨コード照合
-        if ($platformProduct->price_currency_code !== null
-            && $verification->getPriceCurrencyCode() !== $platformProduct->price_currency_code) {
+        if ($platformProduct->getPriceCurrencyCode() !== null
+            && $verification->getPriceCurrencyCode() !== $platformProduct->getPriceCurrencyCode()) {
             Log::error('Currency mismatch detected', [
                 'billing_platform' => $billingPlatform,
                 'product_id' => $verification->getProductId(),
-                'expected_currency' => $platformProduct->price_currency_code,
+                'expected_currency' => $platformProduct->getPriceCurrencyCode(),
                 'actual_currency' => $verification->getPriceCurrencyCode(),
             ]);
 
@@ -197,7 +197,7 @@ class InAppPurchaseValidationService
         string $billingPlatform
     ): float {
         $priceMicros = $verification->getPriceAmountMicros()
-            ?? $this->getPlatformProduct($mstInAppPurchase, $billingPlatform)?->price_amount_micros;
+            ?? $this->getPlatformProduct($mstInAppPurchase, $billingPlatform)?->getPriceAmountMicros();
 
         if ($priceMicros === null) {
             Log::warning('Purchase price is unknown', [
@@ -226,10 +226,10 @@ class InAppPurchaseValidationService
 
         return [
             // PHPの除算は割り切れるとintを返すため、宣言どおりfloatへ寄せる
-            'amount' => $platformProduct?->price_amount_micros !== null
-                ? (float) ((int) $platformProduct->price_amount_micros / 1_000_000)
+            'amount' => $platformProduct?->getPriceAmountMicros() !== null
+                ? (float) ((int) $platformProduct->getPriceAmountMicros() / 1_000_000)
                 : 0.0,
-            'currency' => $platformProduct?->price_currency_code,
+            'currency' => $platformProduct?->getPriceCurrencyCode(),
         ];
     }
 
@@ -249,7 +249,7 @@ class InAppPurchaseValidationService
         string $billingPlatform
     ): ?string {
         return $verification->getPriceCurrencyCode()
-            ?? $this->getPlatformProduct($mstInAppPurchase, $billingPlatform)?->price_currency_code;
+            ?? $this->getPlatformProduct($mstInAppPurchase, $billingPlatform)?->getPriceCurrencyCode();
     }
 
     /**

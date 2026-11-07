@@ -3,6 +3,7 @@
 namespace App\Models\Sys;
 
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * SysGuild Model
@@ -167,5 +168,21 @@ class SysGuild extends _BaseSys
     public function countMembers(): int
     {
         return $this->members()->count();
+    }
+
+    /**
+     * created_at（Y-m-d H:i:s）を取得
+     */
+    public function getCreatedAt(): string
+    {
+        return ClockUtility::parse((string) $this->getAttribute('created_at'))->format('Y-m-d H:i:s');
+    }
+
+    /**
+     * updated_at（Y-m-d H:i:s）を取得
+     */
+    public function getUpdatedAt(): string
+    {
+        return ClockUtility::parse((string) $this->getAttribute('updated_at'))->format('Y-m-d H:i:s');
     }
 }

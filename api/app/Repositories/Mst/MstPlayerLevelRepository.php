@@ -74,7 +74,7 @@ class MstPlayerLevelRepository extends _BaseMstRepository
     {
         $levelData = $this->selectByLevel($level);
 
-        return $levelData?->max_stamina;
+        return $levelData?->getMaxStamina();
     }
 
     /**
@@ -93,8 +93,8 @@ class MstPlayerLevelRepository extends _BaseMstRepository
         $levelCollection = $allRecords->sortByDesc('level');
 
         foreach ($levelCollection as $levelData) {
-            if ($exp >= $levelData->required_exp) {
-                return $levelData->level;
+            if ($exp >= $levelData->getRequiredExp()) {
+                return $levelData->getLevel();
             }
         }
 
@@ -121,6 +121,6 @@ class MstPlayerLevelRepository extends _BaseMstRepository
     {
         $levelData = $this->selectByLevel($level);
 
-        return $levelData?->required_exp;
+        return $levelData?->getRequiredExp();
     }
 }

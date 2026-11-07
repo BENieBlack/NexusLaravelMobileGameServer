@@ -3,6 +3,7 @@
 namespace App\Models\Sys;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Nexus\Core\Utilities\ClockUtility;
 
 /**
  * SysGuildApply Model
@@ -124,5 +125,21 @@ class SysGuildApply extends _BaseSys
     public function setStatus(string $status): void
     {
         $this->setAttribute('status', $status);
+    }
+
+    /**
+     * created_at（Y-m-d H:i:s）を取得
+     */
+    public function getCreatedAt(): string
+    {
+        return ClockUtility::parse((string) $this->getAttribute('created_at'))->format('Y-m-d H:i:s');
+    }
+
+    /**
+     * updated_at（Y-m-d H:i:s）を取得
+     */
+    public function getUpdatedAt(): string
+    {
+        return ClockUtility::parse((string) $this->getAttribute('updated_at'))->format('Y-m-d H:i:s');
     }
 }

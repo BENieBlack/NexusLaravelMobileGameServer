@@ -152,4 +152,12 @@ class LogVipPoint extends _BaseLog
     {
         return (string) $this->system_at;
     }
+
+    /**
+     * id を取得
+     */
+    public function getId(): int
+    {
+        return $this->getAttribute('id');
+    }
 }

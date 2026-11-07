@@ -18,13 +18,13 @@ class GachaProgressAdapter
     public static function toDto(TrxGacha $trxGacha): GachaProgress
     {
         return new GachaProgress(
-            sysPlayerId: $trxGacha->sys_player_id,
-            mstGachaId: $trxGacha->mst_gacha_id,
-            currentStep: $trxGacha->current_step,
-            dailyDrawCount: $trxGacha->daily_draw_count,
-            dailyResetAt: $trxGacha->daily_reset_at,
-            totalDrawCount: $trxGacha->total_draw_count,
-            totalResetAt: $trxGacha->total_reset_at
+            sysPlayerId: $trxGacha->getSysPlayerId(),
+            mstGachaId: $trxGacha->getMstGachaId(),
+            currentStep: $trxGacha->getCurrentStep(),
+            dailyDrawCount: $trxGacha->getDailyDrawCount(),
+            dailyResetAt: $trxGacha->getDailyResetAt(),
+            totalDrawCount: $trxGacha->getTotalDrawCount(),
+            totalResetAt: $trxGacha->getTotalResetAt()
         );
     }
 

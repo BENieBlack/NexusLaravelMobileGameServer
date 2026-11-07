@@ -65,4 +65,12 @@ class MstGachaStep extends _BaseMst
     {
         return (int) $this->getAttribute('draw_count');
     }
+
+    /**
+     * id を取得
+     */
+    public function getId(): string
+    {
+        return $this->getAttribute('id');
+    }
 }

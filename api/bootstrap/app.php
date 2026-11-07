@@ -3,6 +3,7 @@
 use App\Exceptions\GameException;
 use App\Http\Middleware\CheckMaintenance;
 use App\Http\Middleware\CheckMasterHash;
+use App\Http\Middleware\LockPlayerRequest;
 use App\Http\Middleware\ResolveBroadcastUser;
 use App\Http\Middleware\ResolveLanguage;
 use App\Http\Middleware\VerifyAdminToken;
@@ -42,6 +43,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
             'auth.token' => VerifyAccessToken::class,
             'auth.admin' => VerifyAdminToken::class,
             'idempotency' => IdempotencyMiddleware::class,
+            'player.lock' => LockPlayerRequest::class,
             'client.signature' => VerifyClientSignature::class,
             'throttle.signup' => ThrottleSignUp::class,
             'throttle.auth' => ThrottleAuth::class,

@@ -37,7 +37,7 @@ class TrxMailboxRepository extends _BaseTrxRepository
         bool $onlyProtected = false
     ): CustomCollection {
         $query = $this->modelClass::query()
-            ->with(['mstMailbox.message', 'mstMailbox.contentCollection'])
+            ->with(['mstMailbox.message.l10n', 'mstMailbox.contentCollection', 'trxPlayer'])
             ->where('sys_player_id', $sysPlayerId)
             ->where('is_delete', false);
 

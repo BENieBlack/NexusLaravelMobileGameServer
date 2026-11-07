@@ -20,6 +20,20 @@ class MailboxEndpointTest extends TestCase
     use RefreshMultipleDatabases;
 
     #[Test]
+    public function test_list_with_multiple_mailboxes_does_not_lazy_load_relations(): void
+    {
+        ['player' => $player, 'token' => $token] = $this->signUpPlayer();
+        $this->makeMailbox($player->id);
+        $this->makeMailbox($player->id);
+
+        // 複数件の一覧で、1件ごとにリレーションをSELECTしない（遅延読み込みは本番以外で例外になる）
+        $response = $this->withHeaders($this->authHeaders($token))->getJson('/api/mailbox/list');
+
+        $response->assertOk();
+        $this->assertCount(2, $response->json('mailbox_list'));
+    }
+
+    #[Test]
     public function test_lock_toggles_protection(): void
     {
         ['player' => $player, 'token' => $token] = $this->signUpPlayer();

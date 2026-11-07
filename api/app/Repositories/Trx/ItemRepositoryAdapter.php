@@ -27,10 +27,7 @@ class ItemRepositoryAdapter implements ItemRepositoryInterface
      */
     public function selectItem(int $sysPlayerId, string $mstItemId): ?Item
     {
-        $trxItem = TrxItem::query()
-            ->where('sys_player_id', $sysPlayerId)
-            ->where('mst_item_id', $mstItemId)
-            ->first();
+        $trxItem = $this->trxItemRepository->selectByMstItemId($sysPlayerId, $mstItemId);
 
         return $trxItem ? ItemAdapter::toDto($trxItem) : null;
     }
@@ -40,10 +37,7 @@ class ItemRepositoryAdapter implements ItemRepositoryInterface
      */
     public function persistItem(Item $item): void
     {
-        $trxItem = TrxItem::query()
-            ->where('sys_player_id', $item->getSysPlayerId())
-            ->where('mst_item_id', $item->getMstItemId())
-            ->first();
+        $trxItem = $this->trxItemRepository->selectByMstItemId($item->getSysPlayerId(), $item->getMstItemId());
 
         if ($trxItem) {
             // 既存レコードを更新

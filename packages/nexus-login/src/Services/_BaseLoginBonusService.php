@@ -8,6 +8,7 @@ use Nexus\Core\ResourceDelivery\Services\ResourceDeliveryService;
 use Nexus\Core\Support\CustomCollection;
 use Nexus\Core\Utilities\ClockUtility;
 use NexusLogin\Contracts\LoginBonusStrategyInterface;
+use NexusLogin\DataTransferObjects\LoginBonusContent;
 
 /**
  * _BaseLoginBonusService
@@ -65,12 +66,35 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
     abstract protected function findBonusContents(array $bonusData, int $currentDay): CustomCollection;
 
     /**
+     * 報酬の行（配列）を DTO に変換する
+     *
+     * @param  iterable<array<string, mixed>>  $rows
+     * @return CustomCollection<int, LoginBonusContent>
+     */
+    protected function toContents(iterable $rows): CustomCollection
+    {
+        $contents = [];
+        foreach ($rows as $row) {
+            $contents[] = new LoginBonusContent(
+                contentType: (string) $row['content_type'],
+                contentMstId: (string) $row['content_mst_id'],
+                contentOption: $row['content_option'] ?? null,
+                contentQuantity: (int) $row['content_quantity'],
+                amount: (int) $row['amount'],
+                isPaid: (bool) ($row['is_paid'] ?? false),
+            );
+        }
+
+        return new CustomCollection($contents);
+    }
+
+    /**
      * ログインボーナス履歴を記録（サブクラスで実装必須）
      *
      * @param  int  $sysPlayerId  プレイヤーID
      * @param  array<string, mixed>  $bonusData  ログインボーナスデータ
      * @param  int  $currentDay  現在の受け取り日数
-     * @param  CustomCollection<int, mixed>  $contents  報酬内容
+     * @param  CustomCollection<int, LoginBonusContent>  $contents  報酬内容
      * @return void
      */
     abstract protected function recordHistory(
@@ -264,30 +288,30 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
     /**
      * ContentをResourceに変換（サブクラスでオーバーライド可能）
      *
-     * @param  object{content_type: string, content_mst_id: string, content_quantity: int, amount: int, is_paid?: bool|int|null, content_option?: array<string, mixed>|null}  $content
+     * @param  LoginBonusContent  $content
      * @return resource
      */
-    protected function convertToResource(object $content): Resource
+    protected function convertToResource(LoginBonusContent $content): Resource
     {
         $metadata = [];
-        if (isset($content->is_paid) && $content->is_paid) {
+        if ($content->getIsPaid()) {
             $metadata['is_paid'] = true;
         }
 
-        if (! empty($content->content_option)) {
-            $metadata = [...$metadata, ...$content->content_option];
+        if (! empty($content->getContentOption())) {
+            $metadata = [...$metadata, ...$content->getContentOption()];
         }
 
         // content_type='wallet' の場合、content_mst_id をResourceTypeとして使用する
         // （DBのenum定義は 'wallet' だが、ResourceTypeには 'gold'/'coin' 等が存在する）
-        $typeString = $content->content_type === 'wallet'
-            ? $content->content_mst_id
-            : $content->content_type;
+        $typeString = $content->getContentType() === 'wallet'
+            ? $content->getContentMstId()
+            : $content->getContentType();
 
         return Resource::fromTypeString(
             typeString: $typeString,
-            id: $content->content_mst_id,
-            amount: $content->content_quantity * $content->amount,
+            id: $content->getContentMstId(),
+            amount: $content->getTotalQuantity(),
             metadata: empty($metadata) ? null : $metadata,
         );
     }

@@ -104,7 +104,7 @@ class ComeBackLoginBonusService extends _BaseLoginBonusService
             $currentDay
         );
 
-        return (new CustomCollection($contents))->map(fn ($content) => (object) $content);
+        return $this->toContents($contents);
     }
 
     /**
@@ -127,10 +127,10 @@ class ComeBackLoginBonusService extends _BaseLoginBonusService
                 day: $currentDay,
                 absentDays: $bonusData['absent_days'],
                 receivedDate: $receivedDate,
-                rewardType: $content->content_type,
-                rewardMstId: $content->content_mst_id,
-                rewardAmount: $content->content_quantity * $content->amount,
-                isPaid: $content->is_paid ?? false,
+                rewardType: $content->getContentType(),
+                rewardMstId: $content->getContentMstId(),
+                rewardAmount: $content->getTotalQuantity(),
+                isPaid: $content->getIsPaid(),
             );
         }
     }

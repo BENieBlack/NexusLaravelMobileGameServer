@@ -100,8 +100,7 @@ class VipLoginBonusService extends _BaseLoginBonusService
             $currentDay
         );
 
-        // stdClassに変換して返す
-        return $contents->map(fn ($content) => (object) $content);
+        return $this->toContents($contents);
     }
 
     /**
@@ -131,10 +130,10 @@ class VipLoginBonusService extends _BaseLoginBonusService
                 day: $currentDay,
                 vipLevel: $bonusData['current_vip_level'],
                 receivedAt: $receivedAt,
-                rewardType: $content->content_type,
-                rewardMstId: $content->content_mst_id,
-                rewardAmount: $content->content_quantity * $content->amount,
-                isPaid: $content->is_paid ?? false,
+                rewardType: $content->getContentType(),
+                rewardMstId: $content->getContentMstId(),
+                rewardAmount: $content->getTotalQuantity(),
+                isPaid: $content->getIsPaid(),
             );
         }
     }

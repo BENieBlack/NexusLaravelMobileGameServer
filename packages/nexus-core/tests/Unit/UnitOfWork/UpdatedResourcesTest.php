@@ -3,6 +3,7 @@
 namespace Nexus\Core\Tests\Unit\UnitOfWork;
 
 use Nexus\Core\Models\Trx\_BaseTrx;
+use Nexus\Core\UnitOfWork\Contracts\ReturnedAsSingleUpdatedResource;
 use Nexus\Core\UnitOfWork\Contracts\ReturnedAsUpdatedResource;
 use Nexus\Core\UnitOfWork\UpdatedResources;
 use PHPUnit\Framework\TestCase;
@@ -33,6 +34,20 @@ class UpdatedResourcesTest extends TestCase
         $this->assertSame(['fake_unit_list', 'fake_item_list'], array_keys($response));
         $this->assertCount(2, $response['fake_unit_list']);
         $this->assertCount(1, $response['fake_item_list']);
+    }
+
+    public function test_single_row_table_is_returned_as_an_object_without_list_suffix(): void
+    {
+        $updated = new UpdatedResources;
+        $updated->record(new FakeSingle(['id' => 1, 'level' => 5]));
+        $updated->record(new FakeSingle(['id' => 1, 'level' => 6]));
+        $updated->record(new FakeItem(['mst_item_id' => 'potion', 'amount' => 9]));
+
+        $response = $updated->toResponseArray();
+
+        $this->assertSame(['fake_single', 'fake_item_list'], array_keys($response));
+        // 配列ではなくオブジェクト1件。同じ行は最後の状態
+        $this->assertSame(['id' => 1, 'level' => 6], $response['fake_single']);
     }
 
     public function test_same_row_recorded_twice_keeps_the_latest_state(): void
@@ -127,6 +142,21 @@ class FakeItem extends _BaseTrx implements ReturnedAsUpdatedResource
 class FakeInternal extends _BaseTrx
 {
     protected $table = 'fake_internal';
+
+    protected $guarded = [];
+
+    public function toResponseArray(): array
+    {
+        return $this->getAttributes();
+    }
+}
+
+/**
+ * プレイヤーに1行しかないテーブル
+ */
+class FakeSingle extends _BaseTrx implements ReturnedAsSingleUpdatedResource
+{
+    protected $table = 'fake_single';
 
     protected $guarded = [];
 

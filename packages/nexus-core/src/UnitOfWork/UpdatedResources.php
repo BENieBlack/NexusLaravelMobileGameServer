@@ -3,6 +3,7 @@
 namespace Nexus\Core\UnitOfWork;
 
 use Nexus\Core\Models\_BaseModel;
+use Nexus\Core\UnitOfWork\Contracts\ReturnedAsSingleUpdatedResource;
 use Nexus\Core\UnitOfWork\Contracts\ReturnedAsUpdatedResource;
 
 /**
@@ -91,16 +92,27 @@ final class UpdatedResources
     /**
      * APIのレスポンス用の配列にする
      *
-     * @return array<string, list<array<string, mixed>>> '{テーブル名}_list' => 各行の toResponseArray()
+     * 1行しかないテーブル（ReturnedAsSingleUpdatedResource）は、'{テーブル名}' => オブジェクト1件。
+     * それ以外は、'{テーブル名}_list' => 各行の toResponseArray() の配列。
+     *
+     * @return array<string, array<mixed>>
      */
     public function toResponseArray(): array
     {
         $result = [];
 
         foreach ($this->models as $table => $models) {
+            $models = array_values($models);
+
+            if ($models[0] instanceof ReturnedAsSingleUpdatedResource) {
+                $result[$table] = $models[array_key_last($models)]->toResponseArray();
+
+                continue;
+            }
+
             $result[$table.'_list'] = array_map(
                 fn (_BaseModel $model) => $model->toResponseArray(),
-                array_values($models)
+                $models
             );
         }
 

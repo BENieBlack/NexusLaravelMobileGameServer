@@ -98,4 +98,21 @@ class LockPlayerRequestTest extends TestCase
 
         $lock->release();
     }
+
+    #[Test]
+    public function test_returns_503_when_lock_store_is_unavailable(): void
+    {
+        Cache::shouldReceive('lock')->andThrow(new \RuntimeException('redis down'));
+
+        $called = false;
+        $response = (new LockPlayerRequest)->handle($this->request('POST', 6), function () use (&$called) {
+            $called = true;
+
+            return response()->json(['ok' => true]);
+        });
+
+        // ロックなしで通すと同時更新で上書きされるので、通さない
+        $this->assertSame(503, $response->getStatusCode());
+        $this->assertFalse($called);
+    }
 }

@@ -84,4 +84,12 @@ class MstMessageL10n extends _BaseMst
     {
         return $this->getAttribute('body');
     }
+
+    /**
+     * 言語を取得
+     */
+    public function getLanguage(): string
+    {
+        return (string) $this->getAttribute('language');
+    }
 }

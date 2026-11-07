@@ -6,6 +6,8 @@ use App\Domain\Mailbox\Constants\ContentType;
 use App\Domain\Mailbox\DataTransferObjects\MailboxItem;
 use App\Domain\Mailbox\DataTransferObjects\MailboxItemContent;
 use App\Models\Mst\MstMailboxContent;
+use App\Models\Mst\MstMessage;
+use App\Models\Mst\MstMessageL10n;
 use App\Models\Trx\TrxMailbox;
 use App\Persistence\ApiSession;
 use Nexus\Core\Support\CustomCollection;
@@ -45,11 +47,10 @@ class MailboxItemAssemblyService
         $mstMailbox = $trxMailbox->mstMailbox;
         $mstMessage = $mstMailbox?->message;
 
-        // 該当言語の文言が無い場合は既定言語にフォールバックする（空文字を返さない）
-        $l10n = $mstMessage?->l10n()->where('language', $language)->first()
-            ?? ($language === $defaultLanguage
-                ? null
-                : $mstMessage?->l10n()->where('language', $defaultLanguage)->first());
+        // 該当言語の文言が無い場合は既定言語にフォールバックする（空文字を返さない）。
+        // l10n は一覧の取得時にまとめて読んであるので、ここでは SELECT しない
+        $l10n = $this->findL10n($mstMessage, $language)
+            ?? ($language === $defaultLanguage ? null : $this->findL10n($mstMessage, $defaultLanguage));
 
         // テンプレートレンダリング用のコンテキスト（alliance, battle などは必要に応じて追加）
         $context = ['player' => $trxMailbox->trxPlayer ?? null];
@@ -94,5 +95,10 @@ class MailboxItemAssemblyService
             createdAt: $trxMailbox->getCreatedAt(),
             contents: $contents,
         );
+    }
+
+    private function findL10n(?MstMessage $mstMessage, string $language): ?MstMessageL10n
+    {
+        return $mstMessage?->l10n->first(fn (MstMessageL10n $l10n) => $l10n->getLanguage() === $language);
     }
 }

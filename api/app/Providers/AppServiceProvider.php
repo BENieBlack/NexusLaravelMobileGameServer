@@ -85,6 +85,7 @@ use App\Repositories\Trx\UnitRepositoryAdapter;
 use App\Repositories\Trx\VipLoginBonusHistoryRepositoryInterface;
 use App\Repositories\Trx\WalletBalanceRepositoryAdapter;
 use App\Repositories\Trx\WalletRepositoryAdapter;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Schema;
@@ -459,6 +460,10 @@ class AppServiceProvider extends ServiceProvider
     {
         // Set default string length for database
         Schema::defaultStringLength(191);
+
+        // リレーションの遅延読み込み（1件ごとにSELECTが走るN+1）を、本番以外では例外にする。
+        // リレーションを使うときは、Repository で with() して先に読む
+        Model::preventLazyLoading(! $this->app->isProduction());
 
         // ドメインイベントの受け手（同期・同一UnitOfWork内で処理する）
         Event::listen(PlayerLeveledUp::class, RecoverStaminaOnPlayerLevelUp::class);

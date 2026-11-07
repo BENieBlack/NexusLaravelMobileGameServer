@@ -4,22 +4,27 @@ namespace App\Repositories\Mst;
 
 use Illuminate\Support\Facades\DB;
 use Nexus\Core\Utilities\ClockUtility;
+use NexusEvent\Constants\EventContentType;
+use NexusEvent\Services\EventPeriodResolver;
 use NexusRewardTrack\Contracts\RewardTrackMasterRepositoryInterface;
 
 class RewardTrackMasterRepository implements RewardTrackMasterRepositoryInterface
 {
+    public function __construct(
+        private readonly EventPeriodResolver $eventPeriodResolver,
+    ) {}
+
     public function selectActiveTracks(): array
     {
-        $now = ClockUtility::nowToString();
-
+        // イベントに入っているトラックは、イベントの期間で判定するため、期間はSQLで絞らず、上書きした後にPHPで判定する
         return DB::connection('mst')
             ->table('mst_reward_track')
             ->where('is_active', true)
-            ->where('start_at', '<=', $now)
-            ->where(fn ($q) => $q->whereNull('end_at')->orWhere('end_at', '>=', $now))
             ->orderByDesc('sort_desc')
             ->get()
-            ->map(fn ($r) => (array) $r)
+            ->map(fn ($r) => $this->applyEventPeriod((array) $r))
+            ->filter(fn (array $track) => ClockUtility::isWithin($track['start_at'], $track['end_at']))
+            ->values()
             ->all();
     }
 
@@ -30,7 +35,7 @@ class RewardTrackMasterRepository implements RewardTrackMasterRepositoryInterfac
             ->where('id', $trackId)
             ->first();
 
-        return $row ? (array) $row : null;
+        return $row ? $this->applyEventPeriod((array) $row) : null;
     }
 
     public function selectLinesByTrackId(string $trackId): array
@@ -91,5 +96,25 @@ class RewardTrackMasterRepository implements RewardTrackMasterRepositoryInterfac
             ->first();
 
         return $row ? ((array) $row)['id'] : null;
+    }
+
+    /**
+     * トラックがイベントに入っていれば、イベントの期間（start_at / end_at）で上書きする
+     *
+     * @param  array<string, mixed>  $track
+     * @return array<string, mixed>
+     */
+    private function applyEventPeriod(array $track): array
+    {
+        $period = $this->eventPeriodResolver->resolve(EventContentType::REWARD_TRACK, (string) $track['id']);
+
+        if ($period === null) {
+            return $track;
+        }
+
+        $track['start_at'] = $period->getStartAt();
+        $track['end_at'] = $period->getEndAt();
+
+        return $track;
     }
 }

@@ -149,8 +149,11 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
             return null;
         }
 
-        /** @phpstan-ignore argument.type (キャッシュのキーは常に文字列。TKey は呼び出し側の型付け用) */
-        return $this->models->get((string) $key);
+        // キャッシュのキーは常に文字列（TKey は呼び出し側の型付け用）
+        /** @var CustomCollection<string, TModel> $models */
+        $models = $this->models;
+
+        return $models->get((string) $key);
     }
 
     /**
@@ -188,8 +191,11 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
             $this->models = new CustomCollection;
         }
         $key = implode(':', array_map(fn ($uniqueKey) => $model->{$uniqueKey}, $this->getUniqueKeys()));
-        /** @phpstan-ignore argument.type (キャッシュのキーは常に文字列) */
-        $this->models->put($key, $model);
+
+        // キャッシュのキーは常に文字列
+        /** @var CustomCollection<string, TModel> $models */
+        $models = $this->models;
+        $models->put($key, $model);
     }
 
     /**

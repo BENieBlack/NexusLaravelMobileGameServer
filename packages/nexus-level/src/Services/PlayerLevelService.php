@@ -120,7 +120,7 @@ class PlayerLevelService extends _BaseLevelService
             return 0;
         }
 
-        return max(0, $nextLevelData['required_exp'] - $currentExp);
+        return max(0, $nextLevelData->getRequiredExp() - $currentExp);
     }
 
     // ========================================

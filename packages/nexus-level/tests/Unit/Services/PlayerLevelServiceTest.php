@@ -7,6 +7,7 @@ use Nexus\Core\Contracts\PlayerModelInterface;
 use Nexus\Core\DataTransferObjects\Player;
 use Nexus\Core\Repositories\PlayerRepositoryInterface;
 use NexusLevel\Contracts\PlayerLevelUpHandlerInterface;
+use NexusLevel\DataTransferObjects\PlayerLevelMaster;
 use NexusLevel\Events\PlayerLeveledUp;
 use NexusLevel\Repositories\PlayerLevelRepositoryInterface;
 use NexusLevel\Services\PlayerLevelService;
@@ -286,7 +287,7 @@ class FakePlayerLevelRepository implements PlayerLevelRepositoryInterface
      */
     public function __construct(private readonly array $levels) {}
 
-    public function selectByLevel(int $level): ?array
+    public function selectByLevel(int $level): ?PlayerLevelMaster
     {
         if (! isset($this->levels[$level])) {
             return null;
@@ -294,11 +295,7 @@ class FakePlayerLevelRepository implements PlayerLevelRepositoryInterface
 
         [$requiredExp, $maxStamina] = $this->levels[$level];
 
-        return [
-            'level' => $level,
-            'required_exp' => $requiredExp,
-            'max_stamina' => $maxStamina,
-        ];
+        return new PlayerLevelMaster($level, $requiredExp, $maxStamina);
     }
 
     public function calculateLevelFromExp(int $exp): int

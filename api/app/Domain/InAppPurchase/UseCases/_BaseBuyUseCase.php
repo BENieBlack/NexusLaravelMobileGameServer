@@ -99,7 +99,6 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
             );
 
             // 6. 購入処理・VIPポイント付与・課金ログを1つのトランザクションで実行
-            // （コミット後に、更新した trx＝ダイヤ・アイテム・ユニットなどを取り出して返す）
             return $this->executeWithTransaction(function () use (
                 $sysPlayerId,
                 $mstInAppPurchase,
@@ -137,7 +136,7 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
                 );
 
                 return $result;
-            })->withUpdatedResources($this->pullUpdatedResources());
+            });
         } catch (Throwable $e) {
             // 失敗もCS調査で追えるように記録する。
             // トランザクションはロールバック済みのため、ログだけ別途書き込む。

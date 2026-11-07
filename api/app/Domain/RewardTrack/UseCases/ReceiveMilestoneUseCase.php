@@ -19,7 +19,6 @@ class ReceiveMilestoneUseCase extends _BaseUseCase
         $sysPlayerId = ApiSession::getSysPlayerId();
         $connectionName = ApiSession::resolveConnectionName();
 
-        // コミット後に、この処理で更新した trx（受け取った報酬）を取り出して返す
         return $this->executeWithTransaction(
             fn () => ReceiveMilestoneResponse::from(
                 RewardTrackExceptionTranslator::translate(
@@ -31,6 +30,6 @@ class ReceiveMilestoneUseCase extends _BaseUseCase
                     )
                 )
             )
-        )->withUpdatedResources($this->pullUpdatedResources());
+        );
     }
 }

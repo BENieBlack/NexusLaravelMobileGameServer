@@ -3,6 +3,7 @@
 namespace App\Domain\Unit\Responses;
 
 use App\Domain\_BaseResponse;
+use App\Domain\ReturnsUpdatedResources;
 use App\Traits\HasUpdatedResources;
 
 /**
@@ -14,7 +15,7 @@ use App\Traits\HasUpdatedResources;
  * - Bool値: is_* / has_* プレフィックス
  * - 変更前後: before_* / after_*
  */
-class LevelUpResponse extends _BaseResponse
+class LevelUpResponse extends _BaseResponse implements ReturnsUpdatedResources
 {
     use HasUpdatedResources;
 

@@ -3,9 +3,10 @@
 namespace App\Domain\InAppPurchase\Responses;
 
 use App\Domain\_BaseResponse;
+use App\Domain\ReturnsUpdatedResources;
 use App\Traits\HasUpdatedResources;
 
-class BuyResponse extends _BaseResponse
+class BuyResponse extends _BaseResponse implements ReturnsUpdatedResources
 {
     use HasUpdatedResources;
 

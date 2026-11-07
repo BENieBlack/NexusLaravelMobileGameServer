@@ -3,10 +3,11 @@
 namespace App\Domain\RewardTrack\Responses;
 
 use App\Domain\_BaseResponse;
+use App\Domain\ReturnsUpdatedResources;
 use App\Traits\HasUpdatedResources;
 use NexusRewardTrack\DataTransferObjects\RewardTrackMilestone;
 
-class ReceiveMilestoneResponse extends _BaseResponse
+class ReceiveMilestoneResponse extends _BaseResponse implements ReturnsUpdatedResources
 {
     use HasUpdatedResources;
 

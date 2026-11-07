@@ -27,13 +27,12 @@ class ReceiveUseCase extends _BaseUseCase
      */
     public function handle(int $sysPlayerId, string $mstMissionId): ReceiveResponse
     {
-        // コミット後に、この処理で更新した trx（受け取った報酬）を取り出して返す
         return $this->executeWithTransaction(
             fn () => ReceiveResponse::from(
                 MissionExceptionTranslator::translate(
                     fn () => $this->missionService->receive($sysPlayerId, $mstMissionId)
                 )
             )
-        )->withUpdatedResources($this->pullUpdatedResources());
+        );
     }
 }

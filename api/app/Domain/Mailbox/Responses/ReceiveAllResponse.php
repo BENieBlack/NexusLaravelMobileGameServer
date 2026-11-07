@@ -3,6 +3,7 @@
 namespace App\Domain\Mailbox\Responses;
 
 use App\Domain\_BaseResponse;
+use App\Domain\ReturnsUpdatedResources;
 use App\Traits\HasUpdatedResources;
 use Nexus\Core\Resource\DataTransferObjects\Resource;
 use Nexus\Core\ResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
@@ -13,7 +14,7 @@ use Nexus\Core\ResourceDelivery\DataTransferObjects\ResourceDeliverySummary;
  *
  * 一括受取レスポンス
  */
-class ReceiveAllResponse extends _BaseResponse
+class ReceiveAllResponse extends _BaseResponse implements ReturnsUpdatedResources
 {
     use HasUpdatedResources;
 

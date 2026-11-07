@@ -3,7 +3,6 @@
 namespace Nexus\Core\UnitOfWork\Persistence;
 
 use Nexus\Core\Models\Log\_BaseLog;
-use Nexus\Core\Models\Trx\_BaseTrx;
 use Nexus\Core\Pitr\Logger\TrxChangeLogger;
 use Nexus\Core\Repositories\_BaseRepositoryInterface;
 use Nexus\Core\Repositories\Log\_BaseLogRepository;
@@ -40,7 +39,7 @@ class QueryManager implements QueryManagerInterface
     private array $purchaseLogRepositories = [];
 
     /**
-     * この処理でINSERT / UPDATEした trx のモデル（コミット後にレスポンスへ返す）
+     * この処理でINSERT / UPDATEしたモデル（ReturnedAsUpdatedResource を実装したものだけ）（コミット後にレスポンスへ返す）
      */
     private UpdatedResources $updatedResources;
 
@@ -120,7 +119,7 @@ class QueryManager implements QueryManagerInterface
         $this->batchExecutor->executeDeletes($operations['deletes']);
 
         // 更新したモデルを、レスポンス用に控える
-        $this->recordUpdatedResources($operations);
+        $this->updatedResources->recordOperations($operations);
 
         // PITRログをLogDBに記録（同一トランザクション内で実行）
         $this->flushPitrLogs();
@@ -133,29 +132,7 @@ class QueryManager implements QueryManagerInterface
     }
 
     /**
-     * INSERT / UPDATE したモデルのうち、trx のものを控える（物理削除は含めない）
-     *
-     * @param  array{inserts: array<string, array{models: array<int, mixed>}>, updates: array<int, array{model: mixed}>}  $operations
-     */
-    private function recordUpdatedResources(array $operations): void
-    {
-        foreach ($operations['inserts'] as $insert) {
-            foreach ($insert['models'] as $model) {
-                if ($model instanceof _BaseTrx) {
-                    $this->updatedResources->record($model);
-                }
-            }
-        }
-
-        foreach ($operations['updates'] as $update) {
-            if ($update['model'] instanceof _BaseTrx) {
-                $this->updatedResources->record($update['model']);
-            }
-        }
-    }
-
-    /**
-     * ここまでに更新した trx のモデルを取り出す（取り出すと空に戻る）
+     * ここまでに更新したモデルを取り出す（取り出すと空に戻る）
      *
      * コミット後に呼ぶ。複数回の flush() の分も、まとめて入っている。
      */

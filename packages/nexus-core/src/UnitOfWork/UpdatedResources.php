@@ -2,36 +2,65 @@
 
 namespace Nexus\Core\UnitOfWork;
 
-use Nexus\Core\Models\Trx\_BaseTrx;
+use Nexus\Core\Models\_BaseModel;
+use Nexus\Core\UnitOfWork\Contracts\ReturnedAsUpdatedResource;
 
 /**
  * UpdatedResources
  *
- * 1回の処理（UnitOfWork）で、INSERT / UPDATE された trx のモデルを、テーブルごとにまとめて持つ。
+ * 1回の処理（UnitOfWork）で、INSERT / UPDATE されたモデルを、テーブルごとにまとめて持つ。
  * クライアントに「何が変わったか」を返すためのもの。更新されたものだけが入る
  * （trx_unit_list、trx_item_list のように、テーブル名 + _list がキーになる）。
  *
+ * - 対象は、ReturnedAsUpdatedResource を実装したモデルだけ（許可リスト方式）。
+ *   実装していないテーブル（ログ、内訳、履歴など）は、更新されても入らない
  * - 同じ行が複数回更新されたら、1件にまとめる（最後の状態を持つ）
  * - 物理削除した行は含まない（論理削除 is_delete は更新なので含む）
- * - ログ（log_*）と sys のテーブルは含まない
  * - モデルの値は、書き込んだ時点のメモリ上の値。相対更新（free_amount + 5 のSQL）は、
  *   同時に別の処理が同じ行を更新していると、DBの値とずれることがある
  */
 final class UpdatedResources
 {
     /**
-     * @var array<string, array<string, _BaseTrx>> テーブル名 => 行のキー => モデル
+     * @var array<string, array<string, _BaseModel>> テーブル名 => 行のキー => モデル
      */
     private array $models = [];
 
     /**
      * 更新されたモデルを記録する
      *
+     * ReturnedAsUpdatedResource を実装していないモデルは、記録しない。
      * 同じ行（同じテーブルの同じキー）は、後から記録したもので置き換える。
      */
-    public function record(_BaseTrx $model): void
+    public function record(_BaseModel $model): void
     {
+        if (! $model instanceof ReturnedAsUpdatedResource) {
+            return;
+        }
+
         $this->models[$model->getTable()][$this->rowKey($model)] = $model;
+    }
+
+    /**
+     * UnitOfWork が実行した操作（INSERT / UPDATE）から、記録する（物理削除は含めない）
+     *
+     * @param  array{inserts: array<string, array{models: array<int, mixed>}>, updates: array<int, array{model: mixed}>}  $operations
+     */
+    public function recordOperations(array $operations): void
+    {
+        foreach ($operations['inserts'] as $insert) {
+            foreach ($insert['models'] as $model) {
+                if ($model instanceof _BaseModel) {
+                    $this->record($model);
+                }
+            }
+        }
+
+        foreach ($operations['updates'] as $update) {
+            if ($update['model'] instanceof _BaseModel) {
+                $this->record($update['model']);
+            }
+        }
     }
 
     public function isEmpty(): bool
@@ -52,7 +81,7 @@ final class UpdatedResources
     /**
      * 指定したテーブルの、更新されたモデル
      *
-     * @return list<_BaseTrx>
+     * @return list<_BaseModel>
      */
     public function getByTable(string $table): array
     {
@@ -70,7 +99,7 @@ final class UpdatedResources
 
         foreach ($this->models as $table => $models) {
             $result[$table.'_list'] = array_map(
-                fn (_BaseTrx $model) => $model->toResponseArray(),
+                fn (_BaseModel $model) => $model->toResponseArray(),
                 array_values($models)
             );
         }
@@ -83,7 +112,7 @@ final class UpdatedResources
      *
      * 主キーがまだ空のモデルは、モデルのインスタンスで区別する。
      */
-    private function rowKey(_BaseTrx $model): string
+    private function rowKey(_BaseModel $model): string
     {
         $values = [];
         foreach ($model->getUniqueKeys() as $column) {

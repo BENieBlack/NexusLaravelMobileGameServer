@@ -3,6 +3,7 @@
 namespace Nexus\Core\Tests\Unit\UnitOfWork;
 
 use Nexus\Core\Models\Trx\_BaseTrx;
+use Nexus\Core\UnitOfWork\Contracts\ReturnedAsUpdatedResource;
 use Nexus\Core\UnitOfWork\UpdatedResources;
 use PHPUnit\Framework\TestCase;
 
@@ -55,6 +56,33 @@ class UpdatedResourcesTest extends TestCase
         $this->assertCount(2, $updated->getByTable('fake_item'));
     }
 
+    public function test_models_not_marked_as_returned_are_not_recorded(): void
+    {
+        $updated = new UpdatedResources;
+        $updated->record(new FakeInternal(['id' => 1]));
+
+        $this->assertTrue($updated->isEmpty());
+    }
+
+    public function test_record_operations_takes_inserts_and_updates_but_not_deletes(): void
+    {
+        $inserted = new FakeUnit(['id' => 1, 'level' => 1]);
+        $updatedModel = new FakeItem(['sys_player_id' => 1, 'mst_item_id' => 'potion', 'amount' => 3]);
+        $deleted = new FakeUnit(['id' => 9, 'level' => 9]);
+
+        $updated = new UpdatedResources;
+        $updated->recordOperations([
+            'inserts' => ['trx1.fake_unit' => ['models' => [$inserted, new FakeInternal(['id' => 5])]]],
+            'updates' => [['model' => $updatedModel], ['model' => new FakeInternal(['id' => 6])]],
+            'deletes' => [['model' => $deleted]],
+        ]);
+
+        $this->assertSame(['fake_unit', 'fake_item'], $updated->getTables());
+        $this->assertCount(1, $updated->getByTable('fake_unit'));
+        $this->assertSame(1, $updated->getByTable('fake_unit')[0]->getAttribute('id'));
+        $this->assertCount(1, $updated->getByTable('fake_item'));
+    }
+
     public function test_models_without_primary_key_are_told_apart_by_instance(): void
     {
         $updated = new UpdatedResources;
@@ -65,7 +93,7 @@ class UpdatedResourcesTest extends TestCase
     }
 }
 
-class FakeUnit extends _BaseTrx
+class FakeUnit extends _BaseTrx implements ReturnedAsUpdatedResource
 {
     protected $table = 'fake_unit';
 
@@ -77,7 +105,7 @@ class FakeUnit extends _BaseTrx
     }
 }
 
-class FakeItem extends _BaseTrx
+class FakeItem extends _BaseTrx implements ReturnedAsUpdatedResource
 {
     protected $table = 'fake_item';
 
@@ -86,6 +114,21 @@ class FakeItem extends _BaseTrx
     protected $primaryKey = ['sys_player_id', 'mst_item_id'];
 
     public $incrementing = false;
+
+    public function toResponseArray(): array
+    {
+        return $this->getAttributes();
+    }
+}
+
+/**
+ * ReturnedAsUpdatedResource を実装していない（ログ・内訳・履歴のような内部用）モデル
+ */
+class FakeInternal extends _BaseTrx
+{
+    protected $table = 'fake_internal';
+
+    protected $guarded = [];
 
     public function toResponseArray(): array
     {

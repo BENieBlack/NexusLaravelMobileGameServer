@@ -4,6 +4,7 @@ namespace App\Models\Trx;
 
 use App\Traits\CompositePrimaryKeyTrait;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Nexus\Core\UnitOfWork\Contracts\ReturnedAsUpdatedResource;
 
 /**
  * TrxDiamond Model
@@ -15,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * paid_amount: 有償ダイヤモンド数
  * free_amount: 無償ダイヤモンド数
  */
-class TrxDiamond extends _BaseTrx
+class TrxDiamond extends _BaseTrx implements ReturnedAsUpdatedResource
 {
     use CompositePrimaryKeyTrait;
 

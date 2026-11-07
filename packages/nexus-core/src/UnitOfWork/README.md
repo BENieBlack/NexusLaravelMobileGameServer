@@ -10,7 +10,7 @@ Unit of Work pattern implementation for Laravel with batch operations, query opt
 - **Database Sharding**: Abstract player session interface for sharding support
 - **Batch Operations**: Efficient bulk inserts, updates, and deletes
 - **Operation Queueing**: Collect and execute database operations in batches
-- **Updated Resources**: 1回の処理で INSERT / UPDATE した trx のモデルを `UpdatedResources` にまとめ、コミット後に取り出せる（`QueryManagerInterface::pullUpdatedResources()`）。クライアントに「何が変わったか」（`trx_unit_list`、`trx_item_list` など、更新されたものだけ）を返すために使う
+- **Updated Resources**: 1回の処理で INSERT / UPDATE したモデルのうち、`ReturnedAsUpdatedResource` を実装したものだけを `UpdatedResources` にまとめ、コミット後に取り出せる（`QueryManagerInterface::pullUpdatedResources()`）。クライアントに「何が変わったか」（`trx_unit_list`、`trx_item_list` など、更新されたものだけ）を返すために使う
 
 ## Installation
 

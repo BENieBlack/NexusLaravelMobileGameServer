@@ -11,6 +11,7 @@ use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Exceptions\MasterDataException;
 use App\Exceptions\TransactionDataException;
+use App\Models\Mst\MstItem;
 use App\Repositories\Mst\MstItemRepository;
 use App\Repositories\Trx\TrxUnitRepository;
 use App\Traits\RequiresAuthenticationTrait;
@@ -47,13 +48,14 @@ class LevelUpUseCase extends _BaseUseCase
      * @param  int  $trxUnitId  trx_unit.id（プレイヤー所有ユニット）
      * @param  string  $mstItemId  mst_item.id（マスター定義アイテム）
      * @param  int  $useCount  使用個数
+     * @return MstItem 検証したアイテムマスター（handle() で再取得しない）
      *
      * @throws TransactionDataException ユニットが存在しない場合
      * @throws GameException ユニットがプレイヤーのものでない場合
      * @throws MasterDataException アイテムマスターが存在しない場合
      * @throws BusinessLogicException アイテムタイプが不正、または所持数が不足している場合
      */
-    public function validation(int $sysPlayerId, int $trxUnitId, string $mstItemId, int $useCount): void
+    public function validation(int $sysPlayerId, int $trxUnitId, string $mstItemId, int $useCount): MstItem
     {
         // 1. ユニットの存在確認
         $trxUnit = $this->trxUnitRepository->selectById($trxUnitId);
@@ -90,6 +92,8 @@ class LevelUpUseCase extends _BaseUseCase
         if ($currentAmount < $useCount) {
             throw BusinessLogicException::itemNotEnough($mstItemId, $useCount, $currentAmount);
         }
+
+        return $mstItem;
     }
 
     /**
@@ -104,13 +108,10 @@ class LevelUpUseCase extends _BaseUseCase
      */
     public function handle(int $sysPlayerId, int $trxUnitId, string $mstItemId, int $useCount): LevelUpResponse
     {
-        // バリデーション実行
-        $this->validation($sysPlayerId, $trxUnitId, $mstItemId, $useCount);
+        // バリデーション実行（検証したアイテムマスターが返る）
+        $mstItem = $this->validation($sysPlayerId, $trxUnitId, $mstItemId, $useCount);
 
-        return $this->executeWithTransaction(function () use ($sysPlayerId, $trxUnitId, $mstItemId, $useCount) {
-            // アイテムマスターデータを再取得（バリデーション済み）
-            $mstItem = $this->mstItemRepository->selectById($mstItemId)
-                ?? throw new \LogicException('アイテムが見つかりません');
+        return $this->executeWithTransaction(function () use ($sysPlayerId, $trxUnitId, $mstItemId, $useCount, $mstItem) {
 
             // アイテムを消費
             $this->itemService->consumeItem($sysPlayerId, $mstItemId, $useCount);

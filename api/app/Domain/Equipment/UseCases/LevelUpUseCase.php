@@ -11,6 +11,8 @@ use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Exceptions\MasterDataException;
 use App\Exceptions\TransactionDataException;
+use App\Models\Mst\MstItem;
+use App\Models\Trx\TrxEquipment;
 use App\Repositories\Log\LogEquipmentRepository;
 use App\Repositories\Mst\MstItemRepository;
 use App\Repositories\Trx\TrxEquipmentRepository;
@@ -52,13 +54,14 @@ class LevelUpUseCase extends _BaseUseCase
      * @param  int  $trxEquipmentId  trx_equipment.id（プレイヤー所有装備）
      * @param  string  $mstItemId  mst_item.id（装備経験値アイテム）
      * @param  int  $afterLevel  目標レベル
+     * @return array{trxEquipment: TrxEquipment, mstItem: MstItem} 検証した装備とアイテムマスター（handle() で再取得しない）
      *
      * @throws TransactionDataException 装備が存在しない場合
      * @throws GameException 装備がプレイヤーのものでない場合、または目標レベルが現在レベル以下の場合
      * @throws MasterDataException アイテムマスターが存在しない場合
      * @throws BusinessLogicException アイテムタイプが不正、または所持数が不足している場合
      */
-    public function validation(int $sysPlayerId, int $trxEquipmentId, string $mstItemId, int $afterLevel): void
+    public function validation(int $sysPlayerId, int $trxEquipmentId, string $mstItemId, int $afterLevel): array
     {
         // 1. 装備の存在確認
         $trxEquipment = $this->trxEquipmentRepository->selectById($trxEquipmentId);
@@ -116,6 +119,8 @@ class LevelUpUseCase extends _BaseUseCase
         if ($currentAmount < $requiredItemCount) {
             throw BusinessLogicException::itemNotEnough($mstItemId, $requiredItemCount, $currentAmount);
         }
+
+        return ['trxEquipment' => $trxEquipment, 'mstItem' => $mstItem];
     }
 
     /**
@@ -130,26 +135,20 @@ class LevelUpUseCase extends _BaseUseCase
      */
     public function handle(int $sysPlayerId, int $trxEquipmentId, string $mstItemId, int $afterLevel): LevelUpResponse
     {
-        // バリデーション実行
-        $this->validation($sysPlayerId, $trxEquipmentId, $mstItemId, $afterLevel);
+        // バリデーション実行（検証した装備とアイテムマスターが返る）
+        ['trxEquipment' => $trxEquipmentBefore, 'mstItem' => $mstItem] = $this->validation($sysPlayerId, $trxEquipmentId, $mstItemId, $afterLevel);
 
-        return $this->executeWithTransaction(function () use ($sysPlayerId, $trxEquipmentId, $mstItemId, $afterLevel) {
+        return $this->executeWithTransaction(function () use ($sysPlayerId, $trxEquipmentId, $mstItemId, $afterLevel, $trxEquipmentBefore, $mstItem) {
             // ユニークリクエストIDを生成
             $uniqueRequestId = Str::uuid()->toString();
 
             // レベルアップ前の状態を控える
             // Repositoryは同じModelインスタンスを返すため、参照を持つだけでは
             // 加算後に書き換わってしまう。値をここで取り出しておく
-            $trxEquipmentBefore = $this->trxEquipmentRepository->selectById($trxEquipmentId)
-                ?? throw new \LogicException('装備が見つかりません');
             $mstEquipmentId = $trxEquipmentBefore->getMstEquipmentId();
             $beforeGrade = $trxEquipmentBefore->getGrade();
             $beforeLevel = $trxEquipmentBefore->getLevel();
             $beforeLevelExp = $trxEquipmentBefore->getLevelExp();
-
-            // アイテムマスターデータを再取得（バリデーション済み）
-            $mstItem = $this->mstItemRepository->selectById($mstItemId)
-                ?? throw new \LogicException('アイテムが見つかりません');
 
             // 必要な経験値を計算
             $requiredExp = $this->equipmentLevelService->calculateRequiredExp($trxEquipmentId, $afterLevel);

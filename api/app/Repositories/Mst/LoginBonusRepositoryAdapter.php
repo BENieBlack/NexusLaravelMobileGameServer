@@ -27,9 +27,9 @@ class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
      */
     public function selectLoopDaysForActiveBonus(): ?int
     {
-        $bonus = $this->firstOpenDailyBonus();
+        $mstLoginBonus = $this->firstOpenDailyBonus();
 
-        return $bonus === null ? null : (int) $bonus->getAttribute('loop_days');
+        return $mstLoginBonus === null ? null : (int) $mstLoginBonus->getAttribute('loop_days');
     }
 
     /**
@@ -37,9 +37,9 @@ class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
      */
     public function selectActiveByDay(int $day): ?array
     {
-        $bonus = $this->firstOpenDailyBonus();
+        $mstLoginBonus = $this->firstOpenDailyBonus();
 
-        return $bonus ? $bonus->toArray() : null;
+        return $mstLoginBonus ? $mstLoginBonus->toArray() : null;
     }
 
     /**
@@ -52,9 +52,9 @@ class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
      */
     public function selectActiveDailyBonus(): ?array
     {
-        $bonus = $this->firstOpenDailyBonus();
+        $mstLoginBonus = $this->firstOpenDailyBonus();
 
-        return $bonus ? $bonus->toArray() : null;
+        return $mstLoginBonus ? $mstLoginBonus->toArray() : null;
     }
 
     /**
@@ -75,7 +75,7 @@ class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
     public function selectEligibleComebackBonus(int $absentDays): ?array
     {
         // 期間は、イベントに入っていればイベントの期間で判定するため、SQLで絞らずPHPで判定する
-        $bonus = MstLoginBonus::comebackType()
+        $mstLoginBonus = MstLoginBonus::comebackType()
             ->active()
             ->where('required_absent_days', '<=', $absentDays)
             ->orderByDesc('priority')
@@ -83,7 +83,7 @@ class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
             ->get()
             ->first(fn (MstLoginBonus $candidate) => $this->isComebackBonusOpen($candidate));
 
-        return $bonus ? $bonus->toArray() : null;
+        return $mstLoginBonus ? $mstLoginBonus->toArray() : null;
     }
 
     /**
@@ -91,12 +91,12 @@ class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
      */
     public function selectActiveComebackBonusById(string $loginBonusId): ?array
     {
-        $bonus = MstLoginBonus::comebackType()
+        $mstLoginBonus = MstLoginBonus::comebackType()
             ->active()
             ->whereKey($loginBonusId)
             ->first();
 
-        return $bonus !== null && $this->isComebackBonusOpen($bonus) ? $bonus->toArray() : null;
+        return $mstLoginBonus !== null && $this->isComebackBonusOpen($mstLoginBonus) ? $mstLoginBonus->toArray() : null;
     }
 
     /**
@@ -158,8 +158,8 @@ class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
         return MstLoginBonus::dailyType()
             ->active()
             ->get()
-            ->first(function (MstLoginBonus $bonus) {
-                $period = $this->eventPeriodResolver->resolve(EventContentType::LOGIN_BONUS, (string) $bonus->getKey());
+            ->first(function (MstLoginBonus $mstLoginBonus) {
+                $period = $this->eventPeriodResolver->resolve(EventContentType::LOGIN_BONUS, (string) $mstLoginBonus->getKey());
 
                 return $period === null || ClockUtility::isWithin($period->getStartAt(), $period->getEndAt());
             });
@@ -170,14 +170,14 @@ class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
      *
      * イベントに入っていればイベントの期間、入っていなければ自身の start_at / end_at（NULLは制限なし）で判定する。
      */
-    private function isComebackBonusOpen(MstLoginBonus $bonus): bool
+    private function isComebackBonusOpen(MstLoginBonus $mstLoginBonus): bool
     {
-        $period = $this->eventPeriodResolver->resolve(EventContentType::LOGIN_BONUS, (string) $bonus->getKey());
+        $period = $this->eventPeriodResolver->resolve(EventContentType::LOGIN_BONUS, (string) $mstLoginBonus->getKey());
 
         if ($period !== null) {
             return ClockUtility::isWithin($period->getStartAt(), $period->getEndAt());
         }
 
-        return ClockUtility::isWithin($bonus->getRawOriginal('start_at'), $bonus->getRawOriginal('end_at'));
+        return ClockUtility::isWithin($mstLoginBonus->getRawOriginal('start_at'), $mstLoginBonus->getRawOriginal('end_at'));
     }
 }

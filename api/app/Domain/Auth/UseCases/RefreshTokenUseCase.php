@@ -26,7 +26,7 @@ class RefreshTokenUseCase extends _BaseUseCase
     public function __construct(
         private readonly TokenService $tokenService,
         private readonly PlayerAuthService $playerAuthService,
-        private readonly SysPlayerRepository $playerRepository,
+        private readonly SysPlayerRepository $sysPlayerRepository,
     ) {}
 
     /**
@@ -51,14 +51,14 @@ class RefreshTokenUseCase extends _BaseUseCase
             }
 
             // プレイヤーとデバイスを取得
-            $player = $this->playerRepository->selectById($oldToken->getPlayerId());
+            $sysPlayer = $this->sysPlayerRepository->selectById($oldToken->getPlayerId());
 
             // SysPlayerTokenからdevice_idを取得
             /** @var SysPlayerToken $oldToken */
             $deviceId = $oldToken->getSysPlayerDeviceId();
-            $device = SysPlayerDevice::find($deviceId);
+            $sysPlayerDevice = SysPlayerDevice::find($deviceId);
 
-            if ($player === null || $device === null) {
+            if ($sysPlayer === null || $sysPlayerDevice === null) {
                 throw new GameException(
                     GameErrorCode::PLAYER_NOT_FOUND,
                     'Player or device not found'
@@ -68,8 +68,8 @@ class RefreshTokenUseCase extends _BaseUseCase
             // トークンをローテーション（古いトークンを無効化して新しいトークンを発行）
             [$token, $newToken] = $this->tokenService->rotateToken(
                 $oldToken,
-                $player,
-                $device,
+                $sysPlayer,
+                $sysPlayerDevice,
                 fn ($playerId, $deviceId, $tokenHash, $expiresAt) => $this->newSysPlayerToken(
                     $playerId,
                     $deviceId,
@@ -79,7 +79,7 @@ class RefreshTokenUseCase extends _BaseUseCase
             );
 
             // 最終ログイン日時を更新
-            $this->playerAuthService->updateLastLogin($device->getUuid());
+            $this->playerAuthService->updateLastLogin($sysPlayerDevice->getUuid());
 
             return $token;
         });

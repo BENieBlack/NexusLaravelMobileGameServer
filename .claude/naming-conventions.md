@@ -18,6 +18,7 @@
 - Request / Response の `*_id` キーは `sys_` / `trx_` / `mst_` / `log_` で始める。ResponseKeyNamingTest が検査し、例外（`my_id`, `device_id`, `sender_sys_player_id` など）はテストの `ALLOWED` にある（`api/tests/Architecture/ResponseKeyNamingTest.php`）。
 - 同じテーブルを役割違いで2本持つ列は役割を前に付ける: `sender_sys_player_id` / `receiver_sys_player_id`。
 - Eloquent モデルを入れる変数・プロパティもテーブル名で呼ぶ: `$trxUnit`, `$mstItem`, `$sysPlayer`（`api/app/Domain/Unit/UseCases/LevelUpUseCase.php`）。
+- 変数名は、実際に入る具体的な型で付ける。`$player` / `$device` ではなく `$sysPlayer` / `$sysPlayerDevice`。パッケージの戻り値の型がインターフェース（`PlayerModelInterface` など）でも、アプリが受け取る実体が分かっているなら、`instanceof` で確かめて具体名の変数に入れる。実体を特定できないときだけ、インターフェース名で付けてよい。
 
 ## bool と変更前後
 

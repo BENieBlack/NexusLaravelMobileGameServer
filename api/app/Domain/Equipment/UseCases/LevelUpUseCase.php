@@ -41,7 +41,7 @@ class LevelUpUseCase extends _BaseUseCase
 
     public function __construct(
         private readonly EquipmentLevelService $equipmentLevelService,
-        private readonly ItemInventoryInterface $itemService,
+        private readonly ItemInventoryInterface $itemInventory,
         private readonly MstItemRepository $mstItemRepository,
         private readonly TrxEquipmentRepository $trxEquipmentRepository,
         private readonly LogEquipmentRepository $logEquipmentRepository,
@@ -115,7 +115,7 @@ class LevelUpUseCase extends _BaseUseCase
         $requiredItemCount = (int) ceil($requiredExp / $expPerItem);
 
         // 5. アイテム所持数確認
-        $currentAmount = $this->itemService->findItemAmount($sysPlayerId, $mstItemId);
+        $currentAmount = $this->itemInventory->findItemAmount($sysPlayerId, $mstItemId);
         if ($currentAmount < $requiredItemCount) {
             throw BusinessLogicException::itemNotEnough($mstItemId, $requiredItemCount, $currentAmount);
         }
@@ -158,7 +158,7 @@ class LevelUpUseCase extends _BaseUseCase
             $requiredItemCount = (int) ceil($requiredExp / $expPerItem);
 
             // アイテムを消費（消費後のデータを取得）
-            $trxItem = $this->itemService->consumeItem($sysPlayerId, $mstItemId, $requiredItemCount);
+            $trxItem = $this->itemInventory->consumeItem($sysPlayerId, $mstItemId, $requiredItemCount);
 
             // 経験値を加算（更新後の装備データを取得）
             // mst_item.value は double なので、経験値として使う前に整数へ切り捨てる

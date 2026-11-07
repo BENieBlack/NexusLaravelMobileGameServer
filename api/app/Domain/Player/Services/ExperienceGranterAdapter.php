@@ -24,8 +24,8 @@ class ExperienceGranterAdapter implements ExperienceGranterInterface
 {
     public function __construct(
         private readonly PlayerLevelService $playerLevelService,
-        private readonly UnitExperienceInterface $unitLevelService,
-        private readonly EquipmentExperienceInterface $equipmentLevelService,
+        private readonly UnitExperienceInterface $unitExperience,
+        private readonly EquipmentExperienceInterface $equipmentExperience,
         private readonly TrxUnitRepository $trxUnitRepository,
         private readonly TrxEquipmentRepository $trxEquipmentRepository,
     ) {}
@@ -68,7 +68,7 @@ class ExperienceGranterAdapter implements ExperienceGranterInterface
             throw new \InvalidArgumentException("Unit does not belong to player: {$trxUnitId}");
         }
 
-        $this->unitLevelService->addExpWithDetails($trxUnitId, $amount);
+        $this->unitExperience->addExpWithDetails($trxUnitId, $amount);
     }
 
     /**
@@ -84,7 +84,7 @@ class ExperienceGranterAdapter implements ExperienceGranterInterface
             throw new \InvalidArgumentException("Equipment does not belong to player: {$trxEquipmentId}");
         }
 
-        $this->equipmentLevelService->addExpAndReturn($trxEquipmentId, $amount);
+        $this->equipmentExperience->addExpAndReturn($trxEquipmentId, $amount);
     }
 
     /**

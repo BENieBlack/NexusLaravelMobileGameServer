@@ -134,4 +134,12 @@ class MstGachaStepBonusContent extends _BaseMst
     {
         return $this->getAttribute('is_active');
     }
+
+    /**
+     * id を取得
+     */
+    public function getId(): string
+    {
+        return $this->getAttribute('id');
+    }
 }

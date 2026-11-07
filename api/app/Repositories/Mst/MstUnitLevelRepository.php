@@ -106,8 +106,8 @@ class MstUnitLevelRepository extends _BaseMstRepository
 
         // 降順でソートし、最初にrequired_exp <= expとなるレベルを見つける
         foreach ($levelCollection as $levelData) {
-            if ($exp >= $levelData->required_exp) {
-                return $levelData->level;
+            if ($exp >= $levelData->getRequiredExp()) {
+                return $levelData->getLevel();
             }
         }
 
@@ -125,7 +125,7 @@ class MstUnitLevelRepository extends _BaseMstRepository
     {
         $levelData = $this->selectByRarityAndLevel($rarity, $level);
 
-        return $levelData?->required_exp;
+        return $levelData?->getRequiredExp();
     }
 
     /**
@@ -146,7 +146,7 @@ class MstUnitLevelRepository extends _BaseMstRepository
             return null;
         }
 
-        $remaining = $nextLevelData->required_exp - $currentExp;
+        $remaining = $nextLevelData->getRequiredExp() - $currentExp;
 
         return max(0, $remaining);
     }

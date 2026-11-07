@@ -103,4 +103,12 @@ class MstGachaPrize extends _BaseMst
     {
         return $this->getContentQuantity() * $this->getAmount();
     }
+
+    /**
+     * weight を取得
+     */
+    public function getWeight(): int
+    {
+        return $this->getAttribute('weight');
+    }
 }

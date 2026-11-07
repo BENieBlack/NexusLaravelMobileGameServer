@@ -34,22 +34,22 @@ class CheckResponse extends _BaseResponse
         }
 
         if ($this->needsUpdate && $this->sysDeploy !== null) {
-            $data['sys_deploy_id'] = $this->sysDeploy->id;
-            $data['latest_deploy_key'] = $this->sysDeploy->deploy_key;
+            $data['sys_deploy_id'] = $this->sysDeploy->getKey();
+            $data['latest_deploy_key'] = $this->sysDeploy->getDeployKey();
 
             // マスターデータ情報
             if ($this->sysDeploy->deployMaster !== null) {
                 $tableArray = [];
                 foreach ($this->sysDeploy->deployMaster->tables as $table) {
-                    $tableArray[$table->table_name] = [
-                        'hash' => $table->hash,
-                        'url' => $table->public_url,
-                        'file_size' => $table->file_size,
+                    $tableArray[$table->getTableName()] = [
+                        'hash' => $table->getHash(),
+                        'url' => $table->getPublicUrl(),
+                        'file_size' => $table->getFileSize(),
                     ];
                 }
                 $data['master'] = [
-                    'sys_deploy_master_id' => $this->sysDeploy->sys_deploy_master_id,
-                    'hash' => $this->sysDeploy->deployMaster->hash,
+                    'sys_deploy_master_id' => $this->sysDeploy->getSysDeployMasterId(),
+                    'hash' => $this->sysDeploy->deployMaster->getHash(),
                     'tables' => $tableArray,
                 ];
             }
@@ -57,8 +57,8 @@ class CheckResponse extends _BaseResponse
             // アセットデータ情報
             if ($this->sysDeploy->deployAsset !== null) {
                 $data['asset'] = [
-                    'sys_deploy_asset_id' => $this->sysDeploy->sys_deploy_asset_id,
-                    'hash' => $this->sysDeploy->deployAsset->hash,
+                    'sys_deploy_asset_id' => $this->sysDeploy->getSysDeployAssetId(),
+                    'hash' => $this->sysDeploy->deployAsset->getHash(),
                 ];
             }
         }

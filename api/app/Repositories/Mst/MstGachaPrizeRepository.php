@@ -27,7 +27,7 @@ class MstGachaPrizeRepository extends _BaseMstRepository implements GachaPrizeRe
                 contentMstId: $prize->getContentMstId(),
                 contentOption: $prize->getContentOption(),
                 amount: $prize->getAmount(),
-                weight: $prize->weight,
+                weight: $prize->getWeight(),
             ))
             ->all());
     }

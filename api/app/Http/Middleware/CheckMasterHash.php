@@ -32,7 +32,7 @@ class CheckMasterHash
 
         try {
             $sysDeploy = $this->sysDeployRepository->selectLatestDownloadable();
-            $masterHash = $sysDeploy?->deployMaster?->hash;
+            $masterHash = $sysDeploy?->deployMaster?->getHash();
 
             if ($masterHash === null || hash_equals((string) $masterHash, $clientHash)) {
                 return $response;

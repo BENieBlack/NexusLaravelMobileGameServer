@@ -145,4 +145,20 @@ class SysGuildMember extends _BaseSys
     {
         $this->setAttribute('joined_at', $joinedAt);
     }
+
+    /**
+     * created_at（Y-m-d H:i:s）を取得
+     */
+    public function getCreatedAt(): string
+    {
+        return ClockUtility::parse((string) $this->getAttribute('created_at'))->format('Y-m-d H:i:s');
+    }
+
+    /**
+     * updated_at（Y-m-d H:i:s）を取得
+     */
+    public function getUpdatedAt(): string
+    {
+        return ClockUtility::parse((string) $this->getAttribute('updated_at'))->format('Y-m-d H:i:s');
+    }
 }

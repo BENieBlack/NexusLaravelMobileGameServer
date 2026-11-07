@@ -99,7 +99,7 @@ class RecoverStaminaOnPlayerLevelUp
         }
 
         // 経過秒数を計算
-        $elapsedSeconds = ClockUtility::diffInSeconds($stamina->last_recovery_at);
+        $elapsedSeconds = ClockUtility::diffInSeconds($stamina->getLastRecoveryAt());
 
         // 回復速度倍率を適用（5分 = 300秒で1ポイント回復）
         $effectiveElapsedSeconds = $elapsedSeconds * $stamina->getRecoveryRateMultiplier();
@@ -116,7 +116,7 @@ class RecoverStaminaOnPlayerLevelUp
 
         // 次回回復基準時刻を計算（余剰秒数は切り捨て）
         $recoveredSeconds = $recoveredPoints * self::RECOVERY_INTERVAL_SECONDS;
-        $lastRecoveryAt = ClockUtility::parse($stamina->last_recovery_at);
+        $lastRecoveryAt = ClockUtility::parse($stamina->getLastRecoveryAt());
         $newLastRecoveryAt = $lastRecoveryAt->addSeconds((int) floor($recoveredSeconds / $stamina->getRecoveryRateMultiplier()));
 
         // 値を更新

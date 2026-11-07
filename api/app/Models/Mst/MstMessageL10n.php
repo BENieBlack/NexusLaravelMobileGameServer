@@ -68,4 +68,20 @@ class MstMessageL10n extends _BaseMst
     {
         return parent::toResponseArray();
     }
+
+    /**
+     * title を取得
+     */
+    public function getTitle(): string
+    {
+        return $this->getAttribute('title');
+    }
+
+    /**
+     * body を取得
+     */
+    public function getBody(): string
+    {
+        return $this->getAttribute('body');
+    }
 }

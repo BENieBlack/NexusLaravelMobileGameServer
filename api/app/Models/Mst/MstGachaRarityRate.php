@@ -36,4 +36,20 @@ class MstGachaRarityRate extends _BaseMst
     ];
 
     public $timestamps = true;
+
+    /**
+     * rarity を取得
+     */
+    public function getRarity(): int
+    {
+        return $this->getAttribute('rarity');
+    }
+
+    /**
+     * rate を取得
+     */
+    public function getRate(): int
+    {
+        return $this->getAttribute('rate');
+    }
 }

@@ -70,3 +70,4 @@ parameters:
 rules:
     - App\PHPStan\Rules\NoDirectEloquentSaveInServiceRule
     - App\PHPStan\Rules\NoGetAttributeOutsideModelsRule
+    - App\PHPStan\Rules\NoModelColumnPropertyAccessRule

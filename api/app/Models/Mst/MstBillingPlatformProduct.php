@@ -73,4 +73,20 @@ class MstBillingPlatformProduct extends _BaseMst
 
         return $array;
     }
+
+    /**
+     * price_amount_micros を取得
+     */
+    public function getPriceAmountMicros(): ?int
+    {
+        return $this->getAttribute('price_amount_micros');
+    }
+
+    /**
+     * price_currency_code を取得
+     */
+    public function getPriceCurrencyCode(): ?string
+    {
+        return $this->getAttribute('price_currency_code');
+    }
 }

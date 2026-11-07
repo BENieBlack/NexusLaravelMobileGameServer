@@ -25,7 +25,7 @@ class MailboxAdapter
             isReceived: $trxMailbox->getIsReceived(),
             isLocked: $trxMailbox->getIsProtected(),
             expiresAt: $trxMailbox->getExpiresAt(),
-            createdAt: (string) $trxMailbox->created_at,
+            createdAt: (string) $trxMailbox->getCreatedAt(),
         );
     }
 

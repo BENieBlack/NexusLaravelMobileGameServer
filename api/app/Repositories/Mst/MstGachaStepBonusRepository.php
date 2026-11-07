@@ -27,8 +27,8 @@ class MstGachaStepBonusRepository extends _BaseMstRepository implements GachaSte
             ->where('is_active', true)
             ->sortBy('position')
             ->map(fn (MstGachaStepBonus $bonus) => new StepBonus(
-                id: $bonus->id,
-                position: $bonus->position,
+                id: $bonus->getId(),
+                position: $bonus->getPosition(),
                 bonusCount: $bonus->getBonusCount(),
                 selectionType: $bonus->getSelectionType(),
                 bonusRarity: $bonus->getBonusRarity(),

@@ -3,7 +3,6 @@
 namespace App\Adapters\Guild;
 
 use App\Models\Sys\SysGuild;
-use Nexus\Core\Utilities\ClockUtility;
 use NexusGuild\DataTransferObjects\Guild;
 
 /**
@@ -26,8 +25,8 @@ class GuildAdapter
             exp: $sysGuild->getExp(),
             maxMembers: $sysGuild->getMaxMembers(),
             currentMembers: $sysGuild->countMembers(),
-            createdAt: ClockUtility::parse((string) $sysGuild->created_at)->format('Y-m-d H:i:s'),
-            updatedAt: ClockUtility::parse((string) $sysGuild->updated_at)->format('Y-m-d H:i:s'),
+            createdAt: $sysGuild->getCreatedAt(),
+            updatedAt: $sysGuild->getUpdatedAt(),
         );
     }
 

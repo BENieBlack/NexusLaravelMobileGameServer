@@ -90,4 +90,20 @@ class MstUnitLevel extends _BaseMst
     {
         return parent::toResponseArray();
     }
+
+    /**
+     * required_exp を取得
+     */
+    public function getRequiredExp(): int
+    {
+        return $this->getAttribute('required_exp');
+    }
+
+    /**
+     * level を取得
+     */
+    public function getLevel(): int
+    {
+        return $this->getAttribute('level');
+    }
 }

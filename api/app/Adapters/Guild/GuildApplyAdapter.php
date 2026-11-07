@@ -3,7 +3,6 @@
 namespace App\Adapters\Guild;
 
 use App\Models\Sys\SysGuildApply;
-use Nexus\Core\Utilities\ClockUtility;
 use NexusGuild\DataTransferObjects\GuildApply;
 
 /**
@@ -23,8 +22,8 @@ class GuildApplyAdapter
             sysGuildId: $sysGuildApply->getSysGuildId(),
             sysPlayerId: $sysGuildApply->getSysPlayerId(),
             status: $sysGuildApply->getStatus(),
-            createdAt: ClockUtility::parse((string) $sysGuildApply->created_at)->format('Y-m-d H:i:s'),
-            updatedAt: ClockUtility::parse((string) $sysGuildApply->updated_at)->format('Y-m-d H:i:s'),
+            createdAt: $sysGuildApply->getCreatedAt(),
+            updatedAt: $sysGuildApply->getUpdatedAt(),
         );
     }
 

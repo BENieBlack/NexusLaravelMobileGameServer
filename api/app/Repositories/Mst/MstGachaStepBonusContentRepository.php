@@ -39,7 +39,7 @@ class MstGachaStepBonusContentRepository extends _BaseMstRepository implements G
     private function toBonusContent(MstGachaStepBonusContent $content): BonusContent
     {
         return new BonusContent(
-            id: $content->id,
+            id: $content->getId(),
             stepBonusId: $content->getMstGachaStepBonusId(),
             contentType: $content->getContentType(),
             contentMstId: $content->getContentMstId(),

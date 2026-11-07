@@ -33,14 +33,14 @@ class ListResponse extends _BaseResponse
     {
         $friendArray = $sysFriendApplyCollection->map(function (SysFriendApply $sysFriendApply) use ($sysPlayerId) {
             // 自分がsenderの場合はreceiverのmy_idを、receiverの場合はsenderのmy_idを返す
-            $friendPlayer = $sysFriendApply->sender_sys_player_id === $sysPlayerId
+            $friendPlayer = $sysFriendApply->getSenderSysPlayerId() === $sysPlayerId
                 ? $sysFriendApply->receivePlayer
                 : $sysFriendApply->sendPlayer;
 
             return [
-                'my_id' => $friendPlayer?->my_id,
-                'name' => $friendPlayer?->name,
-                'level' => $friendPlayer?->level,
+                'my_id' => $friendPlayer?->getMyId(),
+                'name' => $friendPlayer?->getName(),
+                'level' => $friendPlayer?->getLevel(),
                 'created_at' => $sysFriendApply->getCreatedAt(),
             ];
         })->toArray();

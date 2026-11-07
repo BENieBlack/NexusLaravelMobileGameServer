@@ -46,9 +46,9 @@ class StaminaRepositoryAdapter implements StaminaRepositoryInterface
             return;
         }
 
-        $trxStamina->current_stamina = $stamina->getCurrentStamina();
-        $trxStamina->recovery_rate_multiplier = $stamina->getRecoveryRateMultiplier();
-        $trxStamina->last_recovery_at = $stamina->getLastRecoveryAt();
+        $trxStamina->setCurrentStamina($stamina->getCurrentStamina());
+        $trxStamina->setRecoveryRateMultiplier($stamina->getRecoveryRateMultiplier());
+        $trxStamina->setLastRecoveryAt($stamina->getLastRecoveryAt());
 
         $this->trxStaminaRepository->setModel($trxStamina);
     }

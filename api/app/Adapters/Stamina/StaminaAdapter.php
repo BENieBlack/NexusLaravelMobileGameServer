@@ -18,11 +18,11 @@ class StaminaAdapter
     public static function toDto(TrxStamina $trxStamina): Stamina
     {
         return new Stamina(
-            sysPlayerId: $trxStamina->sys_player_id,
-            type: $trxStamina->type,
-            currentStamina: $trxStamina->current_stamina,
-            recoveryRateMultiplier: $trxStamina->recovery_rate_multiplier,
-            lastRecoveryAt: $trxStamina->last_recovery_at
+            sysPlayerId: $trxStamina->getSysPlayerId(),
+            type: $trxStamina->getType(),
+            currentStamina: $trxStamina->getCurrentStamina(),
+            recoveryRateMultiplier: $trxStamina->getRecoveryRateMultiplier(),
+            lastRecoveryAt: $trxStamina->getLastRecoveryAt()
         );
     }
 

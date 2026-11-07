@@ -146,4 +146,20 @@ class MstMailbox extends _BaseMst
 
         return $array;
     }
+
+    /**
+     * sender_id を取得
+     */
+    public function getSenderId(): ?string
+    {
+        return $this->getAttribute('sender_id');
+    }
+
+    /**
+     * icon_url を取得
+     */
+    public function getIconUrl(): ?string
+    {
+        return $this->getAttribute('icon_url');
+    }
 }

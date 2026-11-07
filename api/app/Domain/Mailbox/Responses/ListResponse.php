@@ -64,40 +64,40 @@ class ListResponse extends _BaseResponse
 
             // タイトル・本文をレンダリング
             $title = $templateEngine->render(
-                $l10n->title ?? '',
+                $l10n?->getTitle() ?? '',
                 $customParams,
                 $context
             );
 
             $body = $templateEngine->render(
-                $l10n->body ?? '',
+                $l10n?->getBody() ?? '',
                 $customParams,
                 $context
             );
 
             // コンテンツ情報を取得
             $contentArray = $mstMailbox?->contentCollection->map(function (MstMailboxContent $content) {
-                $contentType = ContentType::fromString($content->content_type);
+                $contentType = ContentType::fromString($content->getContentType());
 
                 return [
-                    'content_type' => $content->content_type,
-                    'content_type_label' => $contentType?->label() ?? $content->content_type,
+                    'content_type' => $content->getContentType(),
+                    'content_type_label' => $contentType?->label() ?? $content->getContentType(),
                     'content_type_icon' => $contentType?->icon() ?? '',
-                    'content_mst_id' => $content->content_mst_id,
-                    'amount' => $content->amount,
-                    'rarity' => $content->rarity,
-                    'is_highlight' => $content->is_highlight ?? false,
-                    'sort_desc' => $content->sort_desc,
+                    'content_mst_id' => $content->getContentMstId(),
+                    'amount' => $content->getAmount(),
+                    'rarity' => $content->getRarity(),
+                    'is_highlight' => $content->getIsHighlight(),
+                    'sort_desc' => $content->getSortDesc(),
                 ];
             })->toArray() ?? [];
 
             // カテゴリ・優先度情報
-            $category = $mstMailbox?->category;
-            $priority = $mstMailbox?->priority;
+            $category = $mstMailbox?->getCategory();
+            $priority = $mstMailbox?->getPriority();
 
             return [
-                'trx_mailbox_id' => $trxMailbox->id,
-                'mst_mailbox_id' => $trxMailbox->mst_mailbox_id,
+                'trx_mailbox_id' => $trxMailbox->getId(),
+                'mst_mailbox_id' => $trxMailbox->getMstMailboxId(),
 
                 // メール内容（テンプレートレンダリング済み）
                 'title' => $title,
@@ -113,18 +113,18 @@ class ListResponse extends _BaseResponse
                 'priority_icon' => $priority?->icon() ?? null,
 
                 // 送信者情報
-                'sender_type' => $mstMailbox?->sender_type->value ?? null,
-                'sender_type_label' => $mstMailbox?->sender_type?->label() ?? null,
-                'sender_id' => $mstMailbox->sender_id ?? null,
-                'sender_name' => $trxMailbox->sender_name ?? null,
+                'sender_type' => $mstMailbox?->getSenderType()->value ?? null,
+                'sender_type_label' => $mstMailbox?->getSenderType()?->label() ?? null,
+                'sender_id' => $mstMailbox?->getSenderId(),
+                'sender_name' => $trxMailbox->getSenderName() ?? null,
 
                 // アイコン
-                'icon_url' => $mstMailbox->icon_url ?? null,
+                'icon_url' => $mstMailbox?->getIconUrl(),
 
                 // 状態
-                'is_opened' => $trxMailbox->is_opened,
-                'is_received' => $trxMailbox->is_received,
-                'is_protected' => $trxMailbox->is_protected ?? false,
+                'is_opened' => $trxMailbox->getIsOpened(),
+                'is_received' => $trxMailbox->getIsReceived(),
+                'is_protected' => $trxMailbox->getIsProtected(),
                 'is_expired' => $trxMailbox->isExpired(),
                 'is_unread' => $trxMailbox->isUnread(),
 

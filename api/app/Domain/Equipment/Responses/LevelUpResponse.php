@@ -3,7 +3,7 @@
 namespace App\Domain\Equipment\Responses;
 
 use App\Domain\_BaseResponse;
-use Nexus\Core\UnitOfWork\UpdatedResources;
+use App\Traits\HasUpdatedResources;
 
 /**
  * LevelUpResponse
@@ -13,9 +13,7 @@ use Nexus\Core\UnitOfWork\UpdatedResources;
  */
 class LevelUpResponse extends _BaseResponse
 {
-    public function __construct(
-        public readonly UpdatedResources $updatedResources,
-    ) {}
+    use HasUpdatedResources;
 
     /**
      * レスポンスを生成
@@ -23,7 +21,7 @@ class LevelUpResponse extends _BaseResponse
     public function toArray(): array
     {
         return [
-            'updated_resources' => $this->updatedResources->toResponseArray(),
+            'updated_resources' => $this->getUpdatedResources()->toResponseArray(),
         ];
     }
 }

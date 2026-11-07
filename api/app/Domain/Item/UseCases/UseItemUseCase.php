@@ -99,8 +99,8 @@ class UseItemUseCase extends _BaseUseCase
     {
         $mstItem = $this->validation($sysPlayerId, $mstItemId, $useCount);
 
-        /** @var array{mstItemId: string, effect: string, itemUsed: int, appliedValue: int} $result */
-        $result = $this->executeWithTransaction(function () use ($sysPlayerId, $mstItemId, $useCount, $mstItem) {
+        // コミット後に、この処理で更新した trx（アイテム・スタミナ・プレイヤーなど）を取り出して返す
+        return $this->executeWithTransaction(function () use ($sysPlayerId, $mstItemId, $useCount, $mstItem) {
             $effectType = ItemEffectType::from($mstItem->getEffect());
 
             $this->itemService->consumeItem($sysPlayerId, $mstItemId, $useCount);
@@ -126,15 +126,12 @@ class UseItemUseCase extends _BaseUseCase
                 ),
             };
 
-            return [
-                'mstItemId' => $mstItemId,
-                'effect' => $effectType->value,
-                'itemUsed' => $useCount,
-                'appliedValue' => $appliedValue,
-            ];
-        });
-
-        // コミット後に、この処理で更新した trx（アイテム・スタミナ・プレイヤーなど）を取り出して返す
-        return new UseItemResponse(...$result, updatedResources: $this->pullUpdatedResources());
+            return new UseItemResponse(
+                mstItemId: $mstItemId,
+                effect: $effectType->value,
+                itemUsed: $useCount,
+                appliedValue: $appliedValue,
+            );
+        })->withUpdatedResources($this->pullUpdatedResources());
     }
 }

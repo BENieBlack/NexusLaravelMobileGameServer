@@ -3,7 +3,7 @@
 namespace App\Domain\Gacha\Responses;
 
 use App\Domain\_BaseResponse;
-use Nexus\Core\UnitOfWork\UpdatedResources;
+use App\Traits\HasUpdatedResources;
 
 /**
  * DrawResponse
@@ -12,6 +12,8 @@ use Nexus\Core\UnitOfWork\UpdatedResources;
  */
 class DrawResponse extends _BaseResponse
 {
+    use HasUpdatedResources;
+
     /**
      * @param  array<int, array<string, mixed>>  $prizes  獲得した景品リスト
      * @param  int  $currentStep  現在のステップ番号
@@ -26,8 +28,7 @@ class DrawResponse extends _BaseResponse
         public readonly int $dailyDrawCount,
         public readonly int $totalDrawCount,
         public readonly bool $hasNextStep,
-        public readonly ?array $nextStepInfo,
-        public readonly UpdatedResources $updatedResources,
+        public readonly ?array $nextStepInfo = null,
     ) {}
 
     /**
@@ -43,7 +44,7 @@ class DrawResponse extends _BaseResponse
             'has_next_step' => $this->hasNextStep,
             'next_step_info' => $this->nextStepInfo,
             // この処理で更新された trx（コストで減ったダイヤ・アイテム、景品で増えたユニット・アイテムなど）
-            'updated_resources' => $this->updatedResources->toResponseArray(),
+            'updated_resources' => $this->getUpdatedResources()->toResponseArray(),
         ];
     }
 }

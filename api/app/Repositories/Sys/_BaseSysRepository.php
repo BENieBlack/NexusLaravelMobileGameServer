@@ -4,7 +4,7 @@ namespace App\Repositories\Sys;
 
 use App\Persistence\ApiSession;
 use Nexus\Core\Repositories\Sys\_BaseSysRepository as PersistenceBaseSysRepository;
-use NexusUnitOfWork\Traits\UsesUnitOfWork;
+use Nexus\Core\UnitOfWork\Traits\UsesUnitOfWork;
 
 /**
  * _BaseSysRepository

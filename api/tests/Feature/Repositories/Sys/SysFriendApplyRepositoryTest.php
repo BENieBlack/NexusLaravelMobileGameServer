@@ -6,7 +6,7 @@ use App\Models\Sys\SysFriendApply;
 use App\Persistence\ApiSession;
 use App\Repositories\Sys\SysFriendApplyRepository;
 use Illuminate\Support\Facades\DB;
-use NexusUnitOfWork\Persistence\QueryManager;
+use Nexus\Core\UnitOfWork\Persistence\QueryManager;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;

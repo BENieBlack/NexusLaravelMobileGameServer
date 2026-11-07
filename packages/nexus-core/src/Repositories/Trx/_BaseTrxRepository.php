@@ -6,9 +6,9 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Nexus\Core\Models\Trx\_BaseTrx;
+use Nexus\Core\Pitr\Traits\LogsChanges;
 use Nexus\Core\Repositories\_BaseRepository;
 use Nexus\Core\Support\CustomCollection;
-use NexusPitr\Traits\LogsChanges;
 
 /**
  * _BaseTrxRepository

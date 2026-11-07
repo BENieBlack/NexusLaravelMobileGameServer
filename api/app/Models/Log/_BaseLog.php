@@ -4,7 +4,7 @@ namespace App\Models\Log;
 
 use App\Persistence\ApiSession;
 use Nexus\Core\Models\Log\_BaseLog as PersistenceBaseLog;
-use NexusPitr\Logger\ShardMapper;
+use Nexus\Core\Pitr\Logger\ShardMapper;
 use NexusTidb\Traits\UuidPrimaryKey;
 
 /**

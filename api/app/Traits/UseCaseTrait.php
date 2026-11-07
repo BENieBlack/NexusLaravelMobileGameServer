@@ -4,8 +4,8 @@ namespace App\Traits;
 
 use Exception;
 use Illuminate\Support\Facades\DB;
-use NexusPitr\Logger\ShardMapper;
-use NexusUnitOfWork\Contracts\QueryManagerInterface;
+use Nexus\Core\Pitr\Logger\ShardMapper;
+use Nexus\Core\UnitOfWork\Contracts\QueryManagerInterface;
 use Throwable;
 
 trait UseCaseTrait

@@ -6,8 +6,8 @@ use App\Models\Trx\TrxMailbox;
 use App\Repositories\Trx\TrxMailboxRepository;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection;
+use Nexus\Core\UnitOfWork\Contracts\QueryManagerInterface;
 use Nexus\Core\Utilities\ClockUtility;
-use NexusUnitOfWork\Contracts\QueryManagerInterface;
 
 /**
  * DeleteExpiredCommand

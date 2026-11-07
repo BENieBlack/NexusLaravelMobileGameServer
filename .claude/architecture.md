@@ -159,6 +159,17 @@ api/app/Providers/AppServiceProvider                                 ← bind(�
 - `*RepositoryAdapter` の中に private/protected の変換メソッド（`*toDto*` / `Convert*`）を書かず、`App\Adapters` に委譲する（`ConverterLocationTest`）。`App\Adapters` 配下のクラスは `public static function toDto(` を持つ
 - パッケージ例外はゲーム固有のエラーコードを知らない。api 側で変換する（9節）
 
+### イベントの期間の上書き
+
+`mst_event_content` に登録されたコンテンツ（ガチャ・ミッション・交換所・ログインボーナス・リワードトラック・ランキング）は、自身の `start_at` / `end_at` ではなく、イベントの期間で判定される。設計は `docs/event_platform_design.md`。
+
+- 各機能のパッケージは `nexus-event` を知らない。api 側が、マスターを読む境界（`*RepositoryAdapter` など）で、`NexusEvent\Services\EventPeriodResolver` を使って期間を差し替えて返す。パッケージの判定ロジックは変えない
+- DTO を返す機能（ミッション・交換所）は `withPeriod()` で複製する。配列を返す機能（リワードトラック）は、行の `start_at` / `end_at` を書き換える。ガチャは `GachaValidationService::validateGachaPeriod()` が、判定の入口で使う
+- 子の `end_at` に使う時刻は、種別で決まる（`NexusEvent\Constants\EventContentType::usesExchangeEndAsEndAt()`）。交換所とミッションは `exchange_end_at`、それ以外はイベントの `end_at`
+- コンテンツがイベントに入っていなければ（`resolve()` が `null`）、今までどおり自身の期間で判定する。ログインボーナスの通常（`daily`）は、入っていなければ期間を見ない
+- 期間を SQL の `where` で絞らない。イベントの期間は SQL では表せないため、上書きした後に PHP（`ClockUtility::isWithin()`）で判定する
+- 新しい機能の期間をイベントで上書きしたいときは、`EventContentType` に種別を足し、その機能のマスター読み取りで上書きして、`tests/Feature/Event/EventPeriodOverrideTest.php` にテストを足す
+
 ## 7. UnitOfWork とトランザクション
 
 書き込みは即時に実行せず、Repository がキューに積み、UseCase のトランザクション終盤で一括実行する。

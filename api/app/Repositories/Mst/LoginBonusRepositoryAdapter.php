@@ -6,6 +6,8 @@ use App\Models\Mst\MstLoginBonus;
 use App\Models\Mst\MstLoginBonusContent;
 use App\Repositories\Trx\TrxLoginBonusRepository;
 use Nexus\Core\Utilities\ClockUtility;
+use NexusEvent\Constants\EventContentType;
+use NexusEvent\Services\EventPeriodResolver;
 use NexusLogin\Repositories\LoginBonusRepositoryInterface;
 
 /**
@@ -17,6 +19,7 @@ class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
 {
     public function __construct(
         private readonly TrxLoginBonusRepository $trxLoginBonusRepository,
+        private readonly EventPeriodResolver $eventPeriodResolver,
     ) {}
 
     /**
@@ -24,9 +27,9 @@ class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
      */
     public function selectLoopDaysForActiveBonus(): ?int
     {
-        return MstLoginBonus::dailyType()
-            ->active()
-            ->value('loop_days');
+        $bonus = $this->firstOpenDailyBonus();
+
+        return $bonus === null ? null : (int) $bonus->getAttribute('loop_days');
     }
 
     /**
@@ -34,9 +37,7 @@ class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
      */
     public function selectActiveByDay(int $day): ?array
     {
-        $bonus = MstLoginBonus::dailyType()
-            ->active()
-            ->first();
+        $bonus = $this->firstOpenDailyBonus();
 
         return $bonus ? $bonus->toArray() : null;
     }
@@ -51,9 +52,7 @@ class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
      */
     public function selectActiveDailyBonus(): ?array
     {
-        $bonus = MstLoginBonus::dailyType()
-            ->active()
-            ->first();
+        $bonus = $this->firstOpenDailyBonus();
 
         return $bonus ? $bonus->toArray() : null;
     }
@@ -75,22 +74,14 @@ class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
      */
     public function selectEligibleComebackBonus(int $absentDays): ?array
     {
-        $now = ClockUtility::now();
-
+        // 期間は、イベントに入っていればイベントの期間で判定するため、SQLで絞らずPHPで判定する
         $bonus = MstLoginBonus::comebackType()
             ->active()
             ->where('required_absent_days', '<=', $absentDays)
-            ->where(function ($query) use ($now) {
-                $query->whereNull('start_at')
-                    ->orWhere('start_at', '<=', $now);
-            })
-            ->where(function ($query) use ($now) {
-                $query->whereNull('end_at')
-                    ->orWhere('end_at', '>=', $now);
-            })
             ->orderByDesc('priority')
             ->orderByDesc('required_absent_days')
-            ->first();
+            ->get()
+            ->first(fn (MstLoginBonus $candidate) => $this->isComebackBonusOpen($candidate));
 
         return $bonus ? $bonus->toArray() : null;
     }
@@ -100,22 +91,12 @@ class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
      */
     public function selectActiveComebackBonusById(string $loginBonusId): ?array
     {
-        $now = ClockUtility::now();
-
         $bonus = MstLoginBonus::comebackType()
             ->active()
             ->whereKey($loginBonusId)
-            ->where(function ($query) use ($now) {
-                $query->whereNull('start_at')
-                    ->orWhere('start_at', '<=', $now);
-            })
-            ->where(function ($query) use ($now) {
-                $query->whereNull('end_at')
-                    ->orWhere('end_at', '>=', $now);
-            })
             ->first();
 
-        return $bonus ? $bonus->toArray() : null;
+        return $bonus !== null && $this->isComebackBonusOpen($bonus) ? $bonus->toArray() : null;
     }
 
     /**
@@ -164,5 +145,39 @@ class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
             ->get()
             ->map(fn ($content) => $content->toArray())
             ->all();
+    }
+
+    /**
+     * 有効な通常ログインボーナスのうち、最初の1件
+     *
+     * 通常ログインボーナスは、イベントに入っていなければ、期間を見ない（従来どおり）。
+     * イベントに入っていれば、イベントの期間の外では無いものとして扱う。
+     */
+    private function firstOpenDailyBonus(): ?MstLoginBonus
+    {
+        return MstLoginBonus::dailyType()
+            ->active()
+            ->get()
+            ->first(function (MstLoginBonus $bonus) {
+                $period = $this->eventPeriodResolver->resolve(EventContentType::LOGIN_BONUS, (string) $bonus->getKey());
+
+                return $period === null || ClockUtility::isWithin($period->getStartAt(), $period->getEndAt());
+            });
+    }
+
+    /**
+     * カムバックボーナスが今の期間内か
+     *
+     * イベントに入っていればイベントの期間、入っていなければ自身の start_at / end_at（NULLは制限なし）で判定する。
+     */
+    private function isComebackBonusOpen(MstLoginBonus $bonus): bool
+    {
+        $period = $this->eventPeriodResolver->resolve(EventContentType::LOGIN_BONUS, (string) $bonus->getKey());
+
+        if ($period !== null) {
+            return ClockUtility::isWithin($period->getStartAt(), $period->getEndAt());
+        }
+
+        return ClockUtility::isWithin($bonus->getRawOriginal('start_at'), $bonus->getRawOriginal('end_at'));
     }
 }

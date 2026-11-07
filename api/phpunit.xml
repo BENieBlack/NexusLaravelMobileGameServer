@@ -43,6 +43,7 @@
             <directory>../packages/nexus-mailbox/src</directory>
             <directory>../packages/nexus-maintenance/src</directory>
             <directory>../packages/nexus-mission/src</directory>
+            <directory>../packages/nexus-event/src</directory>
             <directory>../packages/nexus-trade/src</directory>
             <directory>../packages/nexus-notification/src</directory>
             <directory>../packages/nexus-pitr/src</directory>

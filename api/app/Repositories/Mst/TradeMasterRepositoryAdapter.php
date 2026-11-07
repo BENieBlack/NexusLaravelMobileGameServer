@@ -6,6 +6,8 @@ use App\Adapters\Trade\TradeAdapter;
 use App\Adapters\Trade\TradeProductAdapter;
 use App\Adapters\Trade\TradeProductContentAdapter;
 use App\Models\Mst\MstTradeProductContent;
+use NexusEvent\Constants\EventContentType;
+use NexusEvent\Services\EventPeriodResolver;
 use NexusTrade\Contracts\TradeMasterRepositoryInterface;
 use NexusTrade\DataTransferObjects\Trade;
 use NexusTrade\DataTransferObjects\TradeProduct;
@@ -22,6 +24,7 @@ class TradeMasterRepositoryAdapter implements TradeMasterRepositoryInterface
         private readonly MstTradeRepository $mstTradeRepository,
         private readonly MstTradeProductRepository $mstTradeProductRepository,
         private readonly MstTradeProductContentRepository $mstTradeProductContentRepository,
+        private readonly EventPeriodResolver $eventPeriodResolver,
     ) {}
 
     /**
@@ -29,7 +32,10 @@ class TradeMasterRepositoryAdapter implements TradeMasterRepositoryInterface
      */
     public function selectAllTrades(): array
     {
-        return TradeAdapter::toDtoArray($this->mstTradeRepository->queryOrMemory()->values());
+        return array_map(
+            fn (Trade $trade) => $this->applyEventPeriodToTrade($trade),
+            TradeAdapter::toDtoArray($this->mstTradeRepository->queryOrMemory()->values()),
+        );
     }
 
     /**
@@ -39,7 +45,7 @@ class TradeMasterRepositoryAdapter implements TradeMasterRepositoryInterface
     {
         $mstTrade = $this->mstTradeRepository->selectById($mstTradeId);
 
-        return $mstTrade === null ? null : TradeAdapter::toDto($mstTrade);
+        return $mstTrade === null ? null : $this->applyEventPeriodToTrade(TradeAdapter::toDto($mstTrade));
     }
 
     /**
@@ -47,7 +53,10 @@ class TradeMasterRepositoryAdapter implements TradeMasterRepositoryInterface
      */
     public function selectAllProducts(): array
     {
-        return TradeProductAdapter::toDtoArray($this->mstTradeProductRepository->queryOrMemory()->values());
+        return array_map(
+            fn (TradeProduct $tradeProduct) => $this->applyEventPeriodToProduct($tradeProduct),
+            TradeProductAdapter::toDtoArray($this->mstTradeProductRepository->queryOrMemory()->values()),
+        );
     }
 
     /**
@@ -57,7 +66,7 @@ class TradeMasterRepositoryAdapter implements TradeMasterRepositoryInterface
     {
         $mstTradeProduct = $this->mstTradeProductRepository->selectById($mstTradeProductId);
 
-        return $mstTradeProduct === null ? null : TradeProductAdapter::toDto($mstTradeProduct);
+        return $mstTradeProduct === null ? null : $this->applyEventPeriodToProduct(TradeProductAdapter::toDto($mstTradeProduct));
     }
 
     /**
@@ -71,5 +80,29 @@ class TradeMasterRepositoryAdapter implements TradeMasterRepositoryInterface
             ->values();
 
         return TradeProductContentAdapter::toDtoArray($mstTradeProductContents);
+    }
+
+    /**
+     * 交換所がイベントに入っていれば、イベントの期間で上書きする
+     *
+     * 子の end_at には exchange_end_at が入る（交換所は交換期間まで使える）。
+     */
+    private function applyEventPeriodToTrade(Trade $trade): Trade
+    {
+        $period = $this->eventPeriodResolver->resolve(EventContentType::TRADE, $trade->getId());
+
+        return $period === null ? $trade : $trade->withPeriod($period->getStartAt(), $period->getEndAt());
+    }
+
+    /**
+     * イベントに入っている交換所の商品は、商品自身の期間ではなく、交換所と同じイベントの期間にする
+     *
+     * 交換所を別のイベントで使い回したとき、商品に古い期間が残って交換できなくなるのを防ぐ。
+     */
+    private function applyEventPeriodToProduct(TradeProduct $tradeProduct): TradeProduct
+    {
+        $period = $this->eventPeriodResolver->resolve(EventContentType::TRADE, $tradeProduct->getMstTradeId());
+
+        return $period === null ? $tradeProduct : $tradeProduct->withPeriod($period->getStartAt(), $period->getEndAt());
     }
 }

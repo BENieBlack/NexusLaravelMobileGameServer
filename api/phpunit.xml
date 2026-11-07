@@ -34,7 +34,6 @@
             <directory>../packages/nexus-core-auth/src</directory>
             <directory>../packages/nexus-core-billing/src</directory>
             <directory>../packages/nexus-core-security/src</directory>
-            <directory>../packages/nexus-core-unit-of-work/src</directory>
             <directory>../packages/nexus-friend/src</directory>
             <directory>../packages/nexus-gacha/src</directory>
             <directory>../packages/nexus-guild/src</directory>
@@ -46,7 +45,6 @@
             <directory>../packages/nexus-event/src</directory>
             <directory>../packages/nexus-trade/src</directory>
             <directory>../packages/nexus-notification/src</directory>
-            <directory>../packages/nexus-pitr/src</directory>
             <directory>../packages/nexus-reward-track/src</directory>
             <directory>../packages/nexus-stamina/src</directory>
             <directory>../packages/nexus-tag/src</directory>

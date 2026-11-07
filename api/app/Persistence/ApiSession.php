@@ -4,10 +4,10 @@ namespace App\Persistence;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
+use Nexus\Core\UnitOfWork\Contracts\PlayerSessionResolverInterface;
 use Nexus\Core\Utilities\ClockUtility;
 use NexusSecurity\Contracts\PlayerSessionInterface;
 use NexusTidb\Support\TidbMode;
-use NexusUnitOfWork\Contracts\PlayerSessionResolverInterface;
 
 /**
  * ApiSession

@@ -4,10 +4,10 @@ namespace Tests\Feature\Repositories\Sys;
 
 use App\Persistence\ApiSession;
 use Illuminate\Support\Facades\DB;
+use Nexus\Core\UnitOfWork\Persistence\QueryManager;
 use NexusGuild\Constants\GuildRole;
 use NexusGuild\DataTransferObjects\Guild;
 use NexusGuild\Repositories\GuildRepositoryInterface;
-use NexusUnitOfWork\Persistence\QueryManager;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;

@@ -34,10 +34,8 @@ class PackageLayerTest extends TestCase
     /** @var array<string, string> パッケージ（packages/ のディレクトリ名）→ 層 */
     private const LAYERS = [
         'nexus-core' => self::FOUNDATION,
-        'nexus-core-unit-of-work' => self::FOUNDATION,
         'nexus-core-security' => self::FOUNDATION,
         'nexus-core-auth' => self::FOUNDATION,
-        'nexus-pitr' => self::FOUNDATION,
         'nexus-tidb' => self::FOUNDATION,
         'nexus-wallet' => self::FOUNDATION,
 

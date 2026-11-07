@@ -19,10 +19,6 @@
         },
         {
             "type": "path",
-            "url": "../packages/nexus-core-unit-of-work"
-        },
-        {
-            "type": "path",
             "url": "../packages/nexus-core-auth"
         },
         {
@@ -83,10 +79,6 @@
         },
         {
             "type": "path",
-            "url": "../packages/nexus-pitr"
-        },
-        {
-            "type": "path",
             "url": "../packages/nexus-notification"
         },
         {
@@ -132,7 +124,6 @@
         "nexus/core-auth": "@dev",
         "nexus/core-billing": "@dev",
         "nexus/core-security": "@dev",
-        "nexus/core-unit-of-work": "@dev",
         "nexus/friend": "@dev",
         "nexus/gacha": "@dev",
         "nexus/guild": "@dev",
@@ -144,7 +135,6 @@
         "nexus/event": "@dev",
         "nexus/trade": "@dev",
         "nexus/notification": "@dev",
-        "nexus/pitr": "@dev",
         "nexus/reward-track": "@dev",
         "nexus/stamina": "@dev",
         "nexus/tag": "@dev",
@@ -182,13 +172,11 @@
             "NexusLogin\\": "../packages/nexus-login/src/",
             "NexusMailbox\\": "../packages/nexus-mailbox/src/",
             "NexusMaintenance\\": "../packages/nexus-maintenance/src/",
-            "NexusPitr\\": "../packages/nexus-pitr/src/",
             "NexusNotification\\": "../packages/nexus-notification/src/",
             "NexusChat\\": "../packages/nexus-chat/src/",
             "NexusRewardTrack\\": "../packages/nexus-reward-track/src/",
             "NexusSecurity\\": "../packages/nexus-core-security/src/",
             "NexusStamina\\": "../packages/nexus-stamina/src/",
-            "NexusUnitOfWork\\": "../packages/nexus-core-unit-of-work/src/",
             "NexusVersion\\": "../packages/nexus-version/src/",
             "NexusVip\\": "../packages/nexus-vip/src/",
             "NexusWallet\\": "../packages/nexus-wallet/src/",

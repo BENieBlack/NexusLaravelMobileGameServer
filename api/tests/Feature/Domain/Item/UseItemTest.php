@@ -7,7 +7,7 @@ use App\Domain\Stamina\Constants\StaminaConst;
 use App\Exceptions\GameException;
 use App\Persistence\ApiSession;
 use Illuminate\Support\Facades\DB;
-use NexusUnitOfWork\Persistence\QueryManager;
+use Nexus\Core\UnitOfWork\Persistence\QueryManager;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;

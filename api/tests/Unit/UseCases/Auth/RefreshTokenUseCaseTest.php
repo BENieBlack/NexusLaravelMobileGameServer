@@ -10,10 +10,10 @@ use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Nexus\Core\UnitOfWork\Persistence\QueryManager;
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Services\TokenService;
 use NexusAuth\ValueObjects\Token;
-use NexusUnitOfWork\Persistence\QueryManager;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;
 

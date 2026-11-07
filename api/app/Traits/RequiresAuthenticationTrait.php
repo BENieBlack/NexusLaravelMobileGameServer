@@ -16,7 +16,7 @@ trait RequiresAuthenticationTrait
     /**
      * 認証済みプレイヤーIDを取得（未認証の場合は例外）
      *
-     * @param  mixed  $request  リクエストオブジェクト
+     * @param  object  $request  リクエストオブジェクト
      * @return int プレイヤーID
      *
      * @throws GameException 認証失敗時
@@ -46,7 +46,7 @@ trait RequiresAuthenticationTrait
     /**
      * 認証済みプレイヤーIDを取得（未認証の場合はnull）
      *
-     * @param  mixed  $request  リクエストオブジェクト
+     * @param  object  $request  リクエストオブジェクト
      * @return int|null プレイヤーID（未認証の場合はnull）
      */
     protected function resolveAuthenticatedPlayerId($request): ?int

@@ -250,7 +250,7 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
      * モデルをセットし、内部キューに溜め込む
      * ユニークキーで管理し、同じキーは上書き
      *
-     * @param  _BaseTrx  $model
+     * @param  T  $model
      *
      * @throws BindingResolutionException
      */
@@ -283,7 +283,7 @@ abstract class _BaseTrxRepository extends _BaseRepository implements _BaseTrxRep
      *
      * PITRにはDELETEとして記録する。
      *
-     * @param  _BaseTrx  $model
+     * @param  T  $model
      *
      * @throws BindingResolutionException
      */

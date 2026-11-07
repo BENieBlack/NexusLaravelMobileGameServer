@@ -21,7 +21,7 @@ class MstGachaPrizeRepository extends _BaseMstRepository implements GachaPrizeRe
      */
     public function selectByGachaIdAndRarity(string $mstGachaId, int $rarity, bool $pickupOnly): array
     {
-        return $this->selectListByGachaIdAndRarity($mstGachaId, $rarity, $pickupOnly)
+        return array_values($this->selectListByGachaIdAndRarity($mstGachaId, $rarity, $pickupOnly)
             ->map(fn (MstGachaPrize $prize) => new PrizeCandidate(
                 contentType: $prize->getContentType(),
                 contentMstId: $prize->getContentMstId(),
@@ -29,8 +29,7 @@ class MstGachaPrizeRepository extends _BaseMstRepository implements GachaPrizeRe
                 amount: $prize->getAmount(),
                 weight: $prize->weight,
             ))
-            ->values()
-            ->all();
+            ->all());
     }
 
     /**
@@ -44,9 +43,9 @@ class MstGachaPrizeRepository extends _BaseMstRepository implements GachaPrizeRe
         int $rarity,
         bool $pickupOnly = false
     ): CustomCollection {
-        $this->queryOrMemory();
+        $models = $this->queryOrMemory();
 
-        $query = $this->models
+        $query = $models
             ->where('mst_gacha_id', $mstGachaId)
             ->where('rarity', $rarity)
             ->where('is_active', true);

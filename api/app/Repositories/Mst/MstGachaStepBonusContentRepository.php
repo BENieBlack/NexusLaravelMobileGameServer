@@ -21,10 +21,9 @@ class MstGachaStepBonusContentRepository extends _BaseMstRepository implements G
      */
     public function selectByBonusId(string $bonusId): array
     {
-        return $this->selectListByBonusId($bonusId)
+        return array_values($this->selectListByBonusId($bonusId)
             ->map(fn (MstGachaStepBonusContent $content) => $this->toBonusContent($content))
-            ->values()
-            ->all();
+            ->all());
     }
 
     /**
@@ -57,9 +56,9 @@ class MstGachaStepBonusContentRepository extends _BaseMstRepository implements G
      */
     public function selectListByBonusId(string $mstGachaStepBonusId): CustomCollection
     {
-        $this->queryOrMemory();
+        $models = $this->queryOrMemory();
 
-        return $this->models
+        return $models
             ->where('mst_gacha_step_bonus_id', $mstGachaStepBonusId)
             ->where('is_active', true)
             ->sortBy('sort_order')

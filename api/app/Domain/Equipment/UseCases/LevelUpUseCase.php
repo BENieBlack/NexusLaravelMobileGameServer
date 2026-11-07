@@ -140,14 +140,16 @@ class LevelUpUseCase extends _BaseUseCase
             // レベルアップ前の状態を控える
             // Repositoryは同じModelインスタンスを返すため、参照を持つだけでは
             // 加算後に書き換わってしまう。値をここで取り出しておく
-            $trxEquipmentBefore = $this->trxEquipmentRepository->selectById($trxEquipmentId);
+            $trxEquipmentBefore = $this->trxEquipmentRepository->selectById($trxEquipmentId)
+                ?? throw new \LogicException('装備が見つかりません');
             $mstEquipmentId = $trxEquipmentBefore->getMstEquipmentId();
             $beforeGrade = $trxEquipmentBefore->getGrade();
             $beforeLevel = $trxEquipmentBefore->getLevel();
             $beforeLevelExp = $trxEquipmentBefore->getLevelExp();
 
             // アイテムマスターデータを再取得（バリデーション済み）
-            $mstItem = $this->mstItemRepository->selectById($mstItemId);
+            $mstItem = $this->mstItemRepository->selectById($mstItemId)
+                ?? throw new \LogicException('アイテムが見つかりません');
 
             // 必要な経験値を計算
             $requiredExp = $this->equipmentLevelService->calculateRequiredExp($trxEquipmentId, $afterLevel);

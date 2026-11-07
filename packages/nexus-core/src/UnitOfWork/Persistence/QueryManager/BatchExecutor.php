@@ -3,6 +3,7 @@
 namespace Nexus\Core\UnitOfWork\Persistence\QueryManager;
 
 use Illuminate\Support\Facades\DB;
+use Nexus\Core\Models\Trx\_BaseTrx;
 
 /**
  * BatchExecutor
@@ -140,9 +141,7 @@ class BatchExecutor
             $where = $this->queryBuilder->buildWhereCondition($model);
 
             // _BaseTrxモデルの場合、相対的な変更をチェック
-            $hasRelativeChanges = method_exists($model, 'getRelativeChanges')
-                && method_exists($model, 'hasRelativeChanges')
-                && $model->hasRelativeChanges();
+            $hasRelativeChanges = $model instanceof _BaseTrx && $model->hasRelativeChanges();
 
             if ($hasRelativeChanges) {
                 $this->executeRelativeUpdate($item, $where);

@@ -109,7 +109,8 @@ class LevelUpUseCase extends _BaseUseCase
 
         return $this->executeWithTransaction(function () use ($sysPlayerId, $trxUnitId, $mstItemId, $useCount) {
             // アイテムマスターデータを再取得（バリデーション済み）
-            $mstItem = $this->mstItemRepository->selectById($mstItemId);
+            $mstItem = $this->mstItemRepository->selectById($mstItemId)
+                ?? throw new \LogicException('アイテムが見つかりません');
 
             // アイテムを消費
             $this->itemService->consumeItem($sysPlayerId, $mstItemId, $useCount);

@@ -28,9 +28,9 @@ class MstGachaStepRepository extends _BaseMstRepository implements GachaStepRepo
      */
     public function selectByGachaIdAndStepNumber(string $mstGachaId, int $stepNumber): ?MstGachaStep
     {
-        $this->queryOrMemory();
+        $models = $this->queryOrMemory();
 
-        return $this->models
+        return $models
             ->where('mst_gacha_id', $mstGachaId)
             ->where('is_active', true)
             ->firstWhere('step_number', $stepNumber);
@@ -43,9 +43,9 @@ class MstGachaStepRepository extends _BaseMstRepository implements GachaStepRepo
      */
     public function selectListByGachaId(string $mstGachaId): CustomCollection
     {
-        $this->queryOrMemory();
+        $models = $this->queryOrMemory();
 
-        return $this->models
+        return $models
             ->where('mst_gacha_id', $mstGachaId)
             ->where('is_active', true)
             ->sortBy('step_number')

@@ -30,8 +30,8 @@ class ApplyListResponse extends _BaseResponse
         $applyArray = $sysFriendApplyCollection->map(function (SysFriendApply $sysFriendApply) {
             return [
                 'sys_friend_apply_id' => $sysFriendApply->id,
-                'sender_my_id' => $sysFriendApply->sendPlayer->my_id,
-                'receiver_my_id' => $sysFriendApply->receivePlayer->my_id,
+                'sender_my_id' => $sysFriendApply->sendPlayer?->my_id,
+                'receiver_my_id' => $sysFriendApply->receivePlayer?->my_id,
                 'status' => $sysFriendApply->status,
                 'created_at' => $sysFriendApply->getCreatedAt(),
                 'updated_at' => $sysFriendApply->getUpdatedAt(),

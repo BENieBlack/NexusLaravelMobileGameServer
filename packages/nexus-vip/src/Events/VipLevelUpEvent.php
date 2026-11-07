@@ -2,19 +2,16 @@
 
 namespace NexusVip\Events;
 
-use Illuminate\Foundation\Events\Dispatchable;
-use Illuminate\Queue\SerializesModels;
-
 /**
  * VIPレベルアップイベント
  *
  * VIPレベルがアップした時に発火される
  * このイベントをリスンして報酬付与処理を実装する
+ *
+ * 発行は注入した Dispatcher で行う（静的な dispatch() は持たない。laravel/framework に依存しないため）
  */
 class VipLevelUpEvent
 {
-    use Dispatchable, SerializesModels;
-
     /**
      * @param  int  $sysPlayerId  プレイヤーID
      * @param  int  $beforeLevel  変更前VIPレベル

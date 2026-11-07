@@ -72,6 +72,26 @@ jobs:
 
   # tool は api とは別のLaravelアプリで、composerの依存も分かれている。
   # api側のジョブから見えないため、専用のジョブで同じ3種類の検査を回す
+  # パッケージを1つずつ単体で入れて、全クラスが読み込めるか確かめる。
+  # api/ の vendor には全部入っているので、composer.json の宣言漏れ（laravel/framework など）に気づけない
+  packages-standalone:
+    name: パッケージ単体
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: PHPのセットアップ
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: pdo_mysql, redis, bcmath, zip
+          coverage: none
+
+      - name: パッケージ単体の検査
+        run: bash scripts/check-packages-standalone.sh
+
   tool:
     name: ツール（tool）
     runs-on: ubuntu-latest

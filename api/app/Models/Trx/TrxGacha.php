@@ -9,7 +9,6 @@ use App\Traits\CompositePrimaryKeyTrait;
  *
  * ガチャプレイヤー進行状況モデル
  *
- * @property int $id
  * @property int $sys_player_id
  * @property string $mst_gacha_id
  * @property int $current_step
@@ -51,7 +50,6 @@ class TrxGacha extends _BaseTrx
 
     /** @var array<string, string> */
     protected $casts = [
-        'id' => 'integer',
         'sys_player_id' => 'integer',
         'current_step' => 'integer',
         'daily_draw_count' => 'integer',

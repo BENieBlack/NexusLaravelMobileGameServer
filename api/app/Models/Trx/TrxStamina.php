@@ -4,6 +4,7 @@ namespace App\Models\Trx;
 
 use App\Models\Sys\SysPlayer;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Nexus\Core\UnitOfWork\Contracts\ReturnedAsUpdatedResource;
 
 /**
  * TrxStamina Model
@@ -20,7 +21,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $created_at
  * @property string $updated_at
  */
-class TrxStamina extends _BaseTrx
+class TrxStamina extends _BaseTrx implements ReturnedAsUpdatedResource
 {
     protected $table = 'trx_stamina';
 

@@ -3,13 +3,14 @@
 namespace App\Models\Trx;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Nexus\Core\UnitOfWork\Contracts\ReturnedAsUpdatedResource;
 
 /**
  * TrxUnit Model
  *
  * プレイヤーが所持するユニット（キャラクター）を管理するモデル
  */
-class TrxUnit extends _BaseTrx
+class TrxUnit extends _BaseTrx implements ReturnedAsUpdatedResource
 {
     protected $table = 'trx_unit';
 

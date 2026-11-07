@@ -50,6 +50,33 @@ class StaminaService
     }
 
     /**
+     * プレイヤーの全タイプのスタミナを、現在値で取得する（時間経過での自然回復を加算する。DBには保存しない）
+     *
+     * 自然回復分は、現在値に足し、最終回復日時をその分だけ進めて返すだけで、保存しない。
+     * 保存するのは、アイテム・課金で回復したとき（recoverStaminaByItem）と、消費したとき（consumeStamina）だけ。
+     * 現在値を全部返す API（Home）で使う。
+     *
+     * @return list<Stamina>
+     */
+    public function findAllStaminas(int $sysPlayerId): array
+    {
+        $staminas = $this->staminaRepository->selectAllByPlayer($sysPlayerId);
+
+        if ($staminas === []) {
+            return [];
+        }
+
+        // プレイヤーのレベルから最大スタミナを取得
+        $maxStamina = $this->playerLevelService->findMaxStamina($sysPlayerId);
+
+        foreach ($staminas as $stamina) {
+            $this->applyAutoRecovery($stamina, $maxStamina);
+        }
+
+        return $staminas;
+    }
+
+    /**
      * 新しいプレイヤーのスタミナを初期化
      *
      * @param  int  $sysPlayerId  プレイヤーID

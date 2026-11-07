@@ -6,12 +6,17 @@ use App\Domain\_BaseUseCase;
 use App\Domain\Login\Responses\HomeResponse;
 use App\Exceptions\SystemDataException;
 use App\Models\Sys\SysPlayer;
+use App\Models\Trx\TrxStamina;
 use App\Persistence\ApiSession;
 use App\Repositories\Sys\SysPlayerRepository;
+use App\Repositories\Trx\TrxDiamondRepository;
+use App\Repositories\Trx\TrxEquipmentRepository;
 use App\Repositories\Trx\TrxItemRepository;
+use App\Repositories\Trx\TrxStaminaRepository;
 use App\Repositories\Trx\TrxUnitRepository;
 use App\Repositories\Trx\TrxWalletRepository;
 use NexusLogin\Services\LoginBonusOrchestrator;
+use NexusStamina\Services\StaminaService;
 
 /**
  * HomeUseCase
@@ -28,6 +33,10 @@ class HomeUseCase extends _BaseUseCase
         private readonly TrxUnitRepository $trxUnitRepository,
         private readonly TrxItemRepository $trxItemRepository,
         private readonly TrxWalletRepository $trxWalletRepository,
+        private readonly TrxDiamondRepository $trxDiamondRepository,
+        private readonly TrxEquipmentRepository $trxEquipmentRepository,
+        private readonly TrxStaminaRepository $trxStaminaRepository,
+        private readonly StaminaService $staminaService,
     ) {}
 
     /**
@@ -81,14 +90,50 @@ class HomeUseCase extends _BaseUseCase
             $trxUnits = $this->trxUnitRepository->queryOrMemory();
             $trxItems = $this->trxItemRepository->queryOrMemory();
             $trxWallets = $this->trxWalletRepository->queryOrMemory();
+            $trxDiamonds = $this->trxDiamondRepository->queryOrMemory();
+            $trxEquipments = $this->trxEquipmentRepository->queryOrMemory();
 
             return new HomeResponse(
                 sysPlayer: $sysPlayer,
                 trxUnits: $trxUnits->values()->all(),
                 trxItems: $trxItems->values()->all(),
                 trxWallets: $trxWallets->values()->all(),
+                trxDiamonds: $trxDiamonds->values()->all(),
+                trxEquipments: $trxEquipments->values()->all(),
+                trxStaminas: $this->recoveredTrxStaminas($sysPlayerId),
                 loginBonusContents: $loginBonusContents,
             );
         });
+    }
+
+    /**
+     * スタミナを、自然回復を加算した現在値で返す（DBには保存しない）
+     *
+     * 保存するのは、アイテム・課金で回復したときと、消費したときだけ。ここでは、
+     * キャッシュ上のモデルは書き換えず、回復後の値を入れた写しを返す（後の flush で保存されないように）。
+     *
+     * @return array<int, TrxStamina>
+     */
+    private function recoveredTrxStaminas(int $sysPlayerId): array
+    {
+        $recovered = [];
+        foreach ($this->staminaService->findAllStaminas($sysPlayerId) as $stamina) {
+            $recovered[$stamina->getType()] = $stamina;
+        }
+
+        $trxStaminas = [];
+        foreach ($this->trxStaminaRepository->selectAllByPlayer() as $trxStamina) {
+            $copy = $trxStamina->newInstance($trxStamina->getAttributes(), true);
+
+            $stamina = $recovered[$trxStamina->getType()] ?? null;
+            if ($stamina !== null) {
+                $copy->setCurrentStamina($stamina->getCurrentStamina());
+                $copy->setLastRecoveryAt($stamina->getLastRecoveryAt());
+            }
+
+            $trxStaminas[] = $copy;
+        }
+
+        return $trxStaminas;
     }
 }

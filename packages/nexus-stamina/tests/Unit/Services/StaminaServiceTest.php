@@ -352,6 +352,45 @@ class StaminaServiceTest extends TestCase
     }
 
     /**
+     * 全タイプの現在値を返すとき、自然回復を加算して、DBには保存しない
+     */
+    public function test_find_all_staminas_applies_auto_recovery_without_persisting(): void
+    {
+        $sysPlayerId = 1;
+
+        // 最終回復から25分経過（300秒で1ポイント回復するので5ポイント）
+        ClockUtility::setNow('2026-01-15 10:25:00');
+
+        $normal = new Stamina($sysPlayerId, StaminaConst::TYPE_NORMAL, 50, 1.00, self::LAST_RECOVERY_AT);
+        $raid = new Stamina($sysPlayerId, StaminaConst::TYPE_RAID, 10, 1.00, self::LAST_RECOVERY_AT);
+
+        $this->staminaRepository->shouldReceive('selectAllByPlayer')
+            ->once()
+            ->with($sysPlayerId)
+            ->andReturn([$normal, $raid]);
+        $this->playerLevelService->shouldReceive('findMaxStamina')->once()->with($sysPlayerId)->andReturn(100);
+
+        // 保存は、消費したときとアイテムで回復したときだけ
+        $this->staminaRepository->shouldNotReceive('persist');
+
+        $result = $this->service->findAllStaminas($sysPlayerId);
+
+        $this->assertCount(2, $result);
+        $this->assertSame(55, $result[0]->getCurrentStamina());
+        $this->assertSame(15, $result[1]->getCurrentStamina());
+        // 回復に使った分だけ基準時刻が進む
+        $this->assertSame('2026-01-15 10:25:00', $result[0]->getLastRecoveryAt());
+    }
+
+    public function test_find_all_staminas_returns_empty_when_player_has_none(): void
+    {
+        $this->staminaRepository->shouldReceive('selectAllByPlayer')->once()->with(1)->andReturn([]);
+        $this->playerLevelService->shouldNotReceive('findMaxStamina');
+
+        $this->assertSame([], $this->service->findAllStaminas(1));
+    }
+
+    /**
      * 自然回復は最大値で頭打ちになる
      */
     public function test_find_stamina_auto_recovery_stops_at_max(): void

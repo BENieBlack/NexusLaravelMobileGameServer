@@ -5,6 +5,7 @@ namespace App\Models\Sys;
 use App\Models\Mst\MstPlayerLevel;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Nexus\Core\Contracts\PlayerModelInterface;
+use Nexus\Core\UnitOfWork\Contracts\ReturnedAsSingleUpdatedResource;
 use Nexus\Core\Utilities\ClockUtility;
 
 /**
@@ -24,7 +25,7 @@ use Nexus\Core\Utilities\ClockUtility;
  * @property ?string $created_at
  * @property ?string $last_login_at
  */
-class SysPlayer extends _BaseSys implements PlayerModelInterface
+class SysPlayer extends _BaseSys implements PlayerModelInterface, ReturnedAsSingleUpdatedResource
 {
     /**
      * テーブル名

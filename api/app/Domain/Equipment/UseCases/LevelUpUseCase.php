@@ -138,7 +138,7 @@ class LevelUpUseCase extends _BaseUseCase
         // バリデーション実行（検証した装備とアイテムマスターが返る）
         ['trxEquipment' => $trxEquipmentBefore, 'mstItem' => $mstItem] = $this->validation($sysPlayerId, $trxEquipmentId, $mstItemId, $afterLevel);
 
-        return $this->executeWithTransaction(function () use ($sysPlayerId, $trxEquipmentId, $mstItemId, $afterLevel, $trxEquipmentBefore, $mstItem) {
+        $this->executeWithTransaction(function () use ($sysPlayerId, $trxEquipmentId, $mstItemId, $afterLevel, $trxEquipmentBefore, $mstItem) {
             // ユニークリクエストIDを生成
             $uniqueRequestId = Str::uuid()->toString();
 
@@ -158,7 +158,7 @@ class LevelUpUseCase extends _BaseUseCase
             $requiredItemCount = (int) ceil($requiredExp / $expPerItem);
 
             // アイテムを消費（消費後のデータを取得）
-            $trxItem = $this->itemInventory->consumeItem($sysPlayerId, $mstItemId, $requiredItemCount);
+            $this->itemInventory->consumeItem($sysPlayerId, $mstItemId, $requiredItemCount);
 
             // 経験値を加算（更新後の装備データを取得）
             // mst_item.value は double なので、経験値として使う前に整数へ切り捨てる
@@ -181,11 +181,9 @@ class LevelUpUseCase extends _BaseUseCase
                 afterLevelExp: $trxEquipment->getLevelExp(),
             );
 
-            // 結果を生成して返す
-            return new LevelUpResponse(
-                trxEquipment: $trxEquipment,
-                trxItem: $trxItem,
-            );
         });
+
+        // コミット後に、この処理で更新した trx（装備・アイテム）を取り出して返す
+        return new LevelUpResponse($this->pullUpdatedResources());
     }
 }

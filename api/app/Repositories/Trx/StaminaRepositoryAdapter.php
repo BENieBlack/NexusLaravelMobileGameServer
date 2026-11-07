@@ -34,6 +34,24 @@ class StaminaRepositoryAdapter implements StaminaRepositoryInterface
 
     /**
      * {@inheritDoc}
+     *
+     * ApiSession のプレイヤー（リクエストしたプレイヤー）の全タイプを返す。
+     */
+    public function selectAllByPlayer(int $sysPlayerId): array
+    {
+        $staminas = [];
+
+        foreach ($this->trxStaminaRepository->selectAllByPlayer() as $trxStamina) {
+            if ($trxStamina->getSysPlayerId() === $sysPlayerId) {
+                $staminas[] = StaminaAdapter::toDto($trxStamina);
+            }
+        }
+
+        return $staminas;
+    }
+
+    /**
+     * {@inheritDoc}
      */
     public function persist(Stamina $stamina): void
     {

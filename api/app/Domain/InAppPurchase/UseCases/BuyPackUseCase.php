@@ -52,8 +52,6 @@ class BuyPackUseCase extends _BaseBuyUseCase
 
         return new BuyResponse(
             paidDiamondAmount: 0,
-            totalPaidDiamondAmount: 0,
-            totalFreeDiamondAmount: $result['total_free_diamond_amount'],
             rewards: $result['contents'],
         );
     }

@@ -39,6 +39,7 @@ class ReceiveAllUseCase extends _BaseUseCase
         ?array $trxMailboxIds = null,
         ?string $category = null
     ): ReceiveAllResponse {
+        // コミット後に、この処理で更新した trx（受け取った報酬）を取り出して返す
         return $this->executeWithTransaction(function () use ($sysPlayerId, $trxMailboxIds, $category) {
             // カテゴリEnum変換
             $categoryEnum = $category !== null ? Category::fromString($category) : null;
@@ -132,7 +133,7 @@ class ReceiveAllUseCase extends _BaseUseCase
                 deliveryContents: $allResources,
                 deliverySummary: $deliverySummary
             );
-        });
+        })->withUpdatedResources($this->pullUpdatedResources());
     }
 
     /**

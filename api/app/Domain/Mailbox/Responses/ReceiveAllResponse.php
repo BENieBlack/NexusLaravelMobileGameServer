@@ -3,6 +3,7 @@
 namespace App\Domain\Mailbox\Responses;
 
 use App\Domain\_BaseResponse;
+use App\Traits\HasUpdatedResources;
 use Nexus\Core\Resource\DataTransferObjects\Resource;
 use Nexus\Core\ResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
 use Nexus\Core\ResourceDelivery\DataTransferObjects\ResourceDeliverySummary;
@@ -14,6 +15,8 @@ use Nexus\Core\ResourceDelivery\DataTransferObjects\ResourceDeliverySummary;
  */
 class ReceiveAllResponse extends _BaseResponse
 {
+    use HasUpdatedResources;
+
     /**
      * @param  array<int>  $receivedMailboxIds  受取完了したメールID配列
      * @param  int  $totalCount  受取完了したメール数
@@ -38,6 +41,7 @@ class ReceiveAllResponse extends _BaseResponse
             'received_trx_mailbox_id_list' => $this->receivedMailboxIds,
             'total_count' => $this->totalCount,
             'skipped_count' => $this->skippedCount,
+            'updated_resources' => $this->getUpdatedResources()->toResponseArray(),
         ];
 
         // 配送内容を追加

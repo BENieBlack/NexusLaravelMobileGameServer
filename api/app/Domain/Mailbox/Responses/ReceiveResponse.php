@@ -3,6 +3,7 @@
 namespace App\Domain\Mailbox\Responses;
 
 use App\Domain\_BaseResponse;
+use App\Traits\HasUpdatedResources;
 use Nexus\Core\Resource\DataTransferObjects\Resource;
 
 /**
@@ -12,6 +13,8 @@ use Nexus\Core\Resource\DataTransferObjects\Resource;
  */
 class ReceiveResponse extends _BaseResponse
 {
+    use HasUpdatedResources;
+
     /**
      * @param  array<int, \Nexus\Core\Resource\DataTransferObjects\Resource>  $receivedContentArray  受け取った配布物
      */
@@ -39,6 +42,7 @@ class ReceiveResponse extends _BaseResponse
             'trx_mailbox_id' => $this->trxMailboxId,
             'is_received' => $this->isReceived,
             'received_content_list' => $contentArray,
+            'updated_resources' => $this->getUpdatedResources()->toResponseArray(),
         ];
     }
 }

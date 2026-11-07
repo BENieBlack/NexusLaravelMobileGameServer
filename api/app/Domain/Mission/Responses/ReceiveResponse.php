@@ -3,6 +3,7 @@
 namespace App\Domain\Mission\Responses;
 
 use App\Domain\_BaseResponse;
+use App\Traits\HasUpdatedResources;
 use NexusMission\ValueObjects\MissionStatus;
 
 /**
@@ -14,6 +15,8 @@ use NexusMission\ValueObjects\MissionStatus;
  */
 class ReceiveResponse extends _BaseResponse
 {
+    use HasUpdatedResources;
+
     public function __construct(
         private readonly MissionStatus $missionStatus,
     ) {}
@@ -33,6 +36,7 @@ class ReceiveResponse extends _BaseResponse
     {
         return [
             'mission' => $this->missionStatus->toArray(),
+            'updated_resources' => $this->getUpdatedResources()->toResponseArray(),
         ];
     }
 }

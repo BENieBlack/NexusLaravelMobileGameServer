@@ -33,12 +33,13 @@ class ExchangeUseCase extends _BaseUseCase
             $this->logTradeRepository->setUniqueRequestId($uniqueRequestId);
         }
 
-        $tradeProductStatus = $this->executeWithTransaction(
-            fn () => TradeExceptionTranslator::translate(
-                fn () => $this->tradeService->trade($sysPlayerId, $mstTradeProductId, $quantity)
+        // コミット後に、この処理で更新した trx（受け取った報酬・消費したアイテムなど）を取り出して返す
+        return $this->executeWithTransaction(
+            fn () => ExchangeResponse::from(
+                TradeExceptionTranslator::translate(
+                    fn () => $this->tradeService->trade($sysPlayerId, $mstTradeProductId, $quantity)
+                )
             )
-        );
-
-        return ExchangeResponse::from($tradeProductStatus);
+        )->withUpdatedResources($this->pullUpdatedResources());
     }
 }

@@ -51,8 +51,6 @@ class BuyPassUseCase extends _BaseBuyUseCase
 
         // トランザクションは _BaseBuyUseCase が張っている（VIP付与・課金ログと同一）
         $paidDiamondAmount = 0;
-        $totalPaidDiamondAmount = 0;
-        $totalFreeDiamondAmount = 0;
 
         // 1. ダイヤモンド付与（あれば）
         if ($mstInAppPurchase->getPaidDiamondAmount() > 0) {
@@ -65,8 +63,6 @@ class BuyPassUseCase extends _BaseBuyUseCase
                 $verification->getTransactionId()
             );
             $paidDiamondAmount = $result['paid_diamond_amount'];
-            $totalPaidDiamondAmount = $result['total_paid_diamond_amount'];
-            $totalFreeDiamondAmount = $result['total_free_diamond_amount'];
         }
 
         // 2. パス効果を適用
@@ -74,9 +70,6 @@ class BuyPassUseCase extends _BaseBuyUseCase
 
         return new BuyResponse(
             paidDiamondAmount: $paidDiamondAmount,
-            totalPaidDiamondAmount: $totalPaidDiamondAmount,
-            totalFreeDiamondAmount: $totalFreeDiamondAmount,
-            rewards: [],
         );
     }
 }

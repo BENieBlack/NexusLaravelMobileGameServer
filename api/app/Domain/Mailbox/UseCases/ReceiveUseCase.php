@@ -32,6 +32,7 @@ class ReceiveUseCase extends _BaseUseCase
      */
     public function handle(int $sysPlayerId, int $trxMailboxId): ReceiveResponse
     {
+        // コミット後に、この処理で更新した trx（受け取った報酬）を取り出して返す
         return $this->executeWithTransaction(function () use ($sysPlayerId, $trxMailboxId) {
             // メールボックス取得
             $trxMailbox = $this->trxMailboxRepository->selectById($trxMailboxId);
@@ -68,7 +69,7 @@ class ReceiveUseCase extends _BaseUseCase
             $this->trxMailboxRepository->markAsReceived($trxMailbox);
 
             return new ReceiveResponse($trxMailbox->getId(), true, $resources);
-        });
+        })->withUpdatedResources($this->pullUpdatedResources());
     }
 
     /**

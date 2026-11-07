@@ -117,6 +117,10 @@ class TradeEndpointTest extends TestCase
         $response->assertOk();
         $this->assertSame(3, $response->json('trade_product.traded_count'));
 
+        // 消費したダイヤと受け取ったアイテムが、更新した trx として返る
+        $this->assertSame(10, $response->json('updated_resources.trx_diamond_list.0.free_amount'));
+        $this->assertSame(6, $response->json('updated_resources.trx_item_list.0.free_amount'));
+
         // 無償ダイヤ 100 から 30 × 3 = 90 を消費。報酬は 2 × 3 = 6 個
         $this->assertSame(['free' => 10, 'paid' => 50], $this->diamondAmount());
         $this->assertSame(6, $this->itemAmount(self::REWARD_ID));

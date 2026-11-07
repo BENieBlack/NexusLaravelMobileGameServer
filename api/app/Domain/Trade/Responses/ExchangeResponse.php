@@ -3,6 +3,7 @@
 namespace App\Domain\Trade\Responses;
 
 use App\Domain\_BaseResponse;
+use App\Traits\HasUpdatedResources;
 use NexusTrade\ValueObjects\TradeProductStatus;
 
 /**
@@ -14,6 +15,8 @@ use NexusTrade\ValueObjects\TradeProductStatus;
  */
 class ExchangeResponse extends _BaseResponse
 {
+    use HasUpdatedResources;
+
     public function __construct(
         private readonly TradeProductStatus $tradeProductStatus,
     ) {}
@@ -30,6 +33,7 @@ class ExchangeResponse extends _BaseResponse
     {
         return [
             'trade_product' => $this->tradeProductStatus->toArray(),
+            'updated_resources' => $this->getUpdatedResources()->toResponseArray(),
         ];
     }
 }

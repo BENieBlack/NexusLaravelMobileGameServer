@@ -60,7 +60,7 @@ class UnitLevelService extends _BaseLevelService implements UnitExperienceInterf
         }
 
         $rarity = $mstUnit->getRarity();
-        $maxLevel = $this->mstUnitLevelRepository->selectMaxLevel($rarity) ?? 100;
+        $maxLevel = $this->mstUnitLevelRepository->selectMaxLevel((string) $rarity) ?? 100;
         $expToNext = $this->calcExpToNextLevel($rarity, $trxUnit->getLevel(), $trxUnit->getLevelExp());
 
         return [
@@ -103,13 +103,14 @@ class UnitLevelService extends _BaseLevelService implements UnitExperienceInterf
         }
 
         $rarity = $mstUnit->getRarity();
-        $maxLevel = $this->mstUnitLevelRepository->selectMaxLevel($rarity) ?? 100;
+        $maxLevel = $this->mstUnitLevelRepository->selectMaxLevel((string) $rarity) ?? 100;
 
         // 基底クラスのテンプレートメソッドを呼び出し
         $result = parent::addExp($trxUnitId, $exp);
 
         // ユニット固有の戻り値を追加
-        $trxUnit = $this->trxUnitRepository->selectById($trxUnitId);
+        $trxUnit = $this->trxUnitRepository->selectById($trxUnitId)
+            ?? throw new \LogicException('ユニットが見つかりません');
         $expToNext = $this->calcExpToNextLevel($rarity, $trxUnit->getLevel(), $trxUnit->getLevelExp());
 
         return [
@@ -131,7 +132,7 @@ class UnitLevelService extends _BaseLevelService implements UnitExperienceInterf
     public function calcExpToNextLevel(?string $rarity, int $currentLevel, int $currentExp): ?int
     {
         $nextLevel = $currentLevel + 1;
-        $nextLevelData = $this->mstUnitLevelRepository->selectByRarityAndLevel($rarity, $nextLevel);
+        $nextLevelData = $this->mstUnitLevelRepository->selectByRarityAndLevel((string) $rarity, $nextLevel);
 
         if ($nextLevelData === null) {
             // 最大レベルに達している
@@ -197,7 +198,7 @@ class UnitLevelService extends _BaseLevelService implements UnitExperienceInterf
      */
     protected function calculateNewLevel(?string $rarity, int $totalExp): int
     {
-        return $this->mstUnitLevelRepository->calculateLevelFromExp($rarity, $totalExp);
+        return $this->mstUnitLevelRepository->calculateLevelFromExp((string) $rarity, $totalExp);
     }
 
     /**
@@ -205,7 +206,7 @@ class UnitLevelService extends _BaseLevelService implements UnitExperienceInterf
      */
     protected function findMaxLevel(?string $rarity): int
     {
-        return $this->mstUnitLevelRepository->selectMaxLevel($rarity) ?? 100;
+        return $this->mstUnitLevelRepository->selectMaxLevel((string) $rarity) ?? 100;
     }
 
     /**

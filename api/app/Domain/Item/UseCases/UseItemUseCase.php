@@ -96,7 +96,8 @@ class UseItemUseCase extends _BaseUseCase
         $this->validation($sysPlayerId, $mstItemId, $useCount);
 
         return $this->executeWithTransaction(function () use ($sysPlayerId, $mstItemId, $useCount) {
-            $mstItem = $this->mstItemRepository->selectById($mstItemId);
+            $mstItem = $this->mstItemRepository->selectById($mstItemId)
+                ?? throw new \LogicException('アイテムが見つかりません');
             $effectType = ItemEffectType::from($mstItem->getEffect());
 
             $this->itemService->consumeItem($sysPlayerId, $mstItemId, $useCount);

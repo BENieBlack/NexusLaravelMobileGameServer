@@ -68,7 +68,8 @@ class SignUpUseCase extends _BaseUseCase
 
             // レスポンスとトークン生成にはModelが要る。
             // 直前に採番済みでリポジトリのメモリキャッシュに載っているため追加クエリは発生しない
-            $sysPlayer = $this->sysPlayerRepository->selectById($player->getId());
+            $sysPlayer = $this->sysPlayerRepository->selectById($player->getId())
+                ?? throw new \LogicException('採番直後のプレイヤーが取得できません: '.$player->getId());
 
             // デバイスを作成（アプリケーション層で直接作成）
             $sysPlayerDevice = $this->sysPlayerDeviceRepository->insertDevice(

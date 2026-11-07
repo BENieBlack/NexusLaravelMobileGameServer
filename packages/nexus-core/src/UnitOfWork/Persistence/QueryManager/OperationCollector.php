@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Nexus\Core\Models\Log\_BaseLog;
 use Nexus\Core\Models\Sys\_BaseSys;
 use Nexus\Core\Models\Trx\_BaseTrx;
-use Nexus\Core\Repositories\_BaseRepository;
+use Nexus\Core\Repositories\_BaseRepositoryInterface;
 use Nexus\Core\Repositories\Log\_BaseLogRepository;
 use Nexus\Core\Repositories\Sys\_BaseSysRepository;
 use Nexus\Core\Repositories\Trx\_BaseTrxRepository;
@@ -21,7 +21,7 @@ class OperationCollector
     /**
      * Repositoryのリストから操作を収集
      *
-     * @param  array<_BaseRepository<array-key, Model>>  $repositories
+     * @param  array<_BaseRepositoryInterface>  $repositories
      * @return array{
      *     inserts: array<string, array{connection: string, table: string, records: array<int, array<string, mixed>>, models: array<int, mixed>, repository: mixed, originalStates: array<int, array<string, mixed>>}>,
      *     updates: array<int, array{connection: string, table: string, model: mixed, data: array<string, mixed>, repository: mixed, uniqueKey: string, originalState: array<string, mixed>}>,

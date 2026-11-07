@@ -13,7 +13,7 @@ use NexusLogin\Contracts\LoginBonusStrategyInterface;
  */
 class LoginBonusOrchestrator
 {
-    /** @var array<LoginBonusStrategyInterface> */
+    /** @var list<array{strategy: LoginBonusStrategyInterface, priority: int}> */
     private array $strategies = [];
 
     /**

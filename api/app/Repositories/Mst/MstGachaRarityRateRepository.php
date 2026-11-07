@@ -21,13 +21,12 @@ class MstGachaRarityRateRepository extends _BaseMstRepository implements GachaRa
      */
     public function selectByGachaId(string $mstGachaId): array
     {
-        return $this->selectListByGachaId($mstGachaId)
+        return array_values($this->selectListByGachaId($mstGachaId)
             ->map(fn (MstGachaRarityRate $rate) => new RarityRate(
                 rarity: $rate->rarity,
                 rate: $rate->rate,
             ))
-            ->values()
-            ->all();
+            ->all());
     }
 
     /**
@@ -37,9 +36,9 @@ class MstGachaRarityRateRepository extends _BaseMstRepository implements GachaRa
      */
     public function selectListByGachaId(string $mstGachaId): CustomCollection
     {
-        $this->queryOrMemory();
+        $models = $this->queryOrMemory();
 
-        return $this->models
+        return $models
             ->where('mst_gacha_id', $mstGachaId)
             ->sortBy('rarity')
             ->values();

@@ -44,7 +44,8 @@ class MeUseCase extends _BaseUseCase
         $this->validation($sysPlayerId);
 
         // プレイヤー情報を取得（バリデーション済み）
-        $sysPlayer = $this->sysPlayerRepository->selectById($sysPlayerId);
+        $sysPlayer = $this->sysPlayerRepository->selectById($sysPlayerId)
+            ?? throw new \LogicException('プレイヤーが見つかりません');
 
         return new MeResponse(
             myId: $sysPlayer->getMyId(),

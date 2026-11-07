@@ -98,7 +98,7 @@ docker compose exec -T api-php grep 'App.Adapters' /tmp/cov.txt
 
 ## 静的解析とフォーマット
 
-- PHPStan は level 6（`api/phpstan.neon`）。対象は `app` と各パッケージの `src`。パッケージを追加したら `paths` にも足す。独自ルール `App\PHPStan\Rules\NoDirectEloquentSaveInServiceRule`（`api/phpstan/Rules/`）が有効
+- PHPStan は level 8（`api/phpstan.neon`。null の扱いまで検査する。level 9 以上は mixed の指摘が大半で、費用に見合わないので上げない）。baseline は使わない。対象は `app` と各パッケージの `src`。パッケージを追加したら `paths` にも足す。独自ルール `App\PHPStan\Rules\NoDirectEloquentSaveInServiceRule`（`api/phpstan/Rules/`）が有効
 - Pint の設定は `api/pint.json`（preset laravel）。packages にも同じ設定を当てる
 - tool は別アプリで、`tool/phpstan.neon`（level 6）と tool の Pint を `make tool-check` で回す
 - CI（`.github/workflows/ci.yml`）は3ジョブ: 静的解析・フォーマット / tool / テスト（api + packages）

@@ -285,7 +285,7 @@ class ResourceDeliveryContent
     /**
      * 配列からResourceDeliveryContentを生成
      *
-     * @param  array<string, mixed>  $data
+     * @param  array{type: ResourceType|string, id: string, amount: int, expire_at?: string|null, metadata?: array<string, mixed>|null}  $data
      */
     public static function fromArray(array $data): self
     {

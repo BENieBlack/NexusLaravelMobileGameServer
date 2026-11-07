@@ -21,7 +21,7 @@ class PlayerAdapter
             id: $model->getId(),
             uuid: $model->getUuid(),
             myId: $model->getMyId(),
-            name: $model->getName(),
+            name: $model->getName() ?? '',
             level: $model->getLevel(),
             levelExp: $model->getLevelExp(),
             createdAt: $model->getCreatedAt(),

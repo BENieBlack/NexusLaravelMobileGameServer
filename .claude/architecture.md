@@ -279,4 +279,4 @@ return GuildExceptionTranslator::forApplySend(function () use ($sysPlayerId, $gu
 | `Psr4ConsistencyTest` | `api/app` の名前空間とディレクトリの大小文字が一致する |
 | `AgentDocsInSyncTest` | `.opencode` が `.claude` へのシンボリックリンクである |
 
-静的解析は PHPStan level 6（`api/phpstan.neon`）。実行方法は [development.md](./development.md)。
+静的解析は PHPStan level 8（`api/phpstan.neon`）。実行方法は [development.md](./development.md)。

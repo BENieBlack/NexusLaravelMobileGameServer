@@ -136,7 +136,7 @@ abstract class _BaseTrx extends _BaseModel implements _BaseTrxInterface
 
             // 現在の値が存在し、かつ数値の場合のみ相対的な変更を記録
             if ($currentValue !== null && is_numeric($currentValue)) {
-                $diff = $value - $currentValue;
+                $diff = (int) ($value - $currentValue);
 
                 // 変更がある場合のみ記録
                 if ($diff != 0) {

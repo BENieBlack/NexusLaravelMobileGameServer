@@ -15,7 +15,7 @@ use Nexus\Core\Support\CustomCollection;
  * 連結文字列、Logは連番）ため、キーの型もテンプレートで受け取る。
  *
  * @template TKey of array-key
- * @template TModel of object
+ * @template TModel of _BaseModel
  */
 abstract class _BaseRepository implements _BaseRepositoryInterface
 {
@@ -149,6 +149,7 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
             return null;
         }
 
+        /** @phpstan-ignore argument.type (キャッシュのキーは常に文字列。TKey は呼び出し側の型付け用) */
         return $this->models->get((string) $key);
     }
 
@@ -187,6 +188,7 @@ abstract class _BaseRepository implements _BaseRepositoryInterface
             $this->models = new CustomCollection;
         }
         $key = implode(':', array_map(fn ($uniqueKey) => $model->{$uniqueKey}, $this->getUniqueKeys()));
+        /** @phpstan-ignore argument.type (キャッシュのキーは常に文字列) */
         $this->models->put($key, $model);
     }
 

@@ -81,7 +81,7 @@ class IdempotencyMiddleware
 
             // gzip解凍してレスポンスデータを復元
             $jsonData = gzdecode($cached);
-            $cachedResponse = json_decode($jsonData, true);
+            $cachedResponse = json_decode((string) $jsonData, true);
 
             // キャッシュされたレスポンスを復元
             $response = response()->json(
@@ -168,7 +168,7 @@ class IdempotencyMiddleware
         $contentType = $headerBag->get('Content-Type');
 
         $cachedData = [
-            'data' => json_decode($response->getContent(), true),
+            'data' => json_decode((string) $response->getContent(), true),
             'status' => $response->getStatusCode(),
             'headers' => [
                 'Content-Type' => $contentType,
@@ -176,7 +176,7 @@ class IdempotencyMiddleware
         ];
 
         // JSONエンコード
-        $jsonData = json_encode($cachedData);
+        $jsonData = (string) json_encode($cachedData);
 
         // gzip圧縮
         $compressionLevel = config('security.idempotency.compression_level', 6);

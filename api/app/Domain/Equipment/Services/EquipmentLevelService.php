@@ -59,7 +59,7 @@ class EquipmentLevelService extends _BaseLevelService implements EquipmentExperi
         }
 
         $rarity = $mstEquipment->getRarity();
-        $maxLevel = $this->mstEquipmentLevelRepository->selectMaxLevel($rarity) ?? 100;
+        $maxLevel = $this->mstEquipmentLevelRepository->selectMaxLevel((string) $rarity) ?? 100;
         $expToNext = $this->calcExpToNextLevel($rarity, $trxEquipment->getLevel(), $trxEquipment->getLevelExp());
 
         return [
@@ -145,7 +145,7 @@ class EquipmentLevelService extends _BaseLevelService implements EquipmentExperi
      */
     public function calculateLevelFromExp(string $rarity, int $exp): int
     {
-        return $this->mstEquipmentLevelRepository->calculateLevelFromExp($rarity, $exp);
+        return $this->mstEquipmentLevelRepository->calculateLevelFromExp((string) $rarity, $exp);
     }
 
     /**
@@ -159,7 +159,7 @@ class EquipmentLevelService extends _BaseLevelService implements EquipmentExperi
     public function calcExpToNextLevel(?string $rarity, int $currentLevel, int $currentExp): ?int
     {
         $nextLevel = $currentLevel + 1;
-        $nextLevelData = $this->mstEquipmentLevelRepository->selectByRarityAndLevel($rarity, $nextLevel);
+        $nextLevelData = $this->mstEquipmentLevelRepository->selectByRarityAndLevel((string) $rarity, $nextLevel);
 
         if ($nextLevelData === null) {
             // 最大レベルに達している
@@ -225,7 +225,7 @@ class EquipmentLevelService extends _BaseLevelService implements EquipmentExperi
      */
     protected function calculateNewLevel(?string $rarity, int $totalExp): int
     {
-        return $this->mstEquipmentLevelRepository->calculateLevelFromExp($rarity, $totalExp);
+        return $this->mstEquipmentLevelRepository->calculateLevelFromExp((string) $rarity, $totalExp);
     }
 
     /**
@@ -233,7 +233,7 @@ class EquipmentLevelService extends _BaseLevelService implements EquipmentExperi
      */
     protected function findMaxLevel(?string $rarity): int
     {
-        return $this->mstEquipmentLevelRepository->selectMaxLevel($rarity) ?? 100;
+        return $this->mstEquipmentLevelRepository->selectMaxLevel((string) $rarity) ?? 100;
     }
 
     /**

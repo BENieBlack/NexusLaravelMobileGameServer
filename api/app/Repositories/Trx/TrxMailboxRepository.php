@@ -215,6 +215,6 @@ class TrxMailboxRepository extends _BaseTrxRepository
             $query->where('priority', $priority->value);
         }
 
-        return $query->pluck('id')->map(fn ($id) => (string) $id)->all();
+        return array_values($query->pluck('id')->map(fn ($id) => (string) $id)->all());
     }
 }

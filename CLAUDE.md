@@ -19,7 +19,7 @@
 | CIと同じ検査 | `make check`（結果だけ: `make check-quiet`） |
 | テスト | `make test`（api + packages。結果だけ: `make test-quiet`）、`make test-unit`、`make test-feature`、`make tool-check`（tool） |
 | 一部だけ | `docker compose exec -T api-php php artisan test --filter=Xxx` |
-| 整形 / 静的解析 | `make pint`（api と packages）、`make phpstan`（level 6） |
+| 整形 / 静的解析 | `make pint`（api と packages）、`make phpstan`（level 8） |
 | マイグレーション | `make migrate`、`make migrate-fresh && make seed` |
 
 引数なしの `php artisan migrate` は使わない（既定接続が sqlite で、どのDBにも流れない）。詳細は `.claude/development.md`。

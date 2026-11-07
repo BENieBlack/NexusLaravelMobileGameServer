@@ -38,9 +38,9 @@ class ListResponse extends _BaseResponse
                 : $sysFriendApply->sendPlayer;
 
             return [
-                'my_id' => $friendPlayer->my_id,
-                'name' => $friendPlayer->name,
-                'level' => $friendPlayer->level,
+                'my_id' => $friendPlayer?->my_id,
+                'name' => $friendPlayer?->name,
+                'level' => $friendPlayer?->level,
                 'created_at' => $sysFriendApply->getCreatedAt(),
             ];
         })->toArray();

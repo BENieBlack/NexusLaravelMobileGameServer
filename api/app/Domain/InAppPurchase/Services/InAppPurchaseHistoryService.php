@@ -6,6 +6,7 @@ use App\Models\Mst\MstInAppPurchase;
 use App\Models\Trx\TrxInAppPurchase;
 use App\Repositories\Trx\TrxInAppPurchaseRepository;
 use Nexus\Core\Utilities\ClockUtility;
+use NexusBilling\Constants\PurchaseLimitResetType;
 
 /**
  * InAppPurchaseHistoryService
@@ -54,7 +55,7 @@ class InAppPurchaseHistoryService
 
         // リセットが必要かチェック
         $newResetDate = $this->validationService->getNewResetDateIfNeeded(
-            $mstInAppPurchase->getPurchaseLimitReset(),
+            $mstInAppPurchase->getPurchaseLimitReset() ?? PurchaseLimitResetType::NONE,
             $purchaseHistory->getPurchaseCountResetAt()
         );
 

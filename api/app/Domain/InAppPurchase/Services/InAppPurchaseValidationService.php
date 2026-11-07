@@ -8,6 +8,7 @@ use App\Models\Mst\MstBillingPlatformProduct;
 use App\Models\Mst\MstInAppPurchase;
 use App\Models\Trx\TrxInAppPurchase;
 use Illuminate\Support\Facades\Log;
+use NexusBilling\Constants\PurchaseLimitResetType;
 use NexusBilling\DataTransferObjects\Verification;
 use NexusBilling\Validators\_BasePurchaseLimitValidator;
 
@@ -61,7 +62,7 @@ class InAppPurchaseValidationService
         $isExceeded = $this->limitValidator->isLimitExceeded(
             $mstInAppPurchase->getPurchaseLimitCount(),
             $purchaseHistory->purchase_count,
-            $mstInAppPurchase->getPurchaseLimitReset(),
+            $mstInAppPurchase->getPurchaseLimitReset() ?? PurchaseLimitResetType::NONE,
             $purchaseHistory->getPurchaseCountResetAt()
         );
 
@@ -70,7 +71,7 @@ class InAppPurchaseValidationService
             // 有効なカウント数を計算（リセット判定後）
             $effectiveCount = $this->limitValidator->calculateEffectiveCount(
                 $purchaseHistory->purchase_count,
-                $mstInAppPurchase->getPurchaseLimitReset(),
+                $mstInAppPurchase->getPurchaseLimitReset() ?? PurchaseLimitResetType::NONE,
                 $purchaseHistory->getPurchaseCountResetAt()
             );
 

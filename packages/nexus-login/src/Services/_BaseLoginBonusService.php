@@ -264,7 +264,7 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
     /**
      * ContentをResourceに変換（サブクラスでオーバーライド可能）
      *
-     * @param  object  $content
+     * @param  object{content_type: string, content_mst_id: string, content_quantity: int, amount: int, is_paid?: bool|int|null, content_option?: array<string, mixed>|null}  $content
      * @return resource
      */
     protected function convertToResource(object $content): Resource

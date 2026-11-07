@@ -201,7 +201,7 @@ class WalletService
     /**
      * バランスの数量を無償/有償に分けて合計する
      *
-     * @param  iterable<object>  $balances  バランスコレクション
+     * @param  iterable<object{is_paid: bool, current_amount: int}>  $balances  バランスコレクション
      * @return array{free: int, paid: int}
      */
     private function summarizeBalances(iterable $balances): array
@@ -223,8 +223,10 @@ class WalletService
     /**
      * 有効期限が切れたバランスを除く
      *
-     * @param  iterable<object>  $balances  バランスコレクション（expire_at を持つ）
-     * @return iterable<object>
+     * @template T of object{expire_at: ?string}
+     *
+     * @param  iterable<T>  $balances  バランスコレクション（expire_at を持つ）
+     * @return iterable<T>
      */
     private function excludeExpired(iterable $balances): iterable
     {
@@ -238,7 +240,7 @@ class WalletService
     /**
      * バランスから通貨を消費（FIFO）
      *
-     * @param  iterable<object>  $balances  バランスコレクション
+     * @param  iterable<object{id: int, is_paid: bool, current_amount: int}>  $balances  バランスコレクション
      * @param  int  $amount  消費する数量
      * @return array{free: int, paid: int} 消費した無償/有償の数量
      */
@@ -276,7 +278,7 @@ class WalletService
     /**
      * 有効期限切れのバランスを削除
      *
-     * @param  iterable<object>  $expiredBalances  期限切れバランスコレクション
+     * @param  iterable<object{id: int, is_paid: bool, current_amount: int}>  $expiredBalances  期限切れバランスコレクション
      * @return array{total: int, free: int, paid: int} 削除された総数/無償/有償
      */
     private function removeExpiredBalances(iterable $expiredBalances): array

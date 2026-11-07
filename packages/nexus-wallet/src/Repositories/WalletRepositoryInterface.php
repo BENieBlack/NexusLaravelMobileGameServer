@@ -14,7 +14,7 @@ interface WalletRepositoryInterface
      *
      * @param  int  $playerId  プレイヤーID
      * @param  string  $currencyId  通貨アイテムID
-     * @return object|null { free_amount: int, paid_amount: int, total_amount: int } または null
+     * @return object{free_amount: int, paid_amount: int, total_amount: int}|null
      */
     public function selectByCurrencyId(int $playerId, string $currencyId): ?object;
 

@@ -15,7 +15,6 @@ parameters:
         - ../packages/nexus-core-auth/src
         - ../packages/nexus-core-billing/src
         - ../packages/nexus-core-security/src
-        - ../packages/nexus-core-unit-of-work/src
         - ../packages/nexus-friend/src
         - ../packages/nexus-gacha/src
         - ../packages/nexus-guild/src
@@ -27,7 +26,6 @@ parameters:
         - ../packages/nexus-event/src
         - ../packages/nexus-trade/src
         - ../packages/nexus-notification/src
-        - ../packages/nexus-pitr/src
         - ../packages/nexus-reward-track/src
         - ../packages/nexus-stamina/src
         - ../packages/nexus-tag/src

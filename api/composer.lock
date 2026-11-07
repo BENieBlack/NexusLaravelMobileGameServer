@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8af672539a70c2366511f2b572fdd863",
+    "content-hash": "1913db71eff1904ae84c34c7db951735",
     "packages": [
         {
             "name": "brick/math",
@@ -3036,14 +3036,14 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-core",
-                "reference": "70b93579e71a442983e9336bd33a60a332aea35f"
+                "reference": "8a484d0d6177e8fae318f447efcaf4d7734d22b6"
             },
             "require": {
                 "illuminate/cache": "^10.0|^11.0|^12.0|^13.0",
+                "illuminate/console": "^10.0|^11.0|^12.0|^13.0",
                 "illuminate/database": "^10.0|^11.0|^12.0|^13.0",
                 "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
                 "nesbot/carbon": "^2.0|^3.0",
-                "nexus/pitr": "@dev",
                 "php": "^8.4",
                 "psr/log": "^1.1|^2.0|^3.0",
                 "ramsey/uuid": "^4.0"
@@ -3090,7 +3090,7 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-core-auth",
-                "reference": "913e9d4e8c7a15b58885cf880d3fa21ea3eea8c5"
+                "reference": "6c7c6a3cd9c902e7389134fe7348bda5a63ea876"
             },
             "require": {
                 "firebase/php-jwt": "^7.0",
@@ -3098,7 +3098,6 @@
                 "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
                 "nexus/core": "@dev",
                 "nexus/core-security": "@dev",
-                "nexus/core-unit-of-work": "@dev",
                 "php": "^8.4"
             },
             "require-dev": {
@@ -3230,58 +3229,6 @@
                 }
             ],
             "description": "Laravel security middleware including client signature verification, idempotency guarantee, rate limiting and access token verification",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
-            "name": "nexus/core-unit-of-work",
-            "version": "dev-main",
-            "dist": {
-                "type": "path",
-                "url": "../packages/nexus-core-unit-of-work",
-                "reference": "81161a3db7c7a0ad368ab71ac481726c11ba5e31"
-            },
-            "require": {
-                "illuminate/database": "^10.0|^11.0|^12.0|^13.0",
-                "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
-                "nexus/core": "@dev",
-                "nexus/pitr": "@dev",
-                "php": "^8.4"
-            },
-            "require-dev": {
-                "mockery/mockery": "^1.6",
-                "orchestra/testbench": "^9.0",
-                "phpunit/phpunit": "^11.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "NexusUnitOfWork\\UnitOfWorkServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "NexusUnitOfWork\\": "src/"
-                }
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "NexusUnitOfWork\\Tests\\": "tests/"
-                }
-            },
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Your Name",
-                    "email": "your.email@example.com"
-                }
-            ],
-            "description": "Unit of Work pattern implementation for Laravel with batch operations and query optimization",
             "transport-options": {
                 "relative": true
             }
@@ -3719,63 +3666,6 @@
                 "MIT"
             ],
             "description": "Nexusモバイルゲーム向けゲーム内通知配送インフラパッケージ",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
-            "name": "nexus/pitr",
-            "version": "dev-main",
-            "dist": {
-                "type": "path",
-                "url": "../packages/nexus-pitr",
-                "reference": "7c196ea4ed8ddb188d867fa1888b9aa5c5ba3f18"
-            },
-            "require": {
-                "illuminate/console": "^12.0|^13.0",
-                "illuminate/database": "^12.0|^13.0",
-                "illuminate/support": "^12.0|^13.0",
-                "php": "^8.4"
-            },
-            "require-dev": {
-                "mockery/mockery": "^1.6",
-                "phpunit/phpunit": "^11.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "NexusPitr\\NexusPitrServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "NexusPitr\\": "src/"
-                }
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "NexusPitr\\Tests\\": "tests/"
-                }
-            },
-            "scripts": {
-                "test": [
-                    "phpunit"
-                ],
-                "test-coverage": [
-                    "phpunit --coverage-html coverage"
-                ]
-            },
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Nexus Team"
-                }
-            ],
-            "description": "Point-In-Time Recovery system for TrxDB using LogDB change history",
             "transport-options": {
                 "relative": true
             }
@@ -12414,7 +12304,6 @@
         "nexus/core-auth": 20,
         "nexus/core-billing": 20,
         "nexus/core-security": 20,
-        "nexus/core-unit-of-work": 20,
         "nexus/event": 20,
         "nexus/friend": 20,
         "nexus/gacha": 20,
@@ -12425,7 +12314,6 @@
         "nexus/maintenance": 20,
         "nexus/mission": 20,
         "nexus/notification": 20,
-        "nexus/pitr": 20,
         "nexus/reward-track": 20,
         "nexus/stamina": 20,
         "nexus/tag": 20,

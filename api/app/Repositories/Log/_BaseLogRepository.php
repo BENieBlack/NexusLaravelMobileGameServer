@@ -3,9 +3,9 @@
 namespace App\Repositories\Log;
 
 use App\Persistence\ApiSession;
+use Nexus\Core\Pitr\Logger\ShardMapper;
 use Nexus\Core\Repositories\Log\_BaseLogRepository as PersistenceBaseLogRepository;
-use NexusPitr\Logger\ShardMapper;
-use NexusUnitOfWork\Traits\UsesUnitOfWork;
+use Nexus\Core\UnitOfWork\Traits\UsesUnitOfWork;
 
 /**
  * _BaseLogRepository

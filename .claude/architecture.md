@@ -15,7 +15,7 @@ tool/ (運営ツール, Laravel)          api/ (ゲームAPI, Laravel)
 ```
 
 - `api/` … クライアント向けAPI。ゲーム固有の処理は `api/app` に置く
-- `packages/` … 他タイトルへ持ち出せる汎用実装。基盤（`nexus-core*`, `nexus-pitr`, `nexus-tidb`, `nexus-maintenance`）とドメイン（`nexus-guild`, `nexus-vip` など）に分かれる
+- `packages/` … 他タイトルへ持ち出せる汎用実装。基盤（`nexus-core*`, `nexus-tidb`, `nexus-maintenance`）とドメイン（`nexus-guild`, `nexus-vip` など）に分かれる
 - `tool/` … 運営ツール。packages には依存せず、自前のモデル・Repository で各DBに接続する。詳細は [tool.md](./tool.md)
 
 ## 2. リクエストの流れ
@@ -29,7 +29,7 @@ Controller        App\Http\Controllers\UnitController::levelUp
 UseCase           App\Domain\Unit\UseCases\LevelUpUseCase::exec
 Service           App\Domain\Unit\Services\UnitLevelService / Item\Contracts\ItemInventoryInterface
 Repository        App\Repositories\Trx\TrxUnitRepository::setModel
-QueryManager      NexusUnitOfWork\Persistence\QueryManager（コミット直前に一括実行）
+QueryManager      Nexus\Core\UnitOfWork\Persistence\QueryManager（コミット直前に一括実行）
 ```
 
 1. `auth.token`（`NexusSecurity\Middleware\VerifyAccessToken`）がトークンを検証し、`ApiSession` にプレイヤーIDを載せる（8節）
@@ -93,10 +93,10 @@ Traits/                   UseCaseTrait, CompositePrimaryKeyTrait, RequiresAuthen
 | パッケージ | 役割 |
 |---|---|
 | `nexus-core` | Model/Repository の基底（`_BaseModel`, `_BaseTrxRepository` 等）、`CustomCollection`、`ClockUtility`、`ErrorResponse` |
-| `nexus-core-unit-of-work` | `QueryManager`、`UsesUnitOfWork`、`PlayerSessionResolverInterface` |
+| `nexus-core` の `UnitOfWork`（`Nexus\Core\UnitOfWork\`） | `QueryManager`、`UsesUnitOfWork`、`PlayerSessionResolverInterface` |
 | `nexus-core-security` | 認証・署名・レート制限・冪等性の Middleware、Slack通知 |
 | `nexus-core-auth` / `nexus-core-billing` | トークン発行・検証 / App Store・Google Play の課金連携 |
-| `nexus-pitr` | trx の変更ログ（PITR）、`ShardMapper`、`pitr:migrate` |
+| `nexus-core` の `Pitr`（`Nexus\Core\Pitr\`） | trx の変更ログ（PITR）、`ShardMapper`、`pitr:migrate` |
 | `nexus-tidb` | TiDBモードの切り替え（`TidbMode`） |
 | `nexus-core` の `ResourceDelivery`（`Nexus\Core\ResourceDelivery\`） | 報酬配布。`ResourceDeliveryService` に `ResourceDeliveryHandlerInterface` 実装を登録する。通貨の付与は `CurrencyGranterInterface`（実装は nexus-wallet） |
 
@@ -165,13 +165,13 @@ api/app/Providers/AppServiceProvider                                 ← bind(�
 
 | 層 | パッケージ | 依存してよいもの |
 |---|---|---|
-| foundation（土台） | nexus-core（リソース `Resource` と報酬配布 `ResourceDelivery` を含む）、nexus-core-unit-of-work、nexus-core-security、nexus-core-auth、nexus-pitr、nexus-tidb、nexus-wallet | foundation |
+| foundation（土台） | nexus-core（リソース `Resource`、報酬配布 `ResourceDelivery`、書き込みの仕組み `UnitOfWork`、変更ログ `Pitr` を含む）、nexus-core-security、nexus-core-auth、nexus-tidb、nexus-wallet | foundation |
 | platform（ゲーム共通の部品） | nexus-notification、nexus-mailbox | foundation、platform（循環なし） |
 | feature（機能） | 上記以外（gacha、trade、mission、login、reward-track、chat、event、friend、guild、vip など） | foundation、platform。**feature 同士は依存しない** |
 
 - アプリが `nexus-core`（foundation）に依存するのは前提。着脱の対象は、foundation 以外
 - feature は、他の feature が壊れずに外せる。feature 同士でやり取りが要るときは、消費する側のパッケージに契約（インターフェース）を定義し、api/app の Adapter で実装する（`TradeCostPayerInterface` が見本）。起きたことの通知は、ドメインイベント（5節）
-- 報酬（リソース）を配る仕組みは、ほぼ全ての機能が使うので、`nexus-core` に含める（`Nexus\Core\Resource\`、`Nexus\Core\ResourceDelivery\`）。通貨の付与は、`nexus-core` が契約 `CurrencyGranterInterface` を定義し、`nexus-wallet` が実装する（`nexus-core` が `nexus-wallet` に依存すると循環し、`nexus-wallet` を外すと `nexus-core` が壊れるため）
+- どのタイトルでも外せない仕組みは、`nexus-core` に含める。報酬（リソース）を配る仕組み（`Nexus\Core\Resource\`、`Nexus\Core\ResourceDelivery\`）、書き込みをまとめて実行する仕組み（`Nexus\Core\UnitOfWork\`）、trx の変更ログ（`Nexus\Core\Pitr\`）がそれにあたる。通貨の付与は、`nexus-core` が契約 `CurrencyGranterInterface` を定義し、`nexus-wallet` が実装する（`nexus-core` が `nexus-wallet` に依存すると循環し、`nexus-wallet` を外すと `nexus-core` が壊れるため）
 - platform は、feature が使う共通の部品（通知、メールボックス）。一緒に入れる前提で、feature が依存してよい
 - 使っているパッケージは、必ず `composer.json` の `require` に宣言する（`"nexus/<名前>": "@dev"`）。単体で入れたときに動くようにするため。宣言のずれと循環は `PackageLayerTest` が検出する
 - 新しいパッケージを足したら、`PackageLayerTest` の `LAYERS` に層を書く
@@ -191,7 +191,7 @@ api/app/Providers/AppServiceProvider                                 ← bind(�
 
 書き込みは即時に実行せず、Repository がキューに積み、UseCase のトランザクション終盤で一括実行する。
 
-- 書き込みは Repository の `setModel()` / `softDeleteModel()` / `hardDeleteModel()` だけ。`app/Repositories/{Trx,Sys,Log}/_Base*Repository` は `NexusUnitOfWork\Traits\UsesUnitOfWork` を使い、初回の書き込みで自身を QueryManager に登録する
+- 書き込みは Repository の `setModel()` / `softDeleteModel()` / `hardDeleteModel()` だけ。`app/Repositories/{Trx,Sys,Log}/_Base*Repository` は `Nexus\Core\UnitOfWork\Traits\UsesUnitOfWork` を使い、初回の書き込みで自身を QueryManager に登録する
 - Model の `save()` / `update()` / `delete()` / `forceDelete()` は `_BaseModel` が `DirectWriteNotAllowedException` で拒否する（テスト中は許可）。Mst は読み取り専用で `MasterDataReadOnlyException`
 - QueryManager、ApiSession、Trx/Sys/Log の Repository は `scoped` バインドで、リクエスト内では同じキュー・キャッシュを共有する
 
@@ -206,14 +206,14 @@ api/app/Providers/AppServiceProvider                                 ← bind(�
 ```
 
 - トランザクションは callback より前に開始する。callback 内の読み取りもトランザクション内で行われる
-- log_* テーブルは対応する trxN と同じDBに入る（`NexusPitr\Logger\ShardMapper::resolveLogConnection()`）。独立した log 接続は無い
+- log_* テーブルは対応する trxN と同じDBに入る（`Nexus\Core\Pitr\Logger\ShardMapper::resolveLogConnection()`）。独立した log 接続は無い
 - sys_player だけ個別INSERTで採番し、他はバッチINSERT
 - INSERT で採番されたIDを callback 内で直後に使う必要があるときだけ `flushQueue()` でキューを先に流す
 - 読み取りだけの UseCase は `executeWithTransaction()` を使わなくてよい
 
 ## 8. ApiSession
 
-`api/app/Persistence/ApiSession.php`。リクエストで確定したコンテキストを持つ scoped なクラスで、`NexusSecurity\Contracts\PlayerSessionInterface` と `NexusUnitOfWork\Contracts\PlayerSessionResolverInterface` の実装としてもバインドされている。
+`api/app/Persistence/ApiSession.php`。リクエストで確定したコンテキストを持つ scoped なクラスで、`NexusSecurity\Contracts\PlayerSessionInterface` と `Nexus\Core\UnitOfWork\Contracts\PlayerSessionResolverInterface` の実装としてもバインドされている。
 
 - static メソッド: `getSysPlayerId()` / `hasSysPlayerId()`（未設定で get すると `RuntimeException`）、`getNow()`（プレイヤーID設定時に `ClockUtility::now()` で固定した `CarbonImmutable`）、`getLanguage()`、`resolveConnectionName()`（`trx{node_no}`）、`clearForTest()`
 - 値を入れるのは Middleware（`VerifyAccessToken` がプレイヤーIDと時刻、`ResolveLanguage` が Accept-Language から言語）

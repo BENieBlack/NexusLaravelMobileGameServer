@@ -18,7 +18,7 @@ API（api/）の接続は `api/config/database.php`、Tool（tool/）の接続�
 
 - シャード数 N は `DB_SHARD_COUNT`（.env.example は 3、`api/phpunit.xml` は 2、未設定時は 2）。docker-compose.yml のシャードコンテナは3台なので3を超えない。
 - ホスト名は `DB_SHARD_HOST`（既定 `db-shard`）にシャード番号を付けたもの。シャード個別に変えるときだけ `DB_SHARD{N}_HOST` などで上書きする。
-- **log 専用のDB・接続は無い**。`log_*` は対応する `trxN` と同じDBに入る（`packages/nexus-pitr/src/Logger/ShardMapper.php::resolveLogConnection()` が `trxN` → `trxN` を返す）。
+- **log 専用のDB・接続は無い**。`log_*` は対応する `trxN` と同じDBに入る（`packages/nexus-core/src/Pitr/Logger/ShardMapper.php::resolveLogConnection()` が `trxN` → `trxN` を返す）。
 - 既定接続（`DB_CONNECTION`）は sqlite のまま。どのDBへのクエリも接続名を明示する。
 - TiDB モード（`DB_IS_TIDB=true`）ではシャード割り当てをせず常に `trx1` を使い、trx/log の単一主キー `id` を UUID に変換する（`packages/nexus-tidb`）。主キーの型と書き込みの偏りは11節。
 
@@ -58,7 +58,7 @@ API（api/）の接続は `api/config/database.php`、Tool（tool/）の接続�
 
 - テーブルは機能を持つパッケージのマイグレーションに書く。`api/database/migrations/` には Laravel 標準テーブルと、パッケージに属さない `log_action_*` だけがある。
 - ファイル名は `2026_01_01_000001_create_{機能}_tables.php`、log は `create_{機能}_log_tables.php`。trx と log は同じDBの同じ `migrations` テーブルに記録されるので、両グループを合わせて同名ファイルがあってはいけない（`api/tests/Architecture/MigrationNameUniquenessTest.php`）。
-- trx/log のパスは `packages/nexus-pitr/src/Support/ShardMigrationPaths.php` が `packages/` を走査して集める。パッケージを足しても一覧を直す必要はない。`nexus-tidb` の変換マイグレーションは必ず最後に流れる。
+- trx/log のパスは `packages/nexus-core/src/Pitr/Support/ShardMigrationPaths.php` が `packages/` を走査して集める。パッケージを足しても一覧を直す必要はない。`nexus-tidb` の変換マイグレーションは必ず最後に流れる。
 
 ### 書き方
 
@@ -172,15 +172,15 @@ API（api/）の接続は `api/config/database.php`、Tool（tool/）の接続�
 | 種類 | 内容 | 定義 |
 |---|---|---|
 | `log_action_*` | ゲーム内の行動の記録（APIアクセス、ガチャ、課金、強化、ログインボーナス受取など） | `api/database/migrations/log/`、各パッケージの `log/` |
-| `log_change_trx` | trx テーブルの変更履歴（PITR 用、全テーブル共通、`id` は UUID） | `packages/nexus-pitr/database/migrations/log/` |
+| `log_change_trx` | trx テーブルの変更履歴（PITR 用、全テーブル共通、`id` は UUID） | `packages/nexus-core/database/migrations/log/` |
 | `log_change_trx_*` | テーブル別の変更履歴（before/after と差分） | 各パッケージの `log/` |
-| `log_pitr_*` | PITR の復旧・検証の記録 | `packages/nexus-pitr/database/migrations/log/` |
+| `log_pitr_*` | PITR の復旧・検証の記録 | `packages/nexus-core/database/migrations/log/` |
 
 - 追記専用。更新・削除しない。
 - 日時は2種類持つ: `system_at`（アプリの時刻。`ClockUtility::now()` で入れるので、デバッグで時刻をずらすとそれに連動する）と `created_at`（DBが実際に記録した時刻）。範囲検索は `system_at` にインデックスを張って使う。
 - `_BaseLog` は `$timestamps = true` なので、Model 経由で書くログテーブルには `updated_at` も作る。
 - `sys_player_id` と `unique_request_id`（1リクエストのログをまとめて追える）を持たせ、`sys_player_id` にインデックスを張る。
-- PITR（`log_change_trx` への記録）は `packages/nexus-pitr/src/Traits/LogsChanges.php` と `src/Logger/TrxChangeLogger.php`。
+- PITR（`log_change_trx` への記録）は `packages/nexus-core/src/Pitr/Traits/LogsChanges.php` と `packages/nexus-core/src/Pitr/Logger/TrxChangeLogger.php`。
 
 ## 9. 通貨（ダイヤ）
 
@@ -264,7 +264,7 @@ API（api/）の接続は `api/config/database.php`、Tool（tool/）の接続�
 
 - api: `log_action_api_access`, `log_action_player_update`, `log_action_item_change`, `log_action_gacha_draw`, `log_action_unit_levelup`, `log_action_equipment_levelup`, `log_action_in_app_purchase`
 - nexus-login: `log_action_login_bonus_receive`／nexus-vip: `log_action_vip_login_bonus_receive`, `log_action_vip_point_change`／nexus-trade: `log_action_trade`
-- nexus-pitr: `log_change_trx`, `log_pitr_recovery`, `log_pitr_verification`
+- nexus-core（`Pitr`）: `log_change_trx`, `log_pitr_recovery`, `log_pitr_verification`
 - `log_change_trx_<trxテーブル名>`: 元の trx テーブルを持つパッケージ（core: player, player_sns／resource: unit, equipment, item／core-billing: in_app_purchase, in_app_purchase_effect, diamond, diamond_balance／wallet: wallet, wallet_balance／stamina／gacha／mailbox）
 
 ### adm（Tool、`tool/database/migrations/adm/2026_01_01_000001_create_game_tables.php`）

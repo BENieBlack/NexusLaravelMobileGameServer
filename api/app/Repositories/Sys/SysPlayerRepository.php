@@ -6,7 +6,7 @@ use App\Models\Sys\SysPlayer;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Str;
 use Nexus\Core\Support\CustomCollection;
-use NexusUnitOfWork\Contracts\QueryManagerInterface;
+use Nexus\Core\UnitOfWork\Contracts\QueryManagerInterface;
 
 /**
  * SysPlayerRepository

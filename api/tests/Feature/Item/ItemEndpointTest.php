@@ -6,7 +6,7 @@ use App\Domain\Stamina\Constants\StaminaConst;
 use App\Persistence\ApiSession;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Testing\TestResponse;
-use NexusUnitOfWork\Persistence\QueryManager;
+use Nexus\Core\UnitOfWork\Persistence\QueryManager;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;
 use Tests\TestCase;

@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
-use NexusPitr\Logger\ShardMapper;
+use Nexus\Core\Pitr\Logger\ShardMapper;
 use NexusTidb\Support\TidbMode;
 use NexusTidb\Support\UuidColumnConverter;
 

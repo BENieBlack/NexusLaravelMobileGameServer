@@ -1,0 +1,170 @@
+<?php
+
+namespace Nexus\Core\Pitr\Traits;
+
+use DateTime;
+use Illuminate\Support\Str;
+use Nexus\Core\Pitr\DataTransferObjects\ChangeLog;
+
+/**
+ * LogsChanges Trait
+ *
+ * Repository層にPITRログ記録機能を追加
+ * _BaseTrxRepositoryで使用される
+ */
+trait LogsChanges
+{
+    /**
+     * PITRログのキュー
+     *
+     * @var array<ChangeLog>
+     */
+    private array $pitrLogQueue = [];
+
+    /**
+     * PITRログをキューに追加（INSERT用）
+     *
+     * @param  int  $sysPlayerId
+     * @param  array  $afterData
+     * @param  array  $primaryKey
+     * @return void
+     */
+    /**
+     * @param  array<string, mixed>  $afterData  追加された行データ
+     * @param  array<string, mixed>  $primaryKey  対象行を特定する主キーの値
+     */
+    protected function queueInsertLog(int $sysPlayerId, array $afterData, array $primaryKey): void
+    {
+        $this->pitrLogQueue[] = new ChangeLog(
+            uniqueRequestId: $this->resolveRequestId(),
+            sysPlayerId: $sysPlayerId,
+            shardConnection: $this->connection,
+            tableName: $this->getTableName(),
+            operation: 'INSERT',
+            beforeData: null,
+            afterData: $afterData,
+            primaryKey: $primaryKey,
+            systemAt: new DateTime,
+            apiEndpoint: $this->resolveApiEndpoint(),
+            stackTrace: null
+        );
+    }
+
+    /**
+     * PITRログをキューに追加（UPDATE用）
+     *
+     * @param  int  $sysPlayerId
+     * @param  array  $beforeData
+     * @param  array  $afterData  差分のみ
+     * @param  array  $primaryKey
+     * @return void
+     */
+    /**
+     * @param  array<string, mixed>  $beforeData  変更前の行データ
+     * @param  array<string, mixed>  $afterData  変更後の行データ
+     * @param  array<string, mixed>  $primaryKey  対象行を特定する主キーの値
+     */
+    protected function queueUpdateLog(int $sysPlayerId, array $beforeData, array $afterData, array $primaryKey): void
+    {
+        $this->pitrLogQueue[] = new ChangeLog(
+            uniqueRequestId: $this->resolveRequestId(),
+            sysPlayerId: $sysPlayerId,
+            shardConnection: $this->connection,
+            tableName: $this->getTableName(),
+            operation: 'UPDATE',
+            beforeData: $beforeData,
+            afterData: $afterData, // 差分のみ
+            primaryKey: $primaryKey,
+            systemAt: new DateTime,
+            apiEndpoint: $this->resolveApiEndpoint(),
+            stackTrace: null
+        );
+    }
+
+    /**
+     * PITRログをキューに追加（DELETE用）
+     *
+     * @param  int  $sysPlayerId
+     * @param  array  $beforeData
+     * @param  array  $primaryKey
+     * @return void
+     */
+    /**
+     * @param  array<string, mixed>  $beforeData  削除された行データ
+     * @param  array<string, mixed>  $primaryKey  対象行を特定する主キーの値
+     */
+    protected function queueDeleteLog(int $sysPlayerId, array $beforeData, array $primaryKey): void
+    {
+        $this->pitrLogQueue[] = new ChangeLog(
+            uniqueRequestId: $this->resolveRequestId(),
+            sysPlayerId: $sysPlayerId,
+            shardConnection: $this->connection,
+            tableName: $this->getTableName(),
+            operation: 'DELETE',
+            beforeData: $beforeData,
+            afterData: null,
+            primaryKey: $primaryKey,
+            systemAt: new DateTime,
+            apiEndpoint: $this->resolveApiEndpoint(),
+            stackTrace: null
+        );
+    }
+
+    /**
+     * PITRログキューを取得
+     *
+     * @return array<ChangeLog>
+     */
+    public function getPitrLogQueue(): array
+    {
+        return $this->pitrLogQueue;
+    }
+
+    /**
+     * PITRログキューをクリア
+     *
+     * @return void
+     */
+    public function clearPitrLogQueue(): void
+    {
+        $this->pitrLogQueue = [];
+    }
+
+    /**
+     * リクエストIDを取得
+     *
+     * @return string
+     */
+    private function resolveRequestId(): string
+    {
+        if (function_exists('request')) {
+            return request()->header('X-Request-ID')
+                ?? request()->header('X-Amzn-Trace-Id')
+                ?? Str::uuid()->toString();
+        }
+
+        return Str::uuid()->toString();
+    }
+
+    /**
+     * APIエンドポイントを取得
+     *
+     * @return string|null
+     */
+    private function resolveApiEndpoint(): ?string
+    {
+        if (function_exists('request')) {
+            return request()->path();
+        }
+
+        return 'console';
+    }
+
+    /**
+     * テーブル名を取得（抽象メソッド）
+     * _BaseTrxRepositoryで実装される
+     *
+     * @return string
+     */
+    abstract protected function getTableName(): string;
+}

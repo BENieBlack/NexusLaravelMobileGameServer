@@ -51,9 +51,7 @@ class ModuleBoundaryTest extends TestCase
         'nexus-core-auth',
         'nexus-core-billing',
         'nexus-core-security',
-        'nexus-core-unit-of-work',
         'nexus-maintenance',
-        'nexus-pitr',
         'nexus-tidb',
     ];
 

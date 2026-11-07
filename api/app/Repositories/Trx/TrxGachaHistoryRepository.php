@@ -4,8 +4,8 @@ namespace App\Repositories\Trx;
 
 use App\Persistence\ApiSession;
 use Illuminate\Support\Facades\DB;
+use Nexus\Core\Pitr\Logger\ShardMapper;
 use Nexus\Core\Utilities\ClockUtility;
-use NexusPitr\Logger\ShardMapper;
 
 /**
  * ガチャ実行ログRepository。履歴はtrxへ保存せずlogへINSERTする。

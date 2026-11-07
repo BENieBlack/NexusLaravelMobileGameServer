@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
-use NexusPitr\Support\ShardMigrationPaths;
+use Nexus\Core\Pitr\Support\ShardMigrationPaths;
 
 /**
  * シャーディング対応マイグレーションロールバックコマンド

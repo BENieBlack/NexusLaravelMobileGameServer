@@ -159,6 +159,23 @@ api/app/Providers/AppServiceProvider                                 ← bind(�
 - `*RepositoryAdapter` の中に private/protected の変換メソッド（`*toDto*` / `Convert*`）を書かず、`App\Adapters` に委譲する（`ConverterLocationTest`）。`App\Adapters` 配下のクラスは `public static function toDto(` を持つ
 - パッケージ例外はゲーム固有のエラーコードを知らない。api 側で変換する（9節）
 
+### パッケージの層
+
+パッケージはなるべく着脱できるようにする。パッケージを3つの層に分け、依存してよい向きを決める（`PackageLayerTest`）。
+
+| 層 | パッケージ | 依存してよいもの |
+|---|---|---|
+| foundation（土台） | nexus-core、nexus-core-unit-of-work、nexus-core-security、nexus-core-auth、nexus-pitr、nexus-tidb、nexus-resource、nexus-resource-delivery、nexus-wallet | foundation |
+| platform（ゲーム共通の部品） | nexus-notification、nexus-mailbox | foundation、platform（循環なし） |
+| feature（機能） | 上記以外（gacha、trade、mission、login、reward-track、chat、event、friend、guild、vip など） | foundation、platform。**feature 同士は依存しない** |
+
+- アプリが `nexus-core`（foundation）に依存するのは前提。着脱の対象は、foundation 以外
+- feature は、他の feature が壊れずに外せる。feature 同士でやり取りが要るときは、消費する側のパッケージに契約（インターフェース）を定義し、api/app の Adapter で実装する（`TradeCostPayerInterface` が見本）。起きたことの通知は、ドメインイベント（5節）
+- 報酬（リソース）を配る仕組み（nexus-resource、nexus-resource-delivery）は、ほぼ全ての機能が使うので foundation に含める。`nexus-resource-delivery` が `WalletService` を直接使うため、nexus-wallet も foundation に置く
+- platform は、feature が使う共通の部品（通知、メールボックス）。一緒に入れる前提で、feature が依存してよい
+- 使っているパッケージは、必ず `composer.json` の `require` に宣言する（`"nexus/<名前>": "@dev"`）。単体で入れたときに動くようにするため。宣言のずれと循環は `PackageLayerTest` が検出する
+- 新しいパッケージを足したら、`PackageLayerTest` の `LAYERS` に層を書く
+
 ### イベントの期間の上書き
 
 `mst_event_content` に登録されたコンテンツ（ガチャ・ミッション・交換所・ログインボーナス・リワードトラック・ランキング）は、自身の `start_at` / `end_at` ではなく、イベントの期間で判定される。設計は `docs/event_platform_design.md`。

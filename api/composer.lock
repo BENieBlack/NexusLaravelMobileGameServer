@@ -3036,13 +3036,14 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-core",
-                "reference": "abd028cb809d7068b64b86c5d5075654f43be9be"
+                "reference": "ed04ffebb7aed152a97ab7be0fd01d855c2506d3"
             },
             "require": {
                 "illuminate/cache": "^10.0|^11.0|^12.0|^13.0",
                 "illuminate/database": "^10.0|^11.0|^12.0|^13.0",
                 "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
                 "nesbot/carbon": "^2.0|^3.0",
+                "nexus/pitr": "@dev",
                 "php": "^8.4"
             },
             "require-dev": {
@@ -3133,7 +3134,7 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-core-billing",
-                "reference": "cae299d8cd1a6f29bfb9f29a334428ad39983e98"
+                "reference": "d4d425c8b3a64d71b3002edf708afc1223e9b85f"
             },
             "require": {
                 "firebase/php-jwt": "^7.0",
@@ -3142,6 +3143,7 @@
                 "illuminate/http": "^10.0|^11.0|^12.0|^13.0",
                 "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
                 "nesbot/carbon": "^2.0|^3.0",
+                "nexus/core": "@dev",
                 "php": "^8.4"
             },
             "require-dev": {
@@ -3236,11 +3238,13 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-core-unit-of-work",
-                "reference": "fe391a36fd8c65a2ef5975a2dce836b16a06e6b3"
+                "reference": "81161a3db7c7a0ad368ab71ac481726c11ba5e31"
             },
             "require": {
                 "illuminate/database": "^10.0|^11.0|^12.0|^13.0",
                 "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
+                "nexus/core": "@dev",
+                "nexus/pitr": "@dev",
                 "php": "^8.4"
             },
             "require-dev": {
@@ -3364,10 +3368,11 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-gacha",
-                "reference": "f4f258a8f40827cd1210f8cace840da4d0290b09"
+                "reference": "9e7ae7e39be5b0616bd173ac103a1916bb034a83"
             },
             "require": {
                 "nexus/core": "@dev",
+                "nexus/resource": "@dev",
                 "nexus/resource-delivery": "@dev",
                 "php": "^8.4"
             },
@@ -3581,13 +3586,14 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-maintenance",
-                "reference": "a1f77f6a3f54a40425dcdf87d5f1d55972bea4bc"
+                "reference": "65d16cde6d722d6ac2b6cad9497c0e8e38651045"
             },
             "require": {
                 "illuminate/cache": "^10.0|^11.0|^12.0|^13.0",
                 "illuminate/http": "^10.0|^11.0|^12.0|^13.0",
                 "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
                 "nesbot/carbon": "^2.0|^3.0",
+                "nexus/core": "@dev",
                 "php": "^8.4"
             },
             "require-dev": {
@@ -3833,13 +3839,14 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-resource-delivery",
-                "reference": "940e9536d93b1e5ab5b2d89f1c3bdadf44aef6f6"
+                "reference": "8db2cc70c62f0a18302673fe88897cd79c73fb90"
             },
             "require": {
                 "illuminate/database": "^10.0|^11.0|^12.0|^13.0",
                 "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
                 "nexus/core": "@dev",
                 "nexus/resource": "*",
+                "nexus/wallet": "@dev",
                 "php": "^8.4",
                 "psr/log": "^1.1|^2.0|^3.0"
             },

@@ -10,6 +10,7 @@
     ],
     "require": {
         "php": "^8.4",
+        "nexus/pitr": "@dev",
         "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
         "illuminate/database": "^10.0|^11.0|^12.0|^13.0",
         "illuminate/cache": "^10.0|^11.0|^12.0|^13.0",

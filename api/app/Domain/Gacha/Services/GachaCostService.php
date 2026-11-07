@@ -21,7 +21,7 @@ class GachaCostService
 {
     public function __construct(
         private readonly DiamondBalanceInterface $diamondBalanceService,
-        private readonly ItemInventoryInterface $itemService,
+        private readonly ItemInventoryInterface $itemInventory,
     ) {}
 
     /**
@@ -30,18 +30,18 @@ class GachaCostService
      * @throws BusinessLogicException 足りない場合
      * @throws GameException マスターのコスト設定が不正な場合
      */
-    public function consumeCost(int $sysPlayerId, MstGachaCost $cost): void
+    public function consumeCost(int $sysPlayerId, MstGachaCost $mstGachaCost): void
     {
-        $costType = $cost->getAttribute('cost_type');
-        $costAmount = (int) $cost->getAttribute('cost_amount');
+        $costType = $mstGachaCost->getAttribute('cost_type');
+        $costAmount = (int) $mstGachaCost->getAttribute('cost_amount');
 
         match ($costType) {
             'diamond' => $this->consumeDiamond($sysPlayerId, $costAmount, isPaidOnly: false),
             'paid_diamond' => $this->consumeDiamond($sysPlayerId, $costAmount, isPaidOnly: true),
-            'item' => $this->consumeItem($sysPlayerId, $cost->getAttribute('cost_mst_id'), $costAmount),
+            'item' => $this->consumeItem($sysPlayerId, $mstGachaCost->getAttribute('cost_mst_id'), $costAmount),
             default => throw new GameException(
                 GameErrorCode::GACHA_COST_NOT_FOUND,
-                "Unknown cost type: {$costType} (mst_gacha_cost.id={$cost->getAttribute('id')})"
+                "Unknown cost type: {$costType} (mst_gacha_cost.id={$mstGachaCost->getAttribute('id')})"
             ),
         };
     }
@@ -63,12 +63,12 @@ class GachaCostService
             throw new GameException(GameErrorCode::GACHA_COST_NOT_FOUND, 'cost_mst_id is required for item cost type');
         }
 
-        $owned = $this->itemService->findItemAmount($sysPlayerId, $mstItemId);
+        $owned = $this->itemInventory->findItemAmount($sysPlayerId, $mstItemId);
 
         if ($owned < $amount) {
             throw BusinessLogicException::itemNotEnough($mstItemId, $amount, $owned);
         }
 
-        $this->itemService->consumeItem($sysPlayerId, $mstItemId, $amount);
+        $this->itemInventory->consumeItem($sysPlayerId, $mstItemId, $amount);
     }
 }

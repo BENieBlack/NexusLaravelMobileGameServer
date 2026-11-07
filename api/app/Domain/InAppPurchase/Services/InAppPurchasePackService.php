@@ -18,7 +18,7 @@ class InAppPurchasePackService
 {
     public function __construct(
         private readonly InAppPurchaseDiamondBalanceService $diamondBalanceService,
-        private readonly ItemInventoryInterface $itemService,
+        private readonly ItemInventoryInterface $itemInventory,
         private readonly TrxUnitRepository $trxUnitRepository,
         private readonly InAppPurchaseValidationService $validationService,
         private readonly InAppPurchaseHistoryService $purchaseHistoryService,
@@ -42,14 +42,14 @@ class InAppPurchasePackService
         string $transactionId
     ): array {
         // 1. 購入履歴を取得
-        $purchaseHistory = TrxInAppPurchase::query()
+        $trxInAppPurchase = TrxInAppPurchase::query()
             ->where('sys_player_id', $sysPlayerId)
             ->where('billing_platform', $billingPlatform)
             ->where('mst_in_app_purchase_id', $mstInAppPurchase->getId())
             ->first();
 
         // 2. 購入制限チェック
-        $this->validationService->validatePurchaseLimit($mstInAppPurchase, $purchaseHistory, $billingPlatform);
+        $this->validationService->validatePurchaseLimit($mstInAppPurchase, $trxInAppPurchase, $billingPlatform);
 
         // 3. Pack商品のコンテンツを取得
         $contentCollection = $mstInAppPurchase->contents;
@@ -71,7 +71,7 @@ class InAppPurchasePackService
 
                 case InAppPurchaseConst::CONTENT_TYPE_ITEM:
                     // アイテムを付与
-                    $this->itemService->addItem($sysPlayerId, $content->getContentMstId(), $content->getAmount());
+                    $this->itemInventory->addItem($sysPlayerId, $content->getContentMstId(), $content->getAmount());
                     $grantedContentArray[] = [
                         'type' => 'item',
                         'item_id' => $content->getContentMstId(),
@@ -98,7 +98,7 @@ class InAppPurchasePackService
             $sysPlayerId,
             $billingPlatform,
             $mstInAppPurchase,
-            $purchaseHistory,
+            $trxInAppPurchase,
             $transactionId
         );
 

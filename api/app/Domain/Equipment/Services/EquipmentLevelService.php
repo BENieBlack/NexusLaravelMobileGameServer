@@ -178,13 +178,13 @@ class EquipmentLevelService extends _BaseLevelService implements EquipmentExperi
      */
     protected function findEntity(mixed $id): object
     {
-        $equipment = $this->trxEquipmentRepository->selectById($id);
+        $trxEquipment = $this->trxEquipmentRepository->selectById($id);
 
-        if ($equipment === null) {
+        if ($trxEquipment === null) {
             throw TransactionDataException::equipment($id);
         }
 
-        return $equipment;
+        return $trxEquipment;
     }
 
     /**

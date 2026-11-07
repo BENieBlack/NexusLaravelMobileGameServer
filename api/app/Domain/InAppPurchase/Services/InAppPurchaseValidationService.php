@@ -38,14 +38,14 @@ class InAppPurchaseValidationService
      * 購入制限をチェック
      *
      * @param  MstInAppPurchase  $mstInAppPurchase  商品マスター
-     * @param  TrxInAppPurchase|null  $purchaseHistory  購入履歴（初回購入時はnull）
+     * @param  TrxInAppPurchase|null  $trxInAppPurchase  購入履歴（初回購入時はnull）
      * @param  string  $billingPlatform  決済プラットフォーム
      *
      * @throws GameException 購入制限に引っかかった場合
      */
     public function validatePurchaseLimit(
         MstInAppPurchase $mstInAppPurchase,
-        ?TrxInAppPurchase $purchaseHistory,
+        ?TrxInAppPurchase $trxInAppPurchase,
         string $billingPlatform
     ): void {
         // 購入制限がない場合はチェック不要
@@ -54,25 +54,25 @@ class InAppPurchaseValidationService
         }
 
         // 初回購入の場合は問題なし
-        if ($purchaseHistory === null) {
+        if ($trxInAppPurchase === null) {
             return;
         }
 
         // _BasePurchaseLimitValidatorで制限チェック
         $isExceeded = $this->limitValidator->isLimitExceeded(
             $mstInAppPurchase->getPurchaseLimitCount(),
-            $purchaseHistory->purchase_count,
+            $trxInAppPurchase->purchase_count,
             $mstInAppPurchase->getPurchaseLimitReset() ?? PurchaseLimitResetType::NONE,
-            $purchaseHistory->getPurchaseCountResetAt()
+            $trxInAppPurchase->getPurchaseCountResetAt()
         );
 
         // 制限を超えている場合は例外をスロー
         if ($isExceeded) {
             // 有効なカウント数を計算（リセット判定後）
             $effectiveCount = $this->limitValidator->calculateEffectiveCount(
-                $purchaseHistory->purchase_count,
+                $trxInAppPurchase->purchase_count,
                 $mstInAppPurchase->getPurchaseLimitReset() ?? PurchaseLimitResetType::NONE,
-                $purchaseHistory->getPurchaseCountResetAt()
+                $trxInAppPurchase->getPurchaseCountResetAt()
             );
 
             throw new GameException(

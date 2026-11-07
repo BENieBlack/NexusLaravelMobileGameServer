@@ -27,19 +27,19 @@ class InAppPurchaseHistoryService
      * @param  int  $sysPlayerId  プレイヤーID
      * @param  string  $billingPlatform  決済プラットフォーム（AppStore, GooglePlay等）
      * @param  MstInAppPurchase  $mstInAppPurchase  商品マスター
-     * @param  TrxInAppPurchase|null  $purchaseHistory  既存の購入履歴（存在する場合）
+     * @param  TrxInAppPurchase|null  $trxInAppPurchase  既存の購入履歴（存在する場合）
      * @param  string  $transactionId  プラットフォーム固有のトランザクションID
      */
     public function updateOrCreatePurchaseHistory(
         int $sysPlayerId,
         string $billingPlatform,
         MstInAppPurchase $mstInAppPurchase,
-        ?TrxInAppPurchase $purchaseHistory,
+        ?TrxInAppPurchase $trxInAppPurchase,
         string $transactionId
     ): void {
-        if ($purchaseHistory === null) {
+        if ($trxInAppPurchase === null) {
             // 初回購入の場合は新規作成
-            $purchaseHistory = new TrxInAppPurchase([
+            $trxInAppPurchase = new TrxInAppPurchase([
                 'sys_player_id' => $sysPlayerId,
                 'billing_platform' => $billingPlatform,
                 'mst_in_app_purchase_id' => $mstInAppPurchase->getId(),
@@ -48,7 +48,7 @@ class InAppPurchaseHistoryService
                 'purchase_count' => 1,
                 'purchase_count_reset_at' => $mstInAppPurchase->getPurchaseLimitReset() !== 'none' ? ClockUtility::now() : null,
             ]);
-            $this->trxInAppPurchaseRepository->setModel($purchaseHistory);
+            $this->trxInAppPurchaseRepository->setModel($trxInAppPurchase);
 
             return;
         }
@@ -56,19 +56,19 @@ class InAppPurchaseHistoryService
         // リセットが必要かチェック
         $newResetDate = $this->validationService->getNewResetDateIfNeeded(
             $mstInAppPurchase->getPurchaseLimitReset() ?? PurchaseLimitResetType::NONE,
-            $purchaseHistory->getPurchaseCountResetAt()
+            $trxInAppPurchase->getPurchaseCountResetAt()
         );
 
         if ($newResetDate !== null) {
             // リセットが必要な場合
-            $purchaseHistory->setPurchaseCount(1);
-            $purchaseHistory->setPurchaseCountResetAt($newResetDate);
+            $trxInAppPurchase->setPurchaseCount(1);
+            $trxInAppPurchase->setPurchaseCountResetAt($newResetDate);
         } else {
             // リセット不要の場合
-            $purchaseHistory->setPurchaseCount($purchaseHistory->getPurchaseCount() + 1);
+            $trxInAppPurchase->setPurchaseCount($trxInAppPurchase->getPurchaseCount() + 1);
         }
 
-        $purchaseHistory->setTotalPurchaseCount($purchaseHistory->getTotalPurchaseCount() + 1);
-        $this->trxInAppPurchaseRepository->setModel($purchaseHistory);
+        $trxInAppPurchase->setTotalPurchaseCount($trxInAppPurchase->getTotalPurchaseCount() + 1);
+        $this->trxInAppPurchaseRepository->setModel($trxInAppPurchase);
     }
 }

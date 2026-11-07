@@ -33,8 +33,8 @@ class SysFriendApplyRepository extends _BaseSysRepository
         if ($this->isSessionPlayer($applyPlayerId) || $this->isSessionPlayer($receivePlayerId)) {
             /** @var SysFriendApply|null */
             return $this->queryOrMemory()->first(
-                fn (SysFriendApply $apply) => $this->isPair($apply, $applyPlayerId, $receivePlayerId)
-                    && in_array($apply->getStatus(), [
+                fn (SysFriendApply $sysFriendApply) => $this->isPair($sysFriendApply, $applyPlayerId, $receivePlayerId)
+                    && in_array($sysFriendApply->getStatus(), [
                         SysFriendApply::STATUS_APPLIED,
                         SysFriendApply::STATUS_ACCEPTED,
                     ], true)
@@ -213,10 +213,10 @@ class SysFriendApplyRepository extends _BaseSysRepository
     /**
      * 申請がこの2人の間のものか（向きは問わない）
      */
-    private function isPair(SysFriendApply $apply, int $onePlayerId, int $otherPlayerId): bool
+    private function isPair(SysFriendApply $sysFriendApply, int $onePlayerId, int $otherPlayerId): bool
     {
-        $sender = $apply->getSenderSysPlayerId();
-        $receiver = $apply->getReceiverSysPlayerId();
+        $sender = $sysFriendApply->getSenderSysPlayerId();
+        $receiver = $sysFriendApply->getReceiverSysPlayerId();
 
         return ($sender === $onePlayerId && $receiver === $otherPlayerId)
             || ($sender === $otherPlayerId && $receiver === $onePlayerId);

@@ -142,10 +142,12 @@ class TokenService
     /**
      * Token DTOとTokenModelを生成
      *
+     * @template TTokenModel of TokenModelInterface
+     *
      * @param  PlayerModelInterface  $player
      * @param  DeviceModelInterface  $device
-     * @param  callable  $tokenModelFactory  トークンモデルを生成するファクトリ関数
-     * @return array{Token, TokenModelInterface}
+     * @param  callable(int, int, string, string): TTokenModel  $tokenModelFactory  トークンモデルを生成するファクトリ関数
+     * @return array{Token, TTokenModel} ファクトリが返した型のトークンモデル
      */
     public function generateToken(
         PlayerModelInterface $player,
@@ -192,11 +194,13 @@ class TokenService
     /**
      * トークンをローテーション（古いトークンを無効化し、新しいトークンを生成）
      *
+     * @template TTokenModel of TokenModelInterface
+     *
      * @param  TokenModelInterface  $oldToken
      * @param  PlayerModelInterface  $player
      * @param  DeviceModelInterface  $device
-     * @param  callable(int, int, string, string): TokenModelInterface  $tokenModelFactory
-     * @return array{Token, TokenModelInterface}
+     * @param  callable(int, int, string, string): TTokenModel  $tokenModelFactory
+     * @return array{Token, TTokenModel}
      */
     public function rotateToken(
         TokenModelInterface $oldToken,

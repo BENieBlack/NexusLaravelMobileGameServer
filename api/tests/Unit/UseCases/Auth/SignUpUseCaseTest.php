@@ -68,7 +68,6 @@ class SignUpUseCaseTest extends TestCase
             $this->tokenService,
             $this->deviceRepository,
             $this->deviceRepository,
-            $sysPlayerRepository,
             new ShardAssignmentService,
         );
 

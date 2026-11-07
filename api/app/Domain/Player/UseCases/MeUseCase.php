@@ -5,6 +5,7 @@ namespace App\Domain\Player\UseCases;
 use App\Domain\_BaseUseCase;
 use App\Domain\Player\Responses\MeResponse;
 use App\Exceptions\SystemDataException;
+use App\Models\Sys\SysPlayer;
 use App\Repositories\Sys\SysPlayerRepository;
 
 /**
@@ -21,9 +22,11 @@ class MeUseCase extends _BaseUseCase
     /**
      * バリデーション
      *
+     * @return SysPlayer 存在を確かめたプレイヤー（handle() で再取得しない）
+     *
      * @throws SystemDataException プレイヤーが存在しない場合
      */
-    public function validation(int $sysPlayerId): void
+    public function validation(int $sysPlayerId): SysPlayer
     {
         // プレイヤー情報の存在確認
         $sysPlayer = $this->sysPlayerRepository->selectById($sysPlayerId);
@@ -31,6 +34,8 @@ class MeUseCase extends _BaseUseCase
         if (! $sysPlayer) {
             throw SystemDataException::generic('sys_player', $sysPlayerId);
         }
+
+        return $sysPlayer;
     }
 
     /**
@@ -40,12 +45,8 @@ class MeUseCase extends _BaseUseCase
      */
     public function handle(int $sysPlayerId): MeResponse
     {
-        // バリデーション実行
-        $this->validation($sysPlayerId);
-
-        // プレイヤー情報を取得（バリデーション済み）
-        $sysPlayer = $this->sysPlayerRepository->selectById($sysPlayerId)
-            ?? throw new \LogicException('プレイヤーが見つかりません');
+        // バリデーション実行（存在を確かめたプレイヤーが返る）
+        $sysPlayer = $this->validation($sysPlayerId);
 
         return new MeResponse(
             myId: $sysPlayer->getMyId(),

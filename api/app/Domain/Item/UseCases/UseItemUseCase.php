@@ -9,6 +9,7 @@ use App\Exceptions\BusinessLogicException;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Exceptions\MasterDataException;
+use App\Models\Mst\MstItem;
 use App\Repositories\Mst\MstItemRepository;
 use Nexus\Core\Resource\Enums\ItemEffectType;
 use Nexus\Core\ResourceDelivery\Contracts\ExperienceGranterInterface;
@@ -46,12 +47,13 @@ class UseItemUseCase extends _BaseUseCase
      * @param  int  $sysPlayerId  sys_player.id（プレイヤーID）
      * @param  string  $mstItemId  mst_item.id（マスター定義アイテム）
      * @param  int  $useCount  使用個数
+     * @return MstItem 検証したアイテムマスター（handle() で再取得しない）
      *
      * @throws MasterDataException アイテムマスターが存在しない場合
      * @throws BusinessLogicException 使用できない効果種別、または所持数が不足している場合
      * @throws GameException 効果量が不正な場合
      */
-    public function validation(int $sysPlayerId, string $mstItemId, int $useCount): void
+    public function validation(int $sysPlayerId, string $mstItemId, int $useCount): MstItem
     {
         $mstItem = $this->mstItemRepository->selectById($mstItemId);
         if (! $mstItem) {
@@ -80,6 +82,8 @@ class UseItemUseCase extends _BaseUseCase
         if ($currentAmount < $useCount) {
             throw BusinessLogicException::itemNotEnough($mstItemId, $useCount, $currentAmount);
         }
+
+        return $mstItem;
     }
 
     /**
@@ -93,11 +97,9 @@ class UseItemUseCase extends _BaseUseCase
      */
     public function handle(int $sysPlayerId, string $mstItemId, int $useCount): UseItemResponse
     {
-        $this->validation($sysPlayerId, $mstItemId, $useCount);
+        $mstItem = $this->validation($sysPlayerId, $mstItemId, $useCount);
 
-        return $this->executeWithTransaction(function () use ($sysPlayerId, $mstItemId, $useCount) {
-            $mstItem = $this->mstItemRepository->selectById($mstItemId)
-                ?? throw new \LogicException('アイテムが見つかりません');
+        return $this->executeWithTransaction(function () use ($sysPlayerId, $mstItemId, $useCount, $mstItem) {
             $effectType = ItemEffectType::from($mstItem->getEffect());
 
             $this->itemService->consumeItem($sysPlayerId, $mstItemId, $useCount);

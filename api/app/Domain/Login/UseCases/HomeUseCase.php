@@ -5,6 +5,7 @@ namespace App\Domain\Login\UseCases;
 use App\Domain\_BaseUseCase;
 use App\Domain\Login\Responses\HomeResponse;
 use App\Exceptions\SystemDataException;
+use App\Models\Sys\SysPlayer;
 use App\Persistence\ApiSession;
 use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Trx\TrxItemRepository;
@@ -32,9 +33,11 @@ class HomeUseCase extends _BaseUseCase
     /**
      * バリデーション
      *
+     * @return SysPlayer 存在を確かめたプレイヤー（handle() で再取得しない）
+     *
      * @throws SystemDataException プレイヤーが存在しない場合
      */
-    public function validation(int $sysPlayerId): void
+    public function validation(int $sysPlayerId): SysPlayer
     {
         // プレイヤー情報の存在確認
         $sysPlayer = $this->sysPlayerRepository->selectById($sysPlayerId);
@@ -42,6 +45,8 @@ class HomeUseCase extends _BaseUseCase
         if (! $sysPlayer) {
             throw SystemDataException::generic('sys_player', $sysPlayerId);
         }
+
+        return $sysPlayer;
     }
 
     /**
@@ -51,13 +56,10 @@ class HomeUseCase extends _BaseUseCase
      */
     public function handle(int $sysPlayerId): HomeResponse
     {
-        // バリデーション実行
-        $this->validation($sysPlayerId);
+        // バリデーション実行（存在を確かめたプレイヤーが返る）
+        $sysPlayer = $this->validation($sysPlayerId);
 
-        return $this->executeWithTransaction(function () use ($sysPlayerId) {
-            // プレイヤー情報を取得（バリデーション済み）
-            $sysPlayer = $this->sysPlayerRepository->selectById($sysPlayerId)
-                ?? throw new \LogicException('プレイヤーが見つかりません');
+        return $this->executeWithTransaction(function () use ($sysPlayerId, $sysPlayer) {
 
             // 登録済みの全ログインボーナス（カムバック・VIP・通常）をチェック・配布
             // （履歴の書き込み先のシャードは ApiSession が解決する）

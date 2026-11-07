@@ -164,4 +164,12 @@ class MstLoginBonus extends _BaseMst
     {
         return $query->where('is_active', true);
     }
+
+    /**
+     * ループする日数を取得
+     */
+    public function getLoopDays(): int
+    {
+        return (int) $this->getAttribute('loop_days');
+    }
 }

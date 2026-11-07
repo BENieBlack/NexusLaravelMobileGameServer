@@ -174,4 +174,14 @@ class TrxInAppPurchaseEffect extends _BaseTrx
 
         return $array;
     }
+
+    /**
+     * 効果値を取得
+     *
+     * decimal:2 のため文字列で返る
+     */
+    public function getValue(): string
+    {
+        return (string) $this->getAttribute('value');
+    }
 }

@@ -99,4 +99,20 @@ class MstGachaStepBonus extends _BaseMst
     {
         return $this->getAttribute('is_active');
     }
+
+    /**
+     * id を取得
+     */
+    public function getId(): string
+    {
+        return $this->getAttribute('id');
+    }
+
+    /**
+     * position を取得
+     */
+    public function getPosition(): int
+    {
+        return $this->getAttribute('position');
+    }
 }

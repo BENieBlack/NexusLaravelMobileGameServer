@@ -29,4 +29,28 @@ class SysDeployMasterTable extends _BaseSys
         'sys_deploy_master_id' => 'integer',
         'file_size' => 'integer',
     ];
+
+    /**
+     * hash を取得
+     */
+    public function getHash(): string
+    {
+        return $this->getAttribute('hash');
+    }
+
+    /**
+     * public_url を取得
+     */
+    public function getPublicUrl(): string
+    {
+        return $this->getAttribute('public_url');
+    }
+
+    /**
+     * file_size を取得
+     */
+    public function getFileSize(): int
+    {
+        return $this->getAttribute('file_size');
+    }
 }

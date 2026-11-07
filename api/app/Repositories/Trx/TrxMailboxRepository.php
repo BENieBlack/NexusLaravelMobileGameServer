@@ -79,8 +79,8 @@ class TrxMailboxRepository extends _BaseTrxRepository
 
         $sorted = $results->sort(function ($a, $b) use ($priorityOrder) {
             // マスターが引けないメールは通常扱いにする
-            $priorityAValue = ($a->mstMailbox->priority ?? Priority::NORMAL)->value;
-            $priorityBValue = ($b->mstMailbox->priority ?? Priority::NORMAL)->value;
+            $priorityAValue = ($a->mstMailbox?->getPriority() ?? Priority::NORMAL)->value;
+            $priorityBValue = ($b->mstMailbox?->getPriority() ?? Priority::NORMAL)->value;
 
             $orderA = $priorityOrder[$priorityAValue];
             $orderB = $priorityOrder[$priorityBValue];
@@ -90,7 +90,7 @@ class TrxMailboxRepository extends _BaseTrxRepository
             }
 
             // 優先度が同じ場合は作成日時の降順
-            return $b->created_at <=> $a->created_at;
+            return $b->getCreatedAt() <=> $a->getCreatedAt();
         })->values();
 
         return new CustomCollection($sorted->all());
@@ -117,7 +117,7 @@ class TrxMailboxRepository extends _BaseTrxRepository
         $counts = [];
         foreach ($mailboxes as $mailbox) {
             // categoryはMstMailbox側でCategoryにキャスト済み
-            $category = $mailbox->mstMailbox?->category;
+            $category = $mailbox->mstMailbox?->getCategory();
             if ($category !== null) {
                 $counts[$category->value] = ($counts[$category->value] ?? 0) + 1;
             }

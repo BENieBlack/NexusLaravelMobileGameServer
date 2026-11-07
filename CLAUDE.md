@@ -51,7 +51,7 @@
 - 書き込みは `executeWithTransaction()` の中で、Repository の `setModel()` / `softDeleteModel()` / `hardDeleteModel()` を使う。Model の `save()` / `update()` / `delete()` / `create()` は例外になる。
 - Repository の読み取りメソッドは `select*`。複数件は `CustomCollection` で返す。
 - モデルは実在するカラムだけを `@property` / `$fillable` / `$casts` に書く。リレーションを返す getter や、存在しない列の定義を作らない。
-- モデルの列は、モデルの型付き getter / setter（`getFreeAmount()`）で読み書きする。モデルの外から `getAttribute('x')` / `setAttribute()` を呼ばない（PHPStan の `NoGetAttributeOutsideModelsRule` が検査する）。足りない getter はモデルに足す。
+- モデルの列は、モデルの型付き getter / setter（`getFreeAmount()`）で読み書きする。モデルの外から `getAttribute('x')` / `setAttribute()` を呼ばず、`$model->column` のプロパティでも読み書きしない（PHPStan の `NoGetAttributeOutsideModelsRule` / `NoModelColumnPropertyAccessRule` が検査する。リレーションの参照は対象外）。足りない getter はモデルに足す。
 - 多言語テーブルは `<親テーブル>__l10n`（主キーは `<親>_id` と `language`）。i18n は使わない。
 - テーブルは接頭辞付き・単数形・スネークケース。DBに入る文字列値もスネークケース（`app_store` など）。外部キー制約は張らない。
 

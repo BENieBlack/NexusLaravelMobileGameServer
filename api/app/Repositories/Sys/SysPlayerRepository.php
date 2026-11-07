@@ -99,7 +99,7 @@ class SysPlayerRepository extends _BaseSysRepository
      */
     public function updateLastLoginAt(SysPlayer $sysPlayer, CarbonImmutable $loginAt): void
     {
-        $sysPlayer->last_login_at = $loginAt;
+        $sysPlayer->setLastLoginAt($loginAt);
         $this->setModel($sysPlayer);
     }
 

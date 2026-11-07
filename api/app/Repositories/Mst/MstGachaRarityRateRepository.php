@@ -23,8 +23,8 @@ class MstGachaRarityRateRepository extends _BaseMstRepository implements GachaRa
     {
         return array_values($this->selectListByGachaId($mstGachaId)
             ->map(fn (MstGachaRarityRate $rate) => new RarityRate(
-                rarity: $rate->rarity,
-                rate: $rate->rate,
+                rarity: $rate->getRarity(),
+                rate: $rate->getRate(),
             ))
             ->all());
     }

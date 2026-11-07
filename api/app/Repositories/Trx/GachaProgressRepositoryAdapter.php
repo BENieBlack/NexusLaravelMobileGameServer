@@ -46,11 +46,11 @@ class GachaProgressRepositoryAdapter implements GachaProgressRepositoryInterface
             return;
         }
 
-        $trxGacha->current_step = $gachaProgress->getCurrentStep();
-        $trxGacha->daily_draw_count = $gachaProgress->getDailyDrawCount();
-        $trxGacha->daily_reset_at = $gachaProgress->getDailyResetAt();
-        $trxGacha->total_draw_count = $gachaProgress->getTotalDrawCount();
-        $trxGacha->total_reset_at = $gachaProgress->getTotalResetAt();
+        $trxGacha->setCurrentStep($gachaProgress->getCurrentStep());
+        $trxGacha->setDailyDrawCount($gachaProgress->getDailyDrawCount());
+        $trxGacha->setDailyResetAt($gachaProgress->getDailyResetAt());
+        $trxGacha->setTotalDrawCount($gachaProgress->getTotalDrawCount());
+        $trxGacha->setTotalResetAt($gachaProgress->getTotalResetAt());
 
         $this->trxGachaRepository->setModel($trxGacha);
     }

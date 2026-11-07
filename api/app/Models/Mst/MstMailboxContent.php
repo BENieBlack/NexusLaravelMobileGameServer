@@ -132,4 +132,28 @@ class MstMailboxContent extends _BaseMst
     {
         return parent::toResponseArray();
     }
+
+    /**
+     * rarity を取得
+     */
+    public function getRarity(): ?string
+    {
+        return $this->getAttribute('rarity');
+    }
+
+    /**
+     * is_highlight を取得
+     */
+    public function getIsHighlight(): bool
+    {
+        return (bool) $this->getAttribute('is_highlight');
+    }
+
+    /**
+     * sort_desc を取得
+     */
+    public function getSortDesc(): int
+    {
+        return $this->getAttribute('sort_desc');
+    }
 }

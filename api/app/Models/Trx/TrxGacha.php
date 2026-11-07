@@ -83,4 +83,60 @@ class TrxGacha extends _BaseTrx
     {
         return $this->getAttribute('total_draw_count');
     }
+
+    /**
+     * current_step を設定
+     */
+    public function setCurrentStep(int $currentStep): void
+    {
+        $this->setAttribute('current_step', $currentStep);
+    }
+
+    /**
+     * daily_draw_count を設定
+     */
+    public function setDailyDrawCount(int $dailyDrawCount): void
+    {
+        $this->setAttribute('daily_draw_count', $dailyDrawCount);
+    }
+
+    /**
+     * daily_reset_at を取得
+     */
+    public function getDailyResetAt(): ?string
+    {
+        return $this->getAttribute('daily_reset_at');
+    }
+
+    /**
+     * daily_reset_at を設定
+     */
+    public function setDailyResetAt(?string $dailyResetAt): void
+    {
+        $this->setAttribute('daily_reset_at', $dailyResetAt);
+    }
+
+    /**
+     * total_draw_count を設定
+     */
+    public function setTotalDrawCount(int $totalDrawCount): void
+    {
+        $this->setAttribute('total_draw_count', $totalDrawCount);
+    }
+
+    /**
+     * total_reset_at を取得
+     */
+    public function getTotalResetAt(): ?string
+    {
+        return $this->getAttribute('total_reset_at');
+    }
+
+    /**
+     * total_reset_at を設定
+     */
+    public function setTotalResetAt(?string $totalResetAt): void
+    {
+        $this->setAttribute('total_reset_at', $totalResetAt);
+    }
 }

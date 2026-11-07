@@ -166,7 +166,7 @@ class EquipmentLevelService extends _BaseLevelService implements EquipmentExperi
             return null;
         }
 
-        return max(0, $nextLevelData->required_exp - $currentExp);
+        return max(0, $nextLevelData->getRequiredExp() - $currentExp);
     }
 
     // ========================================

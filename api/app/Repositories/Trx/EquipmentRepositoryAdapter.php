@@ -2,7 +2,7 @@
 
 namespace App\Repositories\Trx;
 
-use NexusResourceDelivery\Contracts\EquipmentRepositoryInterface;
+use Nexus\Core\ResourceDelivery\Contracts\EquipmentRepositoryInterface;
 
 /**
  * EquipmentRepositoryAdapter

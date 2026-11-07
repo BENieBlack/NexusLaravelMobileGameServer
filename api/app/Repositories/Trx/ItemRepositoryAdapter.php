@@ -4,8 +4,8 @@ namespace App\Repositories\Trx;
 
 use App\Adapters\Item\ItemAdapter;
 use App\Models\Trx\TrxItem;
-use NexusResource\Contracts\ItemRepositoryInterface;
-use NexusResource\DataTransferObjects\Item;
+use Nexus\Core\Resource\Contracts\ItemRepositoryInterface;
+use Nexus\Core\Resource\DataTransferObjects\Item;
 
 /**
  * ItemRepositoryAdapter

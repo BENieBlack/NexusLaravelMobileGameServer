@@ -76,5 +76,5 @@
 ## 定数クラス
 
 - ドメインの定数をまとめるクラスは `{Context}Const`: `UnitConst`, `EquipmentConst`, `StaminaConst`, `InAppPurchaseConst`（`Domain/{Context}/Constants/`）、`BillingConst`（`packages/nexus-core-billing/src/Constants/`）。
-- 1種類の値の集合はその種類名にする: `ElementType`, `RarityType`（`Domain/Common/Constants/`）、`FriendStatus`, `GuildRole`（パッケージの `Constants/`）。PHP の enum にする場合も同じ（`Domain/Mailbox/Constants/Category.php`、`packages/nexus-resource/src/Enums/ItemEffectType.php`）。
+- 1種類の値の集合はその種類名にする: `ElementType`, `RarityType`（`Domain/Common/Constants/`）、`FriendStatus`, `GuildRole`（パッケージの `Constants/`）。PHP の enum にする場合も同じ（`Domain/Mailbox/Constants/Category.php`、`packages/nexus-core/src/Resource/Enums/ItemEffectType.php`）。
 - 定数名は UPPER_SNAKE_CASE、文字列の値は snake_case（`'player_exp'`）。

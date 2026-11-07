@@ -23,7 +23,7 @@ class TradeProductContent
     }
 
     /**
-     * 手に入るものの種別（NexusResource\Enums\ResourceType の値）
+     * 手に入るものの種別（Nexus\Core\Resource\Enums\ResourceType の値）
      */
     public function getContentType(): string
     {

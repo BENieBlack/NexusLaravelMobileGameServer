@@ -14,7 +14,7 @@ use App\Exceptions\TransactionDataException;
 use App\Repositories\Mst\MstItemRepository;
 use App\Repositories\Trx\TrxUnitRepository;
 use App\Traits\RequiresAuthenticationTrait;
-use NexusResource\Enums\ItemEffectType;
+use Nexus\Core\Resource\Enums\ItemEffectType;
 
 /**
  * LevelUpUseCase

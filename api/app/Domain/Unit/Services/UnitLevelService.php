@@ -10,8 +10,8 @@ use App\Repositories\Mst\MstUnitLevelRepository;
 use App\Repositories\Mst\MstUnitRepository;
 use App\Repositories\Trx\TrxUnitRepository;
 use Illuminate\Contracts\Events\Dispatcher;
+use Nexus\Core\Resource\Events\UnitLeveledUp;
 use NexusLevel\Services\_BaseLevelService;
-use NexusResource\Events\UnitLeveledUp;
 
 /**
  * UnitLevelService

@@ -4,11 +4,11 @@ namespace Tests\Feature\Album;
 
 use App\Persistence\ApiSession;
 use Illuminate\Support\Facades\DB;
+use Nexus\Core\Resource\DataTransferObjects\Resource;
+use Nexus\Core\ResourceDelivery\Services\ResourceDeliveryService;
 use Nexus\Core\Utilities\ClockUtility;
 use NexusAlbum\Enums\AlbumContentType;
 use NexusAlbum\Services\AlbumService;
-use NexusResource\DataTransferObjects\Resource;
-use NexusResourceDelivery\Services\ResourceDeliveryService;
 use NexusUnitOfWork\Persistence\QueryManager;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;

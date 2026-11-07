@@ -2,8 +2,8 @@
 
 namespace NexusLogin\Services;
 
+use Nexus\Core\Resource\DataTransferObjects\Resource;
 use NexusLogin\Contracts\LoginBonusStrategyInterface;
-use NexusResource\DataTransferObjects\Resource;
 
 /**
  * LoginBonusOrchestrator

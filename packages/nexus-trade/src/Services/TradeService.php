@@ -2,9 +2,9 @@
 
 namespace NexusTrade\Services;
 
+use Nexus\Core\ResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
+use Nexus\Core\ResourceDelivery\Services\ResourceDeliveryService;
 use Nexus\Core\Utilities\ClockUtility;
-use NexusResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
-use NexusResourceDelivery\Services\ResourceDeliveryService;
 use NexusTrade\Constants\TradeResetType;
 use NexusTrade\Contracts\TradeCostPayerInterface;
 use NexusTrade\Contracts\TradeMasterRepositoryInterface;

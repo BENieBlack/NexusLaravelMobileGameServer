@@ -10,9 +10,9 @@ use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Exceptions\MasterDataException;
 use App\Repositories\Mst\MstItemRepository;
-use NexusResource\Enums\ItemEffectType;
-use NexusResourceDelivery\Contracts\ExperienceGranterInterface;
-use NexusResourceDelivery\Contracts\StaminaGranterInterface;
+use Nexus\Core\Resource\Enums\ItemEffectType;
+use Nexus\Core\ResourceDelivery\Contracts\ExperienceGranterInterface;
+use Nexus\Core\ResourceDelivery\Contracts\StaminaGranterInterface;
 
 /**
  * UseItemUseCase

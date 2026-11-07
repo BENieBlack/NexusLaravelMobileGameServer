@@ -3,7 +3,9 @@
 namespace NexusWallet;
 
 use Illuminate\Support\ServiceProvider;
+use Nexus\Core\ResourceDelivery\Contracts\CurrencyGranterInterface;
 use NexusWallet\Contracts\WalletManagerInterface;
+use NexusWallet\Services\WalletCurrencyGranter;
 use NexusWallet\Services\WalletService;
 
 /**
@@ -33,6 +35,9 @@ class WalletServiceProvider extends ServiceProvider
         // Repository側をscopedにしている意味が無くなる
         $this->app->scoped(WalletService::class);
         $this->app->scoped(WalletManagerInterface::class, WalletService::class);
+
+        // 報酬の配送（nexus-core の ResourceDelivery）が通貨を付与する先。WalletService はscopedなので、同じくscoped
+        $this->app->scoped(CurrencyGranterInterface::class, WalletCurrencyGranter::class);
     }
 
     /**

@@ -2,7 +2,7 @@
 
 namespace App\Domain\Mailbox\Constants;
 
-use NexusResource\Enums\ResourceType;
+use Nexus\Core\Resource\Enums\ResourceType;
 
 /**
  * メールボックスコンテンツのタイプ定数

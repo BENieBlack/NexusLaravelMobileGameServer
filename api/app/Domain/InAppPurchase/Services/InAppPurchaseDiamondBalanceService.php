@@ -5,7 +5,7 @@ namespace App\Domain\InAppPurchase\Services;
 use App\Domain\InAppPurchase\Contracts\DiamondBalanceInterface;
 use App\Models\Trx\TrxDiamondBalance;
 use App\Repositories\Trx\TrxDiamondBalanceRepository;
-use NexusResource\Services\DiamondService as PackageDiamondService;
+use Nexus\Core\Resource\Services\DiamondService as PackageDiamondService;
 
 /**
  * InAppPurchaseDiamondBalanceService (Domain層ラッパー)
@@ -20,7 +20,7 @@ use NexusResource\Services\DiamondService as PackageDiamondService;
  * - パッケージ層Serviceへの委譲
  * - 追加機能（FIFOバランスレコード作成）
  *
- * Note: コアのビジネスロジックはパッケージ層（NexusResource\Services\DiamondService）に存在
+ * Note: コアのビジネスロジックはパッケージ層（Nexus\Core\Resource\Services\DiamondService）に存在
  */
 class InAppPurchaseDiamondBalanceService implements DiamondBalanceInterface
 {

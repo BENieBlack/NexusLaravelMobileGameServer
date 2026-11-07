@@ -51,7 +51,8 @@ class SignInResponse extends _BaseResponse
         return [
             'sys_player' => $this->sysPlayer->toArray(),
             'sys_player_device' => $this->sysPlayerDevice->toArray(),
-            'sys_player_token' => $this->sysPlayerToken->toArray(),
+            // リフレッシュトークンのハッシュは、サーバー側の照合用の値なので、クライアントには返さない（トークン本体は token にある）
+            'sys_player_token' => array_diff_key($this->sysPlayerToken->toArray(), ['refresh_token_hash' => true]),
             'token' => $this->token->toArray(),
         ];
     }

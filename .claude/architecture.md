@@ -165,13 +165,13 @@ api/app/Providers/AppServiceProvider                                 ← bind(�
 
 | 層 | パッケージ | 依存してよいもの |
 |---|---|---|
-| foundation（土台） | nexus-core（リソース `Resource`、報酬配布 `ResourceDelivery`、書き込みの仕組み `UnitOfWork`、変更ログ `Pitr` を含む）、nexus-core-security、nexus-core-auth、nexus-tidb、nexus-wallet | foundation |
+| foundation（土台） | nexus-core（リソース `Resource`、報酬配布 `ResourceDelivery`、書き込みの仕組み `UnitOfWork`、変更ログ `Pitr` を含む）、nexus-core-security、nexus-core-auth、nexus-tidb | foundation |
 | platform（ゲーム共通の部品） | nexus-notification、nexus-mailbox | foundation、platform（循環なし） |
-| feature（機能） | 上記以外（gacha、trade、mission、login、reward-track、chat、event、friend、guild、vip など） | foundation、platform。**feature 同士は依存しない** |
+| feature（機能） | 上記以外（gacha、trade、mission、login、reward-track、chat、event、friend、guild、vip、wallet など） | foundation、platform。**feature 同士は依存しない** |
 
 - アプリが `nexus-core`（foundation）に依存するのは前提。着脱の対象は、foundation 以外
 - feature は、他の feature が壊れずに外せる。feature 同士でやり取りが要るときは、消費する側のパッケージに契約（インターフェース）を定義し、api/app の Adapter で実装する（`TradeCostPayerInterface` が見本）。起きたことの通知は、ドメインイベント（5節）
-- どのタイトルでも外せない仕組みは、`nexus-core` に含める。報酬（リソース）を配る仕組み（`Nexus\Core\Resource\`、`Nexus\Core\ResourceDelivery\`）、書き込みをまとめて実行する仕組み（`Nexus\Core\UnitOfWork\`）、trx の変更ログ（`Nexus\Core\Pitr\`）がそれにあたる。通貨の付与は、`nexus-core` が契約 `CurrencyGranterInterface` を定義し、`nexus-wallet` が実装する（`nexus-core` が `nexus-wallet` に依存すると循環し、`nexus-wallet` を外すと `nexus-core` が壊れるため）
+- どのタイトルでも外せない仕組みは、`nexus-core` に含める。報酬（リソース）を配る仕組み（`Nexus\Core\Resource\`、`Nexus\Core\ResourceDelivery\`）、書き込みをまとめて実行する仕組み（`Nexus\Core\UnitOfWork\`）、trx の変更ログ（`Nexus\Core\Pitr\`）がそれにあたる。通貨の付与は、`nexus-core` が契約 `CurrencyGranterInterface` を定義し、`nexus-wallet` が実装する（`nexus-core` が `nexus-wallet` に依存すると循環するため）。`nexus-wallet` は feature で、外すと通貨の付与（`CurrencyGranterInterface`）だけが使えなくなる。`nexus-core` は壊れない
 - platform は、feature が使う共通の部品（通知、メールボックス）。一緒に入れる前提で、feature が依存してよい
 - 使っているパッケージは、必ず `composer.json` の `require` に宣言する（`"nexus/<名前>": "@dev"`）。単体で入れたときに動くようにするため。宣言のずれと循環は `PackageLayerTest` が検出する
 - 新しいパッケージを足したら、`PackageLayerTest` の `LAYERS` に層を書く

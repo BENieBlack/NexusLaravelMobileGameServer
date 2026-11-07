@@ -9,13 +9,10 @@ use Nexus\Core\UnitOfWork\UpdatedResources;
  *
  * 「この処理で更新された trx」（updated_resources）を持つ Response のトレイト
  *
- * UseCase は、executeWithTransaction() が返した Response に、コミット後に取り出した更新を付けて返す。
+ * UseCase は何もしなくてよい。executeWithTransaction() がコミットした後に、
+ * このトレイトを使う Response へ、更新した trx を自動で付ける。
  *
- *     return $this->executeWithTransaction(fn () => new XxxResponse(...))
- *         ->withUpdatedResources($this->pullUpdatedResources());
- *
- * PHP は、呼び出し先の式（executeWithTransaction）を先に評価してから引数を評価するので、
- * pullUpdatedResources() はコミット後に呼ばれる。
+ *     return $this->executeWithTransaction(fn () => new XxxResponse(...));
  */
 trait HasUpdatedResources
 {

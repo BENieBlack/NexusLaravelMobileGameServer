@@ -76,10 +76,10 @@ class BuyEndpointTest extends TestCase
         $response->assertOk();
         $response->assertJsonStructure([
             'paid_diamond_amount',
-            'total_paid_diamond_amount',
-            'total_free_diamond_amount',
+            'updated_resources',
         ]);
         $this->assertSame(self::PAID_DIAMOND_AMOUNT, $response->json('paid_diamond_amount'));
+        $this->assertSame(self::PAID_DIAMOND_AMOUNT, $response->json('updated_resources.trx_diamond_list.0.paid_amount'));
 
         // 実際に付与されている
         $diamond = DB::connection($this->playerConnection($this->sysPlayerId))->table('trx_diamond')

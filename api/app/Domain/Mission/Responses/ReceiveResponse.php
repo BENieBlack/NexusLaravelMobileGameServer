@@ -3,6 +3,8 @@
 namespace App\Domain\Mission\Responses;
 
 use App\Domain\_BaseResponse;
+use App\Domain\ReturnsUpdatedResources;
+use App\Traits\HasUpdatedResources;
 use NexusMission\ValueObjects\MissionStatus;
 
 /**
@@ -12,8 +14,10 @@ use NexusMission\ValueObjects\MissionStatus;
  *
  * 受け取り後のミッションの状態（配った報酬を含む）を返す
  */
-class ReceiveResponse extends _BaseResponse
+class ReceiveResponse extends _BaseResponse implements ReturnsUpdatedResources
 {
+    use HasUpdatedResources;
+
     public function __construct(
         private readonly MissionStatus $missionStatus,
     ) {}
@@ -33,6 +37,7 @@ class ReceiveResponse extends _BaseResponse
     {
         return [
             'mission' => $this->missionStatus->toArray(),
+            'updated_resources' => $this->getUpdatedResources()->toResponseArray(),
         ];
     }
 }

@@ -88,8 +88,6 @@ class BuyPackUseCaseTest extends TestCase
 
         $this->queryManager->execAllQuery();
 
-        $this->assertSame(300, $result->toArray()['total_free_diamond_amount']);
-
         $diamond = DB::connection('trx1')->table('trx_diamond')
             ->where('sys_player_id', $this->sysPlayerId)->first();
         $this->assertSame(300, $diamond->free_amount);
@@ -158,7 +156,6 @@ class BuyPackUseCaseTest extends TestCase
 
         $this->queryManager->execAllQuery();
 
-        $this->assertSame(300, $result->toArray()['total_free_diamond_amount']);
         $this->assertCount(3, $result->toArray()['rewards']);
 
         $this->assertSame(300, DB::connection('trx1')->table('trx_diamond')
@@ -188,7 +185,6 @@ class BuyPackUseCaseTest extends TestCase
 
         // 付与が無いときは rewards キーごと出さない
         $this->assertArrayNotHasKey('rewards', $result->toArray());
-        $this->assertSame(0, $result->toArray()['total_free_diamond_amount']);
 
         $this->assertDatabaseHas('trx_in_app_purchase', [
             'sys_player_id' => $this->sysPlayerId,

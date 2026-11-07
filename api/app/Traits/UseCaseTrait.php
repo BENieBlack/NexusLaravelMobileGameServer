@@ -2,11 +2,11 @@
 
 namespace App\Traits;
 
+use App\Domain\ReturnsUpdatedResources;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Nexus\Core\Pitr\Logger\ShardMapper;
 use Nexus\Core\UnitOfWork\Contracts\QueryManagerInterface;
-use Nexus\Core\UnitOfWork\UpdatedResources;
 use Throwable;
 
 trait UseCaseTrait
@@ -22,7 +22,7 @@ trait UseCaseTrait
      * 5. 通常ログをトランザクション外で実行（コミット後）
      *
      * @param  callable  $callback  実行するビジネスロジック
-     * @return mixed コールバックの戻り値
+     * @return mixed コールバックの戻り値（HasUpdatedResources を使う Response なら、更新した trx を付けて返す）
      *
      * @throws Exception|Throwable トランザクション実行中にエラーが発生した場合
      */
@@ -83,18 +83,12 @@ trait UseCaseTrait
             throw $e;
         }
 
-        return $result;
-    }
+        // Response が HasUpdatedResources を使っていれば、コミットした更新（trx_item_list など）を付ける
+        if ($result instanceof ReturnsUpdatedResources) {
+            return $result->withUpdatedResources($queryManager->pullUpdatedResources());
+        }
 
-    /**
-     * この処理で INSERT / UPDATE した trx のモデルを取り出す
-     *
-     * executeWithTransaction() がコミットした後に呼ぶ（取り出すと空に戻る）。
-     * クライアントに、何が変わったか（trx_unit_list、trx_item_list など）を返すために使う。
-     */
-    protected function pullUpdatedResources(): UpdatedResources
-    {
-        return app()->make(QueryManagerInterface::class)->pullUpdatedResources();
+        return $result;
     }
 
     /**

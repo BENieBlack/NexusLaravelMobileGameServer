@@ -81,7 +81,7 @@ class MailboxEndpointTest extends TestCase
             ->postJson('/api/mailbox/receive_all', []);
 
         $response->assertOk();
-        $response->assertJsonStructure(['received_trx_mailbox_id_list', 'total_count', 'skipped_count']);
+        $response->assertJsonStructure(['received_trx_mailbox_id_list', 'total_count', 'skipped_count', 'updated_resources']);
 
         $this->assertDatabaseHas('trx_mailbox', [
             'id' => $mailbox->id,

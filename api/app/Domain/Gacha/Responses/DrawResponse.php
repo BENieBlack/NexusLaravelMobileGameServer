@@ -3,6 +3,7 @@
 namespace App\Domain\Gacha\Responses;
 
 use App\Domain\_BaseResponse;
+use App\Domain\ReturnsUpdatedResources;
 use App\Traits\HasUpdatedResources;
 
 /**
@@ -10,7 +11,7 @@ use App\Traits\HasUpdatedResources;
  *
  * ガチャ実行APIのレスポンス
  */
-class DrawResponse extends _BaseResponse
+class DrawResponse extends _BaseResponse implements ReturnsUpdatedResources
 {
     use HasUpdatedResources;
 

@@ -3,6 +3,7 @@
 namespace App\Domain\Item\Responses;
 
 use App\Domain\_BaseResponse;
+use App\Domain\ReturnsUpdatedResources;
 use App\Traits\HasUpdatedResources;
 
 /**
@@ -10,7 +11,7 @@ use App\Traits\HasUpdatedResources;
  *
  * アイテム使用APIのレスポンス
  */
-class UseItemResponse extends _BaseResponse
+class UseItemResponse extends _BaseResponse implements ReturnsUpdatedResources
 {
     use HasUpdatedResources;
 

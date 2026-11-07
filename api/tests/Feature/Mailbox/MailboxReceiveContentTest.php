@@ -190,6 +190,51 @@ class MailboxReceiveContentTest extends TestCase
         $this->assertTrue((bool) $this->findMailbox($mailbox->id)->is_received);
     }
 
+    #[Test]
+    public function 種別の違う添付物を受け取ると更新したtrxがupdated_resourcesに入る(): void
+    {
+        DB::connection('mst')->table('mst_unit')->insert(['id' => 'unit_mail_test', 'type' => 'attack', 'element' => 'light', 'rarity' => 'SSR']);
+        DB::connection('mst')->table('mst_item')->insert(['id' => 'item_mail_test', 'type' => 'material', 'effect' => 'none', 'value' => 0]);
+        $this->refreshMstCache();
+
+        $this->makeContent('Gold', 'gold', contentQuantity: 1, amount: 500);
+        $this->makeContent('Diamond', 'diamond', contentQuantity: 1, amount: 20);
+        $this->makeContent('Item', 'item_mail_test', contentQuantity: 1, amount: 3);
+        $this->makeContent('Unit', 'unit_mail_test', contentQuantity: 1, amount: 1);
+        $mailbox = $this->makeMailbox();
+
+        $updated = app(ReceiveUseCase::class)->handle($this->sysPlayerId, $mailbox->id)->toArray()['updated_resources'];
+
+        $this->assertSame(500, $updated['trx_wallet_list'][0]['free_amount']);
+        $this->assertSame(20, $updated['trx_diamond_list'][0]['free_amount']);
+        $this->assertSame(3, $updated['trx_item_list'][0]['free_amount']);
+        $this->assertSame('unit_mail_test', $updated['trx_unit_list'][0]['mst_unit_id']);
+        // 受け取ったメール自体は、画面に出る状態ではないので入らない
+        $this->assertArrayNotHasKey('trx_mailbox_list', $updated);
+    }
+
+    #[Test]
+    public function 一括受取でも種別の違う添付物がupdated_resourcesに入る(): void
+    {
+        DB::connection('mst')->table('mst_item')->insert(['id' => 'item_mail_test', 'type' => 'material', 'effect' => 'none', 'value' => 0]);
+        $this->refreshMstCache();
+
+        $this->makeContent('Gold', 'gold', contentQuantity: 1, amount: 100);
+        $this->makeContent('Item', 'item_mail_test', contentQuantity: 1, amount: 2);
+        $this->makeMailbox();
+        $this->makeMailbox();
+
+        $updated = app(ReceiveAllUseCase::class)->handle($this->sysPlayerId)->toArray()['updated_resources'];
+
+        // 2通ぶんが、重複せず1行にまとまって（最後の状態で）返る
+        $this->assertCount(1, $updated['trx_wallet_list']);
+        $this->assertSame(200, $updated['trx_wallet_list'][0]['free_amount']);
+        $this->assertCount(1, $updated['trx_item_list']);
+        $dbItem = DB::connection($this->playerConnection($this->sysPlayerId))->table('trx_item')->where('sys_player_id', $this->sysPlayerId)->get();
+        $this->assertSame(4, (int) $dbItem->sum('free_amount'), 'DB: '.json_encode($dbItem));
+        $this->assertSame(4, $updated['trx_item_list'][0]['free_amount']);
+    }
+
     private function flush(): void
     {
         $this->queryManager->execAllQuery();
@@ -277,6 +322,8 @@ class MailboxReceiveContentTest extends TestCase
         DB::connection('mst')->table('mst_mailbox_content')
             ->where('mst_mailbox_id', self::MST_MAILBOX_ID)->delete();
         DB::connection('mst')->table('mst_mailbox')->where('id', self::MST_MAILBOX_ID)->delete();
+        DB::connection('mst')->table('mst_unit')->where('id', 'unit_mail_test')->delete();
+        DB::connection('mst')->table('mst_item')->where('id', 'item_mail_test')->delete();
         $this->refreshMstCache();
     }
 }

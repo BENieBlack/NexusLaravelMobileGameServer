@@ -5,6 +5,7 @@ namespace App\Domain\Auth\UseCases;
 use App\Domain\_BaseUseCase;
 use App\Domain\Auth\Responses\RefreshTokenResponse;
 use App\Domain\Auth\Traits\BuildsSysPlayerToken;
+use App\Domain\DoesNotReturnUpdatedResources;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Models\Sys\SysPlayerDevice;
@@ -19,6 +20,7 @@ use NexusAuth\Services\TokenService;
  * トークンリフレッシュのユースケース
  * リフレッシュトークンからアクセストークンを再発行
  */
+#[DoesNotReturnUpdatedResources('トークンの更新で、画面に出る状態は変わらない（更新するのはログイン日時など）')]
 class RefreshTokenUseCase extends _BaseUseCase
 {
     use BuildsSysPlayerToken;

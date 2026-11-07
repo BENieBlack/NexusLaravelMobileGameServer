@@ -12,7 +12,6 @@ use App\Traits\CompositePrimaryKeyTrait;
  * 所持テーブル（trx_unit等）と違い、手放しても消えない。
  * (sys_player_id, content_type, content_mst_id) で一意。
  *
- * @property int $id
  * @property int $sys_player_id
  * @property string $content_type
  * @property string $content_mst_id

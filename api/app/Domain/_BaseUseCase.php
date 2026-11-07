@@ -50,6 +50,7 @@ use App\Traits\UseCaseTrait;
  * - ビジネスロジック実行前のバリデーション
  * - handle()内で最初に呼び出すことを推奨
  * - 存在確認、権限チェック、ビジネスルール検証など
+ * - 検証で取得したモデルは戻り値で返し、handle() で同じ検索をやり直さない
  * - 必要に応じて各UseCaseで実装（強制ではない）
  */
 abstract class _BaseUseCase

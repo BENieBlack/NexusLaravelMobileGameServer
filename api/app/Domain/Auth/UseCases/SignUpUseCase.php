@@ -7,8 +7,8 @@ use App\Domain\Auth\Responses\SignUpResponse;
 use App\Domain\Auth\Traits\BuildsSysPlayerToken;
 use App\Domain\Sharding\Contracts\ShardAssignerInterface;
 use App\Exceptions\BusinessLogicException;
+use App\Models\Sys\SysPlayer;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
-use App\Repositories\Sys\SysPlayerRepository;
 use Nexus\Core\Repositories\PlayerDeviceRepositoryInterface;
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Services\TokenService;
@@ -31,7 +31,6 @@ class SignUpUseCase extends _BaseUseCase
         private readonly TokenService $tokenService,
         private readonly PlayerDeviceRepositoryInterface $deviceRepository,
         private readonly SysPlayerDeviceRepository $sysPlayerDeviceRepository,
-        private readonly SysPlayerRepository $sysPlayerRepository,
         private readonly ShardAssignerInterface $shardAssignmentService,
     ) {}
 
@@ -66,10 +65,11 @@ class SignUpUseCase extends _BaseUseCase
                 $this->shardAssignmentService->assign($player->getId());
             }
 
-            // レスポンスとトークン生成にはModelが要る。
-            // 直前に採番済みでリポジトリのメモリキャッシュに載っているため追加クエリは発生しない
-            $sysPlayer = $this->sysPlayerRepository->selectById($player->getId())
-                ?? throw new \LogicException('採番直後のプレイヤーが取得できません: '.$player->getId());
+            // createPlayer() が返すのは、このアプリの SysPlayer（パッケージ側の型は PlayerModelInterface）。
+            // レスポンスとトークン生成にはモデルが要るので、型を確かめて使う（再取得はしない）
+            $sysPlayer = $player instanceof SysPlayer
+                ? $player
+                : throw new \LogicException('createPlayer() が SysPlayer を返しませんでした: '.$player::class);
 
             // デバイスを作成（アプリケーション層で直接作成）
             $sysPlayerDevice = $this->sysPlayerDeviceRepository->insertDevice(

@@ -39,6 +39,7 @@ public function levelUp(LevelUpRequest $request): JsonResponse
 - `api/app/Domain/{Context}/UseCases/{Action}UseCase.php`、`App\Domain\_BaseUseCase` を継承する。
 - 入口は `handle()`。引数はスカラーかDTOで、シグネチャは UseCase ごとに決める。
 - 事前検証は同じ引数の `validation()` に書き、`handle()` の先頭で呼ぶ（存在確認・所有確認・所持数など）。
+- `validation()` で取得したモデル（プレイヤー、マスター、所有物）は、戻り値で返して `handle()` で使う。`handle()` で同じ `selectById()` をもう一度呼ばない（`?? throw` で null を潰す再取得が要らなくなる）。
 - 書き込みがある処理は `executeWithTransaction(fn () => ...)` の中で行う。読み取りだけなら不要。INSERT直後に採番IDを参照するときだけ `flushQueue()` を呼ぶ。
 - 戻り値は自分専用の Response（`Domain/{Context}/Responses/{Action}Response`）。値を返さない操作も空の Response を返す。`App\Http` を参照しない（ModuleBoundaryTest）。
 - 他コンテキストの機能は `App\Domain\{Other}\Contracts\` のインターフェースで受ける（LevelUpUseCase は `ItemInventoryInterface`）。

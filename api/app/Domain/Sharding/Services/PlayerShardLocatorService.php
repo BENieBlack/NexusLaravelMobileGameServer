@@ -84,10 +84,10 @@ class PlayerShardLocatorService
             ['sys_player_id']
         );
 
-        return $this->playerTablesByConnection[$connection] = array_map(
-            fn (object $row) => (string) $row->table_name,
+        return $this->playerTablesByConnection[$connection] = array_values(array_map(
+            fn (\stdClass $row) => (string) $row->table_name,
             $rows
-        );
+        ));
     }
 
     /**

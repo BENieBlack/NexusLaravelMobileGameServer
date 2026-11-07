@@ -67,7 +67,7 @@ class InAppPurchaseDiamondService
             $sysPlayerId,
             $platform,
             $billingPlatform,
-            $mstInAppPurchase->getPaidDiamondAmount(),
+            $mstInAppPurchase->getPaidDiamondAmount() ?? 0,
             $unitPrice
         );
 
@@ -84,7 +84,7 @@ class InAppPurchaseDiamondService
         $balance = $this->diamondBalanceService->findBalance($sysPlayerId, $platform);
 
         return [
-            'paid_diamond_amount' => $mstInAppPurchase->getPaidDiamondAmount(),
+            'paid_diamond_amount' => $mstInAppPurchase->getPaidDiamondAmount() ?? 0,
             'total_paid_diamond_amount' => $balance['paid_amount'],
             'total_free_diamond_amount' => $balance['free_amount'],
         ];

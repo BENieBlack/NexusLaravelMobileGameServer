@@ -123,7 +123,7 @@ class ShardAssignmentService implements ShardAssignerInterface
     /**
      * 割り当て先のノードを選ぶ
      *
-     * @return object ノード行（id, node_no を持つ）
+     * @return object{id: int|string, node_no: int, current_player_count: int} ノード行
      *
      * @throws \RuntimeException シャーディングの定義か書き込み可能なアクティブノードが無い場合（InfraErrorCode::SHARDING_NOT_CONFIGURED）
      */
@@ -141,7 +141,7 @@ class ShardAssignmentService implements ShardAssignerInterface
             );
         }
 
-        /** @var list<object> $nodes */
+        /** @var list<object{id: int|string, node_no: int, current_player_count: int}> $nodes */
         $nodes = DB::connection('sys')->table('sys_sharding_node')
             ->where('sys_sharding_id', $sharding->id)
             ->where('status', 'active')
@@ -156,7 +156,7 @@ class ShardAssignmentService implements ShardAssignerInterface
         $available = config('database.pitr.active_trx_connections', ['trx1']);
         $nodes = array_values(array_filter(
             $nodes,
-            fn (object $node) => in_array('trx'.$node->node_no, $available, true)
+            fn ($node) => in_array('trx'.$node->node_no, $available, true)
         ));
 
         if ($nodes === []) {
@@ -177,13 +177,14 @@ class ShardAssignmentService implements ShardAssignerInterface
     /**
      * 割り当て人数が最も少ないノードを返す
      *
-     * @param  list<object>  $nodes
+     * @param  list<object{id: int|string, node_no: int, current_player_count: int}>  $nodes
+     * @return object{id: int|string, node_no: int, current_player_count: int}
      */
     private function chooseLeastLoadedNode(array $nodes): object
     {
         usort(
             $nodes,
-            fn (object $a, object $b) => [$a->current_player_count, $a->node_no]
+            fn ($a, $b) => [$a->current_player_count, $a->node_no]
                 <=> [$b->current_player_count, $b->node_no]
         );
 

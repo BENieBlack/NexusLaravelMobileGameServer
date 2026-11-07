@@ -83,7 +83,7 @@ class SlackErrorNotifier
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => json_encode($payload),
+            CURLOPT_POSTFIELDS => (string) json_encode($payload),
             CURLOPT_HTTPHEADER => [
                 'Content-Type: application/json; charset=utf-8',
                 "Authorization: Bearer {$token}",
@@ -225,13 +225,13 @@ class SlackErrorNotifier
             }
         });
 
-        $json = json_encode($body, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        $json = (string) json_encode($body, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 
         // Slackのブロック文字数制限（3000文字）を考慮して切り詰める
         if (strlen($json) > 2000) {
             $json = mb_substr($json, 0, 2000)."\n... (truncated)";
         }
 
-        return $json !== false ? $json : '(bodyの取得に失敗)';
+        return $json;
     }
 }

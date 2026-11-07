@@ -20,9 +20,9 @@ class MstGachaStepBonusRepository extends _BaseMstRepository implements GachaSte
      */
     public function selectByStepId(string $stepId): array
     {
-        $this->queryOrMemory();
+        $models = $this->queryOrMemory();
 
-        return $this->models
+        return array_values($models
             ->where('mst_gacha_step_id', $stepId)
             ->where('is_active', true)
             ->sortBy('position')
@@ -34,7 +34,6 @@ class MstGachaStepBonusRepository extends _BaseMstRepository implements GachaSte
                 bonusRarity: $bonus->getBonusRarity(),
                 isPickupOnly: $bonus->isPickupOnly(),
             ))
-            ->values()
-            ->all();
+            ->all());
     }
 }

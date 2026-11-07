@@ -49,7 +49,8 @@ class TrxRewardTrackRepository implements RewardTrackRepositoryInterface
             ['current_progress', 'updated_at']
         );
 
-        return $this->findByPlayerAndTrack($sysPlayerId, $mstRewardTrackId, $connectionName);
+        return $this->findByPlayerAndTrack($sysPlayerId, $mstRewardTrackId, $connectionName)
+            ?? throw new \LogicException('upsert 直後の行が取得できません: '.$mstRewardTrackId);
     }
 
     public function addProgress(int $sysPlayerId, string $mstRewardTrackId, int $delta, string $connectionName): RewardTrack
@@ -66,10 +67,16 @@ class TrxRewardTrackRepository implements RewardTrackRepositoryInterface
                 'updated_at' => $now,
             ],
             ['sys_player_id', 'mst_reward_track_id'],
-            ['current_progress' => DB::raw("current_progress + {$delta}"), 'updated_at' => $now]
+            [
+                // $delta は int 型で、SQL に埋め込んでも注入にならない（upsert の更新式は束縛値にできない）
+                /** @phpstan-ignore argument.type */
+                'current_progress' => DB::raw('current_progress + '.$delta),
+                'updated_at' => $now,
+            ]
         );
 
-        return $this->findByPlayerAndTrack($sysPlayerId, $mstRewardTrackId, $connectionName);
+        return $this->findByPlayerAndTrack($sysPlayerId, $mstRewardTrackId, $connectionName)
+            ?? throw new \LogicException('upsert 直後の行が取得できません: '.$mstRewardTrackId);
     }
 
     /**

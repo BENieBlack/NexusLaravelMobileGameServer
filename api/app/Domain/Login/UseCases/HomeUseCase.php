@@ -56,7 +56,8 @@ class HomeUseCase extends _BaseUseCase
 
         return $this->executeWithTransaction(function () use ($sysPlayerId) {
             // プレイヤー情報を取得（バリデーション済み）
-            $sysPlayer = $this->sysPlayerRepository->selectById($sysPlayerId);
+            $sysPlayer = $this->sysPlayerRepository->selectById($sysPlayerId)
+                ?? throw new \LogicException('プレイヤーが見つかりません');
 
             // 登録済みの全ログインボーナス（カムバック・VIP・通常）をチェック・配布
             // （履歴の書き込み先のシャードは ApiSession が解決する）

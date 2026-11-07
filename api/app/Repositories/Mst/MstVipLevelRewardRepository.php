@@ -76,7 +76,7 @@ class MstVipLevelRewardRepository extends _BaseMstRepository implements VipLevel
     {
         return $this->queryOrMemory()
             ->where('is_active', true)
-            ->sortBy(['vip_level', 'sort_order'])
+            ->sortBy(fn ($reward) => [$reward->vip_level, $reward->sort_order])
             ->values();
     }
 }

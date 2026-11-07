@@ -17,7 +17,7 @@ class RewardTrackMasterRepository implements RewardTrackMasterRepositoryInterfac
     public function selectActiveTracks(): array
     {
         // イベントに入っているトラックは、イベントの期間で判定するため、期間はSQLで絞らず、上書きした後にPHPで判定する
-        return DB::connection('mst')
+        $rows = DB::connection('mst')
             ->table('mst_reward_track')
             ->where('is_active', true)
             ->orderByDesc('sort_desc')
@@ -26,6 +26,9 @@ class RewardTrackMasterRepository implements RewardTrackMasterRepositoryInterfac
             ->filter(fn (array $track) => ClockUtility::isWithin($track['start_at'], $track['end_at']))
             ->values()
             ->all();
+
+        /** @var array<array{id: string, progress_type: string, start_at: string, end_at: ?string, sort_desc: int}> $rows */
+        return $rows;
     }
 
     public function selectTrackById(string $trackId): ?array
@@ -35,12 +38,19 @@ class RewardTrackMasterRepository implements RewardTrackMasterRepositoryInterfac
             ->where('id', $trackId)
             ->first();
 
-        return $row ? $this->applyEventPeriod((array) $row) : null;
+        if (! $row) {
+            return null;
+        }
+
+        /** @var array{id: string, progress_type: string, start_at: string, end_at: ?string} $track */
+        $track = $this->applyEventPeriod((array) $row);
+
+        return $track;
     }
 
     public function selectLinesByTrackId(string $trackId): array
     {
-        return DB::connection('mst')
+        $rows = DB::connection('mst')
             ->table('mst_reward_track_line')
             ->where('mst_reward_track_id', $trackId)
             ->where('is_active', true)
@@ -48,11 +58,14 @@ class RewardTrackMasterRepository implements RewardTrackMasterRepositoryInterfac
             ->get()
             ->map(fn ($r) => array_merge((array) $r, ['is_free' => (bool) ((array) $r)['is_free']]))
             ->all();
+
+        /** @var array<array{id: string, mst_reward_track_id: string, is_free: bool, mst_in_app_purchase_id: ?int, sort_order: int}> $rows */
+        return $rows;
     }
 
     public function selectMilestonesByTrackId(string $trackId): array
     {
-        return DB::connection('mst')
+        $rows = DB::connection('mst')
             ->table('mst_reward_track_milestone')
             ->where('mst_reward_track_id', $trackId)
             ->where('is_active', true)
@@ -61,6 +74,9 @@ class RewardTrackMasterRepository implements RewardTrackMasterRepositoryInterfac
             ->get()
             ->map(fn ($r) => (array) $r)
             ->all();
+
+        /** @var array<array{id: string, mst_reward_track_id: string, required_progress: int, sort_order: int}> $rows */
+        return $rows;
     }
 
     public function selectContentsByMilestoneIds(array $milestoneIds): array
@@ -69,7 +85,7 @@ class RewardTrackMasterRepository implements RewardTrackMasterRepositoryInterfac
             return [];
         }
 
-        return DB::connection('mst')
+        $rows = DB::connection('mst')
             ->table('mst_reward_track_content')
             ->whereIn('mst_reward_track_milestone_id', $milestoneIds)
             ->where('is_active', true)
@@ -84,6 +100,9 @@ class RewardTrackMasterRepository implements RewardTrackMasterRepositoryInterfac
                 return $arr;
             })
             ->all();
+
+        /** @var array<array{mst_reward_track_milestone_id: string, mst_reward_track_line_id: string, content_type: string, content_mst_id: string, content_option: array<string, mixed>|null, content_quantity: int, amount: int, sort_order: int}> $rows */
+        return $rows;
     }
 
     public function selectFreeLineId(string $trackId): ?string

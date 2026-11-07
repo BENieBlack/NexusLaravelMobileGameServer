@@ -122,7 +122,7 @@ class TokenService
             $decoded = JWT::decode($token, new Key($this->appKey, self::ALGORITHM));
 
             // stdClass を配列に変換
-            return json_decode(json_encode($decoded), true);
+            return json_decode((string) json_encode($decoded), true);
 
         } catch (ExpiredException $e) {
             // トークン期限切れ

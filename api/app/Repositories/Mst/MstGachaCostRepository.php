@@ -18,9 +18,9 @@ class MstGachaCostRepository extends _BaseMstRepository
      */
     public function selectByGachaIdAndDrawCount(string $mstGachaId, int $drawCount): ?MstGachaCost
     {
-        $this->queryOrMemory();
+        $models = $this->queryOrMemory();
 
-        return $this->models
+        return $models
             ->where('mst_gacha_id', $mstGachaId)
             ->where('is_active', true)
             ->firstWhere('draw_count', $drawCount);

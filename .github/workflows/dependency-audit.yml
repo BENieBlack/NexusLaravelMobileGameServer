@@ -1,0 +1,38 @@
+name: 依存パッケージの脆弱性検査（定期）
+
+# CI の composer audit は、PR とマージのときだけ動く。新しい勧告はコードを変えなくても出るので、
+# 誰も PR を出さない間は気づけない。毎日1回、api と tool の composer.lock を検査する。
+# 失敗した run は、GitHub の通知（Actions の失敗）で分かる。落ちたら `composer update <パッケージ>` で上げる。
+on:
+  schedule:
+    # 毎日 00:30 UTC（日本時間 09:30）
+    - cron: '30 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    name: composer audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [api, tool]
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: PHPのセットアップ
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          coverage: none
+
+      # --locked: composer.lock だけを見る。依存をインストールしないので速い
+      - name: 脆弱性の検査（${{ matrix.app }}）
+        working-directory: ${{ matrix.app }}
+        run: composer audit --locked --no-interaction

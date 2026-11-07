@@ -80,4 +80,20 @@ class Mission
     {
         return $this->sortOrder;
     }
+
+    /**
+     * 期間だけを差し替えた複製を返す（イベントの期間で上書きするとき）
+     */
+    public function withPeriod(string $startAt, ?string $endAt): self
+    {
+        return new self(
+            id: $this->id,
+            triggerType: $this->triggerType,
+            mstTagId: $this->mstTagId,
+            targetValue: $this->targetValue,
+            startAt: $startAt,
+            endAt: $endAt,
+            sortOrder: $this->sortOrder,
+        );
+    }
 }

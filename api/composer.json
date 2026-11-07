@@ -119,6 +119,10 @@
         },
         {
             "type": "path",
+            "url": "../packages/nexus-event"
+        },
+        {
+            "type": "path",
             "url": "../packages/nexus-trade"
         }
     ],
@@ -145,6 +149,7 @@
         "nexus/mailbox": "@dev",
         "nexus/maintenance": "@dev",
         "nexus/mission": "@dev",
+        "nexus/event": "@dev",
         "nexus/trade": "@dev",
         "nexus/notification": "@dev",
         "nexus/pitr": "@dev",

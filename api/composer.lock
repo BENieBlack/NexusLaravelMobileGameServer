@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3212b9b15ae5e9f6206552574c66f04b",
+    "content-hash": "bfac4b61ea1b436c0c1225985732feeb",
     "packages": [
         {
             "name": "brick/math",
@@ -3281,6 +3281,48 @@
             }
         },
         {
+            "name": "nexus/event",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../packages/nexus-event",
+                "reference": "1569de1cdae1f04c212c365f7ff53eea3488b24c"
+            },
+            "require": {
+                "nexus/core": "@dev",
+                "php": "^8.4"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.6",
+                "phpunit/phpunit": "^10.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "NexusEvent\\EventServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "NexusEvent\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "NexusEvent\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "イベント基盤パッケージ。期間限定の開催を1つの単位（イベント）として扱い、束ねたコンテンツの期間をイベントの期間で上書きする。",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "nexus/friend",
             "version": "dev-main",
             "dist": {
@@ -4137,7 +4179,7 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-wallet",
-                "reference": "2a5dda32e188ee81bff54522221162cf6fbde9c5"
+                "reference": "ff3736187f6b1f5a51d1ca1cdd549ef097a74384"
             },
             "require": {
                 "illuminate/database": "^10.0|^11.0|^12.0|^13.0",
@@ -12468,6 +12510,7 @@
         "nexus/core-billing": 20,
         "nexus/core-security": 20,
         "nexus/core-unit-of-work": 20,
+        "nexus/event": 20,
         "nexus/friend": 20,
         "nexus/gacha": 20,
         "nexus/guild": 20,

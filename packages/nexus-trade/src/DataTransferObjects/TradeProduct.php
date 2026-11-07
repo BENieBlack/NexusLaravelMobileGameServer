@@ -80,4 +80,23 @@ class TradeProduct
     {
         return $this->sortOrder;
     }
+
+    /**
+     * 期間だけを差し替えた複製を返す（イベントの期間で上書きするとき）
+     */
+    public function withPeriod(string $startAt, ?string $endAt): self
+    {
+        return new self(
+            id: $this->id,
+            mstTradeId: $this->mstTradeId,
+            costType: $this->costType,
+            costMstId: $this->costMstId,
+            costAmount: $this->costAmount,
+            tradeLimit: $this->tradeLimit,
+            resetType: $this->resetType,
+            startAt: $startAt,
+            endAt: $endAt,
+            sortOrder: $this->sortOrder,
+        );
+    }
 }

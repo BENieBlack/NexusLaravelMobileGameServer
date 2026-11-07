@@ -9,7 +9,6 @@ use App\Domain\Sharding\Contracts\ShardAssignerInterface;
 use App\Exceptions\BusinessLogicException;
 use App\Models\Sys\SysPlayer;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
-use Nexus\Core\Repositories\PlayerDeviceRepositoryInterface;
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Services\TokenService;
 use NexusTidb\Support\TidbMode;
@@ -29,7 +28,6 @@ class SignUpUseCase extends _BaseUseCase
     public function __construct(
         private readonly PlayerAuthService $playerAuthService,
         private readonly TokenService $tokenService,
-        private readonly PlayerDeviceRepositoryInterface $deviceRepository,
         private readonly SysPlayerDeviceRepository $sysPlayerDeviceRepository,
         private readonly ShardAssignerInterface $shardAssigner,
     ) {}
@@ -50,7 +48,7 @@ class SignUpUseCase extends _BaseUseCase
         // トランザクション開始
         return $this->executeWithTransaction(function () use ($deviceId, $deviceInfo) {
             // 既存デバイスチェック
-            $existingDevice = $this->deviceRepository->selectByDeviceId($deviceId);
+            $existingDevice = $this->sysPlayerDeviceRepository->selectByDeviceId($deviceId);
 
             if ($existingDevice !== null) {
                 // 既存デバイスの場合はエラー（sign_inを使用すべき）

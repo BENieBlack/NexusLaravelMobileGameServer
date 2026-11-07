@@ -26,16 +26,16 @@ class WalletRepositoryAdapter implements WalletRepositoryInterface
      */
     public function selectByCurrencyId(int $playerId, string $currencyId): ?object
     {
-        $wallet = $this->trxWalletRepository->selectByMstItemId($playerId, $currencyId);
+        $trxWallet = $this->trxWalletRepository->selectByMstItemId($playerId, $currencyId);
 
-        if ($wallet === null) {
+        if ($trxWallet === null) {
             return null;
         }
 
         return (object) [
-            'free_amount' => $wallet->getFreeAmount(),
-            'paid_amount' => $wallet->getPaidAmount(),
-            'total_amount' => $wallet->getTotalAmount(),
+            'free_amount' => $trxWallet->getFreeAmount(),
+            'paid_amount' => $trxWallet->getPaidAmount(),
+            'total_amount' => $trxWallet->getTotalAmount(),
         ];
     }
 
@@ -49,21 +49,21 @@ class WalletRepositoryAdapter implements WalletRepositoryInterface
      */
     public function persist(int $playerId, string $currencyId, int $freeAmount, int $paidAmount): void
     {
-        $wallet = $this->trxWalletRepository->selectByMstItemId($playerId, $currencyId);
+        $trxWallet = $this->trxWalletRepository->selectByMstItemId($playerId, $currencyId);
 
-        if ($wallet === null) {
-            $wallet = new TrxWallet([
+        if ($trxWallet === null) {
+            $trxWallet = new TrxWallet([
                 'sys_player_id' => $playerId,
                 'mst_item_id' => $currencyId,
                 'free_amount' => $freeAmount,
                 'paid_amount' => $paidAmount,
             ]);
-            $wallet->exists = false; // INSERT として認識
+            $trxWallet->exists = false; // INSERT として認識
         } else {
-            $wallet->setFreeAmount($freeAmount);
-            $wallet->setPaidAmount($paidAmount);
+            $trxWallet->setFreeAmount($freeAmount);
+            $trxWallet->setPaidAmount($paidAmount);
         }
 
-        $this->trxWalletRepository->setModel($wallet);
+        $this->trxWalletRepository->setModel($trxWallet);
     }
 }

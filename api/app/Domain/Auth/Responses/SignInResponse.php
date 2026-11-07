@@ -6,7 +6,7 @@ use App\Domain\_BaseResponse;
 use App\Domain\Auth\DataTransferObjects\SignInResult;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
-use NexusAuth\Contracts\TokenModelInterface;
+use App\Models\Sys\SysPlayerToken;
 use NexusAuth\ValueObjects\Token;
 
 /**
@@ -20,13 +20,13 @@ class SignInResponse extends _BaseResponse
     /**
      * @param  SysPlayer  $sysPlayer  プレイヤー情報
      * @param  SysPlayerDevice  $sysPlayerDevice  デバイス情報
-     * @param  TokenModelInterface  $sysPlayerToken  トークン情報
+     * @param  SysPlayerToken  $sysPlayerToken  トークン情報
      * @param  Token  $token  トークン情報DTO
      */
     final public function __construct(
         public readonly SysPlayer $sysPlayer,
         public readonly SysPlayerDevice $sysPlayerDevice,
-        public readonly TokenModelInterface $sysPlayerToken,
+        public readonly SysPlayerToken $sysPlayerToken,
         public readonly Token $token,
     ) {}
 

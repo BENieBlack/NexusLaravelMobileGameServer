@@ -36,7 +36,7 @@ class LevelUpUseCase extends _BaseUseCase
 
     public function __construct(
         private readonly UnitLevelService $unitLevelService,
-        private readonly ItemInventoryInterface $itemService,
+        private readonly ItemInventoryInterface $itemInventory,
         private readonly TrxUnitRepository $trxUnitRepository,
         private readonly MstItemRepository $mstItemRepository,
     ) {}
@@ -88,7 +88,7 @@ class LevelUpUseCase extends _BaseUseCase
         }
 
         // 3. アイテム所持数確認
-        $currentAmount = $this->itemService->findItemAmount($sysPlayerId, $mstItemId);
+        $currentAmount = $this->itemInventory->findItemAmount($sysPlayerId, $mstItemId);
         if ($currentAmount < $useCount) {
             throw BusinessLogicException::itemNotEnough($mstItemId, $useCount, $currentAmount);
         }
@@ -114,7 +114,7 @@ class LevelUpUseCase extends _BaseUseCase
         return $this->executeWithTransaction(function () use ($sysPlayerId, $trxUnitId, $mstItemId, $useCount, $mstItem) {
 
             // アイテムを消費
-            $this->itemService->consumeItem($sysPlayerId, $mstItemId, $useCount);
+            $this->itemInventory->consumeItem($sysPlayerId, $mstItemId, $useCount);
 
             // 経験値を計算して加算
             // mst_item.value は double なので、経験値として使う前に整数へ切り捨てる

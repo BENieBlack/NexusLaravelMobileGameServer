@@ -31,7 +31,7 @@ class SignUpUseCase extends _BaseUseCase
         private readonly TokenService $tokenService,
         private readonly PlayerDeviceRepositoryInterface $deviceRepository,
         private readonly SysPlayerDeviceRepository $sysPlayerDeviceRepository,
-        private readonly ShardAssignerInterface $shardAssignmentService,
+        private readonly ShardAssignerInterface $shardAssigner,
     ) {}
 
     /**
@@ -68,7 +68,7 @@ class SignUpUseCase extends _BaseUseCase
 
             // TiDBではDB側の分散に任せるため、アプリケーション側の割り当ては作らない。
             if (! TidbMode::isEnabled()) {
-                $this->shardAssignmentService->assign($sysPlayer->getId());
+                $this->shardAssigner->assign($sysPlayer->getId());
             }
 
             // デバイスを作成（アプリケーション層で直接作成）

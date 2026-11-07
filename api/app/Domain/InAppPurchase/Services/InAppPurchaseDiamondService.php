@@ -54,13 +54,13 @@ class InAppPurchaseDiamondService
         string $transactionId
     ): array {
         // 1. 購入履歴を取得（Repository経由）
-        $purchaseHistory = $this->trxInAppPurchaseRepository->selectByBillingPlatformAndMstInAppPurchaseId(
+        $trxInAppPurchase = $this->trxInAppPurchaseRepository->selectByBillingPlatformAndMstInAppPurchaseId(
             $billingPlatform,
             $mstInAppPurchase->getId()
         );
 
         // 2. 購入制限チェック
-        $this->validationService->validatePurchaseLimit($mstInAppPurchase, $purchaseHistory, $billingPlatform);
+        $this->validationService->validatePurchaseLimit($mstInAppPurchase, $trxInAppPurchase, $billingPlatform);
 
         // 3. ダイヤモンド加算（InAppPurchaseDiamondBalanceServiceに委譲）
         $this->diamondBalanceService->addPaidDiamondWithBalance(
@@ -76,7 +76,7 @@ class InAppPurchaseDiamondService
             $sysPlayerId,
             $billingPlatform,
             $mstInAppPurchase,
-            $purchaseHistory,
+            $trxInAppPurchase,
             $transactionId
         );
 

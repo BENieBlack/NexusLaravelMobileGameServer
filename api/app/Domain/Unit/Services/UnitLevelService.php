@@ -151,13 +151,13 @@ class UnitLevelService extends _BaseLevelService implements UnitExperienceInterf
      */
     protected function findEntity(mixed $id): object
     {
-        $unit = $this->trxUnitRepository->selectById($id);
+        $trxUnit = $this->trxUnitRepository->selectById($id);
 
-        if ($unit === null) {
+        if ($trxUnit === null) {
             throw TransactionDataException::unit($id);
         }
 
-        return $unit;
+        return $trxUnit;
     }
 
     /**

@@ -67,11 +67,15 @@ class ItemRepositoryAdapter implements ItemRepositoryInterface
      */
     public function selectItemsByIds(int $sysPlayerId, array $mstItemIds): array
     {
-        $trxItems = TrxItem::query()
-            ->where('sys_player_id', $sysPlayerId)
-            ->whereIn('mst_item_id', $mstItemIds)
-            ->get();
+        // このリクエストで加算・消費してDBに未反映のモデルも見えるよう、Repositoryのキャッシュ経由で引く
+        $items = [];
+        foreach (array_unique($mstItemIds) as $mstItemId) {
+            $trxItem = $this->trxItemRepository->selectByMstItemId($sysPlayerId, $mstItemId);
+            if ($trxItem !== null) {
+                $items[] = ItemAdapter::toDto($trxItem);
+            }
+        }
 
-        return $trxItems->map(fn (TrxItem $trxItem) => ItemAdapter::toDto($trxItem))->all();
+        return $items;
     }
 }

@@ -57,23 +57,23 @@ class SignUpUseCase extends _BaseUseCase
                 throw BusinessLogicException::deviceAlreadyExists($deviceId);
             }
 
-            // 新規プレイヤー作成（PlayerAuthService使用）
-            $player = $this->playerAuthService->createPlayer($deviceId, $deviceInfo);
+            // 新規プレイヤー作成（PlayerAuthService使用）。
+            // パッケージ側の戻り値の型は PlayerModelInterface だが、実体はこのアプリの SysPlayer。
+            // レスポンスとトークン生成にはモデルが要るので、型を確かめて使う（再取得はしない）
+            $sysPlayer = $this->playerAuthService->createPlayer($deviceId, $deviceInfo);
+
+            if (! $sysPlayer instanceof SysPlayer) {
+                throw new \LogicException('createPlayer() が SysPlayer を返しませんでした: '.$sysPlayer::class);
+            }
 
             // TiDBではDB側の分散に任せるため、アプリケーション側の割り当ては作らない。
             if (! TidbMode::isEnabled()) {
-                $this->shardAssignmentService->assign($player->getId());
+                $this->shardAssignmentService->assign($sysPlayer->getId());
             }
-
-            // createPlayer() が返すのは、このアプリの SysPlayer（パッケージ側の型は PlayerModelInterface）。
-            // レスポンスとトークン生成にはモデルが要るので、型を確かめて使う（再取得はしない）
-            $sysPlayer = $player instanceof SysPlayer
-                ? $player
-                : throw new \LogicException('createPlayer() が SysPlayer を返しませんでした: '.$player::class);
 
             // デバイスを作成（アプリケーション層で直接作成）
             $sysPlayerDevice = $this->sysPlayerDeviceRepository->insertDevice(
-                $player->getId(),
+                $sysPlayer->getId(),
                 $deviceId,
                 $deviceInfo
             );

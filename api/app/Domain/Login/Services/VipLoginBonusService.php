@@ -31,7 +31,7 @@ class VipLoginBonusService extends _BaseLoginBonusService
         private readonly VipLoginBonusRepositoryInterface $vipBonusRepository,
         private readonly VipLoginBonusHistoryRepositoryInterface $vipHistoryRepository,
         private readonly LogVipLoginBonusReceiveRepository $logVipLoginBonusReceiveRepository,
-        private readonly SysPlayerRepository $playerRepository,
+        private readonly SysPlayerRepository $sysPlayerRepository,
         private readonly VipLevelService $vipLevelService,
     ) {
         parent::__construct($resourceDeliveryService);
@@ -173,12 +173,12 @@ class VipLoginBonusService extends _BaseLoginBonusService
     private function resolveVipLevel(int $sysPlayerId): ?int
     {
         // RepositoryはModelを返す。VIPポイントはModelから直接読む
-        $player = $this->playerRepository->selectById($sysPlayerId);
+        $sysPlayer = $this->sysPlayerRepository->selectById($sysPlayerId);
 
-        if ($player === null) {
+        if ($sysPlayer === null) {
             return null;
         }
 
-        return $this->vipLevelService->calculateLevel($player->getVipPoint());
+        return $this->vipLevelService->calculateLevel($sysPlayer->getVipPoint());
     }
 }

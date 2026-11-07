@@ -51,7 +51,7 @@ docker compose exec -T tool-php php artisan db:seed --class=AdminAccountSeeder -
 | コマンド | 内容 |
 |---|---|
 | `make up` / `make down` | 起動（`--build` 付き）/ 停止 |
-| `make check` | CI と同じ検査（`audit` → `pint-test` → `phpstan` → `test` → `tool-check`）。PR 前に回す。`audit` は新しい脆弱性の勧告が出るとコードを変えなくても落ちるので、そのときは `composer update` で依存を上げる |
+| `make check` | CI と同じ検査（`audit` → `pint-test` → `phpstan` → `test` → `tool-check`）。PR 前に回す。`audit` は新しい脆弱性の勧告が出るとコードを変えなくても落ちるので、そのときは `composer update` で依存を上げる。PR が無い間の勧告は、毎日動く定期ワークフロー（`.github/workflows/dependency-audit.yml`）が検出する |
 | `make test` | api の全テスト（Unit / Feature / Architecture / Packages） |
 | `make check-quiet` / `make test-quiet` | `check` / `test` と同じ検査。全文は `.make-logs/*.log` に書き、画面には成功の1行か、失敗の詳細と集計だけを出す。エージェントはこちらを使う |
 | `make test-unit` / `make test-feature` | そのスイートだけ |

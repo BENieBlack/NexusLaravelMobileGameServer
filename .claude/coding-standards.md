@@ -101,6 +101,8 @@ public function handle(int $sysPlayerId, int $trxUnitId, string $mstItemId, int 
 
 ## Response
 
+- 「この処理で何が更新されたか」を返すときは、`UpdatedResources`（`Nexus\Core\UnitOfWork\UpdatedResources`）を使う。UseCase は `executeWithTransaction()` の後に `$this->pullUpdatedResources()` で取り出し、Response の `updated_resources`（`toResponseArray()`: `trx_unit_list`、`trx_item_list` など、更新されたものだけ）に入れる。見本は `Equipment\UseCases\LevelUpUseCase`。物理削除、ログ、sys は含まれない。相対更新（`free_amount + 5`）の値は、同時に別の処理が同じ行を更新していると、DBの値とずれることがある
+
 - UseCase ごとに1つ作る: `api/app/Domain/{Context}/Responses/{Action}Response.php`（例: `Chat/UseCases/SendMessageUseCase` → `Chat/Responses/SendMessageResponse`）。`App\Domain\_BaseResponse` を継承する。UseCase の `handle()` がこれを返す。
 - HTTP には依存しない。JSON への変換は `_BaseController::execute()` が `toArray()` から行う。
 - 複数の UseCase で共用しない。返す形が同じなら、親を継承した子を UseCase ごとに置く（`Auth/TransferByCodeResponse extends SignInResponse`、`Chat/FriendRoomResponse extends RoomResponse`）。親は `final public function __construct` と `from(): static` にする。`handle()` を親クラスから受け継ぐ UseCase は親の Response を返す（Buy 系 → `InAppPurchase/BuyResponse`）。

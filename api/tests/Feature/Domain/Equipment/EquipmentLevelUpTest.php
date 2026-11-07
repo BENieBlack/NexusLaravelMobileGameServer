@@ -112,6 +112,29 @@ class EquipmentLevelUpTest extends TestCase
     }
 
     #[Test]
+    public function レベルアップのレスポンスには更新されたtrxだけが入る(): void
+    {
+        $this->useSessionPlayer($this->sysPlayerId);
+
+        $result = app(LevelUpUseCase::class)
+            ->handle($this->sysPlayerId, $this->trxEquipmentId, self::EXP_ITEM_ID, 7);
+
+        $updated = $result->toArray()['updated_resources'];
+
+        // 更新した装備とアイテムだけが入る（ログや、触っていないテーブルは入らない）
+        $this->assertEqualsCanonicalizing(['trx_equipment_list', 'trx_item_list'], array_keys($updated));
+        $this->assertCount(1, $updated['trx_equipment_list']);
+        $this->assertCount(1, $updated['trx_item_list']);
+
+        // 更新後の値が入っている
+        $this->assertSame(7, $updated['trx_equipment_list'][0]['level']);
+        $this->assertSame(
+            $result->trxItem->getFreeAmount(),
+            $updated['trx_item_list'][0]['free_amount']
+        );
+    }
+
+    #[Test]
     public function レベルアップ時にログが記録される(): void
     {
         $this->useSessionPlayer($this->sysPlayerId);

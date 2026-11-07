@@ -26,9 +26,9 @@ class FriendApplyRepositoryAdapter implements FriendApplyRepositoryInterface
      */
     public function selectById(int $friendApplyId): ?FriendApply
     {
-        $model = $this->sysFriendApplyRepository->selectById($friendApplyId);
+        $sysFriendApply = $this->sysFriendApplyRepository->selectById($friendApplyId);
 
-        return $model ? FriendApplyAdapter::toDto($model) : null;
+        return $sysFriendApply ? FriendApplyAdapter::toDto($sysFriendApply) : null;
     }
 
     /**
@@ -36,9 +36,9 @@ class FriendApplyRepositoryAdapter implements FriendApplyRepositoryInterface
      */
     public function selectByPlayerPair(int $senderPlayerId, int $receiverPlayerId): ?FriendApply
     {
-        $model = $this->sysFriendApplyRepository->selectByPlayerPair($senderPlayerId, $receiverPlayerId);
+        $sysFriendApply = $this->sysFriendApplyRepository->selectByPlayerPair($senderPlayerId, $receiverPlayerId);
 
-        return $model ? FriendApplyAdapter::toDto($model) : null;
+        return $sysFriendApply ? FriendApplyAdapter::toDto($sysFriendApply) : null;
     }
 
     /**
@@ -70,9 +70,9 @@ class FriendApplyRepositoryAdapter implements FriendApplyRepositoryInterface
      */
     public function insert(int $senderPlayerId, int $receiverPlayerId): FriendApply
     {
-        $model = $this->sysFriendApplyRepository->insertApply($senderPlayerId, $receiverPlayerId);
+        $sysFriendApply = $this->sysFriendApplyRepository->insertApply($senderPlayerId, $receiverPlayerId);
 
-        return FriendApplyAdapter::toDto($model);
+        return FriendApplyAdapter::toDto($sysFriendApply);
     }
 
     /**
@@ -80,12 +80,12 @@ class FriendApplyRepositoryAdapter implements FriendApplyRepositoryInterface
      */
     public function accept(FriendApply $friendApply): FriendApply
     {
-        $model = $this->requireModel($friendApply->getId());
+        $sysFriendApply = $this->requireModel($friendApply->getId());
 
-        $model->accept();
-        $this->sysFriendApplyRepository->setModel($model);
+        $sysFriendApply->accept();
+        $this->sysFriendApplyRepository->setModel($sysFriendApply);
 
-        return FriendApplyAdapter::toDto($model);
+        return FriendApplyAdapter::toDto($sysFriendApply);
     }
 
     /**
@@ -93,12 +93,12 @@ class FriendApplyRepositoryAdapter implements FriendApplyRepositoryInterface
      */
     public function reject(FriendApply $friendApply): FriendApply
     {
-        $model = $this->requireModel($friendApply->getId());
+        $sysFriendApply = $this->requireModel($friendApply->getId());
 
-        $model->reject();
-        $this->sysFriendApplyRepository->setModel($model);
+        $sysFriendApply->reject();
+        $this->sysFriendApplyRepository->setModel($sysFriendApply);
 
-        return FriendApplyAdapter::toDto($model);
+        return FriendApplyAdapter::toDto($sysFriendApply);
     }
 
     /**
@@ -106,9 +106,9 @@ class FriendApplyRepositoryAdapter implements FriendApplyRepositoryInterface
      */
     public function deleteFriendRelation(int $playerId, int $targetPlayerId): ?FriendApply
     {
-        $model = $this->sysFriendApplyRepository->deleteFriendRelationModel($playerId, $targetPlayerId);
+        $sysFriendApply = $this->sysFriendApplyRepository->deleteFriendRelationModel($playerId, $targetPlayerId);
 
-        return $model ? FriendApplyAdapter::toDto($model) : null;
+        return $sysFriendApply ? FriendApplyAdapter::toDto($sysFriendApply) : null;
     }
 
     /**
@@ -116,12 +116,12 @@ class FriendApplyRepositoryAdapter implements FriendApplyRepositoryInterface
      */
     private function requireModel(int $friendApplyId): SysFriendApply
     {
-        $model = $this->sysFriendApplyRepository->selectById($friendApplyId);
+        $sysFriendApply = $this->sysFriendApplyRepository->selectById($friendApplyId);
 
-        if ($model === null) {
+        if ($sysFriendApply === null) {
             throw new \RuntimeException('Friend apply not found');
         }
 
-        return $model;
+        return $sysFriendApply;
     }
 }

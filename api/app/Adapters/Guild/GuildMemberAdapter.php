@@ -16,30 +16,30 @@ class GuildMemberAdapter
     /**
      * Model から DTO に変換
      */
-    public static function toDto(SysGuildMember $model): GuildMember
+    public static function toDto(SysGuildMember $sysGuildMember): GuildMember
     {
         return new GuildMember(
-            id: $model->getId(),
-            sysGuildId: $model->getSysGuildId(),
-            sysPlayerId: $model->getSysPlayerId(),
-            role: $model->getRole(),
-            joinedAt: $model->getJoinedAt(),
-            createdAt: ClockUtility::parse((string) $model->created_at)->format('Y-m-d H:i:s'),
-            updatedAt: ClockUtility::parse((string) $model->updated_at)->format('Y-m-d H:i:s'),
+            id: $sysGuildMember->getId(),
+            sysGuildId: $sysGuildMember->getSysGuildId(),
+            sysPlayerId: $sysGuildMember->getSysPlayerId(),
+            role: $sysGuildMember->getRole(),
+            joinedAt: $sysGuildMember->getJoinedAt(),
+            createdAt: ClockUtility::parse((string) $sysGuildMember->created_at)->format('Y-m-d H:i:s'),
+            updatedAt: ClockUtility::parse((string) $sysGuildMember->updated_at)->format('Y-m-d H:i:s'),
         );
     }
 
     /**
      * Model配列 から DTO配列 に変換
      *
-     * @param  iterable<SysGuildMember>  $models
+     * @param  iterable<SysGuildMember>  $sysGuildMembers
      * @return array<GuildMember>
      */
-    public static function toDtoArray(iterable $models): array
+    public static function toDtoArray(iterable $sysGuildMembers): array
     {
         $dtos = [];
-        foreach ($models as $model) {
-            $dtos[] = self::toDto($model);
+        foreach ($sysGuildMembers as $sysGuildMember) {
+            $dtos[] = self::toDto($sysGuildMember);
         }
 
         return $dtos;

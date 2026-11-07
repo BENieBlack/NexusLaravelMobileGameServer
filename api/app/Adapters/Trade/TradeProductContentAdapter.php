@@ -15,29 +15,29 @@ class TradeProductContentAdapter
     /**
      * Model から DTO に変換
      */
-    public static function toDto(MstTradeProductContent $model): TradeProductContent
+    public static function toDto(MstTradeProductContent $mstTradeProductContent): TradeProductContent
     {
         return new TradeProductContent(
-            mstTradeProductId: $model->getMstTradeProductId(),
-            contentType: $model->getContentType(),
-            contentMstId: $model->getContentMstId(),
-            contentQuantity: $model->getContentQuantity(),
-            sortOrder: $model->getSortOrder(),
+            mstTradeProductId: $mstTradeProductContent->getMstTradeProductId(),
+            contentType: $mstTradeProductContent->getContentType(),
+            contentMstId: $mstTradeProductContent->getContentMstId(),
+            contentQuantity: $mstTradeProductContent->getContentQuantity(),
+            sortOrder: $mstTradeProductContent->getSortOrder(),
         );
     }
 
     /**
      * Model配列 から DTO配列 に変換
      *
-     * @param  iterable<MstTradeProductContent>  $models
+     * @param  iterable<MstTradeProductContent>  $mstTradeProductContents
      * @return array<int, TradeProductContent>
      */
-    public static function toDtoArray(iterable $models): array
+    public static function toDtoArray(iterable $mstTradeProductContents): array
     {
         $dtos = [];
 
-        foreach ($models as $model) {
-            $dtos[] = self::toDto($model);
+        foreach ($mstTradeProductContents as $mstTradeProductContent) {
+            $dtos[] = self::toDto($mstTradeProductContent);
         }
 
         return $dtos;

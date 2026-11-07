@@ -15,15 +15,15 @@ class LoginBonusHistoryAdapter
     /**
      * Model から DTO に変換
      */
-    public static function toDto(TrxLoginBonus $model): LoginBonusHistory
+    public static function toDto(TrxLoginBonus $trxLoginBonus): LoginBonusHistory
     {
         return new LoginBonusHistory(
-            sysPlayerId: $model->getSysPlayerId(),
-            type: $model->getType(),
-            mstLoginBonusId: $model->getMstLoginBonusId(),
-            day: $model->getDay(),
-            absentDays: $model->getAbsentDays(),
-            receivedDate: $model->getReceivedDate(),
+            sysPlayerId: $trxLoginBonus->getSysPlayerId(),
+            type: $trxLoginBonus->getType(),
+            mstLoginBonusId: $trxLoginBonus->getMstLoginBonusId(),
+            day: $trxLoginBonus->getDay(),
+            absentDays: $trxLoginBonus->getAbsentDays(),
+            receivedDate: $trxLoginBonus->getReceivedDate(),
         );
     }
 }

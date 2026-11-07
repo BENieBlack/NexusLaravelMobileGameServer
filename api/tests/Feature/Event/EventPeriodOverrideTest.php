@@ -172,17 +172,17 @@ class EventPeriodOverrideTest extends TestCase
 
         // イベントの期間中は、自身の期間が終わっていても開催中。入っていないトラックは自身の期間のまま
         ClockUtility::setNow('2026-11-12 00:00:00');
-        $activeIds = array_column($repository->selectActiveTracks(), 'id');
+        $activeIds = array_map(fn ($track) => $track->getId(), $repository->selectActiveTracks());
         $this->assertContains('evtest_track_in_event', $activeIds);
         $this->assertNotContains('evtest_track_standalone', $activeIds);
 
         $track = $repository->selectTrackById('evtest_track_in_event');
-        $this->assertSame('2026-11-10 10:00:00', $track['start_at']);
-        $this->assertSame('2026-11-17 10:00:00', $track['end_at']);
+        $this->assertSame('2026-11-10 10:00:00', $track->getStartAt());
+        $this->assertSame('2026-11-17 10:00:00', $track->getEndAt());
 
         // イベントのプレイ期間の後は、開催中ではない
         ClockUtility::setNow('2026-11-18 00:00:00');
-        $this->assertNotContains('evtest_track_in_event', array_column($repository->selectActiveTracks(), 'id'));
+        $this->assertNotContains('evtest_track_in_event', array_map(fn ($track) => $track->getId(), $repository->selectActiveTracks()));
     }
 
     #[Test]

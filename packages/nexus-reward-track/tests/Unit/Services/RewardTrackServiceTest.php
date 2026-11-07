@@ -7,8 +7,12 @@ use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use Nexus\Core\ResourceDelivery\Services\ResourceDeliveryService;
 use NexusRewardTrack\Contracts\RewardTrackMasterRepositoryInterface;
 use NexusRewardTrack\DataTransferObjects\RewardTrack;
+use NexusRewardTrack\DataTransferObjects\RewardTrackContentMaster;
 use NexusRewardTrack\DataTransferObjects\RewardTrackLine;
+use NexusRewardTrack\DataTransferObjects\RewardTrackLineMaster;
+use NexusRewardTrack\DataTransferObjects\RewardTrackMaster;
 use NexusRewardTrack\DataTransferObjects\RewardTrackMilestone;
+use NexusRewardTrack\DataTransferObjects\RewardTrackMilestoneMaster;
 use NexusRewardTrack\Exceptions\RewardTrackException;
 use NexusRewardTrack\Repositories\RewardTrackLineRepositoryInterface;
 use NexusRewardTrack\Repositories\RewardTrackMilestoneRepositoryInterface;
@@ -251,8 +255,8 @@ class RewardTrackServiceTest extends TestCase
 
         $summary = $this->service->getSummary(100, 'bp_001', self::CONNECTION);
 
-        $this->assertSame(['bp_001_free'], $summary['owned_line_ids']);
-        $this->assertSame(10, $summary['current_progress']);
+        $this->assertSame(['bp_001_free'], $summary->getOwnedLineIds());
+        $this->assertSame(10, $summary->getCurrentProgress());
     }
 
     #[Test]
@@ -270,10 +274,11 @@ class RewardTrackServiceTest extends TestCase
         $summary = $this->service->getSummary(100, 'bp_001', self::CONNECTION);
 
         // 進捗行が無いプレイヤーは0から始まる
-        $this->assertSame(0, $summary['current_progress']);
-        $this->assertArrayHasKey('bp_001_free', $summary['milestones'][0]['contents']);
-        $this->assertArrayHasKey('bp_001_paid', $summary['milestones'][0]['contents']);
-        $this->assertSame(['bp_001_paid', 'bp_001_free'], $summary['owned_line_ids']);
+        $this->assertSame(0, $summary->getCurrentProgress());
+        $contentsByLine = $summary->getContentsByLine($summary->getMilestones()[0]->getId());
+        $this->assertArrayHasKey('bp_001_free', $contentsByLine);
+        $this->assertArrayHasKey('bp_001_paid', $contentsByLine);
+        $this->assertSame(['bp_001_paid', 'bp_001_free'], $summary->getOwnedLineIds());
     }
 
     #[Test]
@@ -386,64 +391,47 @@ class RewardTrackServiceTest extends TestCase
         $this->milestoneRepository->shouldReceive('hasReceived')->andReturn($alreadyReceived);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    private function makeTrack(string $startAt = '2020-01-01 00:00:00', ?string $endAt = '2099-12-31 23:59:59'): array
+    private function makeTrack(string $startAt = '2020-01-01 00:00:00', ?string $endAt = '2099-12-31 23:59:59'): RewardTrackMaster
     {
-        return [
-            'id' => 'bp_001',
-            'start_at' => $startAt,
-            'end_at' => $endAt,
-        ];
+        return new RewardTrackMaster(
+            id: 'bp_001',
+            progressType: 'login_days',
+            startAt: $startAt,
+            endAt: $endAt,
+            sortDesc: 0,
+        );
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return list<RewardTrackLineMaster>
      */
     private function lines(): array
     {
         return [
-            ['id' => 'bp_001_free', 'is_free' => true],
-            ['id' => 'bp_001_paid', 'is_free' => false],
+            new RewardTrackLineMaster('bp_001_free', 'bp_001', true, null, 1),
+            new RewardTrackLineMaster('bp_001_paid', 'bp_001', false, 1, 2),
         ];
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return list<RewardTrackMilestoneMaster>
      */
     private function milestones(): array
     {
         return [
-            ['id' => 'bp_001_ms_10', 'required_progress' => 10],
-            ['id' => 'bp_001_ms_20', 'required_progress' => 20],
+            new RewardTrackMilestoneMaster('bp_001_ms_10', 'bp_001', 10, 1),
+            new RewardTrackMilestoneMaster('bp_001_ms_20', 'bp_001', 20, 2),
         ];
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return list<RewardTrackContentMaster>
      */
     private function contents(): array
     {
         return [
-            [
-                'mst_reward_track_milestone_id' => 'bp_001_ms_10',
-                'mst_reward_track_line_id' => 'bp_001_free',
-                'content_type' => 'item',
-                'content_mst_id' => 'item_heal_001',
-                'content_quantity' => 2,
-                'amount' => 1,
-                'content_option' => [],
-            ],
-            [
-                'mst_reward_track_milestone_id' => 'bp_001_ms_10',
-                'mst_reward_track_line_id' => 'bp_001_paid',
-                'content_type' => 'item',
-                'content_mst_id' => 'item_heal_002',
-                'content_quantity' => 3,
-                'amount' => 2,
-                'content_option' => [],
-            ],
+            new RewardTrackContentMaster('bp_001_ms_10', 'bp_001_free', 'item', 'item_heal_001', [], 2, 1, 1),
+            new RewardTrackContentMaster('bp_001_ms_10', 'bp_001_paid', 'item', 'item_heal_002', [], 3, 2, 2),
         ];
     }
 

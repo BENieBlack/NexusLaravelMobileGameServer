@@ -3,6 +3,7 @@
 namespace App\Domain\Equipment\Responses;
 
 use App\Domain\_BaseResponse;
+use App\Domain\ReturnsUpdatedResources;
 use App\Traits\HasUpdatedResources;
 
 /**
@@ -11,7 +12,7 @@ use App\Traits\HasUpdatedResources;
  * 装備レベルアップAPIのレスポンス
  * この処理で更新された trx（trx_equipment_list、trx_item_list）を返し、クライアント側で判断する
  */
-class LevelUpResponse extends _BaseResponse
+class LevelUpResponse extends _BaseResponse implements ReturnsUpdatedResources
 {
     use HasUpdatedResources;
 

@@ -3,10 +3,14 @@
 namespace App\Domain\RewardTrack\Responses;
 
 use App\Domain\_BaseResponse;
+use App\Domain\ReturnsUpdatedResources;
+use App\Traits\HasUpdatedResources;
 use NexusRewardTrack\DataTransferObjects\RewardTrackMilestone;
 
-class ReceiveMilestoneResponse extends _BaseResponse
+class ReceiveMilestoneResponse extends _BaseResponse implements ReturnsUpdatedResources
 {
+    use HasUpdatedResources;
+
     public function __construct(
         private readonly RewardTrackMilestone $milestone,
     ) {}
@@ -28,6 +32,7 @@ class ReceiveMilestoneResponse extends _BaseResponse
             'mst_reward_track_milestone_id' => $this->milestone->getMstRewardTrackMilestoneId(),
             'mst_reward_track_line_id' => $this->milestone->getMstRewardTrackLineId(),
             'received_at' => $this->milestone->getReceivedAt(),
+            'updated_resources' => $this->getUpdatedResources()->toResponseArray(),
         ];
     }
 }

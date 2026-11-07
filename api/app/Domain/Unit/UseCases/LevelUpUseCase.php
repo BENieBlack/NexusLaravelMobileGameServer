@@ -111,7 +111,6 @@ class LevelUpUseCase extends _BaseUseCase
         // バリデーション実行（検証したアイテムマスターが返る）
         $mstItem = $this->validation($sysPlayerId, $trxUnitId, $mstItemId, $useCount);
 
-        // コミット後に、この処理で更新した trx（ユニット・アイテムなど）を取り出して返す
         return $this->executeWithTransaction(function () use ($sysPlayerId, $trxUnitId, $mstItemId, $useCount, $mstItem) {
 
             // アイテムを消費
@@ -137,6 +136,6 @@ class LevelUpUseCase extends _BaseUseCase
                 itemUsed: $useCount,
                 expGained: $totalExp,
             );
-        })->withUpdatedResources($this->pullUpdatedResources());
+        });
     }
 }

@@ -6,6 +6,7 @@ use App\Domain\Item\Contracts\ItemInventoryInterface;
 use App\Domain\Item\Support\WalletItemMigrator;
 use App\Models\Trx\TrxItem;
 use App\Repositories\Mst\MstItemRepository;
+use App\Repositories\Trx\TrxItemRepository;
 use Nexus\Core\Resource\Services\ItemService as PackageItemService;
 use NexusWallet\Services\WalletService;
 
@@ -33,6 +34,7 @@ class ItemService implements ItemInventoryInterface
         private readonly WalletService $walletService,
         private readonly MstItemRepository $mstItemRepository,
         private readonly WalletItemMigrator $walletItemMigrator,
+        private readonly TrxItemRepository $trxItemRepository,
     ) {}
 
     /**
@@ -86,10 +88,7 @@ class ItemService implements ItemInventoryInterface
 
         // DTOからTrxItemを再取得（既存の利用箇所との互換性のため）
         // Note: 将来的にはDTOを直接返すようにリファクタリング推奨
-        $trxItem = TrxItem::query()
-            ->where('sys_player_id', $item->getSysPlayerId())
-            ->where('mst_item_id', $item->getMstItemId())
-            ->first();
+        $trxItem = $this->trxItemRepository->selectByMstItemId($item->getSysPlayerId(), $item->getMstItemId());
 
         if (! $trxItem) {
             throw new \Exception("Item not found after consumption: {$mstItemId}");

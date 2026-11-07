@@ -5,6 +5,7 @@ namespace App\Domain\Auth\UseCases;
 use App\Domain\_BaseUseCase;
 use App\Domain\Auth\Responses\SignUpResponse;
 use App\Domain\Auth\Traits\BuildsSysPlayerToken;
+use App\Domain\DoesNotReturnUpdatedResources;
 use App\Domain\Sharding\Contracts\ShardAssignerInterface;
 use App\Exceptions\BusinessLogicException;
 use App\Models\Sys\SysPlayer;
@@ -21,6 +22,7 @@ use Throwable;
  * 新規プレイヤー作成とトークン発行を行う
  * 既存デバイスIDの場合はエラーを返す
  */
+#[DoesNotReturnUpdatedResources('sign_up の後に、クライアントが auth/login で現在値を全て取得する')]
 class SignUpUseCase extends _BaseUseCase
 {
     use BuildsSysPlayerToken;

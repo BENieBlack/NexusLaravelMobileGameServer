@@ -6,6 +6,7 @@ use App\Domain\_BaseUseCase;
 use App\Domain\Auth\DataTransferObjects\SignInResult;
 use App\Domain\Auth\Responses\SignInResponse;
 use App\Domain\Auth\Traits\BuildsSysPlayerToken;
+use App\Domain\DoesNotReturnUpdatedResources;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
@@ -23,6 +24,7 @@ use Throwable;
  * 既存デバイスIDでのログイン処理
  * 新しいアクセストークンとリフレッシュトークンを発行
  */
+#[DoesNotReturnUpdatedResources('sign_in の後に、クライアントが auth/login で現在値を全て取得する')]
 class SignInUseCase extends _BaseUseCase
 {
     use BuildsSysPlayerToken;

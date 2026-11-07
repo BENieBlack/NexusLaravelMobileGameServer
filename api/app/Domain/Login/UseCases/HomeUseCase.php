@@ -3,6 +3,7 @@
 namespace App\Domain\Login\UseCases;
 
 use App\Domain\_BaseUseCase;
+use App\Domain\DoesNotReturnUpdatedResources;
 use App\Domain\Login\Responses\HomeResponse;
 use App\Exceptions\SystemDataException;
 use App\Models\Sys\SysPlayer;
@@ -25,6 +26,7 @@ use NexusStamina\Services\StaminaService;
  * - 日跨ぎ後の初回ログインであれば、カムバック・VIP・通常のログインボーナスを配布
  * - trx_unit、trx_item、trx_walletなどのユーザー情報を返す
  */
+#[DoesNotReturnUpdatedResources('現在値を全て返す API なので、更新分だけを返す updated_resources は使わない')]
 class HomeUseCase extends _BaseUseCase
 {
     public function __construct(

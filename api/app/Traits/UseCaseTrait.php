@@ -2,11 +2,14 @@
 
 namespace App\Traits;
 
+use App\Domain\DoesNotReturnUpdatedResources;
 use App\Domain\ReturnsUpdatedResources;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use LogicException;
 use Nexus\Core\Pitr\Logger\ShardMapper;
 use Nexus\Core\UnitOfWork\Contracts\QueryManagerInterface;
+use ReflectionClass;
 use Throwable;
 
 trait UseCaseTrait
@@ -83,12 +86,32 @@ trait UseCaseTrait
             throw $e;
         }
 
-        // Response が HasUpdatedResources を使っていれば、コミットした更新（trx_item_list など）を付ける
+        $updatedResources = $queryManager->pullUpdatedResources();
+
+        // Response が ReturnsUpdatedResources なら、コミットした更新（trx_item_list など）を付ける
         if ($result instanceof ReturnsUpdatedResources) {
-            return $result->withUpdatedResources($queryManager->pullUpdatedResources());
+            return $result->withUpdatedResources($updatedResources);
+        }
+
+        // 更新したのに返す先が無いのは、返し忘れ。開発・テスト環境では気づけるよう例外にする
+        // （コミット済みなので、本番では例外にせず、そのまま捨てる）
+        if (! $updatedResources->isEmpty() && ! app()->isProduction() && ! $this->declaresNoUpdatedResources()) {
+            throw new LogicException(
+                static::class.' は trx を更新しましたが、Response が updated_resources を返しません。'
+                .'Response に HasUpdatedResources を使い ReturnsUpdatedResources を実装するか、'
+                .'返さない理由を #[DoesNotReturnUpdatedResources] で宣言してください。'
+            );
         }
 
         return $result;
+    }
+
+    /**
+     * updated_resources を返さないと宣言している UseCase か
+     */
+    private function declaresNoUpdatedResources(): bool
+    {
+        return (new ReflectionClass(static::class))->getAttributes(DoesNotReturnUpdatedResources::class) !== [];
     }
 
     /**

@@ -323,4 +323,12 @@ class TrxMailbox extends _BaseTrx
 
         return $array;
     }
+
+    /**
+     * 作成日時を取得
+     */
+    public function getCreatedAt(): string
+    {
+        return (string) $this->getAttribute('created_at');
+    }
 }

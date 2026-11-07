@@ -6,6 +6,7 @@ use App\Domain\_BaseUseCase;
 use App\Domain\Gacha\Responses\DrawResponse;
 use App\Domain\Gacha\Services\GachaCostService;
 use App\Domain\Gacha\Services\GachaValidationService;
+use App\Models\Mst\MstGachaCost;
 use App\Repositories\Mst\MstGachaStepRepository;
 use App\Repositories\Trx\TrxGachaHistoryRepository;
 use App\Traits\RequiresAuthenticationTrait;
@@ -106,7 +107,7 @@ class DrawUseCase extends _BaseUseCase
                 if ($nextStepMaster) {
                     $nextStepInfo = [
                         'step_number' => $nextStep,
-                        'draw_count' => $nextStepMaster->getAttribute('draw_count'),
+                        'draw_count' => $nextStepMaster->getDrawCount(),
                     ];
                 }
             }
@@ -144,7 +145,7 @@ class DrawUseCase extends _BaseUseCase
         $loopStep = $steps->firstWhere('is_loop_start', true);
 
         if ($loopStep) {
-            return $loopStep->getAttribute('step_number');
+            return $loopStep->getStepNumber();
         }
 
         // ループもない場合は現在のステップを維持
@@ -154,18 +155,18 @@ class DrawUseCase extends _BaseUseCase
     /**
      * ガチャ履歴を保存
      *
-     * @param  mixed  $cost
+     * @param  MstGachaCost  $mstGachaCost
      * @param  array<int, array<string, mixed>>  $prizes
      */
-    private function persistHistory(int $sysPlayerId, string $mstGachaId, int $drawCount, $cost, array $prizes, string $uniqueRequestId): void
+    private function persistHistory(int $sysPlayerId, string $mstGachaId, int $drawCount, MstGachaCost $mstGachaCost, array $prizes, string $uniqueRequestId): void
     {
         $this->historyRepository->insert([
             'sys_player_id' => $sysPlayerId,
             'mst_gacha_id' => $mstGachaId,
             'draw_count' => $drawCount,
-            'cost_type' => $cost->getAttribute('cost_type'),
-            'cost_mst_id' => $cost->getAttribute('cost_mst_id'),
-            'cost_amount' => $cost->getAttribute('cost_amount'),
+            'cost_type' => $mstGachaCost->getCostType(),
+            'cost_mst_id' => $mstGachaCost->getCostMstId(),
+            'cost_amount' => $mstGachaCost->getCostAmount(),
             'prizes' => $prizes,
             'unique_request_id' => $uniqueRequestId,
         ]);

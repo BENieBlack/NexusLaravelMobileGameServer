@@ -49,4 +49,20 @@ class MstGachaStep extends _BaseMst
     ];
 
     public $timestamps = true;
+
+    /**
+     * ステップ番号を取得
+     */
+    public function getStepNumber(): int
+    {
+        return (int) $this->getAttribute('step_number');
+    }
+
+    /**
+     * このステップで引ける回数を取得
+     */
+    public function getDrawCount(): int
+    {
+        return (int) $this->getAttribute('draw_count');
+    }
 }

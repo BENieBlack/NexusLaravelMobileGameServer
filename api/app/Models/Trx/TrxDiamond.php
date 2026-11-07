@@ -132,4 +132,20 @@ class TrxDiamond extends _BaseTrx
     {
         return parent::toResponseArray();
     }
+
+    /**
+     * プレイヤーIDを取得
+     */
+    public function getSysPlayerId(): int
+    {
+        return (int) $this->getAttribute('sys_player_id');
+    }
+
+    /**
+     * プラットフォームを取得
+     */
+    public function getPlatform(): string
+    {
+        return (string) $this->getAttribute('platform');
+    }
 }

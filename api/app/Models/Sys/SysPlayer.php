@@ -321,4 +321,14 @@ class SysPlayer extends _BaseSys implements PlayerModelInterface
         $current = $this->getTotalPaidAmount();
         $this->setTotalPaidAmount($current + $amount);
     }
+
+    /**
+     * 更新日時取得
+     *
+     * @return string Y-m-d H:i:s形式
+     */
+    public function getUpdatedAt(): string
+    {
+        return ClockUtility::parse((string) $this->getAttribute('updated_at'))->format('Y-m-d H:i:s');
+    }
 }

@@ -3,6 +3,7 @@
 namespace NexusWallet\Services;
 
 use Nexus\Core\Utilities\ClockUtility;
+use NexusWallet\DataTransferObjects\WalletBalanceEntry;
 use NexusWallet\Exceptions\InsufficientBalanceException;
 use NexusWallet\Repositories\WalletBalanceRepositoryInterface;
 use NexusWallet\Repositories\WalletRepositoryInterface;
@@ -46,8 +47,8 @@ class WalletService
 
         // 合計値はCurrencyBalanceが内訳から算出するため渡さない
         return new CurrencyBalance(
-            freeAmount: max(0, $wallet->free_amount - $expired['free']),
-            paidAmount: max(0, $wallet->paid_amount - $expired['paid']),
+            freeAmount: max(0, $wallet->getFreeAmount() - $expired['free']),
+            paidAmount: max(0, $wallet->getPaidAmount() - $expired['paid']),
         );
     }
 
@@ -71,8 +72,8 @@ class WalletService
         // 1. 現在値を取得または新規作成
         $wallet = $this->walletRepository->selectByCurrencyId($playerId, $currencyId);
 
-        $newFreeAmount = ($wallet->free_amount ?? 0) + $freeAmount;
-        $newPaidAmount = ($wallet->paid_amount ?? 0) + $paidAmount;
+        $newFreeAmount = ($wallet?->getFreeAmount() ?? 0) + $freeAmount;
+        $newPaidAmount = ($wallet?->getPaidAmount() ?? 0) + $paidAmount;
 
         // 2. 現在値を更新
         $this->walletRepository->persist($playerId, $currencyId, $newFreeAmount, $newPaidAmount);
@@ -118,8 +119,8 @@ class WalletService
         );
         $expired = $this->summarizeBalances($expiredBalances);
 
-        $availableFree = max(0, ($wallet->free_amount ?? 0) - $expired['free']);
-        $availablePaid = max(0, ($wallet->paid_amount ?? 0) - $expired['paid']);
+        $availableFree = max(0, ($wallet?->getFreeAmount() ?? 0) - $expired['free']);
+        $availablePaid = max(0, ($wallet?->getPaidAmount() ?? 0) - $expired['paid']);
 
         if ($wallet === null || $availableFree + $availablePaid < $amount) {
             throw new InsufficientBalanceException($currencyId, $amount, $availableFree + $availablePaid);
@@ -168,8 +169,8 @@ class WalletService
             $wallet = $this->walletRepository->selectByCurrencyId($playerId, $currencyId);
 
             if ($wallet !== null) {
-                $newFreeAmount = max(0, $wallet->free_amount - $expiredAmounts['free']);
-                $newPaidAmount = max(0, $wallet->paid_amount - $expiredAmounts['paid']);
+                $newFreeAmount = max(0, $wallet->getFreeAmount() - $expiredAmounts['free']);
+                $newPaidAmount = max(0, $wallet->getPaidAmount() - $expiredAmounts['paid']);
                 $this->walletRepository->persist($playerId, $currencyId, $newFreeAmount, $newPaidAmount);
             }
         }
@@ -201,7 +202,7 @@ class WalletService
     /**
      * バランスの数量を無償/有償に分けて合計する
      *
-     * @param  iterable<object{is_paid: bool, current_amount: int}>  $balances  バランスコレクション
+     * @param  iterable<WalletBalanceEntry>  $balances  バランスコレクション
      * @return array{free: int, paid: int}
      */
     private function summarizeBalances(iterable $balances): array
@@ -210,10 +211,10 @@ class WalletService
         $paid = 0;
 
         foreach ($balances as $balance) {
-            if ($balance->is_paid) {
-                $paid += $balance->current_amount;
+            if ($balance->getIsPaid()) {
+                $paid += $balance->getCurrentAmount();
             } else {
-                $free += $balance->current_amount;
+                $free += $balance->getCurrentAmount();
             }
         }
 
@@ -223,15 +224,13 @@ class WalletService
     /**
      * 有効期限が切れたバランスを除く
      *
-     * @template T of object{expire_at: ?string}
-     *
-     * @param  iterable<T>  $balances  バランスコレクション（expire_at を持つ）
-     * @return iterable<T>
+     * @param  iterable<WalletBalanceEntry>  $balances  バランスコレクション
+     * @return iterable<WalletBalanceEntry>
      */
     private function excludeExpired(iterable $balances): iterable
     {
         foreach ($balances as $balance) {
-            if (! ClockUtility::isPast($balance->expire_at)) {
+            if (! ClockUtility::isPast($balance->getExpireAt())) {
                 yield $balance;
             }
         }
@@ -240,7 +239,7 @@ class WalletService
     /**
      * バランスから通貨を消費（FIFO）
      *
-     * @param  iterable<object{id: int, is_paid: bool, current_amount: int}>  $balances  バランスコレクション
+     * @param  iterable<WalletBalanceEntry>  $balances  バランスコレクション
      * @param  int  $amount  消費する数量
      * @return array{free: int, paid: int} 消費した無償/有償の数量
      */
@@ -255,12 +254,12 @@ class WalletService
                 break;
             }
 
-            $consumeFromBalance = min($balance->current_amount, $remainingAmount);
-            $newAmount = $balance->current_amount - $consumeFromBalance;
-            $this->walletBalanceRepository->updateAmount($balance->id, $newAmount);
+            $consumeFromBalance = min($balance->getCurrentAmount(), $remainingAmount);
+            $newAmount = $balance->getCurrentAmount() - $consumeFromBalance;
+            $this->walletBalanceRepository->updateAmount($balance->getId(), $newAmount);
 
             // 無償/有償の消費数を記録
-            if ($balance->is_paid) {
+            if ($balance->getIsPaid()) {
                 $consumedPaid += $consumeFromBalance;
             } else {
                 $consumedFree += $consumeFromBalance;
@@ -278,7 +277,7 @@ class WalletService
     /**
      * 有効期限切れのバランスを削除
      *
-     * @param  iterable<object{id: int, is_paid: bool, current_amount: int}>  $expiredBalances  期限切れバランスコレクション
+     * @param  iterable<WalletBalanceEntry>  $expiredBalances  期限切れバランスコレクション
      * @return array{total: int, free: int, paid: int} 削除された総数/無償/有償
      */
     private function removeExpiredBalances(iterable $expiredBalances): array
@@ -288,17 +287,17 @@ class WalletService
         $expiredPaid = 0;
 
         foreach ($expiredBalances as $balance) {
-            $expiredAmount = $balance->current_amount;
+            $expiredAmount = $balance->getCurrentAmount();
             $totalExpired += $expiredAmount;
 
             // 無償/有償の期限切れ数を記録
-            if ($balance->is_paid) {
+            if ($balance->getIsPaid()) {
                 $expiredPaid += $expiredAmount;
             } else {
                 $expiredFree += $expiredAmount;
             }
 
-            $this->walletBalanceRepository->delete($balance->id);
+            $this->walletBalanceRepository->delete($balance->getId());
         }
 
         return [

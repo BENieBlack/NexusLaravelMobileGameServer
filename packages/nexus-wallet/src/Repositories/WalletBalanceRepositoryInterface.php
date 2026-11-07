@@ -2,6 +2,8 @@
 
 namespace NexusWallet\Repositories;
 
+use NexusWallet\DataTransferObjects\WalletBalanceEntry;
+
 /**
  * WalletBalance Repository Interface
  *
@@ -17,7 +19,7 @@ interface WalletBalanceRepositoryInterface
      *
      * @param  int  $playerId  プレイヤーID
      * @param  string  $currencyId  通貨アイテムID
-     * @return iterable<object{id: int, is_paid: bool, current_amount: int, initial_amount: int, expire_at: ?string}>
+     * @return iterable<WalletBalanceEntry>
      */
     public function selectAllByCurrencyIdFifoOrder(int $playerId, string $currencyId): iterable;
 
@@ -27,7 +29,7 @@ interface WalletBalanceRepositoryInterface
      * @param  int  $playerId  プレイヤーID
      * @param  string  $currencyId  通貨アイテムID
      * @param  string  $currentTime  現在時刻 (Y-m-d H:i:s)
-     * @return iterable<object{id: int, is_paid: bool, current_amount: int}>
+     * @return iterable<WalletBalanceEntry>
      */
     public function selectAllExpiredByCurrencyId(int $playerId, string $currencyId, string $currentTime): iterable;
 

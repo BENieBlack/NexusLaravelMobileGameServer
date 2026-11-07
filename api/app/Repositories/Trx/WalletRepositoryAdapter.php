@@ -3,6 +3,7 @@
 namespace App\Repositories\Trx;
 
 use App\Models\Trx\TrxWallet;
+use NexusWallet\DataTransferObjects\WalletAmount;
 use NexusWallet\Repositories\WalletRepositoryInterface;
 
 /**
@@ -22,9 +23,9 @@ class WalletRepositoryAdapter implements WalletRepositoryInterface
      *
      * @param  int  $playerId  プレイヤーID
      * @param  string  $currencyId  通貨アイテムID
-     * @return object|null { free_amount: int, paid_amount: int, total_amount: int } または null
+     * @return WalletAmount|null
      */
-    public function selectByCurrencyId(int $playerId, string $currencyId): ?object
+    public function selectByCurrencyId(int $playerId, string $currencyId): ?WalletAmount
     {
         $trxWallet = $this->trxWalletRepository->selectByMstItemId($playerId, $currencyId);
 
@@ -32,11 +33,10 @@ class WalletRepositoryAdapter implements WalletRepositoryInterface
             return null;
         }
 
-        return (object) [
-            'free_amount' => $trxWallet->getFreeAmount(),
-            'paid_amount' => $trxWallet->getPaidAmount(),
-            'total_amount' => $trxWallet->getTotalAmount(),
-        ];
+        return new WalletAmount(
+            freeAmount: $trxWallet->getFreeAmount(),
+            paidAmount: $trxWallet->getPaidAmount(),
+        );
     }
 
     /**

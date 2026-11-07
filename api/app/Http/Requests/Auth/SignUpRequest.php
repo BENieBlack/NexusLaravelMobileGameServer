@@ -43,11 +43,14 @@ class SignUpRequest extends _BaseRequest
     /**
      * device_infoを取得
      *
-     * @return array<string, mixed>|null
+     * device_info は任意（nullable）。省略されたときは空配列として扱う。
+     * UseCase は array を受け取るので、null のまま渡すと型エラー（HTTP 500）になる。
+     *
+     * @return array<string, mixed>
      */
-    public function getDeviceInfo(): ?array
+    public function getDeviceInfo(): array
     {
-        return $this->input('device_info');
+        return $this->input('device_info') ?? [];
     }
 
     /**

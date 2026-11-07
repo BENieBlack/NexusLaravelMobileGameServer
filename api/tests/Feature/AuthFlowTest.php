@@ -66,7 +66,7 @@ class AuthFlowTest extends TestCase
 
         // レスポンス構造を確認
         $signUpResponse->assertJsonStructure([
-            'sys_player' => ['uuid', 'my_id'],
+            'sys_player' => ['my_id'],
             'sys_player_device',
             'sys_player_token',
             'token' => ['access_token', 'refresh_token', 'expires_in'],

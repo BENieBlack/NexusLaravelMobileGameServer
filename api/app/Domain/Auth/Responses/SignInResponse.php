@@ -49,10 +49,10 @@ class SignInResponse extends _BaseResponse
     public function toArray(): array
     {
         return [
-            'sys_player' => $this->sysPlayer->toArray(),
-            'sys_player_device' => $this->sysPlayerDevice->toArray(),
+            'sys_player' => $this->sysPlayer->toResponseArray(),
+            'sys_player_device' => $this->sysPlayerDevice->toResponseArray(),
             // リフレッシュトークンのハッシュは、サーバー側の照合用の値なので、クライアントには返さない（トークン本体は token にある）
-            'sys_player_token' => array_diff_key($this->sysPlayerToken->toArray(), ['refresh_token_hash' => true]),
+            'sys_player_token' => array_diff_key($this->sysPlayerToken->toResponseArray(), ['refresh_token_hash' => true]),
             'token' => $this->token->toArray(),
         ];
     }

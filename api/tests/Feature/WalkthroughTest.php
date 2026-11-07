@@ -554,12 +554,12 @@ class WalkthroughTest extends TestCase
         ]);
 
         $response->assertOk();
-        $response->assertJsonStructure(['trx_equipment', 'trx_item']);
+        $response->assertJsonStructure(['updated_resources' => ['trx_equipment_list', 'trx_item_list']]);
 
         // LevelUpResponse は data でラップせずトップレベルに返す
         $data = $response->json();
 
-        $this->assertSame(2, $data['trx_equipment']['level']);
+        $this->assertSame(2, $data['updated_resources']['trx_equipment_list'][0]['level']);
 
         // DBにも反映されていること
         $level = DB::connection($this->playerConnection($this->playerId))

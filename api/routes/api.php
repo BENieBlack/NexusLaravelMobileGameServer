@@ -78,7 +78,8 @@ Route::middleware('maintenance')->group(function () {
 
     // Protected endpoints (require access token)
     // idempotencyミドルウェアを追加して重複リクエストを防止
-    Route::middleware(['auth.token', 'idempotency'])->group(function () {
+    // player.lock は、同じプレイヤーの書き込みを1つずつ処理する（同時更新で trx が上書きされるのを防ぐ）
+    Route::middleware(['auth.token', 'idempotency', 'player.lock'])->group(function () {
         // バージョンチェック（認証済み、POST）
         Route::post('/auth/version', [AuthController::class, 'version']);
         Route::post('/auth/login', [AuthController::class, 'login']);

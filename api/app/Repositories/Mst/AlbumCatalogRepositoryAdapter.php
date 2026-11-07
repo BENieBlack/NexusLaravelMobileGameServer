@@ -44,7 +44,7 @@ class AlbumCatalogRepositoryAdapter implements AlbumCatalogRepositoryInterface
     public function isTarget(AlbumContentType $contentType, string $contentMstId): bool
     {
         return $this->findTargets($contentType)
-            ->contains(fn (_BaseMst $master) => (string) $master->getAttribute('id') === $contentMstId);
+            ->contains(fn (_BaseMst $master) => (string) $master->getKey() === $contentMstId);
     }
 
     /**

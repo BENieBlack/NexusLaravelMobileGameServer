@@ -43,4 +43,28 @@ class MstGachaCost extends _BaseMst
     ];
 
     public $timestamps = true;
+
+    /**
+     * 消費の種別を取得
+     */
+    public function getCostType(): string
+    {
+        return (string) $this->getAttribute('cost_type');
+    }
+
+    /**
+     * 消費するマスターのIDを取得
+     */
+    public function getCostMstId(): ?string
+    {
+        return $this->getAttribute('cost_mst_id');
+    }
+
+    /**
+     * 消費する数量を取得
+     */
+    public function getCostAmount(): int
+    {
+        return (int) $this->getAttribute('cost_amount');
+    }
 }

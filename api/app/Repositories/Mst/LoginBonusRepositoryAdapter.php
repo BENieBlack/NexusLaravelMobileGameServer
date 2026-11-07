@@ -29,7 +29,7 @@ class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
     {
         $mstLoginBonus = $this->firstOpenDailyBonus();
 
-        return $mstLoginBonus === null ? null : (int) $mstLoginBonus->getAttribute('loop_days');
+        return $mstLoginBonus === null ? null : $mstLoginBonus->getLoopDays();
     }
 
     /**

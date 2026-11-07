@@ -25,7 +25,7 @@ class PlayerAdapter
             level: $sysPlayer->getLevel(),
             levelExp: $sysPlayer->getLevelExp(),
             createdAt: $sysPlayer->getCreatedAt(),
-            updatedAt: (string) $sysPlayer->getAttribute('updated_at')
+            updatedAt: $sysPlayer->getUpdatedAt()
         );
     }
 

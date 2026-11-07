@@ -81,6 +81,8 @@ public function handle(int $sysPlayerId, int $trxUnitId, string $mstItemId, int 
 
 ## Model
 
+- 列の読み書きは、モデルの型付き getter / setter を使う。`getAttribute('x')` / `setAttribute('x', ...)` を呼んでよいのは、モデル自身（getter / setter の実装）と、列名が動的になる基盤（`packages/nexus-core` の Repository / UnitOfWork / Pitr）だけ。それ以外は PHPStan の `NoGetAttributeOutsideModelsRule`（`api/phpstan/Rules/`）が落とす。足りない getter はモデルに追加する。
+
 - `api/app/Models/{Sys,Mst,Trx,Log}/`、`_BaseSys` / `_BaseMst` / `_BaseTrx` / `_BaseLog` を継承する（App側の基底は nexus-core の基底にシャード解決を足したもの。共通処理は `packages/nexus-core/src/Models/_BaseModel.php`）。
 - `$table` を書く。`$connection` は書かない（基底が持つ。Trx / Log は null にしてシャードを自動解決する）。
 - テーブルに実在するカラムだけを持つ。`$fillable` / `$casts` / `@property` に存在しない列を書かない。リレーションは定義（`trxPlayer(): BelongsTo`）までにして、それを返す getter（`getPlayer()` など）を作らない。

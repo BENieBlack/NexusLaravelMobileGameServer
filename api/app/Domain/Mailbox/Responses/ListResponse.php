@@ -132,7 +132,7 @@ class ListResponse extends _BaseResponse
                 'expires_at' => $trxMailbox->getExpiresAt(),
                 'read_at' => $trxMailbox->getReadAt(),
                 'received_at' => $trxMailbox->getReceivedAt(),
-                'created_at' => (string) $trxMailbox->getAttribute('created_at'),
+                'created_at' => $trxMailbox->getCreatedAt(),
 
                 // 添付物
                 'content_list' => $contentArray,

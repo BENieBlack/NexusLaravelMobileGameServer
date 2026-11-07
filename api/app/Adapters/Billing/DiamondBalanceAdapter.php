@@ -18,8 +18,8 @@ class DiamondBalanceAdapter
     public static function toDto(TrxDiamond $trxDiamond): DiamondBalance
     {
         return new DiamondBalance(
-            sysPlayerId: $trxDiamond->getAttribute('sys_player_id'),
-            platform: $trxDiamond->getAttribute('platform'),
+            sysPlayerId: $trxDiamond->getSysPlayerId(),
+            platform: $trxDiamond->getPlatform(),
             paidAmount: $trxDiamond->getPaidAmount(),
             freeAmount: $trxDiamond->getFreeAmount(),
         );

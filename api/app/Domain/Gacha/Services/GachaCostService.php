@@ -32,16 +32,16 @@ class GachaCostService
      */
     public function consumeCost(int $sysPlayerId, MstGachaCost $mstGachaCost): void
     {
-        $costType = $mstGachaCost->getAttribute('cost_type');
-        $costAmount = (int) $mstGachaCost->getAttribute('cost_amount');
+        $costType = $mstGachaCost->getCostType();
+        $costAmount = $mstGachaCost->getCostAmount();
 
         match ($costType) {
             'diamond' => $this->consumeDiamond($sysPlayerId, $costAmount, isPaidOnly: false),
             'paid_diamond' => $this->consumeDiamond($sysPlayerId, $costAmount, isPaidOnly: true),
-            'item' => $this->consumeItem($sysPlayerId, $mstGachaCost->getAttribute('cost_mst_id'), $costAmount),
+            'item' => $this->consumeItem($sysPlayerId, $mstGachaCost->getCostMstId(), $costAmount),
             default => throw new GameException(
                 GameErrorCode::GACHA_COST_NOT_FOUND,
-                "Unknown cost type: {$costType} (mst_gacha_cost.id={$mstGachaCost->getAttribute('id')})"
+                "Unknown cost type: {$costType} (mst_gacha_cost.id={$mstGachaCost->getKey()})"
             ),
         };
     }

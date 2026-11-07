@@ -102,6 +102,14 @@ class TrxWalletBalance extends _BaseTrx
     }
 
     /**
+     * マスターアイテムIDを取得
+     */
+    public function getMstItemId(): string
+    {
+        return $this->getAttribute('mst_item_id');
+    }
+
+    /**
      * 有償フラグを取得
      */
     public function getIsPaid(): bool

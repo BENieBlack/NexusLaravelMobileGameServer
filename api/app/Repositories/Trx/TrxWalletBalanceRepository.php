@@ -42,26 +42,24 @@ class TrxWalletBalanceRepository extends _BaseTrxRepository
     /**
      * 残高を取得（FIFO順：有償優先 → 有効期限が近いものから）
      *
+     * このリクエストで消費して、まだDBに反映していないモデルを使う。
+     * DBだけを見ると、同じ通貨を同じトランザクションで続けて消費したときに、
+     * 2回目が1回目の消費を見ずに同じ残高から引いてしまい、内訳（残高）が現在値より多く残る。
+     *
      * @param  string  $mstItemId  アイテムID
      * @return CustomCollection<int, TrxWalletBalance>
      */
     public function selectAllBalancesByMstItemId(string $mstItemId): CustomCollection
     {
-        $sysPlayerId = $this->getSysPlayerId();
+        $balances = $this->persistedBalancesOf($mstItemId)
+            ->filter(fn (TrxWalletBalance $balance) => $balance->getCurrentAmount() > 0)
+            ->all();
 
-        // DBから取得（FIFO順、有償優先）
         // 優先順位: is_paid DESC (有償優先), expire_at ASC (NULLは最後), id ASC
-        $results = TrxWalletBalance::query()
-            ->where('sys_player_id', $sysPlayerId)
-            ->where('mst_item_id', $mstItemId)
-            ->where('current_amount', '>', 0)
-            ->orderBy('is_paid', 'desc')
-            ->orderByRaw('expire_at IS NULL, expire_at ASC')
-            ->orderBy('id', 'asc')
-            ->get();
+        usort($balances, fn (TrxWalletBalance $a, TrxWalletBalance $b) => [$b->getIsPaid(), $a->getExpireAt() === null, $a->getExpireAt(), $a->getId()]
+            <=> [$a->getIsPaid(), $b->getExpireAt() === null, $b->getExpireAt(), $b->getId()]);
 
-        // CustomCollectionに変換
-        return new CustomCollection($results->all());
+        return new CustomCollection($balances);
     }
 
     /**
@@ -73,17 +71,29 @@ class TrxWalletBalanceRepository extends _BaseTrxRepository
      */
     public function selectAllExpiredBalancesByMstItemId(string $mstItemId, CarbonImmutable $now): CustomCollection
     {
-        $sysPlayerId = $this->getSysPlayerId();
+        $nowString = $now->format('Y-m-d H:i:s');
 
-        // DBから取得
-        $results = TrxWalletBalance::query()
-            ->where('sys_player_id', $sysPlayerId)
-            ->where('mst_item_id', $mstItemId)
-            ->where('current_amount', '>', 0)
-            ->where('expire_at', '<', $now)
-            ->get();
+        $expired = $this->persistedBalancesOf($mstItemId)
+            ->filter(fn (TrxWalletBalance $balance) => $balance->getCurrentAmount() > 0
+                && $balance->getExpireAt() !== null
+                && $balance->getExpireAt() < $nowString)
+            ->all();
 
-        // CustomCollectionに変換
-        return new CustomCollection($results->all());
+        return new CustomCollection(array_values($expired));
+    }
+
+    /**
+     * メモリ（DBから読んだ行と、このリクエストでの更新）にある、DBに行がある残高
+     *
+     * 新規に積んだだけの残高（IDがまだ無い）は、更新の対象にできないので含めない。
+     *
+     * @return CustomCollection<int, TrxWalletBalance>
+     */
+    private function persistedBalancesOf(string $mstItemId): CustomCollection
+    {
+
+        return $this->queryOrMemory()
+            ->filter(fn (TrxWalletBalance $balance) => $balance->exists && $balance->getMstItemId() === $mstItemId)
+            ->values();
     }
 }

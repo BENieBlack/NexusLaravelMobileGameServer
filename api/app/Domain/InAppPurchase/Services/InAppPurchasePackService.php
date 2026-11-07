@@ -5,7 +5,7 @@ namespace App\Domain\InAppPurchase\Services;
 use App\Domain\InAppPurchase\Constants\InAppPurchaseConst;
 use App\Domain\Item\Contracts\ItemInventoryInterface;
 use App\Models\Mst\MstInAppPurchase;
-use App\Models\Trx\TrxInAppPurchase;
+use App\Repositories\Trx\TrxInAppPurchaseRepository;
 use App\Repositories\Trx\TrxUnitRepository;
 
 /**
@@ -22,6 +22,7 @@ class InAppPurchasePackService
         private readonly TrxUnitRepository $trxUnitRepository,
         private readonly InAppPurchaseValidationService $validationService,
         private readonly InAppPurchaseHistoryService $purchaseHistoryService,
+        private readonly TrxInAppPurchaseRepository $trxInAppPurchaseRepository,
     ) {}
 
     /**
@@ -42,11 +43,10 @@ class InAppPurchasePackService
         string $transactionId
     ): array {
         // 1. 購入履歴を取得
-        $trxInAppPurchase = TrxInAppPurchase::query()
-            ->where('sys_player_id', $sysPlayerId)
-            ->where('billing_platform', $billingPlatform)
-            ->where('mst_in_app_purchase_id', $mstInAppPurchase->getId())
-            ->first();
+        $trxInAppPurchase = $this->trxInAppPurchaseRepository->selectByBillingPlatformAndMstInAppPurchaseId(
+            $billingPlatform,
+            $mstInAppPurchase->getId()
+        );
 
         // 2. 購入制限チェック
         $this->validationService->validatePurchaseLimit($mstInAppPurchase, $trxInAppPurchase, $billingPlatform);

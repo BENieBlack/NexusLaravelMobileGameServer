@@ -230,9 +230,9 @@ class GachaDrawServiceTest extends TestCase
     {
         $this->stepRepository->method('selectStepIdByGachaIdAndNumber')
             ->willReturn('step_001');
+        // 引数を with() で縛ると、期待値の無いモックでは PHPUnit 14 で使えなくなる。コールバックで絞る
         $this->stepBonusRepository->method('selectByStepId')
-            ->with('step_001')
-            ->willReturn($bonuses);
+            ->willReturnCallback(fn (string $stepId): array => $stepId === 'step_001' ? $bonuses : []);
     }
 
     private function stepBonus(

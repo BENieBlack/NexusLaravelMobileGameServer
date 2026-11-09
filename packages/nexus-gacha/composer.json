@@ -4,11 +4,11 @@
     "type": "library",
     "license": "MIT",
     "require": {
-        "php": "^8.4",
+        "php": "^8.5",
         "nexus/core": "@dev"
     },
     "require-dev": {
-        "phpunit/phpunit": "^10.0"
+        "phpunit/phpunit": "^13.4"
     },
     "autoload": {
         "psr-4": {

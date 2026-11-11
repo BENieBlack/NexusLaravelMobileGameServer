@@ -1468,16 +1468,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v13.40.0",
+            "version": "v13.42.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "1449bf241017087fbd38c118ecaabef3f6797fdc"
+                "reference": "f5c01f6b63803f16f38ebb31622c4fea412bd022"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/1449bf241017087fbd38c118ecaabef3f6797fdc",
-                "reference": "1449bf241017087fbd38c118ecaabef3f6797fdc",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/f5c01f6b63803f16f38ebb31622c4fea412bd022",
+                "reference": "f5c01f6b63803f16f38ebb31622c4fea412bd022",
                 "shasum": ""
             },
             "require": {
@@ -1503,7 +1503,7 @@
                 "league/commonmark": "^2.8.1",
                 "league/flysystem": "^3.25.1",
                 "league/flysystem-local": "^3.25.1",
-                "league/uri": "^7.5.1",
+                "league/uri": "^7.6",
                 "monolog/monolog": "^3.10",
                 "nesbot/carbon": "^3.8.4",
                 "nunomaduro/termwind": "^2.0",
@@ -1580,11 +1580,12 @@
                 "spatie/once": "*"
             },
             "require-dev": {
-                "ably/ably-php": "^1.0",
+                "ably/pubsub-server": "^1.0|^2.0",
                 "aws/aws-sdk-php": "^3.322.9",
                 "ext-gmp": "*",
                 "fakerphp/faker": "^1.24",
                 "intervention/image": "^4.2",
+                "jasonmccreary/double": "^1.1",
                 "laravel/pint": "^1.18",
                 "league/flysystem-aws-s3-v3": "^3.25.1",
                 "league/flysystem-ftp": "^3.25.1",
@@ -1596,7 +1597,7 @@
                 "orchestra/testbench-core": "^11.6.0",
                 "pda/pheanstalk": "^7.0.0 || ^8.0.0",
                 "php-http/discovery": "^1.15",
-                "phpstan/phpstan": "2.3.1",
+                "phpstan/phpstan": "2.3.5",
                 "phpunit/phpunit": "^11.5.50 || ^12.5.8 || ^13.0.3",
                 "predis/predis": "^2.3 || ^3.0",
                 "rector/rector": "2.6.3",
@@ -1609,7 +1610,7 @@
                 "web-token/jwt-library": "^4.1"
             },
             "suggest": {
-                "ably/ably-php": "Required to use the Ably broadcast driver (^1.0).",
+                "ably/pubsub-server": "Required to use the Ably broadcast driver (^1.0|^2.0).",
                 "aws/aws-sdk-php": "Required to use the SQS queue driver, DynamoDb failed job storage, and SES mail driver (^3.322.9).",
                 "brianium/paratest": "Required to run tests in parallel (^7.0 || ^8.0).",
                 "ext-apcu": "Required to use the APC cache driver.",
@@ -1695,20 +1696,20 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2026-11-03T15:07:18+00:00"
+            "time": "2026-11-10T15:54:30+00:00"
         },
         {
             "name": "laravel/prompts",
-            "version": "v0.3.26",
+            "version": "v0.3.27",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/prompts.git",
-                "reference": "2d1e9bf6bab8d3f383c254db7f2b4ea8816d55e0"
+                "reference": "abdfc75a1ae6c6f21522daed50da7124cbff09d2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/prompts/zipball/2d1e9bf6bab8d3f383c254db7f2b4ea8816d55e0",
-                "reference": "2d1e9bf6bab8d3f383c254db7f2b4ea8816d55e0",
+                "url": "https://api.github.com/repos/laravel/prompts/zipball/abdfc75a1ae6c6f21522daed50da7124cbff09d2",
+                "reference": "abdfc75a1ae6c6f21522daed50da7124cbff09d2",
                 "shasum": ""
             },
             "require": {
@@ -1751,27 +1752,27 @@
             ],
             "description": "Add beautiful and user-friendly forms to your command-line applications.",
             "support": {
-                "source": "https://github.com/laravel/prompts/tree/v0.3.26"
+                "source": "https://github.com/laravel/prompts/tree/v0.3.27"
             },
-            "time": "2026-10-09T14:45:13+00:00"
+            "time": "2026-11-09T16:07:10+00:00"
         },
         {
             "name": "laravel/reverb",
-            "version": "v1.12.0",
+            "version": "v1.13.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/reverb.git",
-                "reference": "e233471f53641a447d3b7a2150446d47a0e8c043"
+                "reference": "94ccfe195094a0685b75c15d7eea62124f0d9dbc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/reverb/zipball/e233471f53641a447d3b7a2150446d47a0e8c043",
-                "reference": "e233471f53641a447d3b7a2150446d47a0e8c043",
+                "url": "https://api.github.com/repos/laravel/reverb/zipball/94ccfe195094a0685b75c15d7eea62124f0d9dbc",
+                "reference": "94ccfe195094a0685b75c15d7eea62124f0d9dbc",
                 "shasum": ""
             },
             "require": {
                 "clue/redis-react": "^2.6",
-                "guzzlehttp/psr7": "^2.6",
+                "guzzlehttp/psr7": "^2.6|^3.0",
                 "illuminate/console": "^10.47|^11.0|^12.0|^13.0",
                 "illuminate/contracts": "^10.47|^11.0|^12.0|^13.0",
                 "illuminate/http": "^10.47|^11.0|^12.0|^13.0",
@@ -1780,16 +1781,17 @@
                 "php": "^8.2",
                 "pusher/pusher-php-server": "^7.2",
                 "ratchet/rfc6455": "^0.4",
+                "react/promise": "^3.2",
                 "react/promise-timer": "^1.10",
                 "react/socket": "^1.14",
                 "symfony/console": "^6.0|^7.0|^8.0",
                 "symfony/http-foundation": "^6.3|^7.0|^8.0"
             },
             "require-dev": {
-                "jasonmccreary/double": "~0.10",
+                "jasonmccreary/double": "^1.0",
                 "orchestra/testbench": "^8.36|^9.15|^10.8|^11.0",
                 "pestphp/pest": "^2.0|^3.0|^4.0",
-                "phpstan/phpstan": "^1.10",
+                "phpstan/phpstan": "2.2.16",
                 "ratchet/pawl": "^0.4.1",
                 "react/async": "^4.2",
                 "react/http": "^1.9"
@@ -1830,22 +1832,22 @@
                 "websocket"
             ],
             "support": {
-                "source": "https://github.com/laravel/reverb/tree/v1.12.0"
+                "source": "https://github.com/laravel/reverb/tree/v1.13.0"
             },
-            "time": "2026-09-22T14:25:47+00:00"
+            "time": "2026-10-19T14:22:03+00:00"
         },
         {
             "name": "laravel/serializable-closure",
-            "version": "v2.1.0",
+            "version": "v2.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/serializable-closure.git",
-                "reference": "2d5869a838bbcf37e0d8b0568fc41914e81374b5"
+                "reference": "2bfb44e8af009b553ed2c060c94b0bc3c67b4769"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/serializable-closure/zipball/2d5869a838bbcf37e0d8b0568fc41914e81374b5",
-                "reference": "2d5869a838bbcf37e0d8b0568fc41914e81374b5",
+                "url": "https://api.github.com/repos/laravel/serializable-closure/zipball/2bfb44e8af009b553ed2c060c94b0bc3c67b4769",
+                "reference": "2bfb44e8af009b553ed2c060c94b0bc3c67b4769",
                 "shasum": ""
             },
             "require": {
@@ -1893,20 +1895,20 @@
                 "issues": "https://github.com/laravel/serializable-closure/issues",
                 "source": "https://github.com/laravel/serializable-closure"
             },
-            "time": "2026-09-22T14:32:34+00:00"
+            "time": "2026-10-14T21:20:29+00:00"
         },
         {
             "name": "laravel/tinker",
-            "version": "v3.0.2",
+            "version": "v3.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/tinker.git",
-                "reference": "4faba77764bd33411735936acdf30446d058c78b"
+                "reference": "5fab2518167975b302e10d1fdf9a8c8113849201"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/tinker/zipball/4faba77764bd33411735936acdf30446d058c78b",
-                "reference": "4faba77764bd33411735936acdf30446d058c78b",
+                "url": "https://api.github.com/repos/laravel/tinker/zipball/5fab2518167975b302e10d1fdf9a8c8113849201",
+                "reference": "5fab2518167975b302e10d1fdf9a8c8113849201",
                 "shasum": ""
             },
             "require": {
@@ -1914,13 +1916,12 @@
                 "illuminate/contracts": "^8.0|^9.0|^10.0|^11.0|^12.0|^13.0",
                 "illuminate/support": "^8.0|^9.0|^10.0|^11.0|^12.0|^13.0",
                 "php": "^8.1",
-                "psy/psysh": "^0.12.0",
+                "psy/psysh": "^0.12.19",
                 "symfony/var-dumper": "^5.4|^6.0|^7.0|^8.0"
             },
             "require-dev": {
-                "mockery/mockery": "~1.3.3|^1.4.2",
                 "phpstan/phpstan": "^1.10",
-                "phpunit/phpunit": "^10.5|^11.5"
+                "phpunit/phpunit": "^10.5|^11.5|^12.5|^13.4"
             },
             "suggest": {
                 "illuminate/database": "The Illuminate Database package (^8.0|^9.0|^10.0|^11.0|^12.0|^13.0)."
@@ -1960,9 +1961,9 @@
             ],
             "support": {
                 "issues": "https://github.com/laravel/tinker/issues",
-                "source": "https://github.com/laravel/tinker/tree/v3.0.2"
+                "source": "https://github.com/laravel/tinker/tree/v3.1.0"
             },
-            "time": "2026-03-17T14:54:13+00:00"
+            "time": "2026-10-16T11:13:33+00:00"
         },
         {
             "name": "league/commonmark",
@@ -2899,17 +2900,17 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-agreement",
-                "reference": "0db719744457511505da6b8e96747da189047a70"
+                "reference": "ee51d8c6212a27bf9f446c595c3f752fa95df0de"
             },
             "require": {
-                "illuminate/database": "^12.0|^13.0",
-                "illuminate/support": "^12.0|^13.0",
+                "illuminate/database": "^13.0",
+                "illuminate/support": "^13.0",
                 "nexus/core": "*",
-                "php": "^8.4"
+                "php": "^8.5"
             },
             "require-dev": {
                 "mockery/mockery": "^1.6",
-                "phpunit/phpunit": "^11.0"
+                "phpunit/phpunit": "^13.4"
             },
             "type": "library",
             "extra": {
@@ -2949,15 +2950,15 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-album",
-                "reference": "d099130cd39376a9e5869a70d518c74a06e25469"
+                "reference": "4129972145ad94176fba4798353830d92bac9c19"
             },
             "require": {
                 "nexus/core": "@dev",
-                "php": "^8.4"
+                "php": "^8.5"
             },
             "require-dev": {
                 "mockery/mockery": "^1.6",
-                "phpunit/phpunit": "^10.0"
+                "phpunit/phpunit": "^13.4"
             },
             "type": "library",
             "extra": {
@@ -2991,18 +2992,18 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-chat",
-                "reference": "a6aedaee430a8910284599a8e21a82e6fa4a52c7"
+                "reference": "a82ba5fee8fb017a4d8b1116a66e98b2f815b207"
             },
             "require": {
                 "nexus/core": "@dev",
                 "nexus/notification": "@dev",
-                "php": "^8.4"
+                "php": "^8.5"
             },
             "require-dev": {
-                "illuminate/broadcasting": "^11.0|^12.0|^13.0",
-                "illuminate/support": "^11.0|^12.0|^13.0",
+                "illuminate/broadcasting": "^13.0",
+                "illuminate/support": "^13.0",
                 "mockery/mockery": "^1.6",
-                "phpunit/phpunit": "^10.0"
+                "phpunit/phpunit": "^13.4"
             },
             "type": "library",
             "extra": {
@@ -3036,22 +3037,22 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-core",
-                "reference": "8a484d0d6177e8fae318f447efcaf4d7734d22b6"
+                "reference": "9c681a3d23499ac14f19f8cec6df9316c8c4584e"
             },
             "require": {
-                "illuminate/cache": "^10.0|^11.0|^12.0|^13.0",
-                "illuminate/console": "^10.0|^11.0|^12.0|^13.0",
-                "illuminate/database": "^10.0|^11.0|^12.0|^13.0",
-                "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
+                "illuminate/cache": "^13.0",
+                "illuminate/console": "^13.0",
+                "illuminate/database": "^13.0",
+                "illuminate/support": "^13.0",
                 "nesbot/carbon": "^2.0|^3.0",
-                "php": "^8.4",
+                "php": "^8.5",
                 "psr/log": "^1.1|^2.0|^3.0",
                 "ramsey/uuid": "^4.0"
             },
             "require-dev": {
                 "mockery/mockery": "^1.6",
-                "orchestra/testbench": "^9.0",
-                "phpunit/phpunit": "^11.0"
+                "orchestra/testbench": "^11.0",
+                "phpunit/phpunit": "^13.4"
             },
             "type": "library",
             "extra": {
@@ -3090,18 +3091,18 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-core-auth",
-                "reference": "6c7c6a3cd9c902e7389134fe7348bda5a63ea876"
+                "reference": "1592efe43d06f7c7757cbffc0fcd86b37e7a9bb9"
             },
             "require": {
                 "firebase/php-jwt": "^7.0",
-                "illuminate/database": "^10.0|^11.0|^12.0|^13.0",
-                "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
+                "illuminate/database": "^13.0",
+                "illuminate/support": "^13.0",
                 "nexus/core": "@dev",
                 "nexus/core-security": "@dev",
-                "php": "^8.4"
+                "php": "^8.5"
             },
             "require-dev": {
-                "phpunit/phpunit": "^10.0"
+                "phpunit/phpunit": "^13.4"
             },
             "type": "library",
             "extra": {
@@ -3135,22 +3136,22 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-core-billing",
-                "reference": "d4d425c8b3a64d71b3002edf708afc1223e9b85f"
+                "reference": "7768b95afad0c2b15226f1f6b68791d4d1392073"
             },
             "require": {
                 "firebase/php-jwt": "^7.0",
                 "guzzlehttp/guzzle": "^7.0",
-                "illuminate/cache": "^10.0|^11.0|^12.0|^13.0",
-                "illuminate/http": "^10.0|^11.0|^12.0|^13.0",
-                "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
+                "illuminate/cache": "^13.0",
+                "illuminate/http": "^13.0",
+                "illuminate/support": "^13.0",
                 "nesbot/carbon": "^2.0|^3.0",
                 "nexus/core": "@dev",
-                "php": "^8.4"
+                "php": "^8.5"
             },
             "require-dev": {
                 "mockery/mockery": "^1.6",
-                "orchestra/testbench": "^9.0",
-                "phpunit/phpunit": "^11.0"
+                "orchestra/testbench": "^11.0",
+                "phpunit/phpunit": "^13.4"
             },
             "type": "library",
             "extra": {
@@ -3190,17 +3191,17 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-core-security",
-                "reference": "423ce3e073b41aa2bae5ec55ab76aa124af8e6ac"
+                "reference": "b544fabfa03f9fa50f8f424d807a458558787087"
             },
             "require": {
-                "illuminate/cache": "^11.0|^12.0|^13.0",
-                "illuminate/http": "^11.0|^12.0|^13.0",
-                "illuminate/support": "^11.0|^12.0|^13.0",
-                "php": "^8.4"
+                "illuminate/cache": "^13.0",
+                "illuminate/http": "^13.0",
+                "illuminate/support": "^13.0",
+                "php": "^8.5"
             },
             "require-dev": {
                 "mockery/mockery": "^1.6",
-                "phpunit/phpunit": "^11.0"
+                "phpunit/phpunit": "^13.4"
             },
             "type": "library",
             "extra": {
@@ -3239,15 +3240,15 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-event",
-                "reference": "1569de1cdae1f04c212c365f7ff53eea3488b24c"
+                "reference": "1d5d6b548b6554b3a9752bbb1b90edafdeb0a68c"
             },
             "require": {
                 "nexus/core": "@dev",
-                "php": "^8.4"
+                "php": "^8.5"
             },
             "require-dev": {
                 "mockery/mockery": "^1.6",
-                "phpunit/phpunit": "^10.0"
+                "phpunit/phpunit": "^13.4"
             },
             "type": "library",
             "extra": {
@@ -3281,16 +3282,16 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-friend",
-                "reference": "1def2e1377efc294414af94d5a785b16de7bfaf7"
+                "reference": "b814324155b1aad659d16a81cd30acb482351dc3"
             },
             "require": {
-                "illuminate/contracts": "^10.0|^11.0|^12.0|^13.0",
+                "illuminate/contracts": "^13.0",
                 "nexus/core": "@dev",
-                "php": "^8.4"
+                "php": "^8.5"
             },
             "require-dev": {
                 "mockery/mockery": "^1.6",
-                "phpunit/phpunit": "^10.0"
+                "phpunit/phpunit": "^13.4"
             },
             "type": "library",
             "autoload": {
@@ -3317,14 +3318,14 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-gacha",
-                "reference": "ec3abfa0624b2970ea9922b5a8e9174eb83ba23f"
+                "reference": "5ae9cbd15bc1250f135b734a4b428a5c2eec6a3b"
             },
             "require": {
                 "nexus/core": "@dev",
-                "php": "^8.4"
+                "php": "^8.5"
             },
             "require-dev": {
-                "phpunit/phpunit": "^10.0"
+                "phpunit/phpunit": "^13.4"
             },
             "type": "library",
             "extra": {
@@ -3358,16 +3359,16 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-guild",
-                "reference": "02ada1a7a13420a17b57d2b03946efbb5338744a"
+                "reference": "3fe5374d138f037621821a32ce4af3864413abe2"
             },
             "require": {
-                "illuminate/contracts": "^10.0|^11.0|^12.0|^13.0",
+                "illuminate/contracts": "^13.0",
                 "nexus/core": "@dev",
-                "php": "^8.4"
+                "php": "^8.5"
             },
             "require-dev": {
                 "mockery/mockery": "^1.6",
-                "phpunit/phpunit": "^10.0"
+                "phpunit/phpunit": "^13.4"
             },
             "type": "library",
             "autoload": {
@@ -3394,15 +3395,15 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-level",
-                "reference": "2207dfffa76efbb43dcbc53cfa6b51d76d4e653e"
+                "reference": "9e439d47accfcf04e6c4bafbf0d628f8bd77434e"
             },
             "require": {
-                "illuminate/contracts": "^10.0|^11.0|^12.0|^13.0",
+                "illuminate/contracts": "^13.0",
                 "nexus/core": "@dev",
-                "php": "^8.4"
+                "php": "^8.5"
             },
             "require-dev": {
-                "phpunit/phpunit": "^10.0"
+                "phpunit/phpunit": "^13.4"
             },
             "type": "library",
             "extra": {
@@ -3436,18 +3437,18 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-login",
-                "reference": "6b1dca96773bfaef0160516d5851225ad1d45583"
+                "reference": "aca4c7d2499f63eff39f08f9191ff77fb576ecde"
             },
             "require": {
-                "illuminate/database": "^12.0|^13.0",
-                "illuminate/support": "^12.0|^13.0",
+                "illuminate/database": "^13.0",
+                "illuminate/support": "^13.0",
                 "nesbot/carbon": "^2.0|^3.0",
                 "nexus/core": "*",
-                "php": "^8.4"
+                "php": "^8.5"
             },
             "require-dev": {
                 "mockery/mockery": "^1.6",
-                "phpunit/phpunit": "^11.0"
+                "phpunit/phpunit": "^13.4"
             },
             "type": "library",
             "extra": {
@@ -3487,16 +3488,16 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-mailbox",
-                "reference": "e1fe03ab8a1e799389621fefad7f62a4bac7db5a"
+                "reference": "9fef9d9f246f8731094a580d7f2eabe87231675b"
             },
             "require": {
                 "nexus/core": "@dev",
-                "php": "^8.4"
+                "php": "^8.5"
             },
             "require-dev": {
-                "illuminate/support": "^11.0|^12.0|^13.0",
+                "illuminate/support": "^13.0",
                 "mockery/mockery": "^1.6",
-                "phpunit/phpunit": "^10.0"
+                "phpunit/phpunit": "^13.4"
             },
             "type": "library",
             "extra": {
@@ -3530,22 +3531,22 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-maintenance",
-                "reference": "65d16cde6d722d6ac2b6cad9497c0e8e38651045"
+                "reference": "88c2cf45ee44a5c5c10647ede242a263a47e0f01"
             },
             "require": {
-                "illuminate/cache": "^10.0|^11.0|^12.0|^13.0",
-                "illuminate/http": "^10.0|^11.0|^12.0|^13.0",
-                "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
+                "illuminate/cache": "^13.0",
+                "illuminate/http": "^13.0",
+                "illuminate/support": "^13.0",
                 "nesbot/carbon": "^2.0|^3.0",
                 "nexus/core": "@dev",
-                "php": "^8.4"
+                "php": "^8.5"
             },
             "require-dev": {
                 "aliyun/aliyun-tablestore-sdk-php": "^6.0",
                 "aws/aws-sdk-php": "^3.0",
                 "mockery/mockery": "^1.6",
-                "orchestra/testbench": "^9.0",
-                "phpunit/phpunit": "^11.0"
+                "orchestra/testbench": "^11.0",
+                "phpunit/phpunit": "^13.4"
             },
             "suggest": {
                 "aliyun/aliyun-tablestore-sdk-php": "Required for Alibaba Cloud TableStore storage driver",
@@ -3589,15 +3590,15 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-mission",
-                "reference": "c4167ede0023512f12528448127f83e589ccf967"
+                "reference": "81e70ef6098315824542edca80dc1fb12e6a6c48"
             },
             "require": {
                 "nexus/core": "@dev",
-                "php": "^8.4"
+                "php": "^8.5"
             },
             "require-dev": {
                 "mockery/mockery": "^1.6",
-                "phpunit/phpunit": "^10.0"
+                "phpunit/phpunit": "^13.4"
             },
             "type": "library",
             "extra": {
@@ -3631,18 +3632,18 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-notification",
-                "reference": "cf967c4661f914af280cf4c961f011ea90b1878e"
+                "reference": "86267fe03410e3878434207424e788fc0d2ecab4"
             },
             "require": {
-                "illuminate/contracts": "^10.0|^11.0|^12.0|^13.0",
+                "illuminate/contracts": "^13.0",
                 "nexus/core": "@dev",
-                "php": "^8.4"
+                "php": "^8.5"
             },
             "require-dev": {
-                "illuminate/broadcasting": "^11.0|^12.0|^13.0",
-                "illuminate/support": "^11.0|^12.0|^13.0",
+                "illuminate/broadcasting": "^13.0",
+                "illuminate/support": "^13.0",
                 "mockery/mockery": "^1.6",
-                "phpunit/phpunit": "^10.0"
+                "phpunit/phpunit": "^13.4"
             },
             "type": "library",
             "extra": {
@@ -3676,13 +3677,13 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-reward-track",
-                "reference": "fb93c5f52a3e0835e82d2a3bac42bb25d1154188"
+                "reference": "30d8929412bd482fafc204c35e8bd673b9c6a9b8"
             },
             "require": {
-                "illuminate/database": "^12.0|^13.0",
-                "illuminate/support": "^12.0|^13.0",
+                "illuminate/database": "^13.0",
+                "illuminate/support": "^13.0",
                 "nexus/core": "*",
-                "php": "^8.4"
+                "php": "^8.5"
             },
             "type": "library",
             "extra": {
@@ -3711,16 +3712,16 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-stamina",
-                "reference": "5d0dc5e04e3b49db1b3e5c866ecd6c05862d78a6"
+                "reference": "bdbcced9d4fa4cab76b48720ab378606240cd4de"
             },
             "require": {
-                "illuminate/support": "^11.0|^12.0|^13.0",
+                "illuminate/support": "^13.0",
                 "nexus/core": "@dev",
-                "php": "^8.4"
+                "php": "^8.5"
             },
             "require-dev": {
                 "mockery/mockery": "^1.6",
-                "phpunit/phpunit": "^11.0"
+                "phpunit/phpunit": "^13.4"
             },
             "type": "library",
             "extra": {
@@ -3754,15 +3755,15 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-tag",
-                "reference": "36a50aacff01ef50b032c1dc487bb81ff2195f9f"
+                "reference": "357eb1687598b9e8060ceb81f988b299dba68801"
             },
             "require": {
                 "nexus/core": "@dev",
-                "php": "^8.4"
+                "php": "^8.5"
             },
             "require-dev": {
                 "mockery/mockery": "^1.6",
-                "phpunit/phpunit": "^10.0"
+                "phpunit/phpunit": "^13.4"
             },
             "type": "library",
             "extra": {
@@ -3796,15 +3797,15 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-tidb",
-                "reference": "f261fe93e1e5f8417c8378e1646520aeaf23e172"
+                "reference": "c334c8fe6b935266e6c6f444730dfad5c119de21"
             },
             "require": {
                 "nexus/core": "@dev",
-                "php": "^8.4"
+                "php": "^8.5"
             },
             "require-dev": {
                 "mockery/mockery": "^1.6",
-                "phpunit/phpunit": "^10.0"
+                "phpunit/phpunit": "^13.4"
             },
             "type": "library",
             "extra": {
@@ -3838,15 +3839,15 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-trade",
-                "reference": "1a09d17e94322dd317b4d91edf4ab26f1f630ae1"
+                "reference": "aa7f1677e3be7b79344bb7e288246f27cf0fe682"
             },
             "require": {
                 "nexus/core": "@dev",
-                "php": "^8.4"
+                "php": "^8.5"
             },
             "require-dev": {
                 "mockery/mockery": "^1.6",
-                "phpunit/phpunit": "^10.0"
+                "phpunit/phpunit": "^13.4"
             },
             "type": "library",
             "extra": {
@@ -3880,15 +3881,15 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-version",
-                "reference": "a099bbd5830f938ead159df211f16bd0ead789e3"
+                "reference": "f9be5f7fc24eab5dd28f6eb396a62339749e4b87"
             },
             "require": {
-                "illuminate/cache": "^11.0|^12.0|^13.0",
-                "illuminate/support": "^11.0|^12.0|^13.0",
-                "php": "^8.4"
+                "illuminate/cache": "^13.0",
+                "illuminate/support": "^13.0",
+                "php": "^8.5"
             },
             "require-dev": {
-                "phpunit/phpunit": "^10.0"
+                "phpunit/phpunit": "^13.4"
             },
             "type": "library",
             "extra": {
@@ -3922,19 +3923,19 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-vip",
-                "reference": "3cf9dcb7470df1c4e50aa49ee41c724c3b28329c"
+                "reference": "61040195221fbf937cb0ea24db790bcc92c140eb"
             },
             "require": {
-                "illuminate/database": "^10.0|^11.0|^12.0|^13.0",
-                "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
+                "illuminate/database": "^13.0",
+                "illuminate/support": "^13.0",
                 "nesbot/carbon": "^2.0|^3.0",
                 "nexus/core": "@dev",
-                "php": "^8.4"
+                "php": "^8.5"
             },
             "require-dev": {
                 "mockery/mockery": "^1.6",
-                "orchestra/testbench": "^9.0",
-                "phpunit/phpunit": "^11.0"
+                "orchestra/testbench": "^11.0",
+                "phpunit/phpunit": "^13.4"
             },
             "type": "library",
             "extra": {
@@ -3974,19 +3975,19 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/nexus-wallet",
-                "reference": "ff3736187f6b1f5a51d1ca1cdd549ef097a74384"
+                "reference": "68faf6f2b7ad82a3a2b81953fe32d81896633cd2"
             },
             "require": {
-                "illuminate/database": "^10.0|^11.0|^12.0|^13.0",
-                "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
+                "illuminate/database": "^13.0",
+                "illuminate/support": "^13.0",
                 "nesbot/carbon": "^2.0|^3.0",
                 "nexus/core": "@dev",
-                "php": "^8.4"
+                "php": "^8.5"
             },
             "require-dev": {
                 "mockery/mockery": "^1.6",
-                "orchestra/testbench": "^9.0",
-                "phpunit/phpunit": "^11.0"
+                "orchestra/testbench": "^11.0",
+                "phpunit/phpunit": "^13.4"
             },
             "type": "library",
             "extra": {
@@ -9393,16 +9394,16 @@
         },
         {
             "name": "laravel/sail",
-            "version": "v1.69.0",
+            "version": "v1.70.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/sail.git",
-                "reference": "3587ac9d68e8f2eaf36bd9fb003a4555861dca9d"
+                "reference": "56c1c94117ef12ee707d50433273228ebee7138e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/sail/zipball/3587ac9d68e8f2eaf36bd9fb003a4555861dca9d",
-                "reference": "3587ac9d68e8f2eaf36bd9fb003a4555861dca9d",
+                "url": "https://api.github.com/repos/laravel/sail/zipball/56c1c94117ef12ee707d50433273228ebee7138e",
+                "reference": "56c1c94117ef12ee707d50433273228ebee7138e",
                 "shasum": ""
             },
             "require": {
@@ -9452,7 +9453,7 @@
                 "issues": "https://github.com/laravel/sail/issues",
                 "source": "https://github.com/laravel/sail"
             },
-            "time": "2026-10-08T20:06:52+00:00"
+            "time": "2026-10-15T08:53:46+00:00"
         },
         {
             "name": "mockery/mockery",
@@ -12514,5 +12515,5 @@
     "platform-overrides": {
         "php": "8.5"
     },
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }

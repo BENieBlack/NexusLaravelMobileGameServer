@@ -93,6 +93,7 @@ public function handle(int $sysPlayerId, int $trxUnitId, string $mstItemId, int 
 - 複合主キーは `$primaryKey` を配列にし、`CompositePrimaryKeyTrait` と `$incrementing = false`（`api/app/Models/Trx/TrxItem.php`）。
 - Mst の `$fillable` は `deploy_key` から始める。
 - `save()` / `update()` / `delete()` / `forceDelete()`（`create()` も `save()` を通る）は `DirectWriteNotAllowedException`、Mst は `MasterDataReadOnlyException`。NoDirectEloquentWriteTest が静的にも検出する。書き込みは Repository 経由。
+- `toArray()` と `toResponseArray()` の使い分け: Model の `toArray()` は DB の列をそのまま出す内部用（ログ・デバッグなど）で、API のレスポンスには使わない。API に出す配列は必ず `toResponseArray()`（日付の ISO8601 化と内部列の除外をする）。Response / DTO の `toArray()` は Laravel の `Arrayable` の契約で、API の形そのものを返す。Response の中で Model を配列にするときは `toResponseArray()` を呼ぶ。
 - レスポンス用の配列は `toResponseArray()`。基底が `sys_player_id` / `uuid` / `created_at` / `updated_at` を除く。`id` を `{テーブル名}_id` に変えるときはオーバーライドする（`TrxUnit::toResponseArray()`）。
 - 定数は Model に置かず `Domain/{Context}/Constants/` かパッケージの `Constants/` に置く。
 - 多言語は l10n。`<親>__l10n` テーブルにもモデルを作り、親から `l10n(): HasMany` で引く（`api/app/Models/Mst/MstMessageL10n.php`）。i18n は使わない。
@@ -116,7 +117,7 @@ return ApplySendResponse::from($guildApply);
 ```
 - 以上は `api/tests/Architecture/ResponsePerActionTest.php` が検査する。
 - `toArray()` に snake_case のキーを手で書く。`Responsable` / `toResponse()` や Reflection による自動変換は無い。
-- モデルを含めるときは `toResponseArray()` を呼ぶ（`api/app/Domain/Login/Responses/HomeResponse.php`）。
+- モデルを含めるときは `toResponseArray()` を呼ぶ。Model の `toArray()` は呼ばない（DTO の `toArray()` は可）（`api/app/Domain/Login/Responses/HomeResponse.php`）。
 - エラーは Response で返さない。例外を投げれば `_BaseController` が `Nexus\Core\ValueObjects\ErrorResponse` にする。
 
 例: `api/app/Domain/Unit/Responses/LevelUpResponse.php`（`LevelUpUseCase` が `new LevelUpResponse(...)` で返す）

@@ -26,6 +26,20 @@ DB 接続・マイグレーションの置き場所は [database.md](./database.
 - 環境変数はリポジトリ直下の `.env` 1つを api と tool が共有する（`.env.example` から作る）。コンテナには読み取り専用でマウントされる
 - シャード数は `DB_SHARD_COUNT`（`.env.example` は 3）。テストは `phpunit.xml` で 2 に固定している
 
+## デプロイ
+
+`./command/deploy.sh` は、DBを消さずに、最新のコードを反映して API / TOOL を利用できる状態にする（初回構築は下の「初回セットアップ」）。
+
+1. `git pull --ff-only`（ローカルに未コミットの変更があれば中止）
+2. `docker compose up -d --build`
+3. `composer install`（api・tool）と、npm のビルド
+4. マイグレーション（api: sys / mst / trx / log、tool: adm / tol）。シードは流さない
+5. キャッシュの破棄、キューワーカーと Reverb の再起動
+6. `http://localhost:8090/up`（API）と `:8091/up`（TOOL）が応答するまで待つ
+
+オプション: `--skip-pull` `--no-dev`（本番向け） `--skip-assets` `--skip-migrate`。ヘルスチェック先は `API_URL` / `TOOL_URL` で変えられる。
+`php artisan optimize`（`config:cache`）は使えない（`sharding.get_shard_connections` のクロージャを、設定のキャッシュに書き出せないため）。
+
 ## 初回セットアップ
 
 `./command/setup.sh`（`make install`）は現状使えない（「よくある詰まりどころ」参照）。手で次を実行する。

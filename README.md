@@ -11,6 +11,7 @@ Nexus/
 ├── docker/                 # Docker設定ファイル
 ├── command/                # 開発用スクリプト
 │   ├── setup.sh           # 環境構築スクリプト
+│   ├── deploy.sh          # デプロイスクリプト（git pull → 反映 → migration → 起動確認）
 │   └── sail               # Laravel Sailラッパー
 ├── docker-compose.yml      # Docker Compose設定
 ├── .env                    # 環境変数（全プロジェクト共通）

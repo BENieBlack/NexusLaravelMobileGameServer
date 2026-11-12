@@ -64,6 +64,10 @@ class LogGachaSeeder extends Seeder
                 'unique_request_id' => $accessLog->unique_request_id,
                 'sys_player_id' => $accessLog->sys_player_id,
                 'mst_gacha_id' => $gachaTypes[array_rand($gachaTypes)],
+                // draw_count / cost_type / cost_amount は NOT NULL で既定値が無い（無いと挿入に失敗する）
+                'draw_count' => $pullCount,
+                'cost_type' => 'diamond',
+                'cost_amount' => $pullCount * 300,
                 'result' => json_encode($results),
                 'system_at' => $accessLog->system_at,
                 'created_at' => $accessLog->created_at,

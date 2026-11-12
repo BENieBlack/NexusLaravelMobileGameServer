@@ -13,13 +13,17 @@ class LogAccessSeeder extends Seeder
      */
     public function run(): void
     {
-        $connection = 'log';
+        // log_* はプレイヤーと同じシャード DB にあり、ログ専用の接続は無い。
+        // 他の Log 系シーダーと同じく、シャード 1 の別名接続 trx を使う
+        $connection = 'trx';
 
         // 既存のデータを削除
         DB::connection($connection)->table('log_action_api_access')->truncate();
 
         $now = now();
-        $startDate = $now->copy()->subYear(); // 1年前から開始
+        // 既定は 1 年前から開始。テストなど重くしたくない場合は seeders.log_access_days で日数を絞る
+        $days = (int) config('seeders.log_access_days', 365);
+        $startDate = $now->copy()->subDays($days);
 
         $endpoints = [
             '/api/auth/login',
@@ -39,7 +43,7 @@ class LogAccessSeeder extends Seeder
         $data = [];
         $current = $startDate->copy();
 
-        echo "仮データを生成中（1年分）...\n";
+        echo "仮データを生成中（{$days}日分）...\n";
 
         // 1年分のデータを10分間隔で生成（データ量を調整）
         while ($current <= $now) {

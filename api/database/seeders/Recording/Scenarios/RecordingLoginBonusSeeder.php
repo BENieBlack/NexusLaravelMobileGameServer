@@ -83,7 +83,8 @@ class RecordingLoginBonusSeeder extends RecordingScenarioSeeder
                 [
                     'content_option' => null,
                     'content_quantity' => $amount,
-                    'amount' => $amount,
+                    // amount は倍率。配布量は content_quantity に入れるので 1（MstLoginBonusSeeder と同じ）
+                    'amount' => 1,
                     'is_paid' => false,
                     'sort_order' => 0,
                     'updated_at' => $now,

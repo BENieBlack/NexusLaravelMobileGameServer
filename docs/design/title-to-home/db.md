@@ -198,7 +198,7 @@ null 可のカラムは `sys_sharding.description` だけ。それ以外はす�
 - `mst_login_bonus*` は mst DB に置く読み取り専用。API は Eloquent（`MstLoginBonus` / `MstLoginBonusContent`）で mst DB を直接読む（クライアントへ SQLite 配信されるのは別系統で、ログインボーナスの判定はサーバーが行う）。
 - 通常ログインボーナスは `type = daily` かつ `is_active` の**最初の 1 件**だけが使われる（`LoginBonusRepositoryAdapter::firstOpenDailyBonus`）。`selectActiveByDay($day)` は引数を使わず、同じ 1 件を返す。日ごとの報酬は `mst_login_bonus_content.day` で引く。`LoginBonusService` のコメントにある「日数ごとに 1 レコード」は実装と合っていない。
 - カムバックは `type = comeback` の中から `required_absent_days <= 休眠日数` を `priority` 降順 → `required_absent_days` 降順に並べ、期間内の最初の 1 件。
-- 開発用の投入は `api/database/seeders/MstLoginBonusSeeder.php`（`daily_login`、7 日ループ、day1〜7 の報酬）。シーダーは `content_quantity` と `amount` に**同じ値**を入れるため、配布量は積になる（例 day1 は 100 × 100）。意図かどうかは**未確認**。運営ツール側の編集経路は**未確認**。
+- 開発用の投入は `api/database/seeders/MstLoginBonusSeeder.php`（`daily_login`、7 日ループ、day1〜7 の報酬）。配布量は `content_quantity × amount`（`LoginBonusContent::getTotalQuantity()`）で、`amount` は倍率。シーダーは `content_quantity` に配布量（day1 は 100）、`amount` に 1 を入れる（以前は両方に同じ値を入れて積になっていたのを直した）。基本のシード（`DatabaseSeeder` の Phase 1）から呼ばれる。運営ツール側の編集経路は**未確認**。
 - 本番の登録経路（スプレッドシート → mst DB）は `.claude/database.md` 7 節の一般手順に従う想定で、ログインボーナス固有の確認はしていない。
 
 ### trx_login_bonus（trx）
@@ -386,7 +386,6 @@ login が受取内容に応じて書く trx_*（ユニット・アイテム・�
 
 - `sys_agreement` の投入・運用経路（シーダー・ツールに無い）。
 - `mst_login_bonus*` の運営ツール側の編集経路、本番登録の固有手順。
-- シーダーの `content_quantity` と `amount` が同値（配布量が積になる）のは意図か。
 - `mst_vip_login_bonus` の期間判定（`active()` スコープ）と、`deploy_key` 無しでマスター配信の対象になるか。
 - `log_action_api_access` の書き込み元。
 - login が配る報酬ごとの trx 書込先の網羅。

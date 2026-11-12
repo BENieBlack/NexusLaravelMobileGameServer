@@ -12,7 +12,9 @@ class LogInAppPurchaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $connection = 'log';
+        // log_* はプレイヤーと同じシャード DB にあり、ログ専用の接続は無い。
+        // 読み元の log_action_api_access と同じ接続（trx）に書く
+        $connection = 'trx';
 
         // 既存のデータを削除
         DB::connection($connection)->table('log_action_in_app_purchase')->truncate();
@@ -22,7 +24,7 @@ class LogInAppPurchaseSeeder extends Seeder
             '/api/shop/purchase',
         ];
 
-        $accessLogs = DB::connection('trx')
+        $accessLogs = DB::connection($connection)
             ->table('log_action_api_access')
             ->whereIn('endpoint', $iapEndpoints)
             ->select('unique_request_id', 'sys_player_id', 'system_at', 'created_at')

@@ -7,9 +7,7 @@ use Database\Seeders\MstUnitSeeder;
 use Database\Seeders\TrxItemSeeder;
 use Database\Seeders\TrxPlayerSeeder;
 use Database\Seeders\TrxUnitSeeder;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use PHPUnit\Framework\Attributes\Test;
 use ReflectionMethod;
 use Tests\RefreshMultipleDatabases;
@@ -24,9 +22,10 @@ use Tests\TestCase;
  * 今は config('database.pitr.active_trx_connections')（DB_SHARD_COUNT から作られる一覧。
  * ShardAssignmentService と同じ）を見る。
  *
- * テストの環境は 2 シャード固定（phpunit.xml）なので、config を差し替えて 3 シャードにする。
- * trx3 の接続は、phpunit.xml に残してある shard3 の接続情報（db-shard3）で作り、
- * 必要なテーブル（trx_unit）はこのテストの中で作って、終わりに消す。
+ * テストの環境は 2 シャード固定（phpunit.xml）で、CI には db-shard3 が無い（ホスト名を解決できない）。
+ * そこで config を差し替えて 3 シャードにし、trx3 は trx2 と同じホスト・DB を指すエイリアスにする。
+ * 物理 DB は trx2 と共有になるので、「trx3 の接続名が走査された・書かれた」ことは
+ * DB::listen で実行されたクエリの接続名から確かめ、作った行は tearDown で消す。
  *
  * シーダーは truncate する（暗黙コミット）ので、トランザクションで包まず、触る行は tearDown で消す。
  */
@@ -53,7 +52,7 @@ class ShardSeedersTest extends TestCase
     protected function tearDown(): void
     {
         $this->cleanUp();
-        Schema::connection('trx3')->dropIfExists('trx_unit');
+        DB::purge('trx3');
 
         parent::tearDown();
     }
@@ -82,13 +81,15 @@ class ShardSeedersTest extends TestCase
         $this->seed(MstUnitSeeder::class);
         $this->assignPlayerToNode3();
 
-        // 操作: 2 回流す
+        // 操作: 2 回流す（接続ごとの insert を記録する）
+        $inserted = $this->listenInsertConnections('trx_unit');
         $this->seed(TrxUnitSeeder::class);
         $first = DB::connection('trx3')->table('trx_unit')->where('sys_player_id', self::PLAYER_ID)->count();
         $this->seed(TrxUnitSeeder::class);
         $second = DB::connection('trx3')->table('trx_unit')->where('sys_player_id', self::PLAYER_ID)->count();
 
-        // 期待: trx3 にユニットが入る（1 人 3〜8 個）。2 回目は truncate されて作り直しになり、積み上がらない
+        // 期待: trx3 の接続へ書き込まれ（以前は trx1 / trx2 だけ）、ユニットが入る（1 人 3〜8 個）。2 回目は truncate されて作り直しになり、積み上がらない
+        $this->assertContains('trx3', $inserted->getArrayCopy());
         $this->assertGreaterThanOrEqual(3, $first);
         $this->assertLessThanOrEqual(8, $first);
         $this->assertGreaterThanOrEqual(3, $second);
@@ -99,10 +100,10 @@ class ShardSeedersTest extends TestCase
     #[Test]
     public function log_unit_seederは3つ目のシャードのユニットを持つプレイヤーのログを作り_2回流しても増えない(): void
     {
-        // 前提: ユニットは trx3 だけにあり、アクセスログ（trx 接続）にそのプレイヤーの行がある
+        // 前提: ユニットは（trx3 のエイリアス先の）trx2 側の DB にあり、アクセスログ（trx 接続）にそのプレイヤーの行がある
         $this->seed(MstUnitSeeder::class);
         $mstUnitId = (string) DB::connection('mst')->table('mst_unit')->value('id');
-        DB::connection('trx3')->table('trx_unit')->insert([
+        DB::connection('trx2')->table('trx_unit')->insert([
             'sys_player_id' => self::PLAYER_ID,
             'mst_unit_id' => $mstUnitId,
             'grade' => 1,
@@ -121,43 +122,68 @@ class ShardSeedersTest extends TestCase
             'updated_at' => '2026-01-01 00:00:00',
         ]);
 
-        // 操作: 2 回流す
+        // 操作: 2 回流す（trx_unit を読んだ接続を記録する）
+        $selected = $this->listenSelectConnections('trx_unit');
         $this->seed(LogUnitSeeder::class);
         $first = $this->unitLogCount();
         $this->seed(LogUnitSeeder::class);
 
-        // 期待: trx3 のユニットを見つけてログが入る（以前は「No units found」で 0 件）。2 回流しても同じ件数
+        // 期待: trx3 の接続も走査してユニットを見つけ、ログが入る。2 回流しても同じ件数
+        $this->assertContains('trx3', $selected->getArrayCopy());
         $this->assertSame(1, $first);
         $this->assertSame($first, $this->unitLogCount());
     }
 
-    /** 3 シャードの設定にし、trx3 の接続と、シーダーが触るテーブルを用意する */
+    /** 3 シャードの設定にし、trx2 のエイリアスの trx3 を用意する */
     private function enableThreeShards(): void
     {
+        // trx3 は trx2 と同じホスト・DB を指すエイリアス（db-shard3 が無い CI でも名前解決が要らない）
         config([
             'database.pitr.active_trx_connections' => ['trx1', 'trx2', 'trx3'],
-            'database.connections.trx3' => array_merge((array) config('database.connections.trx2'), [
-                'host' => env('DB_SHARD3_HOST', 'db-shard3'),
-                'port' => env('DB_SHARD3_PORT', '3306'),
-                'database' => env('DB_SHARD3_DATABASE', 'nexus-testing-shard'),
-                'username' => env('DB_SHARD3_USERNAME', 'root'),
-                'password' => env('DB_SHARD3_PASSWORD', 'root'),
-            ]),
+            'database.connections.trx3' => config('database.connections.trx2'),
         ]);
         DB::purge('trx3');
+    }
 
-        Schema::connection('trx3')->dropIfExists('trx_unit');
-        Schema::connection('trx3')->create('trx_unit', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('sys_player_id');
-            $table->string('mst_unit_id');
-            $table->unsignedInteger('grade');
-            $table->unsignedInteger('level');
-            $table->unsignedBigInteger('level_exp')->default(0);
-            $table->boolean('is_delete')->default(false);
-            $table->dateTime('created_at');
-            $table->dateTime('updated_at');
+    /**
+     * 指定テーブルへの insert を実行した接続名を記録する。
+     *
+     * @return \ArrayObject<int, string>
+     */
+    private function listenInsertConnections(string $table): \ArrayObject
+    {
+        return $this->listenQueries("insert into `{$table}`");
+    }
+
+    /**
+     * 指定テーブルを select した接続名を記録する。
+     *
+     * @return \ArrayObject<int, string>
+     */
+    private function listenSelectConnections(string $table): \ArrayObject
+    {
+        return $this->listenQueries('select', "from `{$table}`");
+    }
+
+    /**
+     * SQL に全部の断片を含むクエリの接続名を記録する。
+     *
+     * @return \ArrayObject<int, string>
+     */
+    private function listenQueries(string ...$fragments): \ArrayObject
+    {
+        /** @var \ArrayObject<int, string> $names */
+        $names = new \ArrayObject;
+        DB::listen(function ($query) use ($names, $fragments): void {
+            foreach ($fragments as $fragment) {
+                if (! str_contains($query->sql, $fragment)) {
+                    return;
+                }
+            }
+            $names->append($query->connectionName);
         });
+
+        return $names;
     }
 
     /** プレイヤー 1 人を作り、sys_sharding_node の node_no=3 に割り当てる */
@@ -236,6 +262,8 @@ class ShardSeedersTest extends TestCase
         DB::connection('trx')->table('log_action_unit_levelup')->truncate();
         DB::connection('trx')->table('log_action_api_access')->truncate();
         DB::connection('mst')->table('mst_unit')->delete();
+        // trx3 は trx2 のエイリアスなので、trx2 側のユニットを空にする（シーダーが truncate する表）
+        DB::connection('trx2')->table('trx_unit')->truncate();
 
         DB::connection('sys')->table('sys_sharding_node_player')->where('sys_player_id', self::PLAYER_ID)->delete();
         DB::connection('sys')->table('sys_player')->where('id', self::PLAYER_ID)->delete();

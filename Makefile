@@ -1,4 +1,4 @@
-.PHONY: help packages-standalone up down ps logs test test-fresh test-unit test-feature test-quiet coverage coverage-html phpstan check check-quiet migrate migrate-fresh seed shell tinker clean install pint pint-dirty pint-test tool-check tool-test-db audit
+.PHONY: help packages-standalone up down ps logs test test-fresh test-unit test-feature test-quiet coverage coverage-html phpstan check check-quiet migrate migrate-fresh seed seed-recording seed-recording-one seed-recording-reset seed-recording-clear-cache shell tinker clean install pint pint-dirty pint-test tool-check tool-test-db audit
 
 # Compose v2 (docker compose) を優先し、無ければ v1 (docker-compose) にフォールバック
 DOCKER_COMPOSE := $(shell docker compose version > /dev/null 2>&1 && echo "docker compose" || echo "docker-compose")
@@ -135,6 +135,25 @@ migrate-fresh: up ## マイグレーションをリセットして再実行（tr
 
 seed: up ## シーダーを実行
 	$(DOCKER_COMPOSE) exec -T api-php php artisan db:seed --force
+
+# 動画撮影用シード（api/database/seeders/Recording/README.md）。
+# 追加専用・冪等で、local / testing 以外では実行を拒否する。前提は make seed（基本のシード）が済んでいること
+
+seed-recording: up ## 動画撮影用の既定シード（規約・ログインボーナス・デプロイ）を追加。前提: make seed 済み
+	$(DOCKER_COMPOSE) exec -T api-php php artisan db:seed --class='Database\Seeders\Recording\RecordingSeeder' --force
+
+# SEEDER にはシナリオのクラス名だけを書く（例: make seed-recording-one SEEDER=RecordingMaintenanceOnSeeder）
+seed-recording-one: up ## 動画撮影用のシナリオを1つ流す（SEEDER=クラス名）。前提: make seed 済み
+	@test -n "$(SEEDER)" || { echo "SEEDER=<クラス名> を指定してください（一覧: api/database/seeders/Recording/README.md）"; exit 1; }
+	$(DOCKER_COMPOSE) exec -T api-php php artisan db:seed --class='Database\Seeders\Recording\Scenarios\$(SEEDER)' --force
+
+seed-recording-reset: up ## 動画撮影用のデータ（マーカー付きの行）を削除し、メンテナンス解除・daily_login を有効に戻す
+	$(DOCKER_COMPOSE) exec -T api-php php artisan db:seed --class='Database\Seeders\Recording\Scenarios\RecordingResetSeeder' --force
+
+# レート制限のカウンター（sign_up は IP あたり 10 回/時間・device あたり 3 回/時間）も消える。
+# 撮影で回数を使い切ったときの回復手段。開発環境専用（本番で流さない）
+seed-recording-clear-cache: up ## 【開発専用】キャッシュを全消去（メンテ・デプロイの反映と、レート制限の回数をリセット）
+	$(DOCKER_COMPOSE) exec -T api-php php artisan cache:clear
 
 shell: up ## api-phpコンテナにシェルで接続
 	$(DOCKER_COMPOSE) exec api-php bash

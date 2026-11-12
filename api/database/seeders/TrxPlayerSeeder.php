@@ -2,29 +2,24 @@
 
 namespace Database\Seeders;
 
+use Database\Seeders\Concerns\UsesShardConnections;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 class TrxPlayerSeeder extends Seeder
 {
-    /**
-     * シャーディング対象の接続名
-     * 設定ファイルから動的に取得
-     */
-    protected function getConnections(): array
-    {
-        return array_values(config('sharding.transaction.nodes', []));
-    }
+    use UsesShardConnections;
 
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        $connections = $this->getConnections();
+        // config('sharding.transaction.nodes') は 2 件固定なので使わず、DB_SHARD_COUNT に従う一覧を使う
+        $connections = $this->shardConnections();
 
         if (empty($connections)) {
-            $this->command->error('⚠️  No shard connections configured in config/sharding.php');
+            $this->command->error('⚠️  No shard connections configured (database.pitr.active_trx_connections)');
 
             return;
         }

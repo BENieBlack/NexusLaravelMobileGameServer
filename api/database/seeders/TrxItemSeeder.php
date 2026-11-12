@@ -2,15 +2,14 @@
 
 namespace Database\Seeders;
 
+use Database\Seeders\Concerns\UsesShardConnections;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 class TrxItemSeeder extends Seeder
 {
-    /**
-     * シャーディング対象の接続名
-     */
-    protected $connections = ['trx1', 'trx2'];
+    // 接続名は DB_SHARD_COUNT に従う全シャード（trx1, trx2 のハードコードをやめた）
+    use UsesShardConnections;
 
     /**
      * Run the database seeds.
@@ -46,16 +45,15 @@ class TrxItemSeeder extends Seeder
             ->table('sys_sharding_node')
             ->pluck('node_no', 'id');
 
-        foreach ($this->connections as $connection) {
+        $connections = $this->shardConnections();
+
+        foreach ($connections as $connection) {
             // べき等性を確保するため、既存データを削除
             DB::connection($connection)->table('trx_item')->truncate();
             $this->command->info("Truncated trx_item on {$connection}");
         }
 
-        $createdCounts = [
-            'trx1' => 0,
-            'trx2' => 0,
-        ];
+        $createdCounts = array_fill_keys($connections, 0);
 
         foreach ($players as $player) {
             // プレイヤーの割り当て先シャードを特定
@@ -101,7 +99,8 @@ class TrxItemSeeder extends Seeder
         }
 
         $this->command->info('✅ TrxItemSeeder: Created item ownership data');
-        $this->command->info('   - trx1: '.$createdCounts['trx1'].' items');
-        $this->command->info('   - trx2: '.$createdCounts['trx2'].' items');
+        foreach ($createdCounts as $connection => $count) {
+            $this->command->info("   - {$connection}: {$count} items");
+        }
     }
 }

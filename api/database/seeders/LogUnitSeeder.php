@@ -2,11 +2,14 @@
 
 namespace Database\Seeders;
 
+use Database\Seeders\Concerns\UsesShardConnections;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 class LogUnitSeeder extends Seeder
 {
+    use UsesShardConnections;
+
     /**
      * Run the database seeds.
      */
@@ -35,7 +38,8 @@ class LogUnitSeeder extends Seeder
         }
 
         // trx_unitからユニットデータを取得（シャーディング対応）
-        $connections = ['trx1', 'trx2'];
+        // 全シャードを走査する（DB_SHARD_COUNT=3 なら trx3 のプレイヤーも対象）
+        $connections = $this->shardConnections();
         $units = [];
 
         foreach ($connections as $connection) {

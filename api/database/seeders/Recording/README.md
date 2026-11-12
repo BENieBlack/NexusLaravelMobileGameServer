@@ -42,6 +42,7 @@ Docker を使わない直接の形は `php artisan db:seed --class='Database\See
 | --- | --- | --- | --- |
 | `RecordingDeploySeeder` | `sys_deploy` が空でも version API が成功する最小のデプロイ（master・asset・deploy を各 1 行）。有効なデプロイが既にあれば何もしない | 全ケースの前提 | 入る |
 | `RecordingAgreementSeeder` | 規約 3 件: 公開済みの必須（`rec-required`）・公開済みの任意（`rec-optional`）・公開日が未来の必須（`rec-future`） | 3, 4, 12, 13, 15 | 入る |
+| `RecordingAgreementMultiSeeder` | 必須規約を 2 件足す（`rec-required-2`・`rec-required-3`。公開済み）。`rec-required` と合わせて必須が 3 件になる。`make seed-recording` の後に流す | 規約が複数件 | 入らない |
 | `RecordingLoginBonusSeeder` | 通常ログインボーナス `daily_login`（7 日サイクル）を、有効・期間なしで保証する。他の行は消さない | 1, 2, 3, 5, 13 | 入る |
 | `RecordingLoginBonusDisabledSeeder` | `daily_login` を無効にする（ログインボーナスなしの画面用） | ログインボーナスなし | 入らない |
 | `RecordingMaintenanceOnSeeder` | メンテナンスを有効にする（API が 503 になる） | 8 | 入らない |
@@ -50,7 +51,7 @@ Docker を使わない直接の形は `php artisan db:seed --class='Database\See
 
 ### 既定に入れない理由
 
-API を止める（メンテナンス）、画面を変える（ログインボーナス無効）、データを消す（リセット）ものは、撮影の途中で意図せず流れると他の撮影を壊す。必要なときだけ `seed-recording-one` で流す。
+API を止める（メンテナンス）、画面を変える（ログインボーナス無効・規約を複数件にする）、データを消す（リセット）ものは、撮影の途中で意図せず流れると他の撮影を壊す。必要なときだけ `seed-recording-one` で流す。
 
 ## client_design.md 7 節のケースとシナリオ
 
@@ -65,10 +66,18 @@ API を止める（メンテナンス）、画面を変える（ログインボ�
 | 8 | メンテナンス 503 | `RecordingMaintenanceOnSeeder` → 撮影 → `RecordingMaintenanceOffSeeder` |
 | 12, 13 | 規約が 1 件ある | `make seed-recording` |
 | 15 | 規約が 1 件ある | `make seed-recording` |
+| 規約が複数件（7-2 の表に専用の番号は無い。規約画面の複数件表示の確認用） | 必須規約が 3 件（`rec-required`・`rec-required-2`・`rec-required-3`） | `make seed-recording` → `make seed-recording-one SEEDER=RecordingAgreementMultiSeeder`。1 件に戻すときは `seed-recording-reset` の後に `make seed-recording` |
 | ログインボーナスなし | `daily_login` が無効 | `RecordingLoginBonusDisabledSeeder` |
 | 6, 7, 9, 10, 11, 14 | サーバーのシードでは作らない（停止・応答の差し替え・保存データの操作・配信ホストの不通）。14 は未取得の版が要るが、動画用のデプロイは配信ファイルを持たないので代わりにならない | なし |
 
 ## 動画撮影の標準手順の例
+
+### 規約が複数件（必須 3 件）→ 同意 → ホーム
+
+1. `make seed-recording`（`rec-required` を含む既定のシナリオ）
+2. `make seed-recording-one SEEDER=RecordingAgreementMultiSeeder`（必須を 3 件にする。何度流しても 2 件足すだけ）
+3. クライアントを `--e2e-reset` で起動し、規約が 3 件出る画面を撮る
+4. 撮り終えたら `make seed-recording-reset`（マーカー付きの 5 件がすべて消える）
 
 ### 新規ユーザーで規約あり → ログインボーナス → ホーム（ケース 3）
 
@@ -97,7 +106,7 @@ API を止める（メンテナンス）、画面を変える（ログインボ�
 
 | テーブル | 目印 |
 | --- | --- |
-| `sys_agreement` | `version` が `rec-` で始まる |
+| `sys_agreement` | `version` が `rec-` で始まる（`rec-required` `rec-optional` `rec-future` `rec-required-2` `rec-required-3`。varchar(20) 以内） |
 | `sys_maintenance` | `title` が `[REC]` で始まる |
 | `sys_deploy_master` / `sys_deploy_asset` | `description` が `[REC]` で始まる（`sys_deploy` は `deploy_key = 190001010`） |
 | `mst_login_bonus` | 目印なし。`daily_login` の有効フラグだけを切り替える（行は消さない） |

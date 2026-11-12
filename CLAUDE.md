@@ -21,6 +21,7 @@
 | 一部だけ | `docker compose exec -T api-php php artisan test --filter=Xxx` |
 | 整形 / 静的解析 | `make pint`（api と packages）、`make phpstan`（level 8） |
 | マイグレーション | `make migrate`、`make migrate-fresh && make seed` |
+| 動画撮影用のシード | `make seed-recording` / `seed-recording-one SEEDER=<クラス名>` / `seed-recording-reset`（追加専用・冪等。`make seed` 済みが前提。詳細は `api/database/seeders/Recording/README.md`） |
 
 引数なしの `php artisan migrate` は使わない（既定接続が sqlite で、どのDBにも流れない）。詳細は `.claude/development.md`。
 

@@ -68,7 +68,8 @@ class MstLoginBonusSeeder extends Seeder
                     'content_mst_id' => $reward['content_mst_id'],
                     'content_option' => null,
                     'content_quantity' => $reward['amount'],
-                    'amount' => $reward['amount'],
+                    // amount は倍率（配布量 = content_quantity × amount）。配布量は content_quantity に入れるので 1
+                    'amount' => 1,
                     'is_paid' => false,
                     'sort_order' => $i,
                     'created_at' => $now,

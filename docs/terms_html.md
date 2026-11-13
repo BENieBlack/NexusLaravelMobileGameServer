@@ -4,8 +4,8 @@
 
 ## 置き場所
 
-- `api/public/terms/`（git 管理）。api-nginx が静的ファイルとしてそのまま配信する（例: `http://localhost:8090/terms/terms-of-service-1.0.0.html`、Content-Type は text/html）。
-- **本番では CDN などの別の配信先に置く想定**。その場合は `sys_agreement.url` に絶対 URL を入れる（下記）。`public/terms/` は開発・動作確認用。
+- `api/public/legal/`（git 管理）。api-nginx が静的ファイルとしてそのまま配信する（例: `http://localhost:8090/legal/terms-of-service-1.0.0.html`、Content-Type は text/html）。
+- **本番では CDN などの別の配信先に置く想定**。その場合は `sys_agreement.url` に絶対 URL を入れる（下記）。`public/legal/` は開発・動作確認用。
 - 今ある文面は**すべてサンプル**（冒頭に「これは開発・動作確認用のサンプルです」と明記）。実際の規約の文面ではない。
 
 ## ファイル名の規則
@@ -31,8 +31,8 @@
 
 `sys_agreement.url`（varchar 500）に本文の場所を入れる。`GET /agreement/pending` の応答の `url` にそのまま入る。クライアントは次の両方を扱う。
 
-- 相対パス（`/` で始まる。例 `/terms/terms-of-service-1.0.0.html`）: API の origin（例 `http://localhost:8090`）に付けて取得する
-- 絶対 URL（例 `https://cdn.example.com/terms/terms-of-service-1.0.0.html`）: そのまま取得する
+- 相対パス（`/` で始まる。例 `/legal/terms-of-service-1.0.0.html`）: API の origin（例 `http://localhost:8090`）に付けて取得する
+- 絶対 URL（例 `https://cdn.example.com/legal/terms-of-service-1.0.0.html`）: そのまま取得する
 
 動画撮影用のシーダーの対応は `api/database/seeders/Recording/README.md` の「規約の HTML」の表。
 

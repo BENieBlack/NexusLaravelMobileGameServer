@@ -78,5 +78,5 @@
 | `.claude/api.md` | エンドポイントを追加・変更するとき、レスポンス形式やマスターデータ配信を扱うとき |
 | `.claude/development.md` | 環境構築、テスト・カバレッジ・静的解析の詳細、PR を書くとき、環境が動かないとき |
 | `.claude/tool.md` | 運営ツール（`tool/`）を触るとき |
-| `docs/terms_html.md` | 規約の HTML（`api/public/terms/`）を足す・改版するとき、`sys_agreement.url` を決めるとき |
+| `docs/terms_html.md` | 規約の HTML（`api/public/legal/`）を足す・改版するとき、`sys_agreement.url` を決めるとき |
 | `.claude/skills/` | CS問い合わせの調査（cs-support）、スキルの作成（create-skill） |

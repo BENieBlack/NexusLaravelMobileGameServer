@@ -18,7 +18,7 @@ use Nexus\Core\Utilities\ClockUtility;
  * 12・13（401 → refresh の確認）、15（二重送信）。
  * ケース 1・2 の「規約なし」は、このシナリオを流す前、または RecordingResetSeeder の後に撮る。
  *
- * url は api/public/terms/ のサンプル HTML への相対パス（クライアントが API の origin に付けて取得する。docs/terms_html.md）。
+ * url は api/public/legal/ のサンプル HTML への相対パス（クライアントが API の origin に付けて取得する。docs/terms_html.md）。
  * updateOrInsert の更新側にも url を含めるので、古い url の行も次に流したとき直る。
  *
  * 冪等性: version をキーに updateOrInsert。何度流しても3行のまま。
@@ -33,10 +33,10 @@ class RecordingAgreementSeeder extends RecordingScenarioSeeder
         $now = ClockUtility::nowToString();
 
         $agreements = [
-            ['version' => $prefix.'required', 'title' => '[REC] 利用規約（必須）', 'is_required' => true, 'published_at' => '2020-01-01 00:00:00', 'url' => '/terms/terms-of-service-1.0.0.html'],
-            ['version' => $prefix.'optional', 'title' => '[REC] プライバシー（任意）', 'is_required' => false, 'published_at' => '2020-01-01 00:00:00', 'url' => '/terms/privacy-policy-1.0.0.html'],
+            ['version' => $prefix.'required', 'title' => '[REC] 利用規約（必須）', 'is_required' => true, 'published_at' => '2020-01-01 00:00:00', 'url' => '/legal/terms-of-service-1.0.0.html'],
+            ['version' => $prefix.'optional', 'title' => '[REC] プライバシー（任意）', 'is_required' => false, 'published_at' => '2020-01-01 00:00:00', 'url' => '/legal/privacy-policy-1.0.0.html'],
             // 公開日を遠い未来にして「公開前は表示されない」ことを確かめる
-            ['version' => $prefix.'future', 'title' => '[REC] 改定予定の規約（未公開）', 'is_required' => true, 'published_at' => '2099-01-01 00:00:00', 'url' => '/terms/rec-sample-future.html'],
+            ['version' => $prefix.'future', 'title' => '[REC] 改定予定の規約（未公開）', 'is_required' => true, 'published_at' => '2099-01-01 00:00:00', 'url' => '/legal/rec-sample-future.html'],
         ];
 
         foreach ($agreements as $agreement) {

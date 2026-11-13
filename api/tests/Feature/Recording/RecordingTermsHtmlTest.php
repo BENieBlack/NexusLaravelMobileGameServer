@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
- * 規約の HTML（public/terms/）と、動画用シーダーが入れる sys_agreement.url の整合のテスト。
+ * 規約の HTML（public/legal/）と、動画用シーダーが入れる sys_agreement.url の整合のテスト。
  *
  * HTTP の配信は nginx の仕事なので、ここではファイルの実在と中身だけを検査する
  * （CI にはホストやサービスを足さない）。運用は docs/terms_html.md。
@@ -20,7 +20,7 @@ class RecordingTermsHtmlTest extends RecordingTestCase
     private const ALLOWED_TAGS = ['html', 'head', 'meta', 'title', 'body', 'h1', 'h2', 'h3', 'p', 'ul', 'ol', 'li', 'strong', 'em', 'a', 'br', 'hr'];
 
     #[Test]
-    public function 動画用シーダーのurlはすべてpublic_termsの実在するファイルを指す(): void
+    public function 動画用シーダーのurlはすべてpublic_legalの実在するファイルを指す(): void
     {
         // 前提: 規約を 5 件すべて入れる
         $this->runSeeder(RecordingAgreementSeeder::class);
@@ -29,10 +29,10 @@ class RecordingTermsHtmlTest extends RecordingTestCase
         // 操作
         $urls = DB::connection('sys')->table('sys_agreement')->where('version', 'like', 'rec-%')->pluck('url');
 
-        // 期待: 相対パス（/terms/...）で、public_path() に実在する
+        // 期待: 相対パス（/legal/...）で、public_path() に実在する
         $this->assertCount(5, $urls);
         foreach ($urls as $url) {
-            $this->assertMatchesRegularExpression('#^/terms/[A-Za-z0-9._-]+\.html$#', (string) $url);
+            $this->assertMatchesRegularExpression('#^/legal/[A-Za-z0-9._-]+\.html$#', (string) $url);
             $this->assertFileExists(public_path((string) $url));
         }
     }
@@ -49,7 +49,7 @@ class RecordingTermsHtmlTest extends RecordingTestCase
         $this->runSeeder(RecordingAgreementSeeder::class);
 
         $this->assertSame(
-            '/terms/terms-of-service-1.0.0.html',
+            '/legal/terms-of-service-1.0.0.html',
             DB::connection('sys')->table('sys_agreement')->where('version', 'rec-required')->value('url'),
         );
         $this->assertSame(3, $this->countAgreements(markedOnly: true));
@@ -69,9 +69,9 @@ class RecordingTermsHtmlTest extends RecordingTestCase
     }
 
     #[Test]
-    public function public_termsの_htm_lは許可タグだけで_ut_f8のmeta付きになっている(): void
+    public function public_legalの_htm_lは許可タグだけで_ut_f8のmeta付きになっている(): void
     {
-        $files = glob(public_path('terms/*.html'));
+        $files = glob(public_path('legal/*.html'));
         $this->assertNotEmpty($files);
 
         foreach ($files as $file) {

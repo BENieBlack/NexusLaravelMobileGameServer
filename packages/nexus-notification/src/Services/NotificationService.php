@@ -3,6 +3,7 @@
 namespace NexusNotification\Services;
 
 use Illuminate\Contracts\Events\Dispatcher;
+use Nexus\Core\Repositories\PlayerRepositoryInterface;
 use Nexus\Core\Utilities\ClockUtility;
 use NexusNotification\Constants\NotificationType;
 use NexusNotification\Contracts\NotificationDispatcherInterface;
@@ -35,6 +36,7 @@ class NotificationService
         private readonly NotificationRepositoryInterface $repository,
         private readonly ?NotificationDispatcherInterface $dispatcher = null,
         private readonly ?Dispatcher $events = null,
+        private readonly ?PlayerRepositoryInterface $players = null,
     ) {}
 
     /**
@@ -68,7 +70,13 @@ class NotificationService
 
         // NotificationCreated は ShouldBroadcast なので、Reverb へのブロードキャストもここで積まれる。
         // Application層がListenerを登録して追加処理（FCMプッシュ等）を行うこともできる
-        $this->events?->dispatch(new NotificationCreated($notification));
+        // チャンネル名は公開 ID（my_id）なので、受け手の my_id を引く。
+        // 通知は保存済みのため、受け手が見つからなくても例外にはせずブロードキャストだけ省く
+        // （例外にするとジョブの再試行で通知が重複する）
+        $myId = $this->players?->selectById($playerId)?->getMyId();
+        if ($myId !== null) {
+            $this->events?->dispatch(new NotificationCreated($notification, $myId));
+        }
 
         return $notification;
     }

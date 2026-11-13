@@ -22,29 +22,31 @@ class NotificationCreatedBroadcastTest extends TestCase
     #[Test]
     public function should_broadcastを実装している(): void
     {
-        $event = new NotificationCreated($this->makeNotification());
+        $event = new NotificationCreated($this->makeNotification(), 'AbCd1234');
 
         $this->assertInstanceOf(ShouldBroadcast::class, $event);
     }
 
     #[Test]
-    public function broadcast_on_はプレイヤー_i_dを含むプライベートチャンネルを返す(): void
+    public function broadcast_on_は公開_i_d_my_idのプライベートチャンネルを返す(): void
     {
         $notification = $this->makeNotification(playerId: 42);
-        $event = new NotificationCreated($notification);
+        $event = new NotificationCreated($notification, 'AbCd1234');
 
         $channels = $event->broadcastOn();
 
         $this->assertCount(1, $channels);
         $this->assertInstanceOf(PrivateChannel::class, $channels[0]);
-        // PrivateChannel の name には自動的に "private-" プレフィックスが付く
-        $this->assertSame('private-notification.42', $channels[0]->name);
+        // PrivateChannel の name には自動的に "private-" プレフィックスが付く。
+        // 内部の sys_player_id(42) ではなく公開 ID の my_id を使う
+        $this->assertSame('private-notification.AbCd1234', $channels[0]->name);
+        $this->assertStringNotContainsString('42', $channels[0]->name);
     }
 
     #[Test]
     public function broadcast_as_はnotification_createdを返す(): void
     {
-        $event = new NotificationCreated($this->makeNotification());
+        $event = new NotificationCreated($this->makeNotification(), 'AbCd1234');
 
         $this->assertSame('notification.created', $event->broadcastAs());
     }
@@ -53,7 +55,7 @@ class NotificationCreatedBroadcastTest extends TestCase
     public function broadcast_with_は通知の全フィールドを含む(): void
     {
         $notification = $this->makeNotification();
-        $event = new NotificationCreated($notification);
+        $event = new NotificationCreated($notification, 'AbCd1234');
 
         $payload = $event->broadcastWith();
 
@@ -76,7 +78,7 @@ class NotificationCreatedBroadcastTest extends TestCase
     {
         // NotificationType::MISSION_COMPLETED → "mission_completed" が返ることを固定する
         $notification = $this->makeNotification(type: NotificationType::MISSION_COMPLETED);
-        $event = new NotificationCreated($notification);
+        $event = new NotificationCreated($notification, 'AbCd1234');
 
         $payload = $event->broadcastWith();
 

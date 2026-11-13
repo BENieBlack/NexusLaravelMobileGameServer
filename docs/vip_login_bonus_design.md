@@ -1,4 +1,3 @@
-# VIPログインボーナスシステム設計
 
 > **⚠️ 過去の設計資料です（2026-11-03 注記）**
 > 現在のコードと食い違う箇所があります: 接続名（`$connectionName`）を受け渡す API と `TrxVipLoginBonusHistoryRepository` は廃止された。状態は `trx_vip_login_bonus`（`TrxVipLoginBonusRepository`）、受け取り記録は `log_action_vip_login_bonus_receive` に入る。
@@ -47,8 +46,8 @@ VIPレベルごとのログインボーナス設定を管理
 
 ```sql
 CREATE TABLE mst_vip_login_bonus (
-    id CHAR(26) PRIMARY KEY COMMENT 'ULID',
-    vip_level INT UNSIGNED NOT NULL COMMENT 'VIPレベル（0〜10）',
+    id VARCHAR(64) PRIMARY KEY COMMENT 'ID（例: vip_login_lv0）',
+    vip_level TINYINT UNSIGNED NOT NULL COMMENT 'VIPレベル（0〜10）',
     loop_days INT UNSIGNED NOT NULL DEFAULT 7 COMMENT 'ループ日数',
     is_active TINYINT(1) NOT NULL DEFAULT 1 COMMENT '有効フラグ',
     start_at DATETIME NULL COMMENT '開始日時',
@@ -73,11 +72,11 @@ VIPログインボーナスの日別報酬内容を管理
 
 ```sql
 CREATE TABLE mst_vip_login_bonus_content (
-    id CHAR(26) PRIMARY KEY COMMENT 'ULID',
-    mst_vip_login_bonus_id CHAR(26) NOT NULL COMMENT 'VIPログインボーナスID',
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY COMMENT '※規約違反（解消待ち）。下記の注記を参照',
+    mst_vip_login_bonus_id VARCHAR(64) NOT NULL COMMENT 'VIPログインボーナスID',
     day INT UNSIGNED NOT NULL COMMENT 'ログイン日数（1〜N）',
-    content_type VARCHAR(50) NOT NULL COMMENT 'コンテンツタイプ（item, unit, equipment, diamond, currencyなど）',
-    content_mst_id VARCHAR(100) NOT NULL COMMENT 'コンテンツID',
+    content_type VARCHAR(32) NOT NULL COMMENT 'コンテンツタイプ（wallet, diamond, item, unit, equipment など。通貨は wallet）',
+    content_mst_id VARCHAR(64) NOT NULL COMMENT 'コンテンツID',
     content_option JSON NULL COMMENT 'コンテンツオプション（JSON形式）',
     content_quantity INT UNSIGNED NOT NULL DEFAULT 1 COMMENT 'コンテンツ数量（基本単位）',
     amount INT UNSIGNED NOT NULL DEFAULT 1 COMMENT '倍率（実際の配布量 = content_quantity × amount）',
@@ -88,33 +87,33 @@ CREATE TABLE mst_vip_login_bonus_content (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
+> **注意（規約違反・解消待ち）**: mst テーブルの `id` に AUTO_INCREMENT を使うのは禁止（採番がズレて他のマスタとの JOIN が効かなくなるため。`.claude/database.md`「ID と主キー」）。`mst_vip_login_bonus_content` は現状この違反で、検査（`MstNoAutoIncrementIdTest`）の解消待ち一覧に載っている。直すときは、`id` をやめて `(mst_vip_login_bonus_id, day)` の複合主キーにするか、string の `id` にする。
+
 **フィールド説明:**
 - `mst_vip_login_bonus_id`: VIPログインボーナス設定への外部キー
 - `day`: ログイン日数（1〜loop_days）
 - `content_type`, `content_mst_id`, `content_option`, `content_quantity`, `amount`: 統一コンテンツ構造
 
-### trx_vip_login_bonus_history（VIPログインボーナス受取履歴）
+### trx_vip_login_bonus（VIPログインボーナス受取状況）
 
-プレイヤーのVIPログインボーナス受取履歴を記録（シャーディング対応）
+プレイヤーごとに**最新の受け取り 1 件**だけを持つ（履歴ではなく状態。シャーディング対応）。受け取りのたびに同じ行を更新する。履歴は `log_action_vip_login_bonus_receive` に残る。
 
 ```sql
-CREATE TABLE trx_vip_login_bonus_history (
-    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    sys_player_id BIGINT UNSIGNED NOT NULL COMMENT 'プレイヤーID',
-    mst_vip_login_bonus_id CHAR(26) NOT NULL COMMENT 'VIPログインボーナスID',
-    day INT UNSIGNED NOT NULL COMMENT '受け取った日数',
-    vip_level INT UNSIGNED NOT NULL COMMENT '受け取り時のVIPレベル',
-    received_at DATETIME NOT NULL COMMENT '受け取り日時',
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME NOT NULL,
-    INDEX idx_player_received (sys_player_id, received_at),
-    INDEX idx_player_bonus (sys_player_id, mst_vip_login_bonus_id)
+CREATE TABLE trx_vip_login_bonus (
+    sys_player_id BIGINT UNSIGNED NOT NULL PRIMARY KEY COMMENT 'プレイヤーID',
+    mst_vip_login_bonus_id VARCHAR(64) NOT NULL COMMENT 'VIPログインボーナスID',
+    day INT UNSIGNED NOT NULL COMMENT '受け取った日数（1日目、2日目...）',
+    vip_level TINYINT UNSIGNED NOT NULL COMMENT '受け取り時のVIPレベル',
+    received_at TIMESTAMP NOT NULL COMMENT '受け取り日時（UTC）',
+    created_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL,
+    INDEX (mst_vip_login_bonus_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
 **シャーディング対応:**
 - プレイヤーIDベースでシャーディング
-- `received_at`を使って日跨ぎ判定と最新履歴取得
+- `received_at`を使って日跨ぎ判定と最新の受け取りの取得
 
 ## クラス設計
 
@@ -263,13 +262,13 @@ interface VipLoginBonusHistoryRepositoryInterface
 
 // mst_vip_login_bonus_content
 [
-    ['day' => 1, 'content_type' => 'currency', 'content_mst_id' => 'gold', 'content_quantity' => 1000],
-    ['day' => 2, 'content_type' => 'currency', 'content_mst_id' => 'gold', 'content_quantity' => 1000],
-    ['day' => 3, 'content_type' => 'currency', 'content_mst_id' => 'gold', 'content_quantity' => 1000],
-    ['day' => 4, 'content_type' => 'currency', 'content_mst_id' => 'gold', 'content_quantity' => 1500],
-    ['day' => 5, 'content_type' => 'currency', 'content_mst_id' => 'gold', 'content_quantity' => 1500],
-    ['day' => 6, 'content_type' => 'currency', 'content_mst_id' => 'gold', 'content_quantity' => 2000],
-    ['day' => 7, 'content_type' => 'diamond', 'content_mst_id' => 'paid_diamond', 'content_quantity' => 10],
+    ['day' => 1, 'content_type' => 'wallet', 'content_mst_id' => 'gold', 'content_quantity' => 1000],
+    ['day' => 2, 'content_type' => 'wallet', 'content_mst_id' => 'gold', 'content_quantity' => 1000],
+    ['day' => 3, 'content_type' => 'wallet', 'content_mst_id' => 'gold', 'content_quantity' => 1000],
+    ['day' => 4, 'content_type' => 'wallet', 'content_mst_id' => 'gold', 'content_quantity' => 1500],
+    ['day' => 5, 'content_type' => 'wallet', 'content_mst_id' => 'gold', 'content_quantity' => 1500],
+    ['day' => 6, 'content_type' => 'wallet', 'content_mst_id' => 'gold', 'content_quantity' => 2000],
+    ['day' => 7, 'content_type' => 'diamond', 'content_mst_id' => 'diamond', 'content_quantity' => 10],
 ]
 ```
 
@@ -286,13 +285,13 @@ interface VipLoginBonusHistoryRepositoryInterface
 
 // mst_vip_login_bonus_content（VIP0より豪華）
 [
-    ['day' => 1, 'content_type' => 'currency', 'content_mst_id' => 'gold', 'content_quantity' => 2000],
-    ['day' => 2, 'content_type' => 'currency', 'content_mst_id' => 'gold', 'content_quantity' => 2000],
-    ['day' => 3, 'content_type' => 'currency', 'content_mst_id' => 'gold', 'content_quantity' => 2000],
-    ['day' => 4, 'content_type' => 'currency', 'content_mst_id' => 'gold', 'content_quantity' => 3000],
-    ['day' => 5, 'content_type' => 'currency', 'content_mst_id' => 'gold', 'content_quantity' => 3000],
-    ['day' => 6, 'content_type' => 'currency', 'content_mst_id' => 'gold', 'content_quantity' => 4000],
-    ['day' => 7, 'content_type' => 'diamond', 'content_mst_id' => 'paid_diamond', 'content_quantity' => 50],
+    ['day' => 1, 'content_type' => 'wallet', 'content_mst_id' => 'gold', 'content_quantity' => 2000],
+    ['day' => 2, 'content_type' => 'wallet', 'content_mst_id' => 'gold', 'content_quantity' => 2000],
+    ['day' => 3, 'content_type' => 'wallet', 'content_mst_id' => 'gold', 'content_quantity' => 2000],
+    ['day' => 4, 'content_type' => 'wallet', 'content_mst_id' => 'gold', 'content_quantity' => 3000],
+    ['day' => 5, 'content_type' => 'wallet', 'content_mst_id' => 'gold', 'content_quantity' => 3000],
+    ['day' => 6, 'content_type' => 'wallet', 'content_mst_id' => 'gold', 'content_quantity' => 4000],
+    ['day' => 7, 'content_type' => 'diamond', 'content_mst_id' => 'diamond', 'content_quantity' => 50],
 ]
 ```
 

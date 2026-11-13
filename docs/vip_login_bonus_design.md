@@ -72,7 +72,7 @@ VIPログインボーナスの日別報酬内容を管理
 
 ```sql
 CREATE TABLE mst_vip_login_bonus_content (
-    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY COMMENT '※規約違反（解消待ち）。下記の注記を参照',
     mst_vip_login_bonus_id VARCHAR(64) NOT NULL COMMENT 'VIPログインボーナスID',
     day INT UNSIGNED NOT NULL COMMENT 'ログイン日数（1〜N）',
     content_type VARCHAR(32) NOT NULL COMMENT 'コンテンツタイプ（wallet, diamond, item, unit, equipment など。通貨は wallet）',
@@ -86,6 +86,8 @@ CREATE TABLE mst_vip_login_bonus_content (
     INDEX idx_bonus_day (mst_vip_login_bonus_id, day)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
+
+> **注意（規約違反・解消待ち）**: mst テーブルの `id` に AUTO_INCREMENT を使うのは禁止（採番がズレて他のマスタとの JOIN が効かなくなるため。`.claude/database.md`「ID と主キー」）。`mst_vip_login_bonus_content` は現状この違反で、検査（`MstNoAutoIncrementIdTest`）の解消待ち一覧に載っている。直すときは、`id` をやめて `(mst_vip_login_bonus_id, day)` の複合主キーにするか、string の `id` にする。
 
 **フィールド説明:**
 - `mst_vip_login_bonus_id`: VIPログインボーナス設定への外部キー

@@ -8,6 +8,16 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Nexus\Core\Models\_BaseModel;
 
+/**
+ * SysShardingSeeder
+ *
+ * トランザクション DB の割り当て先（sys_sharding / sys_sharding_node）を 2 ノードで作る。
+ * ローカルは DB_SHARD_COUNT=3（trx1〜trx3）だが、基本のシードでは意図して 2 ノードのままにしている:
+ * - CI は 2 シャード固定（db-shard1 / db-shard2）で、ここを 3 にすると CI で割り当てた先が存在しない
+ * - 新規ユーザーの割り当ては 2 ノードあれば足りる
+ * - trx3 は trx2 の別名として扱う（シーダー・テストの接続一覧は DB_SHARD_COUNT から作る）
+ * 3 ノードで動作を確かめたいときは、検証用に node_count とノードを足す（基本のシードは変えない）。
+ */
 class SysShardingSeeder extends Seeder
 {
     /**

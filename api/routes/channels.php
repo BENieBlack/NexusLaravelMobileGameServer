@@ -2,6 +2,7 @@
 
 use App\Persistence\ApiSession;
 use Illuminate\Support\Facades\Broadcast;
+use Nexus\Core\Repositories\PlayerRepositoryInterface;
 use NexusGuild\Repositories\GuildMemberRepositoryInterface;
 
 /*
@@ -17,15 +18,21 @@ use NexusGuild\Repositories\GuildMemberRepositoryInterface;
 |
 */
 
-// プレイヤー通知チャンネル: private-notification.{sysPlayerId}
+// プレイヤー通知チャンネル: private-notification.{myId}
+// チャンネル名にはクライアントが知る公開 ID（sys_player.my_id）を使う。
+// 内部の sys_player_id はクライアントへ返さないため、名前に含めない。
 // 認証済みプレイヤーが自分自身のチャンネルにのみ接続できる
-Broadcast::channel('notification.{sysPlayerId}', function ($user, string $sysPlayerId): bool {
-    // ApiSession からプレイヤーIDを取得して照合する
+Broadcast::channel('notification.{myId}', function ($user, string $myId): bool {
     if (! ApiSession::hasSysPlayerId()) {
         return false;
     }
 
-    return ApiSession::getSysPlayerId() === (int) $sysPlayerId;
+    // ApiSession のプレイヤーの my_id を引き、チャンネル名の my_id と照合する（1 回の主キー検索）
+    /** @var PlayerRepositoryInterface $playerRepository */
+    $playerRepository = app(PlayerRepositoryInterface::class);
+    $player = $playerRepository->selectById(ApiSession::getSysPlayerId());
+
+    return $player !== null && hash_equals($player->getMyId(), $myId);
 });
 
 // ギルドチャンネル: presence-guild.{guildId}

@@ -73,7 +73,7 @@ class NotificationTest extends TestCase
             createdAt: '2026-09-05 00:00:00',
         );
 
-        $this->assertSame($notification, (new NotificationCreated($notification))->notification);
+        $this->assertSame($notification, (new NotificationCreated($notification, 'AbCd1234'))->notification);
     }
 
     #[Test]

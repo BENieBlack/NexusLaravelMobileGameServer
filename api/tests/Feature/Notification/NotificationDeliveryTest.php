@@ -49,6 +49,7 @@ class NotificationDeliveryTest extends TestCase
         Event::assertDispatched(
             NotificationCreated::class,
             fn (NotificationCreated $event) => $event->notification->getPlayerId() === $receiver['player']->id
+                && $event->recipientMyId === $receiver['player']->my_id
         );
     }
 

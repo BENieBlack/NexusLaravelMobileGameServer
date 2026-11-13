@@ -101,6 +101,9 @@ API（api/）の接続は `api/config/database.php`、Tool（tool/）の接続�
 
 - sys / trx / log / adm / tol: `$table->id()`（BIGINT UNSIGNED AUTO_INCREMENT）。TiDB モードでは trx/log の `id` だけが UUID（VARCHAR）に変わり、sys / adm / tol と `sys_player_id` は連番のまま（11節）。
 - mst: **文字列の `id`**（`$table->string('id')->primary()`、例 `unit_knight_001`）。参照側の `mst_xxx_id` も string にする。
+- **mst の `id` に AUTO_INCREMENT は禁止**（`$table->id()` / `increments` / `bigIncrements` / `->autoIncrement()` など）。採番が環境や投入順でズレ、他のマスタの参照カラム（`mst_xxx_id`）との JOIN が効かなくなるため。代わりに人が決める安定した string の `id`、または複合主キーにする。
+  - 検査: `api/tests/Architecture/MstNoAutoIncrementIdTest.php`（`packages/*/database/migrations/mst/` と `api/database/migrations/mst/` を走査。Laravel 標準の cache / jobs 系は対象外）。
+  - 解消待ち（作り直しがモデル・シーダー・テストへ波及するため、検査の `PENDING_VIOLATIONS` に載せて通している。直したら一覧から消す。消し忘れも失敗する）: `mst_billing_platform_product`、`mst_in_app_purchase`（`packages/nexus-core-billing`）、`mst_vip_login_bonus_content`（`packages/nexus-vip`）。新しい違反を足してはならない。
 - 複合主キーで一意になる trx/mst テーブルは `id` を持たなくてよい（`trx_item` = `sys_player_id, mst_item_id`、`mst_unit_level` = `rarity, level`）。Model 側は `$primaryKey` を配列にして `api/app/Traits/CompositePrimaryKeyTrait.php` を使う。
 - 主キー・ユニークキーに名前を付けるときは `pk_xxx` / `uk_xxx`。
 

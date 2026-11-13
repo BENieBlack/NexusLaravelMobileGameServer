@@ -111,6 +111,20 @@ API を止める（メンテナンス）、画面を変える（ログインボ�
 | `sys_deploy_master` / `sys_deploy_asset` | `description` が `[REC]` で始まる（`sys_deploy` は `deploy_key = 190001010`） |
 | `mst_login_bonus` | 目印なし。`daily_login` の有効フラグだけを切り替える（行は消さない） |
 
+## 規約の HTML
+
+規約の `url` は `api/public/legal/` のサンプル HTML への相対パス（クライアントが API の origin に付けて取得する）。運用は [docs/terms_html.md](../../../../docs/terms_html.md)。
+
+| version（`sys_agreement`） | url | ファイル |
+| --- | --- | --- |
+| `rec-required` | `/legal/terms-of-service-1.0.0.html` | 利用規約（条文 10 条） |
+| `rec-optional` | `/legal/privacy-policy-1.0.0.html` | プライバシーポリシー |
+| `rec-future` | `/legal/rec-sample-future.html` | 未公開の規約 |
+| `rec-required-2` | `/legal/rec-sample-2.html` | 複数件用 |
+| `rec-required-3` | `/legal/rec-sample-3.html` | 複数件用 |
+
+シーダーは `url` も更新するので、古い値（以前のダミー URL）の行も流し直せば直る。テストは `api/tests/Feature/Recording/RecordingTermsHtmlTest.php`。
+
 ## 冪等性と安全性
 
 - **追加専用・冪等**: 何度流しても同じ結果。既存のシーダー（`truncate` で作り直す）と違い、既存データを消さない。キーで `updateOrInsert` する

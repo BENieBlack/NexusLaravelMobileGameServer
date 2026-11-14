@@ -221,10 +221,11 @@
 | U-S7 | ガチャ・交換の `cost_type = item` で `free_diamond` を指すマスターを、マスターの取り込み時に拒否するか | **拒否しない**。ランタイムのガード（6.4）で足りる。取り込み時の検査は別の機能 |
 | ~~U-S8~~（解決済み。人の決定） | `mst_item__l10n` の `ja` の `name`（10.3 節の一覧） | 10.3 節の一覧の名前を採用（人の決定、2026-11-14）。後から運営が変えるのはマスター投入で可。`free_diamond` は `無償ダイヤ`、`stamina_50` は `スタミナ回復薬（50）`。`description` は全行 `null` |
 | ~~U-S9~~（解決済み。人の決定） | ログインボーナスの `stamina` 報酬。**決定**: ログインボーナスでスタミナを渡せるようにする。`mst_item` に `id = stamina_50`・`value = 50` を足し、アイテムとして配り、使用するとスタミナが回復する | 設計は 10.3.1 節。列の解釈（人の言う `category = stamina` を `type = 'stamina'` と読む）は U-S12 で確認 |
-| ~~U-S10~~（解決済み。人の回答＋確定） | `MstItemL10n` モデルと `MstItem::l10n()` | **足す（確定）**。l10n のモデルは `MstMessageL10n`・`MstTagL10n`・`MstMissionL10n`・`MstTradeL10n`・`MstTradeProductL10n`・`MstEventL10n` が既にあり、`MstItemL10n` だけ無い。`.claude/coding-standards.md` 99 行目が「`<親>__l10n` にもモデルを作り、親から `l10n(): HasMany` で引く」と定める。キャッシュの扱いは 10.7 節（U-S13） |
+| ~~U-S10~~（解決済み。人の決定） | l10n のモデル（`MstItemL10n`・`MstItem::l10n()`） | **作らない**。人の決定: l10n は **L10n モデルを持たず、親テーブルと JOIN して親と一緒にキャッシュする**方式に統一する（既存の 6 モデルも削除する。ただし**別機能**。10.7 節・後回し置き場 `Nexus/docs/backlog/README.md`）。シーダーの書き込みとテストの検査はモデル無し（クエリビルダー）で書く（10.2・10.4 節） |
 | ~~U-S11~~（解決済み。人の決定） | `mst_item` の全行に `mst_item__l10n` の行があることを検査するテスト | **入れる**（29 行。10.4 節） |
-| U-S12 | 人の言う「`category = stamina`」は、実際の `mst_item` の列（`type`・`effect`・`value`。`category` 列は無い）では **`type = 'stamina'`** のことか | **`type = 'stamina'`**（`effect = 'stamina_recover'`・`value = 50`・`is_wallet = false`）と解釈して設計した（10.3.1 節）。`type` は string 列（enum ではない）で、いまの値は `recovery`・`boost`・`experience`・`unit_enhancement`・`material`・`currency`・`natural_resource`・`points`。`UseItemUseCase` は `effect` だけで分岐するので、`type` は表示・分類用。**違うなら人が指示**（例: `type = 'recovery'` に入れる） |
-| U-S13 | 人の提案ルール「l10n は親を eager load して一緒にキャッシュする」を、この機能で `MstItemRepository` に適用するか（10.7 節） | **適用する**（S3）。基底 `_BaseMstRepository`（`packages/nexus-core`）に eager load の指定を足し、`MstItemRepository` が `['l10n']` を指定する。この機能の API は l10n を読まない（読み手が無い）ので効果は将来の読み手向け。**読み手が出るまで入れない**案もあり、人が決める。ルールの `.claude/` への明文化は S3 |
+| ~~U-S12~~（解決済み。人の決定） | 人の言う「`category = stamina`」は `mst_item` の列では `type = 'stamina'` か | **`type = 'stamina'` で確定**（`effect = 'stamina_recover'`・`value = 50`・`is_wallet = false`。10.3.1 節） |
+| ~~U-S13~~（解決済み。人の決定） | l10n を親と一緒にキャッシュするルールの適用 | **入れる**。ただし前案（基底に `$eagerLoad`・`l10n()` リレーション）は L10n モデルが前提なので**取りやめ**、10.7 節の方針（親リポジトリが親テーブルと JOIN して読み、親と一緒にキャッシュ。L10n モデルは持たない）に置き換えた。この機能の API は l10n を読まないので、サーバーの読み取りは将来の読み手向け。必須の実装は「シーダーが `mst_item__l10n` に行を入れる」だけ |
+| U-S14 | 10.7 節の「自分の言語の行だけを JOIN し、親と一緒に言語をキーに含めてキャッシュ」を、`MstItemRepository` で具体的にどう持つか（言語別の名前をモデルにどう載せるか、該当言語の行が無いときのフォールバック、キャッシュのキー `mst:{table}:{language}:all` と `clearCache()` の対象言語） | 既定案は 10.7 節（`ApiSession::getLanguage()` の言語の行だけを JOIN して親の属性に載せ、型付き getter で読む。無い行は `ja` で埋める。キーに言語を含め、`clearCache()` は全サポート言語のキーを消す）。**読み手がこの機能に無い**ので、S3 では実装せず、読み手を作る機能で確定してよい |
 
 ## 10. アイテムの表示名: `mst_item__l10n` の行を入れる（design-change。要件「表示名の配信」）
 
@@ -247,7 +248,7 @@
 - `deploy_key`: `mst_item` の行と同じ値（`MstItemSeeder` の `202601010`）。
 - **規約に反しない点**: `mst_item__l10n` は mst の「string の `id` 必須」の対象外（主キーは親の ID + `language`。`MstRequiresStringIdTest` は `__l10n` を除外し、`.claude/database.md` 3 節・6 節）。新しいテーブルを作らないので `PENDING_VIOLATIONS` も変えない（7 節）。`deploy_key` 列は既にある（同 7 節）。`name`・`description` に `id` 的な値は入れない。
 - `language` は `ja` だけ入れる（クライアントは `ja` 固定。他言語の行は運営がマスター投入で足す。ENUM の値は変えない）。
-- 書き込みは `_BaseMst::allowWrites()` の中（既存のシーダーと同じ）。モデルは `MstItemL10n`（U-S10 確定。`MstMessageL10n` の形）。
+- 書き込みは `_BaseMst::allowWrites()` の中（既存のシーダーと同じ）。**L10n モデルは作らない**（U-S10）ので、`mst_item__l10n` へは `DB::connection('mst')->table('mst_item__l10n')->insert([...])`（クエリビルダー）で入れる。既存の流儀どおり: `MstItemSeeder` は `run()` の頭で `allowWrites()` を開き、`truncate` も `DB::connection('mst')->table(...)` で行っている（読んだ）。`RecordingLoginBonusSeeder` も `allowWrites` の中でクエリビルダーの `updateOrInsert` を使う。`created_at`・`updated_at` はテーブルの既定値（CURRENT_TIMESTAMP）に任せてよい（テストの直接 insert は `now()` を入れている）。
 
 ### 10.3 `mst_item` の全行と `ja` の名前（**一覧の名前を採用。人の決定、2026-11-14。後から運営が変えるのはマスター投入で可**）
 
@@ -318,23 +319,28 @@
 - エクスポート（`POST /master-import/export`）は**変更しない**。行を入れたあとに**再エクスポート**し、version API の `master.tables` に `mst_item` が載る（`mst_item__l10n` は同じファイルに入る）ことを確かめる（クライアントの S5 の動画の前提）。
 - 本番のマスター投入（スプレッドシート → `MasterImportService`）で `mst_item__l10n` を持つかは、運営の運用（この機能の対象外）。シーダーは開発・検証環境の初期値。
 
-### 10.7 l10n の読み方とキャッシュ（U-S10・U-S13。事実と設計）
+### 10.7 l10n の読み方とキャッシュ（U-S10・U-S13・U-S14。事実と方針）
+
+**人の決定**: l10n は **L10n モデルを持たず、親テーブルに JOIN して一緒にキャッシュする**方式に統一する。既存の l10n モデル 6 つ（`MstMessageL10n`・`MstTagL10n`・`MstMissionL10n`・`MstTradeL10n`・`MstTradeProductL10n`・`MstEventL10n`）の削除と、それを使う既存コードの置き換えは、この機能の範囲を超えるリファクタなので **free-diamond-item の S3 に含めず、別機能に切り出す**（`Nexus/docs/backlog/README.md` に影響範囲つきで追記済み）。
 
 **事実（読んだ）**
 
 | 項目 | 現状 |
 | --- | --- |
-| l10n のモデル | `MstMessageL10n`・`MstTagL10n`・`MstMissionL10n`・`MstTradeL10n`・`MstTradeProductL10n`・`MstEventL10n`（`api/app/Models/Mst/`）。**`MstItemL10n` は無い**。親側に `l10n(): HasMany` があるのは `MstMessage` だけ（`MstMessage::l10n()`） |
-| 規約 | `.claude/coding-standards.md` 99 行目: 「`<親>__l10n` にもモデルを作り、親から `l10n(): HasMany` で引く」 |
-| mst のキャッシュ | `_BaseMstRepository::queryOrMemory()`（`packages/nexus-core/src/Repositories/Mst/`）は、**親テーブル 1 つ**の全行を `Model::all()` で読み、Redis に `mst:{table}:all` のキーで `cacheTtl` の間置く。`all()` はリレーションを読まないので、**l10n はキャッシュに入らない**。l10n 専用の Repository・キャッシュも無い |
-| 実際の l10n の読み方 | サーバーが l10n を読むのは**メール一覧だけ**。`TrxMailboxRepository` が `with(['mstMailbox.message.l10n', ...])` で、一覧の取得時に `mst_message__l10n` をまとめて DB から SELECT する（Redis のキャッシュは通らない）。`MailboxItemAssemblyService` はその結果から `ApiSession::getLanguage()` の言語を選ぶ（無ければ既定 `ja`）。ミッション・交換のモデル（`MstMissionL10n` など）は定義されているが、応答の `ListResponse` は名前を載せず、クライアントがマスターから引く |
-| `MstItemRepository` | `MstItem::class` を指定するだけ。`selectById`・`selectListByIds`・`selectWalletManaged` が `queryOrMemory()` のキャッシュを使う。**`mst_item` はアイテムの付与・消費のたびに読まれる**（`isWalletManaged` ほか） |
+| l10n のモデル | 上の 6 つ（`api/app/Models/Mst/`）。`MstItemL10n` は無い。親側の `l10n(): HasMany` は `MstMessage`・`MstTag`・`MstMission`・`MstTrade`・`MstTradeProduct`・`MstEvent` の 6 つ |
+| 規約の食い違い | `.claude/coding-standards.md` 99 行目と `.claude/naming-conventions.md` 58 行目は「`<親>__l10n` にモデルを作り `l10n(): HasMany` で引く」。一方 `api/docs/coding_conventions.md` 689 行目は「**`*_l10n` にはモデルクラスを作成しない**」で、`leftJoin` の例（710〜714 行）を載せている（`mst_unit_l10n` など旧名のまま）。今回の人の決定は後者の方向 |
+| mst のキャッシュ | `_BaseMstRepository::queryOrMemory()`（`packages/nexus-core/src/Repositories/Mst/`）は、**親テーブル 1 つ**の全行を `Model::all()` で読み、Redis に `mst:{table}:all` の間キーで `cacheTtl` の間置く。**l10n はキャッシュに入らない**。l10n 専用の Repository・キャッシュは無い |
+| 実際の l10n の読み方 | サーバーが l10n を読むのは**メール一覧だけ**。`TrxMailboxRepository.php:40` の `with(['mstMailbox.message.l10n', ...])` で、一覧の取得時に `mst_message__l10n` を DB から SELECT する（キャッシュは通らない）。`MailboxItemAssemblyService` が `MstMessageL10n` を型に使い、`ApiSession::getLanguage()` の言語を選ぶ（無ければ既定 `ja`）。ミッション・交換・タグ・イベントの l10n モデルを使うコードは無い（定義と親の `l10n()` だけ） |
+| テスト・シーダー | l10n の行はすべて `DB::connection('mst')->table('..__l10n')` で入れている（`WalkthroughTest`・`UnitLevelUpTest`・`EquipmentLevelUp*Test`・`EventPeriodResolverTest`）。L10n モデルを使うテストは無い |
+| `MstItemRepository` | `MstItem::class` を指定するだけ。`selectById`・`selectListByIds`・`selectWalletManaged` が `queryOrMemory()` のキャッシュを使う。`mst_item` は付与・消費のたびに読まれる |
 
-**設計（人の提案ルール: 「l10n は親テーブルを eager load して、親と一緒にキャッシュする」）**
+**方針（この機能では書く方針だけ。実装しない）**
 
-- 基底 `_BaseMstRepository`（`packages/nexus-core`）に、`protected array $eagerLoad = []` のような指定を足し、`queryOrMemory()` の読み込み（`Model::all()`）を `Model::with($this->eagerLoad)->get()` にする。**指定が空なら今と同じ動き**で、他の Repository は変わらない。
-- `MstItemRepository` は `$eagerLoad = ['l10n']` を指定する。これで `mst_item` の全行と各行の `l10n`（`mst_item__l10n`）が 1 つのキャッシュ（`mst:mst_item:all`）に入り、読み手が `$mstItem->l10n` を引いても追加の SELECT が出ない。N+1 にならない。
-- 読み手は `ApiSession::getLanguage()` の言語で `l10n` から選ぶ（無ければ `ja`。`MailboxItemAssemblyService` と同じ流儀）。
-- 影響: キャッシュの 1 キーが大きくなる（29 行 × 言語数。`ja` だけなら 29 行増）。`mst_item__l10n` だけを差し替えたときは、親（`mst_item`）のキャッシュを消す必要がある（`clearCache()` は親のキーを消すので、そのまま効く。マスターの再デプロイでキャッシュが作り直される運用は変わらない）。
-- **この機能の API は l10n を読まない**ので、適用の効果は将来の読み手向け（U-S13。人が「読み手が出るまで入れない」を選んでもよい）。
-- **S3 への申し送り**: 規約として `.claude/coding-standards.md`（l10n の節）または `.claude/database.md` 6 節に「l10n は親を eager load して一緒にキャッシュする（`$eagerLoad`）」と明文化する。今回は規約ファイルを触らない。既存の `MstMessage` は `TrxMailboxRepository` の `with()` で読む形のままにする（今回は対象外。揃えるかは別の機会）。
+- l10n は**親の Repository が親テーブルと JOIN して読み、親と一緒にキャッシュする**。`l10n()` リレーションと L10n モデルは持たない。
+- **言語は「自分の言語だけ」を読む**（人の補足）。Repository が、リクエストの言語で親テーブルと JOIN して**その言語の行だけ**を SELECT し、結果を**言語をキーに含めて**キャッシュする。全言語の行は読まない。
+- **言語の取り方（既存の仕組み。読んだ）**: `ResolveLanguage`（`api` グループの先頭）が `Accept-Language` を解釈して `ApiSession::setLanguage()` と `app()->setLocale()` に載せる。Repository は **`ApiSession::getLanguage()`**（静的ヘルパー。`app()` に `ApiSession` が無ければ `config('language.default')` = `ja`）で取る。`ApiSession::getLanguage()` を使う理由: ① 値がサポート言語に正規化済み（サポート外・欠落は `ja`）。リクエストヘッダーを直読みすると、未正規化の値（`ja-JP,ja;q=0.9` など）がキャッシュのキーになり、キーが増える。② `app()->getLocale()` も同じ値だが、Laravel の一般の locale 機構でテストや他の処理が書き換えうる。このリポジトリで言語を読むのは `ApiSession::getLanguage()` だけ（`MailboxItemAssemblyService`。`app()->getLocale()` を読む箇所は無い）。③ **request が無い文脈**（バッチ・artisan コマンド・シーダー・キューのジョブ）では `ApiSession` が束縛されず、`ja` になる（既定値）。つまり request の無い文脈は `ja` で読む。
+- `MstItemRepository` での形（既定案。U-S14）: 基底 `_BaseMstRepository` の「`Model::all()` を読んで Redis に置く」部分を Repository が上書きできるようにし、`MstItemRepository` が `mst_item` と `mst_item__l10n`（`language = ApiSession::getLanguage()` の行だけ）を JOIN して、`name`・`description` を親モデルの属性に載せる。読み手は型付き getter で読み、追加の SELECT は出ない。l10n の列はモデルの「実在するカラム」ではないので `@property` に書かず getter だけを足す。該当言語の行が無いときの扱い（既定言語 `ja` の行へのフォールバックをキャッシュの中で行うか、名前なしにするか）は U-S14 で決める（既定案: `ja` の行で埋める。`MailboxItemAssemblyService` と同じ流儀）。
+- **キャッシュ（既存の仕組みの事実と変更点）**: 既存は `Cache::store('redis')->remember("mst:{table}:all", cacheTtl = 3600 秒, ...)` で、親テーブル 1 つの全行（`Model::all()`）を、ユニークキーの連結をキーにした配列として置く。さらにリクエスト内は Repository のメモリ（`$models`）に持つ。`clearCache()` は `mst:{table}:all` を `forget` する（コメントは「テスト用」。アプリのコードから呼ぶ箇所は無く、本番の更新の反映は **TTL（3600 秒）の自然失効だけ**。`clearAllCaches()` は Redis 全体の `flush`）。**案**: キーに言語を含める `mst:{table}:{language}:all`（例 `mst:mst_item:ja:all`）にする。`ja` 固定のクライアントでは実質 1 キー。`clearCache()` も同じ組み立てで `forget` する（現在の言語のキーだけでなく、サポート言語すべてのキーを消すようにする。`config('language.supported')` の 14 言語。言語のキーを増やすと、無効化の取りこぼし（別言語のキーが古いまま残る）が起きるため）。l10n を持たない他の Repository のキーは変えない（`mst:{table}:all` のまま）。マスター更新（再デプロイ）時の反映は、既存と同じ TTL 失効。**即時に反映したいなら**、デプロイの登録時に該当キーを消す処理が別途要る（既存にも無い。この機能の対象外）。
+- 影響: `mst_item` のキャッシュは、言語ごとに 1 キー（`ja` だけなら 29 行 × 1 言語分の増加）。l10n だけを差し替えても、親のキャッシュを消せば効く（親と一緒に持つため）。
+- **この機能の API は l10n を読まない**。必須の実装は「シーダーが `mst_item__l10n` に行を入れる」だけ（10.2 節）。読み取り（上の方針）は、サーバーが `mst_item` の名前を読む機能が出たときに入れる。
+- **規約ファイルの直し（S3 または別機能。今回は触らない）**: `CLAUDE.md:56`（「多言語テーブルは `<親テーブル>__l10n`（主キー…）」。モデル有無に触れないので、「モデルは持たず、親と JOIN して親と一緒にキャッシュ」を足す）、`.claude/coding-standards.md:99`（モデルを作る・`l10n()` で引くの記述を差し替え）、`.claude/naming-conventions.md:58`（`{親Model}L10n`・`l10n()` の記述を削除）、`.claude/database.md:172` 付近（6 節。「JOIN して親と一緒にキャッシュ」を足す）。`api/docs/coding_conventions.md:689` は既にモデル無しなので、旧名（`mst_unit_l10n`）だけ直す。

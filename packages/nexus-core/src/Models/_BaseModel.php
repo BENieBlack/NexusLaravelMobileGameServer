@@ -387,6 +387,17 @@ abstract class _BaseModel extends Model implements _BaseModelInterface
             }
         }
 
+        // is_delete は DB 取得時に 0/1 の整数で入るので、応答では JSON の真偽値にそろえる
+        // （応答だけに効く。DB・モデルの属性は変えない）
+        if (array_key_exists('is_delete', $array)) {
+            $array['is_delete'] = (bool) $array['is_delete'];
+        } elseif (in_array('is_delete', $this->getFillable(), true)) {
+            // is_delete のカラムを持つモデルの未保存の新規行は、値を入れていないとキー自体が無くなる
+            // （例: 同じリクエストのログインボーナスで new した行。DB の既定値は false）。
+            // 応答の is_delete は null 不可の契約なので、既定値と同じ false を補う
+            $array['is_delete'] = false;
+        }
+
         // クライアントに渡さない内部情報を除外
         unset($array['sys_player_id']);
         unset($array['uuid']);

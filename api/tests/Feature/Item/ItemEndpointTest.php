@@ -159,15 +159,17 @@ class ItemEndpointTest extends TestCase
 
     private function createPlayerData(): void
     {
-        DB::connection($this->connection)->table('trx_stamina')->insert([
-            'sys_player_id' => $this->sysPlayerId,
-            'type' => StaminaConst::TYPE_NORMAL,
-            'current_stamina' => 10,
-            'recovery_rate_multiplier' => 1.00,
-            'last_recovery_at' => now()->format('Y-m-d H:i:s'),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        // サインアップ時に初期スタミナの行（type = normal）ができているので、テスト用の値に置き換える
+        DB::connection($this->connection)->table('trx_stamina')->updateOrInsert(
+            ['sys_player_id' => $this->sysPlayerId, 'type' => StaminaConst::TYPE_NORMAL],
+            [
+                'current_stamina' => 10,
+                'recovery_rate_multiplier' => 1.00,
+                'last_recovery_at' => now()->format('Y-m-d H:i:s'),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]
+        );
 
         DB::connection($this->connection)->table('trx_item')->insert([
             'sys_player_id' => $this->sysPlayerId,

@@ -35,6 +35,10 @@ class CompositeUniqueKeyCacheTest extends TestCase
 
         ['player' => $player] = $this->signUpPlayer();
         $this->sysPlayerId = $player->id;
+        // 空の新規プレイヤーを前提にフィクスチャを入れるので、初期付与の行を外す
+        $this->deleteInitialGrant($this->sysPlayerId);
+        // サインアップの初期付与が Repository のキャッシュ（リクエストスコープ）に行を載せているので捨てる
+        $this->app->forgetScopedInstances();
         ApiSession::setSysPlayerId($this->sysPlayerId);
         $this->connection = $this->playerConnection($this->sysPlayerId);
     }

@@ -5,6 +5,7 @@ namespace NexusStamina\Tests\Unit;
 use NexusStamina\DataTransferObjects\Stamina;
 use NexusStamina\Repositories\StaminaRepositoryInterface;
 use NexusStamina\Services\PlayerLevelServiceInterface;
+use NexusStamina\Services\StaminaRecoveryIntervalProviderInterface;
 use NexusStamina\Services\StaminaService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -18,6 +19,8 @@ class StaminaServiceTest extends TestCase
 
     private PlayerLevelServiceInterface&MockObject $levelService;
 
+    private StaminaRecoveryIntervalProviderInterface $recoveryIntervalProvider;
+
     private StaminaService $service;
 
     protected function setUp(): void
@@ -27,9 +30,14 @@ class StaminaServiceTest extends TestCase
         $this->staminaRepository = $this->createMock(StaminaRepositoryInterface::class);
         $this->levelService = $this->createMock(PlayerLevelServiceInterface::class);
 
+        // 回復間隔は 300 秒を返す読み出し口（従来の既定と同じ値）
+        $this->recoveryIntervalProvider = $this->createMock(StaminaRecoveryIntervalProviderInterface::class);
+        $this->recoveryIntervalProvider->method('findRecoveryIntervalSeconds')->willReturn(300);
+
         $this->service = new StaminaService(
             $this->staminaRepository,
-            $this->levelService
+            $this->levelService,
+            $this->recoveryIntervalProvider
         );
     }
 
@@ -291,7 +299,7 @@ class StaminaServiceTest extends TestCase
 
         $result = $this->service->calcTimeUntilNextRecovery($playerId, $type);
 
-        // 経過0秒なので、次回まで300秒
+        // 経過0秒なので、次回まで回復間隔（読み出し口が返す 300 秒）
         $this->assertEquals(300, $result);
     }
 

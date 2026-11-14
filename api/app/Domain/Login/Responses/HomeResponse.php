@@ -25,7 +25,7 @@ class HomeResponse extends _BaseResponse
      * @param  array<int, TrxUnit>  $trxUnits  所持ユニット一覧
      * @param  array<int, TrxItem>  $trxItems  所持アイテム一覧
      * @param  array<int, TrxWallet>  $trxWallets  ウォレット一覧
-     * @param  array<int, TrxDiamond>  $trxDiamonds  ダイヤ（プラットフォームごと）
+     * @param  TrxDiamond|null  $trxDiamond  X-Platform の platform のダイヤ 1 行（行が無ければ null）
      * @param  array<int, TrxEquipment>  $trxEquipments  所持装備一覧
      * @param  array<int, TrxStamina>  $trxStaminas  スタミナ（自然回復を加算した現在値）
      * @param  array<int, \Nexus\Core\Resource\DataTransferObjects\Resource>  $loginBonusContents  ログインボーナス内容
@@ -35,7 +35,7 @@ class HomeResponse extends _BaseResponse
         public readonly array $trxUnits,
         public readonly array $trxItems,
         public readonly array $trxWallets,
-        public readonly array $trxDiamonds,
+        public readonly ?TrxDiamond $trxDiamond,
         public readonly array $trxEquipments,
         public readonly array $trxStaminas,
         public readonly array $loginBonusContents,
@@ -62,10 +62,8 @@ class HomeResponse extends _BaseResponse
                 fn ($wallet) => $wallet->toResponseArray(),
                 $this->trxWallets
             ),
-            'trx_diamond_list' => array_map(
-                fn ($diamond) => $diamond->toResponseArray(),
-                $this->trxDiamonds
-            ),
+            // 端末の platform の 1 行だけをオブジェクトで返す（無ければ null）
+            'trx_diamond' => $this->trxDiamond?->toResponseArray(),
             'trx_equipment_list' => array_map(
                 fn ($equipment) => $equipment->toResponseArray(),
                 $this->trxEquipments

@@ -4,16 +4,19 @@ namespace Tests\Unit\UseCases\Auth;
 
 use App\Domain\Auth\Responses\SignUpResponse;
 use App\Domain\Auth\UseCases\SignUpUseCase;
+use App\Domain\Player\Contracts\InitialGrantInterface;
 use App\Domain\Sharding\Services\ShardAssignmentService;
 use App\Exceptions\BusinessLogicException;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;
+use App\Persistence\ApiSession;
 use App\Repositories\Sys\PlayerRepositoryAdapter;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
 use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;
 use Illuminate\Support\Facades\Log;
+use Mockery;
 use NexusAuth\Services\PlayerAuthService;
 use NexusAuth\Services\TokenService;
 use Tests\RefreshMultipleDatabases;
@@ -68,7 +71,12 @@ class SignUpUseCaseTest extends TestCase
             $this->tokenService,
             $this->deviceRepository,
             new ShardAssignmentService,
+            // このテストは sys だけを検証する（trx の初期付与は AuthSignUpInitialGrantTest で検証する）
+            Mockery::mock(InitialGrantInterface::class)->shouldIgnoreMissing(),
         );
+
+        // sign_up は付与に platform を渡すので、ミドルウェアが載せた状態にする
+        ApiSession::setPlatform('Apple');
 
         // Suppress log output during tests
         Log::spy();

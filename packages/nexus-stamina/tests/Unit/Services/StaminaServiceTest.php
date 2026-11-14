@@ -8,6 +8,7 @@ use NexusStamina\Constants\StaminaConst;
 use NexusStamina\DataTransferObjects\Stamina;
 use NexusStamina\Repositories\StaminaRepositoryInterface;
 use NexusStamina\Services\PlayerLevelServiceInterface;
+use NexusStamina\Services\StaminaRecoveryIntervalProviderInterface;
 use NexusStamina\Services\StaminaService;
 use PHPUnit\Framework\TestCase;
 
@@ -18,6 +19,8 @@ class StaminaServiceTest extends TestCase
     private StaminaRepositoryInterface $staminaRepository;
 
     private PlayerLevelServiceInterface $playerLevelService;
+
+    private StaminaRecoveryIntervalProviderInterface $recoveryIntervalProvider;
 
     /**
      * テストで使うスタミナDTOの最終回復時刻
@@ -36,9 +39,14 @@ class StaminaServiceTest extends TestCase
         $this->staminaRepository = Mockery::mock(StaminaRepositoryInterface::class);
         $this->playerLevelService = Mockery::mock(PlayerLevelServiceInterface::class);
 
+        // 回復間隔の読み出し口。既定は従来と同じ 300 秒（別の値を試すテストは自分で上書きする）
+        $this->recoveryIntervalProvider = Mockery::mock(StaminaRecoveryIntervalProviderInterface::class);
+        $this->recoveryIntervalProvider->shouldReceive('findRecoveryIntervalSeconds')->andReturn(300)->byDefault();
+
         $this->service = new StaminaService(
             $this->staminaRepository,
-            $this->playerLevelService
+            $this->playerLevelService,
+            $this->recoveryIntervalProvider
         );
     }
 
@@ -380,6 +388,53 @@ class StaminaServiceTest extends TestCase
         $this->assertSame(15, $result[1]->getCurrentStamina());
         // 回復に使った分だけ基準時刻が進む
         $this->assertSame('2026-01-15 10:25:00', $result[0]->getLastRecoveryAt());
+    }
+
+    /**
+     * 回復間隔が読み出し口の値に従う（600 秒なら 25 分で 2 ポイント）。
+     * スタミナが複数行でも、回復間隔の読み出しは 1 回だけ
+     */
+    public function test_find_all_staminas_uses_recovery_interval_from_provider_once(): void
+    {
+        $sysPlayerId = 1;
+        ClockUtility::setNow('2026-01-15 10:25:00');
+
+        $normal = new Stamina($sysPlayerId, StaminaConst::TYPE_NORMAL, 50, 1.00, self::LAST_RECOVERY_AT);
+        $raid = new Stamina($sysPlayerId, StaminaConst::TYPE_RAID, 10, 1.00, self::LAST_RECOVERY_AT);
+
+        $this->staminaRepository->shouldReceive('selectAllByPlayer')->once()->with($sysPlayerId)->andReturn([$normal, $raid]);
+        $this->playerLevelService->shouldReceive('findMaxStamina')->once()->with($sysPlayerId)->andReturn(100);
+
+        $provider = Mockery::mock(StaminaRecoveryIntervalProviderInterface::class);
+        $provider->shouldReceive('findRecoveryIntervalSeconds')->once()->andReturn(600);
+        $service = new StaminaService($this->staminaRepository, $this->playerLevelService, $provider);
+
+        $result = $service->findAllStaminas($sysPlayerId);
+
+        $this->assertSame(52, $result[0]->getCurrentStamina());
+        $this->assertSame(12, $result[1]->getCurrentStamina());
+        // 2 ポイント × 600 秒 = 1200 秒（20 分）だけ基準時刻が進む。残り 5 分は次回に持ち越す
+        $this->assertSame('2026-01-15 10:20:00', $result[0]->getLastRecoveryAt());
+    }
+
+    /**
+     * 回復間隔と回復速度倍率が合わさって次回回復までの秒数が決まる
+     */
+    public function test_calc_time_until_next_recovery_uses_recovery_interval_from_provider(): void
+    {
+        $sysPlayerId = 1;
+        // 経過 100 秒、倍率 2.0 → 実効 200 秒。間隔 600 なら残り (600 - 200) / 2 = 200 秒
+        ClockUtility::setNow('2026-01-15 10:01:40');
+
+        $stamina = new Stamina($sysPlayerId, StaminaConst::TYPE_NORMAL, 50, 2.00, self::LAST_RECOVERY_AT);
+        $this->staminaRepository->shouldReceive('selectByPlayerAndType')->once()->andReturn($stamina);
+        $this->playerLevelService->shouldReceive('findMaxStamina')->once()->andReturn(100);
+
+        $provider = Mockery::mock(StaminaRecoveryIntervalProviderInterface::class);
+        $provider->shouldReceive('findRecoveryIntervalSeconds')->once()->andReturn(600);
+        $service = new StaminaService($this->staminaRepository, $this->playerLevelService, $provider);
+
+        $this->assertSame(200, $service->calcTimeUntilNextRecovery($sysPlayerId));
     }
 
     public function test_find_all_staminas_returns_empty_when_player_has_none(): void

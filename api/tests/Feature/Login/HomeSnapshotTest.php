@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Login;
 
+use App\Models\Trx\TrxDiamond;
 use Illuminate\Support\Facades\DB;
 use Nexus\Core\UnitOfWork\Contracts\ReturnedAsSingleUpdatedResource;
 use Nexus\Core\UnitOfWork\Contracts\ReturnedAsUpdatedResource;
@@ -31,6 +32,12 @@ class HomeSnapshotTest extends TestCase
         foreach ($this->returnedModels() as $class) {
             $table = (new $class)->getTable();
             $key = is_subclass_of($class, ReturnedAsSingleUpdatedResource::class) ? $table : $table.'_list';
+
+            // login のダイヤだけは、X-Platform の platform の 1 行を trx_diamond（オブジェクト）で返す
+            // （D5。updated_resources は従来どおり trx_diamond_list）
+            if ($class === TrxDiamond::class) {
+                $key = 'trx_diamond';
+            }
 
             $this->assertTrue(
                 array_key_exists($key, $response->json()),

@@ -8,6 +8,7 @@ use App\Repositories\Mst\MstPlayerLevelRepository;
 use App\Repositories\Trx\TrxStaminaRepository;
 use Nexus\Core\Utilities\ClockUtility;
 use NexusLevel\Events\PlayerLeveledUp;
+use NexusStamina\Services\StaminaRecoveryIntervalProviderInterface;
 
 /**
  * RecoverStaminaOnPlayerLevelUp
@@ -24,11 +25,6 @@ use NexusLevel\Events\PlayerLeveledUp;
 class RecoverStaminaOnPlayerLevelUp
 {
     /**
-     * スタミナ回復間隔（秒）
-     */
-    private const RECOVERY_INTERVAL_SECONDS = 300;
-
-    /**
      * 最大スタミナのフォールバック値
      */
     private const DEFAULT_MAX_STAMINA = 50;
@@ -36,6 +32,7 @@ class RecoverStaminaOnPlayerLevelUp
     public function __construct(
         private readonly MstPlayerLevelRepository $mstPlayerLevelRepository,
         private readonly TrxStaminaRepository $trxStaminaRepository,
+        private readonly StaminaRecoveryIntervalProviderInterface $recoveryIntervalProvider,
     ) {}
 
     /**
@@ -58,8 +55,8 @@ class RecoverStaminaOnPlayerLevelUp
             return;
         }
 
-        // 自然回復計算を適用
-        $this->applyAutoRecovery($stamina, $newMaxStamina);
+        // 自然回復計算を適用（回復間隔は MstConfig 由来。1 回だけ読む）
+        $this->applyAutoRecovery($stamina, $newMaxStamina, $this->recoveryIntervalProvider->findRecoveryIntervalSeconds());
 
         // 最大スタミナ分を加算（最大値超過可能）
         $stamina->setCurrentStamina($stamina->getCurrentStamina() + $newMaxStamina);
@@ -90,8 +87,9 @@ class RecoverStaminaOnPlayerLevelUp
      *
      * @param  TrxStamina  $stamina  スタミナモデル
      * @param  int  $maxStamina  プレイヤーの最大スタミナ
+     * @param  int  $recoveryIntervalSeconds  回復間隔（秒。1 以上）
      */
-    private function applyAutoRecovery(TrxStamina $stamina, int $maxStamina): void
+    private function applyAutoRecovery(TrxStamina $stamina, int $maxStamina, int $recoveryIntervalSeconds): void
     {
         // すでに最大値の場合は回復不要
         if ($stamina->isCurrentStaminaFull($maxStamina)) {
@@ -101,11 +99,11 @@ class RecoverStaminaOnPlayerLevelUp
         // 経過秒数を計算
         $elapsedSeconds = ClockUtility::diffInSeconds($stamina->getLastRecoveryAt());
 
-        // 回復速度倍率を適用（5分 = 300秒で1ポイント回復）
+        // 回復速度倍率を適用（回復間隔ごとに1ポイント回復）
         $effectiveElapsedSeconds = $elapsedSeconds * $stamina->getRecoveryRateMultiplier();
 
         // 回復ポイント数を計算
-        $recoveredPoints = (int) floor($effectiveElapsedSeconds / self::RECOVERY_INTERVAL_SECONDS);
+        $recoveredPoints = (int) floor($effectiveElapsedSeconds / $recoveryIntervalSeconds);
 
         if ($recoveredPoints <= 0) {
             return;
@@ -115,7 +113,7 @@ class RecoverStaminaOnPlayerLevelUp
         $newStamina = min($stamina->getCurrentStamina() + $recoveredPoints, $maxStamina);
 
         // 次回回復基準時刻を計算（余剰秒数は切り捨て）
-        $recoveredSeconds = $recoveredPoints * self::RECOVERY_INTERVAL_SECONDS;
+        $recoveredSeconds = $recoveredPoints * $recoveryIntervalSeconds;
         $lastRecoveryAt = ClockUtility::parse($stamina->getLastRecoveryAt());
         $newLastRecoveryAt = $lastRecoveryAt->addSeconds((int) floor($recoveredSeconds / $stamina->getRecoveryRateMultiplier()));
 

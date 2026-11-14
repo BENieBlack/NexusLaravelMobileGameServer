@@ -13,6 +13,7 @@
 | 返さない | 7テーブルを更新しない | 下の表の「なし」 |
 
 - `updated_resources` の中身は、同じ行は1つにまとまり、最後の状態になる。物理削除した行は入らない
+- 各行の `is_delete` は JSON の真偽値（`true` / `false`）。DB から読んだ行も、そのリクエストで作った新規の行も同じ（`_BaseModel::toResponseArray()` で揃える）
 - 新規プレイヤーは `auth/sign_up`、既存プレイヤーは `auth/sign_in` のあとに、必ず `auth/login` を呼んで現在値を全て取得する。`sign_up` / `sign_in` / `refresh_token` は `updated_resources` を返さない（`#[DoesNotReturnUpdatedResources]` で宣言している）
 - 注意: 相対更新（`col + n`）は、メモリ上の値を返すため、DBと食い違う可能性がある。同じプレイヤーの書き込みは `LockPlayerRequest` で直列にしているので、通常は一致する
 

@@ -66,15 +66,22 @@ class MstItemSeederTest extends TestCase
     }
 
     #[Test]
-    public function 無償ダイヤは図鑑の対象外で他の行は既定のまま(): void
+    public function 通貨系とスタミナ回復薬は図鑑の対象外で他の行は既定のまま(): void
     {
-        // item 型の配布は図鑑の unlock 対象。free_diamond を載せないため is_album_target=false にする
-        $this->assertSame(0, (int) DB::connection('mst')->table('mst_item')->where('id', 'free_diamond')->value('is_album_target'));
+        // item 型の配布は図鑑の unlock 対象。載せない 13 行は is_album_target=false にする（人の決定）
+        $excluded = ['free_diamond', 'gold', 'coin', 'food', 'wood', 'stone', 'iron', 'alliance_points',
+            'pvp_points', 'event_points', 'achievement_points', 'vip_points', 'stamina_50'];
 
-        // 他の行（通貨・資源・stamina_50 など）は人が判断するので列の既定（true）のまま
-        $others = DB::connection('mst')->table('mst_item')->where('id', '!=', 'free_diamond')->pluck('is_album_target');
-        $this->assertCount(28, $others);
-        $this->assertSame(28, $others->filter(fn ($v) => (int) $v === 1)->count());
+        $flags = DB::connection('mst')->table('mst_item')->pluck('is_album_target', 'id')->map(fn ($v) => (int) $v);
+
+        foreach ($excluded as $id) {
+            $this->assertSame(0, $flags[$id], "{$id} は図鑑の対象外");
+        }
+
+        // 回復・ブースト・経験値・unit_exp・素材など残りの 16 行は列の既定（true）のまま
+        $others = $flags->except($excluded);
+        $this->assertCount(16, $others);
+        $this->assertSame(16, $others->filter(fn ($v) => $v === 1)->count());
     }
 
     #[Test]

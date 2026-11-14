@@ -159,14 +159,17 @@ class MstItemSeeder extends Seeder
             // 配送側の Resource::gold() などがそのまま指す
             // ========================================
 
+            // 通貨・資源・ポイントとスタミナ回復薬は図鑑（アルバム）に載せない（人の決定）。
+            // item 型の配布は図鑑の unlock 対象で、列の既定は true のため is_album_target=false を明示する。
+            // 回復・ブースト・経験値・素材など他の行は列の既定（true）のまま
             // 通貨
-            ['id' => 'gold', 'name' => 'ゴールド', 'type' => 'currency', 'effect' => 'none', 'value' => 0, 'is_wallet' => true],
-            ['id' => 'coin', 'name' => 'コイン', 'type' => 'currency', 'effect' => 'none', 'value' => 0, 'is_wallet' => true],
+            ['id' => 'gold', 'name' => 'ゴールド', 'type' => 'currency', 'effect' => 'none', 'value' => 0, 'is_wallet' => true, 'is_album_target' => false],
+            ['id' => 'coin', 'name' => 'コイン', 'type' => 'currency', 'effect' => 'none', 'value' => 0, 'is_wallet' => true, 'is_album_target' => false],
 
             // スタミナ回復薬（trx_item で持つ。Wallet 管理ではない）。
             // ログインボーナス 5 日目の景品で、/item/use（effect = stamina_recover）で value × 個数だけ
             // スタミナが回復する。type = stamina は設計 free-diamond-item db.md 10.3.1 節の決定
-            ['id' => 'stamina_50', 'name' => 'スタミナ回復薬（50）', 'type' => 'stamina', 'effect' => 'stamina_recover', 'value' => 50, 'is_wallet' => false],
+            ['id' => 'stamina_50', 'name' => 'スタミナ回復薬（50）', 'type' => 'stamina', 'effect' => 'stamina_recover', 'value' => 50, 'is_wallet' => false, 'is_album_target' => false],
 
             // 無償ダイヤ（trx_item で持つ。Wallet 管理ではないので is_wallet = false）。
             // サインアップ時の初期付与（InitialGrantConst::FREE_DIAMOND_MST_ITEM_ID）が指す
@@ -183,17 +186,17 @@ class MstItemSeeder extends Seeder
             ],
 
             // 自然資源
-            ['id' => 'food', 'name' => '食料', 'type' => 'natural_resource', 'effect' => 'none', 'value' => 0, 'is_wallet' => true],
-            ['id' => 'wood', 'name' => '木材', 'type' => 'natural_resource', 'effect' => 'none', 'value' => 0, 'is_wallet' => true],
-            ['id' => 'stone', 'name' => '石材', 'type' => 'natural_resource', 'effect' => 'none', 'value' => 0, 'is_wallet' => true],
-            ['id' => 'iron', 'name' => '鉄', 'type' => 'natural_resource', 'effect' => 'none', 'value' => 0, 'is_wallet' => true],
+            ['id' => 'food', 'name' => '食料', 'type' => 'natural_resource', 'effect' => 'none', 'value' => 0, 'is_wallet' => true, 'is_album_target' => false],
+            ['id' => 'wood', 'name' => '木材', 'type' => 'natural_resource', 'effect' => 'none', 'value' => 0, 'is_wallet' => true, 'is_album_target' => false],
+            ['id' => 'stone', 'name' => '石材', 'type' => 'natural_resource', 'effect' => 'none', 'value' => 0, 'is_wallet' => true, 'is_album_target' => false],
+            ['id' => 'iron', 'name' => '鉄', 'type' => 'natural_resource', 'effect' => 'none', 'value' => 0, 'is_wallet' => true, 'is_album_target' => false],
 
             // ポイント
-            ['id' => 'alliance_points', 'name' => 'アライアンスポイント', 'type' => 'points', 'effect' => 'none', 'value' => 0, 'is_wallet' => true],
-            ['id' => 'pvp_points', 'name' => 'PvPポイント', 'type' => 'points', 'effect' => 'none', 'value' => 0, 'is_wallet' => true],
-            ['id' => 'event_points', 'name' => 'イベントポイント', 'type' => 'points', 'effect' => 'none', 'value' => 0, 'is_wallet' => true],
-            ['id' => 'achievement_points', 'name' => '達成ポイント', 'type' => 'points', 'effect' => 'none', 'value' => 0, 'is_wallet' => true],
-            ['id' => 'vip_points', 'name' => 'VIPポイント', 'type' => 'points', 'effect' => 'none', 'value' => 0, 'is_wallet' => true],
+            ['id' => 'alliance_points', 'name' => 'アライアンスポイント', 'type' => 'points', 'effect' => 'none', 'value' => 0, 'is_wallet' => true, 'is_album_target' => false],
+            ['id' => 'pvp_points', 'name' => 'PvPポイント', 'type' => 'points', 'effect' => 'none', 'value' => 0, 'is_wallet' => true, 'is_album_target' => false],
+            ['id' => 'event_points', 'name' => 'イベントポイント', 'type' => 'points', 'effect' => 'none', 'value' => 0, 'is_wallet' => true, 'is_album_target' => false],
+            ['id' => 'achievement_points', 'name' => '達成ポイント', 'type' => 'points', 'effect' => 'none', 'value' => 0, 'is_wallet' => true, 'is_album_target' => false],
+            ['id' => 'vip_points', 'name' => 'VIPポイント', 'type' => 'points', 'effect' => 'none', 'value' => 0, 'is_wallet' => true, 'is_album_target' => false],
         ];
 
         foreach ($items as $itemData) {

@@ -39,9 +39,10 @@ class CheckResponse extends _BaseResponse
 
             // マスターデータ情報
             if ($this->sysDeploy->deployMaster !== null) {
+                // キーはマスターのテーブル名（table_name 列）。getTableName() は DB テーブル名で全行同じ値になる
                 $tableArray = [];
                 foreach ($this->sysDeploy->deployMaster->tables as $table) {
-                    $tableArray[$table->getTableName()] = [
+                    $tableArray[$table->getMasterTableName()] = [
                         'hash' => $table->getHash(),
                         'url' => $table->getPublicUrl(),
                         'file_size' => $table->getFileSize(),

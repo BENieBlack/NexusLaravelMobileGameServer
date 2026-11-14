@@ -219,7 +219,7 @@
 | U-S5 | 消費サービスが platform を受け取る方法 | `DiamondBalanceInterface` の引数は変えず、`InAppPurchaseDiamondBalanceService` が `ApiSession::getPlatform()` で `X-Platform` を読む（未設定なら `RuntimeException`。`ApiSession.php:422-430`。暗黙の既定値を使わせない。HTTP 以外の経路からの消費は想定しない）。**代替**: 既存の `DiamondDeliveryHandler` と同じ `DefaultPlatformProviderInterface`（`ApiSessionPlatformProvider`）経由にそろえる。テストで差し替えやすい。ただし未設定のとき `null` を返すので、消費では `null` を例外にする（`Apple` に落とさない）。引数に `platform` を足す案は、呼び出し元（ガチャ・交換）の変更が増えるので採らない |
 | U-S6 | `free_diamond` の ID の定数の名前と置き場所（6.4） | `nexus-core` の `Nexus\Core\Resource\` 配下に置く（具体名は S3 で決める）。`InitialGrantConst::FREE_DIAMOND_MST_ITEM_ID` もそれを指す |
 | U-S7 | ガチャ・交換の `cost_type = item` で `free_diamond` を指すマスターを、マスターの取り込み時に拒否するか | **拒否しない**。ランタイムのガード（6.4）で足りる。取り込み時の検査は別の機能 |
-| U-S8 | `mst_item__l10n` の `ja` の `name`（10.3 節の一覧）の確定。**運営が決める**（仮置きのまま出荷しない） | 10.3 節の仮置きで進める。`free_diamond` だけは `無償ダイヤ`（クライアント設計 5-3 S-1 の必須。人の決定済み）。`description` は全行 `null` |
+| ~~U-S8~~（解決済み。人の決定） | `mst_item__l10n` の `ja` の `name`（10.3 節の一覧） | 10.3 節の一覧の名前を採用（人の決定、2026-11-14）。後から運営が変えるのはマスター投入で可。`free_diamond` は `無償ダイヤ`、`stamina_50` は `スタミナ回復薬（50）`。`description` は全行 `null` |
 | ~~U-S9~~（解決済み。人の決定） | ログインボーナスの `stamina` 報酬。**決定**: ログインボーナスでスタミナを渡せるようにする。`mst_item` に `id = stamina_50`・`value = 50` を足し、アイテムとして配り、使用するとスタミナが回復する | 設計は 10.3.1 節。列の解釈（人の言う `category = stamina` を `type = 'stamina'` と読む）は U-S12 で確認 |
 | ~~U-S10~~（解決済み。人の回答＋確定） | `MstItemL10n` モデルと `MstItem::l10n()` | **足す（確定）**。l10n のモデルは `MstMessageL10n`・`MstTagL10n`・`MstMissionL10n`・`MstTradeL10n`・`MstTradeProductL10n`・`MstEventL10n` が既にあり、`MstItemL10n` だけ無い。`.claude/coding-standards.md` 99 行目が「`<親>__l10n` にもモデルを作り、親から `l10n(): HasMany` で引く」と定める。キャッシュの扱いは 10.7 節（U-S13） |
 | ~~U-S11~~（解決済み。人の決定） | `mst_item` の全行に `mst_item__l10n` の行があることを検査するテスト | **入れる**（29 行。10.4 節） |
@@ -249,11 +249,11 @@
 - `language` は `ja` だけ入れる（クライアントは `ja` 固定。他言語の行は運営がマスター投入で足す。ENUM の値は変えない）。
 - 書き込みは `_BaseMst::allowWrites()` の中（既存のシーダーと同じ）。モデルは `MstItemL10n`（U-S10 確定。`MstMessageL10n` の形）。
 
-### 10.3 `mst_item` の全行と `ja` の名前（**仮置き。運営が確定する**）
+### 10.3 `mst_item` の全行と `ja` の名前（**一覧の名前を採用。人の決定、2026-11-14。後から運営が変えるのはマスター投入で可**）
 
 `MstItemSeeder` の全行（いまの 28 行に `stamina_50` を足して 29 行。2026-11-14 に読んだ）。手掛かりは、`ResourceType::label()`（`packages/nexus-core/src/Resource/Enums/ResourceType.php`。ゴールド・コイン・食料など Wallet 管理の名前）、シーダーの `type`・`effect`・`value`、テストが作る名前（`UnitLevelUpTest` の `ユニット経験値ポーション`・`スタミナポーション`。シーダーの行ではなくテストが入れる別 ID）。「現状の名前」は、いま名前を持つ場所があるものだけ書く。
 
-| `mst_item.id` | `type` / `effect`（`value`）| 現状の名前・説明の手掛かり | `ja` の `name`（仮置き） |
+| `mst_item.id` | `type` / `effect`（`value`）| 現状の名前・説明の手掛かり | `ja` の `name`（採用） |
 | --- | --- | --- | --- |
 | `item_heal_001` | recovery / heal_hp（100） | 無し | 回復ポーション（小） |
 | `item_heal_002` | recovery / heal_hp（500） | 無し | 回復ポーション（中） |
@@ -285,8 +285,8 @@
 | `achievement_points` | 同上 | ラベル `達成ポイント` | 達成ポイント |
 | `vip_points` | 同上 | ラベル `VIPポイント` | VIPポイント |
 
-- 上の表は 29 行。`stamina_50` の `ja` の名前も**仮置き**（U-S8）。
-- `description` は全行 `null`（仮置き。名前だけで足りる。説明文は運営が決める。U-S8）。
+- 上の表は 29 行。`stamina_50` の `ja` の名前（`スタミナ回復薬（50）`）も採用（U-S8）。
+- `description` は全行 `null`（名前だけで足りる。説明文は後から運営がマスター投入で足せる。U-S8）。
 - 上の一覧にあるのは**シーダーの ID だけ**。テストが自分で作る ID（`unit_exp_potion`・`stamina_potion`・`equipment_exp_potion` など）は対象外（各テストが自分の l10n を入れ、後始末する）。
 - 「手掛かり」が `ResourceType::label()` のものは、ラベルと名前が二重管理になる（ラベルは配信側の `Resource` の表示用。クライアントは l10n を引く）。**この機能では揃えるだけで、どちらかを消さない**。
 
@@ -301,7 +301,7 @@
 | 使用 | `POST /api/item/use`（`UseItemUseCase`）。`ItemEffectType::STAMINA_RECOVER` の分岐が `value × 使用個数` を整数にして `staminaGranter->grantStamina()` へ渡す（読んだ。`UseItemUseCase.php:117`）。**新しいコードは要らない** |
 | `ResourceType::STAMINA` | **残す**（削除しない。他の経路 `StaminaDeliveryHandler` がある）。ログインボーナスの `content_type = stamina` の値が、このシーダーから無くなるだけ |
 | 既知の不具合との関係（事実） | 従来、5 日目のスタミナ報酬は `StaminaDeliveryHandler` → `grantStamina` で付与され、スタミナ行が無いと `recoverStaminaByItem` が「Stamina record not found」を返すのに、呼び出し側（`StaminaGranterAdapter`）は結果を見ずに捨てるため、**付与が黙って無くなる**（home-player-info の db.md 205 行目。読んだ）。アイテムとして配る形にすると、**ログインボーナスの付与は `trx_item` への加算だけでスタミナ行に依存しないので、この経路で黙って捨てられることは無くなる**。ただし使用（`/item/use`）は同じ `grantStamina` を通るので、スタミナ行が無いときの扱い（アイテムの消費は先に済む）は変わらない。初期スタミナ行をサインアップで作る対応（home-player-info 側）が前提。この機能では直さない |
-| 他の直し | (1) `RecordingLoginBonusSeeder` の 5 日目（`5 => ['stamina', 'stamina', 50]`）も同じく `item` / `stamina_50` / 1 に。(2) `MstLoginBonusSeeder` のコメント（`content_type` の例）。(3) テスト: `MstItemSeederTest` に `stamina_50` の行（`type`・`effect`・`value`・`is_wallet = false`）、ログインボーナスの 5 日目のテスト（あれば）。(4) `ja` の名前（10.3 の仮置き）を `mst_item__l10n` に |
+| 他の直し | (1) `RecordingLoginBonusSeeder` の 5 日目（`5 => ['stamina', 'stamina', 50]`）も同じく `item` / `stamina_50` / 1 に。(2) `MstLoginBonusSeeder` のコメント（`content_type` の例）。(3) テスト: `MstItemSeederTest` に `stamina_50` の行（`type`・`effect`・`value`・`is_wallet = false`）、ログインボーナスの 5 日目のテスト（あれば）。(4) `ja` の名前（10.3 の採用した名前）を `mst_item__l10n` に |
 | クライアント | **変更不要**。ログインボーナス表示は `item` の名前を `mst_item`（l10n）から引く（クライアント設計 3-2。`stamina` は従来「`mst_item` を引かない」分類だったが、`item` になるので名前が出る）。名前が引けないときは従来の「アイテム (ID:…)」のフォールバック |
 
 ### 10.4 テスト（S3 で足す）

@@ -36,3 +36,6 @@ packages/*/composer.lock
 
 # make test-quiet / check-quiet のログ
 .make-logs/
+
+# 個人情報の拒否リスト（個人名・会社名。git に入れない）
+.private-denylist

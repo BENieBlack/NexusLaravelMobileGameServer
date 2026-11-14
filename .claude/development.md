@@ -115,7 +115,7 @@ docker compose exec -T api-php grep 'App.Adapters' /tmp/cov.txt
 - PHPStan は level 8（`api/phpstan.neon`。null の扱いまで検査する。level 9 以上は mixed の指摘が大半で、費用に見合わないので上げない）。baseline は使わない。対象は `app` と各パッケージの `src`。パッケージを追加したら `paths` にも足す。独自ルール `App\PHPStan\Rules\NoDirectEloquentSaveInServiceRule`（`api/phpstan/Rules/`）が有効
 - Pint の設定は `api/pint.json`（preset laravel）。packages にも同じ設定を当てる
 - tool は別アプリで、`tool/phpstan.neon`（level 6）と tool の Pint を `make tool-check` で回す
-- CI（`.github/workflows/ci.yml`）は3ジョブ: 静的解析・フォーマット / tool / テスト（api + packages）
+- CI（`.github/workflows/ci.yml`）は5ジョブ: 静的解析・フォーマット / パッケージ単体 / ツール（tool） / テスト（api + packages） / 個人情報の検査（`scripts/check-private-info.sh`。シェルだけで、PHP は使わない）
 
 ## ブランチと PR
 
@@ -130,6 +130,7 @@ docker compose exec -T api-php grep 'App.Adapters' /tmp/cov.txt
 | `## Checklist` | 当てはまる項目にチェックを付ける。当てはまらない項目はチェックせず残す |
 
 - 本文はコミットメッセージの本文を元にしてよいが、テンプレートの見出しに振り分けて書く
+- コミット・PR の前に `bash scripts/check-private-info.sh` を通す。個人名・メール・会社名・ホーム配下の絶対パス・トークンをコミットメッセージ・PR 本文・コード・文書に書かない（例示でどうしても要る行だけ、その行に `private-info:allow` と書く）。個人名・会社名の拒否リストは git に入れない `.private-denylist` に書く
 
 ## よくある詰まりどころ
 

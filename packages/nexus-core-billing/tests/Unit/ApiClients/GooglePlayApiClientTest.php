@@ -31,7 +31,7 @@ class GooglePlayApiClientTest extends TestCase
         config([
             'services.google_play.package_name' => self::PACKAGE_NAME,
             'services.google_play.service_account' => json_encode([
-                'client_email' => 'nexus@example.iam.gserviceaccount.com',
+                'client_email' => 'nexus@example.iam.gserviceaccount.com', // private-info:allow（ダミーのサービスアカウント）
                 'private_key' => $this->generatePrivateKey(),
             ]),
         ]);

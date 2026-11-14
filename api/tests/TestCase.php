@@ -99,6 +99,13 @@ abstract class TestCase extends BaseTestCase
     {
         $mst = DB::connection('mst');
 
+        // DB を使わない Unit テスト（先に実行されると、CI のテスト DB はまだ未マイグレーション）では
+        // テーブル自体が無い。その場合は何もしない。DB を使うテストは RefreshMultipleDatabases が
+        // この setUp より前（parent::setUp 内）にマイグレーションを済ませるので、ここでテーブルがある
+        if (! $mst->getSchemaBuilder()->hasTable('mst_player_level')) {
+            return;
+        }
+
         if (! $mst->table('mst_player_level')->where('level', 1)->exists()) {
             $mst->table('mst_player_level')->insert([
                 'level' => 1,

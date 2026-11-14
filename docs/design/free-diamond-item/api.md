@@ -14,7 +14,7 @@
 | login の `trx_diamond` | `free_amount` を外す（`platform`・`paid_amount`・`is_delete` が残る）。行が無ければ `null`（従来どおり）。無償は `trx_item_list` の `free_diamond` で返る（実装済み） |
 | `updated_resources` の `trx_diamond_list` | **単数の `trx_diamond`（オブジェクト 1 件。`X-Platform` の行）に変える**（F11）。その処理で**変更があった方だけ**載る（F15・Q15）。変更の無い側のキーは省略 |
 | `updated_resources` の `trx_item_list` | 無償ダイヤを使った・もらったとき、`free_diamond` の行が載る（`free_amount` が残高。0 でも載る）。配列のまま（変更なし） |
-| 購入（`/in_app_purchase/buy`） | body の `platform` と `X-Platform` が不一致なら `INVALID_PLATFORM`（99003）で拒否（F13）。パックの `rewards` の無償ダイヤは `{type: item, item_id: free_diamond}` に（F2） |
+| 購入（`/in_app_purchase/buy`） | body の `platform` と `X-Platform` が不一致なら `INVALID_PLATFORM`（99003）で拒否（F13）。パックの `rewards` の無償ダイヤは `{type: item, item_id: free_diamond}` に（F2）。**応答から `paid_diamond_amount` を外す**（人の決定 B）。応答は `updated_resources` と `rewards`（Pack/Pass のときだけ）だけ。`total_*_diamond_amount` は載せない |
 | 報酬の種別 | 無償ダイヤの `type` は `item`（`id = free_diamond`）。`diamond` は廃止（F9）。login の `login_bonus_list`・メールの添付に影響 |
 | 通常のアイテム消費 | `free_diamond` は拒否（`INVALID_ITEM_TYPE`。db.md 6.4 節。U-3） |
 | 破壊的変更 | 上のすべて。旧クライアントは未配布なので互換は持たない（D7）。キーの併記・2 段階の移行はしない |
@@ -130,14 +130,14 @@
 
 ### 5.3 応答
 
-現行の応答（`BuyResponse::toArray`。読んだ）に、この機能で変わる点を示す。
+現行の応答は `{paid_diamond_amount, updated_resources, rewards（Pack のときだけ）}`（`BuyResponse::toArray`。読んだ）。**人の決定（B）で `paid_diamond_amount` を外し、応答を `updated_resources` と `rewards` だけにする**（クライアントは未実装なのでサーバー側で直す）。
 
 | キー | 型 | 変更 |
 | --- | --- | --- |
-| paid_diamond_amount | int | 変更なし。今回購入した有償ダイヤの数（パックは 0） |
+| ~~paid_diamond_amount~~ | - | **廃止**（B）。購入した量は `updated_resources.trx_diamond.paid_amount` の変化で分かる（マスター列 `mst_in_app_purchase.paid_diamond_amount` は変えない） |
 | rewards | array | パック・パスのときだけ載る（空なら省略）。**無償ダイヤの要素が変わる**（下） |
 | updated_resources | object | `trx_diamond`（単数。有償の購入）・`trx_item_list`（パックの無償）。2 節 |
-| ~~total_free_diamond_amount~~ | - | **現状、応答に無い**。現行の購入 API の JSON は `{paid_diamond_amount, updated_resources, rewards（Pack のときだけ）}` のみ。サービス戻り値の `total_paid_diamond_amount`・`total_free_diamond_amount`・`contents` は `BuyResponse` で捨てられている（`BuyResponse.php`、`BuyDiamondUseCase.php:49-60`、`BuyPackUseCase.php:49-56`）。載せるかは**未決**（人が確認中。db.md 9 節 U-S1。既定案は載せない）。載せる場合は `int`・3 種の商品すべて・`free_diamond` の残高 |
+| ~~total_free_diamond_amount~~・~~total_paid_diamond_amount~~ | - | **応答に載せない**（人の決定。U-S1 解決）。サービス戻り値の `total_*`・`contents` は従来も `BuyResponse` で捨てられていた（`BuyDiamondUseCase.php:49-60`、`BuyPackUseCase.php:49-56`）。残高は `updated_resources`（有償 `trx_diamond`、パックの無償 `trx_item_list`）で返る |
 
 `rewards` の要素（パック。`InAppPurchasePackService` の `contents` が `BuyPackUseCase` で `rewards` として出る。読んだ。API のキーは `rewards`で、要件・全体設計の `contents` はサービスの戻り値のキー）:
 
@@ -147,9 +147,9 @@
 | `item` | `item_id`・`amount` | 無償ダイヤは `{ "type": "item", "item_id": "free_diamond", "amount": n }` で出る（他のアイテムと同じ形） |
 | `unit` | `mst_unit_id`・`amount` | 変更なし |
 
-- サービスの戻り値 `total_free_diamond_amount` の意味（F3）: 付与後の `trx_item` の `free_diamond` の `free_amount`（残高。行が無ければ 0）。**パックは「今回の付与量」から「残高」に変わる**。今回の付与量は `rewards` の `item` / `free_diamond` の `amount` で分かる。有償ダイヤの購入の戻り値 `total_paid_diamond_amount` は `X-Platform` の行の `paid_amount`（変更なし）。
+- **サービス戻り値から `total_*` を外す**: `InAppPurchaseDiamondService::purchaseDiamond` の戻り値は `paid_diamond_amount`・`total_paid_diamond_amount`・`total_free_diamond_amount` をすべて外す（呼ばれて捨てられるだけの読み取り `findBalance`・`findFreeAmount` も無くす）。`InAppPurchasePackService::purchasePack` の戻り値は `contents`（→ `rewards`）だけにし、`total_free_diamond_amount` と `$totalFreeDiamond` の集計を無くす。要件 F3「`total_free_diamond_amount` は残高を返す」は、**実態は「項目としては応答に出さず、残高は `updated_resources` で返す」**（要件側の直しとして申し送り。db.md 8 節 R3・R4）。
 - `updated_resources`（有償ダイヤの購入）: `trx_diamond`（単数。`X-Platform` の行。`paid_amount` が加算後）。**Apple と Google の 2 行が載る形はなくなる**（不一致を拒否するので）。`BuyEndpointTest` の「body `platform = Google`・`X-Platform: Apple`」のケースは不一致エラーのテストに変わり、一致のケースは同じ platform で書き直す（F13）。
-- `type = pass`・`paid_diamond_amount > 0`（`BuyPassUseCase`）も同じ（不一致エラー・有償の加算・balance の作成。全体設計 3 節）。パス商品の `contents`（無償ダイヤ）は購入時に付与されない（既存。db.md 6.1 節）。
+- `type = pass`・`mst_in_app_purchase.paid_diamond_amount > 0`（マスター列。変えない）（`BuyPassUseCase`）も同じ（不一致エラー・有償の加算・balance の作成。全体設計 3 節）。パス商品の `contents`（無償ダイヤ）は購入時に付与されない（既存。db.md 6.1 節）。
 
 ### 5.4 エラー（変更・追加）
 
@@ -183,6 +183,8 @@
 | テスト | `api/tests/Feature/Login/HomeSnapshotTest.php:37`（コメント「updated_resources は従来どおり trx_diamond_list」） | 「`updated_resources` は単数の `trx_diamond`」に直す |
 | テスト | `api/tests/Feature/Login/HomeTrxDiamondTest.php`（`trx_diamond_list` を検索で拾った） | `free_amount` が応答に無いこと・キー `trx_diamond_list` が無いことを確かめる形に（内容は S3 で確認） |
 | テスト | `GachaDrawTest`・`DiamondDeliveryHandlerTest`・`ContentTypeTest`・ログインボーナス・メール・VIP・課金パックの各テスト（`diamond` / `free_diamond`） | F9 (6)。`item` / `free_diamond` に |
+| 購入応答（B。`paid_diamond_amount` を外す） | **コード**: `BuyResponse`（`$paidDiamondAmount` の引数・`toArray` のキーを削除。`rewards`・`updated_resources` だけ）、`BuyDiamondUseCase.php:49-60`・`BuyPassUseCase`・`BuyPackUseCase.php:49-56`（`paidDiamondAmount:` の引数）、`InAppPurchaseDiamondService::purchaseDiamond` の戻り値（`paid_diamond_amount`・`total_*`）、`InAppPurchasePackService::purchasePack` の戻り値（`total_free_diamond_amount`） | **応答として検証している箇所（直す）**: `BuyEndpointTest.php:78,81`（`assertJsonStructure` の `paid_diamond_amount` と値の検証。購入量は `updated_resources.trx_diamond.paid_amount` で確かめる形に。`:78` のキー一覧からも外す）、`BuyDiamondUseCaseTest.php:112`・`BuyPassUseCaseTest.php:87`（`$result->toArray()['paid_diamond_amount']`）。**マスター列 `mst_in_app_purchase.paid_diamond_amount` としてだけ使う箇所（直さない）**: `BuyEndpointTest.php:237`・`BuyDiamondUseCaseTest.php:340`・`PreparesPurchaseFixtures.php:50,70`（`createProduct(paidDiamondAmount:)`）・`BuyPassUseCaseTest.php:72`・`InAppPurchasePassServiceTest.php:293`・`PurchaseLimitTest.php:250`・`InAppPurchaseValidationServiceTest.php:237`・`ToResponseArrayTest.php:181`・`MstInAppPurchaseRepositoryTest.php:156`。マスター列・`MstInAppPurchase` のモデル・シーダーは変えない |
+| 仕様書 | `docs/api_resources.md:31`（「`in_app_purchase/buy` … `paid_diamond_amount` と `rewards` も返す」） | 「`rewards` も返す（Pack/Pass）。`paid_diamond_amount` は返さない」に直す |
 | 仕様書 | `docs/api_resources.md:4`（「7 つのモデル」の説明に `trx_diamond_list`）。`:29`・`:31`・`:32` の「diamond」（変わるものの説明）も、有償は `trx_diamond`、無償は `trx_item` と読める書き方に | 「`trx_diamond`（単数。`X-Platform` の行）」と書く。7 つのモデルの集合は変わらない |
 | 仕様書 | `docs/design/home-player-info/api.md` U-9（274 行。「変えない前提」）・2.5 節・4 節・11 節の `free_amount` と `trx_diamond_list` の記述 | この機能の完了後に追従（home-player-info の文書は、この機能の PR では**直さない**。別の小さな追従。要件 Q14 と同じ扱い。**このドキュメントは複製・修正しない**） |
 | 仕様書 | `docs/design/title-to-home/api.md:308,337`（login の `trx_diamond_list`） | home-player-info の S3 の後に直す予定のものと同じ扱い（`trx_diamond` の単数・`free_amount` なし） |
@@ -201,6 +203,6 @@
 
 | # | 確認事項 | 既定案 |
 | --- | --- | --- |
-| U-S1（再掲） | 購入の応答に `total_free_diamond_amount` を載せるか | 載せない（5.3 節）。載せるなら `BuyResponse` に int を足す |
+| U-S1（解決済み） | 購入応答の `total_*_diamond_amount` と `paid_diamond_amount` | 載せない（`paid_diamond_amount` も外す。B） |
 | U-S2（再掲） | パックの `rewards` の無償ダイヤの表現 | `{type: item, item_id: free_diamond, amount}` |
 | U-Q3（確定） | 不一致エラーを Slack に通知するか | 通知しない（5.2 節。確定） |

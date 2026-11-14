@@ -70,7 +70,7 @@ sequenceDiagram
 
 - **無償の消費がパッケージ版 `ItemService::consumeItem` を直接呼ぶ**のは、`ItemInventoryInterface` 経由だと、上のガードに自分で当たるため。`InitialGrantService` がパッケージ版 `addItem` を直接呼ぶ前例と同じ形。`NexusCore\...` は Domain から参照してよい（`ModuleBoundaryTest` の対象は `App\Domain\{Other}\` の内部クラス）。
 - 付与側の入口は 1.1 のとおりアイテム経路で、`InAppPurchaseDiamondBalanceService` には無償の付与口を残さない（`addDiamond` の `isPaid: false` の経路は F2 で無くなる）。
-- `InAppPurchaseDiamondBalanceService::findFreeAmount(sysPlayerId): int`（`trx_item` の `free_diamond` の `free_amount`。行が無ければ 0）を足す。購入の応答の `total_free_diamond_amount`（3.4 節）と、消費の判定が使う。
+- `findFreeAmount` は**足さない**（購入の応答に `total_free_diamond_amount` を載せない決定により、購入側で `free_diamond` の残高を読まない。消費の判定は 3.1 節のとおり `trx_item` を直接読む）。
 
 ## 3. 消費（ガチャ・交換のコスト `diamond` / `paid_diamond`。F5・F12・F14・F15）
 
@@ -188,24 +188,23 @@ sequenceDiagram
             UC->>SV: purchaseDiamond（購入履歴・購入制限の確認）
             SV->>TD: paid_amount += n（X-Platform の行。無ければ作る）
             SV->>TB: 新しい購入単位の行を作る（current_amount = purchase_amount = n）
-            SV->>IT: free_diamond の残高を読む（total_free_diamond_amount 用。書かない）
+            Note over SV: 残高の読み取りはしない（応答に載せない）
         else type = pack
             UC->>SV: purchasePack（購入制限の確認）
             SV->>IT: contents の item を addItem（free_diamond の行に加算）
-            SV->>IT: 付与後の free_diamond の残高を読む（total_free_diamond_amount 用）
         end
         Note over UC,IT: 購入履歴更新・VIP ポイント・課金ログ → flush → コミット
         end
-        UC-->>C: 200 ＋ paid_diamond_amount・rewards・updated_resources
+        UC-->>C: 200 ＋ updated_resources・rewards（Pack/Pass のときだけ）
     end
 ```
 
 - **不一致のエラー（F13・Q19）**: `INVALID_PLATFORM`（99003。HTTP 299）。メッセージは欠落・不正（`ResolvePlatform` の `X-Platform header is required.` など）と区別できる文言にする（例: `platform in body does not match X-Platform`）。**Slack 通知は出さない形にする**（人の決定。U-Q3）。`_BaseController::execute()`（`_BaseController.php:88-103`）は `GameException` を捕捉して `notifySlack` する（確認済み）ので、通常の `GameException` で投げると通知される。通知を避けて `ErrorResponse` を直接返す等、`ResolvePlatform` の意図に合わせる。手段は S3 で決める。
 - **なぜ検証の前に置くか**: 検証後（`processPurchase`）に弾くと、ストアの決済は成立しているのに付与されない。検証の前に拒否すれば、決済のレシートは未消費のままで、クライアントが同じ値を送り直せる。`writeFailedPurchaseLog`（`try` の中で作る失敗ログ）も出さない（クライアントの実装の誤りで、購入の失敗ではない。仮置き。9 節）。
 - **一致したあと**の加算先は `X-Platform` の行と同じになる（F13）。`BuyEndpointTest` の「Apple でログインし body `platform = Google` で購入すると Google の行に入る」は不一致エラーのテストに変わる。
-- **有償ダイヤの購入**（`InAppPurchaseDiamondService::purchaseDiamond`）: `addPaidDiamondWithBalance`（`DiamondService::addPaidDiamond` ＋ `trx_diamond_balance` の行の作成）。購入の応答 `paid_diamond_amount` は変えない。サービスの戻り値の `total_free_diamond_amount` は、`trx_item` の `free_diamond` の残高（F3。`findFreeAmount`）に替わる。`total_paid_diamond_amount` は `X-Platform` の行の `paid_amount`（従来は同じ platform の行。変わらない）。
-- **パック**（`purchasePack`）: `free_diamond` の分岐が無くなり、`item` の分岐で `free_diamond` も加算する（`rewards` の表現は api.md 5 節）。戻り値の `total_free_diamond_amount` は「今回の付与量」から付与後の**残高**に変わる（F3）。**パックでは `trx_diamond_balance` の行を作らない**（有償ダイヤはパックの中身に入れられない。db.md 5 節）。
-- **API の応答に `total_free_diamond_amount` を載せるか**は未決（db.md 9 節 U-S1。人が確認中）。事実: 現行の購入 API の JSON は `{paid_diamond_amount, updated_resources, rewards（Pack のときだけ）}` のみで、サービス戻り値は `BuyResponse` で捨てられている。
+- **有償ダイヤの購入**（`InAppPurchaseDiamondService::purchaseDiamond`）: `addPaidDiamondWithBalance`（`DiamondService::addPaidDiamond` ＋ `trx_diamond_balance` の行の作成）。**応答から `paid_diamond_amount` を外し**（B）、サービスの戻り値の `paid_diamond_amount`・`total_*` と、それ用の残高の読み取り（`findBalance`）も無くす。購入した量は `updated_resources.trx_diamond` で分かる。マスター列 `mst_in_app_purchase.paid_diamond_amount` は付与量として引き続き使う。
+- **パック**（`purchasePack`）: `free_diamond` の分岐が無くなり、`item` の分岐で `free_diamond` も加算する（`rewards` の表現は api.md 5 節）。戻り値の `total_free_diamond_amount` と集計は無くす（残高は `updated_resources.trx_item_list` で返る）。**パックでは `trx_diamond_balance` の行を作らない**（有償ダイヤはパックの中身に入れられない。db.md 5 節）。
+- **応答に `total_*_diamond_amount` と `paid_diamond_amount` を載せない**（人の決定 B。U-S1 解決）。応答は `updated_resources` と `rewards` だけ（api.md 5.3 節）。
 - 購入履歴・購入制限の確認（`validatePurchaseLimit`）・VIP ポイント・課金ログは**変更なし**。同一トランザクションのまま。
 
 ## 5. 主要な異常系

@@ -18,6 +18,7 @@
 | 全API（先頭に追加） | `ResolveLanguage` | `Accept-Language` から言語を決め `ApiSession::getLanguage()` に載せる。対応言語と既定（`ja`）は `api/config/language.php` |
 | 全API（先頭に追加） | `CheckMasterHash` | 後述。`X-Master-Hash` が古ければレスポンスヘッダーで知らせる |
 | メンテ除外以外のすべて | `maintenance` | メンテ中は 503。除外ルート・除外IPは `api/config/maintenance.php` |
+| `maintenance` のグループ内すべて（`POST /auth/version` を含む。`GET /auth/version`・`/maintenance/status`・`admin/*`・`/broadcasting/auth`・`/up` は除く） | `platform`（`ResolvePlatform`） | `X-Platform`（`Apple` / `Google`。完全一致）を検証して `ApiSession::getPlatform()` に載せる。欠落・不正値は HTTP 299 + `GameErrorCode::INVALID_PLATFORM`（99003）。順序は `maintenance` → `platform` → 署名・認証 |
 | ログイン後のAPI | `auth.token` + `idempotency` | アクセストークン検証と二重送信防止 |
 | `/auth/sign_up` | `client.signature` + `throttle.signup` | クライアント署名検証とレート制限 |
 | `/auth/sign_in`, `/auth/refresh_token`, `/account/transfer_code/transfer`, `/account/external/transfer` | `throttle.auth:{名前}` | 認証試行のレート制限（引き継ぎコードはコードごとにも数える） |
@@ -40,6 +41,7 @@
 | `X-Unique-Request-Identifier` | ログイン後の POST | 冪等キー。再送には保存済みのレスポンスを返し、処理中の重複は 409。既定24時間 |
 | `X-Client-Timestamp` / `X-Client-Nonce` / `X-Client-Signature` | `/auth/sign_up` | `HMAC-SHA256("{timestamp}:{nonce}:{body}", CLIENT_SECRET)`。テストでは `Tests\TestCase` が無効化している |
 | `Accept-Language` | 全API | 言語の選択 |
+| `X-Platform` | `maintenance` のグループ内の全API（必須） | `Apple` / `Google`。署名の対象外で、認可・課金検証には使わない。テストでは `Tests\TestCase` が既定で `Apple` を付ける（除外・欠落・不正値のテストだけ `withoutHeader` で外す）。設計: `docs/design/home-player-info/api.md` 10 節 |
 | `X-Master-Hash` | 全API（任意） | クライアントが持つマスターデータのハッシュ |
 | `Deploy-Version` | `/auth/version` | ボディの `deploy_version` が無いときに使う |
 

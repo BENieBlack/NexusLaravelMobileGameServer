@@ -20,6 +20,8 @@
 | `X-Client-Nonce` | ランダムな一意文字列（32文字以上推奨） | `a1b2c3d4e5f6...` |
 | `X-Client-Signature` | HMAC-SHA256署名（16進数） | `3a4b5c6d7e8f...` |
 
+`X-Platform`（`Apple` または `Google`）はゲームAPI全体で必須のヘッダーで、`sign_up` にも付けます。**署名の対象ではない**（署名の組み立ては変わりません）。欠落・不正値は HTTP 299 / `error_code` 99003 になります。
+
 ---
 
 ## 署名の生成方法

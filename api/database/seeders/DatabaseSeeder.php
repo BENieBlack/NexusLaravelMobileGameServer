@@ -25,6 +25,9 @@ class DatabaseSeeder extends Seeder
             MstEquipmentSeeder::class,
             MstPlayerLevelSeeder::class,
 
+            // 設定マスター（回復間隔など。他のマスターに依存せず、mst_config だけ truncate する）
+            MstConfigSeeder::class,
+
             // 通常ログインボーナス（依存なし。mst_login_bonus / _content だけ truncate する）
             MstLoginBonusSeeder::class,
 

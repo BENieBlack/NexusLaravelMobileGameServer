@@ -131,4 +131,46 @@ class ApiSessionTest extends TestCase
         $this->assertSame(789, $newSession->getPlayerId());
         $this->assertTrue($newSession->getNowValue()->equalTo($customNow));
     }
+
+    #[Test]
+    public function platformの設定と取得ができる(): void
+    {
+        $this->assertFalse(ApiSession::hasPlatform());
+
+        ApiSession::setPlatform('Google');
+
+        $this->assertTrue(ApiSession::hasPlatform());
+        $this->assertSame('Google', ApiSession::getPlatform());
+    }
+
+    #[Test]
+    public function platform未設定でgetすると例外になる(): void
+    {
+        // 言語と違い既定値は返さない（キュー・コマンドで暗黙の既定値を使わせない）
+        $this->expectException(\RuntimeException::class);
+
+        ApiSession::getPlatform();
+    }
+
+    #[Test]
+    public function platform未設定でインスタンスのgetも例外になる(): void
+    {
+        $this->expectException(\RuntimeException::class);
+
+        (new ApiSession)->getPlatformValue();
+    }
+
+    #[Test]
+    public function clearとclear_for_testでplatformも消える(): void
+    {
+        ApiSession::setPlatform('Apple');
+        ApiSession::clearForTest();
+        $this->assertFalse(ApiSession::hasPlatform());
+
+        $session = new ApiSession;
+        $session->setPlatformInstance('Google');
+        $this->assertTrue($session->hasPlatformValue());
+        $session->clear();
+        $this->assertFalse($session->hasPlatformValue());
+    }
 }

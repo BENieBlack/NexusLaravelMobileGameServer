@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Broadcasting\ReverbNotificationDispatcher;
 use App\Domain\Album\Handlers\AlbumRecordingDeliveryHandler;
+use App\Domain\Diamond\Services\ApiSessionPlatformProvider;
 use App\Domain\Equipment\Contracts\EquipmentExperienceInterface;
 use App\Domain\Equipment\Services\EquipmentLevelService;
 use App\Domain\InAppPurchase\Contracts\DiamondBalanceInterface;
@@ -16,18 +17,25 @@ use App\Domain\Login\Services\ComeBackLoginBonusService;
 use App\Domain\Login\Services\LoginBonusService;
 use App\Domain\Login\Services\VipLoginBonusService;
 use App\Domain\Mission\Listeners\RecordMissionProgressOnUnitLevelUp;
+use App\Domain\MstConfig\Contracts\MstConfigReaderInterface;
+use App\Domain\MstConfig\Services\MstConfigService;
 use App\Domain\Notification\Listeners\NotifyOnFriendApplyAccepted;
 use App\Domain\Notification\Listeners\NotifyOnFriendApplySent;
 use App\Domain\Notification\Listeners\NotifyOnGuildApplyAccepted;
 use App\Domain\Notification\Listeners\NotifyOnGuildApplyRejected;
 use App\Domain\Notification\Listeners\NotifyOnGuildApplySent;
 use App\Domain\Notification\Listeners\NotifyOnGuildMemberLeft;
+use App\Domain\Player\Contracts\InitialGrantInterface;
 use App\Domain\Player\Services\ExperienceGranterAdapter;
+use App\Domain\Player\Services\InitialGrantService;
 use App\Domain\Player\Services\PlayerLevelServiceAdapter;
 use App\Domain\Sharding\Contracts\ShardAssignerInterface;
 use App\Domain\Sharding\Services\ShardAssignmentService;
+use App\Domain\Stamina\Contracts\StaminaInitializerInterface;
 use App\Domain\Stamina\Listeners\RecoverStaminaOnPlayerLevelUp;
 use App\Domain\Stamina\Services\StaminaGranterAdapter;
+use App\Domain\Stamina\Services\StaminaInitializerService;
+use App\Domain\Stamina\Services\StaminaRecoveryIntervalAdapter;
 use App\Domain\Trade\Services\TradeCostPayerAdapter;
 use App\Domain\Unit\Contracts\UnitExperienceInterface;
 use App\Domain\Unit\Services\UnitLevelService;
@@ -95,6 +103,7 @@ use Nexus\Core\Repositories\PlayerRepositoryInterface as PlayerRepoInterface;
 use Nexus\Core\Resource\Contracts\DiamondRepositoryInterface;
 use Nexus\Core\Resource\Contracts\ItemRepositoryInterface;
 use Nexus\Core\Resource\Events\UnitLeveledUp;
+use Nexus\Core\ResourceDelivery\Contracts\DefaultPlatformProviderInterface;
 use Nexus\Core\ResourceDelivery\Contracts\EquipmentRepositoryInterface;
 use Nexus\Core\ResourceDelivery\Contracts\ExperienceGranterInterface;
 use Nexus\Core\ResourceDelivery\Contracts\ItemGranterInterface;
@@ -164,6 +173,7 @@ use NexusSecurity\Contracts\PlayerSessionInterface;
 use NexusSecurity\Contracts\TokenValidatorInterface;
 use NexusStamina\Repositories\StaminaRepositoryInterface;
 use NexusStamina\Services\PlayerLevelServiceInterface;
+use NexusStamina\Services\StaminaRecoveryIntervalProviderInterface;
 use NexusTag\Repositories\TagRepositoryInterface;
 use NexusTrade\Contracts\TradeCostPayerInterface;
 use NexusTrade\Contracts\TradeMasterRepositoryInterface;
@@ -252,6 +262,13 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(StaminaRepositoryInterface::class, StaminaRepositoryAdapter::class);
         $this->app->bind(PlayerLevelServiceInterface::class, PlayerLevelServiceAdapter::class);
 
+        // MstConfig の公開 API（他コンテキストはこの interface だけを使う）
+        $this->app->bind(MstConfigReaderInterface::class, MstConfigService::class);
+
+        // 回復間隔の読み出し口。アダプタが 1 リクエスト内で値をメモ化するので scoped にする
+        // （リクエストをまたぐと、運営ツールでの設定変更やテストの行の差し替えが反映されない）
+        $this->app->scoped(StaminaRecoveryIntervalProviderInterface::class, StaminaRecoveryIntervalAdapter::class);
+
         // ==========================================
         // NexusGacha Package Bindings
         // ==========================================
@@ -286,6 +303,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(ItemInventoryInterface::class, ItemService::class);
         $this->app->bind(DiamondBalanceInterface::class, InAppPurchaseDiamondBalanceService::class);
         $this->app->bind(ShardAssignerInterface::class, ShardAssignmentService::class);
+        $this->app->bind(InitialGrantInterface::class, InitialGrantService::class);
+        $this->app->bind(StaminaInitializerInterface::class, StaminaInitializerService::class);
         $this->app->bind(EquipmentExperienceInterface::class, EquipmentLevelService::class);
         $this->app->bind(UnitExperienceInterface::class, UnitLevelService::class);
 
@@ -385,6 +404,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->scoped(WalletItemMigrator::class);
 
         $this->app->bind(StaminaGranterInterface::class, StaminaGranterAdapter::class);
+        // ダイヤ付与の既定 platform（X-Platform）。ジョブ等で未設定なら null を返し、ハンドラが Apple にする
+        $this->app->bind(DefaultPlatformProviderInterface::class, ApiSessionPlatformProvider::class);
         $this->app->bind(ExperienceGranterInterface::class, ExperienceGranterAdapter::class);
 
         // ResourceDeliveryManager のバインディング

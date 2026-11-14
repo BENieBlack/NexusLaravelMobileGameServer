@@ -43,6 +43,8 @@ class MailboxReceiveContentTest extends TestCase
 
         ['player' => $player] = $this->signUpPlayer();
         $this->sysPlayerId = $player->id;
+        // 空の新規プレイヤーを前提に受け取りの結果を検証するので、初期付与の行を外す
+        $this->deleteInitialGrant($this->sysPlayerId);
         ApiSession::setSysPlayerId($this->sysPlayerId);
 
         $this->queryManager = app(QueryManager::class);
@@ -167,6 +169,8 @@ class MailboxReceiveContentTest extends TestCase
         $mine = $this->makeMailbox();
 
         ['player' => $other] = $this->signUpPlayer();
+        // サインアップの初期付与が、Repository のキャッシュ（リクエストスコープ）に他人の行を載せるので捨てる
+        $this->app->forgetScopedInstances();
         $othersMailbox = $this->makeMailbox(sysPlayerId: $other->id);
         ApiSession::setSysPlayerId($this->sysPlayerId);
 

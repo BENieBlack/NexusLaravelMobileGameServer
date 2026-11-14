@@ -19,6 +19,7 @@ use NexusTidb\Support\TidbMode;
  * - sysPlayerId: 認証されたプレイヤーID
  * - now: リクエスト開始時の固定時刻（ClockUtility::now()）
  * - language: Accept-Languageから解決した言語コード
+ * - platform: X-Platformヘッダーを検証した値（Apple / Google）
  *
  * 使用例:
  * - Middleware: ApiSession::setSysPlayerId($sysPlayerId)
@@ -48,6 +49,11 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
      * リクエストの言語コード（Accept-Languageから解決した結果）
      */
     private ?string $language = null;
+
+    /**
+     * リクエストの platform（X-Platformヘッダーを検証した値。Apple / Google）
+     */
+    private ?string $platform = null;
 
     /**
      * コンストラクタ
@@ -142,6 +148,7 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
         $this->now = null;
         $this->connectionName = null;
         $this->language = null;
+        $this->platform = null;
     }
 
     /**
@@ -354,6 +361,85 @@ class ApiSession implements PlayerSessionInterface, PlayerSessionResolverInterfa
         }
 
         return app(self::class)->getLanguageValue();
+    }
+
+    /**
+     * platform を設定（インスタンスメソッド）
+     *
+     * @param  string  $platform  検証済みの platform（Apple / Google）
+     */
+    public function setPlatformInstance(string $platform): void
+    {
+        $this->platform = $platform;
+    }
+
+    /**
+     * platform を取得（インスタンスメソッド）
+     *
+     * 言語と違い既定値を返さない。キュー・コマンドなどHTTP以外の経路で
+     * 暗黙の既定値を使わせないため。
+     *
+     * @throws \RuntimeException platform が設定されていない場合
+     */
+    public function getPlatformValue(): string
+    {
+        if ($this->platform === null) {
+            throw new \RuntimeException(
+                'Platform is not set in ApiSession. Make sure the platform middleware is applied.'
+            );
+        }
+
+        return $this->platform;
+    }
+
+    /**
+     * platform が設定されているか確認（インスタンスメソッド）
+     */
+    public function hasPlatformValue(): bool
+    {
+        return $this->platform !== null;
+    }
+
+    /**
+     * 静的ヘルパー: platform を設定
+     *
+     * @param  string  $platform  検証済みの platform（Apple / Google）
+     */
+    public static function setPlatform(string $platform): void
+    {
+        if (! app()->bound(self::class)) {
+            app()->instance(self::class, new self);
+        }
+
+        app(self::class)->setPlatformInstance($platform);
+    }
+
+    /**
+     * 静的ヘルパー: platform を取得
+     *
+     * @throws \RuntimeException platform が設定されていない場合
+     */
+    public static function getPlatform(): string
+    {
+        if (! app()->bound(self::class)) {
+            throw new \RuntimeException(
+                'Platform is not set in ApiSession. Make sure the platform middleware is applied.'
+            );
+        }
+
+        return app(self::class)->getPlatformValue();
+    }
+
+    /**
+     * 静的ヘルパー: platform が設定されているか確認
+     */
+    public static function hasPlatform(): bool
+    {
+        if (! app()->bound(self::class)) {
+            return false;
+        }
+
+        return app(self::class)->hasPlatformValue();
     }
 
     /**

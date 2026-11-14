@@ -100,11 +100,30 @@ API（api/）の接続は `api/config/database.php`、Tool（tool/）の接続�
 ### ID と主キー
 
 - sys / trx / log / adm / tol: `$table->id()`（BIGINT UNSIGNED AUTO_INCREMENT）。TiDB モードでは trx/log の `id` だけが UUID（VARCHAR）に変わり、sys / adm / tol と `sys_player_id` は連番のまま（11節）。
-- mst: **文字列の `id`**（`$table->string('id')->primary()`、例 `unit_knight_001`）。参照側の `mst_xxx_id` も string にする。
-- **mst の `id` に AUTO_INCREMENT は禁止**（`$table->id()` / `increments` / `bigIncrements` / `->autoIncrement()` など）。採番が環境や投入順でズレ、他のマスタの参照カラム（`mst_xxx_id`）との JOIN が効かなくなるため。代わりに人が決める安定した string の `id`、または複合主キーにする。
+- mst: **`__l10n` テーブルと Laravel 標準テーブルを除き、string の `id` カラムを必ず持つ**（`$table->string('id')->primary()`、例 `unit_knight_001`）。参照側の `mst_xxx_id` も string にする。
+  - `id` は人が決める安定した値にする。AUTO_INCREMENT・連番の代理キーは使わない。
+  - 複合の自然キーを持つ表（`*_content`、`mst_unit_level` の `rarity, level` など）も `id` を持ち、自然キーは `unique`（`uk_xxx`）で一意性を守る。主キーは `id` を基本にする。理由は、参照の形を揃えるため、運営のシートの行を `id` で識別するため、Repository の `queryOrMemory` が `id` を鍵にするため。複合主キーのまま `id` を足すのは移行中の暫定に限る。
+  - 除外は `__l10n`（主キーは親の ID + `language` のまま。6節）と Laravel 標準テーブル（cache・cache_locks・jobs・job_batches・failed_jobs）だけ。ほかに例外が要るときは、理由つきでこの節に追記する。
+- **mst の `id` に AUTO_INCREMENT は禁止**（`$table->id()` / `increments` / `bigIncrements` / `->autoIncrement()` など）。採番が環境や投入順でズレ、他のマスタの参照カラム（`mst_xxx_id`）との JOIN が効かなくなるため。
   - 検査: `api/tests/Architecture/MstNoAutoIncrementIdTest.php`（`packages/*/database/migrations/mst/` と `api/database/migrations/mst/` を走査。Laravel 標準の cache / jobs 系は対象外）。
   - 解消待ち（作り直しがモデル・シーダー・テストへ波及するため、検査の `PENDING_VIOLATIONS` に載せて通している。直したら一覧から消す。消し忘れも失敗する）: `mst_billing_platform_product`、`mst_in_app_purchase`（`packages/nexus-core-billing`）、`mst_vip_login_bonus_content`（`packages/nexus-vip`）。新しい違反を足してはならない。
-- 複合主キーで一意になる trx/mst テーブルは `id` を持たなくてよい（`trx_item` = `sys_player_id, mst_item_id`、`mst_unit_level` = `rarity, level`）。Model 側は `$primaryKey` を配列にして `api/app/Traits/CompositePrimaryKeyTrait.php` を使う。
+- **string の `id` 必須の検査**: `api/tests/Architecture/MstRequiresStringIdTest.php`（走査の範囲は上と同じ。`__l10n` と Laravel 標準は対象外）。`PENDING_VIOLATIONS` の流儀も同じで、直したら一覧から消す（消し忘れも失敗する）。
+  - 解消待ち（`id` 列を持たない 16 テーブル）:
+    - `packages/nexus-core-billing`: `mst_billing_platform_product`、`mst_in_app_purchase`（AUTO_INCREMENT の解消待ちと重複）、`mst_in_app_purchase_content`、`mst_in_app_purchase_effect`
+    - `packages/nexus-core`: `mst_unit_level`、`mst_equipment_level`
+    - `packages/nexus-event`: `mst_event_content`
+    - `packages/nexus-level`: `mst_player_level`（主キーは `level`）
+    - `packages/nexus-login`: `mst_login_bonus_content`
+    - `packages/nexus-mailbox`: `mst_mailbox_content`
+    - `packages/nexus-mission`: `mst_mission_content`
+    - `packages/nexus-reward-track`: `mst_reward_track_content`
+    - `packages/nexus-tag`: `mst_tag_content`
+    - `packages/nexus-trade`: `mst_trade_product_content`
+    - `packages/nexus-vip`: `mst_vip_level_reward`、`mst_vip_login_bonus_content`（AUTO_INCREMENT の解消待ちと重複）
+  - 移行の進め方: 機能を触るときに、そのテーブルを少しずつ直して一覧から消す。新規の mst テーブルは最初から `id` を持たせ、一覧へ足さない。
+  - 主キーに `id` を足すときの影響: Model（`$primaryKey` の配列と `CompositePrimaryKeyTrait` を外す）、Repository（`queryOrMemory` の鍵）、シーダー、運営のシートのインポート（シート名 = テーブル名で truncate + INSERT なので、シートへ `id` 列を足す）、マスター配信の SQLite、クライアントの `master_data`（列が増える）を合わせて直す。
+  - `*_content` の `id` の作り方の案: 親の ID・`content_type`・`content_mst_id` を `:` でつないだ文字列（例 `login_bonus_001:item:item_potion`）。同じ親に同じ中身を 2 行置かない前提で、自然キーの `unique` と一致させる。
+- **trx の複合主キー**: 複合主キーで一意になる trx テーブルは `id` を持たなくてよい（`trx_item` = `sys_player_id, mst_item_id`）。Model 側は `$primaryKey` を配列にして `api/app/Traits/CompositePrimaryKeyTrait.php` を使う。mst と違い、trx には「`id` 必須」の規約を課さない。
 - 主キー・ユニークキーに名前を付けるときは `pk_xxx` / `uk_xxx`。
 
 ### 参照カラムの名前

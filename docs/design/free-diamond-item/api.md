@@ -17,6 +17,7 @@
 | 購入（`/in_app_purchase/buy`） | body の `platform` と `X-Platform` が不一致なら `INVALID_PLATFORM`（99003）で拒否（F13）。パックの `rewards` の無償ダイヤは `{type: item, item_id: free_diamond}` に（F2）。**応答から `paid_diamond_amount` を外す**（人の決定 B）。応答は `updated_resources` と `rewards`（Pack/Pass のときだけ）だけ。`total_*_diamond_amount` は載せない |
 | 報酬の種別 | 無償ダイヤの `type` は `item`（`id = free_diamond`）。`diamond` は廃止（F9）。login の `login_bonus_list`・メールの添付に影響 |
 | 通常のアイテム消費 | `free_diamond` は拒否（`INVALID_ITEM_TYPE`。db.md 6.4 節。U-3） |
+| 言語（design-change） | クライアントは `Accept-Language: ja` を全 API に送る。`ResolveLanguage`（既存）が受けるので**サーバーの変更は無い**。この機能の API の応答は l10n を使わない（アイテムの名前はクライアントが `mst_item__l10n` から引く。10 節） |
 | 破壊的変更 | 上のすべて。旧クライアントは未配布なので互換は持たない（D7）。キーの併記・2 段階の移行はしない |
 
 ## 2. `updated_resources` の共通の約束（F11・F15・Q15）
@@ -206,3 +207,16 @@
 | U-S1（解決済み） | 購入応答の `total_*_diamond_amount` と `paid_diamond_amount` | 載せない（`paid_diamond_amount` も外す。B） |
 | U-S2（再掲） | パックの `rewards` の無償ダイヤの表現 | `{type: item, item_id: free_diamond, amount}` |
 | U-Q3（確定） | 不一致エラーを Slack に通知するか | 通知しない（5.2 節。確定） |
+
+## 10. 言語（design-change。アイテムの表示名の配信）
+
+アイテムの表示名（無償ダイヤを含む）は、クライアントが配信された `mst_item`（`mst_item__l10n` を同じ SQLite に含む）から引く。行の入れ方は [db.md](db.md) 10 節。
+
+| 項目 | 内容 |
+| --- | --- |
+| クライアントの送信 | **全 API に `Accept-Language: ja` を送る**（クライアントは `ja` 固定。クライアント設計 5-2・5-3-1。ヘッダー名は既存の `Accept-Language`。`X-Language` は新設しない） |
+| サーバーの受け口（既存。読んだ） | `ResolveLanguage`（`api` グループの先頭。`bootstrap/app.php`）が `Accept-Language` を解釈し、`ApiSession::setLanguage` と `app()->setLocale` に載せる。対応言語と既定（`ja`）は `api/config/language.php`。サポート外・ヘッダー欠落は既定の `ja` に倒す（**拒否しない**。`X-Platform` の `99003` と違う）。署名には含めない。**新設・変更は無い** |
+| この機能の API の応答 | **l10n を使わない**。login・`updated_resources`・購入・ガチャ・交換の応答に、アイテムの名前・説明を載せない（`name`・`description` の項目は増やさない）。アイテムは ID（`item_id`・`mst_item_id`）だけで返す |
+| いま l10n を使う応答 | **メール一覧だけ**。`MailboxItemAssemblyService` が `ApiSession::getLanguage()` で `mst_message__l10n` を引いて件名・本文を作る（読んだ。ほかの API で `getLanguage()` を使う箇所は無い）。ミッション・交換の一覧の応答は名前を載せず、クライアントが `mst_mission__l10n`・`mst_trade__l10n` などを引く（各 `ListResponse` のコメント）。アイテムの名前はこの後者の流儀に合わせる |
+| 追加のテスト | 不要（`ResolveLanguageTest` が既にある。応答に項目を足さないので応答のテストも変わらない） |
+| 運用 | 行を入れたあと、再エクスポートして version API の `master.tables` に `mst_item` が載ることを確かめる（db.md 10.6 節） |

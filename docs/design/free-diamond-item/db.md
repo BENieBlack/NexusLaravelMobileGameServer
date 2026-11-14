@@ -17,6 +17,7 @@
 | `trx_diamond_balance` | 有償のみ。列は変えない。消費のたびに `current_amount` を減らす新しい書き込みが増える（5 節。索引は既存で足りる） |
 | mst | 列の型の変更は enum の値の取り除きだけ（6 節）。新しい mst テーブルは無いので、mst の string id 規約（`MstRequiresStringIdTest`・`MstNoAutoIncrementIdTest`）に新しく触れない（7 節） |
 | 既存データ | 移行しない（要件 Q3・Q6）。`make migrate-fresh && make seed` で作り直す |
+| アイテムの表示名（design-change） | `mst_item__l10n` の行をシーダーで入れる（10 節）。**テーブル・列は変えない**（既存。新しい mst テーブルではない）。クライアントがホーム・ログインボーナスなどで全アイテムの名前を引く |
 | マイグレーションの置き場 | すべて既存ファイルの書き換え（`.claude/database.md` 3 節。共有の検証環境を作るまで許される）。新規ファイルは作らない |
 
 ## 2. `trx_diamond` から `free_amount` を取り除く（F6）
@@ -193,15 +194,17 @@
 
 人の決定は変えない。次に要件・全体設計を触るときの直しとして申し送る。
 
+反映状況は各行の末尾に書いた（design-change「表示名の配信」）。
+
 | # | 食い違い | 直し方（案） |
 | --- | --- | --- |
-| R1 | 要件 F9 (3) は VIP の初期行を「`content_type = diamond`・`content_mst_id = free_diamond`」と書くが、実際の初期行（`create_vip_tables.php:86〜117`）の `content_mst_id` は **`free`** | 事実の補正。決定（`item` / `free_diamond` に直す）は変わらない |
-| R2 | 要件 Q12 は専用ログ 2 表の `free_amount` 系を取り除くとするが、`log_change_trx_diamond_balance` に該当列は無い（3 節） | 「`log_change_trx_diamond` の 3 列」に補正 |
-| R3 | 要件 C4・F3・全体設計 2・3 節は「応答の `contents`・`total_free_diamond_amount`」を前提にするが、**API の応答には載っていなかった**（`BuyResponse` は `paid_diamond_amount`・`rewards`・`updated_resources` だけ）。`contents` は `InAppPurchasePackService` の戻り値で API では `rewards` として出る。人の決定（B）で `paid_diamond_amount` も外し、`total_*_diamond_amount` は載せない | 要件 F3 を「`total_free_diamond_amount` は応答に項目として出さず、残高は `updated_resources`（`trx_item_list` の `free_diamond`）で返す」に直す。C4 の記述も実態に（応答は `updated_resources`・`rewards`）。全体設計 2 節・3 節の `total_free_diamond_amount` の記述も同様 |
-| R4 | U-5: 要件 F2 は `contents` の扱いを「Q7」に委ねるが、Q7 は `total_free_diamond_amount` の決定のみ。実質は api.md 5 節の `rewards`（F3 は上の R3 のとおり直す） | 次に要件を触るとき、F2 の参照を `rewards` の説明に直す |
-| R5 | 要件 F9 (3) は VIP の「`content_type`（`nexus-vip`）」を enum として書くが、`mst_vip_login_bonus_content` は string 列でマイグレーションに初期行は無い（enum は `mst_vip_level_reward`。6.1） | 6.1 の分け方に合わせて補正 |
-| R7 | サーバーの `.claude/database.md:222`（`trx_diamond_balance` の「`id` 昇順が購入順」）は、TiDB モードの UUID の `id` では成り立たない（同 11 節）。FIFO の順は `created_at` 昇順（同点は `id`）にした（5 節） | S3 で `.claude/database.md` の記述を「`created_at` 昇順が購入順（同じ秒は保証しない）」に追従する（api.md 7 節の仕様書の行に加えた） |
-| R6 | 全体設計 7 節の確定事項「課金パックの中身に有償ダイヤは入れられない」は、enum を `['item','unit']` にしたあとも成り立つ（5 節） | 変更なし（確認のみ） |
+| R1 | 要件 F9 (3) は VIP の初期行を「`content_type = diamond`・`content_mst_id = free_diamond`」と書くが、実際の初期行（`create_vip_tables.php:86〜117`）の `content_mst_id` は **`free`** | 事実の補正。決定（`item` / `free_diamond` に直す）は変わらない **反映済み（要件 F9 (3) を補正）。** |
+| R2 | 要件 Q12 は専用ログ 2 表の `free_amount` 系を取り除くとするが、`log_change_trx_diamond_balance` に該当列は無い（3 節） | 「`log_change_trx_diamond` の 3 列」に補正 **反映済み（要件 Q12・F6 を補正）。** |
+| R3 | 要件 C4・F3・全体設計 2・3 節は「応答の `contents`・`total_free_diamond_amount`」を前提にするが、**API の応答には載っていなかった**（`BuyResponse` は `paid_diamond_amount`・`rewards`・`updated_resources` だけ）。`contents` は `InAppPurchasePackService` の戻り値で API では `rewards` として出る。人の決定（B）で `paid_diamond_amount` も外し、`total_*_diamond_amount` は載せない | 要件 F3 を「`total_free_diamond_amount` は応答に項目として出さず、残高は `updated_resources`（`trx_item_list` の `free_diamond`）で返す」に直す。C4 の記述も実態に（応答は `updated_resources`・`rewards`）。全体設計 2 節・3 節の `total_free_diamond_amount` の記述も同様 **反映済み（要件 F3・Q7 を補正し、決定 B の 1 行を足した。overview.md も同様）。** |
+| R4 | U-5: 要件 F2 は `contents` の扱いを「Q7」に委ねるが、Q7 は `total_free_diamond_amount` の決定のみ。実質は api.md 5 節の `rewards`（F3 は上の R3 のとおり直す） | 次に要件を触るとき、F2 の参照を `rewards` の説明に直す **反映済み（要件 F2 の参照を直した。overview.md U-5 も解決済みに）。** |
+| R5 | 要件 F9 (3) は VIP の「`content_type`（`nexus-vip`）」を enum として書くが、`mst_vip_login_bonus_content` は string 列でマイグレーションに初期行は無い（enum は `mst_vip_level_reward`。6.1） | 6.1 の分け方に合わせて補正 **対象外（今回は直していない。従来のまま）。** |
+| R7 | サーバーの `.claude/database.md:222`（`trx_diamond_balance` の「`id` 昇順が購入順」）は、TiDB モードの UUID の `id` では成り立たない（同 11 節）。FIFO の順は `created_at` 昇順（同点は `id`）にした（5 節） | S3 で `.claude/database.md` の記述を「`created_at` 昇順が購入順（同じ秒は保証しない）」に追従する（api.md 7 節の仕様書の行に加えた） **対象外（S3 で `.claude/database.md` を追従する。従来のまま）。** |
+| R6 | 全体設計 7 節の確定事項「課金パックの中身に有償ダイヤは入れられない」は、enum を `['item','unit']` にしたあとも成り立つ（5 節） | 変更なし（確認のみ） **対象外（変更なし・確認のみ）。** |
 
 ## 9. 未解決点（確認事項と既定案）
 
@@ -216,3 +219,83 @@
 | U-S5 | 消費サービスが platform を受け取る方法 | `DiamondBalanceInterface` の引数は変えず、`InAppPurchaseDiamondBalanceService` が `ApiSession::getPlatform()` で `X-Platform` を読む（未設定なら `RuntimeException`。`ApiSession.php:422-430`。暗黙の既定値を使わせない。HTTP 以外の経路からの消費は想定しない）。**代替**: 既存の `DiamondDeliveryHandler` と同じ `DefaultPlatformProviderInterface`（`ApiSessionPlatformProvider`）経由にそろえる。テストで差し替えやすい。ただし未設定のとき `null` を返すので、消費では `null` を例外にする（`Apple` に落とさない）。引数に `platform` を足す案は、呼び出し元（ガチャ・交換）の変更が増えるので採らない |
 | U-S6 | `free_diamond` の ID の定数の名前と置き場所（6.4） | `nexus-core` の `Nexus\Core\Resource\` 配下に置く（具体名は S3 で決める）。`InitialGrantConst::FREE_DIAMOND_MST_ITEM_ID` もそれを指す |
 | U-S7 | ガチャ・交換の `cost_type = item` で `free_diamond` を指すマスターを、マスターの取り込み時に拒否するか | **拒否しない**。ランタイムのガード（6.4）で足りる。取り込み時の検査は別の機能 |
+| U-S8 | `mst_item__l10n` の `ja` の `name`（10.3 節の一覧）の確定。**運営が決める**（仮置きのまま出荷しない） | 10.3 節の仮置きで進める。`free_diamond` だけは `無償ダイヤ`（クライアント設計 5-3 S-1 の必須。人の決定済み）。`description` は全行 `null` |
+| U-S9 | `stamina`（ログインボーナスの `content_type = stamina`・`content_mst_id = stamina`。`MstLoginBonusSeeder` 5 日目）は `mst_item` に行が無く、`mst_item__l10n` でも名前を引けない | **この機能では扱わない**（`type = item` ではないのでクライアントは `mst_item` を引かない。既存の表示のまま）。`stamina` を `mst_item` に足すかは別件（人が決める） |
+| U-S10 | `MstItemL10n` モデル（`MstMessageL10n` に倣う）と `MstItem::l10n()` を足してシーダーで使うか、シーダーだけ `DB::connection('mst')->table('mst_item__l10n')` で入れるか | モデルを足す（`.claude/coding-standards.md` 99 行目。`MstMessageL10n`・`MstMessage::l10n()` と同じ形）。API の応答では使わないので、リレーションの読み取りは S3 で作らない（モデルとシーダーでの書き込みだけ） |
+| U-S11 | `mst_item` に行を足したとき `mst_item__l10n` の行を必須にする検査（テスト）を入れるか | 入れる（`MstItemSeederTest`：全行に `ja` の行がある。10.4 節）。本番のマスター投入（運営ツール）の検査は別の機能 |
+
+## 10. アイテムの表示名: `mst_item__l10n` の行を入れる（design-change。要件「表示名の配信」）
+
+背景（人の決定）: クライアントはホーム・ログインボーナス画面で、アイテム（無償ダイヤを含む全アイテム）の表示名を **`mst_item__l10n`** から引く。クライアントの言語は `ja` 固定で、`Accept-Language: ja` を送る（[api.md](api.md) 10 節）。ところが `mst_item__l10n` に行を入れるシーダーが無く、いまは常に空（読んだ。`MstItemSeeder` は `mst_item` だけ。`database/seeders` に l10n を入れるものは他にも無い）。クライアント設計の申し送り S-1〜S-6 は `NexusGodotMobileGameClient/docs/design/free-diamond-item/client_design.md` の 5-3・5-3-1 が正本（参照のみ）。
+
+### 10.1 テーブルと配信（変更なし）
+
+| 項目 | 内容（読んだ） |
+| --- | --- |
+| テーブル | `mst_item__l10n`（`packages/nexus-core/.../2026_01_01_000001_create_resource_tables.php:82-93`。既存。**マイグレーションは変えない**） |
+| 列 | `deploy_key`（既定 202601010）・`mst_item_id`（string。`mst_item.id`）・`language`（ENUM。`api/config/language.php` の `supported` と同じ一覧）・`name`（必須）・`description`（null 可）・`created_at`・`updated_at` |
+| 主キー | 複合 `(mst_item_id, language)`（名前 `pk_item_language`）。**`id` 列は無い** |
+| 配信 | 運営ツールの `MasterDataExporter` は `mst_%` の全テーブルを出し、`__l10n` を親にまとめる（`groupTables`）ので、`mst_item__l10n` は **`mst_item` の SQLite（`master.tables` のキーは `mst_item`）に入る**。エクスポートの変更は要らない |
+| この機能の API | 応答に名前を載せない（l10n を使わない。[api.md](api.md) 10 節）。クライアントが配信された SQLite から引く |
+
+### 10.2 方針（シーダー・規約）
+
+- **`MstItemSeeder` の全行**（`free_diamond` を含む。10.3 節の 28 行）に、`language = ja` の行を 1 行ずつ入れる。名前の正本は `MstItemSeeder` の `$items` の各要素に `name`（必須）・`description`（省略可。省略は `null`）を足して持つ。ID と名前を別の配列に分けない（足し漏れを防ぐ）。
+- 冪等: `mst_item` と同じく、実行の頭で `mst_item__l10n` も `truncate`（`mst_item` の truncate の直後）。
+- `deploy_key`: `mst_item` の行と同じ値（`MstItemSeeder` の `202601010`）。
+- **規約に反しない点**: `mst_item__l10n` は mst の「string の `id` 必須」の対象外（主キーは親の ID + `language`。`MstRequiresStringIdTest` は `__l10n` を除外し、`.claude/database.md` 3 節・6 節）。新しいテーブルを作らないので `PENDING_VIOLATIONS` も変えない（7 節）。`deploy_key` 列は既にある（同 7 節）。`name`・`description` に `id` 的な値は入れない。
+- `language` は `ja` だけ入れる（クライアントは `ja` 固定。他言語の行は運営がマスター投入で足す。ENUM の値は変えない）。
+- 書き込みは `_BaseMst::allowWrites()` の中（既存のシーダーと同じ）。モデルは U-S10 の既定案（`MstItemL10n`）。
+
+### 10.3 `mst_item` の全行と `ja` の名前（**仮置き。運営が確定する**）
+
+`MstItemSeeder` の全行（28 行。2026-11-14 に読んだ）。手掛かりは、`ResourceType::label()`（`packages/nexus-core/src/Resource/Enums/ResourceType.php`。ゴールド・コイン・食料など Wallet 管理の名前）、シーダーの `type`・`effect`・`value`、テストが作る名前（`UnitLevelUpTest` の `ユニット経験値ポーション`・`スタミナポーション`。シーダーの行ではなくテストが入れる別 ID）。「現状の名前」は、いま名前を持つ場所があるものだけ書く。
+
+| `mst_item.id` | `type` / `effect`（`value`）| 現状の名前・説明の手掛かり | `ja` の `name`（仮置き） |
+| --- | --- | --- | --- |
+| `item_heal_001` | recovery / heal_hp（100） | 無し | 回復ポーション（小） |
+| `item_heal_002` | recovery / heal_hp（500） | 無し | 回復ポーション（中） |
+| `item_heal_003` | recovery / heal_hp（1000） | 無し | 回復ポーション（大） |
+| `item_boost_001` | boost / boost_attack（1.2） | 無し | 攻撃力アップ薬 |
+| `item_boost_002` | boost / boost_defense（1.2） | 無し | 防御力アップ薬 |
+| `item_boost_003` | boost / boost_speed（1.3） | 無し | 素早さアップ薬 |
+| `item_exp_001` | experience / add_exp（1000） | 無し（`MstVipLoginBonusSeeder` が `item_exp_002`・`item_exp_003` を VIP ボーナスの景品にする） | 経験値アイテム（小） |
+| `item_exp_002` | experience / add_exp（5000） | 同上（VIP ボーナスの景品） | 経験値アイテム（中） |
+| `item_exp_003` | experience / add_exp（10000） | 同上（VIP ボーナスの景品） | 経験値アイテム（大） |
+| `unit_exp_100` | unit_enhancement / unit_exp（100） | 無し（テストの `unit_exp_potion` の名前 `ユニット経験値ポーション` が近い） | ユニット経験値（100） |
+| `unit_exp_1000` | 同上（1000） | 同上 | ユニット経験値（1000） |
+| `unit_exp_10000` | 同上（10000） | 同上 | ユニット経験値（10000） |
+| `unit_exp_100000` | 同上（100000） | 同上 | ユニット経験値（100000） |
+| `item_material_001` | material / none | 無し | 素材 1 |
+| `item_material_002` | material / none | 無し | 素材 2 |
+| `item_material_003` | material / none | 無し | 素材 3 |
+| `gold` | currency / none（Wallet） | `ResourceType::GOLD` のラベル `ゴールド` | ゴールド |
+| `coin` | currency / none（Wallet） | `ResourceType::COIN` のラベル `コイン` | コイン |
+| `free_diamond` | currency / none（`trx_item`） | 要件・クライアント設計の名前 `無償ダイヤ`（`ResourceType::DIAMOND` のラベルは `ダイヤ`。廃止予定） | **無償ダイヤ**（必須。人の決定済み） |
+| `food` | natural_resource / none（Wallet） | ラベル `食料` | 食料 |
+| `wood` | 同上 | ラベル `木材` | 木材 |
+| `stone` | 同上 | ラベル `石材` | 石材 |
+| `iron` | 同上 | ラベル `鉄` | 鉄 |
+| `alliance_points` | points / none（Wallet） | ラベル `アライアンスポイント` | アライアンスポイント |
+| `pvp_points` | 同上 | ラベル `PvPポイント` | PvPポイント |
+| `event_points` | 同上 | ラベル `イベントポイント` | イベントポイント |
+| `achievement_points` | 同上 | ラベル `達成ポイント` | 達成ポイント |
+| `vip_points` | 同上 | ラベル `VIPポイント` | VIPポイント |
+
+- `description` は全行 `null`（仮置き。名前だけで足りる。説明文は運営が決める。U-S8）。
+- 上の一覧にあるのは**シーダーの ID だけ**。テストが自分で作る ID（`unit_exp_potion`・`stamina_potion`・`equipment_exp_potion` など）は対象外（各テストが自分の l10n を入れ、後始末する）。
+- 「手掛かり」が `ResourceType::label()` のものは、ラベルと名前が二重管理になる（ラベルは配信側の `Resource` の表示用。クライアントは l10n を引く）。**この機能では揃えるだけで、どちらかを消さない**。
+
+### 10.4 テスト（S3 で足す）
+
+- `MstItemSeederTest`: ① `mst_item` の**全行**に `language = ja` の `mst_item__l10n` の行がある（名前が空でない）、② `free_diamond` の `ja` の `name` が `無償ダイヤ`、③ 同じシーダーを 2 回流しても行が増えない（主キー重複で落ちない＝冪等）、④ `tearDown` で `mst_item__l10n` も消す（いまは `mst_item` だけ消す。行を残すと他のテストの後始末と食い違う）。
+- アーキテクチャ: `MstRequiresStringIdTest`・`MstNoAutoIncrementIdTest` は変更なし（10.2）。
+
+### 10.5 録画用シード
+
+**専用のシナリオは足さない**。録画用のシード（`Recording/`）は `make seed`（`MstItemSeeder`）済みが前提で、`MstItemSeeder` が全行の `ja` の l10n を入れるので、`RecordingLoginBonusSeeder` が使う `free_diamond`・`gold` の名前もそれで足りる（重複を避ける）。`README.md` の前提の節に「`mst_item__l10n` も `make seed` が入れる」と 1 行足すだけ。
+
+### 10.6 運用作業（コードの変更ではない）
+
+- エクスポート（`POST /master-import/export`）は**変更しない**。行を入れたあとに**再エクスポート**し、version API の `master.tables` に `mst_item` が載る（`mst_item__l10n` は同じファイルに入る）ことを確かめる（クライアントの S5 の動画の前提）。
+- 本番のマスター投入（スプレッドシート → `MasterImportService`）で `mst_item__l10n` を持つかは、運営の運用（この機能の対象外）。シーダーは開発・検証環境の初期値。

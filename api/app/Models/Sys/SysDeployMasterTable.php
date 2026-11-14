@@ -31,6 +31,17 @@ class SysDeployMasterTable extends _BaseSys
     ];
 
     /**
+     * 配信対象のマスターのテーブル名（table_name 列。例 mst_item）を取得
+     *
+     * _BaseModel::getTableName() はこのモデル自身の DB テーブル名
+     * （sys_deploy_master_table）を返すため、マスターのテーブル名には使えない。
+     */
+    public function getMasterTableName(): string
+    {
+        return $this->getAttribute('table_name');
+    }
+
+    /**
      * hash を取得
      */
     public function getHash(): string

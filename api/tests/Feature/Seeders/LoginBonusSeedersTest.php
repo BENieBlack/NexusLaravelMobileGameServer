@@ -69,6 +69,33 @@ class LoginBonusSeedersTest extends TestCase
     }
 
     #[Test]
+    public function 無償ダイヤはitemのfree_diamondで5日目はスタミナ回復薬になる(): void
+    {
+        // 設計 free-diamond-item: 無償ダイヤの種別（diamond）は廃止。6 日目の diamond / diamond の混在も
+        // free_diamond に統一し、量（20000）は変えない。5 日目のスタミナ 50 は stamina_50 を 1 個渡す
+        foreach ([MstLoginBonusSeeder::class, RecordingLoginBonusSeeder::class] as $seeder) {
+            $this->cleanUp();
+            $this->seed($seeder);
+
+            $rows = collect($this->contentRows())->keyBy('day');
+
+            foreach ([1 => 100, 3 => 100, 6 => 20000, 7 => 500] as $day => $quantity) {
+                $this->assertSame('item', $rows[$day]['content_type'], "{$seeder} {$day}日目");
+                $this->assertSame('free_diamond', $rows[$day]['content_mst_id'], "{$seeder} {$day}日目");
+                $this->assertSame($quantity, (int) $rows[$day]['content_quantity'], "{$seeder} {$day}日目");
+            }
+
+            $this->assertSame('item', $rows[5]['content_type']);
+            $this->assertSame('stamina_50', $rows[5]['content_mst_id']);
+            $this->assertSame(1, (int) $rows[5]['content_quantity']);
+
+            // 旧種別は残らない
+            $this->assertSame(0, DB::connection('mst')->table('mst_login_bonus_content')
+                ->whereIn('content_type', ['diamond', 'stamina'])->count());
+        }
+    }
+
+    #[Test]
     public function mst_login_bonus_seederは2回流しても行数が変わらない(): void
     {
         $this->seed(MstLoginBonusSeeder::class);

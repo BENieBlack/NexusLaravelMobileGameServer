@@ -2,6 +2,8 @@
 
 namespace App\Domain\Player\Constants;
 
+use Nexus\Core\Resource\Constants\FreeDiamondConst;
+
 /**
  * サインアップ時の初期付与の値
  *
@@ -30,9 +32,9 @@ final class InitialGrantConst
     public const FREE_DIAMOND_AMOUNT = 50;
 
     /**
-     * 無償ダイヤの mst_item.id
+     * 無償ダイヤの mst_item.id（パッケージ側の定数を指す。ItemService のガードと同じ ID を使うため）
      */
-    public const FREE_DIAMOND_MST_ITEM_ID = 'free_diamond';
+    public const FREE_DIAMOND_MST_ITEM_ID = FreeDiamondConst::MST_ITEM_ID;
 
     /**
      * 初期スタミナの元になるレベル

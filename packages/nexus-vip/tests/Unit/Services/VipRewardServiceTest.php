@@ -44,7 +44,7 @@ class VipRewardServiceTest extends TestCase
         $vipLevel = 5;
 
         $mockReward1 = Mockery::mock(MstVipLevelReward::class);
-        $mockReward1->shouldReceive('getContentType')->andReturn('diamond');
+        $mockReward1->shouldReceive('getContentType')->andReturn('item');
         $mockReward1->shouldReceive('getContentMstId')->andReturn('free_diamond');
         $mockReward1->shouldReceive('getContentOption')->andReturn(null);
         $mockReward1->shouldReceive('getContentQuantity')->andReturn(100);
@@ -74,7 +74,7 @@ class VipRewardServiceTest extends TestCase
         $this->assertIsArray($result);
         $this->assertCount(2, $result);
         $this->assertInstanceOf(VipReward::class, $result[0]);
-        $this->assertSame('diamond', $result[0]->getContentType());
+        $this->assertSame('item', $result[0]->getContentType());
         $this->assertSame(100, $result[0]->getContentQuantity());
         $this->assertInstanceOf(VipReward::class, $result[1]);
         $this->assertSame('item', $result[1]->getContentType());
@@ -163,8 +163,8 @@ class VipRewardServiceTest extends TestCase
         $vipLevel = 3;
 
         $mockReward = Mockery::mock(MstVipLevelReward::class);
-        $mockReward->shouldReceive('getContentType')->andReturn('diamond');
-        $mockReward->shouldReceive('getContentMstId')->andReturn('paid_diamond');
+        $mockReward->shouldReceive('getContentType')->andReturn('wallet');
+        $mockReward->shouldReceive('getContentMstId')->andReturn('gold');
         $mockReward->shouldReceive('getContentOption')->andReturn(null);
         $mockReward->shouldReceive('getContentQuantity')->andReturn(500);
         $mockReward->shouldReceive('getAmount')->andReturn(1);
@@ -189,8 +189,8 @@ class VipRewardServiceTest extends TestCase
         $this->assertArrayHasKey('content_quantity', $result[0]);
         $this->assertArrayHasKey('amount', $result[0]);
         $this->assertArrayHasKey('is_paid', $result[0]);
-        $this->assertSame('diamond', $result[0]['content_type']);
-        $this->assertSame('paid_diamond', $result[0]['content_mst_id']);
+        $this->assertSame('wallet', $result[0]['content_type']);
+        $this->assertSame('gold', $result[0]['content_mst_id']);
         $this->assertSame(500, $result[0]['content_quantity']);
         $this->assertTrue($result[0]['is_paid']);
     }

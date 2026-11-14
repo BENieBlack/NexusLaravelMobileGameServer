@@ -11,7 +11,7 @@ namespace NexusVip\ValueObjects;
 final class VipReward
 {
     /**
-     * @param  string  $contentType  報酬タイプ（diamond, item, unit等）
+     * @param  string  $contentType  報酬タイプ（item, unit, wallet等。無償ダイヤは item + free_diamond）
      * @param  string  $contentMstId  報酬ID
      * @param  array<string, mixed>|null  $contentOption  報酬オプション
      * @param  int  $contentQuantity  報酬の基本個数

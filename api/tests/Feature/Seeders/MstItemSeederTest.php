@@ -33,6 +33,8 @@ class MstItemSeederTest extends TestCase
     protected function tearDown(): void
     {
         DB::connection('mst')->table('mst_item')->delete();
+        // 表示名（mst_item__l10n）も消す。残すと他のテストの後始末と食い違う
+        DB::connection('mst')->table('mst_item__l10n')->delete();
         $this->refreshMstCache();
 
         parent::tearDown();
@@ -64,6 +66,18 @@ class MstItemSeederTest extends TestCase
     }
 
     #[Test]
+    public function 無償ダイヤは図鑑の対象外で他の行は既定のまま(): void
+    {
+        // item 型の配布は図鑑の unlock 対象。free_diamond を載せないため is_album_target=false にする
+        $this->assertSame(0, (int) DB::connection('mst')->table('mst_item')->where('id', 'free_diamond')->value('is_album_target'));
+
+        // 他の行（通貨・資源・stamina_50 など）は人が判断するので列の既定（true）のまま
+        $others = DB::connection('mst')->table('mst_item')->where('id', '!=', 'free_diamond')->pluck('is_album_target');
+        $this->assertCount(28, $others);
+        $this->assertSame(28, $others->filter(fn ($v) => (int) $v === 1)->count());
+    }
+
+    #[Test]
     public function wallet管理でないアイテムはis_walletがfalse(): void
     {
         $this->assertSame(0, (int) DB::connection('mst')->table('mst_item')->where('id', 'item_heal_001')->value('is_wallet'));
@@ -84,12 +98,74 @@ class MstItemSeederTest extends TestCase
     }
 
     #[Test]
+    public function スタミナ回復薬50はスタミナ回復の行で入る(): void
+    {
+        // ログインボーナス 5 日目の景品。/item/use で value × 個数だけスタミナが回復する
+        $row = DB::connection('mst')->table('mst_item')->where('id', 'stamina_50')->first();
+
+        $this->assertNotNull($row);
+        $this->assertSame('stamina', $row->type);
+        $this->assertSame('stamina_recover', $row->effect);
+        $this->assertSame(50, (int) $row->value);
+        $this->assertSame(0, (int) $row->is_wallet, 'trx_item で持つので Wallet 管理ではない');
+    }
+
+    #[Test]
+    public function mst_itemは29行(): void
+    {
+        $this->assertSame(29, DB::connection('mst')->table('mst_item')->count());
+    }
+
+    #[Test]
+    public function 全てのアイテムにjaの表示名がある(): void
+    {
+        // クライアントはホーム・ログインボーナスで全アイテムの名前を mst_item__l10n から引く。
+        // 行が無いと名前が出ないので、mst_item の全行に ja の行があることを固定する
+        $itemIds = DB::connection('mst')->table('mst_item')->pluck('id');
+        $this->assertNotEmpty($itemIds);
+
+        $l10n = DB::connection('mst')->table('mst_item__l10n')->where('language', 'ja')->get()->keyBy('mst_item_id');
+
+        foreach ($itemIds as $id) {
+            $this->assertTrue($l10n->has($id), "{$id} の ja の表示名が無い");
+            $this->assertNotSame('', trim((string) $l10n[$id]->name), "{$id} の名前が空");
+            $this->assertNull($l10n[$id]->description, "{$id} の description は null");
+        }
+
+        // 表示名の行は mst_item の行と 1 対 1（余分な行が無い。ja 以外の言語は入れない）
+        $this->assertSame($itemIds->count(), DB::connection('mst')->table('mst_item__l10n')->count());
+    }
+
+    #[Test]
+    public function l10nのdeploy_keyはmst_itemと同じ(): void
+    {
+        $itemKeys = DB::connection('mst')->table('mst_item')->pluck('deploy_key')->unique()->values()->all();
+        $l10nKeys = DB::connection('mst')->table('mst_item__l10n')->pluck('deploy_key')->unique()->values()->all();
+
+        $this->assertSame($itemKeys, $l10nKeys);
+    }
+
+    #[Test]
+    public function 無償ダイヤと主要アイテムの表示名(): void
+    {
+        $name = fn (string $id) => DB::connection('mst')->table('mst_item__l10n')
+            ->where('mst_item_id', $id)->where('language', 'ja')->value('name');
+
+        $this->assertSame('無償ダイヤ', $name(InitialGrantConst::FREE_DIAMOND_MST_ITEM_ID));
+        $this->assertSame('スタミナ回復薬（50）', $name('stamina_50'));
+        $this->assertSame('ゴールド', $name('gold'));
+    }
+
+    #[Test]
     public function 二回流しても行が増えない(): void
     {
         $count = DB::connection('mst')->table('mst_item')->count();
+        $l10nCount = DB::connection('mst')->table('mst_item__l10n')->count();
 
+        // 主キー重複（mst_item_id, language）で落ちない = 冪等（l10n も truncate して作り直す）
         (new MstItemSeeder)->run();
 
         $this->assertSame($count, DB::connection('mst')->table('mst_item')->count());
+        $this->assertSame($l10nCount, DB::connection('mst')->table('mst_item__l10n')->count());
     }
 }

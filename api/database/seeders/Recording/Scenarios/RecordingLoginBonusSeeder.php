@@ -63,13 +63,13 @@ class RecordingLoginBonusSeeder extends RecordingScenarioSeeder
 
         // MstLoginBonusSeeder と同じ報酬（day => [種別, ID, 数量]）
         $dayRewards = [
-            1 => ['diamond', 'free_diamond', 100],
+            1 => ['item', 'free_diamond', 100],
             2 => ['wallet', 'gold', 5000],
-            3 => ['diamond', 'free_diamond', 100],
+            3 => ['item', 'free_diamond', 100],
             4 => ['wallet', 'gold', 10000],
-            5 => ['stamina', 'stamina', 50],
-            6 => ['diamond', 'diamond', 20000],
-            7 => ['diamond', 'free_diamond', 500],
+            5 => ['item', 'stamina_50', 1],
+            6 => ['item', 'free_diamond', 20000],
+            7 => ['item', 'free_diamond', 500],
         ];
 
         foreach ($dayRewards as $day => [$type, $mstId, $amount]) {

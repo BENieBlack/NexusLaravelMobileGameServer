@@ -21,7 +21,6 @@ class DiamondBalanceAdapter
             sysPlayerId: $trxDiamond->getSysPlayerId(),
             platform: $trxDiamond->getPlatform(),
             paidAmount: $trxDiamond->getPaidAmount(),
-            freeAmount: $trxDiamond->getFreeAmount(),
         );
     }
 

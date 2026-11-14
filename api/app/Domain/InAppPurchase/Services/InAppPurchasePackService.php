@@ -17,7 +17,6 @@ use App\Repositories\Trx\TrxUnitRepository;
 class InAppPurchasePackService
 {
     public function __construct(
-        private readonly InAppPurchaseDiamondBalanceService $diamondBalanceService,
         private readonly ItemInventoryInterface $itemInventory,
         private readonly TrxUnitRepository $trxUnitRepository,
         private readonly InAppPurchaseValidationService $validationService,
@@ -33,7 +32,7 @@ class InAppPurchasePackService
      * @param  string  $platform  プラットフォーム（Apple, Google）
      * @param  string  $billingPlatform  決済プラットフォーム（AppStore, GooglePlay等）
      * @param  string  $transactionId  プラットフォーム固有のトランザクションID
-     * @return array{contents: array<int, array<string, mixed>>, total_free_diamond_amount: int}
+     * @return array{contents: array<int, array<string, mixed>>}
      */
     public function purchasePack(
         int $sysPlayerId,
@@ -54,23 +53,12 @@ class InAppPurchasePackService
         // 3. Pack商品のコンテンツを取得
         $contentCollection = $mstInAppPurchase->contents;
         $grantedContentArray = [];
-        $totalFreeDiamond = 0;
 
         // 4. 各コンテンツを付与
         foreach ($contentCollection as $content) {
             switch ($content->getContentType()) {
-                case InAppPurchaseConst::CONTENT_TYPE_FREE_DIAMOND:
-                    // 無償ダイヤモンドを付与（InAppPurchaseDiamondBalanceServiceに委譲）
-                    $this->diamondBalanceService->addDiamond($sysPlayerId, $platform, $content->getAmount(), isPaid: false);
-                    $totalFreeDiamond += $content->getAmount();
-                    $grantedContentArray[] = [
-                        'type' => 'free_diamond',
-                        'amount' => $content->getAmount(),
-                    ];
-                    break;
-
                 case InAppPurchaseConst::CONTENT_TYPE_ITEM:
-                    // アイテムを付与
+                    // アイテムを付与（無償ダイヤも item + free_diamond として同じ経路で trx_item に加算される）
                     $this->itemInventory->addItem($sysPlayerId, $content->getContentMstId(), $content->getAmount());
                     $grantedContentArray[] = [
                         'type' => 'item',
@@ -104,7 +92,6 @@ class InAppPurchasePackService
 
         return [
             'contents' => $grantedContentArray,
-            'total_free_diamond_amount' => $totalFreeDiamond,
         ];
     }
 

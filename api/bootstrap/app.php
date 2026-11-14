@@ -1,5 +1,6 @@
 <?php
 
+use App\Exceptions\ClientImplementationError;
 use App\Exceptions\GameException;
 use App\Http\Middleware\CheckMaintenance;
 use App\Http\Middleware\CheckMasterHash;
@@ -70,6 +71,14 @@ $app = Application::configure(basePath: dirname(__DIR__))
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
             ]);
+
+            // クライアントの実装の誤りは通知せず、メッセージもマスクしない
+            if ($e instanceof ClientImplementationError) {
+                return ErrorResponse::businessError(
+                    errorCode: $errorCode,
+                    message: $e->getMessage(),
+                )->toJsonResponse();
+            }
 
             // Slackへ通知
             try {

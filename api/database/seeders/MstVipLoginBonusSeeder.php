@@ -19,7 +19,7 @@ use Nexus\Core\Utilities\ClockUtility;
  *
  * 使うマスター ID（すべて実在するもの）:
  * - ゴールド: content_type=wallet・content_mst_id=gold（mst_item の type=currency の行。MstItemSeeder）
- * - ダイヤ: content_type=diamond・content_mst_id=diamond
+ * - 無償ダイヤ: content_type=item・content_mst_id=free_diamond（mst_item の行。MstItemSeeder）
  * - アイテム: item_exp_002 / item_exp_003（MstItemSeeder。MstItemSeeder を先に流す）
  *
  * content_quantity が配布量、amount は倍率で常に 1（配布量 = content_quantity × amount）。
@@ -46,14 +46,14 @@ class MstVipLoginBonusSeeder extends Seeder
      */
     public const TYPE_WALLET = 'wallet';
 
-    /** 無償ダイヤの content_type（ResourceType::DIAMOND の値） */
-    public const TYPE_DIAMOND = 'diamond';
+    /** アイテムの content_type（無償ダイヤもアイテムとして渡す） */
+    public const TYPE_ITEM = 'item';
 
     /** wallet の ID。mst_item に Wallet 管理の行（type=currency）として実在する（MstItemSeeder） */
     public const GOLD_ID = 'gold';
 
-    /** 無償ダイヤの ID（Resource::diamond() と同じ。ダイヤには mst の行は無い） */
-    public const DIAMOND_ID = 'diamond';
+    /** 無償ダイヤの ID（mst_item.id。trx_item の行に加算される） */
+    public const FREE_DIAMOND_ID = 'free_diamond';
 
     /**
      * Run the database seeds.
@@ -154,8 +154,8 @@ class MstVipLoginBonusSeeder extends Seeder
                 $contents[] = [
                     'mst_vip_login_bonus_id' => $bonusId,
                     'day' => $day,
-                    'content_type' => self::TYPE_DIAMOND,
-                    'content_mst_id' => self::DIAMOND_ID,
+                    'content_type' => self::TYPE_ITEM,
+                    'content_mst_id' => self::FREE_DIAMOND_ID,
                     'content_option' => null,
                     'content_quantity' => $diamondAmount,
                     'amount' => 1,

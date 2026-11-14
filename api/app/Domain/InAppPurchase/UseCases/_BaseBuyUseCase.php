@@ -7,8 +7,10 @@ use App\Domain\InAppPurchase\Responses\BuyResponse;
 use App\Domain\InAppPurchase\Services\InAppPurchaseValidationService;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
+use App\Exceptions\PlatformMismatchException;
 use App\Models\Log\LogInAppPurchase;
 use App\Models\Mst\MstInAppPurchase;
+use App\Persistence\ApiSession;
 use App\Repositories\Log\LogInAppPurchaseRepository;
 use Illuminate\Support\Facades\Log;
 use NexusBilling\DataTransferObjects\Receipt;
@@ -37,6 +39,7 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
      * 購入処理を実行（Template Method）
      *
      * 共通フロー:
+     * 0. body の platform と X-Platform の一致確認（不一致は INVALID_PLATFORM。何も書かない）
      * 1. Receipt作成
      * 2. レシート検証（外部API、トランザクション外）
      * 3. プロダクトID一致確認
@@ -62,6 +65,14 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
         ?string $transactionId,
         string $productId
     ): BuyResponse {
+        // 0. body の platform が X-Platform と一致しなければ、何もせず拒否する。
+        //    レシート検証（外部API）より前に置く。検証後に弾くとストアの決済は成立しているのに
+        //    付与されない。前なら決済は未消費のままで、クライアントが同じ値を送り直せる。
+        //    購入失敗ログも書かない（クライアントの実装の誤りで、購入の失敗ではないため。
+        //    try の外なので catch の writeFailedPurchaseLog も通らない）。
+        //    加算先の platform は X-Platform の行と一致した値だけになる。
+        $this->assertPlatformMatchesHeader($platform);
+
         // 1. レシートデータを作成
         $receiptData = $this->createReceiptData(
             $sysPlayerId,
@@ -152,6 +163,20 @@ abstract class _BaseBuyUseCase extends _BaseUseCase
             );
 
             throw $e;
+        }
+    }
+
+    /**
+     * body の platform が X-Platform（ApiSession）と一致することを確認する
+     *
+     * @param  string  $platform  リクエスト body の platform
+     *
+     * @throws PlatformMismatchException 不一致のとき（Slack 通知は出ない形の例外）
+     */
+    protected function assertPlatformMatchesHeader(string $platform): void
+    {
+        if ($platform !== ApiSession::getPlatform()) {
+            throw PlatformMismatchException::bodyAndHeader();
         }
     }
 

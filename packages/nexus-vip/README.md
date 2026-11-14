@@ -225,15 +225,15 @@ INSERT INTO mst_in_app_purchase (..., vip_point) VALUES (..., 1500);
 
 | Level | 報酬 | 設定例 |
 |-------|------|--------|
-| 1     | ダイヤ100個 | content_type='diamond', content_quantity=100, amount=1 |
+| 1     | ダイヤ100個 | content_type='item', content_mst_id='free_diamond', content_quantity=100, amount=1 |
 | 2     | ダイヤ200個 + スタミナ50 | 2つのレコード |
-| 3     | ダイヤ300個 | content_type='diamond', content_quantity=300, amount=1 |
+| 3     | ダイヤ300個 | content_type='item', content_mst_id='free_diamond', content_quantity=300, amount=1 |
 | 4     | ダイヤ500個 + スタミナ100 | 2つのレコード |
-| 5     | ダイヤ1000個 | content_type='diamond', content_quantity=1000, amount=1 |
+| 5     | ダイヤ1000個 | content_type='item', content_mst_id='free_diamond', content_quantity=1000, amount=1 |
 | 6     | ダイヤ1500個 + スタミナ150 | 2つのレコード |
-| 7     | ダイヤ2000個 | content_type='diamond', content_quantity=2000, amount=1 |
+| 7     | ダイヤ2000個 | content_type='item', content_mst_id='free_diamond', content_quantity=2000, amount=1 |
 | 8     | ダイヤ3000個 + スタミナ200 | 2つのレコード |
-| 9     | ダイヤ5000個 | content_type='diamond', content_quantity=5000, amount=1 |
+| 9     | ダイヤ5000個 | content_type='item', content_mst_id='free_diamond', content_quantity=5000, amount=1 |
 | 10    | ダイヤ10000個 + スタミナ300 | 2つのレコード |
 
 **応用例:**
@@ -278,7 +278,7 @@ class VipLevelUpRewardListener
         
         // 報酬を付与
         foreach ($event->rewards as $reward) {
-            $contentType = $reward['content_type'];      // item, unit, equipment, diamond, wallet, stamina
+            $contentType = $reward['content_type'];      // item, unit, equipment, wallet, stamina
             $contentMstId = $reward['content_mst_id'];          // コンテンツID
             $contentOption = $reward['content_option'];  // {"grade":1, "level":5} 等
             $contentQuantity = $reward['content_quantity']; // 1配布あたりの数量

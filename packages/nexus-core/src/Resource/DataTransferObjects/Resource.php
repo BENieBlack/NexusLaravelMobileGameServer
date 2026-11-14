@@ -151,7 +151,7 @@ class Resource
     /**
      * 文字列のタイプからResourceを生成
      *
-     * @param  string  $typeString  リソースタイプ文字列 ('item', 'unit', 'diamond', etc.)
+     * @param  string  $typeString  リソースタイプ文字列 ('item', 'unit', 'paid_diamond', etc.)
      * @param  string  $id  マスターID
      * @param  int  $amount  数量
      * @param  string|null  $expireAt  有効期限
@@ -202,19 +202,9 @@ class Resource
     // ===== Factory Methods =====
 
     /**
-     * Diamond（無償）リソースを作成
-     */
-    public static function diamond(int $amount): self
-    {
-        return new self(
-            type: ResourceType::DIAMOND,
-            id: 'diamond',
-            amount: $amount,
-        );
-    }
-
-    /**
      * PaidDiamond（有償）リソースを作成
+     *
+     * 無償ダイヤ用の factory は無い。無償は Resource::item(FreeDiamondConst::MST_ITEM_ID, $amount) で表す
      */
     public static function paidDiamond(int $amount): self
     {

@@ -104,7 +104,7 @@ class ResourceDeliveryContentDtoTest extends TestCase
     {
         // 即時付与できずメールボックスへ回した場合。
         // プレイヤーが受け取るまでRECEIVEDにはしない
-        $content = ResourceDeliveryContent::fromResource(Resource::diamond(100));
+        $content = ResourceDeliveryContent::fromResource(Resource::paidDiamond(100));
         $content->setFailureReason(ResourceDeliveryResultReason::RESOURCE_LIMIT_REACHED);
 
         $content->markAsSendComplete();

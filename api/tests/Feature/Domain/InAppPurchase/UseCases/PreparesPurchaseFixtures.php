@@ -88,7 +88,8 @@ trait PreparesPurchaseFixtures
             [
                 'deploy_key' => self::DEPLOY_KEY,
                 'mst_in_app_purchase_id' => $mstInAppPurchaseId,
-                'content_type' => 'free_diamond',
+                // 無償ダイヤは item + free_diamond で表す（content_type の free_diamond は廃止）
+                'content_type' => 'item',
                 'content_mst_id' => 'free_diamond',
                 'content_quantity' => 1,
                 'amount' => 300,

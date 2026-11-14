@@ -10,12 +10,15 @@ use Nexus\Core\ResourceDelivery\DataTransferObjects\ResourceDeliveryContent;
 /**
  * DiamondDeliveryHandler
  *
- * ダイヤモンド配送処理を担当するHandler
- * DiamondServiceを使用して、有償/無償ダイヤモンドを加算
+ * 有償ダイヤモンドの配送処理を担当するHandler
+ * 有償ダイヤモンドは DiamondService（trx_diamond.paid_amount）へ加算する。
+ *
+ * 無償ダイヤはこのHandlerを通らない。無償ダイヤは種別を持たず、
+ * type=item・id=free_diamond の報酬として ItemDeliveryHandler が trx_item へ加算する
+ * （設計 free-diamond-item）。
  *
  * 対応リソース:
- * - ResourceType::DIAMOND (無償ダイヤモンド)
- * - ResourceType::PAID_DIAMOND (有償ダイヤモンド)
+ * - ResourceType::PAID_DIAMOND (有償ダイヤモンド。運営の返金調整用。通常の報酬には使わない)
  *
  * platform の決め方（優先順）:
  * 1. metadata['platform']（Apple, Google）。課金など呼び出し側が明示するとき
@@ -48,15 +51,12 @@ class DiamondDeliveryHandler implements ResourceDeliveryHandlerInterface
             ?? $this->defaultPlatformProvider?->findCurrentPlatform()
             ?? 'Apple';
 
-        // 有償/無償を判定
-        $isPaid = $resourceDeliveryContent->getType() === ResourceType::PAID_DIAMOND;
-
-        // ダイヤモンドを加算
-        $this->diamondService->addDiamond(
+        // 有償ダイヤモンドを加算する。trx_diamond_balance の行は作らない
+        // （運営調整の分は購入単位を持たない。設計 free-diamond-item db.md 5 節）
+        $this->diamondService->addPaidDiamond(
             $sysPlayerId,
             $platform,
             $resourceDeliveryContent->getAmount(),
-            $isPaid
         );
     }
 
@@ -70,7 +70,6 @@ class DiamondDeliveryHandler implements ResourceDeliveryHandlerInterface
         $typeValue = $type instanceof ResourceType ? $type->value : $type;
 
         return in_array($typeValue, [
-            ResourceType::DIAMOND->value,
             ResourceType::PAID_DIAMOND->value,
         ]);
     }

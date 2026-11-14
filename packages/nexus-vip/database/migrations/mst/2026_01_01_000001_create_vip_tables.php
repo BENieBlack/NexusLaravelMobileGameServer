@@ -63,12 +63,12 @@ return new class extends Migration
         Schema::create('mst_vip_level_reward', function (Blueprint $table) {
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
             $table->smallInteger('vip_level')->comment('VIPレベル');
-            $table->enum('content_type', ['item', 'unit', 'equipment', 'diamond', 'wallet', 'stamina'])->comment('コンテンツタイプ');
-            $table->string('content_mst_id')->comment('コンテンツID (mst_item_id等、diamond/stamina/walletはダミー値)');
+            $table->enum('content_type', ['item', 'unit', 'equipment', 'wallet', 'stamina'])->comment('コンテンツタイプ');
+            $table->string('content_mst_id')->comment('コンテンツID (mst_item_id等、stamina/walletはダミー値。無償ダイヤは free_diamond)');
             $table->json('content_option')->nullable()->comment('コンテンツオプション (例: {"grade":1, "level":5})');
             $table->unsignedInteger('content_quantity')->default(1)->comment('1配布あたりのコンテンツ数量');
             $table->unsignedInteger('amount')->default(1)->comment('配布回数（content_quantity × amount = 実際の配布量）');
-            $table->boolean('is_paid')->default(false)->comment('有償フラグ（wallet/diamondの場合）');
+            $table->boolean('is_paid')->default(false)->comment('有償フラグ（walletの場合）');
             $table->unsignedInteger('sort_order')->default(0)->comment('表示順序');
             $table->boolean('is_active')->default(true)->comment('有効フラグ');
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
@@ -83,38 +83,38 @@ return new class extends Migration
         // VIPレベル報酬初期データ投入
         $vipRewards = [
             // VIP1報酬: 無償ダイヤ100個
-            ['vip_level' => 1, 'content_type' => 'diamond', 'content_mst_id' => 'free', 'content_option' => null, 'content_quantity' => 100, 'amount' => 1, 'is_paid' => false, 'sort_order' => 1],
+            ['vip_level' => 1, 'content_type' => 'item', 'content_mst_id' => 'free_diamond', 'content_option' => null, 'content_quantity' => 100, 'amount' => 1, 'is_paid' => false, 'sort_order' => 1],
 
             // VIP2報酬: 無償ダイヤ200個 + スタミナ50
-            ['vip_level' => 2, 'content_type' => 'diamond', 'content_mst_id' => 'free', 'content_option' => null, 'content_quantity' => 200, 'amount' => 1, 'is_paid' => false, 'sort_order' => 1],
+            ['vip_level' => 2, 'content_type' => 'item', 'content_mst_id' => 'free_diamond', 'content_option' => null, 'content_quantity' => 200, 'amount' => 1, 'is_paid' => false, 'sort_order' => 1],
             ['vip_level' => 2, 'content_type' => 'stamina', 'content_mst_id' => 'stamina', 'content_option' => null, 'content_quantity' => 50, 'amount' => 1, 'is_paid' => false, 'sort_order' => 2],
 
             // VIP3報酬: 無償ダイヤ300個
-            ['vip_level' => 3, 'content_type' => 'diamond', 'content_mst_id' => 'free', 'content_option' => null, 'content_quantity' => 300, 'amount' => 1, 'is_paid' => false, 'sort_order' => 1],
+            ['vip_level' => 3, 'content_type' => 'item', 'content_mst_id' => 'free_diamond', 'content_option' => null, 'content_quantity' => 300, 'amount' => 1, 'is_paid' => false, 'sort_order' => 1],
 
             // VIP4報酬: 無償ダイヤ500個 + スタミナ100
-            ['vip_level' => 4, 'content_type' => 'diamond', 'content_mst_id' => 'free', 'content_option' => null, 'content_quantity' => 500, 'amount' => 1, 'is_paid' => false, 'sort_order' => 1],
+            ['vip_level' => 4, 'content_type' => 'item', 'content_mst_id' => 'free_diamond', 'content_option' => null, 'content_quantity' => 500, 'amount' => 1, 'is_paid' => false, 'sort_order' => 1],
             ['vip_level' => 4, 'content_type' => 'stamina', 'content_mst_id' => 'stamina', 'content_option' => null, 'content_quantity' => 100, 'amount' => 1, 'is_paid' => false, 'sort_order' => 2],
 
             // VIP5報酬: 無償ダイヤ1000個
-            ['vip_level' => 5, 'content_type' => 'diamond', 'content_mst_id' => 'free', 'content_option' => null, 'content_quantity' => 1000, 'amount' => 1, 'is_paid' => false, 'sort_order' => 1],
+            ['vip_level' => 5, 'content_type' => 'item', 'content_mst_id' => 'free_diamond', 'content_option' => null, 'content_quantity' => 1000, 'amount' => 1, 'is_paid' => false, 'sort_order' => 1],
 
             // VIP6報酬: 無償ダイヤ1500個 + スタミナ150
-            ['vip_level' => 6, 'content_type' => 'diamond', 'content_mst_id' => 'free', 'content_option' => null, 'content_quantity' => 1500, 'amount' => 1, 'is_paid' => false, 'sort_order' => 1],
+            ['vip_level' => 6, 'content_type' => 'item', 'content_mst_id' => 'free_diamond', 'content_option' => null, 'content_quantity' => 1500, 'amount' => 1, 'is_paid' => false, 'sort_order' => 1],
             ['vip_level' => 6, 'content_type' => 'stamina', 'content_mst_id' => 'stamina', 'content_option' => null, 'content_quantity' => 150, 'amount' => 1, 'is_paid' => false, 'sort_order' => 2],
 
             // VIP7報酬: 無償ダイヤ2000個
-            ['vip_level' => 7, 'content_type' => 'diamond', 'content_mst_id' => 'free', 'content_option' => null, 'content_quantity' => 2000, 'amount' => 1, 'is_paid' => false, 'sort_order' => 1],
+            ['vip_level' => 7, 'content_type' => 'item', 'content_mst_id' => 'free_diamond', 'content_option' => null, 'content_quantity' => 2000, 'amount' => 1, 'is_paid' => false, 'sort_order' => 1],
 
             // VIP8報酬: 無償ダイヤ3000個 + スタミナ200
-            ['vip_level' => 8, 'content_type' => 'diamond', 'content_mst_id' => 'free', 'content_option' => null, 'content_quantity' => 3000, 'amount' => 1, 'is_paid' => false, 'sort_order' => 1],
+            ['vip_level' => 8, 'content_type' => 'item', 'content_mst_id' => 'free_diamond', 'content_option' => null, 'content_quantity' => 3000, 'amount' => 1, 'is_paid' => false, 'sort_order' => 1],
             ['vip_level' => 8, 'content_type' => 'stamina', 'content_mst_id' => 'stamina', 'content_option' => null, 'content_quantity' => 200, 'amount' => 1, 'is_paid' => false, 'sort_order' => 2],
 
             // VIP9報酬: 無償ダイヤ5000個
-            ['vip_level' => 9, 'content_type' => 'diamond', 'content_mst_id' => 'free', 'content_option' => null, 'content_quantity' => 5000, 'amount' => 1, 'is_paid' => false, 'sort_order' => 1],
+            ['vip_level' => 9, 'content_type' => 'item', 'content_mst_id' => 'free_diamond', 'content_option' => null, 'content_quantity' => 5000, 'amount' => 1, 'is_paid' => false, 'sort_order' => 1],
 
             // VIP10報酬（最高レベル）: 無償ダイヤ10000個 + スタミナ300
-            ['vip_level' => 10, 'content_type' => 'diamond', 'content_mst_id' => 'free', 'content_option' => null, 'content_quantity' => 10000, 'amount' => 1, 'is_paid' => false, 'sort_order' => 1],
+            ['vip_level' => 10, 'content_type' => 'item', 'content_mst_id' => 'free_diamond', 'content_option' => null, 'content_quantity' => 10000, 'amount' => 1, 'is_paid' => false, 'sort_order' => 1],
             ['vip_level' => 10, 'content_type' => 'stamina', 'content_mst_id' => 'stamina', 'content_option' => null, 'content_quantity' => 300, 'amount' => 1, 'is_paid' => false, 'sort_order' => 2],
         ];
 
@@ -141,7 +141,7 @@ return new class extends Migration
             $table->id();
             $table->string('mst_vip_login_bonus_id', 64)->comment('VIPログインボーナスID');
             $table->unsignedInteger('day')->comment('ログイン日数（1日目、2日目...）');
-            $table->string('content_type', 32)->comment('報酬タイプ（diamond, item, unit等）');
+            $table->string('content_type', 32)->comment('報酬タイプ（item, unit, wallet等。無償ダイヤは item + free_diamond）');
             $table->string('content_mst_id', 64)->comment('報酬ID');
             $table->json('content_option')->nullable()->comment('報酬オプション（JSON）');
             $table->unsignedInteger('content_quantity')->default(1)->comment('報酬の基本個数');

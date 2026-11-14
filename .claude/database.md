@@ -209,7 +209,7 @@ API（api/）の接続は `api/config/database.php`、Tool（tool/）の接続�
 ### 呼び方
 
 - 課金通貨は「ダイヤ」。有償ダイヤ（課金で購入）と無償ダイヤ（報酬などで入手）を区別する。
-- テーブル・カラム・クラス・変数は `diamond` を使う（`trx_diamond`、`paid_amount` / `free_amount`、`DiamondService`）。gem / stone / crystal は使わない。
+- テーブル・カラム・クラス・変数は `diamond` を使う（`trx_diamond`、`paid_amount`、`DiamondService`。無償ダイヤは `trx_item` の `free_diamond`）。gem / stone / crystal は使わない。
 - ゴールドやイベントコインなどダイヤ以外の通貨は `mst_item.is_wallet = true` のアイテムとして `trx_wallet` 系で持つ。
 
 ### テーブル
@@ -218,8 +218,8 @@ API（api/）の接続は `api/config/database.php`、Tool（tool/）の接続�
 
 | テーブル | 主キー | 役割 |
 |---|---|---|
-| `trx_diamond` | `(sys_player_id, platform)` | 現在の有償・無償ダイヤ数。プラットフォーム（`apple` / `google`）ごとに分ける |
-| `trx_diamond_balance` | `id` | 購入単位の残高。`billing_platform`、`purchase_amount`、`current_amount`、返金計算用の `unit_price` を持つ。`id` 昇順が購入順 |
+| `trx_diamond` | `(sys_player_id, platform)` | 現在の有償ダイヤ数（無償ダイヤは `trx_item` の `free_diamond`）。プラットフォーム（`apple` / `google`）ごとに分ける |
+| `trx_diamond_balance` | `id` | 購入単位の残高。`billing_platform`、`purchase_amount`、`current_amount`、返金計算用の `unit_price` を持つ。`created_at` 昇順が購入順（同じ秒は保証しない。`id` は作成順を表さない）。有償のみ。消費のたびに `current_amount` を古い順に減らす |
 | `trx_wallet` | `(sys_player_id, mst_item_id)` | ダイヤ以外の通貨の現在値（有償・無償） |
 | `trx_wallet_balance` | `id` | 取得単位の残高と有効期限 `expire_at` |
 | `trx_in_app_purchase` | `(sys_player_id, billing_platform, mst_in_app_purchase_id)` | 商品ごとの購入回数。`(billing_platform, transaction_id)` がユニーク |

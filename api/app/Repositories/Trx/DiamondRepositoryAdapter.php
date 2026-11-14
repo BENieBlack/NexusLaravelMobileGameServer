@@ -58,14 +58,12 @@ class DiamondRepositoryAdapter implements DiamondRepositoryInterface
         if ($trxDiamond) {
             // 既存レコードを更新
             $trxDiamond->setPaidAmount($diamond->getPaidAmount());
-            $trxDiamond->setFreeAmount($diamond->getFreeAmount());
         } else {
             // 新規レコードを作成
             $trxDiamond = new TrxDiamond([
                 'sys_player_id' => $diamond->getSysPlayerId(),
                 'platform' => $diamond->getPlatform(),
                 'paid_amount' => $diamond->getPaidAmount(),
-                'free_amount' => $diamond->getFreeAmount(),
             ]);
             $trxDiamond->exists = false; // INSERT として認識
         }

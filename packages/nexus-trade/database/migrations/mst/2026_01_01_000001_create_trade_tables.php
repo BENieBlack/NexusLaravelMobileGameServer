@@ -91,8 +91,8 @@ return new class extends Migration
         Schema::create('mst_trade_product_content', function (Blueprint $table) {
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
             $table->string('mst_trade_product_id')->comment('mst_trade_productテーブルのID');
-            $table->string('content_type')->comment('手に入るものの種別 (item / unit / equipment / diamond / stamina など)');
-            $table->string('content_mst_id')->comment('手に入るもののマスターID（diamond/staminaはダミー値）');
+            $table->string('content_type')->comment('手に入るものの種別 (item / unit / equipment / stamina など。無償ダイヤは item + free_diamond)');
+            $table->string('content_mst_id')->comment('手に入るもののマスターID（staminaはダミー値。無償ダイヤは free_diamond）');
             $table->unsignedInteger('content_quantity')->default(1)->comment('1回あたりの数量');
             $table->unsignedInteger('sort_order')->default(0)->comment('表示順序');
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');

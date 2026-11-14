@@ -43,7 +43,7 @@ class PointsDeliveryHandlerTest extends TestCase
         $handler = new PointsDeliveryHandler($this->createMock(CurrencyGranterInterface::class));
 
         $this->assertFalse($handler->supports(ResourceType::FOOD));
-        $this->assertFalse($handler->supports(ResourceType::DIAMOND));
+        $this->assertFalse($handler->supports(ResourceType::PAID_DIAMOND));
         $this->assertFalse($handler->supports('unknown_type'));
     }
 

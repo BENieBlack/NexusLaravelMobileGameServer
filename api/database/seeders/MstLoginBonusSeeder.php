@@ -31,16 +31,20 @@ class MstLoginBonusSeeder extends Seeder
         $now = now();
 
         // 各日のボーナス設定と報酬
-        // content_type: DBのenum値('wallet','item','diamond'等)を使用
+        // content_type: DBのenum値('wallet','item'等)を使用
+        // 無償ダイヤは content_type=item・content_mst_id=free_diamond（trx_item に加算される。
+        // 6 日目は以前 diamond / diamond と混在していたが free_diamond に統一。量は変えない）
+        // 5 日目のスタミナは stamina_50（mst_item。使うと 50 回復）を 1 個渡す。
+        // スタミナ行に依存せず trx_item への加算だけで済む
         // wallet の場合、サービス層で content_mst_id (gold/coin等) をResourceTypeとして扱う
         $dayRewards = [
-            1 => [['content_type' => 'diamond', 'content_mst_id' => 'free_diamond', 'amount' => 100]],
+            1 => [['content_type' => 'item',    'content_mst_id' => 'free_diamond', 'amount' => 100]],
             2 => [['content_type' => 'wallet',  'content_mst_id' => 'gold',         'amount' => 5000]],
-            3 => [['content_type' => 'diamond', 'content_mst_id' => 'free_diamond', 'amount' => 100]],
+            3 => [['content_type' => 'item',    'content_mst_id' => 'free_diamond', 'amount' => 100]],
             4 => [['content_type' => 'wallet',  'content_mst_id' => 'gold',         'amount' => 10000]],
-            5 => [['content_type' => 'stamina', 'content_mst_id' => 'stamina',      'amount' => 50]],
-            6 => [['content_type' => 'diamond', 'content_mst_id' => 'diamond',      'amount' => 20000]],
-            7 => [['content_type' => 'diamond', 'content_mst_id' => 'free_diamond', 'amount' => 500]],
+            5 => [['content_type' => 'item',    'content_mst_id' => 'stamina_50',   'amount' => 1]],
+            6 => [['content_type' => 'item',    'content_mst_id' => 'free_diamond', 'amount' => 20000]],
+            7 => [['content_type' => 'item',    'content_mst_id' => 'free_diamond', 'amount' => 500]],
         ];
 
         $bonusId = 'daily_login';

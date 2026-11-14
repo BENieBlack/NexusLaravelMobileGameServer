@@ -20,6 +20,7 @@
 
 - `make up` でサーバーが動いていること
 - **`make seed`（基本のシード）が済んでいること**（`make migrate-fresh` の後は `make seed` を流す）
+- `make seed` は `mst_item__l10n`（アイテムの表示名。`free_diamond`・`gold`・`stamina_50` など `ja`）も入れる。録画用のシナリオは名前を重ねて入れない（`RecordingLoginBonusSeeder` の 5 日目は `item` / `stamina_50` / 1）
 - `make migrate-fresh && make seed` で DB を作り直した後は、**もう一度 `make seed-recording` が必要**（動画用の行も消えるため。ケース 10 の注記）
 - 実行環境が `local`（開発）または `testing`。それ以外の環境（production など）では、どのシナリオも例外で止まる
 

@@ -56,12 +56,12 @@ return new class extends Migration
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
             $table->string('mst_login_bonus_id')->comment('ログインボーナスID');
             $table->unsignedInteger('day')->default(0)->comment('ログイン日数（1〜N。カムバック報酬は0）');
-            $table->enum('content_type', ['item', 'unit', 'equipment', 'diamond', 'wallet', 'stamina'])->comment('コンテンツタイプ');
+            $table->enum('content_type', ['item', 'unit', 'equipment', 'wallet', 'stamina'])->comment('コンテンツタイプ');
             $table->string('content_mst_id')->comment('コンテンツID (mst_item_id, mst_unit_id等)');
             $table->json('content_option')->nullable()->comment('コンテンツオプション (例: {"grade":1, "level":5})');
             $table->unsignedInteger('content_quantity')->default(1)->comment('1配布あたりのコンテンツ数量');
             $table->unsignedInteger('amount')->default(1)->comment('配布回数（content_quantity × amount = 実際の配布量）');
-            $table->boolean('is_paid')->default(false)->comment('有償フラグ（wallet/diamondの場合）');
+            $table->boolean('is_paid')->default(false)->comment('有償フラグ（walletの場合）');
             $table->unsignedInteger('sort_order')->default(0)->comment('表示順序');
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');

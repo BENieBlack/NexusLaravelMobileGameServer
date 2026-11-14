@@ -39,11 +39,6 @@ class InAppPurchaseDiamondService
      * @param  string  $billingPlatform  決済プラットフォーム（AppStore, GooglePlay等）
      * @param  float  $unitPrice  単価（返金計算用）
      * @param  string  $transactionId  プラットフォーム固有のトランザクションID
-     * @return array{
-     *   paid_diamond_amount: int,
-     *   total_paid_diamond_amount: int,
-     *   total_free_diamond_amount: int
-     * }
      */
     public function purchaseDiamond(
         int $sysPlayerId,
@@ -52,7 +47,7 @@ class InAppPurchaseDiamondService
         string $billingPlatform,
         float $unitPrice,
         string $transactionId
-    ): array {
+    ): void {
         // 1. 購入履歴を取得（Repository経由）
         $trxInAppPurchase = $this->trxInAppPurchaseRepository->selectByBillingPlatformAndMstInAppPurchaseId(
             $billingPlatform,
@@ -80,13 +75,7 @@ class InAppPurchaseDiamondService
             $transactionId
         );
 
-        // 5. 更新後の残高を取得して返す
-        $balance = $this->diamondBalanceService->findBalance($sysPlayerId, $platform);
-
-        return [
-            'paid_diamond_amount' => $mstInAppPurchase->getPaidDiamondAmount() ?? 0,
-            'total_paid_diamond_amount' => $balance['paid_amount'],
-            'total_free_diamond_amount' => $balance['free_amount'],
-        ];
+        // 戻り値は無い。応答に載せる残高は updated_resources（trx_diamond）が持つので、
+        // 残高の読み取りもしない（設計 free-diamond-item の決定 B）
     }
 }

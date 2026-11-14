@@ -20,7 +20,7 @@ use Tests\TestCase;
  *
  * 以前は content_type が 'currency'（配布時に Resource::fromTypeString が ValueError）、
  * mst_item に無いアイテム ID を使っていたため、基本のシード（make seed）に入れられなかった。
- * 今は wallet / diamond / item と実在する ID を使い、DatabaseSeeder の Phase 1 から呼ぶ。
+ * 今は wallet / item（無償ダイヤも item + free_diamond）と実在する ID を使い、DatabaseSeeder の Phase 1 から呼ぶ。
  *
  * シーダーは mst_vip_login_bonus* と mst_item を truncate する（暗黙コミット）ので、
  * トランザクションで包まず、触る行は tearDown で消す。
@@ -105,7 +105,7 @@ class VipLoginBonusSeederTest extends TestCase
             $resource = Resource::fromTypeString($typeString, $row->content_mst_id, (int) $row->content_quantity);
             $this->assertInstanceOf(Resource::class, $resource);
 
-            // 期待: wallet と item は mst_item に実在する ID（wallet は type=currency の行）。ダイヤはダイヤの ID
+            // 期待: wallet と item は mst_item に実在する ID（wallet は type=currency の行）。無償ダイヤも item なので mst_item.free_diamond の行を指す
             if ($row->content_type === 'wallet') {
                 $this->assertTrue(
                     DB::connection('mst')->table('mst_item')->where('id', $row->content_mst_id)->where('type', 'currency')->exists(),
@@ -117,10 +117,26 @@ class VipLoginBonusSeederTest extends TestCase
                     "item の {$row->content_mst_id} が mst_item に無い",
                 );
             } else {
-                $this->assertSame(ResourceType::DIAMOND->value, $row->content_type);
-                $this->assertSame('diamond', $row->content_mst_id);
+                // 無償ダイヤの種別（diamond）は廃止した。wallet と item 以外は入れない
+                $this->fail("想定外の content_type: {$row->content_type}");
             }
         }
+    }
+
+    #[Test]
+    public function 七日目の無償ダイヤはitemのfree_diamondで入る(): void
+    {
+        $this->seed(MstVipLoginBonusSeeder::class);
+
+        $rows = DB::connection('mst')->table('mst_vip_login_bonus_content')->where('content_mst_id', 'free_diamond')->get();
+
+        $this->assertNotEmpty($rows);
+        foreach ($rows as $row) {
+            $this->assertSame('item', $row->content_type);
+        }
+        // 旧 diamond の種別・ID は残らない
+        $this->assertSame(0, DB::connection('mst')->table('mst_vip_login_bonus_content')->where('content_type', 'diamond')->count());
+        $this->assertSame(0, DB::connection('mst')->table('mst_vip_login_bonus_content')->where('content_mst_id', 'diamond')->count());
     }
 
     #[Test]

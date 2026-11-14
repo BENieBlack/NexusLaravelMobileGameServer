@@ -90,6 +90,68 @@ abstract class TestCase extends BaseTestCase
     }
 
     /**
+     * 有償ダイヤを持つプレイヤーのフィクスチャを入れる（trx_diamond と trx_diamond_balance を 1 組で）
+     *
+     * 消費は X-Platform の行だけを見て、trx_diamond_balance を古い順 FIFO で減らす。
+     * 合計が trx_diamond.paid_amount と一致している前提（設計 free-diamond-item 要件 Q23）を
+     * seed の側で保つため、テストごとに 2 表を手で入れず、このヘルパーを使う。
+     *
+     * 同じ platform で複数回呼ぶと、paid_amount は加算され、balance は購入単位の行が増える
+     * （$createdAt で並び順を指定できる。FIFO のテスト用）。
+     *
+     * @param  string  $platform  端末の platform（Apple / Google。リクエストの X-Platform と同じ値）
+     * @param  string|null  $createdAt  balance 行の作成日時（'Y-m-d H:i:s'）。null ならテーブルの既定値
+     */
+    protected function seedPaidDiamond(int $sysPlayerId, string $platform, int $amount, ?string $createdAt = null): void
+    {
+        $connection = DB::connection($this->playerConnection($sysPlayerId));
+
+        $diamond = $connection->table('trx_diamond')
+            ->where('sys_player_id', $sysPlayerId)
+            ->where('platform', $platform)
+            ->first();
+
+        if ($diamond === null) {
+            $connection->table('trx_diamond')->insert([
+                'sys_player_id' => $sysPlayerId,
+                'platform' => $platform,
+                'paid_amount' => $amount,
+            ]);
+        } else {
+            $connection->table('trx_diamond')
+                ->where('sys_player_id', $sysPlayerId)
+                ->where('platform', $platform)
+                ->update(['paid_amount' => $diamond->paid_amount + $amount]);
+        }
+
+        $balance = [
+            'sys_player_id' => $sysPlayerId,
+            'platform' => $platform,
+            'billing_platform' => $platform === 'Apple' ? 'AppStore' : 'GooglePlay',
+            'current_amount' => $amount,
+            'purchase_amount' => $amount,
+            'unit_price' => 1.00,
+        ];
+        if ($createdAt !== null) {
+            $balance['created_at'] = $createdAt;
+        }
+        $connection->table('trx_diamond_balance')->insert($balance);
+    }
+
+    /**
+     * 無償ダイヤ（trx_item の free_diamond）を持つプレイヤーのフィクスチャを入れる
+     *
+     * 行があれば free_amount を上書きする（0 を渡すと「使い切って 0 で残った行」になる）。
+     */
+    protected function seedFreeDiamond(int $sysPlayerId, int $amount): void
+    {
+        DB::connection($this->playerConnection($sysPlayerId))->table('trx_item')->updateOrInsert(
+            ['sys_player_id' => $sysPlayerId, 'mst_item_id' => 'free_diamond'],
+            ['free_amount' => $amount, 'paid_amount' => 0],
+        );
+    }
+
+    /**
      * レベル 1 の mst_player_level（初期スタミナの元）が無ければ入れる
      *
      * 既にあれば（MstPlayerLevelTest などが自分で用意した値）触らない。

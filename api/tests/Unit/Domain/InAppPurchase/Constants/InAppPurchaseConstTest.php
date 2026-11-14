@@ -45,14 +45,15 @@ class InAppPurchaseConstTest extends TestCase
     }
 
     #[Test]
-    public function コンテンツタイプは3種(): void
+    public function コンテンツタイプは2種(): void
     {
-        // 増やしたときは InAppPurchasePackService の振り分けも足す必要がある
+        // 増やしたときは InAppPurchasePackService の振り分けも足す必要がある。
+        // 無償ダイヤの種別（free_diamond）は無い。item + free_diamond で表す
+        $this->assertFalse(InAppPurchaseConst::isValidContentType('free_diamond'));
         $this->assertSame(
             [
                 InAppPurchaseConst::CONTENT_TYPE_ITEM,
                 InAppPurchaseConst::CONTENT_TYPE_UNIT,
-                InAppPurchaseConst::CONTENT_TYPE_FREE_DIAMOND,
             ],
             InAppPurchaseConst::allContentTypes()
         );

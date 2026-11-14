@@ -19,8 +19,8 @@ class ResourceDtoTest extends TestCase
     #[Test]
     public function 生成時に一意なidが振られる(): void
     {
-        $one = Resource::diamond(10);
-        $other = Resource::diamond(10);
+        $one = Resource::paidDiamond(10);
+        $other = Resource::paidDiamond(10);
 
         $this->assertNotSame('', $one->getUniqueId());
         $this->assertNotSame($one->getUniqueId(), $other->getUniqueId(), '同じ内容でも別物として扱える');
@@ -60,7 +60,6 @@ class ResourceDtoTest extends TestCase
     #[Test]
     public function 通貨系のファクトリ(): void
     {
-        $this->assertResource(Resource::diamond(100), ResourceType::DIAMOND, 'diamond', 100);
         $this->assertResource(Resource::paidDiamond(50), ResourceType::PAID_DIAMOND, 'paid_diamond', 50);
         $this->assertResource(Resource::gold(200), ResourceType::GOLD, 'gold', 200);
         $this->assertResource(Resource::coin(300), ResourceType::COIN, 'coin', 300);

@@ -66,6 +66,48 @@ class TrxDiamondBalance extends _BaseTrx
     }
 
     /**
+     * システムプレイヤーIDを取得
+     */
+    public function getSysPlayerId(): int
+    {
+        return (int) $this->getAttribute('sys_player_id');
+    }
+
+    /**
+     * プラットフォームを取得（端末の platform。消費で行を選ぶキー）
+     */
+    public function getPlatform(): string
+    {
+        return (string) $this->getAttribute('platform');
+    }
+
+    /**
+     * 決済プラットフォームを取得（消費では見ない）
+     */
+    public function getBillingPlatform(): string
+    {
+        return (string) $this->getAttribute('billing_platform');
+    }
+
+    /**
+     * 現在残高を取得
+     */
+    public function getCurrentAmount(): int
+    {
+        return (int) $this->getAttribute('current_amount');
+    }
+
+    /**
+     * 作成日時を取得（'Y-m-d H:i:s'。FIFO の古い順の判定に使う。新規で未保存なら null）
+     */
+    public function getCreatedAt(): ?string
+    {
+        $createdAt = $this->getAttribute('created_at');
+
+        return $createdAt === null ? null : (string) $createdAt;
+    }
+
+    /**
      * システムプレイヤーIDを設定
      */
     public function setSysPlayerId(int $sysPlayerId): void

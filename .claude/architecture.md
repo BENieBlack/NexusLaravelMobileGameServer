@@ -245,6 +245,7 @@ api/app/Providers/AppServiceProvider                                 ← bind(�
 - それ以外の例外 → システムエラー。`getCode()` が100-599ならそれをHTTPステータスに、それ以外は500。`error_code` は `getCode()`（0なら `InfraErrorCode::UNKNOWN_ERROR`）
 - 本番（`app.env=production`）ではメッセージを固定文言に置き換える（`maskForProduction()`）
 - どちらもログに残し Slack に通知する（除外コードは `AppServiceProvider::boot()` の `security.slack_ignore_error_codes`）
+- 例外: `ClientImplementationError`（目印のインターフェース）を実装した `GameException`（例: 購入の body の platform と X-Platform の不一致 `PlatformMismatchException`）は、クライアントの実装の誤りなので Slack に通知せず、本番でもメッセージをマスクしない（ログには残す）。HTTP 299 と `error_code` は同じ
 
 ### パッケージ例外の変換
 

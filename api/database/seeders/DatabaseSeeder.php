@@ -33,7 +33,7 @@ class DatabaseSeeder extends Seeder
 
             // VIP ログインボーナス（アイテムの ID を MstItemSeeder から使うので、その後に置く。
             // mst_vip_login_bonus / _content だけ truncate するので、通常ログインボーナスとは影響しない。
-            // content_type は wallet / diamond / item、ID は実在するマスターに直してある）
+            // content_type は wallet / item（無償ダイヤも item + free_diamond）、ID は実在するマスターに直してある）
             MstVipLoginBonusSeeder::class,
 
             // 課金関連マスターデータ（MstBillingPlatformProductが先、MstInAppPurchaseが依存）

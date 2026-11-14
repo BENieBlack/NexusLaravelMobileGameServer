@@ -71,7 +71,8 @@ class AuthSignUpInitialGrantTest extends TestCase
             $this->assertCount(1, $rows);
             $this->assertSame($platform, $rows[0]->platform);
             $this->assertSame(0, (int) $rows[0]->paid_amount);
-            $this->assertSame(0, (int) $rows[0]->free_amount);
+            // 無償ダイヤは trx_item の free_diamond にあり、trx_diamond に free_amount の列は無い
+            $this->assertArrayNotHasKey('free_amount', (array) $rows[0]);
         }
     }
 

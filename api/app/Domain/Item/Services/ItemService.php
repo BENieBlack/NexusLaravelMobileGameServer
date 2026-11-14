@@ -4,9 +4,12 @@ namespace App\Domain\Item\Services;
 
 use App\Domain\Item\Contracts\ItemInventoryInterface;
 use App\Domain\Item\Support\WalletItemMigrator;
+use App\Exceptions\GameErrorCode;
+use App\Exceptions\GameException;
 use App\Models\Trx\TrxItem;
 use App\Repositories\Mst\MstItemRepository;
 use App\Repositories\Trx\TrxItemRepository;
+use Nexus\Core\Resource\Constants\FreeDiamondConst;
 use Nexus\Core\Resource\Services\ItemService as PackageItemService;
 use NexusWallet\Services\WalletService;
 
@@ -74,10 +77,24 @@ class ItemService implements ItemInventoryInterface
      * @param  int  $amount  消費する数量
      * @return TrxItem 消費後のアイテムデータ
      *
+     * 無償ダイヤ（free_diamond）はここでは消費できない。ガチャ・交換の cost_type = item など、
+     * アイテムとして消費する経路から指定されても INVALID_ITEM_TYPE で拒否する。
+     * 無償ダイヤの正規の消費は、ダイヤの消費サービス（InAppPurchaseDiamondBalanceService）が
+     * パッケージ版 ItemService を直接呼ぶので、このガードを通らない。
+     *
+     * @throws GameException free_diamond を指定された場合（INVALID_ITEM_TYPE）
      * @throws \Exception 所持数が不足している場合
      */
     public function consumeItem(int $sysPlayerId, string $mstItemId, int $amount): TrxItem
     {
+        // ガードは先頭に置く。下の Wallet 分岐の migrate など、状態を変える処理より前に拒否する
+        if ($mstItemId === FreeDiamondConst::MST_ITEM_ID) {
+            throw new GameException(
+                GameErrorCode::INVALID_ITEM_TYPE,
+                "Invalid item type: {$mstItemId} cannot be consumed as a normal item"
+            );
+        }
+
         if ($this->isWalletManaged($mstItemId)) {
             $this->walletItemMigrator->migrate($sysPlayerId, $mstItemId);
 

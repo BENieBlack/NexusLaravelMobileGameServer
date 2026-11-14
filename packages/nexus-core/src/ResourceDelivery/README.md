@@ -13,7 +13,7 @@ ResourceDeliveryドメインは、ゲーム内リソース（Diamond、Unit、Eq
 | 項目 | 旧Delivery | ResourceDelivery |
 |------|-----------|------------------|
 | リソース表現 | `DeliveryContent` (type, id, amount) | `Resource` + `ResourceDeliveryContent` |
-| リソースタイプ | 5種類 (item, unit, equipment, diamond, wallet) | 27種類 (ResourceType Enum) |
+| リソースタイプ | 5種類 (item, unit, equipment, paid_diamond, wallet) | 27種類 (ResourceType Enum) |
 | タイプ管理 | 文字列定数 (DeliveryConst) | Enum (ResourceType) |
 | 拡張性 | 新タイプ追加時に定数追加 | Enumに追加するだけ |
 | 型安全性 | 低い (文字列ベース) | 高い (Enum + 型ヒント) |
@@ -43,7 +43,7 @@ use Nexus\Core\Resource\DataTransferObjects\Resource;
 
 // Step 1: リソースを登録（複数箇所から登録可能）
 $deliveryService->addResources([
-    Resource::diamond(1000),
+    Resource::paidDiamond(1000),
     Resource::gold(50000),
     Resource::unit('unit_hero_001', 1),
     Resource::equipment('equipment_sword_001', 1),
@@ -72,8 +72,7 @@ $summary = $deliveryService->deliver($sysPlayerId);
 
 | メソッド | 説明 |
 |---------|------|
-| `Resource::diamond(int)` | Diamondリソースを作成 |
-| `Resource::paidDiamond(int)` | 有償Diamondリソースを作成 |
+| `Resource::paidDiamond(int)` | 有償Diamondリソースを作成（無償ダイヤの factory は無い。`Resource::item('free_diamond', n)` で表す） |
 | `Resource::gold(int, ?string)` | Goldリソースを作成 |
 | `Resource::unit(string, int, ?int, ?int)` | Unitリソースを作成 |
 | `Resource::item(string, int)` | Itemリソースを作成 |
@@ -130,7 +129,7 @@ private array $sendCompleteContents = [
 
 | ハンドラー | 対応タイプ | 処理内容 |
 |-----------|-----------|---------|
-| `DiamondDeliveryHandler` | DIAMOND, PAID_DIAMOND | DiamondServiceでダイヤ付与 |
+| `DiamondDeliveryHandler` | PAID_DIAMOND | DiamondServiceでダイヤ付与 |
 | `CurrencyDeliveryHandler` | GOLD, COIN | `CurrencyGranterInterface` で通貨付与（実装は nexus-wallet）（有償/無償と期限を反映） |
 | `NaturalResourceDeliveryHandler` | FOOD, WOOD, STONE, IRON | `CurrencyGranterInterface` で付与（実装は nexus-wallet）（常に無償・無期限） |
 | `PointsDeliveryHandler` | ALLIANCE_POINTS, PVP_POINTS等 | `CurrencyGranterInterface` で付与（実装は nexus-wallet）（常に無償・期限は反映） |
@@ -171,7 +170,7 @@ Wallet の残高として持つかは `mst_item.is_wallet` で決まる。
 
 | Enum | 説明 | 主要値 |
 |------|------|-------|
-| `ResourceType` | リソースタイプ | DIAMOND, GOLD, UNIT, ITEM等（27種類） |
+| `ResourceType` | リソースタイプ | PAID_DIAMOND, GOLD, UNIT, ITEM等 |
 | `ResourceDeliveryStatus` | 配送ステータス | PENDING, DELIVERED, RECEIVED |
 | `ResourceDeliveryMethod` | 配送方法 | NONE, SEND_TO_MAILBOX, THROW_ERROR... |
 | `ResourceDeliveryResultReason` | 配送結果理由 | NONE, DUPLICATED_UNIT, RESOURCE_LIMIT_REACHED等 |
@@ -180,7 +179,7 @@ Wallet の残高として持つかは `mst_item.is_wallet` で決まる。
 
 ```php
 // 通貨系
-DIAMOND, PAID_DIAMOND, GOLD, COIN
+PAID_DIAMOND, GOLD, COIN
 
 // リソース系
 FOOD, WOOD, STONE, IRON, STAMINA, EXPERIENCE
@@ -230,7 +229,7 @@ public function handle(int $sysPlayerId, int $trxMailboxId): ReceiveResponse
         // メールボックスから添付物を取得
         $resources = $contentCollection->map(function ($content) {
             return match($content->getContentType()) {
-                'diamond' => Resource::diamond($content->getAmount()),
+                'paid_diamond' => Resource::paidDiamond($content->getAmount()),
                 'gold' => Resource::gold($content->getAmount()),
                 'unit' => Resource::unit($content->getContentId(), $content->getAmount()),
                 default => null,
@@ -260,7 +259,7 @@ public function grantPrizes(int $sysPlayerId, array $prizes): void
         $resources[] = match($prize['content_type']) {
             'unit' => Resource::unit($prize['content_mst_id'], 1),
             'equipment' => Resource::equipment($prize['content_mst_id'], 1),
-            'diamond' => Resource::diamond($prize['amount']),
+            'paid_diamond' => Resource::paidDiamond($prize['amount']),
             default => null,
         };
     }

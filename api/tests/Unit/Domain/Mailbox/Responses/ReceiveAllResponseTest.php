@@ -29,7 +29,7 @@ class ReceiveAllResponseTest extends TestCase
             skippedCount: 0,
             deliveryContents: [
                 Resource::item('item_potion', 3),
-                Resource::diamond(100),
+                Resource::item('free_diamond', 100),
             ],
         );
 
@@ -38,7 +38,7 @@ class ReceiveAllResponseTest extends TestCase
         $this->assertSame(
             [
                 ['type' => 'item', 'id' => 'item_potion', 'amount' => 3],
-                ['type' => 'diamond', 'id' => 'diamond', 'amount' => 100],
+                ['type' => 'item', 'id' => 'free_diamond', 'amount' => 100],
             ],
             $array['delivery_content_list'],
         );

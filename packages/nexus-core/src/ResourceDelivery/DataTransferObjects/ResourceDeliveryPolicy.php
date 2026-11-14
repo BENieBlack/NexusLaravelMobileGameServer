@@ -26,7 +26,6 @@ class ResourceDeliveryPolicy
         // デフォルト値を設定
         if (empty($this->methodMap)) {
             $this->methodMap = [
-                ResourceType::DIAMOND->value => ResourceDeliveryMethod::SEND_TO_MAILBOX,
                 ResourceType::PAID_DIAMOND->value => ResourceDeliveryMethod::SEND_TO_MAILBOX,
             ];
         }
@@ -48,7 +47,6 @@ class ResourceDeliveryPolicy
     ): self {
         return new self(
             methodMap: [
-                ResourceType::DIAMOND->value => ResourceDeliveryMethod::THROW_ERROR_WHEN_RESOURCE_LIMIT_REACHED,
                 ResourceType::PAID_DIAMOND->value => ResourceDeliveryMethod::THROW_ERROR_WHEN_RESOURCE_LIMIT_REACHED,
                 ResourceType::GOLD->value => ResourceDeliveryMethod::THROW_ERROR_WHEN_RESOURCE_LIMIT_REACHED,
                 ResourceType::COIN->value => ResourceDeliveryMethod::THROW_ERROR_WHEN_RESOURCE_LIMIT_REACHED,

@@ -20,8 +20,10 @@ use Tests\TestCase;
 /**
  * auth/login のダイヤ（D5）
  *
- * - 応答の trx_diamond は、X-Platform の platform の 1 行だけ（無ければ null）。trx_diamond_list は返さない
- * - 無償ダイヤの付与は、metadata に platform が無ければ X-Platform の行に入る（無ければ Apple）
+ * - 応答の trx_diamond は、X-Platform の platform の 1 行だけ（無ければ null）。trx_diamond_list は返さない。
+ *   有償だけを持つので free_amount は無い（無償ダイヤは trx_item_list の free_diamond）
+ * - 無償ダイヤの付与（ログインボーナス）は trx_item の free_diamond に入り、trx_diamond の行は作らない
+ * - 有償ダイヤの付与（PAID_DIAMOND）は、metadata に platform が無ければ X-Platform の行に入る（無ければ Apple）
  * - is_delete は JSON の真偽値（DB から読んだ行も、同じリクエストで作った未保存の行も）
  */
 class HomeTrxDiamondTest extends TestCase
@@ -40,19 +42,19 @@ class HomeTrxDiamondTest extends TestCase
     public function loginのtrx_diamondはx_platformの行だけで_trx_diamond_listは返さない(): void
     {
         ['player' => $player, 'token' => $token] = $this->signUpPlayer();
-        $this->insertDiamond($player->id, 'Apple', 10, 20);
-        $this->insertDiamond($player->id, 'Google', 30, 40);
+        $this->insertDiamond($player->id, 'Apple', 10);
+        $this->insertDiamond($player->id, 'Google', 30);
 
         $apple = $this->login($token, 'Apple');
         $this->assertSame('Apple', $apple->json('trx_diamond.platform'));
         $this->assertSame(10, $apple->json('trx_diamond.paid_amount'));
-        $this->assertSame(20, $apple->json('trx_diamond.free_amount'));
+        $this->assertArrayNotHasKey('free_amount', $apple->json('trx_diamond'));
         $this->assertArrayNotHasKey('trx_diamond_list', $apple->json());
 
         $google = $this->login($token, 'Google');
         $this->assertSame('Google', $google->json('trx_diamond.platform'));
         $this->assertSame(30, $google->json('trx_diamond.paid_amount'));
-        $this->assertSame(40, $google->json('trx_diamond.free_amount'));
+        $this->assertArrayNotHasKey('free_amount', $google->json('trx_diamond'));
     }
 
     #[Test]
@@ -67,7 +69,7 @@ class HomeTrxDiamondTest extends TestCase
         $this->assertNull($response->json('trx_diamond'));
 
         // 別の platform の行しか無い
-        $this->insertDiamond($player->id, 'Apple', 1, 2);
+        $this->insertDiamond($player->id, 'Apple', 1);
         $this->assertNull($this->login($token, 'Google')->json('trx_diamond'));
     }
 
@@ -80,47 +82,53 @@ class HomeTrxDiamondTest extends TestCase
         $response = $this->login($token, 'Google');
 
         $this->assertSame('Google', $response->json('trx_diamond.platform'));
-        $this->assertSame(0, $response->json('trx_diamond.free_amount'));
+        $this->assertSame(0, $response->json('trx_diamond.paid_amount'));
+        $this->assertArrayNotHasKey('free_amount', $response->json('trx_diamond'));
     }
 
     #[Test]
-    public function googleでログインするとappleの行だけがある状態でもログインボーナスの無償ダイヤでgoogleの行が作られ同じ応答に載る(): void
+    public function ログインボーナスの無償ダイヤはtrx_itemに入りtrx_diamondの行は作らない(): void
     {
         ['player' => $player, 'token' => $token] = $this->signUpPlayer();
         $this->deleteInitialGrant($player->id);
-        $this->insertDiamond($player->id, 'Apple', 0, 5);
-        $this->createDiamondLoginBonus(100);
+        $this->insertDiamond($player->id, 'Apple', 7);
+        $this->createFreeDiamondLoginBonus(100);
 
+        // Google でログイン。Google の trx_diamond の行は無いので null のまま（無償は trx_item なので行は要らない）
         $response = $this->login($token, 'Google');
 
-        $this->assertSame('Google', $response->json('trx_diamond.platform'));
-        $this->assertSame(100, $response->json('trx_diamond.free_amount'));
-        // 未保存の新規行でも is_delete は JSON の真偽値（実測）
-        $this->assertFalse($response->json('trx_diamond.is_delete'));
-        $this->assertStringContainsString('"is_delete":false', $response->getContent());
+        $this->assertNull($response->json('trx_diamond'));
+        $freeDiamond = collect($response->json('trx_item_list'))->firstWhere('mst_item_id', 'free_diamond');
+        $this->assertSame(100, $freeDiamond['free_amount']);
 
-        // DB: Google の行が作られ、Apple の行は変わらない
-        $rows = DB::connection($this->playerConnection($player->id))->table('trx_diamond')
-            ->where('sys_player_id', $player->id)->pluck('free_amount', 'platform')->all();
-        $this->assertSame(['Apple' => 5, 'Google' => 100], array_map('intval', $rows));
+        // DB: free_diamond の行ができ、trx_diamond は Apple の行のまま（Google の行は作られない）
+        $connection = DB::connection($this->playerConnection($player->id));
+        $this->assertSame(100, (int) $connection->table('trx_item')
+            ->where('sys_player_id', $player->id)->where('mst_item_id', 'free_diamond')->value('free_amount'));
+        $this->assertSame(['Apple' => 7], array_map('intval', $connection->table('trx_diamond')
+            ->where('sys_player_id', $player->id)->pluck('paid_amount', 'platform')->all()));
     }
 
     #[Test]
-    public function appleでログインするとログインボーナスの無償ダイヤはappleの行に入る(): void
+    public function サインアップの50にログインボーナスの無償ダイヤが同じ行へ加算される(): void
     {
         ['player' => $player, 'token' => $token] = $this->signUpPlayer();
-        $this->createDiamondLoginBonus(100);
+        $this->createFreeDiamondLoginBonus(100);
 
         $response = $this->login($token, 'Apple');
 
-        $this->assertSame('Apple', $response->json('trx_diamond.platform'));
-        $this->assertSame(100, $response->json('trx_diamond.free_amount'));
+        // 初期付与 50 + ログインボーナス 100 が trx_item の 1 行に入る
+        $freeDiamonds = collect($response->json('trx_item_list'))->where('mst_item_id', 'free_diamond');
+        $this->assertCount(1, $freeDiamonds);
+        $this->assertSame(150, $freeDiamonds->first()['free_amount']);
+        // trx_diamond は X-Platform の 1 行のまま（有償 0）
+        $this->assertSame(0, $response->json('trx_diamond.paid_amount'));
         $this->assertSame(1, DB::connection($this->playerConnection($player->id))->table('trx_diamond')
             ->where('sys_player_id', $player->id)->count());
     }
 
     #[Test]
-    public function 付与の既定platformはmetadata_現在のplatform_appleの順で決まる(): void
+    public function 有償ダイヤの付与の既定platformはmetadata_現在のplatform_appleの順で決まる(): void
     {
         ['player' => $player] = $this->signUpPlayer();
         $this->deleteInitialGrant($player->id);
@@ -144,7 +152,7 @@ class HomeTrxDiamondTest extends TestCase
         $rows = app(TrxDiamondRepository::class)->queryOrMemory();
         $amounts = [];
         foreach ($rows as $row) {
-            $amounts[$row->getPlatform()] = $row->getFreeAmount();
+            $amounts[$row->getPlatform()] = $row->getPaidAmount();
         }
         $this->assertSame(['Apple' => 101, 'Google' => 10], $amounts);
     }
@@ -192,28 +200,27 @@ class HomeTrxDiamondTest extends TestCase
         return $response;
     }
 
-    private function insertDiamond(int $sysPlayerId, string $platform, int $paid, int $free): void
+    private function insertDiamond(int $sysPlayerId, string $platform, int $paid): void
     {
         DB::connection($this->playerConnection($sysPlayerId))->table('trx_diamond')->updateOrInsert(
             ['sys_player_id' => $sysPlayerId, 'platform' => $platform],
             [
                 'paid_amount' => $paid,
-                'free_amount' => $free,
                 'is_delete' => false,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
     }
 
-    /** 初回ログインで 1 日目に無償ダイヤを配る日次ログインボーナスを用意する */
-    private function createDiamondLoginBonus(int $amount): void
+    /** 初回ログインで 1 日目に無償ダイヤ（item / free_diamond）を配る日次ログインボーナスを用意する */
+    private function createFreeDiamondLoginBonus(int $amount): void
     {
         MstLoginBonus::create(['id' => 'daily_login', 'type' => 'daily', 'loop_days' => 7, 'is_active' => true]);
         MstLoginBonusContent::create([
             'mst_login_bonus_id' => 'daily_login',
             'day' => 1,
-            'content_type' => 'diamond',
-            'content_mst_id' => 'diamond',
+            'content_type' => 'item',
+            'content_mst_id' => 'free_diamond',
             'amount' => $amount,
             'is_paid' => false,
             'sort_order' => 1,
@@ -226,6 +233,6 @@ class HomeTrxDiamondTest extends TestCase
      */
     private function content(int $amount, array $metadata = []): ResourceDeliveryContent
     {
-        return new ResourceDeliveryContent(new Resource(ResourceType::DIAMOND, 'diamond', $amount, null, $metadata ?: null));
+        return new ResourceDeliveryContent(new Resource(ResourceType::PAID_DIAMOND, 'paid_diamond', $amount, null, $metadata ?: null));
     }
 }

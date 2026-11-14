@@ -10,7 +10,8 @@ namespace Nexus\Core\Resource\Enums;
 enum ResourceType: string
 {
     // 通貨系
-    case DIAMOND = 'diamond';               // ダイヤモンド（無償）
+    // 無償ダイヤは種別を持たない。item + free_diamond（trx_item）で表す（設計 free-diamond-item）。
+    // 有償ダイヤ（PAID_DIAMOND）は運営の返金調整用に残す
     case PAID_DIAMOND = 'paid_diamond';     // 有償ダイヤモンド
     case GOLD = 'gold';                     // ゴールド
     case COIN = 'coin';                     // コイン
@@ -55,7 +56,6 @@ enum ResourceType: string
     public function label(): string
     {
         return match ($this) {
-            self::DIAMOND => 'ダイヤ',
             self::PAID_DIAMOND => '有償ダイヤ',
             self::GOLD => 'ゴールド',
             self::COIN => 'コイン',
@@ -90,7 +90,6 @@ enum ResourceType: string
     public function icon(): string
     {
         return match ($this) {
-            self::DIAMOND => '💎',
             self::PAID_DIAMOND => '💠',
             self::GOLD => '🪙',
             self::COIN => '🟡',
@@ -125,7 +124,6 @@ enum ResourceType: string
     public function isCurrency(): bool
     {
         return in_array($this, [
-            self::DIAMOND,
             self::PAID_DIAMOND,
             self::GOLD,
             self::COIN,

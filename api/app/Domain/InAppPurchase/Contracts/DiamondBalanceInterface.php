@@ -6,19 +6,21 @@ namespace App\Domain\InAppPurchase\Contracts;
  * DiamondBalanceInterface
  *
  * InAppPurchaseモジュールの公開API。ダイヤ残高を増減する。
+ *
+ * 無償ダイヤは trx_item の free_diamond、有償ダイヤは trx_diamond（X-Platform の行）で持つ。
+ * 無償の付与はアイテムの付与経路（item / free_diamond）に一本化したので、ここには無い。
  */
 interface DiamondBalanceInterface
 {
     /**
-     * ダイヤを付与する
+     * 有償ダイヤを付与する（trx_diamond.paid_amount のみ。trx_diamond_balance の行は作らない）
      *
      * @param  string  $platform  プラットフォーム（Apple, Google）
-     * @param  bool  $isPaid  有償ダイヤか（falseの場合は無償）
      */
-    public function addDiamond(int $sysPlayerId, string $platform, int $amount, bool $isPaid = false): void;
+    public function addPaidDiamond(int $sysPlayerId, string $platform, int $amount): void;
 
     /**
-     * 全プラットフォームを合わせたダイヤの所持数を返す
+     * ダイヤの所持数を返す（無償は platform 共通、有償は X-Platform の行だけ）
      *
      * @param  bool  $isPaidOnly  有償ダイヤだけを数えるか（falseの場合は無償と有償の合計）
      */

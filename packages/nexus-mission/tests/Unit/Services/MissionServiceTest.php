@@ -218,7 +218,7 @@ class MissionServiceTest extends TestCase
         $this->masterRepository->missions = [$this->makeMission('mission_001', mstTagId: 'tag_series_v_gundam')];
         $this->masterRepository->contents = [
             new MissionContent('mission_001', 'item', 'item_potion_001', 5, 0),
-            new MissionContent('mission_001', 'diamond', 'diamond', 100, 1),
+            new MissionContent('mission_001', 'item', 'free_diamond', 100, 1),
         ];
         $this->progressRepository->save(
             new Progress(self::SYS_PLAYER_ID, 'unit_max_limit_break', 'tag_series_v_gundam', 3)
@@ -232,7 +232,7 @@ class MissionServiceTest extends TestCase
                     $contents,
                 );
 
-                return $actual === [['item', 'item_potion_001', 5], ['diamond', 'diamond', 100]];
+                return $actual === [['item', 'item_potion_001', 5], ['item', 'free_diamond', 100]];
             }));
         $this->deliveryService->shouldReceive('deliver')->once()->with(self::SYS_PLAYER_ID);
 

@@ -11,11 +11,14 @@ class BuyResponse extends _BaseResponse implements ReturnsUpdatedResources
     use HasUpdatedResources;
 
     /**
-     * @param  int  $paidDiamondAmount  購入した有償ダイヤモンド数
+     * 応答は updated_resources と rewards（Pack/Pass のときだけ）だけ。
+     * 購入した有償ダイヤの量・残高は載せない。有償は updated_resources.trx_diamond、
+     * パックの無償ダイヤは updated_resources.trx_item_list の free_diamond で分かる
+     * （設計 free-diamond-item の決定 B）。
+     *
      * @param  array<int, array<string, mixed>>  $rewards  付与されたアイテムやユニット（Pack/Passの場合）
      */
     public function __construct(
-        public readonly int $paidDiamondAmount,
         public readonly array $rewards = [],
     ) {}
 
@@ -27,7 +30,6 @@ class BuyResponse extends _BaseResponse implements ReturnsUpdatedResources
     public function toArray(): array
     {
         $response = [
-            'paid_diamond_amount' => $this->paidDiamondAmount,
             'updated_resources' => $this->getUpdatedResources()->toResponseArray(),
         ];
 

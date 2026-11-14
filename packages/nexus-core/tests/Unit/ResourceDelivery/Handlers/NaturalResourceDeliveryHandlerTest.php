@@ -41,7 +41,7 @@ class NaturalResourceDeliveryHandlerTest extends TestCase
     {
         $handler = new NaturalResourceDeliveryHandler($this->createMock(CurrencyGranterInterface::class));
 
-        $this->assertFalse($handler->supports(ResourceType::DIAMOND));
+        $this->assertFalse($handler->supports(ResourceType::PAID_DIAMOND));
         $this->assertFalse($handler->supports(ResourceType::ALLIANCE_POINTS));
         $this->assertFalse($handler->supports('unknown_type'));
 

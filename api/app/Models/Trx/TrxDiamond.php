@@ -4,19 +4,18 @@ namespace App\Models\Trx;
 
 use App\Traits\CompositePrimaryKeyTrait;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Nexus\Core\UnitOfWork\Contracts\ReturnedAsUpdatedResource;
+use Nexus\Core\UnitOfWork\Contracts\ReturnedAsSingleUpdatedResource;
 
 /**
  * TrxDiamond Model
  *
- * ダイヤモンド現在値を管理するモデル
+ * 有償ダイヤモンドの現在値を管理するモデル（無償ダイヤは trx_item の free_diamond）
  * PRIMARY KEY: (sys_player_id, platform)
  *
  * platform: プラットフォーム（Apple, Google）
  * paid_amount: 有償ダイヤモンド数
- * free_amount: 無償ダイヤモンド数
  */
-class TrxDiamond extends _BaseTrx implements ReturnedAsUpdatedResource
+class TrxDiamond extends _BaseTrx implements ReturnedAsSingleUpdatedResource
 {
     use CompositePrimaryKeyTrait;
 
@@ -52,7 +51,6 @@ class TrxDiamond extends _BaseTrx implements ReturnedAsUpdatedResource
         'sys_player_id',
         'platform',
         'paid_amount',
-        'free_amount',
         'is_delete',
         'created_at',
         'updated_at',
@@ -62,7 +60,6 @@ class TrxDiamond extends _BaseTrx implements ReturnedAsUpdatedResource
     protected $casts = [
         'sys_player_id' => 'integer',
         'paid_amount' => 'integer',
-        'free_amount' => 'integer',
     ];
 
     /**
@@ -90,22 +87,6 @@ class TrxDiamond extends _BaseTrx implements ReturnedAsUpdatedResource
     public function setPaidAmount(int $paidAmount): void
     {
         $this->setAttribute('paid_amount', $paidAmount);
-    }
-
-    /**
-     * 無償ダイヤモンド数を取得
-     */
-    public function getFreeAmount(): int
-    {
-        return $this->getAttribute('free_amount');
-    }
-
-    /**
-     * 無償ダイヤモンド数を設定
-     */
-    public function setFreeAmount(int $freeAmount): void
-    {
-        $this->setAttribute('free_amount', $freeAmount);
     }
 
     /**

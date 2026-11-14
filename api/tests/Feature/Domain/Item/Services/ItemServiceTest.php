@@ -3,6 +3,8 @@
 namespace Tests\Feature\Domain\Item\Services;
 
 use App\Domain\Item\Services\ItemService;
+use App\Exceptions\GameErrorCode;
+use App\Exceptions\GameException;
 use App\Persistence\ApiSession;
 use Illuminate\Support\Facades\DB;
 use Nexus\Core\UnitOfWork\Persistence\QueryManager;
@@ -366,5 +368,84 @@ class ItemServiceTest extends TestCase
         $this->assertSame(8000, $result->getFreeAmount());  // 10000 - 2000
         $this->assertSame(0, $result->getPaidAmount());     // 5000 - 5000 = 0
         $this->assertSame(8000, $result->getTotalAmount());
+    }
+
+    #[Test]
+    public function 無償ダイヤは通常のアイテム消費でinvalid_item_typeになり何も変えない(): void
+    {
+        $this->seedFreeDiamond($this->sysPlayerId, 100);
+        ApiSession::clearForTest();
+        $this->useSessionPlayer($this->sysPlayerId);
+
+        try {
+            $this->itemService->consumeItem($this->sysPlayerId, 'free_diamond', 10);
+            $this->fail('free_diamond の消費は拒否されるはず');
+        } catch (GameException $e) {
+            $this->assertSame(GameErrorCode::INVALID_ITEM_TYPE, $e->getErrorCode());
+        }
+
+        // 何も書かれていない（キューが空で、DB も 100 のまま）
+        $this->queryManager->execAllQuery();
+        $this->assertSame(100, (int) DB::connection('trx1')->table('trx_item')
+            ->where('mst_item_id', 'free_diamond')->value('free_amount'));
+    }
+
+    #[Test]
+    public function 無償ダイヤのガードはwalletの分岐より前に効き_walletへの移行を起こさない(): void
+    {
+        // 万一 mst_item.is_wallet が立っても、Wallet の移行（trx_item の行を Wallet へ移す副作用）より前に拒否する
+        $original = DB::connection('mst')->table('mst_item')->where('id', 'free_diamond')->first();
+        DB::connection('mst')->table('mst_item')->updateOrInsert(
+            ['id' => 'free_diamond'],
+            ['type' => 'currency', 'effect' => 'none', 'value' => 0, 'is_wallet' => true],
+        );
+        $this->refreshMstCache();
+        $this->seedFreeDiamond($this->sysPlayerId, 100);
+        ApiSession::clearForTest();
+        $this->useSessionPlayer($this->sysPlayerId);
+
+        try {
+            $this->itemService->consumeItem($this->sysPlayerId, 'free_diamond', 10);
+            $this->fail('free_diamond の消費は拒否されるはず');
+        } catch (GameException $e) {
+            $this->assertSame(GameErrorCode::INVALID_ITEM_TYPE, $e->getErrorCode());
+        } finally {
+            if ($original === null) {
+                DB::connection('mst')->table('mst_item')->where('id', 'free_diamond')->delete();
+            } else {
+                DB::connection('mst')->table('mst_item')->where('id', 'free_diamond')->update(['is_wallet' => (bool) $original->is_wallet]);
+            }
+            $this->refreshMstCache();
+        }
+
+        $this->queryManager->execAllQuery();
+        $this->assertSame(100, (int) DB::connection('trx1')->table('trx_item')
+            ->where('mst_item_id', 'free_diamond')->value('free_amount'));
+        $this->assertSame(0, DB::connection('trx1')->table('trx_wallet')->where('mst_item_id', 'free_diamond')->count());
+    }
+
+    #[Test]
+    public function 無償ダイヤの付与と所持数の参照はガードされない(): void
+    {
+        $this->itemService->addItem($this->sysPlayerId, 'free_diamond', freeAmount: 30);
+        $this->queryManager->execAllQuery();
+
+        ApiSession::clearForTest();
+        $this->useSessionPlayer($this->sysPlayerId);
+
+        $this->assertSame(30, $this->itemService->findItemAmount($this->sysPlayerId, 'free_diamond'));
+    }
+
+    #[Test]
+    public function 無償ダイヤ以外のアイテムは従来どおり消費できる(): void
+    {
+        $this->itemService->addItem($this->sysPlayerId, 'item_potion_001', freeAmount: 5);
+        $this->queryManager->execAllQuery();
+        ApiSession::clearForTest();
+        $this->useSessionPlayer($this->sysPlayerId);
+
+        $result = $this->itemService->consumeItem($this->sysPlayerId, 'item_potion_001', 2);
+
+        $this->assertSame(3, $result->getFreeAmount());
     }
 }

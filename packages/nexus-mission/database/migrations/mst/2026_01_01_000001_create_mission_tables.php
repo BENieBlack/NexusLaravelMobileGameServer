@@ -64,8 +64,8 @@ return new class extends Migration
         Schema::create('mst_mission_content', function (Blueprint $table) {
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
             $table->string('mst_mission_id')->comment('mst_missionテーブルのID');
-            $table->string('content_type')->comment('報酬の種別 (item / unit / equipment / diamond / stamina など)');
-            $table->string('content_mst_id')->comment('報酬のマスターID（diamond/staminaはダミー値）');
+            $table->string('content_type')->comment('報酬の種別 (item / unit / equipment / stamina など。無償ダイヤは item + free_diamond)');
+            $table->string('content_mst_id')->comment('報酬のマスターID（staminaはダミー値。無償ダイヤは free_diamond）');
             $table->unsignedInteger('content_quantity')->default(1)->comment('配布する数量');
             $table->unsignedInteger('sort_order')->default(0)->comment('表示順序');
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');

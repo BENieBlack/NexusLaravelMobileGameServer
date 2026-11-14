@@ -152,7 +152,7 @@ class LoginBonusIntegrationTest extends TestCase
             DB::connection('mst')->table('mst_login_bonus_content')->insert([
                 'mst_login_bonus_id' => $bonusId,
                 'day' => $day,
-                'content_type' => 'diamond',
+                'content_type' => 'item',
                 'content_mst_id' => 'free_diamond',
                 'amount' => $day * 100,
                 'is_paid' => false,
@@ -187,7 +187,7 @@ class LoginBonusIntegrationTest extends TestCase
                 DB::connection('mst')->table('mst_vip_login_bonus_content')->insert([
                     'mst_vip_login_bonus_id' => $bonusId,
                     'day' => $day,
-                    'content_type' => 'diamond',
+                    'content_type' => 'item',
                     'content_mst_id' => 'free_diamond',
                     'content_option' => null,
                     'content_quantity' => $goldAmount,
@@ -221,7 +221,7 @@ class LoginBonusIntegrationTest extends TestCase
         for ($day = 1; $day <= 7; $day++) {
             DB::connection('mst')->table('mst_login_bonus_content')->insert([
                 'mst_login_bonus_id' => $bonusId,
-                'content_type' => 'diamond',
+                'content_type' => 'item',
                 'content_mst_id' => "day_{$day}_diamond", // 各日で異なるIDを使用
                 'amount' => $day * 1000, // カムバックは豪華
                 'is_paid' => false,

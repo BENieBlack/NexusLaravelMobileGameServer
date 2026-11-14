@@ -71,7 +71,7 @@ class TradeEndpointTest extends TestCase
 
     protected function tearDown(): void
     {
-        foreach (['trx_trade_product', 'trx_diamond', 'trx_item', 'trx_wallet', 'trx_wallet_balance', 'log_action_trade'] as $table) {
+        foreach (['trx_trade_product', 'trx_diamond', 'trx_diamond_balance', 'trx_item', 'trx_wallet', 'trx_wallet_balance', 'log_action_trade'] as $table) {
             DB::connection($this->connection)->table($table)
                 ->where('sys_player_id', $this->sysPlayerId)->delete();
         }
@@ -119,9 +119,13 @@ class TradeEndpointTest extends TestCase
         $response->assertOk();
         $this->assertSame(3, $response->json('trade_product.traded_count'));
 
-        // 消費したダイヤと受け取ったアイテムが、更新した trx として返る
-        $this->assertSame(10, $response->json('updated_resources.trx_diamond_list.0.free_amount'));
-        $this->assertSame(6, $response->json('updated_resources.trx_item_list.0.free_amount'));
+        // 消費した無償ダイヤ（trx_item の free_diamond）と受け取ったアイテムが、更新した trx として返る。
+        // 有償は変わっていないので trx_diamond は載らない
+        $items = collect($response->json('updated_resources.trx_item_list'))->keyBy('mst_item_id');
+        $this->assertSame(10, $items['free_diamond']['free_amount']);
+        $this->assertSame(6, $items[self::REWARD_ID]['free_amount']);
+        $this->assertArrayNotHasKey('trx_diamond', $response->json('updated_resources'));
+        $this->assertArrayNotHasKey('trx_diamond_list', $response->json('updated_resources'));
 
         // 無償ダイヤ 100 から 30 × 3 = 90 を消費。報酬は 2 × 3 = 6 個
         $this->assertSame(['free' => 10, 'paid' => 50], $this->diamondAmount());
@@ -140,6 +144,77 @@ class TradeEndpointTest extends TestCase
     {
         // 有償ダイヤは 50 しかない（無償の 100 は数えない）
         $this->assertBusinessError($this->exchange('product_by_paid_diamond', quantity: 1), GameErrorCode::DIAMOND_NOT_ENOUGH);
+
+        $this->assertSame(['free' => 100, 'paid' => 50], $this->diamondAmount());
+        $this->assertSame(0, $this->itemAmount(self::REWARD_ID));
+    }
+
+    #[Test]
+    public function 無償を使い切って有償にまたがると両方が更新され_balanceも連動する(): void
+    {
+        // コストを 120 にする: 無償 100 + 有償 20
+        DB::connection('mst')->table('mst_trade_product')->where('id', 'product_by_diamond')->update(['cost_amount' => 120]);
+        $this->refreshMstCache();
+
+        $response = $this->exchange('product_by_diamond', quantity: 1);
+
+        $response->assertOk();
+        $this->assertSame(['free' => 0, 'paid' => 30], $this->diamondAmount());
+        $this->assertSame(30, $this->balanceTotal());
+        // 無償の行は 0 で残る
+        $this->assertSame(1, DB::connection($this->connection)->table('trx_item')
+            ->where('sys_player_id', $this->sysPlayerId)->where('mst_item_id', 'free_diamond')->count());
+
+        // 両方載る（trx_diamond は単数のオブジェクト。free_amount は無い）
+        $items = collect($response->json('updated_resources.trx_item_list'))->keyBy('mst_item_id');
+        $this->assertSame(0, $items['free_diamond']['free_amount']);
+        $this->assertSame('Apple', $response->json('updated_resources.trx_diamond.platform'));
+        $this->assertSame(30, $response->json('updated_resources.trx_diamond.paid_amount'));
+        $this->assertArrayNotHasKey('free_amount', $response->json('updated_resources.trx_diamond'));
+    }
+
+    #[Test]
+    public function 有償だけの商品は有償と_balanceだけを減らし無償は触らない(): void
+    {
+        DB::connection('mst')->table('mst_trade_product')->where('id', 'product_by_paid_diamond')->update(['cost_amount' => 20]);
+        $this->refreshMstCache();
+
+        $response = $this->exchange('product_by_paid_diamond', quantity: 1);
+
+        $response->assertOk();
+        $this->assertSame(['free' => 100, 'paid' => 30], $this->diamondAmount());
+        $this->assertSame(30, $this->balanceTotal());
+        $this->assertSame(30, $response->json('updated_resources.trx_diamond.paid_amount'));
+        $freeRows = collect($response->json('updated_resources.trx_item_list'))->where('mst_item_id', 'free_diamond');
+        $this->assertCount(0, $freeRows);
+    }
+
+    #[Test]
+    public function 他platformの有償だけでは交換できない(): void
+    {
+        // Apple の有償 50 を消し、Google の有償 500 だけにする。無償 100 では 120 に足りない
+        DB::connection($this->connection)->table('trx_diamond')->where('sys_player_id', $this->sysPlayerId)->delete();
+        DB::connection($this->connection)->table('trx_diamond_balance')->where('sys_player_id', $this->sysPlayerId)->delete();
+        $this->seedPaidDiamond($this->sysPlayerId, 'Google', 500);
+        DB::connection('mst')->table('mst_trade_product')->where('id', 'product_by_diamond')->update(['cost_amount' => 120]);
+        $this->refreshMstCache();
+
+        $this->assertBusinessError($this->exchange('product_by_diamond', quantity: 1), GameErrorCode::DIAMOND_NOT_ENOUGH);
+
+        $this->assertSame(100, (int) DB::connection($this->connection)->table('trx_item')
+            ->where('sys_player_id', $this->sysPlayerId)->where('mst_item_id', 'free_diamond')->value('free_amount'));
+        $this->assertSame(500, (int) DB::connection($this->connection)->table('trx_diamond')
+            ->where('sys_player_id', $this->sysPlayerId)->where('platform', 'Google')->value('paid_amount'));
+    }
+
+    #[Test]
+    public function コストitemで無償ダイヤを指す商品は拒否され何も変わらない(): void
+    {
+        DB::connection('mst')->table('mst_trade_product')->where('id', 'product_by_item')
+            ->update(['cost_mst_id' => 'free_diamond']);
+        $this->refreshMstCache();
+
+        $this->assertBusinessError($this->exchange('product_by_item', quantity: 1), GameErrorCode::INVALID_ITEM_TYPE);
 
         $this->assertSame(['free' => 100, 'paid' => 50], $this->diamondAmount());
         $this->assertSame(0, $this->itemAmount(self::REWARD_ID));
@@ -220,9 +295,22 @@ class TradeEndpointTest extends TestCase
      */
     private function diamondAmount(): array
     {
-        $row = DB::connection($this->connection)->table('trx_diamond')->where('sys_player_id', $this->sysPlayerId)->first();
+        // 無償は trx_item の free_diamond、有償は X-Platform（Apple）の trx_diamond の行
+        $free = DB::connection($this->connection)->table('trx_item')
+            ->where('sys_player_id', $this->sysPlayerId)->where('mst_item_id', 'free_diamond')->value('free_amount');
+        $paid = DB::connection($this->connection)->table('trx_diamond')
+            ->where('sys_player_id', $this->sysPlayerId)->where('platform', 'Apple')->value('paid_amount');
 
-        return ['free' => (int) $row->free_amount, 'paid' => (int) $row->paid_amount];
+        return ['free' => (int) $free, 'paid' => (int) $paid];
+    }
+
+    /**
+     * X-Platform（Apple）の trx_diamond_balance の current_amount の合計
+     */
+    private function balanceTotal(): int
+    {
+        return (int) DB::connection($this->connection)->table('trx_diamond_balance')
+            ->where('sys_player_id', $this->sysPlayerId)->where('platform', 'Apple')->sum('current_amount');
     }
 
     private function itemAmount(string $mstItemId): int
@@ -237,9 +325,10 @@ class TradeEndpointTest extends TestCase
     {
         $db = DB::connection($this->connection);
 
-        $db->table('trx_diamond')->insert([
-            'sys_player_id' => $this->sysPlayerId, 'platform' => 'ios', 'free_amount' => 100, 'paid_amount' => 50, 'is_delete' => false,
-        ]);
+        // 無償ダイヤは trx_item の free_diamond、有償は X-Platform（Apple）の trx_diamond と
+        // 同じ合計の trx_diamond_balance（消費は balance を古い順に引くため、両方を 1 組で入れる）
+        $this->seedFreeDiamond($this->sysPlayerId, 100);
+        $this->seedPaidDiamond($this->sysPlayerId, 'Apple', 50);
         $db->table('trx_item')->insert([
             'sys_player_id' => $this->sysPlayerId, 'mst_item_id' => self::TICKET_ID, 'free_amount' => 3, 'paid_amount' => 0, 'is_delete' => false,
         ]);

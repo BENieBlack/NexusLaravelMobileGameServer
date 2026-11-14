@@ -46,7 +46,7 @@ class BuyDiamondUseCase extends _BaseBuyUseCase
         $unitPrice = $this->resolvePurchasePrice($verification, $mstInAppPurchase, $billingPlatform);
 
         // トランザクションは _BaseBuyUseCase が張っている（VIP付与・課金ログと同一）
-        $result = $this->diamondService->purchaseDiamond(
+        $this->diamondService->purchaseDiamond(
             $sysPlayerId,
             $mstInAppPurchase,
             $platform,
@@ -55,8 +55,7 @@ class BuyDiamondUseCase extends _BaseBuyUseCase
             $verification->getTransactionId()
         );
 
-        return new BuyResponse(
-            paidDiamondAmount: $result['paid_diamond_amount'],
-        );
+        // 購入した量は応答に載せない（updated_resources.trx_diamond の paid_amount で分かる）
+        return new BuyResponse;
     }
 }

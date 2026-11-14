@@ -108,7 +108,7 @@ class ResourceDeliverySummaryDtoTest extends TestCase
         $summary = new ResourceDeliverySummary;
         $summary->addContents($this->contents(['item_potion'], ResourceDeliveryResultReason::RESOURCE_LIMIT_REACHED));
 
-        $this->assertFalse($summary->hasResourceOverflow(['diamond']));
+        $this->assertFalse($summary->hasResourceOverflow(['paid_diamond']));
     }
 
     #[Test]

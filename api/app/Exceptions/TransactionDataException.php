@@ -145,4 +145,23 @@ class TransactionDataException extends GameException
             "Transaction data not found: {$type} (ID: {$id})"
         );
     }
+
+    /**
+     * 有償ダイヤの購入単位（trx_diamond_balance）の合計が、引く量に満たない（データ不整合）
+     *
+     * trx_diamond.paid_amount と balance の合計は一致している前提（設計 free-diamond-item 要件 Q23）。
+     * 残高不足（DIAMOND_NOT_ENOUGH）ではなく不整合なので、INTERNAL_ERROR で投げて、
+     * 呼び出し全体（paid_amount の減算・無償の減算を含む）をロールバックさせる。
+     *
+     * @param  int  $playerId  プレイヤーID
+     * @param  string  $platform  プラットフォーム
+     * @param  int  $shortage  引ききれなかった量
+     */
+    public static function diamondBalanceMismatch(int $playerId, string $platform, int $shortage): self
+    {
+        return new self(
+            GameErrorCode::INTERNAL_ERROR,
+            "trx_diamond_balance total is less than paid_amount: player={$playerId}, platform={$platform}, shortage={$shortage}"
+        );
+    }
 }

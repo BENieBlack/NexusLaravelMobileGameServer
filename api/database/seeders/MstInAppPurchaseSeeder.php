@@ -119,8 +119,9 @@ class MstInAppPurchaseSeeder extends Seeder
         MstInAppPurchaseContent::create([
             'deploy_key' => 202601010,
             'mst_in_app_purchase_id' => $starterPack->id,
-            'content_type' => 'free_diamond',
-            'content_mst_id' => 'diamond', // FreeDiamondの場合は'diamond'
+            // 無償ダイヤは item + free_diamond（mst_item の行）で表す
+            'content_type' => 'item',
+            'content_mst_id' => 'free_diamond',
             'amount' => 500,
             'sort_desc' => 300,
         ]);
@@ -153,8 +154,8 @@ class MstInAppPurchaseSeeder extends Seeder
         MstInAppPurchaseContent::create([
             'deploy_key' => 202601010,
             'mst_in_app_purchase_id' => $monthlyPass->id,
-            'content_type' => 'free_diamond',
-            'content_mst_id' => 'diamond',
+            'content_type' => 'item',
+            'content_mst_id' => 'free_diamond',
             'amount' => 100, // 1日あたり100個
             'sort_desc' => 100,
         ]);

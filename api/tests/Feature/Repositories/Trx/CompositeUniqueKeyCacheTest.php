@@ -83,7 +83,6 @@ class CompositeUniqueKeyCacheTest extends TestCase
             DB::connection($this->connection)->table('trx_diamond')->insert([
                 'sys_player_id' => $this->sysPlayerId,
                 'platform' => $platform,
-                'free_amount' => 100,
                 'paid_amount' => 50,
             ]);
         }

@@ -3,6 +3,9 @@
 namespace Tests\Feature\Domain\InAppPurchase\UseCases;
 
 use App\Domain\InAppPurchase\UseCases\BuyDiamondUseCase;
+use App\Exceptions\ClientImplementationError;
+use App\Exceptions\GameErrorCode;
+use App\Exceptions\PlatformMismatchException;
 use App\Models\Mst\MstInAppPurchase;
 use App\Persistence\ApiSession;
 use Illuminate\Support\Facades\DB;
@@ -53,6 +56,9 @@ class BuyDiamondUseCaseTest extends TestCase
 
         ApiSession::clearForTest();
         $this->useSessionPlayer($this->sysPlayerId);
+        // UseCase は body の platform と X-Platform（ApiSession）の一致を最初に確かめる。
+        // 既定は Google。Apple で買うテストは呼ぶ前に setPlatform('Apple') する
+        ApiSession::setPlatform('Google');
 
         $this->queryManager = app(QueryManager::class);
 
@@ -109,7 +115,9 @@ class BuyDiamondUseCaseTest extends TestCase
 
         $this->queryManager->execAllQuery();
 
-        $this->assertSame(self::PAID_DIAMOND_AMOUNT, $result->toArray()['paid_diamond_amount']);
+        // 応答は updated_resources だけ。購入した量（paid_diamond_amount）は載せない。
+        // 量は有償ダイヤの行（trx_diamond.paid_amount）で確かめる
+        $this->assertSame(['updated_resources'], array_keys($result->toArray()));
 
         // 有償ダイヤが付与されている
         $diamond = DB::connection('trx1')->table('trx_diamond')
@@ -184,6 +192,8 @@ class BuyDiamondUseCaseTest extends TestCase
                 ],
             ]),
         ]);
+
+        ApiSession::setPlatform('Apple');
 
         app(BuyDiamondUseCase::class)->handle(
             $this->sysPlayerId,
@@ -296,6 +306,46 @@ class BuyDiamondUseCaseTest extends TestCase
         // 検証結果が無いため、マスターの価格で埋める
         $this->assertSame('JPY', $log->currency_code);
         $this->assertSame('490.00', (string) $log->pay_amount);
+    }
+
+    #[Test]
+    public function bodyのplatformがx_platformと違えば何もせず拒否する(): void
+    {
+        $mstInAppPurchase = $this->createProduct('google_play');
+
+        // 外部 API は呼ばれない（呼ばれたら Http::fake に無い URL で失敗するよう、何も fake しない）
+        Http::fake();
+
+        try {
+            // X-Platform は Google（setUp）。body は Apple
+            app(BuyDiamondUseCase::class)->handle(
+                $this->sysPlayerId,
+                $mstInAppPurchase,
+                'Apple',
+                'google_play',
+                'purchase-token-abc',
+                'GPA.0000-1111-2222-33333',
+                'diamond_500'
+            );
+            $this->fail('PlatformMismatchException が投げられるべき');
+        } catch (PlatformMismatchException $e) {
+            // 99003 で、欠落・不正（X-Platform header is required.）とメッセージで区別できる
+            $this->assertSame(GameErrorCode::INVALID_PLATFORM, $e->getErrorCode());
+            $this->assertSame('platform in body does not match X-Platform', $e->getMessage());
+            // Slack に通知しない目印（_BaseController が見る）
+            $this->assertInstanceOf(ClientImplementationError::class, $e);
+        }
+
+        // レシート検証（外部 API）の前に拒否している
+        Http::assertNothingSent();
+
+        $this->queryManager->execAllQuery();
+
+        // 有償・balance・VIP ポイント・課金ログ・購入失敗ログのいずれも書かれない
+        $this->assertNull(DB::connection('trx1')->table('trx_diamond')->where('sys_player_id', $this->sysPlayerId)->first());
+        $this->assertNull(DB::connection('trx1')->table('trx_diamond_balance')->where('sys_player_id', $this->sysPlayerId)->first());
+        $this->assertSame(0, DB::connection('sys')->table('sys_player')->where('id', $this->sysPlayerId)->value('vip_point'));
+        $this->assertNull(DB::connection('trx1')->table('log_action_in_app_purchase')->where('sys_player_id', $this->sysPlayerId)->first());
     }
 
     /**

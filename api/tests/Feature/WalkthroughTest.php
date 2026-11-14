@@ -406,43 +406,25 @@ class WalkthroughTest extends TestCase
 
     /**
      * Step 7: ダイヤ追加（課金APIの代わりに直接DB操作）
+     *
+     * 無償ダイヤは trx_item の free_diamond の行（サインアップの初期付与で作られている）。
+     * ガチャのコスト（diamond）は無償 → 有償の順に引くので、無償に 1000 を足せば足りる
      */
     private function step7_addDiamond(): void
     {
-        // ダイヤモンドレコードが存在するか確認
-        $diamond = DB::connection($this->playerConnection($this->playerId))
-            ->table('trx_diamond')
+        $connection = DB::connection($this->playerConnection($this->playerId));
+        $freeDiamond = $connection->table('trx_item')
             ->where('sys_player_id', $this->playerId)
-            ->first();
+            ->where('mst_item_id', 'free_diamond');
+        $before = (int) $freeDiamond->value('free_amount');
 
-        if ($diamond) {
-            // 既存レコードを更新
-            DB::connection($this->playerConnection($this->playerId))
-                ->table('trx_diamond')
-                ->where('sys_player_id', $this->playerId)
-                ->update([
-                    'free_amount' => DB::raw('free_amount + 1000'),
-                    'updated_at' => now(),
-                ]);
-        } else {
-            // 新規作成
-            DB::connection($this->playerConnection($this->playerId))->table('trx_diamond')->insert([
-                'sys_player_id' => $this->playerId,
-                'platform' => 'ios',
-                'free_amount' => 1000,
-                'paid_amount' => 0,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-        }
+        $this->seedFreeDiamond($this->playerId, $before + 1000);
 
         // ダイヤが追加されたことを確認
-        $newDiamond = DB::connection($this->playerConnection($this->playerId))
-            ->table('trx_diamond')
+        $this->assertGreaterThanOrEqual(1000, (int) $connection->table('trx_item')
             ->where('sys_player_id', $this->playerId)
-            ->first();
-
-        $this->assertGreaterThanOrEqual(1000, $newDiamond->free_amount);
+            ->where('mst_item_id', 'free_diamond')
+            ->value('free_amount'));
     }
 
     /**

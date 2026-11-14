@@ -126,8 +126,8 @@ class HomeUseCaseTest extends TestCase
                 MstLoginBonusContent::create([
                     'mst_login_bonus_id' => $bonusId,
                     'day' => $day,
-                    'content_type' => 'diamond',
-                    'content_mst_id' => 'diamond',
+                    'content_type' => 'item',
+                    'content_mst_id' => 'free_diamond',
                     'amount' => 100,
                     'is_paid' => false,
                     'sort_order' => 2,
@@ -260,7 +260,8 @@ class HomeUseCaseTest extends TestCase
                 $this->assertSame('item', $data['login_bonus_list'][0]['type']);
                 $this->assertSame(70, $data['login_bonus_list'][0]['amount']);
 
-                $this->assertSame('diamond', $data['login_bonus_list'][1]['type']);
+                $this->assertSame('item', $data['login_bonus_list'][1]['type']);
+                $this->assertSame('free_diamond', $data['login_bonus_list'][1]['id']);
                 $this->assertSame(100, $data['login_bonus_list'][1]['amount']);
             } else {
                 // 1〜6日目はアイテムのみ
@@ -377,8 +378,8 @@ class HomeUseCaseTest extends TestCase
         DB::connection('mst')->table('mst_vip_login_bonus_content')->insert([
             'mst_vip_login_bonus_id' => 'test_vip_login',
             'day' => 1,
-            'content_type' => 'diamond',
-            'content_mst_id' => 'diamond',
+            'content_type' => 'item',
+            'content_mst_id' => 'free_diamond',
             'content_quantity' => 5,
             'amount' => 1,
         ]);
@@ -394,8 +395,9 @@ class HomeUseCaseTest extends TestCase
 
         // 通常（アイテム10個）とVIP（ダイヤ5個）の両方が返る
         $this->assertCount(2, $loginBonusList);
-        $this->assertSame(10, $loginBonusList->firstWhere('type', 'item')['amount']);
-        $this->assertSame(5, $loginBonusList->firstWhere('type', 'diamond')['amount']);
+        // 無償ダイヤも type は item なので、id で見分ける
+        $this->assertSame(10, $loginBonusList->firstWhere('id', 'item_potion_001')['amount']);
+        $this->assertSame(5, $loginBonusList->firstWhere('id', 'free_diamond')['amount']);
 
         $vipHistory = DB::connection($this->playerConnection($this->testPlayer->id))
             ->table('trx_vip_login_bonus')
@@ -420,8 +422,8 @@ class HomeUseCaseTest extends TestCase
         MstLoginBonusContent::create([
             'mst_login_bonus_id' => 'comeback_7',
             'day' => 0,
-            'content_type' => 'diamond',
-            'content_mst_id' => 'diamond',
+            'content_type' => 'item',
+            'content_mst_id' => 'free_diamond',
             'amount' => 300,
             'is_paid' => false,
             'sort_order' => 1,
@@ -440,8 +442,8 @@ class HomeUseCaseTest extends TestCase
         $loginBonusList = collect($response->json('login_bonus_list'));
 
         // カムバック（ダイヤ300個）が通常のボーナスと一緒に返る
-        $this->assertSame(300, $loginBonusList->firstWhere('type', 'diamond')['amount']);
-        $this->assertNotNull($loginBonusList->firstWhere('type', 'item'));
+        $this->assertSame(300, $loginBonusList->firstWhere('id', 'free_diamond')['amount']);
+        $this->assertNotNull($loginBonusList->firstWhere('id', 'item_potion_001'));
 
         $comebackHistory = DB::connection($this->playerConnection($this->testPlayer->id))
             ->table('trx_login_bonus')
@@ -469,8 +471,8 @@ class HomeUseCaseTest extends TestCase
         MstLoginBonusContent::create([
             'mst_login_bonus_id' => 'comeback_7',
             'day' => 0,
-            'content_type' => 'diamond',
-            'content_mst_id' => 'diamond',
+            'content_type' => 'item',
+            'content_mst_id' => 'free_diamond',
             'amount' => 300,
             'is_paid' => false,
             'sort_order' => 1,
@@ -489,7 +491,7 @@ class HomeUseCaseTest extends TestCase
             ])->postJson('/api/auth/login');
 
             $response->assertOk();
-            $comeback = collect($response->json('login_bonus_list'))->firstWhere('type', 'diamond');
+            $comeback = collect($response->json('login_bonus_list'))->firstWhere('id', 'free_diamond');
             $this->assertNotNull($comeback, "{$day}日目はカムバックボーナスを受け取れるべき");
             $this->assertSame(300, $comeback['amount']);
 
@@ -506,7 +508,7 @@ class HomeUseCaseTest extends TestCase
         $response = $this->withHeaders([
             'Authorization' => 'Bearer '.$this->accessToken,
         ])->postJson('/api/auth/login');
-        $this->assertNull(collect($response->json('login_bonus_list'))->firstWhere('type', 'diamond'));
+        $this->assertNull(collect($response->json('login_bonus_list'))->firstWhere('id', 'free_diamond'));
 
         // 6日目は有効日数（5日）を過ぎているので受け取れない
         $this->travelTo($day1->addDays(5));
@@ -515,7 +517,7 @@ class HomeUseCaseTest extends TestCase
         ])->postJson('/api/auth/login');
 
         $response->assertOk();
-        $this->assertNull(collect($response->json('login_bonus_list'))->firstWhere('type', 'diamond'));
+        $this->assertNull(collect($response->json('login_bonus_list'))->firstWhere('id', 'free_diamond'));
 
         $this->travelBack();
     }

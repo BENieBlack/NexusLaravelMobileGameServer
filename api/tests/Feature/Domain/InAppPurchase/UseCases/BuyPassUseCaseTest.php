@@ -42,6 +42,9 @@ class BuyPassUseCaseTest extends TestCase
 
         ApiSession::clearForTest();
         $this->useSessionPlayer($this->sysPlayerId);
+        // UseCase は body の platform と X-Platform（ApiSession）の一致を最初に確かめる。
+        // 既定は Google。Apple で買うテストは呼ぶ前に setPlatform('Apple') する
+        ApiSession::setPlatform('Google');
         $this->queryManager = app(QueryManager::class);
 
         config([
@@ -84,7 +87,8 @@ class BuyPassUseCaseTest extends TestCase
 
         $this->queryManager->execAllQuery();
 
-        $this->assertSame(100, $result->toArray()['paid_diamond_amount']);
+        // 応答は updated_resources だけ（paid_diamond_amount は載せない）。量は trx_diamond で確かめる
+        $this->assertSame(['updated_resources'], array_keys($result->toArray()));
 
         $diamond = DB::connection('trx1')->table('trx_diamond')
             ->where('sys_player_id', $this->sysPlayerId)->first();

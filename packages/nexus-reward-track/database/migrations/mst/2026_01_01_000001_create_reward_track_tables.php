@@ -89,8 +89,8 @@ return new class extends Migration
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
             $table->string('mst_reward_track_milestone_id')->comment('mst_reward_track_milestoneテーブルのID');
             $table->string('mst_reward_track_line_id')->comment('mst_reward_track_lineテーブルのID');
-            $table->string('content_type')->comment('コンテンツタイプ (item / unit / equipment / diamond / wallet / stamina)');
-            $table->string('content_mst_id')->comment('コンテンツマスターID（diamond/stamina/walletはダミー値）');
+            $table->string('content_type')->comment('コンテンツタイプ (item / unit / equipment / wallet / stamina。無償ダイヤは item + free_diamond)');
+            $table->string('content_mst_id')->comment('コンテンツマスターID（stamina/walletはダミー値。無償ダイヤは free_diamond）');
             $table->json('content_option')->nullable()->comment('オプション（例: {"grade":1,"level":5}）');
             $table->unsignedInteger('content_quantity')->default(1)->comment('1配布あたりの数量');
             $table->unsignedInteger('amount')->default(1)->comment('配布回数（実際の配布量 = content_quantity × amount）');

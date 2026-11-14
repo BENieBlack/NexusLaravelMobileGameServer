@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Domain\_BaseResponse;
+use App\Exceptions\ClientImplementationError;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\GameException;
 use App\Exceptions\InfraErrorCode;
@@ -99,13 +100,19 @@ abstract class _BaseController
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            // Slackへ通知
-            $this->notifySlack($e, $request, $errorCode);
-
             $errorResponse = ErrorResponse::businessError(
                 errorCode: $errorCode,
                 message: $e->getMessage()
             );
+
+            // クライアントの実装の誤り（ClientImplementationError）は Slack に通知せず、
+            // 実装者が原因を読めるよう本番でもメッセージをマスクしない
+            if ($e instanceof ClientImplementationError) {
+                return $errorResponse->toJsonResponse();
+            }
+
+            // Slackへ通知
+            $this->notifySlack($e, $request, $errorCode);
 
             // 本番環境ではメッセージをマスク
             return $errorResponse->maskForProduction()->toJsonResponse();

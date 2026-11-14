@@ -6,10 +6,12 @@ use Nexus\Core\Resource\Enums\ResourceType;
 
 /**
  * メールボックスコンテンツのタイプ定数
+ *
+ * 無償ダイヤの種別（diamond）は無い。無償ダイヤの添付は item + free_diamond で表す
+ * （設計 free-diamond-item）。有償ダイヤ（PAID_DIAMOND）は運営の返金調整用に残す。
  */
 enum ContentType: string
 {
-    case DIAMOND = 'diamond';               // ダイヤ
     case PAID_DIAMOND = 'paid_diamond';      // 有償ダイヤ
     case ITEM = 'item';                     // アイテム
     case UNIT = 'unit';                     // ユニット
@@ -33,7 +35,6 @@ enum ContentType: string
     public function toResourceType(): ResourceType
     {
         return match ($this) {
-            self::DIAMOND => ResourceType::DIAMOND,
             self::PAID_DIAMOND => ResourceType::PAID_DIAMOND,
             self::ITEM => ResourceType::ITEM,
             self::UNIT => ResourceType::UNIT,
@@ -55,7 +56,6 @@ enum ContentType: string
     public function label(): string
     {
         return match ($this) {
-            self::DIAMOND => 'ダイヤ',
             self::PAID_DIAMOND => '有償ダイヤ',
             self::ITEM => 'アイテム',
             self::UNIT => 'ユニット',
@@ -77,7 +77,6 @@ enum ContentType: string
     public function icon(): string
     {
         return match ($this) {
-            self::DIAMOND => '💎',
             self::PAID_DIAMOND => '💠',
             self::ITEM => '📦',
             self::UNIT => '⚔️',

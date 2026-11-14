@@ -18,10 +18,10 @@ class VipRewardTest extends TestCase
     #[Test]
     public function 値を読み出せる(): void
     {
-        $reward = new VipReward('diamond', 'diamond', ['grade' => 1], 100, 3, true);
+        $reward = new VipReward('wallet', 'gold', ['grade' => 1], 100, 3, true);
 
-        $this->assertSame('diamond', $reward->getContentType());
-        $this->assertSame('diamond', $reward->getContentMstId());
+        $this->assertSame('wallet', $reward->getContentType());
+        $this->assertSame('gold', $reward->getContentMstId());
         $this->assertSame(['grade' => 1], $reward->getContentOption());
         $this->assertSame(100, $reward->getContentQuantity());
         $this->assertSame(3, $reward->getAmount());
@@ -40,7 +40,7 @@ class VipRewardTest extends TestCase
     #[Test]
     public function 配布量は基本個数と倍率の積になる(): void
     {
-        $this->assertSame(300, (new VipReward('diamond', 'diamond', null, 100, 3))->getTotalQuantity());
+        $this->assertSame(300, (new VipReward('wallet', 'gold', null, 100, 3))->getTotalQuantity());
         $this->assertSame(1, (new VipReward('item', 'item_001', null, 1, 1))->getTotalQuantity());
     }
 
@@ -111,15 +111,15 @@ class VipRewardTest extends TestCase
     {
         $this->assertSame(
             [
-                'content_type' => 'diamond',
-                'content_mst_id' => 'diamond',
+                'content_type' => 'wallet',
+                'content_mst_id' => 'gold',
                 'content_option' => null,
                 'content_quantity' => 100,
                 'amount' => 3,
                 'total_quantity' => 300,
                 'is_paid' => true,
             ],
-            (new VipReward('diamond', 'diamond', null, 100, 3, true))->toArray()
+            (new VipReward('wallet', 'gold', null, 100, 3, true))->toArray()
         );
     }
 }

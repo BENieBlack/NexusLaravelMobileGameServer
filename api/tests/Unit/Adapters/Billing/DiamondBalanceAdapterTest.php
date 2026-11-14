@@ -10,8 +10,9 @@ use Tests\TestCase;
 /**
  * DiamondBalanceAdapter の Model→DTO 変換テスト
  *
- * 有償/無償の残高はプラットフォームごとに分かれて持つため、
- * 取り違えとプラットフォームの取りこぼしがないことを検証する。
+ * 有償の残高はプラットフォームごとに分かれて持つため、
+ * プラットフォームと有償残高の取りこぼしがないことを検証する。
+ * 無償ダイヤは trx_item の free_diamond にあるので、DTO に無償の項目は無い。
  */
 class DiamondBalanceAdapterTest extends TestCase
 {
@@ -25,16 +26,16 @@ class DiamondBalanceAdapterTest extends TestCase
     }
 
     #[Test]
-    public function test_paid_and_free_amounts_are_not_swapped(): void
+    public function test_converts_paid_amount_only(): void
     {
         $dto = DiamondBalanceAdapter::toDto($this->makeDiamond([
             'paid_amount' => 120,
-            'free_amount' => 30,
         ]));
 
         $this->assertSame(120, $dto->getPaidAmount());
-        $this->assertSame(30, $dto->getFreeAmount());
-        $this->assertSame(150, $dto->getTotalAmount());
+        // 無償・合計の項目は DTO から無くなった
+        $this->assertArrayNotHasKey('free_amount', $dto->toArray());
+        $this->assertArrayNotHasKey('total_amount', $dto->toArray());
     }
 
     #[Test]
@@ -65,7 +66,6 @@ class DiamondBalanceAdapterTest extends TestCase
             'sys_player_id' => 501,
             'platform' => 'Apple',
             'paid_amount' => 10,
-            'free_amount' => 20,
         ], $overrides));
 
         return $model;

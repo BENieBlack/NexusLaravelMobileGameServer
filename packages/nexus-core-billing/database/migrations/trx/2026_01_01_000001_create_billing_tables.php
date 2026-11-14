@@ -57,13 +57,12 @@ return new class extends Migration
         });
 
         // ========================================
-        // trx_diamond: ダイヤモンド現在値管理
+        // trx_diamond: 有償ダイヤの現在値（platform 別）。無償ダイヤは trx_item の free_diamond
         // ========================================
         Schema::create('trx_diamond', function (Blueprint $table) {
             $table->unsignedBigInteger('sys_player_id')->comment('sys_playerテーブルのID');
             $table->string('platform')->comment('プラットフォーム (Apple, Google)');
             $table->unsignedInteger('paid_amount')->default(0)->comment('有償ダイヤモンド数');
-            $table->unsignedInteger('free_amount')->default(0)->comment('無償ダイヤモンド数');
             $table->boolean('is_delete')->default(false)->comment('論理削除フラグ');
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');

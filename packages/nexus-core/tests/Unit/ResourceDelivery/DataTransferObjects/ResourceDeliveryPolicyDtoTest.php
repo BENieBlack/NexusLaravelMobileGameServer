@@ -26,12 +26,33 @@ class ResourceDeliveryPolicyDtoTest extends TestCase
         $this->assertInstanceOf(ResourceDeliveryPolicy::class, $policy);
         $this->assertSame(
             ResourceDeliveryMethod::SEND_TO_MAILBOX,
-            $policy->resolveMethodByResourceType(ResourceType::DIAMOND)
-        );
-        $this->assertSame(
-            ResourceDeliveryMethod::SEND_TO_MAILBOX,
             $policy->resolveMethodByResourceType(ResourceType::PAID_DIAMOND)
         );
+    }
+
+    /**
+     * 無償ダイヤ（item + free_diamond）は、アイテムの方針で解決される（設計 free-diamond-item Q20）
+     *
+     * ResourceType::DIAMOND の行を消しても、無償ダイヤは種別 item で配送されるので
+     * 方針の解決は ITEM の行に従う。既定では NONE（メールへ回さない）、
+     * 上限超過で例外を投げるポリシーでは ITEM と同じ THROW_ERROR。
+     * 以前の DIAMOND の行（SEND_TO_MAILBOX）は、上限超過を検出する Handler が無く
+     * 実行されたことが無いので、挙動は変わらない。
+     */
+    #[Test]
+    public function 無償ダイヤはアイテムの方針で解決される(): void
+    {
+        $default = ResourceDeliveryPolicy::createDefaultPolicy();
+        $this->assertSame(ResourceDeliveryMethod::NONE, $default->resolveMethodByResourceType(ResourceType::ITEM));
+
+        $throwing = ResourceDeliveryPolicy::createThrowErrorWhenResourceLimitReachedPolicy(new \Exception('limit'));
+        $this->assertSame(
+            ResourceDeliveryMethod::THROW_ERROR_WHEN_RESOURCE_LIMIT_REACHED,
+            $throwing->resolveMethodByResourceType(ResourceType::ITEM)
+        );
+        // 無償ダイヤ用の独自の行は無い。廃止した diamond は未設定扱い（NONE）
+        $this->assertSame(ResourceDeliveryMethod::NONE, $default->resolveMethodByResourceType('diamond'));
+        $this->assertSame(ResourceDeliveryMethod::NONE, $throwing->resolveMethodByResourceType('diamond'));
     }
 
     /**
@@ -49,7 +70,7 @@ class ResourceDeliveryPolicyDtoTest extends TestCase
         // Assert
         $this->assertSame(
             ResourceDeliveryMethod::THROW_ERROR_WHEN_RESOURCE_LIMIT_REACHED,
-            $policy->resolveMethodByResourceType(ResourceType::DIAMOND)
+            $policy->resolveMethodByResourceType(ResourceType::PAID_DIAMOND)
         );
         $this->assertSame(
             ResourceDeliveryMethod::THROW_ERROR_WHEN_RESOURCE_LIMIT_REACHED,
@@ -65,11 +86,11 @@ class ResourceDeliveryPolicyDtoTest extends TestCase
     {
         // Arrange
         $policy = new ResourceDeliveryPolicy([
-            ResourceType::DIAMOND->value => ResourceDeliveryMethod::SEND_TO_MAILBOX,
+            ResourceType::PAID_DIAMOND->value => ResourceDeliveryMethod::SEND_TO_MAILBOX,
         ]);
 
         // Act
-        $method = $policy->resolveMethodByResourceType(ResourceType::DIAMOND);
+        $method = $policy->resolveMethodByResourceType(ResourceType::PAID_DIAMOND);
 
         // Assert
         $this->assertSame(ResourceDeliveryMethod::SEND_TO_MAILBOX, $method);
@@ -154,13 +175,13 @@ class ResourceDeliveryPolicyDtoTest extends TestCase
 
         // Act
         $types = $policy->findResourceTypesOfThrowErrorWhenResourceLimitReached([
-            ResourceType::DIAMOND,
+            ResourceType::PAID_DIAMOND,
             ResourceType::GOLD,
         ]);
 
         // Assert
         $this->assertCount(2, $types);
-        $this->assertContains(ResourceType::DIAMOND->value, $types);
+        $this->assertContains(ResourceType::PAID_DIAMOND->value, $types);
         $this->assertContains(ResourceType::GOLD->value, $types);
     }
 
@@ -172,11 +193,11 @@ class ResourceDeliveryPolicyDtoTest extends TestCase
     {
         // Arrange
         $policy = new ResourceDeliveryPolicy([
-            'diamond' => ResourceDeliveryMethod::SEND_TO_MAILBOX,
+            'paid_diamond' => ResourceDeliveryMethod::SEND_TO_MAILBOX,
         ]);
 
         // Act
-        $method = $policy->resolveMethodByResourceType('diamond');
+        $method = $policy->resolveMethodByResourceType('paid_diamond');
 
         // Assert
         $this->assertSame(ResourceDeliveryMethod::SEND_TO_MAILBOX, $method);

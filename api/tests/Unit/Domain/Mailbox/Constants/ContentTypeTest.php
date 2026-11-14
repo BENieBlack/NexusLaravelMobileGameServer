@@ -36,7 +36,10 @@ class ContentTypeTest extends TestCase
     {
         $all = ContentType::all();
 
-        $this->assertContains('diamond', $all);
+        $this->assertContains('paid_diamond', $all);
+        // 無償ダイヤの種別は無い。item + free_diamond で表す（設計 free-diamond-item）
+        $this->assertNotContains('diamond', $all);
+        $this->assertNull(ContentType::fromString('diamond'));
         $this->assertContains('alliance_points', $all);
         $this->assertCount(count(ContentType::cases()), $all);
     }

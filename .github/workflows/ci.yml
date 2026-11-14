@@ -295,3 +295,37 @@ jobs:
       - name: テスト（api + packages）
         working-directory: api
         run: php artisan test --coverage --min=90
+
+  # 個人名・メール・ホーム配下の絶対パス・共同作者行・トークンの混入を、シェルだけで検査する（PHP・DBは使わない）。
+  # 追跡ファイル全体と、PR（push のときは今回の push）のコミットを見る。方針は Nexus の docs/workflow/private-info.md
+  private-info:
+    name: 個人情報の検査
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+
+    steps:
+      # 範囲の両端を解決するため全履歴を取る
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: 個人情報の検査
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          PUSH_AFTER: ${{ github.sha }}
+        run: |
+          if [ "$EVENT_NAME" = pull_request ]; then
+            range="$PR_BASE..$PR_HEAD"
+          elif git cat-file -e "$PUSH_BEFORE^{commit}" 2>/dev/null; then
+            range="$PUSH_BEFORE..$PUSH_AFTER"
+          else
+            # 新規ブランチなど直前のコミットが無いときは、今回のコミット 1 件だけ見る
+            range="$PUSH_AFTER~1..$PUSH_AFTER"
+          fi
+          echo "検査する範囲: $range"
+          bash scripts/check-private-info.sh --all --ci --range "$range"

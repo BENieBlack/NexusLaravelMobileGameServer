@@ -129,6 +129,7 @@ A を選ぶ理由:
 - 「0 以下・非整数」を既定値に倒すのは、**0 のまま使うと `intdiv` / 除算でゼロ除算になる**ため（回復点数 = 経過秒 ÷ 間隔）。
 - A の弱点: 欠落中に消費・アイテム回復が走ると、既定値で計算した現在値と `last_recovery_at` が保存される（保存されるのは消費・回復アイテム使用・レベルアップのとき）。値は従来値なので、設定値が 300 のままなら正しい。**設定値を 300 以外に変えた後に行が消えた場合だけ**、保存値が配信値と食い違う。警告ログが対策。これを許容する（人の確認事項にはしないが、報告の「仮置き」に載せる）。
 - S3 のテスト項目（初期付与）: **付与の失敗で sign_up 全体が失敗し、何も残らない**（api.md 5 節）。
+- **S3 の範囲（D5 の追加分）**: login の `trx_diamond`（`HomeUseCase`・`HomeResponse`）、`DiamondDeliveryHandler` の既定 platform（`DefaultPlatformProviderInterface`・`ApiSession::hasPlatform()`）、テスト（login の `trx_diamond` が `X-Platform` の行だけ・行が無いとき `null`、Google ヘッダーでの付与が Google の行に入る、ジョブ経路は `Apple` にフォールバック）。詳細は api.md 11.3・11.4 節。付与の前に `ApiSession` の platform が載っていること（sign_up でも `ResolvePlatform` が先に載せる）が、初期付与の `trx_diamond` の行と、ログインボーナスの既定 platform の前提になる。
 - 欠落の検知を確実にするため、S3 のテストに「`MstConfigSeeder` が全 case の行を作る」「既定値が初期値と一致する」を入れる。
 
 クライアント側の P5（値が無ければ回復を計算せず、ログイン時の値だけ表示）は変えない（S4 の範囲）。
@@ -228,6 +229,9 @@ erDiagram
 | Q17 | 無償ダイヤ 50（`trx_item` の `free_diamond`）を**ホームの S3 に含める**。`mst_item` に `free_diamond` の行を足し、サインアップ時に `ItemService` などを直接呼んで付与 | 8.5 節。別機能 free-diamond-item（既存の無償ダイヤの移行・付与経路・消費・課金パック）は引き続き別。**暫定の注意**は 8.6 節（消費できない） |
 | Q18 | 既存プレイヤーへの補填はしない | 既存のプレイヤーの `trx_*` は変えない。login 時の補完もしない。クライアントは「スタミナ行が無い」状態の表示を引き続き持つ（S4） |
 | D4 | **`trx_diamond.free_amount` は廃止する**（人の決定 2026-11-14。無償ダイヤは `trx_item` の `free_diamond` で管理する D1 の帰結。`trx_diamond` には `paid_amount` と `free_amount` の両方がある（確認済み）） | 廃止は**別機能 free-diamond-item の範囲**（8.8 節）。ホームの S3 は `free_amount` に依存しない（8.8 節の (2)）。以前の「廃止か残すかは S2 で決める」の保留は、廃止に決定 |
+| D5 | **login のダイヤは `trx_diamond_list` ではなく、`X-Platform` の platform の 1 行を `trx_diamond`（オブジェクト）で返す**（人の決定 2026-11-14。端末は 1 platform しか使わず複数にならない）。付与の既定 platform（`DiamondDeliveryHandler`）も `X-Platform` に変える | **api.md 11 節**。ホームの暫定表示の「無償」は**端末の platform の 1 行の `free_amount`**（全 platform の合計ではない。8.6・8.8 節）。S3 の範囲に入る（応答の組み立て・既定 platform・テスト） |
+| D6 | **U-8 の決定（人の回答 2026-11-14）: 「無償ダイヤは Platform を跨いだ共通管理（trx_item）なので、どちらからでも見れます」。** (1) 最終形: 無償ダイヤは `trx_item` の `free_diamond`（platform 共通）で、どの platform の端末からも見える。有償ダイヤだけが platform 別（`trx_diamond` の端末の platform の 1 行。他 platform の有償は見えない・使えないのが仕様）。(2) 暫定（別機能 free-diamond-item の移行前）: 過去に platform 別の `trx_diamond.free_amount` に入った無償ダイヤは、他 platform の端末では見えない。移行（`trx_item` へ合算して列を削除）で解消するので許容する。新規の付与は D5 で端末の platform の行に入るので、移行前でも見える。見えない分は `consumeDiamond`（全 platform 合算。変えない）では使われる。 | 8.6・8.8 節。api.md 11.3 節 |
+| D7 | **旧クライアントは未配布なので、互換なしで login の `trx_diamond` 化と `X-Platform` の必須化を行う**（人の決定 2026-11-14。S3 と同時でよい。Q22 の「配布状況の確認」の前提作業は解消済み） | api.md 10.10・11.1 節 |
 | Q19 | title-to-home の「新規作成時の初期付与は対象外」を上書きする | title-to-home の要件・設計・テストの更新が要る（api.md 4 節の影響一覧）。更新は別 PR |
 
 ### 8.4 Q16 の設計から出た確認事項 — **すべて決定（2026-11-14。人の回答「全て推奨通り」）**
@@ -238,7 +242,7 @@ erDiagram
 | --- | --- | --- |
 | Q20 | ヘッダー名 | `X-Platform` |
 | Q21 | 必須にする範囲 | ゲーム API 全部（`Route::middleware('maintenance')` のグループ内。sign_up・sign_in・refresh・login・公開 GET を含む）。`GET /auth/version`・`/maintenance/status`・`admin/*`・`/broadcasting/auth`・`/up` は除外 |
-| Q22 | 旧版クライアントの互換（ヘッダー無しをいつまで許すか） | 許さない（必須化は S3 と同時）。**ただし旧版が配布済みかは人も未確認。「S3 のマージ・リリース前に配布状況を確認する」を S3 の前提作業とし、配布済みなら api.md 10.10 の 2 段階案に切り替える** |
+| Q22 | 旧版クライアントの互換（ヘッダー無しをいつまで許すか） | 許さない（必須化は S3 と同時）。**旧クライアントは未配布（人の回答 2026-11-14）なので、配布状況の確認は解消済み。api.md 10.10 の 2 段階案は不要（D7）** |
 | Q23 | 署名（HMAC）の対象にヘッダーを含めるか | 含めない（署名の仕様を変えない）。platform はセキュリティ判断に使わない |
 | Q24 | 欠落・不正値のエラー | HTTP 299 + 新しいエラーコード（`GameErrorCode` 99000 番台。仮置き `INVALID_PLATFORM = 99003`）。中身はメッセージ |
 | Q25 | `free_diamond` の `mst_item` の行の列（type 等） | `type = 'currency'`、`effect = 'none'`、`value = 0`、`is_wallet = false`（既存の `gold`・`coin` の type に揃える）。人が別の種別を望むなら変更 |
@@ -265,7 +269,8 @@ erDiagram
 - 現行の `DiamondService::consumeDiamond` は、`trx_diamond`（`selectAllByPlayerId`）の `free_amount` と `paid_amount` だけを合算し、残高チェックと減算をする（読んだ）。`trx_item` は見ない。
 - 影響: ダイヤを消費する処理（ガチャなど。`gacha/draw` は diamond を使う）で、初期の 50 は使えない。ホームは「有償 + 無償」を合算して出すので、**表示は 50 でも、ガチャのコスト判定では残高 0 のまま**になる。クライアントが合算表示をするホームと、サーバーの消費判定が食い違う。
 - **残高不足のエラー**: `consumeDiamond` が残高不足で投げるのは素の `\Exception`（`packages/nexus-core/src/Resource/Services/DiamondService.php`）。呼び出し側（ガチャなど）が変換しないと、299 の業務エラーではなく 500 系で見える可能性がある（ガチャ側の変換の有無は**未確認**）。
-- **ホームの合算は S4・S5 側の実装**で足す（サーバーの `findTotalAmount` も `trx_diamond` だけを見るので、サーバーは合算を返さない）。
+- **ホームの合算は S4・S5 側の実装**で足す（サーバーの `findTotalAmount` も `trx_diamond` だけを見るので、サーバーは合算を返さない）。D5 により、login が返す `trx_diamond` は**端末の platform の 1 行**なので、暫定の無償は**その 1 行の `free_amount`**（以前の「全 platform の行の合計」ではない）。
+- **D5 による見え方の差（別機能の完了まで）**: 別 platform の行に残る過去の無償ダイヤ（既存データの `Apple` の行など）は、その platform 以外の端末の login には**見えない**（別機能の移行で解消）。一方 `consumeDiamond` は**全 platform の行を合算して消費する**現行のまま（本機能では変えない）なので、**表示されない無償ダイヤが消費に使われる**ことがある。見える残高 ≤ 使える残高の向きの食い違いで、残高不足を誤って防ぐことはない。**D6（U-8 の決定）で、この見えない状態は移行までの暫定として許容**。最終形は、無償は `trx_item` の `free_diamond`（platform 共通）でどの端末からも見え、有償だけが platform 別。
 - 動画・利用者への影響: 新規ユーザーのホームにダイヤ 50 が出る一方、ダイヤを消費する操作は残高不足になる。動画でダイヤの消費操作を見せるときは、別の手段（ログインボーナスの `free_diamond` は `trx_diamond` の `free_amount` に入る現行の経路）でダイヤを用意する。
 - これは別機能 free-diamond-item の範囲（消費・付与経路・既存データの移行）で直す。**本機能の S3 では `consumeDiamond` を変えない**。別機能を急ぐ必要がある（Q26 で決定: 暫定を許容し、別機能の優先度を高くする）。
 
@@ -290,20 +295,21 @@ erDiagram
 | `trx_diamond` の列 | `free_amount unsignedInteger default 0`（`packages/nexus-core-billing/database/migrations/trx/2026_01_01_000001_create_billing_tables.php`）。主キー `(sys_player_id, platform)` | 既存データの移行（platform 別の無償分を合算して `trx_item` の `free_diamond` へ）の後、列を削除。共有の検証環境を作った後なら新しいマイグレーションで行う（`.claude/database.md` 3 節） |
 | `DiamondService`（`packages/nexus-core/src/Resource/Services/DiamondService.php`） | 付与 `addDiamond`（`isPaid` で有償・無償を分ける）、合算 `findTotalAmount`、消費 `consumeDiamond`（無償 → 有償の順 `consumeFreeThenPaidDiamond`）、`findDiamond`（応答に `free_amount`） | 無償の付与・消費・合算を `trx_item` の `free_diamond` に向ける。消費の順序（無償優先）の維持 |
 | `DiamondBalance`（DTO）・`DiamondRepositoryAdapter`・`TrxDiamond` モデル | `freeAmount` / `free_amount` を持つ | プロパティ・fillable・cast・getter の削除 |
-| `DiamondDeliveryHandler` | `isPaid` でない付与を `free_amount` に加算（`platform` は metadata、無指定は `Apple`） | 無償ダイヤの付与先を `trx_item` に変える（報酬配送・ログインボーナス・メール添付など全付与経路に効く） |
+| `DiamondDeliveryHandler` | `isPaid` でない付与を `free_amount` に加算（`platform` は metadata、無指定は **D5 で `ApiSession` の platform に変更**。本機能の S3。api.md 11.3 節） | 無償ダイヤの付与先を `trx_item` に変える（報酬配送・ログインボーナス・メール添付など全付与経路に効く）。**D5 で足した既定 platform の分岐（`DefaultPlatformProviderInterface`）は、無償側では不要になる**（有償は metadata の platform のまま） |
 | `InAppPurchasePackService`・`InAppPurchaseDiamondBalanceService`・`InAppPurchaseDiamondService` | 課金パックで無償分（`free_amount`）を扱う（`addDiamond` に委ねる） | 無償分の付与先の変更 |
 | `trx_diamond_balance`（購入単位の残高。FIFO・返金計算。`packages/nexus-core-billing`） | 無償分の扱いがある（具体は別機能で確認） | 無償分の扱いの整理（返金計算への影響） |
 | ログ（`log_*` の `free_amount_diff`・`before_free_amount`・`after_free_amount`） | 無償ダイヤの増減を記録 | 記録の対象テーブルの変更 |
-| login の `trx_diamond_list` | `platform`・`paid_amount`・`free_amount`・`is_delete` | **`free_amount` が消える**（応答項目の削除。クライアントの互換に注意）。無償ダイヤは `trx_item_list` の `free_diamond` の行から取る |
-| ホームの暫定表示 | `trx_diamond_list` の `paid_amount` + `free_amount` の合算（overview の P6） | **`trx_item_list` の `free_diamond` への切り替えで終わる**（有償 `trx_diamond_list` の `paid_amount` ＋ 無償 `free_diamond` の `free_amount`）。クライアントの小さな追従 |
+| login の `trx_diamond`（D5。旧 `trx_diamond_list`） | `platform`・`paid_amount`・`free_amount`・`is_delete`（端末の platform の 1 行） | **`free_amount` が消える**（応答項目の削除。クライアントの互換に注意）。無償ダイヤは `trx_item_list` の `free_diamond` の行から取る |
+| ホームの暫定表示 | `trx_diamond`（端末の platform の 1 行）の `paid_amount` + `free_amount` の合算（overview の P6。D5 で「全 platform の行の合計」から変わった） | **`trx_item_list` の `free_diamond` への切り替えで終わる**（有償 `trx_diamond` の `paid_amount` ＋ 無償 `free_diamond` の `free_amount`）。クライアントの小さな追従 |
 | 初期の無償ダイヤ 50 の消費不可（8.6 節） | | この別機能の完了で解消する |
+| 無償の付与先の目標（D6） | 無償の付与先は platform 別の `trx_diamond.free_amount` と `trx_item` に分かれている | **無償の付与先を `trx_item`（platform に依らない）にする**のが目標。完了後は、無償はどの platform の端末からも見え、有償だけが platform 別 |
 
 **(2) ホームの S3 の範囲では `free_amount` に依存しない**
 
 - サインアップ時の `trx_diamond` の行は **`paid_amount` = 0 で作る**。`free_amount` を読み書きする箇所を、ホームの S3 には作らない。列が `DEFAULT 0` のままなら、別機能で列が消えても、ホームの付与コードは影響を受けない（`addDiamond` を `isPaid = true`・amount 0 で呼ぶ。8.7 節）。
-- ホームの S3 で `trx_diamond.free_amount` を使う箇所が無いことを確かめた（読んだ）: 回復間隔（MstConfig）・スタミナ・Coin・`mst_item`・`trx_item` の付与・platform ヘッダーのいずれも `free_amount` を使わない。login の応答の `trx_diamond_list` は、現行の `toResponseArray()` が列をそのまま返す（本機能で変えない）。
+- ホームの S3 で `trx_diamond.free_amount` を使う箇所が無いことを確かめた（読んだ）: 回復間隔（MstConfig）・スタミナ・Coin・`mst_item`・`trx_item` の付与・platform ヘッダーのいずれも `free_amount` を使わない。login の応答の `trx_diamond`（D5）は、現行の `toResponseArray()` が列をそのまま返す（1 行にする以外は本機能で変えない）。
 - 注意: `addDiamond` の内部（`DiamondBalance` の生成・保存）は `free_amount` を 0 で扱う実装なので、**行の作成自体は現行の `free_amount` 列に 0 を書く**。この経路は別機能の変更（DTO・Adapter の整理）に追随する必要がある。呼び出し側（ホームの付与の Service）は `addDiamond` の引数（platform・amount・isPaid）にしか依存しない。
-- ログインボーナスの `free_diamond` は、別機能の完了まで現行どおり `trx_diamond.free_amount`（`Apple` の行）に入る。サインアップ時の 50 は `trx_item` に入る。つまり、**別機能の完了までは、無償ダイヤの置き場所が 2 つに分かれる**（ホームの合算は P6 の暫定表示に、`trx_item_list` の `free_diamond` も足す。api.md 4 節）。
+- ログインボーナスの `free_diamond` は、別機能の完了まで現行どおり `trx_diamond.free_amount` に入る。**D5 で入る行が変わる**: 従来は `Apple` の行固定、D5 以降は `X-Platform` の platform の行（api.md 11.3 節）。既存データ（`Apple` の行の無償ダイヤ）は変えない。サインアップ時の 50 は `trx_item` に入る。つまり、**別機能の完了までは、無償ダイヤの置き場所が 2 つに分かれる**（ホームの合算は P6 の暫定表示に、`trx_item_list` の `free_diamond` も足す。api.md 4 節）。
 
 ## 9. 未解決点
 
@@ -318,5 +324,6 @@ erDiagram
 | U-G | **既存のスタミナの不具合の疑い**（本機能の範囲外。読んだだけで未実行）: 最大値のとき `last_recovery_at` は進まず、`consumeStamina` は `current_stamina` だけ更新して `last_recovery_at` をリセットしない。そのため、初期スタミナ（最大値）のプレイヤーが消費しても、`last_recovery_at` は作成時刻のままで、次に回復を計算した時点で**経過が大きく、一気に満タンまで回復する**恐れがある。初期スタミナの付与（8 節）でこの経路に新規プレイヤーが全員入る | 人に報告。別の修正（`fix/`）として扱う。ホームのスタミナ表示の期待値（動画）に影響しうる |
 | U-H | `MstItemSeeder` が `is_wallet` を書かない（開発 DB の `mst_item` 27 行すべてが `is_wallet = 0`。実行・読んだ）。ホームの Coin 表示には影響しないが、`is_wallet` で振り分ける経路（`ItemService` ラッパー・`ItemGranterAdapter`・`TradeCostPayerAdapter`）に影響する | **S3 の必須作業**。シーダーを直し、`coin`・`gold` が `is_wallet = true` であることをテストで確かめる（8.5 節） |
 | U-I | 初期の無償ダイヤ 50 が別機能の完了まで消費できない（8.6 節。D4 の `free_amount` 廃止で解消する）。ホームの合算表示と消費判定が食い違う | Q26 で決定: 暫定を許容し、別機能の優先度を高くする |
-| U-J | platform ヘッダーの全 API 必須化の旧版互換・範囲・署名・エラー | Q20〜Q24 は決定済み（api.md 10 節）。旧版の配布状況の確認は S3 の前提作業 |
+| U-K | D5: `trx_diamond` が無いときの返し方（仮置き `null`）、（別 platform の行の過去の無償ダイヤが見えない件は D6 で決定済み。8.6 節）、`updated_resources` の `trx_diamond_list` を変えるか | api.md の U-7・U-9。人に確認 |
+| U-J | platform ヘッダーの全 API 必須化の旧版互換・範囲・署名・エラー | **閉じた**。Q20〜Q24 は決定済み（api.md 10 節）。旧版は未配布で互換不要（D7） |
 | U1 | `mst_player_level` が配信対象か | api.md 6 節。**開発環境でのエクスポートは人が許可済み。S5 の前に主担当が運用作業として実行する**（設計の段階では実行しない） |

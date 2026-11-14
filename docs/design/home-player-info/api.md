@@ -12,8 +12,8 @@
 | 項目 | 結論 |
 | --- | --- |
 | 新しい API | なし |
-| login の応答のキー | 変更なし（`sys_player`・trx 6 種・`login_bonus_list`） |
-| login の応答の中身の変化 | (1) スタミナの回復計算が MstConfig の値を使う（応答の形は同じ）。(2) **新規プレイヤーの `trx_*_list` が空でなくなる**（4 節。Q9 の初期データ）。(3) `is_delete` を JSON の真偽値にする（3 節。Q8 の人の決定。現行実装は 0/1 の整数なので**実装の変更が要る**） |
+| login の応答のキー | **`trx_diamond_list`（配列）が `trx_diamond`（オブジェクト。`X-Platform` の platform の 1 行。行が無いとき `null`）に変わる（D5。破壊的変更。11 節）**。それ以外（`sys_player`・`trx_unit_list`・`trx_item_list`・`trx_wallet_list`・`trx_equipment_list`・`trx_stamina_list`・`login_bonus_list`）は変更なし |
+| login の応答の中身の変化 | (1) スタミナの回復計算が MstConfig の値を使う（応答の形は同じ）。(2) **新規プレイヤーの `trx_*_list` が空でなくなる**（4 節。Q9 の初期データ）。(3) `is_delete` を JSON の真偽値にする（3 節。Q8 の人の決定。現行実装は 0/1 の整数なので**実装の変更が要る**）。(4) **ダイヤは `trx_diamond`（1 件）になり、無償ダイヤの付与の既定 platform が `X-Platform` の値になる**（D5。11 節） |
 | sign_up の応答 | 変更なし。初期データは応答に含めない（クライアントは sign_up の後に login で取る。title-to-home のとおり） |
 | 配信 | `GET /auth/version` と配信 SQLite は変更不要。`mst_config` は `mst_*` として自動で配信対象になる（6 節）。`mst_player_level` も同じ。実際にデプロイ済みかは運営作業（6 節） |
 | **全 API 共通の契約変更（Q16）** | **ゲーム API のすべてで HTTP ヘッダー `X-Platform`（`Apple` / `Google`）を必須にする**（10 節）。欠落・不正値は HTTP 299 + 新しいエラーコード。sign_up の初期 `trx_diamond` の行の platform に使う。S3 の範囲が広がる |
@@ -70,16 +70,19 @@
 
 実行: `{"mst_item_id":"gold","free_amount":6000,"paid_amount":0,"is_delete":0}`（`is_delete` が整数。3 節）。`coin` の行が無いとき（残高なし）は行が無い。クライアントが 0 として扱う（S4）。
 
-### 2.5 trx_diamond_list（配列。platform ごとの行）
+### 2.5 trx_diamond（オブジェクト。`X-Platform` の platform の 1 行。D5）
+
+**変更（D5。人の決定 2026-11-14）**: 現行・title-to-home の `trx_diamond_list`（配列。platform ごとの行）をやめ、**`X-Platform` の platform の 1 行だけを `trx_diamond`（オブジェクト）で返す**。端末は 1 つの platform しか使わないので複数にならない。経緯・組み立て・影響は 11 節。
 
 | 項目 | 型 | null | 説明 |
 | --- | --- | --- | --- |
-| platform | string | 不可 | `Apple` / `Google` |
-| paid_amount | int | 不可 | 有償ダイヤ |
-| free_amount | int | 不可 | 無償ダイヤ（現行。**D4 により、別機能 free-diamond-item の完了後はこの項目が消える**。クライアントは無償ダイヤを `trx_item_list` の `free_diamond` から取る。ログインボーナスの `free_diamond` はここに入る。サインアップ時の無償ダイヤ 50 は `trx_item` の行で、ここには入らない。別機能 free-diamond-item の完了後の扱いはその機能で決める） |
-| is_delete | boolean | 不可 | 3 節 |
+| trx_diamond | object / null | **可**（仮置き） | その platform の行が無いとき `null`。サインアップ時に作る（4 節）ので通常は常にある。既存プレイヤーで行が無い・別 platform の行しか無い場合は `null`。**クライアントは `null` を有償 0・無償 0 として扱う**（S4） |
+| trx_diamond.platform | string | 不可 | `Apple` / `Google`。常に `X-Platform` の値と同じ |
+| trx_diamond.paid_amount | int | 不可 | 有償ダイヤ |
+| trx_diamond.free_amount | int | 不可 | 無償ダイヤ（**暫定**）。この platform の行の分だけ。**D4 により、別機能 free-diamond-item の完了後はこの項目が消える**。クライアントは無償ダイヤを `trx_item_list` の `free_diamond` から取る。サインアップ時の無償ダイヤ 50 は `trx_item` の行で、ここには入らない。ログインボーナスなどの無償ダイヤは、**D5 により `X-Platform` の platform の行に入る**（11.3 節） |
+| trx_diamond.is_delete | boolean | 不可 | 3 節 |
 
-実行: `{"platform":"Apple","paid_amount":0,"free_amount":10000,"is_delete":0}`。有償をどの platform の行から足すかは Q14（overview）。
+実行（旧形式。1 行の中身は変わらない）: `{"platform":"Apple","paid_amount":0,"free_amount":10000,"is_delete":0}`。新形式では `"trx_diamond": {"platform":"Apple", ...}`。
 
 ### 2.6 trx_item_list（配列）
 
@@ -131,7 +134,7 @@ sign_up 直後・日跨ぎ前の最初の login の `trx_*_list` は、現行（
 | --- | --- | --- | --- |
 | trx_stamina_list | `[]` | `normal` の 1 行: `current_stamina` = レベル 1 の `max_stamina`（`MstPlayerLevelRepository::findMaxStaminaForLevel(1)`。**level 1 のマスターが無いときは sign_up が失敗する**。現行のシードでは 50）、`recovery_rate_multiplier` `"1.00"`、`last_recovery_at` = 作成時刻 | 最大値なので login は回復を足さず、`last_recovery_at` は作成時刻のまま。クライアントは先に最大値判定をする |
 | trx_wallet_list | `[]` | `coin` の 1 行: `free_amount` 1000、`paid_amount` 0 | ログインボーナスで `gold` などが足されうる |
-| trx_diamond_list | `[]` | **`platform` が sign_up の `X-Platform` の値（`Apple` / `Google`）の 1 行**: `paid_amount` 0、`free_amount` 0（Q16。10 節）。**`free_amount` に依存しない**（D4。db.md 8.8 節） | ログインボーナス（`free_diamond`）で `Apple` の行の `free_amount` が増える（現行の `DiamondDeliveryHandler`。platform は `Apple` 固定のまま。10.7 節） |
+| trx_diamond（旧 `trx_diamond_list`。D5） | `[]` | **`platform` が sign_up の `X-Platform` の値（`Apple` / `Google`）の 1 行を、オブジェクトで返す**: `paid_amount` 0、`free_amount` 0（Q16。10 節）。**`free_amount` に依存しない**（D4。db.md 8.8 節） | ログインボーナス（`free_diamond`）などの無償ダイヤは、D5 で**付与の既定 platform が `X-Platform` の値になる**ので、同じ行の `free_amount` が増える（11.3 節。従来は `Apple` 固定） |
 | trx_item_list | `[]` | `free_diamond` の 1 行: `free_amount` 50、`paid_amount` 0（Q17。ホームの S3 に含む。`mst_item` に行を足す。db.md 8.5 節） | **別機能の完了まで消費できない**（`DiamondService::consumeDiamond` が `trx_item` を見ない。db.md 8.6 節）。ホームの合算表示は 50 でも、ダイヤを消費する API（ガチャなど）では残高 0 のまま |
 | trx_unit_list / trx_equipment_list | `[]` | `[]` | 変更なし |
 
@@ -141,7 +144,7 @@ sign_up 直後・日跨ぎ前の最初の login の `trx_*_list` は、現行（
 {
   "trx_stamina_list": [ { "type": "normal", "current_stamina": 50, "recovery_rate_multiplier": "1.00", "last_recovery_at": "2026-11-14 02:03:19", "is_delete": false } ],
   "trx_wallet_list": [ { "mst_item_id": "coin", "free_amount": 1000, "paid_amount": 0, "is_delete": false } ],
-  "trx_diamond_list": [ { "platform": "Apple", "paid_amount": 0, "free_amount": 0, "is_delete": false } ],
+  "trx_diamond": { "platform": "Apple", "paid_amount": 0, "free_amount": 0, "is_delete": false },
   "trx_item_list": [ { "mst_item_id": "free_diamond", "free_amount": 50, "paid_amount": 0, "is_delete": false } ]
 }
 ```
@@ -159,9 +162,9 @@ sign_up 直後・日跨ぎ前の最初の login の `trx_*_list` は、現行（
 | title-to-home のサーバー設計（`docs/design/title-to-home/` の api.md・sequence.md・db.md） | api.md の「新規プレイヤーの初回 login は `trx_*_list` が空」（6 節末尾）、sequence.md の「sign_up は sys のみ書く」（1・3 節）、db.md の sign_up の書き込み先が変わる。**S3 の完了後に更新する**（このドキュメントは複製・修正しない） |
 | サーバーのテスト | `AuthSignUpTest`・`AuthFlowTest`・`WalkthroughTest`・`SignUpUseCaseTest`・`HomeUseCaseTest`・`HomeSnapshotTest` など、新規プレイヤーの login 応答や sign_up の書き込みを前提にしたものを確認する（未確認。S3 で洗い出す）。`HomeSnapshotTest` の「新規は空」の記述があれば直す |
 | 動画の撮影用シード（`api/database/seeders/Recording/`） | 新規プレイヤーが空の前提のシナリオがあれば影響（未確認） |
-| クライアント | 新規ユーザーでホームにコイン 1000・ダイヤ 50（有償 0 ＋ 無償 50。無償は `trx_item` の `free_diamond`。暫定は P6 の `trx_diamond_list` の合算ではなく、`trx_item_list` の行を足す必要がある。S4・S5 で調整）・スタミナ（最大値）が出る。動画の期待値は、スタミナ最大値・残り時間の表示なし（最大値）、コイン 1000、ダイヤ 50。**ただし、ダイヤを消費する操作は残高不足になる**（db.md 8.6 節）。全リクエストに `X-Platform` を付ける（10.8 節） |
-| 全 API の platform ヘッダー（Q16） | 全ゲーム API が対象。サーバーのテスト基盤・クライアントの ApiClient・動画・e2e のドライバーに影響（10.8・10.9 節）。旧版クライアントは全 API で失敗する（10.10 節）。title-to-home の api.md の共通ヘッダー表（1 節）にも `X-Platform` を足す必要がある（S3 の後に別 PR） |
-| 別機能 free-diamond-item | **`trx_diamond.free_amount` の廃止（D4 決定。既存データを `trx_item` の `free_diamond` へ移して列を削除、platform 別の複数行は 1 行に合算）**、`DiamondService`・`DiamondBalance`・`DiamondDeliveryHandler`・`InAppPurchasePackService`・`trx_diamond_balance`・ログへの影響（db.md 8.8 節）。login の `trx_diamond_list` から `free_amount` が消え、ホームの暫定表示は `trx_item_list` への切り替えで終わる。既存の無償ダイヤの移行・付与経路・消費・課金パックも。**初期の 50 が消費できない暫定のため、先に進める必要がある**（Q26 で決定: 暫定を許容し、別機能の優先度を高くする）。platform の使い道の論点は 10.7 節 |
+| クライアント | 新規ユーザーでホームにコイン 1000・ダイヤ 50（有償 0 ＋ 無償 50。無償は `trx_item` の `free_diamond`。暫定は P6 の `trx_diamond` の `paid_amount` + `free_amount` の合算ではなく、`trx_item_list` の行を足す必要がある。S4・S5 で調整）・スタミナ（最大値）が出る。動画の期待値は、スタミナ最大値・残り時間の表示なし（最大値）、コイン 1000、ダイヤ 50。**ただし、ダイヤを消費する操作は残高不足になる**（db.md 8.6 節）。全リクエストに `X-Platform` を付ける（10.8 節）。**login 応答の `trx_diamond_list`（配列）は `trx_diamond`（オブジェクト・null 可）に変わる**（D5。11.4 節） |
+| 全 API の platform ヘッダー（Q16） | 全ゲーム API が対象。サーバーのテスト基盤・クライアントの ApiClient・動画・e2e のドライバーに影響（10.8・10.9 節）。旧版クライアントは全 API で失敗する（10.10 節。ただし未配布なので影響なし。D7）。title-to-home の api.md の共通ヘッダー表（1 節）にも `X-Platform` を足す必要がある（S3 の後に別 PR） |
+| 別機能 free-diamond-item | **`trx_diamond.free_amount` の廃止（D4 決定。既存データを `trx_item` の `free_diamond` へ移して列を削除、platform 別の複数行は 1 行に合算）**、`DiamondService`・`DiamondBalance`・`DiamondDeliveryHandler`・`InAppPurchasePackService`・`trx_diamond_balance`・ログへの影響（db.md 8.8 節）。login の `trx_diamond` から `free_amount` が消え、ホームの暫定表示は `trx_item_list` への切り替えで終わる。既存の無償ダイヤの移行・付与経路・消費・課金パックも。**初期の 50 が消費できない暫定のため、先に進める必要がある**（Q26 で決定: 暫定を許容し、別機能の優先度を高くする）。platform の使い道の論点は 10.7 節 |
 | 既存のスタミナの挙動 | スタミナ行ができるので、ログインボーナスのスタミナ報酬・回復アイテムが「行が無い」で黙って捨てられていた問題は、新規プレイヤーでは解消する（db.md 8.1）。最大値のときの `last_recovery_at` の扱いに既存の疑いがある（db.md 未解決点 U-G） |
 
 ## 5. Q9 の確認結果と、実行での確認手順
@@ -258,16 +261,21 @@ login の応答を作る `HomeUseCase` → `StaminaService::findAllStaminas`（`
 | U-6 | `MstItemSeeder` が `is_wallet` を書かない（開発 DB の `mst_item` 27 行すべて `is_wallet = 0`）。ホームの Coin 表示には影響しないが、`is_wallet` で振り分ける経路に影響 | db.md U-H。**S3 の必須作業** |
 | Q20 | platform ヘッダー名 | **決定** `X-Platform`（10.1 節） |
 | Q21 | 必須にする範囲 | **決定** `maintenance` のグループ内のゲーム API 全部。version・メンテ状態・`admin/*`・broadcasting・`/up` は除外（10.2 節） |
-| Q22 | 旧版クライアントの互換 | **決定** 互換なし（S3 と同時に必須化）。**旧版の配布状況は人も未確認。S3 のマージ・リリース前に確認する（S3 の前提作業）。配布済みなら 10.10 の 2 段階案に切り替える** |
+| Q22 | 旧版クライアントの互換 | **決定** 互換なし（S3 と同時に必須化）。**旧クライアントは未配布（人の回答 2026-11-14）なので、配布状況の確認（S3 の前提作業）は解消済み。2 段階案は不要（D7）** |
 | Q23 | 署名にヘッダーを含めるか | **決定** 含めない。platform をセキュリティ判断に使わない（10.6 節） |
 | Q24 | 欠落・不正値のエラー | **決定** HTTP 299 / 99003（`INVALID_PLATFORM`）。ミドルウェアが直接返す（10.3 節） |
 | Q25 | `free_diamond` の `mst_item` の列 | **決定** `type = currency`、`effect = none`、`value = 0`、`is_wallet = false`（db.md 8.5 節） |
 | Q26 | 初期の無償ダイヤが別機能の完了まで消費できない暫定の許容と、別機能を急ぐこと | **決定** 許容し、free-diamond-item を先に進める（台帳向けの論点: 別機能の優先度を高くする。db.md 8.6 節） |
+| D5 | **login のダイヤ（有償・暫定の無償）は、`trx_diamond_list` ではなく、`X-Platform` の platform の 1 行を `trx_diamond`（オブジェクト）で返す**（人の決定 2026-11-14。複数にならないため）。付与の既定 platform も `X-Platform` に変える | **11 節**。行が無いときの `null` は仮置き（U-7） |
+| D7 | **旧クライアントは未配布なので、互換なしで login の `trx_diamond` 化と `X-Platform` の必須化を行う**（人の決定 2026-11-14。S3 と同時でよい。Q22 の「配布状況の確認」の前提作業は解消済み） | 10.10・11.1 節 |
+| U-7 | `trx_diamond` が無いときの返し方（`null` か、0 の行を作って返すか）。仮置きは `null` | 人に確認。サインアップ時に行を作るので、新規プレイヤーでは起きない。既存プレイヤー（Q18 で補填しない）と、platform を変えた端末（Apple で作ったアカウントを Google の端末で使う）で起きる |
+| D6 | **U-8 の決定（人の回答 2026-11-14）: 「無償ダイヤは Platform を跨いだ共通管理（trx_item）なので、どちらからでも見れます」。** (1) 最終形: 無償ダイヤは `trx_item` の `free_diamond`（platform 共通）で、どの platform の端末からも見える。有償ダイヤだけが platform 別（`trx_diamond` の端末の platform の 1 行。他 platform の有償は見えない・使えないのが仕様）。(2) 暫定（別機能 free-diamond-item の移行前）: 過去に platform 別の `trx_diamond.free_amount` に入った無償ダイヤは、他 platform の端末では見えない。移行（`trx_item` へ合算して列を削除）で解消するので許容する。新規の付与は D5 で端末の platform の行に入るので、移行前でも見える。見えない分は `consumeDiamond`（全 platform 合算。変えない）では使われる。 | 11.3 節・db.md 8.6・8.8 節 |
+| U-9 | `updated_resources` の `trx_diamond_list`（`docs/api_resources.md`。login 以外の API の応答）は変えるか | 決定の対象は login のみ。**変えない前提**（人に確認）。変えるなら別 PR で `api_resources.md` ごと |
 | 決定済み | D4（`trx_diamond.free_amount` は廃止。別機能の範囲。ホームの S3 は依存しない。db.md 8.8 節）・Q15（値は API の定数）・Q17（`free_diamond` はホームの S3）・Q18（補填なし）・Q19（title-to-home の初期付与の上書き） | [db.md 8.3 節](db.md) |
 
 ## 10. 全 API 共通の契約変更: platform ヘッダー（Q16。人の決定）
 
-人の決定（2026-11-14）: 「sign_up に限らず、HTTP ヘッダーで必ず platform を渡す」。**全 API 共通の契約変更**で、S3 の範囲が広がる。ヘッダー名・範囲・エラー・旧版互換・署名は**決定済み**（9 節の Q20〜Q24。2026-11-14）。旧版の配布状況だけが未確認で、S3 の前提作業（10.10 節）。「読んだ」は `api/bootstrap/app.php`・`api/routes/api.php`・`VerifyClientSignature`・`ResolveLanguage`・`GameErrorCode`・`docs/client_authentication.md`。
+人の決定（2026-11-14）: 「sign_up に限らず、HTTP ヘッダーで必ず platform を渡す」。**全 API 共通の契約変更**で、S3 の範囲が広がる。ヘッダー名・範囲・エラー・旧版互換・署名は**決定済み**（9 節の Q20〜Q24。2026-11-14）。旧版クライアントは未配布で互換不要（D7。10.10 節）。「読んだ」は `api/bootstrap/app.php`・`api/routes/api.php`・`VerifyClientSignature`・`ResolveLanguage`・`GameErrorCode`・`docs/client_authentication.md`。
 
 ### 10.1 ヘッダー名と許可値
 
@@ -298,14 +306,15 @@ login の応答を作る `HomeUseCase` → `StaminaService::findAllStaminas`（`
 
 ### 10.4 値の保持（`ApiSession`）
 
-- `ApiSession` の既存の形に合わせる。`language` は **instance の set / get と static ヘルパーの組**なので、platform も組で設計する: instance の `setPlatformInstance(string)` / `getPlatformValue(): string`、static の `ApiSession::setPlatform(string)` / `ApiSession::getPlatform(): string`（名前は既存の `setPlayerIdInstance` / `getPlayerId` の流儀に合わせて S3 で確定）。`platform`（`?string`）を持たせる。**未設定のとき get は `RuntimeException`**（`getPlayerId()` と同じ。キュー・コマンドなど HTTP 以外の経路で暗黙の既定値を使わせない）。
+- `ApiSession` の既存の形に合わせる。`language` は **instance の set / get と static ヘルパーの組**なので、platform も組で設計する: instance の `setPlatformInstance(string)` / `getPlatformValue(): string`、static の `ApiSession::setPlatform(string)` / `ApiSession::getPlatform(): string`（名前は既存の `setPlayerIdInstance` / `getPlayerId` の流儀に合わせて S3 で確定）。`platform`（`?string`）を持たせる。**設定済みかを調べる `ApiSession::hasPlatform(): bool`（static。既存の `hasSysPlayerId()`・`hasNow()` と同じ形）も足す**（D5。11.3 節。例外を使わず安全に取るため）。**未設定のとき get は `RuntimeException`**（`getPlayerId()` と同じ。キュー・コマンドなど HTTP 以外の経路で暗黙の既定値を使わせない）。
 - `ResolvePlatform` が、検証した値を `ApiSession::setPlatform()` で載せる。UseCase・Service は `ApiSession::getPlatform()` で読む。sign_up は未認証で `setSysPlayerId` を呼べない（呼ぶのは初期付与の前に UseCase が行う。db.md 8.7 節）が、platform はミドルウェアが認証より前に載せるので、sign_up でも読める。
 - **`clear()` の対象に platform を足す**（`clearForTest()` だけでなく、`ApiSession` が持つ状態をリセットする既存の `clear()` 系の両方。S3 で `ApiSession` を読んで確定）。
-- **注意（同一プロセスで状態が残る）**: 除外ルート（`GET /auth/version` など）は `setPlatform` を呼ばないので、**同一プロセスで複数リクエストを処理する場合（テスト）、前のリクエストの platform が残る**。`setSysPlayerId` も `connectionName` のキャッシュをリセットしない。したがって、**S3 のテスト（5 節の手順を含む）では各リクエストの間に `ApiSession::clearForTest()` を挟む**。`api-queue` は常駐プロセスで `ApiSession` が残るが、HTTP 以外の経路は `getPlatform()` を呼ばない（呼べば `RuntimeException`）設計なので影響しない。
+- **注意（同一プロセスで状態が残る）**: 除外ルート（`GET /auth/version` など）は `setPlatform` を呼ばないので、**同一プロセスで複数リクエストを処理する場合（テスト）、前のリクエストの platform が残る**。`setSysPlayerId` も `connectionName` のキャッシュをリセットしない。したがって、**S3 のテスト（5 節の手順を含む）では各リクエストの間に `ApiSession::clearForTest()` を挟む**。`api-queue` は常駐プロセスで `ApiSession` が残るが、HTTP 以外の経路は `getPlatform()` を呼ばない（呼べば `RuntimeException`）設計なので影響しない。**D5 で `DiamondDeliveryHandler` が `hasPlatform()` を呼ぶようになるが、これも HTTP 以外では `false` を返すだけで、`getPlatform()` は呼ばない**（11.3 節）。ただし**同期で実行されるジョブ（`sync` キュー・テスト）は HTTP リクエストと同じプロセスなので platform が残っている**（11.3 節の注意）。
 
 ### 10.5 この機能での使い道
 
 - **sign_up の初期 `trx_diamond` の行の `platform`**（paid 0・free 0）。固定の `Apple` は使わない。
+- **login 応答の `trx_diamond` の行の選択**（D5。11.2 節）と、**`DiamondDeliveryHandler` の付与の既定 platform**（D5。11.3 節）。
 - これ以外は**この機能では使わない**（10.7 節）。
 
 ### 10.6 署名（HMAC）との関係
@@ -319,17 +328,17 @@ login の応答を作る `HomeUseCase` → `StaminaService::findAllStaminas`（`
 
 | 対象 | 現行 | この機能での扱い | 別機能の論点 |
 | --- | --- | --- | --- |
-| `DiamondDeliveryHandler` の `metadata['platform']` | 無指定は `'Apple'` | **変えない**（ログインボーナスの無償ダイヤは引き続き `Apple` の行に入る）。**`X-Platform: Google` で sign_up した人は、「0 の `Google` 行」と「ボーナスが入る `Apple` 行」の 2 行になる**。ホームの暫定表示は、有償は自分の platform の行、**無償は全 platform の行の `free_amount` の合計**（overview 4 節）なので、Google のユーザーも無償ダイヤは見える（有償だけが platform 別）。ただし D4 の `free_amount` 廃止で無償は `trx_item` に統一される | 既定を `ApiSession::getPlatform()` にするか。**free-diamond-item** で、付与先の行の決め方と合わせて決める |
+| `DiamondDeliveryHandler` の `metadata['platform']` | 無指定は `'Apple'` | **変える（D5）**: 無指定の既定を **`ApiSession` の platform（`X-Platform`）** にする。platform の無い経路（ジョブ・バッチ・CLI）は従来どおり `Apple`。詳細は 11.3 節。これで **`X-Platform: Google` の人のログインボーナスなどの無償ダイヤは Google の行に入り**、login の `trx_diamond`（自分の行だけ）で見える。**既存データ（`Apple` の行に入っている無償ダイヤ）は変えない**（Q18 の補填なしと同様。別機能 free-diamond-item の移行で `trx_item` に合算される） | 別機能 free-diamond-item では、無償の付与先が `trx_item` に変わるので、この既定 platform の分岐は無償側では不要になる（有償は `metadata['platform']` のまま） |
 | `DiamondService::consumeDiamond` | 全 platform の行を合算して消費（platform を見ない）。有償ダイヤが他 platform の行からも引ける | **変えない**（D4 の `free_amount` 廃止もこの別機能で行う） | 有償は platform をまたがない（人の仕様）。消費の対象行を `ApiSession::getPlatform()` で絞るか。**free-diamond-item**（overview 8 節 D1〜D3 の影響 3）。**無償ダイヤ（`trx_item`）が消費できない暫定**（db.md 8.6 節）もここ |
 | `InAppPurchase` の `BuyRequest` の body `platform`（必須・`Apple` / `Google`） | 購入ごとに body で渡す | **変えない** | ヘッダー `X-Platform` と body `platform` の**重複・不一致**（不一致を拒否するか、ヘッダーを正とするか、body の項目をやめるか）は、課金・free-diamond-item の設計で決める。本機能では両方を受け付けるだけ |
-| login の `trx_diamond_list` | platform 別の全行を返す | **変えない**（ホームは Q14 のとおり、クライアントが自分の platform の行を選ぶ） | サーバーが `ApiSession::getPlatform()` で絞って返す案は別機能。U7（クライアントが platform をどう得るか）は、クライアントが自分の OS を知っているので**解消の見込み**（10.8 節） |
+| login の `trx_diamond_list` | platform 別の全行を返す | **変える（D5）**: `X-Platform` の platform の 1 行だけを `trx_diamond`（オブジェクト）で返す。11 節。**旧版（Q14 の「クライアントが自分の platform の行を選ぶ」）の案は、D5 で置き換わる** | U7（クライアントが platform をどう得るか）は、`X-Platform` を付けるので不要になった。クライアントは返った 1 行をそのまま使う |
 | ユニット・アイテム・装備・ガチャなど他の API | platform を使わない | 変えない（ヘッダーは必須になるが、値は使わない） | |
 | 運営ツール（`tool/`）・`admin/*` | | ヘッダー不要（`maintenance` のグループの外） | |
 
 ### 10.8 クライアントへの影響
 
 - ApiClient の**全リクエストに `X-Platform` を付ける**（version・メンテ状態にも付けてよい）。値は自分の OS から決める: iOS → `Apple`、Android → `Google`。エディタ・デスクトップなど他の環境は、設定で `Apple` か `Google` のどちらかを選ぶ（S4 で決める）。
-- 付け忘れると、ゲーム API は 299 / 99003 になる。これは**旧版クライアントが全 API で失敗する**ことを意味する（10.10 節）。
+- 付け忘れると、ゲーム API は 299 / 99003 になる。これは**旧版クライアントが全 API で失敗する**ことを意味するが、旧版は未配布なので影響しない（D7。10.10 節）。
 - 動画の撮影・e2e のドライバー（クライアント側の自動操作）が直接 HTTP を叩く場合は、ヘッダーを付ける必要がある（クライアントの ApiClient を通すなら不要。未確認）。
 
 ### 10.9 テスト・シード・e2e への影響
@@ -339,13 +348,82 @@ login の応答を作る `HomeUseCase` → `StaminaService::findAllStaminas`（`
 - 動画の撮影用シード（`api/database/seeders/Recording/`）は DB への投入で HTTP を使わない（読んだ）ので影響しない。シードを HTTP で叩くスクリプトがあれば影響（未確認）。
 - 既存の署名テスト（`VerifyClientSignatureSecretTest` など）が、`platform` を通した経路を叩くなら、ヘッダーを足す。
 
-### 10.10 旧版クライアントとの互換（Q22 決定。配布状況の確認が S3 の前提作業）
+### 10.10 旧版クライアントとの互換（Q22 決定。旧版は未配布。D7）
 
-- **決定（Q22）: 必須化は S3 と同時で、旧版の考慮はしない**（ヘッダー無しを許さない）。クライアントも本機能の S5 で `X-Platform` を付けるため、サーバーとクライアントを同時に出す前提。旧版が既に配布されているかは**人も未確認**。**S3 のマージ・リリース前に配布状況を確認する（S3 の前提作業）**。配布済みなら、次の 2 段階案に切り替える。
-- 配布済みの旧版がある場合の代替（2 段階）: ① 当面、ヘッダー無しを許し、`ApiSession::getPlatform()` が使えない経路（sign_up の `trx_diamond` の行）は `Apple` にフォールバックするか、行を作らない。② 全クライアントが更新された後に必須化する。この場合、フォールバックの置き場所を 1 か所にし、期限を決める。
-- 旧版が配布されていない（開発中）なら、フォールバックは不要で、最初から必須にできる。
+- **決定（Q22・D7）: 必須化は S3 と同時で、旧版の考慮はしない**（ヘッダー無しを許さない）。**旧クライアントは未配布（人の回答 2026-11-14）なので、配布状況の確認（S3 の前提作業）は解消済み**。クライアントも本機能の S5 で `X-Platform` を付けるため、サーバーとクライアントを同時に出す。
+- 配布済みの旧版がある場合の 2 段階案（①ヘッダー無しを許しフォールバック、②全更新後に必須化）は、**旧版が未配布のため不要**（参考として残す）。
+- 旧版が配布されていないので、フォールバックは不要で、最初から必須にする。
 
 ### 10.11 U7（クライアントが platform をどう得るか）
 
-overview の U7 は、クライアントが自分の OS を知っているので、`X-Platform` を付ける実装で**解消する見込み**（S4 で確定）。課金の `BuyRequest` の `platform` と同じ値を使える。
+overview の U7 は、クライアントが自分の OS を知っているので、`X-Platform` を付ける実装で**解消する見込み**（S4 で確定）。D5（11 節）でサーバーが自分の platform の 1 行を返すようになったので、クライアントが行を選ぶ必要もなくなった。課金の `BuyRequest` の `platform` と同じ値を使える。
 
+
+## 11. login のダイヤを `trx_diamond`（1 件）にする（D5。人の決定 2026-11-14）と、付与の既定 platform
+
+人の決定（2026-11-14）: 「login の `trx_diamond_list` は `trx_diamond` になるのでは？ X-Platform で 1 platform 分（1 レコード）しか返さないので複数にならないから」。**login 応答のダイヤ（有償・暫定の無償）は、一覧ではなく、`X-Platform` の platform の 1 行を `trx_diamond`（オブジェクト）で返す**。S3 の範囲に入る。「読んだ」は `HomeUseCase`・`HomeResponse`・`TrxDiamondRepository`・`_BaseTrxRepository::queryOrMemory`・`DiamondDeliveryHandler`・`StaminaGranterInterface`・`StaminaGranterAdapter`・`AppServiceProvider`・`ApiSession`。
+
+### 11.1 変更点（title-to-home の api.md との差）
+
+| | title-to-home の api.md（6 節の Response）・現行 | 本機能（D5） |
+| --- | --- | --- |
+| キー | `trx_diamond_list`（array。platform ごとの全行。空は `[]`） | **`trx_diamond`（object / null）**。`X-Platform` の platform の 1 行。行が無いとき `null`（仮置き。U-7） |
+| 中身 | `platform`・`paid_amount`・`free_amount`・`is_delete` | 同じ（1 行の中身は変えない） |
+| 他の `trx_*_list` | | 変更なし（配列のまま） |
+
+- **応答のキーが変わる破壊的変更**。title-to-home の api.md の Response 表（`trx_diamond_list` の行と、例の `"trx_diamond_list": []`）は、**S3 の完了後に更新する**（4 節の影響一覧と同じ扱い。このドキュメントは複製・修正しない）。
+- **旧クライアントの扱い**: **旧クライアントは未配布のため互換不要（決定 2026-11-14。D7）**。X-Platform の必須化と同じく S3 と同時に変えてよい。キーを併記（`trx_diamond_list` も返す）することも、2 段階にすることもしない。
+- クライアントへの影響（S4・S5）: `trx_diamond_list` を読む箇所を `trx_diamond` に変える（オブジェクト。`null` は有償 0・無償 0）。「自分の platform の行を選ぶ」処理（overview の Q14）は不要。**`TRX_LIST_KEYS`（`contexts/login/data/api/login_response.gd:18`、`contexts/player/domain/entities/player_state.gd:21`、`.claude/api.md:100`）から `trx_diamond_list` を外し、`trx_diamond` を別扱いにする**。login は `trx_diamond`（object）、他 API の `updated_resources` は `trx_diamond_list`（配列）と、**キーと型が割れる**。`updated_resources` を PlayerState に取り込む将来機能では両形式に注意。ホームの暫定表示（P6）は、`trx_diamond` の `paid_amount` + `free_amount`（その platform の行の分だけ）＋ `trx_item_list` の `free_diamond`。
+
+### 11.2 `HomeResponse` の組み立て
+
+- 現行の `HomeUseCase` は `$trxDiamonds = $this->trxDiamondRepository->queryOrMemory()`（そのプレイヤーの全行）を `HomeResponse::trxDiamonds`（`array<int, TrxDiamond>`）に渡し、`toArray()` が `trx_diamond_list` に写す（読んだ）。
+- **変更**: `HomeUseCase` で、`queryOrMemory()` の結果から `platform === ApiSession::getPlatform()` の 1 行を選び、`HomeResponse` には `?TrxDiamond $trxDiamond` を渡す（コンストラクタの引数を `trxDiamonds` から `trxDiamond` に変える）。`toArray()` は `'trx_diamond' => $this->trxDiamond?->toResponseArray()`（行が無ければ `null`）。
+- **推奨: 全行を取得してから、取得後にフィルタする（DB 側では絞らない）**。理由:
+  - `queryOrMemory()` は、リクエスト内で最初の呼び出しに DB から読み、同じプレイヤーの結果を保持する（`_BaseTrxRepository`。読んだ）。同じリクエストのログインボーナスの付与が積んだ未保存の行（メモリのキュー）も、同じ経路で見える。DB 側で絞る `selectByPlatform` は、キューを先に見てから DB に問い合わせる実装（`TrxDiamondRepository::selectByPlatform`。読んだ）で、**行が無いときに余分な SELECT が 1 回増える**。
+  - プレイヤーの行は最大 2 行（Apple・Google）なので、全行取得のコストは問題にならない。
+  - 他の `trx_*` と同じ `queryOrMemory()` の経路のままで済む（Repository に新しいメソッドを足さない）。
+- `ApiSession::getPlatform()` は HTTP の login では必ず値がある（`ResolvePlatform` が載せる。10.4 節）。論理削除の行は `queryOrMemory()` が既に除く（現行のまま）。
+
+### 11.3 付与の既定 platform（`DiamondDeliveryHandler`。新規の設計）
+
+**なぜ変えるか**: login が端末の platform の行だけを返すので、現行のように無償ダイヤの付与が `Apple` 固定のままだと、Google の端末のユーザーのログインボーナスなどの無償ダイヤが `Apple` の行に入り、**見えなくなる**。付与の既定を `X-Platform` の値にして、自分の行に入れる。
+
+**現行**（`packages/nexus-core/src/ResourceDelivery/Handlers/DiamondDeliveryHandler.php`。読んだ）: `$platform = $metadata['platform'] ?? 'Apple'`。
+
+**変更後の決め方（優先順）**: (1) `metadata['platform']` があればそれ（従来どおり）。(2) 無ければ、現在の処理の platform の供給元（下記のインターフェース）が値を返せばそれ。**API のリクエスト内では `ApiSession` の platform（`X-Platform`）で、常に値がある**。(3) どちらも無ければ `Apple`（従来どおり。ジョブ・バッチ・CLI など platform の無い経路）。
+
+**ApiSession の値の渡し方（packages が API の `ApiSession` に依存しない）**: 既存の `ResourceDelivery` の流儀に揃える。packages の `Contracts/` にインターフェースを置き、実装は API の Application 層の Adapter、`AppServiceProvider` で `bind`（`StaminaGranterInterface` ↔ `StaminaGranterAdapter`。読んだ）。
+
+| 部品 | 置き場所 | 内容 |
+| --- | --- | --- |
+| `DefaultPlatformProviderInterface`（名前は S3 で確定） | `packages/nexus-core/src/ResourceDelivery/Contracts/` | `findCurrentPlatform(): ?string`。現在の処理に platform の文脈があればその値、無ければ `null`。**例外を投げない**契約 |
+| `ApiSessionPlatformProvider`（名前・置き場所は仮置き） | S3 で `api/app/Adapters/`（既存例 `Adapters/Billing/DiamondBalanceAdapter.php`）か `Domain/Diamond/…` のどちらかに確定（参考: `StaminaGranterAdapter` は `api/app/Domain/Stamina/Services/`） | `ApiSession::hasPlatform() ? ApiSession::getPlatform() : null` |
+| `ApiSession::hasPlatform()` | `api/app/Persistence/ApiSession.php` | static。既存の `hasSysPlayerId()`・`hasNow()` と同じ形（`ApiSession` が bind されていなければ `false`。10.4 節） |
+| `DiamondDeliveryHandler` | packages | コンストラクタに `?DefaultPlatformProviderInterface $defaultPlatformProvider = null` を足す。`$metadata['platform'] ?? $this->defaultPlatformProvider?->findCurrentPlatform() ?? 'Apple'` |
+| bind | `AppServiceProvider` | `DefaultPlatformProviderInterface::class` → `ApiSessionPlatformProvider::class`（`StaminaGranterInterface` の bind の隣） |
+
+- **standalone テスト**: packages のテストは、フェイクの provider（値を返すだけの内部クラス。`StaminaDeliveryHandlerTest` の `RecordingStaminaGranter` と同じ流儀）か `null`（未指定）で `DiamondDeliveryHandler` を組み立てられる。`ApiSession`・Laravel のコンテナ・DB に依存しない。引数を省略可能にするのは、Laravel を使わない利用で従来どおり `Apple` にするため。
+- **安全に取る形**: `getPlatform()` は未設定で `RuntimeException`（10.4 節）。Adapter が `hasPlatform()` で確かめてから読み、未設定なら `null` を返す。**ハンドラが `getPlatform()` を直接呼ぶ設計にはしない**（ジョブ・CLI で例外になるため）。
+- **注意（ジョブ・同期実行）**: `AppServiceProvider.php:413` で `ApiSession` は `scoped` なので、キューワーカー（`queue:work`）ではジョブごとに解放され、`ResolvePlatform` も走らないので `hasPlatform()` は `false`（`Apple`）。platform が残るのは、HTTP リクエストと同じスコープで走る同期ジョブ（`sync` キュー・テスト）だけで、そのリクエストの `X-Platform` を使う。S3 の確認事項は「`clearForTest()` と scoped の解放で platform が次に漏れないこと」の 1 点。現行の `ShouldQueue` のジョブ（`SendNotificationJob` など）は `DiamondDeliveryHandler` を通らないので、**「ジョブ経路は `Apple` にフォールバック」は将来の経路に対する安全側の設計**である。
+- **影響範囲**: `DiamondDeliveryHandler` を通る付与のうち、metadata に platform が無いものの既定が変わる（`AppServiceProvider` で `ResourceDeliveryService` に登録。読んだ）。メール（受け取り）・ログインボーナス・ミッション報酬など、`Resource::diamond()` / `Resource::paidDiamond()` で配送する経路（網羅は S3 で `grep` して洗い出す）。API のリクエスト内ではどれも `X-Platform` の行に入る。**変えないもの**: `InAppPurchase` の `BuyRequest` の body `platform`（課金は購入ごとに body で渡し、`DiamondService` を直接呼ぶので `DiamondDeliveryHandler` を通らない。ヘッダーと body の重複・不一致の論点は 10.7 節のまま別機能）、`DiamondService::addDiamond` の引数、`consumeDiamond`（全 platform の行を合算して消費。db.md 8.8 節）。
+- これで **Google のユーザーの無償ダイヤも自分の行に入る**。**既存データ（`Apple` の行に入っている無償ダイヤ）は変えない**（Q18 の補填なしと同様。別機能 free-diamond-item の移行で `trx_item` の `free_diamond` に合算される）。
+- **別機能の完了までの見え方の差**: login は端末の platform の 1 行の `free_amount` だけを返す。別 platform の行に残る過去の無償ダイヤは login の応答に**見えない**が、`consumeDiamond` は全 platform の行を合算して消費する（変えない）ので、**見えない残高も消費に使われる**。移行で解消する（db.md 8.8 節）。
+
+### 11.4 S3 の実装の範囲（D5 の追加分）
+
+- `HomeUseCase`・`HomeResponse` の組み立てと、login の応答の `trx_diamond`（11.2 節）。
+- `ApiSession::hasPlatform()`、`DiamondDeliveryHandler` の既定 platform、`DefaultPlatformProviderInterface`・Adapter・bind（11.3 節）。
+- テスト（追加）:
+  - login の応答の `trx_diamond` が `X-Platform` の行だけであること（Apple・Google の 2 行があるプレイヤーで、Apple のヘッダーなら Apple の行、Google のヘッダーなら Google の行）。その platform の行が無いとき `null`。キー `trx_diamond_list` が無いこと。
+  - **`X-Platform: Google` で、metadata に platform の無い無償ダイヤが付与されると Google の行に入る**（ログインボーナスまたはメールの受け取り）。`Apple` なら Apple の行。metadata の `platform` があればそれが優先。
+  - **`X-Platform: Google` で、Apple の行だけがある状態からログインボーナスの無償ダイヤを付与すると、Google の行が新規作成され、同じ login 応答の `trx_diamond` に載ること**。未保存の新規行の `is_delete` が JSON の真偽値になるかを、`TrxDiamond::$casts` と `toResponseArray` で実測する項目を含める（3 節の `is_delete` の決定との整合）。
+  - packages/nexus-core の standalone テストで、`new DiamondDeliveryHandler($service)`（1 引数）が通り、従来どおり `Apple` になること。
+  - ジョブ・CLI 相当（`ApiSession` に platform が無い）は **`Apple` にフォールバック**する。packages 側は、フェイクの provider が `null` / `'Google'` を返す単体テスト（standalone）。
+  - `X-Platform: Google` で sign_up した新規プレイヤーの login が `trx_diamond` に `Google` の行を返し、ログインボーナスの無償ダイヤが同じ行に入ること。
+
+### 11.5 影響を受ける既存のテスト・クライアント
+
+- サーバーのテスト: **login 側で `trx_diamond_list` をアサートするテストは無い**（`HomeSnapshotTest`・`AuthFlowTest`・`HomeUseCaseTest` は該当なし。`HomeResponse` の `trxDiamonds` 引数を使うのは `HomeUseCase` だけ）。`trx_diamond_list` をアサートしているのは `updated_resources` を見る `api/tests/Feature/Trade/TradeEndpointTest.php:121`・`Mailbox/MailboxReceiveContentTest.php:209`・`InAppPurchase/BuyEndpointTest.php:82` で、U-9 の「`updated_resources` は変えない」前提なので壊れない。`DiamondDeliveryHandler` が `Apple` の行に入ることを前提にしたテスト（`X-Platform: Apple` を既定にする 10.9 節の変更で、Apple ならそのまま通る見込み。S3 で確認）。
+- クライアント（Godot）: login の応答のパース（`trx_diamond_list` を読む箇所）。S4・S5 で変更。動画・e2e のドライバーで読むものがあれば影響（未確認）。
+- 別 PR で直すもの（このドキュメントでは直さない）: title-to-home の api.md、`docs/api_resources.md`（login の記述。U-9）、Nexus の要件・設計（`overview.md` の P6・Q14 の「クライアントが自分の platform の行を選ぶ」）。

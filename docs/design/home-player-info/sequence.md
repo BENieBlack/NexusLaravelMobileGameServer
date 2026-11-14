@@ -27,7 +27,8 @@ sequenceDiagram
     rect rgb(235, 245, 255)
     Note over S,TRX: executeWithTransaction 開始（sys・全 trx シャード・log をまとめて開始）
     S->>S: ログインボーナス判定・付与、last_login_at 更新（title-to-home）
-    S->>TRX: 読む: trx_unit / item / wallet / diamond / equipment
+    S->>TRX: 読む: trx_unit / item / wallet / diamond（全行）/ equipment
+    S->>S: trx_diamond は全行のうち platform が ApiSession::getPlatform()（X-Platform）の 1 行を選ぶ（無ければ null。D5。api.md 11.2）
     S->>ST: findAllStaminas(sysPlayerId)
     ST->>TRX: 読む: trx_stamina（全タイプ）
     ST->>R: 読む: mst_player_level（最大スタミナ。既存）
@@ -43,12 +44,13 @@ sequenceDiagram
     end
     ST-->>S: 回復反映済みの Stamina 一覧（DB には保存しない）
     S->>S: 応答用に写しを作る（キャッシュ上のモデルは書き換えない）
-    S->>TRX: 書く: ログインボーナス分のみ（スタミナは書かない）
+    S->>TRX: 書く: ログインボーナス分のみ（スタミナは書かない）。無償ダイヤは DiamondDeliveryHandler の既定 platform = X-Platform の行へ（D5。api.md 11.3）
     Note over S,TRX: 末尾で flush → 全接続をコミット
     end
-    S-->>C: 200 sys_player + trx 6 種（trx_stamina_list は回復反映済み）+ login_bonus_list
+    S-->>C: 200 sys_player + trx 6 種（trx_diamond は X-Platform の 1 行のオブジェクト・無ければ null。trx_stamina_list は回復反映済み）+ login_bonus_list
 ```
 
+- **D5（2026-11-14）**: login のダイヤは `trx_diamond_list`（配列）ではなく `trx_diamond`（`X-Platform` の 1 行）を返す。ログインボーナスの無償ダイヤの付与先も、従来の `Apple` 固定から `X-Platform` の行に変わる。付与の既定 platform は、`DiamondDeliveryHandler` が `DefaultPlatformProviderInterface`（API 側の実装が `ApiSession::hasPlatform()` を見て、無ければ `null` → `Apple` にフォールバック）から得る。HTTP 以外の経路（ジョブ・CLI）は `Apple`。api.md 11 節。無償ダイヤの最終形は `trx_item` の `free_diamond`（platform 共通）で、移行前に別 platform の `free_amount` に残る分が見えないのは暫定（D6）。
 - MstConfig の読み出しは、スタミナの行の数に関わらず**回復間隔の読み出しは `findAllStaminas` につき 1 回**（行ごとに読み直さない）。テーブルは Redis に 1 キーで持つので、リクエスト内の実際の読み出しは Redis の GET が 1 回以下で、ミス時だけ mst DB に SELECT が 1 回（db.md 2 節の 4）。
 - mst は読み取りなので、トランザクションの対象外（mst の接続は `executeWithTransaction` が開始する接続に含まれない。読んだ）。
 - 同じ回復間隔が、消費（`consumeStamina`）・回復アイテム（`recoverStaminaByItem`）・満タンまでの時間・レベルアップのリスナーでも使われる。これらは書き込みを伴い、**回復を反映した値を保存する**（db.md 2 節）。値の出どころはすべて同じ読み出し口。
@@ -229,4 +231,4 @@ sequenceDiagram
 | U-B | 運営ツールの反映後、サーバーの mst キャッシュ（Redis）をどう更新するか。人の判断（db.md 5 節） |
 | U-D | sign_up での `ApiSession::setSysPlayerId` の呼び出しと、trx の書き込み先の解決を、S3 で実行して確かめる（4 節。読んだだけ）。`assign` は sys へ即時 INSERT なので同じ接続で読めるはずだが、`flushQueue()` との順序は実行で確認 |
 | 実行未確認 | 4 節の「付与の途中で例外」時の HTTP ステータス、コミットの途中で失敗する頻度。1〜2 節の図は、コードを読んで書いたもので、実行ログではない |
-| 確認事項 | なし。Q8・Q15〜Q26 は決定済み（[db.md 8.3・8.4 節](db.md)、[api.md 9・10 節](api.md)）。S3 の前提作業: 旧版クライアントの配布状況の確認（Q22） |
+| 確認事項 | なし。Q8・Q15〜Q26・D4・D5・D6・D7 は決定済み（[db.md 8.3・8.4 節](db.md)、[api.md 9・10・11 節](api.md)）。D5 の確認事項は api.md の U-7・U-9。旧版クライアントは未配布で互換不要（D7。Q22 の配布状況の確認は解消済み） |

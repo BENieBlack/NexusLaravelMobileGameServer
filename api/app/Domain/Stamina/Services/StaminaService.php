@@ -7,6 +7,7 @@ use App\Models\Trx\TrxStamina;
 use App\Repositories\Trx\TrxStaminaRepository;
 use Nexus\Core\Utilities\ClockUtility;
 use NexusLevel\Services\PlayerLevelService;
+use NexusStamina\Services\StaminaRecoveryIntervalProviderInterface;
 use NexusStamina\Services\StaminaService as BaseStaminaService;
 
 /**
@@ -17,15 +18,11 @@ use NexusStamina\Services\StaminaService as BaseStaminaService;
  */
 class StaminaService
 {
-    /**
-     * スタミナ回復間隔（秒）
-     */
-    private const RECOVERY_INTERVAL_SECONDS = 300;
-
     public function __construct(
         private readonly TrxStaminaRepository $trxStaminaRepository,
         private readonly PlayerLevelService $playerLevelService,
         private readonly BaseStaminaService $baseStaminaService,
+        private readonly StaminaRecoveryIntervalProviderInterface $recoveryIntervalProvider,
     ) {}
 
     /**
@@ -160,7 +157,7 @@ class StaminaService
         }
 
         $requiredPoints = $maxStamina - $stamina->getCurrentStamina();
-        $baseSeconds = $requiredPoints * self::RECOVERY_INTERVAL_SECONDS;
+        $baseSeconds = $requiredPoints * $this->recoveryIntervalProvider->findRecoveryIntervalSeconds();
 
         return (int) ceil($baseSeconds / $stamina->getRecoveryRateMultiplier());
     }

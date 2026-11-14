@@ -351,6 +351,13 @@ class GameErrorCode
     const VALIDATION_FAILED = 99002;
 
     /**
+     * X-Platform ヘッダーの欠落・不正値（Apple / Google 以外）
+     *
+     * ResolvePlatform が直接返す。クライアントの実装の誤りを、他の入力エラーと区別できるよう専用にする
+     */
+    const INVALID_PLATFORM = 99003;
+
+    /**
      * 未実装機能（アプリケーション層）
      */
     const NOT_IMPLEMENTED = 99900;

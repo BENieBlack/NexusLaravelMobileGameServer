@@ -79,11 +79,14 @@ class BuyEndpointTest extends TestCase
             'updated_resources',
         ]);
         $this->assertSame(self::PAID_DIAMOND_AMOUNT, $response->json('paid_diamond_amount'));
-        $this->assertSame(self::PAID_DIAMOND_AMOUNT, $response->json('updated_resources.trx_diamond_list.0.paid_amount'));
+        // サインアップ時に X-Platform（Apple）の行が 0 で作られているので、購入先（Google）の行を探す
+        $googleRow = collect($response->json('updated_resources.trx_diamond_list'))->firstWhere('platform', 'Google');
+        $this->assertSame(self::PAID_DIAMOND_AMOUNT, $googleRow['paid_amount']);
 
         // 実際に付与されている
         $diamond = DB::connection($this->playerConnection($this->sysPlayerId))->table('trx_diamond')
             ->where('sys_player_id', $this->sysPlayerId)
+            ->where('platform', 'Google')
             ->first();
         $this->assertNotNull($diamond);
         $this->assertSame(self::PAID_DIAMOND_AMOUNT, $diamond->paid_amount);
@@ -138,9 +141,10 @@ class BuyEndpointTest extends TestCase
 
         $response->assertJsonPath('error_code', 16005); // PRODUCT_ID_MISMATCH
 
-        // 付与されていない
+        // 付与されていない（購入先 Google の行は作られない。Apple の行はサインアップ時の 0 のまま）
         $this->assertNull(
-            DB::connection($this->playerConnection($this->sysPlayerId))->table('trx_diamond')->where('sys_player_id', $this->sysPlayerId)->first()
+            DB::connection($this->playerConnection($this->sysPlayerId))->table('trx_diamond')
+                ->where('sys_player_id', $this->sysPlayerId)->where('platform', 'Google')->first()
         );
     }
 

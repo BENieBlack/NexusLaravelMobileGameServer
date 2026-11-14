@@ -112,6 +112,7 @@ title-to-home の api.md の JSON 例は `false` と書いているが、実装�
 **決定（S3 の範囲）**: `Nexus\Core\Models\_BaseModel::toResponseArray()` の最後で `is_delete` が配列にあれば `(bool)` に変換する。応答にだけ効き、DB・永続化・モデルの属性は変えない。理由: 全 trx の応答（login と `updated_resources`）が 1 か所で揃う。モデルごとの `$casts` は子クラスの定義で上書きされるので、基底の `$casts` に足しても効かない（`TrxStamina` などが `$casts` を持つ）。
 
 - 影響: `toResponseArray` の呼び出しは 28 か所（モデルの override 43 ファイルは parent に委譲しており、基底の変更は全モデルに効く）で、login 以外の API（`updated_resources`）の `is_delete` も真偽値になる。`is_delete` の応答の値を検証するテストは見つからなかった（`api/tests` の `is_delete` はほぼ DB 行の検証。読んだ）が、**他のクライアント機能が 0/1 を前提にしていないかは未確認で、S3 の作業として洗い出す（U-1）**。クライアント側は、移行の間は真偽値と 0/1 の両方を受ける実装が安全。
+- **実装で分かった補足（S3）**: 同じリクエストで `new` した未保存の行（例: ログインボーナスの無償ダイヤで新規作成される `trx_diamond` の行。`persistDiamond` が `is_delete` を入れない）は、`is_delete` のキー自体が応答から消える。そのため `$fillable` に `is_delete` があるのに配列に無いときは、DB の既定値と同じ `false` を補う（`_BaseModel::toResponseArray()`）。`updated_resources` に載る新規行にも `is_delete: false` のキーが増える。
 - 実装後は、title-to-home の api.md の JSON 例（`false`）と一致する。サーバーを変えずクライアントが 0/1 を解釈する案は採らない（人の決定が BOOL のため）。
 
 ### 3.2 日時の書式（`last_recovery_at`・`last_login_at`）— 確定

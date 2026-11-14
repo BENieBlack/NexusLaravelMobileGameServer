@@ -7,6 +7,7 @@ use App\Domain\DoesNotReturnUpdatedResources;
 use App\Domain\Login\Responses\HomeResponse;
 use App\Exceptions\SystemDataException;
 use App\Models\Sys\SysPlayer;
+use App\Models\Trx\TrxDiamond;
 use App\Models\Trx\TrxStamina;
 use App\Persistence\ApiSession;
 use App\Repositories\Sys\SysPlayerRepository;
@@ -92,7 +93,12 @@ class HomeUseCase extends _BaseUseCase
             $trxUnits = $this->trxUnitRepository->queryOrMemory();
             $trxItems = $this->trxItemRepository->queryOrMemory();
             $trxWallets = $this->trxWalletRepository->queryOrMemory();
-            $trxDiamonds = $this->trxDiamondRepository->queryOrMemory();
+            // ダイヤは全行を取得したあとで、X-Platform の platform の 1 行だけを選ぶ。
+            // DB 側で絞らないのは、同じリクエストのログインボーナスが積んだ未保存の行も見えるようにするため
+            // （queryOrMemory はメモリ上のキューも含む）。行が無ければ null
+            $currentPlatform = ApiSession::getPlatform();
+            $trxDiamond = $this->trxDiamondRepository->queryOrMemory()
+                ->first(fn (TrxDiamond $diamond) => $diamond->getPlatform() === $currentPlatform);
             $trxEquipments = $this->trxEquipmentRepository->queryOrMemory();
 
             return new HomeResponse(
@@ -100,7 +106,7 @@ class HomeUseCase extends _BaseUseCase
                 trxUnits: $trxUnits->values()->all(),
                 trxItems: $trxItems->values()->all(),
                 trxWallets: $trxWallets->values()->all(),
-                trxDiamonds: $trxDiamonds->values()->all(),
+                trxDiamond: $trxDiamond,
                 trxEquipments: $trxEquipments->values()->all(),
                 trxStaminas: $this->recoveredTrxStaminas($sysPlayerId),
                 loginBonusContents: $loginBonusContents,

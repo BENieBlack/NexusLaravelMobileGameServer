@@ -62,6 +62,8 @@ class TradeEndpointTest extends TestCase
         $this->accessToken = $token;
         $this->connection = $this->playerConnection($this->sysPlayerId);
 
+        // 空の新規プレイヤーを前提にフィクスチャを入れるので、初期付与の行を外す
+        $this->deleteInitialGrant($this->sysPlayerId);
         $this->createPlayerData();
         ApiSession::clearForTest();
         app(QueryManager::class)->clear();

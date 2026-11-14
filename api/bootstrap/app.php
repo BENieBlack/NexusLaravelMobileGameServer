@@ -6,6 +6,7 @@ use App\Http\Middleware\CheckMasterHash;
 use App\Http\Middleware\LockPlayerRequest;
 use App\Http\Middleware\ResolveBroadcastUser;
 use App\Http\Middleware\ResolveLanguage;
+use App\Http\Middleware\ResolvePlatform;
 use App\Http\Middleware\VerifyAdminToken;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -49,6 +50,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
             'throttle.auth' => ThrottleAuth::class,
             'throttle.public' => ThrottlePublicRead::class,
             'maintenance' => CheckMaintenance::class,
+            'platform' => ResolvePlatform::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

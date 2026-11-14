@@ -34,6 +34,10 @@ abstract class TestCase extends BaseTestCase
         // テスト環境ではクライアント署名検証を無効化
         $this->withoutMiddleware(VerifyClientSignature::class);
 
+        // 全ゲームAPIは X-Platform ヘッダーが必須なので、既定で Apple を付ける。
+        // 除外ルート・欠落・不正値のテストだけ withoutHeader('X-Platform') で外す
+        $this->withHeader('X-Platform', 'Apple');
+
         // メンテナンスストレージをメモリ実装に差し替える
         // （本番ドライバはAWS/Alibabaの外部SDKを必要とするためテストでは使えない）
         $this->app->singleton(
@@ -56,9 +60,63 @@ abstract class TestCase extends BaseTestCase
         // 前のテストが載せた値を読まないよう、テスト専用のDB番号（phpunit.xml の REDIS_CACHE_DB）を空にする
         Cache::store('redis')->flush();
 
+        // sign_up は初期スタミナをレベル 1 の mst_player_level から引き、無ければ失敗する。
+        // サインアップを通すテストが多いので、既定でレベル 1 の行を用意する
+        $this->ensureInitialLevelMaster();
+
         // 接続を閉じる前に消す（トランザクションで包むテストでは巻き戻しと同じ結果になる）
         $this->beforeApplicationDestroyed(fn () => $this->deleteSignedUpPlayers());
         $this->beforeApplicationDestroyed(fn () => $this->releaseDatabaseConnections());
+    }
+
+    /**
+     * サインアップ時の初期付与で入った trx の行を消す
+     *
+     * 「新規プレイヤーには trx の行が無い」ことを前提に自前のフィクスチャを入れるテストが、
+     * サインアップの後に呼んで初期データを外す。サインアップ後の状態を調べるテストは呼ばない。
+     * 割り当てが無い（sys の行を先に消した）ときは何もしない。
+     */
+    protected function deleteInitialGrant(int $sysPlayerId): void
+    {
+        try {
+            $connection = $this->playerConnection($sysPlayerId);
+        } catch (\RuntimeException) {
+            return;
+        }
+
+        foreach (['trx_diamond', 'trx_wallet', 'trx_wallet_balance', 'trx_item', 'trx_stamina'] as $table) {
+            DB::connection($connection)->table($table)->where('sys_player_id', $sysPlayerId)->delete();
+        }
+    }
+
+    /**
+     * レベル 1 の mst_player_level（初期スタミナの元）が無ければ入れる
+     *
+     * 既にあれば（MstPlayerLevelTest などが自分で用意した値）触らない。
+     * テストごとに行を消す／入れるテストは、自分で delete してから入れる。
+     */
+    protected function ensureInitialLevelMaster(): void
+    {
+        $mst = DB::connection('mst');
+
+        // DB を使わない Unit テスト（先に実行されると、CI のテスト DB はまだ未マイグレーション）では
+        // テーブル自体が無い。その場合は何もしない。DB を使うテストは RefreshMultipleDatabases が
+        // この setUp より前（parent::setUp 内）にマイグレーションを済ませるので、ここでテーブルがある
+        if (! $mst->getSchemaBuilder()->hasTable('mst_player_level')) {
+            return;
+        }
+
+        if (! $mst->table('mst_player_level')->where('level', 1)->exists()) {
+            $mst->table('mst_player_level')->insert([
+                'level' => 1,
+                'required_exp' => 0,
+                'max_stamina' => 50,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        _BaseMstRepository::clearAllCaches();
     }
 
     /**
@@ -103,6 +161,11 @@ abstract class TestCase extends BaseTestCase
     {
         if ($this->signedUpPlayerIds === [] || $this->app['db'] instanceof MockInterface) {
             return;
+        }
+
+        // サインアップ時の初期付与で入った trx の行も消す（sys の割り当てを消す前に、接続先を引く）
+        foreach ($this->signedUpPlayerIds as $playerId) {
+            $this->deleteInitialGrant($playerId);
         }
 
         $sys = DB::connection('sys');

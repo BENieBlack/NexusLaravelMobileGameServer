@@ -139,6 +139,10 @@ class MstItemSeeder extends Seeder
             ['id' => 'gold', 'type' => 'currency', 'effect' => 'none', 'value' => 0, 'is_wallet' => true],
             ['id' => 'coin', 'type' => 'currency', 'effect' => 'none', 'value' => 0, 'is_wallet' => true],
 
+            // 無償ダイヤ（trx_item で持つ。Wallet 管理ではないので is_wallet = false）。
+            // サインアップ時の初期付与（InitialGrantConst::FREE_DIAMOND_MST_ITEM_ID）が指す
+            ['id' => 'free_diamond', 'type' => 'currency', 'effect' => 'none', 'value' => 0, 'is_wallet' => false],
+
             // 自然資源
             ['id' => 'food', 'type' => 'natural_resource', 'effect' => 'none', 'value' => 0, 'is_wallet' => true],
             ['id' => 'wood', 'type' => 'natural_resource', 'effect' => 'none', 'value' => 0, 'is_wallet' => true],
@@ -161,6 +165,9 @@ class MstItemSeeder extends Seeder
                 'type' => $itemData['type'],
                 'effect' => $itemData['effect'],
                 'value' => $itemData['value'],
+                // 渡さないと列の既定値（false）になり、Wallet 管理のはずの coin・gold が
+                // trx_item に振り分けられてしまう。$items に無い行は Wallet 管理ではない
+                'is_wallet' => $itemData['is_wallet'] ?? false,
             ]);
         }
     }

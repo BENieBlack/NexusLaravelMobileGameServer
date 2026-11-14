@@ -137,4 +137,41 @@ class VerifyClientSignatureTest extends TestCase
         $this->assertTrue($nextCalled);
         $this->assertEquals(200, $response->getStatusCode());
     }
+
+    /**
+     * X-Platform は署名の対象ではない（署名の組み立ては変わらない）
+     *
+     * 同じ署名が、X-Platform の有無・値に関わらず通ることを確かめる。
+     */
+    public function test_signature_ignores_x_platform_header()
+    {
+        $secret = '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
+        $body = '{"test":"data"}';
+
+        Config::set('security.client_signature.timestamp_tolerance', 300);
+        Config::set('security.client_signature.secret', $secret);
+        Config::set('app.client_secret', null);
+        Config::set('security.client_signature.nonce_cache_ttl', 600);
+
+        foreach ([null, 'Apple', 'Google'] as $i => $platform) {
+            $timestamp = time();
+            $nonce = "platform-nonce-{$i}";
+            $signature = hash_hmac('sha256', "{$timestamp}:{$nonce}:{$body}", $secret);
+
+            Cache::shouldReceive('has')->with("client_nonce:{$nonce}")->andReturn(false);
+            Cache::shouldReceive('put')->with("client_nonce:{$nonce}", true, 600)->once();
+
+            $request = Request::create('/test', 'POST', [], [], [], [], $body);
+            $request->headers->set('X-Client-Timestamp', (string) $timestamp);
+            $request->headers->set('X-Client-Nonce', $nonce);
+            $request->headers->set('X-Client-Signature', $signature);
+            if ($platform !== null) {
+                $request->headers->set('X-Platform', $platform);
+            }
+
+            $response = (new VerifyClientSignature)->handle($request, fn () => response()->json(['success' => true]));
+
+            $this->assertEquals(200, $response->getStatusCode());
+        }
+    }
 }

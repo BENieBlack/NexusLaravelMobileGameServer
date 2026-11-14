@@ -40,6 +40,22 @@ class ToResponseArrayTest extends TestCase
     }
 
     /**
+     * is_delete は、DB から読んだ 0/1・未設定の新規行のどちらも JSON の真偽値になること
+     */
+    #[Test]
+    public function test_is_delete_is_always_boolean_in_response()
+    {
+        // DB から読み込んだ行（0/1 の整数）
+        $loaded = (new TrxUnit)->newFromBuilder(['id' => 1, 'sys_player_id' => 1, 'mst_unit_id' => 'u', 'is_delete' => 1]);
+        $this->assertTrue($loaded->toResponseArray()['is_delete']);
+        $loaded = (new TrxUnit)->newFromBuilder(['id' => 1, 'sys_player_id' => 1, 'mst_unit_id' => 'u', 'is_delete' => 0]);
+        $this->assertFalse($loaded->toResponseArray()['is_delete']);
+
+        // is_delete を入れていない未保存の新規行（DB の既定値と同じ false）
+        $this->assertFalse((new TrxUnit)->toResponseArray()['is_delete']);
+    }
+
+    /**
      * TrxEquipment: id → trx_equipment_id に変換されること
      */
     #[Test]

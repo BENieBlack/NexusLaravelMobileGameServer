@@ -89,6 +89,7 @@
 | amount | 配布量 | 同じ |
 
 - クライアントの `login_bonus_presenter.gd` の `"diamond"` の分岐は、`item` かつ `free_diamond` を無償ダイヤとして表示する形に直す（全体設計 K2。S4。このドキュメントの対象外）。
+- 5 日目のスタミナ報酬は、`type = stamina`・`id = stamina` から **`type = item`・`id = stamina_50`・`amount = 1`** に変わる（db.md 10.3.1 節。人の決定）。使用は既存の `POST /api/item/use`（応答の変更なし）。クライアントは `item` の名前を `mst_item` から引く（変更不要）。
 - 付与の先は `trx_item` の `free_diamond`。ログインボーナスの付与は login の同じトランザクションの中（変更なし。home-player-info の sequence.md 1 節）。
 
 ## 4. ダイヤを消費・付与する API の `updated_resources`（F8・F15）
@@ -217,6 +218,6 @@
 | クライアントの送信 | **全 API に `Accept-Language: ja` を送る**（クライアントは `ja` 固定。クライアント設計 5-2・5-3-1。ヘッダー名は既存の `Accept-Language`。`X-Language` は新設しない） |
 | サーバーの受け口（既存。読んだ） | `ResolveLanguage`（`api` グループの先頭。`bootstrap/app.php`）が `Accept-Language` を解釈し、`ApiSession::setLanguage` と `app()->setLocale` に載せる。対応言語と既定（`ja`）は `api/config/language.php`。サポート外・ヘッダー欠落は既定の `ja` に倒す（**拒否しない**。`X-Platform` の `99003` と違う）。署名には含めない。**新設・変更は無い** |
 | この機能の API の応答 | **l10n を使わない**。login・`updated_resources`・購入・ガチャ・交換の応答に、アイテムの名前・説明を載せない（`name`・`description` の項目は増やさない）。アイテムは ID（`item_id`・`mst_item_id`）だけで返す |
-| いま l10n を使う応答 | **メール一覧だけ**。`MailboxItemAssemblyService` が `ApiSession::getLanguage()` で `mst_message__l10n` を引いて件名・本文を作る（読んだ。ほかの API で `getLanguage()` を使う箇所は無い）。ミッション・交換の一覧の応答は名前を載せず、クライアントが `mst_mission__l10n`・`mst_trade__l10n` などを引く（各 `ListResponse` のコメント）。アイテムの名前はこの後者の流儀に合わせる |
+| いま l10n を使う応答 | **メール一覧だけ**。`MailboxItemAssemblyService` が `ApiSession::getLanguage()` で `mst_message__l10n` を引いて件名・本文を作る（読んだ。ほかの API で `getLanguage()` を使う箇所は無い）。ミッション・交換の一覧の応答は名前を載せず、クライアントが `mst_mission__l10n`・`mst_trade__l10n` などを引く（各 `ListResponse` のコメント）。アイテムの名前はこの後者の流儀に合わせる。l10n の読み方・キャッシュの規則は db.md 10.7 節 |
 | 追加のテスト | 不要（`ResolveLanguageTest` が既にある。応答に項目を足さないので応答のテストも変わらない） |
 | 運用 | 行を入れたあと、再エクスポートして version API の `master.tables` に `mst_item` が載ることを確かめる（db.md 10.6 節） |

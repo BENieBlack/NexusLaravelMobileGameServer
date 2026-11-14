@@ -17,7 +17,7 @@
 | `trx_diamond_balance` | 有償のみ。列は変えない。消費のたびに `current_amount` を減らす新しい書き込みが増える（5 節。索引は既存で足りる） |
 | mst | 列の型の変更は enum の値の取り除きだけ（6 節）。新しい mst テーブルは無いので、mst の string id 規約（`MstRequiresStringIdTest`・`MstNoAutoIncrementIdTest`）に新しく触れない（7 節） |
 | 既存データ | 移行しない（要件 Q3・Q6）。`make migrate-fresh && make seed` で作り直す |
-| アイテムの表示名（design-change） | `mst_item__l10n` の行をシーダーで入れる（10 節）。**テーブル・列は変えない**（既存。新しい mst テーブルではない）。クライアントがホーム・ログインボーナスなどで全アイテムの名前を引く |
+| アイテムの表示名（design-change） | `mst_item__l10n` の行をシーダーで入れる（10 節）。**テーブル・列は変えない**（既存。新しい mst テーブルではない）。クライアントがホーム・ログインボーナスなどで全アイテムの名前を引く。あわせて `mst_item` に `stamina_50` を足し、ログインボーナス 5 日目をそれにする（10.3.1 節）。`mst_item` は 29 行 |
 | マイグレーションの置き場 | すべて既存ファイルの書き換え（`.claude/database.md` 3 節。共有の検証環境を作るまで許される）。新規ファイルは作らない |
 
 ## 2. `trx_diamond` から `free_amount` を取り除く（F6）
@@ -220,9 +220,11 @@
 | U-S6 | `free_diamond` の ID の定数の名前と置き場所（6.4） | `nexus-core` の `Nexus\Core\Resource\` 配下に置く（具体名は S3 で決める）。`InitialGrantConst::FREE_DIAMOND_MST_ITEM_ID` もそれを指す |
 | U-S7 | ガチャ・交換の `cost_type = item` で `free_diamond` を指すマスターを、マスターの取り込み時に拒否するか | **拒否しない**。ランタイムのガード（6.4）で足りる。取り込み時の検査は別の機能 |
 | U-S8 | `mst_item__l10n` の `ja` の `name`（10.3 節の一覧）の確定。**運営が決める**（仮置きのまま出荷しない） | 10.3 節の仮置きで進める。`free_diamond` だけは `無償ダイヤ`（クライアント設計 5-3 S-1 の必須。人の決定済み）。`description` は全行 `null` |
-| U-S9 | `stamina`（ログインボーナスの `content_type = stamina`・`content_mst_id = stamina`。`MstLoginBonusSeeder` 5 日目）は `mst_item` に行が無く、`mst_item__l10n` でも名前を引けない | **この機能では扱わない**（`type = item` ではないのでクライアントは `mst_item` を引かない。既存の表示のまま）。`stamina` を `mst_item` に足すかは別件（人が決める） |
-| U-S10 | `MstItemL10n` モデル（`MstMessageL10n` に倣う）と `MstItem::l10n()` を足してシーダーで使うか、シーダーだけ `DB::connection('mst')->table('mst_item__l10n')` で入れるか | モデルを足す（`.claude/coding-standards.md` 99 行目。`MstMessageL10n`・`MstMessage::l10n()` と同じ形）。API の応答では使わないので、リレーションの読み取りは S3 で作らない（モデルとシーダーでの書き込みだけ） |
-| U-S11 | `mst_item` に行を足したとき `mst_item__l10n` の行を必須にする検査（テスト）を入れるか | 入れる（`MstItemSeederTest`：全行に `ja` の行がある。10.4 節）。本番のマスター投入（運営ツール）の検査は別の機能 |
+| ~~U-S9~~（解決済み。人の決定） | ログインボーナスの `stamina` 報酬。**決定**: ログインボーナスでスタミナを渡せるようにする。`mst_item` に `id = stamina_50`・`value = 50` を足し、アイテムとして配り、使用するとスタミナが回復する | 設計は 10.3.1 節。列の解釈（人の言う `category = stamina` を `type = 'stamina'` と読む）は U-S12 で確認 |
+| ~~U-S10~~（解決済み。人の回答＋確定） | `MstItemL10n` モデルと `MstItem::l10n()` | **足す（確定）**。l10n のモデルは `MstMessageL10n`・`MstTagL10n`・`MstMissionL10n`・`MstTradeL10n`・`MstTradeProductL10n`・`MstEventL10n` が既にあり、`MstItemL10n` だけ無い。`.claude/coding-standards.md` 99 行目が「`<親>__l10n` にもモデルを作り、親から `l10n(): HasMany` で引く」と定める。キャッシュの扱いは 10.7 節（U-S13） |
+| ~~U-S11~~（解決済み。人の決定） | `mst_item` の全行に `mst_item__l10n` の行があることを検査するテスト | **入れる**（29 行。10.4 節） |
+| U-S12 | 人の言う「`category = stamina`」は、実際の `mst_item` の列（`type`・`effect`・`value`。`category` 列は無い）では **`type = 'stamina'`** のことか | **`type = 'stamina'`**（`effect = 'stamina_recover'`・`value = 50`・`is_wallet = false`）と解釈して設計した（10.3.1 節）。`type` は string 列（enum ではない）で、いまの値は `recovery`・`boost`・`experience`・`unit_enhancement`・`material`・`currency`・`natural_resource`・`points`。`UseItemUseCase` は `effect` だけで分岐するので、`type` は表示・分類用。**違うなら人が指示**（例: `type = 'recovery'` に入れる） |
+| U-S13 | 人の提案ルール「l10n は親を eager load して一緒にキャッシュする」を、この機能で `MstItemRepository` に適用するか（10.7 節） | **適用する**（S3）。基底 `_BaseMstRepository`（`packages/nexus-core`）に eager load の指定を足し、`MstItemRepository` が `['l10n']` を指定する。この機能の API は l10n を読まない（読み手が無い）ので効果は将来の読み手向け。**読み手が出るまで入れない**案もあり、人が決める。ルールの `.claude/` への明文化は S3 |
 
 ## 10. アイテムの表示名: `mst_item__l10n` の行を入れる（design-change。要件「表示名の配信」）
 
@@ -240,16 +242,16 @@
 
 ### 10.2 方針（シーダー・規約）
 
-- **`MstItemSeeder` の全行**（`free_diamond` を含む。10.3 節の 28 行）に、`language = ja` の行を 1 行ずつ入れる。名前の正本は `MstItemSeeder` の `$items` の各要素に `name`（必須）・`description`（省略可。省略は `null`）を足して持つ。ID と名前を別の配列に分けない（足し漏れを防ぐ）。
+- **`MstItemSeeder` の全行**（`free_diamond` と、この設計で足す `stamina_50` を含む。10.3 節の 29 行）に、`language = ja` の行を 1 行ずつ入れる。名前の正本は `MstItemSeeder` の `$items` の各要素に `name`（必須）・`description`（省略可。省略は `null`）を足して持つ。ID と名前を別の配列に分けない（足し漏れを防ぐ）。
 - 冪等: `mst_item` と同じく、実行の頭で `mst_item__l10n` も `truncate`（`mst_item` の truncate の直後）。
 - `deploy_key`: `mst_item` の行と同じ値（`MstItemSeeder` の `202601010`）。
 - **規約に反しない点**: `mst_item__l10n` は mst の「string の `id` 必須」の対象外（主キーは親の ID + `language`。`MstRequiresStringIdTest` は `__l10n` を除外し、`.claude/database.md` 3 節・6 節）。新しいテーブルを作らないので `PENDING_VIOLATIONS` も変えない（7 節）。`deploy_key` 列は既にある（同 7 節）。`name`・`description` に `id` 的な値は入れない。
 - `language` は `ja` だけ入れる（クライアントは `ja` 固定。他言語の行は運営がマスター投入で足す。ENUM の値は変えない）。
-- 書き込みは `_BaseMst::allowWrites()` の中（既存のシーダーと同じ）。モデルは U-S10 の既定案（`MstItemL10n`）。
+- 書き込みは `_BaseMst::allowWrites()` の中（既存のシーダーと同じ）。モデルは `MstItemL10n`（U-S10 確定。`MstMessageL10n` の形）。
 
 ### 10.3 `mst_item` の全行と `ja` の名前（**仮置き。運営が確定する**）
 
-`MstItemSeeder` の全行（28 行。2026-11-14 に読んだ）。手掛かりは、`ResourceType::label()`（`packages/nexus-core/src/Resource/Enums/ResourceType.php`。ゴールド・コイン・食料など Wallet 管理の名前）、シーダーの `type`・`effect`・`value`、テストが作る名前（`UnitLevelUpTest` の `ユニット経験値ポーション`・`スタミナポーション`。シーダーの行ではなくテストが入れる別 ID）。「現状の名前」は、いま名前を持つ場所があるものだけ書く。
+`MstItemSeeder` の全行（いまの 28 行に `stamina_50` を足して 29 行。2026-11-14 に読んだ）。手掛かりは、`ResourceType::label()`（`packages/nexus-core/src/Resource/Enums/ResourceType.php`。ゴールド・コイン・食料など Wallet 管理の名前）、シーダーの `type`・`effect`・`value`、テストが作る名前（`UnitLevelUpTest` の `ユニット経験値ポーション`・`スタミナポーション`。シーダーの行ではなくテストが入れる別 ID）。「現状の名前」は、いま名前を持つ場所があるものだけ書く。
 
 | `mst_item.id` | `type` / `effect`（`value`）| 現状の名前・説明の手掛かり | `ja` の `name`（仮置き） |
 | --- | --- | --- | --- |
@@ -271,6 +273,7 @@
 | `item_material_003` | material / none | 無し | 素材 3 |
 | `gold` | currency / none（Wallet） | `ResourceType::GOLD` のラベル `ゴールド` | ゴールド |
 | `coin` | currency / none（Wallet） | `ResourceType::COIN` のラベル `コイン` | コイン |
+| `stamina_50` | stamina / stamina_recover（50）（**新規行。10.3.1 節**。`trx_item`） | 無し（ログインボーナス 5 日目の `stamina` 50 を置き換える） | スタミナ回復薬（50） |
 | `free_diamond` | currency / none（`trx_item`） | 要件・クライアント設計の名前 `無償ダイヤ`（`ResourceType::DIAMOND` のラベルは `ダイヤ`。廃止予定） | **無償ダイヤ**（必須。人の決定済み） |
 | `food` | natural_resource / none（Wallet） | ラベル `食料` | 食料 |
 | `wood` | 同上 | ラベル `木材` | 木材 |
@@ -282,20 +285,56 @@
 | `achievement_points` | 同上 | ラベル `達成ポイント` | 達成ポイント |
 | `vip_points` | 同上 | ラベル `VIPポイント` | VIPポイント |
 
+- 上の表は 29 行。`stamina_50` の `ja` の名前も**仮置き**（U-S8）。
 - `description` は全行 `null`（仮置き。名前だけで足りる。説明文は運営が決める。U-S8）。
 - 上の一覧にあるのは**シーダーの ID だけ**。テストが自分で作る ID（`unit_exp_potion`・`stamina_potion`・`equipment_exp_potion` など）は対象外（各テストが自分の l10n を入れ、後始末する）。
 - 「手掛かり」が `ResourceType::label()` のものは、ラベルと名前が二重管理になる（ラベルは配信側の `Resource` の表示用。クライアントは l10n を引く）。**この機能では揃えるだけで、どちらかを消さない**。
 
+### 10.3.1 スタミナ回復薬 `stamina_50`（人の決定。U-S9）
+
+**決定**: ログインボーナスでスタミナを渡せるようにする。`mst_item` に `id = stamina_50`・`value = 50` を足す。アイテムとして配り、使用するとスタミナが回復する。
+
+| 項目 | 設計 |
+| --- | --- |
+| `mst_item` の行 | `['id' => 'stamina_50', 'type' => 'stamina', 'effect' => 'stamina_recover', 'value' => 50, 'is_wallet' => false]`（`MstItemSeeder`。`type = 'stamina'` は人の言う `category` の解釈で、U-S12 で人に確認）。`effect` は既存の `ItemEffectType::STAMINA_RECOVER`（`packages/nexus-core/src/Resource/Enums/ItemEffectType.php`）。`is_wallet = false` なので `trx_item` で持つ |
+| 付与 | ログインボーナス 5 日目（`MstLoginBonusSeeder.php:41`）を `content_type = stamina`・`content_mst_id = stamina`・`amount = 50` から **`content_type = item`・`content_mst_id = stamina_50`・`amount = 1`** に変える。付与は `ItemDeliveryHandler` 経由で `trx_item` の `stamina_50` 行の `free_amount` に足される（要件 F1 と同じ経路。ログインボーナスの付与は login の同じトランザクション内） |
+| 使用 | `POST /api/item/use`（`UseItemUseCase`）。`ItemEffectType::STAMINA_RECOVER` の分岐が `value × 使用個数` を整数にして `staminaGranter->grantStamina()` へ渡す（読んだ。`UseItemUseCase.php:117`）。**新しいコードは要らない** |
+| `ResourceType::STAMINA` | **残す**（削除しない。他の経路 `StaminaDeliveryHandler` がある）。ログインボーナスの `content_type = stamina` の値が、このシーダーから無くなるだけ |
+| 既知の不具合との関係（事実） | 従来、5 日目のスタミナ報酬は `StaminaDeliveryHandler` → `grantStamina` で付与され、スタミナ行が無いと `recoverStaminaByItem` が「Stamina record not found」を返すのに、呼び出し側（`StaminaGranterAdapter`）は結果を見ずに捨てるため、**付与が黙って無くなる**（home-player-info の db.md 205 行目。読んだ）。アイテムとして配る形にすると、**ログインボーナスの付与は `trx_item` への加算だけでスタミナ行に依存しないので、この経路で黙って捨てられることは無くなる**。ただし使用（`/item/use`）は同じ `grantStamina` を通るので、スタミナ行が無いときの扱い（アイテムの消費は先に済む）は変わらない。初期スタミナ行をサインアップで作る対応（home-player-info 側）が前提。この機能では直さない |
+| 他の直し | (1) `RecordingLoginBonusSeeder` の 5 日目（`5 => ['stamina', 'stamina', 50]`）も同じく `item` / `stamina_50` / 1 に。(2) `MstLoginBonusSeeder` のコメント（`content_type` の例）。(3) テスト: `MstItemSeederTest` に `stamina_50` の行（`type`・`effect`・`value`・`is_wallet = false`）、ログインボーナスの 5 日目のテスト（あれば）。(4) `ja` の名前（10.3 の仮置き）を `mst_item__l10n` に |
+| クライアント | **変更不要**。ログインボーナス表示は `item` の名前を `mst_item`（l10n）から引く（クライアント設計 3-2。`stamina` は従来「`mst_item` を引かない」分類だったが、`item` になるので名前が出る）。名前が引けないときは従来の「アイテム (ID:…)」のフォールバック |
+
 ### 10.4 テスト（S3 で足す）
 
-- `MstItemSeederTest`: ① `mst_item` の**全行**に `language = ja` の `mst_item__l10n` の行がある（名前が空でない）、② `free_diamond` の `ja` の `name` が `無償ダイヤ`、③ 同じシーダーを 2 回流しても行が増えない（主キー重複で落ちない＝冪等）、④ `tearDown` で `mst_item__l10n` も消す（いまは `mst_item` だけ消す。行を残すと他のテストの後始末と食い違う）。
+- `MstItemSeederTest`: ① `mst_item` の**全行（29 行）**に `language = ja` の `mst_item__l10n` の行がある（名前が空でない）、② `free_diamond` の `ja` の `name` が `無償ダイヤ`、③ `stamina_50` の行が `type = stamina`・`effect = stamina_recover`・`value = 50`・`is_wallet = false` で入る、④ 同じシーダーを 2 回流しても行が増えない（主キー重複で落ちない＝冪等）、⑤ `tearDown` で `mst_item__l10n` も消す（いまは `mst_item` だけ消す。行を残すと他のテストの後始末と食い違う）。
 - アーキテクチャ: `MstRequiresStringIdTest`・`MstNoAutoIncrementIdTest` は変更なし（10.2）。
 
 ### 10.5 録画用シード
 
-**専用のシナリオは足さない**。録画用のシード（`Recording/`）は `make seed`（`MstItemSeeder`）済みが前提で、`MstItemSeeder` が全行の `ja` の l10n を入れるので、`RecordingLoginBonusSeeder` が使う `free_diamond`・`gold` の名前もそれで足りる（重複を避ける）。`README.md` の前提の節に「`mst_item__l10n` も `make seed` が入れる」と 1 行足すだけ。
+**専用のシナリオは足さない**。録画用のシード（`Recording/`）は `make seed`（`MstItemSeeder`）済みが前提で、`MstItemSeeder` が全行の `ja` の l10n を入れるので、`RecordingLoginBonusSeeder` が使う `free_diamond`・`gold` の名前もそれで足りる（重複を避ける）。`README.md` の前提の節に「`mst_item__l10n` も `make seed` が入れる」と 1 行足すだけ。ただし `RecordingLoginBonusSeeder` の 5 日目は `item` / `stamina_50` / 1 に直す（10.3.1 節）。`stamina_50` の `mst_item` の行は `MstItemSeeder` が入れるので、`make seed` 済みが前提のままで足りる。
 
 ### 10.6 運用作業（コードの変更ではない）
 
 - エクスポート（`POST /master-import/export`）は**変更しない**。行を入れたあとに**再エクスポート**し、version API の `master.tables` に `mst_item` が載る（`mst_item__l10n` は同じファイルに入る）ことを確かめる（クライアントの S5 の動画の前提）。
 - 本番のマスター投入（スプレッドシート → `MasterImportService`）で `mst_item__l10n` を持つかは、運営の運用（この機能の対象外）。シーダーは開発・検証環境の初期値。
+
+### 10.7 l10n の読み方とキャッシュ（U-S10・U-S13。事実と設計）
+
+**事実（読んだ）**
+
+| 項目 | 現状 |
+| --- | --- |
+| l10n のモデル | `MstMessageL10n`・`MstTagL10n`・`MstMissionL10n`・`MstTradeL10n`・`MstTradeProductL10n`・`MstEventL10n`（`api/app/Models/Mst/`）。**`MstItemL10n` は無い**。親側に `l10n(): HasMany` があるのは `MstMessage` だけ（`MstMessage::l10n()`） |
+| 規約 | `.claude/coding-standards.md` 99 行目: 「`<親>__l10n` にもモデルを作り、親から `l10n(): HasMany` で引く」 |
+| mst のキャッシュ | `_BaseMstRepository::queryOrMemory()`（`packages/nexus-core/src/Repositories/Mst/`）は、**親テーブル 1 つ**の全行を `Model::all()` で読み、Redis に `mst:{table}:all` のキーで `cacheTtl` の間置く。`all()` はリレーションを読まないので、**l10n はキャッシュに入らない**。l10n 専用の Repository・キャッシュも無い |
+| 実際の l10n の読み方 | サーバーが l10n を読むのは**メール一覧だけ**。`TrxMailboxRepository` が `with(['mstMailbox.message.l10n', ...])` で、一覧の取得時に `mst_message__l10n` をまとめて DB から SELECT する（Redis のキャッシュは通らない）。`MailboxItemAssemblyService` はその結果から `ApiSession::getLanguage()` の言語を選ぶ（無ければ既定 `ja`）。ミッション・交換のモデル（`MstMissionL10n` など）は定義されているが、応答の `ListResponse` は名前を載せず、クライアントがマスターから引く |
+| `MstItemRepository` | `MstItem::class` を指定するだけ。`selectById`・`selectListByIds`・`selectWalletManaged` が `queryOrMemory()` のキャッシュを使う。**`mst_item` はアイテムの付与・消費のたびに読まれる**（`isWalletManaged` ほか） |
+
+**設計（人の提案ルール: 「l10n は親テーブルを eager load して、親と一緒にキャッシュする」）**
+
+- 基底 `_BaseMstRepository`（`packages/nexus-core`）に、`protected array $eagerLoad = []` のような指定を足し、`queryOrMemory()` の読み込み（`Model::all()`）を `Model::with($this->eagerLoad)->get()` にする。**指定が空なら今と同じ動き**で、他の Repository は変わらない。
+- `MstItemRepository` は `$eagerLoad = ['l10n']` を指定する。これで `mst_item` の全行と各行の `l10n`（`mst_item__l10n`）が 1 つのキャッシュ（`mst:mst_item:all`）に入り、読み手が `$mstItem->l10n` を引いても追加の SELECT が出ない。N+1 にならない。
+- 読み手は `ApiSession::getLanguage()` の言語で `l10n` から選ぶ（無ければ `ja`。`MailboxItemAssemblyService` と同じ流儀）。
+- 影響: キャッシュの 1 キーが大きくなる（29 行 × 言語数。`ja` だけなら 29 行増）。`mst_item__l10n` だけを差し替えたときは、親（`mst_item`）のキャッシュを消す必要がある（`clearCache()` は親のキーを消すので、そのまま効く。マスターの再デプロイでキャッシュが作り直される運用は変わらない）。
+- **この機能の API は l10n を読まない**ので、適用の効果は将来の読み手向け（U-S13。人が「読み手が出るまで入れない」を選んでもよい）。
+- **S3 への申し送り**: 規約として `.claude/coding-standards.md`（l10n の節）または `.claude/database.md` 6 節に「l10n は親を eager load して一緒にキャッシュする（`$eagerLoad`）」と明文化する。今回は規約ファイルを触らない。既存の `MstMessage` は `TrxMailboxRepository` の `with()` で読む形のままにする（今回は対象外。揃えるかは別の機会）。

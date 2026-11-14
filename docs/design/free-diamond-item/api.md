@@ -124,7 +124,7 @@
 | 条件 | body の `platform` ≠ `X-Platform`（`ApiSession::getPlatform()`） |
 | 応答 | HTTP 299 ＋ `{"error_code": 99003, "message": "..."}`。`GameErrorCode::INVALID_PLATFORM`（99003）を流用し、**メッセージで区別**する。メッセージの案: `platform in body does not match X-Platform` |
 | 副作用 | **なし**。レシート検証（外部 API）の前に拒否する。購入履歴・有償・無償の加算・VIP ポイント・課金ログ・購入失敗ログのいずれも行わない（sequence.md 4 節） |
-| Slack 通知 | 通常の `GameException` で投げると `_BaseController::execute()` が `notifySlack` する（確認済み）。通知するかは人の判断（sequence.md 8 節 U-Q3。既定案は通知しない） |
+| Slack 通知 | **出さない**（人の決定）。`_BaseController::execute()` は `GameException` を `notifySlack` するので、通知を避ける形（`ErrorResponse` を直接返す等）にする。手段は S3（sequence.md 8 節 U-Q3） |
 | 位置 | `_BaseBuyUseCase::handle` の最初（Diamond・Pack・Pass の 3 UseCase に共通）。Controller は値を取り出して渡すだけ（変更なし）。`BuyRequest` のバリデーション（422 になる）では扱わない（業務エラーは 299 で返す規約） |
 | 欠落・不正との区別 | `X-Platform` の欠落・不正は `ResolvePlatform` が先に `INVALID_PLATFORM` を返す（`X-Platform header is required.` など。既存）。クライアントは `error_code` では同じで、**メッセージで見分ける**（人の決定 Q19） |
 
@@ -137,7 +137,7 @@
 | paid_diamond_amount | int | 変更なし。今回購入した有償ダイヤの数（パックは 0） |
 | rewards | array | パック・パスのときだけ載る（空なら省略）。**無償ダイヤの要素が変わる**（下） |
 | updated_resources | object | `trx_diamond`（単数。有償の購入）・`trx_item_list`（パックの無償）。2 節 |
-| ~~total_free_diamond_amount~~ | - | **現状、応答に無い**（`BuyResponse` にキーが無い。サービスの戻り値の中だけ）。載せるかは人に確認（db.md 9 節 U-S1。**既定案は載せない**。載せる場合は `int`・3 種の商品すべて・`free_diamond` の残高） |
+| ~~total_free_diamond_amount~~ | - | **現状、応答に無い**。現行の購入 API の JSON は `{paid_diamond_amount, updated_resources, rewards（Pack のときだけ）}` のみ。サービス戻り値の `total_paid_diamond_amount`・`total_free_diamond_amount`・`contents` は `BuyResponse` で捨てられている（`BuyResponse.php`、`BuyDiamondUseCase.php:49-60`、`BuyPackUseCase.php:49-56`）。載せるかは**未決**（人が確認中。db.md 9 節 U-S1。既定案は載せない）。載せる場合は `int`・3 種の商品すべて・`free_diamond` の残高 |
 
 `rewards` の要素（パック。`InAppPurchasePackService` の `contents` が `BuyPackUseCase` で `rewards` として出る。読んだ。API のキーは `rewards`で、要件・全体設計の `contents` はサービスの戻り値のキー）:
 
@@ -203,4 +203,4 @@
 | --- | --- | --- |
 | U-S1（再掲） | 購入の応答に `total_free_diamond_amount` を載せるか | 載せない（5.3 節）。載せるなら `BuyResponse` に int を足す |
 | U-S2（再掲） | パックの `rewards` の無償ダイヤの表現 | `{type: item, item_id: free_diamond, amount}` |
-| U-Q3（再掲） | 不一致エラーを Slack に通知するか | 通知しない（5.2 節） |
+| U-Q3（確定） | 不一致エラーを Slack に通知するか | 通知しない（5.2 節。確定） |

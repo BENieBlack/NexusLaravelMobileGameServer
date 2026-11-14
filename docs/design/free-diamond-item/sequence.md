@@ -54,7 +54,7 @@ sequenceDiagram
 ### 1.2 有償ダイヤ: 購入だけ（ゲーム内の通常の付与。前提表・Q24）
 
 - 付与の経路は `/in_app_purchase/buy` の `mst_in_app_purchase.paid_diamond_amount`（`type = diamond`、および `pass` で `> 0`）だけ（3 節）。
-- `PAID_DIAMOND` の type と `DiamondDeliveryHandler` の有償分岐は残す（将来の運営ツールからの調整用。Q24。**その機能は別機能**）。変更は、`DiamondDeliveryHandler` が**有償だけ**を扱う形になること（`supports` は `PAID_DIAMOND` だけ。`isPaid` の分岐を無くし、`DiamondService::addPaidDiamond` を呼ぶ）。platform の決め方（`metadata['platform']` → `X-Platform` → `Apple`）は従来どおり。**この経路は `trx_diamond_balance` の行を作らない**（読んだ。Q23 に従い、運営の調整分は購入単位を持たない。**消費の側で調整分を使い切れなくなる影響があり、db.md 9 節 U-S4（人の判断）に統合した**）。
+- `PAID_DIAMOND` の type と `DiamondDeliveryHandler` の有償分岐は残す（将来の運営ツールからの調整用。Q24。**その機能は別機能**）。変更は、`DiamondDeliveryHandler` が**有償だけ**を扱う形になること（`supports` は `PAID_DIAMOND` だけ。`isPaid` の分岐を無くし、`DiamondService::addPaidDiamond` を呼ぶ）。platform の決め方（`metadata['platform']` → `X-Platform` → `Apple`）は従来どおり。**この経路は `trx_diamond_balance` の行を作らない**（読んだ。Q23 に従い、運営の調整分は購入単位を持たない。運営調整は `paid_amount` と balance を両方整合させて操作する想定（別機能。この経路を調整の入口に使うかも別機能で決める。db.md 9 節 U-S4 確定））。
 - 購入は `DiamondDeliveryHandler` を通らず `addPaidDiamondWithBalance` を直接呼ぶ（3 節）。
 
 ## 2. サービス構成の変更（消費・付与の入口）
@@ -150,7 +150,7 @@ sequenceDiagram
 
 - `billing_platform` では区別しない（Q21）。`platform` が `X-Platform` と一致する行だけ。
 - 行は 0 になっても消さない。`trx_diamond_balance` は `updated_resources` に載らない。
-- 引ききれない場合は、**既定案では** `DIAMOND_NOT_ENOUGH` ではなく**データ不整合の例外**で、`paid_amount` の減算（キュー）ごと巻き戻す（db.md 5 節・9 節 U-S4）。ただし運営調整（`PAID_DIAMOND`）で増えた分は balance の合計に含まれないので、この既定案だと調整分を使い切れない。選択肢は U-S4（人の判断）。残高の判定は `paid_amount`（`trx_diamond`）が正で、balance は内訳。`paid_amount` が足りていれば、整合したデータでは balance も足りる。
+- 引ききれない場合は `DIAMOND_NOT_ENOUGH` ではなく**データ不整合の例外**で、`paid_amount` の減算（キュー）ごと巻き戻す（**確定**。db.md 9 節 U-S4）。運営調整は `paid_amount` と balance を両方整合させて操作する想定（別機能）なので、合計 = `paid_amount` の前提は保たれる。
 - 同点（同じ秒に作られた行）の並びは `id` の昇順。TiDB モードでは `id` が UUID で作成順にならない（`.claude/database.md` 11 節）ので、同じ秒の行の引く順は保証しない。購入は同じプレイヤーでロックされ直列なので、同じ秒に 2 行作られる状況は通常起きない（許容。仮置き）。
 
 ### 3.4 呼び出し元の確認（変更の波及）
@@ -200,12 +200,12 @@ sequenceDiagram
     end
 ```
 
-- **不一致のエラー（F13・Q19）**: `GameException(GameErrorCode::INVALID_PLATFORM, ...)`（99003。HTTP 299）。メッセージは欠落・不正（`ResolvePlatform` の `X-Platform header is required.` など）と区別できる文言にする（例: `platform in body does not match X-Platform`）。**`ResolvePlatform` は `ErrorResponse` を直接返す**（Slack 通知を避けるため）が、ここは UseCase なので通常の `GameException`。**`_BaseController::execute()`（`_BaseController.php:88-103`）は `GameException` を捕捉して `notifySlack` する**（平常の `DIAMOND_NOT_ENOUGH` も通知される。確認済み）。したがって、不一致を通常の `GameException` で投げれば**確実に Slack 通知が出る**。これは `ResolvePlatform` が通知を避けている意図（クライアントの付け忘れで通知が溢れるのを避ける）と食い違う（U-Q3。人の判断）。
+- **不一致のエラー（F13・Q19）**: `INVALID_PLATFORM`（99003。HTTP 299）。メッセージは欠落・不正（`ResolvePlatform` の `X-Platform header is required.` など）と区別できる文言にする（例: `platform in body does not match X-Platform`）。**Slack 通知は出さない形にする**（人の決定。U-Q3）。`_BaseController::execute()`（`_BaseController.php:88-103`）は `GameException` を捕捉して `notifySlack` する（確認済み）ので、通常の `GameException` で投げると通知される。通知を避けて `ErrorResponse` を直接返す等、`ResolvePlatform` の意図に合わせる。手段は S3 で決める。
 - **なぜ検証の前に置くか**: 検証後（`processPurchase`）に弾くと、ストアの決済は成立しているのに付与されない。検証の前に拒否すれば、決済のレシートは未消費のままで、クライアントが同じ値を送り直せる。`writeFailedPurchaseLog`（`try` の中で作る失敗ログ）も出さない（クライアントの実装の誤りで、購入の失敗ではない。仮置き。9 節）。
 - **一致したあと**の加算先は `X-Platform` の行と同じになる（F13）。`BuyEndpointTest` の「Apple でログインし body `platform = Google` で購入すると Google の行に入る」は不一致エラーのテストに変わる。
 - **有償ダイヤの購入**（`InAppPurchaseDiamondService::purchaseDiamond`）: `addPaidDiamondWithBalance`（`DiamondService::addPaidDiamond` ＋ `trx_diamond_balance` の行の作成）。購入の応答 `paid_diamond_amount` は変えない。サービスの戻り値の `total_free_diamond_amount` は、`trx_item` の `free_diamond` の残高（F3。`findFreeAmount`）に替わる。`total_paid_diamond_amount` は `X-Platform` の行の `paid_amount`（従来は同じ platform の行。変わらない）。
 - **パック**（`purchasePack`）: `free_diamond` の分岐が無くなり、`item` の分岐で `free_diamond` も加算する（`rewards` の表現は api.md 5 節）。戻り値の `total_free_diamond_amount` は「今回の付与量」から付与後の**残高**に変わる（F3）。**パックでは `trx_diamond_balance` の行を作らない**（有償ダイヤはパックの中身に入れられない。db.md 5 節）。
-- **API の応答に `total_free_diamond_amount` を載せるか**は未決（db.md 9 節 U-S1。既定案は載せない。サービスの戻り値だけ変える）。
+- **API の応答に `total_free_diamond_amount` を載せるか**は未決（db.md 9 節 U-S1。人が確認中）。事実: 現行の購入 API の JSON は `{paid_diamond_amount, updated_resources, rewards（Pack のときだけ）}` のみで、サービス戻り値は `BuyResponse` で捨てられている。
 - 購入履歴・購入制限の確認（`validatePurchaseLimit`）・VIP ポイント・課金ログは**変更なし**。同一トランザクションのまま。
 
 ## 5. 主要な異常系
@@ -219,7 +219,7 @@ sequenceDiagram
 | コストの途中で失敗（景品の付与・他の書き込みの例外） | キューを破棄。無償・有償・balance のすべてが戻る | 例外に応じたエラー。DB は変わらない |
 | コスト `item` で `free_diamond` を指す（ガチャ・交換のマスターの誤り） | 何も変更せず拒否（db.md 6.4 節） | `INVALID_ITEM_TYPE`（1903）。所持数が足りないとき先に `ITEM_NOT_ENOUGH`（許容） |
 | `/item/use`・レベルアップに `free_diamond` を指定 | 従来どおり `effect = none` で拒否（ガードでも二重に拒否） | `INVALID_ITEM_TYPE` |
-| `trx_diamond_balance` の合計が `paid_amount` に満たない（データ不整合） | 例外。無償・有償・balance のすべてを巻き戻す | `TransactionDataException` 系（`DIAMOND_NOT_ENOUGH` ではない。db.md 9 節 U-S4） |
+| `trx_diamond_balance` の合計が `paid_amount` に満たない（データ不整合） | 例外。無償・有償・balance のすべてを巻き戻す | `TransactionDataException` 系（`DIAMOND_NOT_ENOUGH` ではない。確定。db.md 9 節 U-S4） |
 | 購入: body の `platform` ≠ `X-Platform` | 検証の前に拒否。何も書かない・外部呼び出しもしない | `INVALID_PLATFORM`（99003）。メッセージで区別 |
 | 購入: `X-Platform` の欠落・不正 | `ResolvePlatform` が先に拒否（購入の UseCase に届かない） | `INVALID_PLATFORM`（既存） |
 | 購入: 購入制限・レシート・価格・プロダクト ID の失敗 | 従来どおり。購入失敗ログを書く | 既存のエラー |
@@ -263,5 +263,5 @@ sequenceDiagram
 | # | 確認事項 | 既定案 |
 | --- | --- | --- |
 | U-Q1 | 購入の platform 不一致を、購入失敗ログ（`log_in_app_purchase` の失敗行）に残すか | **残さない**。レシート検証の前に拒否し、クライアントの実装の誤りとして扱う。CS 調査で必要なら、検証前でも書ける形に S3 で変える |
-| （U-Q2 は欠番） | `DiamondDeliveryHandler` が balance 行を作らないことと、消費での整合の扱いは、**db.md 9 節 U-S4 に統合した**（調整分を使い切れなくなる効果と選択肢 A・B・C を明記） | db.md U-S4 を参照 |
-| U-Q3 | 不一致の `INVALID_PLATFORM` を Slack に通知するか。**確認した事実**: `_BaseController::execute()` が `GameException` を捕捉して `notifySlack` する（平常の `DIAMOND_NOT_ENOUGH` も通知される）。通常の `GameException` で投げれば確実に通知される。`ResolvePlatform` は同じエラーを通知を避けて `ErrorResponse` で直接返している | **既定案: 通知しない**（不一致はクライアントの実装の誤りで、`ResolvePlatform` の意図に合わせる。UseCase から通知を避けて返す方法は、通知しない専用の例外（またはレスポンス）を S3 で決める）。**代替: 通知する**（通常の `GameException`。実装は最も単純。クライアントの誤りで通知が溢れる可能性を許容） |
+| （U-Q2 は欠番） | `DiamondDeliveryHandler` の `PAID_DIAMOND` 経路が balance 行を作らないことは、db.md 9 節 U-S4（確定）に統合した。運営調整が `paid_amount` と balance を両方整合させる前提で、この経路を入口に使うかは別機能で決める | 別機能 |
+| ~~U-Q3~~（確定） | **確定（人の決定）: 通知しない**。事実: `_BaseController::execute()` は `GameException` を捕捉して `notifySlack` するので、通常の `GameException` では通知される。したがって**通知しない形にする**（`ResolvePlatform` のように `ErrorResponse` を直接返す等。実装手段は S3 で決める） | 実装は S3 |

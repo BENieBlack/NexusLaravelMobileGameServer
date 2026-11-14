@@ -18,7 +18,7 @@ class ResourceTypeTest extends TestCase
     #[Test]
     public function 通貨タイプの分類(): void
     {
-        foreach ([ResourceType::DIAMOND, ResourceType::PAID_DIAMOND, ResourceType::GOLD, ResourceType::COIN] as $type) {
+        foreach ([ResourceType::PAID_DIAMOND, ResourceType::GOLD, ResourceType::COIN] as $type) {
             $this->assertTrue($type->isCurrency(), "{$type->value} は通貨のはず");
         }
 
@@ -90,7 +90,9 @@ class ResourceTypeTest extends TestCase
     #[Test]
     public function 文字列から変換できる(): void
     {
-        $this->assertSame(ResourceType::DIAMOND, ResourceType::fromString('diamond'));
+        $this->assertSame(ResourceType::PAID_DIAMOND, ResourceType::fromString('paid_diamond'));
+        // 無償ダイヤの種別（diamond）は廃止。item + free_diamond で表す
+        $this->assertNull(ResourceType::fromString('diamond'));
         $this->assertSame(ResourceType::PVP_POINTS, ResourceType::fromString('pvp_points'));
 
         // 未知の値はnull（例外にしない）
@@ -103,7 +105,8 @@ class ResourceTypeTest extends TestCase
     {
         $all = ResourceType::all();
 
-        $this->assertContains('diamond', $all);
+        $this->assertContains('paid_diamond', $all);
+        $this->assertNotContains('diamond', $all);
         $this->assertContains('custom', $all);
         $this->assertCount(count(ResourceType::cases()), $all);
     }

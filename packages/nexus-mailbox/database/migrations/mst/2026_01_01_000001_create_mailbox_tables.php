@@ -103,7 +103,7 @@ return new class extends Migration
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
             $table->string('mst_mailbox_id')->comment('メールボックスID');
             $table->enum('content_type', [
-                'diamond', 'paid_diamond', 'item', 'unit', 'equipment',
+                'paid_diamond', 'item', 'unit', 'equipment',
                 'gold', 'food', 'wood', 'stone', 'stamina',
                 'experience', 'alliance_points', 'custom',
             ])->comment('コンテンツタイプ');

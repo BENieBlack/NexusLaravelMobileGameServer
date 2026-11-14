@@ -5,7 +5,8 @@ namespace Nexus\Core\Resource\DataTransferObjects;
 /**
  * DiamondBalance
  *
- * ダイヤモンド残高のデータ転送オブジェクト
+ * 有償ダイヤモンド残高（platform 別）のデータ転送オブジェクト。
+ * 無償ダイヤは trx_item の free_diamond で持つので、ここには含めない。
  */
 class DiamondBalance
 {
@@ -13,13 +14,11 @@ class DiamondBalance
      * @param  int  $sysPlayerId  プレイヤーID
      * @param  string  $platform  プラットフォーム（Apple, Google）
      * @param  int  $paidAmount  有償ダイヤモンド数
-     * @param  int  $freeAmount  無償ダイヤモンド数
      */
     public function __construct(
         private int $sysPlayerId,
         private string $platform,
         private int $paidAmount,
-        private int $freeAmount,
     ) {}
 
     /**
@@ -55,33 +54,9 @@ class DiamondBalance
     }
 
     /**
-     * 無償ダイヤモンド数を取得
-     */
-    public function getFreeAmount(): int
-    {
-        return $this->freeAmount;
-    }
-
-    /**
-     * 無償ダイヤモンド数を設定
-     */
-    public function setFreeAmount(int $freeAmount): void
-    {
-        $this->freeAmount = $freeAmount;
-    }
-
-    /**
-     * 合計ダイヤモンド数を取得
-     */
-    public function getTotalAmount(): int
-    {
-        return $this->paidAmount + $this->freeAmount;
-    }
-
-    /**
      * 配列からDTOを生成
      *
-     * @param  array{sys_player_id: int, platform: string, paid_amount?: int, free_amount?: int}  $data
+     * @param  array{sys_player_id: int, platform: string, paid_amount?: int}  $data
      * @return self
      */
     public static function fromArray(array $data): self
@@ -90,14 +65,13 @@ class DiamondBalance
             sysPlayerId: $data['sys_player_id'],
             platform: $data['platform'],
             paidAmount: $data['paid_amount'] ?? 0,
-            freeAmount: $data['free_amount'] ?? 0,
         );
     }
 
     /**
      * 配列に変換
      *
-     * @return array{sys_player_id: int, platform: string, paid_amount: int, free_amount: int, total_amount: int}
+     * @return array{sys_player_id: int, platform: string, paid_amount: int}
      */
     public function toArray(): array
     {
@@ -105,8 +79,6 @@ class DiamondBalance
             'sys_player_id' => $this->sysPlayerId,
             'platform' => $this->platform,
             'paid_amount' => $this->paidAmount,
-            'free_amount' => $this->freeAmount,
-            'total_amount' => $this->getTotalAmount(),
         ];
     }
 }

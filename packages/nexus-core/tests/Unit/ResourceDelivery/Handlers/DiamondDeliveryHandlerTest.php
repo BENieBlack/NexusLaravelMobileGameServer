@@ -64,12 +64,25 @@ class DiamondDeliveryHandlerTest extends TestCase
         $this->assertSame(['Apple'], $service->platforms);
     }
 
+    #[Test]
+    public function 有償ダイヤだけをサポートし無償ダイヤの種別は受けない(): void
+    {
+        // 無償ダイヤは item + free_diamond で ItemDeliveryHandler が受ける。
+        // 廃止した diamond をこの Handler が受けて黙って付与することは無い
+        $handler = new DiamondDeliveryHandler(new RecordingDiamondService);
+
+        $this->assertTrue($handler->supports(ResourceType::PAID_DIAMOND));
+        $this->assertTrue($handler->supports('paid_diamond'));
+        $this->assertFalse($handler->supports('diamond'));
+        $this->assertFalse($handler->supports(ResourceType::ITEM));
+    }
+
     /**
      * @param  array<string, mixed>|null  $metadata
      */
     private function makeContent(?array $metadata = null): ResourceDeliveryContent
     {
-        return new ResourceDeliveryContent(new Resource(ResourceType::DIAMOND, 'diamond', 10, null, $metadata));
+        return new ResourceDeliveryContent(new Resource(ResourceType::PAID_DIAMOND, 'paid_diamond', 10, null, $metadata));
     }
 }
 
@@ -84,7 +97,7 @@ class FakePlatformProvider implements DefaultPlatformProviderInterface
 }
 
 /**
- * addDiamond に渡された platform を記録する DiamondService
+ * addPaidDiamond に渡された platform を記録する DiamondService
  */
 class RecordingDiamondService extends DiamondService
 {
@@ -93,10 +106,10 @@ class RecordingDiamondService extends DiamondService
 
     public function __construct() {}
 
-    public function addDiamond(int $sysPlayerId, string $platform, int $amount, bool $isPaid = false): DiamondBalance
+    public function addPaidDiamond(int $sysPlayerId, string $platform, int $amount): DiamondBalance
     {
         $this->platforms[] = $platform;
 
-        return new DiamondBalance($sysPlayerId, $platform, 0, 0);
+        return new DiamondBalance($sysPlayerId, $platform, 0);
     }
 }

@@ -123,6 +123,43 @@ class AlbumEndpointTest extends TestCase
     }
 
     #[Test]
+    public function 無償ダイヤは受け取っても図鑑に載らず分母にも入らない(): void
+    {
+        // 無償ダイヤは item + free_diamond の報酬で、item 型は図鑑の unlock 対象。
+        // mst_item.is_album_target=false で unlock されず、収集状況の分母（total_count）にも入らない
+        $this->deliver([Resource::item('free_diamond', 100)]);
+
+        $this->assertSame([], $this->findEntries(), 'free_diamond は unlock されない');
+
+        $response = $this->withHeaders($this->authHeaders($this->accessToken))
+            ->getJson('/api/album/list');
+        $progressByType = $this->indexProgressByType($response->json('progress_list'));
+
+        $this->assertSame(0, $progressByType['item']['unlocked_count']);
+        $this->assertSame(1, $progressByType['item']['total_count'], '分母は収集対象の item_collectible_001 だけ');
+    }
+
+    #[Test]
+    public function 通貨とスタミナ回復薬は受け取っても図鑑に載らず分母にも入らない(): void
+    {
+        // gold・coin は wallet 管理、stamina_50 は trx_item。どれも item 型で配られても unlock されない
+        $this->deliver([
+            Resource::item('gold', 100),
+            Resource::item('coin', 100),
+            Resource::item('stamina_50', 1),
+        ]);
+
+        $this->assertSame([], $this->findEntries());
+
+        $response = $this->withHeaders($this->authHeaders($this->accessToken))
+            ->getJson('/api/album/list');
+        $progressByType = $this->indexProgressByType($response->json('progress_list'));
+
+        $this->assertSame(0, $progressByType['item']['unlocked_count']);
+        $this->assertSame(1, $progressByType['item']['total_count'], '分母は収集対象の item_collectible_001 だけ');
+    }
+
+    #[Test]
     public function 同じ対象を二度入手しても記録は1件(): void
     {
         $this->deliver([Resource::unit('unit_knight_001', 1)]);
@@ -249,6 +286,12 @@ class AlbumEndpointTest extends TestCase
             ['id' => 'item_collectible_001', 'type' => 'material', 'effect' => 'none', 'value' => 0, 'is_album_target' => true],
             // 消耗品はアルバムに載せない
             ['id' => 'item_potion_001', 'type' => 'consumable', 'effect' => 'none', 'value' => 0, 'is_album_target' => false],
+            // 無償ダイヤ。MstItemSeeder と同じく is_album_target=false（item 型の配布でも図鑑に載せない）
+            ['id' => 'free_diamond', 'type' => 'currency', 'effect' => 'none', 'value' => 0, 'is_album_target' => false],
+            // 通貨・スタミナ回復薬も同じく図鑑の対象外（MstItemSeeder と同じ値）
+            ['id' => 'gold', 'type' => 'currency', 'effect' => 'none', 'value' => 0, 'is_album_target' => false],
+            ['id' => 'coin', 'type' => 'currency', 'effect' => 'none', 'value' => 0, 'is_album_target' => false],
+            ['id' => 'stamina_50', 'type' => 'stamina', 'effect' => 'stamina_recover', 'value' => 50, 'is_album_target' => false],
         ]);
     }
 

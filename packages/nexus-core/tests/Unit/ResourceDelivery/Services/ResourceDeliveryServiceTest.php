@@ -63,9 +63,9 @@ class ResourceDeliveryServiceTest extends TestCase
     #[Test]
     public function 単一のリソースも配送できる(): void
     {
-        $handler = $this->registerHandler([ResourceType::DIAMOND->value]);
+        $handler = $this->registerHandler([ResourceType::PAID_DIAMOND->value]);
 
-        $this->service->addResource(Resource::diamond(100));
+        $this->service->addResource(Resource::paidDiamond(100));
         $summary = $this->service->deliver(self::PLAYER_ID);
 
         $this->assertSame(1, $summary->getTotalCount());
@@ -107,17 +107,17 @@ class ResourceDeliveryServiceTest extends TestCase
     public function タイプごとに対応するhandlerへ振り分ける(): void
     {
         $itemHandler = $this->registerHandler([ResourceType::ITEM->value]);
-        $diamondHandler = $this->registerHandler([ResourceType::DIAMOND->value]);
+        $diamondHandler = $this->registerHandler([ResourceType::PAID_DIAMOND->value]);
 
         $this->service->addResources([
             Resource::item('item_potion', 1),
-            Resource::diamond(100),
+            Resource::paidDiamond(100),
             Resource::item('item_elixir', 1),
         ]);
         $summary = $this->service->deliver(self::PLAYER_ID);
 
         $this->assertSame(['item_potion', 'item_elixir'], $itemHandler->handledIds());
-        $this->assertSame(['diamond'], $diamondHandler->handledIds());
+        $this->assertSame(['paid_diamond'], $diamondHandler->handledIds());
         $this->assertSame(3, $summary->getTotalCount());
     }
 
@@ -191,10 +191,10 @@ class ResourceDeliveryServiceTest extends TestCase
     public function メールボックスへ回したコンテンツは配送済みどまりになる(): void
     {
         // Handlerが失敗理由を立てると、即時受取ではなくDELIVEREDになる
-        $handler = $this->registerHandler([ResourceType::DIAMOND->value]);
+        $handler = $this->registerHandler([ResourceType::PAID_DIAMOND->value]);
         $handler->failureReason = ResourceDeliveryResultReason::SEND_TO_MAILBOX;
 
-        $this->service->addResource(Resource::diamond(100));
+        $this->service->addResource(Resource::paidDiamond(100));
         $summary = $this->service->deliver(self::PLAYER_ID);
 
         $this->assertSame(ResourceDeliveryStatus::DELIVERED, $summary->getContents()->first()->getStatus());
@@ -258,10 +258,10 @@ class ResourceDeliveryServiceTest extends TestCase
     #[Test]
     public function 上限超過で例外を投げるポリシーなら例外になる(): void
     {
-        $handler = $this->registerHandler([ResourceType::DIAMOND->value]);
+        $handler = $this->registerHandler([ResourceType::PAID_DIAMOND->value]);
         $handler->failureReason = ResourceDeliveryResultReason::RESOURCE_LIMIT_REACHED;
 
-        $this->service->addResource(Resource::diamond(100));
+        $this->service->addResource(Resource::paidDiamond(100));
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('ダイヤの所持上限です');
@@ -278,10 +278,10 @@ class ResourceDeliveryServiceTest extends TestCase
     public function 既定のポリシーは上限超過でも例外にしない(): void
     {
         // 既定はメールボックス送信なので、配送は成功として返す
-        $handler = $this->registerHandler([ResourceType::DIAMOND->value]);
+        $handler = $this->registerHandler([ResourceType::PAID_DIAMOND->value]);
         $handler->failureReason = ResourceDeliveryResultReason::RESOURCE_LIMIT_REACHED;
 
-        $this->service->addResource(Resource::diamond(100));
+        $this->service->addResource(Resource::paidDiamond(100));
         $summary = $this->service->deliver(self::PLAYER_ID);
 
         $this->assertSame(1, $summary->getTotalCount());
@@ -290,7 +290,7 @@ class ResourceDeliveryServiceTest extends TestCase
     #[Test]
     public function ポリシーの対象外タイプは上限超過でも例外にならない(): void
     {
-        // ポリシーはdiamondだけを対象にしているのでitemは素通りする
+        // ポリシーはpaid_diamondだけを対象にしているのでitemは素通りする
         $handler = $this->registerHandler([ResourceType::ITEM->value]);
         $handler->failureReason = ResourceDeliveryResultReason::INVENTORY_FULL;
 
@@ -321,12 +321,12 @@ class ResourceDeliveryServiceTest extends TestCase
     public function サポートするタイプは全handlerの和集合になる(): void
     {
         $this->registerHandler([ResourceType::ITEM->value, ResourceType::CONSUMABLE->value]);
-        $this->registerHandler([ResourceType::ITEM->value, ResourceType::DIAMOND->value]);
+        $this->registerHandler([ResourceType::ITEM->value, ResourceType::PAID_DIAMOND->value]);
 
         $types = $this->service->supportedTypes();
 
         $this->assertEqualsCanonicalizing(
-            [ResourceType::ITEM->value, ResourceType::CONSUMABLE->value, ResourceType::DIAMOND->value],
+            [ResourceType::ITEM->value, ResourceType::CONSUMABLE->value, ResourceType::PAID_DIAMOND->value],
             array_values($types)
         );
     }

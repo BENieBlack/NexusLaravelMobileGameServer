@@ -27,7 +27,7 @@ This package provides a unified way to represent all types of game resources (Di
 use Nexus\Core\Resource\DataTransferObjects\Resource;
 
 // Currency resources
-$diamond = Resource::diamond(1000);
+$diamond = Resource::paidDiamond(1000);
 $gold = Resource::gold(50000);
 $coin = Resource::coin(10000);
 
@@ -48,7 +48,7 @@ $weapon = Resource::weapon('weapon_legendary_001', 1);
 
 The package supports 27 resource types:
 
-**Currency**: DIAMOND, PAID_DIAMOND, GOLD, COIN
+**Currency**: PAID_DIAMOND, GOLD, COIN
 
 **Resources**: FOOD, WOOD, STONE, IRON, STAMINA, EXPERIENCE
 
@@ -66,7 +66,7 @@ The package supports 27 resource types:
 use Nexus\Core\Resource\Enums\ResourceType;
 
 // Check resource category
-$type = ResourceType::DIAMOND;
+$type = ResourceType::PAID_DIAMOND;
 $type->isCurrency();  // true
 $type->isResource();  // false
 $type->isItem();      // false
@@ -76,17 +76,17 @@ $type->label();  // "ダイヤ"
 $type->icon();   // "💎"
 
 // Convert from string
-$type = ResourceType::fromString('diamond');  // ResourceType::DIAMOND
+$type = ResourceType::fromString('paid_diamond');  // ResourceType::PAID_DIAMOND
 ```
 
 ## Resource Properties
 
 ```php
-$resource = Resource::diamond(1000);
+$resource = Resource::paidDiamond(1000);
 
-$resource->getType();        // ResourceType::DIAMOND
-$resource->getTypeValue();   // "diamond"
-$resource->getId();          // "diamond"
+$resource->getType();        // ResourceType::PAID_DIAMOND
+$resource->getTypeValue();   // "paid_diamond"
+$resource->getId();          // "paid_diamond"
 $resource->getAmount();      // 1000
 $resource->getExpireAt();    // null
 $resource->getMetadata();    // null
@@ -101,8 +101,8 @@ $resource->isValid();        // true (amount > 0)
 $array = $resource->toArray();
 // [
 //     'unique_id' => '...',
-//     'type' => 'diamond',
-//     'id' => 'diamond',
+//     'type' => 'paid_diamond',
+//     'id' => 'paid_diamond',
 //     'amount' => 1000,
 //     'expire_at' => null,
 //     'metadata' => null,
@@ -113,8 +113,8 @@ $resource = Resource::fromArray($array);
 
 // From type string
 $resource = Resource::fromTypeString(
-    'diamond',
-    'diamond',
+    'paid_diamond',
+    'paid_diamond',
     1000
 );
 ```

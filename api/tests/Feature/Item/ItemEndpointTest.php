@@ -3,7 +3,9 @@
 namespace Tests\Feature\Item;
 
 use App\Domain\Stamina\Constants\StaminaConst;
+use App\Exceptions\GameErrorCode;
 use App\Persistence\ApiSession;
+use Database\Seeders\MstItemSeeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Testing\TestResponse;
 use Nexus\Core\UnitOfWork\Persistence\QueryManager;
@@ -28,6 +30,9 @@ class ItemEndpointTest extends TestCase
     private string $accessToken;
 
     private string $connection;
+
+    /** MstItemSeeder を流したテストだけ true。tearDown でシーダーの行（mst_item・mst_item__l10n）を消す */
+    private bool $seededItems = false;
 
     public function beginDatabaseTransaction(): void
     {
@@ -57,6 +62,11 @@ class ItemEndpointTest extends TestCase
         foreach (['trx_item', 'trx_stamina'] as $table) {
             DB::connection($this->connection)->table($table)
                 ->where('sys_player_id', $this->sysPlayerId)->delete();
+        }
+
+        if ($this->seededItems) {
+            DB::connection('mst')->table('mst_item')->delete();
+            DB::connection('mst')->table('mst_item__l10n')->delete();
         }
 
         $this->cleanUpMaster();
@@ -109,6 +119,64 @@ class ItemEndpointTest extends TestCase
             ->where('sys_player_id', $this->sysPlayerId)
             ->where('mst_item_id', self::STAMINA_ITEM_ID)
             ->value('free_amount'));
+    }
+
+    #[Test]
+    public function 無償ダイヤはアイテムとして使えず所持数は変わらない(): void
+    {
+        // サインアップの初期付与で free_diamond は 50 ある。effect が none のマスターを置く
+        DB::connection('mst')->table('mst_item')->insertOrIgnore(
+            ['id' => 'free_diamond', 'type' => 'currency', 'effect' => 'none', 'value' => 0]
+        );
+        $this->refreshMstCache();
+
+        $response = $this->useItem('free_diamond', 1);
+
+        $response->assertStatus(299);
+        $this->assertSame(GameErrorCode::INVALID_ITEM_TYPE, $response->json('error_code'));
+        $this->assertSame(50, (int) DB::connection($this->connection)->table('trx_item')
+            ->where('sys_player_id', $this->sysPlayerId)->where('mst_item_id', 'free_diamond')->value('free_amount'));
+    }
+
+    #[Test]
+    public function スタミナ回復薬50を使うとスタミナが50回復する(): void
+    {
+        // ログインボーナス 5 日目の景品 stamina_50 は、シーダーの行（type=stamina・effect=stamina_recover・
+        // value=50）のまま /item/use で使える。新しいコードは要らず、既存の STAMINA_RECOVER の経路を通る。
+        // シーダーの行を使うので、マスターが変わったときにこのテストが気づく。
+        // シーダーは mst_item を truncate するので、後始末は tearDown（$seededItems）で消す
+        (new MstItemSeeder)->run();
+        $this->seededItems = true;
+        $this->refreshMstCache();
+
+        DB::connection($this->connection)->table('trx_item')->insert([
+            'sys_player_id' => $this->sysPlayerId,
+            'mst_item_id' => 'stamina_50',
+            'free_amount' => 3,
+            'paid_amount' => 0,
+            'is_delete' => false,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $response = $this->useItem('stamina_50', 1);
+
+        $response->assertOk();
+        $response->assertJson([
+            'mst_item_id' => 'stamina_50',
+            'effect' => 'stamina_recover',
+            'item_used' => 1,
+            'applied_value' => 50,
+        ]);
+
+        // スタミナは 10 → 60（最大値を超えて回復できる。既存の仕様）
+        $this->assertSame(60, (int) DB::connection($this->connection)->table('trx_stamina')
+            ->where('sys_player_id', $this->sysPlayerId)->where('type', StaminaConst::TYPE_NORMAL)->value('current_stamina'));
+
+        // 薬は 3 → 2
+        $this->assertSame(2, (int) DB::connection($this->connection)->table('trx_item')
+            ->where('sys_player_id', $this->sysPlayerId)->where('mst_item_id', 'stamina_50')->value('free_amount'));
+        $this->assertArrayHasKey('trx_stamina_list', $response->json('updated_resources'));
     }
 
     #[Test]

@@ -6,6 +6,7 @@ use App\Domain\Player\Constants\InitialGrantConst;
 use App\Domain\Player\Contracts\InitialGrantInterface;
 use App\Domain\Stamina\Contracts\StaminaInitializerInterface;
 use App\Repositories\Mst\MstPlayerLevelRepository;
+use Nexus\Core\Resource\Constants\FreeDiamondConst;
 use Nexus\Core\Resource\Services\DiamondService;
 use Nexus\Core\Resource\Services\ItemService;
 use Nexus\Core\ResourceDelivery\Contracts\CurrencyGranterInterface;
@@ -49,9 +50,9 @@ class InitialGrantService implements InitialGrantInterface
             );
         }
 
-        // trx_diamond: 端末の platform の行を paid_amount = 0 で作る。
-        // 有償側として呼び、free_amount には依存しない（free_amount は別機能で廃止される。D4）
-        $this->diamondService->addDiamond($sysPlayerId, $platform, 0, true);
+        // trx_diamond: 端末の platform の行を paid_amount = 0 で作る（有償だけの行。
+        // 無償ダイヤは下の trx_item の free_diamond）
+        $this->diamondService->addPaidDiamond($sysPlayerId, $platform, 0);
 
         // trx_wallet: Coin。mst_item.is_wallet の値に左右されないよう、通貨の付与口を直接呼ぶ
         $this->currencyGranter->grantCurrency(
@@ -66,7 +67,7 @@ class InitialGrantService implements InitialGrantInterface
         // （確実に trx_item へ入れるため）
         $this->itemService->addItem(
             $sysPlayerId,
-            InitialGrantConst::FREE_DIAMOND_MST_ITEM_ID,
+            FreeDiamondConst::MST_ITEM_ID,
             InitialGrantConst::FREE_DIAMOND_AMOUNT,
         );
 

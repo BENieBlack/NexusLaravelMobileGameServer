@@ -98,11 +98,8 @@ return new class extends Migration
             $table->json('changed_columns')->nullable()->comment('変更カラムリスト');
 
             $table->integer('paid_amount_diff')->nullable()->comment('有償ダイヤ増減量');
-            $table->integer('free_amount_diff')->nullable()->comment('無償ダイヤ増減量');
             $table->unsignedInteger('before_paid_amount')->nullable()->comment('変更前有償ダイヤ');
             $table->unsignedInteger('after_paid_amount')->nullable()->comment('変更後有償ダイヤ');
-            $table->unsignedInteger('before_free_amount')->nullable()->comment('変更前無償ダイヤ');
-            $table->unsignedInteger('after_free_amount')->nullable()->comment('変更後無償ダイヤ');
 
             $table->string('reason', 100)->nullable()->comment('変更理由 (purchase, consume_gacha, consume_shop, refund, event_reward, admin_grant)');
             $table->json('metadata')->nullable()->comment('メタデータ');

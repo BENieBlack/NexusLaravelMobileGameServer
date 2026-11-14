@@ -199,10 +199,12 @@ class MailboxReceiveContentTest extends TestCase
     {
         DB::connection('mst')->table('mst_unit')->insert(['id' => 'unit_mail_test', 'type' => 'attack', 'element' => 'light', 'rarity' => 'SSR']);
         DB::connection('mst')->table('mst_item')->insert(['id' => 'item_mail_test', 'type' => 'material', 'effect' => 'none', 'value' => 0]);
+        DB::connection('mst')->table('mst_item')->insertOrIgnore(['id' => 'free_diamond', 'type' => 'currency', 'effect' => 'none', 'value' => 0]);
         $this->refreshMstCache();
 
         $this->makeContent('Gold', 'gold', contentQuantity: 1, amount: 500);
-        $this->makeContent('Diamond', 'diamond', contentQuantity: 1, amount: 20);
+        // 無償ダイヤは item / free_diamond（trx_item の free_diamond に入る）
+        $this->makeContent('Item', 'free_diamond', contentQuantity: 1, amount: 20);
         $this->makeContent('Item', 'item_mail_test', contentQuantity: 1, amount: 3);
         $this->makeContent('Unit', 'unit_mail_test', contentQuantity: 1, amount: 1);
         $mailbox = $this->makeMailbox();
@@ -210,8 +212,13 @@ class MailboxReceiveContentTest extends TestCase
         $updated = app(ReceiveUseCase::class)->handle($this->sysPlayerId, $mailbox->id)->toArray()['updated_resources'];
 
         $this->assertSame(500, $updated['trx_wallet_list'][0]['free_amount']);
-        $this->assertSame(20, $updated['trx_diamond_list'][0]['free_amount']);
-        $this->assertSame(3, $updated['trx_item_list'][0]['free_amount']);
+        $items = collect($updated['trx_item_list'])->keyBy('mst_item_id');
+        // サインアップの初期付与 50 に、メールの 20 が同じ行へ加算される
+        $this->assertSame(70, $items['free_diamond']['free_amount']);
+        $this->assertSame(3, $items['item_mail_test']['free_amount']);
+        // 無償ダイヤは trx_diamond に入らない（有償だけの表。付与していないので載らない）
+        $this->assertArrayNotHasKey('trx_diamond', $updated);
+        $this->assertArrayNotHasKey('trx_diamond_list', $updated);
         $this->assertSame('unit_mail_test', $updated['trx_unit_list'][0]['mst_unit_id']);
         // 受け取ったメール自体は、画面に出る状態ではないので入らない
         $this->assertArrayNotHasKey('trx_mailbox_list', $updated);

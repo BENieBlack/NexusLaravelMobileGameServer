@@ -12,10 +12,11 @@ use App\Models\Mst\MstItem;
 use App\Models\Sys\SysPlayer;
 use App\Models\Sys\SysPlayerDevice;
 use App\Models\Sys\SysPlayerToken;
-use App\Models\Trx\TrxDiamond;
 use App\Models\Trx\TrxEquipment;
 use App\Models\Trx\TrxItem;
 use App\Models\Trx\TrxUnit;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Testing\TestResponse;
 use Nexus\Core\Utilities\ClockUtility;
 use NexusAuth\Services\TokenService;
 use Tests\RefreshMultipleDatabases;
@@ -89,13 +90,8 @@ class GachaDrawTest extends TestCase
         // ApiSessionにプレイヤーIDを設定
         $this->useSessionPlayer($this->testPlayerId);
 
-        // 初期ダイヤモンドを付与（ガチャコスト用）
-        TrxDiamond::create([
-            'sys_player_id' => $this->testPlayerId,
-            'platform' => 'ios',
-            'free_amount' => 1000,
-            'paid_amount' => 0,
-        ]);
+        // 初期の無償ダイヤを付与（ガチャコスト用）。無償ダイヤは trx_item の free_diamond
+        $this->seedFreeDiamond($this->testPlayerId, 1000);
     }
 
     /**
@@ -308,7 +304,8 @@ class GachaDrawTest extends TestCase
         $this->assertContains($data['prize_list'][0]['content_type'], ['item', 'unit', 'equipment']);
 
         // データベース確認：何かしらのコンテンツが配布されている
-        $itemCount = TrxItem::where('sys_player_id', $this->testPlayerId)->count();
+        // 無償ダイヤの行（free_diamond）は景品ではないので数えない
+        $itemCount = TrxItem::where('sys_player_id', $this->testPlayerId)->where('mst_item_id', '!=', 'free_diamond')->count();
         $unitCount = TrxUnit::where('sys_player_id', $this->testPlayerId)->count();
         $equipmentCount = TrxEquipment::where('sys_player_id', $this->testPlayerId)->count();
 
@@ -321,7 +318,7 @@ class GachaDrawTest extends TestCase
      */
     public function test_gacha_draw_without_enough_diamond_returns_business_error(): void
     {
-        TrxDiamond::where('sys_player_id', $this->testPlayerId)->update(['free_amount' => 50]);
+        $this->seedFreeDiamond($this->testPlayerId, 50);
 
         $response = $this->withHeaders([
             'Authorization' => 'Bearer '.$this->testAccessToken,
@@ -333,9 +330,166 @@ class GachaDrawTest extends TestCase
         $response->assertStatus(299);
         $this->assertSame(GameErrorCode::DIAMOND_NOT_ENOUGH, $response->json('error_code'));
 
-        $this->assertSame(50, (int) TrxDiamond::where('sys_player_id', $this->testPlayerId)->value('free_amount'));
-        $this->assertSame(0, TrxItem::where('sys_player_id', $this->testPlayerId)->count()
+        $this->assertSame(50, $this->freeDiamondAmount());
+        $this->assertSame(0, TrxItem::where('sys_player_id', $this->testPlayerId)->where('mst_item_id', '!=', 'free_diamond')->count()
             + TrxUnit::where('sys_player_id', $this->testPlayerId)->count()
             + TrxEquipment::where('sys_player_id', $this->testPlayerId)->count());
+    }
+
+    /**
+     * Test: 無償だけで足りるとき、無償だけを減らし、updated_resources には trx_item_list だけが載る
+     */
+    public function test_gacha_draw_consumes_free_diamond_only_and_returns_only_trx_item_list(): void
+    {
+        $this->seedPaidDiamond($this->testPlayerId, 'Apple', 500);
+
+        $response = $this->drawOnce();
+
+        $response->assertStatus(200);
+        $this->assertSame(900, $this->freeDiamondAmount());
+        $this->assertSame(500, $this->paidAmount('Apple'));
+        $this->assertSame(500, $this->balanceTotal('Apple'));
+        // 変更のあった方だけ載る。有償は変わっていないので trx_diamond は省略
+        $this->assertArrayNotHasKey('trx_diamond', $response->json('updated_resources'));
+        $freeDiamond = collect($response->json('updated_resources.trx_item_list'))->firstWhere('mst_item_id', 'free_diamond');
+        $this->assertSame(900, $freeDiamond['free_amount']);
+    }
+
+    /**
+     * Test: 無償を使い切って有償にまたがる。無償の行は 0 で残り、paid_amount と balance が連動して減る
+     */
+    public function test_gacha_draw_consumes_free_then_paid_and_returns_both(): void
+    {
+        $this->seedFreeDiamond($this->testPlayerId, 30);
+        $this->seedPaidDiamond($this->testPlayerId, 'Apple', 500);
+
+        $response = $this->drawOnce();
+
+        $response->assertStatus(200);
+        // 100 = 無償 30 + 有償 70
+        $this->assertSame(0, $this->freeDiamondAmount());
+        $this->assertSame(1, DB::connection($this->playerConnection($this->testPlayerId))->table('trx_item')
+            ->where('sys_player_id', $this->testPlayerId)->where('mst_item_id', 'free_diamond')->count());
+        $this->assertSame(430, $this->paidAmount('Apple'));
+        $this->assertSame(430, $this->balanceTotal('Apple'));
+
+        // 両方載る。trx_diamond は単数のオブジェクトで、free_amount は無い
+        $freeDiamond = collect($response->json('updated_resources.trx_item_list'))->firstWhere('mst_item_id', 'free_diamond');
+        $this->assertSame(0, $freeDiamond['free_amount']);
+        $this->assertSame('Apple', $response->json('updated_resources.trx_diamond.platform'));
+        $this->assertSame(430, $response->json('updated_resources.trx_diamond.paid_amount'));
+        $this->assertArrayNotHasKey('free_amount', $response->json('updated_resources.trx_diamond'));
+        $this->assertArrayNotHasKey('trx_diamond_list', $response->json('updated_resources'));
+    }
+
+    /**
+     * Test: コスト paid_diamond は有償だけを減らす（無償は触らない）
+     */
+    public function test_gacha_draw_with_paid_diamond_cost_consumes_paid_only(): void
+    {
+        $this->changeSingleDrawCost('paid_diamond', 'paid_diamond');
+        $this->seedPaidDiamond($this->testPlayerId, 'Apple', 500);
+
+        $response = $this->drawOnce();
+
+        $response->assertStatus(200);
+        $this->assertSame(1000, $this->freeDiamondAmount());
+        $this->assertSame(400, $this->paidAmount('Apple'));
+        $this->assertSame(400, $this->balanceTotal('Apple'));
+        $freeDiamondRows = collect($response->json('updated_resources.trx_item_list') ?? [])->where('mst_item_id', 'free_diamond');
+        $this->assertCount(0, $freeDiamondRows);
+        $this->assertSame(400, $response->json('updated_resources.trx_diamond.paid_amount'));
+    }
+
+    /**
+     * Test: 他 platform（Google）の有償は、X-Platform（Apple）のガチャのコストに使えない
+     */
+    public function test_gacha_draw_does_not_use_paid_diamond_of_other_platform(): void
+    {
+        $this->seedFreeDiamond($this->testPlayerId, 50);
+        $this->seedPaidDiamond($this->testPlayerId, 'Google', 500);
+
+        $response = $this->drawOnce();
+
+        $response->assertStatus(299);
+        $this->assertSame(GameErrorCode::DIAMOND_NOT_ENOUGH, $response->json('error_code'));
+        $this->assertSame(50, $this->freeDiamondAmount());
+        $this->assertSame(500, $this->paidAmount('Google'));
+        $this->assertSame(500, $this->balanceTotal('Google'));
+    }
+
+    /**
+     * Test: balance が paid_amount に満たないデータ不整合は、無償・有償・balance のすべてを巻き戻す
+     */
+    public function test_gacha_draw_rolls_back_everything_when_balance_is_less_than_paid_amount(): void
+    {
+        $connection = DB::connection($this->playerConnection($this->testPlayerId));
+        $this->seedFreeDiamond($this->testPlayerId, 30);
+        $this->seedPaidDiamond($this->testPlayerId, 'Apple', 500);
+        // 不整合を作る: balance だけを 30 に減らす（有償 70 を引ききれない）
+        $connection->table('trx_diamond_balance')->where('sys_player_id', $this->testPlayerId)->update(['current_amount' => 30]);
+
+        $response = $this->drawOnce();
+
+        $this->assertNotSame(200, $response->getStatusCode());
+        $this->assertNotSame(GameErrorCode::DIAMOND_NOT_ENOUGH, $response->json('error_code'));
+        $this->assertSame(30, $this->freeDiamondAmount());
+        $this->assertSame(500, $this->paidAmount('Apple'));
+        $this->assertSame(30, $this->balanceTotal('Apple'));
+    }
+
+    /**
+     * Test: コスト cost_type = item で free_diamond を指すマスターは、所持していても拒否され何も変わらない
+     */
+    public function test_gacha_draw_rejects_free_diamond_as_item_cost(): void
+    {
+        $this->changeSingleDrawCost('item', 'free_diamond');
+
+        $response = $this->drawOnce();
+
+        $response->assertStatus(299);
+        $this->assertSame(GameErrorCode::INVALID_ITEM_TYPE, $response->json('error_code'));
+        $this->assertSame(1000, $this->freeDiamondAmount());
+    }
+
+    private function drawOnce(): TestResponse
+    {
+        return $this->withHeaders(['Authorization' => 'Bearer '.$this->testAccessToken])
+            ->postJson('/api/gacha/draw', [
+                'mst_gacha_id' => $this->testGachaId,
+                'draw_count' => 1, // コスト 100
+            ]);
+    }
+
+    /**
+     * 単発のコスト（100）の種類を差し替える
+     */
+    private function changeSingleDrawCost(string $costType, string $costMstId): void
+    {
+        DB::connection('mst')->table('mst_gacha_cost')
+            ->where('id', $this->testGachaId.'_cost_1')
+            ->update(['cost_type' => $costType, 'cost_mst_id' => $costMstId]);
+        $this->refreshMstCache();
+    }
+
+    private function freeDiamondAmount(): int
+    {
+        return (int) DB::connection($this->playerConnection($this->testPlayerId))->table('trx_item')
+            ->where('sys_player_id', $this->testPlayerId)->where('mst_item_id', 'free_diamond')->value('free_amount');
+    }
+
+    private function paidAmount(string $platform): int
+    {
+        return (int) DB::connection($this->playerConnection($this->testPlayerId))->table('trx_diamond')
+            ->where('sys_player_id', $this->testPlayerId)->where('platform', $platform)->value('paid_amount');
+    }
+
+    /**
+     * その platform の trx_diamond_balance の current_amount の合計
+     */
+    private function balanceTotal(string $platform): int
+    {
+        return (int) DB::connection($this->playerConnection($this->testPlayerId))->table('trx_diamond_balance')
+            ->where('sys_player_id', $this->testPlayerId)->where('platform', $platform)->sum('current_amount');
     }
 }

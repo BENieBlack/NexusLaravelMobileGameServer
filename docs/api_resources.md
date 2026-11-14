@@ -1,7 +1,8 @@
 # API ごとの、プレイヤーの状態（リソース）の返し方
 
 クライアントが画面の状態を更新するための契約。対象は `ReturnedAsUpdatedResource` を実装した7つのモデルで、
-`sys_player`（オブジェクト）、`trx_item_list`、`trx_unit_list`、`trx_equipment_list`、`trx_wallet_list`、`trx_diamond_list`、`trx_stamina_list`。
+`sys_player`（オブジェクト）、`trx_item_list`、`trx_unit_list`、`trx_equipment_list`、`trx_wallet_list`、`trx_diamond`（オブジェクト。`X-Platform` の行 1 件）、`trx_stamina_list`。
+有償ダイヤは `trx_diamond`、無償ダイヤは `trx_item_list` の `free_diamond`（`free_amount` が残高）で返る。
 増減は `api/tests/Architecture/UpdatedResourceModelsTest.php` の `EXPECTED` で固定している。
 
 ## 返し方は3種類
@@ -26,10 +27,10 @@
 | `item/use` | 更新分 | item、stamina、sys_player、wallet |
 | `unit/level_up` | 更新分 | unit、item |
 | `equipment/level_up` | 更新分 | equipment、item |
-| `gacha/draw` | 更新分 | diamond、wallet、item、unit、equipment |
+| `gacha/draw` | 更新分 | 有償ダイヤ（diamond）、無償ダイヤ（item の `free_diamond`）、wallet、item、unit、equipment。変更のあった方のキーだけが入る |
 | `trade/exchange` | 更新分 | 消費したコストと、受け取った報酬 |
-| `in_app_purchase/buy` | 更新分（`paid_diamond_amount` と `rewards` も返す） | diamond、item、unit など |
-| `mailbox/receive`、`mailbox/receive_all` | 更新分 | 添付物の種類による（wallet、diamond、item、unit、equipment、stamina、sys_player） |
+| `in_app_purchase/buy` | 更新分（Pack/Pass のときは `rewards` も返す。`paid_diamond_amount` は返さない） | 有償ダイヤ（diamond）、パックの item（無償ダイヤは `free_diamond`）、unit など。body の `platform` が `X-Platform` と違うと `INVALID_PLATFORM`（99003）で拒否する |
+| `mailbox/receive`、`mailbox/receive_all` | 更新分 | 添付物の種類による（wallet、item（無償ダイヤは `free_diamond`）、有償ダイヤ（diamond。運営の調整用）、unit、equipment、stamina、sys_player） |
 | `mission/receive` | 更新分 | 報酬の種類による |
 | `reward_track/receive` | 更新分 | 報酬の種類による |
 | `mailbox/lock`、`mailbox/open` | なし | （メールの状態のみ） |

@@ -292,8 +292,9 @@ class LoginBonusServiceTest extends TestCase
         MstLoginBonusContent::create([
             'mst_login_bonus_id' => $bonusId,
             'day' => 7,
-            'content_type' => 'diamond',
-            'content_mst_id' => 'diamond',
+            // 無償ダイヤは item + free_diamond
+            'content_type' => 'item',
+            'content_mst_id' => 'free_diamond',
             'amount' => 100,
             'is_paid' => false,
             'sort_order' => 2,
@@ -329,8 +330,9 @@ class LoginBonusServiceTest extends TestCase
         $this->assertSame('item', $result[0]->getType()->value);
         $this->assertSame(70, $result[0]->getAmount()); // 7日目は70個
 
-        // ダイヤ報酬
-        $this->assertSame('diamond', $result[1]->getType()->value);
+        // 無償ダイヤ報酬（種別は item、id が free_diamond）
+        $this->assertSame('item', $result[1]->getType()->value);
+        $this->assertSame('free_diamond', $result[1]->getId());
         $this->assertSame(100, $result[1]->getAmount());
 
         ClockUtility::reset();
@@ -367,8 +369,9 @@ class LoginBonusServiceTest extends TestCase
         MstLoginBonusContent::create([
             'mst_login_bonus_id' => $bonusId,
             'day' => 1,
-            'content_type' => 'diamond',
-            'content_mst_id' => 'diamond',
+            // 無償ダイヤは item + free_diamond
+            'content_type' => 'item',
+            'content_mst_id' => 'free_diamond',
             'amount' => 100,
             'is_paid' => false,
             'sort_order' => 2,
@@ -397,15 +400,15 @@ class LoginBonusServiceTest extends TestCase
         $this->assertCount(2, $histories);
 
         // アイテム履歴
-        $itemHistory = $histories->firstWhere('reward_type', 'item');
+        $itemHistory = $histories->firstWhere('reward_mst_id', 'item_potion_001');
         $this->assertNotNull($itemHistory);
         $this->assertSame('item_potion_001', $itemHistory->reward_mst_id);
         $this->assertSame(50, $itemHistory->reward_amount);
 
         // ダイヤ履歴
-        $diamondHistory = $histories->firstWhere('reward_type', 'diamond');
+        $diamondHistory = $histories->firstWhere('reward_mst_id', 'free_diamond');
         $this->assertNotNull($diamondHistory);
-        $this->assertSame('diamond', $diamondHistory->reward_mst_id);
+        $this->assertSame('item', $diamondHistory->reward_type);
         $this->assertSame(100, $diamondHistory->reward_amount);
 
         ClockUtility::reset();

@@ -27,6 +27,8 @@ class MstItem extends _BaseMst
         'effect',
         'value',
         'is_wallet',
+        // シーダーが図鑑の対象外（free_diamond）を指定するために必要
+        'is_album_target',
     ];
 
     /**
@@ -38,6 +40,7 @@ class MstItem extends _BaseMst
         // DBは double。integerにすると小数が落ちる
         'value' => 'float',
         'is_wallet' => 'boolean',
+        'is_album_target' => 'boolean',
     ];
 
     public $timestamps = true;

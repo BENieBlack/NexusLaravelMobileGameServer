@@ -31,12 +31,12 @@ class InAppPurchaseConst
 
     /**
      * コンテンツタイプ
+     *
+     * 無償ダイヤは item + free_diamond で表す（旧 free_diamond の種別は廃止。設計 free-diamond-item）
      */
     const CONTENT_TYPE_ITEM = 'item';
 
     const CONTENT_TYPE_UNIT = 'unit';
-
-    const CONTENT_TYPE_FREE_DIAMOND = 'free_diamond';
 
     /**
      * 効果タイプ
@@ -90,7 +90,6 @@ class InAppPurchaseConst
         return [
             self::CONTENT_TYPE_ITEM,
             self::CONTENT_TYPE_UNIT,
-            self::CONTENT_TYPE_FREE_DIAMOND,
         ];
     }
 

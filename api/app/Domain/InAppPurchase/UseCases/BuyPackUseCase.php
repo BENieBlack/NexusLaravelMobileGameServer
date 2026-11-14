@@ -51,7 +51,6 @@ class BuyPackUseCase extends _BaseBuyUseCase
         );
 
         return new BuyResponse(
-            paidDiamondAmount: 0,
             rewards: $result['contents'],
         );
     }

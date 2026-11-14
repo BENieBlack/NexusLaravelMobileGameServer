@@ -90,7 +90,7 @@ return new class extends Migration
         Schema::create('mst_in_app_purchase_content', function (Blueprint $table) {
             $table->integer('deploy_key')->default(202601010)->comment('デプロイキー');
             $table->unsignedBigInteger('mst_in_app_purchase_id')->comment('アプリ内課金商品ID');
-            $table->enum('content_type', ['item', 'unit', 'free_diamond'])->comment('コンテンツタイプ');
+            $table->enum('content_type', ['item', 'unit'])->comment('コンテンツタイプ');
             $table->string('content_mst_id')->comment('コンテンツID');
             $table->json('content_option')->nullable()->comment('コンテンツオプション (例: {"grade":1, "level":5})');
             $table->unsignedInteger('content_quantity')->default(1)->comment('1配布あたりのコンテンツ数量');

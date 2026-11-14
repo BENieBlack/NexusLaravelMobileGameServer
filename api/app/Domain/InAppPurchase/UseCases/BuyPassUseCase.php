@@ -50,11 +50,9 @@ class BuyPassUseCase extends _BaseBuyUseCase
         $unitPrice = $this->resolvePurchasePrice($verification, $mstInAppPurchase, $billingPlatform);
 
         // トランザクションは _BaseBuyUseCase が張っている（VIP付与・課金ログと同一）
-        $paidDiamondAmount = 0;
-
         // 1. ダイヤモンド付与（あれば）
         if ($mstInAppPurchase->getPaidDiamondAmount() > 0) {
-            $result = $this->diamondService->purchaseDiamond(
+            $this->diamondService->purchaseDiamond(
                 $sysPlayerId,
                 $mstInAppPurchase,
                 $platform,
@@ -62,14 +60,12 @@ class BuyPassUseCase extends _BaseBuyUseCase
                 $unitPrice,
                 $verification->getTransactionId()
             );
-            $paidDiamondAmount = $result['paid_diamond_amount'];
         }
 
         // 2. パス効果を適用
         $this->passService->applyPassEffects($sysPlayerId, $mstInAppPurchase);
 
-        return new BuyResponse(
-            paidDiamondAmount: $paidDiamondAmount,
-        );
+        // 応答は updated_resources だけ（有償の加算は trx_diamond で分かる）
+        return new BuyResponse;
     }
 }

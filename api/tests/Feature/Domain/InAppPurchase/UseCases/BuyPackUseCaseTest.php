@@ -46,6 +46,9 @@ class BuyPackUseCaseTest extends TestCase
 
         ApiSession::clearForTest();
         $this->useSessionPlayer($this->sysPlayerId);
+        // UseCase は body の platform と X-Platform（ApiSession）の一致を最初に確かめる。
+        // 既定は Google。Apple で買うテストは呼ぶ前に setPlatform('Apple') する
+        ApiSession::setPlatform('Google');
         $this->queryManager = app(QueryManager::class);
 
         config([
@@ -88,15 +91,30 @@ class BuyPackUseCaseTest extends TestCase
 
         $this->queryManager->execAllQuery();
 
-        $diamond = DB::connection('trx1')->table('trx_diamond')
-            ->where('sys_player_id', $this->sysPlayerId)->first();
-        $this->assertSame(300, $diamond->free_amount);
-        $this->assertSame(0, $diamond->paid_amount);
+        // 無償ダイヤは trx_item の free_diamond に入る（trx_diamond には free_amount の列が無い）
+        $freeDiamond = DB::connection('trx1')->table('trx_item')
+            ->where('sys_player_id', $this->sysPlayerId)->where('mst_item_id', 'free_diamond')->first();
+        $this->assertSame(300, $freeDiamond->free_amount);
+        $this->assertSame(0, $freeDiamond->paid_amount);
+
+        // パックは有償ダイヤを含まないので trx_diamond・trx_diamond_balance の行は作らない
+        $this->assertSame(0, DB::connection('trx1')->table('trx_diamond')
+            ->where('sys_player_id', $this->sysPlayerId)->count());
+        $this->assertSame(0, DB::connection('trx1')->table('trx_diamond_balance')
+            ->where('sys_player_id', $this->sysPlayerId)->count());
 
         $item = DB::connection('trx1')->table('trx_item')
-            ->where('sys_player_id', $this->sysPlayerId)->first();
-        $this->assertSame('item_potion_001', $item->mst_item_id);
+            ->where('sys_player_id', $this->sysPlayerId)->where('mst_item_id', 'item_potion_001')->first();
         $this->assertSame(5, $item->free_amount);
+
+        // rewards の無償ダイヤは他のアイテムと同じ形（type: item, item_id: free_diamond）。
+        // 応答は rewards と updated_resources だけで、paid_diamond_amount は載せない
+        $array = $result->toArray();
+        $this->assertEqualsCanonicalizing(['rewards', 'updated_resources'], array_keys($array));
+        $this->assertContains(
+            ['type' => 'item', 'item_id' => 'free_diamond', 'amount' => 300],
+            $array['rewards'],
+        );
 
         $this->assertVipPointAndLogsRecorded();
     }
@@ -158,10 +176,10 @@ class BuyPackUseCaseTest extends TestCase
 
         $this->assertCount(3, $result->toArray()['rewards']);
 
-        $this->assertSame(300, DB::connection('trx1')->table('trx_diamond')
-            ->where('sys_player_id', $this->sysPlayerId)->value('free_amount'));
+        $this->assertSame(300, DB::connection('trx1')->table('trx_item')
+            ->where('sys_player_id', $this->sysPlayerId)->where('mst_item_id', 'free_diamond')->value('free_amount'));
         $this->assertSame(5, DB::connection('trx1')->table('trx_item')
-            ->where('sys_player_id', $this->sysPlayerId)->value('free_amount'));
+            ->where('sys_player_id', $this->sysPlayerId)->where('mst_item_id', 'item_potion_001')->value('free_amount'));
         $this->assertSame(1, DB::connection('trx1')->table('trx_unit')
             ->where('sys_player_id', $this->sysPlayerId)->count());
     }
@@ -216,8 +234,8 @@ class BuyPackUseCaseTest extends TestCase
             ->where('sys_player_id', $this->sysPlayerId)->first();
 
         $this->assertSame(2, $history->purchase_count);
-        $this->assertSame(600, DB::connection('trx1')->table('trx_diamond')
-            ->where('sys_player_id', $this->sysPlayerId)->value('free_amount'));
+        $this->assertSame(600, DB::connection('trx1')->table('trx_item')
+            ->where('sys_player_id', $this->sysPlayerId)->where('mst_item_id', 'free_diamond')->value('free_amount'));
     }
 
     #[Test]
@@ -236,8 +254,8 @@ class BuyPackUseCaseTest extends TestCase
         }
 
         // 2回目は何も付与されない
-        $this->assertSame(300, DB::connection('trx1')->table('trx_diamond')
-            ->where('sys_player_id', $this->sysPlayerId)->value('free_amount'));
+        $this->assertSame(300, DB::connection('trx1')->table('trx_item')
+            ->where('sys_player_id', $this->sysPlayerId)->where('mst_item_id', 'free_diamond')->value('free_amount'));
         $this->assertSame(1, DB::connection('trx1')->table('trx_in_app_purchase')
             ->where('sys_player_id', $this->sysPlayerId)->value('purchase_count'));
     }
@@ -254,8 +272,8 @@ class BuyPackUseCaseTest extends TestCase
         ClockUtility::setNow('2026-03-16 12:00:00');
         $this->buy($mstInAppPurchase, 'GPA.PACK-2102');
 
-        $this->assertSame(600, DB::connection('trx1')->table('trx_diamond')
-            ->where('sys_player_id', $this->sysPlayerId)->value('free_amount'));
+        $this->assertSame(600, DB::connection('trx1')->table('trx_item')
+            ->where('sys_player_id', $this->sysPlayerId)->where('mst_item_id', 'free_diamond')->value('free_amount'));
 
         ClockUtility::reset();
     }

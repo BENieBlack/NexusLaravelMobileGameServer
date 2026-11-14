@@ -5,6 +5,7 @@ namespace Tests\Feature\InAppPurchase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+use NexusSecurity\Services\SlackErrorNotifier;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -63,7 +64,8 @@ class BuyEndpointTest extends TestCase
     {
         $mstInAppPurchaseId = $this->createDiamondProduct();
 
-        $response = $this->withHeaders(['Authorization' => 'Bearer '.$this->accessToken])
+        // body の platform（Google）と X-Platform を一致させる。不一致は別のテストで拒否を確かめる
+        $response = $this->withHeaders(['Authorization' => 'Bearer '.$this->accessToken, 'X-Platform' => 'Google'])
             ->postJson('/api/in_app_purchase/buy', [
                 'mst_in_app_purchase_id' => $mstInAppPurchaseId,
                 'platform' => 'Google',
@@ -74,14 +76,15 @@ class BuyEndpointTest extends TestCase
             ]);
 
         $response->assertOk();
-        $response->assertJsonStructure([
-            'paid_diamond_amount',
-            'updated_resources',
-        ]);
-        $this->assertSame(self::PAID_DIAMOND_AMOUNT, $response->json('paid_diamond_amount'));
-        // サインアップ時に X-Platform（Apple）の行が 0 で作られているので、購入先（Google）の行を探す
-        $googleRow = collect($response->json('updated_resources.trx_diamond_list'))->firstWhere('platform', 'Google');
-        $this->assertSame(self::PAID_DIAMOND_AMOUNT, $googleRow['paid_amount']);
+        // 応答は updated_resources と rewards（Pack/Pass のときだけ）だけ。
+        // 購入した量（paid_diamond_amount）は載せない。Diamond 商品は rewards も無い
+        $response->assertJsonStructure(['updated_resources']);
+        $this->assertSame(['updated_resources'], array_keys($response->json()));
+        // updated_resources の trx_diamond は単数のオブジェクト 1 件（free_amount は無い）。
+        // 購入先は X-Platform（= body の platform）の行。購入した量は paid_amount の増加で分かる
+        $this->assertSame('Google', $response->json('updated_resources.trx_diamond.platform'));
+        $this->assertSame(self::PAID_DIAMOND_AMOUNT, $response->json('updated_resources.trx_diamond.paid_amount'));
+        $this->assertArrayNotHasKey('free_amount', $response->json('updated_resources.trx_diamond'));
 
         // 実際に付与されている
         $diamond = DB::connection($this->playerConnection($this->sysPlayerId))->table('trx_diamond')
@@ -90,6 +93,66 @@ class BuyEndpointTest extends TestCase
             ->first();
         $this->assertNotNull($diamond);
         $this->assertSame(self::PAID_DIAMOND_AMOUNT, $diamond->paid_amount);
+    }
+
+    #[Test]
+    public function bodyのplatformがx_platformと違えば何も付与せず拒否しslack通知も出さない(): void
+    {
+        $mstInAppPurchaseId = $this->createDiamondProduct();
+
+        // 通知しない（設計 U-Q3）。GameException を通常どおり投げると _BaseController が通知してしまうので、
+        // ClientImplementationError の目印で通知を避けている。通知されたらこの mock が落ちる
+        $notifier = \Mockery::mock(SlackErrorNotifier::class);
+        $notifier->shouldNotReceive('notify');
+        $this->app->instance(SlackErrorNotifier::class, $notifier);
+
+        // X-Platform は Apple（setUp の既定）。body は Google
+        $response = $this->withHeaders(['Authorization' => 'Bearer '.$this->accessToken])
+            ->postJson('/api/in_app_purchase/buy', [
+                'mst_in_app_purchase_id' => $mstInAppPurchaseId,
+                'platform' => 'Google',
+                'billing_platform' => 'google_play',
+                'receipt' => 'purchase-token-endpoint',
+                'transaction_id' => 'GPA.ENDPOINT-MISMATCH',
+                'product_id' => 'diamond_500',
+            ]);
+
+        // HTTP 299 + 99003。メッセージで X-Platform の欠落・不正と区別できる
+        $response->assertStatus(299);
+        $response->assertJsonPath('error_code', 99003);
+        $response->assertJsonPath('message', 'platform in body does not match X-Platform');
+
+        // レシート検証（外部 API）の前に拒否している
+        Http::assertNothingSent();
+
+        // 何も付与されない。Google の行も、有償の内訳も、購入履歴・課金ログ・購入失敗ログも作られない
+        $connection = DB::connection($this->playerConnection($this->sysPlayerId));
+        $this->assertNull($connection->table('trx_diamond')
+            ->where('sys_player_id', $this->sysPlayerId)->where('platform', 'Google')->first());
+        $this->assertSame(0, $connection->table('trx_diamond_balance')->where('sys_player_id', $this->sysPlayerId)->count());
+        $this->assertSame(0, $connection->table('trx_in_app_purchase')->where('sys_player_id', $this->sysPlayerId)->count());
+        $this->assertSame(0, $connection->table('log_action_in_app_purchase')->where('sys_player_id', $this->sysPlayerId)->count());
+    }
+
+    #[Test]
+    public function x_platformが無い購入は従来どおりmiddlewareが拒否しメッセージで区別できる(): void
+    {
+        $mstInAppPurchaseId = $this->createDiamondProduct();
+
+        $response = $this->withoutHeader('X-Platform')
+            ->withHeaders(['Authorization' => 'Bearer '.$this->accessToken])
+            ->postJson('/api/in_app_purchase/buy', [
+                'mst_in_app_purchase_id' => $mstInAppPurchaseId,
+                'platform' => 'Google',
+                'billing_platform' => 'google_play',
+                'receipt' => 'purchase-token-endpoint',
+                'transaction_id' => 'GPA.ENDPOINT-NOHEADER',
+                'product_id' => 'diamond_500',
+            ]);
+
+        $response->assertStatus(299);
+        $response->assertJsonPath('error_code', 99003);
+        $response->assertJsonPath('message', 'X-Platform header is required.');
     }
 
     #[Test]

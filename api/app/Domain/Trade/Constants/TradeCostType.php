@@ -8,7 +8,8 @@ namespace App\Domain\Trade\Constants;
  * 交換所の商品の消費種別（mst_trade_product.cost_type）
  *
  * 消費する個数は cost_amount、アイテム・通貨の種類は cost_mst_id で指定する。
- * 値は報酬の content_type（diamond / item / wallet）と揃えている
+ * item / wallet は報酬の content_type と揃えている。diamond / paid_diamond は消費だけの種別で、
+ * 報酬の content_type には無い（無償ダイヤの報酬は item + free_diamond。設計 free-diamond-item）
  */
 class TradeCostType
 {

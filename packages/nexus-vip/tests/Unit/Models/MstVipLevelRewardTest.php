@@ -45,8 +45,8 @@ class MstVipLevelRewardTest extends TestCase
     #[Test]
     public function 有償の報酬を表せる(): void
     {
-        // ダイヤは有償・無償で残高の枠が分かれる
-        $this->assertTrue($this->makeReward(['content_type' => 'diamond', 'is_paid' => true])->getIsPaid());
+        // is_paid は wallet の有償・無償の枠を表す（無償ダイヤは item + free_diamond で、is_paid を使わない）
+        $this->assertTrue($this->makeReward(['content_type' => 'wallet', 'is_paid' => true])->getIsPaid());
     }
 
     #[Test]

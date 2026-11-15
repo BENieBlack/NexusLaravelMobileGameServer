@@ -17,7 +17,7 @@ URLしか渡されなかった場合は、**推測で調査を始めずスレッ
 
 ### このリポジトリは PUBLIC
 
-`BENieBlack/NexusLaravelMobileGameServer` は公開リポジトリです。**Issueに個人情報を書かないこと。**
+`BENieBlack/NexusMobileGameServer-Laravel` は公開リポジトリです。**Issueに個人情報を書かないこと。**
 
 | Issueに書いてよい | Issueに書いてはいけない |
 |---|---|
@@ -28,7 +28,7 @@ URLしか渡されなかった場合は、**推測で調査を始めずスレッ
 
 **個人情報はSlackスレッド側に置いたまま、IssueからはURLで参照する。** 類似案件の判定は症状と原因で行うので、これで機能は損なわれません。
 
-全文をIssueに残したい場合は、記録先を非公開リポジトリに変えること。その場合は本スキル内の `BENieBlack/NexusLaravelMobileGameServer` を置き換える。
+全文をIssueに残したい場合は、記録先を非公開リポジトリに変えること。その場合は本スキル内の `BENieBlack/NexusMobileGameServer-Laravel` を置き換える。
 
 ### 調査は読み取りのみ
 
@@ -52,11 +52,11 @@ DBに対して `UPDATE` / `DELETE` / `INSERT` を実行しない。データ復�
 
 ```bash
 # 症状のキーワードで全期間から検索する（クローズ済みも含める）
-gh issue list --repo BENieBlack/NexusLaravelMobileGameServer \
+gh issue list --repo BENieBlack/NexusMobileGameServer-Laravel \
   --label cs --state all --search "<キーワード>" --limit 20
 
 # 症状カテゴリのラベルで絞る
-gh issue list --repo BENieBlack/NexusLaravelMobileGameServer \
+gh issue list --repo BENieBlack/NexusMobileGameServer-Laravel \
   --label cs --label "cs:login-bonus" --state all --limit 20
 ```
 
@@ -110,7 +110,7 @@ bash .claude/skills/cs-support/scripts/ensure-labels.sh
 本文は [references/issue-template.md](./references/issue-template.md) の見出し構成をそのまま使う。**見出しを変えないこと。** 次回以降の類似案件検索が見出し前提で効きます。
 
 ```bash
-gh issue create --repo BENieBlack/NexusLaravelMobileGameServer \
+gh issue create --repo BENieBlack/NexusMobileGameServer-Laravel \
   --title "[CS] <症状の要約>" \
   --label cs --label "cs:<カテゴリ>" \
   --body-file <本文ファイル>

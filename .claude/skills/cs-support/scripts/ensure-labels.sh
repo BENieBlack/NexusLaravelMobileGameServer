@@ -10,7 +10,7 @@
 
 set -euo pipefail
 
-REPO="${1:-BENieBlack/NexusLaravelMobileGameServer}"
+REPO="${1:-BENieBlack/NexusMobileGameServer-Laravel}"
 
 # "ラベル名|色|説明"
 LABELS=(

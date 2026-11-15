@@ -229,7 +229,7 @@
 
 ## 10. アイテムの表示名: `mst_item__l10n` の行を入れる（design-change。要件「表示名の配信」）
 
-背景（人の決定）: クライアントはホーム・ログインボーナス画面で、アイテム（無償ダイヤを含む全アイテム）の表示名を **`mst_item__l10n`** から引く。クライアントの言語は `ja` 固定で、`Accept-Language: ja` を送る（[api.md](api.md) 10 節）。ところが `mst_item__l10n` に行を入れるシーダーが無く、いまは常に空（読んだ。`MstItemSeeder` は `mst_item` だけ。`database/seeders` に l10n を入れるものは他にも無い）。クライアント設計の申し送り S-1〜S-6 は `NexusGodotMobileGameClient/docs/design/free-diamond-item/client_design.md` の 5-3・5-3-1 が正本（参照のみ）。
+背景（人の決定）: クライアントはホーム・ログインボーナス画面で、アイテム（無償ダイヤを含む全アイテム）の表示名を **`mst_item__l10n`** から引く。クライアントの言語は `ja` 固定で、`Accept-Language: ja` を送る（[api.md](api.md) 10 節）。ところが `mst_item__l10n` に行を入れるシーダーが無く、いまは常に空（読んだ。`MstItemSeeder` は `mst_item` だけ。`database/seeders` に l10n を入れるものは他にも無い）。クライアント設計の申し送り S-1〜S-6 は `NexusMobileGameClient-Godot/docs/design/free-diamond-item/client_design.md` の 5-3・5-3-1 が正本（参照のみ）。
 
 ### 10.1 テーブルと配信（変更なし）
 

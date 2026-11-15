@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Environment Setup Script for NexusLaravelMobileGameServer
+# Environment Setup Script for NexusMobileGameServer-Laravel
 #
 # 開発環境をゼロから構築する。
 #

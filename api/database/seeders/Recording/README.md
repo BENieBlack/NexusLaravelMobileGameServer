@@ -1,6 +1,6 @@
 # 動画撮影用シード
 
-クライアントの動作確認（タイトル〜ホーム。`NexusGodotMobileGameClient/docs/design/title-to-home/client_design.md` の 7 節）を動画に撮るために、サーバーの状態を整えるシーダー。
+クライアントの動作確認（タイトル〜ホーム。`NexusMobileGameClient-Godot/docs/design/title-to-home/client_design.md` の 7 節）を動画に撮るために、サーバーの状態を整えるシーダー。
 
 **このフォルダに動画撮影用のものをすべて置く。** 撮影が増えるたびに、このフォルダの中にシナリオを足していく。
 

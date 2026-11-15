@@ -1,4 +1,4 @@
-# NexusLaravelMobileGameServer
+# NexusMobileGameServer-Laravel
 
 モバイルゲームのバックエンド。`api/`（ゲームAPI, Laravel）、`tool/`（運営ツール, 別のLaravelアプリ）、`packages/nexus-*`（機能ごとのパッケージ）で構成する。
 

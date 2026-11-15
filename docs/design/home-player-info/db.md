@@ -24,7 +24,7 @@
 
 現行の 300 秒は private 定数が 3 か所にあり、実行で参照されるのは次の 7 か所（読んだ）。
 
-| # | ファイル（`NexusLaravelMobileGameServer/` 起点） | 定義行 | 参照 | 用途 |
+| # | ファイル（`NexusMobileGameServer-Laravel/` 起点） | 定義行 | 参照 | 用途 |
 | --- | --- | --- | --- | --- |
 | 1 | `packages/nexus-stamina/src/Services/StaminaService.php` | 21 | `applyAutoRecovery`（回復点数の計算・`last_recovery_at` の前進）、`calcTimeUntilNextRecovery`（残り秒数） | **login が使う経路**（`HomeUseCase` → `findAllStaminas`）、消費・アイテム回復の前の自然回復 |
 | 2 | `api/app/Domain/Stamina/Services/StaminaService.php` | 23 | `calcTimeToFullRecovery`（満タンまでの秒数） | Domain 層のラッパー |

@@ -40,7 +40,7 @@
 
 ## 2. マイグレーションの場所
 
-| テーブル | ファイル（`NexusLaravelMobileGameServer/` 起点） |
+| テーブル | ファイル（`NexusMobileGameServer-Laravel/` 起点） |
 | --- | --- |
 | `sys_player` `sys_player_device` `sys_sharding` `sys_sharding_node` `sys_sharding_node_player` | `packages/nexus-core/database/migrations/sys/2026_01_01_000001_create_core_tables.php` |
 | `sys_player_token`（ほか `sys_player_transfer_code` `sys_player_external_account`） | `packages/nexus-core-auth/database/migrations/sys/2026_01_01_000001_create_auth_tables.php` |

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Deploy Script for NexusLaravelMobileGameServer
+# Deploy Script for NexusMobileGameServer-Laravel
 #
 # 最新のコードを取り込み、API / TOOL を利用できる状態にする。
 # DBの中身は消さない（初期構築は setup.sh）。何度流しても安全なように作ってある。

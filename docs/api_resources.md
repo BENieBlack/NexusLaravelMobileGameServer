@@ -38,7 +38,9 @@
 | `friend/*`（apply 系・delete）、`guild/*`（create・apply 系・leave）、`chat/*`（書き込み）、`notification/read`、`notification/read_all` | なし | |
 | `account/*`（引き継ぎ・外部連携）、`admin/maintenance/*` | なし | |
 
-## 読み取り API（GET）
+## 読み取り API（現状は GET。全て POST への移行待ち）
+
+新規の API は参照専用でも POST にする（`.claude/api.md`「ルーティング」）。
 
 プレイヤーの7テーブルの現在値は、`auth/login` だけが返す。`player/me` は `my_id` と `name` のみ。
 `mailbox/list`、`mission/list`、`trade/list`、`album/list`、`friend/list`、`guild/*`、`chat/*`、`notification/list`、`reward_track/summary` などの一覧系は、7テーブルを返さない。

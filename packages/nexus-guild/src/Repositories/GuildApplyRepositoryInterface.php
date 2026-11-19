@@ -19,6 +19,16 @@ interface GuildApplyRepositoryInterface
     public function selectById(int $applyId): ?GuildApply;
 
     /**
+     * IDでギルド加入申請を行ロック（SELECT ... FOR UPDATE）付きで検索
+     *
+     * 承認・却下の排他に使う。ロックを取ってから status を判定すること。
+     * トランザクション内で呼ぶこと。
+     *
+     * @param  int  $applyId  申請ID
+     */
+    public function selectByIdForUpdate(int $applyId): ?GuildApply;
+
+    /**
      * ギルドIDとプレイヤーIDで既存の申請を検索
      *
      * Applied または Accepted のステータスのみを検索対象とする

@@ -43,6 +43,33 @@ class SysGuildApplyRepository extends _BaseSysRepository
     }
 
     /**
+     * 申請を FOR UPDATE で読み直す（承認・却下の排他）
+     *
+     * 申請の status は申請者ではなく承認者・却下者（他人）が書く。
+     * 承認と却下が同時に来ても、先にこの行を押さえた側だけが進める。
+     * 後から来た側はロックが外れた後の最新の status を読むので、
+     * 「承認済みなのに却下した」ができない。
+     *
+     * 既にキャッシュに載っている同じ行は、最新の値で差し替える
+     * （古い値のまま setModel() して他人の更新を巻き戻さないため）。
+     * キャッシュが無い場合は、後から読み込まれてよい（書き込みは dirty の status だけで、
+     * 判定に使うのはこのロック読みの値だから）。
+     *
+     * @param  int  $applyId  申請ID
+     */
+    public function selectByIdForUpdate(int $applyId): ?SysGuildApply
+    {
+        /** @var SysGuildApply|null $apply */
+        $apply = $this->selectForUpdate()->find($applyId);
+
+        if ($apply !== null && $this->models !== null && $this->models->has((string) $applyId)) {
+            $this->models->put((string) $applyId, $apply);
+        }
+
+        return $apply;
+    }
+
+    /**
      * ギルドIDとプレイヤーIDで既存の申請を検索（Model返却）
      *
      * @param  int  $guildId  ギルドID

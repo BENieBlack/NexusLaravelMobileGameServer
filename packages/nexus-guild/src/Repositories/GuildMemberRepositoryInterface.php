@@ -49,6 +49,27 @@ interface GuildMemberRepositoryInterface
     public function countByGuildId(int $guildId): int;
 
     /**
+     * ギルドのメンバー数を行ロック付きで数える
+     *
+     * 満員判定用。トランザクションの古いスナップショットではなく、
+     * ロック取得後の最新の人数を返す。トランザクション内で呼ぶこと。
+     *
+     * @param  int  $guildId  ギルドID
+     */
+    public function countByGuildIdForUpdate(int $guildId): int;
+
+    /**
+     * プレイヤーの所属を、その人を軸にロックしたうえで最新の状態で検索
+     *
+     * 「この人をメンバーにしてよいか」の二重所属確認用。
+     * 同じ人を別々のギルドが同時に承認しても、先に取った側だけが進められる。
+     * トランザクション内で呼ぶこと。
+     *
+     * @param  int  $playerId  プレイヤーID
+     */
+    public function selectByPlayerIdForUpdate(int $playerId): ?GuildMember;
+
+    /**
      * ギルドメンバーを作成
      *
      * @param  int  $guildId  ギルドID

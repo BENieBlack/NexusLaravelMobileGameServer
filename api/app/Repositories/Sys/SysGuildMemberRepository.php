@@ -78,6 +78,38 @@ class SysGuildMemberRepository extends _BaseSysRepository
     }
 
     /**
+     * ギルドのメンバー数を FOR UPDATE で数える
+     *
+     * 普通の count は、トランザクションの開始時点の古いスナップショットを読みうる
+     * （REPEATABLE READ）。ロックを待った後に古い人数で判定すると定員を超えるので、
+     * 行ロック付きの読み取り（常に最新）で行を読んで数える。
+     * ギルド行が mutex なので、ロック自体は冗長（current read にするために FOR UPDATE を使う）。
+     * ギルドは最大でも数十人なので、行を読んでもコストは小さい。
+     *
+     * @param  int  $guildId  ギルドID
+     */
+    public function countByGuildIdForUpdate(int $guildId): int
+    {
+        return count($this->selectForUpdate()->where('sys_guild_id', $guildId)->pluck('id')->all());
+    }
+
+    /**
+     * プレイヤーの所属を FOR UPDATE で読み直す（二重所属の確認用）
+     *
+     * 該当行が無いとき、FOR UPDATE はギャップロックになり、2 つのトランザクションが
+     * 同時に取れてしまう（その後の insert で両方が入る）。
+     * そのため「この人を誰がメンバーにするか」の直列化は、呼び出し側が
+     * プレイヤー行（sys_player）のロックで行い、ここは最新の所属を読む役。
+     *
+     * @param  int  $playerId  プレイヤーID
+     */
+    public function selectByPlayerIdForUpdate(int $playerId): ?SysGuildMember
+    {
+        /** @var SysGuildMember|null */
+        return $this->selectForUpdate()->where('sys_player_id', $playerId)->first();
+    }
+
+    /**
      * ギルドIDでメンバー一覧を取得（Model返却）
      *
      * @param  int  $guildId  ギルドID

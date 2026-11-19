@@ -56,6 +56,21 @@ class SysGuildRepository extends _BaseSysRepository
     }
 
     /**
+     * ギルド行を FOR UPDATE で読む（メンバー数の上限判定の mutex）
+     *
+     * sys_guild は複数のプレイヤー（承認者）が同じ行を軸に動くので、
+     * この行を先に押さえた人だけが「満員か → メンバーを足す」を進められる。
+     * 返したモデルは読み取り専用で、setModel() に渡さない。
+     *
+     * @param  int  $guildId  ギルドID
+     */
+    public function selectByIdForUpdate(int $guildId): ?SysGuild
+    {
+        /** @var SysGuild|null */
+        return $this->selectForUpdate()->find($guildId);
+    }
+
+    /**
      * ギルド一覧を取得（キャッシュを通さない）
      *
      * 全件は返さない。並び順はレベルの高い順で、同レベルならID順。

@@ -62,13 +62,13 @@ return new class extends Migration
             $table->unsignedInteger('content_quantity')->default(1)->comment('1配布あたりのコンテンツ数量');
             $table->unsignedInteger('amount')->default(1)->comment('配布回数（content_quantity × amount = 実際の配布量）');
             $table->boolean('is_paid')->default(false)->comment('有償フラグ（walletの場合）');
-            $table->unsignedInteger('sort_order')->default(0)->comment('表示順序');
+            $table->unsignedInteger('sort_desc')->default(0)->comment('同じ日の中の並び順（降順。大きい値が先。同値は content_type・content_mst_id 昇順。配る順・クライアントの表示順）');
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('更新日時');
 
             $table->primary(['mst_login_bonus_id', 'day', 'content_type', 'content_mst_id'], 'pk_login_bonus_content');
             $table->index('deploy_key');
-            $table->index('sort_order');
+            $table->index('sort_desc');
 
             // 外部キー制約
             $table->foreign('mst_login_bonus_id', 'fk_login_bonus_content')

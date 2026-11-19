@@ -102,11 +102,11 @@ class LoginBonusCalendarApiTest extends TestCase
 
         // 通常の段: 配布の後に読むので最後に配った日数は 1、今回配ったので is_granted_now は真
         $this->assertSame(self::NORMAL_ID, $normal['mst_login_bonus_id']);
-        $this->assertSame(3, $normal['loop_days']);
         $this->assertSame(1, $normal['last_received_day']);
         $this->assertTrue($normal['is_granted_today']);
         $this->assertTrue($normal['is_granted_now']);
-        $this->assertCount(3, $normal['day_reward_list']);
+        // 全日の報酬・loop_days は応答に含めない（クライアントが配信のマスターを ID で引く）
+        $this->assertSame(['mst_login_bonus_id', 'last_received_day', 'is_granted_today', 'is_granted_now'], array_keys($normal));
 
         // VIP の段: 今のレベルのマスター。レベルは受取済みの行ではなく今のレベル
         $level = $this->currentVipLevel();
@@ -120,29 +120,6 @@ class LoginBonusCalendarApiTest extends TestCase
 
         // 既存のキーは残っている
         $this->assertArrayHasKey('login_bonus_list', $response->json());
-    }
-
-    #[Test]
-    public function 全日の報酬が配る順で並び_報酬行の無い日も空の配列で残る(): void
-    {
-        $normal = $this->login()->json('login_bonus_calendar');
-
-        $days = array_column($normal['day_reward_list'], 'day');
-        $this->assertSame([1, 2, 3], $days);
-
-        // 1 日目: sort_order → content_type → content_mst_id の順（sort_order が同じ行は種類・ID の順）
-        $this->assertSame([
-            ['type' => 'gold', 'id' => 'gold', 'amount' => 500, 'metadata' => null],
-            ['type' => 'item', 'id' => 'item_a', 'amount' => 10, 'metadata' => null],
-            ['type' => 'item', 'id' => 'item_b', 'amount' => 20, 'metadata' => null],
-        ], $normal['day_reward_list'][0]['reward_list']);
-        // content_quantity × amount が配る量、is_paid は metadata に出る
-        $this->assertSame(
-            ['type' => 'item', 'id' => 'free_diamond', 'amount' => 6, 'metadata' => ['is_paid' => true]],
-            $normal['day_reward_list'][1]['reward_list'][0]
-        );
-        // 報酬行が無い 3 日目も要素は残す
-        $this->assertSame([], $normal['day_reward_list'][2]['reward_list']);
     }
 
     #[Test]
@@ -231,32 +208,6 @@ class LoginBonusCalendarApiTest extends TestCase
     }
 
     #[Test]
-    public function 未知のcontent_typeの行はその行だけ除かれ_loginは失敗しない(): void
-    {
-        // 今のレベルの VIP ボーナスの 2 日目に、ResourceType に無い種類の行を足す
-        // （配る日は 1 日目なので配布には影響しない。配布の失敗は今のまま）
-        $level = $this->currentVipLevel();
-        DB::connection('mst')->table('mst_vip_login_bonus_content')->insert([
-            'mst_vip_login_bonus_id' => self::VIP_ID_PREFIX.$level,
-            'day' => 2,
-            'content_type' => 'unknown_type',
-            'content_mst_id' => 'x',
-            'content_quantity' => 1,
-            'amount' => 1,
-        ]);
-        $this->refreshMstCache();
-
-        $response = $this->login();
-
-        $response->assertOk();
-        $day2 = $response->json('vip_login_bonus_calendar.day_reward_list.1');
-        $this->assertSame(2, $day2['day']);
-        // 正しい行は残り、不正な行だけが無い
-        $this->assertCount(1, $day2['reward_list']);
-        $this->assertNotSame('unknown_type', $day2['reward_list'][0]['type']);
-    }
-
-    #[Test]
     public function vi_pの段はレベル別のマスターを引き_vip_levelは今のレベルを返す(): void
     {
         $this->login()->assertOk();
@@ -271,7 +222,6 @@ class LoginBonusCalendarApiTest extends TestCase
         // 受取済みの行は旧レベルのまま。段のレベル・ID・報酬は今のレベルのもの
         $this->assertSame($levelAfter, $vip['vip_level']);
         $this->assertSame(self::VIP_ID_PREFIX.$levelAfter, $vip['mst_vip_login_bonus_id']);
-        $this->assertSame($levelAfter * 100 + 1, $vip['day_reward_list'][0]['reward_list'][0]['amount']);
         $this->assertTrue($vip['can_re_receive']);
     }
 
@@ -292,6 +242,49 @@ class LoginBonusCalendarApiTest extends TestCase
         $this->assertFalse($response->json('login_bonus_calendar.is_granted_now'));
         $this->assertFalse($response->json('vip_login_bonus_calendar.is_granted_now'));
         $this->assertSame($before, $this->snapshotTables(), 'list は DB を変えない');
+    }
+
+    #[Test]
+    public function listのmstクエリは_vi_pボーナスの読み取りを1回だけにする(): void
+    {
+        $this->login()->assertOk();
+        $this->startFreshRequest();
+        DB::connection('mst')->enableQueryLog();
+
+        $this->postJson('/api/login_bonus/list', [], $this->authHeaders($this->accessToken))->assertOk();
+
+        $queries = array_column(DB::connection('mst')->getQueryLog(), 'query');
+        DB::connection('mst')->disableQueryLog();
+        // 段の ID・レベル・can_re_receive は同じ judge() の結果から取るので、今のレベルの VIP ボーナスは 1 回だけ引く
+        $vipBonusReads = array_filter($queries, fn (string $q) => str_contains($q, 'from `mst_vip_login_bonus`'));
+        $this->assertCount(1, $vipBonusReads, implode("\n", $queries));
+    }
+
+    #[Test]
+    public function loginの新キーはlistと同じキー_型_nullになる(): void
+    {
+        // 2 回目の login（is_granted_now が偽）と list は、同じ状態なら全く同じ値になる（形が 3 か所に分かれていても揃う）
+        $this->login()->assertOk();
+        $second = $this->login()->json();
+        $list = $this->listCalendar()->json();
+
+        $this->assertSame($list['login_bonus_calendar'], $second['login_bonus_calendar']);
+        $this->assertSame($list['vip_login_bonus_calendar'], $second['vip_login_bonus_calendar']);
+        $this->assertNotNull($list['login_bonus_calendar']);
+        $this->assertNotNull($list['vip_login_bonus_calendar']);
+
+        // マスターが無い段も、どちらも null
+        DB::connection('mst')->table('mst_login_bonus')->update(['is_active' => false]);
+        DB::connection('mst')->table('mst_vip_login_bonus')->update(['is_active' => false]);
+        $this->refreshMstCache();
+        $loginNull = $this->login()->json();
+        $listNull = $this->listCalendar()->json();
+        $this->assertNull($loginNull['login_bonus_calendar']);
+        $this->assertNull($loginNull['vip_login_bonus_calendar']);
+        $this->assertSame(
+            [$listNull['login_bonus_calendar'], $listNull['vip_login_bonus_calendar']],
+            [$loginNull['login_bonus_calendar'], $loginNull['vip_login_bonus_calendar']]
+        );
     }
 
     #[Test]
@@ -618,6 +611,10 @@ class LoginBonusCalendarApiTest extends TestCase
         app(QueryManager::class)->clear();
         // 同じプロセスで使い回される Repository のモデルのキャッシュも捨てる（sys_player の古い vip_point を読まないため）
         app(SysPlayerRepository::class)->forgetCachedModels();
+        // Route が Controller（と、その中の UseCase・Service が持つ前のリクエストの状態）を使い回さないようにする
+        foreach (app('router')->getRoutes() as $route) {
+            $route->flushController();
+        }
     }
 
     private function assertBusinessError(TestResponse $response, int $errorCode): void
@@ -666,7 +663,7 @@ class LoginBonusCalendarApiTest extends TestCase
     }
 
     /**
-     * 通常: 3 日ループ（1 日目は 3 行、2 日目は有償フラグ付き 1 行、3 日目は報酬行なし）。
+     * 通常: 3 日ループ（1・2 日目に 1 行ずつ、3 日目は報酬行なし）。
      * VIP: 全レベルに 3 日ループ。1〜3 日目に vip_item を「レベル × 100 + 日」個
      */
     private function createMaster(): void
@@ -675,14 +672,9 @@ class LoginBonusCalendarApiTest extends TestCase
             'id' => self::NORMAL_ID, 'type' => 'daily', 'loop_days' => 3, 'is_active' => true,
         ]);
         $rows = [
-            // sort_order を同値にして、content_type → content_mst_id の順で並ぶことを見る。
-            // わざと並びと逆の順で入れる
-            ['day' => 1, 'content_type' => 'item', 'content_mst_id' => 'item_b', 'content_quantity' => 10, 'amount' => 2, 'sort_order' => 1],
-            ['day' => 1, 'content_type' => 'item', 'content_mst_id' => 'item_a', 'content_quantity' => 10, 'amount' => 1, 'sort_order' => 1],
-            ['day' => 1, 'content_type' => 'wallet', 'content_mst_id' => 'gold', 'content_quantity' => 500, 'amount' => 1, 'sort_order' => 0],
-            ['day' => 2, 'content_type' => 'item', 'content_mst_id' => 'free_diamond', 'content_quantity' => 3, 'amount' => 2, 'is_paid' => true, 'sort_order' => 0],
+            ['day' => 1, 'content_type' => 'item', 'content_mst_id' => 'item_a', 'content_quantity' => 10, 'amount' => 1, 'sort_desc' => 0],
+            ['day' => 2, 'content_type' => 'item', 'content_mst_id' => 'free_diamond', 'content_quantity' => 3, 'amount' => 2, 'is_paid' => true, 'sort_desc' => 0],
         ];
-        // 'gold' は content_type = wallet で type が gold になる。item の sort_order=0 より前に出すため gold を 0、item を 1 にしている
         foreach ($rows as $row) {
             DB::connection('mst')->table('mst_login_bonus_content')->insert([...['mst_login_bonus_id' => self::NORMAL_ID, 'is_paid' => false], ...$row]);
         }

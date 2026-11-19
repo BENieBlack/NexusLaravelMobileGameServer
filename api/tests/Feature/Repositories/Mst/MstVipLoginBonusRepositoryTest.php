@@ -36,35 +36,19 @@ class MstVipLoginBonusRepositoryTest extends TestCase
     }
 
     #[Test]
-    public function 全日の報酬はday_id順で1クエリで取れる(): void
+    public function 一日分の報酬はsort_descの降順で並び_同値はid昇順(): void
     {
         $this->makeBonus('vip_a', vipLevel: 1);
-        $this->makeBonus('vip_b', vipLevel: 2);
-        // id は入れた順（連番）。day を逆順に入れても day 昇順で返る
-        $this->makeContent('vip_a', day: 2, contentMstId: 'a2');
-        $this->makeContent('vip_a', day: 1, contentMstId: 'a1_second');
-        $this->makeContent('vip_a', day: 1, contentMstId: 'a1_third');
-        $this->makeContent('vip_b', day: 1, contentMstId: 'other');
-
-        DB::connection('mst')->enableQueryLog();
-        $rows = $this->repository->selectContentsByBonusId('vip_a');
-        $queries = DB::connection('mst')->getQueryLog();
-        DB::connection('mst')->disableQueryLog();
-
-        $this->assertSame(['a1_second', 'a1_third', 'a2'], array_column($rows->all(), 'content_mst_id'));
-        $this->assertCount(1, $queries, '全日の報酬は日ごとに引かず 1 クエリで取る');
-    }
-
-    #[Test]
-    public function 一日分の報酬は登録順_idで並ぶ(): void
-    {
-        $this->makeBonus('vip_a', vipLevel: 1);
-        $this->makeContent('vip_a', day: 1, contentMstId: 'z_first');
-        $this->makeContent('vip_a', day: 1, contentMstId: 'a_second');
+        // id は入れた順（連番）。sort_desc が大きいものが先、同値（0）は id 昇順
+        $this->makeContent('vip_a', day: 1, contentMstId: 'low', sortDesc: 1);
+        $this->makeContent('vip_a', day: 1, contentMstId: 'tie_first');
+        $this->makeContent('vip_a', day: 1, contentMstId: 'high', sortDesc: 9);
+        $this->makeContent('vip_a', day: 1, contentMstId: 'tie_second');
+        $this->makeContent('vip_a', day: 2, contentMstId: 'other_day', sortDesc: 99);
 
         $rows = $this->repository->selectContentsByBonusIdAndDay('vip_a', 1);
 
-        $this->assertSame(['z_first', 'a_second'], array_column($rows->all(), 'content_mst_id'));
+        $this->assertSame(['high', 'low', 'tie_first', 'tie_second'], array_column($rows->all(), 'content_mst_id'));
     }
 
     #[Test]
@@ -84,12 +68,12 @@ class MstVipLoginBonusRepositoryTest extends TestCase
         $this->refreshMstCache();
     }
 
-    private function makeContent(string $bonusId, int $day, string $contentMstId): void
+    private function makeContent(string $bonusId, int $day, string $contentMstId, int $sortDesc = 0): void
     {
         DB::connection('mst')->table('mst_vip_login_bonus_content')->insert([
             'mst_vip_login_bonus_id' => $bonusId, 'day' => $day,
             'content_type' => 'item', 'content_mst_id' => $contentMstId,
-            'content_quantity' => 1, 'amount' => 1,
+            'content_quantity' => 1, 'amount' => 1, 'sort_desc' => $sortDesc,
         ]);
     }
 

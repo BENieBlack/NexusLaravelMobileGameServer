@@ -92,6 +92,13 @@ class MstVipLoginBonusSeeder extends Seeder
 
             // 日別報酬を作成
             $contents = $this->generateContentsForVipLevel($bonusId, $vipLevel, $now);
+            // 並び順（降順。大きい値が先）: 同じ日の中で、生成した順（= 従来の id 昇順）が先になるよう、
+            // その日の行数から 1 ずつ小さくなる値を振る
+            $countInDay = array_count_values(array_column($contents, 'day'));
+            foreach ($contents as &$content) {
+                $content['sort_desc'] = $countInDay[$content['day']]--;
+            }
+            unset($content);
             DB::connection('mst')->table('mst_vip_login_bonus_content')->insert($contents);
 
             $this->command->info("VIPレベル{$vipLevel}のログインボーナスを作成しました。");

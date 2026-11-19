@@ -63,24 +63,7 @@ class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
     public function selectContentsByLoginBonusId(string $loginBonusId): array
     {
         return MstLoginBonusContent::where('mst_login_bonus_id', $loginBonusId)
-            ->orderBy('sort_order')
-            ->get()
-            ->map(fn ($content) => $content->toArray())
-            ->all();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function selectDailyContentsByLoginBonusId(string $loginBonusId): array
-    {
-        // day = 0 はカムバック用。通常は 1〜loop_days。全日を 1 クエリで取る
-        return MstLoginBonusContent::where('mst_login_bonus_id', $loginBonusId)
-            ->where('day', '>=', 1)
-            ->orderBy('day')
-            ->orderBy('sort_order')
-            ->orderBy('content_type')
-            ->orderBy('content_mst_id')
+            ->orderByDesc('sort_desc')
             ->get()
             ->map(fn ($content) => $content->toArray())
             ->all();
@@ -157,10 +140,10 @@ class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
             $contentQuery->where('day', 0);
         }
 
-        // sort_order が同値の行の並びを DB 任せにしない。主キーで全順序になる
+        // sort_desc（降順。大きい値が先）が同値の行の並びを DB 任せにしない。主キーで全順序になる
         // （配る順とカレンダーの 1 日の中の順を同じにする）
         return $contentQuery
-            ->orderBy('sort_order')
+            ->orderByDesc('sort_desc')
             ->orderBy('content_type')
             ->orderBy('content_mst_id')
             ->get()

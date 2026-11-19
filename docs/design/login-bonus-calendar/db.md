@@ -1,6 +1,6 @@
 # ログインボーナスのカレンダー表示とアイテムアイコン DB 設計（S2）
 
-機能 `login-bonus-calendar` のサーバー側 DB 設計。**結論は「スキーマの変更なし」**（1 節）。この文書は、変更なしの根拠、新しい読み方・書き方に要る Repository の変更、並びの固定、録画用シードの設計を書く。
+機能 `login-bonus-calendar` のサーバー側 DB 設計。**結論は「`mst_vip_login_bonus_content` に並び順の列 `sort_desc` を 1 つ足すだけ」**（1 節。人の決定 U-S2-8。当初の「スキーマ変更なし」から変更）。この文書は、列を足す根拠、新しい読み方に要る Repository の変更、並びの固定、録画用シードの設計を書く。
 
 - 要件: `Nexus/docs/requirements/login-bonus-calendar.md`（**仕様の正本**。T / C / K / D / I / H / R / Q の節記号で指す。仕様はここに写さない）
 - 全体設計: `Nexus/docs/design/login-bonus-calendar/overview.md`（マージ済み。U-1〜U-10 は [api.md](api.md) 9 節で答える）
@@ -12,12 +12,12 @@
 
 | 項目 | 内容 |
 | --- | --- |
-| スキーマ | **変更なし**。テーブル・列・索引・マイグレーションを足さない・変えない |
-| 変更なしの根拠 | 下の 2 節 |
+| スキーマ | **（リリース前の方針: マイグレーションは create ファイルを書き換え、後方互換は持たない。DB は `migrate-fresh` で作り直す）** **`mst_vip_login_bonus_content.sort_desc`（`unsignedInteger`・default 0）を足す**（降順。大きい値が先。同値は `id` 昇順）。通常側 `mst_login_bonus_content` の `sort_order`（昇順）も `sort_desc`（降順。インデックスも同名に）へ置き換えた。それ以外のテーブル・列・索引は変えない。create マイグレーション（`packages/nexus-vip`）に書き足した（共有の検証環境を作るまでは既存ファイルを書き換えてよい規約）。既存の開発 DB は `make migrate-fresh && make seed` で作り直す。シーダー（`MstVipLoginBonusSeeder`）は従来の `id` 順と同じ並びになるよう、その日の行数から 1 ずつ小さい値を振る |
+| 変更なしの根拠（`sort_desc` 以外） | 下の 2 節 |
 | mst の string id 規約 | 新しい mst テーブルを作らないので `MstRequiresStringIdTest` / `MstNoAutoIncrementIdTest` に新しく触れない。ただし `mst_login_bonus_content`・`mst_vip_login_bonus_content` は既に解消待ち（`PENDING_VIOLATIONS`）で、**この機能はその一覧を増やしも減らしもしない**（3 節に、並びの固定がその解消に影響する点を書く） |
 | `mst_item` のアイコン | **サーバー側に要るものは無い**（4 節） |
-| Repository | 並びを固定する変更と、全日の報酬を 1 クエリで取る読み取りの追加（3 節）。DB へは書かない |
-| シャード・マイグレーション方針 | 変更なしなので該当しない。新しい読み取りは既存の trx シャード（`ApiSession` が解決）を使う |
+| Repository | 並びを固定する変更（3 節）。全日の報酬の読み取りは U-S2-8 で不要になり追加しない。DB へは書かない |
+| シャード・マイグレーション方針 | mst の列追加だけで trx・log は変えない。新しい読み取りは既存の trx シャード（`ApiSession` が解決）を使う |
 | ER 図 | 5 節（既存テーブルの関係だけ。変更なし） |
 | 録画用シード | 6 節（`Recording/` に足す。マイグレーションではない） |
 
@@ -28,8 +28,8 @@
 | 通常の進捗（最後に配った日数・受取日） | `trx_login_bonus`（主キー `(sys_player_id, type)`。`type = daily` の 1 行。`day`・`received_date`・`mst_login_bonus_id`） | `packages/nexus-login/database/migrations/trx/...create_login_tables.php`。`TrxLoginBonusRepository::selectByType` が `queryOrMemory()` で読む |
 | VIP の進捗 | `trx_vip_login_bonus`（主キー `sys_player_id`。`mst_vip_login_bonus_id`・`day`・`vip_level`・`received_at`） | `packages/nexus-vip/database/migrations/trx/...create_vip_tables.php` |
 | **受取時の VIP レベル（R4 ②）** | `trx_vip_login_bonus.vip_level`（`unsignedTinyInteger`、**not null**。コメント「受け取り時のVIPレベル」） | 列は create マイグレーション当初から定義済み。配るたびに `VipLoginBonusService::recordHistory` → `upsertLatest` が `bonusData['current_vip_level']` で上書きする。したがって**既存行にも値が入っている**（null になる経路が無い）。マイグレーション・既存データの移行は不要 |
-| 全日の報酬（通常） | `mst_login_bonus_content`（`mst_login_bonus_id`・`day`・`content_*`・`sort_order`） | `sort_order` あり。`day = 0` はカムバック用で、通常の `day` は 1〜`loop_days` |
-| 全日の報酬（VIP） | `mst_vip_login_bonus_content`（`id`（連番）・`mst_vip_login_bonus_id`・`day`・`content_*`）。索引 `idx_vip_login_bonus_day (mst_vip_login_bonus_id, day)` | **`sort_order` 列は無い**。並びは `id` で固定する（3 節） |
+| 全日の報酬（通常） | `mst_login_bonus_content`（`mst_login_bonus_id`・`day`・`content_*`・**`sort_desc`**（旧 `sort_order` を置き換え）） | `sort_desc`（降順。大きい値が先）あり。`day = 0` はカムバック用で、通常の `day` は 1〜`loop_days` |
+| 全日の報酬（VIP） | `mst_vip_login_bonus_content`（`id`（連番）・`mst_vip_login_bonus_id`・`day`・`content_*`・**`sort_desc`（今回追加）**）。索引 `idx_vip_login_bonus_day (mst_vip_login_bonus_id, day)` | クライアントが配信の SQLite から引いて `sort_desc` 降順に並べる。サーバーは判定・配布で 1 日分を読む |
 | VIP ボーナス本体 | `mst_vip_login_bonus`（`id` string。`vip_level`・`loop_days`・`is_active`・`start_at`・`end_at`） | `id` は人が決める安定値（例 `vip_login_lv5`）。再受け取りの API のパラメータにできる |
 | 受取履歴（R3） | `log_action_vip_login_bonus_receive`（1 報酬 1 行。`vip_level`・`day`・`received_at`・`reward_*`） | 再受け取りも同じ表に足す。**再受け取りを区別する列は足さない**（7 節の注） |
 | 「今日」の判定 | 追加の列は要らない | `ClockUtility::isSameGameDay(今, 受取日)`（[api.md](api.md) 4 節） |
@@ -40,14 +40,13 @@
 
 | 変更 | 場所 | 内容・理由 |
 | --- | --- | --- |
-| VIP の報酬の並びを固定 | `MstVipLoginBonusRepository::selectContentsByBonusIdAndDay` | 現状は並びの指定なし（読んだ）。`orderBy('id')` を足す。**配るとき（`login_bonus_list` の VIP 分と応答の `updated_resources` の順）と、カレンダーの 1 日の中の順を同じにする**ための変更（overview 7 節の e）。InnoDB の二次索引は末尾に主キーを持つので、今も多くの場合 `id` 順になると推測するが、明示して保証する。既存テストへの影響は api.md 8 節 |
-| VIP の全日の報酬の取得 | `VipLoginBonusRepositoryInterface` に `selectContentsByBonusId(string $mstVipLoginBonusId): CustomCollection` を追加 | `orderBy('day')->orderBy('id')`。全日を **1 クエリ**で取る（overview 8 節の宿題 9）。`toArray()` した連想配列（既存の `selectContentsByBonusIdAndDay` と同じ形） |
-| 通常の全日の報酬の取得 | `LoginBonusRepositoryInterface`（package）に `selectDailyContentsByLoginBonusId(string $mstLoginBonusId): array` を追加し、`LoginBonusRepositoryAdapter` が実装 | `where('day', '>=', 1)`、`orderBy('day')->orderBy('sort_order')->orderBy('content_type')->orderBy('content_mst_id')`。**既存の `selectContentsByLoginBonusId`（`sort_order` だけで並べる。日をまたぐ）は変えない**（テストが固定している。読んだ） |
-| 通常の 1 日の報酬の並びの固定 | `LoginBonusRepositoryAdapter::selectContentsByLoginBonusIdAndDay` | `orderBy('sort_order')` の後ろに `content_type`・`content_mst_id` を足す。`sort_order` が同値の行の並びを DB 任せにしないため。主キー `(mst_login_bonus_id, day, content_type, content_mst_id)` で全順序になる。配る順とカレンダーの順が同じになる |
+| VIP の報酬の並びを固定 | `MstVipLoginBonusRepository::selectContentsByBonusIdAndDay` | `orderByDesc('sort_desc')->orderBy('id')`。配るとき（`login_bonus_list` の VIP 分と応答の `updated_resources` の順）とクライアントの表示順（マスターを `sort_desc` 降順で引く）を同じにする。`selectActiveByVipLevel` も `orderBy('id')` で 1 件に固定 |
+| （実装しない）全日の報酬の取得 | 当初案の `selectContentsByBonusId`（VIP）・`selectDailyContentsByLoginBonusId`（通常）は U-S2-8 で不要になり、削除した | |
+| 通常の 1 日の報酬の並びの固定 | `LoginBonusRepositoryAdapter::selectContentsByLoginBonusIdAndDay` | `orderByDesc('sort_desc')` の後ろに `content_type`・`content_mst_id` を足す。`sort_order` が同値の行の並びを DB 任せにしないため。主キー `(mst_login_bonus_id, day, content_type, content_mst_id)` で全順序になる。配る順とカレンダーの順が同じになる |
 | 今のレベルの VIP ボーナスの引き方を固定 | `MstVipLoginBonusRepository::selectActiveByVipLevel` | `->first()` の前に `orderBy('id')`。同じレベルに有効な行が 2 件以上あるマスターの誤りがあっても、配布・カレンダー・再受け取りが**同じ 1 件**を選ぶ（現状は未指定。読んだ） |
 | `convertToResource` の公開 | `packages/nexus-login` | 行 → `LoginBonusContent` → `Resource` の変換を、状態を持たない `NexusLogin\Services\LoginBonusResourceConverter` に切り出す。`_BaseLoginBonusService` の `toContents` / `convertToResource` はこれに委譲する（動作は変えない）。**2 通りの変換を作らない**（U-2。[api.md](api.md) 9 節） |
 
-**mst の string id 規約との関係（注意）**: `mst_vip_login_bonus_content.id` は今は連番（AUTO_INCREMENT。`PENDING_VIOLATIONS` の解消待ち）。上の `orderBy('id')` は連番を前提にした「登録順」。**解消時に `id` が `親ID:content_type:content_mst_id` のような文字列になると、`orderBy('id')` は辞書順に変わり、配る順が変わる**。そのときは `sort_order` 列を足して並びの鍵を移す必要がある。この機能で今 `sort_order` を足さないのは、overview 6 節の決定（マスターのテーブル・列を変えない）に従うため。**U-S2-2** に残す（[api.md](api.md) 9 節）。
+**mst の string id 規約との関係**: `mst_vip_login_bonus_content.id` は今は連番（AUTO_INCREMENT。`PENDING_VIOLATIONS` の解消待ち）。並びの鍵は `sort_desc` なので、解消で `id` が文字列になっても配る順は変わらない（同値のときの `id` 昇順の並びだけが辞書順になる）。U-S2-2（[api.md](api.md) 9 節）で解消済み。通常側の `mst_login_bonus_content` も `sort_order`（昇順）を `sort_desc`（降順）に置き換えた（人の決定。リリース前なので後方互換なし）。
 
 ## 4. `mst_item` のアイコン（I1〜I12）
 
@@ -68,7 +67,7 @@ erDiagram
     sys_player ||--o| trx_login_bonus : "sys_player_id（type=daily）"
     sys_player ||--o| trx_vip_login_bonus : "sys_player_id"
     sys_player ||--o{ log_action_vip_login_bonus_receive : "sys_player_id"
-    mst_login_bonus ||--o{ mst_login_bonus_content : "mst_login_bonus_id（day, sort_order）"
+    mst_login_bonus ||--o{ mst_login_bonus_content : "mst_login_bonus_id（day, sort_desc）"
     mst_vip_login_bonus ||--o{ mst_vip_login_bonus_content : "mst_vip_login_bonus_id（day, id）"
     mst_vip_login_bonus ||--o{ trx_vip_login_bonus : "mst_vip_login_bonus_id（受取時のボーナス）"
     mst_vip_level ||--o{ mst_vip_login_bonus : "vip_level"

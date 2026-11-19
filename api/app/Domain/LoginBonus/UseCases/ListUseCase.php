@@ -37,8 +37,20 @@ class ListUseCase extends _BaseUseCase
     {
         $this->validation($sysPlayerId);
 
+        // 状態を小さな読み取りに分けて取り、is_granted_today などの組み立ては Response の引数にする。
+        // is_granted_now は常に偽（Response 側で固定）
+        $normalHistory = $this->loginBonusCalendar->findNormalHistory($sysPlayerId);
+        $vipHistory = $this->loginBonusCalendar->findVipHistory($sysPlayerId);
+
         return new ListResponse(
-            $this->loginBonusCalendar->findCalendars($sysPlayerId, false, false)
+            normalBonusId: $this->loginBonusCalendar->findNormalBonusId(),
+            normalLastReceivedDay: $normalHistory?->getDay(),
+            isNormalGrantedToday: $this->loginBonusCalendar->isReceivedToday($normalHistory?->getReceivedDate()),
+            vipBonusId: $this->loginBonusCalendar->findVipBonusId($sysPlayerId),
+            vipLevel: $this->loginBonusCalendar->findVipLevel($sysPlayerId),
+            vipLastReceivedDay: $vipHistory?->getDay(),
+            isVipGrantedToday: $this->loginBonusCalendar->isReceivedToday($vipHistory?->getReceivedAt()),
+            canVipReReceive: $this->loginBonusCalendar->canVipReReceive($sysPlayerId),
         );
     }
 }

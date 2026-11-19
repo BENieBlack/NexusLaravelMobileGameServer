@@ -154,7 +154,7 @@ class LoginBonusServiceTest extends TestCase
                 'content_mst_id' => 'item_potion_001',
                 'amount' => $day * 10, // 1日目10個、2日目20個...
                 'is_paid' => false,
-                'sort_order' => 1,
+                'sort_desc' => 2,
             ]);
         }
 
@@ -275,7 +275,7 @@ class LoginBonusServiceTest extends TestCase
                 'content_mst_id' => 'item_potion_001',
                 'amount' => 1,
                 'is_paid' => false,
-                'sort_order' => 1,
+                'sort_desc' => 2,
             ]);
         }
 
@@ -286,7 +286,7 @@ class LoginBonusServiceTest extends TestCase
             'content_mst_id' => 'item_potion_001',
             'amount' => 70,
             'is_paid' => false,
-            'sort_order' => 1,
+            'sort_desc' => 2,
         ]);
 
         MstLoginBonusContent::create([
@@ -297,7 +297,7 @@ class LoginBonusServiceTest extends TestCase
             'content_mst_id' => 'free_diamond',
             'amount' => 100,
             'is_paid' => false,
-            'sort_order' => 2,
+            'sort_desc' => 1,
         ]);
 
         $this->refreshMstCache();
@@ -363,7 +363,7 @@ class LoginBonusServiceTest extends TestCase
             'content_mst_id' => 'item_potion_001',
             'amount' => 50,
             'is_paid' => false,
-            'sort_order' => 1,
+            'sort_desc' => 2,
         ]);
 
         MstLoginBonusContent::create([
@@ -374,7 +374,7 @@ class LoginBonusServiceTest extends TestCase
             'content_mst_id' => 'free_diamond',
             'amount' => 100,
             'is_paid' => false,
-            'sort_order' => 2,
+            'sort_desc' => 1,
         ]);
 
         $this->refreshMstCache();

@@ -3,8 +3,7 @@
 namespace App\Domain\LoginBonus\Responses;
 
 use App\Domain\_BaseResponse;
-use App\Domain\LoginBonus\Contracts\LoginBonusCalendarFormatter;
-use App\Domain\LoginBonus\DataTransferObjects\VipLoginBonusCalendarResult;
+use App\Domain\LoginBonus\Support\BuildsCalendarStage;
 use App\Domain\ReturnsUpdatedResources;
 use App\Models\Trx\TrxVipLoginBonus;
 use App\Traits\HasUpdatedResources;
@@ -21,6 +20,7 @@ use Nexus\Core\Resource\DataTransferObjects\Resource;
  */
 class ReceiveResponse extends _BaseResponse implements ReturnsUpdatedResources
 {
+    use BuildsCalendarStage;
     use HasUpdatedResources;
 
     /**
@@ -29,7 +29,9 @@ class ReceiveResponse extends _BaseResponse implements ReturnsUpdatedResources
     public function __construct(
         private readonly TrxVipLoginBonus $trxVipLoginBonus,
         private readonly array $loginBonusContents,
-        private readonly ?VipLoginBonusCalendarResult $vipCalendar,
+        private readonly string $vipBonusId,
+        private readonly int $vipLevel,
+        private readonly int $lastReceivedDay,
     ) {}
 
     /**
@@ -43,7 +45,9 @@ class ReceiveResponse extends _BaseResponse implements ReturnsUpdatedResources
                 fn (Resource $resource) => $resource->toArray(),
                 $this->loginBonusContents
             ),
-            'vip_login_bonus_calendar' => LoginBonusCalendarFormatter::toVipArray($this->vipCalendar),
+            'vip_login_bonus_calendar' => // 再受け取りの直後: 今日配った（is_granted_today・is_granted_now とも真）。
+            // 受取時のレベルが今のレベルになったので、もう再受け取りできない（can_re_receive は偽）
+            $this->vipStage($this->vipBonusId, $this->vipLevel, $this->lastReceivedDay, true, true, false),
             'updated_resources' => $this->getUpdatedResources()->toResponseArray(),
         ];
     }

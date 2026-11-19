@@ -119,7 +119,7 @@ class HomeUseCaseTest extends TestCase
                 'content_mst_id' => 'item_potion_001',
                 'amount' => $day * 10,
                 'is_paid' => false,
-                'sort_order' => 1,
+                'sort_desc' => 2,
             ]);
 
             // 7日目のみダイヤ報酬追加
@@ -131,7 +131,7 @@ class HomeUseCaseTest extends TestCase
                     'content_mst_id' => 'free_diamond',
                     'amount' => 100,
                     'is_paid' => false,
-                    'sort_order' => 2,
+                    'sort_desc' => 1,
                 ]);
             }
         }
@@ -427,7 +427,7 @@ class HomeUseCaseTest extends TestCase
             'content_mst_id' => 'free_diamond',
             'amount' => 300,
             'is_paid' => false,
-            'sort_order' => 1,
+            'sort_desc' => 2,
         ]);
         $this->refreshMstCache();
 
@@ -476,7 +476,7 @@ class HomeUseCaseTest extends TestCase
             'content_mst_id' => 'free_diamond',
             'amount' => 300,
             'is_paid' => false,
-            'sort_order' => 1,
+            'sort_desc' => 2,
         ]);
         $this->refreshMstCache();
 
@@ -554,7 +554,7 @@ class HomeUseCaseTest extends TestCase
         $this->assertArrayHasKey('login_bonus_calendar', $data);
         $this->assertArrayHasKey('vip_login_bonus_calendar', $data);
         $this->assertSame('daily_login', $data['login_bonus_calendar']['mst_login_bonus_id']);
-        $this->assertCount(7, $data['login_bonus_calendar']['day_reward_list']);
+        $this->assertArrayNotHasKey('day_reward_list', $data['login_bonus_calendar']);
         // 初回の login は配布の後に読むので、最後に配った日数は 1・今回配ったので is_granted_now は真
         $this->assertSame(1, $data['login_bonus_calendar']['last_received_day']);
         $this->assertTrue($data['login_bonus_calendar']['is_granted_now']);

@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $content_mst_id
  * @property int $amount
  * @property bool $is_paid
- * @property int $sort_order
+ * @property int $sort_desc 並び順（降順。大きい値が先）
  */
 class MstLoginBonusContent extends _BaseMst
 {
@@ -45,7 +45,7 @@ class MstLoginBonusContent extends _BaseMst
         'content_quantity',
         'amount',
         'is_paid',
-        'sort_order',
+        'sort_desc',
     ];
 
     /**
@@ -59,7 +59,7 @@ class MstLoginBonusContent extends _BaseMst
         'content_quantity' => 'integer',
         'amount' => 'integer',
         'is_paid' => 'boolean',
-        'sort_order' => 'integer',
+        'sort_desc' => 'integer',
     ];
 
     public $timestamps = true;

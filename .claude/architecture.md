@@ -62,9 +62,9 @@ Domain/
   {Context}/
     UseCases/             *UseCase（入口は handle()）
     Services/             *Service、パッケージ契約を実装する *Adapter（ItemGranterAdapter など）
-    Contracts/            他コンテキストへの公開API（4節）。interface と、状態の無い整形部品（static メソッドだけの具象クラス）
+    Contracts/            他コンテキストへの公開API（4節）
     Responses/            UseCase ごとの *Response（handle() の戻り値。App\Domain\_BaseResponse を継承）
-    DataTransferObjects/  Service と UseCase の間で受け渡す値（SignInResult など）。他コンテキストへ公開する DTO はここに置く（メソッドなし。Eloquent モデルなどを持つ内部用の値は Support/ など別の場所）
+    DataTransferObjects/  Service と UseCase の間で受け渡す値（SignInResult など）
     Constants/            *Const
     Listeners/            ドメインイベントの受け手（5節）
     Support/              *ExceptionTranslator など、コンテキスト内の補助
@@ -104,7 +104,7 @@ Traits/                   UseCaseTrait, CompositePrimaryKeyTrait, RequiresAuthen
 
 `app/Domain/{Context}` と `packages/nexus-*` をそれぞれモジュールとみなし、境界をまたぐ依存を `ModuleBoundaryTest` で検出する。
 
-- コンテキストは他コンテキストの `App\Domain\{Other}\Contracts\` と `App\Domain\{Other}\DataTransferObjects\` だけを参照できる。他コンテキストに渡す戻り値の型は、Contracts の interface と DataTransferObjects（public readonly のコンストラクタだけでメソッドを持たない値）だけを公開とする。`ModuleBoundaryTest` が検査するのは、他コンテキストから参照される DTO にメソッドが無いこと（DTO が `DataTransferObjects` 直下にあること）と、Contracts 配下の具象クラスが static メソッドだけで状態を持たないことだけで、DTO の中身（プロパティの型）は見ない。Response が使う整形部品のように他コンテキストから呼ばれる状態の無いクラスは Contracts に置く。Eloquent モデルなど内部の型を持つ値は公開の DataTransferObjects に混ぜない（`LoginBonus\Support\VipLoginBonusReReceiveResult` など）。`Services/` などの内部は参照しない。例外は共有領域の `Common`
+- コンテキストは他コンテキストの `App\Domain\{Other}\Contracts\` だけを参照できる。`Services/` などの内部は参照しない。例外は共有領域の `Common`
 - `app/Domain` から `App\Http` を参照しない
 - ドメインパッケージ（基盤パッケージ以外）から `Illuminate\Database` / `Illuminate\Support\Facades` / `Illuminate\Http` を参照しない
 - 既存違反の許可リスト（ベースライン）は現在すべて空
@@ -303,7 +303,7 @@ return GuildExceptionTranslator::forApplySend(function () use ($sysPlayerId, $gu
 
 | テスト | 強制していること |
 |---|---|
-| `ModuleBoundaryTest` | コンテキスト間は `Contracts\` と `DataTransferObjects\`（メソッドなしの DTO のみ）経由のみ、Contracts の具象クラスは static だけ、Domain→Http 禁止、ドメインパッケージから Eloquent/Facade/Http 禁止（4節） |
+| `ModuleBoundaryTest` | コンテキスト間は `Contracts\` 経由のみ、Domain→Http 禁止、ドメインパッケージから Eloquent/Facade/Http 禁止（4節） |
 | `PackageIndependenceTest` | `packages/*/src` から `App\` を参照しない |
 | `PackageRegistrationTest` | `packages/*` が api の `composer.json`（path リポジトリと require）・`phpstan.neon`・`phpunit.xml`（カバレッジ）の全てに登録されている |
 | `ConverterLocationTest` | `*RepositoryAdapter` に変換メソッドを書かない。`app/Adapters` 配下は `toDto()` を持つ |

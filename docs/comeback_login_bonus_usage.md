@@ -64,7 +64,7 @@ MstLoginBonusContent::create([
     'content_quantity' => 100,
     'amount' => 1,
     'is_paid' => false,
-    'sort_order' => 1,
+    'sort_desc' => 1,
 ]);
 ```
 
@@ -91,7 +91,7 @@ MstLoginBonusContent::create([
     'content_quantity' => 500,
     'amount' => 1,
     'is_paid' => false,
-    'sort_order' => 1,
+    'sort_desc' => 1,
 ]);
 
 // 30日間休眠プレイヤー向け（さらに豪華）
@@ -113,7 +113,7 @@ MstLoginBonusContent::create([
     'content_quantity' => 2000,
     'amount' => 1,
     'is_paid' => false,
-    'sort_order' => 1,
+    'sort_desc' => 1,
 ]);
 ```
 

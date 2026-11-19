@@ -112,14 +112,13 @@ class HomeUseCase extends _BaseUseCase
                 ->first(fn (TrxDiamond $diamond) => $diamond->getPlatform() === $currentPlatform);
             $trxEquipments = $this->trxEquipmentRepository->queryOrMemory();
 
-            // ログインボーナスのカレンダー（通常・VIP の段）。配布と last_login_at の更新の「後」、
+            // ログインボーナスのカレンダー（通常・VIP の段）の状態。配布と last_login_at の更新の「後」、
             // 同じトランザクションの中で読む（読み取りだけ。配布前だと最後に配った日数が古くなる。
-            // 未保存の更新は queryOrMemory で見える）
-            $calendars = $this->loginBonusCalendar->findCalendars(
-                $sysPlayerId,
-                $isFirstLoginOfGameDay,
-                $isFirstLoginOfGameDay,
-            );
+            // 未保存の更新は queryOrMemory で見える）。小さな読み取りを組み合わせ、API の形への整形は HomeResponse が行う
+            $normalHistory = $this->loginBonusCalendar->findNormalHistory($sysPlayerId);
+            $vipHistory = $this->loginBonusCalendar->findVipHistory($sysPlayerId);
+            $isNormalGrantedToday = $this->loginBonusCalendar->isReceivedToday($normalHistory?->getReceivedDate());
+            $isVipGrantedToday = $this->loginBonusCalendar->isReceivedToday($vipHistory?->getReceivedAt());
 
             return new HomeResponse(
                 sysPlayer: $sysPlayer,
@@ -130,8 +129,17 @@ class HomeUseCase extends _BaseUseCase
                 trxEquipments: $trxEquipments->values()->all(),
                 trxStaminas: $this->recoveredTrxStaminas($sysPlayerId),
                 loginBonusContents: $loginBonusContents,
-                loginBonusCalendar: $calendars->normal,
-                vipLoginBonusCalendar: $calendars->vip,
+                normalBonusId: $this->loginBonusCalendar->findNormalBonusId(),
+                normalLastReceivedDay: $normalHistory?->getDay(),
+                isNormalGrantedToday: $isNormalGrantedToday,
+                // 今回の login の自動配布が走ったか: 初回判定 かつ 受取日が今日
+                isNormalGrantedNow: $isFirstLoginOfGameDay && $isNormalGrantedToday,
+                vipBonusId: $this->loginBonusCalendar->findVipBonusId($sysPlayerId),
+                vipLevel: $this->loginBonusCalendar->findVipLevel($sysPlayerId),
+                vipLastReceivedDay: $vipHistory?->getDay(),
+                isVipGrantedToday: $isVipGrantedToday,
+                isVipGrantedNow: $isFirstLoginOfGameDay && $isVipGrantedToday,
+                canVipReReceive: $this->loginBonusCalendar->canVipReReceive($sysPlayerId),
             );
         });
     }

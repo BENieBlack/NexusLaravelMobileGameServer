@@ -4,7 +4,6 @@ namespace App\Domain\LoginBonus\UseCases;
 
 use App\Domain\_BaseUseCase;
 use App\Domain\LoginBonus\Constants\LoginBonusConst;
-use App\Domain\LoginBonus\Contracts\LoginBonusCalendarInterface;
 use App\Domain\LoginBonus\Responses\ReceiveResponse;
 use App\Domain\LoginBonus\Services\VipLoginBonusReReceiveService;
 use App\Domain\LoginBonus\Support\VipLoginBonusReReceiveResult;
@@ -33,7 +32,6 @@ class ReceiveUseCase extends _BaseUseCase
 {
     public function __construct(
         private readonly VipLoginBonusReReceiveService $reReceiveService,
-        private readonly LoginBonusCalendarInterface $loginBonusCalendar,
         private readonly ResourceDeliveryService $resourceDeliveryService,
         private readonly VipLoginBonusReceiveRecordRepository $receiveRecordRepository,
         private readonly VipLoginBonusHistoryRepositoryInterface $vipHistoryRepository,
@@ -95,7 +93,7 @@ class ReceiveUseCase extends _BaseUseCase
             $this->resourceDeliveryService->addResources($resources);
             $this->resourceDeliveryService->deliver($sysPlayerId);
 
-            // 履歴: trx_vip_login_bonus を新しいレベル・日数据え置き・今日の日の開始で更新し、
+            // 履歴: trx_vip_login_bonus を新しいレベル・日数を据え置き・今日の日の開始で更新し、
             // log に 1 報酬 1 行足す（login の配布と同じ書き込みを共有）
             $this->receiveRecordRepository->recordReceive(
                 sysPlayerId: $sysPlayerId,
@@ -106,14 +104,17 @@ class ReceiveUseCase extends _BaseUseCase
                 contents: $contents,
             );
 
-            // 応答用の VIP の段。同じトランザクションの中で読むので、積んだ更新が見える
-            // （is_granted_now は真、can_re_receive は ② が偽になるので偽）
-            $calendars = $this->loginBonusCalendar->findCalendars($sysPlayerId, false, true);
-
+            // 応答用: 履歴を書いた後の trx_vip_login_bonus（同じトランザクションの中なので積んだ更新が見える）と、今のレベルの段
             /** @var TrxVipLoginBonus $trxVipLoginBonus */
             $trxVipLoginBonus = $this->vipHistoryRepository->selectLatestByPlayerId($sysPlayerId);
 
-            return new ReceiveResponse($trxVipLoginBonus, array_values($resources), $calendars->vip);
+            return new ReceiveResponse(
+                $trxVipLoginBonus,
+                array_values($resources),
+                vipBonusId: (string) $master['id'],
+                vipLevel: $judge->vipLevel,
+                lastReceivedDay: $day,
+            );
         });
     }
 }

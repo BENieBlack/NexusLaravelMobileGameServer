@@ -223,7 +223,7 @@ class HomeTrxDiamondTest extends TestCase
             'content_mst_id' => 'free_diamond',
             'amount' => $amount,
             'is_paid' => false,
-            'sort_order' => 1,
+            'sort_desc' => 1,
         ]);
         $this->refreshMstCache();
     }

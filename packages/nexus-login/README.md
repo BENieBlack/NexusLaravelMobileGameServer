@@ -81,7 +81,7 @@ CREATE TABLE mst_login_bonus_content (
     content_mst_id VARCHAR(255) NOT NULL,
     amount INT NOT NULL,
     is_paid BOOLEAN NOT NULL DEFAULT FALSE,
-    sort_order INT NOT NULL DEFAULT 0,
+    sort_desc INT NOT NULL DEFAULT 0, -- 並び順（降順。大きい値が先）
     created_at TIMESTAMP,
     updated_at TIMESTAMP
 );

@@ -3,7 +3,6 @@
 namespace Tests\Unit\Domain\LoginBonus;
 
 use App\Domain\LoginBonus\Constants\LoginBonusConst;
-use App\Domain\LoginBonus\Contracts\LoginBonusCalendarInterface;
 use App\Domain\LoginBonus\Services\VipLoginBonusReReceiveService;
 use App\Domain\LoginBonus\Support\VipLoginBonusReReceiveResult;
 use App\Domain\LoginBonus\UseCases\ReceiveUseCase;
@@ -77,7 +76,6 @@ class ReceiveUseCaseValidationTest extends TestCase
 
         return new ReceiveUseCase(
             $judge,
-            $this->createMock(LoginBonusCalendarInterface::class),
             $this->createMock(ResourceDeliveryService::class),
             $this->createMock(VipLoginBonusReceiveRecordRepository::class),
             $this->createMock(VipLoginBonusHistoryRepositoryInterface::class),

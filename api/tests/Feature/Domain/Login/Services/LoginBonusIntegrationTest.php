@@ -156,7 +156,7 @@ class LoginBonusIntegrationTest extends TestCase
                 'content_mst_id' => 'free_diamond',
                 'amount' => $day * 100,
                 'is_paid' => false,
-                'sort_order' => 1,
+                'sort_desc' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -225,7 +225,7 @@ class LoginBonusIntegrationTest extends TestCase
                 'content_mst_id' => "day_{$day}_diamond", // 各日で異なるIDを使用
                 'amount' => $day * 1000, // カムバックは豪華
                 'is_paid' => false,
-                'sort_order' => 1,
+                'sort_desc' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

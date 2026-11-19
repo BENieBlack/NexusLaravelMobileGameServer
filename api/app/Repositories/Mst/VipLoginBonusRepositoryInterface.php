@@ -22,12 +22,4 @@ interface VipLoginBonusRepositoryInterface
      * @return CustomCollection<array-key, array<string, mixed>>
      */
     public function selectContentsByBonusIdAndDay(string $vipLoginBonusId, int $day): CustomCollection;
-
-    /**
-     * VIPログインボーナスIDの全日の報酬内容を取得（day 昇順、同じ日は id 昇順）
-     *
-     * @param  string  $vipLoginBonusId  VIPログインボーナスID
-     * @return CustomCollection<array-key, array<string, mixed>>
-     */
-    public function selectContentsByBonusId(string $vipLoginBonusId): CustomCollection;
 }

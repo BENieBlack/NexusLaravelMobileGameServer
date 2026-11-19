@@ -278,6 +278,10 @@ class RecordingLoginBonusProgressTest extends RecordingTestCase
         ApiSession::clearForTest();
         app(QueryManager::class)->clear();
         app(SysPlayerRepository::class)->forgetCachedModels();
+        // Route が Controller（と、その中の UseCase・Service が持つ前のリクエストの状態）を使い回さないようにする
+        foreach (app('router')->getRoutes() as $route) {
+            $route->flushController();
+        }
     }
 
     /** @return array<string, mixed> */

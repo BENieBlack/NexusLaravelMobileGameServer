@@ -146,6 +146,7 @@ return new class extends Migration
             $table->json('content_option')->nullable()->comment('報酬オプション（JSON）');
             $table->unsignedInteger('content_quantity')->default(1)->comment('報酬の基本個数');
             $table->unsignedInteger('amount')->default(1)->comment('報酬の倍率（実際の配布量 = content_quantity × amount）');
+            $table->unsignedInteger('sort_desc')->default(0)->comment('同じ日の中の並び順（降順。大きい値が先。同値は id 昇順。配る順・クライアントの表示順）');
             $table->timestamps();
             $table->foreign('mst_vip_login_bonus_id', 'fk_vip_login_bonus_content_bonus_id')
                 ->references('id')

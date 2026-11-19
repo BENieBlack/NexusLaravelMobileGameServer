@@ -148,6 +148,29 @@ class TrxMailboxRepository extends _BaseTrxRepository
     }
 
     /**
+     * IDでメールボックスを FOR UPDATE で読み直す（行ロック）
+     *
+     * trx_mailbox の is_protected / is_delete は、本人の API（保護の切り替え）と
+     * バッチ mailbox:delete-expired（player.lock の外）の両方が書く。
+     * 書く側が全員この行を押さえてから読み直し、ロック読みの値で判定して更新する。
+     * トランザクション内で呼ぶこと（外なら LogicException）。
+     *
+     * 既にキャッシュにある同じ行は最新の値で差し替える
+     * （古い値のまま setModel() して他方の更新を巻き戻さないため）。
+     */
+    public function selectByIdForUpdate(int $trxMailboxId): ?TrxMailbox
+    {
+        /** @var TrxMailbox|null $trxMailbox */
+        $trxMailbox = $this->selectForUpdate()->find($trxMailboxId);
+
+        if ($trxMailbox !== null && $this->models !== null && $this->models->has((string) $trxMailboxId)) {
+            $this->models->put((string) $trxMailboxId, $trxMailbox);
+        }
+
+        return $trxMailbox;
+    }
+
+    /**
      * 既読にする
      */
     public function markAsOpened(TrxMailbox $trxMailbox): void

@@ -4,6 +4,7 @@ namespace App\Domain\LoginBonus\UseCases;
 
 use App\Domain\_BaseUseCase;
 use App\Domain\LoginBonus\Constants\LoginBonusConst;
+use App\Domain\LoginBonus\Contracts\VipLoginBonusReceiveRecorderInterface;
 use App\Domain\LoginBonus\Responses\ReceiveResponse;
 use App\Domain\LoginBonus\Services\VipLoginBonusReReceiveService;
 use App\Domain\LoginBonus\Support\VipLoginBonusReReceiveResult;
@@ -12,7 +13,6 @@ use App\Exceptions\MasterDataException;
 use App\Exceptions\SystemDataException;
 use App\Models\Trx\TrxVipLoginBonus;
 use App\Repositories\Trx\VipLoginBonusHistoryRepositoryInterface;
-use App\Repositories\Trx\VipLoginBonusReceiveRecordRepository;
 use Nexus\Core\ResourceDelivery\Services\ResourceDeliveryService;
 use Nexus\Core\Utilities\ClockUtility;
 use NexusLogin\Services\LoginBonusResourceConverter;
@@ -33,7 +33,7 @@ class ReceiveUseCase extends _BaseUseCase
     public function __construct(
         private readonly VipLoginBonusReReceiveService $reReceiveService,
         private readonly ResourceDeliveryService $resourceDeliveryService,
-        private readonly VipLoginBonusReceiveRecordRepository $receiveRecordRepository,
+        private readonly VipLoginBonusReceiveRecorderInterface $receiveRecorder,
         private readonly VipLoginBonusHistoryRepositoryInterface $vipHistoryRepository,
     ) {}
 
@@ -95,7 +95,7 @@ class ReceiveUseCase extends _BaseUseCase
 
             // 履歴: trx_vip_login_bonus を新しいレベル・日数を据え置き・今日の日の開始で更新し、
             // log に 1 報酬 1 行足す（login の配布と同じ書き込みを共有）
-            $this->receiveRecordRepository->recordReceive(
+            $this->receiveRecorder->recordReceive(
                 sysPlayerId: $sysPlayerId,
                 mstVipLoginBonusId: (string) $master['id'],
                 day: $day,

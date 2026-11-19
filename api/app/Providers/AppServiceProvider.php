@@ -17,7 +17,9 @@ use App\Domain\Login\Services\ComeBackLoginBonusService;
 use App\Domain\Login\Services\LoginBonusService;
 use App\Domain\Login\Services\VipLoginBonusService;
 use App\Domain\LoginBonus\Contracts\LoginBonusCalendarInterface;
+use App\Domain\LoginBonus\Contracts\VipLoginBonusReceiveRecorderInterface;
 use App\Domain\LoginBonus\Services\LoginBonusCalendarService;
+use App\Domain\LoginBonus\Services\VipLoginBonusReceiveRecordService;
 use App\Domain\Mission\Listeners\RecordMissionProgressOnUnitLevelUp;
 use App\Domain\MstConfig\Contracts\MstConfigReaderInterface;
 use App\Domain\MstConfig\Services\MstConfigService;
@@ -305,6 +307,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(ItemInventoryInterface::class, ItemService::class);
         // Login（HomeUseCase）が LoginBonus のカレンダーを読むための公開 API
         $this->app->bind(LoginBonusCalendarInterface::class, LoginBonusCalendarService::class);
+        // Login（VipLoginBonusService）が VIP の受け取りの記録（trx と log を組で書く）を共有するための公開 API
+        $this->app->bind(VipLoginBonusReceiveRecorderInterface::class, VipLoginBonusReceiveRecordService::class);
         $this->app->bind(DiamondBalanceInterface::class, InAppPurchaseDiamondBalanceService::class);
         $this->app->bind(ShardAssignerInterface::class, ShardAssignmentService::class);
         $this->app->bind(InitialGrantInterface::class, InitialGrantService::class);

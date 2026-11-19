@@ -2,10 +2,10 @@
 
 namespace App\Domain\Login\Services;
 
+use App\Domain\LoginBonus\Contracts\VipLoginBonusReceiveRecorderInterface;
 use App\Repositories\Mst\VipLoginBonusRepositoryInterface;
 use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Trx\VipLoginBonusHistoryRepositoryInterface;
-use App\Repositories\Trx\VipLoginBonusReceiveRecordRepository;
 use Nexus\Core\ResourceDelivery\Services\ResourceDeliveryService;
 use Nexus\Core\Support\CustomCollection;
 use Nexus\Core\Utilities\ClockUtility;
@@ -30,7 +30,7 @@ class VipLoginBonusService extends _BaseLoginBonusService
         ResourceDeliveryService $resourceDeliveryService,
         private readonly VipLoginBonusRepositoryInterface $vipBonusRepository,
         private readonly VipLoginBonusHistoryRepositoryInterface $vipHistoryRepository,
-        private readonly VipLoginBonusReceiveRecordRepository $vipReceiveRecordRepository,
+        private readonly VipLoginBonusReceiveRecorderInterface $vipReceiveRecorder,
         private readonly SysPlayerRepository $sysPlayerRepository,
         private readonly VipLevelService $vipLevelService,
     ) {
@@ -113,8 +113,8 @@ class VipLoginBonusService extends _BaseLoginBonusService
         CustomCollection $contents
     ): void {
         // 最新状態（trx）と受取履歴（log）の書き込みは、再受け取りと同じ内容になるよう
-        // Repository 層の 1 つのメソッドに寄せている
-        $this->vipReceiveRecordRepository->recordReceive(
+        // LoginBonus の Service（Contracts 経由）の 1 つのメソッドに寄せている（trx と log は必ず組で書く）
+        $this->vipReceiveRecorder->recordReceive(
             sysPlayerId: $sysPlayerId,
             mstVipLoginBonusId: $bonusData['id'],
             day: $currentDay,

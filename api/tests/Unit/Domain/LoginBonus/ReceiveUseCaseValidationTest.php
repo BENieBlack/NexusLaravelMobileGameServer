@@ -3,6 +3,7 @@
 namespace Tests\Unit\Domain\LoginBonus;
 
 use App\Domain\LoginBonus\Constants\LoginBonusConst;
+use App\Domain\LoginBonus\Contracts\VipLoginBonusReceiveRecorderInterface;
 use App\Domain\LoginBonus\Services\VipLoginBonusReReceiveService;
 use App\Domain\LoginBonus\Support\VipLoginBonusReReceiveResult;
 use App\Domain\LoginBonus\UseCases\ReceiveUseCase;
@@ -10,7 +11,6 @@ use App\Exceptions\BusinessLogicException;
 use App\Exceptions\GameErrorCode;
 use App\Exceptions\MasterDataException;
 use App\Repositories\Trx\VipLoginBonusHistoryRepositoryInterface;
-use App\Repositories\Trx\VipLoginBonusReceiveRecordRepository;
 use Nexus\Core\ResourceDelivery\Services\ResourceDeliveryService;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -77,7 +77,7 @@ class ReceiveUseCaseValidationTest extends TestCase
         return new ReceiveUseCase(
             $judge,
             $this->createMock(ResourceDeliveryService::class),
-            $this->createMock(VipLoginBonusReceiveRecordRepository::class),
+            $this->createMock(VipLoginBonusReceiveRecorderInterface::class),
             $this->createMock(VipLoginBonusHistoryRepositoryInterface::class),
         );
     }

@@ -20,7 +20,7 @@ class NotificationController extends _BaseController
     /**
      * 通知一覧取得
      *
-     * GET /notification/list
+     * POST /notification/list
      */
     public function list(ListRequest $request, ListUseCase $useCase): JsonResponse
     {

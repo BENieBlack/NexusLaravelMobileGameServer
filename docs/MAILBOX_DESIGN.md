@@ -142,7 +142,8 @@ ALTER TABLE mst_mailbox_content ADD COLUMN is_highlight BOOLEAN DEFAULT FALSE CO
 
 **API Endpoint:**
 ```
-GET /api/mailbox/list?category=Battle&unread_only=true
+POST /api/mailbox/list
+{"category": "Battle", "unread_only": true}
 ```
 
 **Response:**

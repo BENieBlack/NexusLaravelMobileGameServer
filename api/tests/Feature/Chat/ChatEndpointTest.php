@@ -107,8 +107,8 @@ class ChatEndpointTest extends TestCase
             $this->authHeaders($this->ownerToken)
         )->assertOk();
 
-        $response = $this->getJson(
-            '/api/chat/message/list?sys_chat_room_id='.$roomId,
+        $response = $this->postJson(
+            '/api/chat/message/list', ['sys_chat_room_id' => $roomId],
             $this->authHeaders($this->otherToken)
         );
 
@@ -154,8 +154,8 @@ class ChatEndpointTest extends TestCase
 
         ['token' => $strangerToken] = $this->signUpPlayer();
 
-        $response = $this->getJson(
-            '/api/chat/message/list?sys_chat_room_id='.$roomId,
+        $response = $this->postJson(
+            '/api/chat/message/list', ['sys_chat_room_id' => $roomId],
             $this->authHeaders($strangerToken)
         );
 
@@ -179,8 +179,8 @@ class ChatEndpointTest extends TestCase
             $this->authHeaders($this->ownerToken)
         )->assertOk();
 
-        $messages = $this->getJson(
-            '/api/chat/message/list?sys_chat_room_id='.$roomId,
+        $messages = $this->postJson(
+            '/api/chat/message/list', ['sys_chat_room_id' => $roomId],
             $this->authHeaders($this->ownerToken)
         )->json('chat_message_list');
 
@@ -224,8 +224,8 @@ class ChatEndpointTest extends TestCase
         $roomId = $response->json('room.sys_chat_room_id');
         $this->assertSame('group', $response->json('room.type'));
 
-        $members = $this->getJson(
-            '/api/chat/group/member/list?sys_chat_room_id='.$roomId,
+        $members = $this->postJson(
+            '/api/chat/group/member/list', ['sys_chat_room_id' => $roomId],
             $this->authHeaders($this->ownerToken)
         );
 
@@ -328,8 +328,8 @@ class ChatEndpointTest extends TestCase
             $this->authHeaders($this->ownerToken)
         )->assertOk();
 
-        $members = $this->getJson(
-            '/api/chat/group/member/list?sys_chat_room_id='.$roomId,
+        $members = $this->postJson(
+            '/api/chat/group/member/list', ['sys_chat_room_id' => $roomId],
             $this->authHeaders($this->ownerToken)
         )->json('chat_room_member_list');
 
@@ -374,7 +374,7 @@ class ChatEndpointTest extends TestCase
         $this->makeFriendRoom();
         $this->makeGroupRoom();
 
-        $response = $this->getJson('/api/chat/room/list', $this->authHeaders($this->ownerToken));
+        $response = $this->postJson('/api/chat/room/list', [], $this->authHeaders($this->ownerToken));
 
         $response->assertOk();
         $this->assertCount(2, $response->json('chat_room_list'));
@@ -392,7 +392,7 @@ class ChatEndpointTest extends TestCase
     #[Test]
     public function 認証なしではチャットを扱えない(): void
     {
-        $this->getJson('/api/chat/room/list')->assertUnauthorized();
+        $this->postJson('/api/chat/room/list')->assertUnauthorized();
         $this->postJson('/api/chat/group/create', ['name' => 'x'])->assertUnauthorized();
         $this->postJson('/api/chat/message/send', ['sys_chat_room_id' => 1, 'body' => 'x'])->assertUnauthorized();
     }

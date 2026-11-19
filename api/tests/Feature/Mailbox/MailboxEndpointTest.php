@@ -28,7 +28,7 @@ class MailboxEndpointTest extends TestCase
         $this->makeMailbox($player->id);
 
         // 複数件の一覧で、1件ごとにリレーションをSELECTしない（遅延読み込みは本番以外で例外になる）
-        $response = $this->withHeaders($this->authHeaders($token))->getJson('/api/mailbox/list');
+        $response = $this->withHeaders($this->authHeaders($token))->postJson('/api/mailbox/list');
 
         $response->assertOk();
         $this->assertCount(2, $response->json('mailbox_list'));
@@ -144,7 +144,7 @@ class MailboxEndpointTest extends TestCase
         $mailbox = $this->makeMailbox($player->id);
 
         $response = $this->withHeaders($this->authHeaders($token))
-            ->getJson('/api/mailbox/list');
+            ->postJson('/api/mailbox/list');
 
         $response->assertOk();
         $response->assertJsonPath('mailbox_list.0.trx_mailbox_id', $mailbox->id);
@@ -181,7 +181,7 @@ class MailboxEndpointTest extends TestCase
         $this->refreshMstCache();
 
         try {
-            $json = $this->withHeaders($this->authHeaders($token))->getJson('/api/mailbox/list')->assertOk()->json();
+            $json = $this->withHeaders($this->authHeaders($token))->postJson('/api/mailbox/list')->assertOk()->json();
         } finally {
             DB::connection('mst')->table('mst_mailbox_content')->where('mst_mailbox_id', 'mailbox_shape_001')->delete();
             DB::connection('mst')->table('mst_mailbox')->where('id', 'mailbox_shape_001')->delete();
@@ -256,7 +256,7 @@ class MailboxEndpointTest extends TestCase
         $this->makeMailbox($player->id);
 
         $response = $this->withHeaders($this->authHeaders($token))
-            ->getJson('/api/mailbox/list');
+            ->postJson('/api/mailbox/list');
 
         $response->assertOk();
         $this->assertIsString($response->json('mailbox_list.0.expires_at'));
@@ -272,7 +272,7 @@ class MailboxEndpointTest extends TestCase
         $this->makeMailbox($player->id);
 
         $this->withHeaders($this->authHeaders($token))
-            ->getJson('/api/mailbox/list?category=system')
+            ->postJson('/api/mailbox/list', ['category' => 'system'])
             ->assertOk();
     }
 
@@ -283,7 +283,7 @@ class MailboxEndpointTest extends TestCase
         $this->makeMailbox($player->id);
 
         $this->withHeaders($this->authHeaders($token))
-            ->getJson('/api/mailbox/list?priority=normal')
+            ->postJson('/api/mailbox/list', ['priority' => 'normal'])
             ->assertOk();
     }
 
@@ -293,7 +293,7 @@ class MailboxEndpointTest extends TestCase
         ['token' => $token] = $this->signUpPlayer();
 
         $this->withHeaders($this->authHeaders($token))
-            ->getJson('/api/mailbox/list')
+            ->postJson('/api/mailbox/list')
             ->assertOk()
             ->assertJsonPath('mailbox_list', [])
             ->assertJsonPath('total_unread', 0);
@@ -302,7 +302,7 @@ class MailboxEndpointTest extends TestCase
     #[Test]
     public function test_endpoints_require_authentication(): void
     {
-        $this->getJson('/api/mailbox/list')->assertStatus(401);
+        $this->postJson('/api/mailbox/list')->assertStatus(401);
 
         $this->postJson('/api/mailbox/lock', [
             'trx_mailbox_id' => 1,

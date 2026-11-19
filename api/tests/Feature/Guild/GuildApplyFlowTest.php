@@ -46,7 +46,7 @@ class GuildApplyFlowTest extends TestCase
         $this->sendApply($applicantToken, $guildId);
 
         $response = $this->withHeaders($this->authHeaders($masterToken))
-            ->getJson('/api/guild/apply/list?sys_guild_id='.$guildId);
+            ->postJson('/api/guild/apply/list', ['sys_guild_id' => $guildId]);
 
         $response->assertOk();
         $response->assertJsonStructure(['guild_apply_list']);

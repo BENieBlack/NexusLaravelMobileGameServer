@@ -118,7 +118,7 @@ class MissionEndpointTest extends TestCase
         $this->levelUp(useCount: 3);
 
         $response = $this->withHeaders($this->authHeaders($this->accessToken))
-            ->getJson('/api/mission/list');
+            ->postJson('/api/mission/list');
 
         $response->assertOk();
         $missionById = collect($response->json('mission_list'))->keyBy('mst_mission_id');
@@ -233,7 +233,7 @@ class MissionEndpointTest extends TestCase
     #[Test]
     public function 認証が無ければ取得できない(): void
     {
-        $this->getJson('/api/mission/list')->assertStatus(401);
+        $this->postJson('/api/mission/list')->assertStatus(401);
     }
 
     private function levelUp(int $useCount, int $exp = 0): void

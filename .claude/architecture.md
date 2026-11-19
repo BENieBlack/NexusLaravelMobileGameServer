@@ -235,7 +235,7 @@ api/app/Providers/AppServiceProvider                                 ← bind(�
 
 **`player.lock` の前提と限界**（これを根拠に「本人しか書かない」と言えるのは、次を満たすときだけ）
 
-- 直列化の対象は `auth.token` 配下の POST だけ。GET と、`authenticated_player_id` の無いリクエスト（`sign_in`・`transfer`・認証なしの guild 参照など）は対象外。GET が trx に書くと守りが外れる（今は書き込みは全て POST にする方針）。
+- 直列化の対象は `auth.token` 配下の POST だけ（認証後は全て POST なので参照系も含む）。GET（認証不要の公開エンドポイントだけ）と、`authenticated_player_id` の無いリクエスト（`sign_in`・`transfer`・認証なしの guild 参照など）は対象外。GET が trx に書くと守りが外れる（今は書き込みは全て POST にする方針）。
 - 保持は30秒（`LOCK_SECONDS`）。処理が30秒を超えるとロックが先に切れる（冪等の `PROCESSING_TIMEOUT` は300秒）ので、30秒以内に終わる前提で書く。
 - Redis が落ちたら 503 で通さない（穴ではない）。
 - ミドルウェアの順序は `auth.token` → `idempotency` → `player.lock`（`api/routes/api.php`）。同じキーの同時リクエストは 409。

@@ -25,7 +25,7 @@ class MissionController extends _BaseController
     /**
      * ミッション一覧取得
      *
-     * GET /api/mission/list
+     * POST /api/mission/list
      */
     public function list(ListRequest $request): JsonResponse
     {

@@ -10,55 +10,42 @@ use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
- * アーキテクチャテスト: Controller が受けるエンドポイント（api/ 配下）は全て POST
+ * アーキテクチャテスト: 認証後のエンドポイントは全て POST。GET は認証不要の公開エンドポイントだけ
  *
  * 読み取りに見えるエンドポイントも、期限切れの削除や日替わりのリセットなど内部で更新が入りうる。
  * GET は LockPlayerRequest と IdempotencyMiddleware の対象外なので、排他・冪等が効かない。
- * HTTP メソッドを実装の細部に結びつけないため、参照専用でも POST にする（.claude/api.md「ルーティング」）。
+ * HTTP メソッドを実装の細部に結びつけないため、認証後は参照専用でも POST にする（.claude/api.md「ルーティング」）。
+ * 認証不要の公開 GET（メンテナンス状況・バージョン確認・ギルドの公開参照）だけは人の決定で GET のまま残す。
  *
  * 流れ:
  * 1. ルート一覧から `api/` 配下の GET / PUT / PATCH / DELETE を集める（HEAD は GET に付随するので無視する）
  * 1b. `api/` 以外（`/`・`up`・`broadcasting/auth`・`storage/{path}`）は Controller のエンドポイントではないので意図して対象外にする
  *     （api/ の外に Controller を足すとこのテストをすり抜けるので、足さないこと）
- * 2. 解消待ちの一覧（PENDING_ROUTES）に無いものがあれば失敗する（新しい GET を足さない）
- * 3. 一覧にあるのに GET でなくなったもの（移行済み）があれば、一覧から消すよう促して失敗する（一覧が縮む）
- *
- * 既存の GET は別の PR で POST へ移行する（Nexus の docs/backlog「GET→POST 統一」）。
+ * 2. 認証後（auth.token を通る）のルートに GET が無いこと
+ * 3. 許可リスト（PUBLIC_GET_ROUTES）以外に GET / PUT / PATCH / DELETE が無いこと
+ * 4. 許可リストの項目が GET でなくなったら落ちる（ラチェット。リストを現状に保つ）
  */
 class PostOnlyRoutesTest extends TestCase
 {
     /**
-     * 解消待ちの GET ルート（URI の一覧）。新しい GET をここへ足してはならない。POST にしたら消す。
+     * 認証不要の GET の許可リスト（人の決定。POST にしない）。新しい GET をここへ足してはならない。
      *
      * @var list<string>
      */
-    private const PENDING_ROUTES = [
-        'api/account/external/list',
-        'api/agreement/pending',
-        'api/album/list',
+    private const PUBLIC_GET_ROUTES = [
         'api/auth/version',
-        'api/chat/group/member/list',
-        'api/chat/message/list',
-        'api/chat/room/list',
-        'api/friend/apply/list',
-        'api/friend/list',
-        'api/guild/apply/list',
         'api/guild/detail',
         'api/guild/list',
         'api/guild/member/list',
-        'api/mailbox/list',
         'api/maintenance/status',
-        'api/mission/list',
-        'api/notification/list',
-        'api/player/me',
-        'api/reward_track/summary',
-        'api/trade/list',
     ];
 
     private const NON_POST_METHODS = ['GET', 'PUT', 'PATCH', 'DELETE'];
 
-    #[Test]
-    public function test_api_routes_are_post_only_except_pending(): void
+    /**
+     * @return array<string, bool> URI => auth.token を通るか（GET 等の非 POST ルートのみ）
+     */
+    private function collectNonPostRoutes(): array
     {
         $nonPost = [];
         /** @var Route $route */
@@ -68,23 +55,48 @@ class PostOnlyRoutesTest extends TestCase
                 continue;
             }
             if (array_intersect(self::NON_POST_METHODS, $route->methods()) !== []) {
-                $nonPost[] = $uri;
+                $nonPost[$uri] = in_array('auth.token', $route->gatherMiddleware(), true);
             }
         }
-        $nonPost = array_values(array_unique($nonPost));
 
-        $newViolations = array_values(array_diff($nonPost, self::PENDING_ROUTES));
+        return $nonPost;
+    }
+
+    #[Test]
+    public function test_authenticated_routes_have_no_get(): void
+    {
+        $authenticated = array_keys(array_filter($this->collectNonPostRoutes()));
+
         $this->assertSame(
             [],
-            $newViolations,
-            'Controller のエンドポイントは全て POST にしてください（PUT/PATCH/DELETE・GET は不可）: '.implode(', ', $newViolations)
+            $authenticated,
+            '認証後のエンドポイントは全て POST にしてください（GET・PUT・PATCH・DELETE は不可）: '.implode(', ', $authenticated)
         );
+    }
 
-        $migrated = array_values(array_diff(self::PENDING_ROUTES, $nonPost));
+    #[Test]
+    public function test_no_non_post_routes_outside_public_allowlist(): void
+    {
+        $nonPost = array_keys($this->collectNonPostRoutes());
+
+        $violations = array_values(array_diff($nonPost, self::PUBLIC_GET_ROUTES));
         $this->assertSame(
             [],
-            $migrated,
-            'POST に移行済みです。PostOnlyRoutesTest::PENDING_ROUTES から消してください: '.implode(', ', $migrated)
+            $violations,
+            'Controller のエンドポイントは POST にしてください（許可リスト以外の GET・PUT・PATCH・DELETE は不可）: '.implode(', ', $violations)
+        );
+    }
+
+    #[Test]
+    public function test_public_get_allowlist_is_current(): void
+    {
+        $nonPost = array_keys($this->collectNonPostRoutes());
+
+        $stale = array_values(array_diff(self::PUBLIC_GET_ROUTES, $nonPost));
+        $this->assertSame(
+            [],
+            $stale,
+            'GET でなくなっています。PostOnlyRoutesTest::PUBLIC_GET_ROUTES から消してください: '.implode(', ', $stale)
         );
     }
 }

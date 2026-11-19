@@ -377,7 +377,7 @@ erDiagram
 | POST /auth/sign_in | sys_player_token（旧行を削除、新行を INSERT）、sys_player_device（last_login_at） | sys_player_device、sys_player |
 | POST /auth/refresh_token | sys_player_token（使用行を削除、新行を INSERT）、sys_player_device（last_login_at） | sys_player_token、sys_player、sys_player_device |
 | POST /auth/login | sys_player（last_login_at）、trx_login_bonus、log_action_login_bonus_receive、trx_vip_login_bonus、log_action_vip_login_bonus_receive、受取内容に応じた trx_*（`ResourceDeliveryService`） | sys_player、trx_unit / item / wallet / diamond / equipment / stamina、mst_login_bonus*、mst_vip_*、trx_login_bonus、trx_vip_login_bonus |
-| GET /agreement/pending | なし | sys_agreement、trx_agreement |
+| POST /agreement/pending | なし | sys_agreement、trx_agreement |
 | POST /agreement/consent | trx_agreement | sys_agreement、trx_agreement |
 
 login が受取内容に応じて書く trx_*（ユニット・アイテム・ウォレット・ダイヤ・スタミナ等）と、その PITR ログ（`log_change_trx`）は、`ResourceDeliveryService` の実装に従う。個別の書込先は**未確認**（ログインボーナスの設定次第）。

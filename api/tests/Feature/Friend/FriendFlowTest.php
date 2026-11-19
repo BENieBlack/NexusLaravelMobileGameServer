@@ -45,7 +45,7 @@ class FriendFlowTest extends TestCase
             ->assertOk();
 
         $response = $this->withHeaders($this->authHeaders($receiverToken))
-            ->getJson('/api/friend/apply/list');
+            ->postJson('/api/friend/apply/list');
 
         $response->assertOk();
         $response->assertJsonStructure([
@@ -145,7 +145,7 @@ class FriendFlowTest extends TestCase
             ->assertOk();
 
         $this->withHeaders($this->authHeaders($senderToken))
-            ->getJson('/api/friend/list')
+            ->postJson('/api/friend/list')
             ->assertOk()
             ->assertJsonStructure([
                 'friend_list',
@@ -186,6 +186,6 @@ class FriendFlowTest extends TestCase
     public function test_endpoints_require_authentication(): void
     {
         $this->postJson('/api/friend/apply/send', ['my_id' => 'ANY00001'])->assertStatus(401);
-        $this->getJson('/api/friend/list')->assertStatus(401);
+        $this->postJson('/api/friend/list')->assertStatus(401);
     }
 }

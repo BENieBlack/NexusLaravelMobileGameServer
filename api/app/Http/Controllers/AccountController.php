@@ -59,7 +59,7 @@ class AccountController extends _BaseController
     /**
      * 紐付いている外部アカウントの一覧
      *
-     * GET /api/account/external/list
+     * POST /api/account/external/list
      */
     public function externalAccountList(ExternalAccountListUseCase $useCase): JsonResponse
     {

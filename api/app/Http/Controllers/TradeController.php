@@ -27,7 +27,7 @@ class TradeController extends _BaseController
     /**
      * 交換所の商品一覧
      *
-     * GET /api/trade/list
+     * POST /api/trade/list
      */
     public function list(ListRequest $request): JsonResponse
     {

@@ -7,9 +7,10 @@
 
 - 定義は `api/routes/api.php` だけ。Laravel の api プレフィックスにより URL は `/api/...` になる。バージョンのプレフィックス（`/v1`）は無い
 - パスは `/{リソース}/{動作}`。リソースは単数形、動作はスネークケースの動詞（`/player/me`, `/friend/list`, `/unit/level_up`, `/mailbox/receive_all`）。サブリソースは間に挟む（`/friend/apply/send`, `/chat/group/invite`）
-- Controller が受けるエンドポイントは全て POST。参照専用でも POST にする。PUT / PATCH / DELETE とパスパラメータ（`/{id}`）は使わない。対象の ID はボディで渡す
+- 認証後のエンドポイントは全て POST。参照専用でも POST にする。GET を許すのは認証不要の公開エンドポイントだけ（`GET /maintenance/status`・`GET /auth/version`・ギルドの公開参照 `GET /guild/list`・`/guild/detail`・`/guild/member/list`。人の決定）。PUT / PATCH / DELETE とパスパラメータ（`/{id}`）は使わない。対象の ID・絞り込みはボディ（JSON）で渡し、クエリ文字列は使わない
   - 理由: 読み取りに見えるエンドポイントも、期限切れの削除や日替わりのリセットなど内部で更新が入りうる。GET は `LockPlayerRequest` と `IdempotencyMiddleware` の対象外なので、排他・冪等が効かない。HTTP メソッドを実装の細部に結びつけない
-  - 現状: 既存の GET ルート（`/auth/version`・`/maintenance/status`・各 `*/list` など）は POST への移行待ち。一覧は `api/tests/Architecture/PostOnlyRoutesTest.php` の `PENDING_ROUTES` で、新しい GET をここへ足してはならない。移行したら一覧から消す（Nexus の `docs/backlog` の「GET→POST 統一」）
+  - 検査: `api/tests/Architecture/PostOnlyRoutesTest.php` が「認証後のルートに GET が無い」「許可リスト（`PUBLIC_GET_ROUTES`）以外に GET・PUT・PATCH・DELETE が無い」「許可リストの項目が GET でなくなったら落ちる」を見る。新しい GET を許可リストへ足してはならない
+  - 認証後の参照系も `player.lock` を通るため、同じプレイヤーの別リクエストが処理中だと 409（40900）、ロック基盤の不達だと 503（50300）が返りうる（[docs/player_request_lock.md](../docs/player_request_lock.md)）。list 系に `X-Unique-Request-Identifier` は付けない（付けなくても通る。業務エラー 299 も 24 時間保存されるので、付けるなら毎回新しい値にする）
 
 ### ミドルウェアの構成
 
@@ -20,11 +21,11 @@
 | 全API（先頭に追加） | `ResolveLanguage` | `Accept-Language` から言語を決め `ApiSession::getLanguage()` に載せる。対応言語と既定（`ja`）は `api/config/language.php` |
 | 全API（先頭に追加） | `CheckMasterHash` | 後述。`X-Master-Hash` が古ければレスポンスヘッダーで知らせる |
 | メンテ除外以外のすべて | `maintenance` | メンテ中は 503。除外ルート・除外IPは `api/config/maintenance.php` |
-| `maintenance` のグループ内すべて（`POST /auth/version` を含む。`GET /auth/version`（移行待ち）・`/maintenance/status`（移行待ち）・`admin/*`・`/broadcasting/auth`・`/up` は除く） | `platform`（`ResolvePlatform`） | `X-Platform`（`Apple` / `Google`。完全一致）を検証して `ApiSession::getPlatform()` に載せる。欠落・不正値は HTTP 299 + `GameErrorCode::INVALID_PLATFORM`（99003）。順序は `maintenance` → `platform` → 署名・認証 |
+| `maintenance` のグループ内すべて（`POST /auth/version` を含む。`GET /auth/version`・`/maintenance/status`・`admin/*`・`/broadcasting/auth`・`/up` は除く） | `platform`（`ResolvePlatform`） | `X-Platform`（`Apple` / `Google`。完全一致）を検証して `ApiSession::getPlatform()` に載せる。欠落・不正値は HTTP 299 + `GameErrorCode::INVALID_PLATFORM`（99003）。順序は `maintenance` → `platform` → 署名・認証 |
 | ログイン後のAPI | `auth.token` + `idempotency` | アクセストークン検証と二重送信防止 |
 | `/auth/sign_up` | `client.signature` + `throttle.signup` | クライアント署名検証とレート制限 |
 | `/auth/sign_in`, `/auth/refresh_token`, `/account/transfer_code/transfer`, `/account/external/transfer` | `throttle.auth:{名前}` | 認証試行のレート制限（引き継ぎコードはコードごとにも数える） |
-| ギルドの公開の参照系（現状は GET。POST への移行待ち。認証不要） | `throttle.public:guild_read` | IP単位のレート制限 |
+| ギルドの公開の参照系（GET。認証不要） | `throttle.public:guild_read` | IP単位のレート制限 |
 | `/admin/maintenance/*` | `auth.admin` | `ADMIN_TOKEN` の Bearer 認証と任意のIP制限 |
 
 新しいエンドポイントは、プレイヤーのデータを扱うなら `maintenance` → `auth.token` + `idempotency` のグループの中に置く。
@@ -87,7 +88,7 @@
 
 ### クライアントから見た流れ
 
-1. 起動時に `GET /api/auth/version`（現状 GET。POST への移行待ち。認証不要・メンテ中も通る）か、ログイン後に `POST /api/auth/version` を呼ぶ。手元の `sys_deploy.id` を `deploy_version`（ボディ）か `Deploy-Version` ヘッダーで送る
+1. 起動時に `GET /api/auth/version`（認証不要・メンテ中も通る）か、ログイン後に `POST /api/auth/version` を呼ぶ。手元の `sys_deploy.id` を `deploy_version`（ボディ）か `Deploy-Version` ヘッダーで送る
 2. サーバーは `is_active = true` かつ `start_at` を過ぎた `sys_deploy` のうち `deploy_key` が最大のものを最新とする（`App\Repositories\Sys\SysDeployRepository::selectLatestDownloadable()`、キャッシュあり）
 3. 送られた ID が最新と同じなら `needs_update: false`。違えば最新のデプロイ情報を返す
 4. クライアントは `master.tables` の各ファイルのうちハッシュが変わったものを取り直す
@@ -132,7 +133,7 @@
 | 方法 | 旧端末（ログイン後） | 新端末（認証不要） |
 |---|---|---|
 | 引き継ぎコード | `POST /account/transfer_code/issue`（`password`）→ `transfer_code`, `expires_at` | `POST /account/transfer_code/transfer`（`transfer_code`, `password`, `device_id`, `device_info`） |
-| 外部アカウント | `POST /account/external/link`（`provider`, `id_token`）。一覧は `/account/external/list`（現状 GET。移行待ち）、解除は `POST /account/external/unlink` | `POST /account/external/transfer`（`provider`, `id_token`, `device_id`, `device_info`） |
+| 外部アカウント | `POST /account/external/link`（`provider`, `id_token`）。一覧は `POST /account/external/list`、解除は `POST /account/external/unlink` | `POST /account/external/transfer`（`provider`, `id_token`, `device_id`, `device_info`） |
 
 - 引き継ぐと、そのプレイヤーの他の端末と発行済みトークンは消える（旧端末は sign_in できなくなる）。新端末で別のプレイヤーが遊んでいたら、端末はこのプレイヤーに付け替わる
 - 引き継ぎコードはプレイヤーごとに1つ。発行し直すと前のコードは使えず、使ったコードも消える。有効期限・ロックの回数と時間は `api/config/account_transfer.php`
@@ -142,7 +143,7 @@
 
 ダイヤ・コイン・アイテムを消費して、アイテム・ユニット・装備などと交換する（`packages/nexus-trade`、`App\Domain\Trade`）。課金（`in_app_purchase`）で現金をダイヤに替え、ダイヤをガチャや交換所で使う。
 
-- `/trade/list`（現状 GET。移行待ち）… 開催中の交換所（`mst_trade`）にある、交換期間内の商品（`mst_trade_product`）を `trade_product_list` で返す。各商品は消費種別・消費個数・上限・今の周期での交換回数・残り回数・手に入るもの
+- `POST /trade/list`… 開催中の交換所（`mst_trade`）にある、交換期間内の商品（`mst_trade_product`）を `trade_product_list` で返す。各商品は消費種別・消費個数・上限・今の周期での交換回数・残り回数・手に入るもの
 - `POST /trade/exchange`（`mst_trade_product_id`, `quantity`）… 消費個数 × `quantity` を消費し、手に入るもの × `quantity` を配る。結果は `trade_product`
 - 消費種別（`cost_type`）: `diamond`（無償→有償の順）/ `paid_diamond`（有償のみ）/ `item` / `wallet`（コイン・ゴールドなど。`cost_mst_id` に `mst_item.id`）。足りなければ `DIAMOND_NOT_ENOUGH` / `ITEM_NOT_ENOUGH`
 - 交換回数の上限（`trade_limit`）は `reset_type`（`none` / `daily` / `weekly` / `monthly`）の周期で数え直す。境界はゲーム内日付（`day_start_time`）、週は ISO 8601

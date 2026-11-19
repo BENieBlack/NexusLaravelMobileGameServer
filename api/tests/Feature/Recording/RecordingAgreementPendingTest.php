@@ -41,7 +41,7 @@ class RecordingAgreementPendingTest extends RecordingTestCase
     {
         $this->runSeeder(RecordingAgreementSeeder::class);
 
-        $response = $this->getJson('/api/agreement/pending', $this->authHeaders($this->token));
+        $response = $this->postJson('/api/agreement/pending', [], $this->authHeaders($this->token));
 
         // 任意（is_required=false）と未来の公開日の規約は出ない
         $response->assertOk();

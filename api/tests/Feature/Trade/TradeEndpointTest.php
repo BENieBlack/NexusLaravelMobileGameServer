@@ -89,7 +89,7 @@ class TradeEndpointTest extends TestCase
     #[Test]
     public function 開催中の交換所にある交換期間内の商品だけが並ぶ(): void
     {
-        $response = $this->getJson('/api/trade/list', $this->authHeaders($this->accessToken));
+        $response = $this->postJson('/api/trade/list', [], $this->authHeaders($this->accessToken));
 
         $response->assertOk();
         $this->assertSame(

@@ -86,7 +86,7 @@ Route::middleware(['maintenance', 'platform'])->group(function () {
         // バージョンチェック（認証済み、POST）
         Route::post('/auth/version', [AuthController::class, 'version']);
         Route::post('/auth/login', [AuthController::class, 'login']);
-        Route::get('/player/me', [PlayerController::class, 'me']);
+        Route::post('/player/me', [PlayerController::class, 'me']);
 
         // In-App Purchase endpoints
         Route::post('/in_app_purchase/buy', [InAppPurchaseController::class, 'buy']);
@@ -104,11 +104,11 @@ Route::middleware(['maintenance', 'platform'])->group(function () {
         Route::post('/friend/apply/send', [FriendController::class, 'applySend']);
         Route::post('/friend/apply/accept', [FriendController::class, 'applyAccept']);
         Route::post('/friend/apply/reject', [FriendController::class, 'applyReject']);
-        Route::get('/friend/apply/list', [FriendController::class, 'applyList']);
-        Route::get('/friend/list', [FriendController::class, 'list']);
+        Route::post('/friend/apply/list', [FriendController::class, 'applyList']);
+        Route::post('/friend/list', [FriendController::class, 'list']);
 
         // アルバム（収集記録）
-        Route::get('/album/list', [AlbumController::class, 'list']);
+        Route::post('/album/list', [AlbumController::class, 'list']);
         Route::post('/friend/delete', [FriendController::class, 'delete']);
 
         // Guild endpoints
@@ -116,22 +116,22 @@ Route::middleware(['maintenance', 'platform'])->group(function () {
         Route::post('/guild/apply/send', [GuildController::class, 'applySend']);
         Route::post('/guild/apply/accept', [GuildController::class, 'applyAccept']);
         Route::post('/guild/apply/reject', [GuildController::class, 'applyReject']);
-        Route::get('/guild/apply/list', [GuildController::class, 'applyList']);
+        Route::post('/guild/apply/list', [GuildController::class, 'applyList']);
         Route::post('/guild/leave', [GuildController::class, 'leave']);
 
         // Mailbox endpoints
-        Route::get('/mailbox/list', [MailboxController::class, 'list']);
+        Route::post('/mailbox/list', [MailboxController::class, 'list']);
         Route::post('/mailbox/open', [MailboxController::class, 'open']);
         Route::post('/mailbox/receive', [MailboxController::class, 'receive']);
         Route::post('/mailbox/receive_all', [MailboxController::class, 'receiveAll']);
         Route::post('/mailbox/lock', [MailboxController::class, 'lock']);
 
         // Mission endpoints
-        Route::get('/mission/list', [MissionController::class, 'list']);
+        Route::post('/mission/list', [MissionController::class, 'list']);
         Route::post('/mission/receive', [MissionController::class, 'receive']);
 
         // 交換所（ダイヤ・コイン・アイテムを消費して、アイテム・ユニット・装備などと交換する）
-        Route::get('/trade/list', [TradeController::class, 'list']);
+        Route::post('/trade/list', [TradeController::class, 'list']);
         Route::post('/trade/exchange', [TradeController::class, 'exchange']);
 
         // ログインボーナス（カレンダー表示と VIP の再受け取り）。どちらも POST
@@ -139,12 +139,12 @@ Route::middleware(['maintenance', 'platform'])->group(function () {
         Route::post('/login_bonus/receive', [LoginBonusController::class, 'receive']);
 
         // Agreement endpoints
-        Route::get('/agreement/pending', [AgreementController::class, 'pending']);
+        Route::post('/agreement/pending', [AgreementController::class, 'pending']);
         Route::post('/agreement/consent', [AgreementController::class, 'consent']);
 
         // データ引き継ぎ（旧端末での準備）
         Route::post('/account/transfer_code/issue', [AccountController::class, 'issueTransferCode']);
-        Route::get('/account/external/list', [AccountController::class, 'externalAccountList']);
+        Route::post('/account/external/list', [AccountController::class, 'externalAccountList']);
         Route::post('/account/external/link', [AccountController::class, 'linkExternalAccount']);
         Route::post('/account/external/unlink', [AccountController::class, 'unlinkExternalAccount']);
 
@@ -152,14 +152,14 @@ Route::middleware(['maintenance', 'platform'])->group(function () {
         Route::post('/gacha/draw', [GachaController::class, 'draw']);
 
         // Notification endpoints
-        Route::get('/notification/list', [NotificationController::class, 'list']);
+        Route::post('/notification/list', [NotificationController::class, 'list']);
         Route::post('/notification/read', [NotificationController::class, 'read']);
         Route::post('/notification/read_all', [NotificationController::class, 'readAll']);
 
         // Chat endpoints
         // フレンドDM
         Route::post('/chat/friend/room', [ChatController::class, 'friendRoom']);
-        Route::get('/chat/message/list', [ChatController::class, 'messages']);
+        Route::post('/chat/message/list', [ChatController::class, 'messages']);
         Route::post('/chat/message/send', [ChatController::class, 'send']);
         Route::post('/chat/message/delete', [ChatController::class, 'deleteMessage']);
         // グループチャット
@@ -168,11 +168,11 @@ Route::middleware(['maintenance', 'platform'])->group(function () {
         Route::post('/chat/group/kick', [ChatController::class, 'kick']);
         Route::post('/chat/group/leave', [ChatController::class, 'leaveGroup']);
         Route::post('/chat/group/role', [ChatController::class, 'changeRole']);
-        Route::get('/chat/group/member/list', [ChatController::class, 'groupMembers']);
+        Route::post('/chat/group/member/list', [ChatController::class, 'groupMembers']);
         // ギルドチャット
         Route::post('/chat/guild/room', [ChatController::class, 'guildRoom']);
         // 参加中ルーム一覧
-        Route::get('/chat/room/list', [ChatController::class, 'rooms']);
+        Route::post('/chat/room/list', [ChatController::class, 'rooms']);
 
         // =========================================
         // RewardTrack（バトルパス型報酬トラック）
@@ -181,7 +181,7 @@ Route::middleware(['maintenance', 'platform'])->group(function () {
         // receive は配布を伴うので idempotency も外せない
         Route::prefix('reward_track')->group(function () {
             // トラックサマリー取得（進捗・所持ライン・受け取り済みマイルストーン）
-            Route::get('/summary', [RewardTrackController::class, 'summary']);
+            Route::post('/summary', [RewardTrackController::class, 'summary']);
             // マイルストーンの報酬を受け取る
             Route::post('/receive', [RewardTrackController::class, 'receive']);
         });

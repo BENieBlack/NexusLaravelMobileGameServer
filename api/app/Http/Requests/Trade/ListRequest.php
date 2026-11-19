@@ -7,7 +7,7 @@ use App\Http\Requests\_BaseRequest;
 /**
  * ListRequest
  *
- * GET /api/trade/list のリクエスト
+ * POST /api/trade/list のリクエスト
  */
 class ListRequest extends _BaseRequest
 {

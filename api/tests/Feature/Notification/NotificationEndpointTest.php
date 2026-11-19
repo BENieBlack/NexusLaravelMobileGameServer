@@ -52,7 +52,7 @@ class NotificationEndpointTest extends TestCase
         $this->makeNotification('friend_apply_received', 'フレンド申請');
         $this->makeNotification('mailbox_received', 'メールが届きました', isRead: true);
 
-        $response = $this->getJson('/api/notification/list', $this->authHeaders($this->token));
+        $response = $this->postJson('/api/notification/list', [], $this->authHeaders($this->token));
 
         $response->assertOk();
         $this->assertCount(2, $response->json('notification_list'));
@@ -67,7 +67,7 @@ class NotificationEndpointTest extends TestCase
         $this->makeNotification('friend_apply_received', 'フレンド申請');
         $this->makeNotification('mailbox_received', 'メール', isRead: true);
 
-        $response = $this->getJson('/api/notification/list?only_unread=1', $this->authHeaders($this->token));
+        $response = $this->postJson('/api/notification/list', ['only_unread' => 1], $this->authHeaders($this->token));
 
         $response->assertOk();
         $this->assertCount(1, $response->json('notification_list'));
@@ -79,7 +79,7 @@ class NotificationEndpointTest extends TestCase
     {
         $this->makeNotification('friend_apply_received', 'フレンド申請', payload: ['sys_friend_apply_id' => 9]);
 
-        $response = $this->getJson('/api/notification/list', $this->authHeaders($this->token));
+        $response = $this->postJson('/api/notification/list', [], $this->authHeaders($this->token));
 
         $response->assertOk();
         $this->assertSame(['sys_friend_apply_id' => 9], $response->json('notification_list.0.payload'));
@@ -158,7 +158,7 @@ class NotificationEndpointTest extends TestCase
     #[Test]
     public function 認証なしでは通知を扱えない(): void
     {
-        $this->getJson('/api/notification/list')->assertUnauthorized();
+        $this->postJson('/api/notification/list')->assertUnauthorized();
         $this->postJson('/api/notification/read', ['trx_notification_id' => 1])->assertUnauthorized();
         $this->postJson('/api/notification/read_all')->assertUnauthorized();
     }

@@ -195,7 +195,7 @@ class NotificationDeliveryTest extends TestCase
     private function notificationList(string $token): array
     {
         return $this->withHeaders($this->authHeaders($token))
-            ->getJson('/api/notification/list')
+            ->postJson('/api/notification/list')
             ->assertOk()
             ->json('notification_list');
     }

@@ -30,6 +30,15 @@ interface ChatRoomMemberRepositoryInterface
     public function selectByRoomAndPlayer(int $chatRoomId, int $playerId): ?ChatRoomMember;
 
     /**
+     * プレイヤーがルームのメンバーか、行ロック付き（current read）で取得
+     *
+     * REPEATABLE READ では普通の SELECT がロック待ちの後も古いスナップショットを読むため、
+     * ルーム行のロックを取った後の権限・重複の判定にはこちらを使う。
+     * トランザクションの外で呼ぶと例外になる。
+     */
+    public function selectByRoomAndPlayerForUpdate(int $chatRoomId, int $playerId): ?ChatRoomMember;
+
+    /**
      * メンバーを追加（招待時）
      *
      * @param  int  $chatRoomId  チャットルームID
@@ -67,4 +76,14 @@ interface ChatRoomMemberRepositoryInterface
      * @param  int  $chatRoomId  チャットルームID
      */
     public function countByRoomId(int $chatRoomId): int;
+
+    /**
+     * ルームの現在のメンバー数を、行ロック付き（current read）で取得
+     *
+     * 人数の上限判定と member_count の書き直しに使う。
+     * トランザクションの外で呼ぶと例外になる。
+     *
+     * @param  int  $chatRoomId  チャットルームID
+     */
+    public function countByRoomIdForUpdate(int $chatRoomId): int;
 }

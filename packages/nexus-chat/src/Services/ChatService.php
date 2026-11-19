@@ -207,13 +207,15 @@ class ChatService
         int $targetPlayerId,
         string $targetName,
     ): ChatRoomMember {
-        $room = $this->roomRepository->selectById($chatRoomId);
+        // ルーム行を FOR UPDATE して部屋単位で直列にする（同時招待での定員超過・
+        // member_count の lost update を防ぐ）。以降の判定はすべてロック後の最新の値で行う
+        $room = $this->roomRepository->selectByIdForUpdate($chatRoomId);
         if ($room === null || $room->getType() !== ChatRoomType::GROUP) {
             throw ChatException::roomNotFound();
         }
 
         // 招待者の権限確認
-        $inviterMember = $this->memberRepository->selectByRoomAndPlayer($chatRoomId, $inviterPlayerId);
+        $inviterMember = $this->memberRepository->selectByRoomAndPlayerForUpdate($chatRoomId, $inviterPlayerId);
         if ($inviterMember === null) {
             throw ChatException::notRoomMember();
         }
@@ -222,13 +224,13 @@ class ChatService
         }
 
         // 満員チェック
-        $currentCount = $this->memberRepository->countByRoomId($chatRoomId);
+        $currentCount = $this->memberRepository->countByRoomIdForUpdate($chatRoomId);
         if ($currentCount >= ChatRoomMemberLimit::GROUP) {
             throw ChatException::roomFull();
         }
 
-        // 既にメンバーでないか確認
-        $existing = $this->memberRepository->selectByRoomAndPlayer($chatRoomId, $targetPlayerId);
+        // 既にメンバーでないか確認（同じ人への同時招待もルーム行のロックで直列になっている）
+        $existing = $this->memberRepository->selectByRoomAndPlayerForUpdate($chatRoomId, $targetPlayerId);
         if ($existing !== null) {
             throw ChatException::alreadyMember();
         }
@@ -259,25 +261,26 @@ class ChatService
         int $kickerPlayerId,
         int $targetPlayerId,
     ): void {
-        $room = $this->roomRepository->selectById($chatRoomId);
+        // ルーム行のロックを先に取り、以降の判定と member_count の書き直しを最新の値で行う
+        $room = $this->roomRepository->selectByIdForUpdate($chatRoomId);
         if ($room === null || $room->getType() !== ChatRoomType::GROUP) {
             throw ChatException::roomNotFound();
         }
 
-        $kickerMember = $this->memberRepository->selectByRoomAndPlayer($chatRoomId, $kickerPlayerId);
+        $kickerMember = $this->memberRepository->selectByRoomAndPlayerForUpdate($chatRoomId, $kickerPlayerId);
         if ($kickerMember === null || ! $kickerMember->canKick()) {
             throw ChatException::noKickPermission();
         }
 
         // OWNERはキックできない
-        $targetMember = $this->memberRepository->selectByRoomAndPlayer($chatRoomId, $targetPlayerId);
+        $targetMember = $this->memberRepository->selectByRoomAndPlayerForUpdate($chatRoomId, $targetPlayerId);
         if ($targetMember !== null && $targetMember->getRole() === ChatRoomRole::OWNER) {
             throw ChatException::cannotKickOwner();
         }
 
         $this->memberRepository->delete($chatRoomId, $targetPlayerId);
 
-        $newCount = $this->memberRepository->countByRoomId($chatRoomId);
+        $newCount = $this->memberRepository->countByRoomIdForUpdate($chatRoomId);
         $this->roomRepository->updateMemberCount($chatRoomId, $newCount);
     }
 
@@ -289,14 +292,25 @@ class ChatService
      *
      * @param  int  $chatRoomId  ルームID
      * @param  int  $playerId  退室するプレイヤーID
+     *
+     * @throws ChatException ルームが無い、またはメンバーでない場合
      */
     public function leaveGroup(int $chatRoomId, int $playerId): void
     {
-        $this->validateIsMember($chatRoomId, $playerId);
+        // ルーム行のロックを先に取る。部屋が無ければメンバーでもないので同じエラーにする
+        if ($this->roomRepository->selectByIdForUpdate($chatRoomId) === null) {
+            throw ChatException::notRoomMember();
+        }
+
+        $member = $this->memberRepository->selectByRoomAndPlayerForUpdate($chatRoomId, $playerId);
+        if ($member === null) {
+            throw ChatException::notRoomMember();
+        }
 
         $this->memberRepository->delete($chatRoomId, $playerId);
 
-        $newCount = $this->memberRepository->countByRoomId($chatRoomId);
+        // ルーム行のロック下なので、数え直した値を絶対値で書いても他の更新を潰さない
+        $newCount = $this->memberRepository->countByRoomIdForUpdate($chatRoomId);
         $this->roomRepository->updateMemberCount($chatRoomId, $newCount);
     }
 

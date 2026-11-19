@@ -35,6 +35,26 @@ class ChatRoomRepositoryAdapter implements ChatRoomRepositoryInterface
         return $row ? ChatRoomAdapter::toDto((array) $row) : null;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * 部屋の行を mutex にする。招待・キック・退室は、先にこの行を取ってから
+     * 人数・メンバーを読み直して更新する（architecture.md 7節）。
+     * Adapter は UnitOfWork を通らず即時実行なので、ロックはその場で発行される。
+     * 接続は sys に固定する（UseCase のトランザクションと同じ接続）。
+     */
+    public function selectByIdForUpdate(int $id): ?ChatRoom
+    {
+        $this->assertInTransaction();
+
+        $row = DB::connection(self::CONNECTION)->table(self::TABLE)
+            ->where('id', $id)
+            ->lockForUpdate()
+            ->first();
+
+        return $row ? ChatRoomAdapter::toDto((array) $row) : null;
+    }
+
     public function selectByRoomKey(string $roomKey): ?ChatRoom
     {
         $row = DB::connection(self::CONNECTION)->table(self::TABLE)
@@ -197,6 +217,21 @@ class ChatRoomRepositoryAdapter implements ChatRoomRepositoryInterface
                 'member_count' => $memberCount,
                 'updated_at' => ClockUtility::nowToString(),
             ]);
+    }
+
+    /**
+     * トランザクションの外の行ロックは即座に外れて何も守れないので、例外にして気づけるようにする
+     *
+     * @throws \LogicException トランザクション内でない場合
+     */
+    private function assertInTransaction(): void
+    {
+        if (DB::connection(self::CONNECTION)->transactionLevel() === 0) {
+            throw new \LogicException(sprintf(
+                '%s: 行ロックはトランザクション内でしか効かない。executeWithTransaction() の中で呼ぶこと',
+                static::class
+            ));
+        }
     }
 
     private function resolvePlayerName(int $sysPlayerId): string

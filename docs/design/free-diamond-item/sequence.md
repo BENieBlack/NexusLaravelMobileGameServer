@@ -245,7 +245,7 @@ sequenceDiagram
 | 経路 | ロックの内外 | 評価 |
 | --- | --- | --- |
 | login・購入・ガチャ・交換・メール受け取り・ミッション・報酬トラック・`/item/use`・レベルアップ | `auth.token` → `idempotency` → `player.lock` のグループの中（`routes/api.php:84`） | 直列。問題なし |
-| GET（`/player/me`・`/mailbox/list` ほか） | ロックは GET を通す（`LockPlayerRequest::handle` は GET を対象外にする） | ダイヤ・`trx_item` を書く GET は無い（`trx_diamond` / `free_diamond` を書く処理は、上の POST と `sign_up` だけ。全体設計で確認済み） |
+| 参照系の POST（`/player/me`・`/mailbox/list` ほか。認証後の GET は無い） | 他の POST と同じくロックされる（409 / 503 が返りうる） | ダイヤ・`trx_item` を書く参照系は無い（`trx_diamond` / `free_diamond` を書く処理は、上の POST と `sign_up` だけ。全体設計で確認済み） |
 | `sign_up`（`SignUpUseCase` → `InitialGrantService`） | ロックのグループの外（未認証。`client.signature` + `throttle.signup`） | 新規プレイヤーを作る処理で、同じプレイヤーに他のリクエストが競合しない（トークン発行前）。`executeWithTransaction` の中 |
 | ドメインイベントのリスナー | リクエストの中で同期実行（`Dispatcher`） | `ItemInventoryInterface`・`ItemGranterInterface`・`DiamondBalanceInterface` を使うリスナーは無い（`app/Domain/*/Listeners` を検索して 0 件）。VIP レベルアップ報酬（`VipLevelUpEvent`）は報酬を運ぶだけで、受け手が付与しない |
 | コンソールコマンド（`app/Console/Commands`） | ロックの外 | `Billing/DetectRefundsCommand`・`Mailbox/DeleteExpiredCommand`・`Sharding/AssignPlayersCommand`・`MigrateShards*` は `trx_diamond`・`trx_diamond_balance`・`free_diamond` を書かない。`Wallet/MigrateItemsCommand` は `is_wallet = true` のアイテムだけ移す（`free_diamond` は `is_wallet = false` なので対象外。`whereIn('mst_item_id', $walletItemIds)`） |

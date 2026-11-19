@@ -29,7 +29,7 @@
 
 ## sys_agreement への登録
 
-`sys_agreement.url`（varchar 500）に本文の場所を入れる。`GET /agreement/pending` の応答の `url` にそのまま入る。クライアントは次の両方を扱う。
+`sys_agreement.url`（varchar 500）に本文の場所を入れる。`POST /agreement/pending` の応答の `url` にそのまま入る。クライアントは次の両方を扱う。
 
 - 相対パス（`/` で始まる。例 `/legal/terms-of-service-1.0.0.html`）: API の origin（例 `http://localhost:8090`）に付けて取得する
 - 絶対 URL（例 `https://cdn.example.com/legal/terms-of-service-1.0.0.html`）: そのまま取得する

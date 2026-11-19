@@ -46,7 +46,7 @@ class RecordingAgreementMultiTest extends RecordingTestCase
         $this->runSeeder(RecordingAgreementMultiSeeder::class);
 
         // 操作
-        $response = $this->getJson('/api/agreement/pending', $this->authHeaders($this->token));
+        $response = $this->postJson('/api/agreement/pending', [], $this->authHeaders($this->token));
 
         // 期待: 公開済みの必須 3 件が出る（任意・未公開は出ない）
         $response->assertOk();

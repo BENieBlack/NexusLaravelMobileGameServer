@@ -24,7 +24,7 @@ class AgreementController extends _BaseController
     /**
      * 未同意の必須規約一覧取得
      *
-     * GET /api/agreement/pending
+     * POST /api/agreement/pending
      */
     public function pending(): JsonResponse
     {

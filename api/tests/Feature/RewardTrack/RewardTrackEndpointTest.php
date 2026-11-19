@@ -72,8 +72,8 @@ class RewardTrackEndpointTest extends TestCase
     #[Test]
     public function 進捗が無くてもサマリーを取得できる(): void
     {
-        $response = $this->getJson(
-            '/api/reward_track/summary?mst_reward_track_id='.self::TRACK_ID,
+        $response = $this->postJson(
+            '/api/reward_track/summary', ['mst_reward_track_id' => self::TRACK_ID],
             $this->authHeaders($this->token)
         );
 
@@ -89,8 +89,8 @@ class RewardTrackEndpointTest extends TestCase
     {
         $this->makeProgress(15);
 
-        $response = $this->getJson(
-            '/api/reward_track/summary?mst_reward_track_id='.self::TRACK_ID,
+        $response = $this->postJson(
+            '/api/reward_track/summary', ['mst_reward_track_id' => self::TRACK_ID],
             $this->authHeaders($this->token)
         );
 
@@ -108,8 +108,8 @@ class RewardTrackEndpointTest extends TestCase
     {
         $this->makeOwnedLine(self::PAID_LINE_ID);
 
-        $response = $this->getJson(
-            '/api/reward_track/summary?mst_reward_track_id='.self::TRACK_ID,
+        $response = $this->postJson(
+            '/api/reward_track/summary', ['mst_reward_track_id' => self::TRACK_ID],
             $this->authHeaders($this->token)
         );
 
@@ -125,8 +125,8 @@ class RewardTrackEndpointTest extends TestCase
             ->assertOk()
             ->assertJsonStructure(['mst_reward_track_milestone_id', 'mst_reward_track_line_id', 'received_at']);
 
-        $response = $this->getJson(
-            '/api/reward_track/summary?mst_reward_track_id='.self::TRACK_ID,
+        $response = $this->postJson(
+            '/api/reward_track/summary', ['mst_reward_track_id' => self::TRACK_ID],
             $this->authHeaders($this->token)
         );
 
@@ -137,8 +137,7 @@ class RewardTrackEndpointTest extends TestCase
     #[Test]
     public function 存在しないトラックのサマリーは業務エラーで返る(): void
     {
-        $response = $this->getJson(
-            '/api/reward_track/summary?mst_reward_track_id=not_exist',
+        $response = $this->postJson('/api/reward_track/summary', ['mst_reward_track_id' => 'not_exist'],
             $this->authHeaders($this->token)
         );
 
@@ -149,7 +148,7 @@ class RewardTrackEndpointTest extends TestCase
     #[Test]
     public function 認証なしではサマリーを取得できない(): void
     {
-        $this->getJson('/api/reward_track/summary?mst_reward_track_id='.self::TRACK_ID)
+        $this->postJson('/api/reward_track/summary', ['mst_reward_track_id' => self::TRACK_ID])
             ->assertUnauthorized();
     }
 

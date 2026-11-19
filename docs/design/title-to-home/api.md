@@ -18,7 +18,7 @@
 | POST /auth/sign_up | `maintenance` → `client.signature` → `throttle.signup` |
 | POST /auth/sign_in | `maintenance` → `throttle.auth:sign_in` |
 | POST /auth/refresh_token | `maintenance` → `throttle.auth:refresh_token` |
-| POST /auth/login、POST /auth/version、GET /agreement/pending、POST /agreement/consent | `maintenance` → `auth.token` → `idempotency` → `player.lock` |
+| POST /auth/login、POST /auth/version、POST /agreement/pending、POST /agreement/consent | `maintenance` → `auth.token` → `idempotency` → `player.lock` |
 
 ### 共通ヘッダー
 
@@ -51,7 +51,7 @@
 | 条件 | 挙動 |
 | --- | --- |
 | ヘッダーが**無い** | 冪等チェックを**素通し**（エラーにならず、毎回処理される） |
-| GET | 素通し（GET /agreement/pending は対象外） |
+| GET（認証不要の公開エンドポイントのみ） | 素通し（認証後のエンドポイントは全て POST） |
 | 認証前（`player_id` 無し）の API | 素通し（sign_up / sign_in / refresh） |
 | 同じキー・同じパスが完了済み | 保存済みレスポンスを返す。`X-Idempotency-Cache: HIT`。保存は 24 時間 |
 | 同じキーが処理中 | 409 `{"error_code": 40900, "message": "Request is being processed. Please retry later."}`（`X-Idempotency-Cache: PROCESSING` または `CONFLICT`）。処理中の印は最大 5 分 |
@@ -65,7 +65,7 @@
 
 `LockPlayerRequest`。`Cache::lock("player_request:{player_id}", 30秒)` を 5 秒まで待って取る。
 
-- **GET は対象外**（GET /agreement/pending はロックされない）。POST の login / consent / POST version がロック対象。
+- **GET は対象外**（認証後のエンドポイントは全て POST なので、GET でロックされないのは認証不要の公開 GET だけ）。POST の login / consent / pending / version などがロック対象。
 - 5 秒待って取れない → HTTP 409 `{"error_code": 40900, "message": "Another request is being processed. Please retry later."}`。
 - ロックの置き場（Redis）に繋がらない → HTTP 503 `{"error_code": 50300, "message": "Service temporarily unavailable. Please retry later."}`。
 - ロックは `finally` で解放。落ちても 30 秒で自動的に外れる。
@@ -362,9 +362,9 @@ sign_up と同じ 4 項目。違い:
 - 書く: `sys_player.last_login_at`、`trx_login_bonus`、`trx_vip_login_bonus`、`log_action_*_login_bonus_receive`、報酬の反映先 trx。
 - 冪等: `X-Unique-Request-Identifier` ありで有効（24 時間）。**無いと素通し**（1 節）。排他: あり。
 
-## 7. GET /api/agreement/pending
+## 7. POST /api/agreement/pending
 
-- ミドルウェア: `maintenance`、`auth.token`、`idempotency`（GET のため素通し）、`player.lock`（GET のため素通し）。**冪等・ロックとも実質なし**。
+- ミドルウェア: `maintenance`、`auth.token`、`idempotency`（キー無しなら素通し。list 系にキーは付けない）、`player.lock`（あり。競合 409(40900)、ロック基盤の不達 503(50300) が返りうる）。
 - トランザクションなし。入力なし。
 
 ### Response
@@ -418,8 +418,8 @@ sign_up と同じ 4 項目。違い:
 ## 9. POST /api/auth/version
 
 - ミドルウェア: `maintenance`（`auth/version` は `api/config/maintenance.php` の `excluded_routes` に含まれ、メンテ中も通る）、`auth.token`、`idempotency`、`player.lock`。
-- 入力・Response・エラーは GET と同じ（`deploy_version` は body 優先、`Deploy-Version` ヘッダーも可）。
-- ロックと冪等の対象。クライアントは現状 GET を使う（概要設計のとおり）。GET との違いは、トークンが必要なこと、冪等・ロックの対象になること（競合 409(40900)、ロック基盤の不達 503(50300)）。
+- 入力・Response・エラーは `GET /auth/version` と同じ（`deploy_version` は body 優先、`Deploy-Version` ヘッダーも可）。
+- ロックと冪等の対象。クライアントは起動時に GET を使う（概要設計のとおり）。GET との違いは、トークンが必要なこと、冪等・ロックの対象になること（競合 409(40900)、ロック基盤の不達 503(50300)）。
 
 ## 10. 概要設計 U1〜U3 の回答まとめ
 
@@ -450,7 +450,7 @@ sign_up と同じ 4 項目。違い:
 
 - F10（旧トークンの無効化）はリフレッシュトークンのみ。旧アクセストークンは最長 1 時間有効。
 - sign_in は `sys_player.last_login_at` を更新しない（login が更新する）。ログインボーナスの判定は login のみで起きる。
-- 概要設計の API 一覧にある「GET /agreement/pending のプレイヤーロック」は、実装では GET が対象外。
+- 概要設計の API 一覧にある「GET /agreement/pending のプレイヤーロック」は、認証後を全て POST にしたため、ロックの対象になった。
 - sign_up と sign_in で `device_info.app_version` の最大長が異なる（50 / 20）。sign_in の `device_info` は必須だが保存されない。
 
 ## 12. 未解決点

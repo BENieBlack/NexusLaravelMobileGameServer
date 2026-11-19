@@ -87,7 +87,7 @@ class AuthFlowTest extends TestCase
         // ========================================
         $meResponse = $this->withHeaders([
             'Authorization' => 'Bearer '.$accessToken,
-        ])->getJson('/api/player/me');
+        ])->postJson('/api/player/me');
 
         $meResponse->assertStatus(200);
         $meResponse->assertJsonStructure([
@@ -117,7 +117,7 @@ class AuthFlowTest extends TestCase
         // 新しいアクセストークンで再度 /player/me にアクセス
         $meResponse2 = $this->withHeaders([
             'Authorization' => 'Bearer '.$newAccessToken,
-        ])->getJson('/api/player/me');
+        ])->postJson('/api/player/me');
 
         $meResponse2->assertStatus(200);
         $meData2 = $meResponse2->json();
@@ -178,7 +178,7 @@ class AuthFlowTest extends TestCase
     {
         $response = $this->withHeaders([
             'Authorization' => 'Bearer invalid-token-12345',
-        ])->getJson('/api/player/me');
+        ])->postJson('/api/player/me');
 
         // 認証エラーが返ることを確認
         $response->assertStatus(401);
@@ -189,7 +189,7 @@ class AuthFlowTest extends TestCase
      */
     public function test_access_player_me_without_token(): void
     {
-        $response = $this->getJson('/api/player/me');
+        $response = $this->postJson('/api/player/me');
 
         // 認証エラーが返ることを確認
         $response->assertStatus(401);

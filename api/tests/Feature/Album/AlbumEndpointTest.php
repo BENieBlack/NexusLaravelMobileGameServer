@@ -73,7 +73,7 @@ class AlbumEndpointTest extends TestCase
     public function 記録が無ければ空の一覧と0件の収集状況を返す(): void
     {
         $response = $this->withHeaders($this->authHeaders($this->accessToken))
-            ->getJson('/api/album/list');
+            ->postJson('/api/album/list');
 
         $response->assertOk();
         $this->assertSame([], $response->json('album_entry_list'));
@@ -91,7 +91,7 @@ class AlbumEndpointTest extends TestCase
         $this->flush();
 
         $response = $this->withHeaders($this->authHeaders($this->accessToken))
-            ->getJson('/api/album/list');
+            ->postJson('/api/album/list');
 
         $response->assertOk();
         $response->assertJsonPath('album_entry_list.0.content_type', 'unit');
@@ -132,7 +132,7 @@ class AlbumEndpointTest extends TestCase
         $this->assertSame([], $this->findEntries(), 'free_diamond は unlock されない');
 
         $response = $this->withHeaders($this->authHeaders($this->accessToken))
-            ->getJson('/api/album/list');
+            ->postJson('/api/album/list');
         $progressByType = $this->indexProgressByType($response->json('progress_list'));
 
         $this->assertSame(0, $progressByType['item']['unlocked_count']);
@@ -152,7 +152,7 @@ class AlbumEndpointTest extends TestCase
         $this->assertSame([], $this->findEntries());
 
         $response = $this->withHeaders($this->authHeaders($this->accessToken))
-            ->getJson('/api/album/list');
+            ->postJson('/api/album/list');
         $progressByType = $this->indexProgressByType($response->json('progress_list'));
 
         $this->assertSame(0, $progressByType['item']['unlocked_count']);
@@ -186,7 +186,7 @@ class AlbumEndpointTest extends TestCase
         $this->deliver([Resource::unit('unit_knight_001', 1)]);
 
         $response = $this->withHeaders($this->authHeaders($this->accessToken))
-            ->getJson('/api/album/list');
+            ->postJson('/api/album/list');
 
         $progressByType = $this->indexProgressByType($response->json('progress_list'));
 
@@ -205,7 +205,7 @@ class AlbumEndpointTest extends TestCase
         ]);
 
         $response = $this->withHeaders($this->authHeaders($this->accessToken))
-            ->getJson('/api/album/list');
+            ->postJson('/api/album/list');
 
         $progressByType = $this->indexProgressByType($response->json('progress_list'));
 
@@ -216,7 +216,7 @@ class AlbumEndpointTest extends TestCase
     #[Test]
     public function 認証が無ければ取得できない(): void
     {
-        $this->getJson('/api/album/list')->assertStatus(401);
+        $this->postJson('/api/album/list')->assertStatus(401);
     }
 
     /**

@@ -96,7 +96,7 @@ class AccountTransferEndpointTest extends TestCase
         $this->assertSame($this->sysPlayerId, $this->sysPlayerIdOfMyId($response->json('sys_player.my_id')));
 
         // 新しいトークンで遊べる
-        $this->getJson('/api/player/me', $this->authHeaders($response->json('token.access_token')))->assertOk();
+        $this->postJson('/api/player/me', [], $this->authHeaders($response->json('token.access_token')))->assertOk();
 
         // 旧端末は外れているのでサインインできない
         $this->assertBusinessError($this->signIn($oldDeviceId), GameErrorCode::PLAYER_NOT_FOUND);
@@ -227,7 +227,7 @@ class AccountTransferEndpointTest extends TestCase
         $this->link('apple', 'valid:apple-user')
             ->assertOk()
             ->assertJsonPath('sys_player_external_account_list', [['provider' => 'apple']]);
-        $this->getJson('/api/account/external/list', $this->authHeaders($this->token))
+        $this->postJson('/api/account/external/list', [], $this->authHeaders($this->token))
             ->assertOk()
             ->assertJsonPath('sys_player_external_account_list', [['provider' => 'apple']]);
 

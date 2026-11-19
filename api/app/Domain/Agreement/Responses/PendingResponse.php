@@ -9,7 +9,7 @@ use NexusAgreement\DataTransferObjects\PendingAgreement;
 /**
  * PendingResponse
  *
- * GET /api/agreement/pending のレスポンス
+ * POST /api/agreement/pending のレスポンス
  */
 class PendingResponse extends _BaseResponse
 {

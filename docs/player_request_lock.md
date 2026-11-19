@@ -1,6 +1,7 @@
 # 同じプレイヤーの同時リクエスト（409 / 503）と再試行
 
 同じプレイヤーの書き込みリクエスト（GET 以外の、認証済みの API）は、サーバーが1つずつ処理する（`api/app/Http/Middleware/LockPlayerRequest.php`）。
+認証後の参照系（`/player/me`・`*/list` など）も POST なので、この排他の対象になり、409 / 503 が返りうる。
 trx は「読む → メモリで計算 → 絶対値でUPDATE」で書くため、同時に走ると後から書いたほうが先の更新を上書きする。これを防ぐ。
 
 本人しか書かない行は `player.lock` に任せ、他人・共用・外部が書きうる行は全ての書き込み経路で行ロックを取る。ただし `player.lock` が守れるのは、30秒以内に終わる `auth.token` 配下の POST が前提。使い分けは [.claude/architecture.md](../.claude/architecture.md) の「行ロックの使い分け」。

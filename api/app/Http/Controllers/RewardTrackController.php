@@ -18,7 +18,7 @@ class RewardTrackController extends _BaseController
     /**
      * トラックサマリーを取得する
      *
-     * GET /reward_track/summary
+     * POST /reward_track/summary
      */
     public function summary(GetSummaryRequest $request, GetSummaryUseCase $useCase): JsonResponse
     {

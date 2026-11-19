@@ -51,8 +51,8 @@ sequenceDiagram
     S->>R: 冪等レスポンスを 24 時間保存 → ロック解放
     S-->>C: 200 sys_player, trx_*_list（6 種）, login_bonus_list
 
-    C->>S: GET /agreement/pending（Bearer）
-    Note over S: トランザクションなし。冪等・ロックは GET のため素通し
+    C->>S: POST /agreement/pending（Bearer）
+    Note over S: トランザクションなし。ロックあり（冪等はキー無しなら素通し）
     S->>SYS: 読む: sys_agreement（is_required かつ published_at<=今）
     S->>TRX: 読む: trx_agreement
     S-->>C: 200 agreement_list（無ければ []）

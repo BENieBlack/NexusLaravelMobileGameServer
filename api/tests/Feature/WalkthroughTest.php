@@ -338,7 +338,7 @@ class WalkthroughTest extends TestCase
 
         $response = $this->withHeaders([
             'Authorization' => 'Bearer '.$this->accessToken,
-        ])->getJson('/api/mailbox/list');
+        ])->postJson('/api/mailbox/list');
 
         $response->assertOk();
 

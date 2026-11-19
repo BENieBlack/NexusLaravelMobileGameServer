@@ -62,7 +62,7 @@ class AgreementEndpointTest extends TestCase
     {
         $this->makeAgreement(version: '1.0', title: '利用規約v1.0', isRequired: true, publishedAt: '2020-01-01 00:00:00');
 
-        $response = $this->getJson('/api/agreement/pending', $this->authHeaders($this->token));
+        $response = $this->postJson('/api/agreement/pending', [], $this->authHeaders($this->token));
 
         $response->assertOk();
         $this->assertNotEmpty($response->json('agreement_list'));
@@ -84,7 +84,7 @@ class AgreementEndpointTest extends TestCase
             'created_at' => ClockUtility::nowToString(),
         ]);
 
-        $response = $this->getJson('/api/agreement/pending', $this->authHeaders($this->token));
+        $response = $this->postJson('/api/agreement/pending', [], $this->authHeaders($this->token));
 
         $response->assertOk();
         // 同意済みなので agreement_list には含まれない
@@ -97,7 +97,7 @@ class AgreementEndpointTest extends TestCase
     {
         $this->makeAgreement(version: '2.0', title: '利用規約v2.0（未来）', isRequired: true, publishedAt: '2099-12-31 00:00:00');
 
-        $response = $this->getJson('/api/agreement/pending', $this->authHeaders($this->token));
+        $response = $this->postJson('/api/agreement/pending', [], $this->authHeaders($this->token));
 
         $response->assertOk();
         $titles = array_column($response->json('agreement_list'), 'title');
@@ -109,7 +109,7 @@ class AgreementEndpointTest extends TestCase
     {
         $this->makeAgreement(version: '1.0', title: '任意規約', isRequired: false, publishedAt: '2020-01-01 00:00:00');
 
-        $response = $this->getJson('/api/agreement/pending', $this->authHeaders($this->token));
+        $response = $this->postJson('/api/agreement/pending', [], $this->authHeaders($this->token));
 
         $response->assertOk();
         $titles = array_column($response->json('agreement_list'), 'title');
@@ -120,7 +120,7 @@ class AgreementEndpointTest extends TestCase
     public function 未同意規約がない場合は空配列を返す(): void
     {
         // sys_agreement に何も挿入しない状態でリクエストする
-        $response = $this->getJson('/api/agreement/pending', $this->authHeaders($this->token));
+        $response = $this->postJson('/api/agreement/pending', [], $this->authHeaders($this->token));
 
         $response->assertOk();
         $this->assertSame([], $response->json('agreement_list'));
@@ -204,7 +204,7 @@ class AgreementEndpointTest extends TestCase
     #[Test]
     public function 認証なしでは規約を扱えない(): void
     {
-        $this->getJson('/api/agreement/pending')->assertUnauthorized();
+        $this->postJson('/api/agreement/pending')->assertUnauthorized();
         $this->postJson('/api/agreement/consent', ['sys_agreement_id' => 1])->assertUnauthorized();
     }
 

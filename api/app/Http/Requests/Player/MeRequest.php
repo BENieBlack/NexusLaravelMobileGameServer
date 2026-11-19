@@ -22,7 +22,7 @@ class MeRequest extends _BaseRequest
      */
     public function rules(): array
     {
-        // GETリクエストでクエリパラメータは不要
+        // パラメータは不要（POST のボディも読まない）
         return [];
     }
 

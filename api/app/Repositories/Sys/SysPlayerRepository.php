@@ -64,6 +64,21 @@ class SysPlayerRepository extends _BaseSysRepository
     }
 
     /**
+     * プレイヤー行を FOR UPDATE で読む（他人がこの人を操作するときの mutex）
+     *
+     * ギルド承認のように、別のギルドの承認者が同じプレイヤーを同時に
+     * 自分のギルドへ入れようとする場面で、プレイヤー行を軸に直列化する。
+     * 返したモデルは読み取り専用で、setModel() に渡さない。
+     *
+     * @param  int  $sysPlayerId  プレイヤーID
+     */
+    public function selectByIdForUpdate(int $sysPlayerId): ?SysPlayer
+    {
+        /** @var SysPlayer|null */
+        return $this->selectForUpdate()->find($sysPlayerId);
+    }
+
+    /**
      * my_idからプレイヤーを検索（キャッシュを通さない）
      *
      * フレンド申請の相手探しなど、他人を引く用途にしか使われない。

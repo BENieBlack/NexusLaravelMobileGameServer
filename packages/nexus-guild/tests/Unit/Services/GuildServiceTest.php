@@ -49,14 +49,21 @@ class GuildServiceTest extends TestCase
 
     private GuildService $service;
 
+    /** @var \ArrayObject<int, string> 行ロックを取った順（3つのFakeで共有） */
+    private \ArrayObject $lockLog;
+
     /** @var list<object> 発行されたドメインイベント */
     private array $dispatched = [];
 
     protected function setUp(): void
     {
+        $this->lockLog = new \ArrayObject;
         $this->guildRepository = new FakeGuildRepository;
         $this->applyRepository = new FakeGuildApplyRepository;
         $this->memberRepository = new FakeGuildMemberRepository;
+        $this->guildRepository->lockLog = $this->lockLog;
+        $this->applyRepository->lockLog = $this->lockLog;
+        $this->memberRepository->lockLog = $this->lockLog;
 
         $this->dispatched = [];
         $events = new Dispatcher;
@@ -99,7 +106,7 @@ class GuildServiceTest extends TestCase
     #[Test]
     public function 既にギルドに所属していると作れない(): void
     {
-        $this->memberRepository->byPlayerId = $this->member(self::MASTER_ID);
+        $this->memberRepository->byPlayerIdForUpdate = $this->member(self::MASTER_ID);
 
         $this->expectException(GuildException::class);
         $this->expectExceptionMessage('already in a guild');
@@ -287,7 +294,8 @@ class GuildServiceTest extends TestCase
     {
         // 申請時のチェックだけでは、複数人を同時に承認したときに定員を超える
         $this->givenPendingApply(GuildRole::MASTER);
-        $this->guildRepository->byId = $this->guild(currentMembers: 30, maxMembers: 30);
+        $this->guildRepository->byId = $this->guild(maxMembers: 30);
+        $this->memberRepository->count = 30;
 
         $this->expectException(GuildException::class);
         $this->expectExceptionMessage('full');
@@ -305,6 +313,135 @@ class GuildServiceTest extends TestCase
         $this->expectExceptionMessage('Guild not found');
 
         $this->service->acceptApply(self::APPLY_ID, self::MASTER_ID);
+    }
+
+    #[Test]
+    public function 上限の1人手前なら承認でき_上限に達した後の承認は満員で止まる(): void
+    {
+        $this->givenPendingApply(GuildRole::MASTER);
+        $this->guildRepository->byId = $this->guild(maxMembers: 30);
+
+        // 29/30: 最後の 1 枠に入れる
+        $this->memberRepository->count = 29;
+        $this->service->acceptApply(self::APPLY_ID, self::MASTER_ID);
+        $this->assertCount(1, $this->memberRepository->inserted);
+
+        // 30/30: 次の承認は満員。別の申請（まだ APPLIED）でも通さない
+        $this->memberRepository->count = 30;
+        try {
+            $this->service->acceptApply(self::APPLY_ID, self::MASTER_ID);
+            $this->fail('満員なのに承認できてしまった');
+        } catch (GuildException $e) {
+            $this->assertSame(GuildException::CODE_GUILD_FULL, $e->getCode());
+        }
+        $this->assertCount(1, $this->memberRepository->inserted);
+    }
+
+    #[Test]
+    public function 非ロックの読みが承認可能でもロック読みが却下済みなら承認できない(): void
+    {
+        // サービスが非ロック版の読みに戻ったら、このテストが落ちる
+        $this->givenPendingApply(GuildRole::MASTER);
+        $this->applyRepository->byIdForUpdate = $this->apply(status: GuildApplyStatus::REJECTED);
+
+        $this->expectException(GuildException::class);
+        $this->expectExceptionMessage('Invalid status');
+
+        $this->service->acceptApply(self::APPLY_ID, self::MASTER_ID);
+    }
+
+    #[Test]
+    public function 非ロックの人数に空きがあってもロック読みの人数が上限なら満員で止まる(): void
+    {
+        $this->givenPendingApply(GuildRole::MASTER);
+        $this->memberRepository->count = 1;
+        $this->memberRepository->countForUpdate = 30;
+
+        try {
+            $this->service->acceptApply(self::APPLY_ID, self::MASTER_ID);
+            $this->fail('満員なのに承認できてしまった');
+        } catch (GuildException $e) {
+            $this->assertSame(GuildException::CODE_GUILD_FULL, $e->getCode());
+        }
+    }
+
+    #[Test]
+    public function 非ロックの所属が空でもロック読みで所属していたら承認できない(): void
+    {
+        $this->givenPendingApply(GuildRole::MASTER);
+        $this->memberRepository->byPlayerIdForUpdate = $this->member(self::APPLICANT_ID);
+
+        $this->expectException(GuildException::class);
+        $this->expectExceptionMessage('already in a guild');
+
+        $this->service->acceptApply(self::APPLY_ID, self::MASTER_ID);
+    }
+
+    #[Test]
+    public function ギルド作成は作成者のプレイヤー行をロックしてから所属を確認する(): void
+    {
+        $this->memberRepository->byPlayerIdForUpdate = $this->member(self::MASTER_ID);
+
+        try {
+            $this->service->createGuild('テストギルド', '説明', self::MASTER_ID);
+            $this->fail('二重所属になる作成が通ってしまった');
+        } catch (GuildException $e) {
+            $this->assertSame(GuildException::CODE_ALREADY_IN_GUILD, $e->getCode());
+        }
+        $this->assertSame(['applicant'], $this->lockLog->getArrayCopy());
+        $this->assertSame([], $this->guildRepository->inserted);
+    }
+
+    #[Test]
+    public function 承認は申請_ギルド_メンバー数_申請者の順にロックを取ってから判定する(): void
+    {
+        $this->givenPendingApply(GuildRole::MASTER);
+
+        $this->service->acceptApply(self::APPLY_ID, self::MASTER_ID);
+
+        $this->assertSame(
+            ['apply', 'guild', 'member_count', 'applicant'],
+            $this->lockLog->getArrayCopy()
+        );
+    }
+
+    #[Test]
+    public function 却下は申請行だけをロックする(): void
+    {
+        $this->givenPendingApply(GuildRole::MASTER);
+
+        $this->service->rejectApply(self::APPLY_ID, self::MASTER_ID);
+
+        $this->assertSame(['apply'], $this->lockLog->getArrayCopy());
+    }
+
+    #[Test]
+    public function 却下済みの申請はロックを取り直した最新の状態で承認できない(): void
+    {
+        // 承認と却下が同時に来て、却下が先にコミットしたケース。
+        // 承認側はロックを待った後の REJECTED を読むので、メンバーに入れない
+        $this->givenPendingApply(GuildRole::MASTER);
+        $this->applyRepository->byId = $this->apply(status: GuildApplyStatus::REJECTED);
+
+        try {
+            $this->service->acceptApply(self::APPLY_ID, self::MASTER_ID);
+            $this->fail('却下済みなのに承認できてしまった');
+        } catch (GuildException $e) {
+            $this->assertStringContainsString('Invalid status', $e->getMessage());
+        }
+        $this->assertSame([], $this->memberRepository->inserted);
+    }
+
+    #[Test]
+    public function 承認済みの申請は却下できない(): void
+    {
+        $this->givenPendingApply(GuildRole::MASTER);
+        $this->applyRepository->byId = $this->apply(status: GuildApplyStatus::ACCEPTED);
+
+        $this->expectException(GuildException::class);
+        $this->expectExceptionMessage('Invalid status');
+
+        $this->service->rejectApply(self::APPLY_ID, self::MASTER_ID);
     }
 
     // ========================================
@@ -635,6 +772,9 @@ class GuildServiceTest extends TestCase
  */
 class FakeGuildRepository implements GuildRepositoryInterface
 {
+    /** @var \ArrayObject<int, string>|null */
+    public ?\ArrayObject $lockLog = null;
+
     public ?Guild $byId = null;
 
     public ?Guild $byName = null;
@@ -648,6 +788,16 @@ class FakeGuildRepository implements GuildRepositoryInterface
     public function selectById(int $guildId): ?Guild
     {
         return $this->byId;
+    }
+
+    /** ロック版だけ別の値を返したいとき（null なら byId） */
+    public ?Guild $byIdForUpdate = null;
+
+    public function selectByIdForUpdate(int $guildId): ?Guild
+    {
+        $this->lockLog?->append('guild');
+
+        return $this->byIdForUpdate ?? $this->byId;
     }
 
     public function selectByName(string $name): ?Guild
@@ -700,6 +850,9 @@ class FakeGuildRepository implements GuildRepositoryInterface
  */
 class FakeGuildApplyRepository implements GuildApplyRepositoryInterface
 {
+    /** @var \ArrayObject<int, string>|null */
+    public ?\ArrayObject $lockLog = null;
+
     public ?GuildApply $byId = null;
 
     public ?GuildApply $byGuildAndPlayer = null;
@@ -719,6 +872,16 @@ class FakeGuildApplyRepository implements GuildApplyRepositoryInterface
     public function selectById(int $applyId): ?GuildApply
     {
         return $this->byId;
+    }
+
+    /** ロック版だけ別の値を返したいとき（null なら byId） */
+    public ?GuildApply $byIdForUpdate = null;
+
+    public function selectByIdForUpdate(int $applyId): ?GuildApply
+    {
+        $this->lockLog?->append('apply');
+
+        return $this->byIdForUpdate ?? $this->byId;
     }
 
     public function selectByGuildAndPlayer(int $guildId, int $playerId): ?GuildApply
@@ -786,6 +949,9 @@ class FakeGuildApplyRepository implements GuildApplyRepositoryInterface
  */
 class FakeGuildMemberRepository implements GuildMemberRepositoryInterface
 {
+    /** @var \ArrayObject<int, string>|null */
+    public ?\ArrayObject $lockLog = null;
+
     public ?GuildMember $byId = null;
 
     public ?GuildMember $byGuildAndPlayer = null;
@@ -796,6 +962,11 @@ class FakeGuildMemberRepository implements GuildMemberRepositoryInterface
     public array $byGuildId = [];
 
     public int $count = 0;
+
+    /** ロック版だけ別の値を返したいとき（null なら count / byPlayerId） */
+    public ?int $countForUpdate = null;
+
+    public ?GuildMember $byPlayerIdForUpdate = null;
 
     /** @var list<GuildMember> */
     public array $deleted = [];
@@ -829,6 +1000,20 @@ class FakeGuildMemberRepository implements GuildMemberRepositoryInterface
     public function countByGuildId(int $guildId): int
     {
         return $this->count;
+    }
+
+    public function countByGuildIdForUpdate(int $guildId): int
+    {
+        $this->lockLog?->append('member_count');
+
+        return $this->countForUpdate ?? $this->count;
+    }
+
+    public function selectByPlayerIdForUpdate(int $playerId): ?GuildMember
+    {
+        $this->lockLog?->append('applicant');
+
+        return $this->byPlayerIdForUpdate ?? $this->byPlayerId;
     }
 
     public function insert(int $guildId, int $playerId, string $role): GuildMember

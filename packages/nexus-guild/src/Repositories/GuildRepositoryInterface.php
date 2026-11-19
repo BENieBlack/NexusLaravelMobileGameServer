@@ -19,6 +19,17 @@ interface GuildRepositoryInterface
     public function selectById(int $guildId): ?Guild;
 
     /**
+     * IDでギルドを行ロック（SELECT ... FOR UPDATE）付きで検索
+     *
+     * メンバー数の上限判定の mutex。トランザクション内で呼ぶこと。
+     * 返った DTO の currentMembers は最新とは限らないので、人数の判定には
+     * GuildMemberRepositoryInterface::countByGuildIdForUpdate() を使う。
+     *
+     * @param  int  $guildId  ギルドID
+     */
+    public function selectByIdForUpdate(int $guildId): ?Guild;
+
+    /**
      * ギルド名で検索
      *
      * @param  string  $name  ギルド名

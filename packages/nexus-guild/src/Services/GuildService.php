@@ -180,7 +180,13 @@ class GuildService
     public function createGuild(string $name, string $description, int $masterPlayerId): Guild
     {
         $this->validateGuildNameUnique($name);
-        $this->validatePlayerNotInGuild($masterPlayerId);
+
+        // 作成者がメンバーとして入る点は承認と同じ。承認と同時に走ると二重所属になるので、
+        // 承認側と同じ mutex（プレイヤー行のロック）を取ってから最新の所属を確認する。
+        // トランザクション内で呼ぶこと。ロックはこの 1 行だけなので、承認（申請→ギルド→プレイヤー）と逆順にならない
+        if ($this->memberRepository->selectByPlayerIdForUpdate($masterPlayerId) !== null) {
+            throw GuildException::alreadyInGuild($masterPlayerId);
+        }
 
         return $this->guildRepository->insert($name, $description, $masterPlayerId);
     }
@@ -224,14 +230,28 @@ class GuildService
      * 承認と加入は分けられない。承認だけして加入させない状態や、
      * 定員・所属チェックを経ずに加入させる経路を作らないよう、ここで一括で行う。
      *
+     * トランザクション内で呼ぶこと。複数の承認者が同じギルド・同じ申請・同じ申請者を
+     * 同時に触りうるので、次の順にロックを取り、ロックを取った後の最新の値で判定する。
+     *   1. 申請行（承認と却下が同時に来ても、先に取った側だけが進める）
+     *   2. ギルド行（満員判定 → メンバー追加を直列にする mutex）
+     *   3. 申請者のプレイヤー行（別ギルドが同じ人を同時に入れるのを直列にする）
+     * 承認・却下はどちらも「申請行を最初に」取る。順序を固定してデッドロックを避ける。
+     *
      * @param  int  $applyId  申請ID
      * @param  int  $currentPlayerId  現在のプレイヤーID（承認者）
      */
     public function acceptApply(int $applyId, int $currentPlayerId): GuildApply
     {
-        $apply = $this->applyRepository->selectById($applyId);
+        // 1. 申請行をロックして読み直す。以降の status 判定はこの値で行う
+        $apply = $this->applyRepository->selectByIdForUpdate($applyId);
         if ($apply === null) {
             throw GuildException::applyNotFound($applyId);
+        }
+
+        // 2. ギルド行をロックする。同じギルドの承認は、ここで 1 件ずつに並ぶ
+        $guild = $this->guildRepository->selectByIdForUpdate($apply->getSysGuildId());
+        if ($guild === null) {
+            throw GuildException::guildNotFound($apply->getSysGuildId());
         }
 
         // 承認者がギルドメンバーであることを確認
@@ -247,15 +267,19 @@ class GuildService
         $this->validateMasterOrSubMasterPermission($approverMember, 'accept guild apply');
         $this->validateCanAccept($apply);
 
-        // ギルドが満員でないか再確認
-        $guild = $this->guildRepository->selectById($apply->getSysGuildId());
-        if ($guild === null) {
-            throw GuildException::guildNotFound($apply->getSysGuildId());
+        // ギルドが満員でないか再確認。ギルド行のロックを取った後の最新の人数で数える
+        // （DTO の currentMembers はロックより前のスナップショットかもしれないので使わない）
+        $memberCount = $this->memberRepository->countByGuildIdForUpdate($guild->getId());
+        if ($memberCount >= $guild->getMaxMembers()) {
+            throw GuildException::guildFull($guild->getId());
         }
-        $this->validateGuildNotFull($guild);
 
-        // 申請後に別のギルドへ入っていることがある。DBの一意制約はギルド単位なので、ここで止める
-        $this->validatePlayerNotInGuild($apply->getSysPlayerId());
+        // 3. 申請後に別のギルドへ入っていることがある。DBの一意制約はギルド単位なので、ここで止める。
+        // 別ギルドの承認者とはギルド行のロックでは直列にならないため、申請者の行をロックして
+        // から最新の所属を読む（先に入った側がコミットするまで待ち、その後の所属を見る）
+        if ($this->memberRepository->selectByPlayerIdForUpdate($apply->getSysPlayerId()) !== null) {
+            throw GuildException::alreadyInGuild($apply->getSysPlayerId());
+        }
 
         $accepted = $this->applyRepository->accept($apply);
         $this->memberRepository->insert($apply->getSysGuildId(), $apply->getSysPlayerId(), GuildRole::MEMBER);
@@ -268,12 +292,17 @@ class GuildService
     /**
      * ギルド加入申請を却下
      *
+     * トランザクション内で呼ぶこと。承認と同時に来ても、申請行のロックで
+     * どちらか一方だけが進み、後から来た側は最新の status（承認済み／却下済み）を読んで
+     * 業務エラーになる。却下はメンバーを増減させないので、ギルド行のロックは要らない。
+     *
      * @param  int  $applyId  申請ID
      * @param  int  $currentPlayerId  現在のプレイヤーID（却下者）
      */
     public function rejectApply(int $applyId, int $currentPlayerId): GuildApply
     {
-        $apply = $this->applyRepository->selectById($applyId);
+        // 申請行をロックして読み直す（承認と同じく、最初に取る）
+        $apply = $this->applyRepository->selectByIdForUpdate($applyId);
         if ($apply === null) {
             throw GuildException::applyNotFound($applyId);
         }

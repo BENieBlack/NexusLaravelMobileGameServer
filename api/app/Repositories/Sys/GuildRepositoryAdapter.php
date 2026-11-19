@@ -34,6 +34,16 @@ class GuildRepositoryAdapter implements GuildRepositoryInterface
     /**
      * {@inheritDoc}
      */
+    public function selectByIdForUpdate(int $guildId): ?Guild
+    {
+        $sysGuild = $this->sysGuildRepository->selectByIdForUpdate($guildId);
+
+        return $sysGuild ? GuildAdapter::toDto($sysGuild) : null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function selectByName(string $name): ?Guild
     {
         $sysGuild = $this->sysGuildRepository->selectByName($name);

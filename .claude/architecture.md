@@ -241,6 +241,8 @@ api/app/Providers/AppServiceProvider                                 ← bind(�
 
 **例外と注意**
 
+- MySQL の REPEATABLE READ では、ロックを待った後も普通の SELECT は古いスナップショットを読む。判定に使う読み（人数・状態）も `FOR UPDATE` の current read にする（`SysGuildMemberRepository::countByGuildIdForUpdate()`）。
+- 所属行が無いときの `FOR UPDATE` はギャップロックで、複数のトランザクションが同時に取れる。「無いこと」の判定を直列化するには、相手のプレイヤー行（`sys_player`）など必ず存在する行を mutex にする（ギルドの承認・作成の二重所属確認）。
 - 複数行をロックするときは主キーの昇順に取る（並びが揃わないとデッドロックする）。順序は `player.lock` → 他人の行を昇順。
 - 共用の件数・残高は、行ロックより原子的な UPDATE（`SET n = n + 1`、条件つき UPDATE の影響行数で成否判定）で足りる場合がある。trx の「読む → メモリで計算 → 絶対値で UPDATE」の規約とは別の書き方なので、使うときは Repository のメソッドに閉じ込める。
 - **他人が書く行は、原則 sys に置く**（`database.md` の「trx は本人だけが読み書きする」と揃える）。trx に他人が書く行を作るなら、設計変更として扱う。

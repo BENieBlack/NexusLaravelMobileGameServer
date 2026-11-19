@@ -19,6 +19,7 @@ class GuildMemberRepositoryAdapter implements GuildMemberRepositoryInterface
 {
     public function __construct(
         private readonly SysGuildMemberRepository $sysGuildMemberRepository,
+        private readonly SysPlayerRepository $sysPlayerRepository,
     ) {}
 
     /**
@@ -69,6 +70,30 @@ class GuildMemberRepositoryAdapter implements GuildMemberRepositoryInterface
     public function countByGuildId(int $guildId): int
     {
         return SysGuildMember::where('sys_guild_id', $guildId)->count();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function countByGuildIdForUpdate(int $guildId): int
+    {
+        return $this->sysGuildMemberRepository->countByGuildIdForUpdate($guildId);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * 先にプレイヤー行（sys_player）をロックして、同じ人を軸に直列化する。
+     * メンバー行が無いときの FOR UPDATE はギャップロックで、2 つのトランザクションが
+     * 同時に取れてしまい、ロックだけでは二重所属を防げないため。
+     */
+    public function selectByPlayerIdForUpdate(int $playerId): ?GuildMember
+    {
+        $this->sysPlayerRepository->selectByIdForUpdate($playerId);
+
+        $sysGuildMember = $this->sysGuildMemberRepository->selectByPlayerIdForUpdate($playerId);
+
+        return $sysGuildMember ? GuildMemberAdapter::toDto($sysGuildMember) : null;
     }
 
     /**

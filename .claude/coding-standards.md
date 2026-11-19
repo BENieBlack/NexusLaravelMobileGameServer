@@ -147,7 +147,7 @@ public function toArray(): array
   4. 上で足りないときだけ Result を作る
 - Result を作ってよいのは、Service の戻り値を 1 つにできず、2 か所以上の呼び出し元があるとき。作らない例: 1 つの値を包むだけ／Response とほぼ同じ形／Result が別の Result を入れ子に持つ／Model で足りるのに写す。
 - 他コンテキストへ渡す戻り値は Result にしない。パッケージDTO（接尾辞なし）か、Contracts 配下の interface・DTO にする（architecture.md 4節）。Domain 側の Result は `ModuleBoundaryTest` により他コンテキストから参照できない。
-- 作る理由を docblock と PR 本文に書く（レビューで確認する）。形は `public readonly` のコンストラクタプロモーションだけで、メソッドを持たない。既存の `SignInResult` などは棚卸し待ち（Nexus の backlog）。
+- 作る理由を docblock と PR 本文に書く（レビューで確認する）。形は `public readonly` のコンストラクタプロモーションだけで、メソッドを持たない。`SignInResult` は `AccountTransferService::transfer()`（呼び出し元 2 か所・戻り値が Model 3 つと Token）で残してある。Eloquent の Model を持つなど、コンテキスト内でしか使わない Result は `DataTransferObjects/` ではなく `Domain/{Context}/Support/` に置いてよい（`LoginBonus/Support/VipLoginBonusReReceiveResult`。2 か所以上から使うので Result として妥当）。
 - パッケージのDTOは `packages/*/src/DataTransferObjects/` に置き、サフィックスを付けない（DataTransferObjectNamingTest）。`private readonly` + `getXxx()` で書く（`packages/nexus-guild/src/DataTransferObjects/Guild.php`）。
 - Model からパッケージDTOへの変換は `App\Adapters\{Context}\{Dto}Adapter::toDto()` / `toDtoArray()`。
 

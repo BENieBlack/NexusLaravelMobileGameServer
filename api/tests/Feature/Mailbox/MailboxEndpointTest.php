@@ -5,6 +5,7 @@ namespace Tests\Feature\Mailbox;
 use App\Exceptions\GameErrorCode;
 use App\Models\Trx\TrxMailbox;
 use App\Persistence\ApiSession;
+use Illuminate\Support\Facades\DB;
 use Nexus\Core\Models\_BaseModel;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshMultipleDatabases;
@@ -150,6 +151,103 @@ class MailboxEndpointTest extends TestCase
     }
 
     #[Test]
+    public function test_list_response_shape_is_fixed(): void
+    {
+        // 一覧の応答全体を丸ごと比べて固定する。Result（MailboxItem など）を外す整理で、
+        // キー名・値・ラベル・アイコン・テンプレートの描画結果が変わらないことの確認用。
+        // 時刻と採番 ID は実行ごとに変わるので、実際の値を期待値に差し込む
+        ['player' => $player, 'token' => $token] = $this->signUpPlayer();
+        $mailbox = $this->makeMailbox($player->id, mstMailboxId: 'mailbox_shape_001');
+
+        // マスター: メッセージ（ja / en）・メール・添付 2 件（item と custom）
+        DB::connection('mst')->table('mst_message')->insert(['id' => 'message_shape_001']);
+        foreach (['ja' => ['題名', '本文'], 'en' => ['Title', 'Body']] as $language => [$title, $body]) {
+            DB::connection('mst')->table('mst_message__l10n')->insert([
+                'mst_message_id' => 'message_shape_001', 'language' => $language, 'title' => $title, 'body' => $body,
+            ]);
+        }
+        DB::connection('mst')->table('mst_mailbox')->insert([
+            'id' => 'mailbox_shape_001', 'mst_message_id' => 'message_shape_001',
+            'category' => 'reward', 'priority' => 'important', 'sender_type' => 'system',
+            'icon_url' => 'https://example.com/icon.png',
+        ]);
+        foreach ([['item', 'item_shape_001', 5, 'SR', true, 2], ['custom', 'custom_shape_001', 1, null, false, 1]] as [$type, $id, $amount, $rarity, $highlight, $sort]) {
+            DB::connection('mst')->table('mst_mailbox_content')->insert([
+                'mst_mailbox_id' => 'mailbox_shape_001', 'content_type' => $type, 'content_mst_id' => $id,
+                'content_quantity' => $amount, 'amount' => $amount, 'rarity' => $rarity,
+                'is_highlight' => $highlight, 'sort_desc' => $sort,
+            ]);
+        }
+        $this->refreshMstCache();
+
+        try {
+            $json = $this->withHeaders($this->authHeaders($token))->getJson('/api/mailbox/list')->assertOk()->json();
+        } finally {
+            DB::connection('mst')->table('mst_mailbox_content')->where('mst_mailbox_id', 'mailbox_shape_001')->delete();
+            DB::connection('mst')->table('mst_mailbox')->where('id', 'mailbox_shape_001')->delete();
+            DB::connection('mst')->table('mst_message__l10n')->where('mst_message_id', 'message_shape_001')->delete();
+            DB::connection('mst')->table('mst_message')->where('id', 'message_shape_001')->delete();
+            $this->refreshMstCache();
+        }
+
+        $item = $json['mailbox_list'][0];
+        // 添付の並びはマスターの取得順に依存する（ORDER BY が無い）ので、content_mst_id 順にそろえて比べる
+        usort($item['content_list'], fn (array $a, array $b) => strcmp($a['content_mst_id'], $b['content_mst_id']));
+        $this->assertSame([
+            'trx_mailbox_id' => $mailbox->id,
+            'mst_mailbox_id' => 'mailbox_shape_001',
+            'title' => 'Title',
+            'body' => 'Body',
+            'category' => 'reward',
+            'category_label' => '報酬',
+            'category_icon' => '🎁',
+            'priority' => 'important',
+            'priority_label' => '重要',
+            'priority_color' => '#FF9800',
+            'priority_icon' => '⚠️',
+            'sender_type' => 'system',
+            'sender_type_label' => 'システム運営',
+            'sender_id' => null,
+            'sender_name' => null,
+            'icon_url' => 'https://example.com/icon.png',
+            'is_opened' => false,
+            'is_received' => false,
+            'is_protected' => false,
+            'is_expired' => false,
+            'is_unread' => true,
+            'expires_at' => $item['expires_at'],
+            'read_at' => null,
+            'received_at' => null,
+            'created_at' => $item['created_at'],
+            'content_list' => [
+                [
+                    'content_type' => 'custom',
+                    'content_type_label' => 'カスタム',
+                    'content_type_icon' => '❓',
+                    'content_mst_id' => 'custom_shape_001',
+                    'amount' => 1,
+                    'rarity' => null,
+                    'is_highlight' => false,
+                    'sort_desc' => 1,
+                ],
+                [
+                    'content_type' => 'item',
+                    'content_type_label' => 'アイテム',
+                    'content_type_icon' => '📦',
+                    'content_mst_id' => 'item_shape_001',
+                    'amount' => 5,
+                    'rarity' => 'SR',
+                    'is_highlight' => true,
+                    'sort_desc' => 2,
+                ],
+            ],
+            'has_content' => true,
+        ], $item);
+        $this->assertSame(['reward' => 1], $json['unread_counts']);
+        $this->assertSame(1, $json['total_unread']);
+    }
+
+    #[Test]
     public function test_list_returns_datetime_columns_as_string(): void
     {
         // expires_at / read_at / received_at はキャストしていないため生の文字列で入っている。
@@ -214,16 +312,16 @@ class MailboxEndpointTest extends TestCase
         $this->postJson('/api/mailbox/receive_all', [])->assertStatus(401);
     }
 
-    private function makeMailbox(int $sysPlayerId, bool $isProtected = false, bool $isDelete = false): TrxMailbox
+    private function makeMailbox(int $sysPlayerId, bool $isProtected = false, bool $isDelete = false, string $mstMailboxId = 'mailbox_test_001'): TrxMailbox
     {
         ApiSession::setSysPlayerId($sysPlayerId);
 
         $connection = $this->playerConnection($sysPlayerId);
 
-        return _BaseModel::allowDirectWrites(function () use ($sysPlayerId, $isProtected, $isDelete, $connection) {
+        return _BaseModel::allowDirectWrites(function () use ($sysPlayerId, $isProtected, $isDelete, $connection, $mstMailboxId) {
             $mailbox = new TrxMailbox([
                 'sys_player_id' => $sysPlayerId,
-                'mst_mailbox_id' => 'mailbox_test_001',
+                'mst_mailbox_id' => $mstMailboxId,
                 'is_opened' => false,
                 'is_received' => false,
                 'is_delete' => $isDelete,

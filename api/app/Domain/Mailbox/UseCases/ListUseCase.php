@@ -6,7 +6,7 @@ use App\Domain\_BaseUseCase;
 use App\Domain\Mailbox\Constants\Category;
 use App\Domain\Mailbox\Constants\Priority;
 use App\Domain\Mailbox\Responses\ListResponse;
-use App\Domain\Mailbox\Services\MailboxItemAssemblyService;
+use App\Domain\Mailbox\Services\MailboxMessageService;
 use App\Repositories\Trx\TrxMailboxRepository;
 
 /**
@@ -18,7 +18,7 @@ class ListUseCase extends _BaseUseCase
 {
     public function __construct(
         private TrxMailboxRepository $trxMailboxRepository,
-        private MailboxItemAssemblyService $mailboxItemAssemblyService,
+        private MailboxMessageService $mailboxMessageService,
     ) {}
 
     /**
@@ -52,6 +52,12 @@ class ListUseCase extends _BaseUseCase
         // カテゴリ別未読数を取得
         $unreadCounts = $this->trxMailboxRepository->countUnreadByCategory($sysPlayerId);
 
-        return ListResponse::from($this->mailboxItemAssemblyService->assemble($trxMailboxCollection), $unreadCounts);
+        // タイトル・本文は多言語とテンプレートの描画が要るので Service に任せ、
+        // API の形への整形（ラベル・アイコンの付与を含む）は Response が行う
+        return ListResponse::from(
+            $trxMailboxCollection,
+            $this->mailboxMessageService->renderMessages($trxMailboxCollection),
+            $unreadCounts,
+        );
     }
 }

@@ -19,6 +19,18 @@ interface ChatRoomRepositoryInterface
     public function selectById(int $id): ?ChatRoom;
 
     /**
+     * IDでチャットルームを行ロック（SELECT ... FOR UPDATE）付きで取得
+     *
+     * グループの招待・キック・退室が、部屋ごとに直列になるための mutex。
+     * 人数の判定・重複の判定・member_count の更新は、このロックを取った後に行う。
+     * 部屋は必ず存在する行なので「メンバーがいないこと」の判定にも使える
+     * （メンバー行は無いときギャップロックになり直列化できない）。
+     *
+     * トランザクションの外で呼ぶとロックが即座に外れるため、実装は例外にすること。
+     */
+    public function selectByIdForUpdate(int $id): ?ChatRoom;
+
+    /**
      * room_keyでチャットルームを取得
      */
     public function selectByRoomKey(string $roomKey): ?ChatRoom;

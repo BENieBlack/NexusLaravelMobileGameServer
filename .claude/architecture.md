@@ -229,6 +229,7 @@ api/app/Providers/AppServiceProvider                                 ← bind(�
 | `sys_player.vip_point` | 課金（`in_app_purchase/buy`）。本人の API が `player.lock` の内側で書く | なし。`login_bonus/receive`・`login_bonus/list`・login は読むだけで書かない。課金と receive は同じ `player.lock` で直列になり、課金が先ならレベルが上がった状態で判定する | API 経路のみ確認（課金以外の書き込みは `SysPlayerRepository` に見つからない）。ツール・バッチの経路は未確認 |
 | `trx_mailbox` | 本人の API（receive など）と、`mailbox:delete-expired` バッチ（`is_delete` を `setModel()` で更新） | `OperationCollector` が `getDirty()` だけを書くので、バッチが書くのは `is_delete` と `updated_at` で、`is_received` は書き戻さない。残る穴: バッチは毎日 03:00 に通常運用中に走り、行ロックなしで読むので、受け取りと同時なら `is_delete` が付く（実害は小さい）。メールを他人が送る経路は API 内に見つからない（送信側は未実装）。実装するなら、sys に置くか設計変更として扱う（下の「他人が書く行は原則 sys」） | 確認済み（バッチと API） |
 | `sys_guild`（メンバー数の上限） | 複数のプレイヤー | `sys_guild` の行をミューテックスにして、`sys_guild_member` の count → insert を直列にする。`SysGuild` に人数列は無く、`countMembers()` は `sys_guild_member` を数える。上限は `max_members` | 例 |
+| `sys_chat_room`（グループの人数・`member_count`） | 複数のプレイヤー（招待・キック・退室） | `sys_chat_room` の行をミューテックスにして、人数の判定・メンバーの重複判定・`member_count` の書き直しを直列にする。判定の読み（`countByRoomIdForUpdate()` など）も FOR UPDATE の current read。`member_count` は数え直した値を絶対値で書く（全経路がロック下なので lost update にならず、ずれても次の操作で直る）。メッセージ送信・削除・部屋の作成は対象外 | 確認済み（招待・キック・退室）。ロール変更は未対応（権限確認が非ロックなので、降格済みの者が操作できる軽微な窓が残る。人数・`member_count` には影響しない） |
 | フレンドの相手側の行 | 相手の API | 全経路でロック | 例 |
 | `mst_*` の読み取り | 読み取り専用 | 不要 | 確認済み |
 

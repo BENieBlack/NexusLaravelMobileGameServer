@@ -309,11 +309,11 @@ class ChatServiceTest extends TestCase
     {
         $member = $this->makeMember(playerId: 200, role: ChatRoomRole::MEMBER);
 
-        $this->roomRepository->shouldReceive('selectById')->andReturn($this->makeRoom(type: ChatRoomType::GROUP));
-        $this->memberRepository->shouldReceive('selectByRoomAndPlayer')->with(1, 100)
+        $this->roomRepository->shouldReceive('selectByIdForUpdate')->once()->andReturn($this->makeRoom(type: ChatRoomType::GROUP));
+        $this->memberRepository->shouldReceive('selectByRoomAndPlayerForUpdate')->with(1, 100)
             ->andReturn($this->makeMember(playerId: 100, role: ChatRoomRole::ADMIN));
-        $this->memberRepository->shouldReceive('countByRoomId')->with(1)->andReturn(5);
-        $this->memberRepository->shouldReceive('selectByRoomAndPlayer')->with(1, 200)->andReturn(null);
+        $this->memberRepository->shouldReceive('countByRoomIdForUpdate')->with(1)->andReturn(5);
+        $this->memberRepository->shouldReceive('selectByRoomAndPlayerForUpdate')->with(1, 200)->andReturn(null);
         $this->memberRepository->shouldReceive('insert')
             ->with(1, 200, 'じろう', ChatRoomRole::MEMBER)
             ->andReturn($member);
@@ -325,8 +325,8 @@ class ChatServiceTest extends TestCase
     #[Test]
     public function 一般メンバーは招待できない(): void
     {
-        $this->roomRepository->shouldReceive('selectById')->andReturn($this->makeRoom(type: ChatRoomType::GROUP));
-        $this->memberRepository->shouldReceive('selectByRoomAndPlayer')->with(1, 100)
+        $this->roomRepository->shouldReceive('selectByIdForUpdate')->once()->andReturn($this->makeRoom(type: ChatRoomType::GROUP));
+        $this->memberRepository->shouldReceive('selectByRoomAndPlayerForUpdate')->with(1, 100)
             ->andReturn($this->makeMember(role: ChatRoomRole::MEMBER));
 
         $this->expectExceptionObject(ChatException::noInvitePermission());
@@ -337,7 +337,7 @@ class ChatServiceTest extends TestCase
     #[Test]
     public function グループ以外のルームへは招待できない(): void
     {
-        $this->roomRepository->shouldReceive('selectById')->andReturn($this->makeRoom(type: ChatRoomType::FRIEND));
+        $this->roomRepository->shouldReceive('selectByIdForUpdate')->once()->andReturn($this->makeRoom(type: ChatRoomType::FRIEND));
 
         $this->expectExceptionObject(ChatException::roomNotFound());
 
@@ -347,8 +347,8 @@ class ChatServiceTest extends TestCase
     #[Test]
     public function ルームに居ない人は招待できない(): void
     {
-        $this->roomRepository->shouldReceive('selectById')->andReturn($this->makeRoom(type: ChatRoomType::GROUP));
-        $this->memberRepository->shouldReceive('selectByRoomAndPlayer')->with(1, 100)->andReturn(null);
+        $this->roomRepository->shouldReceive('selectByIdForUpdate')->once()->andReturn($this->makeRoom(type: ChatRoomType::GROUP));
+        $this->memberRepository->shouldReceive('selectByRoomAndPlayerForUpdate')->with(1, 100)->andReturn(null);
 
         $this->expectExceptionObject(ChatException::notRoomMember());
 
@@ -358,10 +358,10 @@ class ChatServiceTest extends TestCase
     #[Test]
     public function 定員に達していたら招待できない(): void
     {
-        $this->roomRepository->shouldReceive('selectById')->andReturn($this->makeRoom(type: ChatRoomType::GROUP));
-        $this->memberRepository->shouldReceive('selectByRoomAndPlayer')->with(1, 100)
+        $this->roomRepository->shouldReceive('selectByIdForUpdate')->once()->andReturn($this->makeRoom(type: ChatRoomType::GROUP));
+        $this->memberRepository->shouldReceive('selectByRoomAndPlayerForUpdate')->with(1, 100)
             ->andReturn($this->makeMember(role: ChatRoomRole::OWNER));
-        $this->memberRepository->shouldReceive('countByRoomId')->andReturn(20);
+        $this->memberRepository->shouldReceive('countByRoomIdForUpdate')->andReturn(20);
 
         $this->expectExceptionObject(ChatException::roomFull());
 
@@ -371,11 +371,11 @@ class ChatServiceTest extends TestCase
     #[Test]
     public function 既にメンバーの人は招待できない(): void
     {
-        $this->roomRepository->shouldReceive('selectById')->andReturn($this->makeRoom(type: ChatRoomType::GROUP));
-        $this->memberRepository->shouldReceive('selectByRoomAndPlayer')->with(1, 100)
+        $this->roomRepository->shouldReceive('selectByIdForUpdate')->once()->andReturn($this->makeRoom(type: ChatRoomType::GROUP));
+        $this->memberRepository->shouldReceive('selectByRoomAndPlayerForUpdate')->with(1, 100)
             ->andReturn($this->makeMember(role: ChatRoomRole::OWNER));
-        $this->memberRepository->shouldReceive('countByRoomId')->andReturn(5);
-        $this->memberRepository->shouldReceive('selectByRoomAndPlayer')->with(1, 200)
+        $this->memberRepository->shouldReceive('countByRoomIdForUpdate')->andReturn(5);
+        $this->memberRepository->shouldReceive('selectByRoomAndPlayerForUpdate')->with(1, 200)
             ->andReturn($this->makeMember(playerId: 200));
 
         $this->expectExceptionObject(ChatException::alreadyMember());
@@ -390,13 +390,13 @@ class ChatServiceTest extends TestCase
     #[Test]
     public function オーナーはメンバーをキックできる(): void
     {
-        $this->roomRepository->shouldReceive('selectById')->andReturn($this->makeRoom(type: ChatRoomType::GROUP));
-        $this->memberRepository->shouldReceive('selectByRoomAndPlayer')->with(1, 100)
+        $this->roomRepository->shouldReceive('selectByIdForUpdate')->once()->andReturn($this->makeRoom(type: ChatRoomType::GROUP));
+        $this->memberRepository->shouldReceive('selectByRoomAndPlayerForUpdate')->with(1, 100)
             ->andReturn($this->makeMember(role: ChatRoomRole::OWNER));
-        $this->memberRepository->shouldReceive('selectByRoomAndPlayer')->with(1, 200)
+        $this->memberRepository->shouldReceive('selectByRoomAndPlayerForUpdate')->with(1, 200)
             ->andReturn($this->makeMember(playerId: 200, role: ChatRoomRole::MEMBER));
         $this->memberRepository->shouldReceive('delete')->with(1, 200)->once();
-        $this->memberRepository->shouldReceive('countByRoomId')->andReturn(4);
+        $this->memberRepository->shouldReceive('countByRoomIdForUpdate')->andReturn(4);
         $this->roomRepository->shouldReceive('updateMemberCount')->with(1, 4)->once();
 
         $this->service->kickFromGroup(1, 100, 200);
@@ -405,8 +405,8 @@ class ChatServiceTest extends TestCase
     #[Test]
     public function 一般メンバーはキックできない(): void
     {
-        $this->roomRepository->shouldReceive('selectById')->andReturn($this->makeRoom(type: ChatRoomType::GROUP));
-        $this->memberRepository->shouldReceive('selectByRoomAndPlayer')->with(1, 100)
+        $this->roomRepository->shouldReceive('selectByIdForUpdate')->once()->andReturn($this->makeRoom(type: ChatRoomType::GROUP));
+        $this->memberRepository->shouldReceive('selectByRoomAndPlayerForUpdate')->with(1, 100)
             ->andReturn($this->makeMember(role: ChatRoomRole::MEMBER));
 
         $this->expectExceptionObject(ChatException::noKickPermission());
@@ -417,10 +417,10 @@ class ChatServiceTest extends TestCase
     #[Test]
     public function オーナーはキックできない(): void
     {
-        $this->roomRepository->shouldReceive('selectById')->andReturn($this->makeRoom(type: ChatRoomType::GROUP));
-        $this->memberRepository->shouldReceive('selectByRoomAndPlayer')->with(1, 100)
+        $this->roomRepository->shouldReceive('selectByIdForUpdate')->once()->andReturn($this->makeRoom(type: ChatRoomType::GROUP));
+        $this->memberRepository->shouldReceive('selectByRoomAndPlayerForUpdate')->with(1, 100)
             ->andReturn($this->makeMember(role: ChatRoomRole::ADMIN));
-        $this->memberRepository->shouldReceive('selectByRoomAndPlayer')->with(1, 200)
+        $this->memberRepository->shouldReceive('selectByRoomAndPlayerForUpdate')->with(1, 200)
             ->andReturn($this->makeMember(playerId: 200, role: ChatRoomRole::OWNER));
 
         $this->expectExceptionObject(ChatException::cannotKickOwner());
@@ -431,10 +431,12 @@ class ChatServiceTest extends TestCase
     #[Test]
     public function 退室するとメンバー数が減る(): void
     {
-        $this->memberRepository->shouldReceive('selectByRoomAndPlayer')->with(1, 100)
+        $this->roomRepository->shouldReceive('selectByIdForUpdate')->with(1)->once()
+            ->andReturn($this->makeRoom(type: ChatRoomType::GROUP));
+        $this->memberRepository->shouldReceive('selectByRoomAndPlayerForUpdate')->with(1, 100)
             ->andReturn($this->makeMember());
         $this->memberRepository->shouldReceive('delete')->with(1, 100)->once();
-        $this->memberRepository->shouldReceive('countByRoomId')->andReturn(3);
+        $this->memberRepository->shouldReceive('countByRoomIdForUpdate')->andReturn(3);
         $this->roomRepository->shouldReceive('updateMemberCount')->with(1, 3)->once();
 
         $this->service->leaveGroup(1, 100);
@@ -443,7 +445,19 @@ class ChatServiceTest extends TestCase
     #[Test]
     public function メンバーでなければ退室できない(): void
     {
-        $this->memberRepository->shouldReceive('selectByRoomAndPlayer')->andReturn(null);
+        $this->roomRepository->shouldReceive('selectByIdForUpdate')->with(1)->once()
+            ->andReturn($this->makeRoom(type: ChatRoomType::GROUP));
+        $this->memberRepository->shouldReceive('selectByRoomAndPlayerForUpdate')->andReturn(null);
+
+        $this->expectExceptionObject(ChatException::notRoomMember());
+
+        $this->service->leaveGroup(1, 100);
+    }
+
+    #[Test]
+    public function ルームが無ければ退室できない(): void
+    {
+        $this->roomRepository->shouldReceive('selectByIdForUpdate')->with(1)->once()->andReturn(null);
 
         $this->expectExceptionObject(ChatException::notRoomMember());
 

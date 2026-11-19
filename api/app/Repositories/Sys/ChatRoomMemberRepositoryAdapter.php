@@ -44,6 +44,26 @@ class ChatRoomMemberRepositoryAdapter implements ChatRoomMemberRepositoryInterfa
         return $row ? ChatRoomMemberAdapter::toDto((array) $row) : null;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * 該当行が無いときの FOR UPDATE はギャップロックで直列化にならない。
+     * 直列化はルーム行のロック（ChatRoomRepositoryAdapter::selectByIdForUpdate）が担い、
+     * ここは「ロック後の最新の値」を読む役（current read）。
+     */
+    public function selectByRoomAndPlayerForUpdate(int $chatRoomId, int $playerId): ?ChatRoomMember
+    {
+        $this->assertInTransaction();
+
+        $row = DB::connection(self::CONNECTION)->table(self::TABLE)
+            ->where('chat_room_id', $chatRoomId)
+            ->where('sys_player_id', $playerId)
+            ->lockForUpdate()
+            ->first();
+
+        return $row ? ChatRoomMemberAdapter::toDto((array) $row) : null;
+    }
+
     public function insert(
         int $chatRoomId,
         int $playerId,
@@ -95,5 +115,37 @@ class ChatRoomMemberRepositoryAdapter implements ChatRoomMemberRepositoryInterfa
         return DB::connection(self::CONNECTION)->table(self::TABLE)
             ->where('chat_room_id', $chatRoomId)
             ->count();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * COUNT(*) に FOR UPDATE は付けても current read にならない場合があるため、
+     * 行を読んで数える（SysGuildMemberRepository::countByGuildIdForUpdate と同じ）。
+     */
+    public function countByRoomIdForUpdate(int $chatRoomId): int
+    {
+        $this->assertInTransaction();
+
+        return count(DB::connection(self::CONNECTION)->table(self::TABLE)
+            ->where('chat_room_id', $chatRoomId)
+            ->lockForUpdate()
+            ->pluck('id')
+            ->all());
+    }
+
+    /**
+     * トランザクションの外の行ロックは即座に外れて何も守れないので、例外にして気づけるようにする
+     *
+     * @throws \LogicException トランザクション内でない場合
+     */
+    private function assertInTransaction(): void
+    {
+        if (DB::connection(self::CONNECTION)->transactionLevel() === 0) {
+            throw new \LogicException(sprintf(
+                '%s: 行ロックはトランザクション内でしか効かない。executeWithTransaction() の中で呼ぶこと',
+                static::class
+            ));
+        }
     }
 }

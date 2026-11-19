@@ -98,18 +98,22 @@ erDiagram
 | 日付の作り方 | 「今日のゲーム日の開始」は `ClockUtility::calcGameDayStart()`、「前日」はその 1 日前。**login で配る前の状態**を作る（①②④⑤ は `last_login_at` を前日にして、login で今日の分が配られる） |
 | 戻し方 | `RecordingResetSeeder` に足さない（trx に目印が無い）。対象のプレイヤーを `seed-recording-one` で別の状態へ上書きするか、新規プレイヤーを作り直す。README にその旨を書く |
 
-| # | シナリオ（overview 8 節 ①〜⑧） | 作る状態 | login / 画面で期待する結果 |
+| # | シナリオ（overview 8 節 ①〜⑧、F2・G） | 作る状態 | login / 画面で期待する結果 |
 | --- | --- | --- | --- |
-| ① | 初回（1 日目） | `trx_login_bonus`・`trx_vip_login_bonus` の行なし、`last_login_at = null` | 通常 1 日目・VIP 1 日目が配られる。`is_granted_now` が両段で真 |
-| ② | 3 日目まで受け取り済みの翌日 | 通常・VIP とも `day = 3`、受取日・`last_login_at` は前日 | 4 日目が配られる |
-| ③ | 同じ日の 2 回目 | ② の後にもう一度 login（または `day = 4`・受取日 = 今日・`last_login_at` = 今日） | `login_bonus_list` は空。`is_granted_today` 真・`is_granted_now` 偽 |
-| ④ | 7 日目を配る | `day = 6`、受取日・`last_login_at` は前日 | 7 日目が配られる |
-| ⑤ | 1 周後の 1 日目 | `day = 7`、受取日・`last_login_at` は前日 | `day` が 1 に戻る |
-| ⑥ | VIP の対象あり（既定）・なし | `MstVipLoginBonusSeeder` は VIP 0〜10 全レベルに 7 日の行がある（読んだ）。なしにするには、対象レベルの `mst_vip_login_bonus.is_active = false` | VIP のキーが `null`（なし）。既定は VIP の段が出る |
-| ⑦ | 今日の段でない段 | 通常は受取日 = 今日、VIP は受取日 = 前日（または VIP の行なし）で `last_login_at` = 今日 | 両段とも項目はあるが、VIP は `is_granted_today` 偽 |
-| ⑧ | VIP の再受け取り | `trx_vip_login_bonus` を「受取日 = 今日・`vip_level` = 低いレベル・`day` = 据え置く日」にし、`sys_player.vip_point` を足して今のレベルを上げる。今のレベルの VIP マスターに、その日の報酬行があること（`MstVipLoginBonusSeeder` で足りる。読んだ） | login 応答 / `POST /login_bonus/list` で `can_re_receive` 真。`POST /login_bonus/receive` で配られる |
+| ① → `1` | 初回（1 日目） | `trx_login_bonus`・`trx_vip_login_bonus` の行なし、`last_login_at = null` | 通常 1 日目・VIP 1 日目が配られる。`is_granted_now` が両段で真 |
+| ② → `2` | 3 日目まで受け取り済みの翌日 | 通常・VIP とも `day = 3`、受取日・`last_login_at` は前日 | 4 日目が配られる |
+| ③ → `3` | 同じ日の 2 回目 | `day = 4`・受取日 = 今日・`last_login_at` = 今日 | `login_bonus_list` は空。`is_granted_today` 真・`is_granted_now` 偽 |
+| ④ → `4` | 7 日目を配る | `day = 6`、受取日・`last_login_at` は前日 | 7 日目が配られる |
+| ⑤ → `5` | 1 周後の 1 日目 | `day = 7`、受取日・`last_login_at` は前日 | `day` が 1 に戻る |
+| ⑥ → `6` | VIP の対象なし | 初回の状態に加え、今のレベルの `mst_vip_login_bonus.is_active = false` | VIP のキーが `null`（既定は VIP の段が出る） |
+| ⑦ → `7` | 今日の段でない段 | 通常は受取日 = 今日、VIP は受取日 = 前日で `last_login_at` = 今日 | 両段とも項目はあるが、VIP は `is_granted_today` 偽 |
+| ⑧ → `8` | VIP の再受け取り | `trx_vip_login_bonus` を「受取日 = 今日・`vip_level` = 今のレベルより 1 低い・`day` = 据え置く日」にし、`sys_player.vip_point` を VIP ボーナスのある最大レベルの必要ポイントにする。**`last_login_at` は今日**（login で新しい日の分が配られて「今日の段」の前提が崩れないようにする） | login 応答 / `POST /login_bonus/list` で `can_re_receive` 真。`POST /login_bonus/receive` で配られる |
+| F2 → `F2` | 通常のマスターが無効で VIP だけある | 初回の状態に加え、`daily_login` を `is_active = false`（`RecordingLoginBonusSeeder` か別のシナリオで戻る） | `login_bonus_calendar` が `null`・VIP の段は出る |
+| G → `G` | 通常・VIP の両段が今日の段でない | 両段とも前日に 3 日目、`last_login_at` = 今日（login で配られない） | 両段とも `is_granted_today` 偽 |
 
-テスト: `api/tests/Feature/Recording/`（`RecordingScenarioTest` の流儀。2 回流して状態が変わらない・`RECORDING_PLAYER_MY_ID` が無いと何もしない・各シナリオ後の `POST /login_bonus/list` の項目）。撮影の手順は README と Nexus の `docs/workflow/recording.md`（後者は Nexus 側）。
+**実装（S3 で確定）**: シナリオ 1 つのクラス `Scenarios/RecordingLoginBonusProgressSeeder`。`RECORDING_PLAYER_MY_ID`（`sys_player.my_id`。クライアントを 1 回起動して控える）と `RECORDING_LOGIN_BONUS_SCENARIO`（上表の `1`〜`8`・`F2`・`G`）を `make seed-recording-one SEEDER=RecordingLoginBonusProgressSeeder RECORDING_PLAYER_MY_ID=... RECORDING_LOGIN_BONUS_SCENARIO=...` で渡す（Makefile の `seed-recording-one` が環境変数を転送する）。どちらかが無い・番号が不明・該当プレイヤーがいないときは何も書かずに警告して終わる。既定の一覧には入れない。使い方・番号の選び方は `Recording/README.md`。
+
+テスト: `api/tests/Feature/Recording/RecordingLoginBonusProgressTest`（2 回流して状態が変わらない・`RECORDING_PLAYER_MY_ID` が無いと何もしない・各シナリオ後の login / list / receive の結果）。撮影の手順は README と Nexus の `docs/workflow/recording.md`（後者は Nexus 側）。
 
 ## 7. 注意と未確認
 

@@ -33,6 +33,7 @@
 | `mailbox/receive`、`mailbox/receive_all` | 更新分 | 添付物の種類による（wallet、item（無償ダイヤは `free_diamond`）、有償ダイヤ（diamond。運営の調整用）、unit、equipment、stamina、sys_player） |
 | `mission/receive` | 更新分 | 報酬の種類による |
 | `reward_track/receive` | 更新分 | 報酬の種類による |
+| `login_bonus/receive` | 更新分（`trx_vip_login_bonus` は対象外なので独立したキーで返す。`login_bonus_list`・`vip_login_bonus_calendar` も付く） | 報酬の種類による（VIP の再受け取り） |
 | `mailbox/lock`、`mailbox/open` | なし | （メールの状態のみ） |
 | `agreement/consent` | なし | |
 | `friend/*`（apply 系・delete）、`guild/*`（create・apply 系・leave）、`chat/*`（書き込み）、`notification/read`、`notification/read_all` | なし | |
@@ -43,7 +44,7 @@
 新規の API は参照専用でも POST にする（`.claude/api.md`「ルーティング」）。
 
 プレイヤーの7テーブルの現在値は、`auth/login` だけが返す。`player/me` は `my_id` と `name` のみ。
-`mailbox/list`、`mission/list`、`trade/list`、`album/list`、`friend/list`、`guild/*`、`chat/*`、`notification/list`、`reward_track/summary` などの一覧系は、7テーブルを返さない。
+`login_bonus/list`（POST。DB へ書かず `updated_resources` を返さない。カレンダーの状態だけ返す）、`mailbox/list`、`mission/list`、`trade/list`、`album/list`、`friend/list`、`guild/*`、`chat/*`、`notification/list`、`reward_track/summary` などの一覧系は、7テーブルを返さない。
 
 ## 新しい書き込み API を作るとき
 

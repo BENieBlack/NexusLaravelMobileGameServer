@@ -79,4 +79,15 @@ interface LoginBonusRepositoryInterface
      * @return array<int, array<string, mixed>> コンテンツの配列
      */
     public function selectContentsByLoginBonusIdAndDay(string $loginBonusId, int $day): array;
+
+    /**
+     * 通常ログインボーナスの全日（1〜loop_days）の報酬contentを取得
+     *
+     * カレンダー表示用。day = 0（カムバック用）は含めない。
+     * 並びは day → sort_order → content_type → content_mst_id（配る順と同じ）
+     *
+     * @param  string  $loginBonusId  ログインボーナスID
+     * @return array<int, array<string, mixed>> コンテンツの配列
+     */
+    public function selectDailyContentsByLoginBonusId(string $loginBonusId): array;
 }

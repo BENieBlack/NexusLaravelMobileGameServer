@@ -3,6 +3,9 @@
 namespace App\Domain\Login\Responses;
 
 use App\Domain\_BaseResponse;
+use App\Domain\Common\DataTransferObjects\LoginBonusCalendarResult;
+use App\Domain\Common\DataTransferObjects\VipLoginBonusCalendarResult;
+use App\Domain\Common\Support\LoginBonusCalendarFormatter;
 use App\Models\Sys\SysPlayer;
 use App\Models\Trx\TrxDiamond;
 use App\Models\Trx\TrxEquipment;
@@ -29,6 +32,8 @@ class HomeResponse extends _BaseResponse
      * @param  array<int, TrxEquipment>  $trxEquipments  所持装備一覧
      * @param  array<int, TrxStamina>  $trxStaminas  スタミナ（自然回復を加算した現在値）
      * @param  array<int, \Nexus\Core\Resource\DataTransferObjects\Resource>  $loginBonusContents  ログインボーナス内容
+     * @param  LoginBonusCalendarResult|null  $loginBonusCalendar  通常ログインボーナスの段（マスターが無ければ null）
+     * @param  VipLoginBonusCalendarResult|null  $vipLoginBonusCalendar  VIP ログインボーナスの段（今のレベルのマスターが無ければ null）
      */
     public function __construct(
         public readonly SysPlayer $sysPlayer,
@@ -39,6 +44,8 @@ class HomeResponse extends _BaseResponse
         public readonly array $trxEquipments,
         public readonly array $trxStaminas,
         public readonly array $loginBonusContents,
+        public readonly ?LoginBonusCalendarResult $loginBonusCalendar,
+        public readonly ?VipLoginBonusCalendarResult $vipLoginBonusCalendar,
     ) {}
 
     /**
@@ -76,6 +83,9 @@ class HomeResponse extends _BaseResponse
                 fn (Resource $resource) => $resource->toArray(),
                 $this->loginBonusContents
             ),
+            // カレンダー用の 2 キー。常に出し、マスターが無い段は null。整形は 3 つの API で共通の部品が行う
+            'login_bonus_calendar' => LoginBonusCalendarFormatter::toArray($this->loginBonusCalendar),
+            'vip_login_bonus_calendar' => LoginBonusCalendarFormatter::toVipArray($this->vipLoginBonusCalendar),
         ];
     }
 }

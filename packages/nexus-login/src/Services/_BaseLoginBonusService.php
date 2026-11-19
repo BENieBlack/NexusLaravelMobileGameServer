@@ -73,19 +73,8 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
      */
     protected function toContents(iterable $rows): CustomCollection
     {
-        $contents = [];
-        foreach ($rows as $row) {
-            $contents[] = new LoginBonusContent(
-                contentType: (string) $row['content_type'],
-                contentMstId: (string) $row['content_mst_id'],
-                contentOption: $row['content_option'] ?? null,
-                contentQuantity: (int) $row['content_quantity'],
-                amount: (int) $row['amount'],
-                isPaid: (bool) ($row['is_paid'] ?? false),
-            );
-        }
-
-        return new CustomCollection($contents);
+        // 変換の規則は LoginBonusResourceConverter に 1 つだけ持つ（カレンダー表示・再受け取りと共有）
+        return LoginBonusResourceConverter::toContents($rows);
     }
 
     /**
@@ -293,27 +282,8 @@ abstract class _BaseLoginBonusService implements LoginBonusStrategyInterface
      */
     protected function convertToResource(LoginBonusContent $content): Resource
     {
-        $metadata = [];
-        if ($content->getIsPaid()) {
-            $metadata['is_paid'] = true;
-        }
-
-        if (! empty($content->getContentOption())) {
-            $metadata = [...$metadata, ...$content->getContentOption()];
-        }
-
-        // content_type='wallet' の場合、content_mst_id をResourceTypeとして使用する
-        // （DBのenum定義は 'wallet' だが、ResourceTypeには 'gold'/'coin' 等が存在する）
-        $typeString = $content->getContentType() === 'wallet'
-            ? $content->getContentMstId()
-            : $content->getContentType();
-
-        return Resource::fromTypeString(
-            typeString: $typeString,
-            id: $content->getContentMstId(),
-            amount: $content->getTotalQuantity(),
-            metadata: empty($metadata) ? null : $metadata,
-        );
+        // 変換の規則は LoginBonusResourceConverter に 1 つだけ持つ（type の決め方を 2 通りにしない）
+        return LoginBonusResourceConverter::toResource($content);
     }
 
     /**

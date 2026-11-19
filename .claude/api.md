@@ -152,5 +152,5 @@
 一覧は `api/routes/api.php` を見る。分類は次のとおり。
 
 - 認証不要: `auth`（sign_up / sign_in / refresh_token / version）、`account` の引き継ぎ（transfer_code/transfer / external/transfer）、`maintenance/status`、`guild` の参照系
-- ログイン後: `auth`（version / login）、`account`（引き継ぎコードの発行、外部アカウントの一覧・紐付け・解除）、`player`、`in_app_purchase`、`item`、`unit`、`equipment`、`friend`、`album`、`guild`、`mailbox`、`gacha`、`notification`、`chat`、`reward_track`、`mission`、`trade`
+- ログイン後: `auth`（version / login）、`account`（引き継ぎコードの発行、外部アカウントの一覧・紐付け・解除）、`player`、`in_app_purchase`、`item`、`unit`、`equipment`、`friend`、`album`、`guild`、`mailbox`、`gacha`、`notification`、`chat`、`reward_track`、`mission`、`trade`、`login_bonus`（カレンダーの状態 `list`・VIP の再受け取り `receive`。どちらも POST）
 - 管理用: `admin/maintenance/*`（`auth.admin`）

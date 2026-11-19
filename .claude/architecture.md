@@ -69,7 +69,10 @@ Domain/
     Listeners/            ドメインイベントの受け手（5節）
     Support/              *ExceptionTranslator など、コンテキスト内の補助
     Handlers/ Traits/     必要なコンテキストだけ
-  Common/Constants/       全コンテキストから参照してよい共有定数
+  Common/                 全コンテキストから参照してよい共有領域（ModuleBoundaryTest の例外）
+    Constants/            共有定数
+    DataTransferObjects/  複数のコンテキストの Response が使う値（ログインボーナスのカレンダーの状態など）
+    Support/              複数のコンテキストの Response が共有する状態の無い整形部品（LoginBonusCalendarFormatter など）
 Exceptions/               GameException 系と GameErrorCode / InfraErrorCode
 Http/
   Controllers/            _BaseController を継承
@@ -226,6 +229,7 @@ api/app/Providers/AppServiceProvider                                 ← bind(�
 | `trx_item` | 本人の API と、Wallet 移行バッチ（`api/app/Console/Commands/Wallet/MigrateItemsCommand` → `WalletItemMigrator::moveRow`。`trx_item` を `lockForUpdate` で読んで DELETE し、`trx_wallet` にも書く） | 本人の API は、`ItemService` から `WalletItemMigrator::migrate()` を `player.lock` の内側で呼び、lazy 移行（`wallet.lazy_migration`、既定 true）で移行行を `moveRow` でロック済み。競合しうるのは、コマンドを `player.lock` の外で通常運用中に流した場合だけ。コマンドはメンテナンス中に実行する前提（docblock）。`wallet.lazy_migration` を切ってコマンドだけで移す運用なら、バッチ稼働中は API を止める | 確認済み |
 | `trx_player` | 本人の API | なし | API 経路のみ確認。`sign_up`・データ引き継ぎ・`AssignPlayersCommand` など、認証なし・管理系の経路は未確認 |
 | `trx_vip_login_bonus` | 本人の API | なし | grep で API 以外の経路が無いことまで確認 |
+| `sys_player.vip_point` | 課金（`in_app_purchase/buy`）。本人の API が `player.lock` の内側で書く | なし。`login_bonus/receive`・`login_bonus/list`・login は読むだけで書かない。課金と receive は同じ `player.lock` で直列になり、課金が先ならレベルが上がった状態で判定する | API 経路のみ確認（課金以外の書き込みは `SysPlayerRepository` に見つからない）。ツール・バッチの経路は未確認 |
 | `trx_mailbox` | 本人の API（receive など）と、`mailbox:delete-expired` バッチ（`is_delete` を `setModel()` で更新） | `OperationCollector` が `getDirty()` だけを書くので、バッチが書くのは `is_delete` と `updated_at` で、`is_received` は書き戻さない。残る穴: バッチは毎日 03:00 に通常運用中に走り、行ロックなしで読むので、受け取りと同時なら `is_delete` が付く（実害は小さい）。メールを他人が送る経路は API 内に見つからない（送信側は未実装）。実装するなら、sys に置くか設計変更として扱う（下の「他人が書く行は原則 sys」） | 確認済み（バッチと API） |
 | `sys_guild`（メンバー数の上限） | 複数のプレイヤー | `sys_guild` の行をミューテックスにして、`sys_guild_member` の count → insert を直列にする。`SysGuild` に人数列は無く、`countMembers()` は `sys_guild_member` を数える。上限は `max_members` | 例 |
 | フレンドの相手側の行 | 相手の API | 全経路でロック | 例 |

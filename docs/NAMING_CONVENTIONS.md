@@ -92,6 +92,8 @@ UseCaseは1ドメインに閉じた入口であるのに対し、Serviceは他�
 
 集約Repositoryは使用せず、**テーブル毎に個別のRepository**を作成します。
 
+RepositoryOneToOneModelTest で検査します。`.claude/coding-standards.md` の「Repository」も参照してください。
+
 ### DB接続先プレフィックスを使用
 
 Repository名には**DB接続先のプレフィックス**を含めます。

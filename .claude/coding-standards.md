@@ -71,13 +71,16 @@ public function handle(int $sysPlayerId, int $trxUnitId, string $mstItemId, int 
 - リレーション（`$trxMailbox->mstMailbox` など）を使うときは、Repository で `with()` して先にまとめて読む。複数件の一覧でリレーションを遅延読み込みすると1件ごとに SELECT が走る（N+1）ので、本番以外では `Model::preventLazyLoading()`（`AppServiceProvider`）が例外にする。リレーション経由の `->where()->first()` を、ループの中で呼ばない。
 
 - `api/app/Repositories/{Sys,Mst,Trx,Log}/`、基底は同じディレクトリの `_BaseXxxRepository`（中身は `packages/nexus-core/src/Repositories/`）。`$modelClass` を指定する。
+- Repository はテーブル（Model）と 1 対 1（`{Model}Repository`）。複数のテーブルを組で読み書きするために Repository を作らない（変更理由と責務の単位をテーブルに揃えるため。組で書く業務は Service が複数 Repository を呼ぶ）。複数 Repository の組み合わせは Service（`Domain/{Context}/Services/`）で行う（RepositoryOneToOneModelTest）。
+  - OK: `TrxVipLoginBonusRepository` と `LogVipLoginBonusReceiveRepository` を Service が呼び、trx と log を組で書く。
+  - NG: trx と log を組で書くための `VipLoginBonusReceiveRecordRepository` を作る。
 - 読み取りは `select*`。モデルの集合は `Nexus\Core\Support\CustomCollection` で返す。
 - Trx は `queryOrMemory()` がログイン中プレイヤーの行を一度だけ読んでメモリに持ち、以降はそこから引く（`selectById()` は `queryOrMemory()` → `findCachedModel()`）。
 - 絞り込みキーは Model の `$selectKeys`、ユニークキーは Model の `$primaryKey` が持つ。Repository 側で再宣言しない（RepositoryKeyDeclarationTest）。
 - Sys は全件取得しない（NoFullTableSelectOnSysTest。`_BaseSysRepository::selectAll()` は例外）。
 - 書き込みはモデルを `setXxx()` で変えて `setModel($model)` でキューに積む。論理削除は `softDeleteModel()`（`is_delete=true`、trx のみ）、物理削除は `hardDeleteModel()`。実行は UseCase のトランザクション終了時。業務単位のメソッド（`insertXxx()` / `upgradeGrade()` など）は Repository に書き、その中で `setModel()` を呼ぶ。
 - 基底に `cacheRemember()` / `newQuery()` / `insert()` / `update()` / `delete()` は無い。
-- パッケージの Repository interface を実装するクラスは `*RepositoryAdapter`。Model→DTO 変換は自分で書かず `App\Adapters\{Context}\*Adapter` に任せる（ConverterLocationTest）。例: `api/app/Repositories/Sys/GuildRepositoryAdapter.php` → `api/app/Adapters/Guild/GuildAdapter.php`。
+- パッケージの Repository interface を実装するクラスは `*RepositoryAdapter`（契約単位なので、Model と 1 対 1 の規則の対象外）。Model→DTO 変換は自分で書かず `App\Adapters\{Context}\*Adapter` に任せる（ConverterLocationTest）。例: `api/app/Repositories/Sys/GuildRepositoryAdapter.php` → `api/app/Adapters/Guild/GuildAdapter.php`。
 
 例: `api/app/Repositories/Trx/TrxUnitRepository.php`
 

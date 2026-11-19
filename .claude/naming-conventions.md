@@ -44,7 +44,7 @@
 | 配布ハンドラ | `Domain/{Context}/Handlers/` | `{Name}DeliveryHandler` | `AlbumRecordingDeliveryHandler` |
 | 例外の変換 | `Domain/{Context}/Support/` | `{Context}ExceptionTranslator` | `FriendExceptionTranslator` |
 | Model | `api/app/Models/{Sys,Mst,Trx,Log}/` | テーブル名の PascalCase | `TrxUnit`, `SysFriendApply`, `MstMessageL10n` |
-| Repository | `api/app/Repositories/{Sys,Mst,Trx,Log}/` | `{Model}Repository` | `TrxUnitRepository` |
+| Repository | `api/app/Repositories/{Sys,Mst,Trx,Log}/` | `{Model}Repository`（Model と 1 対 1。組で書く Repository は作らない） | `TrxUnitRepository` |
 | Repository（パッケージ契約の実装） | 同上 | `{Name}RepositoryAdapter` | `GuildRepositoryAdapter` |
 | Repository の契約 | `packages/*/src/Repositories/` | `{Name}RepositoryInterface` | `FriendApplyRepositoryInterface` |
 | 例外 | `api/app/Exceptions/`, `packages/*/src/Exceptions/` | `{種類}Exception` | `MasterDataException`, `FriendException` |

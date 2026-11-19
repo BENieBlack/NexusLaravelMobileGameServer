@@ -310,6 +310,7 @@ return GuildExceptionTranslator::forApplySend(function () use ($sysPlayerId, $gu
 | `NoDirectEloquentWriteTest` | `app/` と `packages/` の本番コードで `$model->save()` / `delete()` / `forceDelete()` を呼ばない |
 | `NoFullTableSelectOnSysTest` | Sys Repository で全件取得しない。`_BaseSysRepository::selectAll()` は実行時に例外 |
 | `RepositoryKeyDeclarationTest` | キーは Model の `$primaryKey` / `$selectKeys` に一本化し、Repository で再宣言しない |
+| `RepositoryOneToOneModelTest` | `Repositories/{Sys,Mst,Trx,Log}/` の `*Repository` は同名の Model を持つ（テーブルと 1 対 1）。解消待ちの一覧に無い違反は落とす |
 | `DataTransferObjectNamingTest` | パッケージの DTO にサフィックス（`Dto`/`DTO`）を付けない。ディレクトリ名は `DataTransferObjects` |
 | `ResponseKeyNamingTest` | Request/Response の `*_id` キーはテーブル接頭辞付き（`apply_id` は不可）。例外は許可リスト |
 | `MigrationNameUniquenessTest` | 同じDB（sys / mst / trx+log）のマイグレーション名が重複しない |

@@ -133,7 +133,7 @@
 | Service | `LoginBonusCalendarService`（Contract を実装） | 2 節の 2 つの段の**状態**を作り、DTO で返す。mst・trx を読む。API の形（配列）にはしない |
 | Service | `VipLoginBonusReReceiveService` | 再受け取りの判定（R4）と配布。5.3 |
 | Contract | `Domain\LoginBonus\Contracts\LoginBonusCalendarInterface` | `Login\UseCases\HomeUseCase` が使う公開 API |
-| （置き場の注） | DTO の置き場は 2 つに割れる | `VipLoginBonusReReceiveResult`（5.3 節）は LoginBonus 内でしか使わないので `Domain\LoginBonus\DataTransferObjects\`。カレンダー用の DTO は Login（`HomeResponse`）も使うので `Common`（U-S2-7） |
+| （置き場の注） | DTO・整形部品の置き場（U-S2-7。人の決定で確定） | 公開する DTO（カレンダー用の 5 つ）は `Domain\LoginBonus\DataTransferObjects\`。内部用の `VipLoginBonusReReceiveResult`（Eloquent の `TrxVipLoginBonus` を持つ）は公開側に混ぜず `Domain\LoginBonus\Support\`。Login（`HomeResponse`）が使うので、`ModuleBoundaryTest` を「他コンテキストの `Contracts\` に加えて `DataTransferObjects\` も参照してよい」に広げた（DTO はメソッドなしに限る。専用のテストあり）。`Common` は `Constants` だけのまま |
 | DTO | `LoginBonusCalendarsResult`（2 つの段をまとめる）・`LoginBonusCalendarResult`（通常の段）・`VipLoginBonusCalendarResult`（VIP の段。`vipLevel`・`canReReceive` を足す）・`LoginBonusDayRewardResult`（`day`・報酬の一覧）・`LoginBonusRewardResult`（`type`・`id`・`amount`・`metadata`） | `public readonly` のコンストラクタだけ（メソッドなし。`DataTransferObjects` の規約）。段が無いときは `null` |
 | 整形部品 | `LoginBonusCalendarFormatter`（`toArray(?LoginBonusCalendarResult): ?array`・`toVipArray(?VipLoginBonusCalendarResult): ?array`。状態なし） | **DTO → API の形（2 節）への整形を置く唯一の場所**。`HomeResponse`・`ListResponse`・`ReceiveResponse` がこれを呼ぶ |
 | Constants | `Domain\LoginBonus\Constants\LoginBonusConst` | 再受け取りできない理由の定数 |
@@ -152,7 +152,7 @@ interface LoginBonusCalendarInterface
 }
 ```
 
-**DTO・整形部品の置き場（仮置き。U-S2-7）**: `HomeResponse`（Login）が使うので、他コンテキストの内部を参照できない（`ModuleBoundaryTest`。参照できるのは `Contracts` と共有領域 `Common`）制約から、DTO は `App\Domain\Common\DataTransferObjects\`、`LoginBonusCalendarFormatter` は `App\Domain\Common\Support\` に置く（`Common` は全コンテキストが参照してよい共有領域。今は `Constants` だけ）。`Domain\LoginBonus\Contracts\` に置く案もあるが、Contracts は契約（interface）の置き場なので採らない。Response のクラスは UseCase ごとに 1 つのまま（`ResponsePerActionTest`）で、共有するのは整形の部品だけ。
+**DTO・整形部品の置き場（確定。U-S2-7。人の決定。`ModuleBoundaryTest` を広げた）**: `HomeResponse`（Login）が使うので、DTO は `App\Domain\LoginBonus\DataTransferObjects\`、`LoginBonusCalendarFormatter` は `App\Domain\LoginBonus\Contracts\`（他コンテキストの Response から呼ばれる公開クラスなので Contracts に置く。`Support` だと境界違反になる）に置く。`ModuleBoundaryTest` は他コンテキストの `Contracts\` と `DataTransferObjects\` の参照を許し、許す DTO はメソッドを持たないものに限る（専用のテストで検査）。`Common` は `Constants` だけに戻した。Response のクラスは UseCase ごとに 1 つのまま（`ResponsePerActionTest`）で、共有するのは整形の部品だけ。
 
 **Login → LoginBonus の一方向**: `HomeUseCase`（Login）が `LoginBonusCalendarInterface` を使う。LoginBonus は Login の内部クラス（`VipLoginBonusService` など）を参照しない。LoginBonus が使うのは `App\Repositories\*`・パッケージ（`NexusLogin`・`NexusVip`・`Nexus\Core`）だけ（どれも `app/Domain` の外。読んだ）。バインドは `AppServiceProvider`。
 
@@ -185,7 +185,7 @@ public function handle(int $sysPlayerId, string $mstVipLoginBonusId): ReceiveRes
 
 ### 5.3 `VipLoginBonusReReceiveService`（判定と配布）
 
-`judge(int $sysPlayerId): VipLoginBonusReReceiveResult`（`Domain/LoginBonus/DataTransferObjects/`。`public readonly` のみ）。`calendar` と `receive` が**同じ関数**を使う（`can_re_receive` と API の再判定が食い違わない。overview 4 節）。
+`judge(int $sysPlayerId): VipLoginBonusReReceiveResult`（`Domain/LoginBonus/Support/`。`public readonly` のみ）。`calendar` と `receive` が**同じ関数**を使う（`can_re_receive` と API の再判定が食い違わない。overview 4 節）。
 
 | 順 | 見るもの | 偽のとき |
 | --- | --- | --- |
@@ -301,7 +301,7 @@ public function handle(int $sysPlayerId, string $mstVipLoginBonusId): ReceiveRes
 | U-S2-3 | 再受け取りを履歴で区別する列（`is_re_receive`）が無い | **足さない**（同じ `received_at` で `vip_level` が違う行で見分ける。db.md 7 節）。集計要件が出たら design-change |
 | U-S2-4 | 受け取り済みの行のマスター ID が今のマスターの ID と違うとき（差し替え） | 受取日だけで判定（4 節）。配布が日数を ID に関係なく引き継ぐのと揃う |
 | U-S2-5 | 再受け取りの履歴の書き込みを `VipLoginBonusService::recordHistory` と共有する形（Repository 層の業務メソッドに切り出す） | 切り出して共有。S3 でコードを見て確定。コピーはしない |
-| U-S2-7（人が決める） | カレンダーの DTO と整形部品（`LoginBonusCalendarFormatter`）の置き場（5 節）。**`Common` は今 `Constants` 専用（`.claude/architecture.md`）で、DTO・整形部品を置く前例が無い**。DTO を `Contracts` の隣に置く前例も無く、通るかは `ModuleBoundaryTest` が `Contracts\` 配下をどう扱うか（正規表現は `Contracts\` 以外の他コンテキスト参照を違反とする。クラスの種類は見ない）次第。「Contracts は interface の置き場なので採らない」は理由として弱い（規約の文言上の整理にすぎない） | **仮置き: `App\Domain\Common\DataTransferObjects\` と `Common\Support\`**。S3 で `make check-quiet` を通して確定。通らない・異論があれば、DTO を `LoginBonus\Contracts\` に置く案に替える |
+| U-S2-7（人の決定） | カレンダーの DTO と整形部品（`LoginBonusCalendarFormatter`）の置き場（5 節） | **確定: DTO は `LoginBonus\DataTransferObjects\`、Formatter は `LoginBonus\Contracts\`。`ModuleBoundaryTest` を広げた**（`Common` 案は採らない）。`.claude/architecture.md` の境界の節に規約を追記。Formatter を Contracts に置くのは**人の確認前の仮置き (a)**（Contracts 内の具象は static だけ、をテストで検査）。代案 (b): `LoginBonusCalendarFormatterInterface` を Contracts に置き、実装は LoginBonus 内（DI と `HomeResponse` の static 呼び出しの変更が要る） |
 | U-S2-6 | 再受け取りの応答に、Q26 の既定（`updated_resources`・`trx_vip_login_bonus`）に加えて `login_bonus_list`・`vip_login_bonus_calendar` を足した | 足す（R6 の「今日配られた報酬の行」と D6 の「VIP の段は真」のため）。不要なら S3 で外す |
 
 ## 10. 既存テスト・ドキュメントへの影響（宿題 5・8）
@@ -312,8 +312,8 @@ public function handle(int $sysPlayerId, string $mstVipLoginBonusId): ReceiveRes
 | `HomeUseCaseTest` | 新キーの検査を足す（キーが常にある・マスター無しで `null`・同じ日の 2 回目で `is_granted_today` 真・`is_granted_now` 偽） |
 | VIP の並びを前提にするテスト | `VipLoginBonusServiceTest`・`LoginBonusIntegrationTest`・`VipLoginBonusSeederTest`・`LoginBonusSeedersTest`。`id` 昇順で入れているかは**未確認**（S3 で確かめる） |
 | `LoginBonusRepositoryAdapterTest` | `selectContentsByLoginBonusId` は変えないので影響なし。新しい `selectDailyContentsByLoginBonusId`・並びの固定のテストを足す |
-| Architecture（実際に走る検査。**S3 の確認項目**） | `PostOnlyRoutesTest`（新ルートは POST）、`ResponsePerActionTest`（`LoginBonus\Responses\ListResponse`・`ReceiveResponse` が UseCase ごとに 1 つ。Formatter は Response ではないので対象外のはずだが S3 で確認）、`UpdatedResourcesResponseTest`（`ReceiveResponse` が `HasUpdatedResources`・`ListResponse` は更新を返さない形で通るか）、`ModuleBoundaryTest`（`Login` → `LoginBonus\Contracts` と `Common` だけを参照するか）。**S3 で `make check-quiet` を通して確定**。命名は設計時点でキーを `mst_login_bonus_id`・`mst_vip_login_bonus_id`・`*_list` にしているが、`ResponseKeyNamingTest` が走ってどう判定するかも S3 で確認する。`ConverterLocationTest` 対策として、`LoginBonusRepositoryAdapter` に `selectDailyContentsByLoginBonusId` などを足すときは、private な `*toDto*`・`Convert*` メソッドを置かず、変換が要るなら `app/Adapters/Login/` に委譲する（設計では通ると断定しない） |
-| S3 の実装結果（確定） | 上の Architecture 検査はすべて通った（`ModuleBoundaryTest` を含む。`Common` への DTO・整形部品の置き場（U-S2-7）は変更なしで確定、`ResponseKeyNamingTest`・`ConverterLocationTest` も通過）。`updateLastLoginAt` の呼び出し元は `HomeUseCase` だけ（grep で確認）。既存の login 系テストは新キーで落ちなかった。U-S2-5 は `App\Repositories\Trx\VipLoginBonusReceiveRecordRepository::recordReceive`（trx の upsert + log の 1 報酬 1 行）に切り出して確定。`HomeUseCaseTest` に「再受け取り後の同日 2 回目の login で `is_granted_now` が偽」を足した。U-S2-6（receive 応答の `login_bonus_list`・`vip_login_bonus_calendar`）は**足したまま確定**（`vip_login_bonus_calendar` は `is_granted_now` 真・`can_re_receive` 偽・`last_received_day` は据え置いた `day`） |
-| S3 の項目（その他） | `.claude/architecture.md` の `Common` の説明（今は `Constants` だけ）を、DTO・整形部品を `Common` に置くなら更新する（U-S2-7）。`GameErrorCode` の冒頭コメントの割り当て表に 26000 番台（ログインボーナス）を足す。`.claude/api.md`・`docs/api_resources.md`・`docs/design/title-to-home/api.md` の追記（下の行） |
+| Architecture（実際に走る検査。**S3 の確認項目**） | `PostOnlyRoutesTest`（新ルートは POST）、`ResponsePerActionTest`（`LoginBonus\Responses\ListResponse`・`ReceiveResponse` が UseCase ごとに 1 つ。Formatter は Response ではないので対象外のはずだが S3 で確認）、`UpdatedResourcesResponseTest`（`ReceiveResponse` が `HasUpdatedResources`・`ListResponse` は更新を返さない形で通るか）、`ModuleBoundaryTest`（`Login` → `LoginBonus\Contracts` と `LoginBonus\DataTransferObjects` だけを参照するか）。**S3 で `make check-quiet` を通して確定**。命名は設計時点でキーを `mst_login_bonus_id`・`mst_vip_login_bonus_id`・`*_list` にしているが、`ResponseKeyNamingTest` が走ってどう判定するかも S3 で確認する。`ConverterLocationTest` 対策として、`LoginBonusRepositoryAdapter` に `selectDailyContentsByLoginBonusId` などを足すときは、private な `*toDto*`・`Convert*` メソッドを置かず、変換が要るなら `app/Adapters/Login/` に委譲する（設計では通ると断定しない） |
+| S3 の実装結果（確定） | 上の Architecture 検査はすべて通った（`ModuleBoundaryTest` を含む。DTO・整形部品の置き場（U-S2-7）は人の決定で `LoginBonus` 配下に確定し、`ModuleBoundaryTest` を広げた、`ResponseKeyNamingTest`・`ConverterLocationTest` も通過）。`updateLastLoginAt` の呼び出し元は `HomeUseCase` だけ（grep で確認）。既存の login 系テストは新キーで落ちなかった。U-S2-5 は `App\Repositories\Trx\VipLoginBonusReceiveRecordRepository::recordReceive`（trx の upsert + log の 1 報酬 1 行）に切り出して確定。`HomeUseCaseTest` に「再受け取り後の同日 2 回目の login で `is_granted_now` が偽」を足した。U-S2-6（receive 応答の `login_bonus_list`・`vip_login_bonus_calendar`）は**足したまま確定**（`vip_login_bonus_calendar` は `is_granted_now` 真・`can_re_receive` 偽・`last_received_day` は据え置いた `day`） |
+| S3 の項目（その他） | `.claude/architecture.md` の境界の節に「他コンテキストへは Contracts と DataTransferObjects だけ公開」を追記（U-S2-7。`Common` は `Constants` だけのまま）。`GameErrorCode` の冒頭コメントの割り当て表に 26000 番台（ログインボーナス）を足す。`.claude/api.md`・`docs/api_resources.md`・`docs/design/title-to-home/api.md` の追記（下の行） |
 | 新規テスト | `ListUseCase`（副作用なし・`is_granted_now` 常に偽・マスター無しで `null`）、`ReceiveUseCase`（正常・26001 の各ケース（行なし・別の日・同じレベル・下がった）・26002（別 ID）・26003（日数超過・報酬行なし）・二重送信・冪等の再送・`vip_level` の更新・`day` 据え置き・履歴 1 報酬 1 行）、課金との直列（同じロックで順に呼ぶ）、不正な `content_type` の行を飛ばす、`LoginBonusResourceConverter` の単体 |
 | `.claude/api.md`・`docs/api_resources.md`・`docs/design/title-to-home/api.md` | S3 で追記（login の新キー、`/login_bonus/list`・`/login_bonus/receive`、書き込み API の表に `login_bonus/receive`＝更新分、読み取り API の欄に `login_bonus/list`＝返さない）。`.claude/api.md` の分類（ログイン後の一覧）に `login_bonus` を足す。仕様はここへのリンクにとどめ、写さない |

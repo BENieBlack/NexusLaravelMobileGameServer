@@ -124,8 +124,12 @@ class ModuleBoundaryTest extends TestCase
             foreach ($this->phpFiles($contextDir) as $file) {
                 $code = $this->stripComments((string) file_get_contents($file));
 
-                // 他モジュールの公開API（App\Domain\{Other}\Contracts\...）は参照してよい
-                preg_match_all('/App\\\\Domain\\\\([A-Za-z]+)\\\\(?!Contracts\\\\)/', $code, $matches);
+                // 他モジュールの公開API（App\Domain\{Other}\Contracts\... と App\Domain\{Other}\DataTransferObjects\...）は参照してよい。
+                // DataTransferObjects を許すのは、Contracts の interface が返す値の型（public readonly の
+                // プロパティだけでメソッドを持たない DTO）を、相手の Response が受け取れるようにするため。
+                // 振る舞いを持つクラス（Service など）は許さない。他コンテキストから参照される DTO にメソッドが無いことは
+                // test_dtos_referenced_from_other_contexts_have_no_behavior で検査する
+                preg_match_all('/App\\\\Domain\\\\([A-Za-z]+)\\\\(?!Contracts\\\\|DataTransferObjects\\\\)/', $code, $matches);
 
                 $referenced = array_unique($matches[1]);
                 sort($referenced);
@@ -143,7 +147,80 @@ class ModuleBoundaryTest extends TestCase
             $violations,
             self::CROSS_CONTEXT_BASELINE,
             '他コンテキストの内部クラス（App\\Domain\\{Other}\\...）を直接参照しないでください。'
-            .'相手のモジュールの公開API（App\\Domain\\{Other}\\Contracts\\）か、パッケージ側の契約を経由してください。'
+            .'相手のモジュールの公開API（App\\Domain\\{Other}\\Contracts\\ と、その戻り値の DTO の App\\Domain\\{Other}\\DataTransferObjects\\）か、パッケージ側の契約を経由してください。'
+        );
+    }
+
+    #[Test]
+    public function test_dtos_referenced_from_other_contexts_have_no_behavior(): void
+    {
+        // 他コンテキストへ公開する DTO は、値を運ぶだけ（public readonly のコンストラクタだけでメソッドなし）にする。
+        // 振る舞いを持たせると、相手のコンテキストが内部の処理に依存してしまうため
+        $violations = [];
+        $domainRoot = $this->appRoot().'/Domain';
+
+        foreach (glob($domainRoot.'/*', GLOB_ONLYDIR) ?: [] as $contextDir) {
+            $context = basename($contextDir);
+
+            foreach ($this->phpFiles($contextDir) as $file) {
+                $code = $this->stripComments((string) file_get_contents($file));
+                preg_match_all('/App\\\\Domain\\\\([A-Za-z]+)\\\\DataTransferObjects\\\\(\w+)/', $code, $matches, PREG_SET_ORDER);
+
+                foreach ($matches as [, $other, $class]) {
+                    if ($other === $context || in_array($other, self::SHARED_CONTEXTS, true)) {
+                        continue;
+                    }
+                    $dtoFile = $domainRoot.'/'.$other.'/DataTransferObjects/'.$class.'.php';
+                    if (! is_file($dtoFile)) {
+                        // 無い・サブディレクトリにある場合は黙って通さない（DataTransferObjects 直下に置く規約）
+                        $violations[] = $this->relativePath($file).' が参照する DTO を読めない: '.$other.'\\DataTransferObjects\\'.$class;
+
+                        continue;
+                    }
+                    $dtoCode = $this->stripComments((string) file_get_contents($dtoFile));
+                    preg_match_all('/function\\s+(\\w+)/', $dtoCode, $functions);
+                    $extra = array_diff($functions[1], ['__construct']);
+                    if ($extra !== []) {
+                        $violations[] = $this->relativePath($dtoFile).' にメソッドがある: '.implode(', ', $extra);
+                    }
+                }
+            }
+        }
+
+        $this->assertSame(
+            [],
+            array_values(array_unique($violations)),
+            '他コンテキストから参照される DataTransferObjects はメソッドを持たないでください（public readonly のコンストラクタだけ）。'
+        );
+    }
+
+    #[Test]
+    public function test_concrete_classes_in_contracts_are_stateless_static_helpers(): void
+    {
+        // Contracts は他コンテキストへの公開 API。interface のほか、Response から呼ばれる状態の無い整形部品
+        // （static メソッドだけの具象クラス）を置いてよい。インスタンスのメソッド・プロパティを持つ具象クラスは、
+        // 内部の処理を公開することになるので Service に置き、interface 経由にする
+        $violations = [];
+
+        foreach (glob($this->appRoot().'/Domain/*/Contracts/*.php') ?: [] as $file) {
+            $code = $this->stripComments((string) file_get_contents($file));
+
+            if (preg_match('/^\s*(?:abstract\s+|final\s+)?(?:class)\s+\w+/m', $code) !== 1) {
+                continue; // interface / trait / enum
+            }
+
+            // static でない function、またはプロパティ（static でも持たない）があれば違反
+            if (preg_match('/^\s*(?:public|protected|private)\s+(?!static\b)(?:readonly\s+)?function\s+(?!__construct)/m', $code) === 1
+                || preg_match('/^\s*(?:public|protected|private)\s+function\s+__construct/m', $code) === 1
+                || preg_match('/^\s*(?:public|protected|private)\s+(?:readonly\s+)?(?:static\s+)?(?:\??[\w\\|]+\s+)?\$\w+/m', $code) === 1) {
+                $violations[] = $this->relativePath($file);
+            }
+        }
+
+        $this->assertSame(
+            [],
+            $violations,
+            'Contracts 配下の具象クラスは static メソッドだけで状態を持たないものに限ります（それ以外は interface にして実装を Services に置く）。'
         );
     }
 

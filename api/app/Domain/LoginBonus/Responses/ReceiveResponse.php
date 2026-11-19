@@ -3,8 +3,8 @@
 namespace App\Domain\LoginBonus\Responses;
 
 use App\Domain\_BaseResponse;
-use App\Domain\Common\DataTransferObjects\VipLoginBonusCalendarResult;
-use App\Domain\Common\Support\LoginBonusCalendarFormatter;
+use App\Domain\LoginBonus\Contracts\LoginBonusCalendarFormatter;
+use App\Domain\LoginBonus\DataTransferObjects\VipLoginBonusCalendarResult;
 use App\Domain\ReturnsUpdatedResources;
 use App\Models\Trx\TrxVipLoginBonus;
 use App\Traits\HasUpdatedResources;

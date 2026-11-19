@@ -1,12 +1,12 @@
 <?php
 
-namespace Tests\Unit\Domain\Common;
+namespace Tests\Unit\Domain\LoginBonus;
 
-use App\Domain\Common\DataTransferObjects\LoginBonusCalendarResult;
-use App\Domain\Common\DataTransferObjects\LoginBonusDayRewardResult;
-use App\Domain\Common\DataTransferObjects\LoginBonusRewardResult;
-use App\Domain\Common\DataTransferObjects\VipLoginBonusCalendarResult;
-use App\Domain\Common\Support\LoginBonusCalendarFormatter;
+use App\Domain\LoginBonus\Contracts\LoginBonusCalendarFormatter;
+use App\Domain\LoginBonus\DataTransferObjects\LoginBonusCalendarResult;
+use App\Domain\LoginBonus\DataTransferObjects\LoginBonusDayRewardResult;
+use App\Domain\LoginBonus\DataTransferObjects\LoginBonusRewardResult;
+use App\Domain\LoginBonus\DataTransferObjects\VipLoginBonusCalendarResult;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

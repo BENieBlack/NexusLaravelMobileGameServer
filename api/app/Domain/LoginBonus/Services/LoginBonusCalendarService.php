@@ -2,12 +2,12 @@
 
 namespace App\Domain\LoginBonus\Services;
 
-use App\Domain\Common\DataTransferObjects\LoginBonusCalendarResult;
-use App\Domain\Common\DataTransferObjects\LoginBonusCalendarsResult;
-use App\Domain\Common\DataTransferObjects\LoginBonusDayRewardResult;
-use App\Domain\Common\DataTransferObjects\LoginBonusRewardResult;
-use App\Domain\Common\DataTransferObjects\VipLoginBonusCalendarResult;
 use App\Domain\LoginBonus\Contracts\LoginBonusCalendarInterface;
+use App\Domain\LoginBonus\DataTransferObjects\LoginBonusCalendarResult;
+use App\Domain\LoginBonus\DataTransferObjects\LoginBonusCalendarsResult;
+use App\Domain\LoginBonus\DataTransferObjects\LoginBonusDayRewardResult;
+use App\Domain\LoginBonus\DataTransferObjects\LoginBonusRewardResult;
+use App\Domain\LoginBonus\DataTransferObjects\VipLoginBonusCalendarResult;
 use App\Repositories\Mst\VipLoginBonusRepositoryInterface;
 use Illuminate\Support\Facades\Log;
 use Nexus\Core\Utilities\ClockUtility;

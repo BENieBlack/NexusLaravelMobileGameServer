@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Domain\LoginBonus\DataTransferObjects;
+namespace App\Domain\LoginBonus\Support;
 
 use App\Models\Trx\TrxVipLoginBonus;
 
 /**
  * VipLoginBonusReReceiveResult
  *
- * VIP の再受け取りの判定結果（judge の戻り値）。can_re_receive と receive の再判定が同じ結果を使う
+ * VIP の再受け取りの判定結果（judge の戻り値）。LoginBonus の内部用（Eloquent の TrxVipLoginBonus を持つので、
+ * 他コンテキストへ公開する DataTransferObjects には置かない）。can_re_receive と receive の再判定が同じ結果を使う
  */
 class VipLoginBonusReReceiveResult
 {

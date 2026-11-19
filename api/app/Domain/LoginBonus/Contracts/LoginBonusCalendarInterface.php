@@ -2,7 +2,7 @@
 
 namespace App\Domain\LoginBonus\Contracts;
 
-use App\Domain\Common\DataTransferObjects\LoginBonusCalendarsResult;
+use App\Domain\LoginBonus\DataTransferObjects\LoginBonusCalendarsResult;
 
 /**
  * LoginBonusCalendarInterface

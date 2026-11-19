@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Common\DataTransferObjects;
+namespace App\Domain\LoginBonus\DataTransferObjects;
 
 /**
  * LoginBonusDayRewardResult

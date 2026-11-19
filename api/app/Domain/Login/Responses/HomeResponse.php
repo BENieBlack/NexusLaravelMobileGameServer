@@ -3,9 +3,9 @@
 namespace App\Domain\Login\Responses;
 
 use App\Domain\_BaseResponse;
-use App\Domain\Common\DataTransferObjects\LoginBonusCalendarResult;
-use App\Domain\Common\DataTransferObjects\VipLoginBonusCalendarResult;
-use App\Domain\Common\Support\LoginBonusCalendarFormatter;
+use App\Domain\LoginBonus\Contracts\LoginBonusCalendarFormatter;
+use App\Domain\LoginBonus\DataTransferObjects\LoginBonusCalendarResult;
+use App\Domain\LoginBonus\DataTransferObjects\VipLoginBonusCalendarResult;
 use App\Models\Sys\SysPlayer;
 use App\Models\Trx\TrxDiamond;
 use App\Models\Trx\TrxEquipment;

@@ -3,7 +3,7 @@
 namespace App\Domain\LoginBonus\Services;
 
 use App\Domain\LoginBonus\Constants\LoginBonusConst;
-use App\Domain\LoginBonus\DataTransferObjects\VipLoginBonusReReceiveResult;
+use App\Domain\LoginBonus\Support\VipLoginBonusReReceiveResult;
 use App\Exceptions\SystemDataException;
 use App\Models\Trx\TrxVipLoginBonus;
 use App\Repositories\Mst\VipLoginBonusRepositoryInterface;

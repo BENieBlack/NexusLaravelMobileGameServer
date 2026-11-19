@@ -3,8 +3,8 @@
 namespace App\Domain\LoginBonus\Responses;
 
 use App\Domain\_BaseResponse;
-use App\Domain\Common\DataTransferObjects\LoginBonusCalendarsResult;
-use App\Domain\Common\Support\LoginBonusCalendarFormatter;
+use App\Domain\LoginBonus\Contracts\LoginBonusCalendarFormatter;
+use App\Domain\LoginBonus\DataTransferObjects\LoginBonusCalendarsResult;
 
 /**
  * ListResponse

@@ -1,16 +1,19 @@
 <?php
 
-namespace App\Domain\Common\Support;
+namespace App\Domain\LoginBonus\Contracts;
 
-use App\Domain\Common\DataTransferObjects\LoginBonusCalendarResult;
-use App\Domain\Common\DataTransferObjects\LoginBonusDayRewardResult;
-use App\Domain\Common\DataTransferObjects\LoginBonusRewardResult;
-use App\Domain\Common\DataTransferObjects\VipLoginBonusCalendarResult;
+use App\Domain\LoginBonus\DataTransferObjects\LoginBonusCalendarResult;
+use App\Domain\LoginBonus\DataTransferObjects\LoginBonusDayRewardResult;
+use App\Domain\LoginBonus\DataTransferObjects\LoginBonusRewardResult;
+use App\Domain\LoginBonus\DataTransferObjects\VipLoginBonusCalendarResult;
 
 /**
  * LoginBonusCalendarFormatter
  *
  * カレンダーの状態（DTO）を API の形（login_bonus_calendar / vip_login_bonus_calendar）に整形する、状態の無い部品
+ *
+ * 他のコンテキスト（Login の HomeResponse）の Response からも使うので、公開 API の置き場 Contracts に置く
+ * （他コンテキストが参照してよいのは Contracts と DataTransferObjects だけ。ModuleBoundaryTest）。
  *
  * login（HomeResponse）・POST /login_bonus/list（ListResponse）・POST /login_bonus/receive（ReceiveResponse）が
  * これを呼ぶので、3 つの API で形が必ず同じになる。DTO → 配列の整形はここだけに置く。

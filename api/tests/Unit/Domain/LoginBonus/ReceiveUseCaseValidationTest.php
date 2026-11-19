@@ -4,8 +4,8 @@ namespace Tests\Unit\Domain\LoginBonus;
 
 use App\Domain\LoginBonus\Constants\LoginBonusConst;
 use App\Domain\LoginBonus\Contracts\LoginBonusCalendarInterface;
-use App\Domain\LoginBonus\DataTransferObjects\VipLoginBonusReReceiveResult;
 use App\Domain\LoginBonus\Services\VipLoginBonusReReceiveService;
+use App\Domain\LoginBonus\Support\VipLoginBonusReReceiveResult;
 use App\Domain\LoginBonus\UseCases\ReceiveUseCase;
 use App\Exceptions\BusinessLogicException;
 use App\Exceptions\GameErrorCode;

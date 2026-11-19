@@ -61,8 +61,9 @@ class HomeUseCaseTest extends TestCase
         }
         DB::connection('mst')->table('mst_login_bonus_content')->delete();
         DB::connection('mst')->table('mst_login_bonus')->delete();
-        DB::connection('mst')->table('mst_vip_login_bonus_content')->where('mst_vip_login_bonus_id', 'test_vip_login')->delete();
-        DB::connection('mst')->table('mst_vip_login_bonus')->where('id', 'test_vip_login')->delete();
+        // VIP のマスターは他のテストと同様に全行を消す（このクラスが作った行だけでなく、再受け取りのテストが足した行も消すため）
+        DB::connection('mst')->table('mst_vip_login_bonus_content')->delete();
+        DB::connection('mst')->table('mst_vip_login_bonus')->delete();
 
         parent::tearDown();
     }
@@ -118,7 +119,7 @@ class HomeUseCaseTest extends TestCase
                 'content_mst_id' => 'item_potion_001',
                 'amount' => $day * 10,
                 'is_paid' => false,
-                'sort_order' => 1,
+                'sort_desc' => 2,
             ]);
 
             // 7日目のみダイヤ報酬追加
@@ -130,7 +131,7 @@ class HomeUseCaseTest extends TestCase
                     'content_mst_id' => 'free_diamond',
                     'amount' => 100,
                     'is_paid' => false,
-                    'sort_order' => 2,
+                    'sort_desc' => 1,
                 ]);
             }
         }
@@ -426,7 +427,7 @@ class HomeUseCaseTest extends TestCase
             'content_mst_id' => 'free_diamond',
             'amount' => 300,
             'is_paid' => false,
-            'sort_order' => 1,
+            'sort_desc' => 2,
         ]);
         $this->refreshMstCache();
 
@@ -475,7 +476,7 @@ class HomeUseCaseTest extends TestCase
             'content_mst_id' => 'free_diamond',
             'amount' => 300,
             'is_paid' => false,
-            'sort_order' => 1,
+            'sort_desc' => 2,
         ]);
         $this->refreshMstCache();
 
@@ -538,5 +539,87 @@ class HomeUseCaseTest extends TestCase
         $this->testPlayer->refresh();
         $this->assertNotEquals($beforeLoginAt, $this->testPlayer->last_login_at);
         $this->assertNotNull($this->testPlayer->last_login_at);
+    }
+
+    #[Test]
+    public function test_loginの応答にカレンダーの2キーが常にあり_マスターが無い段はnullになる(): void
+    {
+        // 通常は有効、VIP は（このテストのマスターには VIP が無いので）無い状態
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer '.$this->accessToken,
+        ])->postJson('/api/auth/login');
+
+        $response->assertOk();
+        $data = $response->json();
+        $this->assertArrayHasKey('login_bonus_calendar', $data);
+        $this->assertArrayHasKey('vip_login_bonus_calendar', $data);
+        $this->assertSame('daily_login', $data['login_bonus_calendar']['mst_login_bonus_id']);
+        $this->assertArrayNotHasKey('day_reward_list', $data['login_bonus_calendar']);
+        // 初回の login は配布の後に読むので、最後に配った日数は 1・今回配ったので is_granted_now は真
+        $this->assertSame(1, $data['login_bonus_calendar']['last_received_day']);
+        $this->assertTrue($data['login_bonus_calendar']['is_granted_now']);
+
+        // 通常も無効にすると、キーは残って値が null
+        DB::connection('mst')->table('mst_login_bonus')->update(['is_active' => false]);
+        DB::connection('mst')->table('mst_vip_login_bonus')->update(['is_active' => false]);
+        $this->refreshMstCache();
+
+        $second = $this->withHeaders([
+            'Authorization' => 'Bearer '.$this->accessToken,
+        ])->postJson('/api/auth/login')->json();
+        $this->assertArrayHasKey('login_bonus_calendar', $second);
+        $this->assertNull($second['login_bonus_calendar']);
+        $this->assertNull($second['vip_login_bonus_calendar']);
+    }
+
+    #[Test]
+    public function test_同じ日の2回目のloginでは_is_granted_todayが真_is_granted_nowが偽_login_bonus_listは空(): void
+    {
+        $this->withHeaders(['Authorization' => 'Bearer '.$this->accessToken])->postJson('/api/auth/login')->assertOk();
+
+        $data = $this->withHeaders(['Authorization' => 'Bearer '.$this->accessToken])->postJson('/api/auth/login')->json();
+
+        $this->assertSame([], $data['login_bonus_list']);
+        $this->assertTrue($data['login_bonus_calendar']['is_granted_today']);
+        $this->assertFalse($data['login_bonus_calendar']['is_granted_now']);
+        $this->assertSame(1, $data['login_bonus_calendar']['last_received_day']);
+    }
+
+    #[Test]
+    public function test_再受け取りの後の同日2回目のloginでも_is_granted_nowが偽(): void
+    {
+        // VIP のマスターを 2 つ用意する（今のレベル用と、レベルが上がった後のレベル用）
+        $levelBefore = app(VipLevelService::class)->calculateLevel($this->testPlayer->getVipPoint());
+        DB::connection('mst')->table('mst_vip_login_bonus')->delete();
+        $levelAfter = $levelBefore + 1;
+        foreach ([$levelBefore => 'test_vip_before', $levelAfter => 'test_vip_after'] as $level => $id) {
+            DB::connection('mst')->table('mst_vip_login_bonus')->insert([
+                'id' => $id, 'vip_level' => $level, 'loop_days' => 7, 'is_active' => true,
+            ]);
+            DB::connection('mst')->table('mst_vip_login_bonus_content')->insert([
+                'mst_vip_login_bonus_id' => $id, 'day' => 1, 'content_type' => 'item',
+                'content_mst_id' => 'free_diamond', 'content_quantity' => 5 + $level, 'amount' => 1,
+            ]);
+        }
+        $this->refreshMstCache();
+        $headers = ['Authorization' => 'Bearer '.$this->accessToken];
+
+        // 1 回目の login（配られる）→ VIP ポイントを足してレベルを上げる → 再受け取り
+        $this->withHeaders($headers)->postJson('/api/auth/login')->assertOk();
+        DB::connection('sys')->table('sys_player')->where('id', $this->testPlayer->id)->update(['vip_point' => 1000000]);
+        $this->assertGreaterThanOrEqual($levelAfter, app(VipLevelService::class)->calculateLevel(1000000));
+        // 1000000 で到達するレベルのマスターに差し替える
+        $reached = app(VipLevelService::class)->calculateLevel(1000000);
+        DB::connection('mst')->table('mst_vip_login_bonus')->where('id', 'test_vip_after')->update(['vip_level' => $reached]);
+        $this->refreshMstCache();
+        $this->withHeaders($headers)->postJson('/api/login_bonus/receive', ['mst_vip_login_bonus_id' => 'test_vip_after'])->assertOk();
+
+        // 同じ日の 2 回目の login: 配布はなく、スタンプは再生しない
+        $second = $this->withHeaders($headers)->postJson('/api/auth/login')->json();
+
+        $this->assertSame([], $second['login_bonus_list']);
+        $this->assertTrue($second['vip_login_bonus_calendar']['is_granted_today']);
+        $this->assertFalse($second['vip_login_bonus_calendar']['is_granted_now']);
+        $this->assertFalse($second['vip_login_bonus_calendar']['can_re_receive']);
     }
 }

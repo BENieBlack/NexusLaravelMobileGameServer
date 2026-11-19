@@ -71,7 +71,7 @@ class MstLoginBonus extends _BaseMst
     public function contents(): HasMany
     {
         return $this->hasMany(MstLoginBonusContent::class, 'mst_login_bonus_id', 'id')
-            ->orderBy('sort_order', 'asc');
+            ->orderBy('sort_desc', 'desc');
     }
 
     /**

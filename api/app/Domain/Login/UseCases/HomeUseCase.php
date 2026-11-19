@@ -5,6 +5,7 @@ namespace App\Domain\Login\UseCases;
 use App\Domain\_BaseUseCase;
 use App\Domain\DoesNotReturnUpdatedResources;
 use App\Domain\Login\Responses\HomeResponse;
+use App\Domain\LoginBonus\Contracts\LoginBonusCalendarInterface;
 use App\Exceptions\SystemDataException;
 use App\Models\Sys\SysPlayer;
 use App\Models\Trx\TrxDiamond;
@@ -17,6 +18,7 @@ use App\Repositories\Trx\TrxItemRepository;
 use App\Repositories\Trx\TrxStaminaRepository;
 use App\Repositories\Trx\TrxUnitRepository;
 use App\Repositories\Trx\TrxWalletRepository;
+use Nexus\Core\Utilities\ClockUtility;
 use NexusLogin\Services\LoginBonusOrchestrator;
 use NexusStamina\Services\StaminaService;
 
@@ -40,6 +42,7 @@ class HomeUseCase extends _BaseUseCase
         private readonly TrxEquipmentRepository $trxEquipmentRepository,
         private readonly TrxStaminaRepository $trxStaminaRepository,
         private readonly StaminaService $staminaService,
+        private readonly LoginBonusCalendarInterface $loginBonusCalendar,
     ) {}
 
     /**
@@ -73,6 +76,14 @@ class HomeUseCase extends _BaseUseCase
 
         return $this->executeWithTransaction(function () use ($sysPlayerId, $sysPlayer) {
 
+            // 日跨ぎ後の初回ログインか（配布の前に 1 回だけ決める）。
+            // LoginBonusService::isEligible と同じ式。カレンダーの is_granted_now の元になる:
+            // 初回の login で受取日が今日になっているのは今の自動配布が書いたときだけなので、
+            // 「初回 かつ 受取日が今日」を「今回の login で配った」とみなせる。
+            // 前提: sys_player.last_login_at を更新するのはこの UseCase（updateLastLoginAt）だけ
+            $isFirstLoginOfGameDay = $sysPlayer->getLastLoginAt() === null
+                || ! ClockUtility::isSameGameDay(ClockUtility::nowToString(), $sysPlayer->getLastLoginAt());
+
             // 登録済みの全ログインボーナス（カムバック・VIP・通常）をチェック・配布
             // （履歴の書き込み先のシャードは ApiSession が解決する）
             //
@@ -101,6 +112,14 @@ class HomeUseCase extends _BaseUseCase
                 ->first(fn (TrxDiamond $diamond) => $diamond->getPlatform() === $currentPlatform);
             $trxEquipments = $this->trxEquipmentRepository->queryOrMemory();
 
+            // ログインボーナスのカレンダー（通常・VIP の段）の状態。配布と last_login_at の更新の「後」、
+            // 同じトランザクションの中で読む（読み取りだけ。配布前だと最後に配った日数が古くなる。
+            // 未保存の更新は queryOrMemory で見える）。小さな読み取りを組み合わせ、API の形への整形は HomeResponse が行う
+            $normalHistory = $this->loginBonusCalendar->findNormalHistory($sysPlayerId);
+            $vipHistory = $this->loginBonusCalendar->findVipHistory($sysPlayerId);
+            $isNormalGrantedToday = $this->loginBonusCalendar->isReceivedToday($normalHistory?->getReceivedDate());
+            $isVipGrantedToday = $this->loginBonusCalendar->isReceivedToday($vipHistory?->getReceivedAt());
+
             return new HomeResponse(
                 sysPlayer: $sysPlayer,
                 trxUnits: $trxUnits->values()->all(),
@@ -110,6 +129,17 @@ class HomeUseCase extends _BaseUseCase
                 trxEquipments: $trxEquipments->values()->all(),
                 trxStaminas: $this->recoveredTrxStaminas($sysPlayerId),
                 loginBonusContents: $loginBonusContents,
+                normalBonusId: $this->loginBonusCalendar->findNormalBonusId(),
+                normalLastReceivedDay: $normalHistory?->getDay(),
+                isNormalGrantedToday: $isNormalGrantedToday,
+                // 今回の login の自動配布が走ったか: 初回判定 かつ 受取日が今日
+                isNormalGrantedNow: $isFirstLoginOfGameDay && $isNormalGrantedToday,
+                vipBonusId: $this->loginBonusCalendar->findVipBonusId($sysPlayerId),
+                vipLevel: $this->loginBonusCalendar->findVipLevel($sysPlayerId),
+                vipLastReceivedDay: $vipHistory?->getDay(),
+                isVipGrantedToday: $isVipGrantedToday,
+                isVipGrantedNow: $isFirstLoginOfGameDay && $isVipGrantedToday,
+                canVipReReceive: $this->loginBonusCalendar->canVipReReceive($sysPlayerId),
             );
         });
     }

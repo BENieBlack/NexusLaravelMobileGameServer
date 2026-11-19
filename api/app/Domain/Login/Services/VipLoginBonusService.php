@@ -2,7 +2,7 @@
 
 namespace App\Domain\Login\Services;
 
-use App\Repositories\Log\LogVipLoginBonusReceiveRepository;
+use App\Domain\LoginBonus\Contracts\VipLoginBonusReceiveRecorderInterface;
 use App\Repositories\Mst\VipLoginBonusRepositoryInterface;
 use App\Repositories\Sys\SysPlayerRepository;
 use App\Repositories\Trx\VipLoginBonusHistoryRepositoryInterface;
@@ -30,7 +30,7 @@ class VipLoginBonusService extends _BaseLoginBonusService
         ResourceDeliveryService $resourceDeliveryService,
         private readonly VipLoginBonusRepositoryInterface $vipBonusRepository,
         private readonly VipLoginBonusHistoryRepositoryInterface $vipHistoryRepository,
-        private readonly LogVipLoginBonusReceiveRepository $logVipLoginBonusReceiveRepository,
+        private readonly VipLoginBonusReceiveRecorderInterface $vipReceiveRecorder,
         private readonly SysPlayerRepository $sysPlayerRepository,
         private readonly VipLevelService $vipLevelService,
     ) {
@@ -112,30 +112,16 @@ class VipLoginBonusService extends _BaseLoginBonusService
         int $currentDay,
         CustomCollection $contents
     ): void {
-        $receivedAt = $this->calcGameDayStart()->format('Y-m-d H:i:s');
-
-        // 最新状態はtrx、受取履歴はlogへ記録
-        $this->vipHistoryRepository->upsertLatest(
+        // 最新状態（trx）と受取履歴（log）の書き込みは、再受け取りと同じ内容になるよう
+        // LoginBonus の Service（Contracts 経由）の 1 つのメソッドに寄せている（trx と log は必ず組で書く）
+        $this->vipReceiveRecorder->recordReceive(
             sysPlayerId: $sysPlayerId,
             mstVipLoginBonusId: $bonusData['id'],
             day: $currentDay,
             vipLevel: $bonusData['current_vip_level'],
-            receivedAt: $receivedAt,
+            receivedAt: $this->calcGameDayStart()->format('Y-m-d H:i:s'),
+            contents: $contents,
         );
-
-        foreach ($contents as $content) {
-            $this->logVipLoginBonusReceiveRepository->insertReceive(
-                sysPlayerId: $sysPlayerId,
-                mstVipLoginBonusId: $bonusData['id'],
-                day: $currentDay,
-                vipLevel: $bonusData['current_vip_level'],
-                receivedAt: $receivedAt,
-                rewardType: $content->getContentType(),
-                rewardMstId: $content->getContentMstId(),
-                rewardAmount: $content->getTotalQuantity(),
-                isPaid: $content->getIsPaid(),
-            );
-        }
     }
 
     /**

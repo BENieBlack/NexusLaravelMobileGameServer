@@ -28,7 +28,7 @@ interface LoginBonusRepositoryInterface
      * ログインボーナスIDに紐づく報酬内容を取得
      *
      * @param  string  $loginBonusId  ログインボーナスID
-     * @return array<int, array<string, mixed>> 報酬内容の配列（sort_order順）
+     * @return array<int, array<string, mixed>> 報酬内容の配列（sort_desc 降順）
      */
     public function selectContentsByLoginBonusId(string $loginBonusId): array;
 

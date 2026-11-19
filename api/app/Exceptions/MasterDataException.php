@@ -119,4 +119,31 @@ class MasterDataException extends GameException
             "Master data not found: {$type} (ID: {$id})"
         );
     }
+
+    /**
+     * 今のレベルの有効な VIP ログインボーナスが無い、または渡された ID が一致しない
+     *
+     * @param  string  $mstVipLoginBonusId  渡された VIP ログインボーナスID（空文字は「今のレベルのボーナスが無い」）
+     */
+    public static function loginBonusMaster(string $mstVipLoginBonusId): self
+    {
+        return new self(
+            GameErrorCode::LOGIN_BONUS_MASTER_NOT_FOUND,
+            "Active VIP login bonus not found for the current level: {$mstVipLoginBonusId}"
+        );
+    }
+
+    /**
+     * 再受け取りの報酬行が無い（日数超過、またはその日の報酬が未設定）
+     *
+     * @param  string  $mstVipLoginBonusId  今のレベルの VIP ログインボーナスID
+     * @param  int  $day  据え置いた日数
+     */
+    public static function loginBonusReward(string $mstVipLoginBonusId, int $day): self
+    {
+        return new self(
+            GameErrorCode::LOGIN_BONUS_REWARD_NOT_FOUND,
+            "VIP login bonus reward not found: {$mstVipLoginBonusId} day {$day}"
+        );
+    }
 }

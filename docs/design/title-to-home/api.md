@@ -325,6 +325,7 @@ sign_up と同じ 4 項目。違い:
 | expire_at | string | **常に null** | ログインボーナスは期限を設定しない（`convertToResource` が渡さない） |
 | metadata | object | **null 可** | `is_paid` が真なら `{"is_paid": true}`、`content_option` があれば展開してマージ。どちらも無ければ null |
 
+- 応答の末尾に `login_bonus_calendar`・`vip_login_bonus_calendar`（オブジェクト or null。**キーは常に出る**）が付く。形は `docs/design/login-bonus-calendar/api.md` 2 節（ここには写さない）。
 - `login_bonus_list` はクライアントが表示するための**受取結果**であり、所持データの正は上の `trx_*_list`。
 - `updated_resources` は使わない（`#[DoesNotReturnUpdatedResources]`。現在値の全量を返すため）。
 

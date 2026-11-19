@@ -104,15 +104,27 @@ class LoginBonusRepositoryAdapterTest extends TestCase
     }
 
     #[Test]
-    public function 中身をソート順で取れる(): void
+    public function 中身をsort_descの降順で取れる(): void
     {
         $this->makeDaily('daily_1', day: 1);
-        $this->makeContent('daily_1', 'item_b', sortOrder: 2);
-        $this->makeContent('daily_1', 'item_a', sortOrder: 1);
+        $this->makeContent('daily_1', 'item_b', sortDesc: 1);
+        $this->makeContent('daily_1', 'item_a', sortDesc: 2);
 
         $contents = $this->repository->selectContentsByLoginBonusId('daily_1');
 
         $this->assertSame(['item_a', 'item_b'], array_column($contents, 'content_mst_id'));
+    }
+
+    #[Test]
+    public function 通常の1日分の報酬はsort_descが同じでも_種類_i_dの順で固定される(): void
+    {
+        $this->makeDaily('daily_1', day: 1);
+        $this->makeContentOnDay('daily_1', day: 1, type: 'item', contentMstId: 'b', sortDesc: 1);
+        $this->makeContentOnDay('daily_1', day: 1, type: 'item', contentMstId: 'a', sortDesc: 1);
+
+        $rows = $this->repository->selectContentsByLoginBonusIdAndDay('daily_1', 1);
+
+        $this->assertSame(['a', 'b'], array_column($rows, 'content_mst_id'));
     }
 
     #[Test]
@@ -317,7 +329,7 @@ class LoginBonusRepositoryAdapterTest extends TestCase
         $this->refreshMstCache();
     }
 
-    private function makeContent(string $bonusId, string $contentMstId, int $sortOrder): void
+    private function makeContent(string $bonusId, string $contentMstId, int $sortDesc): void
     {
         DB::connection('mst')->table('mst_login_bonus_content')->insert([
             'mst_login_bonus_id' => $bonusId,
@@ -327,7 +339,25 @@ class LoginBonusRepositoryAdapterTest extends TestCase
             'content_quantity' => 1,
             'amount' => 1,
             'is_paid' => false,
-            'sort_order' => $sortOrder,
+            'sort_desc' => $sortDesc,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $this->refreshMstCache();
+    }
+
+    private function makeContentOnDay(string $bonusId, int $day, string $type, string $contentMstId, int $sortDesc): void
+    {
+        DB::connection('mst')->table('mst_login_bonus_content')->insert([
+            'mst_login_bonus_id' => $bonusId,
+            'day' => $day,
+            'content_type' => $type,
+            'content_mst_id' => $contentMstId,
+            'content_quantity' => 1,
+            'amount' => 1,
+            'is_paid' => false,
+            'sort_desc' => $sortDesc,
             'created_at' => now(),
             'updated_at' => now(),
         ]);

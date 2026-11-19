@@ -63,7 +63,7 @@ class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
     public function selectContentsByLoginBonusId(string $loginBonusId): array
     {
         return MstLoginBonusContent::where('mst_login_bonus_id', $loginBonusId)
-            ->orderBy('sort_order')
+            ->orderByDesc('sort_desc')
             ->get()
             ->map(fn ($content) => $content->toArray())
             ->all();
@@ -140,8 +140,12 @@ class LoginBonusRepositoryAdapter implements LoginBonusRepositoryInterface
             $contentQuery->where('day', 0);
         }
 
+        // sort_desc（降順。大きい値が先）が同値の行の並びを DB 任せにしない。主キーで全順序になる
+        // （配る順とカレンダーの 1 日の中の順を同じにする）
         return $contentQuery
-            ->orderBy('sort_order')
+            ->orderByDesc('sort_desc')
+            ->orderBy('content_type')
+            ->orderBy('content_mst_id')
             ->get()
             ->map(fn ($content) => $content->toArray())
             ->all();

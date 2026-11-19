@@ -3,7 +3,7 @@
 機能 `login-bonus-calendar` のサーバーの通信シーケンス。対象は (1) login の新キー（自動配布の後に読む）、(2) `POST /login_bonus/list`、(3) `POST /login_bonus/receive`（正常・異常・同時実行）、(4) トランザクション境界。
 
 - 要件: `Nexus/docs/requirements/login-bonus-calendar.md`（**仕様の正本**）、全体設計: `Nexus/docs/design/login-bonus-calendar/overview.md`
-- DB: [db.md](db.md)（変更なし）、API: [api.md](api.md)（項目・エラー・クラス名）
+- DB: [db.md](db.md)（`sort_desc` 列の追加と、通常側の `sort_order` → `sort_desc` の置き換えのみ）、API: [api.md](api.md)（項目・エラー・クラス名）
 - 凡例: 「読んだ」= コードを読んだだけ。実行はしていない。サーバーは main `7cf4ddcb`
 
 ## 0. 共通の前提（読んだ）
@@ -30,20 +30,20 @@ sequenceDiagram
     H->>O: executeAllMerged(更新前の last_login_at)
     O->>DB: 配布（カムバック → VIP → 通常）。trx・log をキューに積む
     H->>H: last_login_at を更新（キュー）
-    H->>K: findCalendars(isFirstLoginOfGameDay, isFirstLoginOfGameDay)
-    K->>DB: 通常: 有効なボーナス 1 件・全日の報酬（1 クエリ）・trx_login_bonus（メモリ優先）
-    K->>R: judge()（VIP の段の can_re_receive）
+    H->>K: 小さな読み取り（findNormalBonusId・findNormalHistory・findVipBonusId・findVipLevel・findVipHistory・canVipReReceive・isReceivedToday）
+    K->>DB: 通常: 有効なボーナス 1 件・trx_login_bonus（メモリ優先）。全日の報酬は読まない（クライアントが配信のマスターから描く。api.md U-S2-8）
+    K->>R: judge()（canVipReReceive）
     R->>DB: sys_player.vip_point → 今のレベル、今のレベルの VIP ボーナス、報酬行、trx_vip_login_bonus（メモリ優先）
-    K->>K: 段ごとに is_granted_today（isSameGameDay）、is_granted_now = 初回判定 かつ is_granted_today
-    K-->>H: 2 つの段の DTO（LoginBonusCalendarsResult。マスター無しの段は null）
-    H-->>C: 既存の全キー + login_bonus_list + login_bonus_calendar + vip_login_bonus_calendar（HomeResponse が LoginBonusCalendarFormatter で整形）
+    K-->>H: スカラー・Model・パッケージの DTO（マスター無しの段は ID が null）
+    H->>H: 段ごとに is_granted_today（isReceivedToday）、is_granted_now = 初回判定 かつ is_granted_today
+    H-->>C: 既存の全キー + login_bonus_list + login_bonus_calendar + vip_login_bonus_calendar（HomeResponse が整形。Result・Formatter は無い）
     Note over H: キューを flush・コミット（新キーの読み取りは DB に書かない）
 ```
 
 - **同じ日の 2 回目**: 3 の配布は走らない（両戦略とも `isEligible` が偽）。`isFirstLoginOfGameDay` が偽なので `is_granted_now` は両段とも偽、`is_granted_today` は真。`login_bonus_list` は空。再受け取りが可能（R4 を満たす）なら `can_re_receive` が真。
 - **新規プレイヤーの初回 login**: `last_login_at` が null → 初回扱い。配布後の読み取りで `last_received_day = 1`・`is_granted_today` 真・`is_granted_now` 真。
 - **マスターが無い**: 該当の段のキーの値が `null`（login は成功する）。
-- **不正な行**（未知の `content_type`）: 行だけ除いて警告ログ。login は失敗しない（api.md 9 節 U-1）。ただし**その日が配布の日なら配布が失敗する**（既存どおり。`ValueError` で login 全体が失敗しうる。変えない）。
+- **不正な行**（未知の `content_type`）: カレンダーには報酬を載せないので除く処理は無い（api.md U-S2-8）。**その日が配布の日なら配布が失敗する**（既存どおり。`ValueError` で login 全体が失敗しうる。変えない）。
 - 配布前に読むと `last_received_day` が古くなるので、**読むのは配布と `last_login_at` 更新の後**（順序の保証はテストで固定: 初回 login の応答で `last_received_day = 1`）。
 
 ## 2. `POST /login_bonus/list`（副作用なし）
@@ -61,10 +61,10 @@ sequenceDiagram
     M->>M: auth.token → idempotency → player.lock（取得）
     M->>U: handle(sysPlayerId)
     U->>DB: sys_player（存在確認）
-    U->>K: findCalendars(false, false)
+    U->>K: 小さな読み取り（login と同じ。is_granted_now は常に false）
     K->>DB: 2 節と同じ読み取り（書き込みなし）
-    K-->>U: 2 つの段の DTO（is_granted_now は両方 false）
-    U-->>M: ListResponse（LoginBonusCalendarFormatter で整形。トランザクションなし）
+    K-->>U: スカラー・Model
+    U-->>M: ListResponse（整形はこの Response。トランザクションなし）
     M->>M: player.lock 解放。2xx なら冪等キーで応答を保存
     M-->>C: 200 { login_bonus_calendar, vip_login_bonus_calendar }
 ```
@@ -104,8 +104,7 @@ sequenceDiagram
     T->>D: Resource に変換して addResources → deliver（図鑑などの Handler も反応）
     T->>DB: （キュー）trx_vip_login_bonus を upsert: mst_vip_login_bonus_id=新, day=据え置き, vip_level=今, received_at=今日のゲーム日の開始
     T->>DB: （キュー）log_action_vip_login_bonus_receive を 1 報酬 1 行
-    T->>K: findCalendars(false, true)（メモリの更新が見える）
-    K-->>T: VIP の段の DTO（is_granted_now 真・can_re_receive 偽）
+    T->>T: 応答用に trx_vip_login_bonus（メモリの更新が見える）と今のレベル・据え置いた day を ReceiveResponse へ（VIP の段は is_granted_now 真・can_re_receive 偽で固定）
     T->>DB: flush（trx・log）→ 全接続を commit
     T-->>U: ReceiveResponse に updated_resources を付ける
     U-->>M: 200
@@ -218,7 +217,7 @@ sequenceDiagram
 
 ## 5. 未確認・S3 で確かめること
 
-- 新キーを login のトランザクションの**中**で読むときの追加クエリ数（約 5〜7 本の見積り。実測していない）。
+- 新キーを login のトランザクションの**中**で読むときの追加クエリ数（見積り。VIP の `mst_vip_login_bonus` の読み取りは `judge()` の結果を使い回して 1 回にした。list の mst クエリでテストが固定）。
 - Architecture の検査（`ResponsePerActionTest`・`UpdatedResourcesResponseTest`・`ModuleBoundaryTest`。命名の `ResponseKeyNamingTest`・`ConverterLocationTest` も）が新クラスで通るか。実行していないので、S3 の確認項目（api.md 10 節）。
 - `received_at` の応答の書式（実測して確定。api.md 8 節）。
 - `updateLastLoginAt` の呼び出し元が `HomeUseCase` だけか（api.md 4 節の不変条件）。

@@ -29,6 +29,8 @@ class HomeResponse extends _BaseResponse
      * @param  array<int, TrxEquipment>  $trxEquipments  所持装備一覧
      * @param  array<int, TrxStamina>  $trxStaminas  スタミナ（自然回復を加算した現在値）
      * @param  array<int, \Nexus\Core\Resource\DataTransferObjects\Resource>  $loginBonusContents  ログインボーナス内容
+     * @param  string|null  $normalBonusId  通常ログインボーナスの ID（マスターが無ければ null。段ごと null になる）
+     * @param  string|null  $vipBonusId  今のレベルの VIP ログインボーナスの ID（無ければ null）
      */
     public function __construct(
         public readonly SysPlayer $sysPlayer,
@@ -39,6 +41,16 @@ class HomeResponse extends _BaseResponse
         public readonly array $trxEquipments,
         public readonly array $trxStaminas,
         public readonly array $loginBonusContents,
+        public readonly ?string $normalBonusId,
+        public readonly ?int $normalLastReceivedDay,
+        public readonly bool $isNormalGrantedToday,
+        public readonly bool $isNormalGrantedNow,
+        public readonly ?string $vipBonusId,
+        public readonly int $vipLevel,
+        public readonly ?int $vipLastReceivedDay,
+        public readonly bool $isVipGrantedToday,
+        public readonly bool $isVipGrantedNow,
+        public readonly bool $canVipReReceive,
     ) {}
 
     /**
@@ -76,6 +88,49 @@ class HomeResponse extends _BaseResponse
                 fn (Resource $resource) => $resource->toArray(),
                 $this->loginBonusContents
             ),
+            // カレンダー用の 2 キー。常に出し、マスターが無い段は null。整形は 3 つの API で共通の部品が行う
+            'login_bonus_calendar' => $this->normalStage(),
+            'vip_login_bonus_calendar' => $this->vipStage(),
+        ];
+    }
+
+    /**
+     * 通常ログインボーナスの段（マスターが無ければ null）。形は docs/design/login-bonus-calendar/api.md 2.1 節
+     *
+     * @return array<string, mixed>|null
+     */
+    private function normalStage(): ?array
+    {
+        if ($this->normalBonusId === null) {
+            return null;
+        }
+
+        return [
+            'mst_login_bonus_id' => $this->normalBonusId,
+            'last_received_day' => $this->normalLastReceivedDay,
+            'is_granted_today' => $this->isNormalGrantedToday,
+            'is_granted_now' => $this->isNormalGrantedNow,
+        ];
+    }
+
+    /**
+     * VIP ログインボーナスの段（今のレベルのマスターが無ければ null）。形は同 2.2 節
+     *
+     * @return array<string, mixed>|null
+     */
+    private function vipStage(): ?array
+    {
+        if ($this->vipBonusId === null) {
+            return null;
+        }
+
+        return [
+            'mst_vip_login_bonus_id' => $this->vipBonusId,
+            'vip_level' => $this->vipLevel,
+            'last_received_day' => $this->vipLastReceivedDay,
+            'is_granted_today' => $this->isVipGrantedToday,
+            'is_granted_now' => $this->isVipGrantedNow,
+            'can_re_receive' => $this->canVipReReceive,
         ];
     }
 }

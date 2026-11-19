@@ -12,6 +12,7 @@ use App\Http\Controllers\GachaController;
 use App\Http\Controllers\GuildController;
 use App\Http\Controllers\InAppPurchaseController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\LoginBonusController;
 use App\Http\Controllers\MailboxController;
 use App\Http\Controllers\MissionController;
 use App\Http\Controllers\NotificationController;
@@ -132,6 +133,10 @@ Route::middleware(['maintenance', 'platform'])->group(function () {
         // 交換所（ダイヤ・コイン・アイテムを消費して、アイテム・ユニット・装備などと交換する）
         Route::get('/trade/list', [TradeController::class, 'list']);
         Route::post('/trade/exchange', [TradeController::class, 'exchange']);
+
+        // ログインボーナス（カレンダー表示と VIP の再受け取り）。どちらも POST
+        Route::post('/login_bonus/list', [LoginBonusController::class, 'list']);
+        Route::post('/login_bonus/receive', [LoginBonusController::class, 'receive']);
 
         // Agreement endpoints
         Route::get('/agreement/pending', [AgreementController::class, 'pending']);

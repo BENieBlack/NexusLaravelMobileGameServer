@@ -185,7 +185,7 @@ class LoginBonusMasterTest extends TestCase
             'content_quantity' => 10,
             'amount' => 3,
             'is_paid' => false,
-            'sort_order' => 1,
+            'sort_desc' => 1,
         ], $attributes));
     }
 }

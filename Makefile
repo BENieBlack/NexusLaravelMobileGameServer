@@ -143,9 +143,10 @@ seed-recording: up ## 動画撮影用の既定シード（規約・ログイン�
 	$(DOCKER_COMPOSE) exec -T api-php php artisan db:seed --class='Database\Seeders\Recording\RecordingSeeder' --force
 
 # SEEDER にはシナリオのクラス名だけを書く（例: make seed-recording-one SEEDER=RecordingMaintenanceOnSeeder）
+# RECORDING_PLAYER_MY_ID・RECORDING_LOGIN_BONUS_SCENARIO は RecordingLoginBonusProgressSeeder 用（README 参照。他のシナリオは読まない）
 seed-recording-one: up ## 動画撮影用のシナリオを1つ流す（SEEDER=クラス名）。前提: make seed 済み
 	@test -n "$(SEEDER)" || { echo "SEEDER=<クラス名> を指定してください（一覧: api/database/seeders/Recording/README.md）"; exit 1; }
-	$(DOCKER_COMPOSE) exec -T api-php php artisan db:seed --class='Database\Seeders\Recording\Scenarios\$(SEEDER)' --force
+	$(DOCKER_COMPOSE) exec -T -e RECORDING_PLAYER_MY_ID='$(RECORDING_PLAYER_MY_ID)' -e RECORDING_LOGIN_BONUS_SCENARIO='$(RECORDING_LOGIN_BONUS_SCENARIO)' api-php php artisan db:seed --class='Database\Seeders\Recording\Scenarios\$(SEEDER)' --force
 
 seed-recording-reset: up ## 動画撮影用のデータ（マーカー付きの行）を削除し、メンテナンス解除・daily_login を有効に戻す
 	$(DOCKER_COMPOSE) exec -T api-php php artisan db:seed --class='Database\Seeders\Recording\Scenarios\RecordingResetSeeder' --force

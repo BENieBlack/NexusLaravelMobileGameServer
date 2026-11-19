@@ -162,4 +162,17 @@ class BusinessLogicException extends GameException
             "Device ID already registered: {$deviceId}. Please use sign_in endpoint."
         );
     }
+
+    /**
+     * VIP ログインボーナスを再受け取りできない（今日の段でない、またはレベルが上がっていない）
+     *
+     * @param  string  $reason  理由（LoginBonusConst の定数。ログとテストの切り分け用。クライアントには同じコードで返す）
+     */
+    public static function loginBonusReReceiveNotAvailable(string $reason): self
+    {
+        return new self(
+            GameErrorCode::LOGIN_BONUS_RE_RECEIVE_NOT_AVAILABLE,
+            "Login bonus re-receive is not available: {$reason}"
+        );
+    }
 }

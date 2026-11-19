@@ -18,6 +18,7 @@ use Nexus\Core\Models\Mst\_BaseMst;
  * @property array<string, mixed>|null $content_option 報酬オプション
  * @property int $content_quantity 報酬の基本個数
  * @property int $amount 報酬の倍率
+ * @property int $sort_desc 同じ日の中の並び順（降順。大きい値が先）
  * @property string $created_at
  * @property string $updated_at
  */
@@ -36,6 +37,7 @@ class MstVipLoginBonusContent extends _BaseMst
         'content_option',
         'content_quantity',
         'amount',
+        'sort_desc',
     ];
 
     /** @var array<string, string> */
@@ -44,6 +46,7 @@ class MstVipLoginBonusContent extends _BaseMst
         'content_option' => 'array',
         'content_quantity' => 'integer',
         'amount' => 'integer',
+        'sort_desc' => 'integer',
     ];
 
     /**

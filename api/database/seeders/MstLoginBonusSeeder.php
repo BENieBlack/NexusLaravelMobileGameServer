@@ -75,7 +75,8 @@ class MstLoginBonusSeeder extends Seeder
                     // amount は倍率（配布量 = content_quantity × amount）。配布量は content_quantity に入れるので 1
                     'amount' => 1,
                     'is_paid' => false,
-                    'sort_order' => $i,
+                    // 並び順（降順。大きい値が先）: 配列の並び（先頭が先）になるよう、行数から 1 ずつ小さくなる値を振る
+                    'sort_desc' => count($dayRewards[$day]) - $i,
                     'created_at' => $now,
                     'updated_at' => $now,
                 ]);

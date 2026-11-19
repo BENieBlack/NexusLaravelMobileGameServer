@@ -46,6 +46,7 @@ Docker を使わない直接の形は `php artisan db:seed --class='Database\See
 | `RecordingAgreementMultiSeeder` | 必須規約を 2 件足す（`rec-required-2`・`rec-required-3`。公開済み）。`rec-required` と合わせて必須が 3 件になる。`make seed-recording` の後に流す | 規約が複数件 | 入らない |
 | `RecordingLoginBonusSeeder` | 通常ログインボーナス `daily_login`（7 日サイクル）を、有効・期間なしで保証する。他の行は消さない | 1, 2, 3, 5, 13 | 入る |
 | `RecordingLoginBonusDisabledSeeder` | `daily_login` を無効にする（ログインボーナスなしの画面用） | ログインボーナスなし | 入らない |
+| `RecordingLoginBonusProgressSeeder` | **既存の 1 人のプレイヤー**のログインボーナスの受け取り状況（`trx_login_bonus`・`trx_vip_login_bonus`・`sys_player` の `last_login_at`・`vip_point`）を、番号で選んだシナリオ（1〜8・F2・G）の状態にする。`RECORDING_PLAYER_MY_ID` が無いと何もしない。下の「ログインボーナスのカレンダー」を参照 | ログインボーナスのカレンダー表示（login-bonus-calendar） | 入らない |
 | `RecordingMaintenanceOnSeeder` | メンテナンスを有効にする（API が 503 になる） | 8 | 入らない |
 | `RecordingMaintenanceOffSeeder` | 動画用のメンテナンスを解除する | 8（解除して再試行） | 入らない |
 | `RecordingResetSeeder` | マーカー付きの行を削除し、メンテナンスを解除し、`daily_login` を有効に戻す | 規約なしに戻す・撮影の終わり | 入らない |
@@ -70,6 +71,38 @@ API を止める（メンテナンス）、画面を変える（ログインボ�
 | 規約が複数件（7-2 の表に専用の番号は無い。規約画面の複数件表示の確認用） | 必須規約が 3 件（`rec-required`・`rec-required-2`・`rec-required-3`） | `make seed-recording` → `make seed-recording-one SEEDER=RecordingAgreementMultiSeeder`。1 件に戻すときは `seed-recording-reset` の後に `make seed-recording` |
 | ログインボーナスなし | `daily_login` が無効 | `RecordingLoginBonusDisabledSeeder` |
 | 6, 7, 9, 10, 11, 14 | サーバーのシードでは作らない（停止・応答の差し替え・保存データの操作・配信ホストの不通）。14 は未取得の版が要るが、動画用のデプロイは配信ファイルを持たないので代わりにならない | なし |
+
+## ログインボーナスのカレンダー（`RecordingLoginBonusProgressSeeder`）
+
+カレンダー表示（login-bonus-calendar）の撮影では、「N 日目まで受け取り済み」「VIP の再受け取り」など、**特定のプレイヤーの状態**が要る。他のシナリオと違って、**既存プレイヤーの trx・`sys_player` を書き換える**（trx にはマーカー列が無いので `RecordingResetSeeder` では戻らない）。対象は環境変数で明示した 1 人だけ。設計は Nexus の `docs/design/login-bonus-calendar/`（サーバー側 `docs/design/login-bonus-calendar/db.md` 6 節）。
+
+クライアントの `--e2e-reset` は毎回新しいプレイヤーを作るので、次の手順で使う。
+
+1. クライアントを `--e2e-reset` で 1 回起動し、プレイヤーを作る（sign_up まで進めばよい）。画面などから `my_id` を控える（`sys_player.my_id`）
+2. 撮りたい状態の番号を選んで流す。`make seed-recording` と `RecordingLoginBonusSeeder`（`daily_login` が有効）が済んでいること。
+   ```
+   make seed-recording-one SEEDER=RecordingLoginBonusProgressSeeder \
+     RECORDING_PLAYER_MY_ID=<my_id> RECORDING_LOGIN_BONUS_SCENARIO=2
+   ```
+3. クライアントでログイン（ホームへ進む）して撮る。別の状態を撮るなら、番号だけ替えて 2 から繰り返す（何度流しても同じ結果で、上書きする）
+4. 新しい `--e2e-reset`（新しいプレイヤー）で撮り直すときは、1 からやり直す（新しい `my_id` を控える）
+
+| 番号 | 状態 | 撮れるもの |
+| --- | --- | --- |
+| `1` | 初回（行なし・`last_login_at = null`） | 通常・VIP とも 1 日目が配られ、スタンプを再生する |
+| `2` | 3 日目まで受け取り済みの翌日 | 4 日目が配られる |
+| `3` | 同じ日の 2 回目（4 日目を今日配布済み） | 配られず、スタンプは再生しない（配布済みの表示） |
+| `4` | 6 日目まで受け取り済みの翌日 | 7 日目が配られる |
+| `5` | 7 日目まで受け取り済みの翌日 | 1 日目に戻る |
+| `6` | VIP の段なし（今のレベルの VIP マスターを無効化） | VIP の段が出ない（通常だけ） |
+| `7` | VIP だけ今日の段でない（通常は今日配布済み） | VIP の段が「今日の分は未配布」 |
+| `8` | VIP の再受け取り（レベルが上がった状態。**`last_login_at` は今日**） | 再受け取りのボタンが出て、押すと配られる。`last_login_at` を今日にするのは、ログインで新しい日の分が配られて「今日の段」の前提（再受け取りの条件）が崩れないようにするため |
+| `F2` | 通常のマスターが無効で VIP だけある（`daily_login` を無効化） | 通常の段が出ない・VIP の段は出る |
+| `G` | 通常・VIP の両段が今日の段でない（`last_login_at` は今日） | 両段とも「今日の分は未配布」 |
+
+- `6`・`F2` はマスターを変える。戻すには別の番号（`1` など。`daily_login`・今のレベルの VIP マスターを有効に戻す）か、`RecordingLoginBonusSeeder`・`seed-recording-reset` を流す
+- `RECORDING_PLAYER_MY_ID` が無い・該当プレイヤーがいない・番号が不明のときは、何も書かずに警告を出して終わる
+- 「今日」は、その時のサーバーの時刻と `DAY_START_TIME` によるゲーム日。日をまたいで撮ると、`3`・`7`・`8`・`G` は「前日」の状態になるので、撮影の直前に流す
 
 ## 動画撮影の標準手順の例
 
@@ -111,6 +144,7 @@ API を止める（メンテナンス）、画面を変える（ログインボ�
 | `sys_maintenance` | `title` が `[REC]` で始まる |
 | `sys_deploy_master` / `sys_deploy_asset` | `description` が `[REC]` で始まる（`sys_deploy` は `deploy_key = 190001010`） |
 | `mst_login_bonus` | 目印なし。`daily_login` の有効フラグだけを切り替える（行は消さない） |
+| `trx_login_bonus` / `trx_vip_login_bonus` / `sys_player` | 目印なし。`RecordingLoginBonusProgressSeeder` が、`RECORDING_PLAYER_MY_ID` で指した 1 人の行だけを書き換える（消さない・他のプレイヤーは触らない） |
 
 ## 規約の HTML
 
@@ -131,6 +165,7 @@ API を止める（メンテナンス）、画面を変える（ログインボ�
 - **追加専用・冪等**: 何度流しても同じ結果。既存のシーダー（`truncate` で作り直す）と違い、既存データを消さない。キーで `updateOrInsert` する
 - **環境ガード**: `local` / `testing` 以外では例外で止まる。本番に誤って流さないため。シナリオの入口（`run()`）で毎回検査する
 - 例外: `RecordingResetSeeder` は、マーカーの無い `daily_login` の `is_active` を true に更新する
+- 例外: `RecordingLoginBonusProgressSeeder` は、**環境変数で指した 1 人の既存プレイヤーの trx・`sys_player` を上書きする**（行は消さず、他のプレイヤーは触らない。シナリオ 6・F2 は `mst_login_bonus` / `mst_vip_login_bonus` の有効フラグも切り替える）。冪等だが「既存データを書き換えない」ではないので、既定のシナリオに入れていない
 - マスター（`mst_*`）への書き込みは `_BaseMst::allowWrites()` の中だけで行う
 - キャッシュ: 503 のミドルウェアは `MaintenanceService` のキャッシュ（既定 60 秒）、version API は Redis のキャッシュ（メンテナンス・最新デプロイとも 3600 秒）を先に見る。`RecordingMaintenanceOnSeeder` / `RecordingMaintenanceOffSeeder` / `RecordingResetSeeder` / `RecordingDeploySeeder` は末尾でこれらを消すので、流した直後に反映される（ケース 8 は On → 撮影 → Off → 再試行で撮れる）。それ以外の手段（SQL など）で DB を直接変えたときは、TTL を待つか `make seed-recording-clear-cache` で消す
 - 回復手段（レート制限）: sign_up は IP あたり 10 回/時間・device あたり 3 回/時間で、成否にかかわらず数える。撮影で使い切ったら `make seed-recording-clear-cache`（`cache:clear`）でカウンターごと消せる。**キャッシュを全部消すので local 限定**

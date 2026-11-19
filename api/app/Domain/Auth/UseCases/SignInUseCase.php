@@ -3,7 +3,6 @@
 namespace App\Domain\Auth\UseCases;
 
 use App\Domain\_BaseUseCase;
-use App\Domain\Auth\DataTransferObjects\SignInResult;
 use App\Domain\Auth\Responses\SignInResponse;
 use App\Domain\Auth\Traits\BuildsSysPlayerToken;
 use App\Domain\DoesNotReturnUpdatedResources;
@@ -51,7 +50,7 @@ class SignInUseCase extends _BaseUseCase
     public function handle(string $deviceId, array $deviceInfo): SignInResponse
     {
         // トランザクション開始
-        $signInResult = $this->executeWithTransaction(function () use ($deviceId) {
+        return $this->executeWithTransaction(function () use ($deviceId) {
             // デバイスを取得
             $sysPlayerDevice = $this->deviceRepository->selectByDeviceId($deviceId);
 
@@ -93,14 +92,13 @@ class SignInUseCase extends _BaseUseCase
             // レスポンスにトークンIDを含めるため、採番を確定させる
             $this->flushQueue();
 
-            return new SignInResult(
+            // 呼び出し元がここだけなので、Result を介さず Response を直接組む
+            return new SignInResponse(
                 sysPlayer: $sysPlayer,
                 sysPlayerDevice: $sysPlayerDevice,
                 sysPlayerToken: $sysPlayerToken,
                 token: $token,
             );
         });
-
-        return SignInResponse::from($signInResult);
     }
 }

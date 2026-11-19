@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Trx;
 
+use App\Adapters\Notification\NotificationAdapter;
 use App\Persistence\ApiSession;
 use Illuminate\Support\Facades\DB;
 use Nexus\Core\Utilities\ClockUtility;
@@ -10,7 +11,7 @@ use NexusNotification\Contracts\NotificationRepositoryInterface;
 use NexusNotification\DataTransferObjects\Notification;
 
 /**
- * TrxNotificationRepository
+ * NotificationRepositoryAdapter
  *
  * trx_notification の永続化。nexus-notification のインターフェースを直接実装する。
  *
@@ -25,7 +26,7 @@ use NexusNotification\DataTransferObjects\Notification;
  * 受け手のシャードは送り手のトランザクションに含まれず、採番したIDを載せたDTOを
  * 返す必要もある（リアルタイム配送がそのIDを使う）ため、UnitOfWorkのキューではなく直接INSERTする。
  */
-class TrxNotificationRepository implements NotificationRepositoryInterface
+class NotificationRepositoryAdapter implements NotificationRepositoryInterface
 {
     private const TABLE = 'trx_notification';
 
@@ -44,7 +45,7 @@ class TrxNotificationRepository implements NotificationRepositoryInterface
 
         return $query->orderByDesc('id')
             ->get()
-            ->map(fn ($row) => $this->toDto((array) $row))
+            ->map(fn ($row) => NotificationAdapter::toDto((array) $row))
             ->all();
     }
 
@@ -58,7 +59,7 @@ class TrxNotificationRepository implements NotificationRepositoryInterface
             ->where('id', $id)
             ->first();
 
-        return $row ? $this->toDto((array) $row) : null;
+        return $row ? NotificationAdapter::toDto((array) $row) : null;
     }
 
     /**
@@ -154,26 +155,5 @@ class TrxNotificationRepository implements NotificationRepositoryInterface
     private function connectionFor(int $playerId): string
     {
         return ApiSession::resolveConnectionNameForPlayer($playerId);
-    }
-
-    /**
-     * @param  array<string, mixed>  $row
-     */
-    private function toDto(array $row): Notification
-    {
-        /** @var array<string, mixed>|null $payload */
-        $payload = $row['payload'] === null ? null : json_decode((string) $row['payload'], true);
-
-        return new Notification(
-            id: (int) $row['id'],
-            playerId: (int) $row['sys_player_id'],
-            type: NotificationType::from((string) $row['type']),
-            title: (string) $row['title'],
-            body: (string) $row['body'],
-            payload: $payload ?? [],
-            isRead: (bool) $row['is_read'],
-            readAt: $row['read_at'] === null ? null : (string) $row['read_at'],
-            createdAt: (string) $row['created_at'],
-        );
     }
 }

@@ -12,7 +12,14 @@ use NexusRewardTrack\DataTransferObjects\RewardTrackLineMaster;
 use NexusRewardTrack\DataTransferObjects\RewardTrackMaster;
 use NexusRewardTrack\DataTransferObjects\RewardTrackMilestoneMaster;
 
-class RewardTrackMasterRepository implements RewardTrackMasterRepositoryInterface
+/**
+ * RewardTrackMasterRepositoryAdapter
+ *
+ * マスター（mst_reward_track / _line / _milestone / _content）の読み取り。
+ * パッケージ契約（RewardTrackMasterRepositoryInterface）の実装。契約単位のため Model と 1 対 1 の規約の対象外（*RepositoryAdapter）。
+ * 読み書きは接続を指定した DB::table で行い、行を DTO にして返す（UnitOfWork のキューは通さない）。
+ */
+class RewardTrackMasterRepositoryAdapter implements RewardTrackMasterRepositoryInterface
 {
     public function __construct(
         private readonly EventPeriodResolver $eventPeriodResolver,

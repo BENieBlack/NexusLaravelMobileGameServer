@@ -27,22 +27,11 @@ class RepositoryOneToOneModelTest extends TestCase
 {
     /**
      * 解消待ちの違反（層/クラス名）。新しい Repository をここへ足してはならない。解消したら消す。
-     * 8 件はパッケージ契約の実装（Adapter 化か Model 付与が必要）。
-     * TrxGachaHistoryRepository だけは Interface を実装せず log_action_gacha_draw へ DB::table で直接 INSERT する別種の違反（Trx 接頭辞だが log に書く。本来は Model 付きの Log 側）。
+     * 解消待ちはなし（パッケージ契約の実装は *RepositoryAdapter に改名、ガチャ履歴は LogGachaDrawRepository へ移した）。
      *
      * @var list<string>
      */
-    private const PENDING = [
-        'Mst/RewardTrackMasterRepository',
-        'Sys/SysChatMessageRepository',
-        'Sys/SysChatRoomMemberRepository',
-        'Sys/SysChatRoomRepository',
-        'Trx/TrxGachaHistoryRepository',
-        'Trx/TrxNotificationRepository',
-        'Trx/TrxRewardTrackLineRepository',
-        'Trx/TrxRewardTrackMilestoneRepository',
-        'Trx/TrxRewardTrackRepository',
-    ];
+    private const PENDING = [];
 
     #[Test]
     public function test_repositories_have_the_same_named_model(): void

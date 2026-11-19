@@ -25,7 +25,7 @@
 | 項目 | 現状 |
 | --- | --- |
 | 期間の持ち方 | ガチャ・ミッション・交換所・ログインボーナス・リワードトラックが、それぞれのマスターに `start_at` / `end_at` を持つ |
-| 期間の判定 | 5機能に分散していて、方式も揃っていない。SQL の `where` で絞るもの（`LoginBonusRepositoryAdapter`、`RewardTrackMasterRepository`）と、メモリ上で `ClockUtility` を使って比べるもの（`GachaValidationService`、`MissionService`、`TradeService`）がある |
+| 期間の判定 | 5機能に分散していて、方式も揃っていない。SQL の `where` で絞るもの（`LoginBonusRepositoryAdapter`、`RewardTrackMasterRepositoryAdapter`）と、メモリ上で `ClockUtility` を使って比べるもの（`GachaValidationService`、`MissionService`、`TradeService`）がある |
 | Wallet | `mst_item.is_wallet = true` のアイテムは `trx_item` ではなく Wallet に入り、取得単位の有効期限と先入先出の消費ができる。**ただし期限切れの除去（`removeExpiredCurrency`）は、api にも packages にも呼び出し元が無い**。消費・残高は、期限切れを含む `total_amount` を見る（W1） |
 | Wallet の入口 | `mst_item` のアイテムは api の `ItemService`（付与・消費・取得）、通貨・ポイントは `CurrencyDeliveryHandler` / `PointsDeliveryHandler`（`WalletService` を直接使う） |
 | 報酬の期限 | `ResourceDeliveryContent::getExpireAt()` があり、`PointsDeliveryHandler` は付与時の有効期限として使う |
@@ -83,7 +83,7 @@ EventPeriodResolver::resolve(content_type, content_mst_id, now)
 ```
 
 - パッケージ（`nexus-gacha` など）は `nexus-event` を知らない。差し替えは api の Adapter だけで行うので、パッケージの依存は増えない
-- SQL で期間を絞っている2か所（`LoginBonusRepositoryAdapter`、`RewardTrackMasterRepository`）は、期間の条件を SQL から外し、差し替えた後に PHP で判定する形に直す。イベントの期間は SQL の `where` では表せないため
+- SQL で期間を絞っている2か所（`LoginBonusRepositoryAdapter`、`RewardTrackMasterRepositoryAdapter`）は、期間の条件を SQL から外し、差し替えた後に PHP で判定する形に直す。イベントの期間は SQL の `where` では表せないため
 - 「どのイベントを採用するか」は、`EventPeriodResolver` だけが決める（3.4）
 
 ### 3.4 イベントの期間は重ならない／同じコンテンツを複数のイベントで使い回す
@@ -435,7 +435,7 @@ trx_ranking             （プレイヤーのシャード。報酬を受け取�
 | api の `ItemService` | `addItem` / `consumeItem` / `findItemAmount` が `walletItemMigrator->migrate()` を呼んでいる位置に、`ensureEntered` を呼ぶ。`addItem` は `$expireAt` を受け取るので、イベントのアイテムなら `exchange_end_at` に差し替える。期間外のイベントのアイテムは、付与を飛ばして `log_action_event_item_rejected` に残し、`DeferredGameErrors` に登録する（4.5） |
 | `App\Traits\UseCaseTrait::executeWithTransaction()`、新しい `DeferredGameErrors`（`scoped`） | 全接続のコミットの後に、登録されたエラーの最初の1件を投げる（4.5）。登録が無ければ、今までと同じ動き |
 | `GameErrorCode`、`.claude/api.md` | `EVENT_ITEM_NOT_AVAILABLE`、`RANKING_*` の追加。「このエラーでも操作は完了している。クライアントは状態を取り直す」ことを `api.md` に書く |
-| ガチャ（`MstGachaRepository`。`GachaValidationService` が使う）、ミッション・交換所のマスター読み取りの Adapter、`LoginBonusRepositoryAdapter`、`RewardTrackMasterRepository` | マスター読み取りで `EventPeriodResolver` を使う。ガチャは package の DTO ではなく api のモデルを返すので、モデルの `start_at` / `end_at` をメモリ上で差し替える。SQL で期間を絞る2か所は PHP の判定に直す |
+| ガチャ（`MstGachaRepository`。`GachaValidationService` が使う）、ミッション・交換所のマスター読み取りの Adapter、`LoginBonusRepositoryAdapter`、`RewardTrackMasterRepositoryAdapter` | マスター読み取りで `EventPeriodResolver` を使う。ガチャは package の DTO ではなく api のモデルを返すので、モデルの `start_at` / `end_at` をメモリ上で差し替える。SQL で期間を絞る2か所は PHP の判定に直す |
 | `nexus-mission` | フェーズ2：`scope` の追加（`trx_progress`、`trx_mission`、`ProgressRepositoryInterface`） |
 | 運営ツール | マスター取り込み時の検査（3.5） |
 | `nexus-event` の `EventScoreService`、api のリスナー | 得点の記録（`trx_event_score`）と、ランキングを使うイベントでの順位表への登録（`EventScoreUpdated`） |

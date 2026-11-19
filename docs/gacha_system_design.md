@@ -263,8 +263,9 @@ app/Repositories/
 │   ├── MstGachaCostRepository.php
 │   ├── MstGachaRarityRateRepository.php
 │   └── MstGachaPrizeRepository.php
+├── Log/
+│   └── LogGachaDrawRepository.php
 └── Trx/
-    ├── TrxGachaHistoryRepository.php
     └── TrxGachaDailyCountRepository.php
 ```
 

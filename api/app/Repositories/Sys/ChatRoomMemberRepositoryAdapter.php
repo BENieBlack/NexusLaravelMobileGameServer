@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Sys;
 
+use App\Adapters\Chat\ChatRoomMemberAdapter;
 use Illuminate\Support\Facades\DB;
 use Nexus\Core\Utilities\ClockUtility;
 use NexusChat\Constants\ChatRoomRole;
@@ -9,12 +10,15 @@ use NexusChat\Contracts\ChatRoomMemberRepositoryInterface;
 use NexusChat\DataTransferObjects\ChatRoomMember;
 
 /**
- * SysChatRoomMemberRepository
+ * ChatRoomMemberRepositoryAdapter
  *
  * sys_chat_room_member の永続化。
  * GUILD チャットはこの表を使わない（加入がそのまま参加のため）。
+ *
+ * パッケージ契約（nexus-chat の Repository interface）の実装。契約単位のため Model と 1 対 1 の規約の対象外（*RepositoryAdapter）。
+ * Model を持たず DB::table で直接読み書きする。UnitOfWork のキューを通らないので、書き込みは UseCase のトランザクション終了を待たず即時に実行される。
  */
-class SysChatRoomMemberRepository implements ChatRoomMemberRepositoryInterface
+class ChatRoomMemberRepositoryAdapter implements ChatRoomMemberRepositoryInterface
 {
     private const CONNECTION = 'sys';
 
@@ -26,7 +30,7 @@ class SysChatRoomMemberRepository implements ChatRoomMemberRepositoryInterface
             ->where('chat_room_id', $chatRoomId)
             ->orderBy('id')
             ->get()
-            ->map(fn ($row) => $this->toDto((array) $row))
+            ->map(fn ($row) => ChatRoomMemberAdapter::toDto((array) $row))
             ->all();
     }
 
@@ -37,7 +41,7 @@ class SysChatRoomMemberRepository implements ChatRoomMemberRepositoryInterface
             ->where('sys_player_id', $playerId)
             ->first();
 
-        return $row ? $this->toDto((array) $row) : null;
+        return $row ? ChatRoomMemberAdapter::toDto((array) $row) : null;
     }
 
     public function insert(
@@ -91,20 +95,5 @@ class SysChatRoomMemberRepository implements ChatRoomMemberRepositoryInterface
         return DB::connection(self::CONNECTION)->table(self::TABLE)
             ->where('chat_room_id', $chatRoomId)
             ->count();
-    }
-
-    /**
-     * @param  array<string, mixed>  $row
-     */
-    private function toDto(array $row): ChatRoomMember
-    {
-        return new ChatRoomMember(
-            id: (int) $row['id'],
-            chatRoomId: (int) $row['chat_room_id'],
-            playerId: (int) $row['sys_player_id'],
-            playerName: (string) $row['player_name'],
-            role: ChatRoomRole::from((string) $row['role']),
-            joinedAt: (string) $row['joined_at'],
-        );
     }
 }

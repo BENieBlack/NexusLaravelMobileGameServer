@@ -2,20 +2,24 @@
 
 namespace App\Repositories\Sys;
 
+use App\Adapters\Chat\ChatMessageAdapter;
 use Illuminate\Support\Facades\DB;
 use Nexus\Core\Utilities\ClockUtility;
 use NexusChat\Contracts\ChatMessageRepositoryInterface;
 use NexusChat\DataTransferObjects\ChatMessage;
 
 /**
- * SysChatMessageRepository
+ * ChatMessageRepositoryAdapter
  *
  * sys_chat_message の永続化。
  *
  * 送信直後のメッセージはブロードキャストに載せるため、
  * 採番したIDを持つDTOをその場で返す必要がある。
+ *
+ * パッケージ契約（nexus-chat の Repository interface）の実装。契約単位のため Model と 1 対 1 の規約の対象外（*RepositoryAdapter）。
+ * Model を持たず DB::table で直接読み書きする。UnitOfWork のキューを通らないので、書き込みは UseCase のトランザクション終了を待たず即時に実行される。
  */
-class SysChatMessageRepository implements ChatMessageRepositoryInterface
+class ChatMessageRepositoryAdapter implements ChatMessageRepositoryInterface
 {
     private const CONNECTION = 'sys';
 
@@ -42,7 +46,7 @@ class SysChatMessageRepository implements ChatMessageRepositoryInterface
             ->get()
             ->reverse()
             ->values()
-            ->map(fn ($row) => $this->toDto((array) $row))
+            ->map(fn ($row) => ChatMessageAdapter::toDto((array) $row))
             ->all();
     }
 
@@ -52,7 +56,7 @@ class SysChatMessageRepository implements ChatMessageRepositoryInterface
             ->where('id', $messageId)
             ->first();
 
-        return $row ? $this->toDto((array) $row) : null;
+        return $row ? ChatMessageAdapter::toDto((array) $row) : null;
     }
 
     public function insert(
@@ -93,21 +97,5 @@ class SysChatMessageRepository implements ChatMessageRepositoryInterface
         DB::connection(self::CONNECTION)->table(self::TABLE)
             ->where('id', $messageId)
             ->update(['is_deleted' => true]);
-    }
-
-    /**
-     * @param  array<string, mixed>  $row
-     */
-    private function toDto(array $row): ChatMessage
-    {
-        return new ChatMessage(
-            id: (int) $row['id'],
-            chatRoomId: (int) $row['chat_room_id'],
-            senderPlayerId: (int) $row['sender_player_id'],
-            senderName: (string) $row['sender_name'],
-            body: (string) $row['body'],
-            isDeleted: (bool) $row['is_deleted'],
-            createdAt: (string) $row['created_at'],
-        );
     }
 }

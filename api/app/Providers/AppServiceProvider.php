@@ -60,20 +60,20 @@ use App\Repositories\Mst\MstVipLevelRepository;
 use App\Repositories\Mst\MstVipLevelRewardRepository;
 use App\Repositories\Mst\MstVipLoginBonusRepository;
 use App\Repositories\Mst\PlayerLevelRepositoryAdapter;
-use App\Repositories\Mst\RewardTrackMasterRepository;
+use App\Repositories\Mst\RewardTrackMasterRepositoryAdapter;
 use App\Repositories\Mst\TagRepositoryAdapter;
 use App\Repositories\Mst\TradeMasterRepositoryAdapter;
 use App\Repositories\Mst\VipLoginBonusRepositoryInterface;
 use App\Repositories\Sys\AgreementRepositoryAdapter;
+use App\Repositories\Sys\ChatMessageRepositoryAdapter;
+use App\Repositories\Sys\ChatRoomMemberRepositoryAdapter;
+use App\Repositories\Sys\ChatRoomRepositoryAdapter;
 use App\Repositories\Sys\DeployRepositoryAdapter;
 use App\Repositories\Sys\FriendApplyRepositoryAdapter;
 use App\Repositories\Sys\GuildApplyRepositoryAdapter;
 use App\Repositories\Sys\GuildMemberRepositoryAdapter;
 use App\Repositories\Sys\GuildRepositoryAdapter;
 use App\Repositories\Sys\PlayerRepositoryAdapter;
-use App\Repositories\Sys\SysChatMessageRepository;
-use App\Repositories\Sys\SysChatRoomMemberRepository;
-use App\Repositories\Sys\SysChatRoomRepository;
 use App\Repositories\Sys\SysMaintenanceRepository;
 use App\Repositories\Sys\SysPlayerDeviceRepository;
 use App\Repositories\Sys\SysPlayerTokenRepository;
@@ -85,13 +85,13 @@ use App\Repositories\Trx\ItemRepositoryAdapter;
 use App\Repositories\Trx\LoginBonusHistoryRepositoryAdapter;
 use App\Repositories\Trx\MailboxRepositoryAdapter;
 use App\Repositories\Trx\MissionReceiptRepositoryAdapter;
+use App\Repositories\Trx\NotificationRepositoryAdapter;
 use App\Repositories\Trx\ProgressRepositoryAdapter;
+use App\Repositories\Trx\RewardTrackLineRepositoryAdapter;
+use App\Repositories\Trx\RewardTrackMilestoneRepositoryAdapter;
+use App\Repositories\Trx\RewardTrackRepositoryAdapter;
 use App\Repositories\Trx\StaminaRepositoryAdapter;
 use App\Repositories\Trx\TradeProductCountRepositoryAdapter;
-use App\Repositories\Trx\TrxNotificationRepository;
-use App\Repositories\Trx\TrxRewardTrackLineRepository;
-use App\Repositories\Trx\TrxRewardTrackMilestoneRepository;
-use App\Repositories\Trx\TrxRewardTrackRepository;
 use App\Repositories\Trx\TrxVipLoginBonusRepository;
 use App\Repositories\Trx\UnitRepositoryAdapter;
 use App\Repositories\Trx\VipLoginBonusHistoryRepositoryInterface;
@@ -343,13 +343,13 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(FriendApplyRepositoryInterface::class, FriendApplyRepositoryAdapter::class);
 
         // ゲーム内通知
-        $this->app->bind(NotificationRepositoryInterface::class, TrxNotificationRepository::class);
+        $this->app->bind(NotificationRepositoryInterface::class, NotificationRepositoryAdapter::class);
         $this->app->bind(NotificationDispatcherInterface::class, ReverbNotificationDispatcher::class);
 
         // チャット（フレンドDM・ギルド・グループ）
-        $this->app->bind(ChatRoomRepositoryInterface::class, SysChatRoomRepository::class);
-        $this->app->bind(ChatMessageRepositoryInterface::class, SysChatMessageRepository::class);
-        $this->app->bind(ChatRoomMemberRepositoryInterface::class, SysChatRoomMemberRepository::class);
+        $this->app->bind(ChatRoomRepositoryInterface::class, ChatRoomRepositoryAdapter::class);
+        $this->app->bind(ChatMessageRepositoryInterface::class, ChatMessageRepositoryAdapter::class);
+        $this->app->bind(ChatRoomMemberRepositoryInterface::class, ChatRoomMemberRepositoryAdapter::class);
 
         // アルバム（収集記録）
         $this->app->bind(AlbumEntryRepositoryInterface::class, AlbumEntryRepositoryAdapter::class);
@@ -444,10 +444,10 @@ class AppServiceProvider extends ServiceProvider
         // ==========================================
         // NexusRewardTrack Package Bindings
         // ==========================================
-        $this->app->singleton(RewardTrackMasterRepositoryInterface::class, RewardTrackMasterRepository::class);
-        $this->app->scoped(RewardTrackRepositoryInterface::class, TrxRewardTrackRepository::class);
-        $this->app->scoped(RewardTrackLineRepositoryInterface::class, TrxRewardTrackLineRepository::class);
-        $this->app->scoped(RewardTrackMilestoneRepositoryInterface::class, TrxRewardTrackMilestoneRepository::class);
+        $this->app->singleton(RewardTrackMasterRepositoryInterface::class, RewardTrackMasterRepositoryAdapter::class);
+        $this->app->scoped(RewardTrackRepositoryInterface::class, RewardTrackRepositoryAdapter::class);
+        $this->app->scoped(RewardTrackLineRepositoryInterface::class, RewardTrackLineRepositoryAdapter::class);
+        $this->app->scoped(RewardTrackMilestoneRepositoryInterface::class, RewardTrackMilestoneRepositoryAdapter::class);
 
         $this->registerScopedRepositories();
     }

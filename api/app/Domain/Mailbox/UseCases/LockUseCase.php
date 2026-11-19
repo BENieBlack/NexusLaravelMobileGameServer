@@ -27,8 +27,10 @@ class LockUseCase extends _BaseUseCase
     public function handle(int $sysPlayerId, int $trxMailboxId, bool $isLocked): LockResponse
     {
         $this->executeWithTransaction(function () use ($sysPlayerId, $trxMailboxId, $isLocked) {
-            // メールボックス取得
-            $trxMailbox = $this->trxMailboxRepository->selectById($trxMailboxId);
+            // バッチ（mailbox:delete-expired）も同じ行の is_protected / is_delete を書くため、
+            // FOR UPDATE で読み直してから判定・更新する（ロックの外で読んだ値で書かない）。
+            // 先に押さえた側が終わるまで待つので、削除済みかどうかの判定も最新の値になる
+            $trxMailbox = $this->trxMailboxRepository->selectByIdForUpdate($trxMailboxId);
 
             if ($trxMailbox === null || $trxMailbox->getSysPlayerId() !== $sysPlayerId) {
                 throw new GameException(GameErrorCode::MAILBOX_NOT_FOUND, 'Mailbox not found');

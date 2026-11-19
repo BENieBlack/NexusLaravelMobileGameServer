@@ -244,11 +244,12 @@ curl -X POST http://localhost/api/gacha/draw \
 - `api/app/Models/Mst/MstGachaStepGuaranteed.php`
 - `api/app/Models/Mst/MstGachaStepGuaranteedCandidate.php`
 - `api/app/Models/Trx/TrxGacha.php`
-- `api/app/Models/Trx/TrxGachaHistory.php`
+- `api/app/Models/Log/LogGachaDraw.php`
 
 ### Repositories (9 files)
 - `api/app/Repositories/Mst/MstGacha*Repository.php` (7 files)
-- `api/app/Repositories/Trx/TrxGacha*Repository.php` (2 files)
+- `api/app/Repositories/Trx/TrxGachaRepository.php` (1 file)
+- `api/app/Repositories/Log/LogGachaDrawRepository.php` (1 file)
 
 ### Services (5 files)
 - `api/app/Domain/Gacha/Services/GachaValidationService.php`

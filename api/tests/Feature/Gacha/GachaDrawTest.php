@@ -311,6 +311,16 @@ class GachaDrawTest extends TestCase
 
         $totalCount = $itemCount + $unitCount + $equipmentCount;
         $this->assertEquals(1, $totalCount, 'Should have 1 item distributed');
+
+        // ガチャ実行ログ（log_action_gacha_draw）が Log の Repository 経由でプレイヤーのシャードの LogDB に 1 行書かれている
+        $this->assertSame(
+            1,
+            DB::connection($this->playerLogConnection($this->testPlayerId))
+                ->table('log_action_gacha_draw')
+                ->where('sys_player_id', $this->testPlayerId)
+                ->where('mst_gacha_id', $this->testGachaId)
+                ->count()
+        );
     }
 
     /**

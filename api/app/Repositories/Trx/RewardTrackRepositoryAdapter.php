@@ -2,12 +2,20 @@
 
 namespace App\Repositories\Trx;
 
+use App\Adapters\RewardTrack\RewardTrackAdapter;
 use Illuminate\Support\Facades\DB;
 use Nexus\Core\Utilities\ClockUtility;
 use NexusRewardTrack\DataTransferObjects\RewardTrack;
 use NexusRewardTrack\Repositories\RewardTrackRepositoryInterface;
 
-class TrxRewardTrackRepository implements RewardTrackRepositoryInterface
+/**
+ * RewardTrackRepositoryAdapter
+ *
+ * trx_reward_track（プレイヤーのトラック進行）の永続化。
+ * パッケージ契約（RewardTrackRepositoryInterface）の実装。契約単位のため Model と 1 対 1 の規約の対象外（*RepositoryAdapter）。
+ * 読み書きは接続を指定した DB::table で行い、行を DTO にして返す（UnitOfWork のキューは通さない）。書き込みは UseCase のトランザクション終了を待たず、呼んだ時点で実行される。
+ */
+class RewardTrackRepositoryAdapter implements RewardTrackRepositoryInterface
 {
     public function findByPlayerAndTrack(int $sysPlayerId, string $mstRewardTrackId, string $connectionName): ?RewardTrack
     {
@@ -18,7 +26,7 @@ class TrxRewardTrackRepository implements RewardTrackRepositoryInterface
             ->where('is_delete', false)
             ->first();
 
-        return $row ? $this->toDto((array) $row) : null;
+        return $row ? RewardTrackAdapter::toDto((array) $row) : null;
     }
 
     public function findAllByPlayer(int $sysPlayerId, string $connectionName): array
@@ -28,7 +36,7 @@ class TrxRewardTrackRepository implements RewardTrackRepositoryInterface
             ->where('sys_player_id', $sysPlayerId)
             ->where('is_delete', false)
             ->get()
-            ->map(fn ($r) => $this->toDto((array) $r))
+            ->map(fn ($r) => RewardTrackAdapter::toDto((array) $r))
             ->all();
     }
 
@@ -77,21 +85,5 @@ class TrxRewardTrackRepository implements RewardTrackRepositoryInterface
 
         return $this->findByPlayerAndTrack($sysPlayerId, $mstRewardTrackId, $connectionName)
             ?? throw new \LogicException('upsert 直後の行が取得できません: '.$mstRewardTrackId);
-    }
-
-    /**
-     * @param  array<string, mixed>  $row
-     */
-    private function toDto(array $row): RewardTrack
-    {
-        return new RewardTrack(
-            id: (int) $row['id'],
-            sysPlayerId: (int) $row['sys_player_id'],
-            mstRewardTrackId: $row['mst_reward_track_id'],
-            currentProgress: (int) $row['current_progress'],
-            isDelete: (bool) $row['is_delete'],
-            createdAt: $row['created_at'] ?? null,
-            updatedAt: $row['updated_at'] ?? null,
-        );
     }
 }

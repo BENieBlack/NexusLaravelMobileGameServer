@@ -2,12 +2,20 @@
 
 namespace App\Repositories\Trx;
 
+use App\Adapters\RewardTrack\RewardTrackLineAdapter;
 use Illuminate\Support\Facades\DB;
 use Nexus\Core\Utilities\ClockUtility;
 use NexusRewardTrack\DataTransferObjects\RewardTrackLine;
 use NexusRewardTrack\Repositories\RewardTrackLineRepositoryInterface;
 
-class TrxRewardTrackLineRepository implements RewardTrackLineRepositoryInterface
+/**
+ * RewardTrackLineRepositoryAdapter
+ *
+ * trx_reward_track_line（ライン解放状態）の永続化。
+ * パッケージ契約（RewardTrackLineRepositoryInterface）の実装。契約単位のため Model と 1 対 1 の規約の対象外（*RepositoryAdapter）。
+ * 読み書きは接続を指定した DB::table で行い、行を DTO にして返す（UnitOfWork のキューは通さない）。書き込みは UseCase のトランザクション終了を待たず、呼んだ時点で実行される。
+ */
+class RewardTrackLineRepositoryAdapter implements RewardTrackLineRepositoryInterface
 {
     public function findAllByPlayer(int $sysPlayerId, string $connectionName): array
     {
@@ -16,7 +24,7 @@ class TrxRewardTrackLineRepository implements RewardTrackLineRepositoryInterface
             ->where('sys_player_id', $sysPlayerId)
             ->where('is_delete', false)
             ->get()
-            ->map(fn ($r) => $this->toDto((array) $r))
+            ->map(fn ($r) => RewardTrackLineAdapter::toDto((array) $r))
             ->all();
     }
 
@@ -64,23 +72,6 @@ class TrxRewardTrackLineRepository implements RewardTrackLineRepositoryInterface
             ->where('id', $id)
             ->first();
 
-        return $this->toDto((array) $row);
-    }
-
-    /**
-     * @param  array<string, mixed>  $row
-     */
-    private function toDto(array $row): RewardTrackLine
-    {
-        return new RewardTrackLine(
-            id: (int) $row['id'],
-            sysPlayerId: (int) $row['sys_player_id'],
-            mstRewardTrackLineId: $row['mst_reward_track_line_id'],
-            mstInAppPurchaseId: (int) $row['mst_in_app_purchase_id'],
-            purchasedAt: $row['purchased_at'],
-            isDelete: (bool) $row['is_delete'],
-            createdAt: $row['created_at'] ?? null,
-            updatedAt: $row['updated_at'] ?? null,
-        );
+        return RewardTrackLineAdapter::toDto((array) $row);
     }
 }

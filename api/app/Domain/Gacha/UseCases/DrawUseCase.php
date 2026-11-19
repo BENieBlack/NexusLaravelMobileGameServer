@@ -7,8 +7,8 @@ use App\Domain\Gacha\Responses\DrawResponse;
 use App\Domain\Gacha\Services\GachaCostService;
 use App\Domain\Gacha\Services\GachaValidationService;
 use App\Models\Mst\MstGachaCost;
+use App\Repositories\Log\LogGachaDrawRepository;
 use App\Repositories\Mst\MstGachaStepRepository;
-use App\Repositories\Trx\TrxGachaHistoryRepository;
 use App\Traits\RequiresAuthenticationTrait;
 use Illuminate\Support\Str;
 use NexusGacha\Services\GachaDrawService;
@@ -32,7 +32,7 @@ class DrawUseCase extends _BaseUseCase
         private readonly GachaDrawService $drawService,
         private readonly GachaPrizeService $prizeService,
         private readonly MstGachaStepRepository $stepRepository,
-        private readonly TrxGachaHistoryRepository $historyRepository,
+        private readonly LogGachaDrawRepository $logGachaDrawRepository,
     ) {}
 
     /**
@@ -160,15 +160,16 @@ class DrawUseCase extends _BaseUseCase
      */
     private function persistHistory(int $sysPlayerId, string $mstGachaId, int $drawCount, MstGachaCost $mstGachaCost, array $prizes, string $uniqueRequestId): void
     {
-        $this->historyRepository->insert([
-            'sys_player_id' => $sysPlayerId,
-            'mst_gacha_id' => $mstGachaId,
-            'draw_count' => $drawCount,
-            'cost_type' => $mstGachaCost->getCostType(),
-            'cost_mst_id' => $mstGachaCost->getCostMstId(),
-            'cost_amount' => $mstGachaCost->getCostAmount(),
-            'prizes' => $prizes,
-            'unique_request_id' => $uniqueRequestId,
-        ]);
+        // log_action_gacha_draw への書き込みは Log の Repository に任せる（Trx 接頭辞の Repository から log へ書かない）
+        $this->logGachaDrawRepository->insertDrawLog(
+            uniqueRequestId: $uniqueRequestId,
+            sysPlayerId: $sysPlayerId,
+            mstGachaId: $mstGachaId,
+            drawCount: $drawCount,
+            costType: $mstGachaCost->getCostType(),
+            costMstId: $mstGachaCost->getCostMstId(),
+            costAmount: $mstGachaCost->getCostAmount(),
+            prizes: $prizes,
+        );
     }
 }

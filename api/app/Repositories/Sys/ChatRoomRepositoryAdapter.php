@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Sys;
 
+use App\Adapters\Chat\ChatRoomAdapter;
 use Illuminate\Support\Facades\DB;
 use Nexus\Core\Utilities\ClockUtility;
 use NexusChat\Constants\ChatRoomRole;
@@ -10,15 +11,18 @@ use NexusChat\Contracts\ChatRoomRepositoryInterface;
 use NexusChat\DataTransferObjects\ChatRoom;
 
 /**
- * SysChatRoomRepository
+ * ChatRoomRepositoryAdapter
  *
  * sys_chat_room の永続化。nexus-chat のインターフェースを直接実装する。
  *
  * チャットはシャードを跨いで会話するため sys に置く。
  * 生成系は採番したIDを載せたDTOを返す必要がある（room_key と
  * ブロードキャストのチャンネル名がIDから決まる）ため、直接INSERTする。
+ *
+ * パッケージ契約（nexus-chat の Repository interface）の実装。契約単位のため Model と 1 対 1 の規約の対象外（*RepositoryAdapter）。
+ * Model を持たず DB::table で直接読み書きする。UnitOfWork のキューを通らないので、書き込みは UseCase のトランザクション終了を待たず即時に実行される。
  */
-class SysChatRoomRepository implements ChatRoomRepositoryInterface
+class ChatRoomRepositoryAdapter implements ChatRoomRepositoryInterface
 {
     private const CONNECTION = 'sys';
 
@@ -28,7 +32,7 @@ class SysChatRoomRepository implements ChatRoomRepositoryInterface
     {
         $row = DB::connection(self::CONNECTION)->table(self::TABLE)->where('id', $id)->first();
 
-        return $row ? $this->toDto((array) $row) : null;
+        return $row ? ChatRoomAdapter::toDto((array) $row) : null;
     }
 
     public function selectByRoomKey(string $roomKey): ?ChatRoom
@@ -36,7 +40,7 @@ class SysChatRoomRepository implements ChatRoomRepositoryInterface
         $row = DB::connection(self::CONNECTION)->table(self::TABLE)
             ->where('room_key', $roomKey)->first();
 
-        return $row ? $this->toDto((array) $row) : null;
+        return $row ? ChatRoomAdapter::toDto((array) $row) : null;
     }
 
     /**
@@ -181,7 +185,7 @@ class SysChatRoomRepository implements ChatRoomRepositoryInterface
         return $query->orderByDesc('r.id')
             ->select('r.*')
             ->get()
-            ->map(fn ($row) => $this->toDto((array) $row))
+            ->map(fn ($row) => ChatRoomAdapter::toDto((array) $row))
             ->all();
     }
 
@@ -202,21 +206,5 @@ class SysChatRoomRepository implements ChatRoomRepositoryInterface
             ->value('name');
 
         return $name === null ? '' : (string) $name;
-    }
-
-    /**
-     * @param  array<string, mixed>  $row
-     */
-    private function toDto(array $row): ChatRoom
-    {
-        return new ChatRoom(
-            id: (int) $row['id'],
-            type: ChatRoomType::from((string) $row['type']),
-            roomKey: (string) $row['room_key'],
-            name: $row['name'] === null ? '' : (string) $row['name'],
-            guildId: $row['sys_guild_id'] === null ? null : (int) $row['sys_guild_id'],
-            memberCount: (int) $row['member_count'],
-            createdAt: (string) $row['created_at'],
-        );
     }
 }

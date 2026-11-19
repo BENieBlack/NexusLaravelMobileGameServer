@@ -2,12 +2,20 @@
 
 namespace App\Repositories\Trx;
 
+use App\Adapters\RewardTrack\RewardTrackMilestoneAdapter;
 use Illuminate\Support\Facades\DB;
 use Nexus\Core\Utilities\ClockUtility;
 use NexusRewardTrack\DataTransferObjects\RewardTrackMilestone;
 use NexusRewardTrack\Repositories\RewardTrackMilestoneRepositoryInterface;
 
-class TrxRewardTrackMilestoneRepository implements RewardTrackMilestoneRepositoryInterface
+/**
+ * RewardTrackMilestoneRepositoryAdapter
+ *
+ * trx_reward_track_milestone（マイルストーン受取状態）の永続化。
+ * パッケージ契約（RewardTrackMilestoneRepositoryInterface）の実装。契約単位のため Model と 1 対 1 の規約の対象外（*RepositoryAdapter）。
+ * 読み書きは接続を指定した DB::table で行い、行を DTO にして返す（UnitOfWork のキューは通さない）。書き込みは UseCase のトランザクション終了を待たず、呼んだ時点で実行される。
+ */
+class RewardTrackMilestoneRepositoryAdapter implements RewardTrackMilestoneRepositoryInterface
 {
     public function findByPlayerAndTrack(int $sysPlayerId, string $mstRewardTrackId, string $connectionName): array
     {
@@ -24,7 +32,7 @@ class TrxRewardTrackMilestoneRepository implements RewardTrackMilestoneRepositor
             ->where('trm.is_delete', false)
             ->select('trm.*')
             ->get()
-            ->map(fn ($r) => $this->toDto((array) $r))
+            ->map(fn ($r) => RewardTrackMilestoneAdapter::toDto((array) $r))
             ->all();
     }
 
@@ -58,7 +66,7 @@ class TrxRewardTrackMilestoneRepository implements RewardTrackMilestoneRepositor
             ->where('id', $id)
             ->first();
 
-        return $this->toDto((array) $row);
+        return RewardTrackMilestoneAdapter::toDto((array) $row);
     }
 
     public function findReceivedKeySet(int $sysPlayerId, string $mstRewardTrackId, string $connectionName): array
@@ -91,22 +99,5 @@ class TrxRewardTrackMilestoneRepository implements RewardTrackMilestoneRepositor
         }
 
         return $keySet;
-    }
-
-    /**
-     * @param  array<string, mixed>  $row
-     */
-    private function toDto(array $row): RewardTrackMilestone
-    {
-        return new RewardTrackMilestone(
-            id: (int) $row['id'],
-            sysPlayerId: (int) $row['sys_player_id'],
-            mstRewardTrackMilestoneId: $row['mst_reward_track_milestone_id'],
-            mstRewardTrackLineId: $row['mst_reward_track_line_id'],
-            receivedAt: $row['received_at'],
-            isDelete: (bool) $row['is_delete'],
-            createdAt: $row['created_at'] ?? null,
-            updatedAt: $row['updated_at'] ?? null,
-        );
     }
 }

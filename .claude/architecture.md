@@ -211,6 +211,42 @@ api/app/Providers/AppServiceProvider                                 ← bind(�
 - INSERT で採番されたIDを callback 内で直後に使う必要があるときだけ `flushQueue()` でキューを先に流す
 - 読み取りだけの UseCase は `executeWithTransaction()` を使わなくてよい
 
+### 行ロックの使い分け
+
+行ロック（`SELECT ... FOR UPDATE`）は、その行を**誰が書きうるか**で決める。
+
+- **本人しか書かない行は、行ロックを使わない。** `player.lock` に任せる。二重に取ってもデッドロックと待ちの原因になるだけ。
+- **他人・共用・外部（他プレイヤーの API、ツール［返金など］、課金 Webhook、バッチ）が書きうる行は、その行を書く全ての経路で、本人の API も含めて、トランザクション内で `SELECT ... FOR UPDATE` して読み直してから更新する。** ロックの外で読んだ値で更新しない。理由: 行ロックは書く側が全員取らないと効かない。本人の API がロックなしで「読む → 絶対値で UPDATE」すると、他人の API の更新を上書きする（`player.lock` は同じプレイヤーの中だけの直列化で、他人の API とは直列にならない）。
+- **自分と他人の両方を触る API は、他者が書きうる行を全経路でロックし、本人しか書かない行はロックしない。**
+
+判断表（テーブルごとに誰が書くか）。「確認済み」は、コードで書き込み経路を全て追った範囲。それ以外は例で、実装時にその行の書き込み経路を確かめる。
+
+| テーブル | 書く人 | 行ロック | 確認 |
+|---|---|---|---|
+| `trx_item` | 本人の API と、Wallet 移行バッチ（`api/app/Console/Commands/Wallet/MigrateItemsCommand` → `WalletItemMigrator::moveRow`。`trx_item` を `lockForUpdate` で読んで DELETE し、`trx_wallet` にも書く） | 本人の API は、`ItemService` から `WalletItemMigrator::migrate()` を `player.lock` の内側で呼び、lazy 移行（`wallet.lazy_migration`、既定 true）で移行行を `moveRow` でロック済み。競合しうるのは、コマンドを `player.lock` の外で通常運用中に流した場合だけ。コマンドはメンテナンス中に実行する前提（docblock）。`wallet.lazy_migration` を切ってコマンドだけで移す運用なら、バッチ稼働中は API を止める | 確認済み |
+| `trx_player` | 本人の API | なし | API 経路のみ確認。`sign_up`・データ引き継ぎ・`AssignPlayersCommand` など、認証なし・管理系の経路は未確認 |
+| `trx_vip_login_bonus` | 本人の API | なし | grep で API 以外の経路が無いことまで確認 |
+| `trx_mailbox` | 本人の API（receive など）と、`mailbox:delete-expired` バッチ（`is_delete` を `setModel()` で更新） | `OperationCollector` が `getDirty()` だけを書くので、バッチが書くのは `is_delete` と `updated_at` で、`is_received` は書き戻さない。残る穴: バッチは毎日 03:00 に通常運用中に走り、行ロックなしで読むので、受け取りと同時なら `is_delete` が付く（実害は小さい）。メールを他人が送る経路は API 内に見つからない（送信側は未実装）。実装するなら、sys に置くか設計変更として扱う（下の「他人が書く行は原則 sys」） | 確認済み（バッチと API） |
+| `sys_guild`（メンバー数の上限） | 複数のプレイヤー | `sys_guild` の行をミューテックスにして、`sys_guild_member` の count → insert を直列にする。`SysGuild` に人数列は無く、`countMembers()` は `sys_guild_member` を数える。上限は `max_members` | 例 |
+| フレンドの相手側の行 | 相手の API | 全経路でロック | 例 |
+| `mst_*` の読み取り | 読み取り専用 | 不要 | 確認済み |
+
+**`player.lock` の前提と限界**（これを根拠に「本人しか書かない」と言えるのは、次を満たすときだけ）
+
+- 直列化の対象は `auth.token` 配下の POST だけ。GET と、`authenticated_player_id` の無いリクエスト（`sign_in`・`transfer`・認証なしの guild 参照など）は対象外。GET が trx に書くと守りが外れる（今は書き込みは全て POST にする方針）。
+- 保持は30秒（`LOCK_SECONDS`）。処理が30秒を超えるとロックが先に切れる（冪等の `PROCESSING_TIMEOUT` は300秒）ので、30秒以内に終わる前提で書く。
+- Redis が落ちたら 503 で通さない（穴ではない）。
+- ミドルウェアの順序は `auth.token` → `idempotency` → `player.lock`（`api/routes/api.php`）。同じキーの同時リクエストは 409。
+
+**例外と注意**
+
+- 複数行をロックするときは主キーの昇順に取る（並びが揃わないとデッドロックする）。順序は `player.lock` → 他人の行を昇順。
+- 共用の件数・残高は、行ロックより原子的な UPDATE（`SET n = n + 1`、条件つき UPDATE の影響行数で成否判定）で足りる場合がある。trx の「読む → メモリで計算 → 絶対値で UPDATE」の規約とは別の書き方なので、使うときは Repository のメソッドに閉じ込める。
+- **他人が書く行は、原則 sys に置く**（`database.md` の「trx は本人だけが読み書きする」と揃える）。trx に他人が書く行を作るなら、設計変更として扱う。
+- 他人のデータが別シャード（trx1〜3）にある場合、または trx と sys をまたぐ場合は、1つのトランザクションで両方をロックできない。まず別機能として設計する。この規約では決めない。
+- 行ロックは Repository のメソッドに閉じ込める（例: `selectByIdForUpdate()`）。`lockForUpdate()` を UseCase / Service / Controller に書かない。書き込みは従来どおり `setModel()` でキューに積む。trx の行をロックするメソッドは、`setConnection()` で接続を固定する。`_BaseRepository` が `connection` と `connectionExplicitlySet` を設定し、明示すると自動シャード解決を止める。バッチ向けには `forgetCachedModels()` とセットで使う（`api/app/Console/Commands/Mailbox/DeleteExpiredCommand.php` が参考）。
+- 既存の `WalletItemMigrator`（`api/app/Domain/Item/Support/`）は、Domain 層で `lockForUpdate()` を呼び、`moveRow` が `DB::connection($connection)` も直書きしている（「Repository に閉じ込める」の例外）。バッチはメンテナンス中に流す運用に頼っている実例で、通常運用で流すなら上の `trx_item` の行を見直す。
+
 ## 8. ApiSession
 
 `api/app/Persistence/ApiSession.php`。リクエストで確定したコンテキストを持つ scoped なクラスで、`NexusSecurity\Contracts\PlayerSessionInterface` と `Nexus\Core\UnitOfWork\Contracts\PlayerSessionResolverInterface` の実装としてもバインドされている。

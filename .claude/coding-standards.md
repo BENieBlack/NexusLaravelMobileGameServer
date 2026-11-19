@@ -140,7 +140,14 @@ public function toArray(): array
 
 ## DTO / Result
 
-- UseCase の戻り値は Response（上の節）。`Domain/{Context}/DataTransferObjects/` には、Service と UseCase の間で受け渡す値だけを置く（`api/app/Domain/Auth/DataTransferObjects/SignInResult.php`）。`public readonly` のコンストラクタプロモーションだけで、メソッドを持たない。
+- UseCase の戻り値は Response（上の節）。Result（`Domain/{Context}/DataTransferObjects/{Name}Result`）は最後の手段。次の順で確かめる。
+  1. 戻り値はスカラー・Model・パッケージDTO・Collection・それらの配列で足りないか
+  2. Service のメソッドを、1 つの戻り値になるよう分割できないか（UseCase が組み合わせる）
+  3. Response の形を Service が先取りしていないか（API の形に整えるのは Response の責務）
+  4. 上で足りないときだけ Result を作る
+- Result を作ってよいのは、Service の戻り値を 1 つにできず、2 か所以上の呼び出し元があるとき。作らない例: 1 つの値を包むだけ／Response とほぼ同じ形／Result が別の Result を入れ子に持つ／Model で足りるのに写す。
+- 他コンテキストへ渡す戻り値は Result にしない。パッケージDTO（接尾辞なし）か、Contracts 配下の interface・DTO にする（architecture.md 4節）。Domain 側の Result は `ModuleBoundaryTest` により他コンテキストから参照できない。
+- 作る理由を docblock と PR 本文に書く（レビューで確認する）。形は `public readonly` のコンストラクタプロモーションだけで、メソッドを持たない。既存の `SignInResult` などは棚卸し待ち（Nexus の backlog）。
 - パッケージのDTOは `packages/*/src/DataTransferObjects/` に置き、サフィックスを付けない（DataTransferObjectNamingTest）。`private readonly` + `getXxx()` で書く（`packages/nexus-guild/src/DataTransferObjects/Guild.php`）。
 - Model からパッケージDTOへの変換は `App\Adapters\{Context}\{Dto}Adapter::toDto()` / `toDtoArray()`。
 

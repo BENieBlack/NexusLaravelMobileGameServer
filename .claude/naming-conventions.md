@@ -35,7 +35,7 @@
 | UseCase | `Domain/{Context}/UseCases/` | `{Action}UseCase` | `Gacha/DrawUseCase`, `InAppPurchase/BuyDiamondUseCase` |
 | Service | `Domain/{Context}/Services/` | `{Context}{役割}Service` | `GachaCostService`, `InAppPurchaseDiamondService` |
 | パッケージ契約の実装 | `Domain/{Context}/Services/` | `{契約名}Adapter` | `ItemGranterAdapter` |
-| Service と UseCase の間の値 | `Domain/{Context}/DataTransferObjects/` | `{Name}Result` | `SignInResult` |
+| Service と UseCase の間の値 | `Domain/{Context}/DataTransferObjects/` | `{Name}Result`（最後の手段。条件は coding-standards.md） | `SignInResult` |
 | パッケージDTO | `packages/*/src/DataTransferObjects/` | サフィックスなし | `Guild`, `FriendApply` |
 | Model→DTO 変換 | `api/app/Adapters/{Context}/` | `{Dto}Adapter` | `GuildAdapter` |
 | 公開API | `Domain/{Context}/Contracts/` | `{Name}Interface` | `ItemInventoryInterface` |

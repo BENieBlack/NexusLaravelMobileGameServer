@@ -41,11 +41,11 @@ QueryManager      Nexus\Core\UnitOfWork\Persistence\QueryManager（コミット�
 
 ### Responseの合成はControllerの責務
 
-ServiceもUseCaseもResponseを返さない。UseCaseの戻り値は次のいずれか。
+Serviceは Response を返さない。UseCaseの戻り値は次のいずれか（`execute()` に渡すコールバックが Response を返す）。
 
 - パッケージのDTO、またはその配列（例: `NexusGuild\DataTransferObjects\GuildApply`）
 - Eloquentモデル、またはそのCollection（既存モデルで足りる場合）
-- 複数の値を返す場合は `app/Domain/{Context}/DataTransferObjects/{Name}Result`
+- 複数の値を分けて返せない場合に限り `app/Domain/{Context}/DataTransferObjects/{Name}Result`（最後の手段。判断は `coding-standards.md` の「DTO / Result」）
 - 返す値が無ければ `void`
 
 `app/Domain` から `App\Http` を参照すると `ModuleBoundaryTest` が落ちる。`execute()` はコールバックが `App\Domain\_BaseResponse` 以外を返すと `LogicException` にする。
@@ -64,7 +64,7 @@ Domain/
     Services/             *Service、パッケージ契約を実装する *Adapter（ItemGranterAdapter など）
     Contracts/            他コンテキストへの公開API（4節）
     Responses/            UseCase ごとの *Response（handle() の戻り値。App\Domain\_BaseResponse を継承）
-    DataTransferObjects/  Service と UseCase の間で受け渡す値（SignInResult など）
+    DataTransferObjects/  Result の置き場（最後の手段。作る条件は coding-standards.md）
     Constants/            *Const
     Listeners/            ドメインイベントの受け手（5節）
     Support/              *ExceptionTranslator など、コンテキスト内の補助
